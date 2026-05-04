@@ -10,6 +10,8 @@ Validator: `npm run check:beta-score`
 
 KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a finding explicitly escalates to runtime visual verification.
 
+KandyDrops debug evidence is structured, fingerprinted, stored, and injected into deterministic audits. Runtime issues already detected by the app must become pre-catcher issue candidates before relying on manual bug reports. Support uses one unified inbox model, with admin routes able to list/read/reply to all support threads and users scoped only to their own threads. Debug evidence writes must never block user flows.
+
 ## Scoring Model
 
 Each domain starts at 100. Findings apply severity, confidence, blast-radius, and optional recency multipliers. Critical findings with confidence at or above 0.85 force the affected domain and overall status to `fail`; lower-confidence criticals become major escalations unless they are hardcoded content/security leaks.
@@ -74,9 +76,14 @@ Forbidden by default:
 
 If a finding needs one of those commands, record the escalation reason in the report instead of running it automatically.
 
+## Debug Evidence Injection
+
+`score:beta` includes a concise `debugEvidence` section when `agent/state/debug-evidence-index.generated.json` exists. The injected evidence is redacted and limited to the top 10 records per domain by severity, occurrence count, and recency. Public beta reports must not include support message bodies, emails, authorization tokens, or locked content URLs.
+
 ## Owners
 
 - Math and report shape: `src/lib/agent-score/core.ts`, `src/lib/agent-score/weights.ts`, `src/lib/agent-score/reporting.ts`
 - Deterministic scanners: `src/lib/agent-score/public-beta-scanner.ts`
 - Safe repairs: `src/lib/agent-score/autofix.ts`
 - CLI entrypoints: `scripts/agent/score-public-beta-readiness.ts`, `scripts/agent/repair-public-beta-safe.ts`, `scripts/agent/validate-public-beta-score.ts`
+- Debug evidence injection: `scripts/agent/inject-debug-evidence.ts`, `scripts/agent/load-debug-evidence-for-audit.ts`, `scripts/agent/precatch-runtime-issues.ts`

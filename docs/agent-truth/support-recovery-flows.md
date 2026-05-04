@@ -14,6 +14,10 @@ Support recovery must be evidence-first. Operators should be able to answer thre
 
 Do not invent balance, entitlement, notification, or account state from client reports. Recovery actions that affect money, access, notifications, or account status must be server-confirmed, admin-protected, and logged. If no product-safe action exists, the support note must say manual DB intervention is required and explain the risk.
 
+KandyDrops debug evidence is structured, fingerprinted, stored, and injected into deterministic audits. Runtime issues already detected by the app must become pre-catcher issue candidates before relying on manual bug reports. Support uses one unified inbox model, with admin routes able to list/read/reply to all support threads and users scoped only to their own threads. Debug evidence writes must never block user flows.
+
+Admin Support Workspace truth comes from the admin support API routes, not direct client Firestore listeners. The canonical inbox model is `support_threads/{threadId}` with nested `support_messages/{messageId}`. Admin routes may list/read/reply to all support threads after `auth: "admin"` and trusted-origin checks. User routes may list/read/reply only to the caller's own threads. Permission failures must produce human-readable operational copy and structured debug evidence.
+
 ## Operator Paths
 
 Use these primary admin surfaces:

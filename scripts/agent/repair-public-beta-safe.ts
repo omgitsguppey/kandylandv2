@@ -10,10 +10,24 @@ import {
   printPublicBetaScoreSummary,
   writePublicBetaScoreReport,
 } from "../../src/lib/agent-score/reporting";
+import { PUBLIC_BETA_DOMAIN_WEIGHTS } from "../../src/lib/agent-score/weights";
+import type { PublicBetaScoreReport } from "../../src/lib/agent-score/core";
+import { loadDebugEvidenceForAuditDomains } from "./load-debug-evidence-for-audit";
 
 const root = process.cwd();
 const apply = process.argv.includes("--apply");
-const before = buildPublicBetaReadinessReport({ root });
+
+function attachDebugEvidence(report: PublicBetaScoreReport): PublicBetaScoreReport {
+  return {
+    ...report,
+    debugEvidence: loadDebugEvidenceForAuditDomains([
+      ...Object.keys(PUBLIC_BETA_DOMAIN_WEIGHTS),
+      "support",
+    ], root, 10),
+  };
+}
+
+const before = attachDebugEvidence(buildPublicBetaReadinessReport({ root }));
 const plans = buildSafeAutofixPlans(before, root);
 
 console.log(`Safe public beta repair mode: ${apply ? "apply" : "dry-run"}`);
@@ -40,7 +54,7 @@ for (const plan of plans) {
 }
 
 const result = applySafeAutofixPlans(before, plans, root);
-const after = buildPublicBetaReadinessReport({ root, safeAutofixesApplied: result.applied });
+const after = attachDebugEvidence(buildPublicBetaReadinessReport({ root, safeAutofixesApplied: result.applied }));
 const newCriticals = after.findings.filter((finding) =>
   finding.severity === "critical" && !before.findings.some((existing) => existing.id === finding.id));
 
@@ -48,7 +62,7 @@ if (after.overallScore < before.overallScore || newCriticals.length > 0) {
   for (const [filePath, source] of originalFiles.entries()) {
     writeFileSync(join(root, filePath), source);
   }
-  const reverted = buildPublicBetaReadinessReport({ root, safeAutofixesApplied: 0 });
+  const reverted = attachDebugEvidence(buildPublicBetaReadinessReport({ root, safeAutofixesApplied: 0 }));
   writePublicBetaScoreReport(reverted, root);
   console.error("Safe repair reverted because score decreased or new critical findings appeared.");
   process.exit(1);

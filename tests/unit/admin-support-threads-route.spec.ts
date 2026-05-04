@@ -66,7 +66,7 @@ describe("admin support thread routes", () => {
         });
         mockState.handleApiError.mockImplementation((error: unknown) => NextResponse.json({
             error: error instanceof Error ? error.message : "error",
-        }, { status: 500 }));
+        }, { status: typeof (error as { status?: unknown }).status === "number" ? (error as { status: number }).status : 500 }));
     });
 
     it("lists support threads with summary counts", async () => {
@@ -119,7 +119,9 @@ describe("admin support thread routes", () => {
             new NextRequest("http://localhost/api/admin/support/threads/thread_1"),
             { params: Promise.resolve({ threadId: "thread_1" }) },
         );
+        const detailBody = await detailResponse.json();
         expect(detailResponse.status).toBe(200);
+        expect(detailBody.verification.module).toBe("admin_support_threads_threadId_GET");
 
         const replyResponse = await postAdminReply(
             new NextRequest("http://localhost/api/admin/support/threads/thread_1", {
@@ -147,5 +149,16 @@ describe("admin support thread routes", () => {
 
         expect(statusBody.thread.status).toBe("resolved");
         expect(mockState.updateSupportThreadStatus).toHaveBeenCalledWith("thread_1", "resolved");
+    });
+
+    it("non-admin cannot call admin support routes", async () => {
+        mockState.guardApiRequest.mockRejectedValueOnce(Object.assign(new Error("Admin access required"), { status: 403 }));
+
+        const response = await getAdminThreads(new NextRequest("http://localhost/api/admin/support/threads"));
+        const body = await response.json();
+
+        expect(response.status).toBe(403);
+        expect(body.error).toBe("Admin access required");
+        expect(mockState.listSupportThreadsForAdmin).not.toHaveBeenCalled();
     });
 });

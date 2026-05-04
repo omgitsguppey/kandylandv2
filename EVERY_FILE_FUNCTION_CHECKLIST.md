@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-03 Debug Evidence Pipeline And Support Permissions Coverage
+
+- [x] `src/lib/debug-evidence-contract.ts`, `src/lib/server/debug-evidence-store.ts`, and `src/app/api/debug/evidence/route.ts` own the structured debug evidence schema, hardcoded buckets, fingerprint rollups, redacted public summaries, and non-blocking same-origin client evidence ingest.
+- [x] `src/lib/client-error-reporting.ts`, `src/lib/server/route-diagnostics.ts`, and `src/lib/server/auth.ts` inject client issue reports, route diagnostics, and auth/permission failures into debug evidence without blocking user, support, admin, payment, auth, or content flows.
+- [x] `scripts/agent/inject-debug-evidence.ts`, `scripts/agent/load-debug-evidence-for-audit.ts`, `scripts/agent/precatch-runtime-issues.ts`, `scripts/agent/validate-debug-evidence-pipeline.ts`, `agent/state/debug-evidence-index.generated.json`, and `agent/state/precatch-runtime-issues.generated.json` provide redacted evidence indexing, deterministic audit injection, pre-catcher issue candidates, and focused validation.
+- [x] `src/hooks/useAdminSupportRealtime.ts`, `src/components/Admin/AdminSupportQueue.tsx`, admin/user support routes, `src/lib/server/support-threads.ts`, `firestore.rules`, support route tests, and support docs preserve the unified support inbox model: admin routes list/read/reply to all threads through verified APIs, while user routes remain scoped to the caller's own nested support messages.
+
 ## 2026-05-03 Mathematical Public Beta Score Coverage
 
 - [x] `src/lib/agent-score/core.ts`, `src/lib/agent-score/weights.ts`, and `src/lib/agent-score/reporting.ts` own the deterministic public beta score schema, domain weights, severity/confidence/blast-radius math, deduplication, command budget, report writing, and terminal summary.

@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-05-04T02:14:53.059Z",
+  "source": "unavailable",
+  "buckets": {
+    "evidence": "debug_evidence",
+    "rollups": "debug_evidence_rollups",
+    "runtimeWarnings": "runtime_warning_records"
+  },
+  "records": [],
+  "redacted": true,
+  "notes": [
+    "No live debug evidence was available in this local run. The artifact remains valid and redacted."
+  ]
+}

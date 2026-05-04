@@ -5,6 +5,7 @@ import {
   type ClientDiagnosticChannel,
   type ClientDiagnosticSeverity,
 } from "@/lib/client-diagnostics";
+import { getAnonymousVisitorId, getClientSessionId } from "@/lib/client-session";
 import { analyzeFirestoreClientIssue, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 export { buildFirestoreClientIssueDetail };
 
@@ -31,6 +32,71 @@ function buildDetail(
   };
 }
 
+function mapClientChannelToEvidenceCategory(channel: ClientDiagnosticChannel) {
+  switch (channel) {
+    case "ui":
+      return "layout";
+    case "firebase":
+    case "realtime":
+      return "firestore_rules";
+    case "payments":
+      return "wallet";
+    case "telemetry":
+      return "telemetry";
+    case "auth":
+      return "auth";
+    case "network":
+      return "network";
+    case "runtime":
+    case "error":
+      return "runtime";
+    case "notifications":
+      return "network";
+    default:
+      return "runtime";
+  }
+}
+
+function queueDebugEvidenceWrite(input: {
+  channel: ClientDiagnosticChannel;
+  message: string;
+  severity: ClientDiagnosticSeverity;
+  detail: Record<string, unknown>;
+}) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const payload = {
+    source: input.channel === "telemetry" ? "telemetry" : "client",
+    severity: input.severity === "error" ? "error" : input.severity,
+    category: mapClientChannelToEvidenceCategory(input.channel),
+    route: window.location.pathname,
+    component: typeof input.detail.component === "string" ? input.detail.component : undefined,
+    sessionId: getClientSessionId(),
+    anonymousVisitorId: getAnonymousVisitorId("unknown"),
+    message: input.message,
+    humanMessage: input.message,
+    technicalDetail: input.detail,
+  };
+
+  const send = () => {
+    fetch("/api/debug/evidence", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    }).catch(() => undefined);
+  };
+
+  if (typeof window.requestIdleCallback === "function") {
+    window.requestIdleCallback(send, { timeout: 2_000 });
+    return;
+  }
+
+  window.setTimeout(send, 0);
+}
+
 export function reportClientIssue(input: {
   channel: ClientDiagnosticChannel;
   message: string;
@@ -49,6 +115,12 @@ export function reportClientIssue(input: {
   }
 
   recordClientDiagnostic(input.channel, input.message, normalizedDetail, severity);
+  queueDebugEvidenceWrite({
+    channel: input.channel,
+    message: input.message,
+    severity,
+    detail: normalizedDetail,
+  });
 }
 
 export function reportStorageIssue(

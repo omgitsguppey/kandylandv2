@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T01:36:43.233Z",
+  "generatedAt": "2026-05-04T02:17:17.655Z",
   "overallScore": 98.71,
   "overallStatus": "clean",
   "domainScores": {
@@ -198,5 +198,16 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta deterministic score 98.71/100 (clean) with 4 deduped finding(s) and 0 safe autofix(es) available."
+  "summary": "Public beta deterministic score 98.71/100 (clean) with 4 deduped finding(s) and 0 safe autofix(es) available.",
+  "debugEvidence": {
+    "layout": [],
+    "hydration": [],
+    "economy": [],
+    "telemetry": [],
+    "contentProtection": [],
+    "orphanedLogic": [],
+    "accessibilityTouch": [],
+    "testingCoverage": [],
+    "support": []
+  }
 }

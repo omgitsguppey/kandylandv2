@@ -1,192 +1,204 @@
-import { useEffect, useState, useMemo } from "react";
-import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase-data";
-import { reportRealtimeIssue } from "@/lib/client-error-reporting";
-import { buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
-import { createAutoHealingObserver } from "@/lib/self-healing";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { authFetch } from "@/lib/authFetch";
 import {
-    SUPPORT_COLLECTIONS,
-    normalizeSupportThreadStatus,
-    normalizeSupportThreadCategory,
-    type SupportMessageRecord,
-    type SupportThreadRecord,
+  normalizeSupportThreadCategory,
+  normalizeSupportThreadStatus,
+  type SupportMessageRecord,
+  type SupportThreadRecord,
 } from "@/lib/support-readiness";
 
-type AdminSupportThreadRecord = SupportThreadRecord;
-
 type AdminSupportThreadListSummary = {
-    total: number;
-    openCount: number;
-    waitingOnUserCount: number;
-    resolvedCount: number;
+  total: number;
+  openCount: number;
+  waitingOnUserCount: number;
+  resolvedCount: number;
 };
 
-const THREAD_LIMIT = 200;
-const MESSAGE_LIMIT = 250;
+type AdminSupportThreadListResponse = {
+  success: boolean;
+  threads: SupportThreadRecord[];
+  summary?: Partial<AdminSupportThreadListSummary>;
+};
+
+type AdminSupportThreadDetailResponse = {
+  success: boolean;
+  thread: SupportThreadRecord | null;
+  messages: SupportMessageRecord[];
+};
+
+const EMPTY_SUMMARY: AdminSupportThreadListSummary = {
+  total: 0,
+  openCount: 0,
+  waitingOnUserCount: 0,
+  resolvedCount: 0,
+};
 
 function toNumber(value: unknown) {
-    if (typeof value === "number" && Number.isFinite(value)) return Math.trunc(value);
-    if (value && typeof value === "object" && "toMillis" in value && typeof (value as { toMillis?: unknown }).toMillis === "function") {
-        try { return Math.trunc((value as { toMillis: () => number }).toMillis()); } catch { return 0; }
+  return typeof value === "number" && Number.isFinite(value) ? Math.trunc(value) : 0;
+}
+
+function normalizeThread(thread: SupportThreadRecord): SupportThreadRecord {
+  return {
+    ...thread,
+    status: normalizeSupportThreadStatus(thread.status),
+    category: normalizeSupportThreadCategory(thread.category),
+    createdAt: toNumber(thread.createdAt),
+    updatedAt: toNumber(thread.updatedAt),
+    lastMessageAt: toNumber(thread.lastMessageAt),
+    messageCount: Math.max(0, toNumber(thread.messageCount)),
+  };
+}
+
+function normalizeSummary(summary: Partial<AdminSupportThreadListSummary> | undefined, threads: SupportThreadRecord[]) {
+  if (summary) {
+    return {
+      total: toNumber(summary.total),
+      openCount: toNumber(summary.openCount),
+      waitingOnUserCount: toNumber(summary.waitingOnUserCount),
+      resolvedCount: toNumber(summary.resolvedCount),
+    };
+  }
+
+  return threads.reduce<AdminSupportThreadListSummary>((acc, thread) => {
+    acc.total += 1;
+    if (thread.status === "waiting_on_user") {
+      acc.waitingOnUserCount += 1;
+    } else if (thread.status === "resolved" || thread.status === "closed") {
+      acc.resolvedCount += 1;
+    } else {
+      acc.openCount += 1;
     }
-    return 0;
+    return acc;
+  }, { ...EMPTY_SUMMARY });
 }
 
-function toStringValue(value: unknown) {
-    return typeof value === "string" ? value : "";
+function buildAdminSupportError(url: string, status: number, fallback?: string) {
+  if (status === 401 || status === 403) {
+    if (url.includes("/api/admin/support/threads/")) {
+      return new Error("Support message detail route returned forbidden.");
+    }
+    return new Error("Admin support thread read was blocked. Check admin role, support_threads rules, and admin support API route.");
+  }
+
+  if (url.includes("/api/admin/support/threads/")) {
+    return new Error(fallback || "Support thread detail failed for admin route.");
+  }
+
+  return new Error(fallback || "Support thread list failed for admin route.");
 }
 
-function toNullableString(value: unknown) {
-    const normalized = toStringValue(value).trim();
-    return normalized.length > 0 ? normalized : null;
-}
-
-function mapSupportThread(id: string, value: Record<string, unknown>): AdminSupportThreadRecord {
-    return {
-        id,
-        threadKey: toStringValue(value.threadKey),
-        userId: toStringValue(value.userId),
-        userEmail: toNullableString(value.userEmail),
-        userDisplayName: toNullableString(value.userDisplayName),
-        userHandle: toNullableString(value.userHandle),
-        status: normalizeSupportThreadStatus(value.status),
-        category: normalizeSupportThreadCategory(value.category),
-        channel: value.channel === "email" || value.channel === "feedback" || value.channel === "system" ? value.channel : "in_app",
-        subject: toNullableString(value.subject),
-        lastMessagePreview: toNullableString(value.lastMessagePreview),
-        messageCount: Math.max(0, toNumber(value.messageCount)),
-        unreadForUser: value.unreadForUser === true,
-        unreadForAdmin: value.unreadForAdmin === true,
-        sourcePath: toNullableString(value.sourcePath),
-        createdAt: toNumber(value.createdAt),
-        updatedAt: toNumber(value.updatedAt),
-        lastMessageAt: toNumber(value.lastMessageAt),
-    };
-}
-
-function mapSupportMessage(id: string, value: Record<string, unknown>): SupportMessageRecord {
-    return {
-        id,
-        threadId: toStringValue(value.threadId),
-        senderRole: value.senderRole === "admin" || value.senderRole === "system" ? value.senderRole : "user",
-        senderId: toNullableString(value.senderId),
-        senderLabel: toNullableString(value.senderLabel),
-        body: toStringValue(value.body),
-        createdAt: toNumber(value.createdAt),
-    };
+async function readAdminSupportJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const response = await authFetch(url, init);
+  const body = await response.json().catch(() => ({})) as T & { error?: string };
+  if (!response.ok) {
+    throw buildAdminSupportError(url, response.status, body.error);
+  }
+  return body;
 }
 
 export function useAdminSupportRealtime(selectedThreadId: string | null) {
-    const [threads, setThreads] = useState<AdminSupportThreadRecord[]>([]);
-    const [messages, setMessages] = useState<SupportMessageRecord[]>([]);
-    const [isLoadingThreads, setIsLoadingThreads] = useState(true);
-    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-    const [threadsError, setThreadsError] = useState<Error | null>(null);
-    const [messagesError, setMessagesError] = useState<Error | null>(null);
+  const mountedRef = useRef(true);
+  const [threads, setThreads] = useState<SupportThreadRecord[]>([]);
+  const [messages, setMessages] = useState<SupportMessageRecord[]>([]);
+  const [summary, setSummary] = useState<AdminSupportThreadListSummary>(EMPTY_SUMMARY);
+  const [isLoadingThreads, setIsLoadingThreads] = useState(true);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [threadsError, setThreadsError] = useState<Error | null>(null);
+  const [messagesError, setMessagesError] = useState<Error | null>(null);
 
-    // Threads Subscription
-    useEffect(() => {
-        let cancelled = false;
-        const q = query(
-            collection(db, SUPPORT_COLLECTIONS.threads),
-            orderBy("lastMessageAt", "desc"),
-            limit(THREAD_LIMIT)
-        );
-        const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
-            if (cancelled) return;
-            const mapped = snapshot.docs.map(doc => mapSupportThread(doc.id, doc.data() as Record<string, unknown>));
-            setThreads(mapped);
-            setIsLoadingThreads(false);
-            setThreadsError(null);
-        }, (error) => {
-            if (cancelled) return;
-            setThreadsError(error as Error);
-            setIsLoadingThreads(false);
-            control.triggerReconnect(error);
-        }), (error) => {
-            const issueDetail = buildFirestoreClientIssueDetail(error);
-            reportRealtimeIssue(`Admin support threads: ${issueDetail}`, error, { listener: "admin_support_threads" });
-        });
-        return () => {
-            cancelled = true;
-            control.cleanup();
-        };
-    }, []);
-
-    // Thread Messages Subscription
-    useEffect(() => {
-        let cancelled = false;
-        if (!selectedThreadId) {
-            // Avoid calling setState synchronously within an effect by deferring
-            setTimeout(() => {
-                setMessages([]);
-                setIsLoadingMessages(false);
-            }, 0);
-            return () => {
-                cancelled = true;
-            };
-        }
-
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setIsLoadingMessages(true);
-        // Ordering by createdAt is natively supported here without composite indexes because there are no where() filters
-        const q = query(
-            collection(db, SUPPORT_COLLECTIONS.threads, selectedThreadId, SUPPORT_COLLECTIONS.messages),
-            orderBy("createdAt", "asc")
-        );
-        const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
-            if (cancelled) return;
-            const mapped = snapshot.docs
-                .map(doc => mapSupportMessage(doc.id, doc.data() as Record<string, unknown>))
-                .slice(-MESSAGE_LIMIT);
-            setMessages(mapped);
-            setIsLoadingMessages(false);
-            setMessagesError(null);
-        }, (error) => {
-            if (cancelled) return;
-            setMessagesError(error as Error);
-            setIsLoadingMessages(false);
-            control.triggerReconnect(error);
-        }), (error) => {
-            const issueDetail = buildFirestoreClientIssueDetail(error);
-            reportRealtimeIssue(`Admin support messages: ${issueDetail}`, error, { listener: "admin_support_messages", threadId: selectedThreadId });
-        });
-        return () => {
-            cancelled = true;
-            control.cleanup();
-        };
-    }, [selectedThreadId]);
-
-    const summary = useMemo<AdminSupportThreadListSummary>(() => {
-        let openCount = 0;
-        let waitingOnUserCount = 0;
-        let resolvedCount = 0;
-
-        for (const thread of threads) {
-            if (thread.status === "open" || thread.status === "pending" || thread.status === "waiting_on_support") {
-                openCount++;
-            } else if (thread.status === "waiting_on_user") {
-                waitingOnUserCount++;
-            } else if (thread.status === "resolved" || thread.status === "closed") {
-                resolvedCount++;
-            }
-        }
-
-        return {
-            total: threads.length,
-            openCount,
-            waitingOnUserCount,
-            resolvedCount,
-        };
-    }, [threads]);
-
-    return {
-        threads,
-        messages,
-        summary,
-        isLoadingThreads,
-        isLoadingMessages,
-        threadsError,
-        messagesError,
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
     };
+  }, []);
+
+  const refreshThreads = useCallback(async () => {
+    setIsLoadingThreads(true);
+    try {
+      const body = await readAdminSupportJson<AdminSupportThreadListResponse>("/api/admin/support/threads?status=all");
+      const nextThreads = (body.threads ?? []).map(normalizeThread);
+      if (!mountedRef.current) {
+        return;
+      }
+      setThreads(nextThreads);
+      setSummary(normalizeSummary(body.summary, nextThreads));
+      setThreadsError(null);
+    } catch (error) {
+      if (!mountedRef.current) {
+        return;
+      }
+      setThreadsError(error instanceof Error ? error : new Error("Support thread list failed for admin route."));
+    } finally {
+      if (mountedRef.current) {
+        setIsLoadingThreads(false);
+      }
+    }
+  }, []);
+
+  const refreshMessages = useCallback(async () => {
+    if (!selectedThreadId) {
+      setMessages([]);
+      setMessagesError(null);
+      setIsLoadingMessages(false);
+      return;
+    }
+
+    setIsLoadingMessages(true);
+    try {
+      const body = await readAdminSupportJson<AdminSupportThreadDetailResponse>(`/api/admin/support/threads/${selectedThreadId}`);
+      if (!mountedRef.current) {
+        return;
+      }
+      setMessages(body.messages ?? []);
+      setMessagesError(null);
+      if (body.thread) {
+        const normalized = normalizeThread(body.thread);
+        setThreads((current) => {
+          const found = current.some((thread) => thread.id === normalized.id);
+          return found
+            ? current.map((thread) => thread.id === normalized.id ? normalized : thread)
+            : [normalized, ...current];
+        });
+      }
+    } catch (error) {
+      if (!mountedRef.current) {
+        return;
+      }
+      setMessagesError(error instanceof Error ? error : new Error("Support thread detail failed for admin route."));
+    } finally {
+      if (mountedRef.current) {
+        setIsLoadingMessages(false);
+      }
+    }
+  }, [selectedThreadId]);
+
+  const refreshAll = useCallback(async () => {
+    await refreshThreads();
+    await refreshMessages();
+  }, [refreshMessages, refreshThreads]);
+
+  useEffect(() => {
+    void refreshThreads();
+  }, [refreshThreads]);
+
+  useEffect(() => {
+    void refreshMessages();
+  }, [refreshMessages]);
+
+  const stableSummary = useMemo(() => summary, [summary]);
+
+  return {
+    threads,
+    messages,
+    summary: stableSummary,
+    isLoadingThreads,
+    isLoadingMessages,
+    threadsError,
+    messagesError,
+    refreshThreads,
+    refreshMessages,
+    refreshAll,
+  };
 }

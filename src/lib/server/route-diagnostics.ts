@@ -1,5 +1,8 @@
 import "server-only";
 
+import type { DebugEvidenceCategory } from "@/lib/debug-evidence-contract";
+import { recordDebugEvidence } from "@/lib/server/debug-evidence-store";
+
 import { recordAnalyticsPipelineFailure } from "./analytics-pipeline-health";
 import {
   recordServerDiagnostic,
@@ -88,6 +91,42 @@ export function inferDiagnosticChannel(context: string): ServerDiagnosticChannel
   return "runtime";
 }
 
+function inferDebugEvidenceCategory(context: string, channel: ServerDiagnosticChannel): DebugEvidenceCategory {
+  const normalizedContext = context.toLowerCase();
+
+  if (normalizedContext.includes("support")) {
+    return "support";
+  }
+  if (normalizedContext.includes("auth") || normalizedContext.includes("permission") || normalizedContext.includes("forbidden")) {
+    return "permissions";
+  }
+  if (normalizedContext.includes("chat")) {
+    return "chat";
+  }
+  if (normalizedContext.includes("drop") || normalizedContext.includes("viewer")) {
+    return "drops";
+  }
+  if (normalizedContext.includes("wallet") || normalizedContext.includes("paypal") || normalizedContext.includes("purchase") || channel === "commerce") {
+    return "wallet";
+  }
+  if (normalizedContext.includes("telemetry") || normalizedContext.includes("analytics") || channel === "analytics") {
+    return "telemetry";
+  }
+  if (normalizedContext.includes("firebase") || channel === "firebase") {
+    return "firestore_rules";
+  }
+  if (normalizedContext.includes("hydration")) {
+    return "hydration";
+  }
+  if (normalizedContext.includes("layout")) {
+    return "layout";
+  }
+  if (normalizedContext.includes("performance") || normalizedContext.includes("slow")) {
+    return "performance";
+  }
+  return "api_route";
+}
+
 function buildDiagnosticDetail(
   error: unknown,
   context: string,
@@ -132,6 +171,20 @@ export function recordRouteDiagnostic(input: RouteDiagnosticInput) {
     severity,
     message: input.message,
     detail: buildDiagnosticDetail(input.error, input.context, input.detail, {
+      actorRole: input.actorRole,
+      traceId: input.traceId,
+      moduleKey: input.moduleKey,
+    }),
+  });
+  void recordDebugEvidence({
+    source: input.context.toLowerCase().includes("admin") ? "admin" : "route",
+    severity: severity === "error" ? "error" : severity,
+    category: inferDebugEvidenceCategory(input.context, channel),
+    route: input.context,
+    component: input.moduleKey,
+    message: input.message,
+    humanMessage: input.message,
+    technicalDetail: buildDiagnosticDetail(input.error, input.context, input.detail, {
       actorRole: input.actorRole,
       traceId: input.traceId,
       moduleKey: input.moduleKey,

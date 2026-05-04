@@ -81,6 +81,17 @@ async function seedFirestore() {
       setDoc(doc(db, "runtime_warning_records/warning-1"), {
         lastSeenAt: 1710000000000,
       }),
+      setDoc(doc(db, "debug_evidence/evidence-1"), {
+        fingerprint: "dbg_support_denied",
+        category: "support",
+        lastSeenAt: 1710000000000,
+      }),
+      setDoc(doc(db, "debug_evidence_rollups/dbg_support_denied"), {
+        fingerprint: "dbg_support_denied",
+        category: "support",
+        occurrenceCount: 2,
+        lastSeenAt: 1710000000000,
+      }),
       setDoc(doc(db, "queue_job_heartbeats/job-1"), {
         updatedAtMs: 1710000000000,
       }),
@@ -219,6 +230,8 @@ describe("firestore.rules", () => {
     await assertSucceeds(getDocs(query(collection(db, "server_diagnostics"))));
     await assertSucceeds(getDocs(query(collection(db, "route_runtime_health"))));
     await assertSucceeds(getDocs(query(collection(db, "runtime_warning_records"))));
+    await assertSucceeds(getDocs(query(collection(db, "debug_evidence"))));
+    await assertSucceeds(getDocs(query(collection(db, "debug_evidence_rollups"))));
     await assertSucceeds(getDocs(query(collection(db, "queue_job_heartbeats"))));
     await assertSucceeds(getDocs(query(collection(db, "orchestration_repair_proposals"))));
   });
@@ -231,6 +244,8 @@ describe("firestore.rules", () => {
     await assertFails(getDocs(query(collection(db, "server_diagnostics"))));
     await assertFails(getDocs(query(collection(db, "route_runtime_health"))));
     await assertFails(getDocs(query(collection(db, "runtime_warning_records"))));
+    await assertFails(getDocs(query(collection(db, "debug_evidence"))));
+    await assertFails(getDocs(query(collection(db, "debug_evidence_rollups"))));
     await assertFails(getDocs(query(collection(db, "queue_job_heartbeats"))));
     await assertFails(getDocs(query(collection(db, "orchestration_repair_proposals"))));
   });
@@ -257,5 +272,7 @@ describe("firestore.rules", () => {
     await assertFails(setDoc(doc(db, "analytics_event_facts/event-new"), { eventName: "nope" }));
     await assertFails(setDoc(doc(db, "adminSettings/debugAssistant"), { enabled: false }));
     await assertFails(setDoc(doc(db, "runtime_warning_records/warning-new"), { lastSeenAt: 1710000000000 }));
+    await assertFails(setDoc(doc(db, "debug_evidence/evidence-new"), { lastSeenAt: 1710000000000 }));
+    await assertFails(setDoc(doc(db, "debug_evidence_rollups/rollup-new"), { lastSeenAt: 1710000000000 }));
   });
 });

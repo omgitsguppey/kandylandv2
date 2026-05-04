@@ -84,7 +84,7 @@ describe("support thread routes", () => {
         });
         mockState.handleApiError.mockImplementation((error: unknown) => NextResponse.json({
             error: error instanceof Error ? error.message : "error",
-        }, { status: 500 }));
+        }, { status: typeof (error as { status?: unknown }).status === "number" ? (error as { status: number }).status : 500 }));
     });
 
     it("lists the current user's support threads", async () => {
@@ -197,5 +197,19 @@ describe("support thread routes", () => {
 
         expect(statusBody.thread.status).toBe("resolved");
         expect(mockState.updateSupportThreadStatus).toHaveBeenCalledWith("thread_1", "resolved");
+    });
+
+    it("user cannot read another user's support thread", async () => {
+        mockState.getSupportThreadForUser.mockRejectedValueOnce(Object.assign(new Error("Forbidden"), { status: 403 }));
+
+        const response = await getThread(
+            new NextRequest("http://localhost/api/support/threads/thread_other"),
+            { params: Promise.resolve({ threadId: "thread_other" }) },
+        );
+        const body = await response.json();
+
+        expect(response.status).toBe(403);
+        expect(body.error).toBe("Forbidden");
+        expect(mockState.getSupportThreadForUser).toHaveBeenCalledWith("user_1", "thread_other");
     });
 });

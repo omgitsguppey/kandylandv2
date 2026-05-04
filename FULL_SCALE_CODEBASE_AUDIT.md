@@ -1,5 +1,44 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-03 #122] PRE: Debug Evidence Pipeline And Support Permissions
+
+Scope started:
+- Building a structured debug evidence pipeline for runtime/client/server/admin findings, audit evidence injection, deterministic pre-catcher issue candidates, and support permission/admin visibility repair.
+- Required outputs: shared debug evidence contract/store, evidence injection and pre-catcher scripts, generated evidence/precatch state artifacts, package scripts, support admin list/detail/reply verification, focused tests/validators, source-of-truth docs, commit, and push.
+- This pass must preserve support privacy scoping, avoid broad browser audit tooling, avoid polling/realtime listener additions, and avoid payment/auth/unlock enforcement changes.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, surface matrix, source-of-truth map, shared component ownership, full governance files, and adjacency traces for `src/lib/client-error-reporting.ts`, `src/lib/server/support-threads.ts`, and `src/app/api/admin/support/threads/route.ts` were consulted.
+- Source-of-truth map marks support thread ownership as unknown, so this pass must verify the runtime code and Firestore rules directly before changing support behavior.
+
+Doctrine:
+- KandyDrops debug evidence is structured, fingerprinted, stored, and injected into deterministic audits. Runtime issues already detected by the app must become pre-catcher issue candidates before relying on manual bug reports. Support uses one unified inbox model, with admin routes able to list/read/reply to all support threads and users scoped only to their own threads. Debug evidence writes must never block user flows.
+
+Scope completed:
+- Added `src/lib/debug-evidence-contract.ts`, `src/lib/server/debug-evidence-store.ts`, and `/api/debug/evidence` for structured evidence records, hardcoded buckets, fingerprint rollups, redacted public summaries, and non-blocking client evidence ingest.
+- Wired `reportClientIssue`, route diagnostics, and API auth/permission errors into debug evidence without blocking runtime flows. Support permission failures now produce structured evidence with human-readable operational messages.
+- Added `scripts/agent/inject-debug-evidence.ts`, `scripts/agent/load-debug-evidence-for-audit.ts`, `scripts/agent/precatch-runtime-issues.ts`, generated debug/precatch artifacts, package scripts, and public beta score `debugEvidence` injection.
+- Repaired Admin Support Workspace visibility by moving the admin dashboard data path from client Firestore listeners to verified admin support API reads while preserving admin list/detail/reply routes and caller-scoped user support routes.
+- Extended Firestore rules/tests for debug evidence buckets and confirmed support thread/message rules still allow admin reads, owner reads, and deny other users/client writes.
+
+Current report:
+- `npm run score:beta` produced `98.71/100 (clean)`, 4 deduped findings, 0 safe autofixes, and an empty-but-valid `debugEvidence` injection set because no live debug evidence was available in the local run.
+- `npm run precheck:runtime-issues` produced 0 issue candidates from the empty local evidence index.
+
+Verification:
+- Passed: `npm run debug:evidence:inject`
+- Passed: `npm run precheck:runtime-issues`
+- Passed: `npm run check:debug-evidence-pipeline`
+- Passed: `npx vitest run --config vitest.contracts.config.ts tests/unit/debug-evidence-contract.spec.ts tests/unit/admin-support-threads-route.spec.ts tests/unit/support-threads-route.spec.ts`
+- Passed: `npm run test:rules:firestore`
+- Passed: `npm run score:beta`
+- Passed: `npm run check:beta-score`
+- Passed: `npm run repair:beta`
+- Passed: `npm run repair:beta -- --apply` (0 safe plans available/applied)
+- Passed: `npm run typecheck -- --pretty false`
+- Passed: `git diff --check`
+- Not run by design: Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits.
+
 ## [2026-05-03 #121] PRE: Mathematical Public Beta Scoring
 
 Scope started:

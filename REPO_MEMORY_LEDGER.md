@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-03 Debug evidence pipeline and support permissions
+
+KandyDrops debug evidence is structured, fingerprinted, stored, and injected into deterministic audits. Runtime issues already detected by the app must become pre-catcher issue candidates before relying on manual bug reports. Support uses one unified inbox model, with admin routes able to list/read/reply to all support threads and users scoped only to their own threads. Debug evidence writes must never block user flows. Canonical buckets are `debug_evidence`, `debug_evidence_rollups`, and existing `runtime_warning_records`; public generated audit artifacts must stay redacted. Admin Support Workspace uses verified admin support API routes for list/detail/reply rather than direct client Firestore listeners.
+
 ## 2026-05-03 Mathematical public beta scoring
 
 KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a finding explicitly escalates to runtime visual verification. The shared scoring model lives under `src/lib/agent-score/*`; it weights layout, hydration, economy, telemetry, content protection, orphaned logic, accessibility touch, and testing coverage findings with severity, confidence, recency, and blast-radius penalties. `repair:beta` is dry-run by default and can apply only exact high-confidence safe fixes outside payment/auth/economy/unlock/content enforcement.

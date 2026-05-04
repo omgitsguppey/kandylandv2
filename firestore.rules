@@ -128,6 +128,16 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /debug_evidence/{evidenceId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /debug_evidence_rollups/{rollupId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /queue_job_heartbeats/{jobId} {
       allow read: if isAdmin();
       allow write: if false;

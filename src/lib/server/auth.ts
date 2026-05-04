@@ -4,6 +4,7 @@ import { adminAuth, adminDb } from "./firebase-admin";
 import { buildNotFoundResponse, type ApiNotFoundResource } from "./not-found";
 import { RateLimitError, buildRateLimitResponse } from "./rate-limit";
 import { inferDiagnosticChannel, recordRouteFailure } from "./route-diagnostics";
+import { recordDebugEvidence } from "./debug-evidence-store";
 
 export interface AuthResult {
     uid: string;
@@ -86,6 +87,26 @@ export function handleApiError(error: unknown, context: string) {
         return buildRateLimitResponse(error);
     }
     if (error instanceof AuthError) {
+        const normalizedContext = context.toLowerCase();
+        void recordDebugEvidence({
+            source: normalizedContext.includes("admin") ? "admin" : "route",
+            severity: error.status >= 500 ? "error" : "warn",
+            category: normalizedContext.includes("support")
+                ? "support"
+                : error.status === 401 || error.status === 403
+                    ? "permissions"
+                    : "api_route",
+            route: context,
+            message: `${context} returned ${error.status}`,
+            humanMessage: normalizedContext.includes("support") && error.status === 403
+                ? "Support message detail route returned forbidden."
+                : `${context} returned ${error.status}.`,
+            technicalDetail: {
+                status: error.status,
+                errorName: error.name,
+                errorMessage: error.message,
+            },
+        });
         if (error.status === 404) {
             return buildNotFoundResponse(error.resource ?? "resource", error.message);
         }

@@ -70,6 +70,7 @@ export function AdminSupportQueue() {
         isLoadingMessages,
         threadsError,
         messagesError,
+        refreshAll,
     } = useAdminSupportRealtime(selectedThreadId);
 
     const filteredThreads = useMemo(() => {
@@ -89,8 +90,12 @@ export function AdminSupportQueue() {
         reportClientIssue({
             channel: "network",
             severity: "warn",
-            message: "Admin support queue failed to stream",
-            detail: { message: threadsError.message },
+            message: "Support thread list failed for admin route.",
+            detail: {
+                route: "/api/admin/support/threads",
+                component: "AdminSupportQueue",
+                message: threadsError.message,
+            },
         });
     }, [threadsError]);
 
@@ -99,10 +104,15 @@ export function AdminSupportQueue() {
         reportClientIssue({
             channel: "network",
             severity: "warn",
-            message: "Admin support messages failed to stream",
-            detail: { message: messagesError.message },
+            message: "Support message detail route failed for admin dashboard.",
+            detail: {
+                route: selectedThreadId ? `/api/admin/support/threads/${selectedThreadId}` : "/api/admin/support/threads/[threadId]",
+                component: "AdminSupportQueue",
+                threadId: selectedThreadId,
+                message: messagesError.message,
+            },
         });
-    }, [messagesError]);
+    }, [messagesError, selectedThreadId]);
 
     useEffect(() => {
         if (!filteredThreads.length) {
@@ -130,6 +140,7 @@ export function AdminSupportQueue() {
                 method: "POST",
                 body: JSON.stringify({ message: reply }),
             });
+            await refreshAll();
             setReply("");
             toast.success("Support reply sent.");
         } catch (error) {
@@ -138,7 +149,12 @@ export function AdminSupportQueue() {
                 channel: "network",
                 severity: "error",
                 message: "Admin support reply failed",
-                detail: { message: messageText },
+                detail: {
+                    route: `/api/admin/support/threads/${selectedThreadId}`,
+                    component: "AdminSupportQueue",
+                    threadId: selectedThreadId,
+                    message: messageText,
+                },
             });
             toast.error(messageText);
         } finally {
@@ -155,6 +171,7 @@ export function AdminSupportQueue() {
                 method: "PATCH",
                 body: JSON.stringify({ status }),
             });
+            await refreshAll();
             toast.success("Support status updated.");
         } catch (error) {
             const messageText = error instanceof Error ? error.message : "Support status update failed.";
@@ -162,7 +179,13 @@ export function AdminSupportQueue() {
                 channel: "network",
                 severity: "error",
                 message: "Admin support status update failed",
-                detail: { message: messageText },
+                detail: {
+                    route: `/api/admin/support/threads/${selectedThreadId}`,
+                    component: "AdminSupportQueue",
+                    threadId: selectedThreadId,
+                    status,
+                    message: messageText,
+                },
             });
             toast.error(messageText);
         } finally {
@@ -180,7 +203,7 @@ export function AdminSupportQueue() {
                     compact
                     actions={(
                         <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-100">
-                            Realtime Active
+                            API Verified
                         </span>
                     )}
                 />

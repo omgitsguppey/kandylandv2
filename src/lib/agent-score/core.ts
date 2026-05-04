@@ -4,6 +4,7 @@ import {
   PUBLIC_BETA_SEVERITY_PENALTIES,
   PUBLIC_BETA_STATUS_THRESHOLDS,
 } from "./weights";
+import type { DebugEvidenceAuditSummary } from "../debug-evidence-contract";
 
 export type PublicBetaDomain = keyof typeof PUBLIC_BETA_DOMAIN_WEIGHTS;
 export type PublicBetaSeverity = keyof typeof PUBLIC_BETA_SEVERITY_PENALTIES;
@@ -55,6 +56,7 @@ export type PublicBetaScoreReport = {
     forbiddenCommands: string[];
     maxCommands: number;
   };
+  debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
   summary: string;
 };
 
