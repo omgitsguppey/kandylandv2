@@ -58,6 +58,19 @@ for (const expected of [
 }
 
 for (const expected of [
+  "function TimerWithProgress",
+  "w-auto max-w-[92px]",
+]) {
+  requireIncludes(featuredCarousel, expected, "Featured carousel compact timer pill");
+}
+for (const banned of [
+  "LifetimeProgressBar",
+  "w-[104px]",
+]) {
+  requireNotIncludes(featuredCarousel, banned, "Featured carousel timer visual clutter");
+}
+
+for (const expected of [
   "getFeaturedSocialProof",
   "totalUnwraps > 10",
   "getDropViewCount",
@@ -119,6 +132,12 @@ for (const banned of [
   "canvas.getContext",
 ]) {
   requireNotIncludes(featuredCarousel + dropCardParts + titleMarquee, banned, "Featured polish must not sample image pixels");
+}
+for (const banned of [
+  "ResizeObserver",
+  "MutationObserver",
+]) {
+  requireNotIncludes(featuredCarousel + dropCardParts, banned, "Featured carousel polish must not add observers");
 }
 
 for (const expected of [
