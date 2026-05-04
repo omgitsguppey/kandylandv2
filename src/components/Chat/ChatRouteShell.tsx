@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import {
-    USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
     USER_MOBILE_CHAT_VIEWPORT_HEIGHT,
 } from "@/lib/user-mobile-shell";
 
@@ -49,9 +48,7 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
             mainElement.style.height = USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
             mainElement.style.maxHeight = USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
             mainElement.style.minHeight = "0";
-            mainElement.style.paddingBottom = compactViewportQuery.matches
-                ? `var(--user-mobile-chat-bottom-reserved-height, ${USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT})`
-                : "0px";
+            mainElement.style.paddingBottom = "0px";
 
             if (window.scrollY !== 0) {
                 window.scrollTo(0, 0);

@@ -76,9 +76,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const shouldTrackDeepAnalytics = true;
     const shouldEnablePwaRuntime = !isAdminRoute;
     const shouldReserveMobileBottomNav = shouldShowPublicChrome && !isLegalRoute && !isChatRoute;
-    const mobileBottomNavReservedHeight = isChatRoute
-        ? USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT
-        : shouldReserveMobileBottomNav
+    const mobileBottomNavReservedHeight = shouldReserveMobileBottomNav
             ? USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT
             : "0px";
     const mobileShellStyle = {

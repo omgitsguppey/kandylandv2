@@ -71,6 +71,7 @@ import {
     CHAT_LIST_CONTROLS_BOTTOM_OFFSET,
     CHAT_LIST_SCROLL_PADDING_BOTTOM,
     CHAT_THREAD_COMPOSER_PADDING_BOTTOM,
+    USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET,
     USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
     USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
 } from "@/lib/user-mobile-shell";
@@ -1067,6 +1068,7 @@ export function ChatExperience() {
             chatThreadUsesSharedBottomNavContract: true,
             bottomNavReservedHeight: USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
             chatBottomReservedHeight: USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
+            chatBottomNavSafeOffset: USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET,
             safeAreaBottomAppliedAt: "user-mobile-shell",
             safeAreaBottomApplied: true,
             duplicateSafeAreaBottomDetected: false,
@@ -2732,7 +2734,7 @@ export function ChatExperience() {
                                     {composerSummary ? (
                                         <div className="mt-1.5 max-h-[18px] truncate text-[13px] leading-[18px] text-[#7f8087]">{composerSummary}</div>
                                     ) : null}
-                                    <div ref={chatThreadComposerControlRef} className="mt-1.5 flex items-center gap-2">
+                                    <div ref={chatThreadComposerControlRef} className="mt-1.5 flex max-h-12 items-center gap-2">
                                         <div ref={attachmentMenuRef} className="relative shrink-0">
                                             <button
                                                 type="button"
@@ -2795,14 +2797,14 @@ export function ChatExperience() {
                                                 }}
                                             />
                                         </div>
-                                        <div className="flex min-h-12 flex-1 items-center gap-2 rounded-[1.65rem] bg-[#121214] py-1 pl-4 pr-1 ring-1 ring-white/8">
+                                        <div className="flex h-12 max-h-12 flex-1 items-center gap-2 rounded-[1.65rem] bg-[#121214] py-1 pl-4 pr-1 ring-1 ring-white/8">
                                             <textarea
                                                 value={composerText}
                                                 onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
                                                 onKeyDown={handleComposerKeyDown}
                                                 rows={1}
                                                 placeholder={selectedThread.viewerRole === "creator" ? "Reply..." : "Message"}
-                                                className="block max-h-32 min-h-[24px] w-full resize-none self-center bg-transparent py-0 text-[16px] leading-6 text-white placeholder:text-[#5d5e66] focus:outline-none sm:text-[14px]"
+                                                className="block max-h-6 min-h-[24px] w-full resize-none self-center overflow-y-auto bg-transparent py-0 text-[16px] leading-6 text-white placeholder:text-[#5d5e66] focus:outline-none sm:text-[14px]"
                                             />
                                             <button
                                                 type="button"

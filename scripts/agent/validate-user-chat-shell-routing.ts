@@ -68,6 +68,7 @@ for (const needle of [
   "CHAT_COMPACT_THREAD_LIST_PANEL_CLASSNAME",
   "CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME",
   "USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT",
+  "USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET",
   "USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT",
   "CHAT_LIST_SCROLL_PADDING_BOTTOM",
   "CHAT_LIST_CONTROL_HEIGHT",
@@ -123,7 +124,7 @@ for (const needle of [
   "USER_MOBILE_CHAT_VIEWPORT_HEIGHT",
   "mainElement.style.height = USER_MOBILE_CHAT_VIEWPORT_HEIGHT",
   "mainElement.style.boxSizing = \"border-box\"",
-  "var(--user-mobile-chat-bottom-reserved-height",
+  "mainElement.style.paddingBottom = \"0px\"",
   "--chat-visual-viewport-height",
   "min-h-0",
 ]) {
@@ -139,20 +140,21 @@ for (const needle of [
   "USER_MOBILE_CHAT_TOP_GAP",
   "USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT",
   "USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT",
+  "USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET",
   "USER_MOBILE_CHAT_CONTROL_GAP",
   "USER_MOBILE_CHAT_VIEWPORT_HEIGHT",
   "USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT",
-  "USER_MOBILE_CHAT_COMPOSER_BOTTOM_PADDING",
   "CHAT_LIST_CONTROL_HEIGHT",
-  "CHAT_LIST_CONTROLS_BOTTOM_OFFSET = USER_MOBILE_CHAT_CONTROL_GAP",
+  "CHAT_LIST_CONTROLS_BOTTOM_OFFSET = USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET",
   "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = CHAT_LIST_CONTROLS_BOTTOM_OFFSET",
   "CHAT_LIST_SCROLL_PADDING_BOTTOM = `calc(${CHAT_LIST_CONTROLS_BOTTOM_OFFSET} + ${CHAT_LIST_CONTROL_HEIGHT} + ${USER_MOBILE_CHAT_CONTROL_GAP})`",
   "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET",
-  "CHAT_THREAD_COMPOSER_PADDING_BOTTOM = USER_MOBILE_CHAT_COMPOSER_BOTTOM_PADDING",
+  "CHAT_THREAD_COMPOSER_PADDING_BOTTOM = USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET",
 ]) {
   requireIncludes(spacing, needle, "Shared user mobile shell spacing");
 }
 requireNotIncludes(spacing, "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = \"0px\"", "Shared user mobile shell spacing");
+requireIncludes(coreLayout, "const mobileBottomNavReservedHeight = shouldReserveMobileBottomNav", "Chat route shell ownership");
 requireIncludes(coreLayout, "data-user-mobile-shell-route={isChatRoute ? \"chat-owned\"", "Chat route shell ownership");
 requireIncludes(coreLayout, "\"--root-shell-top-spacing\": USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT", "Chat route shell ownership");
 requireIncludes(coreLayout, "\"--user-mobile-chat-bottom-reserved-height\": USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT", "Chat route shell ownership");
