@@ -1,6 +1,7 @@
 "use client";
 
 // Legacy fallback only. Locked Drop preview ownership moved to /drops/[id]/preview.
+// Do not wire new canonical preview entry points to this modal.
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -358,6 +359,8 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
           <Dialog.Content
             className="pointer-events-auto w-full max-w-2xl max-h-full overflow-hidden rounded-t-[2.5rem] sm:rounded-3xl bg-[#0A0A0F] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(164,118,255,0.15),rgba(0,0,0,0))] border border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.55)] focus:outline-none relative ring-1 ring-white/5"
             aria-describedby={undefined}
+            data-drop-preview-modal-mode="legacy-fallback"
+            data-drop-preview-legacy-fallback="true"
           >
             <Dialog.Title className="sr-only">Preview Drop</Dialog.Title>
             <div className="flex h-full max-h-[92vh] flex-col">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     Loader2,
     Lock,
@@ -83,6 +83,9 @@ export default function CreatorProfileClient() {
     const [creatingBooking, setCreatingBooking] = useState(false);
     const [moduleState, setModuleState] = useState<Record<ExperienceModuleKey, UiContinuityModuleState>>(DEFAULT_MODULE_STATE);
     const lastTrackedBroadcastKeyRef = useRef<string>("");
+    const handleCreatorDropPreview = useCallback((drop: Drop) => {
+        router.push(`/drops/${encodeURIComponent(drop.id)}/preview?source_component=creator_profile_drop_grid`);
+    }, [router]);
 
     useEffect(() => {
         if (!username) {
@@ -858,7 +861,7 @@ export default function CreatorProfileClient() {
                                                     : ""
                                             }
                                         >
-                                            <DropGrid drops={drops} onSelectDrop={() => {}} />
+                                            <DropGrid drops={drops} onSelectDrop={handleCreatorDropPreview} />
                                         </div>
                                     </div>
                                 ) : (
