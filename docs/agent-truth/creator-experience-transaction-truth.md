@@ -52,6 +52,40 @@ Duplicate retry behavior:
 - Do not create a second creator accrual.
 - Do not create a second fan-facing request, booking, or message.
 
+## Fan Pass Paid-Source Truth
+
+Fan Pass is a paid-source GumDrops subscription. Daily/task/reward GumDrops cannot start or renew Fan Pass. Paid package bonus GumDrops count as paid-source only if credited to purchased balance by wallet capture truth. Expected Fan Pass failures must return typed safe errors, never generic internal server errors.
+
+Fan Pass subscribe must:
+
+- compute price server-side with minimum `CREATOR_SUBSCRIPTION_MIN_GD`
+- spend through `spendCreatorExperienceGumdrops(balance, priceGd, "subscription")`
+- require purchased/paid-source balance only
+- write `purchasedOnly: true`
+- write `status: "active"`, `startedAt`, `renewAt`, `renewedAt`, and `autoRenew: true`
+- write `transactionDebug`, `userTransactionId`, `creatorAccrualId`, a completed user transaction, and a creator ledger accrual
+- include paid/reward balance before/after debug fields and `source_policy: "creator_subscription_paid_only"`
+
+Duplicate active subscribe attempts return success with `duplicatePrevented: true` and must not create a new transaction or accrual. Cancel sets `status: "canceled"`, `canceledAt`, and `autoRenew: false`, and it must not charge.
+
+Renewal readiness fields are allowed on new active subscription records:
+
+- `gracePeriodEndsAt: null`
+- `renewalFailureCount: 0`
+- `lastRenewalAttemptAt: null`
+- `renewalState: "active"`
+
+The actual renewal processor is a future task. Adding these fields does not start auto-renew execution.
+
+Fan Pass typed failure codes:
+
+- `creator_or_user_not_found`
+- `creator_unavailable`
+- `subscriptions_unavailable`
+- `insufficient_paid_gumdrops`
+- `invalid_subscription_request`
+- `unauthorized`
+
 ## Creator Share
 
 Creator accruals use `CREATOR_REVENUE_SHARE` through `buildCreatorAccrual`. The debug payload must expose:

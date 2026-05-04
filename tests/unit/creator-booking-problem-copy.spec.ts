@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getCreatorBookingProblemCopy } from "@/lib/problem-state-copy";
+import { getCreatorBookingProblemCopy, getCreatorSubscriptionProblemCopy } from "@/lib/problem-state-copy";
 
 describe("creator booking problem copy", () => {
   it("maps expected booking failure codes to safe user-facing messages", () => {
@@ -28,5 +28,25 @@ describe("creator booking problem copy", () => {
   it("does not use internal server error as the fallback booking copy", () => {
     expect(getCreatorBookingProblemCopy({ code: "unexpected" }))
       .toBe("Booking could not be completed. Try again or report the issue.");
+  });
+});
+
+describe("creator subscription problem copy", () => {
+  it("maps expected Fan Pass failure codes to safe user-facing messages", () => {
+    expect(getCreatorSubscriptionProblemCopy({
+      code: "insufficient_paid_gumdrops",
+      shortfallGd: 250,
+    })).toBe("You need 250 more paid GD to start this Fan Pass.");
+    expect(getCreatorSubscriptionProblemCopy({ code: "subscriptions_unavailable" }))
+      .toBe("Fan Pass is not available for this creator right now.");
+    expect(getCreatorSubscriptionProblemCopy({ code: "creator_unavailable" }))
+      .toBe("This creator is unavailable right now.");
+    expect(getCreatorSubscriptionProblemCopy({ code: "creator_or_user_not_found" }))
+      .toBe("We could not find this creator.");
+  });
+
+  it("does not use internal server error as the fallback Fan Pass copy", () => {
+    expect(getCreatorSubscriptionProblemCopy({ code: "unexpected" }))
+      .toBe("Fan Pass could not be updated. Try again or report the issue.");
   });
 });

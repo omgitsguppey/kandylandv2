@@ -15,6 +15,11 @@ export type CreatorBookingProblemPayload = {
   shortfallGd?: unknown;
 };
 
+export type CreatorSubscriptionProblemPayload = CreatorBookingProblemPayload & {
+  priceGd?: unknown;
+  paidBalanceGd?: unknown;
+};
+
 function normalizeReason(reason: unknown) {
   if (typeof reason === "string") {
     return reason.trim();
@@ -41,6 +46,14 @@ function readCreatorBookingProblemPayload(value: unknown): CreatorBookingProblem
   }
 
   return value as CreatorBookingProblemPayload;
+}
+
+function readCreatorSubscriptionProblemPayload(value: unknown): CreatorSubscriptionProblemPayload {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return value as CreatorSubscriptionProblemPayload;
 }
 
 function normalizePositiveInteger(value: unknown) {
@@ -268,6 +281,42 @@ export function getCreatorBookingProblemCopy(reason?: unknown) {
   }
 
   return "Booking could not be completed. Try again or report the issue.";
+}
+
+export function getCreatorSubscriptionProblemCopy(reason?: unknown) {
+  const payload = readCreatorSubscriptionProblemPayload(reason);
+  const code = normalizeProblemCode(payload.code);
+  const fallbackReason = normalizeReason(payload.message) || normalizeReason(payload.error) || normalizeReason(reason);
+  const normalized = `${code} ${fallbackReason}`.toLowerCase();
+
+  if (code === "insufficient_paid_gumdrops" || normalized.includes("insufficient") && normalized.includes("purchased")) {
+    const shortfallGd = normalizePositiveInteger(payload.shortfallGd);
+    return shortfallGd > 0
+      ? `You need ${shortfallGd} more paid GD to start this Fan Pass.`
+      : "You need more paid GD to start this Fan Pass.";
+  }
+
+  if (code === "subscriptions_unavailable" || normalized.includes("subscriptions are unavailable")) {
+    return "Fan Pass is not available for this creator right now.";
+  }
+
+  if (code === "creator_unavailable") {
+    return "This creator is unavailable right now.";
+  }
+
+  if (code === "creator_or_user_not_found") {
+    return "We could not find this creator.";
+  }
+
+  if (code === "invalid_subscription_request") {
+    return "Check the Fan Pass details and try again.";
+  }
+
+  if (code === "unauthorized") {
+    return "Sign in to start this Fan Pass.";
+  }
+
+  return "Fan Pass could not be updated. Try again or report the issue.";
 }
 
 export function getNotificationProblemCopy(reason?: unknown): ProblemStateCopy {

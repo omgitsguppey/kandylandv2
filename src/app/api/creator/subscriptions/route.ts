@@ -28,8 +28,87 @@ const subscriptionActionSchema = z.object({
     idempotencyKey: z.string().trim().max(180).optional(),
 });
 
+type CreatorSubscriptionProblemCode =
+    | "creator_or_user_not_found"
+    | "creator_unavailable"
+    | "subscriptions_unavailable"
+    | "insufficient_paid_gumdrops"
+    | "invalid_subscription_request"
+    | "unauthorized";
+
+type CreatorSubscriptionAction = z.infer<typeof subscriptionActionSchema>["action"];
+
+type CreatorSubscriptionProblemContext = {
+    creatorId?: string;
+    action?: CreatorSubscriptionAction;
+    priceGd?: number;
+    paidBalanceGd?: number;
+    shortfallGd?: number;
+};
+
 function buildSubscriptionId(userId: string, creatorId: string) {
     return `${userId}__${creatorId}`;
+}
+
+class CreatorSubscriptionProblem extends Error {
+    status: number;
+    code: CreatorSubscriptionProblemCode;
+    context: CreatorSubscriptionProblemContext;
+
+    constructor(status: number, code: CreatorSubscriptionProblemCode, message: string, context: CreatorSubscriptionProblemContext = {}) {
+        super(message);
+        this.name = "CreatorSubscriptionProblem";
+        this.status = status;
+        this.code = code;
+        this.context = context;
+    }
+}
+
+function toOptionalNumber(value: unknown) {
+    return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.round(value)) : undefined;
+}
+
+function buildSubscriptionProblemResponse(problem: CreatorSubscriptionProblem) {
+    return NextResponse.json({
+        success: false,
+        code: problem.code,
+        error: problem.message,
+        message: problem.message,
+        creatorId: problem.context.creatorId,
+        action: problem.context.action,
+        priceGd: toOptionalNumber(problem.context.priceGd),
+        paidBalanceGd: toOptionalNumber(problem.context.paidBalanceGd),
+        shortfallGd: toOptionalNumber(problem.context.shortfallGd),
+    }, { status: problem.status });
+}
+
+function isAuthUnauthorized(error: unknown) {
+    if (!(error instanceof Error)) {
+        return false;
+    }
+
+    const status = (error as { status?: unknown }).status;
+    return error.name === "AuthError" && status === 401;
+}
+
+function readDebugNumber(debug: unknown, key: string) {
+    if (!debug || typeof debug !== "object" || Array.isArray(debug)) {
+        return 0;
+    }
+
+    const value = (debug as Record<string, unknown>)[key];
+    return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function buildSubscriptionSourceTelemetry(debug: unknown) {
+    return {
+        paidBalanceBefore: readDebugNumber(debug, "paidBalanceBefore"),
+        paidBalanceAfter: readDebugNumber(debug, "paidBalanceAfter"),
+        rewardBalanceBefore: readDebugNumber(debug, "rewardBalanceBefore"),
+        rewardBalanceAfter: readDebugNumber(debug, "rewardBalanceAfter"),
+        purchasedOnly: true,
+        source_policy: "creator_subscription_paid_only",
+    };
 }
 
 async function GET_handler(request: NextRequest) {
@@ -81,13 +160,40 @@ async function POST_handler(request: NextRequest) {
             auth: "user",
             scopeToCaller: true,
         });
-        if (!caller || !adminDb) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        if (!caller) {
+            return buildSubscriptionProblemResponse(new CreatorSubscriptionProblem(
+                401,
+                "unauthorized",
+                "Sign in to start this Fan Pass.",
+            ));
+        }
+        if (!adminDb) {
+            throw new Error("Database not available");
         }
 
-        const { creatorId, action, idempotencyKey: rawIdempotencyKey } = subscriptionActionSchema.parse(await request.json());
+        let subscriptionRequest: z.infer<typeof subscriptionActionSchema>;
+        try {
+            subscriptionRequest = subscriptionActionSchema.parse(await request.json());
+        } catch {
+            return buildSubscriptionProblemResponse(new CreatorSubscriptionProblem(
+                400,
+                "invalid_subscription_request",
+                "Check the Fan Pass details and try again.",
+            ));
+        }
+
+        const { creatorId, action, idempotencyKey: rawIdempotencyKey } = subscriptionRequest;
+        const subscriptionContext: CreatorSubscriptionProblemContext = {
+            creatorId,
+            action,
+        };
         if (creatorId === caller.uid) {
-            return NextResponse.json({ error: "You cannot subscribe to yourself." }, { status: 400 });
+            return buildSubscriptionProblemResponse(new CreatorSubscriptionProblem(
+                400,
+                "invalid_subscription_request",
+                "You cannot subscribe to yourself.",
+                subscriptionContext,
+            ));
         }
 
         const paidEventName = CREATOR_EXPERIENCE_PAID_EVENTS.fan_pass;
@@ -133,13 +239,23 @@ async function POST_handler(request: NextRequest) {
             ]);
 
             if (!creatorSnap.exists || !userSnap.exists) {
-                throw new Error("Creator or user not found");
+                throw new CreatorSubscriptionProblem(
+                    404,
+                    "creator_or_user_not_found",
+                    "Creator or user was not found.",
+                    subscriptionContext,
+                );
             }
 
             const creatorData = creatorSnap.data() as Record<string, unknown>;
             const userData = userSnap.data() as Record<string, unknown>;
             if (!isCreatorRole(creatorData.role) || creatorData.status === "suspended" || creatorData.status === "banned") {
-                throw new Error("Creator unavailable");
+                throw new CreatorSubscriptionProblem(
+                    403,
+                    "creator_unavailable",
+                    "This creator is unavailable right now.",
+                    subscriptionContext,
+                );
             }
 
             const creatorSettings = creatorData.creatorSettings && typeof creatorData.creatorSettings === "object"
@@ -150,7 +266,12 @@ async function POST_handler(request: NextRequest) {
                 ? (creatorData.creatorRestrictions as Record<string, unknown>).subscriptionsRestricted === true
                 : false;
             if (!subscriptionsEnabled || subscriptionsRestricted) {
-                throw new Error("Subscriptions are unavailable for this creator");
+                throw new CreatorSubscriptionProblem(
+                    409,
+                    "subscriptions_unavailable",
+                    "Fan Pass is not available for this creator right now.",
+                    subscriptionContext,
+                );
             }
 
             if (action === "cancel") {
@@ -190,22 +311,41 @@ async function POST_handler(request: NextRequest) {
                         ? (subscriptionSnap.data() as Record<string, unknown>).creatorAccrualId as string
                         : recordIds.creatorAccrualId,
                     duplicatePrevented: true,
-                    debug: buildCreatorExperienceTransactionDebug({
-                        ...recordIds,
-                        creatorAccrualId: typeof (subscriptionSnap.data() as Record<string, unknown> | undefined)?.creatorAccrualId === "string"
-                            ? (subscriptionSnap.data() as Record<string, unknown>).creatorAccrualId as string
-                            : recordIds.creatorAccrualId,
-                        priceGd,
-                        idempotencyKey,
-                        duplicatePrevented: true,
-                        sourceAwareBalanceBefore: balance,
-                        sourceAwareBalanceAfter: balance,
-                    }),
+                    debug: {
+                        ...buildCreatorExperienceTransactionDebug({
+                            ...recordIds,
+                            creatorAccrualId: typeof (subscriptionSnap.data() as Record<string, unknown> | undefined)?.creatorAccrualId === "string"
+                                ? (subscriptionSnap.data() as Record<string, unknown>).creatorAccrualId as string
+                                : recordIds.creatorAccrualId,
+                            priceGd,
+                            idempotencyKey,
+                            duplicatePrevented: true,
+                            sourceAwareBalanceBefore: balance,
+                            sourceAwareBalanceAfter: balance,
+                        }),
+                        paidBalanceBefore: balance.purchased,
+                        paidBalanceAfter: balance.purchased,
+                        rewardBalanceBefore: balance.reward,
+                        rewardBalanceAfter: balance.reward,
+                        purchasedOnly: true,
+                        source_policy: "creator_subscription_paid_only",
+                    },
                 };
             }
             const spend = spendCreatorExperienceGumdrops(balance, priceGd, "subscription");
             if (!spend.ok) {
-                throw new Error(spend.error);
+                const shortfallGd = Math.max(0, priceGd - balance.purchased);
+                throw new CreatorSubscriptionProblem(
+                    402,
+                    "insufficient_paid_gumdrops",
+                    "You need more paid GumDrops to start this Fan Pass.",
+                    {
+                        ...subscriptionContext,
+                        priceGd,
+                        paidBalanceGd: balance.purchased,
+                        shortfallGd,
+                    },
+                );
             }
 
             const now = Date.now();
@@ -228,6 +368,18 @@ async function POST_handler(request: NextRequest) {
                 sourceAwareBalanceBefore: balance,
                 sourceAwareBalanceAfter: spend.next,
             });
+            const sourcePolicyDebug = {
+                paidBalanceBefore: balance.purchased,
+                paidBalanceAfter: spend.next.purchased,
+                rewardBalanceBefore: balance.reward,
+                rewardBalanceAfter: spend.next.reward,
+                purchasedOnly: true,
+                source_policy: "creator_subscription_paid_only",
+            };
+            const transactionDebug = {
+                ...debug,
+                ...sourcePolicyDebug,
+            };
 
             transaction.update(userRef, buildSourceAwareBalancePatch(spend.next));
             transaction.set(subscriptionRef, {
@@ -239,12 +391,16 @@ async function POST_handler(request: NextRequest) {
                 renewAt,
                 renewedAt: now,
                 autoRenew: true,
+                gracePeriodEndsAt: null,
+                renewalFailureCount: 0,
+                lastRenewalAttemptAt: null,
+                renewalState: "active",
                 purchasedOnly: true,
                 userTransactionId: transactionRef.id,
                 creatorAccrualId: ledgerRef.id,
                 idempotencyKey,
                 duplicatePrevented: false,
-                transactionDebug: debug,
+                transactionDebug,
             }, { merge: true });
             transaction.set(ledgerRef, {
                 ...accrual,
@@ -276,6 +432,7 @@ async function POST_handler(request: NextRequest) {
                     platformShareGd: debug.platformShareGd,
                     sourceAwareBalanceBefore: balance,
                     sourceAwareBalanceAfter: spend.next,
+                    ...sourcePolicyDebug,
                 },
             }));
 
@@ -285,7 +442,7 @@ async function POST_handler(request: NextRequest) {
                 renewAt,
                 creatorAccrualId: ledgerRef.id,
                 duplicatePrevented: false,
-                debug,
+                debug: transactionDebug,
             };
         });
 
@@ -301,6 +458,9 @@ async function POST_handler(request: NextRequest) {
                     userTransactionId: result.debug.userTransactionId,
                     creatorAccrualId: result.debug.creatorAccrualId,
                     creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
+                    extra: result.action === "subscribe"
+                        ? buildSubscriptionSourceTelemetry(result.debug)
+                        : undefined,
                 }),
                 creator_id: creatorId,
                 spend_gd: result.priceGd,
@@ -316,6 +476,7 @@ async function POST_handler(request: NextRequest) {
                     userTransactionId: result.debug.userTransactionId,
                     creatorAccrualId: result.debug.creatorAccrualId,
                     creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
+                    extra: buildSubscriptionSourceTelemetry(result.debug),
                 }), caller.uid)
                 : Promise.resolve(null),
             result.action === "subscribe" && result.creatorAccrualId
@@ -329,6 +490,7 @@ async function POST_handler(request: NextRequest) {
                         userTransactionId: result.debug.userTransactionId,
                         creatorAccrualId: result.creatorAccrualId,
                         creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
+                        extra: buildSubscriptionSourceTelemetry(result.debug),
                     }),
                     creator_id: creatorId,
                     source_type: "subscription",
@@ -341,10 +503,21 @@ async function POST_handler(request: NextRequest) {
         return NextResponse.json({
             success: true,
             action: result.action,
+            code: result.action === "subscribe" && result.duplicatePrevented ? "already_active" : undefined,
             duplicatePrevented: result.duplicatePrevented,
             debug: result.debug,
         });
     } catch (error) {
+        if (error instanceof CreatorSubscriptionProblem) {
+            return buildSubscriptionProblemResponse(error);
+        }
+        if (isAuthUnauthorized(error)) {
+            return buildSubscriptionProblemResponse(new CreatorSubscriptionProblem(
+                401,
+                "unauthorized",
+                "Sign in to start this Fan Pass.",
+            ));
+        }
         return handleApiError(error, "Creator.Subscriptions.POST");
     }
 }

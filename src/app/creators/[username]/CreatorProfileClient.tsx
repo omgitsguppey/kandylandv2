@@ -21,7 +21,7 @@ import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
 } from "@/lib/creator-experiences";
-import { getCreatorBookingProblemCopy } from "@/lib/problem-state-copy";
+import { getCreatorBookingProblemCopy, getCreatorSubscriptionProblemCopy } from "@/lib/problem-state-copy";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { resolveCreatorPublicExperienceState } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
@@ -559,25 +559,57 @@ export default function CreatorProfileClient() {
             return;
         }
 
+        const action = subscriptionActive ? "cancel" : "subscribe";
         setSubscribeLoading(true);
         try {
             const response = await authFetch("/api/creator/subscriptions", {
                 method: "POST",
                 body: JSON.stringify({
                     creatorId: creator.uid,
-                    action: subscriptionActive ? "cancel" : "subscribe",
+                    action,
                     idempotencyKey: buildCreatorExperienceClientIdempotencyKey(
                         subscriptionActive ? "fan-pass-cancel" : "fan-pass-start",
                         creator.uid,
                     ),
                 }),
             });
-            const result = await response.json();
+            const result = await response.json() as {
+                action?: "subscribe" | "cancel";
+                code?: string;
+                error?: string;
+                message?: string;
+                shortfallGd?: number;
+                priceGd?: number;
+                paidBalanceGd?: number;
+            };
             if (!response.ok) {
-                throw new Error(typeof result.error === "string" ? result.error : "Subscription update failed.");
+                const message = getCreatorSubscriptionProblemCopy(result);
+                reportClientIssue({
+                    channel: "payments",
+                    message: "Creator subscription action failed",
+                    error: new Error(message),
+                    detail: {
+                        code: result.code ?? "unknown",
+                        creatorId: creator.uid,
+                        action,
+                        selectedExperience: "subscriptions",
+                        route: "/api/creator/subscriptions",
+                    },
+                    consoleLabel: "[CreatorProfile] subscription action failed",
+                });
+                if (result.code === "insufficient_paid_gumdrops") {
+                    const preferredDrops = typeof result.shortfallGd === "number" && Number.isFinite(result.shortfallGd)
+                        ? result.shortfallGd
+                        : typeof result.priceGd === "number" && Number.isFinite(result.priceGd)
+                            ? result.priceGd
+                            : undefined;
+                    openPurchaseModal(preferredDrops);
+                }
+                toast.error(message);
+                return;
             }
 
-            const nextActive = !subscriptionActive;
+            const nextActive = result.action === "subscribe";
             setSubscriptionActive(nextActive);
             if (nextActive) {
                 await refreshCreatorBroadcasts(creator.uid);
@@ -592,11 +624,13 @@ export default function CreatorProfileClient() {
                 error,
                 detail: {
                     creatorId: creator.uid,
-                    action: subscriptionActive ? "cancel" : "subscribe",
+                    action,
+                    selectedExperience: "subscriptions",
+                    route: "/api/creator/subscriptions",
                 },
                 consoleLabel: "[CreatorProfile] subscription action failed",
             });
-            toast.error(error.message || "Subscription update failed.");
+            toast.error(getCreatorSubscriptionProblemCopy(error));
         } finally {
             setSubscribeLoading(false);
         }

@@ -100,9 +100,25 @@ const mockState = vi.hoisted(() => {
             sourceAwareBalanceBefore: input.sourceAwareBalanceBefore ?? null,
             sourceAwareBalanceAfter: input.sourceAwareBalanceAfter ?? null,
         })),
-        buildSourceAwareBalancePatch: vi.fn(() => ({ gumDropsBalance: 500 })),
-        readSourceAwareBalance: vi.fn(() => ({ total: 1200 })),
-        spendCreatorExperienceGumdrops: vi.fn(() => ({ ok: true, next: { total: 700 }, purchasedSpent: 500, rewardSpent: 0, ledgerSource: "purchased" })),
+        buildSourceAwareBalancePatch: vi.fn((next: { total: number; purchased: number; reward: number }) => ({
+            gumDropsBalance: next.total,
+            gumDropsPurchasedBalance: next.purchased,
+            gumDropsRewardBalance: next.reward,
+        })),
+        readSourceAwareBalance: vi.fn(() => ({ total: 1200, purchased: 1200, reward: 0 })),
+        spendCreatorExperienceGumdrops: vi.fn((balance: { total: number; purchased: number; reward: number }, amount: number, policyKey: string) => {
+            if (policyKey !== "subscription" || balance.purchased < amount) {
+                return { ok: false, error: "Insufficient purchased balance." };
+            }
+
+            return {
+                ok: true,
+                next: { total: balance.total - amount, purchased: balance.purchased - amount, reward: balance.reward },
+                purchasedSpent: amount,
+                rewardSpent: 0,
+                ledgerSource: "purchased",
+            };
+        }),
         buildCompletedGumdropTransaction: vi.fn(() => ({ id: "txn" })),
         trackServerEvent: vi.fn(),
         adminDb: {
@@ -248,11 +264,66 @@ describe("creator subscriptions route", () => {
 
         expect(response.status).toBe(200);
         expect(body.action).toBe("subscribe");
+        expect(mockState.spendCreatorExperienceGumdrops).toHaveBeenCalledWith(
+            { total: 1200, purchased: 1200, reward: 0 },
+            700,
+            "subscription",
+        );
         expect(mockState.documents.get("creator_subscriptions/fan_1__creator_1")).toMatchObject({
             status: "active",
             creatorId: "creator_1",
             userId: "fan_1",
             userTransactionId: "txn_fan_pass_fan_1_creator_1",
+            purchasedOnly: true,
+            gracePeriodEndsAt: null,
+            renewalFailureCount: 0,
+            lastRenewalAttemptAt: null,
+            renewalState: "active",
+            transactionDebug: {
+                paidBalanceBefore: 1200,
+                paidBalanceAfter: 500,
+                rewardBalanceBefore: 0,
+                rewardBalanceAfter: 0,
+                purchasedOnly: true,
+                source_policy: "creator_subscription_paid_only",
+            },
+        });
+    });
+
+    it("allows paid-pack bonus when it is credited into purchased balance", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
+        mockState.setDocument("users", "fan_1", {
+            role: "user",
+            gumDropsBalance: 550,
+            gumDropsPurchasedBalance: 550,
+            gumDropsRewardBalance: 0,
+        });
+        mockState.setDocument("users", "creator_1", {
+            role: "creator",
+            displayName: "Creator One",
+            creatorSettings: { subscriptionPriceGd: 550, subscriptionsEnabled: true },
+        });
+        mockState.readSourceAwareBalance.mockReturnValueOnce({ total: 550, purchased: 550, reward: 0 });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/subscriptions", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "creator_1",
+                action: "subscribe",
+                idempotencyKey: "fan-pass-paid-bonus",
+            }),
+        }));
+
+        expect(response.status).toBe(200);
+        expect(mockState.spendCreatorExperienceGumdrops).toHaveBeenCalledWith(
+            { total: 550, purchased: 550, reward: 0 },
+            550,
+            "subscription",
+        );
+        expect(mockState.documents.get("creator_subscriptions/fan_1__creator_1")).toMatchObject({
+            status: "active",
+            priceGd: 550,
+            purchasedOnly: true,
         });
     });
 
@@ -307,13 +378,49 @@ describe("creator subscriptions route", () => {
 
         expect(response.status).toBe(200);
         expect(body.action).toBe("cancel");
+        expect(mockState.spendCreatorExperienceGumdrops).not.toHaveBeenCalled();
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
         expect(mockState.documents.get("creator_subscriptions/fan_1__creator_1")).toMatchObject({
             status: "canceled",
             autoRenew: false,
         });
     });
 
-    it("rejects blocked or restricted creators", async () => {
+    it("starts a new paid Fan Pass after a canceled subscription", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
+        mockState.setDocument("users", "fan_1", { role: "user", gumDropsBalance: 1200 });
+        mockState.setDocument("users", "creator_1", {
+            role: "creator",
+            displayName: "Creator One",
+            creatorSettings: { subscriptionPriceGd: 700, subscriptionsEnabled: true },
+        });
+        mockState.setDocument("creator_subscriptions", "fan_1__creator_1", {
+            status: "canceled",
+            creatorId: "creator_1",
+            userId: "fan_1",
+            autoRenew: false,
+        });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/subscriptions", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "creator_1",
+                action: "subscribe",
+                idempotencyKey: "fan-pass-restart",
+            }),
+        }));
+
+        expect(response.status).toBe(200);
+        expect(mockState.spendCreatorExperienceGumdrops).toHaveBeenCalledTimes(1);
+        expect(mockState.documents.get("creator_subscriptions/fan_1__creator_1")).toMatchObject({
+            status: "active",
+            autoRenew: true,
+            userTransactionId: "txn_fan-pass-restart",
+        });
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(1);
+    });
+
+    it("returns typed unavailable errors for blocked or restricted creators", async () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
         mockState.setDocument("users", "fan_1", { role: "user" });
         mockState.setDocument("users", "creator_1", {
@@ -328,18 +435,19 @@ describe("creator subscriptions route", () => {
         }));
         const body = await response.json();
 
-        expect(response.status).toBe(500);
-        expect(body.error).toContain("Subscriptions are unavailable");
+        expect(response.status).toBe(409);
+        expect(body.code).toBe("subscriptions_unavailable");
+        expect(body.message).toBe("Fan Pass is not available for this creator right now.");
     });
 
-    it("rejects subscribe when purchased balance is insufficient", async () => {
+    it("returns typed unavailable errors for unavailable creators", async () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
         mockState.setDocument("users", "fan_1", { role: "user" });
         mockState.setDocument("users", "creator_1", {
             role: "creator",
+            status: "banned",
             creatorSettings: { subscriptionPriceGd: 900, subscriptionsEnabled: true },
         });
-        mockState.spendCreatorExperienceGumdrops.mockReturnValueOnce({ ok: false, error: "Insufficient purchased balance." } as any);
 
         const response = await POST(new NextRequest("http://localhost/api/creator/subscriptions", {
             method: "POST",
@@ -347,7 +455,60 @@ describe("creator subscriptions route", () => {
         }));
         const body = await response.json();
 
-        expect(response.status).toBe(500);
-        expect(body.error).toContain("Insufficient purchased balance");
+        expect(response.status).toBe(403);
+        expect(body.code).toBe("creator_unavailable");
+    });
+
+    it("returns typed insufficient paid GumDrops when reward balance alone cannot start Fan Pass", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
+        mockState.setDocument("users", "fan_1", {
+            role: "user",
+            gumDropsBalance: 900,
+            gumDropsPurchasedBalance: 0,
+            gumDropsRewardBalance: 900,
+        });
+        mockState.setDocument("users", "creator_1", {
+            role: "creator",
+            creatorSettings: { subscriptionPriceGd: 900, subscriptionsEnabled: true },
+        });
+        mockState.readSourceAwareBalance.mockReturnValueOnce({ total: 900, purchased: 0, reward: 900 });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/subscriptions", {
+            method: "POST",
+            body: JSON.stringify({ creatorId: "creator_1", action: "subscribe" }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(402);
+        expect(body).toMatchObject({
+            code: "insufficient_paid_gumdrops",
+            priceGd: 900,
+            paidBalanceGd: 0,
+            shortfallGd: 900,
+            creatorId: "creator_1",
+            action: "subscribe",
+        });
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("creator_ledger_accruals/"))).toHaveLength(0);
+    });
+
+    it("returns typed invalid and not-found subscription errors", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
+        const invalidResponse = await POST(new NextRequest("http://localhost/api/creator/subscriptions", {
+            method: "POST",
+            body: JSON.stringify({ creatorId: "", action: "subscribe" }),
+        }));
+        const invalidBody = await invalidResponse.json();
+        expect(invalidResponse.status).toBe(400);
+        expect(invalidBody.code).toBe("invalid_subscription_request");
+
+        mockState.setDocument("users", "fan_1", { role: "user" });
+        const missingResponse = await POST(new NextRequest("http://localhost/api/creator/subscriptions", {
+            method: "POST",
+            body: JSON.stringify({ creatorId: "creator_missing", action: "subscribe" }),
+        }));
+        const missingBody = await missingResponse.json();
+        expect(missingResponse.status).toBe(404);
+        expect(missingBody.code).toBe("creator_or_user_not_found");
     });
 });

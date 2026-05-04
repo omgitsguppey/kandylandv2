@@ -1,5 +1,30 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #140] PRE: Fan Pass Paid GumDrops Truth
+
+Scope started:
+- Hardening Fan Pass subscriptions so subscribe spends paid-source GumDrops only, expected subscription failures return typed safe responses, the client maps helpful Fan Pass copy, and renewal-readiness fields exist without adding a renewal processor.
+- Required surfaces: `src/app/api/creator/subscriptions/route.ts`, `src/app/creators/[username]/CreatorProfileClient.tsx`, `src/lib/problem-state-copy.ts`, focused subscription tests, targeted validator, and creator experience transaction docs.
+- This pass must not alter Fan Pass minimum price, creator revenue share, creator ledger accrual logic, transaction id/idempotency strategy, paid-only spend policy, wallet UI, or normal Drop unlock behavior.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI/vocabulary doctrine, source-of-truth map, subscription route, creator experience spend policy, source-aware ledger helpers, creator profile subscription handler, and focused subscription tests were consulted.
+
+Doctrine:
+- Fan Pass is a paid-source GumDrops subscription. Daily/task/reward GumDrops cannot start or renew Fan Pass. Paid package bonus GumDrops count as paid-source only if credited to purchased balance by wallet capture truth. Expected Fan Pass failures must return typed safe errors, never generic internal server errors.
+
+Scope completed:
+- Hardened `Creator.Subscriptions.POST` so subscribe uses the canonical `spendCreatorExperienceGumdrops(..., "subscription")` paid-source spend policy, preserves duplicate-active idempotency without double charge, and returns typed safe responses for invalid payloads, not found/unavailable creators, disabled Fan Pass, insufficient paid GumDrops, duplicate active subscriptions, and unauthorized requests.
+- Preserved Fan Pass price floor, creator revenue share, creator ledger accruals, transaction/idempotency identifiers, cancel-without-charge behavior, wallet UI, and normal Drop unlock behavior.
+- Added renewal-readiness fields (`gracePeriodEndsAt`, `renewalFailureCount`, `lastRenewalAttemptAt`, `renewalState`) to new subscription records without adding an auto-renew processor.
+- Added source-policy debug/telemetry fields for paid/reward balances before and after subscribe, updated client Fan Pass problem copy/refill behavior, added focused tests, validator, and source-of-truth docs.
+
+Verification:
+- `npm run check:fan-pass-gumdrops-truth` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/creator-subscriptions-route.spec.ts tests/unit/creator-booking-problem-copy.spec.ts tests/unit/gumdrop-ledger.spec.ts` passed with 26 tests.
+- `npm run typecheck` passed.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, full `npm run check`, or broad audits.
+
 ## [2026-05-04 #139] PRE: Creator Booking Typed Error Copy
 
 Scope started:

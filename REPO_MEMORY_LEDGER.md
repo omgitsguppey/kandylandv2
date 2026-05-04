@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Fan Pass paid-source GumDrops truth
+
+Fan Pass is a paid-source GumDrops subscription. Daily/task/reward GumDrops cannot start or renew Fan Pass. Paid package bonus GumDrops count as paid-source only if credited to purchased balance by wallet capture truth. Expected Fan Pass failures must return typed safe errors, never generic internal server errors. `src/app/api/creator/subscriptions/route.ts` keeps `spendCreatorExperienceGumdrops(balance, priceGd, "subscription")`, writes `purchasedOnly: true`, short-circuits duplicate active subscriptions before charging, keeps cancel no-charge, and adds renewal-readiness fields without running renewals. `src/lib/problem-state-copy.ts` owns `getCreatorSubscriptionProblemCopy(...)`; `npm run check:fan-pass-gumdrops-truth` validates this lane.
+
 ## 2026-05-04 Creator booking typed error truth
 
 Creator booking expected failures must never surface as generic internal server errors. Availability, missing booking-hour configuration, slot conflicts, paid-GD shortfalls, disabled booking lanes, and creator availability must return typed safe error codes with human-readable client copy. `src/app/api/creator/bookings/route.ts` aborts expected Firestore transaction failures through a typed booking problem response while preserving paid-only GumDrops spending, idempotency, creator accrual, and ledger writes for valid bookings. `src/lib/problem-state-copy.ts` owns `getCreatorBookingProblemCopy(...)`, and `npm run check:creator-booking-error-copy` validates that expected booking failures do not rely on plain thrown errors or user-facing internal-server fallbacks.
