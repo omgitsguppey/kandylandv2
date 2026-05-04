@@ -1,6 +1,14 @@
+import type {
+  BehavioralConfidenceLabel,
+} from "@/lib/behavioral/behavioral-confidence";
+import type {
+  BehavioralFreshnessState,
+  BehavioralTruthSource,
+} from "@/lib/behavioral/behavioral-truth-source";
+
 export type AdminUserMetricsSnapshotSource = "hot_cache" | "materialized" | "live_fallback";
 
-export type AdminUserMetricsFreshnessState = "live" | "stale" | "degraded" | "unavailable";
+export type AdminUserMetricsFreshnessState = BehavioralFreshnessState;
 
 export type AdminUserMetricsSnapshot = {
   totalUsers: number;
@@ -17,10 +25,17 @@ export type AdminUserMetricsSnapshot = {
   generatedAt: number;
   source: AdminUserMetricsSnapshotSource;
   freshnessState: AdminUserMetricsFreshnessState;
+  truthSource: BehavioralTruthSource;
+  confidenceScore: number;
+  confidenceLabel: BehavioralConfidenceLabel;
+  issues: string[];
 };
 
 export type AdminUserMetricsSnapshotMetadata = {
   snapshot: AdminUserMetricsSnapshot;
   sourceLabel: string;
   staleReason: string | null;
+  confidenceScore: number;
+  confidenceLabel: BehavioralConfidenceLabel;
+  issues: string[];
 };

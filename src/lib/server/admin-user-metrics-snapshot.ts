@@ -1,4 +1,5 @@
 import { buildCommerceMetricsFromRollup, buildEmptyCommerceMetrics } from "@/lib/admin-user-commerce";
+import { buildBehavioralTruthSummary } from "@/lib/behavioral/behavioral-truth-source";
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
 import type {
   AdminUserMetricsFreshnessState,
@@ -51,7 +52,6 @@ type SnapshotWatchSession = {
 };
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-const STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 
 function readMetric(raw: Record<string, unknown>, ...keys: string[]) {
   for (const key of keys) {
@@ -83,28 +83,6 @@ function toTimestampNumber(value: unknown) {
 
 function roundCurrency(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
-function resolveFreshnessState(input: {
-  generatedAt: number;
-  latestMetricAt: number;
-  hasAnyValue: boolean;
-  source: AdminUserMetricsSnapshotSource;
-  degraded?: boolean;
-}): AdminUserMetricsFreshnessState {
-  if (!input.hasAnyValue) {
-    return "unavailable";
-  }
-
-  if (input.degraded || input.source === "live_fallback") {
-    return "degraded";
-  }
-
-  if (input.latestMetricAt > 0 && input.generatedAt - input.latestMetricAt > STALE_AFTER_MS) {
-    return "stale";
-  }
-
-  return "live";
 }
 
 export function buildAdminUserMetricsSnapshot(input: {
@@ -145,6 +123,31 @@ export function buildAdminUserMetricsSnapshot(input: {
     : roundCurrency(analytics.reduce((sum, entry) => sum + (entry.grossRevenueUsd ?? 0), 0));
   const source = input.source ?? (input.commerceSummaryExists ? "hot_cache" : "live_fallback");
   const hasAnyValue = input.users.length > 0 || analytics.length > 0 || totalRevenueUsd > 0 || trackedPurchases > 0 || trackedUnwraps > 0;
+  const truthSummary = buildBehavioralTruthSummary({
+    scope: "admin_metrics",
+    hasValue: hasAnyValue,
+    ageMs: latestMetricAt > 0 ? Math.max(0, generatedAt - latestMetricAt) : Number.MAX_SAFE_INTEGER,
+    sampleCount: Math.max(input.users.length, analytics.length, watchRollup.validSessionCount, trackedPurchases, trackedUnwraps),
+    requiredFieldsPresent: [
+      input.users.length > 0,
+      analytics.length > 0,
+      trackedUnwraps >= 0,
+      trackedPurchases >= 0,
+      watchTimeMs >= 0,
+      totalRevenueUsd >= 0,
+    ].filter(Boolean).length,
+    requiredFieldsTotal: 6,
+    issues: [
+      ...(input.degraded ? ["admin_user_metrics_snapshot_degraded"] : []),
+      ...watchRollup.issues,
+    ],
+    hasMaterializedRollup: input.commerceSummaryExists === true,
+    hasEventFacts: analytics.length > 0 || watchRollup.validSessionCount > 0,
+    hasLiveFallback: source === "live_fallback",
+    materializedLabel: "analytics_commerce_rollup+analytics_watch_sessions",
+    eventFactsLabel: "analytics_users_rollup+analytics_watch_sessions",
+    liveFallbackLabel: "users+analytics_users_rollup_live_fallback",
+  });
   const snapshot: AdminUserMetricsSnapshot = {
     totalUsers: input.users.length,
     activeUsers: input.users.filter((user) => user.status === "active").length,
@@ -159,13 +162,11 @@ export function buildAdminUserMetricsSnapshot(input: {
     payingUsers: analytics.filter((entry) => (entry.purchaseCount ?? 0) > 0).length,
     generatedAt,
     source,
-    freshnessState: resolveFreshnessState({
-      generatedAt,
-      latestMetricAt,
-      hasAnyValue,
-      source,
-      degraded: input.degraded || watchRollup.issues.length > 0,
-    }),
+    freshnessState: truthSummary.freshnessState as AdminUserMetricsFreshnessState,
+    truthSource: truthSummary.source,
+    confidenceScore: truthSummary.confidenceScore,
+    confidenceLabel: truthSummary.confidenceLabel,
+    issues: truthSummary.issues,
   };
 
   return {
@@ -174,10 +175,13 @@ export function buildAdminUserMetricsSnapshot(input: {
       ? "users+analytics_users_rollup+analytics_commerce_rollup+analytics_watch_sessions"
       : "users+analytics_users_rollup_live_fallback+analytics_watch_sessions",
     staleReason: snapshot.freshnessState === "stale"
-      ? "Admin user metrics are showing the last known snapshot because recent metric freshness is older than 24h."
+      ? "Admin user metrics are showing the last known snapshot because recent metric freshness is older than 5m."
       : snapshot.freshnessState === "degraded"
-        ? watchRollup.issues[0]?.message ?? "Admin user metrics are visible, but at least one source is degraded or using fallback reads."
+        ? truthSummary.issues[0] ?? "Admin user metrics are visible, but at least one source is degraded or using fallback reads."
         : null,
+    confidenceScore: truthSummary.confidenceScore,
+    confidenceLabel: truthSummary.confidenceLabel,
+    issues: truthSummary.issues,
   };
 }
 

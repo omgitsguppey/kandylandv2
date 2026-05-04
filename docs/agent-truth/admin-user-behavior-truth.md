@@ -11,6 +11,7 @@ The admin user surfaces are allowed to load in lanes, but they are not allowed t
 
 - summary metrics come from the canonical admin user metrics snapshot
 - overview and User Management stay on the same snapshot contract
+- behavioral truth source order is shared: `materialized_rollup` -> `event_facts` -> `user_profile_fields` -> `live_fallback` -> `legacy_fallback`
 - compact metric cards keep the last usable value visible when freshness degrades
 - per-user behavior comes from the canonical user behavior rollup
 - watch time prefers watch-session rollups and labels `legacy_page_duration` when fallback is used

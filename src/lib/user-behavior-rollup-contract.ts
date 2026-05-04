@@ -1,15 +1,14 @@
-export type UserBehaviorRollupConfidence = "high" | "medium" | "low" | "unknown";
+import type {
+  BehavioralConfidenceLabel,
+} from "@/lib/behavioral/behavioral-confidence";
+import type {
+  BehavioralFreshnessState,
+  BehavioralTruthSource,
+} from "@/lib/behavioral/behavioral-truth-source";
 
-export type UserBehaviorRollupSource =
-  | "analytics_users_rollup"
-  | "analytics_user_daily"
-  | "analytics_event_facts"
-  | "analytics_viewer_session_facts"
-  | "watch_session_rollup"
-  | "legacy_page_duration"
-  | "transactions"
-  | "mixed"
-  | "unavailable";
+export type UserBehaviorRollupConfidence = BehavioralConfidenceLabel | "unknown";
+
+export type UserBehaviorRollupSource = BehavioralTruthSource;
 
 export type UserBehaviorRollupIssue = {
   code:
@@ -41,6 +40,9 @@ export type UserBehaviorRollup = {
   pushEnabled: boolean;
   lastSeenAt: number;
   confidence: UserBehaviorRollupConfidence;
+  confidenceScore: number;
   source: UserBehaviorRollupSource;
+  sourceLabel: string;
+  freshnessState: BehavioralFreshnessState;
   issues: UserBehaviorRollupIssue[];
 };

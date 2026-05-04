@@ -50,6 +50,8 @@ The scorer returns `validWatchMs`, `visibleMs`, `activeMs`, `playingMs`, `comple
 
 Behavioral intelligence must prefer watch-session rollups and label that source as `watch_session_rollup`. If no watch session exists for legacy history, page duration can support a fallback only when labeled `legacy_page_duration` with lower confidence.
 
+Within the broader behavioral truth hierarchy, watch-session rollups count as `event_facts` and must outrank any `legacy_fallback` page-duration recovery path.
+
 ## Validation
 
 Use `npm run check:watch-time-truth` plus the targeted watch scoring and watch-session route tests before broad audits. This lane is source and unit-test based; it must not require Playwright, Lighthouse, Cypress, high-frequency polling, or browser automation.

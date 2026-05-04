@@ -1,56 +1,14 @@
+import { buildBehavioralTruthSummary } from "@/lib/behavioral/behavioral-truth-source";
 import type {
   UserBehaviorRollup,
   UserBehaviorRollupConfidence,
   UserBehaviorRollupIssue,
-  UserBehaviorRollupSource,
 } from "@/lib/user-behavior-rollup-contract";
 
 import "server-only";
 
 function readNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
-}
-
-function resolveSource(input: {
-  hasRollup?: boolean;
-  hasDaily?: boolean;
-  hasFacts?: boolean;
-  hasSessionFacts?: boolean;
-  hasWatchSessions?: boolean;
-  hasLegacyPageDuration?: boolean;
-  hasTransactions?: boolean;
-}): UserBehaviorRollupSource {
-  const sourceCount = [
-    input.hasRollup,
-    input.hasDaily,
-    input.hasFacts,
-    input.hasSessionFacts,
-    input.hasWatchSessions,
-    input.hasLegacyPageDuration,
-    input.hasTransactions,
-  ].filter(Boolean).length;
-
-  if (sourceCount > 1) return "mixed";
-  if (input.hasRollup) return "analytics_users_rollup";
-  if (input.hasDaily) return "analytics_user_daily";
-  if (input.hasFacts) return "analytics_event_facts";
-  if (input.hasSessionFacts) return "analytics_viewer_session_facts";
-  if (input.hasWatchSessions) return "watch_session_rollup";
-  if (input.hasLegacyPageDuration) return "legacy_page_duration";
-  if (input.hasTransactions) return "transactions";
-  return "unavailable";
-}
-
-function resolveConfidence(input: {
-  source: UserBehaviorRollupSource;
-  issueCount: number;
-}): UserBehaviorRollupConfidence {
-  if (input.source === "unavailable") return "unknown";
-  if (input.source === "legacy_page_duration") return "low";
-  if (input.issueCount > 1) return "low";
-  if (input.issueCount === 1) return "medium";
-  if (input.source === "mixed" || input.source === "analytics_users_rollup") return "high";
-  return "medium";
 }
 
 export function buildUserBehaviorRollup(input: {
@@ -84,22 +42,29 @@ export function buildUserBehaviorRollup(input: {
     Math.round(readNumber(input.watchTimeMs) || readNumber(input.watchSecondsTotal) * 1000),
   );
   const authEvents = Math.max(0, Math.round(readNumber(input.authEvents)));
-  const source = resolveSource(input);
   const issues: UserBehaviorRollupIssue[] = [];
 
-  if (source === "unavailable") {
+  if (
+    input.hasRollup !== true &&
+    input.hasDaily !== true &&
+    input.hasFacts !== true &&
+    input.hasSessionFacts !== true &&
+    input.hasWatchSessions !== true &&
+    input.hasLegacyPageDuration !== true &&
+    input.hasTransactions !== true
+  ) {
     issues.push({
       code: "missing_behavior_sources",
       severity: "fail",
       message: "No canonical behavior rollup source is available for this user.",
       evidence: {
-        hasRollup: input.hasRollup === true,
-        hasDaily: input.hasDaily === true,
-        hasFacts: input.hasFacts === true,
-        hasSessionFacts: input.hasSessionFacts === true,
-        hasWatchSessions: input.hasWatchSessions === true,
-        hasLegacyPageDuration: input.hasLegacyPageDuration === true,
-        hasTransactions: input.hasTransactions === true,
+        hasRollup: Boolean(input.hasRollup),
+        hasDaily: Boolean(input.hasDaily),
+        hasFacts: Boolean(input.hasFacts),
+        hasSessionFacts: Boolean(input.hasSessionFacts),
+        hasWatchSessions: Boolean(input.hasWatchSessions),
+        hasLegacyPageDuration: Boolean(input.hasLegacyPageDuration),
+        hasTransactions: Boolean(input.hasTransactions),
       },
     });
   }
@@ -162,6 +127,67 @@ export function buildUserBehaviorRollup(input: {
     });
   });
 
+  const hasValue = Boolean(
+    readNumber(input.totalActions) > 0 ||
+    views > 0 ||
+    Math.round(readNumber(input.unwraps)) > 0 ||
+    watchTimeMs > 0 ||
+    Math.round(readNumber(input.purchasesCount)) > 0 ||
+    readNumber(input.revenueUsd) > 0 ||
+    authEvents > 0 ||
+    readNumber(input.lastSeenAt) > 0 ||
+    input.onboardingCompleted === true ||
+    input.pushEnabled === true
+  );
+  const truthSummary = buildBehavioralTruthSummary({
+    scope: "user_detail_behavior",
+    hasValue,
+    ageMs: readNumber(input.lastSeenAt) > 0 ? Math.max(0, Date.now() - readNumber(input.lastSeenAt)) : Number.MAX_SAFE_INTEGER,
+    sampleCount: Math.max(
+      0,
+      Math.round(readNumber(input.totalActions)),
+      views,
+      Math.round(readNumber(input.unwraps)),
+      Math.round(readNumber(input.purchasesCount)),
+      authEvents,
+    ),
+    requiredFieldsPresent: [
+      input.userId.length > 0,
+      readNumber(input.totalActions) >= 0,
+      views >= 0,
+      Math.round(readNumber(input.unwraps)) >= 0,
+      watchTimeMs >= 0,
+      Math.round(readNumber(input.purchasesCount)) >= 0,
+      readNumber(input.lastSeenAt) > 0,
+    ].filter(Boolean).length,
+    requiredFieldsTotal: 7,
+    issues,
+    hasMaterializedRollup: input.hasRollup === true || input.hasDaily === true,
+    hasEventFacts: input.hasFacts === true || input.hasSessionFacts === true || input.hasWatchSessions === true || input.hasTransactions === true,
+    hasUserProfileFields: input.onboardingCompleted === true || input.pushEnabled === true,
+    hasLegacyFallback: input.hasLegacyPageDuration === true,
+    materializedLabel: input.hasRollup === true && input.hasDaily === true
+      ? "analytics_users_rollup+analytics_user_daily"
+      : input.hasRollup === true
+        ? "analytics_users_rollup"
+        : input.hasDaily === true
+          ? "analytics_user_daily"
+          : "materialized_rollup",
+    eventFactsLabel: input.hasWatchSessions === true
+      ? "analytics_watch_sessions"
+      : input.hasSessionFacts === true
+        ? "analytics_viewer_session_facts"
+        : input.hasFacts === true
+          ? "analytics_event_facts"
+          : input.hasTransactions === true
+            ? "transactions"
+            : "event_facts",
+    legacyFallbackLabel: "legacy_page_duration",
+  });
+  const confidence: UserBehaviorRollupConfidence = truthSummary.source === "unavailable" && !hasValue
+    ? "unknown"
+    : truthSummary.confidenceLabel;
+
   return {
     userId: input.userId,
     totalActions: Math.max(0, Math.round(readNumber(input.totalActions))),
@@ -176,8 +202,11 @@ export function buildUserBehaviorRollup(input: {
     authEvents,
     pushEnabled: input.pushEnabled === true,
     lastSeenAt: Math.max(0, readNumber(input.lastSeenAt)),
-    confidence: resolveConfidence({ source, issueCount: issues.length }),
-    source,
+    confidence,
+    confidenceScore: truthSummary.confidenceScore,
+    source: truthSummary.source,
+    sourceLabel: truthSummary.sourceLabel,
+    freshnessState: truthSummary.freshnessState,
     issues,
   };
 }

@@ -39,6 +39,7 @@ import {
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { buildAdminUserMetricsSnapshot } from "@/lib/server/admin-user-metrics-snapshot";
+import { buildBehavioralTruthSummary } from "@/lib/behavioral/behavioral-truth-source";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import {
   buildCommerceMetricsFromRollup,
@@ -386,14 +387,6 @@ async function readAggregateCount(query: unknown): Promise<number> {
   return 0;
 }
 
-function resolveSnapshotFreshness(generatedAt: number, latestMetricAt: number) {
-  if (latestMetricAt > 0 && generatedAt - latestMetricAt > 24 * 60 * 60 * 1000) {
-    return "stale" as const;
-  }
-
-  return "live" as const;
-}
-
 async function readAdminUsersFastSummarySnapshot() {
   const nowMs = Date.now();
   const sevenDaysAgo = nowMs - (7 * 24 * 60 * 60 * 1000);
@@ -433,6 +426,40 @@ async function readAdminUsersFastSummarySnapshot() {
     views: Math.round(readMetric(commerceSummaryRaw, "unlockCount", "totalUnlocks", "unwrapCount")),
   });
   latestMetricAt = Math.max(latestMetricAt, watchRollup.latestWatchAt);
+  const truthSummary = buildBehavioralTruthSummary({
+    scope: "admin_metrics",
+    hasValue: totalUsers > 0 || watchRollup.watchTimeMs > 0 || readMetric(commerceSummaryRaw, "grossRevenueUsdTotal", "grossRevenueUsd") > 0,
+    ageMs: latestMetricAt > 0 ? Math.max(0, nowMs - latestMetricAt) : Number.MAX_SAFE_INTEGER,
+    sampleCount: Math.max(
+      totalUsers,
+      activeUsers,
+      verifiedUsers,
+      pushEnabledUsers,
+      onboardedUsers,
+      sevenDayReturners,
+      payingUsers,
+      watchRollup.validSessionCount,
+    ),
+    requiredFieldsPresent: [
+      totalUsers >= 0,
+      activeUsers >= 0,
+      verifiedUsers >= 0,
+      sevenDayReturners >= 0,
+      pushEnabledUsers >= 0,
+      Math.round(readMetric(commerceSummaryRaw, "unlockCount", "totalUnlocks", "unwrapCount")) >= 0,
+      Math.round(readMetric(commerceSummaryRaw, "purchaseCount", "purchaseTransactionCount")) >= 0,
+      watchRollup.watchTimeMs >= 0,
+      readMetric(commerceSummaryRaw, "grossRevenueUsdTotal", "grossRevenueUsd") >= 0,
+    ].filter(Boolean).length,
+    requiredFieldsTotal: 9,
+    issues: watchRollup.issues,
+    hasMaterializedRollup: commerceSummarySnap.exists,
+    hasEventFacts: watchRollup.validSessionCount > 0 || sevenDayReturners > 0 || payingUsers > 0,
+    hasLiveFallback: !commerceSummarySnap.exists,
+    materializedLabel: "analytics_commerce_rollup+analytics_watch_sessions",
+    eventFactsLabel: "analytics_users_rollup_count_aggregates+analytics_watch_sessions",
+    liveFallbackLabel: "users_count_aggregates+analytics_users_rollup_count_aggregates",
+  });
   const snapshot: AdminUserMetricsSnapshot = {
     totalUsers,
     activeUsers,
@@ -447,13 +474,11 @@ async function readAdminUsersFastSummarySnapshot() {
     payingUsers,
     generatedAt: nowMs,
     source: commerceSummarySnap.exists ? "hot_cache" : "live_fallback",
-    freshnessState: watchRollup.issues.length > 0
-      ? "degraded"
-      : commerceSummarySnap.exists
-      ? resolveSnapshotFreshness(nowMs, latestMetricAt)
-      : totalUsers > 0
-        ? "degraded"
-        : "unavailable",
+    freshnessState: truthSummary.freshnessState,
+    truthSource: truthSummary.source,
+    confidenceScore: truthSummary.confidenceScore,
+    confidenceLabel: truthSummary.confidenceLabel,
+    issues: truthSummary.issues,
   };
 
   return {
@@ -464,10 +489,13 @@ async function readAdminUsersFastSummarySnapshot() {
       ? "users_count_aggregates+analytics_users_rollup_count_aggregates+analytics_commerce_rollup+analytics_watch_sessions"
       : "users_count_aggregates+analytics_users_rollup_count_aggregates+analytics_watch_sessions",
     staleReason: snapshot.freshnessState === "stale"
-      ? "Admin user metrics are showing bounded hot-cache counts, but the commerce summary is older than 24h."
+      ? "Admin user metrics are showing bounded hot-cache counts, but the source is older than 5m."
       : snapshot.freshnessState === "degraded"
-        ? watchRollup.issues[0]?.message ?? "Admin user metrics are visible from bounded counts, but commerce hot-cache is unavailable."
+        ? truthSummary.issues[0] ?? "Admin user metrics are visible from bounded counts, but commerce hot-cache is unavailable."
         : null,
+    confidenceScore: truthSummary.confidenceScore,
+    confidenceLabel: truthSummary.confidenceLabel,
+    issues: truthSummary.issues,
   };
 }
 

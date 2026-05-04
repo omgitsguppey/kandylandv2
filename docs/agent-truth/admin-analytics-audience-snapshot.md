@@ -57,3 +57,5 @@ Audience Snapshot reads the Admin Analytics snapshot registry first and keeps it
 - Firestore listeners need `includeMetadataChanges` to receive metadata-only cache/server transitions: https://firebase.google.com/docs/firestore/query-data/listen
 
 The admin user surfaces follow the same snapshot-first rule. User Management and admin user detail must keep last-known values visible with stale or degraded truth labels instead of dropping valid metrics behind unavailable or error states.
+
+Behavioral audience cards also inherit the canonical behavioral truth hierarchy: fresh materialized rollups win, event facts take over when rollups are stale, live fallbacks stay labeled, and legacy fallbacks remain diagnostic-only.

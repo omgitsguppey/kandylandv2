@@ -452,8 +452,8 @@ export default function AdminUserAnalyticsPage() {
     const behaviorTruthState = resolveAdminTruthState({
         hasUsableValue: Boolean(behaviorRollup),
         sourceConfigured: true,
-        valueState: behaviorRollup?.confidence === "unknown" ? "unavailable" : "live",
-        reviewRequired: Boolean(behaviorRollup?.issues.length) || behaviorRollup?.confidence === "low",
+        valueState: behaviorRollup?.confidence === "unknown" ? "unavailable" : behaviorRollup?.freshnessState,
+        reviewRequired: Boolean(behaviorRollup?.issues.length) || behaviorRollup?.confidence === "insufficient" || behaviorRollup?.confidence === "low",
     });
     const supportTruthState = resolveAdminTruthState({
         hasUsableValue: Boolean(supportReadiness),
@@ -656,7 +656,7 @@ export default function AdminUserAnalyticsPage() {
                     >
                         <AdminTruthBadge state={behaviorTruthState} className="mr-1 py-0.5" hasUsableValue={Boolean(behaviorRollup)} />{" "}
                         {behaviorRollup
-                            ? `Behavior rollup: ${behaviorRollup.source} / ${behaviorRollup.confidence}.`
+                            ? `Behavior rollup: ${behaviorRollup.sourceLabel} / ${behaviorRollup.confidence} (${behaviorRollup.confidenceScore}%).`
                             : "Behavior rollup unavailable."}
                         {behaviorIssueSummary ? ` Issues: ${behaviorIssueSummary}` : ""}
                     </div>

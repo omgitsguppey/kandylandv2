@@ -10,7 +10,7 @@ const DROP_INTELLIGENCE_COLLECTION = "behavioral_drop_intelligence"
 const SNAPSHOT_STATUS_COLLECTION = "behavioral_intelligence_status"
 
 const WINDOW_MS = 45 * 24 * 60 * 60 * 1000
-const STALE_AFTER_MS = 12 * 60 * 60 * 1000
+const STALE_AFTER_MS = 24 * 60 * 60 * 1000
 const RECENT_EVENT_LIMIT = 5000
 const RECENT_WATCH_LIMIT = 3000
 const RECENT_GUEST_LIMIT = 2000
@@ -250,6 +250,52 @@ function deriveExperienceKey(input: {
 
 function normalizeProfileFreshness(updatedAtMs: number, nowMs: number) {
   return nowMs - updatedAtMs <= STALE_AFTER_MS ? "live" : "stale"
+}
+
+function computeBehavioralTruthConfidence(input: {
+  agreeingSources: number
+  availableSources: number
+  ageMs: number
+  maxFreshnessMs: number
+  sampleCount: number
+  requiredFieldsPresent: number
+  requiredFieldsTotal: number
+  issueCount: number
+}) {
+  const availableSources = Math.max(0, input.availableSources)
+  const agreeingSources = Math.max(0, Math.min(input.agreeingSources, availableSources))
+  const requiredFieldsTotal = Math.max(1, input.requiredFieldsTotal)
+  const sourceAgreement = availableSources > 0 ? agreeingSources / availableSources : 0
+  const freshnessScore = input.maxFreshnessMs > 0
+    ? Math.max(0, 1 - (Math.max(0, input.ageMs) / input.maxFreshnessMs))
+    : 0
+  const sampleScore = Math.min(1, Math.log10(Math.max(0, input.sampleCount) + 1) / 3)
+  const schemaScore = Math.max(0, Math.min(input.requiredFieldsPresent, requiredFieldsTotal)) / requiredFieldsTotal
+  const issuePenalty = Math.min(0.6, Math.max(0, input.issueCount) * 0.12)
+
+  const normalizedScore = clamp01(
+    (0.35 * sourceAgreement) +
+    (0.25 * freshnessScore) +
+    (0.25 * sampleScore) +
+    (0.15 * schemaScore) -
+    issuePenalty,
+  )
+  const score = Math.round(normalizedScore * 100)
+  const label = score >= 90
+    ? "verified"
+    : score >= 75
+      ? "strong"
+      : score >= 50
+        ? "usable"
+        : score >= 30
+          ? "low"
+          : "insufficient"
+
+  return {
+    score,
+    normalizedScore,
+    label,
+  }
 }
 
 function ensureUserAggregate(userId: string, store: Map<string, UserSignalAggregate>) {
@@ -769,15 +815,6 @@ function buildUserProfileDoc(input: {
   const categorySignalCount = topCategoryEntries.filter((entry) => entry.score >= 0.75).length
   const themeSignalCount = topThemeEntries.filter((entry) => entry.score >= 0.5).length
   const consentAvailability = recommendationsEnabled && !gpcBlocked ? 1 : 0
-  const confidenceScore = clamp01(
-    (clamp01(input.aggregate.watchSessionCount / 6) * 0.24) +
-    (clamp01(input.aggregate.unlockCount / 4) * 0.2) +
-    (clamp01(repeatedCreatorSignalCount / 2) * 0.14) +
-    (clamp01((categorySignalCount + themeSignalCount) / 5) * 0.16) +
-    (clamp01(input.aggregate.purchaseCount / 2) * 0.12) +
-    (clamp01(sessionFrequency30d / 6) * 0.09) +
-    (consentAvailability * 0.05),
-  )
   const signalEvidenceCount = [
     input.aggregate.watchSessionCount > 0,
     input.aggregate.unlockCount > 0,
@@ -786,14 +823,40 @@ function buildUserProfileDoc(input: {
     input.aggregate.purchaseCount > 0,
     sessionFrequency30d >= 2,
   ].filter(Boolean).length
+  const availableSourceCount = [
+    input.aggregate.sourceTimestamps.eventFacts.length > 0,
+    input.aggregate.sourceTimestamps.watchSessions.length > 0,
+    input.aggregate.sourceTimestamps.relationships.length > 0,
+    input.aggregate.sourceTimestamps.feedbacks.length > 0,
+  ].filter(Boolean).length
+  const confidenceResult = computeBehavioralTruthConfidence({
+    agreeingSources: availableSourceCount,
+    availableSources: availableSourceCount,
+    ageMs: latestSourceAtMs > 0 ? Math.max(0, input.nowMs - latestSourceAtMs) : Number.MAX_SAFE_INTEGER,
+    maxFreshnessMs: STALE_AFTER_MS,
+    sampleCount: Math.max(
+      input.aggregate.watchSessionCount,
+      input.aggregate.unlockCount,
+      repeatedCreatorSignalCount + categorySignalCount + themeSignalCount,
+      input.aggregate.purchaseCount,
+      sessionFrequency30d,
+      signalEvidenceCount,
+    ),
+    requiredFieldsPresent: [
+      input.aggregate.watchSessionCount > 0,
+      input.aggregate.unlockCount > 0,
+      repeatedCreatorSignalCount > 0,
+      categorySignalCount + themeSignalCount > 0,
+      input.aggregate.purchaseCount > 0,
+      sessionFrequency30d > 0,
+      consentAvailability > 0,
+    ].filter(Boolean).length,
+    requiredFieldsTotal: 7,
+    issueCount: 0,
+  })
+  const confidenceScore = confidenceResult.normalizedScore
   const insufficientSignal = confidenceScore < 0.35 || signalEvidenceCount < 2
-  const confidenceLabel = insufficientSignal
-    ? "insufficient_signal"
-    : confidenceScore >= 0.7
-      ? "high"
-      : confidenceScore >= 0.5
-        ? "medium"
-        : "low"
+  const confidenceLabel = confidenceResult.label
   const recommendationState = !consentAvailability
     ? "deterministic-fallback"
     : insufficientSignal
