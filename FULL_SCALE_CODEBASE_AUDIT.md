@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #131] PRE: Deterministic Layout Scoring
+
+Scope started:
+- Verifying and refreshing the deterministic device-layout score engine for KandyDrops device physics.
+- Required outputs: `src/lib/device-layout-score.ts`, `scripts/agent/score-device-layout-contract.ts`, `scripts/agent/validate-device-layout-score.ts`, `agent/state/device-layout-score.generated.json`, `docs/agent-truth/device-layout-score.md`, package scripts `score:layout` and `check:device-layout-score`, targeted validation, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full UI audits, or broad terminal checks, and must not change product UI, payments, auth, unlock enforcement, telemetry semantics, or runtime business behavior.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, banned-pattern doctrine, source-of-truth map, shared component ownership, full governance files, current git status, package scripts, and adjacency trace for the layout score files were consulted.
+- The requested deterministic layout score engine, validator, generated report, and docs already exist on main; this pass will refresh the generated report and confirm the validator accepts the current source-only contract.
+
+Doctrine:
+- KandyDrops layout scoring is deterministic and source-only. It detects device-physics violations from hardcoded file/path/pattern rules, emits exact findings with severity and safe-autofix truth, and forbids browser-audit dependency for this verification lane.
+
+Scope completed:
+- Confirmed the deterministic layout score engine, report writer, validator, generated report artifact, docs, and package scripts are present.
+- Refreshed `agent/state/device-layout-score.generated.json` from the current source tree.
+- Current source-only result is `80/100` with `warning` status, `16` findings, `0` critical findings, `0` major findings, and `0` safe autofixes available.
+
+Verification:
+- `npm run score:layout` passed and wrote the refreshed layout score report.
+- `npm run check:device-layout-score` passed.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, full UI audits, or full repo checks.
+
+Residual risk:
+- Existing findings are intentionally escalated rather than auto-fixed because they require design intent or product navigation review, including unsupported breakpoint usage and mobile bottom-nav action semantics.
+
 ## [2026-05-04 #130] PRE: MSW User Flow Scenarios
 
 Scope started:
