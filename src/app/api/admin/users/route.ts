@@ -53,6 +53,10 @@ import {
   buildUserEngagementScoreInputFromActivityDays,
   type UserEngagementActivityDay,
 } from "@/lib/behavioral/user-engagement-score";
+import {
+  buildUserValueScoreInputFromActivityDays,
+  type UserValueActivityDay,
+} from "@/lib/behavioral/user-value-score";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
@@ -107,6 +111,49 @@ function buildUserEngagementDay(raw: Record<string, unknown>): UserEngagementAct
     )),
     hadVisit: readMetric(raw, "viewCount") > 0 || readMetric(raw, "watchSecondsTotal") > 0,
     hadAuth: Math.max(readMetric(raw, "authSuccessCount"), readMetric(raw, "signInCount")) > 0,
+  };
+}
+
+function buildUserValueDay(raw: Record<string, unknown>): UserValueActivityDay {
+  const grossRevenueUsd = Math.max(
+    readMetric(raw, "grossRevenueUsdTotal"),
+    readMetric(raw, "grossRevenueUsd"),
+  );
+  const purchaseCount = Math.max(
+    readMetric(raw, "purchaseCount", "purchaseTransactionCount"),
+    grossRevenueUsd > 0 ? 1 : 0,
+  );
+  const paidGdPurchased = Math.max(
+    readMetric(raw, "paidGumDropsTotal"),
+    readMetric(raw, "paidGumDrops"),
+  );
+  const bonusGdDelivered = Math.max(
+    readMetric(raw, "bonusGumDropsTotal"),
+    readMetric(raw, "bonusGumDrops"),
+  );
+
+  return {
+    timestampMs: Math.max(
+      toTimestampNumber(raw.lastPurchaseAt),
+      toTimestampNumber(raw.lastSeenAt),
+      toTimestampNumber(raw.lastSeenAtMs),
+      toTimestampNumber(raw.updatedAt),
+      toTimestampNumber(raw.createdAt),
+    ),
+    grossRevenueUsd,
+    purchaseCount,
+    paidGdPurchased,
+    bonusGdDelivered,
+    rewardGdEarned: Math.max(
+      readMetric(raw, "rewardGdEarned"),
+      readMetric(raw, "rewardGdEarnedTotal"),
+      readMetric(raw, "rewardGumDropsEarned"),
+      readMetric(raw, "rewardAmountEarned"),
+      readMetric(raw, "dailyRewardGd"),
+      readMetric(raw, "dailyRewardGdTotal"),
+      readMetric(raw, "freeGdEarned"),
+    ),
+    unwrappedCount: Math.max(readMetric(raw, "unwrapCount"), readMetric(raw, "unlockCount")),
   };
 }
 
@@ -878,6 +925,20 @@ async function GET_handler(request: NextRequest) {
         lastSeenAt: metricSnapshot.lastSeenAt,
         metrics: metricSnapshot,
       });
+      const engagementInput = buildUserEngagementScoreInputFromActivityDays({
+        days: userDailySnapshot.docs
+          .map((doc) => doc.data() as Record<string, unknown>)
+          .filter((raw) => (typeof raw.uid === "string" ? raw.uid : "") === user.uid)
+          .map((raw) => buildUserEngagementDay(raw)),
+        nowMs: Date.now(),
+      });
+      const valueInputFromDays = buildUserValueScoreInputFromActivityDays({
+        days: userDailySnapshot.docs
+          .map((doc) => doc.data() as Record<string, unknown>)
+          .filter((raw) => (typeof raw.uid === "string" ? raw.uid : "") === user.uid)
+          .map((raw) => buildUserValueDay(raw)),
+        nowMs: Date.now(),
+      });
       const behaviorRollup = buildUserBehaviorRollup({
         userId: user.uid,
         totalActions: metricSnapshot.eventCount,
@@ -903,15 +964,21 @@ async function GET_handler(request: NextRequest) {
           ...metricIntegrity.failures,
           ...watchTimeRollup.issues,
         ],
-        engagementInput: buildUserEngagementScoreInputFromActivityDays({
-          days: userDailySnapshot.docs
-            .map((doc) => doc.data() as Record<string, unknown>)
-            .filter((raw) => (typeof raw.uid === "string" ? raw.uid : "") === user.uid)
-            .map((raw) => buildUserEngagementDay(raw)),
-          nowMs: Date.now(),
-        }),
+        engagementInput,
+        valueInput: {
+          ...valueInputFromDays,
+          totalSpendUsd: metricSnapshot.grossRevenueUsd,
+          purchaseCount: metricSnapshot.purchaseCount,
+          paidGdPurchased: analytics.paidGumDrops,
+          bonusGdDelivered: analytics.bonusGumDrops,
+          rewardGdEarned: Math.max(valueInputFromDays.rewardGdEarned, user.gumDropsRewardBalance || 0),
+          daysSinceLastPurchase: metricSnapshot.purchaseCount > 0 && analytics.lastPurchaseAt > 0
+            ? Math.max(0, Math.floor((Date.now() - analytics.lastPurchaseAt) / (24 * 60 * 60 * 1000)))
+            : valueInputFromDays.daysSinceLastPurchase,
+        },
       });
       const engagement = behaviorRollup.engagement;
+      const value = behaviorRollup.value;
       const analyticsByUser = {
         [user.uid]: {
           ...analytics,
@@ -923,6 +990,8 @@ async function GET_handler(request: NextRequest) {
           recoveredFromFacts: false,
           engagementScore: engagement.score,
           engagement,
+          valueScore: value.valueScore,
+          value,
           behaviorRollup,
         },
       };
@@ -1111,6 +1180,7 @@ async function GET_handler(request: NextRequest) {
 
     const dailyAnalyticsByUser = new Map<string, UserDailyAggregate>();
     const dailyEngagementDaysByUser = new Map<string, UserEngagementActivityDay[]>();
+    const dailyValueDaysByUser = new Map<string, UserValueActivityDay[]>();
     userDailySnapshot.docs.forEach((doc) => {
       const raw = doc.data() as Record<string, unknown>;
       const uid = typeof raw.uid === "string" ? raw.uid : "";
@@ -1120,6 +1190,7 @@ async function GET_handler(request: NextRequest) {
 
       const current = dailyAnalyticsByUser.get(uid) ?? buildEmptyDailyAggregate();
       const engagementDays = dailyEngagementDaysByUser.get(uid) ?? [];
+      const valueDays = dailyValueDaysByUser.get(uid) ?? [];
       current.eventCount += Math.round(readMetric(raw, "eventCount"));
       current.sessionCount += Math.round(readMetric(raw, "sessionCount"));
       current.viewCount += Math.round(readMetric(raw, "viewCount"));
@@ -1145,11 +1216,22 @@ async function GET_handler(request: NextRequest) {
       current.bonusGumDropsTotal += Math.round(readMetric(raw, "bonusGumDropsTotal"));
       current.deliveredGumDropsTotal += Math.round(readMetric(raw, "deliveredGumDropsTotal"));
       current.paidGumDropsTotal += Math.round(readMetric(raw, "paidGumDropsTotal"));
+      current.rewardGdEarnedTotal += Math.round(Math.max(
+        readMetric(raw, "rewardGdEarned"),
+        readMetric(raw, "rewardGdEarnedTotal"),
+        readMetric(raw, "rewardGumDropsEarned"),
+        readMetric(raw, "rewardAmountEarned"),
+        readMetric(raw, "dailyRewardGd"),
+        readMetric(raw, "dailyRewardGdTotal"),
+        readMetric(raw, "freeGdEarned"),
+      ));
       current.lastSeenAt = Math.max(current.lastSeenAt, toTimestampNumber(raw.lastSeenAt), toTimestampNumber(raw.lastSeenAtMs));
       current.lastPurchaseAt = Math.max(current.lastPurchaseAt, toTimestampNumber(raw.lastPurchaseAt));
       dailyAnalyticsByUser.set(uid, current);
       engagementDays.push(buildUserEngagementDay(raw));
+      valueDays.push(buildUserValueDay(raw));
       dailyEngagementDaysByUser.set(uid, engagementDays);
+      dailyValueDaysByUser.set(uid, valueDays);
     });
 
     const dailyUserIds = new Set(dailyAnalyticsByUser.keys());
@@ -1479,6 +1561,7 @@ async function GET_handler(request: NextRequest) {
 
     users.forEach((user) => {
       const analytics = analyticsByUser[user.uid];
+      const dailyAggregate = dailyAnalyticsByUser.get(user.uid) ?? buildEmptyDailyAggregate();
       const metricSnapshot = {
         eventCount: analytics.eventCount || 0,
         sessionCount: analytics.sessionCount || 0,
@@ -1502,6 +1585,14 @@ async function GET_handler(request: NextRequest) {
         nowMs: Date.now(),
         lastSeenAt: metricSnapshot.lastSeenAt,
         metrics: metricSnapshot,
+      });
+      const engagementInput = buildUserEngagementScoreInputFromActivityDays({
+        days: dailyEngagementDaysByUser.get(user.uid) ?? [],
+        nowMs: Date.now(),
+      });
+      const valueInputFromDays = buildUserValueScoreInputFromActivityDays({
+        days: dailyValueDaysByUser.get(user.uid) ?? [],
+        nowMs: Date.now(),
       });
       const behaviorRollup = buildUserBehaviorRollup({
         userId: user.uid,
@@ -1528,12 +1619,21 @@ async function GET_handler(request: NextRequest) {
           ...metricIntegrity.failures,
           ...(Array.isArray(analytics.watchTimeIssues) ? analytics.watchTimeIssues : []),
         ],
-        engagementInput: buildUserEngagementScoreInputFromActivityDays({
-          days: dailyEngagementDaysByUser.get(user.uid) ?? [],
-          nowMs: Date.now(),
-        }),
+        engagementInput,
+        valueInput: {
+          ...valueInputFromDays,
+          totalSpendUsd: metricSnapshot.grossRevenueUsd,
+          purchaseCount: metricSnapshot.purchaseCount,
+          paidGdPurchased: analytics.paidGumDrops,
+          bonusGdDelivered: analytics.bonusGumDrops,
+          rewardGdEarned: Math.max(valueInputFromDays.rewardGdEarned, dailyAggregate.rewardGdEarnedTotal, user.gumDropsRewardBalance || 0),
+          daysSinceLastPurchase: metricSnapshot.purchaseCount > 0 && analytics.lastPurchaseAt > 0
+            ? Math.max(0, Math.floor((Date.now() - analytics.lastPurchaseAt) / (24 * 60 * 60 * 1000)))
+            : valueInputFromDays.daysSinceLastPurchase,
+        },
       });
       const engagement = behaviorRollup.engagement;
+      const value = behaviorRollup.value;
 
       analyticsByUser[user.uid] = {
         ...analytics,
@@ -1545,6 +1645,8 @@ async function GET_handler(request: NextRequest) {
         recoveredFromFacts: metricIntegrity.recoveredFromFacts,
         engagementScore: engagement.score,
         engagement,
+        valueScore: value.valueScore,
+        value,
         behaviorRollup,
       };
     });
@@ -2262,6 +2364,7 @@ type UserDailyAggregate = {
   bonusGumDropsTotal: number;
   deliveredGumDropsTotal: number;
   paidGumDropsTotal: number;
+  rewardGdEarnedTotal: number;
   lastSeenAt: number;
   lastPurchaseAt: number;
 };
@@ -2351,6 +2454,7 @@ function buildEmptyDailyAggregate(): UserDailyAggregate {
     bonusGumDropsTotal: 0,
     deliveredGumDropsTotal: 0,
     paidGumDropsTotal: 0,
+    rewardGdEarnedTotal: 0,
     lastSeenAt: 0,
     lastPurchaseAt: 0,
   };

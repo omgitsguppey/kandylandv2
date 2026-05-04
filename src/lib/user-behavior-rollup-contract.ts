@@ -8,6 +8,9 @@ import type {
 import type {
   UserEngagementScoreResult,
 } from "@/lib/behavioral/user-engagement-score";
+import type {
+  UserValueScoreResult,
+} from "@/lib/behavioral/user-value-score";
 
 export type UserBehaviorRollupConfidence = BehavioralConfidenceLabel | "unknown";
 
@@ -49,4 +52,5 @@ export type UserBehaviorRollup = {
   freshnessState: BehavioralFreshnessState;
   issues: UserBehaviorRollupIssue[];
   engagement: UserEngagementScoreResult;
+  value: UserValueScoreResult;
 };

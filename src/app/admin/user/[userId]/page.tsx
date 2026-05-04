@@ -43,6 +43,7 @@ import {
 } from "@/lib/creator-onboarding";
 import type { UserBehaviorRollup } from "@/lib/user-behavior-rollup-contract";
 import type { UserEngagementScoreResult } from "@/lib/behavioral/user-engagement-score";
+import type { UserValueScoreResult } from "@/lib/behavioral/user-value-score";
 
 type UserDetailAnalytics = {
     eventCount: number;
@@ -82,6 +83,8 @@ type UserDetailAnalytics = {
     recoveredFromFacts?: boolean;
     engagementScore?: number;
     engagement?: UserEngagementScoreResult;
+    valueScore?: number;
+    value?: UserValueScoreResult;
     behaviorRollup?: UserBehaviorRollup;
     actionLedger?: UserActionLedgerItem[];
     actionTaxonomyVersion?: string;
@@ -417,6 +420,7 @@ export default function AdminUserAnalyticsPage() {
     const parity = analytics?.parity;
     const behaviorRollup = analytics?.behaviorRollup;
     const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
+    const value = analytics?.value ?? behaviorRollup?.value;
     const actionLedger = analytics?.actionLedger ?? [];
     const behaviorIssueSummary = behaviorRollup?.issues.map((issue) => issue.message).join(" ");
     const behavioralConfidence = Math.round(((behavioralProfile?.confidenceScore ?? recommendationDebug?.profileConfidence ?? 0) as number) * 100);
@@ -632,6 +636,7 @@ export default function AdminUserAnalyticsPage() {
                             { label: "Actions", value: (behaviorRollup?.totalActions ?? analytics?.eventCount ?? 0).toLocaleString() },
                             { label: "Views", value: (behaviorRollup?.views ?? analytics?.viewCount ?? 0).toLocaleString() },
                             { label: "Engagement", value: engagement ? `${engagement.verdict} · ${engagement.score}` : "Dormant · 0" },
+                            { label: "Value", value: value ? `${value.verdict} · ${value.valueScore}` : "Observer · 0", tone: "text-brand-purple" },
                             { label: "Auth", value: (behaviorRollup?.authEvents ?? analytics?.authSuccessCount ?? 0).toLocaleString() },
                             { label: "Watch time", value: watchTimeLabel },
                             { label: "Last seen", value: (behaviorRollup?.lastSeenAt ?? analytics?.lastSeenAt) ? formatDistanceToNow(behaviorRollup?.lastSeenAt ?? analytics!.lastSeenAt, { addSuffix: true }) : "No activity" },
@@ -682,6 +687,28 @@ export default function AdminUserAnalyticsPage() {
                             {(engagement?.topReasons ?? []).slice(0, 3).map((reason) => (
                                 <p key={`${reason.code}-summary`}>{reason.summary}</p>
                             ))}
+                        </div>
+                    </div>
+                    <div className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Value verdict</p>
+                                <p className="mt-1 text-sm font-black text-white">{value?.verdict || "Observer"}</p>
+                                <p className="mt-1 text-xs text-gray-400">{value?.valueScore ?? 0}/100 · {value?.valueTier || "observer"}</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {(value?.topReasons ?? []).slice(0, 3).map((reason) => (
+                                    <span key={reason.code} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                        {reason.label}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="mt-3 space-y-1 text-xs leading-5 text-gray-400">
+                            {(value?.topReasons ?? []).slice(0, 3).map((reason) => (
+                                <p key={`${reason.code}-summary`}>{reason.summary}</p>
+                            ))}
+                            <p>Bonus GD stays separate from cash revenue. Package bonus raises paid-source delivery, not gross spend.</p>
                         </div>
                     </div>
                 </div>

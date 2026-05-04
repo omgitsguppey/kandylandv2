@@ -1,5 +1,6 @@
 import { buildBehavioralTruthSummary } from "@/lib/behavioral/behavioral-truth-source";
 import { computeUserEngagementScore, type UserEngagementScoreInput } from "@/lib/behavioral/user-engagement-score";
+import { computeUserValueScore, type UserValueScoreInput } from "@/lib/behavioral/user-value-score";
 import type {
   UserBehaviorRollup,
   UserBehaviorRollupConfidence,
@@ -36,6 +37,7 @@ export function buildUserBehaviorRollup(input: {
   hasTransactions?: boolean;
   commerceSourcePresent?: boolean;
   engagementInput?: UserEngagementScoreInput;
+  valueInput?: UserValueScoreInput;
   sourceIssues?: Array<string | { code?: string; message: string; severity?: "info" | "warn" | "fail"; evidence?: Record<string, unknown> }>;
 }): UserBehaviorRollup {
   const views = Math.max(0, Math.round(readNumber(input.views)));
@@ -197,6 +199,16 @@ export function buildUserBehaviorRollup(input: {
     activeDays7d: readNumber(input.lastSeenAt) > 0 ? 1 : 0,
     freeGdEarned30d: Math.max(0, Math.round(readNumber(input.rewardGdEarned))),
   });
+  const value = computeUserValueScore(input.valueInput ?? {
+    totalSpendUsd: Math.max(0, readNumber(input.revenueUsd)),
+    purchaseCount: Math.max(0, Math.round(readNumber(input.purchasesCount))),
+    paidGdPurchased: Math.max(0, Math.round(readNumber(input.paidGdPurchased))),
+    bonusGdDelivered: 0,
+    rewardGdEarned: Math.max(0, Math.round(readNumber(input.rewardGdEarned))),
+    freeGdEarned30d: Math.max(0, Math.round(readNumber(input.rewardGdEarned))),
+    unwrapsAfterPurchase: Math.max(0, Math.round(readNumber(input.unwraps))),
+    daysSinceLastPurchase: readNumber(input.purchasesCount) > 0 && readNumber(input.lastSeenAt) > 0 ? 0 : null,
+  });
 
   return {
     userId: input.userId,
@@ -219,5 +231,6 @@ export function buildUserBehaviorRollup(input: {
     freshnessState: truthSummary.freshnessState,
     issues,
     engagement,
+    value,
   };
 }

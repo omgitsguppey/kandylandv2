@@ -837,6 +837,7 @@ export default function UserManagementPage() {
                                     const analytics = getUserAnalytics(user.uid);
                                     const behaviorRollup = getBehaviorRollup(user.uid);
                                     const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
+                                    const value = analytics?.value ?? behaviorRollup?.value;
                                     return (
                                     <div
                                         key={user.uid}
@@ -848,10 +849,10 @@ export default function UserManagementPage() {
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-bold text-white">{user.username ? `@${user.username}` : user.displayName || user.email || user.uid}</p>
                                                 <p className="text-xs text-gray-500">
-                                                    {engagement?.verdict || "Dormant"} &middot; {engagement?.score ?? 0}/100 &middot; {behaviorRollup?.confidence ?? "unknown"} truth
+                                                    {engagement?.verdict || "Dormant"} &middot; Value {value?.verdict || "Observer"} &middot; {behaviorRollup?.confidence ?? "unknown"} truth
                                                 </p>
                                                 <p className="mt-1 text-[11px] text-gray-400">
-                                                    {engagement?.topReasons?.[0]?.summary || "No recent verified engagement signal."}
+                                                    {value?.topReasons?.[0]?.summary || engagement?.topReasons?.[0]?.summary || "No recent verified value signal."}
                                                 </p>
                                             </div>
                                             <Link href={`/admin/user/${user.uid}`} className="text-xs font-bold text-brand-purple hover:underline">
@@ -898,6 +899,7 @@ export default function UserManagementPage() {
                                             const analytics = getUserAnalytics(user.uid);
                                             const behaviorRollup = getBehaviorRollup(user.uid);
                                             const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
+                                            const value = analytics?.value ?? behaviorRollup?.value;
                                             const onboardingBadge = getOnboardingBadge(user, analytics);
                                             return (
                                             <tr key={user.uid} className="transition-colors">
@@ -958,10 +960,10 @@ export default function UserManagementPage() {
                                                             data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
                                                         >
                                                             <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
-                                                                {engagement?.verdict || "Dormant"} / {engagement?.score ?? 0} score
+                                                                {engagement?.verdict || "Dormant"} / Value {value?.verdict || "Observer"}
                                                             </div>
                                                             <div className="text-[10px] text-gray-500">
-                                                                {engagement?.topReasons?.[0]?.label || "No recent signal"} / {behaviorRollup?.issues.length ?? 0} issues
+                                                                {value?.topReasons?.[0]?.label || engagement?.topReasons?.[0]?.label || "No recent signal"} / {behaviorRollup?.issues.length ?? 0} issues
                                                             </div>
                                                         </div>
                                                     ) : (
@@ -1047,6 +1049,7 @@ export default function UserManagementPage() {
                                 const analytics = getUserAnalytics(user.uid);
                                 const behaviorRollup = getBehaviorRollup(user.uid);
                                 const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
+                                const value = analytics?.value ?? behaviorRollup?.value;
                                 const onboardingBadge = getOnboardingBadge(user, analytics);
                                 return (
                                 <div key={user.uid} className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col gap-4 relative overflow-hidden group">
@@ -1128,6 +1131,10 @@ export default function UserManagementPage() {
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><Activity className="w-3 h-3 inline mr-1" />Engagement</span>
                                                     <span className="text-sm font-mono text-gray-300">{engagement?.verdict || "Dormant"} · {engagement?.score ?? 0}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-500 font-bold uppercase"><DollarSign className="w-3 h-3 inline mr-1" />Value</span>
+                                                    <span className="text-sm font-mono text-gray-300">{value?.verdict || "Observer"} · {value?.valueScore ?? 0}</span>
                                                 </div>
                                             </div>
                                         ) : (
