@@ -168,6 +168,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         pathnameRef.current = pathname;
     }, [pathname]);
 
+    const emitIdentityLinkContinuity = useCallback((userId: string, method: "login" | "signup" | "session_restore") => {
+        trackIdentityLinked({
+            userId,
+            method,
+        });
+    }, []);
+
     const getPostAuthDestination = useCallback((profile?: Pick<UserProfile, "role" | "creatorApplication"> | null, ownerId?: string | null) => {
         return getPreferredAuthenticatedPathForProfile(profile ?? null, ownerId);
     }, []);
@@ -235,10 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             restoration_source: "browser_local_persistence",
                             auth_provider: currentUser.providerData[0]?.providerId || "unknown",
                         });
-                        trackIdentityLinked({
-                            userId: currentUser.uid,
-                            method: "session_restore",
-                        });
+                        emitIdentityLinkContinuity(currentUser.uid, "session_restore");
                     }
                     initialAuthResolvedRef.current = true;
 
@@ -261,7 +265,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             cancelled = true;
             unsubscribe();
         };
-    }, []);
+    }, [emitIdentityLinkContinuity]);
 
     useEffect(() => {
         if (!authStateResolved) {
@@ -429,6 +433,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             await signInWithPopup(auth, provider);
+            if (auth.currentUser?.uid) {
+                emitIdentityLinkContinuity(auth.currentUser.uid, "login");
+            }
             toast.success("Welcome back!");
         } catch (error: unknown) {
             const firebaseError = error as { code?: string; message?: string };
@@ -445,7 +452,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             toast.error(message);
             throw new Error(message);
         }
-    }, []);
+    }, [emitIdentityLinkContinuity]);
 
     const signInWithEmail = useCallback(async (identifier: string, pass: string) => {
         if (!auth || !firebaseClientConfigured) {
@@ -454,9 +461,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         await ensureAuthPersistence();
         const resolvedIdentity = await resolveManualSignInIdentity(identifier);
-        await signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
+        const credential = await signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
+        emitIdentityLinkContinuity(credential.user.uid, "login");
         toast.success("Welcome back!");
-    }, []);
+    }, [emitIdentityLinkContinuity]);
 
     const signUpWithEmail = useCallback(async (input: SignUpInput) => {
         if (!auth || !firebaseClientConfigured) {
@@ -476,6 +484,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await ensureAuthPersistence();
             const credential = await createUserWithEmailAndPassword(auth, normalizedEmail, input.password);
+            emitIdentityLinkContinuity(credential.user.uid, "signup");
             createdUser = credential.user;
             manualRegistrationStateRef.current = {
                 uid: credential.user.uid,

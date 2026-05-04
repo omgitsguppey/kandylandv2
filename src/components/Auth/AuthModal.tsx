@@ -32,9 +32,8 @@ import {
     type CreatorIntakeStepKey,
     type CreatorMonetizationGoal,
 } from "@/lib/creator-intake-flow";
-import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent, trackIdentityLinked } from "@/lib/telemetry";
+import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
-import { auth } from "@/lib/firebase";
 
 import {
     CREATOR_SIGNUP_STEPS,
@@ -395,12 +394,6 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             await signInWithGoogle();
             const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
             trackEvent("auth_google_sign_in_success", mergedParams);
-            if (auth?.currentUser?.uid) {
-                trackIdentityLinked({
-                    userId: auth.currentUser.uid,
-                    method: "login",
-                });
-            }
             onClose();
         } catch (error: unknown) {
             reportClientIssue({
@@ -510,12 +503,6 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     creator_has_content_focus: Boolean(data.creatorContentFocus?.trim()),
                 });
                 trackEvent("auth_sign_up_success", mergedParams);
-                if (auth?.currentUser?.uid) {
-                    trackIdentityLinked({
-                        userId: auth.currentUser.uid,
-                        method: "signup",
-                    });
-                }
             } else {
                 startTimedFlow(AUTH_SIGN_IN_FLOW, {
                     entry_mode: initialMode,
@@ -531,12 +518,6 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     manual_identifier_type: manualIdentifierType,
                 });
                 trackEvent("auth_sign_in_success", mergedParams);
-                if (auth?.currentUser?.uid) {
-                    trackIdentityLinked({
-                        userId: auth.currentUser.uid,
-                        method: "login",
-                    });
-                }
             }
 
             onClose();
