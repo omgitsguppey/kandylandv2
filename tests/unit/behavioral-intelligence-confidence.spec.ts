@@ -26,6 +26,7 @@ describe("behavioral intelligence confidence gate", () => {
       recommendationState: "profile-driven",
       confidenceScore: BEHAVIORAL_PROFILE_EXPLANATION_THRESHOLD + 0.05,
       recommendationThresholdMet: true,
+      creatorAffinity: { creatorA: 1.1 },
     })).toMatchObject({
       insufficientSignal: false,
       explanationEligible: true,
@@ -37,8 +38,23 @@ describe("behavioral intelligence confidence gate", () => {
       recommendationState: "deterministic-fallback",
       confidenceScore: BEHAVIORAL_PROFILE_MIN_SIGNAL_THRESHOLD + 0.05,
       recommendationThresholdMet: false,
+      categoryAffinity: { glam: 0.9 },
     })).toMatchObject({
       insufficientSignal: false,
+      explanationEligible: false,
+    });
+  });
+
+  it("suppresses explanation cards when confidence exists but affinity is still zero", () => {
+    expect(buildBehavioralRecommendationState({
+      recommendationState: "profile-driven",
+      confidenceScore: 0.72,
+      recommendationThresholdMet: true,
+      creatorAffinity: {},
+      categoryAffinity: {},
+      themeAffinity: {},
+    })).toMatchObject({
+      insufficientSignal: true,
       explanationEligible: false,
     });
   });

@@ -2,6 +2,10 @@ import "server-only";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { getDrops } from "@/lib/server/drops";
+import { generateRecommendationCandidates } from "@/lib/recommendations/candidate-generation";
+import { rankDeterministicRecommendations } from "@/lib/recommendations/deterministic-ranker";
+import { scoreRecommendationWithArtifact } from "@/lib/recommendations/ml-ranker";
+import { buildRecommendationExplanation } from "@/lib/recommendations/recommendation-explanations";
 import type { Drop } from "@/types/db";
 
 const USER_PROFILE_COLLECTION = "behavioral_user_profiles";
@@ -10,20 +14,6 @@ const DROP_INTELLIGENCE_COLLECTION = "behavioral_drop_intelligence";
 const SNAPSHOT_STATUS_COLLECTION = "behavioral_intelligence_status";
 const ANALYTICS_TRUTH_USER_COLLECTION = "analytics_truth_user_metrics";
 const ANALYTICS_TRUTH_DROP_COLLECTION = "analytics_truth_drop_metrics";
-
-type ScoreFactorKey =
-  | "freshness"
-  | "creator_affinity"
-  | "content_affinity"
-  | "experience_affinity"
-  | "completion_quality"
-  | "unlock_quality"
-  | "session_context"
-  | "diversity"
-  | "fatigue_suppression"
-  | "negative_suppression"
-  | "availability"
-  | "explicit_feedback";
 
 type BehavioralProfileDoc = {
   userId: string;
@@ -66,6 +56,8 @@ type BehavioralProfileDoc = {
     consentAvailability?: number;
     evidenceCount?: number;
   };
+  lookalikeCreatorIds?: string[];
+  lookalikeSourceUserCount?: number;
 };
 
 type DropIntelligenceDoc = {
@@ -86,27 +78,34 @@ type DropIntelligenceDoc = {
   negativeFeedbackCount?: number;
 };
 
-type ScoreFactor = {
-  key: ScoreFactorKey;
-  label: string;
-  weight: number;
-  raw: number;
-  contribution: number;
-  detail: string;
-};
-
 type RankedDropRecommendation = {
   drop: Drop;
   score: number;
-  mode: "profile-driven" | "deterministic-fallback";
+  mode: "deterministic" | "ml_artifact" | "deterministic-fallback";
   labels: string[];
   profileConfidence: number;
   profileFreshness: string;
   telemetryQualityLabel: string;
   telemetryConfidenceScore: number;
-  factors: ScoreFactor[];
+  factors: Array<{
+    label: string;
+    value: number;
+  }>;
   explanationEligible: boolean;
   fallbackReason: string;
+  explanationSummary: string;
+  explanationReasons: string[];
+  candidateSources: string[];
+  rankingMode: "deterministic" | "ml_artifact";
+  mlDiagnostics?: {
+    predictedPaidConversion: number;
+    predictedUnlock: number;
+    predictedWatchCompletion: number;
+    predictedReturn: number;
+    blendWeight: number;
+    modelSource: string;
+    modelFreshness: string;
+  };
 };
 
 export const BEHAVIORAL_PROFILE_EXPLANATION_THRESHOLD = 0.5;
@@ -118,21 +117,6 @@ type AnalyticsTruthMetricDoc = {
   repairedDataRatio?: number;
 };
 
-const SCORE_WEIGHTS: Record<ScoreFactorKey, number> = {
-  freshness: 18,
-  creator_affinity: 16,
-  content_affinity: 14,
-  experience_affinity: 8,
-  completion_quality: 10,
-  unlock_quality: 10,
-  session_context: 7,
-  diversity: 6,
-  fatigue_suppression: 5,
-  negative_suppression: 5,
-  availability: 4,
-  explicit_feedback: 3,
-};
-
 function clamp01(value: number) {
   if (!Number.isFinite(value)) return 0;
   return Math.max(0, Math.min(1, value));
@@ -142,17 +126,6 @@ function round(value: number, digits = 3) {
   if (!Number.isFinite(value)) return 0;
   const multiplier = 10 ** digits;
   return Math.round((value + Number.EPSILON) * multiplier) / multiplier;
-}
-
-function average(values: number[]) {
-  if (values.length === 0) return 0;
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
-}
-
-function normalizeTagList(drop: Drop) {
-  return Array.isArray(drop.tags)
-    ? drop.tags.filter((value): value is string => typeof value === "string" && value.length > 0)
-    : [];
 }
 
 function buildProfileConfidence(profile: Partial<BehavioralProfileDoc> | null) {
@@ -176,11 +149,18 @@ function buildProfileMode(profile: BehavioralProfileDoc | null) {
 export function buildBehavioralRecommendationState(profile: Partial<BehavioralProfileDoc> | null) {
   const confidenceScore = buildProfileConfidence(profile);
   const recommendationState = profile?.recommendationState || "deterministic-fallback";
+  const hasMeaningfulAffinity = [
+    ...Object.values(profile?.creatorAffinity || {}),
+    ...Object.values(profile?.categoryAffinity || {}),
+    ...Object.values(profile?.themeAffinity || {}),
+  ].some((value) => typeof value === "number" && value > 0);
   const insufficientSignal = profile?.insufficientSignal === true
-    || confidenceScore < BEHAVIORAL_PROFILE_MIN_SIGNAL_THRESHOLD;
+    || confidenceScore < BEHAVIORAL_PROFILE_MIN_SIGNAL_THRESHOLD
+    || !hasMeaningfulAffinity;
   const explanationEligible = recommendationState === "profile-driven"
     && profile?.recommendationThresholdMet === true
-    && confidenceScore >= BEHAVIORAL_PROFILE_EXPLANATION_THRESHOLD;
+    && confidenceScore >= BEHAVIORAL_PROFILE_EXPLANATION_THRESHOLD
+    && hasMeaningfulAffinity;
 
   return {
     recommendationState,
@@ -236,58 +216,6 @@ async function readAnalyticsTruthUser(userId?: string | null) {
   return snapshot.exists ? snapshot.data() as AnalyticsTruthMetricDoc : null;
 }
 
-function buildFactor(key: ScoreFactorKey, raw: number, detail: string): ScoreFactor {
-  const weight = SCORE_WEIGHTS[key];
-  const contribution = round(clamp01(raw) * weight, 3);
-  const label = key.replaceAll("_", " ");
-  return { key, label, weight, raw: round(clamp01(raw)), contribution, detail };
-}
-
-function computeDropFactors(input: {
-  drop: Drop;
-  profile: BehavioralProfileDoc | null;
-  intelligence: DropIntelligenceDoc | undefined;
-  nowMs: number;
-  currentDropId?: string | null;
-}) {
-  const { drop, profile, intelligence, nowMs, currentDropId } = input;
-  const ageDays = drop.validFrom ? Math.max(0, (nowMs - drop.validFrom) / (24 * 60 * 60 * 1000)) : 365;
-  const creatorId = drop.creatorId || "";
-  const categoryKey = drop.type || "";
-  const creatorAffinity = clamp01((creatorId ? (profile?.creatorAffinity?.[creatorId] || 0) : 0) / 6);
-  const categoryAffinity = clamp01((categoryKey ? (profile?.categoryAffinity?.[categoryKey] || 0) : 0) / 5);
-  const tagAffinity = clamp01(average(normalizeTagList(drop).map((tag) => (profile?.themeAffinity?.[tag] || 0) / 4)));
-  const contentAffinity = Math.max(categoryAffinity, tagAffinity);
-  const experienceKey = currentDropId ? "viewer" : "drops";
-  const experienceAffinity = clamp01((profile?.experiencePreferenceScores?.[experienceKey] || 0) / 4);
-  const completionQuality = clamp01(intelligence?.completionRate || 0);
-  const unlockQuality = clamp01(intelligence?.viewerToUnlockRate || 0);
-  const recentMatch = profile?.recentDropIds?.includes(drop.id) ? 0.15 : 0;
-  const recentCreatorMatch = creatorId && profile?.recentCreatorIds?.includes(creatorId) ? 0.25 : 0;
-  const sessionContext = currentDropId ? Math.min(1, 0.45 + recentMatch + recentCreatorMatch) : 0.45;
-  const diversity = creatorId && profile?.recentCreatorIds?.includes(creatorId) ? 0.35 : 0.9;
-  const fatigue = 1 - clamp01(profile?.fatigueScore || 0);
-  const negativeSuppression = 1 - clamp01(intelligence?.negativeSignalRate || 0);
-  const availability = drop.status === "active" ? 1 : 0;
-  const explicitFeedback = profile?.positiveDropIds?.includes(drop.id) ? 1 : profile?.negativeDropIds?.includes(drop.id) ? 0 : 0.5;
-  const freshness = clamp01((intelligence?.freshnessDecayScore ?? (1 - (ageDays / 30))));
-
-  return [
-    buildFactor("freshness", freshness, ageDays <= 2 ? "Recent live drop." : "Older live drop."),
-    buildFactor("creator_affinity", creatorAffinity, creatorAffinity > 0 ? "Viewer has creator affinity." : "No stored creator affinity yet."),
-    buildFactor("content_affinity", contentAffinity, contentAffinity > 0 ? "Viewer has matching category/theme behavior." : "No matching category/theme signal."),
-    buildFactor("experience_affinity", experienceAffinity, experienceAffinity > 0 ? `Viewer frequently engages on the ${experienceKey} surface.` : `No strong ${experienceKey} surface preference recorded.`),
-    buildFactor("completion_quality", completionQuality, "Drop completion quality from behavioral snapshots."),
-    buildFactor("unlock_quality", unlockQuality, "Viewer-to-unlock conversion quality."),
-    buildFactor("session_context", sessionContext, currentDropId ? "Context-aware follow-up recommendation." : "General feed context."),
-    buildFactor("diversity", diversity, diversity > 0.6 ? "Exploration preserved." : "Suppressed to reduce creator repetition."),
-    buildFactor("fatigue_suppression", fatigue, fatigue > 0.5 ? "No heavy fatigue detected." : "Viewer is in a fatigue band."),
-    buildFactor("negative_suppression", negativeSuppression, negativeSuppression < 0.5 ? "Negative signals present." : "No strong negative signals."),
-    buildFactor("availability", availability, availability > 0 ? "Drop is currently available." : "Drop is not currently available."),
-    buildFactor("explicit_feedback", explicitFeedback, explicitFeedback === 1 ? "Positive explicit feedback exists." : explicitFeedback === 0 ? "Negative explicit feedback exists." : "No explicit feedback recorded."),
-  ];
-}
-
 export async function buildDeterministicDropRecommendations(input: {
   userId?: string | null;
   limit?: number;
@@ -309,43 +237,78 @@ export async function buildDeterministicDropRecommendations(input: {
   const mode = buildProfileMode(profile);
   const profileConfidence = recommendationState.confidenceScore;
   const profileFreshness = profile?.freshnessLabel || "unknown";
+  const candidates = generateRecommendationCandidates({
+    drops: drops
+      .filter((drop) => drop.status === "active")
+      .filter((drop) => !candidateIdSet || candidateIdSet.has(drop.id))
+      .filter((drop) => drop.id !== input.currentDropId),
+    profile,
+    dropIntelligence: intelligenceMap,
+    currentDropId: input.currentDropId,
+    nowMs,
+    limit: Math.max(limit * 3, 24),
+  });
+  const deterministicRanked = rankDeterministicRecommendations({
+    candidates,
+    profile,
+    dropIntelligence: intelligenceMap,
+    surface: input.currentDropId ? "viewer" : "drops",
+    nowMs,
+  });
 
-  const ranked = drops
-    .filter((drop) => drop.status === "active")
-    .filter((drop) => !candidateIdSet || candidateIdSet.has(drop.id))
-    .filter((drop) => drop.id !== input.currentDropId)
-    .map((drop) => {
-      const factors = computeDropFactors({
-        drop,
-        profile,
-        intelligence: intelligenceMap.get(drop.id),
+  const ranked = deterministicRanked
+    .map((entry) => {
+      const artifactScore = scoreRecommendationWithArtifact({
+        features: entry.features,
         nowMs,
-        currentDropId: input.currentDropId,
       });
-      const score = round(factors.reduce((sum, factor) => sum + factor.contribution, 0), 3);
-      const dropTruth = truthDropMap.get(drop.id);
+      const dropTruth = truthDropMap.get(entry.drop.id);
       const telemetryQualityLabel = dropTruth?.qualityLabel || truthUser?.qualityLabel || "unknown";
       const telemetryConfidenceScore = round(Math.min(
         typeof dropTruth?.confidenceScore === "number" ? dropTruth.confidenceScore : 1,
         typeof truthUser?.confidenceScore === "number" ? truthUser.confidenceScore : 1,
       ), 3);
+      const effectiveMode = artifactScore ? "ml_artifact" : "deterministic";
+      const effectiveScore = artifactScore
+        ? round((entry.score * (1 - artifactScore.blendWeight)) + (artifactScore.score * artifactScore.blendWeight), 3)
+        : round(entry.score, 3);
+      const explanation = buildRecommendationExplanation({
+        sources: entry.candidateSources,
+        features: entry.features,
+        fallbackReason: recommendationState.fallbackReason,
+      });
       const labels = Array.from(new Set([
-        intelligenceMap.get(drop.id)?.freshnessLabel || "unknown",
+        intelligenceMap.get(entry.drop.id)?.freshnessLabel || "unknown",
         mode,
         telemetryQualityLabel,
+        effectiveMode,
       ]));
+
       return {
-        drop,
-        score,
-        mode,
+        drop: entry.drop,
+        score: effectiveScore,
+        mode: mode === "deterministic-fallback" ? "deterministic-fallback" : effectiveMode,
         labels,
         profileConfidence,
         profileFreshness,
         telemetryQualityLabel,
         telemetryConfidenceScore,
-        factors,
+        factors: explanation.diagnostics,
         explanationEligible: recommendationState.explanationEligible,
         fallbackReason: recommendationState.fallbackReason,
+        explanationSummary: explanation.summary,
+        explanationReasons: explanation.reasons,
+        candidateSources: entry.candidateSources,
+        rankingMode: effectiveMode,
+        mlDiagnostics: artifactScore ? {
+          predictedPaidConversion: artifactScore.predictedPaidConversion,
+          predictedUnlock: artifactScore.predictedUnlock,
+          predictedWatchCompletion: artifactScore.predictedWatchCompletion,
+          predictedReturn: artifactScore.predictedReturn,
+          blendWeight: artifactScore.blendWeight,
+          modelSource: artifactScore.modelSource,
+          modelFreshness: artifactScore.modelFreshness,
+        } : undefined,
       } satisfies RankedDropRecommendation;
     })
     .sort((left, right) => right.score - left.score || right.drop.validFrom - left.drop.validFrom)

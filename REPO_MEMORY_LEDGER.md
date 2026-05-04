@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Recommendation ranker truth
+
+Recommendations now flow through shared helpers under `src/lib/recommendations/*`. Candidate retrieval is cheap and deterministic: live drops, ending-soon drops, creator affinity, previously unlocked creators, theme/category affinity, lookalike creator hints, and popularity/freshness fallback. Deterministic ranking remains the safety baseline. `src/lib/recommendations/ml-ranker.ts` can blend a fresh local artifact from `agent/state/recommendation-model.generated.json`; missing or stale artifacts fall back cleanly. `functions/src/behavioral-intelligence-runtime.ts` now writes `lookalikeCreatorIds` into behavioral profiles so similar-user retrieval stays precomputed instead of expensive at request time. Admin user detail shows plain-English recommendation reasons first and keeps ranking math inside collapsed diagnostics. `npm run train:recommendations` and `npm run check:recommendation-ranker` are the canonical lanes.
+
 ## 2026-05-04 Behavioral event fact truth
 
 Behavioral analytics action truth now routes through a canonical event-fact layer before Action Ledger rendering, admin/global counts, or behavioral intelligence consumption. `src/lib/behavioral/event-fact-contract.ts` owns the normalized action list, entity types, source labels, confidence, and dedupe windows; `src/lib/behavioral/normalize-event-fact.ts` owns alias mapping, canonical normalization, and unknown-event diagnostics; `src/lib/server/event-fact-rollup.ts` owns deduped counts and unknown-event summaries. `src/lib/analytics-action-taxonomy.ts` is now a compatibility wrapper, not the canonical source. Identified ingest persists normalized event-fact metadata, guest ingest records unknown-event diagnostics instead of inflating counts, and `npm run check:event-fact-truth` is the deterministic regression lane.

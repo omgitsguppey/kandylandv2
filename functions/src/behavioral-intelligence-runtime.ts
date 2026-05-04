@@ -36,6 +36,7 @@ type GuestBatchRecord = Record<string, unknown>
 type FeedbackRecord = Record<string, unknown>
 type RelationshipRecord = Record<string, unknown>
 type UserRecord = Record<string, unknown>
+type BuiltUserProfileDoc = ReturnType<typeof buildUserProfileDoc>
 
 type UserSignalAggregate = {
   userId: string
@@ -1090,6 +1091,38 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
   }
 }
 
+function applyLookalikeRecommendationSignals(userDocs: BuiltUserProfileDoc[]) {
+  return userDocs.map((profile) => {
+    const ownCreators = new Set(Object.keys(profile.creatorAffinity || {}))
+    const ownCategories = new Set(Object.keys(profile.categoryAffinity || {}))
+    const ownThemes = new Set(Object.keys(profile.themeAffinity || {}))
+
+    const similarProfiles = userDocs
+      .filter((candidate) => candidate.userId !== profile.userId)
+      .map((candidate) => {
+        const creatorOverlap = Object.keys(candidate.creatorAffinity || {}).filter((creatorId) => ownCreators.has(creatorId)).length
+        const categoryOverlap = Object.keys(candidate.categoryAffinity || {}).filter((category) => ownCategories.has(category)).length
+        const themeOverlap = Object.keys(candidate.themeAffinity || {}).filter((theme) => ownThemes.has(theme)).length
+        const score = (creatorOverlap * 3) + (categoryOverlap * 2) + themeOverlap
+        return {candidate, score}
+      })
+      .filter((entry) => entry.score >= 3)
+      .sort((left, right) => right.score - left.score)
+      .slice(0, 5)
+
+    const lookalikeCreatorIds = Array.from(new Set(
+      similarProfiles.flatMap((entry) => Object.keys(entry.candidate.creatorAffinity || {}))
+        .filter((creatorId) => !ownCreators.has(creatorId)),
+    )).slice(0, 6)
+
+    return {
+      ...profile,
+      lookalikeCreatorIds,
+      lookalikeSourceUserCount: similarProfiles.length,
+    }
+  })
+}
+
 async function writeSnapshotDocs(input: {
   userDocs: ReturnType<typeof buildUserProfileDoc>[]
   guestDocs: ReturnType<typeof buildGuestProfileDoc>[]
@@ -1172,13 +1205,13 @@ export async function rebuildBehavioralIntelligenceSnapshots() {
   const userIds = Array.from(aggregates.userAggregates.keys())
   const userRecords = await readUserRecords(userIds)
 
-  const userDocs = userIds.map((userId) => buildUserProfileDoc({
+  const userDocs = applyLookalikeRecommendationSignals(userIds.map((userId) => buildUserProfileDoc({
     aggregate: aggregates.userAggregates.get(userId) as UserSignalAggregate,
     sessionAggregates: aggregates.sessionAggregates,
     userRecord: userRecords.get(userId),
     nowMs,
     windowStartMs: recent.windowStartMs,
-  }))
+  })))
   const guestDocs = Array.from(aggregates.guestAggregates.values())
     .sort((left, right) => right.latestAtMs - left.latestAtMs)
     .map((aggregate) => buildGuestProfileDoc(aggregate, nowMs, recent.windowStartMs))

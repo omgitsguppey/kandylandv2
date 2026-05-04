@@ -9,6 +9,16 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Recommendation Ranker Coverage
+
+- [x] `src/lib/recommendations/candidate-generation.ts` owns deterministic candidate retrieval from live/ending-soon Drops, creator affinity, previous unlock creators, theme/category affinity, similar-user hints, and popularity/freshness fallback.
+- [x] `src/lib/recommendations/ranking-features.ts` owns shared recommendation feature computation, including predicted paid conversion, unlock, watch completion, return, freshness, urgency, price fit, penalties, and confidence.
+- [x] `src/lib/recommendations/deterministic-ranker.ts` owns the deterministic baseline score and keeps fatigue/exposure penalties explicit.
+- [x] `src/lib/recommendations/ml-ranker.ts` owns local artifact loading, freshness gating, and bounded ML score blending from `agent/state/recommendation-model.generated.json`.
+- [x] `src/lib/recommendations/recommendation-explanations.ts` owns plain-English explanation summaries and collapsible diagnostics labels.
+- [x] `scripts/train-recommendation-ranker.ts`, `scripts/agent/validate-recommendation-ranker.ts`, `tests/unit/recommendation-ranker.spec.ts`, docs, and package scripts `train:recommendations` / `check:recommendation-ranker` provide the targeted regression lane.
+- [x] `functions/src/behavioral-intelligence-runtime.ts`, `src/lib/server/behavioral-intelligence.ts`, `src/app/api/admin/user/[userId]/route.ts`, and `src/app/admin/user/[userId]/page.tsx` consume the canonical recommendation helpers instead of drifting on inline one-off ranking logic.
+
 ## 2026-05-04 Behavioral Event Fact Truth Coverage
 
 - [x] Behavioral action truth is centralized in `src/lib/behavioral/event-fact-contract.ts` and `src/lib/behavioral/normalize-event-fact.ts`, including canonical action names, dedupe windows, source labels, confidence, and unknown-event diagnostics.

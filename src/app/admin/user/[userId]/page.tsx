@@ -880,10 +880,14 @@ export default function AdminUserAnalyticsPage() {
                                                 <div>
                                                     <p className="text-sm font-bold text-white">{entry.dropTitle}</p>
                                                     <p className="mt-1 text-xs text-gray-400">{entry.dropId} · {entry.dropCategory || "unknown"}</p>
+                                                    <p className="mt-2 text-xs leading-5 text-gray-300">{entry.explanationSummary || entry.fallbackReason}</p>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2">
                                                     <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
                                                         Score {entry.score}
+                                                    </span>
+                                                    <span className="inline-flex items-center rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
+                                                        {entry.rankingMode === "ml_artifact" ? "ML artifact" : "Deterministic"}
                                                     </span>
                                                     {(entry.labels || []).map((label: string) => (
                                                         <span key={`${entry.dropId}:${label}`} className="inline-flex items-center rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
@@ -893,15 +897,37 @@ export default function AdminUserAnalyticsPage() {
                                                 </div>
                                             </div>
                                             <div className="mt-3 flex flex-wrap gap-2">
-                                                {(entry.factors || []).slice(0, 4).map((factor: any) => (
-                                                    <span key={`${entry.dropId}:${factor.key}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
-                                                        {factor.label} {factor.contribution}
+                                                {(entry.explanationReasons || []).map((reason: string) => (
+                                                    <span key={`${entry.dropId}:${reason}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                                        {reason}
                                                     </span>
                                                 ))}
                                             </div>
-                                            {(entry.factors || []).slice(0, 2).map((factor: any) => (
-                                                <p key={`${entry.dropId}:${factor.key}:detail`} className="mt-2 text-xs leading-5 text-gray-400">{factor.detail}</p>
-                                            ))}
+                                            <details className="mt-3 rounded-[1rem] border border-white/10 bg-black/20 p-3">
+                                                <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">
+                                                    Ranking diagnostics
+                                                </summary>
+                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                    {(entry.candidateSources || []).map((source: string) => (
+                                                        <span key={`${entry.dropId}:${source}`} className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                                                            {source.replaceAll("_", " ")}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                                                    {(entry.factors || []).map((factor: any) => (
+                                                        <div key={`${entry.dropId}:${factor.label}`} className="rounded-[0.9rem] border border-white/10 bg-black/30 px-3 py-2">
+                                                            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">{factor.label}</p>
+                                                            <p className="mt-1 text-sm font-semibold text-white">{typeof factor.value === "number" ? `${Math.round(factor.value * 100)}%` : factor.value}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                {entry.mlDiagnostics ? (
+                                                    <p className="mt-3 text-[11px] leading-5 text-gray-400">
+                                                        ML blend {Math.round((entry.mlDiagnostics.blendWeight || 0) * 100)}% from {entry.mlDiagnostics.modelSource} ({entry.mlDiagnostics.modelFreshness}).
+                                                    </p>
+                                                ) : null}
+                                            </details>
                                         </div>
                                     ))
                                 ) : (
@@ -911,6 +937,7 @@ export default function AdminUserAnalyticsPage() {
                                                 <div>
                                                     <p className="text-sm font-semibold text-white">{entry.dropTitle}</p>
                                                     <p className="mt-1 text-xs text-gray-400">{entry.dropCategory || "unknown"} · fallback recommendation</p>
+                                                    <p className="mt-2 text-xs leading-5 text-gray-400">{entry.explanationSummary || entry.fallbackReason}</p>
                                                 </div>
                                                 <span className="inline-flex items-center rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">
                                                     Fallback

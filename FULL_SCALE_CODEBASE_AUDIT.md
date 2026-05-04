@@ -1,5 +1,31 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #152] PRE: Recommendation Ranker Truth
+
+Scope started:
+- Replacing the old inline behavioral recommendation path with shared deterministic candidate generation, shared ranking features, a deterministic baseline ranker, a lightweight ML artifact scorer, and plain-English explanation output.
+- Required outputs include `src/lib/recommendations/*`, `scripts/train-recommendation-ranker.ts`, `scripts/agent/validate-recommendation-ranker.ts`, `agent/state/recommendation-model.generated.json`, targeted tests, docs, package scripts, and admin user-detail diagnostics wiring.
+- This pass must not add paid AI calls, heavy live joins, hidden recommendation math in production UI, more than three fallback cards, or false healthy recommendation states when confidence or affinity is missing.
+
+Evidence:
+- Control tower routing, doctrine consultation workflow, governance ledgers, recommendation adjacency traces, `functions/src/behavioral-intelligence-runtime.ts`, `src/lib/server/behavioral-intelligence.ts`, admin user detail API/UI, behavioral truth hierarchy, and event-fact/watch-time truth were consulted before implementation.
+
+Doctrine:
+- KandyDrops recommendations must use deterministic retrieval and deterministic ranking as the safety baseline. Lightweight ML artifacts may blend into ranking only through a local artifact with explicit freshness and bounded weight. Missing or stale model artifacts must fall back to deterministic ranking. Low-confidence or zero-affinity users should stay in compact fallback/insufficient-signal states, and ranking math must stay collapsed inside admin diagnostics.
+
+Scope completed:
+- Added `src/lib/recommendations/candidate-generation.ts`, `ranking-features.ts`, `deterministic-ranker.ts`, `ml-ranker.ts`, and `recommendation-explanations.ts` to own retrieval sources, shared ranking features, deterministic scoring, artifact-backed logistic-style scoring, and plain-English explanation output.
+- Reworked `src/lib/server/behavioral-intelligence.ts` so the old inline deterministic ranker now delegates to the shared recommendation helpers, uses the ML artifact when fresh, keeps deterministic fallback capped, and suppresses explanation mode when affinity is zero.
+- Extended `functions/src/behavioral-intelligence-runtime.ts` to materialize `lookalikeCreatorIds` / `lookalikeSourceUserCount` so similar-user candidate retrieval can stay cheap at serve time.
+- Updated `/api/admin/user/[userId]` and `src/app/admin/user/[userId]/page.tsx` so recommendation diagnostics expose summary reasons first, put factor math behind collapsed diagnostics, and show artifact blend metadata only in admin detail.
+- Added `scripts/train-recommendation-ranker.ts`, wrote `agent/state/recommendation-model.generated.json`, added `scripts/agent/validate-recommendation-ranker.ts`, `tests/unit/recommendation-ranker.spec.ts`, refreshed behavioral confidence tests, documented the lane in `docs/agent-truth/recommendation-ranking.md`, and added package scripts `train:recommendations` / `check:recommendation-ranker`.
+
+Verification:
+- `npm run train:recommendations` passed and wrote `agent/state/recommendation-model.generated.json`.
+- `npm run check:recommendation-ranker` passed.
+- `npx vitest run tests/unit/recommendation-ranker.spec.ts tests/unit/behavioral-intelligence-confidence.spec.ts` passed.
+- `npm run typecheck` passed.
+
 ## [2026-05-04 #151] PRE: Behavioral Event Fact Truth
 
 Scope started:

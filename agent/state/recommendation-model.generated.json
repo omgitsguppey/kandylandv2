@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-04T19:15:27.854Z",
+  "staleAfterMs": 604800000,
+  "trainingSource": "synthetic_bootstrap",
+  "sampleCount": 5,
+  "holdoutSampleCount": 1,
+  "featureNames": [
+    "creatorAffinity",
+    "contentAffinity",
+    "experienceAffinity",
+    "completionQuality",
+    "unlockQuality",
+    "purchaseIntent",
+    "returnCadence",
+    "popularity",
+    "freshness",
+    "urgency",
+    "priceFit",
+    "followedCreatorBoost",
+    "previousUnlockCreatorBoost",
+    "similarUserBoost",
+    "confidence",
+    "previousExposurePenalty",
+    "fatiguePenalty"
+  ],
+  "blendWeight": 0.18,
+  "evaluation": {
+    "meanAccuracy": 0.5,
+    "meanPositiveRate": 1
+  },
+  "heads": {
+    "predictedPaidConversion": {
+      "intercept": -1.3361656552652255,
+      "weights": {
+        "creatorAffinity": 1.7875665703310788,
+        "contentAffinity": -0.3312956516116252,
+        "experienceAffinity": -0.7659351465759242,
+        "completionQuality": -0.58706756023195,
+        "unlockQuality": 1.1611896642524235,
+        "purchaseIntent": 2.39359412472056,
+        "returnCadence": 0.16261249564787417,
+        "popularity": -1.42780494710778,
+        "freshness": -2.2736221110461896,
+        "urgency": -0.8444276766517986,
+        "priceFit": -1.6913082239341939,
+        "followedCreatorBoost": 5.175832195375027,
+        "previousUnlockCreatorBoost": 0,
+        "similarUserBoost": -1.508489415660901,
+        "confidence": 0.9760360806734965,
+        "previousExposurePenalty": -1.1085244248285269,
+        "fatiguePenalty": -0.9030612318789295
+      },
+      "trainingAccuracy": 1
+    },
+    "predictedUnlock": {
+      "intercept": -1.8158162362267805,
+      "weights": {
+        "creatorAffinity": 2.654230405489255,
+        "contentAffinity": 0.6494944627833019,
+        "experienceAffinity": 0.1706947168369036,
+        "completionQuality": -0.2003318282214076,
+        "unlockQuality": 1.6757718860695174,
+        "purchaseIntent": 2.2005440518218062,
+        "returnCadence": 2.5687783837103364,
+        "popularity": -1.6999371774452692,
+        "freshness": -2.4660354339001147,
+        "urgency": -0.8552081146350521,
+        "priceFit": -1.6131527520719267,
+        "followedCreatorBoost": 3.2837201439996884,
+        "previousUnlockCreatorBoost": 0,
+        "similarUserBoost": 5.2577921819555575,
+        "confidence": 1.7119914184173037,
+        "previousExposurePenalty": -1.3510229238717189,
+        "fatiguePenalty": -1.0201982581700932
+      },
+      "trainingAccuracy": 1
+    },
+    "predictedWatchCompletion": {
+      "intercept": -3.5343361627802974,
+      "weights": {
+        "creatorAffinity": -1.9326702052438065,
+        "contentAffinity": 2.2735678203998737,
+        "experienceAffinity": 2.4041836174965394,
+        "completionQuality": 2.831303799252532,
+        "unlockQuality": -0.6540276125680767,
+        "purchaseIntent": -2.159797334523021,
+        "returnCadence": 1.7484619015201235,
+        "popularity": 0.6466254940662869,
+        "freshness": 0.4281558215626944,
+        "urgency": 3.0765199129945806,
+        "priceFit": 0.40547098643453167,
+        "followedCreatorBoost": -3.321296359172331,
+        "previousUnlockCreatorBoost": 0,
+        "similarUserBoost": 2.8450559976214556,
+        "confidence": 0.5833030613081929,
+        "previousExposurePenalty": -3.5377851182749307,
+        "fatiguePenalty": -2.9817409173619143
+      },
+      "trainingAccuracy": 0
+    },
+    "predictedReturn": {
+      "intercept": -2.467936653504744,
+      "weights": {
+        "creatorAffinity": 0.43737066726918544,
+        "contentAffinity": 0.5409614263281932,
+        "experienceAffinity": 0.5615855765669098,
+        "completionQuality": -0.2336759148988355,
+        "unlockQuality": 0.15637710098127208,
+        "purchaseIntent": -0.5657218121078003,
+        "returnCadence": 2.286578279938142,
+        "popularity": -1.1287853387862956,
+        "freshness": -1.4337081280317203,
+        "urgency": -0.2125957584529319,
+        "priceFit": -1.0835050253274259,
+        "followedCreatorBoost": -2.221707430535942,
+        "previousUnlockCreatorBoost": 0,
+        "similarUserBoost": 7.048730881333816,
+        "confidence": 0.10644471048137956,
+        "previousExposurePenalty": -0.8710537074424459,
+        "fatiguePenalty": -0.6563208274102338
+      },
+      "trainingAccuracy": 0
+    }
+  }
+}
