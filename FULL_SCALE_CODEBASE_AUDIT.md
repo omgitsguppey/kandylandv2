@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #127] PRE: Hydration Performance Lanes
+
+Scope started:
+- Optimizing homepage module load-in and site-wide client hydration so critical shell, Hero CTA, telemetry/session/privacy truth, diagnostics, overlays, and route-specific heavy modules load through explicit priority lanes.
+- Required outputs: staged shell/homepage source changes, deterministic hydration score and validator, `agent/state/hydration-performance.generated.json`, `docs/agent-truth/hydration-performance.md`, source-of-truth doc updates, targeted validation, commit, and push.
+- This pass must not disconnect telemetry, tracking, privacy consent, admin/user parity truth, runtime diagnostics, signed-in redirect safety, PWA runtime, notifications, auth/purchase modal behavior, or business logic.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, source-of-truth map, shared component ownership, full governance files, adjacency traces, and React performance guidance were consulted.
+- Current shell already had deferred runtime gates, server-seeded homepage drops/creator data, consent helpers, telemetry enrichment, and dynamic auth/purchase modals; remaining risk was eager diagnostic/overlay/provider module load competing with first paint and homepage client-heavy modules.
+
+Doctrine:
+- KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces.
+
+Scope completed:
+- `CoreLayoutWrapper` now exposes explicit critical, after-paint, idle, interaction-opened, admin-only, and route-only hydration lanes; modal-only auth/purchase/PayPal UI and CookieBanner load dynamically outside the critical shell.
+- PostHog is no longer statically imported into the root client provider; pageview capture is dynamic, post-paint, privacy-consent-gated, and responds to consent changes without bypassing GPC/essential-only truth.
+- Homepage diagnostics moved behind the HomeClient idle lane, while `Hero` keeps `HomeHeroActions` critical and defers the live ticker plus below-fold active-drop carousel through lightweight wrappers.
+- Added `src/lib/hydration-performance-score.ts`, `npm run score:hydration`, `npm run check:hydration-performance`, `agent/state/hydration-performance.generated.json`, and `docs/agent-truth/hydration-performance.md`.
+
+Verification:
+- Passed: `npm run score:hydration`
+- Passed: `npm run check:hydration-performance`
+- Passed: `npm run typecheck -- --pretty false`
+- Passed: `git diff --check`
+- Not run by design: Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits.
+
 ## [2026-05-04 #126] PRE: Device Layout Score And Safe Repair
 
 Scope started:

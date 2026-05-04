@@ -1,8 +1,6 @@
 "use client";
 
-import { PayPalProvider } from "@/components/PayPalProvider";
 import { Toaster } from "sonner";
-import CookieBanner from "@/components/CookieBanner";
 import { Navbar } from "@/components/Navbar";
 import { AdminViewAsBanner } from "@/components/Admin/AdminViewAsBanner";
 import MobileBottomBar from "@/components/Navigation/MobileBottomBar";
@@ -24,6 +22,7 @@ import {
 } from "@/lib/user-mobile-shell";
 import { detectDeviceDisplayMode, type DeviceDisplayMode } from "@/lib/device-layout-contract";
 
+const PayPalProvider = dynamic(() => import("@/components/PayPalProvider").then((mod) => mod.PayPalProvider), { ssr: false });
 const GlobalPurchaseModal = dynamic(() => import("@/components/GlobalPurchaseModal").then((mod) => mod.GlobalPurchaseModal));
 const GlobalAuthModal = dynamic(() => import("@/components/GlobalAuthModal").then((mod) => mod.GlobalAuthModal));
 const GuidedOnboarding = dynamic(() => import("@/components/Auth/GuidedOnboarding").then((mod) => mod.GuidedOnboarding), { ssr: false });
@@ -49,6 +48,7 @@ const GlobalBugReportTrigger = dynamic(
     () => import("@/components/Feedback/GlobalBugReportTrigger").then((mod) => mod.GlobalBugReportTrigger),
     { ssr: false },
 );
+const CookieBanner = dynamic(() => import("@/components/CookieBanner"), { ssr: false });
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const { user } = useAuthIdentity();
@@ -92,29 +92,37 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     } as CSSProperties;
     const shouldLoadOnboarding = isUserShell && userProfile?.onboardingCompleted !== true && !shouldBypassFanOnboarding(userProfile);
     const shouldShowTaskGuidanceBanner = isUserShell && !isChatRoute;
-    const runtimeReady = useDeferredClientReady();
-    const afterPaintReady = useDeferredClientReady({ delayMs: 180 });
-    const idleReady = useDeferredClientReady({ delayMs: 500, idle: true });
-    const homepageAfterPaintReady = useDeferredClientReady({
+    const criticalLaneReady = true;
+    const afterPaintLaneReady = useDeferredClientReady({ delayMs: 120 });
+    const idleLaneReady = useDeferredClientReady({ delayMs: 500, idle: true });
+    const homepageAfterPaintLaneReady = useDeferredClientReady({
         enabled: isHomeRoute,
-        delayMs: 700,
+        delayMs: 500,
     });
-    const homepageIdleReady = useDeferredClientReady({
+    const homepageIdleLaneReady = useDeferredClientReady({
         enabled: isHomeRoute,
-        delayMs: 1400,
+        delayMs: 1200,
         idle: true,
     });
-    const homepageOverlayReady = useDeferredClientReady({
+    const homepageOverlayLaneReady = useDeferredClientReady({
         enabled: isHomeRoute,
-        delayMs: 3600,
+        delayMs: 2400,
         idle: true,
     });
-    const diagnosticsReady = isHomeRoute ? homepageAfterPaintReady : runtimeReady;
-    const telemetryReady = isHomeRoute ? homepageIdleReady : afterPaintReady;
-    const interactiveOverlayReady = afterPaintReady;
-    const enhancementReady = isHomeRoute ? homepageIdleReady : idleReady;
-    const overlayReady = isHomeRoute ? homepageOverlayReady : telemetryReady;
-    const scrollControlsReady = !isHomeRoute || homepageAfterPaintReady;
+    const interactionOpenedLaneReady = afterPaintLaneReady || isAuthModalOpen || isPurchaseModalOpen || isInsufficientBalanceModalOpen;
+    const hydrationPriorityLanes = {
+        critical: criticalLaneReady,
+        afterPaint: afterPaintLaneReady,
+        idle: idleLaneReady,
+        interactionOpened: interactionOpenedLaneReady,
+        adminOnly: isAdminRoute,
+        routeOnly: Boolean(pathname),
+    };
+    const diagnosticsReady = isHomeRoute ? homepageAfterPaintLaneReady : afterPaintLaneReady;
+    const telemetryReady = isHomeRoute ? homepageIdleLaneReady : afterPaintLaneReady;
+    const enhancementReady = isHomeRoute ? homepageIdleLaneReady : idleLaneReady;
+    const overlayReady = isHomeRoute ? homepageOverlayLaneReady : telemetryReady;
+    const scrollControlsReady = !isHomeRoute || homepageAfterPaintLaneReady;
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -174,6 +182,12 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             data-admin-shell-route="true"
             data-device-layout-contract="true"
             data-display-mode={displayMode}
+            data-hydration-lane="critical"
+            data-hydration-after-paint-ready={hydrationPriorityLanes.afterPaint ? "true" : "false"}
+            data-hydration-idle-ready={hydrationPriorityLanes.idle ? "true" : "false"}
+            data-client-hydration-optimized="true"
+            data-telemetry-critical-path="connected"
+            data-privacy-consent-hydration="preserved"
             style={mobileShellStyle}
         >
             {children}
@@ -183,6 +197,12 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             className="flex min-h-0 flex-1 flex-col"
             data-device-layout-contract="true"
             data-display-mode={displayMode}
+            data-hydration-lane="critical"
+            data-hydration-after-paint-ready={hydrationPriorityLanes.afterPaint ? "true" : "false"}
+            data-hydration-idle-ready={hydrationPriorityLanes.idle ? "true" : "false"}
+            data-client-hydration-optimized="true"
+            data-telemetry-critical-path="connected"
+            data-privacy-consent-hydration="preserved"
             data-user-mobile-shell-route={isChatRoute ? "chat-owned" : shouldReserveMobileBottomNav ? "reserved" : "none"}
             style={mobileShellStyle}
         >
@@ -196,25 +216,27 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             <AdminViewAsBanner />
             {routedChildren}
             {shouldShowPublicChrome && !isLegalRoute ? <MobileBottomBar /> : null}
-            {scrollControlsReady ? <ScrollToTop /> : null}
-            <AutoScrollToTop />
-            {diagnosticsReady ? <ClientDiagnosticsBridge /> : null}
-            {telemetryReady && shouldTrackDeepAnalytics ? <DeepTracker /> : null}
-            {telemetryReady && isUserShell ? <NotificationRuntimeBridge /> : null}
-            {telemetryReady && shouldShowTaskGuidanceBanner ? <TaskGuidanceBanner /> : null}
-            {enhancementReady && shouldEnablePwaRuntime ? <PwaRuntimeBridge /> : null}
-            {overlayReady && shouldShowBugReportTrigger ? <GlobalBugReportTrigger /> : null}
-            {interactiveOverlayReady && shouldShowPurchaseUi && isPurchaseModalOpen ? (
-                <PayPalProvider>
-                    <GlobalPurchaseModal />
-                </PayPalProvider>
+            {scrollControlsReady ? <div className="contents" data-hydration-lane="after-paint"><ScrollToTop /></div> : null}
+            {afterPaintLaneReady ? <div className="contents" data-hydration-lane="after-paint"><AutoScrollToTop /></div> : null}
+            {diagnosticsReady ? <div className="contents" data-hydration-lane="after-paint"><ClientDiagnosticsBridge /></div> : null}
+            {telemetryReady && shouldTrackDeepAnalytics ? <div className="contents" data-hydration-lane="after-paint"><DeepTracker /></div> : null}
+            {telemetryReady && isUserShell ? <div className="contents" data-hydration-lane="after-paint"><NotificationRuntimeBridge /></div> : null}
+            {telemetryReady && shouldShowTaskGuidanceBanner ? <div className="contents" data-hydration-lane="after-paint"><TaskGuidanceBanner /></div> : null}
+            {enhancementReady && shouldEnablePwaRuntime ? <div className="contents" data-hydration-lane="idle"><PwaRuntimeBridge /></div> : null}
+            {overlayReady && shouldShowBugReportTrigger ? <div className="contents" data-hydration-lane="idle"><GlobalBugReportTrigger /></div> : null}
+            {interactionOpenedLaneReady && shouldShowPurchaseUi && isPurchaseModalOpen ? (
+                <div className="contents" data-hydration-lane="interaction-opened">
+                    <PayPalProvider>
+                        <GlobalPurchaseModal />
+                    </PayPalProvider>
+                </div>
             ) : null}
-            {interactiveOverlayReady && isUserShell && isInsufficientBalanceModalOpen ? <InsufficientBalanceModal /> : null}
-            {interactiveOverlayReady && shouldShowAuthUi && isAuthModalOpen ? <GlobalAuthModal /> : null}
-            {enhancementReady && shouldLoadOnboarding ? <GuidedOnboarding /> : null}
+            {interactionOpenedLaneReady && isUserShell && isInsufficientBalanceModalOpen ? <div className="contents" data-hydration-lane="interaction-opened"><InsufficientBalanceModal /></div> : null}
+            {interactionOpenedLaneReady && shouldShowAuthUi && isAuthModalOpen ? <div className="contents" data-hydration-lane="interaction-opened"><GlobalAuthModal /></div> : null}
+            {enhancementReady && shouldLoadOnboarding ? <div className="contents" data-hydration-lane="idle"><GuidedOnboarding /></div> : null}
             <Toaster position="top-center" theme="dark" richColors closeButton />
-            {overlayReady && shouldShowCookieBanner ? <CookieBanner /> : null}
-            {telemetryReady && shouldShowDebugBreakpoints ? <DebugBreakpoints /> : null}
+            {overlayReady && shouldShowCookieBanner ? <div className="contents" data-hydration-lane="idle"><CookieBanner /></div> : null}
+            {telemetryReady && shouldShowDebugBreakpoints ? <div className="contents" data-hydration-lane="after-paint"><DebugBreakpoints /></div> : null}
         </>
     );
 }

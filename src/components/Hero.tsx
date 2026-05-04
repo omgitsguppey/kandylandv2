@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 
-import { HomeDropTicker } from "@/components/HomeDropTicker";
+import { DeferredHomeDropTicker } from "@/components/Landing/DeferredHomeDropTicker";
 import { HomeHeroActions } from "@/components/Landing/HomeHeroActions";
 import type { Drop } from "@/types/db";
 
@@ -16,6 +16,7 @@ export default function Hero({ activeDrops }: HeroProps) {
             data-home-section="hero"
             data-home-hero-layout="shell-centered"
             data-home-hero-shell-aware="true"
+            data-hydration-lane="critical"
             className="relative flex min-h-[calc(100dvh_-_var(--root-shell-top-spacing,6rem)_-_var(--user-mobile-bottom-nav-reserved-height,0px)_-_0.75rem)] w-full flex-col justify-center overflow-hidden pb-3 pt-1 max-[360px]:min-h-[calc(100dvh_-_var(--root-shell-top-spacing,6rem)_-_var(--user-mobile-bottom-nav-reserved-height,0px)_-_1rem)] max-[360px]:pb-3 max-[360px]:pt-0 sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-8 landscape:pt-10"
         >
             <div className="pointer-events-none absolute inset-0 z-0 opacity-30 motion-reduce:hidden" aria-hidden="true">
@@ -53,7 +54,7 @@ export default function Hero({ activeDrops }: HeroProps) {
 
                     <div className="hidden w-full border-t border-white/10 pt-5 sm:block sm:pt-8 lg:w-4/5 landscape:hidden">
                         <p className="text-sm text-gray-400 font-medium mb-4">Live Right Now</p>
-                        <HomeDropTicker drops={activeDrops} />
+                        <DeferredHomeDropTicker drops={activeDrops} />
                     </div>
                 </div>
             </div>

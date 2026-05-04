@@ -4,7 +4,6 @@ import { listCreatorDiscoveryProfiles } from "@/lib/server/creator-discovery";
 import Hero from "@/components/Hero";
 import { HowItWorks } from "@/components/Landing/HowItWorks";
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
-import { HomepageRuntimeDiagnostics } from "@/components/HomepageRuntimeDiagnostics";
 import HomeClient from "./HomeClient";
 
 export const dynamic = "force-dynamic";
@@ -19,9 +18,9 @@ export default async function HomePage() {
     return (
         <>
             <HomeClient />
-            <HomepageRuntimeDiagnostics />
             <div
                 className="relative min-h-screen bg-black pb-4 md:pb-0"
+                data-home-modules-hydration="staged"
                 style={{ paddingTop: "var(--kandy-cookie-offset, 0px)" }}
             >
                 <Hero activeDrops={initialActiveDrops} />

@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Hydration performance lanes
+
+KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces. `CoreLayoutWrapper` owns the shell lanes, `HomeClient` owns idle homepage diagnostics, and `npm run score:hydration` plus `npm run check:hydration-performance` provide the deterministic source-only validation lane.
+
 ## 2026-05-04 Device layout score and safe repair
 
 KandyDrops layout scoring is deterministic. It detects violations of Google-style structure and Apple-style cohesion using hardcoded file/path/pattern rules. It can auto-fix exact safe token/string replacements only. It must escalate anything involving payments, auth, locked content exposure, keyboard runtime behavior, visual judgment, or product intent. The source-only score path is `npm run score:layout`; safe repair is dry-run through `npm run repair:layout` and apply-gated through `npm run repair:layout -- --apply`; validation is `npm run check:device-layout-score`.

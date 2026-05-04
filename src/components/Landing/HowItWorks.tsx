@@ -1,5 +1,5 @@
 import { Lock, Eye, Heart } from "lucide-react";
-import { HomeActiveDropsCarousel } from "@/components/Landing/HomeActiveDropsCarousel";
+import { DeferredHomeActiveDropsCarousel } from "@/components/Landing/DeferredHomeActiveDropsCarousel";
 import { HomeHowItWorksActions } from "@/components/Landing/HomeHowItWorksActions";
 import type { Drop } from "@/types/db";
 
@@ -87,7 +87,7 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
                             <HomeHowItWorksActions variant="secondary" />
                         </div>
 
-                        <HomeActiveDropsCarousel
+                        <DeferredHomeActiveDropsCarousel
                             drops={activeDrops}
                             autoPlayMs={5_000}
                             emptyLabel="No daily experiences are live yet."

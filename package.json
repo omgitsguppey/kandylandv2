@@ -75,6 +75,8 @@
         "score:layout": "tsx scripts/agent/score-device-layout-contract.ts",
         "repair:layout": "tsx scripts/agent/repair-device-layout-contract.ts",
         "check:device-layout-score": "tsx scripts/agent/validate-device-layout-score.ts",
+        "score:hydration": "tsx scripts/agent/score-hydration-performance.ts",
+        "check:hydration-performance": "tsx scripts/agent/validate-hydration-performance.ts",
         "check:home-mobile-hero-shell": "tsx scripts/agent/validate-home-mobile-hero-shell.ts",
         "check:experiences-compact-layout": "tsx scripts/agent/validate-experiences-compact-layout.ts",
         "check:payment-unlock-security": "tsx scripts/agent/validate-payment-unlock-security.ts",

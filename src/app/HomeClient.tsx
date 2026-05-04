@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { startTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
@@ -7,6 +8,11 @@ import { useAuthIdentity, useAuthLoading, useUserProfile } from "@/context/AuthC
 import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
 import { getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import { trackEvent } from "@/lib/telemetry";
+
+const HomepageRuntimeDiagnostics = dynamic(
+    () => import("@/components/HomepageRuntimeDiagnostics").then((mod) => mod.HomepageRuntimeDiagnostics),
+    { ssr: false },
+);
 
 export default function HomeClient() {
     const { user } = useAuthIdentity();
@@ -24,6 +30,10 @@ export default function HomeClient() {
     const redirectUiReady = useDeferredClientReady({
         enabled: shouldRedirectSignedInUser,
         delayMs: 180,
+    });
+    const diagnosticsReady = useDeferredClientReady({
+        delayMs: 1400,
+        idle: true,
     });
 
     useEffect(() => {
@@ -47,16 +57,21 @@ export default function HomeClient() {
         }
     }, [isAdmin, loading, router, user, userProfile]);
 
-    if (!shouldRedirectSignedInUser || !redirectUiReady) {
-        return null;
-    }
-
     return (
-        <div className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+5.25rem)] z-[60] flex justify-center px-4">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/70 px-4 py-3 text-sm font-medium text-white shadow-xl shadow-black/30 backdrop-blur-sm">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
-                {userProfile?.creatorApplication ? "Returning you to your creator application status" : "Returning you to your dashboard"}
-            </div>
-        </div>
+        <>
+            {diagnosticsReady ? (
+                <div className="contents" data-hydration-lane="idle">
+                    <HomepageRuntimeDiagnostics />
+                </div>
+            ) : null}
+            {shouldRedirectSignedInUser && redirectUiReady ? (
+                <div className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+5.25rem)] z-[60] flex justify-center px-4" data-hydration-lane="critical">
+                    <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/70 px-4 py-3 text-sm font-medium text-white shadow-xl shadow-black/30 backdrop-blur-sm">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
+                        {userProfile?.creatorApplication ? "Returning you to your creator application status" : "Returning you to your dashboard"}
+                    </div>
+                </div>
+            ) : null}
+        </>
     );
 }

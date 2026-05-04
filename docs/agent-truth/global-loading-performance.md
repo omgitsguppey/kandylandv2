@@ -2,6 +2,10 @@
 
 Admin Analytics and shared app loading must render verified hot cache first. Realtime listeners, manual refreshes, and slow backend recomputes are upgrades after first useful paint, not prerequisites for showing already verified data.
 
+## Staged Hydration Doctrine
+
+KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces.
+
 This doctrine is now implemented through the refresh-based cache contract in `docs/agent-truth/refresh-based-hot-cache.md` and `src/lib/cache/refresh-cache-contract.ts`. Time-limit expiration changes labels and refresh priority; it does not remove a verified display snapshot.
 
 ## Global Speed/Hydration Finalization

@@ -48,6 +48,7 @@ export function Navbar() {
             <nav
                 className="fixed left-0 right-0 top-0 z-50 px-3 py-3 transition-all sm:px-6 sm:py-4"
                 data-device-layout-surface="top-nav"
+                data-hydration-lane="critical"
                 data-top-nav-behavior="fixed-floating-glass"
                 style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top))" }}
             >

@@ -9,6 +9,14 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Hydration Performance Coverage
+
+- [x] KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces.
+- [x] `src/components/CoreLayoutWrapper.tsx` owns critical, after-paint, idle, interaction-opened, admin-only, and route-only hydration lanes; auth/purchase/PayPal modal UI and cookie UI load dynamically outside the critical shell.
+- [x] `src/components/Analytics/CSPostHogProvider.tsx` keeps PostHog dynamic, post-paint, and privacy-consent-gated without disconnecting route pageview truth.
+- [x] `src/app/HomeClient.tsx`, `src/components/Landing/DeferredHomeDropTicker.tsx`, and `src/components/Landing/DeferredHomeActiveDropsCarousel.tsx` defer homepage diagnostics and below-fold motion modules while preserving server-seeded homepage data and Hero CTA interactivity.
+- [x] `src/lib/hydration-performance-score.ts`, `scripts/agent/score-hydration-performance.ts`, `scripts/agent/validate-hydration-performance.ts`, `agent/state/hydration-performance.generated.json`, and `docs/agent-truth/hydration-performance.md` provide the deterministic source-only hydration scoring and validation lane.
+
 ## 2026-05-04 Device Layout Contract Coverage
 
 - [x] Google owns structural language: breakpoints, adaptive layout, PWA display mode, viewport units. Apple owns style/cohesion: safe areas, floating tab bars, sidebars on larger screens, glass hierarchy, stable top-level navigation. KandyDrops agents must use contract tokens and validators, not freestyle layout physics.
