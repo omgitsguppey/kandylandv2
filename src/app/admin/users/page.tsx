@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { UserProfile } from "@/types/db";
 import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3, Activity } from "lucide-react";
@@ -18,6 +18,13 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
+import {
+    adminMetricStateToSurfaceState,
+    getAdminMetricStateBadgeLabel,
+    hasUsableAdminMetricValue,
+    resolveAdminMetricState,
+    type AdminMetricState,
+} from "@/lib/admin-metric-truth-state";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
 import type { 
@@ -53,6 +60,7 @@ export default function UserManagementPage() {
     const [dropReferences, setDropReferences] = useState<Record<string, DropReference>>({});
     const [summary, setSummary] = useState<UsersSummary | null>(null);
     const [loading, setLoading] = useState(true);
+    const [summaryRefreshInFlight, setSummaryRefreshInFlight] = useState(false);
     const [realtimeState, setRealtimeState] = useState<AdminSurfaceState>("loading");
     const [searchQuery, setSearchQuery] = useState("");
     const [actionUser, setActionUser] = useState<UserProfile | null>(null);
@@ -75,10 +83,13 @@ export default function UserManagementPage() {
     const [historyUser, setHistoryUser] = useState<UserProfile | null>(null);
 
     const refreshDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const lastUsableSummaryRef = useRef(false);
 
     const fetchUsers = useCallback(async (options: { silent?: boolean; reason?: string } = {}) => {
         if (!options.silent) {
             setLoading(true);
+        } else {
+            setSummaryRefreshInFlight(true);
         }
         try {
             const response = await authFetch("/api/admin/users");
@@ -91,6 +102,7 @@ export default function UserManagementPage() {
             setUserAnalytics(result.analyticsByUser || {});
             setDropReferences(result.dropReferences || {});
             setSummary(result.summary || null);
+            lastUsableSummaryRef.current = Boolean(result.summary);
             if (options.reason) {
                 setRealtimeState("live");
             }
@@ -108,10 +120,14 @@ export default function UserManagementPage() {
                 },
                 consoleLabel: "[Admin Users] fetch users failed",
             });
-            toast.error(error instanceof Error ? error.message : "Failed to load users");
+            if (!options.silent || !lastUsableSummaryRef.current) {
+                toast.error(error instanceof Error ? error.message : "Failed to load users");
+            }
         } finally {
             if (!options.silent) {
                 setLoading(false);
+            } else {
+                setSummaryRefreshInFlight(false);
             }
         }
     }, []);
@@ -266,7 +282,42 @@ export default function UserManagementPage() {
     const formatCount = (value?: number, analytics?: UserAnalytics) =>
         !analytics || analytics.metricTruthLabel === "unknown" ? "[unavailable]" : (value ?? 0).toLocaleString();
     const formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : "[unavailable]";
-    const summaryTruthState: AdminSurfaceState = summary ? realtimeState : loading ? "loading" : "failed";
+    const summaryTransportState: AdminSurfaceState = summary ? realtimeState : loading ? "loading" : "failed";
+    const getSummaryMetricState = (
+        values: unknown[],
+        valueTruthState?: AdminSurfaceState | null,
+    ): AdminMetricState => resolveAdminMetricState({
+        hasUsableValue: hasUsableAdminMetricValue(...values),
+        transportState: summaryTransportState,
+        refreshInFlight: summaryRefreshInFlight,
+        valueTruthState,
+    });
+    const renderSummaryMetricCard = ({
+        title,
+        value,
+        detail,
+        metricState,
+    }: {
+        title: string;
+        value: string;
+        detail: ReactNode;
+        metricState: AdminMetricState;
+    }) => (
+        <div
+            className="glass-panel rounded-[1.7rem] border border-white/10 p-4"
+            data-admin-metric-state={metricState}
+        >
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">{title}</p>
+            <div className="mt-1">
+                <AdminStatusBadge
+                    state={adminMetricStateToSurfaceState(metricState)}
+                    label={getAdminMetricStateBadgeLabel(metricState)}
+                />
+            </div>
+            <p className="mt-2 text-3xl font-black text-white">{value}</p>
+            <p className="mt-1 text-xs text-gray-400">{detail}</p>
+        </div>
+    );
     const formatJoined = (value: unknown) => {
         const timestamp = typeof value === "number"
             ? value
@@ -545,49 +596,64 @@ export default function UserManagementPage() {
             {viewMode === 'users' && (
                 <>
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">User base</p>
-                            <div className="mt-1"><AdminStatusBadge state={summaryTruthState} /></div>
-                            <p className="mt-2 text-3xl font-black text-white">{formatSummaryCount(summary?.totalUsers)}</p>
-                            <p className="mt-1 text-xs text-gray-400">{formatSummaryCount(summary?.activeUsers)} active, {formatSummaryCount(summary?.verifiedUsers)} verified</p>
-                        </div>
-                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">7 day returners</p>
-                            <div className="mt-1"><AdminStatusBadge state={summaryTruthState} /></div>
-                            <p className="mt-2 text-3xl font-black text-white">{formatSummaryCount(summary?.activeLast7Days)}</p>
-                            <p className="mt-1 text-xs text-gray-400">{formatSummaryCount(summary?.notificationsEnabledUsers)} with notifications on</p>
-                        </div>
-                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Tracked unwraps</p>
-                            <div className="mt-1"><AdminStatusBadge state={summaryTruthState} /></div>
-                            <p className="mt-2 text-3xl font-black text-white">{formatSummaryCount(summary?.totalUnwraps)}</p>
-                            <p className="mt-1 text-xs text-gray-400">{formatSummaryCount(summary?.totalPurchases)} tracked purchases</p>
-                        </div>
-                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Watch time</p>
-                            <div className="mt-1"><AdminStatusBadge state={summaryTruthState} /></div>
-                            <p className="mt-2 text-3xl font-black text-white">{summary ? `${summary.totalWatchHours ?? 0}h` : "[unavailable]"}</p>
-                            <p className="mt-1 text-xs text-gray-400">{formatSummaryCount(summary?.onboardingCompletedUsers)} users completed onboarding</p>
-                        </div>
-                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Monetization</p>
-                            <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.grossRevenueUsd)}</p>
-                            <p className="mt-1 text-xs text-gray-400">
-                                <AdminStatusBadge state={coerceAdminSurfaceState(summary?.commerceTruthLabel)} className="mr-1 py-0.5" />
-                                {summary?.commerceEmptyReason || `${summary?.payingUsers || 0} paying users`}
-                            </p>
-                        </div>
-                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Profit / bonus</p>
-                            <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.adjustedProfitUsd)}</p>
-                            <p className="mt-1 text-xs text-gray-400">{formatMoney(summary?.bonusValueUsd)} package-rate bonus value</p>
-                        </div>
-                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Delivered / bonus</p>
-                            <p className="mt-2 text-3xl font-black text-white">{summary ? (summary.deliveredGumDrops ?? 0).toLocaleString() : "[unavailable]"} GD</p>
-                            <p className="mt-1 text-xs text-gray-400">{summary ? (summary.bonusGumDrops ?? 0).toLocaleString() : "[unavailable]"} GD bonus on top</p>
-                        </div>
-                        <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
+                        {renderSummaryMetricCard({
+                            title: "User base",
+                            value: formatSummaryCount(summary?.totalUsers),
+                            detail: `${formatSummaryCount(summary?.activeUsers)} active, ${formatSummaryCount(summary?.verifiedUsers)} verified`,
+                            metricState: getSummaryMetricState([summary?.totalUsers, summary?.activeUsers, summary?.verifiedUsers]),
+                        })}
+                        {renderSummaryMetricCard({
+                            title: "7 day returners",
+                            value: formatSummaryCount(summary?.activeLast7Days),
+                            detail: `${formatSummaryCount(summary?.notificationsEnabledUsers)} with notifications on`,
+                            metricState: getSummaryMetricState([summary?.activeLast7Days, summary?.notificationsEnabledUsers]),
+                        })}
+                        {renderSummaryMetricCard({
+                            title: "Tracked unwraps",
+                            value: formatSummaryCount(summary?.totalUnwraps),
+                            detail: `${formatSummaryCount(summary?.totalPurchases)} tracked purchases`,
+                            metricState: getSummaryMetricState([summary?.totalUnwraps, summary?.totalPurchases]),
+                        })}
+                        {renderSummaryMetricCard({
+                            title: "Watch time",
+                            value: summary ? `${summary.totalWatchHours ?? 0}h` : "[unavailable]",
+                            detail: `${formatSummaryCount(summary?.onboardingCompletedUsers)} users completed onboarding`,
+                            metricState: getSummaryMetricState([summary?.totalWatchHours, summary?.onboardingCompletedUsers]),
+                        })}
+                        {renderSummaryMetricCard({
+                            title: "Monetization",
+                            value: formatMoney(summary?.grossRevenueUsd),
+                            detail: summary?.commerceEmptyReason || `${summary?.payingUsers || 0} paying users`,
+                            metricState: getSummaryMetricState(
+                                [summary?.grossRevenueUsd, summary?.payingUsers],
+                                coerceAdminSurfaceState(summary?.commerceTruthLabel),
+                            ),
+                        })}
+                        {renderSummaryMetricCard({
+                            title: "Profit / bonus",
+                            value: formatMoney(summary?.adjustedProfitUsd),
+                            detail: `${formatMoney(summary?.bonusValueUsd)} package-rate bonus value`,
+                            metricState: getSummaryMetricState(
+                                [summary?.adjustedProfitUsd, summary?.bonusValueUsd],
+                                coerceAdminSurfaceState(summary?.commerceTruthLabel),
+                            ),
+                        })}
+                        {renderSummaryMetricCard({
+                            title: "Delivered / bonus",
+                            value: summary ? `${(summary.deliveredGumDrops ?? 0).toLocaleString()} GD` : "[unavailable]",
+                            detail: `${summary ? (summary.bonusGumDrops ?? 0).toLocaleString() : "[unavailable]"} GD bonus on top`,
+                            metricState: getSummaryMetricState(
+                                [summary?.deliveredGumDrops, summary?.bonusGumDrops],
+                                coerceAdminSurfaceState(summary?.commerceTruthLabel),
+                            ),
+                        })}
+                        <div
+                            className="glass-panel rounded-[1.7rem] border border-white/10 p-4"
+                            data-admin-metric-state={getSummaryMetricState(
+                                [summary?.effectiveUsdPer100Gd, summary?.averageOrderUsd],
+                                coerceAdminSurfaceState(summary?.commerceTruthLabel),
+                            )}
+                        >
                             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Effective rate</p>
                             <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.effectiveUsdPer100Gd)}</p>
                             <p className="mt-1 text-xs text-gray-400">per 100 GD · avg order {formatMoney(summary?.averageOrderUsd)}</p>

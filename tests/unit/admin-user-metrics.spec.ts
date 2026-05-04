@@ -5,8 +5,39 @@ import {
   scoreAdminUserEngagement,
   shouldRecoverAdminUserMetricsFromFacts,
 } from "@/lib/admin-user-metrics";
+import {
+  adminMetricStateToSurfaceState,
+  hasUsableAdminMetricValue,
+  resolveAdminMetricState,
+} from "@/lib/admin-metric-truth-state";
 
 describe("admin user metric source truth", () => {
+  it("keeps cached metric values visible while realtime transport refreshes", () => {
+    const state = resolveAdminMetricState({
+      hasUsableValue: true,
+      transportState: "loading",
+      refreshInFlight: true,
+    });
+
+    expect(state).toBe("refreshing");
+    expect(adminMetricStateToSurfaceState(state)).toBe("cached");
+  });
+
+  it("degrades transport failures instead of failing over valid cached values", () => {
+    expect(resolveAdminMetricState({
+      hasUsableValue: true,
+      transportState: "failed",
+    })).toBe("degraded");
+  });
+
+  it("only fails a metric when no usable value exists and the source failed", () => {
+    expect(resolveAdminMetricState({
+      hasUsableValue: false,
+      transportState: "failed",
+    })).toBe("failed");
+    expect(hasUsableAdminMetricValue(0, undefined)).toBe(true);
+  });
+
   it("flags capped rollup events for raw fact recovery", () => {
     expect(shouldRecoverAdminUserMetricsFromFacts({
       hasRollup: true,

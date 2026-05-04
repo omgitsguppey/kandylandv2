@@ -5,6 +5,11 @@ import { ArrowDownRight, ArrowRight, ArrowUpRight, DollarSign, ShoppingBag, User
 import type { AdminOverviewResponse, AdminOverviewMetricDelta } from "@/lib/admin-overview";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import {
+    adminMetricStateToSurfaceState,
+    getAdminMetricStateBadgeLabel,
+    resolveAdminMetricState,
+} from "@/lib/admin-metric-truth-state";
 import { cn } from "@/lib/utils";
 
 type AdminStatsBarProps = {
@@ -49,15 +54,21 @@ function DeltaBadge({ delta }: { delta: AdminOverviewMetricDelta }) {
 
 export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminStatsBarProps) {
     const resolvedTruthState: AdminSurfaceState = issueCount > 0 && truthState === "live" ? "degraded" : truthState;
+    const metricState = resolveAdminMetricState({
+        hasUsableValue: true,
+        transportState: resolvedTruthState,
+    });
+    const metricBadgeState = adminMetricStateToSurfaceState(metricState);
+    const metricBadgeLabel = getAdminMetricStateBadgeLabel(metricState);
 
     return (
         <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
-                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5">
+                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState}>
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <Users className="h-3.5 w-3.5 text-brand-purple" />
                         Accounts
-                        <AdminStatusBadge state={resolvedTruthState} className="ml-auto py-0.5" />
+                        <AdminStatusBadge state={metricBadgeState} label={metricBadgeLabel} className="ml-auto py-0.5" />
                     </p>
                     <div className="mt-2 flex items-start justify-between gap-2">
                         <p className="text-lg font-black text-white md:text-[1.45rem]">{stats.totalUsers.toLocaleString()}</p>
@@ -66,11 +77,11 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
                     <p className="mt-2 text-[10px] text-gray-500">{stats.currentWindowNewUsers.toLocaleString()} new in 30d</p>
                 </div>
 
-                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5">
+                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState}>
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <ShoppingBag className="h-3.5 w-3.5 text-brand-purple" />
                         Purchases (30d)
-                        <AdminStatusBadge state={resolvedTruthState} className="ml-auto py-0.5" />
+                        <AdminStatusBadge state={metricBadgeState} label={metricBadgeLabel} className="ml-auto py-0.5" />
                     </p>
                     <div className="mt-2 flex items-start justify-between gap-2">
                         <p className="text-lg font-black text-white md:text-[1.45rem]">{stats.currentWindowPurchases.toLocaleString()}</p>
@@ -79,11 +90,11 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
                     <p className="mt-2 text-[10px] text-gray-500">{stats.liveDrops} live of {stats.totalDrops} drops</p>
                 </div>
 
-                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5">
+                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState}>
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <DollarSign className="h-3.5 w-3.5 text-brand-purple" />
                         Lifetime revenue
-                        <AdminStatusBadge state={resolvedTruthState} className="ml-auto py-0.5" />
+                        <AdminStatusBadge state={metricBadgeState} label={metricBadgeLabel} className="ml-auto py-0.5" />
                     </p>
                     <div className="mt-2 flex items-start justify-between gap-2">
                         <p className="font-mono text-lg font-black text-white md:text-[1.45rem]">${(stats.grossRevenueCents / 100).toFixed(2)}</p>
@@ -92,11 +103,11 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
                     <p className="mt-2 text-[10px] text-gray-500">vs. prior 30d</p>
                 </div>
 
-                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5">
+                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState}>
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <Zap className="h-3.5 w-3.5 text-brand-purple" />
                         Lifetime unwraps
-                        <AdminStatusBadge state={resolvedTruthState} className="ml-auto py-0.5" />
+                        <AdminStatusBadge state={metricBadgeState} label={metricBadgeLabel} className="ml-auto py-0.5" />
                     </p>
                     <div className="mt-2 flex items-start justify-between gap-2">
                         <p className="text-lg font-black text-white md:text-[1.45rem]">{stats.totalUnwraps.toLocaleString()}</p>
