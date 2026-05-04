@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
-  applyDeviceLayoutAutofixPlans,
+  assertDeviceLayoutAutofixGate,
   buildDeviceLayoutAutofixPlans,
   buildDeviceLayoutScoreReport,
   printDeviceLayoutScoreSummary,
@@ -27,33 +27,54 @@ if (!apply) {
   process.exit(0);
 }
 
-const originalFiles = new Map<string, string>();
+let currentReport = before;
+let applied = 0;
+const skipped: Array<{ findingId: string; reason: string }> = [];
+
 for (const plan of plans) {
-  if (!originalFiles.has(plan.filePath)) {
-    originalFiles.set(plan.filePath, readFileSync(join(root, plan.filePath), "utf8"));
+  const finding = currentReport.findings.find((candidate) => candidate.id === plan.findingId);
+  if (!finding) {
+    skipped.push({ findingId: plan.findingId, reason: "Finding was already resolved or changed by an earlier repair." });
+    continue;
   }
+
+  const fullPath = join(root, plan.filePath);
+  const originalSource = readFileSync(fullPath, "utf8");
+  const gateFailure = assertDeviceLayoutAutofixGate(finding, plan, originalSource);
+  if (gateFailure) {
+    skipped.push({ findingId: plan.findingId, reason: gateFailure });
+    continue;
+  }
+
+  writeFileSync(fullPath, originalSource.split(plan.oldText).join(plan.newText));
+
+  const afterPlan = buildDeviceLayoutScoreReport({ root, safeAutofixesApplied: applied + 1 });
+  const newCriticals = afterPlan.findings.filter((candidate) =>
+    candidate.severity === "critical" &&
+    !currentReport.findings.some((existing) => existing.id === candidate.id));
+
+  if (afterPlan.score < currentReport.score || newCriticals.length > 0) {
+    writeFileSync(fullPath, originalSource);
+    const reverted = buildDeviceLayoutScoreReport({ root, safeAutofixesApplied: applied });
+    skipped.push({
+      findingId: plan.findingId,
+      reason: "Repair was reverted because the layout score decreased or a new critical finding appeared.",
+    });
+    currentReport = reverted;
+    continue;
+  }
+
+  applied += 1;
+  currentReport = afterPlan;
+  console.log(`Applied: ${plan.filePath}: ${plan.description}`);
+  console.log(`Score after fix: ${currentReport.score}/100 (${currentReport.status})`);
 }
 
-const result = applyDeviceLayoutAutofixPlans(before, plans, root);
-const after = buildDeviceLayoutScoreReport({ root, safeAutofixesApplied: result.applied });
-const newCriticals = after.findings.filter((finding) =>
-  finding.severity === "critical" && !before.findings.some((existing) => existing.id === finding.id));
-
-if (after.score < before.score || newCriticals.length > 0) {
-  for (const [filePath, source] of originalFiles.entries()) {
-    writeFileSync(join(root, filePath), source);
-  }
-  const reverted = buildDeviceLayoutScoreReport({ root, safeAutofixesApplied: 0 });
-  writeDeviceLayoutScoreReport(reverted, root);
-  console.error("Device layout repair reverted because score decreased or new critical findings appeared.");
-  process.exit(1);
-}
-
-writeDeviceLayoutScoreReport(after, root);
-if (result.skipped.length > 0) {
+writeDeviceLayoutScoreReport(currentReport, root);
+if (skipped.length > 0) {
   console.log("Skipped plans:");
-  for (const skip of result.skipped) {
+  for (const skip of skipped) {
     console.log(`- ${skip.findingId}: ${skip.reason}`);
   }
 }
-printDeviceLayoutScoreSummary(after);
+printDeviceLayoutScoreSummary(currentReport);

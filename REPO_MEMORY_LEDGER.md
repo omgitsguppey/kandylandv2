@@ -22,7 +22,7 @@ KandyDrops hydration uses staged priority lanes. Critical shell and first action
 
 ## 2026-05-04 Device layout score and safe repair
 
-KandyDrops layout scoring is deterministic. It detects violations of Google-style structure and Apple-style cohesion using hardcoded file/path/pattern rules. It can auto-fix exact safe token/string replacements only. It must escalate anything involving payments, auth, locked content exposure, keyboard runtime behavior, visual judgment, or product intent. The source-only score path is `npm run score:layout`; safe repair is dry-run through `npm run repair:layout` and apply-gated through `npm run repair:layout -- --apply`; validation is `npm run check:device-layout-score`.
+KandyDrops layout scoring is deterministic. It detects violations of Google-style structure and Apple-style cohesion using hardcoded file/path/pattern rules. It can auto-fix exact safe token/string replacements only. It must escalate anything involving payments, auth, locked content exposure, keyboard runtime behavior, visual judgment, or product intent. The source-only score path is `npm run score:layout`; safe repair is dry-run through `npm run repair:layout` and apply-gated through `npm run repair:layout -- --apply`. Apply mode scores after each individual repair and reverts that repair if the score decreases or a new critical finding appears. Validation is `npm run check:device-layout-score`.
 
 ## 2026-05-04 Device layout contract
 

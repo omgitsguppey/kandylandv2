@@ -89,6 +89,8 @@ Initial safe repairs are limited to:
 - exact zero chat floating-control bottom offset to the shared chat token.
 - exact hardcoded floating-control bottom offset to the shared floating-control CSS variable when the shared token already exists.
 
+When apply mode is used, each safe plan is scored immediately after the individual edit. A plan is reverted if the score decreases or a new critical finding appears.
+
 Everything else escalates with a human-readable warning.
 
 ## Commands

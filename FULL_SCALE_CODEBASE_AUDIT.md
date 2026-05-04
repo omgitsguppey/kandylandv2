@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #132] PRE: Safe Deterministic Layout Repair
+
+Scope started:
+- Tightening the deterministic device-layout repair lane so it applies only high-confidence source-token fixes, dry-runs by default, scores after each applied fix, and reverts any fix that worsens the layout score or creates a new critical finding.
+- Required outputs: `scripts/agent/repair-device-layout-contract.ts`, `docs/agent-truth/device-layout-repair.md`, package script `repair:layout`, targeted verification, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, broad UI audits, or full repo checks, and must not auto-fix payments, auth, unlock enforcement, content protection decisions, visual judgment, copy, creator eligibility, or keyboard runtime behavior.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, banned-pattern doctrine, source-of-truth map, full governance files, current git status, and adjacency trace for `scripts/agent/repair-device-layout-contract.ts` and `src/lib/device-layout-score.ts` were consulted.
+- The repair script and package script already exist; the existing script needed stricter per-plan rescoring and rollback semantics to match the requested safe-repair contract.
+
+Doctrine:
+- KandyDrops layout repair is a deterministic token replacement lane, not a visual repair system. Anything that depends on product intent, keyboard runtime behavior, screenshots, locked content safety, payments, auth, or copy must be escalated rather than auto-fixed.
+
+Scope completed:
+- Updated `scripts/agent/repair-device-layout-contract.ts` so apply mode gates each plan, applies one exact replacement at a time, reruns the layout scorer after each individual edit, and reverts that edit if the score decreases or a new critical finding appears.
+- Added `docs/agent-truth/device-layout-repair.md` and updated adjacent score/memory/checklist doctrine to document dry-run-first behavior, apply-only mode, safe fix classes, and never-autofix boundaries.
+- Confirmed the `repair:layout` package script already exists.
+
+Verification:
+- `npm run repair:layout` passed in dry-run mode and reported `0` safe plans available.
+- `npm run repair:layout -- --apply` was not run because no safe fixes were found.
+- `npm run score:layout` passed and refreshed the generated report at `80/100` warning status, `16` findings, `0` critical, `0` major, and `0` safe autofixes available.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, broad UI audits, or full repo checks.
+
+Residual risk:
+- Current layout findings remain escalated rather than fixed because they require breakpoint/product navigation review rather than exact deterministic token replacement.
+
 ## [2026-05-04 #131] PRE: Deterministic Layout Scoring
 
 Scope started:
