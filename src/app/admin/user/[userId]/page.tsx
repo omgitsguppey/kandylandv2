@@ -20,6 +20,7 @@ import {
 
 import { useAuth } from "@/context/AuthContext";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { BehavioralVerdictCard } from "@/components/Admin/BehavioralVerdictCard";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -28,6 +29,10 @@ import {
     buildRecommendationBehavioralExplanation,
     buildValueBehavioralExplanation,
 } from "@/lib/behavioral/behavioral-explanation";
+import {
+    buildAdminReviewBadge,
+    buildBehaviorRollupReviewBadge,
+} from "@/lib/behavioral/review-badge-rules";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import {
     coerceAdminTruthState,
@@ -493,6 +498,33 @@ export default function AdminUserAnalyticsPage() {
         behaviorRollup,
         truthState: behaviorTruthState,
     });
+    const commerceReviewDecision = buildAdminReviewBadge({
+        truthState: commerceTruthState,
+        delayedExpected: coerceAdminTruthState(analytics?.commerceTruthLabel) === "stale",
+        revenueExistsButPurchaseCountMissing: Boolean(totalSpentUsd > 0 && !(analytics?.purchaseCount || purchaseTransactions.length)),
+        reviewSummary: analytics?.commerceEmptyReason || undefined,
+    });
+    const metricReviewDecision = buildAdminReviewBadge({
+        truthState: metricTruthState,
+        missingRequiredData: !analytics,
+        viewsExistButWatchMissing: Boolean((behaviorRollup?.views ?? analytics?.viewCount ?? 0) > 0 && !(behaviorRollup?.watchTimeMs ?? analytics?.watchSecondsTotal)),
+        onboardedMissingAuthStats: Boolean((behaviorRollup?.onboardingCompleted || targetUser?.onboardingCompleted) && !(behaviorRollup?.authEvents ?? analytics?.authSuccessCount)),
+        reviewSummary: analytics?.metricIntegrityFailures?.[0],
+    });
+    const behaviorReviewDecision = buildBehaviorRollupReviewBadge({
+        behaviorRollup,
+        truthState: behaviorTruthState,
+        personalizedOutputShown: recommendationDisplayMode !== "insufficient-signal" && (showBehavioralExplanationCards || behavioralRecommendations.length > 0),
+    });
+    const recommendationReviewDecision = buildAdminReviewBadge({
+        truthState: behaviorTruthState,
+        sourceDisagreement: recommendationVerdict.type === "source_disagreement",
+        staleCriticalSource: recommendationVerdict.type === "stale_source",
+        userFacingBug: recommendationVerdict.type === "tracking_issue",
+        personalizedOutputShown: recommendationDisplayMode !== "insufficient-signal" && (showBehavioralExplanationCards || behavioralRecommendations.length > 0),
+        behavioralConfidence,
+        reviewSummary: recommendationVerdict.summary,
+    });
 
     const watchTimeLabel = useMemo(() => {
         const watchTimeMs = behaviorRollup?.watchTimeMs ?? ((analytics?.watchSecondsTotal ?? 0) * 1000);
@@ -670,11 +702,13 @@ export default function AdminUserAnalyticsPage() {
                         ))}
                     </div>
                     <div className="mt-4 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
+                        <AdminReviewBadge decision={commerceReviewDecision} className="mr-1 py-0.5" />
                         <AdminTruthBadge state={commerceTruthState} className="mr-1 py-0.5" hasUsableValue={hasUsableAdminTruthValue(analytics?.grossRevenueUsd, totalSpentUsd)} />{" "}
                         {analytics?.commerceEmptyReason || `${bonusGumDrops.toLocaleString()} bonus GD valued at the package effective rate from ${analytics?.commerceSourceLabel || "commerce rollups"}.`}
                         {failedTxCount > 0 ? ` ${failedTxCount} failed transaction${failedTxCount === 1 ? "" : "s"} excluded from purchase yield.` : ""}
                     </div>
                     <div className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
+                        <AdminReviewBadge decision={metricReviewDecision} className="mr-1 py-0.5" />
                         <AdminTruthBadge state={metricTruthState} className="mr-1 py-0.5" hasUsableValue={hasUsableAdminTruthValue(analytics?.eventCount, analytics?.viewCount, analytics?.watchSecondsTotal)} />{" "}
                         {analytics?.metricSourceLabel || "No canonical user metrics source found."}
                         {analytics?.metricIntegrityFailures?.length ? ` Issues: ${analytics.metricIntegrityFailures.join(", ")}.` : ""}
@@ -684,6 +718,7 @@ export default function AdminUserAnalyticsPage() {
                         data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
                         data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
                     >
+                        <AdminReviewBadge decision={behaviorReviewDecision} className="mr-1 py-0.5" />
                         <AdminTruthBadge state={behaviorTruthState} className="mr-1 py-0.5" hasUsableValue={Boolean(behaviorRollup)} />{" "}
                         {behaviorRollup
                             ? `Behavior rollup: ${behaviorRollup.sourceLabel} / ${behaviorRollup.confidence} (${behaviorRollup.confidenceScore}%).`
@@ -691,10 +726,10 @@ export default function AdminUserAnalyticsPage() {
                         {behaviorIssueSummary ? ` Issues: ${behaviorIssueSummary}` : ""}
                     </div>
                     <div className="mt-3">
-                        <BehavioralVerdictCard title="Engagement verdict" explanation={engagementExplanation} />
+                        <BehavioralVerdictCard title="Engagement verdict" explanation={engagementExplanation} reviewDecision={behaviorReviewDecision} />
                     </div>
                     <div className="mt-3">
-                        <BehavioralVerdictCard title="Value verdict" explanation={valueExplanation} />
+                        <BehavioralVerdictCard title="Value verdict" explanation={valueExplanation} reviewDecision={commerceReviewDecision ?? behaviorReviewDecision} />
                     </div>
                 </div>
 
@@ -778,7 +813,7 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                 </div>
                 <div className="mt-4">
-                    <BehavioralVerdictCard title="Recommendation verdict" explanation={recommendationVerdict} />
+                    <BehavioralVerdictCard title="Recommendation verdict" explanation={recommendationVerdict} reviewDecision={recommendationReviewDecision} />
                 </div>
 
 

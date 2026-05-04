@@ -3,7 +3,9 @@
 import { ArrowDownRight, ArrowRight, ArrowUpRight, DollarSign, ShoppingBag, Users, Zap } from "lucide-react";
 
 import type { AdminOverviewResponse, AdminOverviewMetricDelta } from "@/lib/admin-overview";
+import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
+import { buildAdminReviewBadge } from "@/lib/behavioral/review-badge-rules";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import {
     hasUsableAdminTruthValue,
@@ -65,6 +67,13 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
         valueState: stats.userMetricsSnapshot?.freshnessState,
         reviewRequired: issueCount > 0,
     });
+    const reviewDecision = buildAdminReviewBadge({
+        truthState: metricState,
+        missingRequiredData: !stats.userMetricsSnapshot,
+        staleCriticalSource: stats.userMetricsSnapshot?.freshnessState === "stale",
+        delayedExpected: stats.userMetricsSnapshot?.freshnessState === "degraded" && issueCount === 0,
+        reviewSummary: issueCount > 0 ? `${issueCount} overview read issue${issueCount === 1 ? "" : "s"} detected.` : undefined,
+    });
 
     return (
         <div className="space-y-3">
@@ -73,7 +82,10 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <Users className="h-3.5 w-3.5 text-brand-purple" />
                         Accounts
-                        <AdminTruthBadge state={metricState} className="ml-auto py-0.5" hasUsableValue />
+                        <span className="ml-auto flex items-center gap-1">
+                            <AdminReviewBadge decision={reviewDecision} className="py-0.5" />
+                            <AdminTruthBadge state={metricState} className="py-0.5" hasUsableValue />
+                        </span>
                     </p>
                     <div className="mt-2 flex items-start justify-between gap-2">
                         <p className="text-lg font-black text-white md:text-[1.45rem]">{stats.totalUsers.toLocaleString()}</p>
@@ -86,7 +98,10 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <ShoppingBag className="h-3.5 w-3.5 text-brand-purple" />
                         Purchases (30d)
-                        <AdminTruthBadge state={metricState} className="ml-auto py-0.5" hasUsableValue />
+                        <span className="ml-auto flex items-center gap-1">
+                            <AdminReviewBadge decision={reviewDecision} className="py-0.5" />
+                            <AdminTruthBadge state={metricState} className="py-0.5" hasUsableValue />
+                        </span>
                     </p>
                     <div className="mt-2 flex items-start justify-between gap-2">
                         <p className="text-lg font-black text-white md:text-[1.45rem]">{stats.currentWindowPurchases.toLocaleString()}</p>
@@ -99,7 +114,10 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <DollarSign className="h-3.5 w-3.5 text-brand-purple" />
                         Lifetime revenue
-                        <AdminTruthBadge state={metricState} className="ml-auto py-0.5" hasUsableValue />
+                        <span className="ml-auto flex items-center gap-1">
+                            <AdminReviewBadge decision={reviewDecision} className="py-0.5" />
+                            <AdminTruthBadge state={metricState} className="py-0.5" hasUsableValue />
+                        </span>
                     </p>
                     <div className="mt-2 flex items-start justify-between gap-2">
                         <p className="font-mono text-lg font-black text-white md:text-[1.45rem]">${(stats.grossRevenueCents / 100).toFixed(2)}</p>
@@ -112,7 +130,10 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <Zap className="h-3.5 w-3.5 text-brand-purple" />
                         Lifetime unwraps
-                        <AdminTruthBadge state={metricState} className="ml-auto py-0.5" hasUsableValue />
+                        <span className="ml-auto flex items-center gap-1">
+                            <AdminReviewBadge decision={reviewDecision} className="py-0.5" />
+                            <AdminTruthBadge state={metricState} className="py-0.5" hasUsableValue />
+                        </span>
                     </p>
                     <div className="mt-2 flex items-start justify-between gap-2">
                         <p className="text-lg font-black text-white md:text-[1.45rem]">{stats.totalUnwraps.toLocaleString()}</p>

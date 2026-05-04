@@ -2,17 +2,21 @@
 
 import type { ReactNode } from "react";
 
+import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { BehavioralVerdictExplanation } from "@/lib/behavioral/behavioral-explanation";
+import type { AdminReviewBadgeDecision } from "@/lib/behavioral/review-badge-rules";
 
 export function BehavioralVerdictCard({
   title,
   explanation,
   details,
+  reviewDecision,
 }: {
   title: string;
   explanation: BehavioralVerdictExplanation;
   details?: ReactNode;
+  reviewDecision?: AdminReviewBadgeDecision | null;
 }) {
   return (
     <div className="rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3">
@@ -22,6 +26,7 @@ export function BehavioralVerdictCard({
           <p className="mt-1 text-sm font-black text-white">{explanation.verdict}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <AdminReviewBadge decision={reviewDecision ?? null} className="py-0.5" />
           <AdminTruthBadge
             state={explanation.truthState}
             className="py-0.5"

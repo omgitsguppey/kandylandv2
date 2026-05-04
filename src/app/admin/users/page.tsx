@@ -13,6 +13,7 @@ import { authFetch } from "@/lib/authFetch";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
@@ -21,6 +22,10 @@ import {
     buildEngagementBehavioralExplanation,
     buildValueBehavioralExplanation,
 } from "@/lib/behavioral/behavioral-explanation";
+import {
+    buildAdminReviewBadge,
+    buildBehaviorRollupReviewBadge,
+} from "@/lib/behavioral/review-badge-rules";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import {
     coerceAdminTruthState,
@@ -435,11 +440,13 @@ export default function UserManagementPage() {
         value,
         detail,
         metricState,
+        reviewDecision,
     }: {
         title: string;
         value: string;
         detail: ReactNode;
         metricState: AdminTruthState;
+        reviewDecision?: ReturnType<typeof buildAdminReviewBadge>;
     }) => (
         <div
             className="rounded-2xl border border-white/10 bg-white/[0.045] px-2.5 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:px-3 sm:py-3"
@@ -448,15 +455,19 @@ export default function UserManagementPage() {
             data-admin-metric-freshness={summarySnapshotTruthState ?? "unavailable"}
             data-admin-users-metric-state={metricState}
             data-admin-users-metric-source={summarySnapshotSource}
+            data-admin-review-reason={reviewDecision?.reasonCode ?? "none"}
         >
             <div className="flex min-h-5 items-start justify-between gap-1.5">
                 <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.13em] text-gray-500">{title}</p>
-                <AdminTruthBadge
-                    state={metricState}
-                    className="shrink-0 px-1.5 py-0 text-[8px] tracking-[0.08em]"
-                    pendingInitialLoad={!summary && summaryLoading}
-                    hasUsableValue={hasUsableAdminTruthValue(value)}
-                />
+                <div className="flex shrink-0 items-center gap-1">
+                    <AdminReviewBadge decision={reviewDecision ?? null} className="px-1.5 py-0 text-[8px] tracking-[0.08em]" />
+                    <AdminTruthBadge
+                        state={metricState}
+                        className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                        pendingInitialLoad={!summary && summaryLoading}
+                        hasUsableValue={hasUsableAdminTruthValue(value)}
+                    />
+                </div>
             </div>
             <p className="mt-1 truncate text-xl font-black leading-none text-white sm:text-2xl">{value}</p>
             <p className="mt-1 min-h-7 text-[10px] leading-snug text-gray-400 sm:text-[11px]">{detail}</p>
@@ -749,24 +760,42 @@ export default function UserManagementPage() {
                             value: formatSummaryCount(summary?.totalUsers),
                             detail: `${formatSummaryCount(summary?.activeUsers)} active`,
                             metricState: getSummaryMetricState([summary?.totalUsers, summary?.activeUsers], summarySnapshotTruthState),
+                            reviewDecision: buildAdminReviewBadge({
+                                truthState: getSummaryMetricState([summary?.totalUsers, summary?.activeUsers], summarySnapshotTruthState),
+                                missingRequiredData: !summary,
+                            }),
                         })}
                         {renderSummaryMetricCard({
                             title: "Returned in last 7 days",
                             value: formatSummaryCount(summary?.returnedInLast7Days ?? summary?.activeLast7Days),
                             detail: "logged in, visited, or tracked",
                             metricState: getSummaryMetricState([summary?.returnedInLast7Days ?? summary?.activeLast7Days], summarySnapshotTruthState),
+                            reviewDecision: buildAdminReviewBadge({
+                                truthState: getSummaryMetricState([summary?.returnedInLast7Days ?? summary?.activeLast7Days], summarySnapshotTruthState),
+                                missingRequiredData: !summary,
+                            }),
                         })}
                         {renderSummaryMetricCard({
                             title: "Unwraps",
                             value: formatSummaryCount(summary?.totalUnwraps),
                             detail: `${formatSummaryCount(summary?.totalPurchases)} tracked purchases`,
                             metricState: getSummaryMetricState([summary?.totalUnwraps, summary?.totalPurchases], summarySnapshotTruthState),
+                            reviewDecision: buildAdminReviewBadge({
+                                truthState: getSummaryMetricState([summary?.totalUnwraps, summary?.totalPurchases], summarySnapshotTruthState),
+                                missingRequiredData: !summary,
+                                revenueExistsButPurchaseCountMissing: Boolean((summary?.grossRevenueUsd ?? 0) > 0 && !summary?.totalPurchases),
+                            }),
                         })}
                         {renderSummaryMetricCard({
                             title: "Watch",
                             value: summary ? `${summary.totalWatchHours ?? 0}h` : SUMMARY_PLACEHOLDER,
                             detail: "foreground viewer time",
                             metricState: getSummaryMetricState([summary?.totalWatchHours], summarySnapshotTruthState),
+                            reviewDecision: buildAdminReviewBadge({
+                                truthState: getSummaryMetricState([summary?.totalWatchHours], summarySnapshotTruthState),
+                                missingRequiredData: !summary,
+                                viewsExistButWatchMissing: Boolean((summary?.activeUsers ?? 0) > 0 && !summary?.totalWatchHours),
+                            }),
                         })}
                         {renderSummaryMetricCard({
                             title: "Revenue",
@@ -779,6 +808,15 @@ export default function UserManagementPage() {
                                     delayed: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale",
                                 },
                             ),
+                            reviewDecision: buildAdminReviewBadge({
+                                truthState: getSummaryMetricState(
+                                    [summary?.grossRevenueUsd, summary?.adjustedProfitUsd, summary?.bonusValueUsd],
+                                    coerceAdminTruthState(summary?.commerceTruthLabel),
+                                    { delayed: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale" },
+                                ),
+                                delayedExpected: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale",
+                                revenueExistsButPurchaseCountMissing: Boolean((summary?.grossRevenueUsd ?? 0) > 0 && !summary?.totalPurchases),
+                            }),
                         })}
                         {renderSummaryMetricCard({
                             title: "Paying",
@@ -791,24 +829,44 @@ export default function UserManagementPage() {
                                     delayed: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale",
                                 },
                             ),
+                            reviewDecision: buildAdminReviewBadge({
+                                truthState: getSummaryMetricState(
+                                    [summary?.payingUsers, summary?.averageOrderUsd, summary?.effectiveUsdPer100Gd],
+                                    coerceAdminTruthState(summary?.commerceTruthLabel),
+                                    { delayed: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale" },
+                                ),
+                                delayedExpected: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale",
+                            }),
                         })}
                         {renderSummaryMetricCard({
                             title: "Verified",
                             value: formatSummaryCount(summary?.verifiedUsers),
                             detail: "badge-ready accounts",
                             metricState: getSummaryMetricState([summary?.verifiedUsers], summarySnapshotTruthState),
+                            reviewDecision: buildAdminReviewBadge({
+                                truthState: getSummaryMetricState([summary?.verifiedUsers], summarySnapshotTruthState),
+                                missingRequiredData: !summary,
+                            }),
                         })}
                         {renderSummaryMetricCard({
                             title: "Push",
                             value: formatSummaryCount(summary?.notificationsEnabledUsers),
                             detail: "browser alerts on",
                             metricState: getSummaryMetricState([summary?.notificationsEnabledUsers], summarySnapshotTruthState),
+                            reviewDecision: buildAdminReviewBadge({
+                                truthState: getSummaryMetricState([summary?.notificationsEnabledUsers], summarySnapshotTruthState),
+                                missingRequiredData: !summary,
+                            }),
                         })}
                         {renderSummaryMetricCard({
                             title: "Onboarded",
                             value: formatSummaryCount(summary?.onboardingCompletedUsers),
                             detail: "completed setup",
                             metricState: getSummaryMetricState([summary?.onboardingCompletedUsers], summarySnapshotTruthState),
+                            reviewDecision: buildAdminReviewBadge({
+                                truthState: getSummaryMetricState([summary?.onboardingCompletedUsers], summarySnapshotTruthState),
+                                missingRequiredData: !summary,
+                            }),
                         })}
                     </div>
 
@@ -851,6 +909,11 @@ export default function UserManagementPage() {
                                     const truthState = getBehaviorTruthState(behaviorRollup);
                                     const engagementExplanation = buildEngagementBehavioralExplanation({ engagement, behaviorRollup, truthState });
                                     const valueExplanation = buildValueBehavioralExplanation({ value, behaviorRollup, truthState });
+                                    const reviewDecision = buildBehaviorRollupReviewBadge({
+                                        behaviorRollup,
+                                        truthState,
+                                        personalizedOutputShown: true,
+                                    });
                                     return (
                                     <div
                                         key={user.uid}
@@ -861,9 +924,12 @@ export default function UserManagementPage() {
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-bold text-white">{user.username ? `@${user.username}` : user.displayName || user.email || user.uid}</p>
-                                                <p className="text-xs text-gray-500">
-                                                    {engagementExplanation.verdict} &middot; Value {valueExplanation.verdict} &middot; {engagementExplanation.confidenceLabel} truth
-                                                </p>
+                                                <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                    <p className="text-xs text-gray-500">
+                                                        {engagementExplanation.verdict} &middot; Value {valueExplanation.verdict} &middot; {engagementExplanation.confidenceLabel} truth
+                                                    </p>
+                                                    <AdminReviewBadge decision={reviewDecision} className="px-1.5 py-0 text-[8px] tracking-[0.08em]" />
+                                                </div>
                                                 <p className="mt-1 text-[11px] text-gray-400">
                                                     {valueExplanation.summary || engagementExplanation.summary || "No recent verified value signal."}
                                                 </p>
@@ -916,6 +982,11 @@ export default function UserManagementPage() {
                                             const truthState = getBehaviorTruthState(behaviorRollup);
                                             const engagementExplanation = buildEngagementBehavioralExplanation({ engagement, behaviorRollup, truthState });
                                             const valueExplanation = buildValueBehavioralExplanation({ value, behaviorRollup, truthState });
+                                            const reviewDecision = buildBehaviorRollupReviewBadge({
+                                                behaviorRollup,
+                                                truthState,
+                                                personalizedOutputShown: true,
+                                            });
                                             const onboardingBadge = getOnboardingBadge(user, analytics);
                                             return (
                                             <tr key={user.uid} className="transition-colors">
@@ -975,8 +1046,11 @@ export default function UserManagementPage() {
                                                             data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
                                                             data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
                                                         >
-                                                            <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
+                                                            <div className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
+                                                                <span>
                                                                 {engagementExplanation.verdict} / Value {valueExplanation.verdict}
+                                                                </span>
+                                                                <AdminReviewBadge decision={reviewDecision} className="px-1.5 py-0 text-[8px] tracking-[0.08em]" />
                                                             </div>
                                                             <div className="text-[10px] text-gray-500">
                                                                 {valueExplanation.statusLabel || engagementExplanation.statusLabel || "No recent signal"} / {behaviorRollup?.issues.length ?? 0} issues
@@ -1069,6 +1143,11 @@ export default function UserManagementPage() {
                                 const truthState = getBehaviorTruthState(behaviorRollup);
                                 const engagementExplanation = buildEngagementBehavioralExplanation({ engagement, behaviorRollup, truthState });
                                 const valueExplanation = buildValueBehavioralExplanation({ value, behaviorRollup, truthState });
+                                const reviewDecision = buildBehaviorRollupReviewBadge({
+                                    behaviorRollup,
+                                    truthState,
+                                    personalizedOutputShown: true,
+                                });
                                 const onboardingBadge = getOnboardingBadge(user, analytics);
                                 return (
                                 <div key={user.uid} className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col gap-4 relative overflow-hidden group">
@@ -1135,6 +1214,9 @@ export default function UserManagementPage() {
                                                 data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
                                                 data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
                                             >
+                                                <div className="col-span-2 flex justify-end">
+                                                    <AdminReviewBadge decision={reviewDecision} className="px-1.5 py-0.5 text-[8px] tracking-[0.08em]" />
+                                                </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><Users className="w-3 h-3 inline mr-1" />Events</span>
                                                     <span className="text-sm font-mono text-gray-300">{behaviorRollup?.totalActions ?? analytics.eventCount ?? 0}</span>
