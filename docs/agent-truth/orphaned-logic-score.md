@@ -13,11 +13,15 @@ KandyDrops orphaned logic scoring is deterministic and source-only. It exists to
 
 - Duplicate normalizers or exported truth helpers with the same name must become one canonical owner plus documented adapters.
 - `DropPreviewModal` is legacy fallback only. Locked Drop preview ownership belongs to the full-page `/drops/[id]/preview` route.
+- `/drops?drop=` is legacy handoff only. It must not become the primary modal preview flow again.
 - Duplicate useDrops optimization notes and duplicate bot PR audit chunks should not spread across generated docs.
 - Broken template text such as unresolved placeholders is stale generated evidence and should be removed only when the duplicate chunk is exact.
 - Unused route handlers after migration should be escalated, not deleted automatically.
 - Stale docs must not contradict current doctrine for full-page locked preview, mobile shell tokens, GumDrops vocabulary, or hot-cache admin truth.
+- Old visible wallet paid/bonus row subcopy is stale. Wallet package cards use compact public-beta density while backend source-of-funds truth stays explicit.
 - Old `Coins`, `Tokens`, or `Credits` vocabulary is allowed only when explicitly documenting forbidden substitutes.
+- The chat floating action offset must resolve through the shared bottom-nav-safe token, not a hardcoded `0px` value.
+- Support route expectations must use nested `support_messages` under `support_threads`; admin routes may list/read/reply globally while user routes stay owner-scoped.
 - Admin analytics direct realtime/timer logic must be reviewed against the current hot-cache doctrine.
 - Duplicate telemetry events with the same intent require catalog and validator review before any rename.
 - Dead imports in public beta surfaces are cleanup candidates only after TypeScript confirms they are unused.

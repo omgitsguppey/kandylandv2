@@ -5,11 +5,15 @@ type OrphanedLogicSeverity = "info" | "minor" | "moderate" | "major" | "critical
 type OrphanedLogicCategory =
   | "duplicate_normalizer"
   | "legacy_preview_ownership"
+  | "drops_query_handoff"
   | "use_drops_notes"
   | "duplicate_pr_audit"
   | "route_migration"
   | "stale_docs"
+  | "wallet_subcopy_doctrine"
   | "vocabulary"
+  | "chat_offset_token"
+  | "support_route_expectation"
   | "realtime_hot_cache"
   | "telemetry_duplicate_intent"
   | "dead_import"
@@ -69,11 +73,15 @@ const severityImpact: Record<OrphanedLogicSeverity, number> = {
 const rules = [
   "duplicate normalizers for same domain",
   "old DropPreviewModal must not own locked preview after full-page route exists",
+  "`/drops?drop=` modal flow still primary",
   "duplicate useDrops optimization notes",
   "duplicate PR audit chunks with broken template text",
   "unused route handlers after route migration",
   "stale docs contradicting current doctrine",
+  "old wallet subcopy doctrine",
   "old Coins or wrong GumDrops vocabulary",
+  "hardcoded chat offset token",
+  "orphaned support route expectations",
   "obsolete realtime logic where hot-cache doctrine applies",
   "duplicate telemetry events with same intent but different names",
   "dead imports in public beta surfaces",
@@ -104,9 +112,12 @@ const requiredFiles = [
   "src/components/DropPreviewModal.tsx",
   "src/components/FeaturedCarousel.tsx",
   "src/hooks/useDrops.ts",
+  "src/lib/user-mobile-shell.ts",
   "src/lib/telemetry-catalog.ts",
   "src/lib/drop-normalizers.ts",
   "src/lib/drop-read-models.ts",
+  "docs/agent-truth/support-recovery-flows.md",
+  "docs/agent-truth/payment-wallet-unlock-entitlement.md",
 ] as const;
 
 const publicBetaImportSurfaces = [
@@ -319,6 +330,55 @@ function scanLegacyPreviewOwnership(findings: OrphanedLogicFinding[]) {
   }
 }
 
+function scanDropsQueryHandoff(findings: OrphanedLogicFinding[], sourceFiles: SourceFile[]) {
+  const fullPagePreviewExists = existsSync(join(root, "src/app/drops/[id]/preview/page.tsx"));
+  if (!fullPagePreviewExists) return;
+
+  const queryFlowNeedles = [
+    "\"/drops?drop=",
+    "'/drops?drop=",
+    "`/drops?drop=",
+    "searchParams.get(\"drop\")",
+    "searchParams.get('drop')",
+  ];
+
+  for (const file of sourceFiles) {
+    const isDropsSurface =
+      file.path === "src/app/drops/DropsClient.tsx" ||
+      file.path === "src/app/drops/page.tsx" ||
+      file.path.startsWith("src/components/Drop") ||
+      file.path.startsWith("src/components/Drops/") ||
+      file.path === "src/components/FeaturedCarousel.tsx";
+    if (!isDropsSurface) continue;
+
+    const matchedNeedle = queryFlowNeedles.find((needle) => file.source.includes(needle));
+    if (!matchedNeedle) continue;
+
+    const isDocumentedHandoff =
+      file.source.includes("/preview?source_component=") ||
+      file.source.includes("redirect(") ||
+      file.source.includes("router.replace(");
+    const stillModalPrimary =
+      file.source.includes("DropPreviewModal") ||
+      file.source.includes("setSelectedDrop") ||
+      file.source.includes("selectedDrop");
+
+    if (!isDocumentedHandoff || stillModalPrimary) {
+      addFinding(findings, {
+        severity: "major",
+        category: "drops_query_handoff",
+        title: "`/drops?drop=` still appears to own a modal-first locked preview flow",
+        filePath: file.path,
+        line: lineOf(file.source, matchedNeedle),
+        excerpt: excerptOf(file.source, matchedNeedle),
+        suggestedFix: "Keep `/drops?drop=<id>` as redirect/handoff only and route canonical locked preview actions to /drops/[id]/preview.",
+        escalation: "Preview route ownership affects conversion, deep links, and locked-content safety; do not auto-rewrite it.",
+        evidence: [matchedNeedle, "Full-page preview route exists."],
+      });
+    }
+  }
+}
+
 function scanUseDropsNotes(findings: OrphanedLogicFinding[], docFiles: SourceFile[]) {
   const optimizationNeedles = [
     "combine client drop filtering and next-expiration",
@@ -443,6 +503,107 @@ function scanStaleDocs(findings: OrphanedLogicFinding[], docFiles: SourceFile[])
         evidence: [claim],
       });
     }
+  }
+}
+
+function scanWalletSubcopyDoctrine(findings: OrphanedLogicFinding[], docFiles: SourceFile[]) {
+  const staleWalletPatterns = [
+    "Purchase UI must separate paid GumDrops from bonus GumDrops",
+    "Package rows show total GumDrops, USD price, paid GumDrops, and bonus GumDrops",
+    "Wallet package copy separates paid and bonus GumDrops",
+    "success state repeats credited GumDrops, paid GumDrops, bonus GumDrops",
+    "500 paid + 500 bonus GumDrops",
+  ];
+
+  for (const file of docFiles) {
+    const matchingLines = file.source
+      .split(/\r?\n/u)
+      .filter((line) => staleWalletPatterns.some((pattern) => line.includes(pattern)));
+
+    if (matchingLines.length === 0) continue;
+
+    addFinding(findings, {
+      severity: "moderate",
+      category: "wallet_subcopy_doctrine",
+      title: "Doc still describes old visible wallet paid/bonus subcopy",
+      filePath: file.path,
+      line: lineOf(file.source, matchingLines[0]),
+      excerpt: matchingLines[0].trim(),
+      suggestedFix: "Update wallet copy doctrine to compact rows: delivered total, package label, price, purple bonus chip, and source-aware free/paid balance chip.",
+      escalation: "Wallet copy changes require doctrine review and must not alter source-of-funds accounting or package math.",
+      evidence: matchingLines.map((line) => line.trim()),
+    });
+  }
+}
+
+function scanChatOffsetToken(findings: OrphanedLogicFinding[]) {
+  const filePath = "src/lib/user-mobile-shell.ts";
+  const source = requireFile(findings, filePath);
+  if (!source) return;
+
+  const hardcodedZeroPatterns = [
+    "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = \"0px\"",
+    "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = '0px'",
+    "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = `0px`",
+  ];
+  const matched = hardcodedZeroPatterns.find((pattern) => source.includes(pattern));
+  if (!matched) return;
+
+  addFinding(findings, {
+    severity: "major",
+    category: "chat_offset_token",
+    title: "Chat floating action bottom offset is hardcoded to 0px",
+    filePath,
+    line: lineOf(source, matched),
+    excerpt: excerptOf(source, matched),
+    suggestedFix: "Point CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET at the shared bottom-nav-safe chat token.",
+    escalation: "Chat shell spacing affects keyboard/browser/PWA behavior; only exact token replacements are safe.",
+    evidence: [matched],
+  });
+}
+
+function scanSupportRouteExpectations(findings: OrphanedLogicFinding[], files: SourceFile[]) {
+  const stalePatterns = [
+    "flat support_messages collection",
+    "top-level support_messages collection",
+    "admin support dashboard reads Firestore directly",
+    "admin support UI reads Firestore directly",
+    "support route returns only flat messages",
+  ];
+
+  for (const file of files) {
+    if (
+      file.path === "scripts/agent/score-orphaned-logic.ts" ||
+      file.path === "scripts/agent/validate-orphaned-logic.ts" ||
+      file.path === "docs/agent-truth/orphaned-logic-score.md"
+    ) {
+      continue;
+    }
+
+    const lowerSource = file.source.toLowerCase();
+    const matchedPattern = stalePatterns.find((pattern) => lowerSource.includes(pattern));
+    const matchingLine = matchedPattern
+      ? file.source.split(/\r?\n/u).find((line) => line.toLowerCase().includes(matchedPattern))
+      : "";
+    const matchedLineIsCurrentDoctrine = matchingLine
+      ? /nested|not direct|must not|do not|forbidden|detect|validator|scorer/iu.test(matchingLine)
+      : false;
+    const flatCollectionPattern = file.path.startsWith("src/") && /collection\([^)]*["'`]support_messages["'`]/u.test(file.source);
+
+    if ((!matchedPattern || matchedLineIsCurrentDoctrine) && !flatCollectionPattern) continue;
+
+    const evidence = matchedPattern ?? "flat support_messages collection access";
+    addFinding(findings, {
+      severity: "major",
+      category: "support_route_expectation",
+      title: "Support surface appears to expect an orphaned flat/direct-message model",
+      filePath: file.path,
+      line: lineOf(lowerSource, evidence.toLowerCase()) ?? lineOf(file.source, "support_messages"),
+      excerpt: excerptOf(file.source, evidence) ?? excerptOf(file.source, "support_messages"),
+      suggestedFix: "Use the unified inbox model: admin routes list/read/reply to all threads and nested support_messages; user routes stay owner-scoped.",
+      escalation: "Support permissions and privacy boundaries must be reviewed before changing route or Firestore access.",
+      evidence: [evidence],
+    });
   }
 }
 
@@ -643,11 +804,15 @@ function collectFindings() {
 
   scanDuplicateNormalizers(findings, sourceFiles);
   scanLegacyPreviewOwnership(findings);
+  scanDropsQueryHandoff(findings, sourceFiles);
   scanUseDropsNotes(findings, docFiles);
   scanBrokenDocChunks(findings, docFiles);
   scanRouteMigration(findings, sourceFiles);
   scanStaleDocs(findings, docFiles);
+  scanWalletSubcopyDoctrine(findings, docFiles);
   scanVocabulary(findings, allScanFiles);
+  scanChatOffsetToken(findings);
+  scanSupportRouteExpectations(findings, allScanFiles);
   scanRealtimeHotCache(findings, sourceFiles);
   scanTelemetryDuplicateIntent(findings);
   scanDeadImports(findings);

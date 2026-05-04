@@ -96,11 +96,15 @@ function validateFinding(finding: OrphanedLogicFinding, index: number) {
   if (![
     "duplicate_normalizer",
     "legacy_preview_ownership",
+    "drops_query_handoff",
     "use_drops_notes",
     "duplicate_pr_audit",
     "route_migration",
     "stale_docs",
+    "wallet_subcopy_doctrine",
     "vocabulary",
+    "chat_offset_token",
+    "support_route_expectation",
     "realtime_hot_cache",
     "telemetry_duplicate_intent",
     "dead_import",
@@ -154,7 +158,9 @@ if (report) {
     "src/app/drops/[id]/preview/page.tsx",
     "src/components/DropPreviewModal.tsx",
     "src/hooks/useDrops.ts",
+    "src/lib/user-mobile-shell.ts",
     "src/lib/telemetry-catalog.ts",
+    "docs/agent-truth/support-recovery-flows.md",
   ]) {
     if (!report.checkedFiles.includes(requiredFile)) {
       failures.push(`checkedFiles must include ${requiredFile}.`);
@@ -163,8 +169,12 @@ if (report) {
   for (const rule of [
     "duplicate normalizers for same domain",
     "old DropPreviewModal must not own locked preview after full-page route exists",
+    "`/drops?drop=` modal flow still primary",
     "duplicate PR audit chunks with broken template text",
+    "old wallet subcopy doctrine",
     "old Coins or wrong GumDrops vocabulary",
+    "hardcoded chat offset token",
+    "orphaned support route expectations",
     "duplicate telemetry events with same intent but different names",
     "dead imports in public beta surfaces",
   ]) {
@@ -189,6 +199,8 @@ const launchTriageDocs = readRequired("docs/agent-truth/launch-pr-triage.md");
 const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
 const dropsClient = readRequired("src/app/drops/DropsClient.tsx");
 const dropPreviewModal = readRequired("src/components/DropPreviewModal.tsx");
+const userMobileShell = readRequired("src/lib/user-mobile-shell.ts");
+const supportDocs = readRequired("docs/agent-truth/support-recovery-flows.md");
 const audit = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
 const memory = readRequired("REPO_MEMORY_LEDGER.md");
 const checklist = readRequired("EVERY_FILE_FUNCTION_CHECKLIST.md");
@@ -205,8 +217,15 @@ for (const expected of [
   "OrphanedLogicReport",
   "duplicate normalizers for same domain",
   "DropPreviewModal",
+  "scanDropsQueryHandoff",
   "duplicate PR audit chunks with broken template text",
+  "scanWalletSubcopyDoctrine",
+  "scanChatOffsetToken",
+  "scanSupportRouteExpectations",
+  "old wallet subcopy doctrine",
   "old Coins or wrong GumDrops vocabulary",
+  "hardcoded chat offset token",
+  "orphaned support route expectations",
   "obsolete realtime logic where hot-cache doctrine applies",
   "duplicate telemetry events with same intent but different names",
   "dead imports in public beta surfaces",
@@ -226,6 +245,10 @@ requireIncludes(dropPreviewDocs, "Locked Drop preview is a dedicated full-page c
 requireIncludes(dropPreviewModal, "Legacy fallback only. Locked Drop preview ownership moved to /drops/[id]/preview.", "legacy DropPreviewModal marker");
 requireIncludes(dropsClient, "/preview?source_component=", "DropsClient full-page preview routing");
 requireNotIncludes(dropsClient, "DropPreviewModal", "DropsClient locked preview ownership");
+requireIncludes(userMobileShell, "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = CHAT_LIST_CONTROLS_BOTTOM_OFFSET", "chat floating offset token");
+requireNotIncludes(userMobileShell, "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = \"0px\"", "chat floating offset token");
+requireIncludes(supportDocs, "nested `support_messages/{messageId}`", "support route expectation doctrine");
+requireIncludes(supportDocs, "Admin routes may list/read/reply to all support threads", "support route expectation doctrine");
 requireIncludes(launchTriageDocs, "Open bot PRs must be cherry-picked by current-source relevance", "launch PR triage doctrine");
 requireIncludes(publicBetaScoreDocs, "orphanedLogic", "public beta score domain docs");
 requireIncludes(telemetryCatalog, "drop_preview_opened", "telemetry catalog duplicate-intent evidence");
@@ -242,6 +265,9 @@ for (const [label, source] of [
 }
 for (const expected of [
   "Do not delete route files or components without an explicit deprecated marker",
+  "`/drops?drop=` is legacy handoff only",
+  "Old visible wallet paid/bonus row subcopy is stale",
+  "Support route expectations must use nested `support_messages`",
   "Autofix plans are suggestions only",
   "score:orphans",
   "check:orphaned-logic",

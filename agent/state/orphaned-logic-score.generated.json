@@ -1,9 +1,29 @@
 {
-  "score": 90,
-  "status": "pass",
-  "generatedAt": "2026-05-04T06:23:32.949Z",
+  "score": 85,
+  "status": "warning",
+  "generatedAt": "2026-05-04T07:18:35.026Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [
+    {
+      "severity": "moderate",
+      "category": "wallet_subcopy_doctrine",
+      "title": "Doc still describes old visible wallet paid/bonus subcopy",
+      "filePath": "docs/agent-truth/legal-payment-user-trust-copy.md",
+      "line": 15,
+      "excerpt": "- Purchase UI must separate paid GumDrops from bonus GumDrops when a package includes both.",
+      "suggestedFix": "Update wallet copy doctrine to compact rows: delivered total, package label, price, purple bonus chip, and source-aware free/paid balance chip.",
+      "escalation": "Wallet copy changes require doctrine review and must not alter source-of-funds accounting or package math.",
+      "evidence": [
+        "- Purchase UI must separate paid GumDrops from bonus GumDrops when a package includes both.",
+        "- Package rows show total GumDrops, USD price, paid GumDrops, and bonus GumDrops before checkout.",
+        "- The success state repeats credited GumDrops, paid GumDrops, bonus GumDrops, and secured USD amount.",
+        "- `500 paid + 500 bonus GumDrops`",
+        "- Wallet package copy separates paid and bonus GumDrops."
+      ],
+      "id": "orphaned-logic-48ja9u",
+      "scoreImpact": -5,
+      "canAutofix": false
+    },
     {
       "severity": "major",
       "category": "realtime_hot_cache",
@@ -58,7 +78,7 @@
   "criticalCount": 0,
   "majorCount": 1,
   "safeAutofixesAvailable": 0,
-  "scannedFileCount": 901,
+  "scannedFileCount": 905,
   "checkedFiles": [
     "src/app/drops/[id]/preview/page.tsx",
     "src/app/drops/DropsClient.tsx",
@@ -66,9 +86,12 @@
     "src/components/DropPreviewModal.tsx",
     "src/components/FeaturedCarousel.tsx",
     "src/hooks/useDrops.ts",
+    "src/lib/user-mobile-shell.ts",
     "src/lib/telemetry-catalog.ts",
     "src/lib/drop-normalizers.ts",
     "src/lib/drop-read-models.ts",
+    "docs/agent-truth/support-recovery-flows.md",
+    "docs/agent-truth/payment-wallet-unlock-entitlement.md",
     "src/app/drops/DropsClient.tsx",
     "src/components/DropCard.tsx",
     "src/components/DropCardLayout.tsx",
@@ -82,11 +105,15 @@
   "rules": [
     "duplicate normalizers for same domain",
     "old DropPreviewModal must not own locked preview after full-page route exists",
+    "`/drops?drop=` modal flow still primary",
     "duplicate useDrops optimization notes",
     "duplicate PR audit chunks with broken template text",
     "unused route handlers after route migration",
     "stale docs contradicting current doctrine",
+    "old wallet subcopy doctrine",
     "old Coins or wrong GumDrops vocabulary",
+    "hardcoded chat offset token",
+    "orphaned support route expectations",
     "obsolete realtime logic where hot-cache doctrine applies",
     "duplicate telemetry events with same intent but different names",
     "dead imports in public beta surfaces",
@@ -108,5 +135,5 @@
       "broad UI audits"
     ]
   },
-  "summary": "Detected 3 orphaned-logic/stale-artifact finding(s); behavior-changing cleanup requires escalation."
+  "summary": "Detected 4 orphaned-logic/stale-artifact finding(s); behavior-changing cleanup requires escalation."
 }
