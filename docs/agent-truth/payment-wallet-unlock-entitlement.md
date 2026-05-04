@@ -14,11 +14,14 @@ Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDrop
 
 The wallet modal uses compact public-beta density. Package cards show total delivered GumDrops, package label, price, and purple bonus chip only. The visible paid/bonus explanatory subcopy is removed to reduce vertical sprawl. The balance chip shows source-aware free GD and paid GD. Backend source-of-funds accounting and telemetry remain unchanged.
 
+Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hide PayPal iframes or buttons. Funding-source visibility is controlled through PayPal SDK configuration or PayPalButtons fundingSource. PayPal may still offer eligible funding methods after buyer enters PayPal; KandyDrops only controls the on-page button stack.
+
 ## Source Truth Rules
 
 - Gum Drops package pricing is defined by `src/lib/gumdrops-packages.ts`.
 - PayPal order creation binds the authenticated user and requested package in `custom_id` as `userId:expectedDrops`.
 - PayPal capture must verify status, USD amount, expected package price, and the server-created `custom_id` user/package binding before any credit.
+- PurchaseModal renders the on-page checkout as a PayPal-only funding-source button and may also disable extra SDK funding sources through the shared `PayPalScriptProvider` options. It must not CSS-hide PayPal iframes/buttons or fall back to stacked card/paylater buttons.
 - Purchase economics still record `paidGumDrops`, `bonusGumDrops`, and delivered totals from `src/lib/gumdrop-economics.ts`, but paid-pack base and paid-pack bonus both credit purchased/paid-source balance through `src/lib/gumdrop-ledger.ts`.
 - PurchaseModal may show compact source-aware balance display and compact package cards, but it must not change package delivery totals, checkout expectedDrops, PayPal behavior, or source classification.
 - Promo, reward, referral, onboarding, task, check-in, and admin grant Gum Drops credit reward-source balance and are not revenue.
@@ -80,6 +83,7 @@ Run Firebase rules only when security rules change:
 - Do not clear, rewrite, or bypass payment locks.
 - Do not make paid-pack bonus GumDrops count as reward-source balance; they are paid-source balance even though they remain purchase bonus metadata.
 - Do not reintroduce visible paid/bonus explanatory subcopy under wallet package cards; source split truth belongs in telemetry/backend fields and the compact free/paid balance chip.
+- Do not reintroduce stacked PayPal, Pay Later, Debit, or Credit Card buttons into Wallet v1. Use PayPal SDK funding-source controls instead of CSS hiding.
 - Do not make promo, reward, referral, daily task, onboarding, or admin adjustment Gum Drops count as revenue or paid-source creator spend balance.
 - Do not expose raw private content URLs to the browser before entitlement verification.
 - Do not change payment/write flows without route tests and this validation lane.

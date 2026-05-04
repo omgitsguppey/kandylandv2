@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Wallet single PayPal checkout button
+
+Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hide PayPal iframes or buttons. Funding-source visibility is controlled through PayPal SDK configuration or PayPalButtons fundingSource. PayPal may still offer eligible funding methods after buyer enters PayPal; KandyDrops only controls the on-page button stack. `src/components/PurchaseModal.tsx` owns the compact single-button checkout block and debug markers, `src/components/PayPalProvider.tsx` owns shared PayPal SDK funding suppression, and `npm run check:wallet-single-paypal-button` validates the checkout configuration without touching PayPal create/capture routes or GumDrops source-of-funds truth.
+
 ## 2026-05-04 Sitewide speed/security hardening
 
 KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. `src/lib/server/route-cache-contract.ts` owns cache intent, `src/lib/server/security-hardening-contract.ts` owns API/App Check security posture, `npm run score:speed-security` writes `agent/state/speed-security-hardening.generated.json`, `npm run check:speed-security` validates schema/route classification/rules/App Check/docs, and `npm run repair:speed-security` dry-runs exact safe repairs only.

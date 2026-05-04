@@ -1,5 +1,31 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #148] PRE: Wallet Single PayPal Checkout Button
+
+Scope started:
+- Finalizing Wallet v1 checkout density by rendering one on-page PayPal funding-source button while preserving PayPal order creation, approval/capture, duplicate handling, timed checkout telemetry, wallet package selection, source-of-funds truth, and payment safety.
+- Required outputs include `src/components/PurchaseModal.tsx`, shared PayPal provider options where safe, `scripts/agent/validate-wallet-single-paypal-button.ts`, package script `check:wallet-single-paypal-button`, targeted component coverage, docs/source-of-truth updates, commit, and push.
+- This pass must not run Playwright/Lighthouse/Cypress/full `npm run check`/broad UI audits, modify PayPal create/capture routes, change package prices/delivery/source classification, change wallet package card design outside checkout, or CSS-hide PayPal iframes/buttons.
+
+Evidence:
+- Control tower routing, doctrine consultation workflow, UI/copy doctrine, governance ledgers, `trace:adjacent` for PurchaseModal/PayPalProvider/PayPal routes, local installed `@paypal/react-paypal-js` types, current PurchaseModal compact density tests, and payment-wallet entitlement doctrine were consulted before implementation.
+- Local SDK types confirm `@paypal/react-paypal-js` exports `FUNDING` and PayPalButtons supports `fundingSource`; PayPal script options support `disableFunding`.
+
+Doctrine:
+- Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hide PayPal iframes or buttons. Funding-source visibility is controlled through PayPal SDK configuration or PayPalButtons fundingSource. PayPal may still offer eligible funding methods after buyer enters PayPal; KandyDrops only controls the on-page button stack.
+
+Scope completed:
+- `src/components/PurchaseModal.tsx` now renders the PayPalButtons component with `fundingSource={FUNDING.PAYPAL}`, compact `height: 45`, pill shape, single-button checkout/debug markers, a compact one-button skeleton, PayPal-only render fallback reporting, and package-aware `forceReRender` keys while preserving createOrder, onApprove/capture, duplicate handling, timed checkout telemetry, package paid/bonus payloads, wallet density markers, and package selection.
+- `src/components/PayPalProvider.tsx` now applies shared PayPal SDK funding suppression for card, credit, paylater, and Venmo buttons through provider options, not script-tag or iframe edits.
+- Added `scripts/agent/validate-wallet-single-paypal-button.ts`, package script `check:wallet-single-paypal-button`, and PurchaseModal component coverage proving PayPal-only funding props, checkout callbacks, package-selection force rerender, compact markers, and no visible card/paylater labels outside the PayPal iframe wrapper.
+- Updated payment/wallet doctrine and repo memory docs. PayPal create/capture routes, package prices, GumDrops delivery amounts, ledger/source-of-funds logic, and payment API behavior were not modified.
+
+Verification:
+- `npm run check:wallet-single-paypal-button` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/purchase-modal-density.spec.tsx` passed.
+- `npm run typecheck` passed.
+- No Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, PayPal create/capture route edits, package math changes, ledger/source-of-funds edits, CSS iframe/button hiding, or wallet package card redesigns were run or applied.
+
 ## [2026-05-04 #147] PRE: Sitewide Speed Security Hardening
 
 Scope started:

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
+import { FUNDING, PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
 import { X, Candy, Minus, Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -612,78 +612,92 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                             We couldn&apos;t load the payment provider right now. Close and reopen Wallet to retry.
                           </div>
                         ) : !paypalReady || paypalLoading ? (
-                          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                            <div className="h-11 w-full bg-white/10 rounded-lg animate-pulse" />
+                          <div
+                            className="rounded-xl border border-white/10 bg-white/5 p-2.5"
+                            data-wallet-checkout-density="single-button"
+                          >
+                            <div className="h-[45px] w-full bg-white/10 rounded-full animate-pulse" />
                           </div>
                         ) : (
-                          <PayPalButtons
-                            forceReRender={[selectedPriceKey]}
-                            style={{ layout: "vertical", color: "white", shape: "rect", label: "pay", height: 48 }}
-                            disabled={processing}
-                            createOrder={async () => {
-                              startTimedFlow(CHECKOUT_FLOW_KEY, {
-                                package_label: selectedPackage.label,
-                                package_drops: selectedPackage.drops,
-                                package_price: selectedPackage.price,
-                                ...walletDensityPayload,
-                              });
-                              trackEvent("begin_checkout", {
-                                package_label: selectedPackage.label,
-                                package_drops: selectedPackage.drops,
-                                package_price: selectedPackage.price,
-                                ...walletDensityPayload,
-                              });
-                              try {
-                                const response = await authFetch("/api/paypal/create", {
-                                  method: "POST",
-                                  body: JSON.stringify({ expectedDrops: selectedPackage.drops }),
+                          <div
+                            className="max-h-[58px] overflow-visible rounded-full"
+                            data-wallet-paypal-render-mode="single-funding-source"
+                            data-wallet-paypal-funding-source="paypal"
+                            data-wallet-paypal-buttons-visible="1"
+                            data-wallet-checkout-density="single-button"
+                          >
+                            <PayPalButtons
+                              fundingSource={FUNDING.PAYPAL}
+                              forceReRender={[selectedPriceKey, String(selectedPackage.drops), selectedPackage.label]}
+                              style={{ layout: "vertical", color: "white", shape: "pill", label: "paypal", height: 45 }}
+                              disabled={processing}
+                              createOrder={async () => {
+                                startTimedFlow(CHECKOUT_FLOW_KEY, {
+                                  package_label: selectedPackage.label,
+                                  package_drops: selectedPackage.drops,
+                                  package_price: selectedPackage.price,
+                                  ...walletDensityPayload,
                                 });
+                                trackEvent("begin_checkout", {
+                                  package_label: selectedPackage.label,
+                                  package_drops: selectedPackage.drops,
+                                  package_price: selectedPackage.price,
+                                  ...walletDensityPayload,
+                                });
+                                try {
+                                  const response = await authFetch("/api/paypal/create", {
+                                    method: "POST",
+                                    body: JSON.stringify({ expectedDrops: selectedPackage.drops }),
+                                  });
 
-                                const order = await response.json();
+                                  const order = await response.json();
 
-                                if (!response.ok) {
-                                  const problemCopy = getPaymentProblemCopy(order.error || "Payment initialization failed");
-                                  toast.error(problemCopy.headline, { description: problemCopy.body });
-                                  throw new Error(order.error || "Payment initialization failed");
+                                  if (!response.ok) {
+                                    const problemCopy = getPaymentProblemCopy(order.error || "Payment initialization failed");
+                                    toast.error(problemCopy.headline, { description: problemCopy.body });
+                                    throw new Error(order.error || "Payment initialization failed");
+                                  }
+
+                                  return order.id;
+                                } catch (error) {
+                                  reportClientIssue({
+                                    channel: "payments",
+                                    message: "PayPal order initialization failed",
+                                    error,
+                                    detail: {
+                                      stage: "create_order",
+                                      packageLabel: selectedPackage.label,
+                                      packageDrops: selectedPackage.drops,
+                                      packagePrice: selectedPackage.price,
+                                    },
+                                    consoleLabel: "[Wallet] PayPal order initialization failed",
+                                  });
+                                  throw error;
                                 }
-
-                                return order.id;
-                              } catch (error) {
+                              }}
+                              onApprove={async (data) => {
+                                if (data.orderID) await handleApprove(data.orderID);
+                              }}
+                              onError={(err) => {
+                                const message = "PayPal encountered an error. Please try again.";
                                 reportClientIssue({
                                   channel: "payments",
-                                  message: "PayPal order initialization failed",
-                                  error,
+                                  severity: "warn",
+                                  message: "PayPal checkout surface errored",
+                                  error: err,
                                   detail: {
-                                    stage: "create_order",
+                                    stage: "paypal_single_button_render",
+                                    fundingSource: "paypal",
                                     packageLabel: selectedPackage.label,
                                     packageDrops: selectedPackage.drops,
                                     packagePrice: selectedPackage.price,
                                   },
-                                  consoleLabel: "[Wallet] PayPal order initialization failed",
+                                  consoleLabel: "[Wallet] PayPal single button error",
                                 });
-                                throw error;
-                              }
-                            }}
-                            onApprove={async (data) => {
-                              if (data.orderID) await handleApprove(data.orderID);
-                            }}
-                            onError={() => {
-                              const message = "PayPal encountered an error. Please try again.";
-                              reportClientIssue({
-                                channel: "payments",
-                                severity: "warn",
-                                message: "PayPal checkout surface errored",
-                                detail: {
-                                  stage: "paypal_buttons",
-                                  packageLabel: selectedPackage.label,
-                                  packageDrops: selectedPackage.drops,
-                                  packagePrice: selectedPackage.price,
-                                },
-                                consoleLabel: "[Wallet] PayPal buttons error",
-                              });
-                              setError(message);
-                            }}
-                          />
+                                setError(message);
+                              }}
+                            />
+                          </div>
                         )}
                       </div>
 

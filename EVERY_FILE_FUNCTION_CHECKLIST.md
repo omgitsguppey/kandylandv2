@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Wallet Single PayPal Button Coverage
+
+- [x] Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hide PayPal iframes or buttons; funding-source visibility is controlled through PayPal SDK configuration or `PayPalButtons` `fundingSource`.
+- [x] `src/components/PurchaseModal.tsx` owns the compact single-button checkout wrapper, wallet checkout debug markers, PayPal-only `fundingSource`, order creation callback, approval/capture callback, error fallback, timed flow, and telemetry payload preservation.
+- [x] `src/components/PayPalProvider.tsx` owns shared SDK funding suppression for card, credit, paylater, and Venmo buttons.
+- [x] `scripts/agent/validate-wallet-single-paypal-button.ts`, `tests/unit/purchase-modal-density.spec.tsx`, docs, and package script `check:wallet-single-paypal-button` provide the targeted no-browser validation lane.
+
 ## 2026-05-04 Speed Security Hardening Coverage
 
 - [x] KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default.

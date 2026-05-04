@@ -6,6 +6,10 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { UserProfile } from "@/types/db";
 
+vi.hoisted(() => {
+  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE = "test-client";
+});
+
 const mockState = vi.hoisted(() => ({
   auth: {
     user: { uid: "wallet-user" },
@@ -22,11 +26,16 @@ const mockState = vi.hoisted(() => ({
     } as UserProfile,
     setUserProfile: vi.fn(),
   },
+  paypalButtonsProps: null as Record<string, unknown> | null,
   trackEvent: vi.fn(),
 }));
 
 vi.mock("@paypal/react-paypal-js", () => ({
-  PayPalButtons: () => <div data-testid="paypal-buttons" />,
+  FUNDING: { PAYPAL: "paypal" },
+  PayPalButtons: (props: Record<string, unknown>) => {
+    mockState.paypalButtonsProps = props;
+    return <div data-testid="paypal-buttons" />;
+  },
   usePayPalScriptReducer: () => [{ isPending: false }],
 }));
 
@@ -101,6 +110,7 @@ describe("PurchaseModal public beta compact density", () => {
     root = createRoot(container);
     (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
     mockState.trackEvent.mockReset();
+    mockState.paypalButtonsProps = null;
     mockState.auth.userProfile = {
       ...mockState.auth.userProfile,
       gumDropsBalance: 80962,
@@ -161,5 +171,32 @@ describe("PurchaseModal public beta compact density", () => {
     expect(container.querySelector("[data-wallet-balance-chip='split-source']")).toBeTruthy();
     expect(container.querySelector("[data-wallet-package-subcopy='removed']")).toBeTruthy();
     expect(container.querySelector("[data-wallet-bonus-chip-theme='brand-purple']")).toBeTruthy();
+  });
+
+  it("renders checkout in PayPal-only single button mode", async () => {
+    await act(async () => {
+      root.render(<PurchaseModal isOpen onClose={vi.fn()} />);
+    });
+
+    expect(container.querySelector("[data-wallet-paypal-render-mode='single-funding-source']")).toBeTruthy();
+    expect(container.querySelector("[data-wallet-paypal-funding-source='paypal']")).toBeTruthy();
+    expect(container.querySelector("[data-wallet-paypal-buttons-visible='1']")).toBeTruthy();
+    expect(container.querySelector("[data-wallet-checkout-density='single-button']")).toBeTruthy();
+    expect(container.textContent).not.toMatch(/Pay Later|Debit or Credit Card|Credit Card/);
+    expect(mockState.paypalButtonsProps?.fundingSource).toBe("paypal");
+    expect(mockState.paypalButtonsProps?.createOrder).toEqual(expect.any(Function));
+    expect(mockState.paypalButtonsProps?.onApprove).toEqual(expect.any(Function));
+    expect(mockState.paypalButtonsProps?.onError).toEqual(expect.any(Function));
+    expect(mockState.paypalButtonsProps?.forceReRender).toEqual(["5.00", "550", "Sweet Pack"]);
+
+    const firstPackageButton = Array.from(container.querySelectorAll("button"))
+      .find((button) => button.textContent?.includes("Sugar Rush Pack"));
+    expect(firstPackageButton).toBeTruthy();
+
+    await act(async () => {
+      firstPackageButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+
+    expect(mockState.paypalButtonsProps?.forceReRender).toEqual(["1.00", "100", "Sugar Rush Pack"]);
   });
 });

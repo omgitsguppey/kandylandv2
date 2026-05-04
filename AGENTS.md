@@ -350,6 +350,7 @@ A feature is NOT complete until all 4 core components are structurally safe:
 **Violations**: No silent catch blocks. No fake \"pass\" states. No hidden fallbacks without visual source-state labels. No detached feature code bypassing canonical hydration.
 **Fan Pass GumDrops Rule**: Fan Pass is a paid-source GumDrops subscription. Daily/task/reward GumDrops cannot start or renew Fan Pass; paid package bonus GumDrops count only when wallet capture credited them into purchased balance. Expected Fan Pass failures must return typed safe errors, never generic internal server errors.
 **Creator Booking Error Rule**: Expected Live Time booking failures (availability missing/outside window, slot conflict, disabled bookings, unavailable creator, paid-GD shortfall, invalid request, unauthorized) must return typed safe codes and human-readable client copy. Only unexpected route failures may surface as internal server errors.
+**Wallet Single PayPal Button Rule**: Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hide PayPal iframes or buttons. Funding-source visibility is controlled through PayPal SDK configuration or PayPalButtons fundingSource. PayPal may still offer eligible funding methods after buyer enters PayPal; KandyDrops only controls the on-page button stack.
 
 ## File Size & Module Discipline (Mandatory)
 Massive monolithic un-maintainable files are forbidden. 
