@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #130] PRE: MSW User Flow Scenarios
+
+Scope started:
+- Adding `msw` as a dev dependency and creating reusable deterministic API mocks for KandyDrops user-side wallet, drops, chat, notification, support, and creator profile states.
+- Required outputs: `tests/mocks/handlers.ts`, `tests/mocks/server.ts`, `tests/mocks/scenarios.ts`, `docs/agent-truth/msw-test-scenarios.md`, targeted Vitest verification using MSW, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full `npm run check`, broad integration tests, or Firebase emulators, and must not change production UI, Firebase rules, payment/economy logic, server route behavior, or telemetry semantics.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, banned vocabulary, source-of-truth map, shared component ownership, full governance files, package scripts, existing Vitest setup, and existing component test helpers were consulted.
+- `npm run trace:adjacent -- package.json tests/unit/drop-card-state.spec.tsx` identified the existing component-test helper layer as the nearest convention for user-state fixtures.
+
+Doctrine:
+- KandyDrops MSW scenarios are deterministic test fixtures, not product fallback state. They may model guest/user/admin, GumDrops balances, drops, chat, notifications, support, and creator profile states for tests, but they must not create live network dependencies or alter production truth paths.
+
+Scope completed:
+- Added `msw` as a dev dependency.
+- Added `tests/mocks/scenarios.ts` with deterministic user-side fixture states for guest browsing Drops, logged-in enough GumDrops, logged-in insufficient GumDrops, paid/reward balance split, creator profile Drops and Experiences, notification unread/read state, paid-balance chat thread, and support ticket/bug report state.
+- Added `tests/mocks/handlers.ts` and `tests/mocks/server.ts` so targeted Vitest tests can use route-shaped API mocks without Firebase, browser automation, or live network access.
+- Added `tests/unit/msw-user-flow-scenarios.spec.ts` to verify the MSW scenarios and handlers.
+- Added `docs/agent-truth/msw-test-scenarios.md` and recorded the doctrine in user, developer, AI/context, memory, and checklist truth surfaces.
+
+Verification:
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/msw-user-flow-scenarios.spec.ts` passed with `1` file and `7` tests.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, full `npm run check`, broad integration tests, or Firebase emulators.
+
+Residual risk:
+- The MSW lane verifies deterministic mocked API state only. Firebase rules, server route enforcement, payment capture, ledger accounting, and browser runtime behavior remain owned by their targeted lanes.
+- `npm install` continued to report the existing `13` moderate npm audit findings; no audit fix was run in this scoped pass.
+
 ## [2026-05-04 #129] PRE: Fast Component Behavior Tests
 
 Scope started:

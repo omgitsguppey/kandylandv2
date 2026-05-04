@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 MSW user flow scenarios
+
+KandyDrops MSW scenarios are deterministic API fixtures, not production fallback state. They model wallet, Drops, chat, notifications, support, and creator profile user-side states without Firebase, browser automation, or live network access. `tests/mocks/scenarios.ts` owns the named fixture states, `tests/mocks/handlers.ts` maps user-side API routes, and `tests/mocks/server.ts` exposes the reusable Node MSW server for targeted Vitest tests.
+
 ## 2026-05-04 Component behavior tests
 
 KandyDrops component tests verify behavior and state truth, not screenshots. Fast UI tests should use shared auth/profile/drop states, exercise real component affordances where practical, and preserve telemetry/source-of-truth contracts without changing product behavior. `tests/unit/utils/kandydrops-test-states.ts` owns common guest, user, admin, GumDrops, and owned Drop fixtures; current targeted tests cover Drop card CTA/affordability state, DailyCheckIn dashboard/experiences variants, and notification read-state behavior.

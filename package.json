@@ -259,6 +259,7 @@
         "knip": "^5.88.1",
         "lighthouse": "^13.1.0",
         "madge": "^8.0.0",
+        "msw": "^2.14.2",
         "npm-check-updates": "^19.6.6",
         "playwright": "^1.59.1",
         "postcss": "^8.5.10",

@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 MSW Scenario Coverage
+
+- [x] KandyDrops MSW scenarios are deterministic API fixtures, not production fallback state. They model wallet, Drops, chat, notifications, support, and creator profile user-side states without Firebase, browser automation, or live network access.
+- [x] `tests/mocks/scenarios.ts` owns named guest, logged-in, affordability, paid/reward split, creator profile, notification, chat, and support fixtures.
+- [x] `tests/mocks/handlers.ts` maps user-side API routes to the active scenario and `tests/mocks/server.ts` exposes the shared Node MSW server.
+- [x] `tests/unit/msw-user-flow-scenarios.spec.ts` validates the MSW scenario layer with targeted Vitest coverage.
+
 ## 2026-05-04 Component Test Coverage
 
 - [x] KandyDrops component tests verify behavior and state truth, not screenshots. Fast UI tests should use shared auth/profile/drop states, exercise real component affordances where practical, and preserve telemetry/source-of-truth contracts without changing product behavior.
