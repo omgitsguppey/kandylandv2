@@ -9,6 +9,14 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Admin Debug Control Tower Coverage
+
+- [x] Admin Debug v2 is the mobile-first Control Tower. It surfaces generated public-beta reports, live debug evidence, stale/missing state truth, cost/security/device/telemetry/economy/watch-time/support findings, and deterministic next actions.
+- [x] `src/lib/admin-debug-control-tower.ts` owns generated report ingestion, stale/missing/fresh truth, beta-critical report requirements, redacted debug evidence summaries, and next-action generation.
+- [x] `src/app/api/admin/debug/control-tower/route.ts` owns the admin-only summary API and uses existing route runtime health reporting through `admin/debug/control-tower:GET` in `src/lib/route-runtime-health.ts`.
+- [x] `src/app/admin/debug/components/DebugControlTower.tsx` and `DebugControlTowerCards.tsx` own the compact card stack, chip filters, grouped score cards, collapsed finding details, and debug data markers without replacing existing ops health or Creator Lane parity.
+- [x] `scripts/agent/validate-admin-debug-control-tower.ts`, `tests/unit/admin-debug-control-tower.spec.ts`, `tests/unit/admin-debug-control-tower-component.spec.tsx`, docs, and package script `check:admin-debug-control-tower` provide the targeted no-browser validation lane.
+
 ## 2026-05-04 Wallet Single PayPal Button Coverage
 
 - [x] Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hide PayPal iframes or buttons; funding-source visibility is controlled through PayPal SDK configuration or `PayPalButtons` `fundingSource`.

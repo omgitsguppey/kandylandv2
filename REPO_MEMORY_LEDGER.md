@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Admin Debug Control Tower
+
+Admin Debug v2 is the mobile-first Control Tower. It surfaces generated public-beta reports, live debug evidence, stale/missing state truth, cost/security/device/telemetry/economy/watch-time/support findings, and deterministic next actions. Missing or stale data must never be shown as healthy. Heavy raw JSON stays collapsed. Existing ops health and creator lane parity remain visible, but they no longer define the whole debug truth. `src/lib/admin-debug-control-tower.ts` owns report normalization and freshness truth, `GET /api/admin/debug/control-tower` owns the admin-only summary API, `src/app/admin/debug/components/DebugControlTower.tsx` owns the compact card stack, and `npm run check:admin-debug-control-tower` validates the lane.
+
 ## 2026-05-04 Wallet single PayPal checkout button
 
 Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hide PayPal iframes or buttons. Funding-source visibility is controlled through PayPal SDK configuration or PayPalButtons fundingSource. PayPal may still offer eligible funding methods after buyer enters PayPal; KandyDrops only controls the on-page button stack. `src/components/PurchaseModal.tsx` owns the compact single-button checkout block and debug markers, `src/components/PayPalProvider.tsx` owns shared PayPal SDK funding suppression, and `npm run check:wallet-single-paypal-button` validates the checkout configuration without touching PayPal create/capture routes or GumDrops source-of-funds truth.

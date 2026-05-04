@@ -40,6 +40,12 @@ Records include source, severity, category, route/component, optional entity ids
 
 Each domain gets at most 10 records sorted by severity, occurrence count, and recency.
 
+## Admin Debug Control Tower
+
+`GET /api/admin/debug/control-tower` loads recent redacted debug evidence through `listRecentDebugEvidence` and combines it with generated score reports through `src/lib/admin-debug-control-tower.ts`. The admin UI shows concise evidence cards with source, fingerprint, last seen, and occurrence count. It does not render raw support message bodies, emails, protected URLs, tokens, or giant JSON blocks by default.
+
+Missing generated evidence renders as missing or unavailable. Stale generated evidence renders as stale. The Control Tower must never convert absent runtime evidence into a healthy state.
+
 ## Pre-Catcher
 
 `npm run precheck:runtime-issues` reads the redacted evidence index and writes `agent/state/precatch-runtime-issues.generated.json`.

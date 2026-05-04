@@ -49,6 +49,7 @@
         "check:analytics:continuity": "tsx scripts/check-analytics-continuity.ts && tsx scripts/check-client-firestore-connectivity.ts",
         "test:gate:parity": "tsx scripts/check-admin-parity.ts",
         "check:admin-truth": "tsx scripts/check-admin-truth-contracts.ts",
+        "check:admin-debug-control-tower": "tsx scripts/agent/validate-admin-debug-control-tower.ts",
         "check:admin-analytics-overview": "tsx scripts/check-admin-analytics-overview.ts",
         "check:admin-analytics-audience-snapshot": "tsx scripts/check-admin-analytics-audience-snapshot.ts",
         "check:admin-analytics-commerce-snapshot": "tsx scripts/check-admin-analytics-commerce-snapshot.ts",

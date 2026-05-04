@@ -78,6 +78,10 @@ Admin Analytics is the operator view. Admin Debug is the evidence view.
 - Snapshot-backed Analytics values stay visible through refresh, realtime delay, and source caveats.
 - Waiting is visible only before the first verified snapshot.
 - The main UI may say "Live updates are delayed. Showing last verified data." or "Realtime delayed. Showing last verified snapshot." but must not expose listener, route, collection, lane, or rollup jargon.
+
+## Admin Debug Control Tower Addendum
+
+Admin Debug v2 is the mobile-first Control Tower. It may show technical report names, route paths, generated artifact names, and validator commands because Debug is the evidence view. Missing or stale data must never be shown as healthy. Heavy raw JSON stays collapsed. Existing ops health and creator lane parity remain visible, but generated public-beta reports, live debug evidence, cost/security/device/telemetry/economy/watch-time/support findings, and deterministic next actions now define the top-level debug truth.
 - Debug must keep the exact technical evidence for refresh, parity, legacy recovery, commerce formulas, task lifecycle, notification dedupe/read state, and actor lane separation.
 
 ## User Problem-State Addendum

@@ -37,6 +37,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin debug snapshot",
         slowThresholdMs: 1800,
     },
+    "admin/debug/control-tower:GET": {
+        routeName: "admin/debug/control-tower",
+        method: "GET",
+        title: "Admin debug Control Tower",
+        slowThresholdMs: 1800,
+    },
     "admin/debug/assistant:GET": {
         routeName: "admin/debug/assistant",
         method: "GET",

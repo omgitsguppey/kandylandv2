@@ -1,5 +1,30 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #149] PRE: Admin Debug Control Tower V2
+
+Scope started:
+- Refreshing the admin debug panel into a mobile-first Control Tower that surfaces generated public-beta reports, runtime evidence, stale/missing truth, cost/security/device/telemetry/economy/watch-time/support findings, and deterministic next actions.
+- Required outputs include `src/lib/admin-debug-control-tower.ts`, `GET /api/admin/debug/control-tower`, compact admin debug UI cards, `scripts/agent/validate-admin-debug-control-tower.ts`, targeted unit coverage, docs/source-of-truth updates, commit, and push.
+- This pass must not run Playwright/Lighthouse/Cypress/full `npm run check`/broad UI audits, remove existing ops health diagnostics, remove Creator Lane parity, expose raw support/user bodies, add polling, or change public user UI.
+
+Evidence:
+- Control tower routing, doctrine consultation workflow, UI/copy doctrine, governance ledgers, admin debug primitives, debug evidence pipeline, route runtime health helpers, and generated `agent/state/*.generated.json` score reports were consulted before implementation.
+
+Doctrine:
+- Admin Debug v2 is the mobile-first Control Tower. It surfaces generated public-beta reports, live debug evidence, stale/missing state truth, cost/security/device/telemetry/economy/watch-time/support findings, and deterministic next actions. Missing or stale data must never be shown as healthy. Heavy raw JSON stays collapsed. Existing ops health and creator lane parity remain, but they no longer define the whole debug truth.
+
+Scope completed:
+- Added `src/lib/admin-debug-control-tower.ts` to normalize generated score reports from `agent/state`, enforce 24h/72h freshness truth, create critical missing-report findings for beta-critical artifacts, merge redacted debug evidence summaries, cap overview findings/live issues/next actions, and never coerce missing or stale state into healthy.
+- Added `GET /api/admin/debug/control-tower` with admin-only guard, route runtime health recording, recent redacted debug evidence injection, and short private hot-cache headers. Added `admin/debug/control-tower:GET` to route runtime health targets.
+- Added `DebugControlTower.tsx` and `DebugControlTowerCards.tsx` as a mobile-first compact card stack with summary metrics, chip filters, grouped score cards, collapsed top findings, live evidence cards, next actions, 44px touch targets, and required debug markers. `DebugTabNow` now mounts the Control Tower above existing System Health, Creator Lane, and diagnostics sections without removing those legacy debug surfaces.
+- Added `scripts/agent/validate-admin-debug-control-tower.ts`, package script `check:admin-debug-control-tower`, targeted model/component tests, and docs/source-of-truth updates.
+
+Verification:
+- `npm run check:admin-debug-control-tower` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/admin-debug-control-tower.spec.ts tests/unit/admin-debug-control-tower-component.spec.tsx` passed.
+- `npm run typecheck` passed.
+- No Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, public UI changes, polling, raw support body rendering, ops health removal, or Creator Lane removal were run or applied.
+
 ## [2026-05-04 #148] PRE: Wallet Single PayPal Checkout Button
 
 Scope started:

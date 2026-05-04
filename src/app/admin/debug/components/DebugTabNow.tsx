@@ -3,6 +3,7 @@
 import { buildAdminDebugSystemHealthNowModel } from "@/lib/admin-debug-summary-cards";
 import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
 import { Pill, Section } from "./DebugPrimitives";
+import { DebugControlTower } from "./DebugControlTower";
 import { DebugNowDiagnostics } from "./DebugNowDiagnostics";
 
 /* ─── Helpers ─── */
@@ -87,7 +88,9 @@ export function DebugTabNow({
 
     return (
         <div className="space-y-4">
-                    <Section
+            <DebugControlTower />
+
+            <Section
                         title="System health now"
                         subtitle="Current admin health, open diagnostics, and recent route checks."
                         defaultOpen
