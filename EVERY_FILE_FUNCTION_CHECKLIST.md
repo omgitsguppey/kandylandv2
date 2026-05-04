@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Locked Content Protection Score Coverage
+
+- [x] KandyDrops locked content protection scoring is deterministic. Locked preview and guest/user surfaces may show cover art, safe metadata, file counts, and public social proof, but must never render internal content URLs, internal thumbnails, blurred internal previews, or raw storage URLs before entitlement.
+- [x] `scripts/agent/score-content-protection.ts` owns the source-only content protection report over safe preview fields, public Drop sanitization, legacy preview fallback, authenticated content proxy entitlement, and viewer route/client gating.
+- [x] `scripts/agent/validate-content-protection.ts`, `agent/state/content-protection-score.generated.json`, `docs/agent-truth/content-protection-score.md`, and package scripts `score:content-protection` / `check:content-protection` provide the deterministic no-browser validation lane.
+- [x] `tests/unit/content-protection-truth.spec.ts`, `tests/unit/drops-content-route.spec.ts`, and `tests/unit/dashboard-viewer-page.spec.tsx` cover mocked locked/unlocked safe-preview truth, content proxy entitlement, and viewer sanitization without Playwright, Lighthouse, Cypress, or broad integration tests.
+
 ## 2026-05-04 Telemetry Parity Score Coverage
 
 - [x] KandyDrops telemetry parity scoring is deterministic and source-only. Critical UI actions must use cataloged, consent-aware telemetry through canonical `trackEvent` or server tracking, with `source_component`, route/session/auth enrichment, entity ids, and reason context for blocked or failed paths.

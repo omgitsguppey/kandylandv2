@@ -1,0 +1,58 @@
+{
+  "score": 100,
+  "status": "clean",
+  "generatedAt": "2026-05-04T06:07:14.166Z",
+  "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
+  "findings": [],
+  "criticalCount": 0,
+  "majorCount": 0,
+  "safeAutofixesAvailable": 0,
+  "checkedFiles": [
+    "src/lib/server/drops.ts",
+    "src/lib/locked-drop-preview-truth.ts",
+    "src/app/drops/[id]/preview/page.tsx",
+    "src/components/Drops/LockedDropPreviewClient.tsx",
+    "src/components/Drops/LockedDropPreviewView.tsx",
+    "src/components/DropPreviewModal.tsx",
+    "src/app/api/drops/route.ts",
+    "src/app/api/drops/content/route.ts",
+    "src/app/api/drops/unlock/route.ts",
+    "src/app/dashboard/viewer/page.tsx",
+    "src/app/dashboard/viewer/ViewerClient.tsx",
+    "src/app/dashboard/viewer/hooks/useViewerState.ts",
+    "src/app/dashboard/viewer/ViewerHelpers.ts",
+    "tests/unit/content-protection-truth.spec.ts",
+    "tests/unit/drops-content-route.spec.ts",
+    "tests/unit/dashboard-viewer-page.spec.tsx"
+  ],
+  "protectedSurfaces": [
+    "full-page locked Drop preview",
+    "legacy DropPreviewModal fallback",
+    "public Drops feed API",
+    "authenticated content proxy",
+    "dashboard viewer route",
+    "viewer client content loader"
+  ],
+  "tests": [
+    "tests/unit/content-protection-truth.spec.ts",
+    "tests/unit/drops-content-route.spec.ts",
+    "tests/unit/dashboard-viewer-page.spec.tsx"
+  ],
+  "commandBudget": {
+    "allowedCommands": [
+      "npm run score:content-protection",
+      "npm run check:content-protection",
+      "npx vitest run --config vitest.contracts.config.ts tests/unit/content-protection-truth.spec.ts tests/unit/drops-content-route.spec.ts tests/unit/dashboard-viewer-page.spec.tsx"
+    ],
+    "forbiddenCommands": [
+      "playwright",
+      "cypress",
+      "lighthouse",
+      "npm run check",
+      "npm run check:ui:audits",
+      "npm run check:ui:lighthouse",
+      "broad integration tests"
+    ]
+  },
+  "summary": "Locked content protection is clean for preview, public feed, content proxy, and viewer source contracts."
+}

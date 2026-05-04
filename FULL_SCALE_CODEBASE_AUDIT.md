@@ -1,5 +1,35 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #136] PRE: Locked Content Protection Scoring
+
+Scope started:
+- Creating a deterministic locked-content protection scorer to prevent locked previews, guest surfaces, Drop APIs, legacy preview fallback, and viewer routes from exposing internal content URLs, internal thumbnails, or entitlement-gated media before unwrap.
+- Required outputs: `scripts/agent/score-content-protection.ts`, `scripts/agent/validate-content-protection.ts`, `agent/state/content-protection-score.generated.json`, `docs/agent-truth/content-protection-score.md`, package scripts `score:content-protection` and `check:content-protection`, targeted unit/API verification, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full UI audits, broad integration tests, full `npm run check`, or browser automation, and must not weaken unlock/payment/auth enforcement or expose content URLs in public client payloads.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI/security truth doctrine, source-of-truth map, full governance files, current git status, and adjacency trace for locked preview, viewer, content proxy, and unlock routes were consulted.
+- Current source uses `sanitizeDropForClient(...)` for public Drop/server-rendered viewer payloads, proxies `/api/drops/content` through an authenticated entitlement check, and the full-page preview exposes `data-safe-preview-fields-only="true"` with safe preview truth.
+
+Doctrine:
+- KandyDrops locked content protection scoring is deterministic. It is a source-only lane for locked preview and entitlement boundaries. Locked preview and guest/user surfaces may show cover art, safe metadata, file counts, and public social proof, but must never render internal content URLs, internal thumbnails, or raw storage URLs before entitlement. Viewer and content APIs must prove entitlement before fetching or streaming content. Content-protection findings are not auto-fixed by default because exposure decisions require security review.
+
+Scope completed:
+- Added `scripts/agent/score-content-protection.ts` to scan safe preview fields, public Drop sanitization, legacy preview fallback, authenticated content proxy entitlement, viewer route/client gating, raw storage URL exposure risks, and targeted test coverage.
+- Added `scripts/agent/validate-content-protection.ts`, `agent/state/content-protection-score.generated.json`, `docs/agent-truth/content-protection-score.md`, and package scripts `score:content-protection` and `check:content-protection`.
+- Added `tests/unit/content-protection-truth.spec.ts` for mocked locked/unlocked preview truth and client Drop sanitization.
+- Hardened legacy `DropPreviewModal` file count display to use presentation media summary metadata rather than touching protected `contentUrl` / `contentUrls` fields.
+- Updated repo memory and file-function checklist doctrine for the new deterministic content-protection lane.
+
+Verification:
+- `npm run score:content-protection` passed with `100/100` clean status and no findings.
+- `npm run check:content-protection` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/content-protection-truth.spec.ts tests/unit/drops-content-route.spec.ts tests/unit/dashboard-viewer-page.spec.tsx` passed with `3` files and `9` tests.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, full UI audits, broad integration tests, full `npm run check`, or browser automation.
+
+Residual risk:
+- The scorer is deterministic source validation. Runtime entitlement regressions, Firebase rule drift, CDN/storage policy changes, and future preview/viewer route migrations still require targeted route/unit tests and owner review.
+
 ## [2026-05-04 #135] PRE: Telemetry Parity Scoring
 
 Scope started:

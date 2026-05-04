@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Locked content protection score
+
+KandyDrops locked content protection scoring is deterministic. Locked preview and guest/user surfaces may show cover art, safe metadata, file counts, and public social proof, but must never render internal content URLs, internal thumbnails, blurred internal previews, or raw storage URLs before entitlement. Viewer and content APIs must prove entitlement before fetching or streaming content. `npm run score:content-protection` writes `agent/state/content-protection-score.generated.json`; `npm run check:content-protection` validates the report, scorer, package scripts, `sanitizeDropForClient`, safe preview fields, content proxy entitlement, viewer gating, legacy modal safety, and targeted tests without browser audits or broad terminal sweeps. Content-protection findings are not auto-fixed by default.
+
 ## 2026-05-04 Telemetry parity score
 
 KandyDrops telemetry parity scoring is deterministic and source-only. Critical UI actions must use cataloged, consent-aware telemetry through canonical `trackEvent` or server tracking, include `source_component`, rely on route/session/auth enrichment, carry entity ids such as `drop_id`, `creator_id`, `thread_id`, `ticket_id`, `notification_id`, or `task_id` when relevant, and include reason context for blocked or failed paths. `npm run score:telemetry` writes `agent/state/telemetry-parity-score.generated.json`; `npm run check:telemetry-parity-score` validates the report, scorer, package scripts, telemetry client consent/enrichment anchors, catalog coverage, and docs without browser audits or broad terminal sweeps.
