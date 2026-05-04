@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #147] PRE: Sitewide Speed Security Hardening
+
+Scope started:
+- Adding a deterministic sitewide speed and exploit-hardening lane focused on route caching intent, hydration discipline, API guard/rate/idempotency posture, Firebase rules, App Check readiness, timeout/runaway work, content/payment/economy safety, and cloud cost-aware runtime boundaries.
+- Required outputs include `src/lib/server/security-hardening-contract.ts`, `src/lib/server/route-cache-contract.ts`, `scripts/agent/score-speed-security-hardening.ts`, `scripts/agent/validate-speed-security-hardening.ts`, `scripts/agent/repair-speed-security-hardening-safe.ts`, generated report, package scripts, docs/source-of-truth updates, commit, and push.
+- This pass must not run Playwright/Lighthouse/Cypress/full `npm run check`/broad UI audits, change payment/capture/ledger/unlock entitlement logic, loosen security rules, remove telemetry/privacy gates, add Google paid APIs or runtime SQL/Data Connect usage, or add polling/realtime listeners.
+
+Evidence:
+- Control tower routing, doctrine consultation workflow, governance ledgers, existing codebase hardening score, Google cost contracts, Cloud Run/SQL/BigQuery guardrails, device/image/hydration score lanes, and route-security helper patterns were consulted before implementation.
+- Official basis for the lane is Next caching discipline, Firebase App Check staged backend protection, Firestore rules default-deny/owner/admin scoping, and Cloud Run timeout/cost controls. This source-only lane records findings and safe exact repairs without changing product behavior.
+
+Doctrine:
+- KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default.
+
+Scope completed:
+- Added `src/lib/server/route-cache-contract.ts` with deterministic route cache modes, route surface/data-source classification, public/user/admin/API/payment/creator/support/media/analytics route contracts, and path-pattern matching.
+- Added `src/lib/server/security-hardening-contract.ts` with deterministic route auth/trusted-origin/App Check/rate-limit/body-limit/idempotency/CSRF/cost/expected-error contracts plus monitor-first App Check readiness.
+- Added `scripts/agent/score-speed-security-hardening.ts` to source-scan API classifications, caching/no-store posture, shell hydration/image risks, Firebase rules/App Check readiness, locked content/payment/economy protection, runtime SQL/Data Connect, unbounded Firestore reads, paid Google API timeout/budget evidence, and runaway fanout/delete patterns.
+- Added `scripts/agent/validate-speed-security-hardening.ts`, `scripts/agent/repair-speed-security-hardening-safe.ts`, package scripts `score:speed-security`, `check:speed-security`, `repair:speed-security`, generated `agent/state/speed-security-hardening.generated.json`, and source-of-truth docs.
+- Current generated report scores `37/fail`, classifies 117 API routes, records 180 findings, records 46 critical findings, and exposes 0 safe autofixes. Findings are advisory owner-review escalations from existing source; no product behavior, security rules, payment/auth/unlock/content logic, SQL runtime, polling, realtime listeners, or visible UI were changed.
+
+Verification:
+- `npm run score:speed-security` passed and wrote `agent/state/speed-security-hardening.generated.json`.
+- `npm run check:speed-security` passed.
+- `npm run repair:speed-security` passed as dry-run with 0 safe plans.
+- `npm run typecheck` passed.
+- No Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, deploy commands, `gcloud`, Firebase deploy, product behavior edits, payment/capture/ledger/unlock entitlement changes, security-rules loosening, telemetry/privacy removal, Google paid API additions, runtime SQL/Data Connect additions, polling, or realtime listeners were run.
+
 ## [2026-05-04 #146] PRE: Whole-Codebase Hardening Score
 
 Scope started:

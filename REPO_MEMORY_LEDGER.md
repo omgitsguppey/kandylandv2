@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Sitewide speed/security hardening
+
+KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. `src/lib/server/route-cache-contract.ts` owns cache intent, `src/lib/server/security-hardening-contract.ts` owns API/App Check security posture, `npm run score:speed-security` writes `agent/state/speed-security-hardening.generated.json`, `npm run check:speed-security` validates schema/route classification/rules/App Check/docs, and `npm run repair:speed-security` dry-runs exact safe repairs only.
+
 ## 2026-05-04 Whole-codebase hardening score
 
 KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic. `src/lib/codebase-hardening-contract.ts` owns the hardening domains, weights, finding/report shapes, command budget, and safe-repair doctrine. `npm run score:hardening` writes `agent/state/codebase-hardening.generated.json`; `npm run check:hardening` validates schema, domain coverage, critical auto-fail, forbidden command isolation, report evidence, docs, and package scripts; `npm run repair:hardening` dry-runs exact safe repairs only.

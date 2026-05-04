@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Speed Security Hardening Coverage
+
+- [x] KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default.
+- [x] `src/lib/server/route-cache-contract.ts` owns `RouteCacheContract`, route cache modes, data-source classification, and path-pattern matching for public, user, admin, API, payment, creator, support, media, and analytics surfaces.
+- [x] `src/lib/server/security-hardening-contract.ts` owns `SecurityRouteContract`, `AppCheckReadinessContract`, security route matching, trusted-origin/rate/idempotency/body-limit posture, expected failure code lists, and monitor-first App Check doctrine.
+- [x] `scripts/agent/score-speed-security-hardening.ts`, `scripts/agent/validate-speed-security-hardening.ts`, `scripts/agent/repair-speed-security-hardening-safe.ts`, `agent/state/speed-security-hardening.generated.json`, `docs/agent-truth/speed-security-hardening.md`, and package scripts `score:speed-security` / `check:speed-security` / `repair:speed-security` provide the deterministic no-browser validation lane.
+
 ## 2026-05-04 Codebase Hardening Score Coverage
 
 - [x] `src/lib/codebase-hardening-contract.ts` owns the deterministic hardening domains, weights, severity penalties, report/finding shapes, route-cost summary shape, command budget, forbidden command list, and doctrine note.

@@ -11,6 +11,8 @@ Google cost-bearing surfaces must be declared before use. Firestore, Storage, Go
 
 KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic.
 
+KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default.
+
 ## Contract Owner
 
 `src/lib/server/api-cost-contract.ts` owns the `ApiCostContract` schema and route classification list. Route groups are allowed when they are explicit, conservative, and include:
