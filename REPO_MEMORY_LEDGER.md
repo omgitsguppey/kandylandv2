@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Whole-codebase hardening score
+
+KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic. `src/lib/codebase-hardening-contract.ts` owns the hardening domains, weights, finding/report shapes, command budget, and safe-repair doctrine. `npm run score:hardening` writes `agent/state/codebase-hardening.generated.json`; `npm run check:hardening` validates schema, domain coverage, critical auto-fail, forbidden command isolation, report evidence, docs, and package scripts; `npm run repair:hardening` dry-runs exact safe repairs only.
+
 ## 2026-05-04 Device UI dry audit
 
 Device UI dry auditing is a deterministic source-level prediction system. It does not replace screenshots, but it catches known KandyDrops device physics violations before runtime: safe areas, bottom nav, top nav, chat focus, modal density, preview CTA placement, drop grid behavior, image loading, touch targets, and debug truth markers. `src/lib/device-ui-dry-audit-rules.ts` owns device profiles, display modes, surface ownership, severity penalties, and command budget. `src/lib/device-ui-dry-audit.ts` owns the hardcoded source scanner and score report. `npm run score:device-ui` writes `agent/state/device-ui-dry-audit.generated.json`; `npm run check:device-ui` validates schema, scores, critical auto-fail, forbidden-command isolation, docs, package scripts, and autofix confidence.

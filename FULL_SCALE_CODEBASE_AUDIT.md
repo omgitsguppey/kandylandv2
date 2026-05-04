@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #146] PRE: Whole-Codebase Hardening Score
+
+Scope started:
+- Adding a deterministic whole-codebase hardening score and safe dry-run repair lane focused on route caching/data cost, hydration/effects, API/cloud cost controls, wallet/economy truth, content protection, telemetry/privacy/debug evidence, device/image performance, support/chat reliability, and legacy/orphan cleanup.
+- Required outputs include `src/lib/codebase-hardening-contract.ts`, `scripts/agent/score-codebase-hardening.ts`, `scripts/agent/validate-codebase-hardening.ts`, `scripts/agent/repair-codebase-hardening-safe.ts`, generated report, package scripts, docs/source-of-truth updates, commit, and push.
+- This pass must not run Playwright/Lighthouse/Cypress/full `npm run check`/broad UI audits, rewrite payment/auth/unlock/content/security logic, remove telemetry/privacy/session tracking, introduce Google paid APIs/SQL runtime/polling/realtime listeners, or change visible UI except exact safe deterministic repair.
+
+Evidence:
+- Control tower, doctrine consultation workflow, source-of-truth map, shared component ownership, governance ledgers, existing public beta score, device UI dry audit, Google cost contracts, and deterministic scorer patterns were consulted before implementation.
+- Source confirms existing targeted score lanes cover layout, hydration, economy, telemetry, content protection, orphan cleanup, Google cost, cloud-cost guardrails, image optimization, watch time, and device UI; this pass adds a coordinating hardening score rather than replacing those lanes.
+
+Doctrine:
+- KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic.
+
+Scope completed:
+- Added `src/lib/codebase-hardening-contract.ts` with deterministic hardening domains, weights, severity penalties, report/finding shapes, route-cost summary shape, command budget, forbidden commands, and doctrine note.
+- Added `scripts/agent/score-codebase-hardening.ts` to source-scan route caching/data cost, hydration/effects, API/cloud cost guards, payment/economy truth, content protection, telemetry/privacy/debug evidence, device/image performance, support/chat reliability, and legacy/orphan cleanup.
+- Added `scripts/agent/validate-codebase-hardening.ts`, `scripts/agent/repair-codebase-hardening-safe.ts`, package scripts `score:hardening`, `check:hardening`, `repair:hardening`, generated `agent/state/codebase-hardening.generated.json`, and source-of-truth docs.
+- Current generated report scores `77/beta-risk`, has 67 findings, has 0 critical findings, and exposes 0 safe autofixes. Top findings are owner-review escalations for admin/API Firestore collection reads without nearby bounded-query evidence.
+
+Verification:
+- `npm run score:hardening` passed and wrote `agent/state/codebase-hardening.generated.json`.
+- `npm run check:hardening` passed.
+- `npm run repair:hardening` passed as dry-run with 0 safe plans.
+- `npm run typecheck` passed.
+- No Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, payment/auth/unlock/content/security rewrites, telemetry/privacy removal, Google paid API additions, SQL runtime additions, polling/realtime additions, or visible product UI changes were run.
+
 ## [2026-05-04 #145] PRE: Deterministic Device UI Dry Audit
 
 Scope started:

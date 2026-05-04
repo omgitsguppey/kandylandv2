@@ -9,6 +9,8 @@ Validator: `npm run check:google-cost`
 
 Google cost-bearing surfaces must be declared before use. Firestore, Storage, Google Analytics Data API, Vertex AI, Cloud Run/App Hosting, and any SQL/Data Connect runtime must have route-level cost contracts, budget guards, bounded rate limits, cache policies, and debug evidence. The app must fail audits before it surprises billing.
 
+KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic.
+
 ## Contract Owner
 
 `src/lib/server/api-cost-contract.ts` owns the `ApiCostContract` schema and route classification list. Route groups are allowed when they are explicit, conservative, and include:

@@ -3,6 +3,8 @@
 Doctrine note:
 Device UI dry auditing is a deterministic source-level prediction system. It does not replace screenshots, but it catches known KandyDrops device physics violations before runtime: safe areas, bottom nav, top nav, chat focus, modal density, preview CTA placement, drop grid behavior, image loading, touch targets, and debug truth markers. Agents must run score:device-ui/check:device-ui before broad browser audits.
 
+KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic.
+
 ## Purpose
 
 The dry audit turns KandyDrops device layout doctrine into hardcoded source rules. It predicts likely browser, standalone PWA, phone, tablet, and desktop failures from code structure, shared shell tokens, component class patterns, and data markers without opening a browser.

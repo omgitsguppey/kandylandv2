@@ -99,6 +99,10 @@ The wallet modal uses compact public-beta density. Package cards show total deli
 
 KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a finding explicitly escalates to runtime visual verification.
 
+## Codebase Hardening Score
+
+KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic.
+
 ## Debug Evidence Pipeline
 
 KandyDrops debug evidence is structured, fingerprinted, stored, and injected into deterministic audits. Runtime issues already detected by the app must become pre-catcher issue candidates before relying on manual bug reports. Support uses one unified inbox model, with admin routes able to list/read/reply to all support threads and users scoped only to their own threads. Debug evidence writes must never block user flows.
@@ -268,6 +272,7 @@ Use existing repo lanes as required by the touched surface:
 Rules:
 
 - Google/Firebase/Storage/GA/AI/SQL cost-bearing changes require `npm run score:google-cost` and `npm run check:google-cost`. Google cost-bearing surfaces must be declared before use. Firestore, Storage, Google Analytics Data API, Vertex AI, Cloud Run/App Hosting, and any SQL/Data Connect runtime must have route-level cost contracts, budget guards, bounded rate limits, cache policies, and debug evidence. The app must fail audits before it surprises billing.
+- Whole-codebase hardening or multi-domain cleanup must run `npm run score:hardening` and `npm run check:hardening` first. Use `npm run repair:hardening` only for dry-run exact safe repairs unless explicitly applying a high-confidence plan.
 - Device-level UI and shell changes should run `npm run score:device-ui` and `npm run check:device-ui` before broad browser audits. This deterministic lane predicts known mobile/PWA/tablet/desktop risks from source tokens, component structure, and debug truth markers.
 - Fast-loop verification should stay targeted. Use `npm run agent:test -- <path>` before broad repo sweeps when the work is narrow.
 - Broad signoff checks should remain separate from the implementation loop. `check:continuity`, UI audits, scheduler/runtime continuity, and Firebase rules are signoff lanes unless the touched surface explicitly requires them during iteration.

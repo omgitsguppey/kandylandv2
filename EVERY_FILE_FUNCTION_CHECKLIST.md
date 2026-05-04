@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Codebase Hardening Score Coverage
+
+- [x] `src/lib/codebase-hardening-contract.ts` owns the deterministic hardening domains, weights, severity penalties, report/finding shapes, route-cost summary shape, command budget, forbidden command list, and doctrine note.
+- [x] `scripts/agent/score-codebase-hardening.ts` owns source-only scans for route caching/data cost, client hydration/effects, API/cloud cost guards, payment/economy truth, content protection, telemetry/privacy/debug evidence, device/image performance, support/notification/chat reliability, and legacy/orphan cleanup.
+- [x] `scripts/agent/repair-codebase-hardening-safe.ts` is dry-run by default and applies only exact high-confidence repairs with score-after-each-change rollback protection.
+- [x] `scripts/agent/validate-codebase-hardening.ts`, `agent/state/codebase-hardening.generated.json`, `docs/agent-truth/codebase-hardening.md`, and package scripts `score:hardening` / `check:hardening` / `repair:hardening` provide the targeted no-browser hardening lane.
+
 ## 2026-05-04 Device UI Dry Audit Coverage
 
 - [x] `src/lib/device-ui-dry-audit-rules.ts` owns the deterministic dry-audit device profiles, browser/standalone-PWA display modes, critical surface registry, severity penalties, status bands, and forbidden command list.
