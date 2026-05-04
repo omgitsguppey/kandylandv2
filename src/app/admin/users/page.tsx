@@ -13,18 +13,17 @@ import { authFetch } from "@/lib/authFetch";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 import {
-    adminMetricStateToSurfaceState,
-    getAdminMetricStateBadgeLabel,
-    hasUsableAdminMetricValue,
-    resolveAdminMetricState,
-    type AdminMetricState,
-} from "@/lib/admin-metric-truth-state";
+    coerceAdminTruthState,
+    hasUsableAdminTruthValue,
+    resolveAdminTruthState,
+    type AdminTruthState,
+} from "@/lib/admin-truth-state";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
 import type { 
@@ -406,12 +405,19 @@ export default function UserManagementPage() {
     const summarySnapshotSource = summary?.metricsSnapshot?.source ?? "unavailable";
     const getSummaryMetricState = (
         values: unknown[],
-        valueTruthState?: AdminSurfaceState | null,
-    ): AdminMetricState => resolveAdminMetricState({
-        hasUsableValue: hasUsableAdminMetricValue(...values),
+        valueTruthState?: unknown,
+        options?: {
+            delayed?: boolean;
+            reviewRequired?: boolean;
+        },
+    ): AdminTruthState => resolveAdminTruthState({
+        hasUsableValue: hasUsableAdminTruthValue(...values),
         transportState: summaryTransportState,
+        sourceConfigured: summarySnapshotSource !== "unavailable" || Boolean(summary) || summaryLoading,
         refreshInFlight: summaryRefreshInFlight,
-        valueTruthState,
+        valueState: valueTruthState,
+        delayed: options?.delayed,
+        reviewRequired: options?.reviewRequired,
     });
     const renderSummaryMetricCard = ({
         title,
@@ -422,7 +428,7 @@ export default function UserManagementPage() {
         title: string;
         value: string;
         detail: ReactNode;
-        metricState: AdminMetricState;
+        metricState: AdminTruthState;
     }) => (
         <div
             className="rounded-2xl border border-white/10 bg-white/[0.045] px-2.5 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:px-3 sm:py-3"
@@ -434,10 +440,11 @@ export default function UserManagementPage() {
         >
             <div className="flex min-h-5 items-start justify-between gap-1.5">
                 <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.13em] text-gray-500">{title}</p>
-                <AdminStatusBadge
-                    state={adminMetricStateToSurfaceState(metricState)}
-                    label={getAdminMetricStateBadgeLabel(metricState)}
+                <AdminTruthBadge
+                    state={metricState}
                     className="shrink-0 px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                    pendingInitialLoad={!summary && summaryLoading}
+                    hasUsableValue={hasUsableAdminTruthValue(value)}
                 />
             </div>
             <p className="mt-1 truncate text-xl font-black leading-none text-white sm:text-2xl">{value}</p>
@@ -753,7 +760,10 @@ export default function UserManagementPage() {
                             detail: summary?.commerceEmptyReason || `adj ${formatCompactMoney(summary?.adjustedProfitUsd)} / bonus ${formatCompactMoney(summary?.bonusValueUsd)}`,
                             metricState: getSummaryMetricState(
                                 [summary?.grossRevenueUsd, summary?.adjustedProfitUsd, summary?.bonusValueUsd],
-                                coerceAdminSurfaceState(summary?.commerceTruthLabel),
+                                coerceAdminTruthState(summary?.commerceTruthLabel),
+                                {
+                                    delayed: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale",
+                                },
                             ),
                         })}
                         {renderSummaryMetricCard({
@@ -762,7 +772,10 @@ export default function UserManagementPage() {
                             detail: `avg ${formatCompactMoney(summary?.averageOrderUsd)} / rate ${formatCompactMoney(summary?.effectiveUsdPer100Gd)}`,
                             metricState: getSummaryMetricState(
                                 [summary?.payingUsers, summary?.averageOrderUsd, summary?.effectiveUsdPer100Gd],
-                                coerceAdminSurfaceState(summary?.commerceTruthLabel),
+                                coerceAdminTruthState(summary?.commerceTruthLabel),
+                                {
+                                    delayed: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale",
+                                },
                             ),
                         })}
                         {renderSummaryMetricCard({
@@ -803,7 +816,15 @@ export default function UserManagementPage() {
                                     <TrendingUp className="w-4 h-4 text-brand-purple" />
                                     Behavior detail lane
                                 </div>
-                                <AdminStatusBadge state={realtimeState} />
+                                <AdminTruthBadge
+                                    state={resolveAdminTruthState({
+                                        hasUsableValue: topTrackedUsers.length > 0,
+                                        sourceConfigured: true,
+                                        transportState: realtimeState,
+                                    })}
+                                    pendingInitialLoad={loading && topTrackedUsers.length === 0}
+                                    hasUsableValue={topTrackedUsers.length > 0}
+                                />
                             </div>
                             <div className="mt-3 grid gap-2">
                                 {topTrackedUsers.length === 0 ? (

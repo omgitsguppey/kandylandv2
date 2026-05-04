@@ -20,9 +20,15 @@ import {
 
 import { useAuth } from "@/context/AuthContext";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
-import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
+import {
+    coerceAdminTruthState,
+    hasUsableAdminTruthValue,
+    resolveAdminTruthState,
+    type AdminTruthState,
+} from "@/lib/admin-truth-state";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { Transaction, UserProfile } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
@@ -252,10 +258,10 @@ function getCoverageClasses(status: AdminSurfaceState | "healthy" | "partial" | 
     return "border-amber-400/20 bg-amber-400/10 text-amber-200";
 }
 
-function coerceUserDetailTruthState(value: unknown): AdminSurfaceState {
+function coerceUserDetailTruthState(value: unknown): AdminTruthState {
     if (value === "healthy") return "live";
     if (value === "empty") return "unavailable";
-    return coerceAdminSurfaceState(value);
+    return coerceAdminTruthState(value) ?? "unavailable";
 }
 
 function formatRelativeTimestamp(value: unknown) {
@@ -418,15 +424,46 @@ export default function AdminUserAnalyticsPage() {
     const recommendationDisplayMode = recommendationDebug?.displayMode || "fallback-compact";
     const showBehavioralExplanationCards = recommendationDebug?.showExplanationCards === true;
     const behavioralRecommendations = Array.isArray(recommendationDebug?.drops) ? recommendationDebug.drops : [];
-    const behaviorTruthState: AdminSurfaceState = !behaviorRollup
-        ? "unavailable"
-        : behaviorRollup.issues.some((issue) => issue.severity === "fail")
-            ? "failed"
-            : behaviorRollup.issues.length > 0 || behaviorRollup.confidence === "low"
-                ? "degraded"
-                : behaviorRollup.confidence === "unknown"
-                    ? "unavailable"
-                    : "live";
+    const commerceTruthState = resolveAdminTruthState({
+        hasUsableValue: hasUsableAdminTruthValue(
+            analytics?.grossRevenueUsd,
+            analytics?.netRevenueUsd,
+            analytics?.adjustedProfitUsd,
+            totalSpentUsd,
+        ),
+        sourceConfigured: Boolean(analytics?.commerceSourceLabel || purchaseTransactions.length > 0 || analytics),
+        valueState: analytics?.commerceTruthLabel,
+        delayed: coerceAdminTruthState(analytics?.commerceTruthLabel) === "stale",
+        reviewRequired: Boolean(analytics?.commerceEmptyReason && analytics),
+    });
+    const metricTruthState = resolveAdminTruthState({
+        hasUsableValue: hasUsableAdminTruthValue(
+            behaviorRollup?.totalActions,
+            behaviorRollup?.views,
+            behaviorRollup?.watchTimeMs,
+            analytics?.eventCount,
+            analytics?.viewCount,
+            analytics?.watchSecondsTotal,
+        ),
+        sourceConfigured: Boolean(analytics?.metricSourceLabel || analytics),
+        valueState: analytics?.metricTruthLabel,
+        reviewRequired: Boolean(analytics?.metricIntegrityFailures?.length),
+    });
+    const behaviorTruthState = resolveAdminTruthState({
+        hasUsableValue: Boolean(behaviorRollup),
+        sourceConfigured: true,
+        valueState: behaviorRollup?.confidence === "unknown" ? "unavailable" : "live",
+        reviewRequired: Boolean(behaviorRollup?.issues.length) || behaviorRollup?.confidence === "low",
+    });
+    const supportTruthState = resolveAdminTruthState({
+        hasUsableValue: Boolean(supportReadiness),
+        sourceConfigured: true,
+    });
+    const parityTruthState = resolveAdminTruthState({
+        hasUsableValue: Boolean(parity),
+        sourceConfigured: true,
+        reviewRequired: Boolean(parity?.validations?.some((item) => item.status !== "pass")),
+    });
 
     const watchTimeLabel = useMemo(() => {
         const watchTimeMs = behaviorRollup?.watchTimeMs ?? ((analytics?.watchSecondsTotal ?? 0) * 1000);
@@ -603,12 +640,12 @@ export default function AdminUserAnalyticsPage() {
                         ))}
                     </div>
                     <div className="mt-4 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
-                        <AdminStatusBadge state={coerceUserDetailTruthState(analytics?.commerceTruthLabel)} className="mr-1 py-0.5" />{" "}
+                        <AdminTruthBadge state={commerceTruthState} className="mr-1 py-0.5" hasUsableValue={hasUsableAdminTruthValue(analytics?.grossRevenueUsd, totalSpentUsd)} />{" "}
                         {analytics?.commerceEmptyReason || `${bonusGumDrops.toLocaleString()} bonus GD valued at the package effective rate from ${analytics?.commerceSourceLabel || "commerce rollups"}.`}
                         {failedTxCount > 0 ? ` ${failedTxCount} failed transaction${failedTxCount === 1 ? "" : "s"} excluded from purchase yield.` : ""}
                     </div>
                     <div className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
-                        <AdminStatusBadge state={coerceUserDetailTruthState(analytics?.metricTruthLabel)} className="mr-1 py-0.5" />{" "}
+                        <AdminTruthBadge state={metricTruthState} className="mr-1 py-0.5" hasUsableValue={hasUsableAdminTruthValue(analytics?.eventCount, analytics?.viewCount, analytics?.watchSecondsTotal)} />{" "}
                         {analytics?.metricSourceLabel || "No canonical user metrics source found."}
                         {analytics?.metricIntegrityFailures?.length ? ` Issues: ${analytics.metricIntegrityFailures.join(", ")}.` : ""}
                     </div>
@@ -617,7 +654,7 @@ export default function AdminUserAnalyticsPage() {
                         data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
                         data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
                     >
-                        <AdminStatusBadge state={behaviorTruthState} className="mr-1 py-0.5" />{" "}
+                        <AdminTruthBadge state={behaviorTruthState} className="mr-1 py-0.5" hasUsableValue={Boolean(behaviorRollup)} />{" "}
                         {behaviorRollup
                             ? `Behavior rollup: ${behaviorRollup.source} / ${behaviorRollup.confidence}.`
                             : "Behavior rollup unavailable."}
@@ -866,13 +903,13 @@ export default function AdminUserAnalyticsPage() {
                             </div>
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Open support threads</p>
-                                <div className="mt-1"><AdminStatusBadge state={supportReadiness ? "live" : "unavailable"} /></div>
+                                <div className="mt-1"><AdminTruthBadge state={supportTruthState} hasUsableValue={Boolean(supportReadiness)} /></div>
                                 <p className="mt-2 text-2xl font-black text-white">{supportReadiness ? supportReadiness.summary.openThreads : "[unavailable]"}</p>
                                 <p className="mt-1 text-xs text-gray-400">{supportReadiness ? supportReadiness.summary.totalThreads : "[unavailable]"} historical threads.</p>
                             </div>
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support signals</p>
-                                <div className="mt-1"><AdminStatusBadge state={supportReadiness ? "live" : "unavailable"} /></div>
+                                <div className="mt-1"><AdminTruthBadge state={supportTruthState} hasUsableValue={Boolean(supportReadiness)} /></div>
                                 <p className="mt-2 text-2xl font-black text-white">{supportReadiness ? supportReadiness.summary.bugReportCount : "[unavailable]"}</p>
                                 <p className="mt-1 text-xs text-gray-400">Bug reports still surface here as support intake signals.</p>
                             </div>
@@ -987,7 +1024,7 @@ export default function AdminUserAnalyticsPage() {
                 <div className="grid gap-3 md:grid-cols-3">
                     <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Overall Confidence</p>
-                        <div className="mt-1"><AdminStatusBadge state={parity ? "live" : "unavailable"} /></div>
+                        <div className="mt-1"><AdminTruthBadge state={parityTruthState} hasUsableValue={Boolean(parity)} /></div>
                         <p className="mt-2 text-3xl font-black text-white">{parity ? `${parity.score}%` : "[unavailable]"}</p>
                         <p className="mt-1 text-xs text-gray-400">Purchase and unlock analytics aligned across indexed sources.</p>
                     </div>
@@ -1054,7 +1091,7 @@ export default function AdminUserAnalyticsPage() {
                                     <p className="text-sm font-semibold text-white">{module.label}</p>
                                     <p className="mt-1 text-xs leading-6 text-gray-400">{module.detail}</p>
                                 </div>
-                                <AdminStatusBadge state={coerceUserDetailTruthState(module.status)} />
+                                <AdminTruthBadge state={coerceUserDetailTruthState(module.status)} hasUsableValue={module.total > 0 || module.score > 0} />
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-400">
                                 {module.sources.map((source) => (
