@@ -35,6 +35,7 @@ import {
     type CreatorOnboardingCanonicalRecord,
     type CreatorOnboardingHistoryEntry,
 } from "@/lib/creator-onboarding";
+import type { UserBehaviorRollup } from "@/lib/user-behavior-rollup-contract";
 
 type UserDetailAnalytics = {
     eventCount: number;
@@ -73,6 +74,7 @@ type UserDetailAnalytics = {
     metricIntegrityFailures?: string[];
     recoveredFromFacts?: boolean;
     engagementScore?: number;
+    behaviorRollup?: UserBehaviorRollup;
     unlockSpendGdTotal: number;
     topViewedDrops: Array<{ dropId: string; dropTitle: string; views: number; watchSeconds: number }>;
     parity: {
@@ -403,18 +405,31 @@ export default function AdminUserAnalyticsPage() {
         : 0;
     const failedTxCount = transactions.filter((transaction) => transaction.status === "failed").length;
     const parity = analytics?.parity;
+    const behaviorRollup = analytics?.behaviorRollup;
+    const behaviorIssueSummary = behaviorRollup?.issues.map((issue) => issue.message).join(" ");
+    const behaviorTruthState: AdminSurfaceState = !behaviorRollup
+        ? "unavailable"
+        : behaviorRollup.issues.some((issue) => issue.severity === "fail")
+            ? "failed"
+            : behaviorRollup.issues.length > 0 || behaviorRollup.confidence === "low"
+                ? "degraded"
+                : behaviorRollup.confidence === "unknown"
+                    ? "unavailable"
+                    : "live";
 
     const watchTimeLabel = useMemo(() => {
-        if (!analytics?.watchSecondsTotal) {
+        const watchTimeMs = behaviorRollup?.watchTimeMs ?? ((analytics?.watchSecondsTotal ?? 0) * 1000);
+        if (!watchTimeMs) {
             return "0m";
         }
 
-        if (analytics.watchSecondsTotal >= 3600) {
-            return `${analytics.watchHours.toFixed(1)}h`;
+        const watchSecondsTotal = Math.round(watchTimeMs / 1000);
+        if (watchSecondsTotal >= 3600) {
+            return `${(watchSecondsTotal / 3600).toFixed(1)}h`;
         }
 
-        return `${Math.max(1, Math.round(analytics.watchSecondsTotal / 60))}m`;
-    }, [analytics]);
+        return `${Math.max(1, Math.round(watchSecondsTotal / 60))}m`;
+    }, [analytics?.watchSecondsTotal, behaviorRollup?.watchTimeMs]);
 
     const securityReasonOptions = useMemo(() => (
         Array.from(new Map(
@@ -563,12 +578,12 @@ export default function AdminUserAnalyticsPage() {
                             { label: "Delivered", value: `${deliveredGumDrops.toLocaleString()} GD` },
                             { label: "Effective rate", value: `$${effectiveUsdPer100Gd.toFixed(2)} / 100 GD` },
                             { label: "Avg order", value: `$${averageOrderUsd.toFixed(2)}` },
-                            { label: "Actions", value: (analytics?.eventCount || 0).toLocaleString() },
-                            { label: "Views", value: (analytics?.viewCount || 0).toLocaleString() },
+                            { label: "Actions", value: (behaviorRollup?.totalActions ?? analytics?.eventCount ?? 0).toLocaleString() },
+                            { label: "Views", value: (behaviorRollup?.views ?? analytics?.viewCount ?? 0).toLocaleString() },
                             { label: "Bounce", value: analytics?.viewCount ? `${Math.round(((analytics?.bounceCount || 0) / Math.max(1, analytics.viewCount)) * 100)}%` : "No source" },
-                            { label: "Auth", value: (analytics?.authSuccessCount || 0).toLocaleString() },
+                            { label: "Auth", value: (behaviorRollup?.authEvents ?? analytics?.authSuccessCount ?? 0).toLocaleString() },
                             { label: "Watch time", value: watchTimeLabel },
-                            { label: "Last seen", value: analytics?.lastSeenAt ? formatDistanceToNow(analytics.lastSeenAt, { addSuffix: true }) : "No activity" },
+                            { label: "Last seen", value: (behaviorRollup?.lastSeenAt ?? analytics?.lastSeenAt) ? formatDistanceToNow(behaviorRollup?.lastSeenAt ?? analytics!.lastSeenAt, { addSuffix: true }) : "No activity" },
                         ].map((item) => (
                             <div key={item.label} className="rounded-[1.25rem] border border-white/10 bg-black/30 px-3 py-3">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">{item.label}</p>
@@ -585,6 +600,17 @@ export default function AdminUserAnalyticsPage() {
                         <AdminStatusBadge state={coerceUserDetailTruthState(analytics?.metricTruthLabel)} className="mr-1 py-0.5" />{" "}
                         {analytics?.metricSourceLabel || "No canonical user metrics source found."}
                         {analytics?.metricIntegrityFailures?.length ? ` Issues: ${analytics.metricIntegrityFailures.join(", ")}.` : ""}
+                    </div>
+                    <div
+                        className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400"
+                        data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
+                        data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
+                    >
+                        <AdminStatusBadge state={behaviorTruthState} className="mr-1 py-0.5" />{" "}
+                        {behaviorRollup
+                            ? `Behavior rollup: ${behaviorRollup.source} / ${behaviorRollup.confidence}.`
+                            : "Behavior rollup unavailable."}
+                        {behaviorIssueSummary ? ` Issues: ${behaviorIssueSummary}` : ""}
                     </div>
                 </div>
 

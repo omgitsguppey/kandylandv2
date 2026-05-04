@@ -51,6 +51,7 @@ import {
 } from "@/lib/admin-user-metrics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -576,6 +577,8 @@ function serializeUserDoc(id: string, raw: Record<string, unknown>) {
     role: (raw.role === "admin" || raw.role === "creator" || raw.role === "user" ? raw.role : "user") as "user" | "creator" | "admin",
     isVerified: raw.isVerified === true,
     gumDropsBalance: typeof raw.gumDropsBalance === "number" ? raw.gumDropsBalance : 0,
+    gumDropsPurchasedBalance: typeof raw.gumDropsPurchasedBalance === "number" ? raw.gumDropsPurchasedBalance : undefined,
+    gumDropsRewardBalance: typeof raw.gumDropsRewardBalance === "number" ? raw.gumDropsRewardBalance : undefined,
     unlockedContent: toStringArray(raw.unlockedContent),
     createdAt: toTimestampNumber(raw.createdAt),
     lastCheckIn: toTimestampNumber(raw.lastCheckIn),
@@ -798,6 +801,27 @@ async function GET_handler(request: NextRequest) {
         lastSeenAt: metricSnapshot.lastSeenAt,
         metrics: metricSnapshot,
       });
+      const behaviorRollup = buildUserBehaviorRollup({
+        userId: user.uid,
+        totalActions: metricSnapshot.eventCount,
+        views: metricSnapshot.viewCount,
+        unwraps: metricSnapshot.unwrapCount,
+        watchSecondsTotal: metricSnapshot.watchSecondsTotal,
+        purchasesCount: metricSnapshot.purchaseCount,
+        revenueUsd: metricSnapshot.grossRevenueUsd,
+        paidGdPurchased: analytics.paidGumDrops,
+        rewardGdEarned: user.gumDropsRewardBalance,
+        onboardingCompleted: user.onboardingCompleted === true,
+        authEvents: metricSnapshot.authSuccessCount,
+        pushEnabled: user.notificationSettings?.browserPushEnabled === true,
+        lastSeenAt: metricSnapshot.lastSeenAt,
+        hasRollup: analyticsSnap.exists,
+        hasDaily: userDailySnapshot.docs.length > 0,
+        hasFacts: false,
+        hasTransactions: false,
+        commerceSourcePresent: Boolean(analytics.commerceSourceLabel),
+        sourceIssues: metricIntegrity.failures,
+      });
       const analyticsByUser = {
         [user.uid]: {
           ...analytics,
@@ -808,6 +832,7 @@ async function GET_handler(request: NextRequest) {
           metricFreshnessMs: metricIntegrity.freshnessMs,
           recoveredFromFacts: false,
           engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
+          behaviorRollup,
         },
       };
 
@@ -1365,6 +1390,27 @@ async function GET_handler(request: NextRequest) {
         lastSeenAt: metricSnapshot.lastSeenAt,
         metrics: metricSnapshot,
       });
+      const behaviorRollup = buildUserBehaviorRollup({
+        userId: user.uid,
+        totalActions: metricSnapshot.eventCount,
+        views: metricSnapshot.viewCount,
+        unwraps: metricSnapshot.unwrapCount,
+        watchSecondsTotal: metricSnapshot.watchSecondsTotal,
+        purchasesCount: metricSnapshot.purchaseCount,
+        revenueUsd: metricSnapshot.grossRevenueUsd,
+        paidGdPurchased: analytics.paidGumDrops,
+        rewardGdEarned: user.gumDropsRewardBalance,
+        onboardingCompleted: user.onboardingCompleted === true,
+        authEvents: metricSnapshot.authSuccessCount,
+        pushEnabled: user.notificationSettings?.browserPushEnabled === true,
+        lastSeenAt: metricSnapshot.lastSeenAt,
+        hasRollup: rollupUserIds.has(user.uid),
+        hasDaily: dailyUserIds.has(user.uid),
+        hasFacts: factRecoveredUserIds.has(user.uid),
+        hasTransactions: false,
+        commerceSourcePresent: Boolean(analytics.commerceSourceLabel),
+        sourceIssues: metricIntegrity.failures,
+      });
 
       analyticsByUser[user.uid] = {
         ...analytics,
@@ -1375,6 +1421,7 @@ async function GET_handler(request: NextRequest) {
         metricFreshnessMs: metricIntegrity.freshnessMs,
         recoveredFromFacts: metricIntegrity.recoveredFromFacts,
         engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
+        behaviorRollup,
       };
     });
 

@@ -373,11 +373,19 @@ export default function UserManagementPage() {
     );
 
     const getUserAnalytics = (uid: string) => userAnalytics[uid];
+    const getBehaviorRollup = (uid: string) => userAnalytics[uid]?.behaviorRollup;
     const formatMoney = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `$${value.toFixed(2)}` : "[unavailable]";
     const formatPercent = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "[unavailable]";
     const formatCount = (value?: number, analytics?: UserAnalytics) =>
         !analytics || analytics.metricTruthLabel === "unknown" ? "[unavailable]" : (value ?? 0).toLocaleString();
     const formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : "[unavailable]";
+    const formatWatchHours = (watchTimeMs?: number, fallbackHours?: number) => {
+        if (typeof watchTimeMs === "number" && Number.isFinite(watchTimeMs)) {
+            return `${Number((watchTimeMs / 3_600_000).toFixed(1))}h`;
+        }
+
+        return `${fallbackHours || 0}h`;
+    };
     const formatCompactMoney = (value?: number) => {
         if (typeof value !== "number" || !Number.isFinite(value)) {
             return "[unavailable]";
@@ -800,13 +808,21 @@ export default function UserManagementPage() {
                             <div className="mt-3 grid gap-2">
                                 {topTrackedUsers.length === 0 ? (
                                     <p className="text-sm text-gray-400">Open a user before loading behavior rollups.</p>
-                                ) : topTrackedUsers.map((user) => (
-                                    <div key={user.uid} className="rounded-2xl border border-white/10 bg-black/25 px-3 py-3">
+                                ) : topTrackedUsers.map((user) => {
+                                    const analytics = getUserAnalytics(user.uid);
+                                    const behaviorRollup = getBehaviorRollup(user.uid);
+                                    return (
+                                    <div
+                                        key={user.uid}
+                                        className="rounded-2xl border border-white/10 bg-black/25 px-3 py-3"
+                                        data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
+                                        data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
+                                    >
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-bold text-white">{user.username ? `@${user.username}` : user.displayName || user.email || user.uid}</p>
                                                 <p className="text-xs text-gray-500">
-                                                    {getUserAnalytics(user.uid)?.eventCount || 0} tracked actions &middot; {formatMoney(getUserAnalytics(user.uid)?.grossRevenueUsd)} cash &middot; score {getUserAnalytics(user.uid)?.engagementScore || 0}
+                                                    {behaviorRollup?.totalActions ?? analytics?.eventCount ?? 0} tracked actions &middot; {formatMoney(behaviorRollup?.revenueUsd ?? analytics?.grossRevenueUsd)} cash &middot; {behaviorRollup?.confidence ?? "unknown"}
                                                 </p>
                                             </div>
                                             <Link href={`/admin/user/${user.uid}`} className="text-xs font-bold text-brand-purple hover:underline">
@@ -814,7 +830,7 @@ export default function UserManagementPage() {
                                             </Link>
                                         </div>
                                     </div>
-                                ))}
+                                )})}
                             </div>
                         </div>
                     </div>
@@ -851,6 +867,7 @@ export default function UserManagementPage() {
                                     ) : (
                                         filteredUsers.map((user) => {
                                             const analytics = getUserAnalytics(user.uid);
+                                            const behaviorRollup = getBehaviorRollup(user.uid);
                                             const onboardingBadge = getOnboardingBadge(user, analytics);
                                             return (
                                             <tr key={user.uid} className="transition-colors">
@@ -904,12 +921,17 @@ export default function UserManagementPage() {
                                                 </td>
                                                 <td className="p-4 text-sm">
                                                     {analytics ? (
-                                                        <div className="space-y-2" data-admin-users-loading-lane="behavioralDetail">
+                                                        <div
+                                                            className="space-y-2"
+                                                            data-admin-users-loading-lane="behavioralDetail"
+                                                            data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
+                                                            data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
+                                                        >
                                                             <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
-                                                                {analytics.eventCount || 0} events / {analytics.sessionCount || 0} sessions
+                                                                {behaviorRollup?.totalActions ?? analytics.eventCount ?? 0} actions / {behaviorRollup?.views ?? analytics.viewCount ?? 0} views
                                                             </div>
                                                             <div className="text-[10px] text-gray-500">
-                                                                {analytics.watchHours || 0}h watch / score {analytics.engagementScore || 0}
+                                                                {formatWatchHours(behaviorRollup?.watchTimeMs, analytics.watchHours)} watch / {behaviorRollup?.issues.length ?? 0} issues
                                                             </div>
                                                         </div>
                                                     ) : (
@@ -993,6 +1015,7 @@ export default function UserManagementPage() {
                         ) : (
                             filteredUsers.map((user) => {
                                 const analytics = getUserAnalytics(user.uid);
+                                const behaviorRollup = getBehaviorRollup(user.uid);
                                 const onboardingBadge = getOnboardingBadge(user, analytics);
                                 return (
                                 <div key={user.uid} className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col gap-4 relative overflow-hidden group">
@@ -1053,22 +1076,27 @@ export default function UserManagementPage() {
                                         </div>
 
                                         {analytics ? (
-                                            <div className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5" data-admin-users-loading-lane="behavioralDetail">
+                                            <div
+                                                className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5"
+                                                data-admin-users-loading-lane="behavioralDetail"
+                                                data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
+                                                data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
+                                            >
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><Users className="w-3 h-3 inline mr-1" />Events</span>
-                                                    <span className="text-sm font-mono text-gray-300">{analytics.eventCount || 0}</span>
+                                                    <span className="text-sm font-mono text-gray-300">{behaviorRollup?.totalActions ?? analytics.eventCount ?? 0}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><TrendingUp className="w-3 h-3 inline mr-1" />Unwraps</span>
-                                                    <span className="text-sm font-mono text-gray-300">{analytics.unwrapCount || 0}</span>
+                                                    <span className="text-sm font-mono text-gray-300">{behaviorRollup?.unwraps ?? analytics.unwrapCount ?? 0}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><Clock3 className="w-3 h-3 inline mr-1" />Watch</span>
-                                                    <span className="text-sm font-mono text-gray-300">{analytics.watchHours || 0}h</span>
+                                                    <span className="text-sm font-mono text-gray-300">{formatWatchHours(behaviorRollup?.watchTimeMs, analytics.watchHours)}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-gray-500 font-bold uppercase"><Activity className="w-3 h-3 inline mr-1" />Score</span>
-                                                    <span className="text-sm font-mono text-gray-300">{analytics.engagementScore || 0}</span>
+                                                    <span className="text-xs text-gray-500 font-bold uppercase"><Activity className="w-3 h-3 inline mr-1" />Truth</span>
+                                                    <span className="text-sm font-mono text-gray-300">{behaviorRollup?.confidence ?? "unknown"}</span>
                                                 </div>
                                             </div>
                                         ) : (

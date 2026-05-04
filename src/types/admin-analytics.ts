@@ -7,6 +7,7 @@ import type {
   AnalyticsTruthSummary,
 } from "@/lib/admin-analytics-truth";
 import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
+import type { UserBehaviorRollup } from "@/lib/user-behavior-rollup-contract";
 import type { UserProfile } from "@/types/db";
 
 export type ViewTab = "operations" | "audience" | "commerce";
@@ -536,6 +537,7 @@ export type UserAnalytics = {
   metricIntegrityFailures?: string[];
   recoveredFromFacts?: boolean;
   engagementScore?: number;
+  behaviorRollup?: UserBehaviorRollup;
 };
 
 export type UsersSummary = {

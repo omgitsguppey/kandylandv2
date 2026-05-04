@@ -19,6 +19,7 @@ import {
     buildAdminUserMetricIntegrity,
     scoreAdminUserEngagement,
 } from "@/lib/admin-user-metrics";
+import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 import {
     buildCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingCanonicalRecord,
@@ -546,6 +547,28 @@ async function GET_handler(
             lastSeenAt: metricSnapshot.lastSeenAt,
             metrics: metricSnapshot,
         });
+        const behaviorRollup = buildUserBehaviorRollup({
+            userId,
+            totalActions: normalizedEventCount,
+            views: normalizedViewCount,
+            unwraps: normalizedUnlockCount,
+            watchSecondsTotal: normalizedWatchSeconds,
+            purchasesCount: normalizedPurchaseCount,
+            revenueUsd: commerceMetrics.grossRevenueUsd,
+            paidGdPurchased: commerceMetrics.paidGumDrops,
+            rewardGdEarned: readNumber(rawUser.gumDropsRewardBalance),
+            onboardingCompleted: user.onboardingCompleted === true,
+            authEvents: normalizedAuthSuccessCount,
+            pushEnabled: user.notificationSettings?.browserPushEnabled === true,
+            lastSeenAt: metricSnapshot.lastSeenAt,
+            hasRollup: analyticsRollupSnap.exists,
+            hasDaily: userDaily.length > 0,
+            hasFacts: directEventCount > 0,
+            hasSessionFacts: sessionFacts.length > 0,
+            hasTransactions: transactions.length > 0,
+            commerceSourcePresent: Boolean(commerceMetrics.commerceSourceLabel),
+            sourceIssues: metricIntegrity.failures,
+        });
 
         const analytics = {
             eventCount: normalizedEventCount,
@@ -591,6 +614,7 @@ async function GET_handler(
             metricFreshnessMs: metricIntegrity.freshnessMs,
             recoveredFromFacts: metricIntegrity.recoveredFromFacts,
             engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
+            behaviorRollup,
             topViewedDrops: Array.from(viewedDrops.values())
                 .sort((left, right) => {
                     if (right.views !== left.views) {
