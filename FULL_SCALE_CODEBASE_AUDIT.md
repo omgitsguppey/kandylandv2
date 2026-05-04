@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #138] PRE: Google Cost Bleed Scoring
+
+Scope started:
+- Creating a deterministic Google/Firebase/API cost and rate-limit audit lane for API routes, Firestore, Storage/media, Google Analytics Data API, Vertex/AI helpers, Cloud Run/App Hosting, and runtime SQL/Data Connect usage.
+- Required outputs: `src/lib/server/api-cost-contract.ts`, `scripts/agent/score-google-cost-bleed.ts`, `scripts/agent/validate-google-cost-bleed.ts`, `agent/state/google-cost-bleed.generated.json`, `docs/agent-truth/google-cost-bleed.md`, package scripts `score:google-cost` and `check:google-cost`, targeted verification, commit, and push.
+- This pass must not add paid Google APIs, add runtime SQL, remove telemetry, auto-fix business logic, weaken auth/payment/content boundaries, run Playwright/Lighthouse/Cypress, run broad UI audits, or run full `npm run check`.
+
+Initial evidence:
+- Control tower routing, product doctrine, source-of-truth map, request guard, remote Firestore-backed rate limit helper, API route inventory, Google/Firestore/Storage/GA/AI import scan, `apphosting.yaml`, AI helper budget/model/feature-toggle evidence, and GA analytics helper/cache evidence were consulted.
+
+Doctrine:
+- Google cost-bearing surfaces must be declared before use. Firestore, Storage, Google Analytics Data API, Vertex AI, Cloud Run/App Hosting, and any SQL/Data Connect runtime must have route-level cost contracts, budget guards, bounded rate limits, cache policies, and debug evidence. The app must fail audits before it surprises billing.
+
+Scope completed:
+- Added `src/lib/server/api-cost-contract.ts` with `ApiCostContract`, cost classes, route pattern matching, and conservative contracts for current API route groups.
+- Added `scripts/agent/score-google-cost-bleed.ts` to classify API routes and report trusted-origin gaps, remote Firestore rate-limit write risk, AI paid-surface fences, GA quota/caching evidence, Firestore unbounded reads/listeners, Storage/media egress, runtime SQL/Data Connect usage, and Cloud Run/App Hosting max-instance/frequency evidence.
+- Added `scripts/agent/validate-google-cost-bleed.ts`, `agent/state/google-cost-bleed.generated.json`, `docs/agent-truth/google-cost-bleed.md`, and package scripts `score:google-cost` / `check:google-cost`.
+- Updated README, repo memory, and file-function checklist with the cost-bleed doctrine.
+
+Verification:
+- `npm run score:google-cost` passed and wrote the generated report.
+- `npm run check:google-cost` passed.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, or browser automation.
+
+Residual risk:
+- The scorer is deterministic source validation. It does not implement the reported fixes or validate provider-side quotas/billing dashboards. Findings that touch auth, payment, media entitlement, AI, analytics, or rate-limit architecture remain owner-reviewed follow-up work.
+
 ## [2026-05-04 #137] PRE: Orphaned Logic And Stale Artifact Scoring
 
 Scope started:

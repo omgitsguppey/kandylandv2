@@ -16,6 +16,14 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 - [x] `scripts/agent/validate-orphaned-logic.ts`, `agent/state/orphaned-logic-score.generated.json`, `docs/agent-truth/orphaned-logic-score.md`, and package scripts `score:orphans` / `check:orphaned-logic` provide the deterministic validation lane.
 - [x] Autofix is advisory only in this lane: exact unused imports require TypeScript confirmation, exact duplicate broken doc chunks require byte-for-byte evidence, and product behavior, route deletion, component deletion, telemetry rename, auth/payment/unlock/content changes, and ambiguous doctrine conflicts must be escalated.
 
+## 2026-05-04 Google Cost Bleed Score Coverage
+
+- [x] Google cost-bearing surfaces must be declared before use. Firestore, Storage, Google Analytics Data API, Vertex AI, Cloud Run/App Hosting, and any SQL/Data Connect runtime must have route-level cost contracts, budget guards, bounded rate limits, cache policies, and debug evidence. The app must fail audits before it surprises billing.
+- [x] `src/lib/server/api-cost-contract.ts` owns `ApiCostContract`, cost classes, route pattern matching, auth/trusted-origin/cache/budget expectations, and conservative contracts for API route groups.
+- [x] `scripts/agent/score-google-cost-bleed.ts` owns the source-only Google/Firebase/API cost score over classified API routes, trusted-origin mutations, AI paid surfaces, GA quota usage, Firestore unbounded reads/listeners, Storage/media egress, runtime SQL/Data Connect usage, and App Hosting/cron compute limits.
+- [x] `scripts/agent/validate-google-cost-bleed.ts`, `agent/state/google-cost-bleed.generated.json`, `docs/agent-truth/google-cost-bleed.md`, and package scripts `score:google-cost` / `check:google-cost` provide the deterministic no-browser validation lane.
+- [x] Autofix is disabled by default; cost-risk findings suggest targeted owner-reviewed fixes and must not mutate payment, auth, unlock, media, AI, analytics, SQL, telemetry, or business logic automatically.
+
 ## 2026-05-04 Locked Content Protection Score Coverage
 
 - [x] KandyDrops locked content protection scoring is deterministic. Locked preview and guest/user surfaces may show cover art, safe metadata, file counts, and public social proof, but must never render internal content URLs, internal thumbnails, blurred internal previews, or raw storage URLs before entitlement.

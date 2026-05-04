@@ -87,6 +87,8 @@
         "check:content-protection": "tsx scripts/agent/validate-content-protection.ts",
         "score:orphans": "tsx scripts/agent/score-orphaned-logic.ts",
         "check:orphaned-logic": "tsx scripts/agent/validate-orphaned-logic.ts",
+        "score:google-cost": "tsx scripts/agent/score-google-cost-bleed.ts",
+        "check:google-cost": "tsx scripts/agent/validate-google-cost-bleed.ts",
         "check:ast-grep-rules": "tsx scripts/agent/run-ast-grep-rules.ts",
         "check:home-mobile-hero-shell": "tsx scripts/agent/validate-home-mobile-hero-shell.ts",
         "check:experiences-compact-layout": "tsx scripts/agent/validate-experiences-compact-layout.ts",
