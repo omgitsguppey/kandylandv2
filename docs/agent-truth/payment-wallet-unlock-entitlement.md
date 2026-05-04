@@ -12,12 +12,15 @@ Money and access flows are server-truth only. The browser may request a purchase
 
 Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
 
+The wallet modal uses compact public-beta density. Package cards show total delivered GumDrops, package label, price, and purple bonus chip only. The visible paid/bonus explanatory subcopy is removed to reduce vertical sprawl. The balance chip shows source-aware free GD and paid GD. Backend source-of-funds accounting and telemetry remain unchanged.
+
 ## Source Truth Rules
 
 - Gum Drops package pricing is defined by `src/lib/gumdrops-packages.ts`.
 - PayPal order creation binds the authenticated user and requested package in `custom_id` as `userId:expectedDrops`.
 - PayPal capture must verify status, USD amount, expected package price, and the server-created `custom_id` user/package binding before any credit.
 - Purchase economics still record `paidGumDrops`, `bonusGumDrops`, and delivered totals from `src/lib/gumdrop-economics.ts`, but paid-pack base and paid-pack bonus both credit purchased/paid-source balance through `src/lib/gumdrop-ledger.ts`.
+- PurchaseModal may show compact source-aware balance display and compact package cards, but it must not change package delivery totals, checkout expectedDrops, PayPal behavior, or source classification.
 - Promo, reward, referral, onboarding, task, check-in, and admin grant Gum Drops credit reward-source balance and are not revenue.
 - Paid-pack bonus GumDrops are purchase bonus metadata and paid-source spendable balance, not reward-source balance.
 - Revenue is counted only from completed `purchase_currency` ledger rows.
@@ -76,6 +79,7 @@ Run Firebase rules only when security rules change:
 - Do not credit a PayPal capture missing the server-created custom id.
 - Do not clear, rewrite, or bypass payment locks.
 - Do not make paid-pack bonus GumDrops count as reward-source balance; they are paid-source balance even though they remain purchase bonus metadata.
+- Do not reintroduce visible paid/bonus explanatory subcopy under wallet package cards; source split truth belongs in telemetry/backend fields and the compact free/paid balance chip.
 - Do not make promo, reward, referral, daily task, onboarding, or admin adjustment Gum Drops count as revenue or paid-source creator spend balance.
 - Do not expose raw private content URLs to the browser before entitlement verification.
 - Do not change payment/write flows without route tests and this validation lane.

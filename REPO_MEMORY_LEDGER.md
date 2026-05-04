@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-03 Wallet modal compact density
+
+The wallet modal uses compact public-beta density. Package cards show total delivered GumDrops, package label, price, and purple bonus chip only. The visible paid/bonus explanatory subcopy is removed to reduce vertical sprawl. The balance chip shows source-aware free GD and paid GD. Backend source-of-funds accounting and telemetry remain unchanged. The compact balance display uses explicit `gumDropsRewardBalance` and `gumDropsPurchasedBalance` through `readSourceAwareBalance`; legacy total-only profiles follow the canonical helper fallback instead of guessing a free/paid split.
+
 ## 2026-05-03 Debug evidence pipeline and support permissions
 
 KandyDrops debug evidence is structured, fingerprinted, stored, and injected into deterministic audits. Runtime issues already detected by the app must become pre-catcher issue candidates before relying on manual bug reports. Support uses one unified inbox model, with admin routes able to list/read/reply to all support threads and users scoped only to their own threads. Debug evidence writes must never block user flows. Canonical buckets are `debug_evidence`, `debug_evidence_rollups`, and existing `runtime_warning_records`; public generated audit artifacts must stay redacted. Admin Support Workspace uses verified admin support API routes for list/detail/reply rather than direct client Firestore listeners.

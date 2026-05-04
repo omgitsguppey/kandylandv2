@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-03 Wallet Modal Compact Density Coverage
+
+- [x] `src/components/PurchaseModal.tsx` owns the compact public-beta wallet density: tighter shell/header/package rows, visible paid/bonus row subcopy removed, brand-purple package bonus chips, split source-aware balance chip, and wallet density debug/telemetry fields without changing PayPal buttons, checkout handlers, package totals, or backend source-of-funds truth.
+- [x] `src/lib/gumdrop-formatting.ts` owns compact GumDrop number formatting and wallet balance split display resolution through the canonical `readSourceAwareBalance` helper, including the legacy total-only fallback.
+- [x] `tests/unit/lib/gumdrop-formatting.spec.ts`, `tests/unit/purchase-modal-density.spec.tsx`, and `scripts/agent/validate-wallet-density.ts` validate compact number formatting, explicit/legacy source split chip rendering, removed package subcopy, purple bonus chip classes, preserved paid/bonus telemetry fields, and protected payment/economy files.
+
 ## 2026-05-03 Debug Evidence Pipeline And Support Permissions Coverage
 
 - [x] `src/lib/debug-evidence-contract.ts`, `src/lib/server/debug-evidence-store.ts`, and `src/app/api/debug/evidence/route.ts` own the structured debug evidence schema, hardcoded buckets, fingerprint rollups, redacted public summaries, and non-blocking same-origin client evidence ingest.

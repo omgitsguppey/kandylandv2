@@ -20,6 +20,7 @@ import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { getPaymentProblemCopy } from "@/lib/problem-state-copy";
+import { formatCompactGd, resolveWalletBalanceSplit } from "@/lib/gumdrop-formatting";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -194,11 +195,14 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     () => deriveGumdropEconomics(selectedPackage.drops, selectedPackage.price),
     [selectedPackage.drops, selectedPackage.price],
   );
-  const customBundleEconomics = useMemo(
-    () => deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5),
-    [customDrops],
-  );
   const creditedDropsValue = creditedDrops ?? selectedPackage.drops;
+  const walletBalanceSplit = useMemo(() => resolveWalletBalanceSplit(userProfile), [userProfile]);
+  const walletDensityPayload = useMemo(() => ({
+    balance_free_gd: walletBalanceSplit.freeGd,
+    balance_paid_gd: walletBalanceSplit.paidGd,
+    balance_total_gd: walletBalanceSplit.totalGd,
+    wallet_density: "public-beta-compact" as const,
+  }), [walletBalanceSplit.freeGd, walletBalanceSplit.paidGd, walletBalanceSplit.totalGd]);
 
   useEffect(() => {
     if (isOpen && !hasTrackedOpenRef.current) {
@@ -209,6 +213,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_paid_drops: selectedEconomics.paidGumDrops,
         package_bonus_drops: selectedEconomics.bonusGumDrops,
         package_adjusted_profit_usd: selectedEconomics.adjustedProfitUsd,
+        ...walletDensityPayload,
       });
     }
 
@@ -221,6 +226,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     selectedPackage.drops,
     selectedPackage.label,
     selectedPackage.price,
+    walletDensityPayload,
   ]);
 
   const selectBundlePackage = useCallback((drops: number) => {
@@ -238,10 +244,11 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       package_price: bundle.price,
       package_paid_drops: bundleEconomics.paidGumDrops,
       package_bonus_drops: bundleEconomics.bonusGumDrops,
+      ...walletDensityPayload,
     });
 
     return bundle;
-  }, []);
+  }, [walletDensityPayload]);
 
   const updateBundleDrops = useCallback((delta: number) => {
     setCustomDrops((prev) => {
@@ -344,6 +351,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_bonus_value_usd: selectedEconomics.bonusValueUsd,
         package_adjusted_profit_usd: selectedEconomics.adjustedProfitUsd,
         package_effective_usd_per_100_gd: selectedEconomics.effectiveUsdPer100Gd,
+        ...walletDensityPayload,
         ...(consumeTimedFlow(CHECKOUT_FLOW_KEY).mergedParams ?? {}),
       });
     } catch (err: unknown) {
@@ -369,6 +377,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_price: selectedPackage.price,
         package_paid_drops: selectedEconomics.paidGumDrops,
         package_bonus_drops: selectedEconomics.bonusGumDrops,
+        ...walletDensityPayload,
         ...(consumeTimedFlow(CHECKOUT_FLOW_KEY, { failure_reason: problemCopy.headline }).mergedParams ?? {}),
       });
       toast.error(problemCopy.headline, { description: problemCopy.body });
@@ -393,9 +402,13 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="purchase-wallet-title"
-                className="relative w-full max-w-md bg-black/45 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-2xl border border-white/10 pointer-events-auto"
+                data-wallet-density="public-beta-compact"
+                data-wallet-balance-chip="split-source"
+                data-wallet-package-subcopy="removed"
+                data-wallet-bonus-chip-theme="brand-purple"
+                className="relative w-full max-w-md bg-black/45 backdrop-blur-xl rounded-3xl p-4 sm:p-5 md:p-6 shadow-2xl border border-white/10 pointer-events-auto"
               >
-                <button ref={closeButtonRef} aria-label="Close modal" onClick={closeModal} className="absolute top-4 right-4 p-2 rounded-full text-gray-400 transition-colors z-30">
+                <button ref={closeButtonRef} aria-label="Close modal" onClick={closeModal} className="absolute top-3 right-3 flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition-colors z-30">
                   <X className="w-5 h-5" />
                 </button>
 
@@ -405,16 +418,21 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 >
                   {!success ? (
                     <div>
-                      <div className="text-center mb-6 pt-2">
-                        <div className="w-14 h-14 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-lg shadow-brand-purple/20">
-                          <Candy className="w-7 h-7 text-white drop-shadow-md" />
+                      <div className="text-center mb-4 pt-1">
+                        <div className="w-12 h-12 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-2xl mx-auto mb-2 flex items-center justify-center shadow-lg shadow-brand-purple/20">
+                          <Candy className="w-6 h-6 text-white drop-shadow-md" />
                         </div>
                         <h2 id="purchase-wallet-title" className="text-xl font-bold text-white mb-0.5 tracking-tight">Kandy Shop Wallet</h2>
-                        <p className="text-gray-400 text-xs font-medium mb-3">Get more GumDrops to Unwrap more!</p>
-                        {userProfile?.gumDropsBalance !== undefined && (
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                        <p className="text-gray-400 text-xs font-medium mb-2 leading-snug">Get more GumDrops to Unwrap more!</p>
+                        {userProfile && (
+                          <div
+                            className="inline-flex items-center gap-2 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full"
+                            aria-label={`Wallet balance: ${formatCompactGd(walletBalanceSplit.freeGd)} free GD, ${formatCompactGd(walletBalanceSplit.paidGd)} paid GD`}
+                          >
                             <Candy className="w-3.5 h-3.5 text-brand-purple" />
-                            <span className="text-xs font-bold text-white shadow-sm">{userProfile.gumDropsBalance.toLocaleString()} balance</span>
+                            <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(walletBalanceSplit.freeGd)} free GD</span>
+                            <span className="text-[11px] font-bold text-white/25" aria-hidden="true">|</span>
+                            <span className="text-[11px] font-bold text-white shadow-sm">{formatCompactGd(walletBalanceSplit.paidGd)} paid GD</span>
                           </div>
                         )}
                       </div>
@@ -435,18 +453,19 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   package_price: pkg.price,
                                   package_paid_drops: pkgEconomics.paidGumDrops,
                                   package_bonus_drops: pkgEconomics.bonusGumDrops,
+                                  ...walletDensityPayload,
                                 });
                               }}
                               aria-pressed={isSelected}
                               className={cn(
-                                "relative flex items-center justify-between rounded-xl border p-3 w-full transition-all text-left",
+                                "relative flex items-center justify-between rounded-xl border px-3 py-2.5 w-full transition-all text-left",
                                 isSelected
                                   ? "bg-brand-purple/15 border-brand-purple/50 ring-1 ring-brand-purple/40 shadow-sm"
                                   : "bg-white/5 border-white/5 hover:bg-white/10 cursor-pointer"
                               )}
                             >
                               <div className="flex items-center gap-3">
-                                <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors", isSelected ? "bg-brand-purple/20" : "bg-black/40")}>
+                                <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors", isSelected ? "bg-brand-purple/20" : "bg-black/40")}>
                                   <Candy className={cn("h-5 w-5", isSelected ? "text-brand-purple shadow-sm" : "text-gray-400")} />
                                 </div>
                                 <div>
@@ -454,17 +473,12 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                     <span className="text-[15px] font-bold text-white leading-none">{pkg.drops.toLocaleString()}</span>
                                     <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
                                     {pkgEconomics.bonusGumDrops > 0 && (
-                                      <span className="inline-flex items-center ml-1 rounded border border-emerald-400/20 bg-emerald-400/10 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-emerald-300">
+                                      <span className="inline-flex items-center ml-1 rounded border border-brand-purple/30 bg-brand-purple/15 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-[#d7c4ff]">
                                         +{pkgEconomics.bonusGumDrops} Bonus
                                       </span>
                                     )}
                                   </div>
                                   <p className="text-[11px] font-medium text-gray-400 mt-1">{pkg.label}</p>
-                                  <p className="mt-0.5 text-[10px] font-semibold text-gray-500">
-                                    {pkgEconomics.bonusGumDrops > 0
-                                      ? `${pkgEconomics.paidGumDrops.toLocaleString()} paid + ${pkgEconomics.bonusGumDrops.toLocaleString()} bonus GumDrops`
-                                      : `${pkgEconomics.paidGumDrops.toLocaleString()} paid GumDrops`}
-                                  </p>
                                 </div>
                               </div>
                               <span className={cn("shrink-0 text-[15px] font-bold", isSelected ? "text-brand-purple" : "text-white")}>
@@ -490,7 +504,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           }
                         }}
                         className={cn(
-                          "relative mt-2 mb-5 flex w-full cursor-pointer flex-col gap-3 rounded-xl border p-3 text-left transition-all",
+                          "relative mt-2 mb-4 flex w-full cursor-pointer flex-col gap-2 rounded-xl border p-2.5 text-left transition-all",
                           isBundleSelected
                             ? "bg-brand-purple/15 border-brand-purple/50 ring-1 ring-brand-purple/40 shadow-sm"
                             : "bg-white/5 border-white/5 hover:bg-white/10"
@@ -498,21 +512,18 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       >
                         <div className="flex items-center justify-between">
                            <div className="flex items-center gap-3">
-                                <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors", isBundleSelected ? "bg-brand-purple/20" : "bg-black/40")}>
+                                <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors", isBundleSelected ? "bg-brand-purple/20" : "bg-black/40")}>
                                   <Candy className={cn("h-5 w-5", isBundleSelected ? "text-brand-purple shadow-sm" : "text-gray-400")} />
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     <span className="text-[15px] font-bold text-white leading-none">{customDrops.toLocaleString()}</span>
                                     <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
-                                    <span className="inline-flex items-center ml-0 sm:ml-1 rounded border border-emerald-400/20 bg-emerald-400/10 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-emerald-300">
+                                    <span className="inline-flex items-center ml-0 sm:ml-1 rounded border border-brand-purple/30 bg-brand-purple/15 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-[#d7c4ff]">
                                       {customDrops >= 5000 ? "100% EXTRA" : "BONUS"}
                                     </span>
                                   </div>
                                   <p className="text-[11px] font-medium text-gray-400 mt-1">King Size Bundle</p>
-                                  <p className="mt-0.5 text-[10px] font-semibold text-gray-500">
-                                    {customBundleEconomics.paidGumDrops.toLocaleString()} paid + {customBundleEconomics.bonusGumDrops.toLocaleString()} bonus GumDrops
-                                  </p>
                                 </div>
                            </div>
                            <span className={cn("shrink-0 text-[15px] font-bold", isBundleSelected ? "text-brand-purple" : "text-white")}>
@@ -521,7 +532,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         </div>
                         
                         {isBundleSelected && (
-                           <div className="flex items-center justify-between gap-3 pt-3 mt-1 border-t border-white/5">
+                           <div className="flex items-center justify-between gap-3 pt-2 mt-0.5 border-t border-white/5">
                              <span className="text-[11px] text-gray-400 font-medium tracking-wide">Build your configuration:</span>
                              <div className="flex shrink-0 items-center justify-between w-[130px] rounded-lg border border-white/10 bg-black/40 p-1">
                                 <button
@@ -561,7 +572,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       </div>
 
                       <div className="w-full relative z-10 pt-2 pb-1 border-t border-white/10 select-none">
-                        <div className="mb-4 text-[10px] font-bold text-gray-500 tracking-widest uppercase text-center flex items-center gap-3">
+                        <div className="mb-3 text-[10px] font-bold text-gray-500 tracking-widest uppercase text-center flex items-center gap-3">
                            <div className="flex-1 h-[1px] bg-white/5"></div>
                            <span>Secure Checkout</span>
                            <div className="flex-1 h-[1px] bg-white/5"></div>
@@ -592,11 +603,13 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 package_label: selectedPackage.label,
                                 package_drops: selectedPackage.drops,
                                 package_price: selectedPackage.price,
+                                ...walletDensityPayload,
                               });
                               trackEvent("begin_checkout", {
                                 package_label: selectedPackage.label,
                                 package_drops: selectedPackage.drops,
                                 package_price: selectedPackage.price,
+                                ...walletDensityPayload,
                               });
                               try {
                                 const response = await authFetch("/api/paypal/create", {

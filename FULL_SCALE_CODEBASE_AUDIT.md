@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-03 #123] PRE: Wallet Modal Compact Density
+
+Scope started:
+- Tightening `src/components/PurchaseModal.tsx` vertical density for mobile browser/PWA so package rows, header, balance chip, checkout divider, and PayPal area fit more comfortably without changing package math, PayPal behavior, source-of-funds accounting, checkout telemetry, or ledger classification.
+- Required outputs: compact source-aware balance chip, removed visible paid/bonus package subcopy, purple bonus chips, compact GumDrop number formatter/tests, targeted wallet density validator/package script, source-of-truth docs, focused verification, commit, and push.
+- This pass must not modify payment/capture routes, `gumdrop-ledger`, GumDrop economics/package totals, PayPal button behavior, or wallet-visible package names/value framing beyond the requested subcopy removal and split balance chip.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, source-of-truth map, shared component ownership, full governance files, and adjacency trace for `src/components/PurchaseModal.tsx` were consulted.
+- `UserProfile` exposes `gumDropsPurchasedBalance` and `gumDropsRewardBalance`; `normalizeUserProfile` preserves these explicit source-aware balances without deriving them from the total balance.
+
+Doctrine:
+- The wallet modal uses compact public-beta density. Package cards show total delivered GumDrops, package label, price, and purple bonus chip only. The visible paid/bonus explanatory subcopy is removed to reduce vertical sprawl. The balance chip shows source-aware free GD and paid GD. Backend source-of-funds accounting and telemetry remain unchanged.
+
+Scope completed:
+- Tightened `PurchaseModal` shell/header/package-card density with compact mobile padding, smaller icon boxes, removed package paid/bonus explanatory subcopy, brand-purple fixed/custom bonus chips, and debug attributes for compact wallet density.
+- Replaced the single total balance chip with a source-aware `free GD | paid GD` chip backed by `readSourceAwareBalance` through `src/lib/gumdrop-formatting.ts`; explicit split fields are used when present and the canonical total-only legacy fallback remains paid-source.
+- Preserved PayPal button rendering, selected package delivered totals, `expectedDrops`, package economics, checkout handlers, `package_paid_drops` / `package_bonus_drops` telemetry, and protected ledger/economics/package/payment files.
+- Added `npm run check:wallet-density`, `scripts/agent/validate-wallet-density.ts`, focused compact formatter tests, and modal density render tests.
+
+Verification:
+- Passed: `npm run check:wallet-density`
+- Passed: `npx vitest run --config vitest.contracts.config.ts tests/unit/lib/gumdrop-formatting.spec.ts tests/unit/purchase-modal-density.spec.tsx`
+- Passed: `npm run typecheck -- --pretty false`
+- Passed: `git diff --check` (line-ending warnings only)
+- Confirmed no diff in `src/lib/gumdrop-ledger.ts`, `src/lib/gumdrop-economics.ts`, `src/lib/gumdrops-packages.ts`, `src/app/api/paypal`, or `src/app/api/wallet`.
+- Not run by design: Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits.
+
 ## [2026-05-03 #122] PRE: Debug Evidence Pipeline And Support Permissions
 
 Scope started:
