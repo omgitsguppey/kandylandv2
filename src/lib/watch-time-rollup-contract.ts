@@ -18,4 +18,6 @@ export type WatchTimeRollup = {
   validSessionCount: number;
   latestWatchAt: number;
   issues: WatchTimeRollupIssue[];
+  diagnosticEstimate: import("@/lib/behavioral/watch-time-estimation").WatchTimeDiagnosticEstimate | null;
+  legacyPageDurationMs: number;
 };

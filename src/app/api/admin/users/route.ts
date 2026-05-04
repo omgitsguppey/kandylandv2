@@ -786,6 +786,9 @@ async function GET_handler(request: NextRequest) {
       const watchTimeRollup = buildWatchTimeRollupFromRecords({
         records: watchSessionsSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
         views: Math.max(readMetric(raw, "viewCount"), dailyAggregate.viewCount),
+        viewerOpenMs: Math.max(Math.round(readMetric(raw, "watchSecondsTotal") * 1000), dailyAggregate.watchSecondsTotal * 1000),
+        pageDurationMs: Math.max(Math.round(readMetric(raw, "watchSecondsTotal") * 1000), dailyAggregate.watchSecondsTotal * 1000),
+        viewedFileCount: Math.max(readMetric(raw, "viewCount"), dailyAggregate.viewCount),
       });
       const canonicalWatchSecondsTotal = Math.round(watchTimeRollup.watchTimeMs / 1000);
       const loadSampleCount = readMetric(raw, "loadSampleCount");
@@ -819,6 +822,7 @@ async function GET_handler(request: NextRequest) {
         commerceTruthLabel: mergedCommerceMetrics.commerceTruthLabel,
         commerceSourceLabel: mergedCommerceMetrics.commerceSourceLabel,
         commerceEmptyReason: mergedCommerceMetrics.commerceEmptyReason,
+        watchTimeDiagnosticEstimate: watchTimeRollup.diagnosticEstimate,
       };
       const metricSnapshot = {
         eventCount: analytics.eventCount,
@@ -1144,6 +1148,9 @@ async function GET_handler(request: NextRequest) {
         const watchTimeRollup = buildWatchTimeRollupFromRecords({
           records: watchSessionsByUser.get(doc.id) ?? [],
           views: viewCount,
+          viewerOpenMs: Math.max(Math.round(readMetric(raw, "watchSecondsTotal") * 1000), dailyAggregate.watchSecondsTotal * 1000),
+          pageDurationMs: Math.max(Math.round(readMetric(raw, "watchSecondsTotal") * 1000), dailyAggregate.watchSecondsTotal * 1000),
+          viewedFileCount: viewCount,
         });
         const canonicalWatchSecondsTotal = Math.round(watchTimeRollup.watchTimeMs / 1000);
 
@@ -1203,6 +1210,7 @@ async function GET_handler(request: NextRequest) {
           commerceEmptyReason: mergedCommerceMetrics.commerceEmptyReason,
           watchTimeSource: watchTimeRollup.source,
           watchTimeIssues: watchTimeRollup.issues,
+          watchTimeDiagnosticEstimate: watchTimeRollup.diagnosticEstimate,
         }];
       }),
     );

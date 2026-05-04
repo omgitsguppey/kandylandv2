@@ -16,7 +16,12 @@ import type {
     ViewerWatchContentKind,
     ViewerWatchSessionSnapshot,
 } from "@/lib/viewer-watch-session";
-import { scoreViewerWatchSession, shouldRetryViewerWatchCloseFlush } from "@/lib/viewer-watch-session";
+import {
+    scoreViewerWatchSession,
+    shouldCompleteImageOnManualAdvance,
+    shouldConsumeImageAsset,
+    shouldRetryViewerWatchCloseFlush,
+} from "@/lib/viewer-watch-session";
 
 const WATCH_VISIBLE_TICK_INTERVAL_MS = 5_000;
 const HEARTBEAT_FLUSH_WINDOW_MS = 10_000;
@@ -542,13 +547,17 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         const routeOwnsViewer = typeof window === "undefined" || (window.location.pathname || "").startsWith("/dashboard/viewer");
         const idleMs = Math.max(0, timestampMs - lastUserActivityAtRef.current);
         const activeEligible = idleMs < ACTIVE_IDLE_THRESHOLD_MS;
-        const canObserveContent = documentIsVisible && contentIsVisible && routeOwnsViewer && contextRef.current.overlayBlocked !== true;
+        const canObserveContent = documentIsVisible
+            && contentIsVisible
+            && routeOwnsViewer
+            && contextRef.current.overlayBlocked !== true
+            && contextRef.current.contentLoaded === true;
         const mediaContent = isMediaContent(contextRef.current.activeContentKind);
         const shouldCountVisible = canObserveContent;
         const shouldCountActive = canObserveContent && activeEligible;
         const shouldCountPlaying = shouldCountActive && mediaContent && mediaPlayingRef.current;
         const shouldCountWatch = mediaContent
-            ? shouldCountPlaying || (shouldCountActive && asset.maxProgressSeconds > 0)
+            ? shouldCountPlaying
             : shouldCountActive;
 
         if (idleMs >= ACTIVE_IDLE_THRESHOLD_MS && sessionMetadataRef.current.idleSinceMs === null) {
@@ -628,6 +637,60 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             reason,
         });
 
+        const scoredAssets = dirtyAssets.map((asset) => {
+            const consumedByTruth = asset.isConsumed || shouldConsumeImageAsset({
+                contentKind: asset.contentKind,
+                totalVisibleSeconds: asset.totalVisibleSeconds,
+                totalActiveSeconds: asset.totalActiveSeconds ?? 0,
+                totalPlayingSeconds: asset.totalPlayingSeconds ?? 0,
+            });
+            const completedByTruth = asset.isCompleted || scoreViewerWatchSession({
+                contentKind: asset.contentKind,
+                totalVisibleSeconds: asset.totalVisibleSeconds,
+                totalActiveSeconds: asset.totalActiveSeconds ?? 0,
+                totalPlayingSeconds: asset.totalPlayingSeconds ?? 0,
+                maxProgressPercent: asset.maxProgressPercent ?? 0,
+                completed: asset.isCompleted,
+                manualAdvanceAfterMs: asset.isCompleted
+                    ? Math.round((asset.totalActiveSeconds ?? 0) * 1000)
+                    : 0,
+            }).completionCredit;
+
+            return {
+                assetKey: asset.assetKey,
+                assetIndex: asset.assetIndex,
+                contentKind: asset.contentKind,
+                firstSeenAtMs: asset.firstSeenAtMs,
+                lastSeenAtMs: asset.lastSeenAtMs,
+                startedAtMs: asset.startedAtMs,
+                totalWatchSeconds: asset.totalWatchSeconds,
+                totalVisibleSeconds: asset.totalVisibleSeconds,
+                totalActiveSeconds: asset.totalActiveSeconds ?? 0,
+                totalPlayingSeconds: asset.totalPlayingSeconds ?? 0,
+                maxProgressSeconds: asset.maxProgressSeconds,
+                maxProgressPercent: asset.maxProgressPercent ?? 0,
+                checkpointMaxSeconds: asset.checkpointMaxSeconds,
+                durationSeconds: asset.durationSeconds ?? null,
+                consumedAtMs: consumedByTruth ? (asset.consumedAtMs ?? asset.lastSeenAtMs) : null,
+                completedAtMs: completedByTruth ? (asset.completedAtMs ?? asset.lastSeenAtMs) : null,
+                isConsumed: consumedByTruth,
+                isCompleted: completedByTruth,
+                heartbeatCount: asset.heartbeatCount,
+                loadMsTotal: asset.loadMsTotal,
+                loadSampleCount: asset.loadSampleCount,
+                seekCount: asset.seekCount ?? 0,
+                seekForwardSeconds: asset.seekForwardSeconds ?? 0,
+                seekBackwardSeconds: asset.seekBackwardSeconds ?? 0,
+                waitingCount: asset.waitingCount ?? 0,
+                waitingDurationSeconds: asset.waitingDurationSeconds ?? 0,
+                playbackRateAverage: asset.playbackRateAverage ?? 0,
+                mutedSampleCount: asset.mutedSampleCount ?? 0,
+                viewportVisiblePercent: asset.viewportVisiblePercent ?? contentVisiblePercentRef.current,
+                documentVisibilityState: asset.documentVisibilityState ?? readDocumentVisibilityState(),
+                hasFocus: asset.hasFocus ?? readHasFocus(),
+            };
+        });
+
         const payload: ViewerWatchSessionSnapshot = {
             watchSessionId: activeWatchSessionId,
             sessionSequence: sessionSequenceRef.current + 1,
@@ -652,8 +715,8 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             maxAssetWatchSeconds,
             maxProgressPercent,
             viewedAssetCount: allAssets.filter((asset) => asset.totalWatchSeconds > 0 || asset.totalVisibleSeconds > 0 || asset.loadSampleCount > 0).length,
-            completedAssetCount: allAssets.filter((asset) => asset.isCompleted).length,
-            consumedAssetCount: allAssets.filter((asset) => asset.isConsumed).length,
+            completedAssetCount: scoredAssets.filter((asset) => asset.isCompleted).length,
+            consumedAssetCount: scoredAssets.filter((asset) => asset.isConsumed).length,
             assetSwitchCount: sessionMetadataRef.current.assetSwitchCount,
             downloadCount: sessionMetadataRef.current.downloadCount,
             relatedClickCount: sessionMetadataRef.current.relatedClickCount,
@@ -677,39 +740,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             hasFocus: readHasFocus(),
             reducedMotion: readReducedMotion(),
             displayMode: readDisplayMode(),
-            assets: dirtyAssets.map((asset) => ({
-                assetKey: asset.assetKey,
-                assetIndex: asset.assetIndex,
-                contentKind: asset.contentKind,
-                firstSeenAtMs: asset.firstSeenAtMs,
-                lastSeenAtMs: asset.lastSeenAtMs,
-                startedAtMs: asset.startedAtMs,
-                totalWatchSeconds: asset.totalWatchSeconds,
-                totalVisibleSeconds: asset.totalVisibleSeconds,
-                totalActiveSeconds: asset.totalActiveSeconds ?? 0,
-                totalPlayingSeconds: asset.totalPlayingSeconds ?? 0,
-                maxProgressSeconds: asset.maxProgressSeconds,
-                maxProgressPercent: asset.maxProgressPercent ?? 0,
-                checkpointMaxSeconds: asset.checkpointMaxSeconds,
-                durationSeconds: asset.durationSeconds ?? null,
-                consumedAtMs: asset.consumedAtMs ?? null,
-                completedAtMs: asset.completedAtMs ?? null,
-                isConsumed: asset.isConsumed,
-                isCompleted: asset.isCompleted,
-                heartbeatCount: asset.heartbeatCount,
-                loadMsTotal: asset.loadMsTotal,
-                loadSampleCount: asset.loadSampleCount,
-                seekCount: asset.seekCount ?? 0,
-                seekForwardSeconds: asset.seekForwardSeconds ?? 0,
-                seekBackwardSeconds: asset.seekBackwardSeconds ?? 0,
-                waitingCount: asset.waitingCount ?? 0,
-                waitingDurationSeconds: asset.waitingDurationSeconds ?? 0,
-                playbackRateAverage: asset.playbackRateAverage ?? 0,
-                mutedSampleCount: asset.mutedSampleCount ?? 0,
-                viewportVisiblePercent: asset.viewportVisiblePercent ?? contentVisiblePercentRef.current,
-                documentVisibilityState: asset.documentVisibilityState ?? readDocumentVisibilityState(),
-                hasFocus: asset.hasFocus ?? readHasFocus(),
-            })),
+            assets: scoredAssets,
         };
 
         return {
@@ -747,6 +778,9 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                 idleDurationSeconds: payload.idleDurationSeconds,
                 maxProgressPercent: payload.maxProgressPercent,
                 completed: payload.completedAssetCount > 0,
+                manualAdvanceAfterMs: payload.completedAssetCount > 0 && contextRef.current.activeContentKind !== "video" && contextRef.current.activeContentKind !== "audio"
+                    ? Math.round((payload.totalActiveSeconds ?? 0) * 1000)
+                    : 0,
             });
             trackEvent("watch_session_ended", {
                 source_component: "viewer_watch_session",
@@ -1313,6 +1347,21 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         const previousAssetKey = previousAssetKeyRef.current;
         if (previousAssetKey && previousAssetKey !== currentAssetKey) {
             applyActiveDelta();
+            const previousAsset = assetsRef.current.get(previousAssetKey);
+            if (previousAsset && shouldCompleteImageOnManualAdvance({
+                contentKind: previousAsset.contentKind,
+                totalVisibleSeconds: previousAsset.totalVisibleSeconds,
+                totalActiveSeconds: previousAsset.totalActiveSeconds ?? 0,
+                totalPlayingSeconds: previousAsset.totalPlayingSeconds ?? 0,
+            })) {
+                updateAssetState(previousAsset, () => {
+                    previousAsset.isConsumed = true;
+                    previousAsset.isCompleted = true;
+                    previousAsset.consumedAtMs = previousAsset.consumedAtMs ?? currentTimestamp();
+                    previousAsset.completedAtMs = previousAsset.completedAtMs ?? currentTimestamp();
+                    previousAsset.lastSeenAtMs = Math.max(previousAsset.lastSeenAtMs, currentTimestamp());
+                });
+            }
             mediaPlayingRef.current = false;
             sessionMetadataRef.current.assetSwitchCount += 1;
             markSessionDirty();
@@ -1320,7 +1369,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         }
 
         previousAssetKeyRef.current = currentAssetKey;
-    }, [applyActiveDelta, markSessionDirty, options.activeAssetIndex, options.dropId, options.enabled, watchSessionId]);
+    }, [applyActiveDelta, markSessionDirty, options.activeAssetIndex, options.dropId, options.enabled, updateAssetState, watchSessionId]);
 
     useEffect(() => {
         if (!watchSessionIdRef.current || !options.enabled || !options.dropId) {

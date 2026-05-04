@@ -22,10 +22,30 @@ describe("computeWatchScore", () => {
         });
     });
 
+    it("scores 10000ms image active as engaged", () => {
+        expect(computeWatchScore({ mediaType: "image", visibleMs: 10000, activeMs: 10000 })).toMatchObject({
+            tier: "engaged",
+            validWatchMs: 10000,
+        });
+    });
+
     it("scores 15000ms image active as completed", () => {
         expect(computeWatchScore({ mediaType: "image", visibleMs: 15000, activeMs: 15000 })).toMatchObject({
             tier: "completed",
             completionCredit: true,
+        });
+    });
+
+    it("scores image manual advance after 8s as completed", () => {
+        expect(computeWatchScore({
+            mediaType: "image",
+            visibleMs: 8000,
+            activeMs: 8000,
+            manualAdvanceAfterMs: 8000,
+        })).toMatchObject({
+            tier: "completed",
+            completionCredit: true,
+            reasonCodes: expect.arrayContaining(["image_manual_advance_completion"]),
         });
     });
 
@@ -70,6 +90,7 @@ describe("computeWatchScore", () => {
         expect(computeWatchScore({
             mediaType: "image",
             visibleMs: 6000,
+            activeMs: 1000,
             hiddenMs: 5000,
         })).toMatchObject({
             tier: "skim",
@@ -82,6 +103,7 @@ describe("computeWatchScore", () => {
         expect(computeWatchScore({
             mediaType: "image",
             visibleMs: 6000,
+            activeMs: 1000,
             idleMs: 5000,
         })).toMatchObject({
             tier: "skim",

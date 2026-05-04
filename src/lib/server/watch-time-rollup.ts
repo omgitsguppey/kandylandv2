@@ -1,5 +1,7 @@
 import "server-only";
 
+import { estimateMissingWatchTime } from "@/lib/behavioral/watch-time-estimation";
+import { inferLiteralWatchMediaType } from "@/lib/behavioral/watch-time-truth";
 import type { WatchTimeRollup, WatchTimeRollupIssue, WatchTimeRollupSource } from "@/lib/watch-time-rollup-contract";
 
 type FirestoreDoc = {
@@ -41,28 +43,81 @@ function readValidWatchMs(raw: Record<string, unknown>) {
   return 0;
 }
 
+function readMediaType(raw: Record<string, unknown>) {
+  return inferLiteralWatchMediaType(
+    typeof raw.mediaType === "string"
+      ? raw.mediaType
+      : typeof raw.contentKind === "string"
+        ? raw.contentKind
+        : typeof raw.activeContentKind === "string"
+          ? raw.activeContentKind
+          : "",
+  );
+}
+
+function hasPartialMediaTicks(raw: Record<string, unknown>) {
+  return (
+    readNumber(raw.validWatchMs) > 0
+    || readNumber(raw.visibleMs) > 0
+    || readNumber(raw.activeMs) > 0
+    || readNumber(raw.playingMs) > 0
+    || readNumber(raw.totalVisibleSeconds) > 0
+    || readNumber(raw.totalActiveSeconds) > 0
+    || readNumber(raw.totalPlayingSeconds) > 0
+    || readNumber(raw.maxProgressPercent) > 0
+  );
+}
+
+function median(values: number[]) {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const sorted = [...values].sort((left, right) => left - right);
+  const midpoint = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? Math.round((sorted[midpoint - 1] + sorted[midpoint]) / 2)
+    : Math.round(sorted[midpoint]);
+}
+
 export function buildWatchTimeRollupFromRecords(input: {
   records: Record<string, unknown>[];
   views?: number;
+  viewerOpenMs?: number;
+  pageDurationMs?: number;
+  viewedFileCount?: number;
+  mediaType?: "image" | "video" | "unknown";
+  medianKnownWatchMsForMediaType?: number;
   legacyPageDurationMs?: number;
   allowLegacyFallback?: boolean;
 }): WatchTimeRollup {
   let watchTimeMs = 0;
   let validSessionCount = 0;
   let latestWatchAt = 0;
+  const knownWatchSamplesMs: number[] = [];
+  let partialMediaTicks = false;
 
   input.records.forEach((record) => {
-    if (record.watchScoreSource && record.watchScoreSource !== "watch_session_rollup") {
+    const watchScoreSource = typeof record.watchScoreSource === "string" ? record.watchScoreSource : "";
+    if (watchScoreSource && watchScoreSource !== "watch_session_rollup") {
       return;
     }
 
     const validWatchMs = readValidWatchMs(record);
+    const mediaType = readMediaType(record);
     latestWatchAt = Math.max(
       latestWatchAt,
       readTimestamp(record.lastSeenAtMs),
       readTimestamp(record.closedAtMs),
       readTimestamp(record.updatedAtMs),
     );
+    partialMediaTicks = partialMediaTicks || hasPartialMediaTicks(record);
+
+    if (validWatchMs > 0) {
+      if (!input.mediaType || input.mediaType === "unknown" || input.mediaType === mediaType) {
+        knownWatchSamplesMs.push(validWatchMs);
+      }
+    }
 
     if (validWatchMs <= 0) {
       return;
@@ -75,9 +130,25 @@ export function buildWatchTimeRollupFromRecords(input: {
   const issues: WatchTimeRollupIssue[] = [];
   let source: WatchTimeRollupSource = validSessionCount > 0 ? "watch_session_rollup" : "unavailable";
   const views = Math.max(0, Math.round(readNumber(input.views)));
+  const legacyPageDurationMs = Math.round(readNumber(input.legacyPageDurationMs));
+  const medianKnownWatchMsForMediaType = Math.max(
+    0,
+    Math.round(readNumber(input.medianKnownWatchMsForMediaType) || median(knownWatchSamplesMs)),
+  );
+  const viewedFileCount = Math.max(0, Math.round(readNumber(input.viewedFileCount) || views));
+  const diagnosticEstimate = views > 0 && validSessionCount === 0
+    ? estimateMissingWatchTime({
+      viewerOpenMs: input.viewerOpenMs,
+      medianKnownWatchMsForMediaType,
+      viewedFileCount,
+      pageDurationMs: input.pageDurationMs ?? legacyPageDurationMs,
+      watchSessionEventCount: input.records.length,
+      partialMediaTicks,
+    })
+    : null;
 
-  if (validSessionCount === 0 && input.allowLegacyFallback === true && readNumber(input.legacyPageDurationMs) > 0) {
-    watchTimeMs = Math.round(readNumber(input.legacyPageDurationMs));
+  if (validSessionCount === 0 && input.allowLegacyFallback === true && legacyPageDurationMs > 0) {
+    watchTimeMs = legacyPageDurationMs;
     source = "legacy_page_duration";
     issues.push({
       code: "legacy_page_duration_fallback",
@@ -109,6 +180,8 @@ export function buildWatchTimeRollupFromRecords(input: {
     validSessionCount,
     latestWatchAt,
     issues,
+    diagnosticEstimate,
+    legacyPageDurationMs,
   };
 }
 

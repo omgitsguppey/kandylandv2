@@ -101,6 +101,9 @@ export function buildAdminUserMetricsSnapshot(input: {
   const watchRollup = buildWatchTimeRollupFromRecords({
     records: watchSessionRecords as Record<string, unknown>[],
     views: analytics.reduce((sum, entry) => sum + Math.round(entry.unwrapCount ?? 0), 0),
+    viewerOpenMs: analytics.reduce((sum, entry) => sum + Math.round((entry.watchSecondsTotal ?? 0) * 1000), 0),
+    pageDurationMs: analytics.reduce((sum, entry) => sum + Math.round((entry.watchSecondsTotal ?? 0) * 1000), 0),
+    viewedFileCount: analytics.reduce((sum, entry) => sum + Math.max(0, Math.round(entry.unwrapCount ?? 0)), 0),
   });
   const commerceMetrics = input.commerceSummaryExists
     ? buildCommerceMetricsFromRollup(input.commerceSummaryRaw ?? {})

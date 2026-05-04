@@ -26,10 +26,16 @@ describe("buildWatchTimeRollupFromRecords", () => {
         { validWatchMs: 9000, watchScoreSource: "legacy_page_duration" },
       ],
       views: 1,
+      viewerOpenMs: 9000,
+      pageDurationMs: 12000,
+      viewedFileCount: 1,
     })).toMatchObject({
       watchTimeMs: 0,
       source: "unavailable",
       validSessionCount: 0,
+      diagnosticEstimate: expect.objectContaining({
+        source: "diagnostic_estimate",
+      }),
       issues: expect.arrayContaining([
         expect.objectContaining({ code: "watch_time_missing_despite_views" }),
       ]),
@@ -42,11 +48,35 @@ describe("buildWatchTimeRollupFromRecords", () => {
       views: 1,
       legacyPageDurationMs: 8000,
       allowLegacyFallback: true,
+      viewerOpenMs: 10000,
+      pageDurationMs: 12000,
+      viewedFileCount: 1,
     })).toMatchObject({
       watchTimeMs: 8000,
       source: "legacy_page_duration",
       issues: expect.arrayContaining([
         expect.objectContaining({ code: "legacy_page_duration_fallback" }),
+        expect.objectContaining({ code: "watch_time_missing_despite_views" }),
+      ]),
+    });
+  });
+
+  it("caps diagnostics-only estimates when watch sessions are missing", () => {
+    expect(buildWatchTimeRollupFromRecords({
+      records: [],
+      views: 3,
+      viewerOpenMs: 18000,
+      pageDurationMs: 30000,
+      medianKnownWatchMsForMediaType: 7000,
+      viewedFileCount: 3,
+    })).toMatchObject({
+      watchTimeMs: 0,
+      source: "unavailable",
+      diagnosticEstimate: {
+        estimatedWatchMs: 18000,
+        confidenceCapPercent: 25,
+      },
+      issues: expect.arrayContaining([
         expect.objectContaining({ code: "watch_time_missing_despite_views" }),
       ]),
     });

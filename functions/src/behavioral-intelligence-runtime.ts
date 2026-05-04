@@ -675,11 +675,12 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       : 0
     const totalWatchSeconds = validWatchSeconds
     const watchScore = readNumber(session.watchScore)
+    const hasVerifiedWatch = watchScoreSource === "watch_session_rollup" && totalWatchSeconds > 0
 
     if (dropId && dropMap.has(dropId)) {
       const dropAggregate = ensureDropAggregate(dropMap.get(dropId) as DropRecord, dropAggregates)
       dropAggregate.watchSecondsTotal += totalWatchSeconds
-      if (totalWatchSeconds > 0) {
+      if (hasVerifiedWatch) {
         dropAggregate.watchSecondsSamples.push(totalWatchSeconds)
       }
       if (watchScore > 0) {
@@ -703,10 +704,12 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     }
 
     const aggregate = ensureUserAggregate(userId, userAggregates)
-    aggregate.watchSessionCount += 1
+    if (hasVerifiedWatch) {
+      aggregate.watchSessionCount += 1
+    }
     aggregate.latestWatchAtMs = Math.max(aggregate.latestWatchAtMs, watchedAtMs)
     aggregate.sourceTimestamps.watchSessions.push(watchedAtMs)
-    if (totalWatchSeconds > 0) {
+    if (hasVerifiedWatch) {
       aggregate.watchSeconds.push(totalWatchSeconds)
     }
     if (watchScore > 0) {
@@ -849,9 +852,15 @@ function buildUserProfileDoc(input: {
   const averageWatchSeconds = average(input.aggregate.watchSeconds)
   const medianWatchSeconds = median(input.aggregate.watchSeconds)
   const watchScoreSource = input.aggregate.watchSessionCount > 0
-    ? (input.aggregate.watchScoreSources.has("watch_session_rollup") ? "watch_session_rollup" : Array.from(input.aggregate.watchScoreSources)[0] || "watch_session_rollup")
-    : "legacy_page_duration"
-  const watchScoreConfidence = watchScoreSource === "watch_session_rollup" ? "high" : "low"
+    ? "watch_session_rollup"
+    : input.aggregate.viewerOpenCount > 0
+      ? "legacy_page_duration"
+      : "unavailable"
+  const watchScoreConfidence = watchScoreSource === "watch_session_rollup"
+    ? "high"
+    : watchScoreSource === "legacy_page_duration"
+      ? "low"
+      : "unknown"
   const completionPropensity = clamp01(input.aggregate.watchSessionCount === 0 ? 0 : input.aggregate.repeatViewCount / Math.max(1, input.aggregate.watchSessionCount))
   const unlockPropensity = clamp01(input.aggregate.viewerOpenCount === 0 ? 0 : input.aggregate.unlockCount / Math.max(1, input.aggregate.viewerOpenCount))
   const previewToOpenConversion = clamp01(input.aggregate.previewOpenCount === 0 ? 0 : input.aggregate.viewerOpenCount / Math.max(1, input.aggregate.previewOpenCount))
@@ -1033,8 +1042,10 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
   const feedbackCount = aggregate.positiveFeedbackCount + aggregate.negativeFeedbackCount
   const ageDays = aggregate.validFrom > 0 ? Math.max(0, (nowMs - aggregate.validFrom) / (24 * 60 * 60 * 1000)) : 0
   const watchScoreSource = aggregate.watchSecondsSamples.length > 0
-    ? (aggregate.watchScoreSources.has("watch_session_rollup") ? "watch_session_rollup" : Array.from(aggregate.watchScoreSources)[0] || "watch_session_rollup")
-    : "legacy_page_duration"
+    ? "watch_session_rollup"
+    : aggregate.viewerOpens > 0
+      ? "legacy_page_duration"
+      : "unavailable"
   return {
     dropId: aggregate.dropId,
     creatorId: aggregate.creatorId,
@@ -1055,7 +1066,7 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
     medianWatchSeconds: median(aggregate.watchSecondsSamples),
     averageWatchScore: average(aggregate.watchScores),
     watchScoreSource,
-    watchScoreConfidence: watchScoreSource === "watch_session_rollup" ? "high" : "low",
+    watchScoreConfidence: watchScoreSource === "watch_session_rollup" ? "high" : watchScoreSource === "legacy_page_duration" ? "low" : "unknown",
     completionRate: clamp01(aggregate.viewerOpens === 0 ? 0 : aggregate.completionCount / Math.max(1, aggregate.viewerOpens)),
     uniqueViewers,
     repeatViewers,

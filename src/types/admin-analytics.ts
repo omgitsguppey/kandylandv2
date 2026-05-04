@@ -8,6 +8,7 @@ import type {
 } from "@/lib/admin-analytics-truth";
 import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
 import type { UserBehaviorRollup } from "@/lib/user-behavior-rollup-contract";
+import type { WatchTimeDiagnosticEstimate } from "@/lib/behavioral/watch-time-estimation";
 import type { WatchTimeRollupIssue, WatchTimeRollupSource } from "@/lib/watch-time-rollup-contract";
 import type { UserProfile } from "@/types/db";
 
@@ -541,6 +542,7 @@ export type UserAnalytics = {
   behaviorRollup?: UserBehaviorRollup;
   watchTimeSource?: WatchTimeRollupSource;
   watchTimeIssues?: WatchTimeRollupIssue[];
+  watchTimeDiagnosticEstimate?: WatchTimeDiagnosticEstimate | null;
 };
 
 export type UsersSummary = {

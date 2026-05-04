@@ -1,3 +1,11 @@
+import {
+    computeLiteralValidWatchMs,
+    IMAGE_WATCH_THRESHOLDS_MS,
+    isImageCompletionEligible,
+    isVideoCompletionEligible,
+    VIDEO_WATCH_THRESHOLDS,
+} from "@/lib/behavioral/watch-time-truth";
+
 export const WATCH_SCORE_TIERS = ["none", "skim", "viewed", "engaged", "completed"] as const;
 
 export type WatchScoreTier = (typeof WATCH_SCORE_TIERS)[number];
@@ -12,6 +20,7 @@ export interface WatchScoreInput {
     idleMs?: number | null;
     maxProgressPercent?: number | null;
     completed?: boolean | null;
+    manualAdvanceAfterMs?: number | null;
 }
 
 export interface WatchScore {
@@ -72,27 +81,43 @@ export function computeWatchScore(input: WatchScoreInput): WatchScore {
         reasonCodes.push("no_visible_content_time");
     }
 
-    const foregroundActiveMs = activeMs > 0
-        ? Math.min(activeMs, visibleMs || activeMs)
-        : Math.max(0, visibleMs - hiddenMs - idleMs);
-    const validWatchMs = Math.max(0, foregroundActiveMs);
-    const completedByVideoProgress = mediaType === "video" && maxProgressPercent >= 90;
-    const completedByImageExposure = mediaType === "image" && validWatchMs >= 10_000;
-    const completionCredit = Boolean(input.completed) || completedByVideoProgress || completedByImageExposure;
+    const validWatchMs = computeLiteralValidWatchMs({
+        mediaType,
+        visibleMs,
+        activeMs,
+        playingMs,
+    });
+    const completionCredit = mediaType === "video"
+        ? isVideoCompletionEligible({
+            progressPercent: maxProgressPercent,
+            completed: input.completed === true,
+        })
+        : mediaType === "image"
+            ? isImageCompletionEligible({
+                validWatchMs,
+                manualAdvanceAfterMs: input.manualAdvanceAfterMs,
+                completed: input.completed === true,
+            })
+            : Boolean(input.completed);
 
     if (mediaType === "video") {
         if (playingMs > 0) {
             reasonCodes.push("video_playing_time_counted");
         }
-        if (maxProgressPercent >= 90) {
+        if (maxProgressPercent >= VIDEO_WATCH_THRESHOLDS.completedProgressPercent) {
             reasonCodes.push("video_progress_90_percent");
-        } else if (maxProgressPercent >= 50) {
+        } else if (maxProgressPercent >= VIDEO_WATCH_THRESHOLDS.engagedProgressPercent) {
             reasonCodes.push("video_progress_50_percent");
+        } else if (maxProgressPercent >= VIDEO_WATCH_THRESHOLDS.viewedProgressPercent) {
+            reasonCodes.push("video_progress_20_percent");
         }
     }
 
-    if (mediaType === "image" && validWatchMs >= 5_000) {
+    if (mediaType === "image" && validWatchMs >= IMAGE_WATCH_THRESHOLDS_MS.viewed) {
         reasonCodes.push("image_minimum_visible_time_met");
+    }
+    if (mediaType === "image" && normalizeMs(input.manualAdvanceAfterMs) >= IMAGE_WATCH_THRESHOLDS_MS.manualAdvanceCompleted) {
+        reasonCodes.push("image_manual_advance_completion");
     }
 
     let tier: WatchScoreTier = "none";
@@ -101,20 +126,33 @@ export function computeWatchScore(input: WatchScoreInput): WatchScore {
     if (completionCredit) {
         tier = "completed";
         score = 100;
-    } else if (mediaType === "video" && maxProgressPercent >= 50) {
+    } else if (mediaType === "video" && maxProgressPercent >= VIDEO_WATCH_THRESHOLDS.engagedProgressPercent) {
         tier = "engaged";
         score = Math.max(70, Math.round(maxProgressPercent));
-    } else if (validWatchMs >= 15_000) {
-        tier = "engaged";
-        score = 70;
-    } else if ((mediaType === "video" && validWatchMs >= 10_000) || (mediaType !== "video" && validWatchMs >= 5_000)) {
+    } else if ((mediaType === "video" && maxProgressPercent >= VIDEO_WATCH_THRESHOLDS.viewedProgressPercent) || (mediaType === "image" && validWatchMs >= IMAGE_WATCH_THRESHOLDS_MS.engaged) || validWatchMs >= 15_000) {
+        if (mediaType === "video" && maxProgressPercent >= VIDEO_WATCH_THRESHOLDS.viewedProgressPercent) {
+            tier = maxProgressPercent >= VIDEO_WATCH_THRESHOLDS.engagedProgressPercent ? "engaged" : "viewed";
+            score = tier === "engaged" ? Math.max(70, Math.round(maxProgressPercent)) : 55;
+        } else {
+            tier = "engaged";
+            score = 70;
+        }
+    } else if (mediaType === "video" && validWatchMs >= VIDEO_WATCH_THRESHOLDS.viewedMs) {
         tier = "viewed";
-        score = mediaType === "video" ? 50 : 45;
-    } else if (validWatchMs >= 1_000) {
+        score = 50;
+    } else if (mediaType === "image" && validWatchMs >= IMAGE_WATCH_THRESHOLDS_MS.viewed) {
+        tier = "viewed";
+        score = 45;
+    } else if (validWatchMs >= IMAGE_WATCH_THRESHOLDS_MS.skim) {
         tier = "skim";
         score = 20;
     } else {
         reasonCodes.push("below_minimum_watch_threshold");
+    }
+
+    if (mediaType === "image" && validWatchMs >= IMAGE_WATCH_THRESHOLDS_MS.engaged && tier === "viewed") {
+        tier = "engaged";
+        score = 70;
     }
 
     return {

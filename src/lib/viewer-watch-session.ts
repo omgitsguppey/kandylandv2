@@ -1,3 +1,9 @@
+import {
+    computeLiteralValidWatchMs,
+    IMAGE_WATCH_THRESHOLDS_MS,
+    inferLiteralWatchMediaType,
+    isImageManualAdvanceCompletionEligible,
+} from "@/lib/behavioral/watch-time-truth";
 import { computeWatchScore, type WatchScoreTier } from "@/lib/watch-time-scoring";
 
 export const VIEWER_WATCH_CONTENT_KINDS = ["video", "audio", "image", "pdf", "unknown"] as const;
@@ -95,21 +101,7 @@ export function resolveViewerWatchSeconds(input: {
     nowMs?: number | null;
 }) {
     const watchSeconds = Math.max(0, asFiniteNumber(input.watchSeconds));
-    const nowMs = Number.isFinite(input.nowMs ?? Number.NaN) ? Number(input.nowMs) : Date.now();
-    const assetStartedAtMs = Number.isFinite(input.assetStartedAtMs ?? Number.NaN)
-        ? Number(input.assetStartedAtMs)
-        : null;
-
-    if (input.contentKind === "video" || input.contentKind === "audio") {
-        return roundSeconds(watchSeconds);
-    }
-
-    if (assetStartedAtMs === null) {
-        return roundSeconds(watchSeconds);
-    }
-
-    const elapsedSeconds = Math.max(0, (nowMs - assetStartedAtMs) / 1000);
-    return roundSeconds(Math.max(watchSeconds, elapsedSeconds));
+    return roundSeconds(watchSeconds);
 }
 
 function asFiniteInteger(value: unknown) {
@@ -215,27 +207,65 @@ export function deriveViewerWatchAssetState(input: ViewerWatchDerivationInput) {
 export function scoreViewerWatchSession(input: ViewerWatchDerivationInput & {
     contentKind?: ViewerWatchContentKind | null;
     completed?: boolean | null;
+    manualAdvanceAfterMs?: number | null;
 }) {
     const contentKind = input.contentKind || "unknown";
-    const mediaType = contentKind === "video" || contentKind === "audio"
-        ? "video"
-        : contentKind === "image" || contentKind === "pdf"
-            ? "image"
-            : "unknown";
+    const mediaType = inferLiteralWatchMediaType(contentKind);
     const visibleMs = Math.round(asFiniteNumber(input.totalVisibleSeconds) * 1000);
     const activeSeconds = asFiniteNumber(input.totalActiveSeconds);
-    const watchSeconds = asFiniteNumber(input.totalWatchSeconds);
+    const playingSeconds = asFiniteNumber(input.totalPlayingSeconds);
 
     return computeWatchScore({
         mediaType,
         visibleMs,
-        activeMs: Math.round(Math.max(activeSeconds, watchSeconds) * 1000),
-        playingMs: Math.round(asFiniteNumber(input.totalPlayingSeconds) * 1000),
+        activeMs: Math.round(activeSeconds * 1000),
+        playingMs: Math.round(playingSeconds * 1000),
         hiddenMs: Math.round(asFiniteNumber(input.hiddenDurationSeconds) * 1000),
         idleMs: Math.round(asFiniteNumber(input.idleDurationSeconds) * 1000),
         maxProgressPercent: asFiniteNumber(input.maxProgressPercent),
         completed: input.completed === true,
+        manualAdvanceAfterMs: input.manualAdvanceAfterMs,
     });
+}
+
+export function getViewerAssetLiteralWatchMs(input: {
+    contentKind: ViewerWatchContentKind;
+    totalVisibleSeconds?: number | null;
+    totalActiveSeconds?: number | null;
+    totalPlayingSeconds?: number | null;
+}) {
+    return computeLiteralValidWatchMs({
+        mediaType: inferLiteralWatchMediaType(input.contentKind),
+        visibleMs: Math.round(asFiniteNumber(input.totalVisibleSeconds) * 1000),
+        activeMs: Math.round(asFiniteNumber(input.totalActiveSeconds) * 1000),
+        playingMs: Math.round(asFiniteNumber(input.totalPlayingSeconds) * 1000),
+    });
+}
+
+export function shouldCompleteImageOnManualAdvance(input: {
+    contentKind: ViewerWatchContentKind;
+    totalVisibleSeconds?: number | null;
+    totalActiveSeconds?: number | null;
+    totalPlayingSeconds?: number | null;
+}) {
+    if (inferLiteralWatchMediaType(input.contentKind) !== "image") {
+        return false;
+    }
+
+    return isImageManualAdvanceCompletionEligible(getViewerAssetLiteralWatchMs(input));
+}
+
+export function shouldConsumeImageAsset(input: {
+    contentKind: ViewerWatchContentKind;
+    totalVisibleSeconds?: number | null;
+    totalActiveSeconds?: number | null;
+    totalPlayingSeconds?: number | null;
+}) {
+    if (inferLiteralWatchMediaType(input.contentKind) !== "image") {
+        return false;
+    }
+
+    return getViewerAssetLiteralWatchMs(input) >= IMAGE_WATCH_THRESHOLDS_MS.viewed;
 }
 
 export function deriveViewerWatchCaptureState(input: {

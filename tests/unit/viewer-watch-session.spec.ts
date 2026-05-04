@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
     deriveViewerWatchCaptureState,
+    getViewerAssetLiteralWatchMs,
     resolveViewerWatchSeconds,
+    shouldCompleteImageOnManualAdvance,
     shouldRetryViewerWatchCloseFlush,
 } from "@/lib/viewer-watch-session";
 
@@ -16,13 +18,13 @@ describe("resolveViewerWatchSeconds", () => {
         })).toBe(12.4);
     });
 
-    it("uses elapsed visibility for unwrapped static content when it exceeds the reported bucket", () => {
+    it("does not infer static watch time from elapsed wall-clock time", () => {
         expect(resolveViewerWatchSeconds({
             contentKind: "image",
             watchSeconds: 6,
             assetStartedAtMs: 1_000,
             nowMs: 13_500,
-        })).toBe(12.5);
+        })).toBe(6);
     });
 
     it("falls back to the reported bucket when no asset start timestamp exists", () => {
@@ -32,6 +34,24 @@ describe("resolveViewerWatchSeconds", () => {
             assetStartedAtMs: null,
             nowMs: 13_500,
         })).toBe(6);
+    });
+
+    it("computes literal image watch time from active foreground visibility", () => {
+        expect(getViewerAssetLiteralWatchMs({
+            contentKind: "image",
+            totalVisibleSeconds: 10,
+            totalActiveSeconds: 8,
+            totalPlayingSeconds: 0,
+        })).toBe(8000);
+    });
+
+    it("allows manual image completion only after 8 seconds", () => {
+        expect(shouldCompleteImageOnManualAdvance({
+            contentKind: "image",
+            totalVisibleSeconds: 8,
+            totalActiveSeconds: 8,
+            totalPlayingSeconds: 0,
+        })).toBe(true);
     });
 });
 

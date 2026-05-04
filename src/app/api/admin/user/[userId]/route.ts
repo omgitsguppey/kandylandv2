@@ -632,9 +632,18 @@ async function GET_handler(
             sessionFactViewCount,
         );
         const normalizedSessionCount = Math.max(readNumber(analyticsRollup.sessionCount), directViewSessionCount || directViewerOpenedCount, sessionFactViewCount);
+        const legacyPageDurationMs = Math.max(
+            Math.round(readNumber(analyticsRollup.watchSecondsTotal) * 1000),
+            Math.round(sessionFactWatchSeconds * 1000),
+            Math.round(completedSessionWatchSeconds * 1000),
+        );
         const watchTimeRollup = buildWatchTimeRollupFromRecords({
             records: watchSessionsSnap.docs.map((doc) => doc.data() as Record<string, unknown>),
             views: normalizedViewCount,
+            viewerOpenMs: legacyPageDurationMs,
+            pageDurationMs: legacyPageDurationMs,
+            viewedFileCount: Math.max(viewedDrops.size, normalizedViewCount),
+            legacyPageDurationMs,
         });
         const normalizedWatchSeconds = Math.round(watchTimeRollup.watchTimeMs / 1000);
         const normalizedBounceCount = Math.max(readNumber(analyticsRollup.bounceCount), dailyBounceCount, directBounceCount);
@@ -758,6 +767,7 @@ async function GET_handler(
             actionTaxonomyVersion: BEHAVIORAL_EVENT_FACT_VERSION,
             watchTimeSource: watchTimeRollup.source,
             watchTimeIssues: watchTimeRollup.issues,
+            watchTimeDiagnosticEstimate: watchTimeRollup.diagnosticEstimate,
             topViewedDrops: Array.from(viewedDrops.values())
                 .sort((left, right) => {
                     if (right.views !== left.views) {
