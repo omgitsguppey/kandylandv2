@@ -8,6 +8,7 @@ import type {
 } from "@/lib/admin-analytics-truth";
 import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
 import type { UserBehaviorRollup } from "@/lib/user-behavior-rollup-contract";
+import type { UserEngagementScoreResult } from "@/lib/behavioral/user-engagement-score";
 import type { WatchTimeDiagnosticEstimate } from "@/lib/behavioral/watch-time-estimation";
 import type { WatchTimeRollupIssue, WatchTimeRollupSource } from "@/lib/watch-time-rollup-contract";
 import type { UserProfile } from "@/types/db";
@@ -539,6 +540,7 @@ export type UserAnalytics = {
   metricIntegrityFailures?: string[];
   recoveredFromFacts?: boolean;
   engagementScore?: number;
+  engagement?: UserEngagementScoreResult;
   behaviorRollup?: UserBehaviorRollup;
   watchTimeSource?: WatchTimeRollupSource;
   watchTimeIssues?: WatchTimeRollupIssue[];
@@ -556,6 +558,7 @@ export type UsersSummary = {
   notificationsEnabledUsers: number;
   onboardingCompletedUsers: number;
   activeLast7Days: number;
+  returnedInLast7Days?: number;
   totalEvents: number;
   totalUnwraps: number;
   totalPurchases: number;

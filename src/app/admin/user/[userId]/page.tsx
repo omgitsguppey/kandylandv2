@@ -42,6 +42,7 @@ import {
     type CreatorOnboardingHistoryEntry,
 } from "@/lib/creator-onboarding";
 import type { UserBehaviorRollup } from "@/lib/user-behavior-rollup-contract";
+import type { UserEngagementScoreResult } from "@/lib/behavioral/user-engagement-score";
 
 type UserDetailAnalytics = {
     eventCount: number;
@@ -80,6 +81,7 @@ type UserDetailAnalytics = {
     metricIntegrityFailures?: string[];
     recoveredFromFacts?: boolean;
     engagementScore?: number;
+    engagement?: UserEngagementScoreResult;
     behaviorRollup?: UserBehaviorRollup;
     actionLedger?: UserActionLedgerItem[];
     actionTaxonomyVersion?: string;
@@ -414,6 +416,7 @@ export default function AdminUserAnalyticsPage() {
     const failedTxCount = transactions.filter((transaction) => transaction.status === "failed").length;
     const parity = analytics?.parity;
     const behaviorRollup = analytics?.behaviorRollup;
+    const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
     const actionLedger = analytics?.actionLedger ?? [];
     const behaviorIssueSummary = behaviorRollup?.issues.map((issue) => issue.message).join(" ");
     const behavioralConfidence = Math.round(((behavioralProfile?.confidenceScore ?? recommendationDebug?.profileConfidence ?? 0) as number) * 100);
@@ -628,7 +631,7 @@ export default function AdminUserAnalyticsPage() {
                             { label: "Avg order", value: `$${averageOrderUsd.toFixed(2)}` },
                             { label: "Actions", value: (behaviorRollup?.totalActions ?? analytics?.eventCount ?? 0).toLocaleString() },
                             { label: "Views", value: (behaviorRollup?.views ?? analytics?.viewCount ?? 0).toLocaleString() },
-                            { label: "Bounce", value: analytics?.viewCount ? `${Math.round(((analytics?.bounceCount || 0) / Math.max(1, analytics.viewCount)) * 100)}%` : "No source" },
+                            { label: "Engagement", value: engagement ? `${engagement.verdict} · ${engagement.score}` : "Dormant · 0" },
                             { label: "Auth", value: (behaviorRollup?.authEvents ?? analytics?.authSuccessCount ?? 0).toLocaleString() },
                             { label: "Watch time", value: watchTimeLabel },
                             { label: "Last seen", value: (behaviorRollup?.lastSeenAt ?? analytics?.lastSeenAt) ? formatDistanceToNow(behaviorRollup?.lastSeenAt ?? analytics!.lastSeenAt, { addSuffix: true }) : "No activity" },
@@ -659,6 +662,27 @@ export default function AdminUserAnalyticsPage() {
                             ? `Behavior rollup: ${behaviorRollup.sourceLabel} / ${behaviorRollup.confidence} (${behaviorRollup.confidenceScore}%).`
                             : "Behavior rollup unavailable."}
                         {behaviorIssueSummary ? ` Issues: ${behaviorIssueSummary}` : ""}
+                    </div>
+                    <div className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Engagement verdict</p>
+                                <p className="mt-1 text-sm font-black text-white">{engagement?.verdict || "Dormant"}</p>
+                                <p className="mt-1 text-xs text-gray-400">{engagement?.score ?? 0}/100 · {engagement?.tier || "dormant"}</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {(engagement?.topReasons ?? []).slice(0, 3).map((reason) => (
+                                    <span key={reason.code} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                        {reason.label}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="mt-3 space-y-1 text-xs leading-5 text-gray-400">
+                            {(engagement?.topReasons ?? []).slice(0, 3).map((reason) => (
+                                <p key={`${reason.code}-summary`}>{reason.summary}</p>
+                            ))}
+                        </div>
                     </div>
                 </div>
 

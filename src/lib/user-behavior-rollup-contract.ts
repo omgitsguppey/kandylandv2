@@ -5,6 +5,9 @@ import type {
   BehavioralFreshnessState,
   BehavioralTruthSource,
 } from "@/lib/behavioral/behavioral-truth-source";
+import type {
+  UserEngagementScoreResult,
+} from "@/lib/behavioral/user-engagement-score";
 
 export type UserBehaviorRollupConfidence = BehavioralConfidenceLabel | "unknown";
 
@@ -45,4 +48,5 @@ export type UserBehaviorRollup = {
   sourceLabel: string;
   freshnessState: BehavioralFreshnessState;
   issues: UserBehaviorRollupIssue[];
+  engagement: UserEngagementScoreResult;
 };

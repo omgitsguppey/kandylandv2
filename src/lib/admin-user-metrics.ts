@@ -1,3 +1,5 @@
+import { computeUserEngagementScore } from "@/lib/behavioral/user-engagement-score";
+
 export type AdminMetricTruthLabel = "live" | "partial" | "stale" | "unknown";
 
 export type AdminUserMetricIntegrity = {
@@ -124,10 +126,13 @@ export function buildAdminUserMetricIntegrity(input: AdminUserMetricSourceInput)
 }
 
 export function scoreAdminUserEngagement(input: AdminUserMetricSnapshot, nowMs: number): number {
-  const ageHours = input.lastSeenAt > 0 ? Math.max(1, (nowMs - input.lastSeenAt) / (60 * 60 * 1000)) : 720;
-  const recencyBoost = Math.max(0, 120 - ageHours) / 120;
-  const spendScore = (input.grossRevenueUsd * 20) + (input.purchaseCount * 30) + (input.unlockSpendGdTotal / 25);
-  const behaviorScore = input.eventCount + (input.viewCount * 2) + (input.sessionCount * 4) + (input.watchSecondsTotal / 60);
-
-  return Math.round((spendScore + behaviorScore) * (1 + recencyBoost));
+  const activeDays7d = input.lastSeenAt > 0 && nowMs - input.lastSeenAt <= 7 * 24 * 60 * 60 * 1000 ? 1 : 0;
+  return computeUserEngagementScore({
+    normalizedActionCount7d: input.eventCount,
+    unwrappedCount30d: input.unwrapCount,
+    validWatchMinutes30d: Math.round(input.watchSecondsTotal / 60),
+    purchaseCount90d: input.purchaseCount,
+    activeDays7d,
+    freeGdEarned30d: 0,
+  }).score;
 }

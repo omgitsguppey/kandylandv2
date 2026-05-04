@@ -490,7 +490,10 @@ export default function UserManagementPage() {
 
     const topTrackedUsers = filteredUsers
         .filter((user) => Boolean(userAnalytics[user.uid]))
-        .sort((left, right) => (getUserAnalytics(right.uid)?.engagementScore || 0) - (getUserAnalytics(left.uid)?.engagementScore || 0))
+        .sort((left, right) => (
+            (getUserAnalytics(right.uid)?.engagement?.score ?? getUserAnalytics(right.uid)?.engagementScore ?? 0)
+            - (getUserAnalytics(left.uid)?.engagement?.score ?? getUserAnalytics(left.uid)?.engagementScore ?? 0)
+        ))
         .slice(0, 3);
 
     const handleUpdateStatus = async () => {
@@ -738,10 +741,10 @@ export default function UserManagementPage() {
                             metricState: getSummaryMetricState([summary?.totalUsers, summary?.activeUsers], summarySnapshotTruthState),
                         })}
                         {renderSummaryMetricCard({
-                            title: "Returners",
-                            value: formatSummaryCount(summary?.activeLast7Days),
-                            detail: "last 7 days",
-                            metricState: getSummaryMetricState([summary?.activeLast7Days], summarySnapshotTruthState),
+                            title: "Returned in last 7 days",
+                            value: formatSummaryCount(summary?.returnedInLast7Days ?? summary?.activeLast7Days),
+                            detail: "logged in, visited, or tracked",
+                            metricState: getSummaryMetricState([summary?.returnedInLast7Days ?? summary?.activeLast7Days], summarySnapshotTruthState),
                         })}
                         {renderSummaryMetricCard({
                             title: "Unwraps",
@@ -833,6 +836,7 @@ export default function UserManagementPage() {
                                 ) : topTrackedUsers.map((user) => {
                                     const analytics = getUserAnalytics(user.uid);
                                     const behaviorRollup = getBehaviorRollup(user.uid);
+                                    const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
                                     return (
                                     <div
                                         key={user.uid}
@@ -844,7 +848,10 @@ export default function UserManagementPage() {
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-bold text-white">{user.username ? `@${user.username}` : user.displayName || user.email || user.uid}</p>
                                                 <p className="text-xs text-gray-500">
-                                                    {behaviorRollup?.totalActions ?? analytics?.eventCount ?? 0} tracked actions &middot; {formatMoney(behaviorRollup?.revenueUsd ?? analytics?.grossRevenueUsd)} cash &middot; {behaviorRollup?.confidence ?? "unknown"}
+                                                    {engagement?.verdict || "Dormant"} &middot; {engagement?.score ?? 0}/100 &middot; {behaviorRollup?.confidence ?? "unknown"} truth
+                                                </p>
+                                                <p className="mt-1 text-[11px] text-gray-400">
+                                                    {engagement?.topReasons?.[0]?.summary || "No recent verified engagement signal."}
                                                 </p>
                                             </div>
                                             <Link href={`/admin/user/${user.uid}`} className="text-xs font-bold text-brand-purple hover:underline">
@@ -890,6 +897,7 @@ export default function UserManagementPage() {
                                         filteredUsers.map((user) => {
                                             const analytics = getUserAnalytics(user.uid);
                                             const behaviorRollup = getBehaviorRollup(user.uid);
+                                            const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
                                             const onboardingBadge = getOnboardingBadge(user, analytics);
                                             return (
                                             <tr key={user.uid} className="transition-colors">
@@ -950,10 +958,10 @@ export default function UserManagementPage() {
                                                             data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
                                                         >
                                                             <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
-                                                                {behaviorRollup?.totalActions ?? analytics.eventCount ?? 0} actions / {behaviorRollup?.views ?? analytics.viewCount ?? 0} views
+                                                                {engagement?.verdict || "Dormant"} / {engagement?.score ?? 0} score
                                                             </div>
                                                             <div className="text-[10px] text-gray-500">
-                                                                {formatWatchHours(behaviorRollup?.watchTimeMs, analytics.watchHours)} watch / {behaviorRollup?.issues.length ?? 0} issues
+                                                                {engagement?.topReasons?.[0]?.label || "No recent signal"} / {behaviorRollup?.issues.length ?? 0} issues
                                                             </div>
                                                         </div>
                                                     ) : (
@@ -1038,6 +1046,7 @@ export default function UserManagementPage() {
                             filteredUsers.map((user) => {
                                 const analytics = getUserAnalytics(user.uid);
                                 const behaviorRollup = getBehaviorRollup(user.uid);
+                                const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
                                 const onboardingBadge = getOnboardingBadge(user, analytics);
                                 return (
                                 <div key={user.uid} className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col gap-4 relative overflow-hidden group">
@@ -1117,8 +1126,8 @@ export default function UserManagementPage() {
                                                     <span className="text-sm font-mono text-gray-300">{formatWatchHours(behaviorRollup?.watchTimeMs, analytics.watchHours)}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-gray-500 font-bold uppercase"><Activity className="w-3 h-3 inline mr-1" />Truth</span>
-                                                    <span className="text-sm font-mono text-gray-300">{behaviorRollup?.confidence ?? "unknown"}</span>
+                                                    <span className="text-xs text-gray-500 font-bold uppercase"><Activity className="w-3 h-3 inline mr-1" />Engagement</span>
+                                                    <span className="text-sm font-mono text-gray-300">{engagement?.verdict || "Dormant"} · {engagement?.score ?? 0}</span>
                                                 </div>
                                             </div>
                                         ) : (

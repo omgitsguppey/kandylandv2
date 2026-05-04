@@ -47,9 +47,12 @@ import {
 } from "@/lib/admin-user-commerce";
 import {
   buildAdminUserMetricIntegrity,
-  scoreAdminUserEngagement,
   shouldRecoverAdminUserMetricsFromFacts,
 } from "@/lib/admin-user-metrics";
+import {
+  buildUserEngagementScoreInputFromActivityDays,
+  type UserEngagementActivityDay,
+} from "@/lib/behavioral/user-engagement-score";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
@@ -78,6 +81,33 @@ function toTimestampNumber(value: unknown): number {
 
 function toStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+}
+
+function buildUserEngagementDay(raw: Record<string, unknown>): UserEngagementActivityDay {
+  const timestampMs = Math.max(
+    toTimestampNumber(raw.lastSeenAt),
+    toTimestampNumber(raw.lastSeenAtMs),
+    toTimestampNumber(raw.updatedAt),
+    toTimestampNumber(raw.createdAt),
+  );
+  return {
+    timestampMs,
+    normalizedActionCount: Math.round(readMetric(raw, "eventCount")),
+    unwrappedCount: Math.round(Math.max(readMetric(raw, "unwrapCount"), readMetric(raw, "unlockCount"))),
+    validWatchMinutes: Math.round(readMetric(raw, "watchSecondsTotal") / 60),
+    purchaseCount: Math.round(readMetric(raw, "purchaseCount", "purchaseTransactionCount")),
+    freeGdEarned: Math.round(Math.max(
+      readMetric(raw, "rewardGdEarned"),
+      readMetric(raw, "rewardGdEarnedTotal"),
+      readMetric(raw, "rewardGumDropsEarned"),
+      readMetric(raw, "rewardAmountEarned"),
+      readMetric(raw, "dailyRewardGd"),
+      readMetric(raw, "dailyRewardGdTotal"),
+      readMetric(raw, "freeGdEarned"),
+    )),
+    hadVisit: readMetric(raw, "viewCount") > 0 || readMetric(raw, "watchSecondsTotal") > 0,
+    hadAuth: Math.max(readMetric(raw, "authSuccessCount"), readMetric(raw, "signInCount")) > 0,
+  };
 }
 
 function readStringValue(value: unknown) {
@@ -873,7 +903,15 @@ async function GET_handler(request: NextRequest) {
           ...metricIntegrity.failures,
           ...watchTimeRollup.issues,
         ],
+        engagementInput: buildUserEngagementScoreInputFromActivityDays({
+          days: userDailySnapshot.docs
+            .map((doc) => doc.data() as Record<string, unknown>)
+            .filter((raw) => (typeof raw.uid === "string" ? raw.uid : "") === user.uid)
+            .map((raw) => buildUserEngagementDay(raw)),
+          nowMs: Date.now(),
+        }),
       });
+      const engagement = behaviorRollup.engagement;
       const analyticsByUser = {
         [user.uid]: {
           ...analytics,
@@ -883,7 +921,8 @@ async function GET_handler(request: NextRequest) {
           metricIntegrityFailures: metricIntegrity.failures,
           metricFreshnessMs: metricIntegrity.freshnessMs,
           recoveredFromFacts: false,
-          engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
+          engagementScore: engagement.score,
+          engagement,
           behaviorRollup,
         },
       };
@@ -1071,6 +1110,7 @@ async function GET_handler(request: NextRequest) {
     });
 
     const dailyAnalyticsByUser = new Map<string, UserDailyAggregate>();
+    const dailyEngagementDaysByUser = new Map<string, UserEngagementActivityDay[]>();
     userDailySnapshot.docs.forEach((doc) => {
       const raw = doc.data() as Record<string, unknown>;
       const uid = typeof raw.uid === "string" ? raw.uid : "";
@@ -1079,6 +1119,7 @@ async function GET_handler(request: NextRequest) {
       }
 
       const current = dailyAnalyticsByUser.get(uid) ?? buildEmptyDailyAggregate();
+      const engagementDays = dailyEngagementDaysByUser.get(uid) ?? [];
       current.eventCount += Math.round(readMetric(raw, "eventCount"));
       current.sessionCount += Math.round(readMetric(raw, "sessionCount"));
       current.viewCount += Math.round(readMetric(raw, "viewCount"));
@@ -1107,6 +1148,8 @@ async function GET_handler(request: NextRequest) {
       current.lastSeenAt = Math.max(current.lastSeenAt, toTimestampNumber(raw.lastSeenAt), toTimestampNumber(raw.lastSeenAtMs));
       current.lastPurchaseAt = Math.max(current.lastPurchaseAt, toTimestampNumber(raw.lastPurchaseAt));
       dailyAnalyticsByUser.set(uid, current);
+      engagementDays.push(buildUserEngagementDay(raw));
+      dailyEngagementDaysByUser.set(uid, engagementDays);
     });
 
     const dailyUserIds = new Set(dailyAnalyticsByUser.keys());
@@ -1485,7 +1528,12 @@ async function GET_handler(request: NextRequest) {
           ...metricIntegrity.failures,
           ...(Array.isArray(analytics.watchTimeIssues) ? analytics.watchTimeIssues : []),
         ],
+        engagementInput: buildUserEngagementScoreInputFromActivityDays({
+          days: dailyEngagementDaysByUser.get(user.uid) ?? [],
+          nowMs: Date.now(),
+        }),
       });
+      const engagement = behaviorRollup.engagement;
 
       analyticsByUser[user.uid] = {
         ...analytics,
@@ -1495,7 +1543,8 @@ async function GET_handler(request: NextRequest) {
         metricIntegrityFailures: metricIntegrity.failures,
         metricFreshnessMs: metricIntegrity.freshnessMs,
         recoveredFromFacts: metricIntegrity.recoveredFromFacts,
-        engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
+        engagementScore: engagement.score,
+        engagement,
         behaviorRollup,
       };
     });
@@ -1555,6 +1604,7 @@ async function GET_handler(request: NextRequest) {
       notificationsEnabledUsers: userMetricsSnapshot.pushEnabledUsers,
       onboardingCompletedUsers: userMetricsSnapshot.onboardedUsers,
       activeLast7Days: userMetricsSnapshot.sevenDayReturners,
+      returnedInLast7Days: userMetricsSnapshot.sevenDayReturners,
       totalEvents: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.eventCount || 0), 0),
       totalUnwraps: userMetricsSnapshot.trackedUnwraps,
       totalPurchases: userMetricsSnapshot.trackedPurchases,
@@ -2248,6 +2298,7 @@ function buildSummaryFromMetricsSnapshot(input: {
     notificationsEnabledUsers: userMetricsSnapshot.pushEnabledUsers,
     onboardingCompletedUsers: userMetricsSnapshot.onboardedUsers,
     activeLast7Days: userMetricsSnapshot.sevenDayReturners,
+    returnedInLast7Days: userMetricsSnapshot.sevenDayReturners,
     totalEvents: 0,
     totalUnwraps: userMetricsSnapshot.trackedUnwraps,
     totalPurchases: userMetricsSnapshot.trackedPurchases,

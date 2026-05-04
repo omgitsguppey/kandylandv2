@@ -80,3 +80,5 @@ Within the broader behavioral truth hierarchy, watch-session rollups count as `e
 Use `npm run check:watch-time-truth-v2` plus the targeted watch scoring and watch-session route tests before broad audits. This lane is source and unit-test based; it must not require Playwright, Lighthouse, Cypress, high-frequency polling, or browser automation.
 
 Admin user surfaces also consume this doctrine through `npm run check:admin-user-behavior-truth`. If User Management or admin user detail stops using watch-session rollups first, that validator must fail.
+
+The canonical user engagement score also depends on this truth. Its watch component uses valid watch minutes from watch-session-first rollups; it must not silently swap back to page-open duration.

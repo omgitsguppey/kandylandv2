@@ -52,6 +52,7 @@
         "check:admin-truth-badge-doctrine": "tsx scripts/agent/validate-admin-truth-badge-doctrine.ts",
         "check:admin-user-behavior-truth": "tsx scripts/agent/validate-admin-user-behavior-truth.ts",
         "check:behavioral-truth-source": "tsx scripts/agent/validate-behavioral-truth-source.ts",
+        "check:user-engagement-score": "tsx scripts/agent/validate-user-engagement-score.ts",
         "check:admin-user-metrics-snapshot": "tsx scripts/agent/validate-admin-user-metrics-snapshot.ts",
         "check:admin-users-stats-grid": "tsx scripts/agent/validate-admin-users-stats-grid.ts",
         "check:admin-users-loading-lanes": "tsx scripts/agent/validate-admin-users-loading-lanes.ts",

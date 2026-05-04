@@ -17,10 +17,13 @@ import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
 import { buildCommerceMetricsFromRollup } from "@/lib/admin-user-commerce";
 import {
     buildAdminUserMetricIntegrity,
-    scoreAdminUserEngagement,
 } from "@/lib/admin-user-metrics";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
+import {
+    buildUserEngagementScoreInputFromActivityDays,
+    type UserEngagementActivityDay,
+} from "@/lib/behavioral/user-engagement-score";
 import {
     toUserActionLedgerItem,
 } from "@/lib/analytics-action-taxonomy";
@@ -81,6 +84,33 @@ function readString(value: unknown, fallback = ""): string {
 
 function roundToSingleDecimal(value: number) {
     return Math.round((value + Number.EPSILON) * 10) / 10;
+}
+
+function buildUserEngagementDay(raw: Record<string, unknown>): UserEngagementActivityDay {
+    const timestampMs = Math.max(
+        toTimestampNumber(raw.lastSeenAt),
+        toTimestampNumber(raw.lastSeenAtMs),
+        toTimestampNumber(raw.updatedAt),
+        toTimestampNumber(raw.createdAt),
+    );
+    return {
+        timestampMs,
+        normalizedActionCount: readNumber(raw.eventCount),
+        unwrappedCount: Math.max(readNumber(raw.unwrapCount), readNumber(raw.unlockCount)),
+        validWatchMinutes: Math.round(readNumber(raw.watchSecondsTotal) / 60),
+        purchaseCount: Math.max(readNumber(raw.purchaseCount), readNumber(raw.purchaseTransactionCount)),
+        freeGdEarned: Math.max(
+            readNumber(raw.rewardGdEarned),
+            readNumber(raw.rewardGdEarnedTotal),
+            readNumber(raw.rewardGumDropsEarned),
+            readNumber(raw.rewardAmountEarned),
+            readNumber(raw.dailyRewardGd),
+            readNumber(raw.dailyRewardGdTotal),
+            readNumber(raw.freeGdEarned),
+        ),
+        hadVisit: readNumber(raw.viewCount) > 0 || readNumber(raw.watchSecondsTotal) > 0,
+        hadAuth: Math.max(readNumber(raw.authSuccessCount), readNumber(raw.signInCount)) > 0,
+    };
 }
 
 async function GET_handler(
@@ -705,7 +735,12 @@ async function GET_handler(
                 ...metricIntegrity.failures,
                 ...watchTimeRollup.issues,
             ],
+            engagementInput: buildUserEngagementScoreInputFromActivityDays({
+                days: userDaily.map((day) => buildUserEngagementDay(day)),
+                nowMs: Date.now(),
+            }),
         });
+        const engagement = behaviorRollup.engagement;
 
         const analytics = {
             eventCount: normalizedEventCount,
@@ -750,7 +785,8 @@ async function GET_handler(
             metricIntegrityFailures: metricIntegrity.failures,
             metricFreshnessMs: metricIntegrity.freshnessMs,
             recoveredFromFacts: metricIntegrity.recoveredFromFacts,
-            engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
+            engagementScore: engagement.score,
+            engagement,
             behaviorRollup,
             actionLedger: behavioralEventFactRollup.facts.slice(0, 80).map((fact) => toUserActionLedgerItem({
                 actionName: fact.normalizedAction,

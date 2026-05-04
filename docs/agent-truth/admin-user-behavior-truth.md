@@ -15,6 +15,7 @@ The admin user surfaces are allowed to load in lanes, but they are not allowed t
 - compact metric cards keep the last usable value visible when freshness degrades
 - per-user behavior comes from the canonical user behavior rollup
 - watch time prefers watch-session rollups and labels `legacy_page_duration` when fallback is used
+- engagement score is canonical and verdict-first: unwraps, valid watch time, purchases, repeat visits, meaningful actions, then low-weight free-GD intent
 - behavioral recommendations collapse to `Insufficient signal` when confidence is not high enough
 - action ledger rows use normalized user-action taxonomy, not raw random event names
 - truth badges follow the shared doctrine: `live`, `refreshing`, `stale`, `degraded`, `failed`, `unavailable`, `delayed`, `review`
