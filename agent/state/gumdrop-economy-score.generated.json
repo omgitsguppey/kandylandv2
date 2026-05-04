@@ -1,0 +1,39 @@
+{
+  "score": 100,
+  "status": "clean",
+  "generatedAt": "2026-05-04T05:27:20.794Z",
+  "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
+  "findings": [],
+  "criticalCount": 0,
+  "majorCount": 0,
+  "safeAutofixesAvailable": 0,
+  "checkedFiles": [
+    "src/lib/gumdrop-ledger.ts",
+    "src/lib/gumdrop-economics.ts",
+    "src/app/api/paypal/capture/route.ts",
+    "src/app/api/checkin/route.ts",
+    "src/lib/server/daily-tasks.ts",
+    "src/app/api/user/complete-onboarding/route.ts",
+    "src/app/api/user/register/route.ts",
+    "src/app/api/admin/balance/route.ts",
+    "src/lib/server/creator-experiences.ts",
+    "src/lib/server/chat.ts",
+    "src/app/api/creator/subscriptions/route.ts",
+    "src/app/api/creator/requests/route.ts",
+    "src/app/api/creator/bookings/route.ts",
+    "src/app/api/drops/unlock/route.ts",
+    "tests/unit/gumdrop-ledger.spec.ts",
+    "tests/unit/paypal-capture-route.spec.ts",
+    "tests/unit/lib/gumdrop-economics.spec.ts"
+  ],
+  "rules": [
+    "paid package base GumDrops credit purchased balance",
+    "paid package bonus GumDrops credit purchased balance",
+    "daily task referral onboarding rewards credit reward balance",
+    "creator monetization spends purchased balance only",
+    "normal Drop unlocks may use total source-aware balance",
+    "purchase transactions preserve paidGumDrops bonusGumDrops and delivered totals",
+    "wallet UI is not required to expose source split everywhere"
+  ],
+  "summary": "GumDrops economy truth is clean: paid package bonuses remain paid-source, rewards remain reward-source, creator spend is purchased-only, and normal Drops use total balance."
+}

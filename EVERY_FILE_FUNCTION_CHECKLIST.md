@@ -16,6 +16,13 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 - [x] `tests/mocks/handlers.ts` maps user-side API routes to the active scenario and `tests/mocks/server.ts` exposes the shared Node MSW server.
 - [x] `tests/unit/msw-user-flow-scenarios.spec.ts` validates the MSW scenario layer with targeted Vitest coverage.
 
+## 2026-05-04 GumDrops Economy Score Coverage
+
+- [x] GumDrops economy scoring is deterministic. It guards paid package base/bonus purchased-source credit, reward-source reward routes, creator purchased-only spend, normal Drop total-balance spend, transaction metadata, and targeted test coverage without browser audits.
+- [x] `scripts/agent/score-gumdrop-economy.ts` owns the source-only score report and hardcoded findings with severity, category, file path, suggested fix, and autofix safety truth.
+- [x] `scripts/agent/validate-gumdrop-economy.ts`, `agent/state/gumdrop-economy-score.generated.json`, and `docs/agent-truth/gumdrop-economy-score.md` provide the deterministic `score:economy` / `check:gumdrop-economy` lane.
+- [x] `src/lib/gumdrop-ledger.ts`, `src/lib/gumdrop-economics.ts`, `src/app/api/paypal/capture/route.ts`, `src/lib/server/creator-experiences.ts`, creator spend routes, normal Drop unlock, and targeted ledger/PayPal/economics tests remain the source truth for the scorer.
+
 ## 2026-05-04 Component Test Coverage
 
 - [x] KandyDrops component tests verify behavior and state truth, not screenshots. Fast UI tests should use shared auth/profile/drop states, exercise real component affordances where practical, and preserve telemetry/source-of-truth contracts without changing product behavior.

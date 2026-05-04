@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #134] PRE: GumDrops Economy Truth Scoring
+
+Scope started:
+- Creating a deterministic GumDrops economy truth scorer to guard paid/reward balance classification, purchase metadata, creator paid-only spend, normal Drop total-balance spend, and targeted test coverage without browser audits or broad terminal sweeps.
+- Required outputs: `scripts/agent/score-gumdrop-economy.ts`, `scripts/agent/validate-gumdrop-economy.ts`, `agent/state/gumdrop-economy-score.generated.json`, `docs/agent-truth/gumdrop-economy-score.md`, package scripts `score:economy` and `check:gumdrop-economy`, targeted verification, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full `npm run check`, or broad UI audits, and must not change wallet UI, payment write behavior, ledger accounting behavior, creator monetization logic, normal Drop unlock policy, auth, or Firebase rules.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, banned-pattern doctrine, source-of-truth map, full governance files, current git status, adjacency trace for GumDrops ledger/economics/creator spend helpers, source-of-funds validator, payment wallet doctrine, and targeted economy tests were consulted.
+- Current source already encodes the paid package bonus-as-purchased rule, reward-source reward routes, creator purchased-only spend policies, and normal Drop total-balance spend; this pass adds a deterministic score/report lane over those contracts.
+
+Doctrine:
+- GumDrops economy scoring is deterministic. Paid package base and bonus GumDrops are paid-source balance. Check-in, task, referral, onboarding, and admin reward adjustments are reward-source balance. Creator monetization spends purchased balance only. Normal Drops may use total balance. Wallet UI is not required to expose source split everywhere.
+
+Scope completed:
+- Added `scripts/agent/score-gumdrop-economy.ts` to scan GumDrops ledger helpers, economics metadata, PayPal capture crediting, reward-source routes, creator paid-only spend policies, normal Drop unlock policy, and targeted tests.
+- Added `scripts/agent/validate-gumdrop-economy.ts` to validate the generated report schema, critical auto-fail behavior, package scripts, source anchors, docs, and test coverage anchors.
+- Added `agent/state/gumdrop-economy-score.generated.json`, `docs/agent-truth/gumdrop-economy-score.md`, and package scripts `score:economy` and `check:gumdrop-economy`.
+- Updated memory/checklist truth surfaces for the new deterministic economy scoring lane.
+
+Verification:
+- `npm run score:economy` passed with `100/100` clean status and no findings.
+- `npm run check:gumdrop-economy` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/gumdrop-ledger.spec.ts tests/unit/lib/gumdrop-economics.spec.ts tests/unit/paypal-capture-route.spec.ts` passed with `3` files and `23` tests.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, or browser automation.
+
+Residual risk:
+- The scorer is deterministic source validation, not a replacement for payment route tests, Firebase write-path verification, or future creator monetization integration tests when those surfaces change.
+
 ## [2026-05-04 #133] PRE: Hydration Performance Scoring
 
 Scope started:
