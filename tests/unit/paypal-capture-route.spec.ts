@@ -217,8 +217,14 @@ describe("POST /api/paypal/capture", () => {
             purchasedBalanceCreditGumDrops: 550,
             rewardBalanceCreditGumDrops: 0,
             purchaseSourceClassification: "paid_purchase_including_bonus",
+            sourceTruth: "server_purchase_transaction",
         });
-        expect(mockState.trackServerEvent).toHaveBeenCalledWith("purchase_verified", expect.any(Object), "fan_1");
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("purchase_verified", expect.objectContaining({
+            order_id: "order_1",
+            transaction_id: expect.any(String),
+            sourceTruth: "canonical",
+            purchase_source: "paypal_capture",
+        }), "fan_1");
     });
 
     it("suppresses duplicate purchase credit when the payment lock already exists", async () => {

@@ -213,6 +213,66 @@ describe("POST /api/analytics/ingest-identified", () => {
     });
   });
 
+  it("keeps client purchase completion telemetry as supporting context, not canonical truth", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_purchase_support",
+        eventTimestampMs: 1767225600000,
+        eventName: "gumdrops_purchase_completed",
+        eventParams: {
+          page_path: "/wallet",
+          session_id: "session_123",
+          order_id: "order_123",
+          transaction_id: "txn_support_123",
+          sourceTruth: "client_supporting",
+          package_price: 5,
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_purchase_support");
+    expect(eventWrite?.data).toMatchObject({
+      eventName: "gumdrops_purchase_completed",
+      transactionId: "txn_support_123",
+      sourceTruth: "client",
+      normalizedActionName: "gumdrops_purchased",
+      metricEligible: true,
+    });
+  });
+
+  it("keeps purchase_verified canonical when the server emits the purchase fact", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_purchase_verified",
+        eventTimestampMs: 1767225600000,
+        eventName: "purchase_verified",
+        eventParams: {
+          page_path: "/wallet",
+          session_id: "session_123",
+          order_id: "order_123",
+          transaction_id: "txn_server_123",
+          sourceTruth: "canonical",
+          purchase_source: "paypal_capture",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_purchase_verified");
+    expect(eventWrite?.data).toMatchObject({
+      eventName: "purchase_verified",
+      transactionId: "txn_server_123",
+      sourceTruth: "canonical",
+      normalizedActionName: "gumdrops_purchased",
+      metricEligible: true,
+    });
+  });
+
   it("excludes admin projection events from user behavior metrics", async () => {
     const response = await POST(buildRequest({
       events: [{

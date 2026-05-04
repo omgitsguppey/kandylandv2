@@ -326,6 +326,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         error?: string;
         duplicate?: boolean;
         drops?: number;
+        transactionId?: string;
         gumDropsBalance?: number | null;
         dailyTasksState?: DailyTasksState | null;
       };
@@ -350,11 +351,14 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       ));
       dispatchActivitySync();
       toast.success(`${result.drops || selectedPackage.drops} Gum Drops added!`);
+      const transactionId = result.transactionId || orderId;
 
       trackEvent("purchase", {
-        transaction_id: orderId,
+        order_id: orderId,
+        transaction_id: transactionId,
         value: selectedPackage.price,
         currency: "USD",
+        sourceTruth: "client_supporting",
         items: [{
           item_id: `gumdrops_${selectedPackage.drops}`,
           item_name: selectedPackage.label,
@@ -364,7 +368,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       });
       trackEvent("gumdrops_purchase_completed", {
         order_id: orderId,
-        transaction_id: orderId,
+        transaction_id: transactionId,
         package_label: selectedPackage.label,
         package_drops: selectedPackage.drops,
         package_price: selectedPackage.price,
@@ -373,6 +377,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_bonus_value_usd: selectedEconomics.bonusValueUsd,
         package_adjusted_profit_usd: selectedEconomics.adjustedProfitUsd,
         package_effective_usd_per_100_gd: selectedEconomics.effectiveUsdPer100Gd,
+        sourceTruth: "client_supporting",
         ...walletDensityPayload,
         ...(consumeTimedFlow(CHECKOUT_FLOW_KEY).mergedParams ?? {}),
       });
@@ -399,6 +404,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_price: selectedPackage.price,
         package_paid_drops: selectedEconomics.paidGumDrops,
         package_bonus_drops: selectedEconomics.bonusGumDrops,
+        sourceTruth: "client",
         ...walletDensityPayload,
         ...(consumeTimedFlow(CHECKOUT_FLOW_KEY, { failure_reason: problemCopy.headline }).mergedParams ?? {}),
       });
@@ -638,19 +644,17 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   package_price: selectedPackage.price,
                                   ...walletDensityPayload,
                                 });
-                                trackEvent("begin_checkout", {
-                                  package_label: selectedPackage.label,
-                                  package_drops: selectedPackage.drops,
-                                  package_price: selectedPackage.price,
-                                  ...walletDensityPayload,
-                                });
                                 try {
                                   const response = await authFetch("/api/paypal/create", {
                                     method: "POST",
                                     body: JSON.stringify({ expectedDrops: selectedPackage.drops }),
                                   });
 
-                                  const order = await response.json();
+                                  const order = await response.json() as {
+                                    id?: string;
+                                    transactionId?: string;
+                                    error?: string;
+                                  };
 
                                   if (!response.ok) {
                                     const problemCopy = getPaymentProblemCopy(order.error || "Payment initialization failed");
@@ -658,7 +662,17 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                     throw new Error(order.error || "Payment initialization failed");
                                   }
 
-                                  return order.id;
+                                  trackEvent("begin_checkout", {
+                                    order_id: order.id,
+                                    transaction_id: order.transactionId || order.id,
+                                    package_label: selectedPackage.label,
+                                    package_drops: selectedPackage.drops,
+                                    package_price: selectedPackage.price,
+                                    sourceTruth: "client_funnel",
+                                    ...walletDensityPayload,
+                                  });
+
+                                  return order.id || "";
                                 } catch (error) {
                                   reportClientIssue({
                                     channel: "payments",

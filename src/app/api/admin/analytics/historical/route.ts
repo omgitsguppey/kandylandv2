@@ -692,8 +692,10 @@ async function GET_handler(request: NextRequest) {
                 )
                 : registrationFacts.length;
             const emailRegistrationCount = registrationFacts.filter((fact) => fact.registrationMethod === "email").length;
-            const telemetryPurchaseCount = Math.max(eventsData.gumdrops_purchase_completed || 0, eventsData.purchase || 0);
-            const purchases = Math.max(telemetryPurchaseCount, firstPartyPurchaseCount);
+            const telemetryPurchaseCount = eventsData.purchase_verified || 0;
+            const purchases = firstPartyPurchaseCount > 0
+                ? firstPartyPurchaseCount
+                : telemetryPurchaseCount;
             const telemetryUnlockCount = eventsData.unlock_drop_success || 0;
             const canonicalUnlockCount = Math.max(firstPartyUnlockCount, telemetryUnlockCount);
             const normalizedSignupCount = canonicalRegistrationCount > 0

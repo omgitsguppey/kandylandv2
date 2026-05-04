@@ -48,7 +48,10 @@ async function POST_handler(request: NextRequest) {
             throw new Error("PayPal returned an invalid order payload.");
         }
 
-        return NextResponse.json({ id: parsedOrder.data.id });
+        return NextResponse.json({
+            id: parsedOrder.data.id,
+            transactionId: parsedOrder.data.id,
+        });
 
     } catch (error) {
         return handleApiError(error, "PayPal.CreateOrder");

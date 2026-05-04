@@ -151,18 +151,33 @@ describe("gumdrop ledger", () => {
     it("does not count admin adjustments or reward credits as revenue purchases", () => {
         expect(getTransactionRevenueCents({
             type: "admin_adjustment",
+            status: "completed",
             cost: 10,
             grossRevenueCents: 1000,
         })).toBe(0);
         expect(getTransactionRevenueCents({
             type: "daily_reward",
+            status: "completed",
             cost: 10,
             grossRevenueCents: 1000,
         })).toBe(0);
         expect(getTransactionRevenueCents({
             type: "purchase_currency",
+            status: "completed",
             grossRevenueCents: 500,
         })).toBe(500);
+        expect(getTransactionRevenueCents({
+            type: "purchase_currency",
+            status: "completed",
+            grossRevenueCents: 500,
+            verifiedServerSide: false,
+        })).toBe(0);
+        expect(getTransactionRevenueCents({
+            type: "purchase_currency",
+            status: "completed",
+            grossRevenueCents: 500,
+            sourceTruth: "client_supporting",
+        })).toBe(0);
 
         expect(classifyGumdropTransaction({
             type: "admin_adjustment",

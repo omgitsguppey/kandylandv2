@@ -186,13 +186,37 @@ export function isCompletedLedgerStatus(value: unknown) {
     return normalizeLedgerStatus(value) === "completed";
 }
 
+export function isCanonicalPurchaseTransaction(input: {
+    type?: string;
+    status?: unknown;
+    verifiedServerSide?: unknown;
+    sourceTruth?: unknown;
+}) {
+    if (input.type !== "purchase_currency" || !isCompletedLedgerStatus(input.status)) {
+        return false;
+    }
+
+    if (input.verifiedServerSide === false) {
+        return false;
+    }
+
+    if (typeof input.sourceTruth === "string" && input.sourceTruth.startsWith("client")) {
+        return false;
+    }
+
+    return true;
+}
+
 export function getTransactionRevenueCents(input: {
     type?: string;
+    status?: unknown;
+    verifiedServerSide?: unknown;
+    sourceTruth?: unknown;
     cost?: number;
     grossRevenueUsd?: number;
     grossRevenueCents?: number;
 }) {
-    if (input.type !== "purchase_currency") {
+    if (!isCanonicalPurchaseTransaction(input)) {
         return 0;
     }
 

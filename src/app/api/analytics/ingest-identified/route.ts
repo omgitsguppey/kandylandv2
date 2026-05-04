@@ -57,6 +57,55 @@ function readEventModules(params: Record<string, unknown>) {
     return typeof value === "string" ? value.trim() : "";
 }
 
+function resolveIdentifiedSourceTruth(
+    canonicalEventName: string,
+    params: Record<string, unknown>,
+) {
+    const explicitSourceTruth = readStringParam(params, "source_truth", "sourceTruth");
+
+    if (
+        explicitSourceTruth === "client"
+        || explicitSourceTruth === "client_funnel"
+        || explicitSourceTruth === "client_supporting"
+    ) {
+        return "client" as const;
+    }
+
+    if (explicitSourceTruth === "legacy") {
+        return "legacy" as const;
+    }
+
+    if (explicitSourceTruth === "materialized") {
+        return "materialized" as const;
+    }
+
+    if (explicitSourceTruth === "canonical") {
+        return "canonical" as const;
+    }
+
+    if (
+        canonicalEventName === "identity_linked"
+        || canonicalEventName === "purchase_verified"
+        || canonicalEventName === "unlock_drop_success"
+    ) {
+        return "canonical" as const;
+    }
+
+    if (canonicalEventName === "gumdrops_purchase_completed" || canonicalEventName === "purchase") {
+        return "client" as const;
+    }
+
+    if (
+        canonicalEventName.startsWith("watch_session_")
+        || canonicalEventName === "viewer_session_completed"
+        || canonicalEventName === "watch_score_computed"
+    ) {
+        return "canonical" as const;
+    }
+
+    return "server" as const;
+}
+
 async function recordLegacyClientDiagnostic(
     userId: string,
     eventName: string,
@@ -187,15 +236,7 @@ async function POST_handler(request: NextRequest) {
                 includeInUserBehavior: inclusion.includeInUserBehavior,
                 actorType: actorClassification.actorType,
                 actorLane: actorClassification.actorLane,
-                sourceTruth: canonicalEventName === "identity_linked"
-                    ? "canonical"
-                    : canonicalEventName === "gumdrops_purchase_completed" || canonicalEventName === "purchase_verified"
-                        ? "canonical"
-                        : canonicalEventName === "unlock_drop_success"
-                            ? "canonical"
-                            : canonicalEventName.startsWith("watch_session_") || canonicalEventName === "viewer_session_completed" || canonicalEventName === "watch_score_computed"
-                                ? "canonical"
-                                : "server",
+                sourceTruth: resolveIdentifiedSourceTruth(canonicalEventName, enrichedParams),
             });
             const normalizedEventFact = parityFact.behavioralFact;
             

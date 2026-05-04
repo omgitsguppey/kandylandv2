@@ -176,6 +176,10 @@ export async function trackServerEvent(
       gumDropsAmount: readNullableNumberParam(enrichedParams, "delivered_gumdrops", "deliveredGumDrops", "paid_gumdrops", "paidGumDrops", "gumdrops_amount", "gumDropsAmount") ?? undefined,
     })
     : null;
+  const transactionId = readStringParam(enrichedParams, "transaction_id", "transactionId", "purchase_id", "purchaseId", "order_id", "orderId");
+  const sourceTruth = readStringParam(enrichedParams, "source_truth", "sourceTruth")
+    || (canonicalEventName === "purchase_verified" ? "canonical" : normalizedEventFact?.sourceTruth ?? "server");
+  const sourceConfidence = sourceTruth === "canonical" ? 1 : normalizedEventFact?.confidence ?? 0.98;
 
   try {
     const timeKeys = buildAnalyticsTimeKeys(nowMs);
@@ -200,6 +204,9 @@ export async function trackServerEvent(
         performedAs,
         targetUserId,
         targetCreatorId,
+        transactionId,
+        sourceTruth,
+        sourceConfidence,
         actionKey: readStringParam(enrichedParams, "action_key", "actionKey"),
         actorClassificationReason: readStringParam(enrichedParams, "actor_classification_reason", "actorClassificationReason"),
         unknownActorBlocked: enrichedParams.unknown_actor_blocked === true || enrichedParams.unknownActorBlocked === true,

@@ -385,7 +385,7 @@ async function GET_handler(
         const directOnboardingCompletionCount = analyticsFacts.filter((event) => event.eventName === "guided_onboarding_completed").length;
         const purchaseVerifiedFactCount = analyticsFacts.filter((event) => event.eventName === "purchase_verified").length;
         const purchaseCompletedFactCount = analyticsFacts.filter((event) => event.eventName === "gumdrops_purchase_completed").length;
-        const directPurchaseCount = purchaseVerifiedFactCount > 0 ? purchaseVerifiedFactCount : purchaseCompletedFactCount;
+        const directPurchaseCount = purchaseVerifiedFactCount;
         const directEventCount = analyticsFacts.length;
         const directLastSeenAt = Math.max(
             analyticsFacts.reduce((latest, event) => Math.max(latest, event.timestamp), 0),
@@ -641,7 +641,7 @@ async function GET_handler(
             { key: "transactions", label: "Transactions", count: purchaseTransactions.length },
             { key: "rollup", label: "User rollup", count: rollupPurchaseCount },
             { key: "daily", label: "Daily rollups", count: dailyPurchaseCount },
-            { key: "facts", label: purchaseVerifiedFactCount > 0 ? "Server facts" : "Telemetry facts", count: directPurchaseCount },
+            { key: "facts", label: "Server facts", count: directPurchaseCount },
         ];
         const unlockSourceCounts = [
             { key: "transactions", label: "Transactions", count: completedUnlockTransactions.length },

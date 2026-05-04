@@ -225,8 +225,10 @@ async function POST_handler(request: NextRequest) {
           ? userData.displayName.trim()
           : caller?.email || userId;
 
+      const purchaseTransactionRef = adminDb.collection("transactions").doc();
+
       transaction.update(userRef, buildSourceAwareBalancePatch(nextSourceAwareBalance));
-      transaction.set(adminDb.collection("transactions").doc(), buildCompletedGumdropTransaction({
+      transaction.set(purchaseTransactionRef, buildCompletedGumdropTransaction({
         userId,
         type: "purchase_currency",
         amount: dropsToCredit,
@@ -265,6 +267,8 @@ async function POST_handler(request: NextRequest) {
           currency: "USD",
           paymentId: orderId,
           paypalCaptureId: capture.id,
+          transactionId: purchaseTransactionRef.id,
+          sourceTruth: "server_purchase_transaction",
         },
       }));
 
@@ -276,7 +280,7 @@ async function POST_handler(request: NextRequest) {
         createdAt: FieldValue.serverTimestamp(),
       });
 
-      return { duplicate: false, username };
+      return { duplicate: false, username, transactionId: purchaseTransactionRef.id };
     });
 
     if (result.duplicate) {
@@ -286,14 +290,16 @@ async function POST_handler(request: NextRequest) {
     const [analyticsResult, taskEventResult] = await Promise.allSettled([
       trackServerEvent("purchase_verified", {
         order_id: orderId,
-        transaction_id: orderId,
+        transaction_id: result.transactionId ?? orderId,
         value: paidUsd,
         currency: "USD",
         purchase_source: "paypal_capture",
+        sourceTruth: "canonical",
         items_count: dropsToCredit,
         paypal_fee_usd: economics.paypalFeeUsd,
         net_revenue_usd: economics.netRevenueUsd,
         paid_gumdrops: economics.paidGumDrops,
+        delivered_gumdrops: economics.deliveredGumDrops,
         bonus_gumdrops: economics.bonusGumDrops,
         adjusted_profit_usd: economics.adjustedProfitUsd,
         bundle_key: bundlePresentation.bundleKey,
@@ -305,6 +311,7 @@ async function POST_handler(request: NextRequest) {
         bundle_tier: bundlePresentation.bundleTier,
         bonus_gumdrops: economics.bonusGumDrops,
         order_id: orderId,
+        transaction_id: result.transactionId ?? orderId,
       }),
     ]);
 
@@ -339,6 +346,7 @@ async function POST_handler(request: NextRequest) {
     return NextResponse.json({
       success: true,
       drops: dropsToCredit,
+      transactionId: result.transactionId ?? orderId,
       gumDropsBalance: Number.isFinite(updatedUserData.gumDropsBalance)
         ? Number(updatedUserData.gumDropsBalance)
         : null,
