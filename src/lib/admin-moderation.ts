@@ -54,6 +54,7 @@ export type AdminModerationSecurityAlert = {
     reasonCodes: string[];
     positiveSignals: string[];
     negativeSignals: string[];
+    observedSummary: string;
     recommendedAction: string;
     canAutoRestrict: boolean;
     accuracyLabel: string;

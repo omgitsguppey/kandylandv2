@@ -86,7 +86,7 @@ export function AdminModerationSecurityAlerts({
                             </div>
                             <div className="mt-2 flex items-start gap-2 rounded-lg border border-white/5 bg-black/20 px-2 py-2 text-xs text-gray-300">
                                 <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-purple" />
-                                <p>{alert.recommendedAction}</p>
+                                <p>{alert.observedSummary}</p>
                             </div>
                         </button>
                     );

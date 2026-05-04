@@ -219,7 +219,7 @@ export function AdminModerationConsole() {
                                             <ShieldAlert className="h-4 w-4 text-brand-purple" />
                                             What was actually observed
                                         </div>
-                                        <p className="text-sm leading-6 text-gray-300">{model.selectedAlert.recommendedAction}</p>
+                                        <p className="text-sm leading-6 text-gray-300">{model.selectedAlert.observedSummary}</p>
                                         <ul className="mt-3 space-y-2 text-xs text-gray-400">
                                             {model.selectedAlert.positiveSignals.map((signal) => <li key={signal}>+ {signal}</li>)}
                                             {model.selectedAlert.negativeSignals.map((signal) => <li key={signal}>- {signal}</li>)}
@@ -273,6 +273,7 @@ export function AdminModerationConsole() {
                                     </article>
                                     <article className="rounded-xl border border-white/10 bg-black/25 p-3">
                                         <h3 className="text-sm font-bold text-white">Actions</h3>
+                                        <p className="mt-2 text-xs leading-5 text-gray-400">{model.selectedAlert.recommendedAction}</p>
                                         <div className="mt-3 grid gap-2">
                                             {["reviewed", "escalated", "dismissed_false_positive"].map((action) => (
                                                 <button key={action} type="button" onClick={() => actionClick(action)} className="min-h-11 rounded-full border border-white/10 bg-white/[0.04] px-3 text-sm font-bold text-white">

@@ -25,7 +25,8 @@ describe("admin moderation security alert normalization", () => {
     expect(alert.riskScore).toBeLessThanOrEqual(5);
     expect(alert.recommendedAction).toBe("Do not act on this alone. Monitor for repeats or stronger signals.");
     expect(alert.sourceVerified).toBe(true);
-    expect(alert.sourceLabel).toBe("Server log");
+    expect(alert.sourceLabel).toBe("Protected viewer");
+    expect(alert.observedSummary).toContain("possible capture/theft pattern");
     expect(alert.contextLabel).toContain("/dashboard/viewer");
     expect(alert.contextLabel).toContain("Drop drop-1...7890");
     expect(alert.actionLabel).toBe("Do not act on this alone. Monitor for repeats or stronger signals.");
@@ -47,6 +48,7 @@ describe("admin moderation security alert normalization", () => {
     expect(alert.falsePositiveRisk).toBe("unknown");
     expect(alert.priorityLabel).toBe("Check");
     expect(alert.actionLabel).toBe("Check the raw log before acting.");
+    expect(alert.observedSummary).toBe("Raw security signal");
   });
 
   it("clusters only same user/object/security bursts in a short window", () => {

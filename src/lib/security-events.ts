@@ -87,8 +87,8 @@ const SECURITY_REASON_MAP: Record<string, Omit<SecurityEventDescriptor, "reason"
     detectionKind: "devtools",
   },
   heuristic_rapid_visibility_capture_pattern: {
-    label: "Rapid hide/show capture pattern detected",
-    message: "Repeated hide/show transitions often correlate with native screen capture or scrape attempts.",
+    label: "Possible capture/theft pattern from rapid hide/show",
+    message: "Repeated hide/show transitions can correlate with capture or scrape attempts, but they do not confirm theft on their own.",
     locationLabel: "Protected viewer",
     severity: "medium",
     confidence: "heuristic",
@@ -289,8 +289,8 @@ const SECURITY_REASON_MAP: Record<string, Omit<SecurityEventDescriptor, "reason"
     detectionKind: "devtools",
   },
   rapid_visibility_capture_pattern: {
-    label: "Rapid hide/show capture pattern detected",
-    message: "Repeated hide/show transitions often correlate with native screen capture or scrape attempts.",
+    label: "Possible capture/theft pattern from rapid hide/show",
+    message: "Repeated hide/show transitions can correlate with capture or scrape attempts, but they do not confirm theft on their own.",
     locationLabel: "Protected viewer",
     severity: "medium",
     confidence: "heuristic",

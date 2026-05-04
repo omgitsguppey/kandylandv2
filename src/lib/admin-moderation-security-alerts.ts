@@ -5,8 +5,8 @@ import {
   type SecurityEventConfidence,
   type SecurityEventSeverity,
 } from "@/lib/security-events";
-import { normalizeModerationEvidence } from "@/lib/moderation/moderation-evidence";
-import { scoreSingleModerationEvidence } from "@/lib/moderation/scrape-risk-score";
+import { normalizeTheftRiskEvidence } from "@/lib/moderation/theft-risk-evidence";
+import { scoreSingleTheftRiskEvidence } from "@/lib/moderation/theft-risk-score";
 
 const BURST_BUCKET_MS = 10 * 60_000;
 
@@ -146,21 +146,21 @@ export function normalizeAdminModerationSecurityAlert(id: string, value: Record<
   const severity = normalizeSeverity(value.severity, descriptor.severity);
   const repeatCount = Math.max(1, toNumber(value.repeatCount) || 1);
   const source = normalizeSource(value.source);
-  const serverConfirmed = value.serverConfirmed === true || source === "protected_viewer";
-  const sourceVerified = serverConfirmed || value.sourceVerified === true;
+  const serverConfirmed = value.serverConfirmed === true && confidence === "confirmed";
+  const sourceVerified = serverConfirmed || value.sourceVerified === true || source === "protected_viewer";
   const pagePath = toNullableString(value.pagePath);
   const dropId = toNullableString(value.dropId);
   const assetKey = toNullableString(value.assetKey);
-  const evidence = normalizeModerationEvidence(id, {
+  const evidence = normalizeTheftRiskEvidence(id, {
     ...value,
     confidence,
-    source: serverConfirmed ? "server" : source,
+    source,
     rawReason,
     eventType: descriptor.detectionKind,
     humanSummary: knownReason ? descriptor.message : toStringValue(value.message) || "Uncataloged moderation signal.",
     falsePositiveRisk: resolveFalsePositiveRisk({ confidence, detectionKind: descriptor.detectionKind, knownReason }),
   });
-  const risk = scoreSingleModerationEvidence(evidence);
+  const risk = scoreSingleTheftRiskEvidence(evidence);
   const priority = resolvePriority({ riskScore: risk.score, riskTier: risk.tier, confidence, repeatCount });
 
   return {
@@ -178,6 +178,7 @@ export function normalizeAdminModerationSecurityAlert(id: string, value: Record<
     reasonCodes: risk.reasonCodes,
     positiveSignals: risk.positiveSignals,
     negativeSignals: risk.negativeSignals,
+    observedSummary: risk.observedSummary,
     recommendedAction: risk.recommendedAction,
     canAutoRestrict: risk.canAutoRestrict,
     accuracyLabel: resolveAccuracyLabel(confidence),
