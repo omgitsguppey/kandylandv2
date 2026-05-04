@@ -19,10 +19,19 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 ## 2026-05-04 Google Cost Bleed Score Coverage
 
 - [x] Google cost-bearing surfaces must be declared before use. Firestore, Storage, Google Analytics Data API, Vertex AI, Cloud Run/App Hosting, and any SQL/Data Connect runtime must have route-level cost contracts, budget guards, bounded rate limits, cache policies, and debug evidence. The app must fail audits before it surprises billing.
+- [x] Firebase Data Connect is classified as `sql_dataconnect_agent_context_mirror` for agent/repo intelligence only: `dataconnect/dataconnect.yaml`, `dataconnect/schema/*.gql`, `dataconnect/example/*`, `scripts/agent/sync-sql.ts`, `agent/state/sql-sync.payload.generated.json`, and `agent/state/sql-mirror-status.generated.json`. The config targets Cloud SQL instance `kandydrops-db` and PostgreSQL database `kandydrops_db` in `us-central1`; source does not prove provider billing state.
 - [x] `src/lib/server/api-cost-contract.ts` owns `ApiCostContract`, cost classes, route pattern matching, auth/trusted-origin/cache/budget expectations, and conservative contracts for API route groups.
 - [x] `scripts/agent/score-google-cost-bleed.ts` owns the source-only Google/Firebase/API cost score over classified API routes, trusted-origin mutations, AI paid surfaces, GA quota usage, Firestore unbounded reads/listeners, Storage/media egress, runtime SQL/Data Connect usage, and App Hosting/cron compute limits.
 - [x] `scripts/agent/validate-google-cost-bleed.ts`, `agent/state/google-cost-bleed.generated.json`, `docs/agent-truth/google-cost-bleed.md`, and package scripts `score:google-cost` / `check:google-cost` provide the deterministic no-browser validation lane.
 - [x] Autofix is disabled by default; cost-risk findings suggest targeted owner-reviewed fixes and must not mutate payment, auth, unlock, media, AI, analytics, SQL, telemetry, or business logic automatically.
+
+## 2026-05-04 Cloud Run SQL BigQuery Guardrail Coverage
+
+- [x] KandyDrops uses Firebase Data Connect with Cloud SQL only as an agent-context mirror unless explicitly promoted. Cloud Run max instances and concurrency must protect Cloud SQL and AI surfaces. BigQuery exports/imports must be validated, documented, and blocked from mutating runtime balances/transactions unless an explicit dry-run/idempotent import contract exists.
+- [x] `src/lib/server/cloud-cost-contract.ts` owns `CloudRunServiceGuardrail`, `SqlCostSurface`, and `BigQueryPipelineContract` for App Hosting, admin refresh, AI, media proxy, cron/materializer, BigQuery export, and Data Connect mirror surfaces.
+- [x] `scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts` writes `agent/state/cloudrun-sql-bigquery-guardrails.generated.json` with Cloud Run, SQL/Data Connect, and BigQuery findings, recommended limits, manual Cloud Console checklist, forbidden runtime paths, allowed mirror paths, and explicit export/import statuses.
+- [x] `scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts`, docs, and package scripts `score:cloud-cost` / `check:cloud-cost` provide the deterministic no-provider-job validation lane.
+- [x] The lane must not execute `gcloud`, Firebase deploys, Data Connect deploys, BigQuery jobs, Playwright, Lighthouse, Cypress, full `npm run check`, or broad UI audits.
 
 ## 2026-05-04 Locked Content Protection Score Coverage
 

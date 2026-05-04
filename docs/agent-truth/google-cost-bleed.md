@@ -35,6 +35,7 @@ Every `src/app/api/**/route.ts` must match a contract or the score report flags 
 - `storage_egress`
 - `ga_quota`
 - `ai_paid`
+- `sql_dataconnect_agent_context_mirror`
 - `sql_forbidden`
 - `cloud_run_compute`
 - `payment_sensitive`
@@ -50,8 +51,32 @@ Every `src/app/api/**/route.ts` must match a contract or the score report flags 
 - Firestore collection reads must be bounded by pagination, limit, or materialized snapshot ownership.
 - Public cheap GET routes using Firestore-backed rate limiting are reported because the limiter itself can create write cost.
 - Storage/media routes must enforce entitlement, `MEDIA_PROXY` or equivalent rate limits, no-store cache behavior, and byte-size expectations.
-- Runtime SQL/Data Connect/Postgres/MySQL/Prisma usage is forbidden unless explicitly contracted. The local `scripts/agent/sync-sql.ts` JSON mirror is the allowed non-runtime exception.
+- Runtime SQL/Data Connect/Postgres/MySQL/Prisma usage is forbidden unless explicitly contracted. The agent-context mirror is the allowed cost-bearing Data Connect exception and is classified as `sql_dataconnect_agent_context_mirror`.
 - Cron/Admin refresh/AI/media routes must have cost contracts and max-frequency/budget evidence.
+
+## Data Connect Agent Context Mirror
+
+The repo does include Firebase Data Connect config at `dataconnect/dataconnect.yaml`. It targets service `kandydrops` in `us-central1`, PostgreSQL database `kandydrops_db`, and Cloud SQL instance `kandydrops-db`. This is allowed only as the agent/repo intelligence mirror and must be classified as `sql_dataconnect_agent_context_mirror`.
+
+Allowed mirror surfaces:
+
+- `dataconnect/dataconnect.yaml`
+- `dataconnect/schema/*.gql`
+- `dataconnect/example/*`
+- `scripts/agent/sync-sql.ts`
+- `agent/state/sql-sync.payload.generated.json`
+- `agent/state/sql-mirror-status.generated.json`
+
+Rules:
+
+- The Data Connect mirror is allowed only for agent/repo intelligence retrieval.
+- It is forbidden for user, payment, Drop, chat, support, or creator runtime flows unless an explicit owner-approved `ApiCostContract` classifies that route as SQL/Data Connect.
+- It is forbidden inside `src/app/api` runtime routes unless the route has SQL/Data Connect cost classification and budget/rate/cache policy.
+- `agent:sync-sql` must not run automatically during user-facing builds or deploys unless that behavior is explicitly intended and documented.
+- Any new Data Connect operation/query/mutation must declare purpose, table/type touched, expected rows, max execution frequency, CI/build/dev/prod eligibility, whether it can touch user/runtime data, and estimated billing risk.
+- Audits fail if Cloud SQL/Data Connect is used outside `dataconnect/*`, `scripts/agent/sync-sql.ts`, or generated agent SQL state artifacts without approval.
+
+Billing state note: source config proves the Cloud SQL target name, database, and region, but it does not prove provider-side state. As of this doctrine update, `kandydrops-db` billing/active/paused/deleted state is `source_configured_provider_state_unverified`; an owner must confirm provider billing state before treating the mirror as cost-safe.
 
 ## Autofix
 

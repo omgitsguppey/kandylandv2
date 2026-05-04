@@ -1,9 +1,18 @@
 # ----------------------------------------------------------------------------------------
-# Layer 4: Structured Profile / Feature Serving Layer (SQL / Data Connect)
+# KandyDrops classification: sql_dataconnect_agent_context_mirror.
 # ----------------------------------------------------------------------------------------
-# These tables provide a structured, ML-ready serving layer for behavioral analytics.
-# They are populated periodically by backend jobs reading from Layer 3 (Timelines),
-# entirely segregating telemetry and feature serving from the GumDrops Economy ledger.
+# This schema file is inside the allowed Data Connect agent mirror surface, but
+# the profile types below are not approved as active user/payment/Drop/chat/
+# support/creator runtime storage. Any future feature-serving use must add an
+# explicit ApiCostContract or owner-approved Data Connect contract first.
+# Purpose: schema-only candidate/profile declarations, not active runtime flow.
+# Tables/types touched: UserFeatureProfile, GuestFeatureProfile,
+# CreatorAffinityVector, DropInterestVector.
+# Expected rows: zero active sync rows unless a future approved processor exists.
+# Max execution frequency: none in current runtime; manual schema review only.
+# Environments: repo/dev documentation only unless explicitly approved.
+# Runtime data: would touch user-derived runtime data if activated, so activation
+# is forbidden by default. Billing risk: Cloud SQL/Data Connect cost-bearing.
 # ----------------------------------------------------------------------------------------
 
 type UserFeatureProfile @table(name: "user_feature_profiles", key: ["uid"]) {

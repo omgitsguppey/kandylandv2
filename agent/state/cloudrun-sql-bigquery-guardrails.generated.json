@@ -1,0 +1,270 @@
+{
+  "generatedAt": "2026-05-04T08:42:43.343Z",
+  "score": 90,
+  "status": "pass",
+  "cloudRunFindings": [],
+  "sqlFindings": [
+    {
+      "severity": "major",
+      "category": "dataconnect",
+      "title": "Data Connect schema includes non-agent mirror tables without runtime approval",
+      "filePath": "dataconnect/schema/structured_profiles.gql",
+      "line": 9,
+      "excerpt": "# Tables/types touched: UserFeatureProfile, GuestFeatureProfile,",
+      "suggestedFix": "Remove inactive feature-serving tables or add an explicit approved SQL/Data Connect runtime contract before activation.",
+      "evidence": [
+        "UserFeatureProfile",
+        "GuestFeatureProfile",
+        "CreatorAffinityVector",
+        "DropInterestVector"
+      ],
+      "id": "cloud-cost-1gsx2kd",
+      "scoreImpact": -10
+    }
+  ],
+  "bigQueryFindings": [],
+  "recommendedLimits": [
+    {
+      "serviceName": "kandydrops-app-hosting",
+      "region": "us-central1",
+      "runtimeSurface": "app_hosting",
+      "maxInstancesRequired": true,
+      "recommendedMaxInstances": 5,
+      "minInstancesAllowed": 1,
+      "maxConcurrencyRecommended": 80,
+      "cpuAlwaysAllocatedAllowed": false,
+      "backingServices": [
+        "firestore",
+        "storage",
+        "paypal"
+      ],
+      "costRisk": "medium",
+      "notes": "Public beta App Hosting shell. Keep a small max-instance cap and preserve explicit concurrency."
+    },
+    {
+      "serviceName": "admin-analytics-refresh",
+      "region": "us-central1",
+      "runtimeSurface": "app_hosting",
+      "maxInstancesRequired": true,
+      "recommendedMaxInstances": 2,
+      "minInstancesAllowed": 0,
+      "maxConcurrencyRecommended": 20,
+      "cpuAlwaysAllocatedAllowed": false,
+      "backingServices": [
+        "firestore",
+        "bigquery"
+      ],
+      "costRisk": "high",
+      "notes": "Admin analytics refresh/rebuild routes must be bounded and must prefer hot cache over cold fanout."
+    },
+    {
+      "serviceName": "admin-ai-routes",
+      "region": "us-central1",
+      "runtimeSurface": "app_hosting",
+      "maxInstancesRequired": true,
+      "recommendedMaxInstances": 1,
+      "minInstancesAllowed": 0,
+      "maxConcurrencyRecommended": 5,
+      "cpuAlwaysAllocatedAllowed": false,
+      "backingServices": [
+        "vertex_ai",
+        "storage",
+        "firestore"
+      ],
+      "costRisk": "critical",
+      "notes": "AI routes need feature toggles, model budgets, request limits, and a one-instance recommendation."
+    },
+    {
+      "serviceName": "media-proxy-routes",
+      "region": "us-central1",
+      "runtimeSurface": "app_hosting",
+      "maxInstancesRequired": true,
+      "recommendedMaxInstances": 2,
+      "minInstancesAllowed": 0,
+      "maxConcurrencyRecommended": 20,
+      "cpuAlwaysAllocatedAllowed": false,
+      "backingServices": [
+        "storage"
+      ],
+      "costRisk": "high",
+      "notes": "Media proxy and signed asset routes can create storage egress and must remain rate/byte bounded."
+    },
+    {
+      "serviceName": "scheduled-functions",
+      "region": "us-central1",
+      "runtimeSurface": "function",
+      "maxInstancesRequired": true,
+      "recommendedMaxInstances": 1,
+      "minInstancesAllowed": 0,
+      "maxConcurrencyRecommended": 1,
+      "cpuAlwaysAllocatedAllowed": false,
+      "backingServices": [
+        "firestore",
+        "bigquery"
+      ],
+      "costRisk": "high",
+      "notes": "Cron/materializer work must be idempotent and effectively single-runner."
+    },
+    {
+      "serviceName": "analytics-bigquery-export-function",
+      "region": "us-central1",
+      "runtimeSurface": "function",
+      "maxInstancesRequired": true,
+      "recommendedMaxInstances": 2,
+      "minInstancesAllowed": 0,
+      "maxConcurrencyRecommended": 10,
+      "cpuAlwaysAllocatedAllowed": false,
+      "backingServices": [
+        "firestore",
+        "bigquery"
+      ],
+      "costRisk": "high",
+      "notes": "Firestore-triggered BigQuery export must record heartbeat/failure and avoid unbounded retry storms."
+    },
+    {
+      "serviceName": "dataconnect-agent-context-mirror",
+      "region": "us-central1",
+      "runtimeSurface": "unknown",
+      "maxInstancesRequired": true,
+      "recommendedMaxInstances": 1,
+      "minInstancesAllowed": 0,
+      "maxConcurrencyRecommended": 10,
+      "cpuAlwaysAllocatedAllowed": false,
+      "backingServices": [
+        "cloud_sql"
+      ],
+      "costRisk": "high",
+      "notes": "Data Connect is allowed only for the agent-context mirror unless explicitly promoted."
+    }
+  ],
+  "sqlCostSurfaces": [
+    {
+      "surface": "firebase_dataconnect",
+      "instanceId": "kandydrops-db",
+      "database": "kandydrops_db",
+      "region": "us-central1",
+      "allowedPurpose": "agent_context_mirror",
+      "allowedPaths": [
+        "dataconnect/**",
+        "scripts/agent/sync-sql.ts",
+        "agent/state/sql-*.generated.json"
+      ],
+      "forbiddenPaths": [
+        "src/app/api/**",
+        "src/app/api/paypal/**",
+        "src/app/api/drops/**",
+        "src/app/api/chat/**",
+        "src/app/api/support/**",
+        "src/app/api/admin/support/**",
+        "src/app/api/creator/bookings/**",
+        "src/app/api/creator/subscriptions/**",
+        "src/app/api/creator/requests/**"
+      ],
+      "maxRuntimeQueriesPerMinute": 0,
+      "maxRowsPerOperation": 2000,
+      "maxConnectionsPerInstance": 100,
+      "requiresManualApprovalForRuntimeUse": true,
+      "notes": "Firebase Data Connect is Cloud SQL-backed and is only approved for the agent-context mirror in this repo."
+    },
+    {
+      "surface": "runtime_sql_client",
+      "allowedPurpose": "forbidden",
+      "allowedPaths": [],
+      "forbiddenPaths": [
+        "src/**",
+        "functions/src/**",
+        "scripts/**"
+      ],
+      "maxRuntimeQueriesPerMinute": 0,
+      "maxRowsPerOperation": 0,
+      "maxConnectionsPerInstance": 0,
+      "requiresManualApprovalForRuntimeUse": true,
+      "notes": "Runtime SQL clients are forbidden unless a new owner-approved SQL cost contract is added."
+    }
+  ],
+  "bigQueryPipelines": [
+    {
+      "pipelineName": "analytics_event_facts_to_bigquery_raw_events",
+      "direction": "export",
+      "source": "app_generated_json",
+      "destination": "bigquery",
+      "schedule": "cron",
+      "expectedTables": [
+        "kandydrops_canonical_analytics.raw_events"
+      ],
+      "expectedPartitions": [
+        "timestamp DAY"
+      ],
+      "maxEventsPerDay": 1000000,
+      "maxLoadJobsPerTablePerDay": 1500,
+      "validationRequired": true,
+      "importBackToRuntimeAllowed": false,
+      "notes": "Functions export first-party analytics event facts to BigQuery and must record analytics_export_status."
+    },
+    {
+      "pipelineName": "bigquery_runtime_imports",
+      "direction": "import",
+      "source": "unknown",
+      "destination": "firestore",
+      "schedule": "manual",
+      "expectedTables": [],
+      "maxLoadJobsPerTablePerDay": 0,
+      "validationRequired": true,
+      "importBackToRuntimeAllowed": false,
+      "notes": "BigQuery import back into runtime state is blocked unless a dry-run, schema-validated, idempotent import contract is approved."
+    }
+  ],
+  "manualCloudConsoleChecklist": [
+    "Check Cloud Run max instances for each deployed service",
+    "Check Cloud Run concurrency",
+    "Check Cloud SQL instance kandydrops-db active/paused/deleted",
+    "Check Cloud SQL tier/storage/backups/HA/read replicas",
+    "Check Data Connect operation usage",
+    "Check BigQuery linked Firebase exports",
+    "Check BigQuery datasets/tables freshness",
+    "Check BigQuery import jobs/load jobs",
+    "Check budget alerts for Cloud SQL/Data Connect/BigQuery/Cloud Run"
+  ],
+  "forbiddenRuntimePaths": [
+    "src/app/api/**",
+    "src/app/api/paypal/**",
+    "src/app/api/drops/**",
+    "src/app/api/chat/**",
+    "src/app/api/support/**",
+    "src/app/api/admin/support/**",
+    "src/app/api/creator/bookings/**",
+    "src/app/api/creator/subscriptions/**",
+    "src/app/api/creator/requests/**"
+  ],
+  "allowedSqlMirrorPaths": [
+    "dataconnect/**",
+    "scripts/agent/sync-sql.ts",
+    "agent/state/sql-*.generated.json"
+  ],
+  "bigQueryExportStatus": "export_config_found",
+  "bigQueryImportStatus": "runtime_import_blocked",
+  "minimalCommands": [
+    "npm run score:cloud-cost",
+    "npm run check:cloud-cost"
+  ],
+  "forbiddenCommands": [
+    "playwright",
+    "cypress",
+    "lighthouse",
+    "npm run check",
+    "gcloud",
+    "firebase deploy",
+    "BigQuery jobs",
+    "Data Connect deploys"
+  ],
+  "suggestedCommands": [
+    "gcloud run services update kandydrops-app-hosting --region us-central1 --max 5 --concurrency 80",
+    "gcloud run services update admin-analytics-refresh --region us-central1 --max 2 --concurrency 20",
+    "gcloud run services update admin-ai-routes --region us-central1 --max 1 --concurrency 5",
+    "gcloud run services update media-proxy-routes --region us-central1 --max 2 --concurrency 20",
+    "gcloud run services update scheduled-functions --region us-central1 --max 1 --concurrency 1",
+    "gcloud run services update analytics-bigquery-export-function --region us-central1 --max 2 --concurrency 10",
+    "gcloud run services update dataconnect-agent-context-mirror --region us-central1 --max 1 --concurrency 10"
+  ],
+  "summary": "Cloud cost guardrails found 1 deterministic finding(s). No deployed settings were changed."
+}

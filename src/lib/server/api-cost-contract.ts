@@ -7,6 +7,7 @@ export const API_COST_CLASSES = [
   "storage_egress",
   "ga_quota",
   "ai_paid",
+  "sql_dataconnect_agent_context_mirror",
   "sql_forbidden",
   "cloud_run_compute",
   "payment_sensitive",

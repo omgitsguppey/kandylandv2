@@ -1,0 +1,221 @@
+export type CloudRunBackingService =
+  | "firestore"
+  | "cloud_sql"
+  | "storage"
+  | "vertex_ai"
+  | "bigquery"
+  | "paypal"
+  | "none";
+
+export type CloudRunServiceGuardrail = {
+  serviceName: string;
+  region: string;
+  runtimeSurface: "app_hosting" | "cloud_run" | "function" | "unknown";
+  maxInstancesRequired: boolean;
+  recommendedMaxInstances: number;
+  minInstancesAllowed: number;
+  maxConcurrencyRecommended: number;
+  cpuAlwaysAllocatedAllowed: boolean;
+  backingServices: CloudRunBackingService[];
+  costRisk: "low" | "medium" | "high" | "critical";
+  notes: string;
+};
+
+export type SqlCostSurface = {
+  surface: "firebase_dataconnect" | "cloud_sql" | "runtime_sql_client";
+  instanceId?: string;
+  database?: string;
+  region?: string;
+  allowedPurpose: "agent_context_mirror" | "runtime_user_data" | "analytics" | "forbidden";
+  allowedPaths: string[];
+  forbiddenPaths: string[];
+  maxRuntimeQueriesPerMinute: number;
+  maxRowsPerOperation: number;
+  maxConnectionsPerInstance: number;
+  requiresManualApprovalForRuntimeUse: boolean;
+  notes: string;
+};
+
+export type BigQueryPipelineContract = {
+  pipelineName: string;
+  direction: "export" | "import" | "roundtrip";
+  source: "firebase_analytics" | "firestore_export" | "ga_data_api" | "app_generated_json" | "unknown";
+  destination: "bigquery" | "cloud_storage" | "agent_state" | "firestore" | "unknown";
+  schedule: "manual" | "daily" | "cron" | "unknown";
+  expectedTables: string[];
+  expectedPartitions?: string[];
+  maxEventsPerDay?: number;
+  maxLoadJobsPerTablePerDay?: number;
+  validationRequired: boolean;
+  importBackToRuntimeAllowed: boolean;
+  notes: string;
+};
+
+export const CLOUD_RUN_SERVICE_GUARDRAILS: CloudRunServiceGuardrail[] = [
+  {
+    serviceName: "kandydrops-app-hosting",
+    region: "us-central1",
+    runtimeSurface: "app_hosting",
+    maxInstancesRequired: true,
+    recommendedMaxInstances: 5,
+    minInstancesAllowed: 1,
+    maxConcurrencyRecommended: 80,
+    cpuAlwaysAllocatedAllowed: false,
+    backingServices: ["firestore", "storage", "paypal"],
+    costRisk: "medium",
+    notes: "Public beta App Hosting shell. Keep a small max-instance cap and preserve explicit concurrency.",
+  },
+  {
+    serviceName: "admin-analytics-refresh",
+    region: "us-central1",
+    runtimeSurface: "app_hosting",
+    maxInstancesRequired: true,
+    recommendedMaxInstances: 2,
+    minInstancesAllowed: 0,
+    maxConcurrencyRecommended: 20,
+    cpuAlwaysAllocatedAllowed: false,
+    backingServices: ["firestore", "bigquery"],
+    costRisk: "high",
+    notes: "Admin analytics refresh/rebuild routes must be bounded and must prefer hot cache over cold fanout.",
+  },
+  {
+    serviceName: "admin-ai-routes",
+    region: "us-central1",
+    runtimeSurface: "app_hosting",
+    maxInstancesRequired: true,
+    recommendedMaxInstances: 1,
+    minInstancesAllowed: 0,
+    maxConcurrencyRecommended: 5,
+    cpuAlwaysAllocatedAllowed: false,
+    backingServices: ["vertex_ai", "storage", "firestore"],
+    costRisk: "critical",
+    notes: "AI routes need feature toggles, model budgets, request limits, and a one-instance recommendation.",
+  },
+  {
+    serviceName: "media-proxy-routes",
+    region: "us-central1",
+    runtimeSurface: "app_hosting",
+    maxInstancesRequired: true,
+    recommendedMaxInstances: 2,
+    minInstancesAllowed: 0,
+    maxConcurrencyRecommended: 20,
+    cpuAlwaysAllocatedAllowed: false,
+    backingServices: ["storage"],
+    costRisk: "high",
+    notes: "Media proxy and signed asset routes can create storage egress and must remain rate/byte bounded.",
+  },
+  {
+    serviceName: "scheduled-functions",
+    region: "us-central1",
+    runtimeSurface: "function",
+    maxInstancesRequired: true,
+    recommendedMaxInstances: 1,
+    minInstancesAllowed: 0,
+    maxConcurrencyRecommended: 1,
+    cpuAlwaysAllocatedAllowed: false,
+    backingServices: ["firestore", "bigquery"],
+    costRisk: "high",
+    notes: "Cron/materializer work must be idempotent and effectively single-runner.",
+  },
+  {
+    serviceName: "analytics-bigquery-export-function",
+    region: "us-central1",
+    runtimeSurface: "function",
+    maxInstancesRequired: true,
+    recommendedMaxInstances: 2,
+    minInstancesAllowed: 0,
+    maxConcurrencyRecommended: 10,
+    cpuAlwaysAllocatedAllowed: false,
+    backingServices: ["firestore", "bigquery"],
+    costRisk: "high",
+    notes: "Firestore-triggered BigQuery export must record heartbeat/failure and avoid unbounded retry storms.",
+  },
+  {
+    serviceName: "dataconnect-agent-context-mirror",
+    region: "us-central1",
+    runtimeSurface: "unknown",
+    maxInstancesRequired: true,
+    recommendedMaxInstances: 1,
+    minInstancesAllowed: 0,
+    maxConcurrencyRecommended: 10,
+    cpuAlwaysAllocatedAllowed: false,
+    backingServices: ["cloud_sql"],
+    costRisk: "high",
+    notes: "Data Connect is allowed only for the agent-context mirror unless explicitly promoted.",
+  },
+];
+
+export const ALLOWED_SQL_MIRROR_PATHS = [
+  "dataconnect/**",
+  "scripts/agent/sync-sql.ts",
+  "agent/state/sql-*.generated.json",
+] as const;
+
+export const FORBIDDEN_SQL_RUNTIME_PATHS = [
+  "src/app/api/**",
+  "src/app/api/paypal/**",
+  "src/app/api/drops/**",
+  "src/app/api/chat/**",
+  "src/app/api/support/**",
+  "src/app/api/admin/support/**",
+  "src/app/api/creator/bookings/**",
+  "src/app/api/creator/subscriptions/**",
+  "src/app/api/creator/requests/**",
+] as const;
+
+export const SQL_COST_SURFACES: SqlCostSurface[] = [
+  {
+    surface: "firebase_dataconnect",
+    instanceId: "kandydrops-db",
+    database: "kandydrops_db",
+    region: "us-central1",
+    allowedPurpose: "agent_context_mirror",
+    allowedPaths: [...ALLOWED_SQL_MIRROR_PATHS],
+    forbiddenPaths: [...FORBIDDEN_SQL_RUNTIME_PATHS],
+    maxRuntimeQueriesPerMinute: 0,
+    maxRowsPerOperation: 2_000,
+    maxConnectionsPerInstance: 100,
+    requiresManualApprovalForRuntimeUse: true,
+    notes: "Firebase Data Connect is Cloud SQL-backed and is only approved for the agent-context mirror in this repo.",
+  },
+  {
+    surface: "runtime_sql_client",
+    allowedPurpose: "forbidden",
+    allowedPaths: [],
+    forbiddenPaths: ["src/**", "functions/src/**", "scripts/**"],
+    maxRuntimeQueriesPerMinute: 0,
+    maxRowsPerOperation: 0,
+    maxConnectionsPerInstance: 0,
+    requiresManualApprovalForRuntimeUse: true,
+    notes: "Runtime SQL clients are forbidden unless a new owner-approved SQL cost contract is added.",
+  },
+];
+
+export const BIGQUERY_PIPELINE_CONTRACTS: BigQueryPipelineContract[] = [
+  {
+    pipelineName: "analytics_event_facts_to_bigquery_raw_events",
+    direction: "export",
+    source: "app_generated_json",
+    destination: "bigquery",
+    schedule: "cron",
+    expectedTables: ["kandydrops_canonical_analytics.raw_events"],
+    expectedPartitions: ["timestamp DAY"],
+    maxEventsPerDay: 1_000_000,
+    maxLoadJobsPerTablePerDay: 1_500,
+    validationRequired: true,
+    importBackToRuntimeAllowed: false,
+    notes: "Functions export first-party analytics event facts to BigQuery and must record analytics_export_status.",
+  },
+  {
+    pipelineName: "bigquery_runtime_imports",
+    direction: "import",
+    source: "unknown",
+    destination: "firestore",
+    schedule: "manual",
+    expectedTables: [],
+    maxLoadJobsPerTablePerDay: 0,
+    validationRequired: true,
+    importBackToRuntimeAllowed: false,
+    notes: "BigQuery import back into runtime state is blocked unless a dry-run, schema-validated, idempotent import contract is approved.",
+  },
+];

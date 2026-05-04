@@ -1,7 +1,7 @@
 {
   "score": 0,
   "status": "fail",
-  "generatedAt": "2026-05-04T07:33:32.013Z",
+  "generatedAt": "2026-05-04T08:28:31.637Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [
     {
@@ -1512,7 +1512,7 @@
       "category": "firestore",
       "title": "Non-admin Firestore listener lacks visible query limit",
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 629,
+      "line": 727,
       "excerpt": "if (!file.source.includes(\"onSnapshot(\")) continue;",
       "costClass": "firestore_listener",
       "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
@@ -1520,7 +1520,7 @@
       "evidence": [
         "onSnapshot("
       ],
-      "id": "google-cost-tjlt6v",
+      "id": "google-cost-pqxtu2",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -7207,6 +7207,132 @@
       "kind": "firebase-admin"
     },
     {
+      "filePath": "functions/src/analytics-bigquery-export.ts",
+      "line": 4,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-core.ts",
+      "line": 1,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-event-facts.ts",
+      "line": 2,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-guest-batches.ts",
+      "line": 2,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-realtime-summary.ts",
+      "line": 2,
+      "excerpt": "import {FieldValue, type QueryDocumentSnapshot} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-runtime.ts",
+      "line": 1,
+      "excerpt": "import {FieldValue, type Transaction, type WriteBatch} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-security-events.ts",
+      "line": 2,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-semantics.ts",
+      "line": 1,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-task-events.ts",
+      "line": 2,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-timeline.ts",
+      "line": 2,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-transactions.ts",
+      "line": 2,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-truth-cli.ts",
+      "line": 1,
+      "excerpt": "import {initializeApp, applicationDefault, getApps} from \"firebase-admin/app\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/analytics-truth-runtime.ts",
+      "line": 1,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/behavioral-intelligence-runtime.ts",
+      "line": 1,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/firebase-admin.ts",
+      "line": 1,
+      "excerpt": "import {App, getApps, initializeApp} from \"firebase-admin/app\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/orchestration-diagnostics.ts",
+      "line": 1,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/orchestration-engine.ts",
+      "line": 3,
+      "excerpt": "import {db} from \"./firebase-admin.js\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/orchestration-identity.ts",
+      "line": 1,
+      "excerpt": "import {db} from \"./firebase-admin.js\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/orchestration-runtime.ts",
+      "line": 1,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/queue-runtime.ts",
+      "line": 2,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "functions/src/runtime-warning-store.ts",
+      "line": 1,
+      "excerpt": "import {FieldValue} from \"firebase-admin/firestore\"",
+      "kind": "firebase-admin"
+    },
+    {
       "filePath": "scripts/agent/build-agent-indexes.ts",
       "line": 129,
       "excerpt": "combined.includes(\"RTDB\") || combined.includes(\"Data Connect\") ? { stable_id: toStableId(\"pitfall\", \"sidecar_truth_confusion\"), title: \"sidecar_truth_confusion\", description: \"Fallback, RTDB, or Data Connect sidecars can be mistaken for canonical serving truth when they are not current in-repo readers.\", symptom_pattern: \"Sidecar/export layers are treated as if they are the main product-serving analytics source.\", affected_surfaces: [\"src/lib/server/admin-analytics-shared.ts\", \"src/app/api/telemetry/track/route.ts\", \"functions/src/**\"], prevention_rule: \"Do not represent fallback or derived data as stronger truth than source truth.\", detection_hint: \"Check whether the candidate storage layer has a verified in-repo reader before treating it as canonical.\", related_commands: [\"npm run check:analytics-semantics\"], related_helpers: [\"src/lib/telemetry.ts\"], severity: \"high\", broad_work_relevance: true } : null,",
@@ -7256,67 +7382,67 @@
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 394,
+      "line": 402,
       "excerpt": "{ kind: \"firebase-admin\", needle: \"firebase-admin\" },",
       "kind": "firebase-admin"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 395,
+      "line": 403,
       "excerpt": "{ kind: \"firestore-client\", needle: \"firebase/firestore\" },",
       "kind": "firestore-client"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 396,
+      "line": 404,
       "excerpt": "{ kind: \"vertex-ai\", needle: \"@google-cloud/vertexai\" },",
       "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 397,
+      "line": 405,
       "excerpt": "{ kind: \"google-auth\", needle: \"google-auth-library\" },",
       "kind": "google-auth"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 398,
+      "line": 406,
       "excerpt": "{ kind: \"ga-data-api\", needle: \"@google-analytics/data\" },",
       "kind": "ga-data-api"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 399,
+      "line": 407,
       "excerpt": "{ kind: \"admin-storage\", needle: \"adminStorage\" },",
       "kind": "admin-storage"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 400,
+      "line": 408,
       "excerpt": "{ kind: \"data-connect\", needle: \"Data Connect\" },",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 401,
+      "line": 409,
       "excerpt": "{ kind: \"cloud-sql\", needle: \"Cloud SQL\" },",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 402,
+      "line": 410,
       "excerpt": "{ kind: \"postgres\", needle: \"postgres\" },",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 403,
+      "line": 411,
       "excerpt": "{ kind: \"prisma\", needle: \"PrismaClient\" },",
       "kind": "prisma"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 404,
+      "line": 412,
       "excerpt": "{ kind: \"mysql\", needle: \"mysql\" },",
       "kind": "mysql"
     },
@@ -7328,7 +7454,7 @@
     },
     {
       "filePath": "scripts/agent/validate-google-cost-bleed.ts",
-      "line": 282,
+      "line": 304,
       "excerpt": "\"Data Connect\",",
       "kind": "data-connect"
     },
@@ -7397,6 +7523,62 @@
       "line": 1,
       "excerpt": "import * as admin from \"firebase-admin\";",
       "kind": "firebase-admin"
+    },
+    {
+      "filePath": "agent/state/sql-mirror-status.generated.json",
+      "kind": "sql_dataconnect_agent_context_mirror",
+      "costClass": "sql_dataconnect_agent_context_mirror",
+      "classification": "sql_dataconnect_agent_context_mirror",
+      "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
+    },
+    {
+      "filePath": "agent/state/sql-sync.payload.generated.json",
+      "kind": "sql_dataconnect_agent_context_mirror",
+      "costClass": "sql_dataconnect_agent_context_mirror",
+      "classification": "sql_dataconnect_agent_context_mirror",
+      "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
+    },
+    {
+      "filePath": "dataconnect/dataconnect.yaml",
+      "kind": "sql_dataconnect_agent_context_mirror",
+      "costClass": "sql_dataconnect_agent_context_mirror",
+      "classification": "sql_dataconnect_agent_context_mirror",
+      "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
+    },
+    {
+      "filePath": "dataconnect/example/agent-context.gql",
+      "kind": "sql_dataconnect_agent_context_mirror",
+      "costClass": "sql_dataconnect_agent_context_mirror",
+      "classification": "sql_dataconnect_agent_context_mirror",
+      "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
+    },
+    {
+      "filePath": "dataconnect/example/connector.yaml",
+      "kind": "sql_dataconnect_agent_context_mirror",
+      "costClass": "sql_dataconnect_agent_context_mirror",
+      "classification": "sql_dataconnect_agent_context_mirror",
+      "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
+    },
+    {
+      "filePath": "dataconnect/schema/agent-context.gql",
+      "kind": "sql_dataconnect_agent_context_mirror",
+      "costClass": "sql_dataconnect_agent_context_mirror",
+      "classification": "sql_dataconnect_agent_context_mirror",
+      "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
+    },
+    {
+      "filePath": "dataconnect/schema/structured_profiles.gql",
+      "kind": "sql_dataconnect_agent_context_mirror",
+      "costClass": "sql_dataconnect_agent_context_mirror",
+      "classification": "sql_dataconnect_agent_context_mirror",
+      "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
+    },
+    {
+      "filePath": "scripts/agent/sync-sql.ts",
+      "kind": "sql_dataconnect_agent_context_mirror",
+      "costClass": "sql_dataconnect_agent_context_mirror",
+      "classification": "sql_dataconnect_agent_context_mirror",
+      "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
     }
   ],
   "requiredFixes": [

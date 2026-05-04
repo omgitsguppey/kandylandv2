@@ -1,6 +1,16 @@
 # Agent context mirror example document
 # This file exists so agent-context verification can prove the Data Connect mirror plane
 # has both a schema definition and a checked-in example/query document.
+# Classification: sql_dataconnect_agent_context_mirror.
+# Purpose: sample bounded agent-context mirror read for deterministic repo
+# intelligence verification.
+# Table/type touched: AgentTaskContextRun.
+# Expected rows: 5.
+# Max execution frequency: manual/agent verification only; never automatic in
+# user-facing builds or deploys.
+# Environments: dev/CI when explicitly invoked; production only with owner
+# approval. Runtime data: no user/payment/drop/chat/support/creator data.
+# Billing risk: low per call, but still Cloud SQL/Data Connect cost-bearing.
 
 query AgentContextMirrorStatus {
   agentTaskContextRuns(first: 5) {

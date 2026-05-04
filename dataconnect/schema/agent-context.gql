@@ -1,3 +1,18 @@
+# KandyDrops classification: sql_dataconnect_agent_context_mirror.
+# Purpose: mirror generated agent/repo intelligence JSON into Cloud SQL-backed
+# Firebase Data Connect tables for retrieval, never as runtime product truth.
+# Tables/types touched: AgentRepoInventory, AgentSurfaceMap,
+# AgentCanonicalHelper, AgentVerificationCommand, AgentKnowledgeRecord,
+# AgentTaskContextRun, AgentActiveTask, AgentHandoff, AgentRetrievalEdge.
+# Expected rows: bounded by generated agent/index artifacts; typically hundreds
+# to low thousands, derived from committed repo metadata.
+# Max execution frequency: manual/agent-triggered sync only through
+# scripts/agent/sync-sql.ts; not automatic during user-facing build/deploy.
+# Environments: allowed in dev/CI only when explicitly invoked; production Data
+# Connect deployment or sync requires owner approval.
+# Runtime data: must not touch user/payment/drop/chat/support/creator runtime
+# data. Billing risk: cost-bearing Cloud SQL/Data Connect mirror.
+
 type AgentRepoInventory @table(key: "stableId") {
   stableId: String!
   path: String!

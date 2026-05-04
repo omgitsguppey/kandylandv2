@@ -1,3 +1,11 @@
+# KandyDrops classification: sql_dataconnect_agent_context_mirror.
+# Purpose: checked-in Data Connect connector metadata for the agent-context
+# mirror only. It must not generate user-facing runtime clients or run during
+# user-facing builds/deploys unless explicitly approved.
+# Tables/types touched: agent-context mirror schema only.
+# Expected rows/frequency: follows manual scripts/agent/sync-sql.ts operation.
+# Runtime data: no user/payment/drop/chat/support/creator data.
+# Billing risk: Cloud SQL/Data Connect cost-bearing if deployed or queried.
 connectorId: "example"
 generate:
   javascriptSdk:

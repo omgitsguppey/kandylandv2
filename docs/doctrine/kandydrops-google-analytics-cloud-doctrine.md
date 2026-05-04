@@ -54,6 +54,28 @@ firebase dataconnect:sql:diff
 firebase deploy --only dataconnect
 ```
 
+## Data Connect Agent Mirror Boundary
+
+The repo includes Firebase Data Connect config at `dataconnect/dataconnect.yaml` for service `kandydrops` in `us-central1`, PostgreSQL database `kandydrops_db`, and Cloud SQL instance `kandydrops-db`. This surface is classified as `sql_dataconnect_agent_context_mirror` and is allowed only for agent/repo intelligence mirror infrastructure.
+
+Allowed files are `dataconnect/dataconnect.yaml`, `dataconnect/schema/*.gql`, `dataconnect/example/*`, `scripts/agent/sync-sql.ts`, `agent/state/sql-sync.payload.generated.json`, and `agent/state/sql-mirror-status.generated.json`.
+
+Rules:
+- Data Connect is forbidden for user, payment, Drop, chat, support, or creator runtime flows unless an explicit owner-approved SQL/Data Connect route contract exists.
+- Data Connect is forbidden inside `src/app/api` runtime routes unless the route has an `ApiCostContract` with SQL/Data Connect classification.
+- `agent:sync-sql` must not run automatically during user-facing builds or deploys.
+- New Data Connect operations must declare purpose, table/type touched, expected rows, max execution frequency, allowed environments, whether user/runtime data can be touched, and estimated billing risk.
+- Source config does not prove provider billing state. The current billing state for `kandydrops-db` is `source_configured_provider_state_unverified` until confirmed by an owner.
+
+## Cloud Cost And Pipeline Guardrails
+
+KandyDrops uses Firebase Data Connect with Cloud SQL only as an agent-context mirror unless explicitly promoted. Cloud Run max instances and concurrency must protect Cloud SQL and AI surfaces. BigQuery exports/imports must be validated, documented, and blocked from mutating runtime balances/transactions unless an explicit dry-run/idempotent import contract exists.
+
+- Cloud Run/App Hosting services that can trigger AI, media proxying, analytics rebuilds, admin refresh, cron, Data Connect, Cloud SQL, or BigQuery must have max-instance and concurrency guidance before launch.
+- Cloud SQL-backed Data Connect is cost-bearing twice: Data Connect operations and the Cloud SQL PostgreSQL instance. Provider-side instance state, tier, storage, backups, HA/read replicas, and budget alerts must be checked in Cloud Console before treating the mirror as cost-safe.
+- BigQuery export/import status must be explicit. Missing export config is `[unconfirmed]`, missing import safety is `[blocked]`, and BigQuery data must never overwrite GumDrops balances, transactions, unlocks, creator subscriptions, or support messages without manual approval.
+- The deterministic guardrail lane is `npm run score:cloud-cost` and `npm run check:cloud-cost`. It may suggest `gcloud run services update ...` commands as documentation, but agents must not execute `gcloud`, deploy, run BigQuery jobs, or deploy Data Connect from this lane.
+
 ## Admin Truth Rules
 - Admin analytics may render `[cached]` only for validated backend cache.
 - Admin analytics must render `[stale]` when the newest usable snapshot is older than the freshness budget.

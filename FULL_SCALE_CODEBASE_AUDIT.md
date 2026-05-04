@@ -1,5 +1,53 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #142] PRE: Cloud Run SQL BigQuery Guardrails
+
+Scope started:
+- Adding deterministic Cloud Run, Cloud SQL/Data Connect, and BigQuery export/import guardrails so provider cost surfaces and data pipelines cannot be treated as verified by silence.
+- Required outputs: `src/lib/server/cloud-cost-contract.ts`, `scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts`, `scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts`, `agent/state/cloudrun-sql-bigquery-guardrails.generated.json`, `docs/agent-truth/cloudrun-sql-bigquery-guardrails.md`, package scripts `score:cloud-cost` and `check:cloud-cost`, targeted verification, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full `npm run check`, `gcloud`, Firebase deploys, BigQuery jobs, Data Connect deploys, or provider mutations.
+
+Evidence:
+- Control tower routing, Google Analytics/Cloud doctrine, Data Connect config, App Hosting config, Firebase config, Functions BigQuery exporter, analytics inventory, SQL mirror artifacts, and existing Google cost guardrail lane were consulted.
+- Source confirms Firebase Data Connect service `kandydrops` in `us-central1`, PostgreSQL database `kandydrops_db`, and Cloud SQL instance `kandydrops-db`.
+
+Doctrine:
+- KandyDrops uses Firebase Data Connect with Cloud SQL only as an agent-context mirror unless explicitly promoted. Cloud Run max instances and concurrency must protect Cloud SQL and AI surfaces. BigQuery exports/imports must be validated, documented, and blocked from mutating runtime balances/transactions unless an explicit dry-run/idempotent import contract exists.
+
+Scope completed:
+- Added `src/lib/server/cloud-cost-contract.ts` with `CloudRunServiceGuardrail`, `SqlCostSurface`, and `BigQueryPipelineContract` definitions for App Hosting, admin refresh, AI, media proxy, cron/materializers, BigQuery export, and Data Connect mirror surfaces.
+- Added `scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts` and generated `agent/state/cloudrun-sql-bigquery-guardrails.generated.json` with Cloud Run, SQL/Data Connect, and BigQuery findings; recommended limits; manual Cloud Console checklist; allowed mirror paths; forbidden runtime paths; and explicit export/import statuses.
+- Added `scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts`, package scripts `score:cloud-cost` / `check:cloud-cost`, and source-of-truth docs.
+- Preserved the current runtime: no deployed Cloud Run/App Hosting settings, Data Connect deployment, BigQuery jobs, Firebase deploys, payment/auth/economy logic, or user-facing product behavior were changed.
+
+Verification:
+- `npm run score:cloud-cost` passed and wrote the generated report. Current score is 90/pass with one major finding: `dataconnect/schema/structured_profiles.gql` includes non-agent mirror Data Connect tables without runtime approval.
+- `npm run check:cloud-cost` passed.
+- `npm run typecheck` passed.
+- No Playwright, Lighthouse, Cypress, full `npm run check`, `gcloud`, Firebase deploy, BigQuery job, or Data Connect deploy was run.
+
+## [2026-05-04 #141] PRE/POST: Data Connect Agent Mirror Cost Classification
+
+Scope:
+- Corrected the Google cost-bleed audit model to treat Firebase Data Connect as present and cost-bearing rather than absent.
+- Classified `dataconnect/dataconnect.yaml`, `dataconnect/schema/*.gql`, `dataconnect/example/*`, `scripts/agent/sync-sql.ts`, `agent/state/sql-sync.payload.generated.json`, and `agent/state/sql-mirror-status.generated.json` as `sql_dataconnect_agent_context_mirror`.
+- Preserved the boundary that SQL/Data Connect is allowed only for agent/repo intelligence mirror infrastructure and remains forbidden for user, payment, Drop, chat, support, or creator runtime flows unless an explicit owner-approved `ApiCostContract` classifies the route.
+
+Evidence:
+- `dataconnect/dataconnect.yaml` declares Firebase Data Connect service `kandydrops` in `us-central1`, PostgreSQL database `kandydrops_db`, and Cloud SQL instance `kandydrops-db`.
+- Control tower routing, Google Analytics/Cloud doctrine, source-of-truth map, cost scorer/validator, Data Connect schema/example files, SQL sync script, generated SQL state artifacts, and existing Google cost docs were consulted.
+
+Implementation:
+- Added `sql_dataconnect_agent_context_mirror` as a first-class cost class.
+- Updated the Google cost scorer/validator to include the Data Connect mirror allowlist, classify mirror surfaces in generated cost reports, warn if provider billing state is undocumented, and keep runtime SQL/Data Connect findings critical outside approved paths.
+- Updated Data Connect config/schema/example comments, SQL mirror generated artifacts, source-of-truth docs, and doctrine to state that `kandydrops-db` billing/active/paused/deleted state is not provable from source and requires owner confirmation.
+
+Verification:
+- `npm run score:google-cost` passed and regenerated `agent/state/google-cost-bleed.generated.json` with the Data Connect agent mirror classified.
+- `npm run check:google-cost` passed.
+- `npm run typecheck` passed.
+- No Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, user runtime SQL, payment, auth, or product behavior changes are part of this pass.
+
 ## [2026-05-04 #140] PRE: Fan Pass Paid GumDrops Truth
 
 Scope started:

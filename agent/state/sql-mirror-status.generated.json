@@ -16,8 +16,18 @@
   "stable_id": "sqlstatus__2026-05-02-1777754482792",
   "syncRevision": "2026-05-02-1777754482792",
   "mirrorMode": "wired_dataconnect_schema",
+  "mirrorKind": "sql_dataconnect_agent_context_mirror",
+  "costClass": "sql_dataconnect_agent_context_mirror",
   "healthy": true,
   "repoTruthPrecedence": "repo_truth_wins_over_sql_mirror",
+  "allowedUse": "agent_repo_intelligence_mirror_only",
+  "runtimeUseForbidden": true,
+  "cloudSql": {
+    "location": "us-central1",
+    "database": "kandydrops_db",
+    "instanceId": "kandydrops-db",
+    "billingState": "source_configured_provider_state_unverified"
+  },
   "artifacts": {
     "agent/index/repo-inventory.json": {
       "sourcePath": "agent/index/repo-inventory.json",

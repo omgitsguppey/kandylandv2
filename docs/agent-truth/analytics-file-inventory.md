@@ -259,6 +259,9 @@ Legend:
 | `functions/src/index.ts` | Functions exports and schedules. | Materializers, exports, scheduled truth. | high | yes |
 | `functions/src/analytics-realtime-summary.ts` | Realtime summary materializer. | Hot cache snapshot for live admin display. | high | yes |
 | `functions/src/analytics-bigquery-export.ts` | BigQuery raw event exporter and heartbeat. | Warehouse export validation. | high | yes |
+| `src/lib/server/cloud-cost-contract.ts` | Cloud Run, Cloud SQL/Data Connect, and BigQuery guardrail contract. | Provider cost/data-pipeline guardrails. | high | audit |
+| `scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts` | Deterministic Cloud Run/SQL/BigQuery score generator. | Source-only cloud cost report. | high | audit |
+| `scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts` | Cloud cost guardrail validator. | No-provider-job validation. | high | audit |
 | `functions/src/analytics-event-facts.ts` | Event fact processing. | First-party ledger. | high | yes |
 | `functions/src/analytics-guest-batches.ts` | Guest batch processing. | Guest/public first-party facts. | high | yes |
 | `functions/src/analytics-core.ts` | Functions analytics shared core. | Event/source shaping. | high | yes |

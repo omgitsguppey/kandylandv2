@@ -18,9 +18,18 @@
     "dataconnect/example/agent-context.gql"
   ],
   "stable_id": "sqlsync__2026-05-02-1777754482792",
-  "mirrorKind": "firebase_dataconnect_secondary_truth",
+  "mirrorKind": "sql_dataconnect_agent_context_mirror",
+  "costClass": "sql_dataconnect_agent_context_mirror",
   "mirrorMode": "wired_dataconnect_schema",
   "repoTruthPrecedence": "repo_truth_wins_over_sql_mirror",
+  "allowedUse": "agent_repo_intelligence_mirror_only",
+  "runtimeUseForbidden": true,
+  "cloudSql": {
+    "location": "us-central1",
+    "database": "kandydrops_db",
+    "instanceId": "kandydrops-db",
+    "billingState": "source_configured_provider_state_unverified"
+  },
   "syncedAt": "2026-05-02T20:41:22.866Z",
   "syncRevision": "2026-05-02-1777754482792",
   "dataconnectSchemaFiles": [

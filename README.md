@@ -65,6 +65,11 @@ KandyDrops debug evidence is structured, fingerprinted, stored, and injected int
 ### Google Cost Bleed Score
 Google cost-bearing surfaces must be declared before use. Firestore, Storage, Google Analytics Data API, Vertex AI, Cloud Run/App Hosting, and any SQL/Data Connect runtime must have route-level cost contracts, budget guards, bounded rate limits, cache policies, and debug evidence. The app must fail audits before it surprises billing.
 
+Firebase Data Connect is present as `sql_dataconnect_agent_context_mirror`: `dataconnect/dataconnect.yaml` targets Cloud SQL instance `kandydrops-db` and PostgreSQL database `kandydrops_db` in `us-central1`. This allowed-but-cost-bearing SQL surface is for agent/repo intelligence mirror infrastructure only. It is forbidden for user, payment, Drop, chat, support, or creator runtime flows unless an explicit SQL/Data Connect `ApiCostContract` approves that route, and `agent:sync-sql` must not run automatically during user-facing builds or deploys.
+
+### Cloud Run SQL BigQuery Guardrails
+KandyDrops uses Firebase Data Connect with Cloud SQL only as an agent-context mirror unless explicitly promoted. Cloud Run max instances and concurrency must protect Cloud SQL and AI surfaces. BigQuery exports/imports must be validated, documented, and blocked from mutating runtime balances/transactions unless an explicit dry-run/idempotent import contract exists. Use `npm run score:cloud-cost` and `npm run check:cloud-cost`; do not execute `gcloud`, deploy Data Connect, deploy Firebase, or run BigQuery jobs from this source-only lane.
+
 ### Mobile Guest Home Hero Shell
 The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.
 

@@ -280,6 +280,14 @@ Clean generated noise before completion:
 
 The Data Connect / SQL mirror is a derived retrieval plane over generated local truth. It never outranks repo truth, verified code, or verified configuration. If the mirror is stale or unavailable, use `/agent/index/*` and regenerate locally.
 
+Classify `dataconnect/dataconnect.yaml`, `dataconnect/schema/*.gql`, `dataconnect/example/*`, `scripts/agent/sync-sql.ts`, `agent/state/sql-sync.payload.generated.json`, and `agent/state/sql-mirror-status.generated.json` as `sql_dataconnect_agent_context_mirror`. The config targets Cloud SQL instance `kandydrops-db` and PostgreSQL database `kandydrops_db` in `us-central1`; provider billing state is not proven from source. This surface is allowed only for agent/repo intelligence mirror use and is forbidden for user/payment/Drop/chat/support/creator runtime flows unless an explicit SQL/Data Connect `ApiCostContract` approves the route. `agent:sync-sql` must not run automatically during user-facing builds or deploys.
+
+## Cloud Run, SQL, BigQuery Guardrails
+
+KandyDrops uses Firebase Data Connect with Cloud SQL only as an agent-context mirror unless explicitly promoted. Cloud Run max instances and concurrency must protect Cloud SQL and AI surfaces. BigQuery exports/imports must be validated, documented, and blocked from mutating runtime balances/transactions unless an explicit dry-run/idempotent import contract exists.
+
+Use `npm run score:cloud-cost` and `npm run check:cloud-cost` for this deterministic lane. Do not run `gcloud`, `firebase deploy`, BigQuery jobs, Data Connect deploys, Playwright, Lighthouse, Cypress, or full `npm run check` for this source-only guardrail unless a human explicitly promotes the task.
+
 ## Git Push
 
 Remote repo: `https://github.com/omgitsguppey/kandylandv2.git`

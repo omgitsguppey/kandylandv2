@@ -1,3 +1,10 @@
+# KandyDrops classification: sql_dataconnect_agent_context_mirror.
+# Allowed use: agent/repo intelligence mirror only. This Cloud SQL-backed Data
+# Connect service must not be used by user, payment, Drop, chat, support, or
+# creator runtime flows unless an explicit ApiCostContract approves that route.
+# Billing note: source config targets Cloud SQL instance kandydrops-db,
+# PostgreSQL database kandydrops_db in us-central1. Provider-side active/paused/
+# deleted/billed state is not proven by this repo and requires owner confirmation.
 specVersion: "v1alpha"
 serviceId: "kandydrops"
 location: "us-central1"

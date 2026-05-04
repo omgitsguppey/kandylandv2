@@ -16,6 +16,7 @@ type GoogleCostCategory =
   | "ga_quota"
   | "firestore"
   | "storage_egress"
+  | "sql_dataconnect_agent_context_mirror"
   | "sql_forbidden"
   | "cloud_run_compute"
   | "rate_limit"
@@ -56,6 +57,9 @@ type SuspectedCostSurface = {
   line?: number;
   excerpt?: string;
   kind: string;
+  costClass?: ApiCostClass;
+  classification?: string;
+  notes?: string;
 };
 
 type GoogleCostBleedReport = {
@@ -136,6 +140,10 @@ function readIfExists(relativePath: string) {
   const absolutePath = repoPath(relativePath);
   if (!existsSync(absolutePath)) return null;
   return readFileSync(absolutePath, "utf8");
+}
+
+function listFilesIfExists(startDir: string, extensions?: Set<string>) {
+  return walkFiles(startDir, extensions);
 }
 
 function walkFiles(startDir: string, extensions = sourceExtensions) {
@@ -419,6 +427,96 @@ function collectSuspectedCostSurfaces(files: SourceFile[]) {
   return surfaces;
 }
 
+function collectAllowedDataConnectMirrorFiles() {
+  const files = new Set<string>();
+  if (existsSync(repoPath("dataconnect/dataconnect.yaml"))) {
+    files.add("dataconnect/dataconnect.yaml");
+  }
+  for (const filePath of listFilesIfExists("dataconnect/schema", new Set([".gql"]))) {
+    files.add(filePath);
+  }
+  for (const filePath of listFilesIfExists("dataconnect/example", new Set([".gql", ".yaml", ".yml"]))) {
+    files.add(filePath);
+  }
+  if (existsSync(repoPath("scripts/agent/sync-sql.ts"))) {
+    files.add("scripts/agent/sync-sql.ts");
+  }
+  for (const filePath of [
+    "agent/state/sql-sync.payload.generated.json",
+    "agent/state/sql-mirror-status.generated.json",
+  ]) {
+    if (existsSync(repoPath(filePath))) {
+      files.add(filePath);
+    }
+  }
+  return Array.from(files).sort();
+}
+
+function collectDataConnectMirrorSurfaces() {
+  return collectAllowedDataConnectMirrorFiles().map((filePath) => ({
+    filePath,
+    kind: "sql_dataconnect_agent_context_mirror",
+    costClass: "sql_dataconnect_agent_context_mirror" as const,
+    classification: "sql_dataconnect_agent_context_mirror",
+    notes: "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved.",
+  }));
+}
+
+function docsExplainDataConnectBillingState() {
+  const docs = [
+    readIfExists("docs/agent-truth/google-cost-bleed.md") ?? "",
+    readIfExists("README.md") ?? "",
+    readIfExists("REPO_MEMORY_LEDGER.md") ?? "",
+    readIfExists("EVERY_FILE_FUNCTION_CHECKLIST.md") ?? "",
+    readIfExists("AGENTS.md") ?? "",
+  ].join("\n");
+  return (
+    docs.includes("kandydrops-db") &&
+    docs.includes("kandydrops_db") &&
+    /active|paused|deleted|billed|billing/iu.test(docs)
+  );
+}
+
+function scanDataConnectMirror(findings: GoogleCostFinding[]) {
+  const config = readIfExists("dataconnect/dataconnect.yaml");
+  if (!config) return;
+
+  const expectedConfig = [
+    'location: "us-central1"',
+    'database: "kandydrops_db"',
+    'instanceId: "kandydrops-db"',
+  ];
+  for (const expected of expectedConfig) {
+    if (!config.includes(expected)) {
+      addFinding(findings, {
+        severity: "major",
+        category: "sql_dataconnect_agent_context_mirror",
+        title: "Data Connect agent mirror config drifted from declared Cloud SQL target",
+        filePath: "dataconnect/dataconnect.yaml",
+        line: lineOf(config, expected.split(":")[0]),
+        excerpt: excerptOf(config, expected.split(":")[0]),
+        costClass: "sql_dataconnect_agent_context_mirror",
+        suggestedFix: "Update the agent mirror classification and billing doctrine before changing the Data Connect service, database, region, or Cloud SQL instance.",
+        escalation: "Cloud SQL target changes are cost-bearing Firebase architecture and need owner approval.",
+        evidence: [expected],
+      });
+    }
+  }
+
+  if (!docsExplainDataConnectBillingState()) {
+    addFinding(findings, {
+      severity: "moderate",
+      category: "sql_dataconnect_agent_context_mirror",
+      title: "Data Connect config exists without documented Cloud SQL billing state",
+      filePath: "dataconnect/dataconnect.yaml",
+      costClass: "sql_dataconnect_agent_context_mirror",
+      suggestedFix: "Document whether Cloud SQL instance kandydrops-db is active, paused, deleted, or otherwise billed before treating the mirror as cost-safe.",
+      escalation: "Provider-side billing state cannot be proven from source alone; an owner must confirm it.",
+      evidence: ["kandydrops-db", "kandydrops_db", "us-central1"],
+    });
+  }
+}
+
 function scanAiSurfaces(findings: GoogleCostFinding[], routes: RouteSummary[], files: SourceFile[]) {
   const aiRoutes = routes.filter((route) => route.routePath.startsWith("/api/admin/ai/") || route.routePath.startsWith("/api/admin/debug/assistant"));
   const aiHelperFiles = files.filter((file) =>
@@ -697,38 +795,48 @@ function scanStorageRisks(findings: GoogleCostFinding[], routes: RouteSummary[],
   }
 }
 
-function scanSqlRuntime(findings: GoogleCostFinding[], files: SourceFile[]) {
+function scanSqlRuntime(findings: GoogleCostFinding[], files: SourceFile[], routes: RouteSummary[]) {
   const runtimeSqlPatterns = [
-    "@prisma/client",
-    "PrismaClient",
-    "process.env.DATABASE_URL",
-    "process.env.POSTGRES",
-    "process.env.CLOUD_SQL",
-    "process.env.DATA_CONNECT",
-    "from \"pg\"",
-    "from 'pg'",
-    "from \"mysql",
-    "from 'mysql",
-    "createPool(",
+    { label: "@prisma/client", pattern: /from\s+["']@prisma\/client["']|require\(["']@prisma\/client["']\)/u },
+    { label: "PrismaClient", pattern: /new\s+PrismaClient\s*\(/u },
+    { label: "@firebase/data-connect", pattern: /from\s+["']@firebase\/data-connect["']|require\(["']@firebase\/data-connect["']\)/u },
+    { label: "@firebasegen/", pattern: /from\s+["']@firebasegen\//u },
+    { label: "dataconnect-generated import", pattern: /from\s+["'][^"']*(?:dataconnect-generated|dataconnect-admin-generated)/u },
+    { label: "process.env.POSTGRES", pattern: /process\.env\.POSTGRES/u },
+    { label: "process.env.CLOUD_SQL", pattern: /process\.env\.CLOUD_SQL/u },
+    { label: "process.env.DATA_CONNECT", pattern: /process\.env\.DATA_CONNECT/u },
+    { label: "pg client import", pattern: /from\s+["']pg["']|require\(["']pg["']\)/u },
+    { label: "mysql client import", pattern: /from\s+["']mysql[^"']*["']|require\(["']mysql[^"']*["']\)/u },
+    { label: "createPool(", pattern: /\bcreatePool\s*\(/u },
   ];
 
   for (const file of files) {
-    const isAllowedMirror = file.filePath === "scripts/agent/sync-sql.ts";
+    const route = routes.find((candidate) => candidate.filePath === file.filePath);
+    const routeHasSqlContract = route?.contract?.costClass === "sql_dataconnect_agent_context_mirror";
+    const isAllowedMirror =
+      file.filePath.startsWith("dataconnect/") ||
+      file.filePath === "src/lib/server/api-cost-contract.ts" ||
+      file.filePath === "scripts/agent/score-google-cost-bleed.ts" ||
+      file.filePath === "scripts/agent/sync-sql.ts" ||
+      file.filePath === "agent/state/sql-sync.payload.generated.json" ||
+      file.filePath === "agent/state/sql-mirror-status.generated.json" ||
+      routeHasSqlContract;
     if (isAllowedMirror) continue;
-    if (!file.filePath.startsWith("src/")) continue;
-    const matched = runtimeSqlPatterns.find((pattern) => file.source.includes(pattern));
+    const matched = runtimeSqlPatterns.find((candidate) => candidate.pattern.test(file.source));
     if (!matched) continue;
+    const matchText = file.source.match(matched.pattern)?.[0] ?? matched.label;
     addFinding(findings, {
       severity: "critical",
       category: "sql_forbidden",
       title: "Runtime SQL/Data Connect usage is present without an approved cost contract",
       filePath: file.filePath,
-      line: lineOf(file.source, matched),
-      excerpt: excerptOf(file.source, matched),
+      line: lineOf(file.source, matchText),
+      excerpt: excerptOf(file.source, matchText),
       costClass: "sql_forbidden",
-      suggestedFix: "Remove runtime SQL usage or create an explicit owner-approved SQL route contract before use.",
-      escalation: "Runtime SQL/Data Connect is forbidden by default because it adds a new billing plane.",
-      evidence: [matched],
+      routePath: route?.routePath,
+      suggestedFix: "Remove runtime SQL/Data Connect usage or create an explicit owner-approved SQL/Data Connect route contract before use.",
+      escalation: "SQL/Data Connect is allowed only for the agent-context mirror by default because Cloud SQL adds a cost-bearing plane.",
+      evidence: [matched.label],
     });
   }
 }
@@ -769,15 +877,19 @@ function scanCloudRun(findings: GoogleCostFinding[], routes: RouteSummary[]) {
 function buildReport(): GoogleCostBleedReport {
   const findings: GoogleCostFinding[] = [];
   const routes = buildRouteSummaries();
-  const sourceFiles = readSourceFiles([...walkFiles("src"), ...walkFiles("scripts")]);
-  const suspectedCostSurfaces = collectSuspectedCostSurfaces(sourceFiles);
+  const sourceFiles = readSourceFiles([...walkFiles("src"), ...walkFiles("functions/src"), ...walkFiles("scripts")]);
+  const suspectedCostSurfaces = [
+    ...collectSuspectedCostSurfaces(sourceFiles),
+    ...collectDataConnectMirrorSurfaces(),
+  ];
 
   scanRouteContracts(findings, routes);
   scanAiSurfaces(findings, routes, sourceFiles);
   scanGaSurfaces(findings, routes, sourceFiles);
   scanFirestoreRisks(findings, routes, sourceFiles);
   scanStorageRisks(findings, routes, sourceFiles);
-  scanSqlRuntime(findings, sourceFiles);
+  scanDataConnectMirror(findings);
+  scanSqlRuntime(findings, sourceFiles, routes);
   scanCloudRun(findings, routes);
 
   const criticalCount = findings.filter((finding) => finding.severity === "critical").length;

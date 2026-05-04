@@ -69,6 +69,7 @@ const costClasses = [
   "storage_egress",
   "ga_quota",
   "ai_paid",
+  "sql_dataconnect_agent_context_mirror",
   "sql_forbidden",
   "cloud_run_compute",
   "payment_sensitive",
@@ -83,6 +84,7 @@ const categories = [
   "ga_quota",
   "firestore",
   "storage_egress",
+  "sql_dataconnect_agent_context_mirror",
   "sql_forbidden",
   "cloud_run_compute",
   "rate_limit",
@@ -212,6 +214,21 @@ if (report) {
   }
   if (!Array.isArray(report.suspectedCostSurfaces) || report.suspectedCostSurfaces.length === 0) {
     failures.push("suspectedCostSurfaces must record Google/Firebase/SQL cost-bearing imports/usages.");
+  } else {
+    const json = JSON.stringify(report.suspectedCostSurfaces);
+    for (const expected of [
+      "sql_dataconnect_agent_context_mirror",
+      "dataconnect/dataconnect.yaml",
+      "dataconnect/schema/agent-context.gql",
+      "dataconnect/example/agent-context.gql",
+      "scripts/agent/sync-sql.ts",
+      "agent/state/sql-sync.payload.generated.json",
+      "agent/state/sql-mirror-status.generated.json",
+    ]) {
+      if (!json.includes(expected)) {
+        failures.push(`suspectedCostSurfaces must classify ${expected}.`);
+      }
+    }
   }
   for (const command of ["npm run score:google-cost", "npm run check:google-cost"]) {
     if (!report.minimalVerificationCommands?.includes(command)) {
@@ -258,6 +275,7 @@ for (const expected of [
   "storage_egress",
   "ga_quota",
   "ai_paid",
+  "sql_dataconnect_agent_context_mirror",
   "sql_forbidden",
   "cloud_run_compute",
   "payment_sensitive",
@@ -275,14 +293,29 @@ for (const expected of [
   "scanGaSurfaces",
   "scanFirestoreRisks",
   "scanStorageRisks",
+  "scanDataConnectMirror",
   "scanSqlRuntime",
   "scanCloudRun",
   "returnPropertyQuota",
   "MEDIA_PROXY",
+  "sql_dataconnect_agent_context_mirror",
+  "kandydrops-db",
+  "kandydrops_db",
   "Data Connect",
   "agent/state/google-cost-bleed.generated.json",
 ]) {
   requireIncludes(scorer, expected, "Google cost scorer");
+}
+
+for (const expected of [
+  "dataconnect/dataconnect.yaml",
+  "dataconnect/schema",
+  "dataconnect/example",
+  "scripts/agent/sync-sql.ts",
+  "agent/state/sql-sync.payload.generated.json",
+  "agent/state/sql-mirror-status.generated.json",
+]) {
+  requireIncludes(scorer, expected, "Data Connect agent mirror allowlist");
 }
 
 requireNotIncludes(scorer, "node:child_process", "Google cost audit default path");
@@ -302,6 +335,10 @@ for (const [label, source] of [
 
 for (const expected of [
   "Firestore, Storage, Google Analytics Data API, Vertex AI, Cloud Run/App Hosting, and any SQL/Data Connect runtime",
+  "sql_dataconnect_agent_context_mirror",
+  "kandydrops-db",
+  "kandydrops_db",
+  "source_configured_provider_state_unverified",
   "The app must fail audits before it surprises billing.",
   "score:google-cost",
   "check:google-cost",
