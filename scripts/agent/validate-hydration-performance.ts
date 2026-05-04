@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
+    HYDRATION_PERFORMANCE_LANES,
     HYDRATION_PERFORMANCE_REPORT_PATH,
     type HydrationPerformanceFinding,
     type HydrationPerformanceReport,
@@ -91,6 +92,15 @@ if (report) {
     } else {
         report.findings.forEach(validateFinding);
     }
+    if (!Array.isArray(report.hydrationLanes)) {
+        failures.push("hydrationLanes must be an array.");
+    } else {
+        for (const lane of HYDRATION_PERFORMANCE_LANES) {
+            if (!report.hydrationLanes.includes(lane)) {
+                failures.push(`hydrationLanes must include ${lane}.`);
+            }
+        }
+    }
     requireNumber(report.safeAutofixesAvailable, "safeAutofixesAvailable", 0, 10_000);
     if (typeof report.summary !== "string" || report.summary.trim().length === 0) {
         failures.push("summary must be a non-empty string.");
@@ -132,6 +142,7 @@ for (const expected of [
     "collectHydrationPerformanceFindings",
     "CoreLayoutWrapper dynamic modules are staged",
     "forbidRegex",
+    "HYDRATION_PERFORMANCE_LANES",
     "IMMEDIATE_IDENTIFIED_EVENT_NAMES",
     "Forbidden default commands: Playwright, Lighthouse, Cypress",
 ]) {
@@ -150,9 +161,18 @@ for (const expected of [
     "afterPaintLaneReady",
     "idleLaneReady",
     "interactionOpenedLaneReady",
+    "adminOnly",
+    "routeOnly",
     "const PayPalProvider = dynamic",
+    "const PwaRuntimeBridge = dynamic",
+    "const ClientDiagnosticsBridge = dynamic",
     "const CookieBanner = dynamic",
     "data-hydration-lane=\"critical\"",
+    "data-hydration-lane=\"after-paint\"><ClientDiagnosticsBridge />",
+    "data-hydration-lane=\"after-paint\"><NotificationRuntimeBridge />",
+    "data-hydration-lane=\"idle\"><PwaRuntimeBridge />",
+    "data-hydration-lane=\"idle\"><GlobalBugReportTrigger />",
+    "data-hydration-lane=\"idle\"><CookieBanner />",
     "data-client-hydration-optimized=\"true\"",
     "data-telemetry-critical-path=\"connected\"",
     "data-privacy-consent-hydration=\"preserved\"",

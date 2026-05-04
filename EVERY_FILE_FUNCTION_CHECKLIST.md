@@ -36,7 +36,7 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 - [x] `src/components/CoreLayoutWrapper.tsx` owns critical, after-paint, idle, interaction-opened, admin-only, and route-only hydration lanes; auth/purchase/PayPal modal UI and cookie UI load dynamically outside the critical shell.
 - [x] `src/components/Analytics/CSPostHogProvider.tsx` keeps PostHog dynamic, post-paint, and privacy-consent-gated without disconnecting route pageview truth.
 - [x] `src/app/HomeClient.tsx`, `src/components/Landing/DeferredHomeDropTicker.tsx`, and `src/components/Landing/DeferredHomeActiveDropsCarousel.tsx` defer homepage diagnostics and below-fold motion modules while preserving server-seeded homepage data and Hero CTA interactivity.
-- [x] `src/lib/hydration-performance-score.ts`, `scripts/agent/score-hydration-performance.ts`, `scripts/agent/validate-hydration-performance.ts`, `agent/state/hydration-performance.generated.json`, and `docs/agent-truth/hydration-performance.md` provide the deterministic source-only hydration scoring and validation lane.
+- [x] `src/lib/hydration-performance-score.ts`, `scripts/agent/score-hydration-performance.ts`, `scripts/agent/validate-hydration-performance.ts`, `agent/state/hydration-performance.generated.json`, and `docs/agent-truth/hydration-performance.md` provide the deterministic source-only hydration scoring and validation lane, including the `critical`, `afterPaint`, `idle`, `interactionOpened`, `adminOnly`, and `routeOnly` lane report contract.
 
 ## 2026-05-04 Device Layout Contract Coverage
 

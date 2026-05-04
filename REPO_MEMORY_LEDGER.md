@@ -18,7 +18,7 @@ KandyDrops ast-grep rules are deterministic source guardrails. They catch forbid
 
 ## 2026-05-04 Hydration performance lanes
 
-KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces. `CoreLayoutWrapper` owns the shell lanes, `HomeClient` owns idle homepage diagnostics, and `npm run score:hydration` plus `npm run check:hydration-performance` provide the deterministic source-only validation lane.
+KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces. `CoreLayoutWrapper` owns the `critical`, `afterPaint`, `idle`, `interactionOpened`, `adminOnly`, and `routeOnly` lane contract, `HomeClient` owns idle homepage diagnostics, and `npm run score:hydration` plus `npm run check:hydration-performance` provide the deterministic source-only validation lane.
 
 ## 2026-05-04 Device layout score and safe repair
 

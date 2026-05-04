@@ -11,6 +11,8 @@ KandyDrops hydration uses staged priority lanes. Critical shell and first action
 - `adminOnly`: admin surfaces may keep their own truth and debugging requirements, but public shell overlays must not block them.
 - `routeOnly`: route-specific heavy modules stay outside the global shell unless the route owns them.
 
+The generated score report includes these six lanes in `hydrationLanes` so agents can verify the classification without browser audits.
+
 ## Homepage Contract
 
 The homepage keeps server-seeded drops and creator discovery data in `src/app/page.tsx`. Hero and `HomeHeroActions` remain in the critical path so guest signup and authenticated dashboard routing stay responsive. `HomeDropTicker`, `HomeActiveDropsCarousel`, and `HomepageRuntimeDiagnostics` are deferred through lightweight client wrappers so below-fold motion and diagnostics do not compete with first interaction.
@@ -24,5 +26,7 @@ The homepage keeps server-seeded drops and creator discovery data in `src/app/pa
 - `npm run score:hydration` writes `agent/state/hydration-performance.generated.json`.
 - `npm run check:hydration-performance` validates the source contract, generated report, docs, package scripts, telemetry truth, privacy truth, homepage staging, and no broad browser-audit dependency.
 - `npm run typecheck -- --pretty false` is the smallest TypeScript signoff when hydration source files change.
+
+The scorer flags eager modal/overlay imports, global overlays or bridges outside after-paint/idle lanes, duplicate first-paint homepage fetches, removed telemetry/privacy gates, early PWA runtime loading, and polling or `setInterval` in the global shell path.
 
 Forbidden default validation for this lane: Playwright, Lighthouse, Cypress, full `npm run check`, and broad UI audit marathons.

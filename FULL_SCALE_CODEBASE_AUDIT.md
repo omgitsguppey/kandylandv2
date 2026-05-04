@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #133] PRE: Hydration Performance Scoring
+
+Scope started:
+- Creating/refining the deterministic hydration performance score for staged client load, shell responsiveness, telemetry truth, privacy consent truth, diagnostics, PWA/runtime bridge staging, and no-polling source checks.
+- Required outputs: `scripts/agent/score-hydration-performance.ts`, `scripts/agent/validate-hydration-performance.ts`, `agent/state/hydration-performance.generated.json`, `docs/agent-truth/hydration-performance.md`, package scripts `score:hydration` and `check:hydration-performance`, targeted verification, commit, and push.
+- This pass must not run Lighthouse, Playwright, Cypress, full `npm run check`, broad UI audits, or browser automation, and must not disconnect telemetry, privacy consent, parity truth, diagnostics, or runtime tracking.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, banned-pattern doctrine, source-of-truth map, full governance files, current git status, React/Next performance guidance, and adjacency trace for the hydration score files were consulted.
+- The hydration score helper, scripts, docs, generated artifact, and package scripts already exist; this pass will harden lane coverage and explicit overlay/PWA staging checks before refreshing the generated report.
+
+Doctrine:
+- KandyDrops hydration performance scoring is deterministic and source-only. It classifies critical, after-paint, idle, interaction-opened, admin-only, and route-only lanes while preserving telemetry/session/privacy truth and escalating risky runtime decisions instead of using broad browser audits.
+
+Scope completed:
+- Updated `src/lib/hydration-performance-score.ts` to expose `hydrationLanes` in the generated report and explicitly classify `critical`, `afterPaint`, `idle`, `interactionOpened`, `adminOnly`, and `routeOnly`.
+- Hardened source checks for dynamic modal/overlay imports, after-paint diagnostics/notification/task/debug bridges, idle PWA/cookie/bug-report overlays, homepage server seeding, telemetry truth, privacy consent truth, and no polling or `100vh` in global shell hydration files.
+- Updated `scripts/agent/validate-hydration-performance.ts`, hydration doctrine, memory, checklist, and refreshed `agent/state/hydration-performance.generated.json`.
+- Confirmed package scripts `score:hydration` and `check:hydration-performance` already exist.
+
+Verification:
+- `npm run score:hydration` passed with `100/100` clean status, no findings, and lane coverage in the generated report.
+- `npm run check:hydration-performance` passed.
+- As requested, this pass did not run Lighthouse, Playwright, Cypress, full `npm run check`, broad UI audits, or browser automation.
+
+Residual risk:
+- This lane is deterministic source scoring only. Real Core Web Vitals, LCP, INP, browser module timing, and visual runtime behavior remain separate runtime verification concerns when explicitly escalated.
+
 ## [2026-05-04 #132] PRE: Safe Deterministic Layout Repair
 
 Scope started:

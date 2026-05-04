@@ -14,6 +14,14 @@ export type HydrationPerformanceCategory =
     | "critical_ui"
     | "viewport";
 
+export type HydrationLane =
+    | "critical"
+    | "afterPaint"
+    | "idle"
+    | "interactionOpened"
+    | "adminOnly"
+    | "routeOnly";
+
 export type HydrationPerformanceFinding = {
     id: string;
     severity: HydrationPerformanceSeverity;
@@ -32,6 +40,7 @@ export type HydrationPerformanceReport = {
     status: "clean" | "pass" | "warning" | "beta-risk" | "fail";
     generatedAt: string;
     repoRoot: string;
+    hydrationLanes: HydrationLane[];
     findings: HydrationPerformanceFinding[];
     safeAutofixesAvailable: number;
     summary: string;
@@ -45,6 +54,15 @@ type SourceFile = {
 type FindingInput = Omit<HydrationPerformanceFinding, "id" | "scoreImpact">;
 
 export const HYDRATION_PERFORMANCE_REPORT_PATH = "agent/state/hydration-performance.generated.json";
+
+export const HYDRATION_PERFORMANCE_LANES = [
+    "critical",
+    "afterPaint",
+    "idle",
+    "interactionOpened",
+    "adminOnly",
+    "routeOnly",
+] as const satisfies readonly HydrationLane[];
 
 // CoreLayoutWrapper dynamic modules are staged by source-only checks in this scorer.
 const severityImpact: Record<HydrationPerformanceSeverity, number> = {
@@ -249,6 +267,11 @@ export function collectHydrationPerformanceFindings(root = process.cwd()) {
         "const CookieBanner = dynamic",
         "const GlobalPurchaseModal = dynamic",
         "const GlobalAuthModal = dynamic",
+        "const PwaRuntimeBridge = dynamic",
+        "const NotificationRuntimeBridge = dynamic",
+        "const ClientDiagnosticsBridge = dynamic",
+        "const GlobalBugReportTrigger = dynamic",
+        "const TaskGuidanceBanner = dynamic",
     ]) {
         requireText(
             findings,
@@ -261,11 +284,64 @@ export function collectHydrationPerformanceFindings(root = process.cwd()) {
         );
     }
 
+    for (const [expected, title, severity] of [
+        [
+            "data-hydration-lane=\"after-paint\"><ClientDiagnosticsBridge />",
+            "Client diagnostics bridge must load after paint",
+            "major",
+        ],
+        [
+            "data-hydration-lane=\"after-paint\"><NotificationRuntimeBridge />",
+            "Notification runtime bridge must load after paint",
+            "major",
+        ],
+        [
+            "data-hydration-lane=\"after-paint\"><TaskGuidanceBanner />",
+            "Task guidance banner must load after paint",
+            "moderate",
+        ],
+        [
+            "data-hydration-lane=\"idle\"><PwaRuntimeBridge />",
+            "PWA runtime bridge must load in the idle lane",
+            "major",
+        ],
+        [
+            "data-hydration-lane=\"idle\"><GlobalBugReportTrigger />",
+            "Bug report trigger must load in the idle lane",
+            "moderate",
+        ],
+        [
+            "data-hydration-lane=\"idle\"><CookieBanner />",
+            "Cookie banner must load in the idle lane",
+            "moderate",
+        ],
+        [
+            "data-hydration-lane=\"after-paint\"><DebugBreakpoints />",
+            "Debug breakpoints must load after paint",
+            "moderate",
+        ],
+    ] as const) {
+        requireText(
+            findings,
+            core,
+            expected,
+            title,
+            "shell_lane",
+            severity,
+            "Global overlays, diagnostics, notification bridges, PWA enhancement, and debug UI must not compete with critical shell hydration.",
+        );
+    }
+
     for (const forbidden of [
         "import { PayPalProvider } from \"@/components/PayPalProvider\"",
         "import CookieBanner from \"@/components/CookieBanner\"",
         "import { GlobalPurchaseModal } from \"@/components/GlobalPurchaseModal\"",
         "import { GlobalAuthModal } from \"@/components/GlobalAuthModal\"",
+        "import { PwaRuntimeBridge } from \"@/components/PwaRuntimeBridge\"",
+        "import { NotificationRuntimeBridge } from \"@/components/Notifications/NotificationRuntimeBridge\"",
+        "import { ClientDiagnosticsBridge } from \"@/components/ClientDiagnosticsBridge\"",
+        "import { GlobalBugReportTrigger } from \"@/components/Feedback/GlobalBugReportTrigger\"",
+        "import { TaskGuidanceBanner } from \"@/components/Dashboard/TaskGuidanceBanner\"",
     ]) {
         forbidText(
             findings,
@@ -518,6 +594,7 @@ export function buildHydrationPerformanceReport(options: { root?: string; genera
         status,
         generatedAt: options.generatedAt ?? new Date().toISOString(),
         repoRoot: root,
+        hydrationLanes: [...HYDRATION_PERFORMANCE_LANES],
         findings,
         safeAutofixesAvailable,
         summary: findings.length === 0
