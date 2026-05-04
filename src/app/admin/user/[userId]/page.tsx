@@ -410,6 +410,14 @@ export default function AdminUserAnalyticsPage() {
     const behaviorRollup = analytics?.behaviorRollup;
     const actionLedger = analytics?.actionLedger ?? [];
     const behaviorIssueSummary = behaviorRollup?.issues.map((issue) => issue.message).join(" ");
+    const behavioralConfidence = Math.round(((behavioralProfile?.confidenceScore ?? recommendationDebug?.profileConfidence ?? 0) as number) * 100);
+    const behavioralTopCreators = ((behavioralProfile?.topCreators || []) as Array<{ key: string; score: number }>).filter((entry) => entry.score > 0.5);
+    const behavioralTopCategories = ((behavioralProfile?.topCategories || []) as Array<{ key: string; score: number }>).filter((entry) => entry.score > 0.35);
+    const behavioralTopThemes = ((behavioralProfile?.topThemes || []) as Array<{ key: string; score: number }>).filter((entry) => entry.score > 0.35);
+    const showBehavioralAffinity = behavioralTopCreators.length > 0 || behavioralTopCategories.length > 0 || behavioralTopThemes.length > 0;
+    const recommendationDisplayMode = recommendationDebug?.displayMode || "fallback-compact";
+    const showBehavioralExplanationCards = recommendationDebug?.showExplanationCards === true;
+    const behavioralRecommendations = Array.isArray(recommendationDebug?.drops) ? recommendationDebug.drops : [];
     const behaviorTruthState: AdminSurfaceState = !behaviorRollup
         ? "unavailable"
         : behaviorRollup.issues.some((issue) => issue.severity === "fail")
@@ -682,7 +690,7 @@ export default function AdminUserAnalyticsPage() {
                             {behavioralProfile?.freshnessLabel || "unknown"}
                         </span>
                         <span className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
-                            Confidence {Math.round((recommendationDebug?.profileConfidence || 0) * 100)}%
+                            Confidence {behavioralConfidence}%
                         </span>
                     </div>
                 </div>
@@ -692,8 +700,12 @@ export default function AdminUserAnalyticsPage() {
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Eligibility</p>
-                                <p className="mt-2 text-lg font-black text-white">{behavioralProfile?.profilingEligibility?.eligible ? "profile-driven" : "deterministic-fallback"}</p>
-                                <p className="mt-1 text-xs text-gray-400">Recommendations only switch to profile-driven when identified analytics and recommendation consent are both enabled.</p>
+                                <p className="mt-2 text-lg font-black text-white">{recommendationDebug?.mode || "deterministic-fallback"}</p>
+                                <p className="mt-1 text-xs text-gray-400">
+                                    {recommendationDisplayMode === "insufficient-signal"
+                                        ? (recommendationDebug?.insufficientSignalReason || "Not enough verified behavior signal yet.")
+                                        : "Recommendations only expand when consent and confidence both clear the threshold."}
+                                </p>
                             </div>
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Fatigue band</p>
@@ -712,71 +724,104 @@ export default function AdminUserAnalyticsPage() {
                             </div>
                         </div>
 
-                        <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Top creator affinity</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {(behavioralProfile?.topCreators || []).slice(0, 6).map((entry: any) => (
-                                    <span key={entry.key} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
-                                        {entry.key} · {entry.score}
-                                    </span>
-                                ))}
-                                {!(behavioralProfile?.topCreators || []).length ? <span className="text-xs text-gray-500">No creator affinity signal yet.</span> : null}
-                            </div>
-                        </div>
+                        {showBehavioralAffinity ? (
+                            <>
+                                <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Top creator affinity</p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {behavioralTopCreators.slice(0, 6).map((entry) => (
+                                            <span key={entry.key} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                                {entry.key} · {entry.score}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
 
-                        <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Top content themes</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {(behavioralProfile?.topCategories || []).slice(0, 4).map((entry: any) => (
-                                    <span key={`category-${entry.key}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
-                                        {entry.key} · {entry.score}
-                                    </span>
-                                ))}
-                                {(behavioralProfile?.topThemes || []).slice(0, 4).map((entry: any) => (
-                                    <span key={`theme-${entry.key}`} className="inline-flex items-center rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-[11px] font-semibold text-brand-purple">
-                                        {entry.key} · {entry.score}
-                                    </span>
-                                ))}
-                                {!(behavioralProfile?.topCategories || []).length && !(behavioralProfile?.topThemes || []).length ? <span className="text-xs text-gray-500">No category/theme signal yet.</span> : null}
+                                <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Top content themes</p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {behavioralTopCategories.slice(0, 4).map((entry) => (
+                                            <span key={`category-${entry.key}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                                {entry.key} · {entry.score}
+                                            </span>
+                                        ))}
+                                        {behavioralTopThemes.slice(0, 4).map((entry) => (
+                                            <span key={`theme-${entry.key}`} className="inline-flex items-center rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-[11px] font-semibold text-brand-purple">
+                                                {entry.key} · {entry.score}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="rounded-[1.35rem] border border-dashed border-white/10 bg-black/20 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Affinity state</p>
+                                <p className="mt-2 text-sm font-semibold text-white">Insufficient signal</p>
+                                <p className="mt-1 text-xs leading-5 text-gray-400">
+                                    {recommendationDebug?.insufficientSignalReason || "No meaningful creator or content affinity is available for this account yet."}
+                                </p>
                             </div>
-                        </div>
+                        )}
                     </div>
 
                     <div className="space-y-3">
                         <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Recommended drops with explanations</p>
                             <div className="mt-4 space-y-3">
-                                {(recommendationDebug?.drops || []).slice(0, 4).map((entry: any) => (
-                                    <div key={entry.dropId} className="rounded-[1.1rem] border border-white/10 bg-black/30 p-4">
-                                        <div className="flex flex-wrap items-start justify-between gap-3">
-                                            <div>
-                                                <p className="text-sm font-bold text-white">{entry.dropTitle}</p>
-                                                <p className="mt-1 text-xs text-gray-400">{entry.dropId} · {entry.dropCategory || "unknown"}</p>
+                                {recommendationDisplayMode === "insufficient-signal" ? (
+                                    <div className="rounded-[1.1rem] border border-dashed border-white/10 bg-black/20 p-4">
+                                        <p className="text-sm font-semibold text-white">Insufficient signal</p>
+                                        <p className="mt-1 text-xs leading-5 text-gray-400">
+                                            {recommendationDebug?.insufficientSignalReason || "No recommendation explanations are shown until this account has verified behavioral signal."}
+                                        </p>
+                                    </div>
+                                ) : showBehavioralExplanationCards ? (
+                                    behavioralRecommendations.slice(0, 4).map((entry: any) => (
+                                        <div key={entry.dropId} className="rounded-[1.1rem] border border-white/10 bg-black/30 p-4">
+                                            <div className="flex flex-wrap items-start justify-between gap-3">
+                                                <div>
+                                                    <p className="text-sm font-bold text-white">{entry.dropTitle}</p>
+                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropId} · {entry.dropCategory || "unknown"}</p>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
+                                                        Score {entry.score}
+                                                    </span>
+                                                    {(entry.labels || []).map((label: string) => (
+                                                        <span key={`${entry.dropId}:${label}`} className="inline-flex items-center rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                                                            {label}
+                                                        </span>
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
-                                                    Score {entry.score}
-                                                </span>
-                                                {(entry.labels || []).map((label: string) => (
-                                                    <span key={`${entry.dropId}:${label}`} className="inline-flex items-center rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
-                                                        {label}
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                {(entry.factors || []).slice(0, 4).map((factor: any) => (
+                                                    <span key={`${entry.dropId}:${factor.key}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                                        {factor.label} {factor.contribution}
                                                     </span>
                                                 ))}
                                             </div>
-                                        </div>
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            {(entry.factors || []).slice(0, 4).map((factor: any) => (
-                                                <span key={`${entry.dropId}:${factor.key}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
-                                                    {factor.label} {factor.contribution}
-                                                </span>
+                                            {(entry.factors || []).slice(0, 2).map((factor: any) => (
+                                                <p key={`${entry.dropId}:${factor.key}:detail`} className="mt-2 text-xs leading-5 text-gray-400">{factor.detail}</p>
                                             ))}
                                         </div>
-                                        {(entry.factors || []).slice(0, 2).map((factor: any) => (
-                                            <p key={`${entry.dropId}:${factor.key}:detail`} className="mt-2 text-xs leading-5 text-gray-400">{factor.detail}</p>
-                                        ))}
-                                    </div>
-                                ))}
-                                {!(recommendationDebug?.drops || []).length ? <p className="text-sm text-gray-500">No ranked drop candidates are available for this user yet.</p> : null}
+                                    ))
+                                ) : (
+                                    behavioralRecommendations.slice(0, 3).map((entry: any) => (
+                                        <div key={entry.dropId} className="rounded-[1.1rem] border border-white/10 bg-black/20 px-4 py-3">
+                                            <div className="flex flex-wrap items-center justify-between gap-3">
+                                                <div>
+                                                    <p className="text-sm font-semibold text-white">{entry.dropTitle}</p>
+                                                    <p className="mt-1 text-xs text-gray-400">{entry.dropCategory || "unknown"} · fallback recommendation</p>
+                                                </div>
+                                                <span className="inline-flex items-center rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200">
+                                                    Fallback
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                                {!behavioralRecommendations.length && recommendationDisplayMode !== "insufficient-signal" ? <p className="text-sm text-gray-500">No ranked drop candidates are available for this user yet.</p> : null}
                             </div>
                         </div>
                     </div>

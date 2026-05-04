@@ -31,6 +31,11 @@ type BehavioralProfileDoc = {
   latestSourceAtMs?: number;
   freshnessLabel?: string;
   recommendationState?: string;
+  confidenceScore?: number;
+  confidenceLabel?: string;
+  recommendationThresholdMet?: boolean;
+  insufficientSignal?: boolean;
+  insufficientSignalReason?: string;
   profilingEligibility?: {
     anonymousAnalyticsEnabled?: boolean;
     identifiedAnalyticsEnabled?: boolean;
@@ -49,6 +54,18 @@ type BehavioralProfileDoc = {
   fatigueScore?: number;
   eventCount?: number;
   watchSessionCount?: number;
+  purchaseCount?: number;
+  signalSummary?: {
+    watchSessions?: number;
+    completedUnwraps?: number;
+    repeatedCreators?: number;
+    categorySignals?: number;
+    themeSignals?: number;
+    purchases?: number;
+    returnCadence30d?: number;
+    consentAvailability?: number;
+    evidenceCount?: number;
+  };
 };
 
 type DropIntelligenceDoc = {
@@ -88,7 +105,12 @@ type RankedDropRecommendation = {
   telemetryQualityLabel: string;
   telemetryConfidenceScore: number;
   factors: ScoreFactor[];
+  explanationEligible: boolean;
+  fallbackReason: string;
 };
+
+export const BEHAVIORAL_PROFILE_EXPLANATION_THRESHOLD = 0.5;
+export const BEHAVIORAL_PROFILE_MIN_SIGNAL_THRESHOLD = 0.35;
 
 type AnalyticsTruthMetricDoc = {
   qualityLabel?: string;
@@ -133,13 +155,40 @@ function normalizeTagList(drop: Drop) {
     : [];
 }
 
-function buildProfileConfidence(profile: BehavioralProfileDoc | null) {
+function buildProfileConfidence(profile: Partial<BehavioralProfileDoc> | null) {
   if (!profile) return 0;
+  if (typeof profile.confidenceScore === "number") {
+    return clamp01(profile.confidenceScore);
+  }
   return clamp01(((profile.eventCount || 0) + ((profile.watchSessionCount || 0) * 2)) / 60);
 }
 
 function buildProfileMode(profile: BehavioralProfileDoc | null) {
-  return profile?.profilingEligibility?.eligible === true ? "profile-driven" : "deterministic-fallback";
+  if (!profile) {
+    return "deterministic-fallback";
+  }
+  if (profile.recommendationState === "profile-driven" && profile.recommendationThresholdMet === true) {
+    return "profile-driven";
+  }
+  return "deterministic-fallback";
+}
+
+export function buildBehavioralRecommendationState(profile: Partial<BehavioralProfileDoc> | null) {
+  const confidenceScore = buildProfileConfidence(profile);
+  const recommendationState = profile?.recommendationState || "deterministic-fallback";
+  const insufficientSignal = profile?.insufficientSignal === true
+    || confidenceScore < BEHAVIORAL_PROFILE_MIN_SIGNAL_THRESHOLD;
+  const explanationEligible = recommendationState === "profile-driven"
+    && profile?.recommendationThresholdMet === true
+    && confidenceScore >= BEHAVIORAL_PROFILE_EXPLANATION_THRESHOLD;
+
+  return {
+    recommendationState,
+    confidenceScore,
+    insufficientSignal,
+    explanationEligible,
+    fallbackReason: profile?.insufficientSignalReason || "Not enough verified behavior signal yet.",
+  };
 }
 
 export async function getBehavioralSnapshotStatus() {
@@ -256,8 +305,9 @@ export async function buildDeterministicDropRecommendations(input: {
   ]);
 
   const candidateIdSet = input.candidateDropIds ? new Set(input.candidateDropIds) : null;
+  const recommendationState = buildBehavioralRecommendationState(profile);
   const mode = buildProfileMode(profile);
-  const profileConfidence = buildProfileConfidence(profile);
+  const profileConfidence = recommendationState.confidenceScore;
   const profileFreshness = profile?.freshnessLabel || "unknown";
 
   const ranked = drops
@@ -294,19 +344,30 @@ export async function buildDeterministicDropRecommendations(input: {
         telemetryQualityLabel,
         telemetryConfidenceScore,
         factors,
+        explanationEligible: recommendationState.explanationEligible,
+        fallbackReason: recommendationState.fallbackReason,
       } satisfies RankedDropRecommendation;
     })
     .sort((left, right) => right.score - left.score || right.drop.validFrom - left.drop.validFrom)
-    .slice(0, limit);
+    .slice(0, recommendationState.explanationEligible ? limit : Math.min(limit, 3));
+
+  if (recommendationState.insufficientSignal) {
+    return [];
+  }
 
   if (mode === "deterministic-fallback") {
     return ranked.map((entry, index) => ({
       ...entry,
       score: round(entry.score + Math.max(0, 0.25 - (index * 0.01)), 3),
+      labels: Array.from(new Set([...entry.labels, "fallback"])),
+      factors: [],
     }));
   }
 
-  return ranked;
+  return ranked.map((entry) => ({
+    ...entry,
+    factors: entry.explanationEligible ? entry.factors : [],
+  }));
 }
 
 export async function buildDeterministicCreatorRecommendations(input: {

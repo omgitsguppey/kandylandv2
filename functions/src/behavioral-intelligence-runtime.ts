@@ -41,6 +41,7 @@ type UserSignalAggregate = {
   userId: string
   eventCount: number
   watchSessionCount: number
+  purchaseCount: number
   walletOpenCount: number
   checkoutStartCount: number
   previewOpenCount: number
@@ -261,6 +262,7 @@ function ensureUserAggregate(userId: string, store: Map<string, UserSignalAggreg
     userId,
     eventCount: 0,
     watchSessionCount: 0,
+    purchaseCount: 0,
     walletOpenCount: 0,
     checkoutStartCount: 0,
     previewOpenCount: 0,
@@ -528,6 +530,9 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     if (eventName === "begin_checkout") {
       aggregate.checkoutStartCount += 1
     }
+    if (eventName === "gumdrops_purchase_completed" || eventName === "purchase_verified" || eventName === "purchase") {
+      aggregate.purchaseCount += 1
+    }
     if (eventName === "drop_preview_opened" || eventName === "view_drop_details") {
       aggregate.previewOpenCount += 1
     }
@@ -756,6 +761,44 @@ function buildUserProfileDoc(input: {
   const explorationScore = clamp01(input.aggregate.uniqueCreatorIds.size === 0 ? 0 : input.aggregate.uniqueCreatorIds.size / Math.max(1, input.aggregate.viewerOpenCount))
   const fatigueScore = clamp01(repeatConsumptionRate * 0.65 + (input.aggregate.negativeFeedbackCount > 0 ? 0.35 : 0))
   const latestSourceAtMs = Math.max(input.aggregate.latestEventAtMs, input.aggregate.latestWatchAtMs)
+  const topCreatorEntries = topEntries(input.aggregate.topCreatorScores, 8)
+  const topCategoryEntries = topEntries(input.aggregate.topCategoryScores, 8)
+  const topThemeEntries = topEntries(input.aggregate.topThemeScores, 8)
+  const topExperienceEntries = topEntries(input.aggregate.topExperienceScores, 8)
+  const repeatedCreatorSignalCount = topCreatorEntries.filter((entry) => entry.score >= 2).length
+  const categorySignalCount = topCategoryEntries.filter((entry) => entry.score >= 0.75).length
+  const themeSignalCount = topThemeEntries.filter((entry) => entry.score >= 0.5).length
+  const consentAvailability = recommendationsEnabled && !gpcBlocked ? 1 : 0
+  const confidenceScore = clamp01(
+    (clamp01(input.aggregate.watchSessionCount / 6) * 0.24) +
+    (clamp01(input.aggregate.unlockCount / 4) * 0.2) +
+    (clamp01(repeatedCreatorSignalCount / 2) * 0.14) +
+    (clamp01((categorySignalCount + themeSignalCount) / 5) * 0.16) +
+    (clamp01(input.aggregate.purchaseCount / 2) * 0.12) +
+    (clamp01(sessionFrequency30d / 6) * 0.09) +
+    (consentAvailability * 0.05),
+  )
+  const signalEvidenceCount = [
+    input.aggregate.watchSessionCount > 0,
+    input.aggregate.unlockCount > 0,
+    repeatedCreatorSignalCount > 0,
+    categorySignalCount + themeSignalCount > 0,
+    input.aggregate.purchaseCount > 0,
+    sessionFrequency30d >= 2,
+  ].filter(Boolean).length
+  const insufficientSignal = confidenceScore < 0.35 || signalEvidenceCount < 2
+  const confidenceLabel = insufficientSignal
+    ? "insufficient_signal"
+    : confidenceScore >= 0.7
+      ? "high"
+      : confidenceScore >= 0.5
+        ? "medium"
+        : "low"
+  const recommendationState = !consentAvailability
+    ? "deterministic-fallback"
+    : insufficientSignal
+      ? "insufficient-signal"
+      : "profile-driven"
 
   return {
     userId: input.aggregate.userId,
@@ -763,7 +806,7 @@ function buildUserProfileDoc(input: {
     sourceWindowStartMs: input.windowStartMs,
     latestSourceAtMs,
     freshnessLabel: normalizeProfileFreshness(latestSourceAtMs || input.nowMs, input.nowMs),
-    recommendationState: recommendationsEnabled && !gpcBlocked ? "profile-driven" : "deterministic-fallback",
+    recommendationState,
     profilingEligibility: {
       anonymousAnalyticsEnabled: anonymousEnabled,
       identifiedAnalyticsEnabled: identifiedEnabled,
@@ -771,10 +814,28 @@ function buildUserProfileDoc(input: {
       gpcBlocked,
       eligible: recommendationsEnabled && !gpcBlocked,
     },
-    topCreators: topEntries(input.aggregate.topCreatorScores, 8),
-    topCategories: topEntries(input.aggregate.topCategoryScores, 8),
-    topThemes: topEntries(input.aggregate.topThemeScores, 8),
-    topExperiences: topEntries(input.aggregate.topExperienceScores, 8),
+    confidenceScore: round(confidenceScore, 3),
+    confidenceLabel,
+    recommendationThresholdMet: !insufficientSignal && consentAvailability === 1,
+    insufficientSignal,
+    insufficientSignalReason: insufficientSignal
+      ? "Not enough watch, unwrap, creator, content, purchase, or return-cadence signal yet."
+      : "",
+    signalSummary: {
+      watchSessions: input.aggregate.watchSessionCount,
+      completedUnwraps: input.aggregate.unlockCount,
+      repeatedCreators: repeatedCreatorSignalCount,
+      categorySignals: categorySignalCount,
+      themeSignals: themeSignalCount,
+      purchases: input.aggregate.purchaseCount,
+      returnCadence30d: sessionFrequency30d,
+      consentAvailability,
+      evidenceCount: signalEvidenceCount,
+    },
+    topCreators: topCreatorEntries,
+    topCategories: topCategoryEntries,
+    topThemes: topThemeEntries,
+    topExperiences: topExperienceEntries,
     creatorAffinity: Object.fromEntries(topEntries(input.aggregate.topCreatorScores, 12).map((entry) => [entry.key, entry.score])),
     categoryAffinity: Object.fromEntries(topEntries(input.aggregate.topCategoryScores, 12).map((entry) => [entry.key, entry.score])),
     themeAffinity: Object.fromEntries(topEntries(input.aggregate.topThemeScores, 12).map((entry) => [entry.key, entry.score])),
@@ -809,6 +870,7 @@ function buildUserProfileDoc(input: {
     negativeDropIds: Array.from(input.aggregate.negativeDropIds),
     eventCount: input.aggregate.eventCount,
     watchSessionCount: input.aggregate.watchSessionCount,
+    purchaseCount: input.aggregate.purchaseCount,
     uniqueDropCount: input.aggregate.uniqueDropIds.size,
     uniqueCreatorCount: input.aggregate.uniqueCreatorIds.size,
     provenance: {

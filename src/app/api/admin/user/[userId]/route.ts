@@ -46,6 +46,7 @@ import {
     SUPPORT_COLLECTIONS,
 } from "@/lib/support-readiness";
 import {
+    buildBehavioralRecommendationState,
     buildDeterministicDropRecommendations,
     getBehavioralUserProfile,
 } from "@/lib/server/behavioral-intelligence";
@@ -1088,6 +1089,12 @@ async function GET_handler(
                 limit: 6,
             }),
         ]);
+        const behavioralRecommendationState = buildBehavioralRecommendationState(behavioralProfile as Record<string, unknown> | null);
+        const recommendationDisplayMode = behavioralRecommendationState.insufficientSignal
+            ? "insufficient-signal"
+            : behavioralRecommendationState.explanationEligible
+                ? "explanations"
+                : "fallback-compact";
 
         return NextResponse.json({
             success: true,
@@ -1110,9 +1117,13 @@ async function GET_handler(
             analytics,
             behavioralProfile,
             recommendationDebug: {
-                mode: recommendedDrops[0]?.mode || "deterministic-fallback",
-                profileFreshness: recommendedDrops[0]?.profileFreshness || "unknown",
-                profileConfidence: recommendedDrops[0]?.profileConfidence || 0,
+                mode: behavioralRecommendationState.recommendationState,
+                displayMode: recommendationDisplayMode,
+                profileFreshness: behavioralProfile?.freshnessLabel || recommendedDrops[0]?.profileFreshness || "unknown",
+                profileConfidence: behavioralRecommendationState.confidenceScore,
+                insufficientSignal: behavioralRecommendationState.insufficientSignal,
+                insufficientSignalReason: behavioralRecommendationState.fallbackReason,
+                showExplanationCards: behavioralRecommendationState.explanationEligible,
                 drops: recommendedDrops.map((entry) => ({
                     dropId: entry.drop.id,
                     dropTitle: entry.drop.title,
@@ -1121,6 +1132,8 @@ async function GET_handler(
                     score: entry.score,
                     labels: entry.labels,
                     factors: entry.factors,
+                    explanationEligible: entry.explanationEligible,
+                    fallbackReason: entry.fallbackReason,
                 })),
             },
             securitySummary,
