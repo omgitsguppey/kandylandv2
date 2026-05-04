@@ -111,6 +111,10 @@ The original implementation used bracket-prefixed developer jargon (`[PARTIAL] F
 - Do NOT add additional status chips, server update chips, or issue chips to the hero actions slot.
 - Rationale: Multiple chips wrap on mobile and create vertical sprawl that pushes the console grid downward.
 
+## Shared admin truth-badge doctrine
+
+Admin Overview is not allowed to invent a separate status language from User Management or admin user detail. Shared admin data-state badges now use the canonical truth-state doctrine in `src/lib/admin-truth-state.ts`: `live`, `refreshing`, `stale`, `degraded`, `failed`, `unavailable`, `delayed`, and `review`. Valid values stay visible while transport refresh degrades; missing sources must not claim `live`.
+
 ## Deferred work (do NOT touch in Admin Overview tasks)
 
 - **Bottom nav rules for user surfaces** are intentionally deferred.

@@ -55,3 +55,5 @@ The page exposes `window.__KANDYDROPS_ADMIN_ANALYTICS_AUDIENCE_SNAPSHOT_DEBUG__`
 
 Audience Snapshot reads the Admin Analytics snapshot registry first and keeps its verified snapshot visible while refresh or realtime upgrades run. The module must show total/GA users, identified users, and estimated guest traffic with source labels, and it must never present authenticated-only traffic as total audience. Full formulas, guest estimate details, cache state, and parity proof belong in Admin Debug.
 - Firestore listeners need `includeMetadataChanges` to receive metadata-only cache/server transitions: https://firebase.google.com/docs/firestore/query-data/listen
+
+The admin user surfaces follow the same snapshot-first rule. User Management and admin user detail must keep last-known values visible with stale or degraded truth labels instead of dropping valid metrics behind unavailable or error states.

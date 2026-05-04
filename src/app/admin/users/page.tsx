@@ -373,11 +373,12 @@ export default function UserManagementPage() {
 
     const getUserAnalytics = (uid: string) => userAnalytics[uid];
     const getBehaviorRollup = (uid: string) => userAnalytics[uid]?.behaviorRollup;
+    const SUMMARY_PLACEHOLDER = "—";
     const formatMoney = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `$${value.toFixed(2)}` : "[unavailable]";
     const formatPercent = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "[unavailable]";
     const formatCount = (value?: number, analytics?: UserAnalytics) =>
         !analytics || analytics.metricTruthLabel === "unknown" ? "[unavailable]" : (value ?? 0).toLocaleString();
-    const formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : "[unavailable]";
+    const formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : SUMMARY_PLACEHOLDER;
     const formatWatchHours = (watchTimeMs?: number, fallbackHours?: number) => {
         if (typeof watchTimeMs === "number" && Number.isFinite(watchTimeMs)) {
             return `${Number((watchTimeMs / 3_600_000).toFixed(1))}h`;
@@ -387,7 +388,7 @@ export default function UserManagementPage() {
     };
     const formatCompactMoney = (value?: number) => {
         if (typeof value !== "number" || !Number.isFinite(value)) {
-            return "[unavailable]";
+            return SUMMARY_PLACEHOLDER;
         }
 
         if (Math.abs(value) >= 1000) {
@@ -750,7 +751,7 @@ export default function UserManagementPage() {
                         })}
                         {renderSummaryMetricCard({
                             title: "Watch",
-                            value: summary ? `${summary.totalWatchHours ?? 0}h` : "[unavailable]",
+                            value: summary ? `${summary.totalWatchHours ?? 0}h` : SUMMARY_PLACEHOLDER,
                             detail: "foreground viewer time",
                             metricState: getSummaryMetricState([summary?.totalWatchHours], summarySnapshotTruthState),
                         })}

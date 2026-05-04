@@ -53,3 +53,5 @@ Behavioral intelligence must prefer watch-session rollups and label that source 
 ## Validation
 
 Use `npm run check:watch-time-truth` plus the targeted watch scoring and watch-session route tests before broad audits. This lane is source and unit-test based; it must not require Playwright, Lighthouse, Cypress, high-frequency polling, or browser automation.
+
+Admin user surfaces also consume this doctrine through `npm run check:admin-user-behavior-truth`. If User Management or admin user detail stops using watch-session rollups first, that validator must fail.
