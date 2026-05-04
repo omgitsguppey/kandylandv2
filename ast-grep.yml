@@ -1,0 +1,39 @@
+version: 1
+runtime: scripts/agent/run-ast-grep-rules.ts
+description: KandyDrops deterministic source-pattern rule catalog.
+rules:
+  - id: kd-no-100vh-public-shell
+    category: viewport
+    severity: major
+    scope: public shell, chat shell, and locked preview files
+    suggestedFix: Use 100dvh or an approved shared shell token from src/lib/user-mobile-shell.ts.
+  - id: kd-no-hardcoded-safe-area-bottom
+    category: safe_area
+    severity: major
+    scope: public shell, chat shell, floating controls, and locked preview files
+    suggestedFix: Move bottom-nav and safe-area math into src/lib/user-mobile-shell.ts and consume the shared token.
+  - id: kd-no-shell-translate-or-negative-margin
+    category: shell_layout
+    severity: major
+    scope: shell-critical files
+    suggestedFix: Use shell-aware viewport math and spacing tokens instead of negative margins or translate-y positioning.
+  - id: kd-no-locked-preview-content-url
+    category: content_protection
+    severity: critical
+    scope: dedicated locked preview route and preview truth/view files
+    suggestedFix: Render only safe preview fields before unlock; never expose contentUrl/contentUrls/internal files.
+  - id: kd-no-hot-handler-direct-reporting
+    category: performance
+    severity: major
+    scope: chat and public shell interaction files
+    suggestedFix: Defer reportClientIssue/reportRealtimeIssue after paint or idle before calling from tap/focus handlers.
+  - id: kd-no-unapproved-setinterval
+    category: performance
+    severity: major
+    scope: shell, chat, and preview files
+    suggestedFix: Avoid recurring timers in shell-critical paths; use existing readiness/visibility helpers or document a narrow whitelist.
+  - id: kd-no-duplicate-breakpoint-constants
+    category: breakpoint
+    severity: moderate
+    scope: src and scripts source files outside src/lib/device-layout-contract.ts
+    suggestedFix: Import or extend the canonical breakpoint contract instead of defining local breakpoint constants.

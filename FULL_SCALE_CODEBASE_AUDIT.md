@@ -1,5 +1,30 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #128] PRE: Ast-Grep Source Rule Checks
+
+Scope started:
+- Adding `@ast-grep/cli` and `@ast-grep/napi` as dev dependencies and creating a deterministic source-pattern rule layer for KandyDrops.
+- Required outputs: `ast-grep.yml`, `sgconfig.yml`, `scripts/agent/run-ast-grep-rules.ts`, `docs/agent-truth/ast-grep-rules.md`, `npm run check:ast-grep-rules`, focused validation, typecheck because TypeScript script files change, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full `npm run check`, or broad UI audits, and must not change product UI, telemetry behavior, state logic, Firebase rules, auth, payments, or unlock enforcement.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, source-of-truth map, shared component ownership, full governance files, and adjacency traces for the existing device-layout score/contract tooling were consulted.
+- The existing device-layout and hydration score lanes already define many source-only checks; this pass adds an ast-grep dependency/config layer plus a deterministic runner that reports file, line, category, severity, and suggested fix.
+
+Doctrine:
+- KandyDrops source-pattern rules are deterministic guardrails. They catch forbidden shell, safe-area, preview content-protection, diagnostics, timer, and breakpoint patterns from source files without replacing targeted tests or broad runtime validation. They must output actionable findings and must not mutate product behavior.
+
+Scope completed:
+- Added `@ast-grep/cli` and `@ast-grep/napi` dev dependencies plus `npm run check:ast-grep-rules`.
+- Added `ast-grep.yml` rule catalog and `sgconfig.yml` language-glob anchor for TypeScript, TSX, JavaScript, and JSX source scans.
+- Added `scripts/agent/run-ast-grep-rules.ts`, which uses `@ast-grep/napi` to detect direct diagnostic calls in hot tap/focus contexts and deterministic source scans for `100vh`, hardcoded safe-area bottom math, shell positioning hacks, locked-preview content fields, unapproved intervals, and duplicate breakpoint constants.
+- Added `docs/agent-truth/ast-grep-rules.md` and updated README, AGENTS, memory ledger, and file/function checklist with the source-pattern doctrine.
+
+Verification:
+- Passed: `npm run check:ast-grep-rules`
+- Passed: `npm run typecheck -- --pretty false`
+- Not run by design: Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits.
+
 ## [2026-05-04 #127] PRE: Hydration Performance Lanes
 
 Scope started:

@@ -77,6 +77,7 @@
         "check:device-layout-score": "tsx scripts/agent/validate-device-layout-score.ts",
         "score:hydration": "tsx scripts/agent/score-hydration-performance.ts",
         "check:hydration-performance": "tsx scripts/agent/validate-hydration-performance.ts",
+        "check:ast-grep-rules": "tsx scripts/agent/run-ast-grep-rules.ts",
         "check:home-mobile-hero-shell": "tsx scripts/agent/validate-home-mobile-hero-shell.ts",
         "check:experiences-compact-layout": "tsx scripts/agent/validate-experiences-compact-layout.ts",
         "check:payment-unlock-security": "tsx scripts/agent/validate-payment-unlock-security.ts",
@@ -218,6 +219,8 @@
         "zod": "^4.3.6"
     },
     "devDependencies": {
+        "@ast-grep/cli": "^0.42.1",
+        "@ast-grep/napi": "^0.42.1",
         "@axe-core/playwright": "^4.11.2",
         "@chromatic-com/storybook": "^5.1.2",
         "@firebase/rules-unit-testing": "^5.0.0",

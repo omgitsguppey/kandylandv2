@@ -1,0 +1,14 @@
+ruleDirs: []
+languageGlobs:
+  tsx:
+    - src/**/*.tsx
+    - scripts/**/*.tsx
+  ts:
+    - src/**/*.ts
+    - scripts/**/*.ts
+  js:
+    - src/**/*.js
+    - scripts/**/*.js
+  jsx:
+    - src/**/*.jsx
+    - scripts/**/*.jsx

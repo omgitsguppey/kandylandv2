@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Ast-grep source rules
+
+KandyDrops ast-grep rules are deterministic source guardrails. They catch forbidden shell, safe-area, preview content-protection, diagnostics, timer, and breakpoint patterns from source files without replacing targeted tests or broad runtime validation. The canonical command is `npm run check:ast-grep-rules`; `ast-grep.yml` documents rule ids/severity/category/fixes, `sgconfig.yml` anchors language globs, and `scripts/agent/run-ast-grep-rules.ts` uses `@ast-grep/napi` plus path-scoped source scans for actionable file/line findings.
+
 ## 2026-05-04 Hydration performance lanes
 
 KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces. `CoreLayoutWrapper` owns the shell lanes, `HomeClient` owns idle homepage diagnostics, and `npm run score:hydration` plus `npm run check:hydration-performance` provide the deterministic source-only validation lane.

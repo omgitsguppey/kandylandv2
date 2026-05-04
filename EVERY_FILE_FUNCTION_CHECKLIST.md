@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Ast-Grep Source Rule Coverage
+
+- [x] KandyDrops ast-grep rules are deterministic source guardrails. They catch forbidden shell, safe-area, preview content-protection, diagnostics, timer, and breakpoint patterns from source files without replacing targeted tests or broad runtime validation.
+- [x] `ast-grep.yml` owns the rule catalog: `kd-no-100vh-public-shell`, `kd-no-hardcoded-safe-area-bottom`, `kd-no-shell-translate-or-negative-margin`, `kd-no-locked-preview-content-url`, `kd-no-hot-handler-direct-reporting`, `kd-no-unapproved-setinterval`, and `kd-no-duplicate-breakpoint-constants`.
+- [x] `sgconfig.yml` anchors ast-grep language globs for TypeScript, TSX, JavaScript, and JSX.
+- [x] `scripts/agent/run-ast-grep-rules.ts` owns the deterministic file/line/category/severity/suggested-fix output path using `@ast-grep/napi` for JS/TS diagnostic-call detection and source scanning for layout/content patterns.
+
 ## 2026-05-04 Hydration Performance Coverage
 
 - [x] KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces.
