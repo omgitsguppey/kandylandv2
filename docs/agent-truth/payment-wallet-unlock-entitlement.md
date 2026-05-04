@@ -8,15 +8,18 @@ Validator/doc owner: `docs/agent-truth/payment-wallet-unlock-entitlement.md`
 
 ## Doctrine
 
-Money and access flows are server-truth only. The browser may request a purchase, unlock, or content stream, but it never decides balance, paid versus bonus Gum Drops, revenue, or entitlement.
+Money and access flows are server-truth only. The browser may request a purchase, unlock, or content stream, but it never decides balance, paid-source versus reward-source Gum Drops, revenue, or entitlement.
+
+Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
 
 ## Source Truth Rules
 
 - Gum Drops package pricing is defined by `src/lib/gumdrops-packages.ts`.
 - PayPal order creation binds the authenticated user and requested package in `custom_id` as `userId:expectedDrops`.
 - PayPal capture must verify status, USD amount, expected package price, and the server-created `custom_id` user/package binding before any credit.
-- Purchase credit is split into purchased Gum Drops and bonus/reward Gum Drops by `src/lib/gumdrop-economics.ts`.
-- Promo, bonus, reward, and admin grant Gum Drops are not revenue.
+- Purchase economics still record `paidGumDrops`, `bonusGumDrops`, and delivered totals from `src/lib/gumdrop-economics.ts`, but paid-pack base and paid-pack bonus both credit purchased/paid-source balance through `src/lib/gumdrop-ledger.ts`.
+- Promo, reward, referral, onboarding, task, check-in, and admin grant Gum Drops credit reward-source balance and are not revenue.
+- Paid-pack bonus GumDrops are purchase bonus metadata and paid-source spendable balance, not reward-source balance.
 - Revenue is counted only from completed `purchase_currency` ledger rows.
 - Unlock deduction happens inside a Firestore transaction.
 - A repeated unlock request must return existing entitlement without a second deduction.
@@ -45,6 +48,10 @@ Required evidence fields:
 - `grossRevenueCents`
 - `paidGumDrops`
 - `bonusGumDrops`
+- `purchaseBonusGumDrops`
+- `purchasedBalanceCreditGumDrops`
+- `rewardBalanceCreditGumDrops`
+- `purchaseSourceClassification`
 - `purchasedAmountSpent`
 - `rewardAmountSpent`
 - `adjustedByUid`
@@ -68,6 +75,7 @@ Run Firebase rules only when security rules change:
 - Do not use client-provided balance or entitlement as source truth.
 - Do not credit a PayPal capture missing the server-created custom id.
 - Do not clear, rewrite, or bypass payment locks.
-- Do not make bonus, promo, reward, referral, daily task, onboarding, or admin adjustment Gum Drops count as revenue.
+- Do not make paid-pack bonus GumDrops count as reward-source balance; they are paid-source balance even though they remain purchase bonus metadata.
+- Do not make promo, reward, referral, daily task, onboarding, or admin adjustment Gum Drops count as revenue or paid-source creator spend balance.
 - Do not expose raw private content URLs to the browser before entitlement verification.
 - Do not change payment/write flows without route tests and this validation lane.

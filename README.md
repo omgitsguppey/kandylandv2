@@ -23,6 +23,9 @@ Before making **ANY** changes to user-facing UI, copy, or product logic, you are
 ### Agent Control Tower
 **Before touching UI, copy, telemetry, state, admin truth, or Firebase architecture, start with [/control-tower/00-START-HERE.md](./control-tower/00-START-HERE.md).**
 
+### GumDrop Source-Of-Funds
+Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
+
 ### Mobile Guest Home Hero Shell
 The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.
 

@@ -93,6 +93,29 @@ export function creditSourceAwareGumdrops(
     };
 }
 
+export function buildPaidPurchaseBalanceCredit(input: {
+    deliveredGumDrops?: unknown;
+    amount?: unknown;
+    paidGumDrops?: unknown;
+    bonusGumDrops?: unknown;
+}) {
+    const explicitDelivered = normalizeGumdropAmount(input.deliveredGumDrops ?? input.amount);
+    const paidGumDrops = Math.max(0, normalizeGumdropAmount(input.paidGumDrops));
+    const bonusGumDrops = Math.max(0, normalizeGumdropAmount(input.bonusGumDrops));
+    const splitTotal = paidGumDrops + bonusGumDrops;
+    const deliveredGumDrops = Math.max(0, explicitDelivered > 0 ? explicitDelivered : splitTotal);
+
+    return {
+        deliveredGumDrops,
+        paidGumDrops,
+        bonusGumDrops,
+        purchasedCreditGumDrops: deliveredGumDrops,
+        rewardCreditGumDrops: 0,
+        purchaseBonusGumDrops: bonusGumDrops,
+        sourceClassification: "paid_purchase_including_bonus" as const,
+    };
+}
+
 export function spendSourceAwareGumdrops(
     current: SourceAwareGumdropBalance,
     amount: unknown,
@@ -226,6 +249,7 @@ export function classifyGumdropTransaction(input: {
             creatorRewardSpendTotal: 0,
             creatorSpendParityMismatchCount: 0,
             creatorRestrictedSpendViolationCount: 0,
+            gumdropPurchaseBonusTotal: 0,
         };
     }
 
@@ -248,17 +272,21 @@ export function classifyGumdropTransaction(input: {
         : 0;
     const creatorRestrictedSpendViolationCount = isCreatorSpendTransaction && creatorRewardSpendTotal > 0 ? 1 : 0;
 
-    const explicitPaid = "paidGumDrops" in input && typeof input.paidGumDrops === "number" ? normalizeGumdropAmount(input.paidGumDrops) : 0;
-    const explicitBonus = "bonusGumDrops" in input && typeof input.bonusGumDrops === "number" ? normalizeGumdropAmount(input.bonusGumDrops) : 0;
-    const purchasePaidAmount = isPurchaseTransaction ? (explicitPaid > 0 ? explicitPaid : positiveAmount) : 0;
-    const purchaseBonusAmount = isPurchaseTransaction ? explicitBonus : 0;
+    const purchaseCredit = isPurchaseTransaction
+        ? buildPaidPurchaseBalanceCredit({
+            amount: positiveAmount,
+            paidGumDrops: input.paidGumDrops,
+            bonusGumDrops: input.bonusGumDrops,
+        })
+        : null;
 
     return {
         gumdropDelta: amount,
         gumdropCreditTotal: positiveAmount,
         gumdropDebitTotal: negativeAmount,
-        gumdropRewardTotal: (isRewardTransaction ? positiveAmount : 0) + purchaseBonusAmount,
-        gumdropPurchaseTotal: purchasePaidAmount,
+        gumdropRewardTotal: isRewardTransaction ? positiveAmount : 0,
+        gumdropPurchaseTotal: purchaseCredit?.purchasedCreditGumDrops ?? 0,
+        gumdropPurchaseBonusTotal: purchaseCredit?.purchaseBonusGumDrops ?? 0,
         gumdropSpendTotal: isSpendTransaction ? negativeAmount : 0,
         gumdropAdjustmentPositiveTotal: isAdminAdjustment ? positiveAmount : 0,
         gumdropAdjustmentNegativeTotal: isAdminAdjustment ? negativeAmount : 0,

@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-03 Paid Package Bonus Source-Of-Funds Coverage
+
+- [x] `src/lib/gumdrop-ledger.ts` owns the canonical purchase credit helper and classifier rule: Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
+- [x] `src/app/api/paypal/capture/route.ts` credits delivered paid package totals into purchased balance while preserving `paidGumDrops`, `bonusGumDrops`, `purchaseBonusGumDrops`, source credit audit metadata, PayPal capture verification, and payment locks.
+- [x] `tests/unit/gumdrop-ledger.spec.ts`, `tests/unit/paypal-capture-route.spec.ts`, `scripts/agent/validate-gumdrop-source-of-funds-truth.ts`, and `scripts/agent/validate-payment-unlock-security.ts` validate paid-pack bonus source truth without changing PurchaseModal visible package totals, names, copy, labels, layout, or wallet design.
+
 ## 2026-05-03 Mobile Chat Stable Viewport Coverage
 
 - [x] `src/lib/user-mobile-shell.ts`, `src/components/CoreLayoutWrapper.tsx`, and `src/components/Chat/ChatRouteShell.tsx` own the chat-specific top offset, visual viewport height token, bottom-nav-safe route reservation, and keyboard focus/blur restoration path for browser and standalone PWA modes.

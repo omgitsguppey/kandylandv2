@@ -6,7 +6,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
-import { buildSourceAwareBalancePatch, computeNextGumdropBalance, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
+import { buildPaidPurchaseBalanceCredit, buildSourceAwareBalancePatch, computeNextGumdropBalance, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
@@ -208,14 +208,17 @@ async function POST_handler(request: NextRequest) {
       const userData = userSnapshot.data() ?? {};
       const sourceAwareBalance = readSourceAwareBalance(userData);
       const currentBalance = normalizeGumdropBalance(sourceAwareBalance.total);
-      const nextBalance = computeNextGumdropBalance(currentBalance, dropsToCredit);
-      let nextSourceAwareBalance = sourceAwareBalance;
-      if (economics.paidGumDrops > 0) {
-        nextSourceAwareBalance = creditSourceAwareGumdrops(nextSourceAwareBalance, economics.paidGumDrops, "purchased");
-      }
-      if (economics.bonusGumDrops > 0) {
-        nextSourceAwareBalance = creditSourceAwareGumdrops(nextSourceAwareBalance, economics.bonusGumDrops, "reward");
-      }
+      const purchaseCredit = buildPaidPurchaseBalanceCredit({
+        deliveredGumDrops: economics.deliveredGumDrops,
+        paidGumDrops: economics.paidGumDrops,
+        bonusGumDrops: economics.bonusGumDrops,
+      });
+      const nextBalance = computeNextGumdropBalance(currentBalance, purchaseCredit.purchasedCreditGumDrops);
+      const nextSourceAwareBalance = creditSourceAwareGumdrops(
+        sourceAwareBalance,
+        purchaseCredit.purchasedCreditGumDrops,
+        "purchased",
+      );
       const username = typeof userData.username === "string" && userData.username.trim().length > 0
         ? userData.username.trim()
         : typeof userData.displayName === "string" && userData.displayName.trim().length > 0
@@ -241,6 +244,10 @@ async function POST_handler(request: NextRequest) {
           deliveredGumDrops: economics.deliveredGumDrops,
           paidGumDrops: economics.paidGumDrops,
           bonusGumDrops: economics.bonusGumDrops,
+          purchaseBonusGumDrops: purchaseCredit.purchaseBonusGumDrops,
+          purchasedBalanceCreditGumDrops: purchaseCredit.purchasedCreditGumDrops,
+          rewardBalanceCreditGumDrops: purchaseCredit.rewardCreditGumDrops,
+          purchaseSourceClassification: purchaseCredit.sourceClassification,
           retailValueUsd: economics.retailValueUsd,
           retailValueCents: economics.retailValueCents,
           bonusValueUsd: economics.bonusValueUsd,

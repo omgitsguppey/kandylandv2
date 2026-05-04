@@ -47,6 +47,10 @@ For broad work, shared helpers, repo tooling, governance, package/lockfile chang
 
 For narrow work, use the generated agent context first and only escalate to full governance reads if the task is broad, shared-helper heavy, or continuity-sensitive.
 
+## GumDrop Source-Of-Funds
+
+Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
+
 ## Experiences DailyCheckIn Variant
 
 DailyCheckIn has two allowed presentation variants. Dashboard uses the full account-status version with welcome header and subtitle. Experiences uses the compact retention-hub version that hides the welcome header/subtitle and tightens vertical rhythm. Logic, reward ladder, check-in state, confetti, and telemetry remain shared.

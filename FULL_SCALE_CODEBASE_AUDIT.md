@@ -1,5 +1,38 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-03 #120] PRE: Paid Package Bonus Source-Of-Funds Truth
+
+Scope started:
+- Cherry-picking only the accounting/source-of-funds truth needed from PR #212 while explicitly rejecting its PurchaseModal visible package display, label, copy, layout, and design changes.
+- Required outputs: paid purchase base and bonus GumDrops credit purchased/paid-source balance, non-purchase rewards credit reward-source balance, creator paid-only surfaces continue using paid-source balance, normal Drop unlock behavior remains separate, targeted validator/tests, source-of-truth docs, focused verification, commit, and push.
+- This pass must not change wallet module design, PurchaseModal visible package headlines, package names, visible package value framing, user-facing text, normal Drop unlock logic, creator economy business rules, PayPal idempotency, layout/CSS, or unrelated UI.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, source-of-truth map, shared ownership, generated source-of-funds task context, adjacency trace for `src/lib/gumdrop-ledger.ts`, and PR #212 diff were consulted.
+- PR #212 only changed PurchaseModal visible package display/copy from delivered totals toward paid/bonus labeling, which is explicitly out of scope; useful accounting truth must be implemented without taking that UI change.
+- Runtime owners to inspect first: `src/lib/gumdrop-ledger.ts`, `src/lib/gumdrop-economics.ts`, purchase/paypal capture routes, transaction builders including `buildCompletedGumdropTransaction`, creator paid-only spend helpers, wallet modal wrappers, focused tests, validators, and wallet/economy/payment source-truth docs.
+
+Doctrine:
+- Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
+
+Scope completed:
+- Added `buildPaidPurchaseBalanceCredit(...)` in `src/lib/gumdrop-ledger.ts` so paid purchase delivered totals, including purchase bonus GumDrops, credit purchased/paid-source balance while preserving purchase bonus metadata and keeping reward totals limited to non-purchase rewards.
+- Updated PayPal capture to use the canonical purchase credit helper, credit the delivered paid package total into `gumDropsPurchasedBalance`, keep `gumDropsRewardBalance` unchanged, and write audit metadata for paid/bonus/delivered/source classification without changing wallet or PurchaseModal visible package copy/design.
+- Updated the ledger classifier so `gumdropRewardTotal` excludes paid-pack bonuses, `gumdropPurchaseTotal` reflects paid-source purchase credit, and `gumdropPurchaseBonusTotal` preserves separate purchase bonus analytics metadata.
+- Added focused tests and `scripts/agent/validate-gumdrop-source-of-funds-truth.ts` plus `npm run check:gumdrop-source-of-funds-truth`, and updated payment/creator/docs source truth for the paid-source bonus rule.
+
+Verification:
+- Passed: `npx vitest run --config vitest.contracts.config.ts tests/unit/gumdrop-ledger.spec.ts tests/unit/paypal-capture-route.spec.ts`
+- Passed: `npm run typecheck -- --pretty false`
+- Passed: `npm run check:gumdrop-source-of-funds-truth`
+- Passed: `npm run check:legal-payment-copy`
+- Passed: `npx vitest run --config vitest.contracts.config.ts tests/unit/server-chat-send.spec.ts tests/unit/server-creator-experience-transactions.spec.ts`
+- Passed: `npx vitest run --config vitest.contracts.config.ts tests/unit/gumdrop-ledger.spec.ts tests/unit/paypal-capture-route.spec.ts tests/unit/purchase-modal-source-of-funds-static.spec.ts`
+- Passed: `npm run check:payment-unlock-security`
+- Passed: `npm run check:creator-experience-transaction-truth`
+- Passed: `npx vitest run --config vitest.contracts.config.ts tests/unit/gumdrop-ledger.spec.ts tests/unit/paypal-capture-route.spec.ts tests/unit/purchase-modal-source-of-funds-static.spec.ts tests/unit/server-chat-send.spec.ts tests/unit/server-creator-experience-transactions.spec.ts`
+- Passed: `git diff --check`
+
 ## [2026-05-03 #119] PRE: Mobile Chat Viewport And Composer Stability
 
 Scope started:

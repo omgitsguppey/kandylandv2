@@ -75,7 +75,7 @@ for (const expected of [
   "paymentLocks",
   "existingLock.exists",
   "\"purchased\"",
-  "\"reward\"",
+  "rewardBalanceCreditGumDrops",
 ]) {
   requireIncludes(paypalCapture, expected, "PayPal capture route");
 }
@@ -109,7 +109,7 @@ for (const expected of [
   "input.type !== \"purchase_currency\"",
   "return 0",
   "type === \"admin_adjustment\"",
-  "purchaseBonusAmount",
+  "gumdropPurchaseBonusTotal",
 ]) {
   requireIncludes(ledger, expected, "Gum Drops ledger");
 }
@@ -161,8 +161,8 @@ for (const expected of [
 for (const expected of [
   "missing the server-created custom id",
   "does not match the requested package",
-  "gumDropsPurchasedBalance: 500",
-  "gumDropsRewardBalance: 50",
+  "gumDropsPurchasedBalance: 550",
+  "gumDropsRewardBalance: 0",
 ]) {
   requireIncludes(paypalTest, expected, "PayPal capture tests");
 }

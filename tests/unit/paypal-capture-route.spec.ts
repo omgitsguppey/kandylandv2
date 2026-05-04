@@ -183,7 +183,7 @@ describe("POST /api/paypal/capture", () => {
         });
     });
 
-    it("credits purchased and bonus GumDrops into separate backend sources", async () => {
+    it("credits purchased and paid-pack bonus GumDrops into paid-source backend balance", async () => {
         const request = new NextRequest("http://localhost/api/paypal/capture", {
             method: "POST",
             body: JSON.stringify({
@@ -203,8 +203,20 @@ describe("POST /api/paypal/capture", () => {
         });
         expect(mockState.documents.get("users/fan_1")).toMatchObject({
             gumDropsBalance: 550,
-            gumDropsPurchasedBalance: 500,
-            gumDropsRewardBalance: 50,
+            gumDropsPurchasedBalance: 550,
+            gumDropsRewardBalance: 0,
+        });
+        const purchaseWrite = mockState.transactionWrites.find((write) => write.path.startsWith("transactions/"));
+        expect(purchaseWrite?.data).toMatchObject({
+            type: "purchase_currency",
+            amount: 550,
+            deliveredGumDrops: 550,
+            paidGumDrops: 500,
+            bonusGumDrops: 50,
+            purchaseBonusGumDrops: 50,
+            purchasedBalanceCreditGumDrops: 550,
+            rewardBalanceCreditGumDrops: 0,
+            purchaseSourceClassification: "paid_purchase_including_bonus",
         });
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("purchase_verified", expect.any(Object), "fan_1");
     });

@@ -6,6 +6,8 @@ Fan Pass, Private chat, Custom Requests, and Live Time are creator commerce acti
 
 No client-only balance deduction is allowed.
 
+Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
+
 ## Canonical Write Pattern
 
 Each paid creator experience must use the server route for that lane:
@@ -21,6 +23,7 @@ The route must:
 - compute price server-side from `CreatorSettings`
 - read source-aware GumDrop balance server-side
 - spend through `spendCreatorExperienceGumdrops`
+- require purchased/paid-source balance for creator paid actions, including paid-pack bonus GumDrops credited to `gumDropsPurchasedBalance`
 - write a user transaction in `transactions`
 - write the fan-facing record in the existing creator collection
 - write creator accrual in `creator_ledger_accruals`

@@ -78,6 +78,7 @@
         "check:event-catalog-telemetry": "tsx scripts/agent/validate-event-catalog-telemetry.ts",
         "check:support-recovery-flows": "tsx scripts/agent/validate-support-recovery-flows.ts",
         "check:legal-payment-copy": "tsx scripts/agent/validate-legal-payment-copy.ts",
+        "check:gumdrop-source-of-funds-truth": "tsx scripts/agent/validate-gumdrop-source-of-funds-truth.ts",
         "check:test-fixtures-demo": "tsx scripts/agent/validate-test-fixtures-demo.ts",
         "check:rollback-incident-response": "tsx scripts/agent/validate-rollback-incident-response.ts",
         "check:final-launch-readiness-report": "tsx scripts/agent/validate-final-launch-readiness-report.ts",

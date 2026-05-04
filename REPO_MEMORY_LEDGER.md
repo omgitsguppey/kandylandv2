@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-03 Paid package bonus source-of-funds truth
+
+Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly. `src/lib/gumdrop-ledger.ts` owns the canonical purchase credit helper and classifier behavior; PayPal capture credits delivered paid package value into purchased balance while preserving `paidGumDrops`, `bonusGumDrops`, and purchase bonus audit metadata.
+
 ## 2026-05-03 Mobile chat stable viewport and composer sizing
 
 The chat route bypasses normal page bottom reservation and owns its own stable mobile viewport shell. Chat list and thread views must remain anchored below the navbar across browser, standalone PWA, keyboard focus, and blur. Composer height must be compact and bottom-nav-safe. Diagnostics must not block tap/focus paths. `src/lib/user-mobile-shell.ts` owns chat top, viewport, bottom-reserve, list-control, and compact-composer tokens; `ChatRouteShell` syncs a lightweight visual viewport CSS variable and restores layout on unmount; `ChatExperience` keeps list/thread scrolling internal and exposes compact focus-stability debug markers without changing paid chat pricing, send APIs, thread ids, or message ordering.
