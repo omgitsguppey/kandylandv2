@@ -42,6 +42,8 @@ const FEATURE_NAMES = [
   "confidence",
   "previousExposurePenalty",
   "fatiguePenalty",
+  "pNegativeFeedback",
+  "suppressionScore",
 ] as const;
 
 function getTrainingAdminDb() {
@@ -110,6 +112,8 @@ function toFeatureMap(features: ReturnType<typeof buildRecommendationRankingFeat
     confidence: features.confidence,
     previousExposurePenalty: features.previousExposurePenalty / 40,
     fatiguePenalty: features.fatiguePenalty / 16,
+    pNegativeFeedback: features.pNegativeFeedback,
+    suppressionScore: features.suppressionScore,
   };
 }
 

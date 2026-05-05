@@ -1,5 +1,6 @@
 import type { Drop } from "@/types/db";
 import { computeDropRecommendationScore } from "@/lib/behavioral/behavioral-math-calibration";
+import { applyRecommendationSuppression } from "@/lib/recommendations/suppression-rules";
 
 import {
   buildRecommendationRankingFeatures,
@@ -27,7 +28,7 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export function computeDeterministicRecommendationScore(features: RecommendationRankingFeatures) {
-  return clamp(computeDropRecommendationScore({
+  const baseScore = computeDropRecommendationScore({
     pPurchase7d: features.pPurchase7d,
     pUnlock24h: features.pUnlock24h,
     pWatchComplete: features.pWatchComplete,
@@ -39,7 +40,9 @@ export function computeDeterministicRecommendationScore(features: Recommendation
     fatiguePenalty: features.fatiguePenalty,
     repeatExposurePenalty: features.previousExposurePenalty,
     diversityBoost: features.diversityBoost,
-  }), 0, 100);
+  });
+
+  return clamp(applyRecommendationSuppression(baseScore, features.suppressionScore), 0, 100);
 }
 
 export function rankDeterministicRecommendations(input: {

@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 195,
+  "validatorCount": 196,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -97,6 +97,7 @@
       "check:daily-task-telemetry-truth",
       "check:event-fact-truth",
       "check:math-goal-alignment",
+      "check:negative-preferences",
       "check:notification-pipeline",
       "check:notification-read-truth",
       "check:recommendation-ranker",
@@ -326,6 +327,7 @@
     "check:behavioral-intelligence-confidence": "behavioral-intelligence",
     "check:behavioral-math-calibration": "behavioral-intelligence",
     "check:behavioral-truth-source": "behavioral-intelligence",
+    "check:negative-preferences": "behavioral-intelligence",
     "check:beta-score": "speed-security",
     "check:cloud-cost": "google-cost",
     "check:consistency": "repo-governance",

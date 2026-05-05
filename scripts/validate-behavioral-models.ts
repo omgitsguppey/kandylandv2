@@ -10,6 +10,7 @@ import { scoreTheftRisk } from "@/lib/moderation/theft-risk-score";
 import type { RecommendationModelArtifact } from "@/lib/recommendations/ml-ranker";
 import { computeDeterministicRecommendationScore } from "@/lib/recommendations/deterministic-ranker";
 import type { RecommendationRankingFeatures } from "@/lib/recommendations/ranking-features";
+import { applyRecommendationSuppression } from "@/lib/recommendations/suppression-rules";
 import { computeDropRecommendationScore } from "@/lib/behavioral/behavioral-math-calibration";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -303,6 +304,8 @@ function toFeatureMap(features: RecommendationRankingFeatures) {
     confidence: features.confidence,
     previousExposurePenalty: features.previousExposurePenalty / 40,
     fatiguePenalty: features.fatiguePenalty / 16,
+    pNegativeFeedback: features.pNegativeFeedback,
+    suppressionScore: features.suppressionScore,
   };
 }
 
@@ -312,7 +315,7 @@ function scoreRecommendationArtifact(artifact: RecommendationModelArtifact, feat
   const predictedUnlock = scoreRecommendationHead(artifact.heads.predictedUnlock, featureMap);
   const predictedWatchCompletion = scoreRecommendationHead(artifact.heads.predictedWatchCompletion, featureMap);
   const predictedReturn = scoreRecommendationHead(artifact.heads.predictedReturn, featureMap);
-  return computeDropRecommendationScore({
+  const baseScore = computeDropRecommendationScore({
     pPurchase7d: predictedPaidConversion,
     pUnlock24h: predictedUnlock,
     pWatchComplete: predictedWatchCompletion,
@@ -324,7 +327,8 @@ function scoreRecommendationArtifact(artifact: RecommendationModelArtifact, feat
     fatiguePenalty: features.fatiguePenalty,
     repeatExposurePenalty: features.previousExposurePenalty,
     diversityBoost: features.diversityBoost,
-  }) / 100;
+  });
+  return applyRecommendationSuppression(baseScore, features.suppressionScore) / 100;
 }
 
 function buildRecommendationFeatures(kind: number, slot: number): RecommendationRankingFeatures {
@@ -369,6 +373,9 @@ function buildRecommendationFeatures(kind: number, slot: number): Recommendation
     previousExposurePenalty,
     fatiguePenalty,
     diversityBoost: aligned && slot % 2 === 0 ? 2 : 0,
+    suppressionScore: slot > 7 ? 0.32 : slot > 5 ? 0.16 : 0,
+    suppressionScoreMultiplier: slot > 7 ? 0.68 : slot > 5 ? 0.84 : 1,
+    suppressionReasons: slot > 7 ? ["Lowered because user dismissed similar drops."] : [],
     truthScore: aligned ? 0.9 : moderate ? 0.68 : 0.32,
     confidence: aligned ? 0.82 : moderate ? 0.62 : 0.28,
   };

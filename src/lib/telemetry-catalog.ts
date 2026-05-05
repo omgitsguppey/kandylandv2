@@ -96,7 +96,7 @@ const DEFAULT_CANONICAL_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backen
 const DEFAULT_GA_ONLY_SOURCES: TelemetryEventSource[] = ["ga4"];
 
 export const TELEMETRY_EVENT_INDEX_VERSION = "2026.05.04.1";
-export const TELEMETRY_USER_ACTION_TAXONOMY_VERSION = "2026.05.event-facts.2";
+export const TELEMETRY_USER_ACTION_TAXONOMY_VERSION = "2026.05.event-facts.3";
 export const TELEMETRY_USER_ACTION_TAXONOMY_NAMES = BEHAVIORAL_NORMALIZED_ACTIONS;
 
 export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
@@ -229,6 +229,9 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "drop_preview_unlock_success_state_viewed", label: "Drop preview unlock success state viewed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "commerce"] },
   { eventName: "drop_preview_open_library_clicked", label: "Drop preview open library clicked", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
   { eventName: "drop_preview_keep_unwrapping_clicked", label: "Drop preview keep unwrapping clicked", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
+  { eventName: "drop_not_interested", label: "Drop not interested", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement"] },
+  { eventName: "category_not_interested", label: "Category not interested", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement"] },
+  { eventName: "recommendation_dismissed", label: "Recommendation dismissed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement"] },
   { eventName: "drop_unwrap_intent_blocked_by_funds", label: "Unwrap intent blocked by funds", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
   { eventName: "drop_unlock_attempted", label: "Drop unlock attempted", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
   { eventName: "drop_unwrapped", label: "Drop unwrapped", category: "content", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["content", "commerce"], aliases: ["drop_unlocked"] },
@@ -257,6 +260,8 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "viewer_backgrounded", label: "Viewer moved to background", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "creator_followed", label: "Creator followed", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_unfollowed", label: "Creator unfollowed", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "engagement"] },
+  { eventName: "creator_not_interested", label: "Creator not interested", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+  { eventName: "creator_muted", label: "Creator muted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_notifications_enabled", label: "Creator notifications enabled", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "notifications"] },
   { eventName: "creator_notifications_disabled", label: "Creator notifications disabled", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "notifications"] },
   { eventName: "creator_profile_viewed", label: "Creator profile viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
@@ -951,6 +956,21 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     ];
   }
 
+  if (eventName === "drop_not_interested" || eventName === "recommendation_dismissed") {
+    return [
+      "drop_id|dropId|target_drop_id|targetDropId",
+      "recommendation_id|recommendationId|surface|source_component|sourceComponent",
+    ];
+  }
+
+  if (eventName === "creator_not_interested" || eventName === "creator_muted") {
+    return ["creator_id|creatorId|target_creator_id|targetCreatorId"];
+  }
+
+  if (eventName === "category_not_interested") {
+    return ["category|category_id|categoryId|drop_category|dropCategory"];
+  }
+
   if (
     eventName === "admin_view_as_creator_started"
     || eventName === "admin_view_as_creator_ended"
@@ -1085,6 +1105,11 @@ function buildRequiredSurfaceFields(eventName: string, family: TelemetryEventFam
     || eventName === "creator_rail_impression"
     || eventName === "drops_searched"
     || eventName === "drops_category_selected"
+    || eventName === "drop_not_interested"
+    || eventName === "creator_not_interested"
+    || eventName === "category_not_interested"
+    || eventName === "creator_muted"
+    || eventName === "recommendation_dismissed"
   ) {
     return ["route|page_path|pagePath|surface|source_component|sourceComponent"];
   }

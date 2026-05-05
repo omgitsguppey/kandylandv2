@@ -1,4 +1,4 @@
-export const BEHAVIORAL_EVENT_FACT_VERSION = "2026.05.event-facts.2";
+export const BEHAVIORAL_EVENT_FACT_VERSION = "2026.05.event-facts.3";
 
 export const BEHAVIORAL_NORMALIZED_ACTIONS = [
   "home_viewed",
@@ -15,6 +15,9 @@ export const BEHAVIORAL_NORMALIZED_ACTIONS = [
   "drop_card_viewed",
   "drop_preview_opened",
   "drop_preview_cta_clicked",
+  "drop_not_interested",
+  "category_not_interested",
+  "recommendation_dismissed",
   "drop_unwrap_attempted",
   "drop_unwrapped",
   "drop_unwrap_failed",
@@ -29,6 +32,8 @@ export const BEHAVIORAL_NORMALIZED_ACTIONS = [
   "purchase_failed",
   "creator_followed",
   "creator_unfollowed",
+  "creator_not_interested",
+  "creator_muted",
   "fan_pass_started",
   "fan_pass_failed",
   "custom_request_started",
@@ -57,6 +62,7 @@ export type BehavioralNormalizedAction = typeof BEHAVIORAL_NORMALIZED_ACTIONS[nu
 export type BehavioralEventEntityType =
   | "page"
   | "drop"
+  | "category"
   | "file"
   | "creator"
   | "wallet"
@@ -65,6 +71,7 @@ export type BehavioralEventEntityType =
   | "chat"
   | "task"
   | "booking"
+  | "recommendation"
   | "admin"
   | "moderation";
 
@@ -127,6 +134,9 @@ export const BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS: Record<BehavioralNormalizedActi
   drop_card_viewed: 10 * 1000,
   drop_preview_opened: 10 * 1000,
   drop_preview_cta_clicked: 10 * 1000,
+  drop_not_interested: "permanent",
+  category_not_interested: "permanent",
+  recommendation_dismissed: 60 * 1000,
   drop_unwrap_attempted: 60 * 1000,
   drop_unwrapped: "permanent",
   drop_unwrap_failed: "event_id",
@@ -141,6 +151,8 @@ export const BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS: Record<BehavioralNormalizedActi
   purchase_failed: "event_id",
   creator_followed: "permanent",
   creator_unfollowed: "permanent",
+  creator_not_interested: "permanent",
+  creator_muted: "permanent",
   fan_pass_started: "event_id",
   fan_pass_failed: "event_id",
   custom_request_started: 60 * 1000,
@@ -179,6 +191,9 @@ export const BEHAVIORAL_EVENT_LABELS: Record<BehavioralNormalizedAction, string>
   drop_card_viewed: "Drop card viewed",
   drop_preview_opened: "Drop preview opened",
   drop_preview_cta_clicked: "Drop preview CTA clicked",
+  drop_not_interested: "Drop marked not interested",
+  category_not_interested: "Category marked not interested",
+  recommendation_dismissed: "Recommendation dismissed",
   drop_unwrap_attempted: "Drop unwrap attempted",
   drop_unwrapped: "Drop unwrapped",
   drop_unwrap_failed: "Drop unwrap failed",
@@ -193,6 +208,8 @@ export const BEHAVIORAL_EVENT_LABELS: Record<BehavioralNormalizedAction, string>
   purchase_failed: "Purchase failed",
   creator_followed: "Creator followed",
   creator_unfollowed: "Creator unfollowed",
+  creator_not_interested: "Creator marked not interested",
+  creator_muted: "Creator muted",
   fan_pass_started: "Fan Pass started",
   fan_pass_failed: "Fan Pass failed",
   custom_request_started: "Custom request started",

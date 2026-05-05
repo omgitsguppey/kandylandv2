@@ -4,6 +4,8 @@ import {
   computeBehavioralTruthScore,
   type BehavioralPredictionOutputs,
 } from "@/lib/behavioral/behavioral-math-calibration";
+import type { NegativePreferenceProfile } from "@/lib/behavioral/negative-preference-score";
+import { buildRecommendationSuppression } from "@/lib/recommendations/suppression-rules";
 
 export type RecommendationMode = "deterministic" | "ml_artifact";
 
@@ -29,6 +31,13 @@ export type RecommendationBehavioralProfileLike = {
   experiencePreferenceScores?: Record<string, number>;
   positiveDropIds?: string[];
   negativeDropIds?: string[];
+  negativeCreatorIds?: string[];
+  mutedCreatorIds?: string[];
+  negativeCategoryIds?: string[];
+  categoryNegativeAffinity?: Record<string, number>;
+  repeatedSkipDropIds?: Record<string, number>;
+  lowWatchAfterRecommendationDropIds?: Record<string, number>;
+  negativePreferenceProfile?: NegativePreferenceProfile;
   recentDropIds?: string[];
   recentCreatorIds?: string[];
   lookalikeCreatorIds?: string[];
@@ -109,6 +118,9 @@ export type RecommendationRankingFeatures = RecommendationPrimitiveSignals & {
   previousExposurePenalty: number;
   fatiguePenalty: number;
   diversityBoost: number;
+  suppressionScore: number;
+  suppressionScoreMultiplier: number;
+  suppressionReasons: string[];
   truthScore: number;
   confidence: number;
 };
@@ -256,9 +268,6 @@ function computePreviousExposurePenalty(input: {
   const creatorId = drop.creatorId || "";
 
   let penalty = 0;
-  if (profile?.negativeDropIds?.includes(drop.id)) {
-    penalty += 30;
-  }
   if (profile?.recentDropIds?.includes(drop.id)) {
     penalty += 18;
   }
@@ -331,6 +340,7 @@ export function buildRecommendationRankingFeatures(input: {
   const previousExposurePenalty = computePreviousExposurePenalty({ drop, profile });
   const fatiguePenalty = computeFatiguePenalty({ drop, profile });
   const diversityBoost = computeDiversityBoost({ drop, profile, candidate: input.candidate });
+  const suppression = buildRecommendationSuppression({ drop, profile, nowMs });
 
   const pPurchase7d = clamp01(
     (creatorAffinity * 0.22) +
@@ -382,9 +392,9 @@ export function buildRecommendationRankingFeatures(input: {
   );
   const pNegativeFeedback = clamp01(
     (intelligence?.negativeSignalRate || 0) * 0.4 +
-    (profile?.negativeDropIds?.includes(drop.id) ? 0.3 : 0) +
+    (suppression.suppressionScore * 0.35) +
     (profile?.fatigueScore || 0) * 0.2 +
-    (previousExposurePenalty / 100) * 0.1,
+    (previousExposurePenalty / 100) * 0.05,
   );
   const profilePredictions = profile?.predictionOutputs ?? {};
   const predictedPaidConversion = clamp01(profilePredictions.pPurchase7d ?? pPurchase7d);
@@ -412,7 +422,7 @@ export function buildRecommendationRankingFeatures(input: {
     pWatchComplete: predictedWatchCompletion,
     pReturn7d: predictedReturn,
     pCreatorFollow: clamp01(profilePredictions.pCreatorFollow ?? pCreatorFollow),
-    pNegativeFeedback: clamp01(profilePredictions.pNegativeFeedback ?? pNegativeFeedback),
+    pNegativeFeedback: Math.max(clamp01(profilePredictions.pNegativeFeedback ?? pNegativeFeedback), suppression.suppressionScore),
     predictedPaidConversion,
     predictedUnlock,
     predictedWatchCompletion,
@@ -420,6 +430,9 @@ export function buildRecommendationRankingFeatures(input: {
     previousExposurePenalty,
     fatiguePenalty,
     diversityBoost,
+    suppressionScore: suppression.suppressionScore,
+    suppressionScoreMultiplier: suppression.scoreMultiplier,
+    suppressionReasons: suppression.reasons,
     truthScore,
     confidence,
     diagnostics: {

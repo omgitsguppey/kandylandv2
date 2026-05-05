@@ -6,6 +6,7 @@ import { generateRecommendationCandidates } from "@/lib/recommendations/candidat
 import { rankDeterministicRecommendations } from "@/lib/recommendations/deterministic-ranker";
 import { scoreRecommendationWithArtifact } from "@/lib/recommendations/ml-ranker";
 import { buildRecommendationExplanation } from "@/lib/recommendations/recommendation-explanations";
+import type { NegativePreferenceProfile } from "@/lib/behavioral/negative-preference-score";
 import type { Drop } from "@/types/db";
 
 const USER_PROFILE_COLLECTION = "behavioral_user_profiles";
@@ -54,6 +55,13 @@ type BehavioralProfileDoc = {
   experiencePreferenceScores?: Record<string, number>;
   positiveDropIds?: string[];
   negativeDropIds?: string[];
+  negativeCreatorIds?: string[];
+  mutedCreatorIds?: string[];
+  negativeCategoryIds?: string[];
+  categoryNegativeAffinity?: Record<string, number>;
+  repeatedSkipDropIds?: Record<string, number>;
+  lowWatchAfterRecommendationDropIds?: Record<string, number>;
+  negativePreferenceProfile?: NegativePreferenceProfile;
   recentDropIds?: string[];
   recentCreatorIds?: string[];
   fatigueScore?: number;
@@ -118,6 +126,11 @@ type RankedDropRecommendation = {
     pNegativeFeedback: number;
   };
   truthScore: number;
+  suppression: {
+    score: number;
+    multiplier: number;
+    reasons: string[];
+  };
   explanationEligible: boolean;
   fallbackReason: string;
   explanationSummary: string;
@@ -334,6 +347,11 @@ export async function buildDeterministicDropRecommendations(input: {
           pNegativeFeedback: entry.features.pNegativeFeedback,
         },
         truthScore: entry.features.truthScore,
+        suppression: {
+          score: entry.features.suppressionScore,
+          multiplier: entry.features.suppressionScoreMultiplier,
+          reasons: explanation.adminReasons,
+        },
         explanationEligible: recommendationState.explanationEligible,
         fallbackReason: recommendationState.fallbackReason,
         explanationSummary: explanation.summary,

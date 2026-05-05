@@ -108,6 +108,16 @@ function resolveIdentifiedSourceTruth(
         return "client" as const;
     }
 
+    if (
+        canonicalEventName === "drop_not_interested"
+        || canonicalEventName === "creator_not_interested"
+        || canonicalEventName === "category_not_interested"
+        || canonicalEventName === "creator_muted"
+        || canonicalEventName === "recommendation_dismissed"
+    ) {
+        return "client" as const;
+    }
+
     if (canonicalEventName === "gumdrops_purchase_completed" || canonicalEventName === "purchase") {
         return "client" as const;
     }

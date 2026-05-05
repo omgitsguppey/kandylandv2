@@ -78,6 +78,36 @@ Drop recommendation score:
 ) - fatiguePenalty - repeatExposurePenalty + diversityBoost
 ```
 
+## Negative Preference Suppression
+
+KandyDrops recommendations learn what to avoid through explicit preference controls:
+
+- `drop_not_interested`
+- `creator_not_interested`
+- `category_not_interested`
+- `creator_muted`
+- `recommendation_dismissed`
+
+Suppression score:
+
+```text
+clamp01(
+  0.45 * explicitNegativeFeedback +
+  0.25 * repeatedSkips +
+  0.15 * lowWatchAfterRecommendation +
+  0.10 * negativeFeedbackRecency +
+  0.05 * creatorMuteStrength
+)
+```
+
+Final recommendation score:
+
+```text
+baseScore * (1 - suppressionScore)
+```
+
+Explicit negative feedback beats weak positive behavior. Suppression decays with a 30-day half-life unless the creator is muted. A single weak dismissal cannot suppress an entire category; category suppression requires an explicit category action or repeated skip evidence. Admin-facing reasons stay plain English, for example: "Lowered because user dismissed similar drops."
+
 ## Surface Objectives
 
 - User drops page: `pUnlock24h`, `pPurchase7d`, freshness

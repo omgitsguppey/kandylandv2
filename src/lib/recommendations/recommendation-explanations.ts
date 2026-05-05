@@ -6,6 +6,7 @@ import type {
 export type RecommendationExplanation = {
   summary: string;
   reasons: string[];
+  adminReasons: string[];
   diagnostics: Array<{
     label: string;
     value: number;
@@ -58,6 +59,7 @@ export function buildRecommendationExplanation(input: {
   return {
     summary: reasons[0] || "This recommendation is fallback-only because no creator or content affinity has formed yet.",
     reasons: reasons.slice(0, 3),
+    adminReasons: features.suppressionReasons,
     diagnostics: [
       { label: "Predicted paid conversion", value: features.predictedPaidConversion },
       { label: "pPurchase7d", value: features.pPurchase7d },
@@ -74,6 +76,7 @@ export function buildRecommendationExplanation(input: {
       { label: "Urgency", value: features.urgency },
       { label: "Truth score", value: features.truthScore },
       { label: "Confidence", value: features.confidence },
+      { label: "Suppression score", value: features.suppressionScore },
       { label: "Fatigue penalty", value: features.fatiguePenalty / 100 },
       { label: "Previous exposure penalty", value: features.previousExposurePenalty / 100 },
     ],

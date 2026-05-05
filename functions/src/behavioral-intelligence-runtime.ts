@@ -72,6 +72,18 @@ type UserSignalAggregate = {
   topCategoryScores: Map<string, number>
   topThemeScores: Map<string, number>
   topExperienceScores: Map<string, number>
+  negativeCreatorIds: Set<string>
+  mutedCreatorIds: Set<string>
+  negativeCategoryScores: Map<string, number>
+  repeatedSkipDropIds: Map<string, number>
+  lowWatchAfterRecommendationDropIds: Map<string, number>
+  negativePreferenceLatestAtMs: number
+  negativePreferenceLatestByDrop: Map<string, number>
+  negativePreferenceLatestByCreator: Map<string, number>
+  negativePreferenceLatestByCategory: Map<string, number>
+  negativePreferenceEventNamesByDrop: Map<string, Set<string>>
+  negativePreferenceEventNamesByCreator: Map<string, Set<string>>
+  negativePreferenceEventNamesByCategory: Map<string, Set<string>>
   recentDropIds: string[]
   recentCreatorIds: string[]
   positiveDropIds: Set<string>
@@ -193,6 +205,27 @@ function topEntries(map: Map<string, number>, limit: number) {
     .slice(0, limit)
 }
 
+function numberMapToObject(map: Map<string, number>, limit = 24) {
+  return Object.fromEntries(
+    Array.from(map.entries())
+      .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+      .slice(0, limit)
+      .map(([key, value]) => [key, round(value)]),
+  )
+}
+
+function unionKeys(...collections: Array<Iterable<string>>) {
+  const keys = new Set<string>()
+  collections.forEach((collection) => {
+    Array.from(collection).forEach((key) => {
+      if (key) {
+        keys.add(key)
+      }
+    })
+  })
+  return Array.from(keys)
+}
+
 function readMillis(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value
@@ -227,6 +260,80 @@ function scoreMapIncrement(map: Map<string, number>, key: string, amount: number
   }
 
   map.set(key, round((map.get(key) || 0) + amount))
+}
+
+function countMapIncrement(map: Map<string, number>, key: string, amount = 1) {
+  if (!key || !Number.isFinite(amount) || amount <= 0) {
+    return
+  }
+
+  map.set(key, Math.round((map.get(key) || 0) + amount))
+}
+
+function setTimestampMax(map: Map<string, number>, key: string, timestamp: number) {
+  if (!key || !Number.isFinite(timestamp) || timestamp <= 0) {
+    return
+  }
+
+  map.set(key, Math.max(map.get(key) || 0, timestamp))
+}
+
+function addEventName(map: Map<string, Set<string>>, key: string, eventName: string) {
+  if (!key || !eventName) {
+    return
+  }
+
+  const names = map.get(key) ?? new Set<string>()
+  names.add(eventName)
+  map.set(key, names)
+}
+
+function recordNegativePreference(input: {
+  aggregate: UserSignalAggregate
+  eventName: string
+  timestamp: number
+  dropId?: string
+  creatorId?: string
+  category?: string
+  explicitDrop?: boolean
+  explicitCreator?: boolean
+  explicitCategory?: boolean
+  creatorMuted?: boolean
+  recommendationDismissed?: boolean
+}) {
+  const aggregate = input.aggregate
+  aggregate.feedbackCount += 1
+  aggregate.negativeFeedbackCount += 1
+  aggregate.sourceTimestamps.feedbacks.push(input.timestamp)
+  aggregate.negativePreferenceLatestAtMs = Math.max(aggregate.negativePreferenceLatestAtMs, input.timestamp)
+
+  if (input.dropId) {
+    setTimestampMax(aggregate.negativePreferenceLatestByDrop, input.dropId, input.timestamp)
+    addEventName(aggregate.negativePreferenceEventNamesByDrop, input.dropId, input.eventName)
+    if (input.explicitDrop) {
+      aggregate.negativeDropIds.add(input.dropId)
+    }
+    if (input.recommendationDismissed) {
+      countMapIncrement(aggregate.repeatedSkipDropIds, input.dropId)
+    }
+  }
+
+  if (input.creatorId) {
+    setTimestampMax(aggregate.negativePreferenceLatestByCreator, input.creatorId, input.timestamp)
+    addEventName(aggregate.negativePreferenceEventNamesByCreator, input.creatorId, input.eventName)
+    if (input.explicitCreator || input.creatorMuted) {
+      aggregate.negativeCreatorIds.add(input.creatorId)
+    }
+    if (input.creatorMuted) {
+      aggregate.mutedCreatorIds.add(input.creatorId)
+    }
+  }
+
+  if (input.category) {
+    setTimestampMax(aggregate.negativePreferenceLatestByCategory, input.category, input.timestamp)
+    addEventName(aggregate.negativePreferenceEventNamesByCategory, input.category, input.eventName)
+    scoreMapIncrement(aggregate.negativeCategoryScores, input.category, input.explicitCategory ? 1 : 0.35)
+  }
 }
 
 function deriveExperienceKey(input: {
@@ -403,6 +510,18 @@ function ensureUserAggregate(userId: string, store: Map<string, UserSignalAggreg
     topCategoryScores: new Map(),
     topThemeScores: new Map(),
     topExperienceScores: new Map(),
+    negativeCreatorIds: new Set(),
+    mutedCreatorIds: new Set(),
+    negativeCategoryScores: new Map(),
+    repeatedSkipDropIds: new Map(),
+    lowWatchAfterRecommendationDropIds: new Map(),
+    negativePreferenceLatestAtMs: 0,
+    negativePreferenceLatestByDrop: new Map(),
+    negativePreferenceLatestByCreator: new Map(),
+    negativePreferenceLatestByCategory: new Map(),
+    negativePreferenceEventNamesByDrop: new Map(),
+    negativePreferenceEventNamesByCreator: new Map(),
+    negativePreferenceEventNamesByCategory: new Map(),
     recentDropIds: [],
     recentCreatorIds: [],
     positiveDropIds: new Set(),
@@ -512,6 +631,12 @@ function readNormalizedAction(record: Record<string, unknown>) {
   case "drop_preview_opened":
   case "drop_preview_page_viewed":
     return "drop_preview_opened"
+  case "drop_not_interested":
+    return "drop_not_interested"
+  case "category_not_interested":
+    return "category_not_interested"
+  case "recommendation_dismissed":
+    return "recommendation_dismissed"
   case "unlock_drop_success":
   case "drop_unwrapped":
   case "entitlement_granted":
@@ -530,6 +655,10 @@ function readNormalizedAction(record: Record<string, unknown>) {
     return "gumdrops_purchased"
   case "creator_followed":
     return "creator_followed"
+  case "creator_not_interested":
+    return "creator_not_interested"
+  case "creator_muted":
+    return "creator_muted"
   case "notification_opened":
   case "notification_clicked":
   case "notification_read":
@@ -634,14 +763,22 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     const dropId = readString(event.dropId)
     const timestamp = readNumber(event.timestamp) || nowMs
     const drop = dropId ? dropMap.get(dropId) : undefined
-    const creatorId = drop ? readString(drop.creatorId) : ""
-    const category = drop ? readString(drop.type) : readString(event.dropCategory)
+    const eventCreatorId = readString(event.creatorId) || readString(event.actionCreatorId) || readString(event.targetCreatorId)
+    const creatorId = drop ? readString(drop.creatorId) : eventCreatorId
+    const category = drop
+      ? readString(drop.type)
+      : readString(event.dropCategory) || readString(event.category) || (normalizedAction === "category_not_interested" ? readString(event.actionEntityId) : "")
     const tags = drop ? normalizeTags(drop.tags) : []
     const pagePath = readString(event.pagePath)
     const experienceKey = deriveExperienceKey({
       eventName,
       pagePath,
     })
+    const isNegativePreferenceAction = normalizedAction === "drop_not_interested"
+      || normalizedAction === "creator_not_interested"
+      || normalizedAction === "category_not_interested"
+      || normalizedAction === "creator_muted"
+      || normalizedAction === "recommendation_dismissed"
 
     if (drop && dropId) {
       const dropAggregate = ensureDropAggregate(drop, dropAggregates)
@@ -656,6 +793,9 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       }
       if (normalizedAction === "drop_unwrapped" && isServerUnlockFact(eventName, event)) {
         dropAggregate.unlocks += 1
+      }
+      if (isNegativePreferenceAction) {
+        dropAggregate.negativeFeedbackCount += 1
       }
       if (timestamp >= nowMs - (24 * 60 * 60 * 1000)) {
         dropAggregate.last24hInteractions += 1
@@ -731,6 +871,21 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       aggregate.serverUnlockCount += 1
       aggregate.sourceTimestamps.serverUnlocks.push(timestamp)
     }
+    if (isNegativePreferenceAction) {
+      recordNegativePreference({
+        aggregate,
+        eventName,
+        timestamp,
+        dropId,
+        creatorId,
+        category,
+        explicitDrop: normalizedAction === "drop_not_interested",
+        explicitCreator: normalizedAction === "creator_not_interested",
+        explicitCategory: normalizedAction === "category_not_interested",
+        creatorMuted: normalizedAction === "creator_muted",
+        recommendationDismissed: normalizedAction === "recommendation_dismissed",
+      })
+    }
 
     if (dropId) {
       aggregate.uniqueDropIds.add(dropId)
@@ -739,17 +894,23 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     if (creatorId) {
       aggregate.uniqueCreatorIds.add(creatorId)
       pushLimited(aggregate.recentCreatorIds, creatorId)
-      scoreMapIncrement(aggregate.topCreatorScores, creatorId, normalizedAction === "drop_unwrapped" ? 2.5 : normalizedAction === "creator_followed" ? 4 : 0.35)
+      if (!isNegativePreferenceAction) {
+        scoreMapIncrement(aggregate.topCreatorScores, creatorId, normalizedAction === "drop_unwrapped" ? 2.5 : normalizedAction === "creator_followed" ? 4 : 0.35)
+      }
     }
-    if (category) {
+    if (category && !isNegativePreferenceAction) {
       scoreMapIncrement(aggregate.topCategoryScores, category, normalizedAction === "drop_unwrapped" ? 2 : 0.25)
     }
-    tags.forEach((tag) => scoreMapIncrement(aggregate.topThemeScores, tag, normalizedAction === "drop_unwrapped" ? 1.2 : 0.18))
-    scoreMapIncrement(
-      aggregate.topExperienceScores,
-      experienceKey,
-      isActionEvent(eventName) ? 0.45 : 0.15,
-    )
+    if (!isNegativePreferenceAction) {
+      tags.forEach((tag) => scoreMapIncrement(aggregate.topThemeScores, tag, normalizedAction === "drop_unwrapped" ? 1.2 : 0.18))
+    }
+    if (!isNegativePreferenceAction) {
+      scoreMapIncrement(
+        aggregate.topExperienceScores,
+        experienceKey,
+        isActionEvent(eventName) ? 0.45 : 0.15,
+      )
+    }
   })
 
   input.watchSessions.forEach((record) => {
@@ -764,6 +925,14 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     const totalWatchSeconds = validWatchSeconds
     const watchScore = readNumber(session.watchScore)
     const hasVerifiedWatch = watchScoreSource === "watch_session_rollup" && totalWatchSeconds > 0
+    const recommendationSource = readString(session.recommendationId)
+      || readString(session.recommendationSource)
+      || readString(session.sourceSurface)
+      || readString(session.entrySurface)
+    const hasRecommendationSource = recommendationSource.toLowerCase().includes("recommend")
+    const lowWatchAfterRecommendation = hasRecommendationSource
+      && hasVerifiedWatch
+      && (totalWatchSeconds < 8 || (watchScore > 0 && watchScore < 25))
 
     if (dropId && dropMap.has(dropId)) {
       const dropAggregate = ensureDropAggregate(dropMap.get(dropId) as DropRecord, dropAggregates)
@@ -810,6 +979,12 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       }
       aggregate.uniqueDropIds.add(dropId)
       pushLimited(aggregate.recentDropIds, dropId)
+      if (lowWatchAfterRecommendation) {
+        countMapIncrement(aggregate.lowWatchAfterRecommendationDropIds, dropId)
+        aggregate.negativePreferenceLatestAtMs = Math.max(aggregate.negativePreferenceLatestAtMs, watchedAtMs)
+        setTimestampMax(aggregate.negativePreferenceLatestByDrop, dropId, watchedAtMs)
+        addEventName(aggregate.negativePreferenceEventNamesByDrop, dropId, "low_watch_after_recommendation")
+      }
     }
 
     const drop = dropId ? dropMap.get(dropId) : undefined
@@ -860,6 +1035,9 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       aggregate.negativeFeedbackCount += 1
       if (dropId) {
         aggregate.negativeDropIds.add(dropId)
+        aggregate.negativePreferenceLatestAtMs = Math.max(aggregate.negativePreferenceLatestAtMs, createdAtMs)
+        setTimestampMax(aggregate.negativePreferenceLatestByDrop, dropId, createdAtMs)
+        addEventName(aggregate.negativePreferenceEventNamesByDrop, dropId, "feedback_negative")
       }
     }
   })
@@ -916,6 +1094,24 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
   }
 }
 
+function buildPreferenceRecord(input: {
+  entityId: string
+  explicit: boolean
+  repeatedSkips?: number
+  lowWatchAfterRecommendation?: number
+  latestAtMs?: number
+  eventNames?: Set<string>
+}) {
+  return {
+    entityId: input.entityId,
+    explicitNegativeFeedback: input.explicit ? 1 : 0,
+    repeatedSkips: Math.max(0, input.repeatedSkips || 0),
+    lowWatchAfterRecommendation: Math.max(0, input.lowWatchAfterRecommendation || 0),
+    latestAtMs: Math.max(0, input.latestAtMs || 0),
+    eventNames: Array.from(input.eventNames ?? []).sort(),
+  }
+}
+
 function buildUserProfileDoc(input: {
   aggregate: UserSignalAggregate
   sessionAggregates: Map<string, SessionAggregate>
@@ -963,6 +1159,61 @@ function buildUserProfileDoc(input: {
   const topCategoryEntries = topEntries(input.aggregate.topCategoryScores, 8)
   const topThemeEntries = topEntries(input.aggregate.topThemeScores, 8)
   const topExperienceEntries = topEntries(input.aggregate.topExperienceScores, 8)
+  const negativeDropIds = Array.from(input.aggregate.negativeDropIds).slice(0, 24)
+  const negativeCreatorIds = Array.from(input.aggregate.negativeCreatorIds).slice(0, 24)
+  const mutedCreatorIds = Array.from(input.aggregate.mutedCreatorIds).slice(0, 24)
+  const negativeCategoryScores = numberMapToObject(input.aggregate.negativeCategoryScores, 24)
+  const negativeCategoryIds = Object.entries(negativeCategoryScores)
+    .filter(([, score]) => Number(score) >= 1)
+    .map(([category]) => category)
+  const negativePreferenceDropKeys = unionKeys(
+    input.aggregate.negativeDropIds,
+    input.aggregate.repeatedSkipDropIds.keys(),
+    input.aggregate.lowWatchAfterRecommendationDropIds.keys(),
+    input.aggregate.negativePreferenceLatestByDrop.keys(),
+  )
+  const negativePreferenceCreatorKeys = unionKeys(
+    input.aggregate.negativeCreatorIds,
+    input.aggregate.mutedCreatorIds,
+    input.aggregate.negativePreferenceLatestByCreator.keys(),
+  )
+  const negativePreferenceCategoryKeys = unionKeys(
+    input.aggregate.negativeCategoryScores.keys(),
+    input.aggregate.negativePreferenceLatestByCategory.keys(),
+  )
+  const negativePreferenceProfile = {
+    version: 1,
+    halfLifeDays: 30,
+    latestAtMs: input.aggregate.negativePreferenceLatestAtMs,
+    dropIds: negativeDropIds,
+    creatorIds: negativeCreatorIds,
+    mutedCreatorIds,
+    categoryScores: negativeCategoryScores,
+    repeatedSkipDropIds: numberMapToObject(input.aggregate.repeatedSkipDropIds, 24),
+    lowWatchAfterRecommendationDropIds: numberMapToObject(input.aggregate.lowWatchAfterRecommendationDropIds, 24),
+    drops: Object.fromEntries(negativePreferenceDropKeys.map((dropId) => [dropId, buildPreferenceRecord({
+      entityId: dropId,
+      explicit: input.aggregate.negativeDropIds.has(dropId),
+      repeatedSkips: input.aggregate.repeatedSkipDropIds.get(dropId),
+      lowWatchAfterRecommendation: input.aggregate.lowWatchAfterRecommendationDropIds.get(dropId),
+      latestAtMs: input.aggregate.negativePreferenceLatestByDrop.get(dropId),
+      eventNames: input.aggregate.negativePreferenceEventNamesByDrop.get(dropId),
+    })])),
+    creators: Object.fromEntries(negativePreferenceCreatorKeys.map((creatorId) => [creatorId, buildPreferenceRecord({
+      entityId: creatorId,
+      explicit: input.aggregate.negativeCreatorIds.has(creatorId) || input.aggregate.mutedCreatorIds.has(creatorId),
+      latestAtMs: input.aggregate.negativePreferenceLatestByCreator.get(creatorId),
+      eventNames: input.aggregate.negativePreferenceEventNamesByCreator.get(creatorId),
+    })])),
+    categories: Object.fromEntries(negativePreferenceCategoryKeys.map((category) => [category, buildPreferenceRecord({
+      entityId: category,
+      explicit: input.aggregate.negativeCategoryScores.get(category) !== undefined
+        && (input.aggregate.negativePreferenceEventNamesByCategory.get(category)?.has("category_not_interested") === true),
+      repeatedSkips: input.aggregate.negativeCategoryScores.get(category),
+      latestAtMs: input.aggregate.negativePreferenceLatestByCategory.get(category),
+      eventNames: input.aggregate.negativePreferenceEventNamesByCategory.get(category),
+    })])),
+  }
   const repeatedCreatorSignalCount = topCreatorEntries.filter((entry) => entry.score >= 2).length
   const categorySignalCount = topCategoryEntries.filter((entry) => entry.score >= 0.75).length
   const themeSignalCount = topThemeEntries.filter((entry) => entry.score >= 0.5).length
@@ -1160,7 +1411,14 @@ function buildUserProfileDoc(input: {
     recentDropIds: input.aggregate.recentDropIds,
     recentCreatorIds: input.aggregate.recentCreatorIds,
     positiveDropIds: Array.from(input.aggregate.positiveDropIds),
-    negativeDropIds: Array.from(input.aggregate.negativeDropIds),
+    negativeDropIds,
+    negativeCreatorIds,
+    mutedCreatorIds,
+    negativeCategoryIds,
+    categoryNegativeAffinity: negativeCategoryScores,
+    repeatedSkipDropIds: negativePreferenceProfile.repeatedSkipDropIds,
+    lowWatchAfterRecommendationDropIds: negativePreferenceProfile.lowWatchAfterRecommendationDropIds,
+    negativePreferenceProfile,
     eventCount: input.aggregate.eventCount,
     watchSessionCount: input.aggregate.watchSessionCount,
     purchaseCount: input.aggregate.serverPurchaseCount,

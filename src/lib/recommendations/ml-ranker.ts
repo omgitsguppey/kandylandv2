@@ -9,6 +9,7 @@ import { computeDropRecommendationScore } from "@/lib/behavioral/behavioral-math
 import type {
   RecommendationRankingFeatures,
 } from "@/lib/recommendations/ranking-features";
+import { applyRecommendationSuppression } from "@/lib/recommendations/suppression-rules";
 
 export type RecommendationModelHead = {
   intercept: number;
@@ -98,6 +99,8 @@ function toFeatureMap(features: RecommendationRankingFeatures) {
     confidence: features.confidence,
     previousExposurePenalty: features.previousExposurePenalty / 40,
     fatiguePenalty: features.fatiguePenalty / 16,
+    pNegativeFeedback: features.pNegativeFeedback,
+    suppressionScore: features.suppressionScore,
   };
 }
 
@@ -189,7 +192,7 @@ export function scoreRecommendationWithArtifact(input: {
   const predictedUnlock = scoreHead(artifact.heads.predictedUnlock, featureMap);
   const predictedWatchCompletion = scoreHead(artifact.heads.predictedWatchCompletion, featureMap);
   const predictedReturn = scoreHead(artifact.heads.predictedReturn, featureMap);
-  const score = computeDropRecommendationScore({
+  const baseScore = computeDropRecommendationScore({
     pPurchase7d: predictedPaidConversion,
     pUnlock24h: predictedUnlock,
     pWatchComplete: predictedWatchCompletion,
@@ -202,6 +205,7 @@ export function scoreRecommendationWithArtifact(input: {
     repeatExposurePenalty: input.features.previousExposurePenalty,
     diversityBoost: input.features.diversityBoost,
   });
+  const score = applyRecommendationSuppression(baseScore, input.features.suppressionScore);
 
   return {
     mode: "ml_artifact",

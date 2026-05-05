@@ -38,6 +38,7 @@
         "validate:behavioral-models": "tsx scripts/validate-behavioral-models.ts",
         "validate:behavioral-predictions": "tsx scripts/validate-behavioral-predictions.ts",
         "check:behavioral-math-calibration": "tsx scripts/agent/validate-behavioral-math-calibration.ts",
+        "check:negative-preferences": "tsx scripts/agent/validate-negative-preferences.ts",
         "analytics:truth:rebuild": "tsx scripts/rebuild-analytics-truth.ts",
         "check:telemetry": "tsx scripts/audit-telemetry.ts && tsx scripts/check-telemetry-parity-contracts.ts",
         "check:telemetry-orphan-cleanup": "tsx scripts/agent/validate-telemetry-orphan-cleanup.ts",

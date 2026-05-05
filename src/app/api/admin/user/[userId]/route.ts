@@ -1287,6 +1287,7 @@ async function GET_handler(
                     rankingMode: entry.rankingMode,
                     predictions: entry.predictions,
                     truthScore: entry.truthScore,
+                    suppression: entry.suppression,
                     factors: entry.factors,
                     explanationEligible: entry.explanationEligible,
                     fallbackReason: entry.fallbackReason,
