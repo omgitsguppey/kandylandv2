@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.29.0",
+  "currentVersion": "1.30.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T21:56:27.587Z",
-  "generatedAtUtc": "2026-05-05T21:56:27.587Z",
-  "lastCommitSha": "0f4e79dc70b526231b4708f0bc312551b36ddfcd",
+  "generatedAt": "2026-05-05T22:05:58.505Z",
+  "generatedAtUtc": "2026-05-05T22:05:58.505Z",
+  "lastCommitSha": "a0973fdb3d307dd0e79e0ec1ab9bb96f875e0e02",
   "notes": [
+    {
+      "version": "1.30.0",
+      "previousVersion": "1.29.0",
+      "commitSha": "a0973fdb3d307dd0e79e0ec1ab9bb96f875e0e02",
+      "commitTitle": "fix(creator): annotate missing ID request history evidence",
+      "committedAt": "2026-05-05T22:05:42.000Z",
+      "generatedAt": "2026-05-05T22:05:58.505Z",
+      "committedAtUtc": "2026-05-05T22:05:42.000Z",
+      "generatedAtUtc": "2026-05-05T22:05:58.505Z",
+      "diffStats": {
+        "rawAdditions": 268,
+        "rawDeletions": 4,
+        "rawChangeCount": 272,
+        "additions": 268,
+        "deletions": 4,
+        "effectiveAdditions": 264,
+        "effectiveDeletions": 1,
+        "changedFiles": 9,
+        "effectiveChangeCount": 265,
+        "excludedGeneratedChangeCount": 7
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal creator review history checks.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.29.0",
       "previousVersion": "1.28.0",
@@ -133,38 +166,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "Kept the update focused on user-visible polish and reliability."
       ],
       "affectedSurfaces": [
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.26.0",
-      "previousVersion": "1.25.0",
-      "commitSha": "648a07ef1b19c9d176c9ea1cd2ec4cf4bf92c14b",
-      "commitTitle": "fix(cost): guard creator ID document egress",
-      "committedAt": "2026-05-05T21:16:32.000Z",
-      "generatedAt": "2026-05-05T21:16:47.539Z",
-      "committedAtUtc": "2026-05-05T21:16:32.000Z",
-      "generatedAtUtc": "2026-05-05T21:16:47.539Z",
-      "diffStats": {
-        "rawAdditions": 174,
-        "rawDeletions": 38,
-        "rawChangeCount": 212,
-        "additions": 174,
-        "deletions": 38,
-        "effectiveAdditions": 147,
-        "effectiveDeletions": 7,
-        "changedFiles": 5,
-        "effectiveChangeCount": 154,
-        "excludedGeneratedChangeCount": 58
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal safety checks for creator verification documents.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
         "repo-tooling"
       ]
     }

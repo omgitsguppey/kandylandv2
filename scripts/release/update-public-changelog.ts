@@ -245,6 +245,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
     return "Improved internal creator review status checks.";
   }
+  if (normalized.includes("annotate missing id request history evidence") || normalized.includes("id request history")) {
+    return "Improved internal creator review history checks.";
+  }
   if (isInternalBetaStabilizationChange(title, surfaces)) {
     return "Improved internal beta reliability and support traceability.";
   }
