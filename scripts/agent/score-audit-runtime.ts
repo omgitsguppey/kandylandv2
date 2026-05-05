@@ -9,6 +9,7 @@ import {
   type AuditRuntimeLedgerEntry,
 } from "../../src/lib/agent-audit/audit-runtime-contract";
 import { calculateAuditSpeedScore, summarizeAuditRuntime } from "../../src/lib/agent-audit/audit-speed-score";
+import { readAuditCacheIndex, summarizeAuditCacheIndex } from "../../src/lib/agent-audit/audit-cache";
 
 const root = process.cwd();
 
@@ -45,6 +46,10 @@ function printSummary(entries: AuditRuntimeLedgerEntry[]) {
   const summary = writeSummary(entries);
   console.log(`Audit runtime score: ${summary.overallSpeedScore}/100`);
   console.log(`Runs: ${summary.totalRuns}; audits: ${summary.totalAudits}; accuracy: ${summary.accuracy}; usefulness: ${summary.usefulness}`);
+  const cacheSummary = summarizeAuditCacheIndex(readAuditCacheIndex(root));
+  console.log(
+    `Audit cache: ${cacheSummary.records} records; ${cacheSummary.cacheHits} hits; ${cacheSummary.commandsAvoided} commands avoided.`,
+  );
 
   printAuditList("Slowest audits", summary.slowestAudits, (audit) => `${audit.averageDurationMs}ms avg, ${audit.maxDurationMs}ms max`);
   printAuditList("Most useful audits", summary.mostUsefulAudits, (audit) => `usefulness ${audit.usefulness}`);

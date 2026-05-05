@@ -144,12 +144,23 @@ export function dedupePlannedCommands(commands: readonly AffectedAuditPlannedCom
     if (existing.whyThisCommand !== command.whyThisCommand) {
       byCommand.set(command.command, {
         ...existing,
-        whyThisCommand: `${existing.whyThisCommand} ${command.whyThisCommand}`,
+        whyThisCommand: mergeCommandJustifications(existing.whyThisCommand, command.whyThisCommand),
       });
     }
   }
 
   return Array.from(byCommand.values()).sort((a, b) => b.priority - a.priority || a.command.localeCompare(b.command));
+}
+
+function mergeCommandJustifications(left: string, right: string) {
+  return Array.from(new Set([...splitJustification(left), ...splitJustification(right)])).join(" ");
+}
+
+function splitJustification(value: string) {
+  return value
+    .split(/(?<=\.)\s+/u)
+    .map((part) => part.trim())
+    .filter(Boolean);
 }
 
 export function applyCommandBudget(

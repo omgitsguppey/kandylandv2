@@ -23,6 +23,8 @@
         "audit:run": "tsx scripts/agent/run-audit-with-ledger.ts",
         "score:audit-runtime": "tsx scripts/agent/score-audit-runtime.ts",
         "check:audit-runtime-ledger": "tsx scripts/agent/validate-audit-runtime-ledger.ts",
+        "check:audit-cache": "tsx scripts/agent/validate-audit-cache.ts",
+        "audit:cache-status": "tsx scripts/agent/cache-audit-result.ts",
         "plan:affected-audits": "tsx scripts/agent/plan-affected-audits.ts",
         "check:affected-audit-router": "tsx scripts/agent/validate-affected-audit-router.ts",
         "check:agent-intelligence": "tsx scripts/agent/validate-agent-indexes.ts",

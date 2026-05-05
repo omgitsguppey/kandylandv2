@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Audit cache fingerprints
+
+KandyDrops deterministic audit validators now have a lightweight local cache layer. `src/lib/agent-audit/file-fingerprint.ts` computes normalized sha256 fingerprints and `src/lib/agent-audit/audit-cache.ts` builds cache keys from audit name/version, relevant source fingerprints, validator fingerprints, package script definitions, and config hashes. `npm run audit:run` checks this cache before spawning validators, logs cache-hit ledger entries, and records avoided commands in `agent/cache/audit-cache-index.json`; `npm run audit:cache-status` inspects cache state and `npm run check:audit-cache` validates max ages, accuracy thresholds, false-positive review gating, volatile output exclusion, and package wiring. Critical payment/auth/security/wallet/unlock audits use 6h cache windows, docs/doctrine use 72h, generated reports/UI validators use 24h, and audit runtime/cache summaries use 1h.
+
 ## 2026-05-05 Affected audit router
 
 KandyDrops now has a deterministic affected-file precheck for audit routing. `npm run plan:affected-audits` reads Git changed files or explicit `--files`, maps them through KandyDrops surface/dependency rules in `src/lib/agent-audit/affected-surface-router.ts`, applies command budgets from `src/lib/agent-audit/verification-command-budget.ts`, and writes `agent/state/affected-audit-plan.generated.json`. Plans include command-level `whyThisCommand`, `whyNotFullCheck`, terminal allow-list justification, forbidden full-suite commands, and safe skip explanations. `npm run check:affected-audit-router` validates wallet, docs-only, PayPal API, chat, viewer, admin users, rules, and agent-tooling routing examples.

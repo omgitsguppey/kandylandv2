@@ -134,6 +134,19 @@ const SURFACE_RULES: SurfaceRule[] = [
     safeSkips: ["No full firebase rules suite: only storage.rules changed.", "No app typecheck: rules are not TypeScript runtime code."],
   },
   {
+    id: "audit_cache",
+    label: "audit_cache_surface",
+    priority: 95,
+    match: (filePath) =>
+      filePath.includes("audit-cache") ||
+      filePath.includes("file-fingerprint") ||
+      filePath.startsWith("agent/cache/"),
+    staticScripts: ["check:audit-cache", "check:affected-audit-router", "typecheck"],
+    budgetClass: "agent_tooling",
+    why: "Audit cache changes affect terminal suppression, cache fingerprints, and audit result reuse.",
+    safeSkips: ["No app tests by default: audit cache changes only affect agent audit execution.", "No full check: cache/router self-checks cover this path first."],
+  },
+  {
     id: "agent_tooling",
     label: "agent_tooling_surface",
     priority: 80,

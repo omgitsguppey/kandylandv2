@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T02:04:23.273Z",
+  "generatedAt": "2026-05-05T02:32:15.737Z",
   "source": [
     "agent/state/affected-audit-plan.generated.json",
     "agent/index/surface-map.json",
@@ -8,28 +8,34 @@
     "package.json"
   ],
   "researchModel": "Nx-style affected planning: Git changed files plus repo surface map and dependency/ownership hints determine the minimum affected checks; Nx is not required.",
-  "taskSummary": "build affected-file audit router",
+  "taskSummary": "cache deterministic audit results",
   "changedFiles": [
+    "agent/cache/",
     "agent/state/affected-audit-plan.generated.json",
-    "docs/agent-truth/affected-audit-router.md",
-    "docs/agent-truth/audit-runtime-ledger.md",
+    "agent/state/audit-runtime-ledger.jsonl",
+    "agent/state/audit-runtime-summary.generated.json",
+    "docs/agent-truth/audit-cache.md",
     "EVERY_FILE_FUNCTION_CHECKLIST.md",
     "FULL_SCALE_CODEBASE_AUDIT.md",
     "package.json",
     "REPO_MEMORY_LEDGER.md",
-    "scripts/agent/plan-affected-audits.ts",
+    "scripts/agent/cache-audit-result.ts",
     "scripts/agent/run-audit-with-ledger.ts",
-    "scripts/agent/validate-affected-audit-router.ts",
+    "scripts/agent/score-audit-runtime.ts",
+    "scripts/agent/validate-audit-cache.ts",
     "src/lib/agent-audit/affected-surface-router.ts",
+    "src/lib/agent-audit/audit-cache.ts",
+    "src/lib/agent-audit/file-fingerprint.ts",
     "src/lib/agent-audit/verification-command-budget.ts"
   ],
   "changedPackageScripts": [
-    "check:affected-audit-router",
-    "plan:affected-audits"
+    "audit:cache-status",
+    "check:audit-cache"
   ],
   "affectedSurfaces": [
     "agent_tooling_surface",
     "agent_truth_docs",
+    "audit_cache_surface",
     "package_script_validation",
     "surface_map:governance",
     "surface_map:repo_tooling",
@@ -40,31 +46,31 @@
       "command": "npm run check:affected-audit-router",
       "packageScript": "check:affected-audit-router",
       "group": "required_static_scan",
-      "surface": "package_script_validation",
-      "whyThisCommand": "Changed package audit/check scripts need affected-router validation.",
+      "surface": "audit_cache_surface",
+      "whyThisCommand": "Audit cache changes affect terminal suppression, cache fingerprints, and audit result reuse. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests. Changed package audit/check scripts need affected-router validation.",
       "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
       "budgetCost": 1,
-      "priority": 85
+      "priority": 95
     },
     {
-      "command": "npm run check:audit-runtime-ledger",
-      "packageScript": "check:audit-runtime-ledger",
+      "command": "npm run check:audit-cache",
+      "packageScript": "check:audit-cache",
       "group": "required_static_scan",
-      "surface": "agent_tooling_surface",
-      "whyThisCommand": "Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
+      "surface": "audit_cache_surface",
+      "whyThisCommand": "Audit cache changes affect terminal suppression, cache fingerprints, and audit result reuse.",
       "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
       "budgetCost": 1,
-      "priority": 80
+      "priority": 95
     },
     {
       "command": "npm run typecheck",
       "packageScript": "typecheck",
       "group": "required_static_scan",
-      "surface": "agent_tooling_surface",
-      "whyThisCommand": "Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
+      "surface": "audit_cache_surface",
+      "whyThisCommand": "Audit cache changes affect terminal suppression, cache fingerprints, and audit result reuse. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
       "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
       "budgetCost": 1,
-      "priority": 80
+      "priority": 95
     }
   ],
   "requiredTargetedTests": [],
@@ -149,20 +155,20 @@
   "terminalRunJustification": [
     {
       "command": "npm run check:affected-audit-router",
-      "surface": "package_script_validation",
-      "whyThisCommand": "Changed package audit/check scripts need affected-router validation.",
+      "surface": "audit_cache_surface",
+      "whyThisCommand": "Audit cache changes affect terminal suppression, cache fingerprints, and audit result reuse. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests. Changed package audit/check scripts need affected-router validation.",
       "allowedBy": "required_static_scan"
     },
     {
-      "command": "npm run check:audit-runtime-ledger",
-      "surface": "agent_tooling_surface",
-      "whyThisCommand": "Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
+      "command": "npm run check:audit-cache",
+      "surface": "audit_cache_surface",
+      "whyThisCommand": "Audit cache changes affect terminal suppression, cache fingerprints, and audit result reuse.",
       "allowedBy": "required_static_scan"
     },
     {
       "command": "npm run typecheck",
-      "surface": "agent_tooling_surface",
-      "whyThisCommand": "Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
+      "surface": "audit_cache_surface",
+      "whyThisCommand": "Audit cache changes affect terminal suppression, cache fingerprints, and audit result reuse. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
       "allowedBy": "required_static_scan"
     }
   ],
@@ -172,6 +178,16 @@
   "skipReasons": [
     {
       "command": "broad checks",
+      "surface": "audit_cache_surface",
+      "whySafeToSkip": "No app tests by default: audit cache changes only affect agent audit execution."
+    },
+    {
+      "command": "broad checks",
+      "surface": "audit_cache_surface",
+      "whySafeToSkip": "No full check: cache/router self-checks cover this path first."
+    },
+    {
+      "command": "broad checks",
       "surface": "agent_tooling_surface",
       "whySafeToSkip": "No app tests by default: only agent tooling changed."
     },
@@ -179,6 +195,36 @@
       "command": "broad checks",
       "surface": "agent_tooling_surface",
       "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "audit_cache_surface",
+      "whySafeToSkip": "No app tests by default: audit cache changes only affect agent audit execution."
+    },
+    {
+      "command": "broad checks",
+      "surface": "audit_cache_surface",
+      "whySafeToSkip": "No full check: cache/router self-checks cover this path first."
     },
     {
       "command": "broad checks",
@@ -212,16 +258,6 @@
     },
     {
       "command": "broad checks",
-      "surface": "agent_truth_docs",
-      "whySafeToSkip": "No typecheck: docs-only edits do not affect TypeScript runtime."
-    },
-    {
-      "command": "broad checks",
-      "surface": "agent_truth_docs",
-      "whySafeToSkip": "No app tests: docs cannot change product behavior."
-    },
-    {
-      "command": "broad checks",
       "surface": "agent_tooling_surface",
       "whySafeToSkip": "No app tests by default: only agent tooling changed."
     },
@@ -252,6 +288,16 @@
     },
     {
       "command": "broad checks",
+      "surface": "audit_cache_surface",
+      "whySafeToSkip": "No app tests by default: audit cache changes only affect agent audit execution."
+    },
+    {
+      "command": "broad checks",
+      "surface": "audit_cache_surface",
+      "whySafeToSkip": "No full check: cache/router self-checks cover this path first."
+    },
+    {
+      "command": "broad checks",
       "surface": "agent_tooling_surface",
       "whySafeToSkip": "No app tests by default: only agent tooling changed."
     },
@@ -269,6 +315,61 @@
       "command": "broad checks",
       "surface": "agent_tooling_surface",
       "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "audit_cache_surface",
+      "whySafeToSkip": "No app tests by default: audit cache changes only affect agent audit execution."
+    },
+    {
+      "command": "broad checks",
+      "surface": "audit_cache_surface",
+      "whySafeToSkip": "No full check: cache/router self-checks cover this path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "audit_cache_surface",
+      "whySafeToSkip": "No app tests by default: audit cache changes only affect agent audit execution."
+    },
+    {
+      "command": "broad checks",
+      "surface": "audit_cache_surface",
+      "whySafeToSkip": "No full check: cache/router self-checks cover this path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "npm run check:audit-runtime-ledger",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "Skipped by affected command budget 3; higher-priority checks cover the same changed files first."
     },
     {
       "command": "npm run check:generated-artifacts",

@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Audit Cache Fingerprint Coverage
+
+- [x] `src/lib/agent-audit/file-fingerprint.ts` owns normalized file path hashing, sha256 JSON/text hashing, config fingerprinting, unique path normalization, and aggregate fingerprint hashes for deterministic audit cache inputs.
+- [x] `src/lib/agent-audit/audit-cache.ts` owns the cache index contract, cache key metadata, max-age policy, accuracy/false-positive gating, volatile audit output exclusion, hit recording, result status mapping, findings hashing, and cache summary metrics.
+- [x] `scripts/agent/cache-audit-result.ts`, `scripts/agent/validate-audit-cache.ts`, `agent/cache/audit-cache-index.json`, `docs/agent-truth/audit-cache.md`, and package scripts `check:audit-cache` / `audit:cache-status` provide the local cache inspection and validation lane.
+- [x] `scripts/agent/run-audit-with-ledger.ts`, `scripts/agent/score-audit-runtime.ts`, and `src/lib/agent-audit/affected-surface-router.ts` integrate cache hits with terminal suppression, runtime scoring, and affected-surface routing.
+
 ## 2026-05-05 Affected Audit Router Coverage
 
 - [x] `src/lib/agent-audit/affected-surface-router.ts` owns deterministic changed-file to surface routing, including wallet, PayPal API, chat, viewer, admin users, Firebase rules, docs-only, agent tooling, unlock, functions, and Data Connect mirror surfaces.

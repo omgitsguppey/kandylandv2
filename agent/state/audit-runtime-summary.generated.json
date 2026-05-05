@@ -1,11 +1,11 @@
 {
-  "generatedAt": 1777945592624,
+  "generatedAt": 1777948374877,
   "ledgerPath": "agent/state/audit-runtime-ledger.jsonl",
-  "totalRuns": 4,
-  "totalAudits": 2,
-  "overallSpeedScore": 94.96,
+  "totalRuns": 17,
+  "totalAudits": 3,
+  "overallSpeedScore": 96.48,
   "accuracy": 0,
-  "usefulness": -0.14,
+  "usefulness": -0.57,
   "slowestAudits": [
     {
       "auditName": "scripts/agent/validate-audit-runtime-ledger.ts",
@@ -53,6 +53,31 @@
       "accuracy": 0,
       "usefulness": -0.07,
       "averageSpeedScore": 94.97,
+      "resourceClasses": [
+        "static_scan"
+      ]
+    },
+    {
+      "auditName": "check:audit-cache",
+      "totalRuns": 13,
+      "latestRunAt": 1777948348118,
+      "totalDurationMs": 13052,
+      "averageDurationMs": 1004,
+      "maxDurationMs": 1850,
+      "totalTerminalCommands": 7,
+      "terminalRunRate": 0.54,
+      "forbiddenCommandCount": 0,
+      "inspectedFileCount": 13,
+      "cacheHits": 6,
+      "cacheHitRate": 0.46,
+      "findingsCount": 0,
+      "criticalCount": 0,
+      "majorCount": 0,
+      "confirmedFindings": 0,
+      "falsePositiveFindings": 0,
+      "accuracy": 0,
+      "usefulness": -0.44,
+      "averageSpeedScore": 96.94,
       "resourceClasses": [
         "static_scan"
       ]
@@ -108,9 +133,59 @@
       "resourceClasses": [
         "static_scan"
       ]
+    },
+    {
+      "auditName": "check:audit-cache",
+      "totalRuns": 13,
+      "latestRunAt": 1777948348118,
+      "totalDurationMs": 13052,
+      "averageDurationMs": 1004,
+      "maxDurationMs": 1850,
+      "totalTerminalCommands": 7,
+      "terminalRunRate": 0.54,
+      "forbiddenCommandCount": 0,
+      "inspectedFileCount": 13,
+      "cacheHits": 6,
+      "cacheHitRate": 0.46,
+      "findingsCount": 0,
+      "criticalCount": 0,
+      "majorCount": 0,
+      "confirmedFindings": 0,
+      "falsePositiveFindings": 0,
+      "accuracy": 0,
+      "usefulness": -0.44,
+      "averageSpeedScore": 96.94,
+      "resourceClasses": [
+        "static_scan"
+      ]
     }
   ],
   "leastUsefulAudits": [
+    {
+      "auditName": "check:audit-cache",
+      "totalRuns": 13,
+      "latestRunAt": 1777948348118,
+      "totalDurationMs": 13052,
+      "averageDurationMs": 1004,
+      "maxDurationMs": 1850,
+      "totalTerminalCommands": 7,
+      "terminalRunRate": 0.54,
+      "forbiddenCommandCount": 0,
+      "inspectedFileCount": 13,
+      "cacheHits": 6,
+      "cacheHitRate": 0.46,
+      "findingsCount": 0,
+      "criticalCount": 0,
+      "majorCount": 0,
+      "confirmedFindings": 0,
+      "falsePositiveFindings": 0,
+      "accuracy": 0,
+      "usefulness": -0.44,
+      "averageSpeedScore": 96.94,
+      "resourceClasses": [
+        "static_scan"
+      ]
+    },
     {
       "auditName": "scripts/agent/validate-audit-runtime-ledger.ts",
       "totalRuns": 2,
@@ -212,6 +287,31 @@
       "resourceClasses": [
         "static_scan"
       ]
+    },
+    {
+      "auditName": "check:audit-cache",
+      "totalRuns": 13,
+      "latestRunAt": 1777948348118,
+      "totalDurationMs": 13052,
+      "averageDurationMs": 1004,
+      "maxDurationMs": 1850,
+      "totalTerminalCommands": 7,
+      "terminalRunRate": 0.54,
+      "forbiddenCommandCount": 0,
+      "inspectedFileCount": 13,
+      "cacheHits": 6,
+      "cacheHitRate": 0.46,
+      "findingsCount": 0,
+      "criticalCount": 0,
+      "majorCount": 0,
+      "confirmedFindings": 0,
+      "falsePositiveFindings": 0,
+      "accuracy": 0,
+      "usefulness": -0.44,
+      "averageSpeedScore": 96.94,
+      "resourceClasses": [
+        "static_scan"
+      ]
     }
   ],
   "terminalHeavyAudits": [
@@ -264,9 +364,59 @@
       "resourceClasses": [
         "static_scan"
       ]
+    },
+    {
+      "auditName": "check:audit-cache",
+      "totalRuns": 13,
+      "latestRunAt": 1777948348118,
+      "totalDurationMs": 13052,
+      "averageDurationMs": 1004,
+      "maxDurationMs": 1850,
+      "totalTerminalCommands": 7,
+      "terminalRunRate": 0.54,
+      "forbiddenCommandCount": 0,
+      "inspectedFileCount": 13,
+      "cacheHits": 6,
+      "cacheHitRate": 0.46,
+      "findingsCount": 0,
+      "criticalCount": 0,
+      "majorCount": 0,
+      "confirmedFindings": 0,
+      "falsePositiveFindings": 0,
+      "accuracy": 0,
+      "usefulness": -0.44,
+      "averageSpeedScore": 96.94,
+      "resourceClasses": [
+        "static_scan"
+      ]
     }
   ],
   "auditScores": [
+    {
+      "auditName": "check:audit-cache",
+      "totalRuns": 13,
+      "latestRunAt": 1777948348118,
+      "totalDurationMs": 13052,
+      "averageDurationMs": 1004,
+      "maxDurationMs": 1850,
+      "totalTerminalCommands": 7,
+      "terminalRunRate": 0.54,
+      "forbiddenCommandCount": 0,
+      "inspectedFileCount": 13,
+      "cacheHits": 6,
+      "cacheHitRate": 0.46,
+      "findingsCount": 0,
+      "criticalCount": 0,
+      "majorCount": 0,
+      "confirmedFindings": 0,
+      "falsePositiveFindings": 0,
+      "accuracy": 0,
+      "usefulness": -0.44,
+      "averageSpeedScore": 96.94,
+      "resourceClasses": [
+        "static_scan"
+      ]
+    },
     {
       "auditName": "check:wallet-density",
       "totalRuns": 2,
@@ -319,8 +469,8 @@
     }
   ],
   "cacheStats": {
-    "hits": 0,
-    "misses": 4,
-    "hitRate": 0
+    "hits": 6,
+    "misses": 11,
+    "hitRate": 0.35
   }
 }

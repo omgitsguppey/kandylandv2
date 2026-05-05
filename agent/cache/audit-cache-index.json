@@ -1,0 +1,40 @@
+{
+  "version": "audit-cache-v1",
+  "generatedAt": 1777948348115,
+  "records": {
+    "f5d7ed875ba826abe07fcbaac94a2effd16051a37df83a9e1a0d81b04d224d60": {
+      "cacheKey": "f5d7ed875ba826abe07fcbaac94a2effd16051a37df83a9e1a0d81b04d224d60",
+      "auditName": "check:audit-cache",
+      "auditVersion": "audit-cache-v1",
+      "createdAt": 1777948232883,
+      "durationMs": 1576,
+      "resultStatus": "pass",
+      "findingsHash": "1f96100b54be23bd194f0e13c0f1aed3910c3e1c65760146d2c04697609668c1",
+      "relevantFiles": [
+        "docs/agent-truth/audit-cache.md",
+        "package.json",
+        "scripts/agent/cache-audit-result.ts",
+        "scripts/agent/run-audit-with-ledger.ts",
+        "scripts/agent/score-audit-runtime.ts",
+        "scripts/agent/validate-audit-cache.ts",
+        "src/lib/agent-audit/affected-surface-router.ts",
+        "src/lib/agent-audit/audit-cache.ts",
+        "src/lib/agent-audit/file-fingerprint.ts"
+      ],
+      "validatorFiles": [
+        "scripts/agent/validate-audit-cache.ts"
+      ],
+      "commandsAvoided": [
+        "npm run check:audit-cache"
+      ],
+      "accuracyScoreAtCreation": 1,
+      "relevantFileHash": "0bb6c84a8e6d7f8efda84ae634aefefe07d27ab85d08beeac86b378eb2ed5269",
+      "validatorFileHash": "fbb9bb5e26748fd6e037bb0c4634cb58cf360d1814fdee0af2a39705b4fda97a",
+      "configFileHash": "83ab6a3585a7fcf2d91fbd3ed7ae9052d6a606ff6bdc0a2f8792c7b5005422cd",
+      "packageScriptHash": "661dda6f3ef4e3d96b38613582b3c57f1d995c5e1ceee2585708f9adfc902c05",
+      "maxAgeMs": 3600000,
+      "hitCount": 2,
+      "lastUsedAt": 1777948348115
+    }
+  }
+}

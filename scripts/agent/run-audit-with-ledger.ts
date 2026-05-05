@@ -23,6 +23,17 @@ import {
 } from "../../src/lib/agent-audit/audit-runtime-contract";
 import { summarizeAuditRuntime } from "../../src/lib/agent-audit/audit-speed-score";
 import {
+  accuracyStatsForAudit,
+  buildAuditCacheMetadata,
+  evaluateAuditCache,
+  exitCodeFromCachedStatus,
+  findingsHashForAudit,
+  markAuditCacheHit,
+  readAuditCacheIndex,
+  resultStatusFromExit,
+  upsertAuditCacheRecord,
+} from "../../src/lib/agent-audit/audit-cache";
+import {
   AFFECTED_AUDIT_PLAN_PATH,
   explainTerminalGate,
   type AffectedAuditPlan,
@@ -56,6 +67,7 @@ type ResolvedAuditCommand = {
   executable: string;
   args: string[];
   inspectedFiles: string[];
+  validatorFiles: string[];
 };
 
 const root = process.cwd();
@@ -208,6 +220,7 @@ function resolveAuditCommand(auditName: string, scripts: Record<string, string>,
       executable: npmInvocation.executable,
       args: npmInvocation.args,
       inspectedFiles: inferInspectedFilesFromCommand(scripts[auditName], scripts),
+      validatorFiles: extractScriptPaths(scripts[auditName]),
     };
   }
 
@@ -222,6 +235,7 @@ function resolveAuditCommand(auditName: string, scripts: Record<string, string>,
       executable: tsxInvocation.executable,
       args: tsxInvocation.args,
       inspectedFiles: inferInspectedFilesFromScript(normalizedPath),
+      validatorFiles: [normalizedPath],
     };
   }
 
@@ -362,6 +376,22 @@ function appendLedgerEntry(entry: AuditRuntimeLedgerEntry) {
   appendFileSync(ledgerPath, `${serializeAuditRuntimeLedgerEntry(entry)}\n`);
 }
 
+function pickRelevantPackageScripts(auditName: string, commandDefinition: string, scripts: Record<string, string>) {
+  const selected: Record<string, string> = {};
+  if (scripts[auditName]) {
+    selected[auditName] = scripts[auditName];
+  }
+  const packageScriptPattern = /\bnpm\s+run\s+([a-z0-9:_-]+)/giu;
+  let match: RegExpExecArray | null;
+  while ((match = packageScriptPattern.exec(commandDefinition))) {
+    const scriptName = match[1];
+    if (scriptName && scripts[scriptName]) {
+      selected[scriptName] = scripts[scriptName];
+    }
+  }
+  return selected;
+}
+
 function main() {
   let parsed: ParsedArgs;
   try {
@@ -399,8 +429,24 @@ function main() {
     ...parsed.inspectedFiles,
     ...parsed.passThroughArgs.filter((value) => value.includes("/") || value.includes("\\")),
   ]);
+  const ledgerEntriesBeforeRun = readLedgerEntries();
+  const cacheIndex = readAuditCacheIndex(root);
+  const cacheMetadata = buildAuditCacheMetadata({
+    root,
+    auditName: resolved.auditName,
+    relevantFiles: inferredInspectedFiles,
+    validatorFiles: uniqueSorted(resolved.validatorFiles),
+    relevantPackageJsonScripts: pickRelevantPackageScripts(resolved.auditName, resolved.commandDefinition, scripts),
+  });
+  const cacheAccuracyStats = accuracyStatsForAudit(ledgerEntriesBeforeRun, resolved.auditName);
+  const cacheEvaluation = evaluateAuditCache({
+    index: cacheIndex,
+    metadata: cacheMetadata,
+    accuracyStats: cacheAccuracyStats,
+  });
   let exitCode = 0;
   let terminalCommands: string[] = [];
+  let automaticCacheHit = false;
 
   if (forbiddenCommandsAttempted.length > 0) {
     exitCode = 1;
@@ -410,7 +456,18 @@ function main() {
     }
   } else if (parsed.cacheHit) {
     console.log(`audit:run cache hit for ${resolved.auditName}; skipped terminal execution.`);
+  } else if (cacheEvaluation.valid && cacheEvaluation.record) {
+    automaticCacheHit = true;
+    exitCode = exitCodeFromCachedStatus(cacheEvaluation.record.resultStatus);
+    markAuditCacheHit({
+      root,
+      index: cacheIndex,
+      cacheKey: cacheEvaluation.record.cacheKey,
+      command: resolved.terminalCommand,
+    });
+    console.log(`audit:run cache hit for ${resolved.auditName}: ${cacheEvaluation.reason}; avoided ${resolved.terminalCommand}.`);
   } else {
+    console.log(`audit:run cache miss for ${resolved.auditName}: ${cacheEvaluation.reason}.`);
     const gate = explainTerminalGate(resolved.terminalCommand, readAffectedAuditPlan(), {
       explicitOverride: parsed.allowUnplanned,
       criticalUncertainty: parsed.criticalUncertainty,
@@ -457,7 +514,7 @@ function main() {
     terminalCommands,
     forbiddenCommandsAttempted,
     cacheKey,
-    cacheHit: parsed.cacheHit,
+    cacheHit: parsed.cacheHit || automaticCacheHit,
     findingsCount,
     criticalCount: parsed.criticalCount,
     majorCount: parsed.majorCount,
@@ -467,6 +524,25 @@ function main() {
   };
 
   appendLedgerEntry(entry);
+  if (terminalCommands.length > 0 && forbiddenCommandsAttempted.length === 0) {
+    const resultStatus = resultStatusFromExit(exitCode, findingsCount);
+    upsertAuditCacheRecord({
+      root,
+      index: cacheIndex,
+      metadata: cacheMetadata,
+      durationMs: entry.durationMs,
+      resultStatus,
+      findingsHash: findingsHashForAudit({
+        auditName: entry.auditName,
+        resultStatus,
+        findingsCount,
+        criticalCount: entry.criticalCount,
+        majorCount: entry.majorCount,
+      }),
+      command: resolved.terminalCommand,
+      accuracyScoreAtCreation: cacheAccuracyStats.accuracyScore,
+    });
+  }
   writeSummary();
 
   console.log(`audit:run recorded ${entry.auditName} in ${entry.durationMs}ms with ${entry.inspectedFiles.length} inspected files.`);

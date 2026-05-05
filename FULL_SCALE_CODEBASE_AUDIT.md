@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #157] PRE: Audit Cache Fingerprints
+
+Scope started:
+- Adding a lightweight local audit cache so deterministic validators can skip terminal execution when relevant file fingerprints, validator code, package scripts, and config inputs are unchanged.
+- Required outputs include file fingerprint helpers, audit cache contract/evaluator, cache status script, cache validator, cache index, docs, package scripts, and `audit:run` / affected-plan / runtime-score integration.
+- This pass must not adopt Turborepo, must not introduce paid/external cache services, must not change product behavior, and must keep critical audits on shorter cache windows.
+
+Evidence:
+- Control tower routing, source-of-truth map, governance ledgers, adjacent audit-runtime trace, affected-router output, and official Turborepo/ESLint/TypeScript cache documentation were consulted before implementation.
+
+Scope completed:
+- Added `src/lib/agent-audit/file-fingerprint.ts` and `src/lib/agent-audit/audit-cache.ts` to compute sha256 file/config/package-script/validator fingerprints, evaluate cache validity, enforce audit-class max ages, exclude volatile audit outputs, and block cache trust when accuracy falls below threshold or false-positive rate exceeds 20%.
+- Added `scripts/agent/cache-audit-result.ts`, `scripts/agent/validate-audit-cache.ts`, `agent/cache/audit-cache-index.json`, package scripts `check:audit-cache` / `audit:cache-status`, and docs under `docs/agent-truth/audit-cache.md`.
+- Wired `scripts/agent/run-audit-with-ledger.ts` to evaluate cache before spawning validator commands, append cache-hit ledger entries, record `commandsAvoided`, and persist fresh cache records after real terminal runs.
+- Extended the affected-audit router with an audit-cache surface and updated `score:audit-runtime` so runtime summaries include cache record, hit, and avoided-command counts.
+
+Verification:
+- `npm run plan:affected-audits -- --task="cache deterministic audit results"` passed and selected only `check:affected-audit-router`, `check:audit-cache`, and `typecheck`.
+- `npm run check:affected-audit-router` passed.
+- `npm run check:audit-cache` passed.
+- `npm run typecheck` passed.
+- `npm run audit:run -- --audit check:audit-cache --trigger cache_acceptance_final_prime` passed and primed a cache record.
+- `npm run audit:run -- --audit check:audit-cache --trigger cache_acceptance_final_hit` hit cache and avoided `npm run check:audit-cache`.
+- `npm run audit:cache-status -- --audit check:audit-cache` reported a valid cache hit with one command avoided.
+- `npm run score:audit-runtime` passed and reported audit cache totals.
+- Broad audits, Playwright, Lighthouse, Cypress, and full `npm run check` were not run.
+
 ## [2026-05-05 #156] PRE: Affected Audit Router
 
 Scope started:
