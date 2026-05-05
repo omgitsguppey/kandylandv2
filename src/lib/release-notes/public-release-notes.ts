@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.22.0",
+  "currentVersion": "1.23.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T19:44:57.658Z",
-  "generatedAtUtc": "2026-05-05T19:44:57.658Z",
-  "lastCommitSha": "b9d1c3fa010e9cbbcb1e47e4eacb68963404c9e9",
+  "generatedAt": "2026-05-05T19:52:58.641Z",
+  "generatedAtUtc": "2026-05-05T19:52:58.641Z",
+  "lastCommitSha": "d1525d633c0b6b9ffaabc94eb497e78afffd96a9",
   "notes": [
+    {
+      "version": "1.23.0",
+      "previousVersion": "1.22.0",
+      "commitSha": "d1525d633c0b6b9ffaabc94eb497e78afffd96a9",
+      "commitTitle": "fix(chat): make attachment cancel idempotent",
+      "committedAt": "2026-05-05T19:52:48.000Z",
+      "generatedAt": "2026-05-05T19:52:58.640Z",
+      "committedAtUtc": "2026-05-05T19:52:48.000Z",
+      "generatedAtUtc": "2026-05-05T19:52:58.640Z",
+      "diffStats": {
+        "rawAdditions": 386,
+        "rawDeletions": 73,
+        "rawChangeCount": 459,
+        "additions": 386,
+        "deletions": 73,
+        "effectiveAdditions": 376,
+        "effectiveDeletions": 15,
+        "changedFiles": 4,
+        "effectiveChangeCount": 391,
+        "excludedGeneratedChangeCount": 68
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved reliability for canceling pending chat attachments.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "chat",
+        "repo-tooling",
+        "security"
+      ]
+    },
     {
       "version": "1.22.0",
       "previousVersion": "1.21.1",
@@ -138,41 +171,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "documentation",
         "release-notes",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.20.0",
-      "previousVersion": "1.19.0",
-      "commitSha": "f7500283807314a26d05dc1f6a86b0f28d02aeb1",
-      "commitTitle": "docs(beta): lock debug-first stabilization roadmap",
-      "committedAt": "2026-05-05T18:56:53.000Z",
-      "generatedAt": "2026-05-05T19:15:29.544Z",
-      "committedAtUtc": "2026-05-05T18:56:53.000Z",
-      "generatedAtUtc": "2026-05-05T19:15:29.544Z",
-      "diffStats": {
-        "rawAdditions": 659,
-        "rawDeletions": 148,
-        "rawChangeCount": 807,
-        "additions": 659,
-        "deletions": 148,
-        "effectiveAdditions": 403,
-        "effectiveDeletions": 37,
-        "changedFiles": 16,
-        "effectiveChangeCount": 440,
-        "excludedGeneratedChangeCount": 367
-      },
-      "bumpType": "minor",
-      "category": "Changed",
-      "userFacingTitle": "Improved beta stabilization guidance so fixes stay focused and easier to track.",
-      "bullets": [
-        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
-        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "release-notes",
-        "repo-tooling",
-        "telemetry"
       ]
     }
   ]
