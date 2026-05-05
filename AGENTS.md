@@ -63,6 +63,14 @@ KandyDrops Beta release notes are user-facing and update after every commit. The
 - Run `npm run check:release-notes` and targeted release-note tests for this lane.
 - Do not run Playwright, Lighthouse, Cypress, or full `npm run check` for this lane by default.
 
+Global cost surface doctrine:
+
+KandyDrops cost guardrails cover runtime telemetry, PostHog/GA/session replay, cloud logging, debug evidence, media/storage/image access, auth abuse, notification fan-out, CI/build minutes, visual/browser audit tooling, scheduled rebuilds, analytics materializers, dependency tooling, and admin import/export jobs. Read `src/lib/server/global-cost-surface-contract.ts` and `docs/agent-truth/global-cost-surfaces.md` before changing those surfaces.
+
+- Run `npm run score:global-cost` and `npm run check:global-cost` for global cost guardrail changes.
+- Run `npm run typecheck` when TypeScript changed.
+- Do not run Playwright, Lighthouse, Cypress, full `npm run check`, deploy commands, `gcloud`, Firebase deploys, or paid AI calls for this lane by default.
+
 > [!CAUTION]
 > **MANDATORY CONTROL TOWER ROUTING:**
 > Before touching UI, copy, telemetry, state, admin truth, or Firebase architecture, you MUST start with /control-tower/00-START-HERE.md.

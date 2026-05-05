@@ -13,6 +13,9 @@ import {
 } from "@/lib/debug-evidence-contract";
 import { adminDb } from "@/lib/server/firebase-admin";
 
+export const DEBUG_EVIDENCE_WRITE_DEDUPE_WINDOW_MS = 60 * 60 * 1000;
+export const DEBUG_EVIDENCE_MAX_EVENT_WRITES_PER_FINGERPRINT_PER_HOUR = 6;
+
 function normalizeRecordFromDoc(id: string, data: Record<string, unknown>): DebugEvidenceRecord {
   return {
     id,
@@ -59,18 +62,36 @@ export async function recordDebugEvidence(input: DebugEvidenceInput) {
 
     await adminDb.runTransaction(async (transaction) => {
       const snapshot = await transaction.get(rollupRef);
+      const existingData = snapshot.exists
+        ? snapshot.data() as Record<string, unknown>
+        : {};
       const existing = snapshot.exists
-        ? normalizeRecordFromDoc(snapshot.id, snapshot.data() as Record<string, unknown>)
+        ? normalizeRecordFromDoc(snapshot.id, existingData)
         : null;
       const record = buildDebugEvidenceRecord(input, existing);
+      const currentHourBucket = Math.floor(record.lastSeenAt / DEBUG_EVIDENCE_WRITE_DEDUPE_WINDOW_MS);
+      const existingHourBucket = Number(existingData.hourBucket) || 0;
+      const existingHourlyWriteCount = existingHourBucket === currentHourBucket
+        ? Math.max(0, Number(existingData.hourlyWriteCount) || 0)
+        : 0;
+      const shouldWriteEvent = existingHourlyWriteCount < DEBUG_EVIDENCE_MAX_EVENT_WRITES_PER_FINGERPRINT_PER_HOUR;
 
-      transaction.set(eventRef, {
-        ...record,
-        updatedAt: FieldValue.serverTimestamp(),
-      });
+      if (shouldWriteEvent) {
+        transaction.set(eventRef, {
+          ...record,
+          dedupePolicy: "max_event_writes_per_fingerprint_per_hour",
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      }
       transaction.set(rollupRef, {
         ...record,
         id: record.fingerprint,
+        hourBucket: currentHourBucket,
+        hourlyWriteCount: existingHourlyWriteCount + (shouldWriteEvent ? 1 : 0),
+        suppressedEventWriteCount: FieldValue.increment(shouldWriteEvent ? 0 : 1),
+        dedupePolicy: "max_event_writes_per_fingerprint_per_hour",
+        dedupeWindowMs: DEBUG_EVIDENCE_WRITE_DEDUPE_WINDOW_MS,
+        maxEventWritesPerFingerprintPerHour: DEBUG_EVIDENCE_MAX_EVENT_WRITES_PER_FINGERPRINT_PER_HOUR,
         updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true });
     });

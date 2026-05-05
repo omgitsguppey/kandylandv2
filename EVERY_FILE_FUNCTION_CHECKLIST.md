@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Global Cost Surface Guardrails Coverage
+
+- [x] `src/lib/server/global-cost-surface-contract.ts` owns the global cost surface ids, risk classes, score buckets, hard limits, forbidden/default command budget, report shape, and the 21 required cost-surface contracts.
+- [x] `scripts/agent/score-global-cost-surfaces.ts`, `scripts/agent/validate-global-cost-surfaces.ts`, `agent/state/global-cost-surfaces.generated.json`, package scripts `score:global-cost` / `check:global-cost`, and `docs/agent-truth/global-cost-surfaces.md` provide the deterministic source-only guardrail lane.
+- [x] `src/lib/server/debug-evidence-store.ts`, `src/lib/server/fcm-utils.ts`, `src/app/api/drops/content/route.ts`, `scripts/rebuild-analytics-truth.ts`, and `scripts/rebuild-behavioral-intelligence.ts` now expose bounded cost controls for debug evidence dedupe, notification fan-out, media proxy byte budgets, and rebuild dry-run/runtime/row/retry limits.
+
 ## 2026-05-05 Doctrine Retrieval Optimizer Coverage
 
 - [x] `src/lib/doctrine/doctrine-retrieval-optimizer.ts`, `doctrine-coverage-score.ts`, `doctrine-context-cost.ts`, and `doctrine-conflict-score.ts` implement path/intent/risk/authority/recency/cost scoring, greedy smallest-sufficient selection, conflict scoring, high-risk source-truth enforcement, and context savings math.

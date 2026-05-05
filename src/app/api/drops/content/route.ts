@@ -14,6 +14,7 @@ const userContentSchema = z.object({
   unlockedContent: z.array(z.string()).default([]),
   unlockedContentTimestamps: z.record(z.string(), z.unknown()).default({}),
 });
+const MEDIA_PROXY_MAX_BYTES_PER_REQUEST = 250 * 1024 * 1024;
 
 /**
  * GET /api/drops/content?id=<dropId>
@@ -111,11 +112,19 @@ export async function GET(request: NextRequest) {
       // Important to explicitly avoid caching the payload on the Next.js edge
       cache: "no-store",
     });
+    const upstreamContentLength = Number(contentRes.headers.get("content-length") || 0);
+    if (Number.isFinite(upstreamContentLength) && upstreamContentLength > MEDIA_PROXY_MAX_BYTES_PER_REQUEST) {
+      return finalize(NextResponse.json({ error: "Content payload exceeds media proxy budget" }, { status: 413 }));
+    }
 
     // Pipe upstream headers downstream (Content-Type, Content-Length, Content-Range, Accept-Ranges, etc)
     const headers = new Headers(contentRes.headers);
     headers.set("Content-Disposition", "inline");
     headers.set("Cache-Control", "private, no-store");
+    headers.set("X-KandyDrops-Media-Proxy-Max-Bytes", String(MEDIA_PROXY_MAX_BYTES_PER_REQUEST));
+    if (Number.isFinite(upstreamContentLength) && upstreamContentLength > 0) {
+      headers.set("X-KandyDrops-Media-Proxy-Approx-Bytes", String(upstreamContentLength));
+    }
 
     // Return the literal byte stream safely proxied through Next.js
     return finalize(new NextResponse(contentRes.body, {

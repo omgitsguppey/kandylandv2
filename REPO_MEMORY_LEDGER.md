@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Global cost surface guardrails
+
+KandyDrops now has a global source-only cost guardrail lane beyond the existing Google/Cloud SQL/BigQuery checks. `src/lib/server/global-cost-surface-contract.ts` classifies 21 runtime/dev cost surfaces, including telemetry volume, PostHog/GA/session replay, cloud logging, debug evidence, media/storage/image access, auth abuse, phone auth SMS future, FCM fan-out, CI/build minutes, app hosting bandwidth, artifact storage, visual/browser audit tooling, scheduled rebuilds, analytics materializers, dependency tooling, and admin import/export jobs. `npm run score:global-cost` writes `agent/state/global-cost-surfaces.generated.json`; `npm run check:global-cost` validates hard limits. Debug evidence now caps event writes per fingerprint per hour and rolls up repeats, FCM fan-out has recipient/batch/retry caps, the protected media proxy exposes byte budget evidence, and rebuild wrappers expose dry-run/maxRows/maxRuntime/maxRetries controls.
+
 ## 2026-05-05 Doctrine retrieval optimizer
 
 KandyDrops doctrine retrieval now uses a scored optimizer instead of rule-only selection. `src/lib/doctrine/doctrine-retrieval-optimizer.ts` loads authority cards, compact feature cards, surface routing, validator map, and legacy registry cards, then selects the smallest sufficient pack by path match, task intent, risk, authority, recency, token cost, validator coverage, and conflict safety. `npm run optimize:doctrine-context -- --task "wallet density fix" --changed src/components/PurchaseModal.tsx` writes `agent/context/optimized-task-context.generated.json`; `npm run check:doctrine-retrieval-optimizer` validates 10 sample tasks and writes `agent/state/doctrine-retrieval-optimizer.generated.json`. Agents must treat full markdown as fallback evidence, not the default doctrine source.

@@ -1,5 +1,27 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #167] PRE: Global Cost Surface Guardrails
+
+Scope started:
+- Adding a global cost-surface guardrail layer beyond Google API, Cloud SQL, and BigQuery coverage for telemetry, third-party analytics, logging, debug evidence, media/storage/image access, auth abuse, notification fan-out, CI/build minutes, visual/browser audit tooling, scheduled rebuilds, analytics materializers, dependency tooling, and admin import/export jobs.
+- Required outputs include `src/lib/server/global-cost-surface-contract.ts`, global cost score/check scripts, generated report, docs, package scripts, README/AGENTS guidance, and targeted source-visible caps where current code lacked bounded behavior.
+- This pass must not run Playwright, Lighthouse, Cypress, full `npm run check`, deploy commands, `gcloud`, Firebase deploys, or paid AI calls.
+
+Evidence:
+- Control tower startup/source-truth/postflight docs, Source-of-Truth and Engineering constitutions, Server Truth and Security/Cost doctrine, speed-security and Google-cost docs, telemetry ingest, DeepTracker, viewer watch sessions, debug evidence store, rate/request guards, route runtime health, media proxy, auth routes, notification fan-out, rebuild wrappers, functions materializers, release-note generated-file exclusions, workflows, package scripts, and governance ledgers were inspected before implementation.
+
+Scope completed:
+- Added the global cost surface contract covering all 21 required cost surfaces with owner, risk, CI/page-load defaults, event/session/body/row/runtime/retry budgets, cache policy, sampling policy, rate requirement, debug evidence requirement, kill switch, and validator.
+- Added `npm run score:global-cost` and `npm run check:global-cost`, generated `agent/state/global-cost-surfaces.generated.json`, and documented the lane in `docs/agent-truth/global-cost-surfaces.md`.
+- Added source-visible caps for debug evidence write dedupe, FCM fan-out recipient/batch/retry limits, media proxy byte evidence, and rebuild wrapper dry-run/maxRows/maxRuntime/maxRetries budgets.
+- Updated README, AGENTS, and compact validator map so agents can route global-cost work without broad audits.
+
+Verification:
+- `npm run score:global-cost` passed with score 100/100, status `clean`, and 21 classified surfaces.
+- `npm run check:global-cost` passed.
+- `npm run typecheck` passed.
+- Playwright, Lighthouse, Cypress, full `npm run check`, deploy commands, `gcloud`, Firebase deploys, and paid AI calls were not run.
+
 ## [2026-05-05 #166] PRE: Doctrine Retrieval Optimizer
 
 Scope started:

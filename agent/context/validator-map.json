@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 191,
+  "validatorCount": 193,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -24,6 +24,7 @@
     "creator-dashboard",
     "device-ui",
     "drops",
+    "global-cost",
     "google-cost",
     "image-policy",
     "legacy-phaseout",
@@ -229,6 +230,10 @@
       "score:cloud-cost",
       "score:google-cost"
     ],
+    "global-cost": [
+      "check:global-cost",
+      "score:global-cost"
+    ],
     "drops": [
       "check:content-media-pipeline",
       "check:content-protection",
@@ -372,6 +377,7 @@
     "check:functions": "repo-governance",
     "check:generated-artifacts": "repo-governance",
     "check:global-loading-performance": "image-policy",
+    "check:global-cost": "global-cost",
     "check:global-speed-hydration-cache": "device-ui",
     "check:google-cost": "google-cost",
     "check:gumdrop-economy": "wallet",
@@ -450,6 +456,7 @@
     "score:device-ui": "device-ui",
     "score:economy": "wallet",
     "score:google-cost": "google-cost",
+    "score:global-cost": "global-cost",
     "score:hardening": "speed-security",
     "score:hydration": "device-ui",
     "score:layout": "device-ui",

@@ -29,6 +29,10 @@ export interface NotificationBroadcastReport {
     duplicatePushPreventedCount: number;
     tokensQueuedCount: number;
     invalidTokenRemovedCount: number;
+    maxRecipientsPerRun: number;
+    maxBatchesPerRun: number;
+    recipientCapReached: boolean;
+    batchCapReached: boolean;
     idempotencyKey: string | null;
     browserTag: string | null;
     dataOnlyPayload: boolean;
@@ -49,6 +53,10 @@ function buildBroadcastReport(input: Partial<NotificationBroadcastReport>): Noti
         duplicatePushPreventedCount: input.duplicatePushPreventedCount ?? 0,
         tokensQueuedCount: input.tokensQueuedCount ?? 0,
         invalidTokenRemovedCount: input.invalidTokenRemovedCount ?? 0,
+        maxRecipientsPerRun: input.maxRecipientsPerRun ?? FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN,
+        maxBatchesPerRun: input.maxBatchesPerRun ?? FCM_MAX_BATCHES_PER_BROADCAST_RUN,
+        recipientCapReached: input.recipientCapReached ?? false,
+        batchCapReached: input.batchCapReached ?? false,
         idempotencyKey: input.idempotencyKey ?? null,
         browserTag: input.browserTag ?? null,
         dataOnlyPayload: true,
@@ -78,6 +86,11 @@ function stringifyData(data: Record<string, string | number | boolean | null | u
  * @param url The router click-through target when clicked
  * @returns boolean indicating whether the broadcast was fully successful
  */
+export const FCM_MULTICAST_BATCH_SIZE = 500;
+export const FCM_MAX_BATCHES_PER_BROADCAST_RUN = 10;
+export const FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN = FCM_MULTICAST_BATCH_SIZE * FCM_MAX_BATCHES_PER_BROADCAST_RUN;
+export const FCM_MAX_RETRIES_PER_BROADCAST = 0;
+
 export async function broadcastFCM(
     title: string,
     body: string,
@@ -101,7 +114,6 @@ export async function broadcastFCMWithReport(
     let idempotencyKey: string | null = null;
     let browserTag: string | null = null;
     try {
-        const BATCH_SIZE = 500;
         let tokensChunk: string[] = [];
         let tokenToUidMap = new Map<string, string>();
         const queuedTokens = new Set<string>();
@@ -114,6 +126,9 @@ export async function broadcastFCMWithReport(
         let missingTokenSkippedCount = 0;
         let duplicatePushPreventedCount = 0;
         let invalidTokenRemovedCount = 0;
+        let dispatchedBatchCount = 0;
+        let recipientCapReached = false;
+        let batchCapReached = false;
         idempotencyKey = options.idempotencyKey || buildNotificationIdempotencyKey({
             type,
             notificationId: options.notificationId,
@@ -145,6 +160,11 @@ export async function broadcastFCMWithReport(
 
         const dispatchBatch = async (tokens: string[]) => {
             if (tokens.length === 0) return;
+            if (dispatchedBatchCount >= FCM_MAX_BATCHES_PER_BROADCAST_RUN) {
+                batchCapReached = true;
+                return;
+            }
+            dispatchedBatchCount++;
             tokensSent = true;
             const message = {
                 data: baseData,
@@ -229,6 +249,11 @@ export async function broadcastFCMWithReport(
 
             if (shouldSend && tokens.length > 0) {
                 for (const token of tokens) {
+                    if (queuedTokens.size >= FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN) {
+                        recipientCapReached = true;
+                        break;
+                    }
+
                     if (queuedTokens.has(token)) {
                         duplicatePushPreventedCount++;
                         continue;
@@ -239,15 +264,19 @@ export async function broadcastFCMWithReport(
                     tokensChunk.push(token);
                 }
 
-                while (tokensChunk.length >= BATCH_SIZE) {
-                    const batchToDispatch = tokensChunk.slice(0, BATCH_SIZE);
-                    tokensChunk = tokensChunk.slice(BATCH_SIZE);
+                while (tokensChunk.length >= FCM_MULTICAST_BATCH_SIZE && !batchCapReached) {
+                    const batchToDispatch = tokensChunk.slice(0, FCM_MULTICAST_BATCH_SIZE);
+                    tokensChunk = tokensChunk.slice(FCM_MULTICAST_BATCH_SIZE);
                     await dispatchBatch(batchToDispatch);
                 }
             }
+
+            if (recipientCapReached || batchCapReached) {
+                break;
+            }
         }
 
-        if (tokensChunk.length > 0) {
+        if (tokensChunk.length > 0 && !batchCapReached) {
             await dispatchBatch(tokensChunk);
         }
 
@@ -266,6 +295,10 @@ export async function broadcastFCMWithReport(
                     duplicatePushPreventedCount,
                     tokensQueuedCount: queuedTokens.size,
                     invalidTokenRemovedCount,
+                    maxRecipientsPerRun: FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN,
+                    maxBatchesPerRun: FCM_MAX_BATCHES_PER_BROADCAST_RUN,
+                    recipientCapReached,
+                    batchCapReached,
                     idempotencyKey,
                     browserTag,
                 });
@@ -284,6 +317,10 @@ export async function broadcastFCMWithReport(
                 duplicatePushPreventedCount,
                 tokensQueuedCount: queuedTokens.size,
                 invalidTokenRemovedCount,
+                maxRecipientsPerRun: FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN,
+                maxBatchesPerRun: FCM_MAX_BATCHES_PER_BROADCAST_RUN,
+                recipientCapReached,
+                batchCapReached,
                 idempotencyKey,
                 browserTag,
             });
@@ -301,6 +338,10 @@ export async function broadcastFCMWithReport(
             duplicatePushPreventedCount,
             tokensQueuedCount: queuedTokens.size,
             invalidTokenRemovedCount,
+            maxRecipientsPerRun: FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN,
+            maxBatchesPerRun: FCM_MAX_BATCHES_PER_BROADCAST_RUN,
+            recipientCapReached,
+            batchCapReached,
             idempotencyKey,
             browserTag,
         });

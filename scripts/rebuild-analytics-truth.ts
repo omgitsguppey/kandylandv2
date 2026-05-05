@@ -1,6 +1,14 @@
 import {spawn} from "node:child_process"
 import path from "node:path"
 
+const ANALYTICS_TRUTH_REBUILD_MAX_ROWS = 12000
+const ANALYTICS_TRUTH_REBUILD_MAX_RUNTIME_MS = 10 * 60 * 1000
+const ANALYTICS_TRUTH_REBUILD_MAX_RETRIES = 0
+
+function hasFlag(flag: string) {
+  return process.argv.slice(2).includes(flag)
+}
+
 function runFunctionsCommand(scriptName: string) {
   return new Promise<void>((resolve, reject) => {
     const npmExecutable = process.platform === "win32" ? "npm.cmd" : "npm"
@@ -10,11 +18,22 @@ function runFunctionsCommand(scriptName: string) {
       {
         cwd: path.resolve(process.cwd(), "functions"),
         stdio: "inherit",
+        env: {
+          ...process.env,
+          KD_REBUILD_MAX_ROWS: String(ANALYTICS_TRUTH_REBUILD_MAX_ROWS),
+          KD_REBUILD_MAX_RUNTIME_MS: String(ANALYTICS_TRUTH_REBUILD_MAX_RUNTIME_MS),
+          KD_REBUILD_MAX_RETRIES: String(ANALYTICS_TRUTH_REBUILD_MAX_RETRIES),
+        },
       },
     )
+    const timeout = setTimeout(() => {
+      child.kill()
+      reject(new Error(`functions ${scriptName} exceeded maxRuntimeMs=${ANALYTICS_TRUTH_REBUILD_MAX_RUNTIME_MS}`))
+    }, ANALYTICS_TRUTH_REBUILD_MAX_RUNTIME_MS)
 
     child.on("error", reject)
     child.on("close", (code) => {
+      clearTimeout(timeout)
       if (code === 0) {
         resolve()
         return
@@ -23,6 +42,18 @@ function runFunctionsCommand(scriptName: string) {
       reject(new Error(`functions ${scriptName} exited with code ${code ?? "unknown"}`))
     })
   })
+}
+
+if (hasFlag("--dry-run")) {
+  console.log(JSON.stringify({
+    dryRun: true,
+    scriptName: "rebuild:analytics-truth",
+    maxRows: ANALYTICS_TRUTH_REBUILD_MAX_ROWS,
+    maxRuntimeMs: ANALYTICS_TRUTH_REBUILD_MAX_RUNTIME_MS,
+    maxRetries: ANALYTICS_TRUTH_REBUILD_MAX_RETRIES,
+    mutationSkipped: true,
+  }, null, 2))
+  process.exit(0)
 }
 
 void runFunctionsCommand("rebuild:analytics-truth").catch((error) => {

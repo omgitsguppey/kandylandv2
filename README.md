@@ -61,6 +61,15 @@ npm run typecheck
 
 Do not run Playwright, Lighthouse, Cypress, deploys, or full `npm run check` by default for doctrine-only work.
 
+## Global Cost Surfaces
+
+KandyDrops global cost guardrails cover runtime telemetry, PostHog/GA/session replay, cloud logging, debug evidence, Firebase Storage/media proxy access, auth abuse, notification fan-out, CI/build minutes, visual/browser audit tooling, scheduled rebuilds, analytics materializers, dependency tooling, and admin import/export jobs.
+
+- Contract: [src/lib/server/global-cost-surface-contract.ts](./src/lib/server/global-cost-surface-contract.ts)
+- Report: [agent/state/global-cost-surfaces.generated.json](./agent/state/global-cost-surfaces.generated.json)
+- Doctrine: [docs/agent-truth/global-cost-surfaces.md](./docs/agent-truth/global-cost-surfaces.md)
+- Commands: `npm run score:global-cost` and `npm run check:global-cost`
+
 ## Contributor Gateway
 
 - [Contributing](./CONTRIBUTING.md)

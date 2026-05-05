@@ -152,6 +152,8 @@
         "check:orphaned-logic": "tsx scripts/agent/validate-orphaned-logic.ts",
         "score:legacy-phaseout": "tsx scripts/agent/score-legacy-phaseout.ts",
         "check:legacy-phaseout": "tsx scripts/agent/validate-legacy-phaseout.ts",
+        "score:global-cost": "tsx scripts/agent/score-global-cost-surfaces.ts",
+        "check:global-cost": "tsx scripts/agent/validate-global-cost-surfaces.ts",
         "score:google-cost": "tsx scripts/agent/score-google-cost-bleed.ts",
         "check:google-cost": "tsx scripts/agent/validate-google-cost-bleed.ts",
         "score:cloud-cost": "tsx scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
