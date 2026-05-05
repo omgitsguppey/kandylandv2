@@ -180,8 +180,10 @@ if (report) {
     "chat_thread_opened",
     "chat_message_send_failed",
     "notification_read",
-    "feedback_submitted",
-    "support_ticket_submitted",
+    "bug_report_submitted",
+    "support_ticket_created",
+    "support_reply_viewed",
+    "support_reply_sent",
     "creator_followed",
     "creator_notifications_enabled",
     "creator_experience_cta_clicked",
@@ -230,7 +232,8 @@ for (const expected of [
   "canUseIdentifiedAnalytics",
   "session_id",
   "auth_state",
-  "support_ticket_submitted",
+  "support_ticket_created",
+  "bug_report_submitted",
 ]) {
   requireIncludes(scoreScript, expected, "telemetry parity scorer");
 }
@@ -255,7 +258,8 @@ for (const expected of [
 }
 
 for (const expected of [
-  "support_ticket_submitted",
+  "support_ticket_created",
+  "bug_report_submitted",
   "hero_cta_clicked",
   "drop_preview_page_viewed",
   "chat_message_send_failed",

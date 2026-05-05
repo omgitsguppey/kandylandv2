@@ -205,10 +205,13 @@ const criticalSurfaces: TelemetryCriticalSurface[] = [
     filePaths: [
       "src/components/Feedback/ReportBugButton.tsx",
       "src/components/Support/SupportInbox.tsx",
+      "src/app/api/tasks/feedback/route.ts",
+      "src/app/api/support/threads/route.ts",
+      "src/app/api/support/threads/[threadId]/route.ts",
     ],
-    eventNames: ["feedback_submitted", "support_ticket_submitted"],
+    eventNames: ["bug_report_submitted", "support_ticket_created", "support_reply_viewed", "support_reply_sent"],
     requiredPayloadAll: ["source_component"],
-    requiredPayloadAny: [["ticket_id", "context", "contextId"]],
+    requiredPayloadAny: [["ticket_id", "thread_id", "feedback_id", "context", "contextId"]],
   },
   {
     id: "creator_actions",

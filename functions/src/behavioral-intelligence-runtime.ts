@@ -455,6 +455,8 @@ function readNormalizedAction(record: Record<string, unknown>) {
     return "notification_opened"
   case "support_ticket_created":
   case "support_ticket_submitted":
+  case "support_reply_viewed":
+  case "support_reply_sent":
   case "feedback_submitted":
   case "bug_report_submitted":
     return "support_ticket_created"

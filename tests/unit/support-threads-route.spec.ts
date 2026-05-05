@@ -18,6 +18,7 @@ const mockState = vi.hoisted(() => {
         getSupportThreadForUser: vi.fn(),
         addSupportMessage: vi.fn(),
         updateSupportThreadStatus: vi.fn(),
+        trackServerEvent: vi.fn(),
         adminDb: {
             collection: vi.fn(() => ({
                 doc: vi.fn(() => ({
@@ -34,6 +35,7 @@ const mockState = vi.hoisted(() => {
             this.getSupportThreadForUser.mockReset();
             this.addSupportMessage.mockReset();
             this.updateSupportThreadStatus.mockReset();
+            this.trackServerEvent.mockReset();
             this.adminDb.collection.mockClear();
             this.profileGet.mockClear();
         },
@@ -70,6 +72,10 @@ vi.mock("@/lib/server/support-threads", () => ({
 
 vi.mock("@/lib/server/firebase-admin", () => ({
     adminDb: mockState.adminDb,
+}));
+
+vi.mock("@/lib/server/analytics", () => ({
+    trackServerEvent: mockState.trackServerEvent,
 }));
 
 import { GET as getThreads, POST as postThread } from "@/app/api/support/threads/route";
@@ -141,6 +147,12 @@ describe("support thread routes", () => {
             userHandle: "support-user",
             category: "creator_application",
         }));
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("support_ticket_created", expect.objectContaining({
+            thread_id: "thread_1",
+            ticket_id: "thread_1",
+            category: "creator_application",
+            source_truth: "server",
+        }), "user_1");
     });
 
     it("returns thread detail and allows replies and resolution", async () => {
@@ -185,6 +197,12 @@ describe("support thread routes", () => {
             threadId: "thread_1",
             senderRole: "user",
         }));
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("support_reply_sent", expect.objectContaining({
+            thread_id: "thread_1",
+            ticket_id: "thread_1",
+            category: "technical",
+            source_truth: "server",
+        }), "user_1");
 
         const statusResponse = await patchThread(
             new NextRequest("http://localhost/api/support/threads/thread_1", {

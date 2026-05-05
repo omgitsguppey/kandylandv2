@@ -310,6 +310,80 @@ describe("POST /api/analytics/ingest-identified", () => {
     });
   });
 
+  it("canonicalizes support ticket aliases onto the shared support creation fact", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_support_ticket_alias",
+        eventTimestampMs: 1767225600000,
+        eventName: "support_ticket_submitted",
+        eventParams: {
+          page_path: "/dashboard/support",
+          session_id: "session_123",
+          thread_id: "thread_123",
+          ticket_id: "thread_123",
+          category: "technical",
+          source_component: "support_threads_route",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_support_ticket_alias");
+    expect(eventWrite?.data).toMatchObject({
+      eventName: "support_ticket_created",
+      normalizedActionName: "support_ticket_created",
+      metricFamily: "support",
+      metricEligible: true,
+      actionThreadId: "thread_123",
+      sourceTruth: "server",
+      params: expect.objectContaining({
+        legacy_event_name: "support_ticket_submitted",
+        thread_id: "thread_123",
+        ticket_id: "thread_123",
+        category: "technical",
+      }),
+    });
+  });
+
+  it("canonicalizes bug report aliases onto the shared bug report fact", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_bug_report_alias",
+        eventTimestampMs: 1767225600000,
+        eventName: "feedback_submitted",
+        eventParams: {
+          page_path: "/dashboard/support",
+          session_id: "session_123",
+          feedback_id: "feedback_123",
+          category: "action_failed",
+          severity: "high",
+          component_name: "SupportInbox",
+          source_component: "tasks_feedback_route",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_bug_report_alias");
+    expect(eventWrite?.data).toMatchObject({
+      eventName: "bug_report_submitted",
+      normalizedActionName: "bug_report_submitted",
+      metricFamily: "support",
+      metricEligible: true,
+      sourceTruth: "server",
+      params: expect.objectContaining({
+        legacy_event_name: "feedback_submitted",
+        feedback_id: "feedback_123",
+        category: "action_failed",
+        severity: "high",
+      }),
+    });
+  });
+
   it("keeps task_completed canonical with task and reward payload fields", async () => {
     const response = await POST(buildRequest({
       events: [{

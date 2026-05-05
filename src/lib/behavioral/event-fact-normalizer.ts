@@ -101,6 +101,8 @@ const NORMALIZED_ACTION_FAMILY: Partial<Record<BehavioralNormalizedAction, Ident
   notification_read: "notification",
   notification_action_clicked: "notification",
   support_ticket_created: "support",
+  support_reply_viewed: "support",
+  support_reply_sent: "support",
   bug_report_submitted: "support",
   moderation_signal_recorded: "security",
   entitlement_violation_recorded: "security",

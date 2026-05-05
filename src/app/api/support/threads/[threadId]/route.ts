@@ -6,6 +6,7 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { addSupportMessage, getSupportThreadForUser, updateSupportThreadStatus } from "@/lib/server/support-threads";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { trackServerEvent } from "@/lib/server/analytics";
 
 const supportMessageSchema = z.object({
     message: z.string().trim().min(1).max(2_000),
@@ -79,6 +80,18 @@ async function POST_handler(request: NextRequest, context: RouteContext) {
         });
 
         const refreshed = await getSupportThreadForUser(caller.uid, threadId, { markRead: false });
+        if (refreshed?.thread?.id) {
+            await trackServerEvent("support_reply_sent", {
+                source_component: "support_thread_route",
+                route: "/dashboard/support",
+                page_path: "/dashboard/support",
+                thread_id: threadId,
+                ticket_id: threadId,
+                category: refreshed.thread.category,
+                support_category: refreshed.thread.category,
+                source_truth: "server",
+            }, caller.uid);
+        }
         return NextResponse.json({
             success: true,
             ...refreshed,

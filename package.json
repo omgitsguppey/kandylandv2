@@ -101,6 +101,7 @@
         "check:notification-read-truth": "tsx scripts/agent/validate-notification-read-truth.ts",
         "check:daily-task-telemetry-truth": "tsx scripts/agent/validate-daily-task-telemetry-truth.ts",
         "check:viewer-file-tracking": "tsx scripts/agent/validate-viewer-file-tracking.ts",
+        "check:support-tracking-truth": "tsx scripts/agent/validate-support-tracking-truth.ts",
         "check:admin-analytics-hot-cache": "tsx scripts/agent/validate-admin-analytics-hot-cache.ts",
         "check:global-loading-performance": "tsx scripts/agent/validate-global-loading-performance.ts",
         "check:global-speed-hydration-cache": "tsx scripts/agent/validate-global-speed-hydration-cache.ts",

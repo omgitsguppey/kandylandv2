@@ -199,10 +199,12 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "library_viewed", label: "Library viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content", "navigation"] },
     { eventName: "profile_settings_viewed", label: "Profile settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "support_inbox_viewed", label: "Support inbox viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
-  { eventName: "support_ticket_submitted", label: "Support ticket submitted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
-  { eventName: "support_thread_opened", label: "Support thread opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
-  { eventName: "support_thread_replied", label: "Support thread replied", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "support_ticket_created", label: "Support ticket created", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["engagement"], aliases: ["support_ticket_submitted"] },
+  { eventName: "support_thread_opened", label: "Support thread opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], auditCoveredBy: ["support_reply_viewed"] },
+  { eventName: "support_reply_viewed", label: "Support reply viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "support_reply_sent", label: "Support reply sent", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["engagement"], aliases: ["support_thread_replied"] },
   { eventName: "support_thread_reply_failed", label: "Support thread reply failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "bug_report_submitted", label: "Bug report submitted", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["engagement"], aliases: ["feedback_submitted"] },
   { eventName: "experience_hub_viewed", label: "Experiences viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "tasks", "navigation"] },
   { eventName: "daily_checkin_claimed", label: "Daily check-in claimed", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"], aliases: ["daily_check_in_claim", "daily_reward_claimed"] },
   { eventName: "wallet_opened", label: "Wallet opened", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
@@ -230,7 +232,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "drop_unwrap_intent_blocked_by_funds", label: "Unwrap intent blocked by funds", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
   { eventName: "drop_unlock_attempted", label: "Drop unlock attempted", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
   { eventName: "drop_unwrapped", label: "Drop unwrapped", category: "content", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["content", "commerce"], aliases: ["drop_unlocked"] },
-  { eventName: "unlock_drop_success", label: "Drop unwrapped (legacy compatibility)", category: "content", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["content", "commerce"] },
+  { eventName: "unlock_drop_success", label: "Drop unwrapped (legacy compatibility)", category: "content", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["content", "commerce"], auditCoveredBy: ["drop_unwrapped"] },
   { eventName: "entitlement_granted", label: "Entitlement granted", category: "content", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["content", "commerce", "admin"] },
   { eventName: "drop_share_copied", label: "Drop share copied", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
   { eventName: "viewer_opened", label: "Viewer opened", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
@@ -310,7 +312,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "daily_deadline_in_app_reminder_opened", label: "In-app deadline reminder opened", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications", "tasks"] },
   { eventName: "daily_deadline_in_app_reminder_dismissed", label: "In-app deadline reminder dismissed", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications", "tasks"] },
   { eventName: "feedback_modal_opened", label: "Feedback modal opened", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"] },
-  { eventName: "feedback_submitted", label: "Feedback submitted", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"] },
+  { eventName: "feedback_submitted", label: "Feedback submitted", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"], auditCoveredBy: ["bug_report_submitted"] },
   { eventName: "feature_flag_exposed", label: "Feature flag exposed", category: "system", sources: DEFAULT_CLIENT_SOURCES, modules: ["runtime"] },
   { eventName: "experiment_variant_exposed", label: "Experiment variant exposed", category: "system", sources: DEFAULT_CLIENT_SOURCES, modules: ["runtime"] },
   { eventName: "identity_linked", label: "Guest identity linked", category: "auth", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["auth", "engagement"], auditCoveredBy: ["auth_sign_in_success", "auth_sign_up_success"] },
@@ -362,7 +364,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "admin_moderation_alert_reviewed", label: "Admin moderation alert reviewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "security"] },
   { eventName: "admin_moderation_alert_dismissed_false_positive", label: "Admin moderation false positive dismissed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "security"] },
   { eventName: "admin_moderation_alert_escalated", label: "Admin moderation alert escalated", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "security"] },
-  { eventName: "admin_moderation_data_failed", label: "Admin moderation data failed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "security"] },
+  { eventName: "admin_moderation_data_failed", label: "Admin moderation data failed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "security"], auditCoveredBy: ["admin_moderation_viewed"] },
     { eventName: "admin_debug_viewed", label: "Admin debug viewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "navigation"] },
     { eventName: "admin_support_viewed", label: "Admin support viewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "navigation"] },
     { eventName: "admin_users_viewed", label: "Admin users viewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "navigation"] },
@@ -955,6 +957,20 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     ];
   }
 
+  if (
+    eventName === "support_ticket_created"
+    || eventName === "support_reply_viewed"
+    || eventName === "support_reply_sent"
+    || eventName === "support_thread_opened"
+    || eventName === "support_thread_reply_failed"
+    || eventName === "bug_report_submitted"
+  ) {
+    return [
+      "thread_id|threadId|ticket_id|ticketId|feedback_id|feedbackId",
+      "category|support_category|issue_type|issueType",
+    ];
+  }
+
   if (family === "task") {
     return ["task_id|taskId|task_key|taskKey"];
   }
@@ -987,6 +1003,15 @@ function buildRequiredActorFields(eventName: string, family: TelemetryEventFamil
     return ["user_id|userId|authenticated caller"];
   }
 
+  if (
+    eventName === "support_ticket_created"
+    || eventName === "support_reply_viewed"
+    || eventName === "support_reply_sent"
+    || eventName === "bug_report_submitted"
+  ) {
+    return ["user_id|userId|authenticated caller"];
+  }
+
   if (family === "auth") {
     return ["session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"];
   }
@@ -1012,6 +1037,15 @@ function buildRequiredSurfaceFields(eventName: string, family: TelemetryEventFam
 
   if (eventName === "purchase_verified") {
     return ["source|payment_source|purchase_source|tracking_origin"];
+  }
+
+  if (
+    eventName === "support_ticket_created"
+    || eventName === "support_reply_viewed"
+    || eventName === "support_reply_sent"
+    || eventName === "bug_report_submitted"
+  ) {
+    return ["route|page_path|pagePath|surface|source_component|sourceComponent"];
   }
 
   return ["route|page_path|pagePath|surface|source_component|sourceComponent"];

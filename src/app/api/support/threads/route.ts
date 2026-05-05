@@ -7,6 +7,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { trackServerEvent } from "@/lib/server/analytics";
 import { createSupportThread, listSupportThreadsForUser } from "@/lib/server/support-threads";
 import { SUPPORT_THREAD_CATEGORIES } from "@/lib/support-readiness";
 
@@ -91,6 +92,19 @@ export async function POST(request: NextRequest) {
             body: message,
             sourcePath: sourcePath || null,
         });
+
+        if (thread?.thread?.id) {
+            await trackServerEvent("support_ticket_created", {
+                source_component: "support_threads_route",
+                route: sourcePath || "/dashboard/support",
+                page_path: sourcePath || "/dashboard/support",
+                thread_id: thread.thread.id,
+                ticket_id: thread.thread.id,
+                category,
+                support_category: category,
+                source_truth: "server",
+            }, caller.uid);
+        }
 
         return finalize(NextResponse.json({
             success: true,

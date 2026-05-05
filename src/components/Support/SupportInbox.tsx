@@ -179,12 +179,18 @@ export function SupportInbox() {
             return;
         }
 
-        trackEvent("support_thread_opened", {
+        if (!selectedThreadSummary.unreadForUser) {
+            return;
+        }
+
+        trackEvent("support_reply_viewed", {
             source_component: "support_inbox",
             route: window.location.pathname,
             thread_id: selectedThreadSummary.id,
             ticket_id: selectedThreadSummary.id,
+            category: selectedThreadSummary.category,
             support_category: selectedThreadSummary.category,
+            source_truth: "client",
             entity_type: "support",
             entity_id: selectedThreadSummary.id,
         });
@@ -209,15 +215,6 @@ export function SupportInbox() {
             await mutateThreadList();
             await mutateSelectedThread(response.thread, false);
             setSelectedThreadId(response.thread.thread?.id || null);
-            trackEvent("support_ticket_submitted", {
-                ticket_id: response.thread.thread?.id ?? "",
-                thread_id: response.thread.thread?.id ?? "",
-                support_category: category,
-                route: window.location.pathname,
-                source_component: "support_inbox",
-                entity_type: "support",
-                entity_id: response.thread.thread?.id ?? "",
-            });
             setComposerOpen(false);
             setMessage("");
             toast.success("Support ticket created.");
@@ -228,14 +225,6 @@ export function SupportInbox() {
                 severity: "error",
                 message: "Support ticket creation failed",
                 detail: { message: messageText },
-            });
-            trackEvent("bug_report_submitted", {
-                source_component: "support_inbox",
-                route: window.location.pathname,
-                support_category: category,
-                reason_code: "support_ticket_create_failed",
-                entity_type: "support",
-                entity_id: "support_ticket_create_failed",
             });
             toast.error(messageText);
         } finally {
@@ -260,15 +249,6 @@ export function SupportInbox() {
             setReply("");
             await mutateSelectedThread(response, false);
             await mutateThreadList();
-            trackEvent("support_thread_replied", {
-                source_component: "support_inbox",
-                route: window.location.pathname,
-                thread_id: selectedThreadId,
-                ticket_id: selectedThreadId,
-                support_category: response.thread?.category ?? selectedThreadSummary?.category ?? category,
-                entity_type: "support",
-                entity_id: selectedThreadId,
-            });
             toast.success("Reply sent.");
         } catch (error) {
             const messageText = error instanceof Error ? error.message : "Reply could not be sent.";

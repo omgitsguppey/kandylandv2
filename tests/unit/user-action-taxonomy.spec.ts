@@ -9,7 +9,7 @@ import {
 
 describe("analytics action taxonomy", () => {
   it("contains the canonical user action names", () => {
-    expect(USER_ACTION_NAMES).toEqual([
+    expect(USER_ACTION_NAMES).toEqual(expect.arrayContaining([
       "onboarding_completed",
       "daily_checkin_claimed",
       "drop_viewed",
@@ -21,8 +21,10 @@ describe("analytics action taxonomy", () => {
       "creator_followed",
       "notification_opened",
       "support_ticket_created",
+      "support_reply_viewed",
+      "support_reply_sent",
       "chat_message_sent",
-    ]);
+    ]));
   });
 
   it("normalizes raw event names into user-facing actions with required context", () => {

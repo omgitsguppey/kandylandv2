@@ -8,6 +8,7 @@ import { recordCanonicalTaskEvent } from '@/lib/server/daily-tasks';
 import { guardApiRequest } from '@/lib/server/request-guard';
 import { BUG_REPORT_ISSUE_TYPES } from '@/lib/bug-reporting';
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { trackServerEvent } from '@/lib/server/analytics';
 
 const feedbackSchema = z.object({
     message: z.string().trim().max(2000).optional(),
@@ -114,6 +115,22 @@ async function POST_handler(req: NextRequest) {
             timestamp: FieldValue.serverTimestamp(),
             status: 'new'
         });
+
+        if (category === "bug_report") {
+            await trackServerEvent("bug_report_submitted", {
+                source_component: "tasks_feedback_route",
+                route: autoContext?.currentPath || component?.routeHint || "/unknown",
+                page_path: autoContext?.currentPath || component?.routeHint || "/unknown",
+                category: issueType || category,
+                report_category: category,
+                severity: severity || "medium",
+                component: component?.componentName || "unknown_component",
+                component_name: component?.componentName || "unknown_component",
+                feedback_id: feedbackRef.id,
+                context_id: contextId || "",
+                source_truth: "server",
+            }, uid);
+        }
 
         await recordCanonicalTaskEvent(uid, email || uid, "feedback_submitted", {
             category,

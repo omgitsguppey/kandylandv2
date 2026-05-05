@@ -29,6 +29,8 @@ describe("behavioral event facts", () => {
         "notification_read",
         "notification_action_clicked",
         "support_ticket_created",
+        "support_reply_viewed",
+        "support_reply_sent",
         "admin_user_opened",
       ]),
     );
@@ -172,5 +174,45 @@ describe("behavioral event facts", () => {
     }).fact;
 
     expect(dedupeBehavioralEventFacts([first, duplicateSameDay])).toHaveLength(1);
+  });
+
+  it("normalizes support reply events into dedicated support behavioral facts", () => {
+    const viewed = normalizeBehavioralEventFactWithDiagnostics({
+      eventName: "support_reply_viewed",
+      params: {
+        source_component: "support_inbox",
+        route: "/dashboard/support",
+        thread_id: "thread-1",
+        ticket_id: "thread-1",
+      },
+      timestamp: 1000,
+      userId: "user-1",
+      sessionId: "session-1",
+      source: "client",
+    }).fact;
+    const sent = normalizeBehavioralEventFactWithDiagnostics({
+      eventName: "support_reply_sent",
+      params: {
+        source_component: "support_thread_route",
+        route: "/dashboard/support",
+        thread_id: "thread-1",
+        ticket_id: "thread-1",
+      },
+      timestamp: 2000,
+      userId: "user-1",
+      sessionId: "session-1",
+      source: "server",
+    }).fact;
+
+    expect(viewed).toMatchObject({
+      normalizedAction: "support_reply_viewed",
+      entityType: "support",
+      entityId: "thread-1",
+    });
+    expect(sent).toMatchObject({
+      normalizedAction: "support_reply_sent",
+      entityType: "support",
+      entityId: "thread-1",
+    });
   });
 });

@@ -176,14 +176,6 @@ export function ReportBugButton({
         throw new Error(typeof result.error === "string" ? result.error : "Bug report failed");
       }
 
-      trackEvent("feedback_submitted", {
-        category: "bug_report",
-        context,
-        message_length: note.trim().length,
-        issue_type: issueType,
-        severity,
-        source_component: "report_bug_button",
-      });
       dispatchActivitySync();
       toast.success("Bug report sent with runtime diagnostics attached.");
       closeComposer(true);

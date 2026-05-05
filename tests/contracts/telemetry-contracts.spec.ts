@@ -40,6 +40,9 @@ describe("telemetry catalog contracts", () => {
     expect(normalizeTelemetryEventName("daily_task_completed")).toBe("task_completed");
     expect(normalizeTelemetryEventName("viewer_asset_started")).toBe("file_viewed");
     expect(normalizeTelemetryEventName("viewer_asset_changed")).toBe("file_viewed");
+    expect(normalizeTelemetryEventName("support_ticket_submitted")).toBe("support_ticket_created");
+    expect(normalizeTelemetryEventName("feedback_submitted")).toBe("bug_report_submitted");
+    expect(normalizeTelemetryEventName("support_thread_replied")).toBe("support_reply_sent");
 
     expect(normalizeTelemetryEventPayloadParams({
       dropId: "drop_1",
@@ -100,6 +103,9 @@ describe("telemetry catalog contracts", () => {
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.daily_checkin_claimed.aliases).toContain("daily_reward_claimed");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.task_completed.requiredObjectFields.join(" ")).toContain("task_id");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.task_completed.requiredObjectFields.join(" ")).toContain("reward_gd");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.support_ticket_created.aliases).toContain("support_ticket_submitted");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.support_reply_sent.aliases).toContain("support_thread_replied");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.bug_report_submitted.aliases).toContain("feedback_submitted");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.admin_analytics_viewed.adminExcludedFromUserAnalytics).toBe(true);
   });
 });
