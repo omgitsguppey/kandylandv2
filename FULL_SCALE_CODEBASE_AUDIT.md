@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #158] PRE: Legacy Phaseout Registry
+
+Scope started:
+- Adding a hardcoded legacy phaseout registry so old, simulative, deprecated, or blocked logic has an owner, canonical replacement, deadline, allowed references, blocked references, and deterministic scoring.
+- Required outputs include a legacy registry contract, score/check scripts, generated phaseout report, docs, package scripts, and orphaned-logic integration.
+- This pass must not change runtime product behavior, must not run broad/browser audits, and must keep blocked legacy from silently becoming canonical again.
+
+Evidence:
+- Control tower routing, source-of-truth map, product doctrine, governance ledgers, adjacent orphaned-logic trace, and current preview/projection/moderation/support/notification/wallet validators were consulted before implementation.
+
+Doctrine:
+- KandyDrops legacy phaseout is a hardcoded registry. Legacy systems must keep owner, replacement, deadline, allowed-reference, and blocked-reference metadata current before they can remain in source.
+
+Scope completed:
+- Added `src/lib/legacy/legacy-registry.ts` with hardcoded legacy items for DropPreviewModal fallback, `/drops?drop` modal flow, synthetic view-as projection, old moderation screenshot certainty, admin/users realtime route, old wallet balance/bonus chips, notification opened/read score split, and admin support realtime queue.
+- Added `scripts/agent/score-legacy-phaseout.ts`, `scripts/agent/validate-legacy-phaseout.ts`, `agent/state/legacy-phaseout.generated.json`, `docs/agent-truth/legacy-phaseout.md`, and package scripts `score:legacy-phaseout` / `check:legacy-phaseout`.
+- Wired `scripts/agent/score-orphaned-logic.ts` and `docs/agent-truth/orphaned-logic-score.md` to treat the legacy registry as the owner for phase-out deadlines and blocked canonical re-entry.
+- Extended the affected audit router with a `legacy_phaseout_surface` so future registry/docs/script changes route to `check:legacy-phaseout`.
+
+Verification:
+- `npm run score:legacy-phaseout` passed and wrote `agent/state/legacy-phaseout.generated.json` with 0 blocked references and 0 overdue items.
+- `npm run check:legacy-phaseout` passed.
+- `npm run score:orphans` passed and wrote the orphaned-logic report; existing non-critical warning-level debt remains.
+- `npm run check:orphaned-logic` passed.
+- `npm run plan:affected-audits -- --task="add legacy phaseout registry"` passed and selected `check:affected-audit-router`, `check:legacy-phaseout`, and `typecheck`.
+- `npm run check:affected-audit-router` passed.
+- `npm run typecheck` passed.
+- Broad audits, Playwright, Lighthouse, Cypress, and full `npm run check` were not run.
+
 ## [2026-05-05 #157] PRE: Audit Cache Fingerprints
 
 Scope started:

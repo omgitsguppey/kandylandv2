@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Legacy phaseout registry
+
+KandyDrops legacy phaseout is a hardcoded registry. `src/lib/legacy/legacy-registry.ts` records old/simulative/deprecated/blocked logic with owner surfaces, canonical replacements, review and remove deadlines, allowed references, and blocked references. `npm run score:legacy-phaseout` writes `agent/state/legacy-phaseout.generated.json` with `legacyDebtScore = sum(stagePenalty * riskWeight * overdueMultiplier)`, critical blocked-reference findings, and phase-out next actions. `npm run check:legacy-phaseout` validates the registry, generated report, docs, package scripts, and runtime source scans so blocked legacy cannot silently become canonical again.
+
 ## 2026-05-05 Audit cache fingerprints
 
 KandyDrops deterministic audit validators now have a lightweight local cache layer. `src/lib/agent-audit/file-fingerprint.ts` computes normalized sha256 fingerprints and `src/lib/agent-audit/audit-cache.ts` builds cache keys from audit name/version, relevant source fingerprints, validator fingerprints, package script definitions, and config hashes. `npm run audit:run` checks this cache before spawning validators, logs cache-hit ledger entries, and records avoided commands in `agent/cache/audit-cache-index.json`; `npm run audit:cache-status` inspects cache state and `npm run check:audit-cache` validates max ages, accuracy thresholds, false-positive review gating, volatile output exclusion, and package wiring. Critical payment/auth/security/wallet/unlock audits use 6h cache windows, docs/doctrine use 72h, generated reports/UI validators use 24h, and audit runtime/cache summaries use 1h.

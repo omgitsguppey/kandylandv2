@@ -85,6 +85,7 @@ const rules = [
   "obsolete realtime logic where hot-cache doctrine applies",
   "duplicate telemetry events with same intent but different names",
   "dead imports in public beta surfaces",
+  "legacy phase-out registry ownership and deadlines",
   "safe autofix plans only for exact unused imports or exact duplicate broken doc chunks after TypeScript confirmation",
 ];
 
@@ -92,6 +93,8 @@ const commandBudget = {
   allowedCommands: [
     "npm run score:orphans",
     "npm run check:orphaned-logic",
+    "npm run score:legacy-phaseout",
+    "npm run check:legacy-phaseout",
     "npm run typecheck",
   ],
   forbiddenCommands: [
@@ -116,8 +119,10 @@ const requiredFiles = [
   "src/lib/telemetry-catalog.ts",
   "src/lib/drop-normalizers.ts",
   "src/lib/drop-read-models.ts",
+  "src/lib/legacy/legacy-registry.ts",
   "docs/agent-truth/support-recovery-flows.md",
   "docs/agent-truth/payment-wallet-unlock-entitlement.md",
+  "docs/agent-truth/legacy-phaseout.md",
 ] as const;
 
 const publicBetaImportSurfaces = [
@@ -575,6 +580,7 @@ function scanSupportRouteExpectations(findings: OrphanedLogicFinding[], files: S
     if (
       file.path === "scripts/agent/score-orphaned-logic.ts" ||
       file.path === "scripts/agent/validate-orphaned-logic.ts" ||
+      file.path === "src/lib/legacy/legacy-registry.ts" ||
       file.path === "docs/agent-truth/orphaned-logic-score.md"
     ) {
       continue;
@@ -621,6 +627,7 @@ function scanVocabulary(findings: OrphanedLogicFinding[], files: SourceFile[]) {
     "docs/doctrine/kandydrops-vocabulary-index.md",
     "docs/doctrine/kandydrops-copy-doctrine.md",
     "docs/agent-truth/orphaned-logic-score.md",
+    "scripts/agent/score-codebase-hardening.ts",
     "scripts/agent/score-orphaned-logic.ts",
     "scripts/agent/validate-orphaned-logic.ts",
   ]);

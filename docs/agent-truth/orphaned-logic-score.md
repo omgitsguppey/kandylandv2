@@ -9,6 +9,8 @@ Validator: `npm run check:orphaned-logic`
 
 KandyDrops orphaned logic scoring is deterministic and source-only. It exists to reduce stale duplicate PR logic, deprecated route/modal ownership, duplicate truth helpers, broken generated audit chunks, stale docs, wrong GumDrops vocabulary, obsolete realtime patterns, duplicate telemetry intent names, and dead imports without relying on browser audits. It may propose exact cleanup only when the evidence is deterministic; product behavior changes, route deletion, component deletion, telemetry renaming, and ambiguous doctrine conflicts must be escalated.
 
+KandyDrops legacy phaseout is a hardcoded registry. Orphan scoring now treats `src/lib/legacy/legacy-registry.ts` and `docs/agent-truth/legacy-phaseout.md` as the owner for phase-out deadlines, blocked references, allowed fallback paths, and canonical replacements.
+
 ## Rules
 
 - Duplicate normalizers or exported truth helpers with the same name must become one canonical owner plus documented adapters.
@@ -25,6 +27,7 @@ KandyDrops orphaned logic scoring is deterministic and source-only. It exists to
 - Admin analytics direct realtime/timer logic must be reviewed against the current hot-cache doctrine.
 - Duplicate telemetry events with the same intent require catalog and validator review before any rename.
 - Dead imports in public beta surfaces are cleanup candidates only after TypeScript confirms they are unused.
+- Legacy phase-out registry ownership and deadlines must stay current so deprecated logic cannot become canonical without a registry update.
 
 ## Autofix
 
@@ -36,6 +39,8 @@ Allowed targeted commands:
 
 - `npm run score:orphans`
 - `npm run check:orphaned-logic`
+- `npm run score:legacy-phaseout`
+- `npm run check:legacy-phaseout`
 - `npm run typecheck` only because the scorer and validator are TypeScript files
 
 Forbidden by default:

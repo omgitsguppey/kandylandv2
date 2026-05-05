@@ -1,7 +1,7 @@
 {
   "score": 85,
   "status": "warning",
-  "generatedAt": "2026-05-04T07:18:35.026Z",
+  "generatedAt": "2026-05-05T02:47:21.754Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [
     {
@@ -45,7 +45,7 @@
       "category": "telemetry_duplicate_intent",
       "title": "Potential duplicate telemetry intent group is present",
       "filePath": "src/lib/telemetry-catalog.ts",
-      "line": 212,
+      "line": 222,
       "excerpt": "{ eventName: \"drop_preview_opened\", label: \"Drop preview opened\", category: \"content\", sources: DEFAULT_CLIENT_SOURCES, modules: [\"content\"] },",
       "suggestedFix": "Keep both only if event-catalog docs define distinct lifecycle moments or audit coverage aliases.",
       "escalation": "Do not rename telemetry events automatically; analytics history and validators must be updated together.",
@@ -53,24 +53,7 @@
         "drop_preview_opened",
         "drop_preview_page_viewed"
       ],
-      "id": "orphaned-logic-1g7gsen",
-      "scoreImpact": 0,
-      "canAutofix": false
-    },
-    {
-      "severity": "info",
-      "category": "telemetry_duplicate_intent",
-      "title": "Potential duplicate telemetry intent group is present",
-      "filePath": "src/lib/telemetry-catalog.ts",
-      "line": 197,
-      "excerpt": "{ eventName: \"support_ticket_submitted\", label: \"Support ticket submitted\", category: \"engagement\", sources: DEFAULT_CLIENT_SOURCES, modules: [\"engagement\"] },",
-      "suggestedFix": "Keep both only if event-catalog docs define distinct lifecycle moments or audit coverage aliases.",
-      "escalation": "Do not rename telemetry events automatically; analytics history and validators must be updated together.",
-      "evidence": [
-        "support_ticket_submitted",
-        "feedback_submitted"
-      ],
-      "id": "orphaned-logic-yxsis9",
+      "id": "orphaned-logic-1hvhk2g",
       "scoreImpact": 0,
       "canAutofix": false
     }
@@ -78,7 +61,7 @@
   "criticalCount": 0,
   "majorCount": 1,
   "safeAutofixesAvailable": 0,
-  "scannedFileCount": 905,
+  "scannedFileCount": 1053,
   "checkedFiles": [
     "src/app/drops/[id]/preview/page.tsx",
     "src/app/drops/DropsClient.tsx",
@@ -90,8 +73,10 @@
     "src/lib/telemetry-catalog.ts",
     "src/lib/drop-normalizers.ts",
     "src/lib/drop-read-models.ts",
+    "src/lib/legacy/legacy-registry.ts",
     "docs/agent-truth/support-recovery-flows.md",
     "docs/agent-truth/payment-wallet-unlock-entitlement.md",
+    "docs/agent-truth/legacy-phaseout.md",
     "src/app/drops/DropsClient.tsx",
     "src/components/DropCard.tsx",
     "src/components/DropCardLayout.tsx",
@@ -117,12 +102,15 @@
     "obsolete realtime logic where hot-cache doctrine applies",
     "duplicate telemetry events with same intent but different names",
     "dead imports in public beta surfaces",
+    "legacy phase-out registry ownership and deadlines",
     "safe autofix plans only for exact unused imports or exact duplicate broken doc chunks after TypeScript confirmation"
   ],
   "commandBudget": {
     "allowedCommands": [
       "npm run score:orphans",
       "npm run check:orphaned-logic",
+      "npm run score:legacy-phaseout",
+      "npm run check:legacy-phaseout",
       "npm run typecheck"
     ],
     "forbiddenCommands": [
@@ -135,5 +123,5 @@
       "broad UI audits"
     ]
   },
-  "summary": "Detected 4 orphaned-logic/stale-artifact finding(s); behavior-changing cleanup requires escalation."
+  "summary": "Detected 3 orphaned-logic/stale-artifact finding(s); behavior-changing cleanup requires escalation."
 }

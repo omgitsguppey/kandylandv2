@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Legacy Phaseout Registry Coverage
+
+- [x] KandyDrops legacy phaseout is a hardcoded registry. `src/lib/legacy/legacy-registry.ts` owns legacy item ids, statuses, canonical replacements, owner surfaces, phase-out stages, review/remove deadlines, allowed references, blocked references, risk weights, and debt scoring helpers.
+- [x] `scripts/agent/score-legacy-phaseout.ts`, `scripts/agent/validate-legacy-phaseout.ts`, `agent/state/legacy-phaseout.generated.json`, `docs/agent-truth/legacy-phaseout.md`, and package scripts `score:legacy-phaseout` / `check:legacy-phaseout` provide the deterministic phase-out lane.
+- [x] `scripts/agent/score-orphaned-logic.ts`, `docs/agent-truth/orphaned-logic-score.md`, and `agent/state/orphaned-logic-score.generated.json` now treat the legacy phaseout registry as the owner for legacy deadlines and blocked canonical re-entry.
+
 ## 2026-05-05 Audit Cache Fingerprint Coverage
 
 - [x] `src/lib/agent-audit/file-fingerprint.ts` owns normalized file path hashing, sha256 JSON/text hashing, config fingerprinting, unique path normalization, and aggregate fingerprint hashes for deterministic audit cache inputs.

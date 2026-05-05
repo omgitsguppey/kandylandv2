@@ -147,6 +147,20 @@ const SURFACE_RULES: SurfaceRule[] = [
     safeSkips: ["No app tests by default: audit cache changes only affect agent audit execution.", "No full check: cache/router self-checks cover this path first."],
   },
   {
+    id: "legacy_phaseout",
+    label: "legacy_phaseout_surface",
+    priority: 94,
+    match: (filePath) =>
+      filePath.includes("legacy-registry") ||
+      filePath.includes("legacy-phaseout") ||
+      filePath.includes("orphaned-logic-score"),
+    staticScripts: ["check:legacy-phaseout", "check:affected-audit-router", "typecheck"],
+    optionalScripts: ["check:orphaned-logic"],
+    budgetClass: "agent_tooling",
+    why: "Legacy phaseout changes affect blocked-reference guardrails, owner deadlines, and orphaned-logic governance.",
+    safeSkips: ["No app tests by default: legacy phaseout changes only affect deterministic audit/governance metadata.", "No full check: legacy phaseout and router self-checks cover this path first."],
+  },
+  {
     id: "agent_tooling",
     label: "agent_tooling_surface",
     priority: 80,
