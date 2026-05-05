@@ -246,6 +246,12 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
     return "Added a Beta badge with app update notes in the top navigation.";
   }
   if (
+    normalized.includes("verify media and firestore guard evidence")
+    || normalized.includes("media and session safety checks")
+  ) {
+    return "Improved internal media and session safety checks.";
+  }
+  if (
     normalized.includes("guard creator id document egress")
     || (normalized.includes("creator id document") && normalized.includes("egress"))
     || (normalized.includes("creator verification") && normalized.includes("documents"))
