@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Human developer readiness rails
+
+KandyDrops now has outsourced-human-development governance rails. `CONTRIBUTING.md`, `SECURITY.md`, `.env.example`, `.github/CODEOWNERS`, PR/issue templates, Dependabot, lightweight CI, Dependency Review, report-only OpenSSF Scorecard, ADR template, runbooks, environment contract, contractor onboarding, and `docs/agent-truth/human-dev-readiness.md` define review, security, dependency, incident, and onboarding expectations. `npm run check:human-dev-readiness` runs `scripts/agent/validate-human-dev-readiness.ts`, validates required files, sensitive CODEOWNERS entries, least-permission workflows, safe env examples, docs/runbooks, package wiring, and writes `agent/state/human-dev-readiness.generated.json`.
+
 ## 2026-05-05 Code organization doctrine
 
 KandyDrops now has a deterministic code organization doctrine and score lane. `src/lib/code-organization/code-organization-contract.ts` owns hierarchy rules, feature-folder targets, truth-layer order, file-size budgets, naming rules, score buckets, and command budgets. `npm run score:code-organization` writes `agent/state/code-organization-score.generated.json` plus compact `agent/context/code-organization.index.json`, identifying largest source/docs/generated state files, vague helper names, misplaced feature logic, mixed-responsibility routes, duplicate formulas, split candidates, missing feature ownership, legacy gaps, compact-card gaps, and suggested `src/features/*` migrations. `npm run check:code-organization` validates the doctrine/docs/report/index/package wiring. The lane is source-only and does not move routes or run browser/full-suite checks.

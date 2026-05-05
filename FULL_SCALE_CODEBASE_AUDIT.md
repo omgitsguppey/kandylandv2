@@ -1,5 +1,29 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #161] PRE: Human Developer Readiness Rails
+
+Scope started:
+- Adding contributor governance, code ownership, PR/issue workflow, environment contract, security policy, dependency/supply-chain checks, runbooks, ADR scaffold, contractor onboarding doctrine, GitHub Actions, and a deterministic readiness validator.
+- Required outputs include `CONTRIBUTING.md`, `SECURITY.md`, `.env.example`, `.github/CODEOWNERS`, GitHub templates/workflows, runbooks, ADR template, human-dev docs, `scripts/agent/validate-human-dev-readiness.ts`, and `agent/state/human-dev-readiness.generated.json`.
+- This pass must not change product runtime behavior, Firebase rules, deploy configuration, or run broad UI/full-suite checks.
+
+Evidence:
+- Existing governance ledgers, compact agent context, code organization doctrine, package scripts, and official GitHub/OWASP/OpenSSF/OpenTelemetry documentation were consulted before implementation.
+
+Doctrine:
+- KandyDrops outside-contributor work is now gated by contributor rules, CODEOWNERS, PR/issue templates, security reporting, environment contracts, dependency review, Dependabot, report-only Scorecard, lightweight CI, runbooks, ADRs, and a source-only readiness validator.
+
+Scope completed:
+- Added `CONTRIBUTING.md`, `SECURITY.md`, `.env.example`, `.github/CODEOWNERS`, PR/issue templates, Dependabot config, lightweight CI, dependency-review workflow, and report-only OpenSSF Scorecard workflow.
+- Added ADR and incident runbook scaffolding under `docs/adr/` and `docs/runbooks/`.
+- Added `docs/agent-truth/human-dev-readiness.md`, `docs/agent-truth/environment-contract.md`, and `docs/agent-truth/contractor-onboarding.md`.
+- Added `scripts/agent/validate-human-dev-readiness.ts`, package script `check:human-dev-readiness`, and generated `agent/state/human-dev-readiness.generated.json`.
+
+Verification:
+- `npm run check:human-dev-readiness` passed with 141/141 checks and wrote the generated readiness state.
+- `npm run typecheck` passed.
+- Product runtime code, Firebase rules, deployments, broad UI audits, Playwright, Lighthouse, Cypress, and full `npm run check` were not run.
+
 ## [2026-05-05 #160] PRE: Code Organization Doctrine
 
 Scope started:

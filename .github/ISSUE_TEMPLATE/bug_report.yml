@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a user-facing or operational defect.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets, private keys, tokens, raw content URLs, or customer data.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - wallet/payment/GumDrops
+        - unlock/content protection/viewer
+        - creator monetization
+        - analytics/telemetry/behavioral intelligence
+        - support/moderation
+        - Firebase rules/storage
+        - Data Connect/Cloud SQL
+        - UI/device
+        - repo governance/tooling
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Steps, expected result, actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Logs, screenshots, debug evidence ids, or validator output with secrets removed.
+  - type: textarea
+    id: validators
+    attributes:
+      label: Validators or commands already run
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed secrets and private user/payment/content data.
+          required: true

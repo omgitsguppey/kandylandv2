@@ -1,0 +1,74 @@
+# KandyDrops code owners.
+# Replace @omgitsguppey with narrower GitHub teams as contractor lanes mature.
+
+* @omgitsguppey
+
+# Repo governance files
+/.github/ @omgitsguppey
+/AGENTS.md @omgitsguppey
+/CONTRIBUTING.md @omgitsguppey
+/SECURITY.md @omgitsguppey
+/.env.example @omgitsguppey
+/FULL_SCALE_CODEBASE_AUDIT.md @omgitsguppey
+/REPO_MEMORY_LEDGER.md @omgitsguppey
+/EVERY_FILE_FUNCTION_CHECKLIST.md @omgitsguppey
+/docs/adr/ @omgitsguppey
+/docs/runbooks/ @omgitsguppey
+/docs/agent-truth/ @omgitsguppey
+/docs/doctrine/ @omgitsguppey
+
+# Wallet, payment, and GumDrops
+/src/components/PurchaseModal.tsx @omgitsguppey
+/src/app/api/paypal/ @omgitsguppey
+/src/lib/gumdrop-ledger.ts @omgitsguppey
+/src/lib/server/gumdrop* @omgitsguppey
+/src/lib/server/wallet* @omgitsguppey
+
+# Unlock, content protection, and viewer
+/src/app/api/drops/unlock/ @omgitsguppey
+/src/app/dashboard/viewer/ @omgitsguppey
+/src/hooks/useViewerWatchSession.ts @omgitsguppey
+/src/lib/viewer-watch-session.ts @omgitsguppey
+/src/lib/content* @omgitsguppey
+/src/lib/server/content* @omgitsguppey
+
+# Creator monetization
+/src/app/api/creator/ @omgitsguppey
+/src/lib/server/creator-experiences.ts @omgitsguppey
+/src/components/Creators/ @omgitsguppey
+/src/app/creators/ @omgitsguppey
+
+# Analytics, telemetry, and behavioral intelligence
+/src/app/api/analytics/ @omgitsguppey
+/src/lib/analytics/ @omgitsguppey
+/src/lib/behavioral/ @omgitsguppey
+/src/lib/recommendations/ @omgitsguppey
+/src/lib/telemetry-catalog.ts @omgitsguppey
+/functions/src/behavioral* @omgitsguppey
+
+# Support and moderation
+/src/components/Support/ @omgitsguppey
+/src/components/Feedback/ @omgitsguppey
+/src/app/api/support/ @omgitsguppey
+/src/app/api/admin/support/ @omgitsguppey
+/src/components/Admin/AdminModeration* @omgitsguppey
+/src/lib/moderation/ @omgitsguppey
+
+# Firebase rules and Storage rules
+/firestore.rules @omgitsguppey
+/storage.rules @omgitsguppey
+/database.rules.json @omgitsguppey
+
+# Data Connect and Cloud SQL
+/dataconnect/ @omgitsguppey
+/src/lib/server/api-cost-contract.ts @omgitsguppey
+/src/lib/server/cloud-cost-contract.ts @omgitsguppey
+
+# Agent validators and generated audit context
+/scripts/agent/ @omgitsguppey
+/src/lib/agent-audit/ @omgitsguppey
+/agent/context/ @omgitsguppey
+/agent/state/ @omgitsguppey
+
+# GitHub workflows
+/.github/workflows/ @omgitsguppey

@@ -1,0 +1,52 @@
+name: Feature request
+description: Propose a scoped product or platform change.
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What outcome should this create?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Concrete pass/fail criteria.
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Primary surface
+      options:
+        - wallet/payment/GumDrops
+        - unlock/content protection/viewer
+        - creator monetization
+        - analytics/telemetry/behavioral intelligence
+        - support/moderation
+        - Firebase rules/storage
+        - Data Connect/Cloud SQL
+        - UI/device
+        - repo governance/tooling
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: doctrine
+    attributes:
+      label: Doctrine or source-truth impact
+      description: Which doctrine, contract, telemetry, state, or validator must change?
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and rollback
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety gates
+      options:
+        - label: This request does not require public disclosure of secrets or private user/payment/content data.
+          required: true
