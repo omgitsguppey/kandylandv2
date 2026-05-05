@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 190,
+  "validatorCount": 191,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -191,6 +191,7 @@
       "check:agent-context",
       "check:audit-cache",
       "check:audit-runtime-ledger",
+      "check:doctrine-retrieval-optimizer",
       "score:audit-runtime"
     ],
     "legacy-phaseout": [
@@ -353,6 +354,7 @@
     "check:device-layout-score": "device-ui",
     "check:device-ui": "device-ui",
     "check:discovery-tracking-truth": "drops",
+    "check:doctrine-retrieval-optimizer": "agent-context",
     "check:drop-cover-visibility-truth": "drops",
     "check:drop-preview-legacy-handoff": "legacy-phaseout",
     "check:drop-preview-page": "drops",

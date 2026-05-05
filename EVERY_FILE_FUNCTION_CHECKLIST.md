@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Doctrine Retrieval Optimizer Coverage
+
+- [x] `src/lib/doctrine/doctrine-retrieval-optimizer.ts`, `doctrine-coverage-score.ts`, `doctrine-context-cost.ts`, and `doctrine-conflict-score.ts` implement path/intent/risk/authority/recency/cost scoring, greedy smallest-sufficient selection, conflict scoring, high-risk source-truth enforcement, and context savings math.
+- [x] `scripts/agent/optimize-doctrine-context.ts`, `scripts/agent/validate-doctrine-retrieval-optimizer.ts`, package scripts `optimize:doctrine-context` / `check:doctrine-retrieval-optimizer`, `agent/context/optimized-task-context.generated.json`, and `agent/state/doctrine-retrieval-optimizer.generated.json` provide deterministic generation and sample validation.
+- [x] `docs/agent-truth/doctrine-retrieval-optimizer.md`, `docs/agent-truth/doctrine-storage-strategy.md`, README/AGENTS updates, `agent/context/doctrine.index.json`, `agent/context/surface-doctrine-map.json`, and `agent/context/validator-map.json` point agents to optimized context first while preserving human markdown as fallback evidence.
+
 ## 2026-05-05 Surface Doctrine Split Coverage
 
 - [x] `docs/doctrine/03-surface-hierarchy.md`, `docs/doctrine/surfaces/user-ui-doctrine.md`, `docs/doctrine/surfaces/creator-ui-doctrine.md`, `docs/doctrine/surfaces/admin-ui-doctrine.md`, `docs/doctrine/surfaces/server-truth-doctrine.md`, and `docs/doctrine/surfaces/shared-brand-primitives.md` define the User, Creator, Admin, Server, and shared primitive doctrine layers.

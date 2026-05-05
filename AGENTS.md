@@ -4,10 +4,13 @@
 
 Do not read every Markdown file by default. Load doctrine in this order:
 
-1. `agent/context/doctrine-registry.json`
-2. Task-specific records from `agent/context/doctrine-cards.jsonl`
-3. The relevant canonical surface doc under `docs/doctrine/surfaces/`
-4. Full Markdown source docs only when compact context leaves uncertainty
+1. Run or read `agent/context/optimized-task-context.generated.json` from `npm run optimize:doctrine-context -- --task "<task>" --changed <path>`.
+2. `agent/context/doctrine-registry.json`
+3. Task-specific records from `agent/context/doctrine-cards.jsonl`
+4. The relevant canonical surface doc under `docs/doctrine/surfaces/`
+5. Full Markdown source docs only when compact context leaves uncertainty
+
+Doctrine retrieval is an optimization problem. Agents must load the smallest sufficient context pack based on changed files, task intent, risk, authority, conflicts, legacy warnings, and validator coverage. Full Markdown is fallback evidence, not the default context source.
 
 ## Surface Doctrine Routing
 
@@ -44,8 +47,10 @@ Command budget doctrine:
 This command budget is mandatory for doctrine and governance work.
 
 - Start with affected-file planning and compact context.
+- Use `npm run optimize:doctrine-context -- --task "<task>" --changed <path>` as the first doctrine read path for new agent tasks.
 - Use `npm run score:doctrine` and `npm run check:doctrine` for doctrine hierarchy work.
 - Use `npm run check:surface-doctrine-split` when changing surface hierarchy, UI doctrine, server truth doctrine, or the path-to-surface map.
+- Use `npm run check:doctrine-retrieval-optimizer` when changing doctrine retrieval, compact context selection, or optimizer scoring.
 - Use `npm run typecheck` when TypeScript changed.
 - Do not run Playwright, Lighthouse, Cypress, deploys, or full `npm run check` by default.
 

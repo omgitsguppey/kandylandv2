@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Doctrine retrieval optimizer
+
+KandyDrops doctrine retrieval now uses a scored optimizer instead of rule-only selection. `src/lib/doctrine/doctrine-retrieval-optimizer.ts` loads authority cards, compact feature cards, surface routing, validator map, and legacy registry cards, then selects the smallest sufficient pack by path match, task intent, risk, authority, recency, token cost, validator coverage, and conflict safety. `npm run optimize:doctrine-context -- --task "wallet density fix" --changed src/components/PurchaseModal.tsx` writes `agent/context/optimized-task-context.generated.json`; `npm run check:doctrine-retrieval-optimizer` validates 10 sample tasks and writes `agent/state/doctrine-retrieval-optimizer.generated.json`. Agents must treat full markdown as fallback evidence, not the default doctrine source.
+
 ## 2026-05-05 Surface doctrine split
 
 KandyDrops now routes doctrine by primary surface before agents apply layout, density, copy, state, telemetry, admin truth, or server truth rules. `docs/doctrine/03-surface-hierarchy.md` defines the hierarchy and conflict winners; `docs/doctrine/surfaces/user-ui-doctrine.md`, `creator-ui-doctrine.md`, `admin-ui-doctrine.md`, `server-truth-doctrine.md`, and `shared-brand-primitives.md` split the former mixed UI rules into User, Creator, Admin, Server, and shared primitive layers. `agent/context/surface-doctrine-map.json` maps app paths/components/backend paths to one primary surface, and `npm run check:surface-doctrine-split` validates docs, map routing, README/AGENTS guidance, server/UI boundary checks, and shared primitive purity. Server truth beats all UI doctrine for money, unlocks, entitlements, security, support permission, moderation evidence, and creator monetization.

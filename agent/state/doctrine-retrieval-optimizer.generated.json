@@ -1,0 +1,272 @@
+{
+  "generatedAt": "2026-05-05T07:50:00.467Z",
+  "sampleCount": 10,
+  "averageCardsSelected": 4.4,
+  "averageEstimatedTokens": 865.7,
+  "averageContextSavings": 0.9927210506844247,
+  "tasksOverBudget": [],
+  "unresolvedConflicts": [],
+  "mostUsedCards": [
+    {
+      "id": "doctrine-card-validator-map",
+      "count": 10
+    },
+    {
+      "id": "doctrine-card-shared-brand-primitives",
+      "count": 4
+    },
+    {
+      "id": "doctrine-card-source-of-truth-constitution",
+      "count": 3
+    },
+    {
+      "id": "doctrine-card-surface-user-ui",
+      "count": 3
+    },
+    {
+      "id": "doctrine-card-surface-server-truth",
+      "count": 2
+    },
+    {
+      "id": "doctrine-card-surface-wallet",
+      "count": 1
+    },
+    {
+      "id": "doctrine-card-legacy-old-wallet-total-only-balance-chip",
+      "count": 1
+    },
+    {
+      "id": "doctrine-card-legacy-old-green-bonus-chips",
+      "count": 1
+    },
+    {
+      "id": "doctrine-card-surface-viewer",
+      "count": 1
+    },
+    {
+      "id": "doctrine-card-surface-watch-time",
+      "count": 1
+    },
+    {
+      "id": "doctrine-card-surface-admin-ui",
+      "count": 1
+    },
+    {
+      "id": "doctrine-card-surface-behavioral-intelligence",
+      "count": 1
+    }
+  ],
+  "staleCards": [],
+  "duplicateCards": [
+    {
+      "key": "repo-governance:repo-governance:AGENTS.md",
+      "ids": [
+        "doctrine-card-agents",
+        "doctrine_card__repo-governance"
+      ]
+    },
+    {
+      "key": "legacy-phaseout:wallet_density:docs/agent-truth/legacy-phaseout.md",
+      "ids": [
+        "doctrine-card-legacy-old-wallet-total-only-balance-chip",
+        "doctrine-card-legacy-old-green-bonus-chips"
+      ]
+    }
+  ],
+  "lowUtilityCards": [
+    "doctrine-card-product-constitution",
+    "doctrine-card-surface-admin-ai",
+    "doctrine-card-surface-admin-debug",
+    "doctrine-card-surface-creator-profile",
+    "doctrine-card-surface-drops",
+    "doctrine-card-surface-image-loading",
+    "doctrine-card-agents",
+    "doctrine-card-every-file-function-checklist",
+    "doctrine-card-full-scale-codebase-audit",
+    "doctrine-card-repo-memory-ledger",
+    "doctrine-card-docs-agent-truth-rollback-incident-response",
+    "doctrine-card-docs-agent-truth-analytics-file-inventory",
+    "doctrine_card__wallet",
+    "doctrine_card__drops",
+    "doctrine_card__viewer",
+    "doctrine_card__watch-time",
+    "doctrine_card__user-management",
+    "doctrine_card__behavioral-intelligence",
+    "doctrine_card__telemetry",
+    "doctrine_card__support"
+  ],
+  "missingSurfaceCards": [],
+  "sampleSummaries": [
+    {
+      "id": "wallet-purchase-modal",
+      "selectedCards": [
+        "doctrine-card-validator-map",
+        "doctrine-card-source-of-truth-constitution",
+        "doctrine-card-shared-brand-primitives",
+        "doctrine-card-surface-user-ui",
+        "doctrine-card-surface-wallet",
+        "doctrine-card-legacy-old-wallet-total-only-balance-chip",
+        "doctrine-card-legacy-old-green-bonus-chips"
+      ],
+      "estimatedTokens": 1396,
+      "contextSavings": 0.9882622002488817,
+      "affectedSurfaces": [
+        "user"
+      ],
+      "affectedFeatures": [
+        "wallet"
+      ]
+    },
+    {
+      "id": "viewer-watch-time",
+      "selectedCards": [
+        "doctrine-card-validator-map",
+        "doctrine-card-surface-viewer",
+        "doctrine-card-surface-watch-time"
+      ],
+      "estimatedTokens": 482,
+      "contextSavings": 0.9959472639827801,
+      "affectedSurfaces": [],
+      "affectedFeatures": [
+        "viewer",
+        "watch-time"
+      ]
+    },
+    {
+      "id": "admin-users-behavioral",
+      "selectedCards": [
+        "doctrine-card-validator-map",
+        "doctrine-card-shared-brand-primitives",
+        "doctrine-card-surface-admin-ui",
+        "doctrine-card-surface-behavioral-intelligence",
+        "doctrine-card-surface-telemetry",
+        "doctrine-card-surface-user-management"
+      ],
+      "estimatedTokens": 1252,
+      "contextSavings": 0.9894729761544412,
+      "affectedSurfaces": [
+        "admin"
+      ],
+      "affectedFeatures": [
+        "behavioral-intelligence",
+        "telemetry",
+        "user-management"
+      ]
+    },
+    {
+      "id": "creator-projection",
+      "selectedCards": [
+        "doctrine-card-validator-map",
+        "doctrine-card-surface-creator-dashboard",
+        "doctrine-card-legacy-synthetic-view-as-local-projection"
+      ],
+      "estimatedTokens": 553,
+      "contextSavings": 0.9953502841960111,
+      "affectedSurfaces": [],
+      "affectedFeatures": [
+        "creator-dashboard"
+      ]
+    },
+    {
+      "id": "moderation-theft-risk",
+      "selectedCards": [
+        "doctrine-card-validator-map",
+        "doctrine-card-surface-moderation",
+        "doctrine-card-legacy-old-moderation-screenshot-certainty"
+      ],
+      "estimatedTokens": 510,
+      "contextSavings": 0.9957118353344768,
+      "affectedSurfaces": [],
+      "affectedFeatures": [
+        "moderation"
+      ]
+    },
+    {
+      "id": "support-workspace-ui",
+      "selectedCards": [
+        "doctrine-card-validator-map",
+        "doctrine-card-shared-brand-primitives",
+        "doctrine-card-surface-user-ui",
+        "doctrine-card-surface-support"
+      ],
+      "estimatedTokens": 845,
+      "contextSavings": 0.9928950997208489,
+      "affectedSurfaces": [
+        "user"
+      ],
+      "affectedFeatures": [
+        "support"
+      ]
+    },
+    {
+      "id": "docs-only-doctrine",
+      "selectedCards": [
+        "doctrine-card-validator-map",
+        "doctrine-card-engineering-constitution",
+        "doctrine-card-optimizer",
+        "doctrine-card-surface-routing-map"
+      ],
+      "estimatedTokens": 848,
+      "contextSavings": 0.9928698752228164,
+      "affectedSurfaces": [],
+      "affectedFeatures": [
+        "doctrine-retrieval"
+      ]
+    },
+    {
+      "id": "server-route-security",
+      "selectedCards": [
+        "doctrine-card-validator-map",
+        "doctrine-card-source-of-truth-constitution",
+        "doctrine-card-surface-server-truth",
+        "doctrine-card-surface-security-cost",
+        "doctrine_card__speed-security"
+      ],
+      "estimatedTokens": 958,
+      "contextSavings": 0.9919449769616251,
+      "affectedSurfaces": [
+        "server"
+      ],
+      "affectedFeatures": [
+        "security/cost",
+        "speed-security"
+      ]
+    },
+    {
+      "id": "cloud-sql-cost",
+      "selectedCards": [
+        "doctrine-card-validator-map",
+        "doctrine-card-source-of-truth-constitution",
+        "doctrine-card-surface-server-truth",
+        "doctrine-card-surface-cloud-sql-bigquery",
+        "doctrine_card__google-cost"
+      ],
+      "estimatedTokens": 965,
+      "contextSavings": 0.9918861197995493,
+      "affectedSurfaces": [
+        "server"
+      ],
+      "affectedFeatures": [
+        "cloud/sql/bigquery",
+        "google-cost"
+      ]
+    },
+    {
+      "id": "navigation-ui-only",
+      "selectedCards": [
+        "doctrine-card-validator-map",
+        "doctrine-card-shared-brand-primitives",
+        "doctrine-card-surface-user-ui",
+        "doctrine-card-surface-device-ui"
+      ],
+      "estimatedTokens": 848,
+      "contextSavings": 0.9928698752228164,
+      "affectedSurfaces": [
+        "user"
+      ],
+      "affectedFeatures": [
+        "device-ui"
+      ]
+    }
+  ]
+}

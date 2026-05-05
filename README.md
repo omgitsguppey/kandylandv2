@@ -7,17 +7,18 @@ KandyDrops is governed by a compact doctrine hierarchy. This README is a gateway
 Read in this order:
 
 1. [Control Tower Start](./control-tower/00-START-HERE.md)
-2. [Doctrine Registry](./agent/context/doctrine-registry.json)
-3. [Compact Doctrine Cards](./agent/context/doctrine-cards.jsonl)
-4. [Surface Doctrine Map](./agent/context/surface-doctrine-map.json)
-5. [Product Constitution](./docs/doctrine/00-product-constitution.md)
-6. [Source-of-Truth Constitution](./docs/doctrine/01-source-of-truth-constitution.md)
-7. [Engineering Constitution](./docs/doctrine/02-engineering-constitution.md)
-8. [Surface Hierarchy](./docs/doctrine/03-surface-hierarchy.md)
-9. [Surface Doctrine Cards](./docs/doctrine/surfaces/README.md)
-10. [Doctrine Hierarchy Explainer](./docs/agent-truth/doctrine-hierarchy.md)
+2. [Optimized Task Context](./agent/context/optimized-task-context.generated.json)
+3. [Doctrine Registry](./agent/context/doctrine-registry.json)
+4. [Compact Doctrine Cards](./agent/context/doctrine-cards.jsonl)
+5. [Surface Doctrine Map](./agent/context/surface-doctrine-map.json)
+6. [Product Constitution](./docs/doctrine/00-product-constitution.md)
+7. [Source-of-Truth Constitution](./docs/doctrine/01-source-of-truth-constitution.md)
+8. [Engineering Constitution](./docs/doctrine/02-engineering-constitution.md)
+9. [Surface Hierarchy](./docs/doctrine/03-surface-hierarchy.md)
+10. [Surface Doctrine Cards](./docs/doctrine/surfaces/README.md)
+11. [Doctrine Hierarchy Explainer](./docs/agent-truth/doctrine-hierarchy.md)
 
-Agents and human contributors should read compact context first, route the file through the surface-specific doctrine map, then read the relevant surface doctrine and feature card. Full historical Markdown is only for unresolved uncertainty.
+KandyDrops doctrine retrieval is an optimization problem. Agents should generate or read the smallest sufficient context pack first, route files through the surface-specific doctrine map, then read relevant surface doctrine and feature cards. Full historical Markdown is only for unresolved uncertainty.
 
 ## Authority Summary
 
@@ -39,11 +40,21 @@ Use [agent/context/surface-doctrine-map.json](./agent/context/surface-doctrine-m
 - Server Truth: [docs/doctrine/surfaces/server-truth-doctrine.md](./docs/doctrine/surfaces/server-truth-doctrine.md)
 - Shared Brand Primitives: [docs/doctrine/surfaces/shared-brand-primitives.md](./docs/doctrine/surfaces/shared-brand-primitives.md)
 
+## Doctrine Retrieval Optimizer
+
+Run `npm run optimize:doctrine-context -- --task "<task>" --changed <path>` to write [agent/context/optimized-task-context.generated.json](./agent/context/optimized-task-context.generated.json). The optimizer scores cards by path match, task intent, risk, authority, recency, and token cost, then selects the cheapest safe pack with validator coverage and conflict protection.
+
+- Optimizer truth: [docs/agent-truth/doctrine-retrieval-optimizer.md](./docs/agent-truth/doctrine-retrieval-optimizer.md)
+- Storage strategy: [docs/agent-truth/doctrine-storage-strategy.md](./docs/agent-truth/doctrine-storage-strategy.md)
+- Global report: [agent/state/doctrine-retrieval-optimizer.generated.json](./agent/state/doctrine-retrieval-optimizer.generated.json)
+
 ## Required Checks For Doctrine Changes
 
 ```bash
 npm run score:doctrine
 npm run check:doctrine
+npm run optimize:doctrine-context -- --task "wallet density fix" --changed src/components/PurchaseModal.tsx
+npm run check:doctrine-retrieval-optimizer
 npm run check:surface-doctrine-split
 npm run typecheck
 ```

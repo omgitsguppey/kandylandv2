@@ -161,6 +161,62 @@
       "why": "Creator components own creator-facing operations and profile projection."
     },
     {
+      "pattern": "src/components/PurchaseModal.tsx",
+      "primarySurface": "user",
+      "featureSurfaces": [
+        "wallet",
+        "telemetry"
+      ],
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "why": "Purchase modal is a fan-facing wallet conversion surface; server purchase truth still wins for money."
+    },
+    {
+      "pattern": "src/components/Navbar.tsx",
+      "primarySurface": "user",
+      "featureSurfaces": [
+        "device-ui"
+      ],
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "why": "Top navigation is a polished user shell surface unless a route-specific admin shell overrides."
+    },
+    {
+      "pattern": "src/components/Navigation/**",
+      "primarySurface": "user",
+      "featureSurfaces": [
+        "device-ui"
+      ],
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "why": "Shared navigation defaults to user shell rules before route-specific surface overrides."
+    },
+    {
+      "pattern": "src/components/Support/**",
+      "primarySurface": "user",
+      "featureSurfaces": [
+        "support"
+      ],
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "why": "Support components are user-facing unless under admin support routes."
+    },
+    {
+      "pattern": "src/components/Feedback/**",
+      "primarySurface": "user",
+      "featureSurfaces": [
+        "support"
+      ],
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "why": "Feedback components are user-facing support/debug evidence entry points."
+    },
+    {
+      "pattern": "src/components/Notifications/**",
+      "primarySurface": "user",
+      "featureSurfaces": [
+        "behavioral-intelligence",
+        "telemetry"
+      ],
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "why": "Notification components are user-facing engagement surfaces with behavioral fact constraints."
+    },
+    {
       "pattern": "src/app/admin/**",
       "primarySurface": "admin",
       "featureSurfaces": [

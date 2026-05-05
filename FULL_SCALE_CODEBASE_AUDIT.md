@@ -1,5 +1,29 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #166] PRE: Doctrine Retrieval Optimizer
+
+Scope started:
+- Upgrading doctrine/context loading from rule-only selection into a scored optimizer that selects the smallest sufficient context pack for changed files, task intent, risk, hierarchy authority, validator coverage, legacy warnings, and conflict safety.
+- Required outputs include `src/lib/doctrine/*`, optimizer and validator scripts, optimized context/state generated artifacts, docs, package scripts, README/AGENTS updates, and compact context map wiring.
+- This pass must not move runtime code, delete markdown docs, call Firebase/Google Cloud, generate embeddings, use external services, or run browser/full-suite checks.
+
+Evidence:
+- Control tower startup, task routing, source-truth map, postflight checklist, compact doctrine index, surface doctrine map, engineering constitution, compact card formats, validator map, legacy registry context, package scripts, README, and AGENTS guidance were inspected before implementation.
+
+Doctrine:
+- Doctrine retrieval is now treated as an optimization problem: load the cheapest safe context pack first, then compact JSON/JSONL, then source markdown only for unresolved conflicts or explicit full-doc needs.
+- High-risk server/payment/auth/unlock/security/content/cost work forces source-truth coverage even when cheaper UI cards match.
+
+Scope completed:
+- Added doctrine context cost, coverage score, conflict score, and retrieval optimizer modules.
+- Added `npm run optimize:doctrine-context`, `npm run check:doctrine-retrieval-optimizer`, generated optimized task context, generated global optimizer report, optimizer docs, storage strategy docs, README/AGENTS instructions, surface-map refinements, and validator-map coverage.
+
+Verification:
+- `npm run optimize:doctrine-context -- --task "wallet density fix" --changed src/components/PurchaseModal.tsx` passed and selected 7 cards, 1396 estimated tokens, 98.8% context savings.
+- `npm run check:doctrine-retrieval-optimizer` passed across the 10 required sample tasks with average 4.4 cards, 865.7 estimated tokens, 99.27% average savings, no over-budget tasks, and no unresolved conflicts.
+- `npm run typecheck` passed.
+- Playwright, Lighthouse, Cypress, full `npm run check`, Firebase/Google Cloud commands, embeddings, external services, runtime code moves, and markdown deletion were not run or done.
+
 ## [2026-05-05 #165] PRE: Surface Doctrine Split
 
 Scope started:

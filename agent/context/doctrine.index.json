@@ -20,6 +20,7 @@
   "researchModel": "JSON Lines records are streamable and structured manifests are faster for deterministic lookup than narrative markdown.",
   "loadPlan": [
     "Read agent/context/doctrine.index.json first.",
+    "Prefer agent/context/optimized-task-context.generated.json from npm run optimize:doctrine-context for task-specific doctrine loading.",
     "Read agent/context/surface-doctrine-map.json before applying UI density, copy, state, or server truth rules.",
     "Select surfaces by changed files, task terms, or validator map.",
     "Stream agent/context/doctrine.cards.jsonl and keep only matching surfaces.",
@@ -271,6 +272,8 @@
     "docs/agent-truth/debug-evidence-pipeline.md",
     "docs/agent-truth/device-layout-contract.md",
     "docs/agent-truth/device-ui-dry-audit.md",
+    "docs/agent-truth/doctrine-retrieval-optimizer.md",
+    "docs/agent-truth/doctrine-storage-strategy.md",
     "docs/agent-truth/drop-cover-visibility-truth.md",
     "docs/agent-truth/drop-preview-page.md",
     "docs/agent-truth/event-fact-truth.md",

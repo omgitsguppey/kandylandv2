@@ -28,7 +28,9 @@ Agents must read `agent/context/surface-doctrine-map.json` before applying layou
 
 ## Agent Load Plan
 
-Agents must read `agent/context/doctrine-registry.json` first, read `agent/context/surface-doctrine-map.json` to resolve the primary surface, stream only relevant records from `agent/context/doctrine-cards.jsonl`, then open the canonical surface doc if needed. Do not read every Markdown file by default.
+Agents must generate or read `agent/context/optimized-task-context.generated.json` first. If the optimized pack is stale or unavailable, read `agent/context/doctrine-registry.json`, read `agent/context/surface-doctrine-map.json` to resolve the primary surface, stream only relevant records from `agent/context/doctrine-cards.jsonl`, then open the canonical surface doc if needed. Do not read every Markdown file by default.
+
+Doctrine retrieval is scored by path match, task intent, risk, authority, recency, and token cost. Full Markdown is fallback evidence for unresolved conflicts or explicit full-doc needs, not the default source.
 
 ## Surface Ownership
 
@@ -75,6 +77,8 @@ Old duplicated doctrine remains in place until owners review it, but registry en
 
 - `npm run score:doctrine`
 - `npm run check:doctrine`
+- `npm run optimize:doctrine-context -- --task "<task>" --changed <path>`
+- `npm run check:doctrine-retrieval-optimizer`
 - `npm run check:surface-doctrine-split`
 - `npm run typecheck` if TypeScript changed
 
