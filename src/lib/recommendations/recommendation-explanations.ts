@@ -59,7 +59,7 @@ export function buildRecommendationExplanation(input: {
   return {
     summary: reasons[0] || "This recommendation is fallback-only because no creator or content affinity has formed yet.",
     reasons: reasons.slice(0, 3),
-    adminReasons: features.suppressionReasons,
+    adminReasons: [...features.queryIntentReasons, ...features.suppressionReasons],
     diagnostics: [
       { label: "Predicted paid conversion", value: features.predictedPaidConversion },
       { label: "pPurchase7d", value: features.pPurchase7d },
@@ -77,6 +77,7 @@ export function buildRecommendationExplanation(input: {
       { label: "Truth score", value: features.truthScore },
       { label: "Confidence", value: features.confidence },
       { label: "Suppression score", value: features.suppressionScore },
+      { label: "Query intent score", value: features.queryIntentScore },
       { label: "Fatigue penalty", value: features.fatiguePenalty / 100 },
       { label: "Previous exposure penalty", value: features.previousExposurePenalty / 100 },
     ],

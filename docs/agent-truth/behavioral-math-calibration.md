@@ -108,6 +108,36 @@ baseScore * (1 - suppressionScore)
 
 Explicit negative feedback beats weak positive behavior. Suppression decays with a 30-day half-life unless the creator is muted. A single weak dismissal cannot suppress an entire category; category suppression requires an explicit category action or repeated skip evidence. Admin-facing reasons stay plain English, for example: "Lowered because user dismissed similar drops."
 
+## Search Intent Ranking
+
+KandyDrops treats active search and filter behavior as explicit short-lived intent, separate from passive browsing:
+
+- `search_query_submitted`
+- `filter_selected`
+- `sort_changed`
+- `category_clicked`
+- `creator_search_selected`
+
+Search query text is sanitized before storage. Reports and behavioral profiles must store normalized tokens, category, query length, query cluster, and intent class, never raw unsafe or sensitive query text.
+
+Query intent score:
+
+```text
+0.40 * exactCategoryMatch +
+0.25 * creatorNameMatch +
+0.20 * recentSearchRecency +
+0.10 * repeatedQueryCluster +
+0.05 * filterMatch
+```
+
+Active-session ranking boost:
+
+```text
+finalScore += queryIntentScore * 15
+```
+
+Search intent decays with a 24-hour half-life and expires fast. It should influence the current session more than the long-term profile. Admin-facing reasons stay plain English, for example: "Boosted by recent search intent."
+
 ## Surface Objectives
 
 - User drops page: `pUnlock24h`, `pPurchase7d`, freshness

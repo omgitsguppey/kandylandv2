@@ -44,6 +44,7 @@ const FEATURE_NAMES = [
   "fatiguePenalty",
   "pNegativeFeedback",
   "suppressionScore",
+  "queryIntentScore",
 ] as const;
 
 function getTrainingAdminDb() {
@@ -114,6 +115,7 @@ function toFeatureMap(features: ReturnType<typeof buildRecommendationRankingFeat
     fatiguePenalty: features.fatiguePenalty / 16,
     pNegativeFeedback: features.pNegativeFeedback,
     suppressionScore: features.suppressionScore,
+    queryIntentScore: features.queryIntentScore,
   };
 }
 

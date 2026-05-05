@@ -42,7 +42,8 @@ export function computeDeterministicRecommendationScore(features: Recommendation
     diversityBoost: features.diversityBoost,
   });
 
-  return clamp(applyRecommendationSuppression(baseScore, features.suppressionScore), 0, 100);
+  const suppressedScore = applyRecommendationSuppression(baseScore, features.suppressionScore);
+  return clamp(suppressedScore + features.queryIntentBoost, 0, 100);
 }
 
 export function rankDeterministicRecommendations(input: {

@@ -13,6 +13,7 @@ import { explainEventInclusion } from "@/lib/analytics/analytics-event-contract"
 import { BEHAVIORAL_EVENT_FACT_VERSION } from "@/lib/behavioral/event-fact-contract";
 import { buildIdentifiedActiveUserPatch } from "@/lib/behavioral/identified-metric-parity";
 import { normalizeIdentifiedMetricEventFact } from "@/lib/behavioral/event-fact-normalizer";
+import { isSearchIntentEventName, sanitizeSearchIntentParams } from "@/lib/behavioral/search-intent-profile";
 
 export const dynamic = "force-dynamic";
 
@@ -114,6 +115,7 @@ function resolveIdentifiedSourceTruth(
         || canonicalEventName === "category_not_interested"
         || canonicalEventName === "creator_muted"
         || canonicalEventName === "recommendation_dismissed"
+        || isSearchIntentEventName(canonicalEventName)
     ) {
         return "client" as const;
     }
@@ -231,11 +233,14 @@ async function POST_handler(request: NextRequest) {
             const ref = adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts).doc(eventId);
 
             const timestamp = rawEvent.eventTimestampMs || Date.now();
-            const enrichedParams = {
+            const enrichedParamsBase = {
                 ...params,
                 ...telemetryEvent.metadataParams,
                 tracking_origin: "identified_api_ingest",
             };
+            const enrichedParams = isSearchIntentEventName(canonicalEventName)
+                ? sanitizeSearchIntentParams(enrichedParamsBase, canonicalEventName)
+                : enrichedParamsBase;
             const sourceSurface = String(params.page_path || params.pagePath || "client");
             const pagePath = String(enrichedParams.page_path || enrichedParams.pagePath || "");
             const performedAs = readStringParam(enrichedParams, "performed_as", "performedAs");

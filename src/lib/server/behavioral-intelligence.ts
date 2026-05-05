@@ -7,6 +7,7 @@ import { rankDeterministicRecommendations } from "@/lib/recommendations/determin
 import { scoreRecommendationWithArtifact } from "@/lib/recommendations/ml-ranker";
 import { buildRecommendationExplanation } from "@/lib/recommendations/recommendation-explanations";
 import type { NegativePreferenceProfile } from "@/lib/behavioral/negative-preference-score";
+import type { SearchIntentProfile } from "@/lib/behavioral/search-intent-profile";
 import type { Drop } from "@/types/db";
 
 const USER_PROFILE_COLLECTION = "behavioral_user_profiles";
@@ -62,6 +63,7 @@ type BehavioralProfileDoc = {
   repeatedSkipDropIds?: Record<string, number>;
   lowWatchAfterRecommendationDropIds?: Record<string, number>;
   negativePreferenceProfile?: NegativePreferenceProfile;
+  searchIntentProfile?: SearchIntentProfile;
   recentDropIds?: string[];
   recentCreatorIds?: string[];
   fatigueScore?: number;
@@ -129,6 +131,11 @@ type RankedDropRecommendation = {
   suppression: {
     score: number;
     multiplier: number;
+    reasons: string[];
+  };
+  queryIntent: {
+    score: number;
+    boost: number;
     reasons: string[];
   };
   explanationEligible: boolean;
@@ -350,7 +357,12 @@ export async function buildDeterministicDropRecommendations(input: {
         suppression: {
           score: entry.features.suppressionScore,
           multiplier: entry.features.suppressionScoreMultiplier,
-          reasons: explanation.adminReasons,
+          reasons: entry.features.suppressionReasons,
+        },
+        queryIntent: {
+          score: entry.features.queryIntentScore,
+          boost: entry.features.queryIntentBoost,
+          reasons: entry.features.queryIntentReasons,
         },
         explanationEligible: recommendationState.explanationEligible,
         fallbackReason: recommendationState.fallbackReason,

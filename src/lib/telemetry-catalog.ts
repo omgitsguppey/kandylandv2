@@ -96,7 +96,7 @@ const DEFAULT_CANONICAL_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backen
 const DEFAULT_GA_ONLY_SOURCES: TelemetryEventSource[] = ["ga4"];
 
 export const TELEMETRY_EVENT_INDEX_VERSION = "2026.05.04.1";
-export const TELEMETRY_USER_ACTION_TAXONOMY_VERSION = "2026.05.event-facts.3";
+export const TELEMETRY_USER_ACTION_TAXONOMY_VERSION = "2026.05.event-facts.4";
 export const TELEMETRY_USER_ACTION_TAXONOMY_NAMES = BEHAVIORAL_NORMALIZED_ACTIONS;
 
 export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
@@ -217,6 +217,11 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "gumdrops_purchase_failed", label: "Gum Drops purchase failed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "purchase_verified", label: "Purchase verified", category: "commerce", sources: DEFAULT_SERVER_SOURCES, modules: ["commerce"] },
   { eventName: "drop_card_impression", label: "Drop card impression", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
+  { eventName: "search_query_submitted", label: "Search query submitted", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
+  { eventName: "filter_selected", label: "Filter selected", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
+  { eventName: "sort_changed", label: "Sort changed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
+  { eventName: "category_clicked", label: "Category clicked", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
+  { eventName: "creator_search_selected", label: "Creator search selected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "content", "navigation"] },
   { eventName: "view_drop_details", label: "Drop details viewed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
   { eventName: "drop_clicked", label: "Drop clicked", category: "content", sources: DEFAULT_SERVER_SOURCES, modules: ["content"] },
   { eventName: "drop_preview_opened", label: "Drop preview opened", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
@@ -956,6 +961,30 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     ];
   }
 
+  if (eventName === "search_query_submitted") {
+    return [
+      "normalized_query_tokens|normalizedQueryTokens",
+      "query_length|queryLength",
+      "intent_class|intentClass",
+    ];
+  }
+
+  if (eventName === "filter_selected") {
+    return ["filter_key|filterKey", "filter_value|filterValue|category"];
+  }
+
+  if (eventName === "sort_changed") {
+    return ["sort|sort_key|sortKey"];
+  }
+
+  if (eventName === "category_clicked") {
+    return ["category|category_id|categoryId|drop_category|dropCategory"];
+  }
+
+  if (eventName === "creator_search_selected") {
+    return ["creator_id|creatorId|target_creator_id|targetCreatorId"];
+  }
+
   if (eventName === "drop_not_interested" || eventName === "recommendation_dismissed") {
     return [
       "drop_id|dropId|target_drop_id|targetDropId",
@@ -1105,6 +1134,11 @@ function buildRequiredSurfaceFields(eventName: string, family: TelemetryEventFam
     || eventName === "creator_rail_impression"
     || eventName === "drops_searched"
     || eventName === "drops_category_selected"
+    || eventName === "search_query_submitted"
+    || eventName === "filter_selected"
+    || eventName === "sort_changed"
+    || eventName === "category_clicked"
+    || eventName === "creator_search_selected"
     || eventName === "drop_not_interested"
     || eventName === "creator_not_interested"
     || eventName === "category_not_interested"

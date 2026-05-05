@@ -29,6 +29,7 @@ const SOURCE_RELIABILITY_WEIGHTS = {
   guest_batch: 0.45,
   legacy_page_duration: 0.2,
 } as const
+const SEARCH_INTENT_HALF_LIFE_HOURS = 24
 
 type DropRecord = Record<string, unknown> & {
   id: string
@@ -84,6 +85,16 @@ type UserSignalAggregate = {
   negativePreferenceEventNamesByDrop: Map<string, Set<string>>
   negativePreferenceEventNamesByCreator: Map<string, Set<string>>
   negativePreferenceEventNamesByCategory: Map<string, Set<string>>
+  searchIntentTokens: Map<string, number>
+  searchIntentCategories: Map<string, number>
+  searchIntentCreatorIds: Map<string, number>
+  searchIntentFilters: Map<string, number>
+  searchIntentSorts: Map<string, number>
+  searchIntentQueryClusters: Map<string, number>
+  searchIntentClasses: Map<string, number>
+  searchIntentQueryLengths: number[]
+  searchIntentSessionIds: Set<string>
+  searchIntentLatestAtMs: number
   recentDropIds: string[]
   recentCreatorIds: string[]
   positiveDropIds: Set<string>
@@ -243,6 +254,61 @@ function readMillis(value: unknown) {
   return 0
 }
 
+function readRecord(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {}
+}
+
+function readStringFromRecord(record: Record<string, unknown>, ...keys: string[]) {
+  for (const key of keys) {
+    const value = record[key]
+    const stringValue = readString(value)
+    if (stringValue) {
+      return stringValue
+    }
+  }
+
+  return ""
+}
+
+function readNumberFromRecord(record: Record<string, unknown>, ...keys: string[]) {
+  for (const key of keys) {
+    const value = readNumber(record[key])
+    if (value > 0) {
+      return value
+    }
+  }
+
+  return 0
+}
+
+function normalizeSearchIntentToken(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/gu, "_")
+    .replace(/^_+|_+$/gu, "")
+    .slice(0, 40)
+}
+
+function readTokenList(record: Record<string, unknown>) {
+  const value = record.normalized_query_tokens || record.normalizedQueryTokens || record.search_query_tokens || record.searchQueryTokens
+  if (Array.isArray(value)) {
+    return value
+      .filter((entry): entry is string => typeof entry === "string")
+      .map((entry) => normalizeSearchIntentToken(entry))
+      .filter(Boolean)
+      .slice(0, 8)
+  }
+
+  return readString(value)
+    .split(",")
+    .map((entry) => normalizeSearchIntentToken(entry))
+    .filter(Boolean)
+    .slice(0, 8)
+}
+
 function pushLimited(list: string[], value: string, limit = 16) {
   if (!value || list.includes(value)) {
     return
@@ -333,6 +399,65 @@ function recordNegativePreference(input: {
     setTimestampMax(aggregate.negativePreferenceLatestByCategory, input.category, input.timestamp)
     addEventName(aggregate.negativePreferenceEventNamesByCategory, input.category, input.eventName)
     scoreMapIncrement(aggregate.negativeCategoryScores, input.category, input.explicitCategory ? 1 : 0.35)
+  }
+}
+
+function recordSearchIntent(input: {
+  aggregate: UserSignalAggregate
+  event: Record<string, unknown>
+  normalizedAction: string
+  sessionId: string
+  timestamp: number
+  category: string
+  creatorId: string
+}) {
+  const params = readRecord(input.event.params)
+  const aggregate = input.aggregate
+  const actionEntityId = readString(input.event.actionEntityId)
+  const category = normalizeSearchIntentToken(
+    input.category
+    || readString(input.event.dropCategory)
+    || readStringFromRecord(params, "category", "category_id", "categoryId", "drop_category", "dropCategory"),
+  )
+  const creatorId = normalizeSearchIntentToken(
+    input.creatorId
+    || readString(input.event.creatorId)
+    || readString(input.event.actionCreatorId)
+    || readString(input.event.targetCreatorId)
+    || readStringFromRecord(params, "creator_id", "creatorId", "target_creator_id", "targetCreatorId"),
+  )
+  const filterValue = normalizeSearchIntentToken(readStringFromRecord(params, "filter_value", "filterValue", "category"))
+  const sortValue = normalizeSearchIntentToken(readStringFromRecord(params, "sort", "sort_key", "sortKey"))
+  const queryCluster = normalizeSearchIntentToken(readStringFromRecord(params, "normalized_query_cluster", "normalizedQueryCluster", "query_cluster", "queryCluster") || actionEntityId)
+  const intentClass = normalizeSearchIntentToken(readStringFromRecord(params, "intent_class", "intentClass") || "general")
+  const queryLength = readNumberFromRecord(params, "query_length", "queryLength")
+  const tokens = readTokenList(params)
+
+  aggregate.searchIntentLatestAtMs = Math.max(aggregate.searchIntentLatestAtMs, input.timestamp)
+  if (input.sessionId) {
+    aggregate.searchIntentSessionIds.add(input.sessionId)
+  }
+  tokens.forEach((token) => scoreMapIncrement(aggregate.searchIntentTokens, token, 1))
+  if (queryCluster) {
+    scoreMapIncrement(aggregate.searchIntentQueryClusters, queryCluster, 1)
+  }
+  if (queryLength > 0) {
+    aggregate.searchIntentQueryLengths.push(queryLength)
+  }
+  if (intentClass) {
+    scoreMapIncrement(aggregate.searchIntentClasses, intentClass, 1)
+  }
+  if (input.normalizedAction === "category_clicked" || category) {
+    scoreMapIncrement(aggregate.searchIntentCategories, category || actionEntityId, 1)
+  }
+  if (input.normalizedAction === "creator_search_selected" || creatorId) {
+    scoreMapIncrement(aggregate.searchIntentCreatorIds, creatorId || actionEntityId, 1)
+  }
+  if (input.normalizedAction === "filter_selected" && filterValue) {
+    scoreMapIncrement(aggregate.searchIntentFilters, filterValue, 1)
+  }
+  if (input.normalizedAction === "sort_changed" && sortValue) {
+    scoreMapIncrement(aggregate.searchIntentSorts, sortValue, 1)
   }
 }
 
@@ -522,6 +647,16 @@ function ensureUserAggregate(userId: string, store: Map<string, UserSignalAggreg
     negativePreferenceEventNamesByDrop: new Map(),
     negativePreferenceEventNamesByCreator: new Map(),
     negativePreferenceEventNamesByCategory: new Map(),
+    searchIntentTokens: new Map(),
+    searchIntentCategories: new Map(),
+    searchIntentCreatorIds: new Map(),
+    searchIntentFilters: new Map(),
+    searchIntentSorts: new Map(),
+    searchIntentQueryClusters: new Map(),
+    searchIntentClasses: new Map(),
+    searchIntentQueryLengths: [],
+    searchIntentSessionIds: new Set(),
+    searchIntentLatestAtMs: 0,
     recentDropIds: [],
     recentCreatorIds: [],
     positiveDropIds: new Set(),
@@ -628,6 +763,16 @@ function readNormalizedAction(record: Record<string, unknown>) {
   case "drop_clicked":
   case "view_drop_details":
     return "drop_viewed"
+  case "search_query_submitted":
+    return "search_query_submitted"
+  case "filter_selected":
+    return "filter_selected"
+  case "sort_changed":
+    return "sort_changed"
+  case "category_clicked":
+    return "category_clicked"
+  case "creator_search_selected":
+    return "creator_search_selected"
   case "drop_preview_opened":
   case "drop_preview_page_viewed":
     return "drop_preview_opened"
@@ -779,6 +924,11 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       || normalizedAction === "category_not_interested"
       || normalizedAction === "creator_muted"
       || normalizedAction === "recommendation_dismissed"
+    const isSearchIntentAction = normalizedAction === "search_query_submitted"
+      || normalizedAction === "filter_selected"
+      || normalizedAction === "sort_changed"
+      || normalizedAction === "category_clicked"
+      || normalizedAction === "creator_search_selected"
 
     if (drop && dropId) {
       const dropAggregate = ensureDropAggregate(drop, dropAggregates)
@@ -884,6 +1034,17 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
         explicitCategory: normalizedAction === "category_not_interested",
         creatorMuted: normalizedAction === "creator_muted",
         recommendationDismissed: normalizedAction === "recommendation_dismissed",
+      })
+    }
+    if (isSearchIntentAction) {
+      recordSearchIntent({
+        aggregate,
+        event,
+        normalizedAction,
+        sessionId,
+        timestamp,
+        category,
+        creatorId,
       })
     }
 
@@ -1214,6 +1375,28 @@ function buildUserProfileDoc(input: {
       eventNames: input.aggregate.negativePreferenceEventNamesByCategory.get(category),
     })])),
   }
+  const latestSearchIntentAtMs = input.aggregate.searchIntentLatestAtMs
+  const searchQueryLengthAverage = average(input.aggregate.searchIntentQueryLengths)
+  const searchIntentProfile = {
+    version: 1,
+    halfLifeHours: SEARCH_INTENT_HALF_LIFE_HOURS,
+    latestAtMs: latestSearchIntentAtMs,
+    activeUntilMs: latestSearchIntentAtMs > 0 ? latestSearchIntentAtMs + (SEARCH_INTENT_HALF_LIFE_HOURS * 60 * 60 * 1000) : 0,
+    rawQueryStored: false,
+    tokens: numberMapToObject(input.aggregate.searchIntentTokens, 24),
+    categories: numberMapToObject(input.aggregate.searchIntentCategories, 16),
+    creatorIds: numberMapToObject(input.aggregate.searchIntentCreatorIds, 16),
+    filters: numberMapToObject(input.aggregate.searchIntentFilters, 16),
+    sorts: numberMapToObject(input.aggregate.searchIntentSorts, 12),
+    queryClusters: numberMapToObject(input.aggregate.searchIntentQueryClusters, 16),
+    intentClasses: numberMapToObject(input.aggregate.searchIntentClasses, 8),
+    queryLengths: {
+      latest: input.aggregate.searchIntentQueryLengths[input.aggregate.searchIntentQueryLengths.length - 1] || 0,
+      average: searchQueryLengthAverage,
+      samples: input.aggregate.searchIntentQueryLengths.length,
+    },
+    sessionIds: Array.from(input.aggregate.searchIntentSessionIds).slice(0, 8),
+  }
   const repeatedCreatorSignalCount = topCreatorEntries.filter((entry) => entry.score >= 2).length
   const categorySignalCount = topCategoryEntries.filter((entry) => entry.score >= 0.75).length
   const themeSignalCount = topThemeEntries.filter((entry) => entry.score >= 0.5).length
@@ -1419,6 +1602,7 @@ function buildUserProfileDoc(input: {
     repeatedSkipDropIds: negativePreferenceProfile.repeatedSkipDropIds,
     lowWatchAfterRecommendationDropIds: negativePreferenceProfile.lowWatchAfterRecommendationDropIds,
     negativePreferenceProfile,
+    searchIntentProfile,
     eventCount: input.aggregate.eventCount,
     watchSessionCount: input.aggregate.watchSessionCount,
     purchaseCount: input.aggregate.serverPurchaseCount,

@@ -306,6 +306,7 @@ function toFeatureMap(features: RecommendationRankingFeatures) {
     fatiguePenalty: features.fatiguePenalty / 16,
     pNegativeFeedback: features.pNegativeFeedback,
     suppressionScore: features.suppressionScore,
+    queryIntentScore: features.queryIntentScore,
   };
 }
 
@@ -328,7 +329,7 @@ function scoreRecommendationArtifact(artifact: RecommendationModelArtifact, feat
     repeatExposurePenalty: features.previousExposurePenalty,
     diversityBoost: features.diversityBoost,
   });
-  return applyRecommendationSuppression(baseScore, features.suppressionScore) / 100;
+  return Math.min(100, applyRecommendationSuppression(baseScore, features.suppressionScore) + features.queryIntentBoost) / 100;
 }
 
 function buildRecommendationFeatures(kind: number, slot: number): RecommendationRankingFeatures {
@@ -376,6 +377,9 @@ function buildRecommendationFeatures(kind: number, slot: number): Recommendation
     suppressionScore: slot > 7 ? 0.32 : slot > 5 ? 0.16 : 0,
     suppressionScoreMultiplier: slot > 7 ? 0.68 : slot > 5 ? 0.84 : 1,
     suppressionReasons: slot > 7 ? ["Lowered because user dismissed similar drops."] : [],
+    queryIntentScore: aligned ? 0.6 : 0,
+    queryIntentBoost: aligned ? 9 : 0,
+    queryIntentReasons: aligned ? ["Boosted by recent search intent."] : [],
     truthScore: aligned ? 0.9 : moderate ? 0.68 : 0.32,
     confidence: aligned ? 0.82 : moderate ? 0.62 : 0.28,
   };

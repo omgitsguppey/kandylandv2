@@ -1,4 +1,4 @@
-export const BEHAVIORAL_EVENT_FACT_VERSION = "2026.05.event-facts.3";
+export const BEHAVIORAL_EVENT_FACT_VERSION = "2026.05.event-facts.4";
 
 export const BEHAVIORAL_NORMALIZED_ACTIONS = [
   "home_viewed",
@@ -13,6 +13,11 @@ export const BEHAVIORAL_NORMALIZED_ACTIONS = [
   "creator_spotlight_viewed",
   "drop_viewed",
   "drop_card_viewed",
+  "search_query_submitted",
+  "filter_selected",
+  "sort_changed",
+  "category_clicked",
+  "creator_search_selected",
   "drop_preview_opened",
   "drop_preview_cta_clicked",
   "drop_not_interested",
@@ -61,6 +66,7 @@ export type BehavioralNormalizedAction = typeof BEHAVIORAL_NORMALIZED_ACTIONS[nu
 
 export type BehavioralEventEntityType =
   | "page"
+  | "search"
   | "drop"
   | "category"
   | "file"
@@ -132,6 +138,11 @@ export const BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS: Record<BehavioralNormalizedActi
   creator_spotlight_viewed: 60 * 1000,
   drop_viewed: 10 * 1000,
   drop_card_viewed: 10 * 1000,
+  search_query_submitted: 10 * 1000,
+  filter_selected: 5 * 1000,
+  sort_changed: 5 * 1000,
+  category_clicked: 5 * 1000,
+  creator_search_selected: 10 * 1000,
   drop_preview_opened: 10 * 1000,
   drop_preview_cta_clicked: 10 * 1000,
   drop_not_interested: "permanent",
@@ -189,6 +200,11 @@ export const BEHAVIORAL_EVENT_LABELS: Record<BehavioralNormalizedAction, string>
   creator_spotlight_viewed: "Creator spotlight viewed",
   drop_viewed: "Drop viewed",
   drop_card_viewed: "Drop card viewed",
+  search_query_submitted: "Search query submitted",
+  filter_selected: "Filter selected",
+  sort_changed: "Sort changed",
+  category_clicked: "Category clicked",
+  creator_search_selected: "Creator search selected",
   drop_preview_opened: "Drop preview opened",
   drop_preview_cta_clicked: "Drop preview CTA clicked",
   drop_not_interested: "Drop marked not interested",

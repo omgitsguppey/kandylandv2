@@ -5,6 +5,8 @@ import {
   type BehavioralPredictionOutputs,
 } from "@/lib/behavioral/behavioral-math-calibration";
 import type { NegativePreferenceProfile } from "@/lib/behavioral/negative-preference-score";
+import type { SearchIntentProfile } from "@/lib/behavioral/search-intent-profile";
+import { buildQueryIntentRanking } from "@/lib/recommendations/query-intent-ranking";
 import { buildRecommendationSuppression } from "@/lib/recommendations/suppression-rules";
 
 export type RecommendationMode = "deterministic" | "ml_artifact";
@@ -38,6 +40,7 @@ export type RecommendationBehavioralProfileLike = {
   repeatedSkipDropIds?: Record<string, number>;
   lowWatchAfterRecommendationDropIds?: Record<string, number>;
   negativePreferenceProfile?: NegativePreferenceProfile;
+  searchIntentProfile?: SearchIntentProfile;
   recentDropIds?: string[];
   recentCreatorIds?: string[];
   lookalikeCreatorIds?: string[];
@@ -121,6 +124,9 @@ export type RecommendationRankingFeatures = RecommendationPrimitiveSignals & {
   suppressionScore: number;
   suppressionScoreMultiplier: number;
   suppressionReasons: string[];
+  queryIntentScore: number;
+  queryIntentBoost: number;
+  queryIntentReasons: string[];
   truthScore: number;
   confidence: number;
 };
@@ -341,6 +347,7 @@ export function buildRecommendationRankingFeatures(input: {
   const fatiguePenalty = computeFatiguePenalty({ drop, profile });
   const diversityBoost = computeDiversityBoost({ drop, profile, candidate: input.candidate });
   const suppression = buildRecommendationSuppression({ drop, profile, nowMs });
+  const queryIntent = buildQueryIntentRanking({ drop, searchIntentProfile: profile?.searchIntentProfile, nowMs });
 
   const pPurchase7d = clamp01(
     (creatorAffinity * 0.22) +
@@ -433,6 +440,9 @@ export function buildRecommendationRankingFeatures(input: {
     suppressionScore: suppression.suppressionScore,
     suppressionScoreMultiplier: suppression.scoreMultiplier,
     suppressionReasons: suppression.reasons,
+    queryIntentScore: queryIntent.queryIntentScore,
+    queryIntentBoost: queryIntent.queryIntentBoost,
+    queryIntentReasons: queryIntent.reasons,
     truthScore,
     confidence,
     diagnostics: {
