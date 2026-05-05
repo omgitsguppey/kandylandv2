@@ -48,6 +48,15 @@ export function buildRecommendationExplanation(input: {
   if (sources.includes("similar_users")) {
     addIfMissing(reasons, "Similar-user taste overlap contributed a bounded retrieval boost.");
   }
+  if (sources.includes("adjacent_creator") || sources.includes("new_creator")) {
+    addIfMissing(reasons, "Adjacent creator exploration contributed a bounded retrieval slot.");
+  }
+  if (sources.includes("adjacent_category") || sources.includes("cold_start_interest")) {
+    addIfMissing(reasons, "Recent interest hints contributed a bounded exploration slot.");
+  }
+  if (sources.includes("new_low_sample_drop")) {
+    addIfMissing(reasons, "A new or low-sample drop is being explored while signal builds.");
+  }
   if (sources.includes("popular") && features.popularity >= 0.35) {
     addIfMissing(reasons, "Recent viewer demand makes this a reasonable popularity fallback.");
   }

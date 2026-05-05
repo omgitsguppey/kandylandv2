@@ -16,6 +16,22 @@ Candidate generation pulls from:
 
 The retrieval layer is cheap by design. It reads materialized behavioral snapshots and drop intelligence, not expensive live joins.
 
+## Exploration budget
+
+After candidate retrieval and before list-level diversity, KandyDrops applies a capped exploration policy:
+
+- `80%` exploit known best candidates.
+- `15%` explore adjacent creators, categories, or current-session interest hints.
+- `5%` explore new or low-sample drops.
+
+The boost is deterministic:
+
+```txt
+explorationBoost = baseExploreWeight * uncertaintyBonus * freshnessBoost * safetyEligibility
+```
+
+Exploration slots never include unsafe, expired, rejected, pending-review, or ineligible drops. New users may receive cold-start recommendations from onboarding interests, first clicks, search intent, and popular fresh drops, but the UI/admin state must not claim strong personalization. Admin diagnostics explain these slots as "Exploration slot: gathering signal."
+
 ## Ranking order
 
 The deterministic ranker is the safety baseline. It computes:

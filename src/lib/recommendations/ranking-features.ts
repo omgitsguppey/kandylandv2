@@ -25,6 +25,11 @@ export type RecommendationCandidateSource =
   | "followed_creator"
   | "previously_unlocked_creator"
   | "theme_affinity"
+  | "adjacent_creator"
+  | "adjacent_category"
+  | "new_creator"
+  | "cold_start_interest"
+  | "new_low_sample_drop"
   | "similar_users"
   | "popular"
   | "fresh";
@@ -320,8 +325,14 @@ function computeDiversityBoost(input: {
   const creatorId = input.drop.creatorId || "";
   const newCreatorBoost = creatorId && !input.profile?.recentCreatorIds?.includes(creatorId) ? 2.5 : 0;
   const similarTasteBoost = input.candidate?.sources.includes("similar_users") ? 1.5 : 0;
+  const adjacentExploreBoost = (
+    input.candidate?.sources.includes("adjacent_creator")
+    || input.candidate?.sources.includes("adjacent_category")
+    || input.candidate?.sources.includes("new_creator")
+    || input.candidate?.sources.includes("cold_start_interest")
+  ) ? 1 : 0;
   const freshSurfaceBoost = input.candidate?.sources.includes("fresh") ? 1 : 0;
-  return Math.max(0, Math.min(6, newCreatorBoost + similarTasteBoost + freshSurfaceBoost));
+  return Math.max(0, Math.min(6, newCreatorBoost + similarTasteBoost + adjacentExploreBoost + freshSurfaceBoost));
 }
 
 export function buildRecommendationRankingFeatures(input: {

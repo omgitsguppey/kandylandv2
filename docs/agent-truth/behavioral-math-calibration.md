@@ -36,6 +36,29 @@ Candidate generation includes recent/live drops, creator affinity, category/them
 
 Filtering removes expired drops, unavailable or non-active drops, rejected or pending-review content, and unsafe/moderation-blocked content. Repeat exposure and fatigue are penalties, not hard recommendations.
 
+## Cold-Start Exploration Budget
+
+KandyDrops uses a controlled explore/exploit budget so new users, new creators, and new or low-sample drops are not trapped behind deterministic popularity forever.
+
+Slot policy:
+
+- `80%` exploit known best candidates.
+- `15%` explore adjacent creators, categories, or active-session interest hints.
+- `5%` explore new or low-sample drops.
+
+Exploration boost:
+
+```text
+baseExploreWeight * uncertaintyBonus * freshnessBoost * safetyEligibility
+```
+
+Rules:
+
+- Exploration is capped at `20%` of the visible recommendation set when enough exploit candidates exist.
+- Unsafe, expired, rejected, pending-review, or otherwise ineligible drops are never exploration candidates.
+- New users use onboarding interests, first clicks, search intent, and popular fresh drops, but results stay labeled weak or cold-start rather than strong personalization.
+- Admin-facing reasons stay plain English, for example: "Exploration slot: gathering signal."
+
 ## Scores
 
 Truth score:

@@ -3,13 +3,20 @@ import "server-only";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { getDrops } from "@/lib/server/drops";
 import { generateRecommendationCandidates } from "@/lib/recommendations/candidate-generation";
+import { generateColdStartCandidates } from "@/lib/recommendations/cold-start-candidates";
 import { rankDeterministicRecommendations } from "@/lib/recommendations/deterministic-ranker";
 import { scoreRecommendationWithArtifact } from "@/lib/recommendations/ml-ranker";
 import { buildRecommendationExplanation } from "@/lib/recommendations/recommendation-explanations";
 import {
+  applyExplorationBudget,
+  EXPLORATION_ADMIN_REASON,
+  type RecommendationExplorationDiagnostics,
+} from "@/lib/recommendations/exploration-policy";
+import {
   rerankRecommendationsForDiversity,
   type RecommendationDiversityDiagnostics,
 } from "@/lib/recommendations/diversity-reranker";
+import type { RecommendationCandidate } from "@/lib/recommendations/ranking-features";
 import type { NegativePreferenceProfile } from "@/lib/behavioral/negative-preference-score";
 import type { SearchIntentProfile } from "@/lib/behavioral/search-intent-profile";
 import type { Drop } from "@/types/db";
@@ -154,6 +161,7 @@ type RankedDropRecommendation = {
     label: string;
     reasons: string[];
   };
+  exploration: RecommendationExplorationDiagnostics;
   diversity: RecommendationDiversityDiagnostics;
   explanationEligible: boolean;
   fallbackReason: string;
@@ -201,9 +209,11 @@ function withDiversityDiagnostics(entry: RankedDropRecommendation) {
     ...entry.factors,
     { label: "Diversity penalty", value: round(entry.diversity.diversityPenalty / 100, 4) },
     { label: "Exploration boost", value: round(entry.diversity.explorationBoost / 100, 4) },
+    { label: "Explore budget boost", value: round(entry.exploration.scoreBoost / 100, 4) },
   ];
   const explanationReasons = Array.from(new Set([
     ...entry.explanationReasons,
+    ...entry.exploration.reasons,
     ...entry.diversity.reasons,
   ]));
 
@@ -212,6 +222,38 @@ function withDiversityDiagnostics(entry: RankedDropRecommendation) {
     factors,
     explanationReasons,
   };
+}
+
+function mergeRecommendationCandidates(candidates: RecommendationCandidate[]) {
+  const candidateMap = new Map<string, RecommendationCandidate>();
+
+  candidates.forEach((candidate) => {
+    const existing = candidateMap.get(candidate.drop.id);
+    if (!existing) {
+      candidateMap.set(candidate.drop.id, {
+        drop: candidate.drop,
+        sources: [...candidate.sources],
+        sourceReasons: [...candidate.sourceReasons],
+        sourcePriority: candidate.sourcePriority,
+      });
+      return;
+    }
+
+    candidate.sources.forEach((source) => {
+      if (!existing.sources.includes(source)) {
+        existing.sources.push(source);
+      }
+    });
+    candidate.sourceReasons.forEach((reason) => {
+      if (!existing.sourceReasons.includes(reason)) {
+        existing.sourceReasons.push(reason);
+      }
+    });
+    existing.sourcePriority = Math.max(existing.sourcePriority, candidate.sourcePriority);
+  });
+
+  return Array.from(candidateMap.values())
+    .sort((left, right) => right.sourcePriority - left.sourcePriority || right.drop.validFrom - left.drop.validFrom);
 }
 
 function buildProfileConfidence(profile: Partial<BehavioralProfileDoc> | null) {
@@ -359,8 +401,19 @@ export async function buildDeterministicDropRecommendations(input: {
     nowMs,
     limit: Math.max(limit * 3, 24),
   });
+  const coldStartCandidates = generateColdStartCandidates({
+    drops: drops
+      .filter((drop) => drop.status === "active")
+      .filter((drop) => !candidateIdSet || candidateIdSet.has(drop.id))
+      .filter((drop) => drop.id !== input.currentDropId),
+    profile,
+    dropIntelligence: intelligenceMap,
+    currentDropId: input.currentDropId,
+    nowMs,
+    limit: Math.max(limit * 3, 24),
+  });
   const deterministicRanked = rankDeterministicRecommendations({
-    candidates,
+    candidates: mergeRecommendationCandidates([...candidates, ...coldStartCandidates]),
     profile,
     dropIntelligence: intelligenceMap,
     surface: input.currentDropId ? "viewer" : "drops",
@@ -449,26 +502,51 @@ export async function buildDeterministicDropRecommendations(input: {
           modelSource: artifactScore.modelSource,
           modelFreshness: artifactScore.modelFreshness,
         } : undefined,
-      } satisfies Omit<RankedDropRecommendation, "diversity">;
+      } satisfies Omit<RankedDropRecommendation, "diversity" | "exploration">;
     })
     .sort((left, right) => right.score - left.score || right.drop.validFrom - left.drop.validFrom);
-  const ranked = rerankRecommendationsForDiversity({
+  const recommendationLimit = recommendationState.explanationEligible ? limit : Math.min(limit, 3);
+  const explored = applyExplorationBudget({
     entries: scored,
+    limit: recommendationLimit,
+    nowMs,
+  });
+  const ranked = rerankRecommendationsForDiversity({
+    entries: explored,
     profile,
   })
-    .slice(0, recommendationState.explanationEligible ? limit : Math.min(limit, 3));
+    .slice(0, recommendationLimit);
 
   if (recommendationState.insufficientSignal) {
-    return [];
+    return ranked.map((entry) => {
+      const annotated = withDiversityDiagnostics(entry);
+
+      return {
+        ...annotated,
+        labels: Array.from(new Set([...annotated.labels, "cold-start", "weak-personalization"])),
+        factors: [],
+        explanationEligible: false,
+        explanationSummary: "Cold-start recommendations explore safe fresh Drops while signal builds.",
+        explanationReasons: Array.from(new Set([
+          EXPLORATION_ADMIN_REASON,
+          "Personalization is not strong yet.",
+          ...annotated.explanationReasons,
+        ])).slice(0, 5),
+      };
+    });
   }
 
   if (mode === "deterministic-fallback") {
-    return ranked.map((entry, index) => ({
-      ...entry,
-      score: round(entry.score + Math.max(0, 0.25 - (index * 0.01)), 3),
-      labels: Array.from(new Set([...entry.labels, "fallback"])),
-      factors: [],
-    }));
+    return ranked.map((entry, index) => {
+      const annotated = withDiversityDiagnostics(entry);
+
+      return {
+        ...annotated,
+        score: round(annotated.score + Math.max(0, 0.25 - (index * 0.01)), 3),
+        labels: Array.from(new Set([...annotated.labels, "fallback"])),
+        factors: [],
+      };
+    });
   }
 
   return ranked.map((entry) => {

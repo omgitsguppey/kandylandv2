@@ -6,6 +6,7 @@ import type {
   RecommendationCandidateSource,
   RecommendationDropIntelligenceLike,
 } from "@/lib/recommendations/ranking-features";
+import { isExplorationEligibleDrop } from "@/lib/recommendations/exploration-policy";
 
 function clamp01(value: number) {
   if (!Number.isFinite(value)) {
@@ -43,24 +44,6 @@ function buildFreshPopularityScore(intelligence: RecommendationDropIntelligenceL
   return clamp01((Math.log10(viewerOpens + 1) / 3) * 0.7 + clamp01(previewOpens / 40) * 0.3);
 }
 
-function isRecommendationEligibleDrop(drop: Drop, nowMs: number) {
-  const approvalStatus = drop.approvalStatus || "approved";
-
-  if (drop.status !== "active") {
-    return false;
-  }
-
-  if (drop.validUntil && drop.validUntil <= nowMs) {
-    return false;
-  }
-
-  if (approvalStatus === "rejected" || approvalStatus === "pending_review") {
-    return false;
-  }
-
-  return true;
-}
-
 export function generateRecommendationCandidates(input: {
   drops: Drop[];
   profile?: RecommendationBehavioralProfileLike | null;
@@ -76,7 +59,7 @@ export function generateRecommendationCandidates(input: {
   const lookalikeCreatorIds = new Set(profile?.lookalikeCreatorIds ?? []);
 
   input.drops
-    .filter((drop) => isRecommendationEligibleDrop(drop, nowMs))
+    .filter((drop) => isExplorationEligibleDrop(drop, nowMs))
     .filter((drop) => drop.id !== input.currentDropId)
     .forEach((drop) => {
       const candidate: RecommendationCandidate = {
@@ -100,6 +83,8 @@ export function generateRecommendationCandidates(input: {
 
       if (creatorId && (profile?.creatorAffinity?.[creatorId] || 0) >= 2.5) {
         addSource(candidate, "followed_creator", "Strong creator affinity from past creator engagement.", 9);
+      } else if (creatorId && (profile?.creatorAffinity?.[creatorId] || 0) > 0) {
+        addSource(candidate, "adjacent_creator", "Adjacent creator exploration from weaker creator signal.", 5);
       }
 
       if (creatorId && profile?.recentCreatorIds?.includes(creatorId)) {
@@ -110,6 +95,8 @@ export function generateRecommendationCandidates(input: {
       const matchingTheme = normalizeTagList(drop).some((tag) => (profile?.themeAffinity?.[tag] || 0) >= 0.6);
       if (categoryAffinity >= 0.75 || matchingTheme) {
         addSource(candidate, "theme_affinity", "Theme or category matches recent content taste.", 8);
+      } else if (categoryAffinity > 0) {
+        addSource(candidate, "adjacent_category", "Adjacent category exploration from weaker category signal.", 5);
       }
 
       if (creatorId && lookalikeCreatorIds.has(creatorId)) {
@@ -123,6 +110,16 @@ export function generateRecommendationCandidates(input: {
 
       if ((intelligence?.freshnessDecayScore ?? 0) >= 0.7 || (drop.validFrom > 0 && nowMs - drop.validFrom <= 3 * 24 * 60 * 60 * 1000)) {
         addSource(candidate, "fresh", "Fresh content with recent recency signal.", 4);
+      }
+
+      const sampleCount = Math.max(0,
+        (intelligence?.viewerOpens || 0) +
+        (intelligence?.previewOpens || 0) +
+        (intelligence?.positiveFeedbackCount || 0) +
+        (intelligence?.negativeFeedbackCount || 0),
+      );
+      if (drop.validFrom > 0 && nowMs - drop.validFrom <= 7 * 24 * 60 * 60 * 1000 && sampleCount < 20) {
+        addSource(candidate, "new_low_sample_drop", "Low-sample drop receives a capped exploration slot.", 3);
       }
 
       if (candidate.sources.length > 0) {
