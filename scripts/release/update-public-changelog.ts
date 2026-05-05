@@ -264,6 +264,12 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
     return "Improved reliability for canceling pending chat attachments.";
   }
   if (
+    normalized.includes("bound attachment completion lookup")
+    || (normalized.includes("chat") && normalized.includes("attachment") && normalized.includes("completion"))
+  ) {
+    return "Improved behind-the-scenes safety checks for chat media uploads.";
+  }
+  if (
     normalized.includes("bound attachment cancel lookup")
     || (normalized.includes("chat") && normalized.includes("attachment") && normalized.includes("cancel"))
   ) {

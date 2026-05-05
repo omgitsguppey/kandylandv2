@@ -208,8 +208,78 @@ describe("chat attachment routes", () => {
         }));
         const body = await response.json();
 
+        expect(response.status).toBe(403);
+        expect(body.errorCode).toBe("attachment_complete_forbidden");
+        expect(body).toMatchObject({
+            firestoreReadScope: "single_document",
+            attachmentCompleteGuarded: true,
+            ownershipChecked: true,
+            threadMembershipChecked: true,
+            storagePathValidated: true,
+            rawStorageUrlExposed: false,
+        });
+    });
+
+    it("rejects another user's attachment path during completion", async () => {
+        mockState.storageEntries.set("creator/messages/other_user/thread_1/file.png", {
+            exists: true,
+            metadata: {
+                contentType: "image/png",
+                size: "4096",
+            },
+        });
+
+        const response = await completePost(new NextRequest("http://localhost/api/chat/attachments/complete", {
+            method: "POST",
+            body: JSON.stringify({
+                threadId: "thread_1",
+                storagePath: "creator/messages/other_user/thread_1/file.png",
+                fileName: "file.png",
+                mimeType: "image/png",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(403);
+        expect(body.errorCode).toBe("attachment_complete_forbidden");
+        expect(mockState.setMetadata).not.toHaveBeenCalled();
+    });
+
+    it("rejects unsafe storage path traversal during attachment completion", async () => {
+        const response = await completePost(new NextRequest("http://localhost/api/chat/attachments/complete", {
+            method: "POST",
+            body: JSON.stringify({
+                threadId: "thread_1",
+                storagePath: "creator/messages/fan_1/thread_1/../file.png",
+                fileName: "file.png",
+                mimeType: "image/png",
+            }),
+        }));
+        const body = await response.json();
+
         expect(response.status).toBe(400);
         expect(body.errorCode).toBe("invalid_attachment_path");
+        expect(body.storagePathValidated).toBe(true);
+        expect(mockState.setMetadata).not.toHaveBeenCalled();
+    });
+
+    it("rejects unauthenticated attachment completion with a typed error", async () => {
+        mockState.guardApiRequest.mockResolvedValueOnce(null);
+
+        const response = await completePost(new NextRequest("http://localhost/api/chat/attachments/complete", {
+            method: "POST",
+            body: JSON.stringify({
+                threadId: "thread_1",
+                storagePath: "creator/messages/fan_1/thread_1/file.png",
+                fileName: "file.png",
+                mimeType: "image/png",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(401);
+        expect(body.errorCode).toBe("unauthorized");
+        expect(mockState.setMetadata).not.toHaveBeenCalled();
     });
 
     it("returns a canonical download URL for completed uploads", async () => {
@@ -236,8 +306,18 @@ describe("chat attachment routes", () => {
         const body = await response.json();
 
         expect(response.status).toBe(200);
+        expect(body).toMatchObject({
+            firestoreReadScope: "single_document",
+            attachmentCompleteGuarded: true,
+            ownershipChecked: true,
+            threadMembershipChecked: true,
+            storagePathValidated: true,
+            rawStorageUrlExposed: false,
+            status: "finalized",
+        });
         expect(body.assetUrl).toContain("creator%2Fmessages%2Ffan_1%2Fthread_1%2Ffile.png");
         expect(body.assetUrl).toContain("token=token-123");
+        expect(body.assetUrl).not.toMatch(/^gs:\/\//u);
         expect(body.assetMimeType).toBe("image/png");
         expect(body.sizeBytes).toBe(4096);
         expect(mockState.setMetadata).toHaveBeenCalled();

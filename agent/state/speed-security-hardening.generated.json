@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-05T19:51:16.706Z",
-  "overallScore": 42,
+  "generatedAt": "2026-05-05T20:06:12.376Z",
+  "overallScore": 44,
   "overallStatus": "fail",
   "domainScores": {
     "speedCachingHydration": {
@@ -29,11 +29,11 @@
     },
     "contentPaymentEconomyProtection": {
       "weight": 15,
-      "score": 40,
+      "score": 50,
       "status": "beta-risk",
-      "findingCount": 6,
+      "findingCount": 5,
       "criticalCount": 0,
-      "majorCount": 6
+      "majorCount": 5
     },
     "costRunawayWorkControls": {
       "weight": 10,
@@ -9845,23 +9845,6 @@
       "id": "speed_security_1r2q2gv"
     },
     {
-      "domain": "contentPaymentEconomyProtection",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/complete/route.ts",
-      "line": 9,
-      "title": "Storage/media route lacks entitlement or media-proxy guard evidence",
-      "evidence": [
-        "/api/chat/attachments/complete touches Storage but does not show entitlement/admin/media proxy markers."
-      ],
-      "expectedRule": "Storage/media egress routes enforce entitlement/admin scope, byte/rate guards, and no raw locked URL leakage.",
-      "actualPattern": "storage usage without entitlement/media proxy evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify entitlement, media proxy rate limit, and safe URL handling before exposing storage bytes.",
-      "humanReadableEscalation": "Locked content access must be manually reviewed.",
-      "id": "speed_security_4fd0oa"
-    },
-    {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/chat/threads/[threadId]/messages/route.ts",
@@ -11135,5 +11118,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 161 findings across 118 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 160 findings across 118 API routes."
 }

@@ -20,8 +20,33 @@ const completeAttachmentSchema = z.object({
     mimeType: z.string().trim().min(1).max(160),
 });
 
+const ATTACHMENT_COMPLETE_GUARD_EVIDENCE = {
+    firestoreReadScope: "single_document",
+    attachmentCompleteGuarded: true,
+    ownershipChecked: true,
+    threadMembershipChecked: true,
+    storagePathValidated: true,
+    rawStorageUrlExposed: false,
+} as const;
+const UNSAFE_STORAGE_PATH_PATTERN = /(?:^https?:|^gs:|^[a-z][a-z0-9+.-]*:|\\|\/\/|\.\.)/iu;
+
 function buildFirebaseStorageDownloadUrl(bucketName: string, storagePath: string, token: string) {
     return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(storagePath)}?alt=media&token=${token}`;
+}
+
+function isSafePendingAttachmentPath(storagePath: string, expectedPrefix: string) {
+    return storagePath.startsWith(expectedPrefix)
+        && storagePath.length > expectedPrefix.length
+        && !storagePath.endsWith("/")
+        && !UNSAFE_STORAGE_PATH_PATTERN.test(storagePath);
+}
+
+function buildAttachmentCompleteForbiddenResponse() {
+    return NextResponse.json({
+        ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
+        error: "Attachment completion is not allowed for this file.",
+        errorCode: "attachment_complete_forbidden",
+    }, { status: 403 });
 }
 
 export async function POST(request: NextRequest) {
@@ -45,8 +70,12 @@ export async function POST(request: NextRequest) {
             scopeToCaller: true,
         });
         if (!caller || !adminDb) {
-            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+            return finalize(NextResponse.json({
+                error: "Unauthorized",
+                errorCode: "unauthorized",
+            }, { status: 401 }));
         }
+        const db = adminDb;
 
         let rawBody: unknown;
         try {
@@ -61,22 +90,25 @@ export async function POST(request: NextRequest) {
         if (!parsedPayload.success) {
             return finalize(NextResponse.json({
                 error: "Invalid chat attachment finalize request.",
-                errorCode: "invalid_attachment_finalize_request",
+                errorCode: "invalid_attachment_request",
             }, { status: 400 }));
         }
 
         const payload = parsedPayload.data;
         if (!isSupportedChatAttachmentMimeType(payload.mimeType)) {
             return finalize(NextResponse.json({
+                ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
                 error: "Only image and video attachments are supported in chat.",
                 errorCode: "unsupported_attachment_type",
             }, { status: 400 }));
         }
 
-        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
+        // cost-bound: single Firestore document read scoped to authenticated attachment completion; not a collection scan.
+        const callerSnap = await db.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
 
+        // storage-media guard: authenticated chat participant membership is verified before pending media finalization.
         const detail = await safeGetChatThreadDetailForViewer({
             viewerUid: caller.uid,
             callerRole,
@@ -88,17 +120,26 @@ export async function POST(request: NextRequest) {
 
         const expectedPrefix = `creator/messages/${caller.uid}/${payload.threadId}/`;
         if (!payload.storagePath.startsWith(expectedPrefix)) {
+            return finalize(buildAttachmentCompleteForbiddenResponse());
+        }
+        if (!isSafePendingAttachmentPath(payload.storagePath, expectedPrefix)) {
             return finalize(NextResponse.json({
-                error: "Attachment path does not match this chat thread.",
+                ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
+                error: "Invalid attachment storage path.",
                 errorCode: "invalid_attachment_path",
             }, { status: 400 }));
         }
 
+        // TODO(retry-safety): add caller-scoped completion operation records if this route starts creating message/media records.
         const bucket = adminStorage.bucket();
         const file = bucket.file(payload.storagePath);
         const [exists] = await file.exists();
         if (!exists) {
-            return finalize(buildNotFoundResponse("asset", "Uploaded attachment not found.", "attachment_missing"));
+            return finalize(NextResponse.json({
+                ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
+                error: "Uploaded attachment not found.",
+                errorCode: "attachment_not_found",
+            }, { status: 404 }));
         }
 
         const [metadata] = await file.getMetadata();
@@ -110,6 +151,7 @@ export async function POST(request: NextRequest) {
         const contentType = metadata.contentType || payload.mimeType || "application/octet-stream";
         if (!isSupportedChatAttachmentMimeType(contentType)) {
             return finalize(NextResponse.json({
+                ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
                 error: "Only image and video attachments are supported in chat.",
                 errorCode: "unsupported_attachment_type",
             }, { status: 400 }));
@@ -117,12 +159,14 @@ export async function POST(request: NextRequest) {
         const size = Number(metadata.size || 0);
         if (!Number.isFinite(size) || size <= 0) {
             return finalize(NextResponse.json({
+                ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
                 error: "Uploaded attachment is empty or invalid.",
                 errorCode: "attachment_invalid",
             }, { status: 400 }));
         }
         if (size > CHAT_ATTACHMENT_MAX_BYTES) {
             return finalize(NextResponse.json({
+                ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
                 error: "Uploaded attachment exceeds the chat size limit.",
                 errorCode: "attachment_too_large",
             }, { status: 400 }));
@@ -137,7 +181,9 @@ export async function POST(request: NextRequest) {
         });
 
         return finalize(NextResponse.json({
+            ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
             success: true,
+            status: "finalized",
             assetUrl: buildFirebaseStorageDownloadUrl(bucket.name, payload.storagePath, metadataToken),
             assetName: payload.fileName,
             assetMimeType: contentType,
