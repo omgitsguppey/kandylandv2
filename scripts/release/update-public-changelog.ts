@@ -217,10 +217,36 @@ function affectedSurfacesFor(paths: string[]) {
   return surfaces.size > 0 ? Array.from(surfaces).sort() : ["app"];
 }
 
+function isInternalBetaStabilizationChange(title: string, surfaces: string[]) {
+  const normalized = title.toLowerCase();
+  const internalOnlyPrefixes = /^(docs|chore|test|audit)(\(|:)/u.test(normalized);
+  const toolingOnly = surfaces.every((surface) =>
+    ["documentation", "repo-tooling", "release-notes"].includes(surface),
+  );
+
+  return internalOnlyPrefixes && toolingOnly;
+}
+
+function shippedBetaBadgeFeature(title: string) {
+  const normalized = title.toLowerCase();
+  return normalized.includes("add beta release notes badge")
+    || normalized.includes("beta release notes badge")
+    || normalized.includes("public beta release notes badge");
+}
+
 function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory, surfaces: string[]) {
   const normalized = title.toLowerCase();
-  if (normalized.includes("beta release notes") || surfaces.includes("release-notes")) {
+  if (normalized.includes("debug-first") || normalized.includes("stabilization roadmap") || normalized.includes("roadmap")) {
+    return "Improved beta stabilization guidance so fixes stay focused and easier to track.";
+  }
+  if (isInternalBetaStabilizationChange(title, surfaces)) {
+    return "Improved internal beta reliability and support traceability.";
+  }
+  if (shippedBetaBadgeFeature(title)) {
     return "Added a Beta badge with app update notes in the top navigation.";
+  }
+  if (surfaces.includes("release-notes")) {
+    return "Improved Beta update notes so changes are easier to match with support reports.";
   }
   if (normalized.includes("chat")) {
     return "Improved chat spacing and stability for a cleaner mobile experience.";
@@ -246,8 +272,8 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
 function buildBullets(category: PublicReleaseNoteCategory, surfaces: string[]) {
   if (surfaces.includes("release-notes")) {
     return [
-      "Tap Beta beside KandyDrops to see the latest app-style updates.",
-      "The current beta version now stays tied to the public changelog.",
+      "Beta notes stay user-safe while preserving enough detail for support follow-up.",
+      "UTC timestamps make updates easier to compare with screenshots, reports, and incidents.",
     ];
   }
   if (category === "Security") return ["Improved security checks behind the scenes."];

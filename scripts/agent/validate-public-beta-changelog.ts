@@ -214,6 +214,9 @@ for (const expected of [
   "committedAtUtc",
   "generatedAtUtc",
   "formatUtcTimestamp",
+  "isInternalBetaStabilizationChange",
+  "shippedBetaBadgeFeature",
+  "support traceability",
 ]) {
   requireIncludes(releaseScript, expected, "release notes update script");
 }

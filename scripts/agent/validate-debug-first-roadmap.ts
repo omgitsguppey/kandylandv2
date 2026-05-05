@@ -125,6 +125,13 @@ for (const expected of ["committedAtUtc", "generatedAtUtc"]) {
   requireIncludes(releaseScript, expected, "release note update script");
   requireIncludes(releaseValidator, expected, "release note validator");
 }
+for (const expected of [
+  "isInternalBetaStabilizationChange",
+  "shippedBetaBadgeFeature",
+  "Improved internal beta reliability and support traceability.",
+]) {
+  requireIncludes(releaseScript, expected, "release note user-safe safeguard");
+}
 
 for (const expected of [
   "beta_changelog_opened",

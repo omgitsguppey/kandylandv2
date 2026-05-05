@@ -2,6 +2,15 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.20.0] - 2026-05-05
+
+### Changed
+
+- Updated 2026-05-05 18:56 UTC
+- Improved beta stabilization guidance so fixes stay focused and easier to track.
+- Beta notes stay user-safe while preserving enough detail for support follow-up.
+- UTC timestamps make updates easier to compare with screenshots, reports, and incidents.
+
 ## [1.19.0] - 2026-05-05
 
 ### Internal

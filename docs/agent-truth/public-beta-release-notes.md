@@ -32,6 +32,8 @@ KandyDrops Beta release notes are user-facing and update after every commit. The
 - Normal users see app update copy, not raw internal file names.
 - Security copy stays general, for example: `Improved security checks behind the scenes.`
 - Internal-only work may appear as `Improved internal beta reliability.`
+- Docs, tooling, audit, and release-note plumbing commits still get traceable entries, but the Beta tab must translate them into user-safe beta reliability or support-traceability copy.
+- The Beta badge feature copy is reserved for commits that explicitly ship the Beta badge/release-note UI, not every release-note or changelog maintenance commit.
 - Notes include 1-3 bullets and newest notes appear first.
 
 ## Command Budget

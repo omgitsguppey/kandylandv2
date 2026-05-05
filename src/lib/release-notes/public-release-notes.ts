@@ -1,12 +1,47 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.19.0",
+  "currentVersion": "1.20.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T18:48:32.785Z",
-  "generatedAtUtc": "2026-05-05T18:48:32.785Z",
-  "lastCommitSha": "e262ae44f608f2b3c095bb127c2dfb4124004617",
+  "generatedAt": "2026-05-05T19:15:29.544Z",
+  "generatedAtUtc": "2026-05-05T19:15:29.544Z",
+  "lastCommitSha": "f7500283807314a26d05dc1f6a86b0f28d02aeb1",
   "notes": [
+    {
+      "version": "1.20.0",
+      "previousVersion": "1.19.0",
+      "commitSha": "f7500283807314a26d05dc1f6a86b0f28d02aeb1",
+      "commitTitle": "docs(beta): lock debug-first stabilization roadmap",
+      "committedAt": "2026-05-05T18:56:53.000Z",
+      "generatedAt": "2026-05-05T19:15:29.544Z",
+      "committedAtUtc": "2026-05-05T18:56:53.000Z",
+      "generatedAtUtc": "2026-05-05T19:15:29.544Z",
+      "diffStats": {
+        "rawAdditions": 659,
+        "rawDeletions": 148,
+        "rawChangeCount": 807,
+        "additions": 659,
+        "deletions": 148,
+        "effectiveAdditions": 403,
+        "effectiveDeletions": 37,
+        "changedFiles": 16,
+        "effectiveChangeCount": 440,
+        "excludedGeneratedChangeCount": 367
+      },
+      "bumpType": "minor",
+      "category": "Changed",
+      "userFacingTitle": "Improved beta stabilization guidance so fixes stay focused and easier to track.",
+      "bullets": [
+        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
+        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "release-notes",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.19.0",
       "previousVersion": "1.18.0",
@@ -134,38 +169,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "committedAtUtc": "2026-05-05T12:14:35.000Z",
       "generatedAtUtc": "2026-05-05T12:14:53.215Z"
-    },
-    {
-      "version": "1.16.0",
-      "previousVersion": "1.15.0",
-      "commitSha": "408fc0dcd0a7affd9243dd591c6d9b670c8e3d1f",
-      "commitTitle": "feat(experiments): add behavioral ranking holdout validation",
-      "committedAt": "2026-05-05T11:55:18.000Z",
-      "generatedAt": "2026-05-05T12:02:57.969Z",
-      "diffStats": {
-        "rawAdditions": 884,
-        "rawDeletions": 4,
-        "rawChangeCount": 888,
-        "additions": 884,
-        "deletions": 4,
-        "effectiveAdditions": 884,
-        "effectiveDeletions": 4,
-        "changedFiles": 10,
-        "effectiveChangeCount": 888,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T11:55:18.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:57.969Z"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

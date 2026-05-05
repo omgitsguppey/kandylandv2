@@ -1,10 +1,45 @@
 {
-  "currentVersion": "1.19.0",
+  "currentVersion": "1.20.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T18:48:32.785Z",
-  "generatedAtUtc": "2026-05-05T18:48:32.785Z",
-  "lastCommitSha": "e262ae44f608f2b3c095bb127c2dfb4124004617",
+  "generatedAt": "2026-05-05T19:15:29.544Z",
+  "generatedAtUtc": "2026-05-05T19:15:29.544Z",
+  "lastCommitSha": "f7500283807314a26d05dc1f6a86b0f28d02aeb1",
   "notes": [
+    {
+      "version": "1.20.0",
+      "previousVersion": "1.19.0",
+      "commitSha": "f7500283807314a26d05dc1f6a86b0f28d02aeb1",
+      "commitTitle": "docs(beta): lock debug-first stabilization roadmap",
+      "committedAt": "2026-05-05T18:56:53.000Z",
+      "generatedAt": "2026-05-05T19:15:29.544Z",
+      "committedAtUtc": "2026-05-05T18:56:53.000Z",
+      "generatedAtUtc": "2026-05-05T19:15:29.544Z",
+      "diffStats": {
+        "rawAdditions": 659,
+        "rawDeletions": 148,
+        "rawChangeCount": 807,
+        "additions": 659,
+        "deletions": 148,
+        "effectiveAdditions": 403,
+        "effectiveDeletions": 37,
+        "changedFiles": 16,
+        "effectiveChangeCount": 440,
+        "excludedGeneratedChangeCount": 367
+      },
+      "bumpType": "minor",
+      "category": "Changed",
+      "userFacingTitle": "Improved beta stabilization guidance so fixes stay focused and easier to track.",
+      "bullets": [
+        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
+        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "release-notes",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.19.0",
       "previousVersion": "1.18.0",
