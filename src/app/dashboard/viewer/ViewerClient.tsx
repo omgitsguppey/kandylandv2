@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Lock, ShieldCheck } from "lucide-react";
@@ -16,6 +16,7 @@ import { ViewerSkeleton } from "./components/ViewerSkeleton";
 import { MediaViewer } from "./components/MediaViewer";
 import { ThumbnailsSlider } from "./components/ThumbnailsSlider";
 import { DropInfoOverlay } from "./components/DropInfoOverlay";
+import { ContentSatisfactionPrompt } from "@/components/Feedback/ContentSatisfactionPrompt";
 
 interface ViewerClientProps {
     drop: Drop | null;
@@ -32,6 +33,14 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
     const { user, userProfile, loading: authLoading } = useAuth();
     const router = useRouter();
     const viewerContentRef = useRef<HTMLDivElement>(null);
+    const [satisfactionPrompt, setSatisfactionPrompt] = useState<{
+        key: string;
+        watchSeconds: number;
+        durationSeconds?: number;
+        mediaIndex: number;
+        mediaType: string;
+        assetKey: string;
+    } | null>(null);
 
     const isAuthorized = useMemo(() => {
         if (!drop || !user) return false;
@@ -102,6 +111,24 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
         if (!isAuthorized || !drop) return;
         telemetry.handleAssetSwitch(activeIndex, resolvedContent.kind);
     }, [activeIndex, isAuthorized, drop, telemetry, resolvedContent.kind]);
+
+    useEffect(() => {
+        if (!drop || !isAuthorized || contentLoading || !contentBlobUrl) return;
+        if (resolvedContent.kind !== "image" && resolvedContent.kind !== "pdf") return;
+
+        const timer = window.setTimeout(() => {
+            const assetKey = `${drop.id}:${activeIndex}`;
+            setSatisfactionPrompt({
+                key: `${assetKey}:${resolvedContent.kind}:visible`,
+                watchSeconds: resolvedContent.kind === "pdf" ? 12 : 8,
+                mediaIndex: activeIndex,
+                mediaType: resolvedContent.kind,
+                assetKey,
+            });
+        }, resolvedContent.kind === "pdf" ? 12_000 : 8_000);
+
+        return () => window.clearTimeout(timer);
+    }, [activeIndex, contentBlobUrl, contentLoading, drop, isAuthorized, resolvedContent.kind]);
 
     // Early Returns
     if (authLoading || (user && !userProfile) || contentLoading && !contentBlobUrl) {
@@ -184,7 +211,18 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
                             reportWatchMediaWaiting={(s) => telemetry.reportWatchMediaWaiting(s)}
                             reportWatchPlaybackState={(r, m) => telemetry.reportWatchPlaybackState(r, m)}
                             handleMediaTimeUpdate={(c, d) => telemetry.handleMediaTimeUpdate(c, d)}
-                            trackAssetCompleted={(c, d) => telemetry.trackAssetCompleted(c, d)}
+                            trackAssetCompleted={(c, d) => {
+                                telemetry.trackAssetCompleted(c, d);
+                                const assetKey = `${drop.id}:${activeIndex}`;
+                                setSatisfactionPrompt({
+                                    key: `${assetKey}:completed:${Math.round(c)}`,
+                                    watchSeconds: c,
+                                    durationSeconds: d,
+                                    mediaIndex: activeIndex,
+                                    mediaType: resolvedContent.kind,
+                                    assetKey,
+                                });
+                            }}
                             reportWatchMediaEnded={(t, d) => telemetry.reportWatchMediaEnded(t, d)}
                         />
                     </div>
@@ -217,6 +255,23 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
                 retentionDrops={retentionDrops}
                 handleRelatedDropClick={(d, t) => telemetry.handleRelatedDropClick(d, t)}
                 recordDownload={() => telemetry.recordDownload(activeIndex)}
+            />
+            <ContentSatisfactionPrompt
+                dropId={drop.id}
+                creatorId={drop.creatorId}
+                category={drop.type}
+                assetKey={satisfactionPrompt?.assetKey || `${drop.id}:${activeIndex}`}
+                mediaIndex={(satisfactionPrompt?.mediaIndex ?? activeIndex) + 1}
+                mediaType={satisfactionPrompt?.mediaType || resolvedContent.kind}
+                viewerSessionId={telemetry.watchSessionId ?? undefined}
+                meaningfulConsumptionKey={satisfactionPrompt?.key}
+                completionQuality={satisfactionPrompt?.durationSeconds
+                    ? Math.min(1, satisfactionPrompt.watchSeconds / Math.max(1, satisfactionPrompt.durationSeconds))
+                    : satisfactionPrompt
+                        ? 0.7
+                        : 0}
+                repeatCreatorInterest={following ? 1 : 0}
+                lowRefundRisk={1}
             />
         </div>
     );

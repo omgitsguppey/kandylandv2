@@ -1,4 +1,4 @@
-export const BEHAVIORAL_EVENT_FACT_VERSION = "2026.05.event-facts.4";
+export const BEHAVIORAL_EVENT_FACT_VERSION = "2026.05.event-facts.5";
 
 export const BEHAVIORAL_NORMALIZED_ACTIONS = [
   "home_viewed",
@@ -20,6 +20,11 @@ export const BEHAVIORAL_NORMALIZED_ACTIONS = [
   "creator_search_selected",
   "drop_preview_opened",
   "drop_preview_cta_clicked",
+  "content_satisfaction_positive",
+  "content_satisfaction_negative",
+  "content_satisfaction_skipped",
+  "recommendation_reason_helpful",
+  "recommendation_reason_not_helpful",
   "drop_not_interested",
   "category_not_interested",
   "recommendation_dismissed",
@@ -145,6 +150,11 @@ export const BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS: Record<BehavioralNormalizedActi
   creator_search_selected: 10 * 1000,
   drop_preview_opened: 10 * 1000,
   drop_preview_cta_clicked: 10 * 1000,
+  content_satisfaction_positive: "event_id",
+  content_satisfaction_negative: "event_id",
+  content_satisfaction_skipped: "event_id",
+  recommendation_reason_helpful: "event_id",
+  recommendation_reason_not_helpful: "event_id",
   drop_not_interested: "permanent",
   category_not_interested: "permanent",
   recommendation_dismissed: 60 * 1000,
@@ -207,6 +217,11 @@ export const BEHAVIORAL_EVENT_LABELS: Record<BehavioralNormalizedAction, string>
   creator_search_selected: "Creator search selected",
   drop_preview_opened: "Drop preview opened",
   drop_preview_cta_clicked: "Drop preview CTA clicked",
+  content_satisfaction_positive: "Content satisfaction positive",
+  content_satisfaction_negative: "Content satisfaction negative",
+  content_satisfaction_skipped: "Content satisfaction skipped",
+  recommendation_reason_helpful: "Recommendation reason helpful",
+  recommendation_reason_not_helpful: "Recommendation reason not helpful",
   drop_not_interested: "Drop marked not interested",
   category_not_interested: "Category marked not interested",
   recommendation_dismissed: "Recommendation dismissed",

@@ -39,6 +39,9 @@ export function buildRecommendationExplanation(input: {
   if (features.pPurchase7d >= 0.4) {
     addIfMissing(reasons, "Purchase likelihood is stronger than a generic fallback pick.");
   }
+  if (features.satisfactionScore >= 0.62) {
+    addIfMissing(reasons, "Similar satisfaction feedback makes this a stronger match.");
+  }
   if (sources.includes("ending_soon") && features.urgency > 0) {
     addIfMissing(reasons, "It is close to ending, so urgency legitimately boosts ranking.");
   }
@@ -59,7 +62,12 @@ export function buildRecommendationExplanation(input: {
   return {
     summary: reasons[0] || "This recommendation is fallback-only because no creator or content affinity has formed yet.",
     reasons: reasons.slice(0, 3),
-    adminReasons: [...features.queryIntentReasons, ...features.dropMomentumReasons, ...features.suppressionReasons],
+    adminReasons: [
+      ...features.queryIntentReasons,
+      ...features.dropMomentumReasons,
+      ...features.satisfactionReasons,
+      ...features.suppressionReasons,
+    ],
     diagnostics: [
       { label: "Predicted paid conversion", value: features.predictedPaidConversion },
       { label: "pPurchase7d", value: features.pPurchase7d },
@@ -80,6 +88,8 @@ export function buildRecommendationExplanation(input: {
       { label: "Query intent score", value: features.queryIntentScore },
       { label: "Drop momentum score", value: features.dropMomentumScore / 100 },
       { label: "Drop momentum boost", value: features.dropMomentumBoost / 100 },
+      { label: "Satisfaction score", value: features.satisfactionScore },
+      { label: "Satisfaction boost", value: features.satisfactionBoost / 100 },
       { label: "Fatigue penalty", value: features.fatiguePenalty / 100 },
       { label: "Previous exposure penalty", value: features.previousExposurePenalty / 100 },
     ],

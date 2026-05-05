@@ -357,6 +357,7 @@ export function useViewerTelemetry({
     }, [drop, trackFileViewed]);
 
     return {
+        watchSessionId,
         handleMediaTimeUpdate,
         handleRelatedDropClick,
         trackAssetCompleted,

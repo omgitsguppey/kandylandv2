@@ -95,8 +95,8 @@ const DEFAULT_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend"];
 const DEFAULT_CANONICAL_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend", "canonical"];
 const DEFAULT_GA_ONLY_SOURCES: TelemetryEventSource[] = ["ga4"];
 
-export const TELEMETRY_EVENT_INDEX_VERSION = "2026.05.04.1";
-export const TELEMETRY_USER_ACTION_TAXONOMY_VERSION = "2026.05.event-facts.4";
+export const TELEMETRY_EVENT_INDEX_VERSION = "2026.05.05.1";
+export const TELEMETRY_USER_ACTION_TAXONOMY_VERSION = "2026.05.event-facts.5";
 export const TELEMETRY_USER_ACTION_TAXONOMY_NAMES = BEHAVIORAL_NORMALIZED_ACTIONS;
 
 export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
@@ -234,6 +234,11 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "drop_preview_unlock_success_state_viewed", label: "Drop preview unlock success state viewed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "commerce"] },
   { eventName: "drop_preview_open_library_clicked", label: "Drop preview open library clicked", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
   { eventName: "drop_preview_keep_unwrapping_clicked", label: "Drop preview keep unwrapping clicked", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
+  { eventName: "content_satisfaction_positive", label: "Content satisfaction positive", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement", "viewer"] },
+  { eventName: "content_satisfaction_negative", label: "Content satisfaction negative", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement", "viewer"] },
+  { eventName: "content_satisfaction_skipped", label: "Content satisfaction skipped", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement", "viewer"] },
+  { eventName: "recommendation_reason_helpful", label: "Recommendation reason helpful", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement"] },
+  { eventName: "recommendation_reason_not_helpful", label: "Recommendation reason not helpful", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement"] },
   { eventName: "drop_not_interested", label: "Drop not interested", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement"] },
   { eventName: "category_not_interested", label: "Category not interested", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement"] },
   { eventName: "recommendation_dismissed", label: "Recommendation dismissed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "engagement"] },
@@ -741,6 +746,7 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   assetKey: "asset_key",
   componentName: "component_name",
   contentKind: "content_kind",
+  completionQuality: "completion_quality",
   creatorId: "creator_id",
   dayKey: "day_key",
   dropCategory: "drop_category",
@@ -770,11 +776,20 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   projectionMode: "projection_mode",
   projectionScope: "projection_scope",
   purchaseId: "purchase_id",
+  recommendationId: "recommendation_id",
+  recommendationReason: "recommendation_reason",
   recipientId: "recipient_id",
   semanticScopeLabel: "semantic_scope_label",
   sessionId: "session_id",
   sessionWatchSeconds: "session_watch_seconds",
   selectedGoals: "selected_goals",
+  explicitRating: "explicit_rating",
+  feedbackRecency: "feedback_recency",
+  lowRefundRisk: "low_refund_risk",
+  repeatCreatorInterest: "repeat_creator_interest",
+  satisfactionScore: "satisfaction_score",
+  satisfactionLabel: "satisfaction_label",
+  suppressionScore: "suppression_score",
   rewardGd: "reward_gd",
   sourceComponent: "source_component",
   sourceTruth: "source_truth",
@@ -833,6 +848,8 @@ function isPageViewEvent(eventName: string) {
 function isDropEvent(eventName: string) {
   return eventName.includes("drop")
     || eventName === "file_viewed"
+    || eventName.startsWith("content_satisfaction_")
+    || eventName.startsWith("recommendation_reason_")
     || eventName.includes("viewer_")
     || eventName.startsWith("watch_session")
     || eventName === "watch_score_computed"
@@ -983,6 +1000,21 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
 
   if (eventName === "creator_search_selected") {
     return ["creator_id|creatorId|target_creator_id|targetCreatorId"];
+  }
+
+  if (eventName.startsWith("content_satisfaction_")) {
+    return [
+      "drop_id|dropId|target_drop_id|targetDropId",
+      "asset_key|assetKey|media_index|mediaIndex",
+      "satisfaction_score|satisfactionScore|explicit_rating|explicitRating",
+    ];
+  }
+
+  if (eventName === "recommendation_reason_helpful" || eventName === "recommendation_reason_not_helpful") {
+    return [
+      "recommendation_id|recommendationId|drop_id|dropId|target_drop_id|targetDropId",
+      "recommendation_reason|recommendationReason",
+    ];
   }
 
   if (eventName === "drop_not_interested" || eventName === "recommendation_dismissed") {
@@ -1139,6 +1171,9 @@ function buildRequiredSurfaceFields(eventName: string, family: TelemetryEventFam
     || eventName === "sort_changed"
     || eventName === "category_clicked"
     || eventName === "creator_search_selected"
+    || eventName.startsWith("content_satisfaction_")
+    || eventName === "recommendation_reason_helpful"
+    || eventName === "recommendation_reason_not_helpful"
     || eventName === "drop_not_interested"
     || eventName === "creator_not_interested"
     || eventName === "category_not_interested"

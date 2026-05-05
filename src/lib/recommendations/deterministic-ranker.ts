@@ -43,7 +43,7 @@ export function computeDeterministicRecommendationScore(features: Recommendation
   });
 
   const suppressedScore = applyRecommendationSuppression(baseScore, features.suppressionScore);
-  return clamp(suppressedScore + features.queryIntentBoost + features.dropMomentumBoost, 0, 100);
+  return clamp(suppressedScore + features.queryIntentBoost + features.dropMomentumBoost + features.satisfactionBoost, 0, 100);
 }
 
 export function rankDeterministicRecommendations(input: {

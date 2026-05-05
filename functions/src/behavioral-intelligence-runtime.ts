@@ -30,6 +30,7 @@ const SOURCE_RELIABILITY_WEIGHTS = {
   legacy_page_duration: 0.2,
 } as const
 const SEARCH_INTENT_HALF_LIFE_HOURS = 24
+const SATISFACTION_SIGNAL_HALF_LIFE_DAYS = 30
 
 type DropRecord = Record<string, unknown> & {
   id: string
@@ -49,6 +50,16 @@ type FeedbackRecord = Record<string, unknown>
 type RelationshipRecord = Record<string, unknown>
 type UserRecord = Record<string, unknown>
 type BuiltUserProfileDoc = ReturnType<typeof buildUserProfileDoc>
+
+type SatisfactionAggregateRecord = {
+  positiveCount: number
+  negativeCount: number
+  skippedCount: number
+  helpfulReasonCount: number
+  notHelpfulReasonCount: number
+  latestAtMs: number
+  eventNames: Set<string>
+}
 
 type UserSignalAggregate = {
   userId: string
@@ -95,6 +106,11 @@ type UserSignalAggregate = {
   searchIntentQueryLengths: number[]
   searchIntentSessionIds: Set<string>
   searchIntentLatestAtMs: number
+  satisfactionLatestAtMs: number
+  satisfactionDrops: Map<string, SatisfactionAggregateRecord>
+  satisfactionCreators: Map<string, SatisfactionAggregateRecord>
+  satisfactionCategories: Map<string, SatisfactionAggregateRecord>
+  satisfactionRecommendationReasons: Map<string, SatisfactionAggregateRecord>
   recentDropIds: string[]
   recentCreatorIds: string[]
   positiveDropIds: Set<string>
@@ -154,6 +170,9 @@ type DropSignalAggregate = {
   repeatViewerIds: Set<string>
   positiveFeedbackCount: number
   negativeFeedbackCount: number
+  satisfactionScoreTotal: number
+  satisfactionSampleCount: number
+  satisfactionLatestAtMs: number
   latestAtMs: number
   last24hInteractions: number
   last7dInteractions: number
@@ -370,6 +389,141 @@ function addEventName(map: Map<string, Set<string>>, key: string, eventName: str
   const names = map.get(key) ?? new Set<string>()
   names.add(eventName)
   map.set(key, names)
+}
+
+function ensureSatisfactionRecord(map: Map<string, SatisfactionAggregateRecord>, key: string) {
+  const existing = map.get(key)
+  if (existing) {
+    return existing
+  }
+
+  const created: SatisfactionAggregateRecord = {
+    positiveCount: 0,
+    negativeCount: 0,
+    skippedCount: 0,
+    helpfulReasonCount: 0,
+    notHelpfulReasonCount: 0,
+    latestAtMs: 0,
+    eventNames: new Set<string>(),
+  }
+  map.set(key, created)
+  return created
+}
+
+function updateSatisfactionRecord(input: {
+  map: Map<string, SatisfactionAggregateRecord>
+  key: string
+  normalizedAction: string
+  timestamp: number
+  eventName: string
+}) {
+  if (!input.key) {
+    return
+  }
+
+  const record = ensureSatisfactionRecord(input.map, input.key)
+  if (input.normalizedAction === "content_satisfaction_positive") {
+    record.positiveCount += 1
+  } else if (input.normalizedAction === "content_satisfaction_negative") {
+    record.negativeCount += 1
+  } else if (input.normalizedAction === "content_satisfaction_skipped") {
+    record.skippedCount += 1
+  } else if (input.normalizedAction === "recommendation_reason_helpful") {
+    record.helpfulReasonCount += 1
+  } else if (input.normalizedAction === "recommendation_reason_not_helpful") {
+    record.notHelpfulReasonCount += 1
+  }
+  record.latestAtMs = Math.max(record.latestAtMs, input.timestamp)
+  record.eventNames.add(input.eventName)
+}
+
+function buildSatisfactionRecord(input: {
+  entityId: string
+  record: SatisfactionAggregateRecord
+}) {
+  const total = input.record.positiveCount
+    + input.record.negativeCount
+    + input.record.skippedCount
+    + input.record.helpfulReasonCount
+    + input.record.notHelpfulReasonCount
+  const satisfactionScore = total > 0
+    ? clamp01(((input.record.positiveCount + input.record.helpfulReasonCount) + (input.record.skippedCount * 0.5)) / total)
+    : 0.5
+
+  return {
+    entityId: input.entityId,
+    latestAtMs: input.record.latestAtMs,
+    positiveCount: input.record.positiveCount,
+    negativeCount: input.record.negativeCount,
+    skippedCount: input.record.skippedCount,
+    helpfulReasonCount: input.record.helpfulReasonCount,
+    notHelpfulReasonCount: input.record.notHelpfulReasonCount,
+    satisfactionScore: round(satisfactionScore, 4),
+    eventNames: Array.from(input.record.eventNames),
+  }
+}
+
+function recordSatisfactionSignal(input: {
+  aggregate: UserSignalAggregate
+  event: Record<string, unknown>
+  eventName: string
+  normalizedAction: string
+  timestamp: number
+  dropId?: string
+  creatorId?: string
+  category?: string
+}) {
+  const aggregate = input.aggregate
+  const params = readRecord(input.event.params)
+  const recommendationId = readString(input.event.actionEntityId)
+    || readStringFromRecord(params, "recommendation_id", "recommendationId")
+  aggregate.feedbackCount += 1
+  aggregate.sourceTimestamps.feedbacks.push(input.timestamp)
+  aggregate.satisfactionLatestAtMs = Math.max(aggregate.satisfactionLatestAtMs, input.timestamp)
+
+  if (input.normalizedAction === "content_satisfaction_positive" || input.normalizedAction === "recommendation_reason_helpful") {
+    aggregate.positiveFeedbackCount += 1
+  }
+  if (input.normalizedAction === "content_satisfaction_negative" || input.normalizedAction === "recommendation_reason_not_helpful") {
+    aggregate.negativeFeedbackCount += 1
+  }
+
+  if (input.dropId) {
+    updateSatisfactionRecord({
+      map: aggregate.satisfactionDrops,
+      key: input.dropId,
+      normalizedAction: input.normalizedAction,
+      timestamp: input.timestamp,
+      eventName: input.eventName,
+    })
+  }
+  if (input.creatorId) {
+    updateSatisfactionRecord({
+      map: aggregate.satisfactionCreators,
+      key: input.creatorId,
+      normalizedAction: input.normalizedAction,
+      timestamp: input.timestamp,
+      eventName: input.eventName,
+    })
+  }
+  if (input.category) {
+    updateSatisfactionRecord({
+      map: aggregate.satisfactionCategories,
+      key: input.category,
+      normalizedAction: input.normalizedAction,
+      timestamp: input.timestamp,
+      eventName: input.eventName,
+    })
+  }
+  if (recommendationId) {
+    updateSatisfactionRecord({
+      map: aggregate.satisfactionRecommendationReasons,
+      key: recommendationId,
+      normalizedAction: input.normalizedAction,
+      timestamp: input.timestamp,
+      eventName: input.eventName,
+    })
+  }
 }
 
 function recordNegativePreference(input: {
@@ -675,6 +829,11 @@ function ensureUserAggregate(userId: string, store: Map<string, UserSignalAggreg
     searchIntentQueryLengths: [],
     searchIntentSessionIds: new Set(),
     searchIntentLatestAtMs: 0,
+    satisfactionLatestAtMs: 0,
+    satisfactionDrops: new Map(),
+    satisfactionCreators: new Map(),
+    satisfactionCategories: new Map(),
+    satisfactionRecommendationReasons: new Map(),
     recentDropIds: [],
     recentCreatorIds: [],
     positiveDropIds: new Set(),
@@ -753,6 +912,9 @@ function ensureDropAggregate(drop: DropRecord, store: Map<string, DropSignalAggr
     repeatViewerIds: new Set(),
     positiveFeedbackCount: 0,
     negativeFeedbackCount: 0,
+    satisfactionScoreTotal: 0,
+    satisfactionSampleCount: 0,
+    satisfactionLatestAtMs: 0,
     latestAtMs: 0,
     last24hInteractions: 0,
     last7dInteractions: 0,
@@ -810,6 +972,16 @@ function readNormalizedAction(record: Record<string, unknown>) {
   case "drop_preview_opened":
   case "drop_preview_page_viewed":
     return "drop_preview_opened"
+  case "content_satisfaction_positive":
+    return "content_satisfaction_positive"
+  case "content_satisfaction_negative":
+    return "content_satisfaction_negative"
+  case "content_satisfaction_skipped":
+    return "content_satisfaction_skipped"
+  case "recommendation_reason_helpful":
+    return "recommendation_reason_helpful"
+  case "recommendation_reason_not_helpful":
+    return "recommendation_reason_not_helpful"
   case "drop_not_interested":
     return "drop_not_interested"
   case "category_not_interested":
@@ -941,12 +1113,16 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     const sessionId = readString(event.sessionId)
     const dropId = readString(event.dropId)
     const timestamp = readNumber(event.timestamp) || nowMs
+    const params = readRecord(event.params)
     const drop = dropId ? dropMap.get(dropId) : undefined
     const eventCreatorId = readString(event.creatorId) || readString(event.actionCreatorId) || readString(event.targetCreatorId)
     const creatorId = drop ? readString(drop.creatorId) : eventCreatorId
     const category = drop
       ? readString(drop.type)
-      : readString(event.dropCategory) || readString(event.category) || (normalizedAction === "category_not_interested" ? readString(event.actionEntityId) : "")
+      : readString(event.dropCategory)
+        || readString(event.category)
+        || readStringFromRecord(params, "drop_category", "dropCategory", "category")
+        || (normalizedAction === "category_not_interested" ? readString(event.actionEntityId) : "")
     const tags = drop ? normalizeTags(drop.tags) : []
     const pagePath = readString(event.pagePath)
     const experienceKey = deriveExperienceKey({
@@ -963,6 +1139,13 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       || normalizedAction === "sort_changed"
       || normalizedAction === "category_clicked"
       || normalizedAction === "creator_search_selected"
+    const isSatisfactionAction = normalizedAction === "content_satisfaction_positive"
+      || normalizedAction === "content_satisfaction_negative"
+      || normalizedAction === "content_satisfaction_skipped"
+      || normalizedAction === "recommendation_reason_helpful"
+      || normalizedAction === "recommendation_reason_not_helpful"
+    const isNegativeSatisfactionAction = normalizedAction === "content_satisfaction_negative"
+      || normalizedAction === "recommendation_reason_not_helpful"
 
     if (drop && dropId) {
       const dropAggregate = ensureDropAggregate(drop, dropAggregates)
@@ -1007,6 +1190,23 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       }
       if (isNegativePreferenceAction) {
         dropAggregate.negativeFeedbackCount += 1
+      }
+      if (isSatisfactionAction) {
+        const satisfactionScore = readNumberFromRecord(params, "satisfaction_score", "satisfactionScore")
+          || (normalizedAction === "content_satisfaction_positive" || normalizedAction === "recommendation_reason_helpful"
+            ? 1
+            : normalizedAction === "content_satisfaction_negative" || normalizedAction === "recommendation_reason_not_helpful"
+              ? 0
+              : 0.5)
+        dropAggregate.satisfactionScoreTotal += clamp01(satisfactionScore)
+        dropAggregate.satisfactionSampleCount += 1
+        dropAggregate.satisfactionLatestAtMs = Math.max(dropAggregate.satisfactionLatestAtMs, timestamp)
+        if (normalizedAction === "content_satisfaction_positive" || normalizedAction === "recommendation_reason_helpful") {
+          dropAggregate.positiveFeedbackCount += 1
+        }
+        if (isNegativeSatisfactionAction) {
+          dropAggregate.negativeFeedbackCount += 1
+        }
       }
       if (timestamp >= nowMs - (24 * 60 * 60 * 1000)) {
         dropAggregate.last24hInteractions += 1
@@ -1108,6 +1308,18 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
         creatorId,
       })
     }
+    if (isSatisfactionAction) {
+      recordSatisfactionSignal({
+        aggregate,
+        event,
+        eventName,
+        normalizedAction,
+        timestamp,
+        dropId,
+        creatorId,
+        category,
+      })
+    }
 
     if (dropId) {
       aggregate.uniqueDropIds.add(dropId)
@@ -1116,17 +1328,17 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     if (creatorId) {
       aggregate.uniqueCreatorIds.add(creatorId)
       pushLimited(aggregate.recentCreatorIds, creatorId)
-      if (!isNegativePreferenceAction) {
+      if (!isNegativePreferenceAction && !isNegativeSatisfactionAction) {
         scoreMapIncrement(aggregate.topCreatorScores, creatorId, normalizedAction === "drop_unwrapped" ? 2.5 : normalizedAction === "creator_followed" ? 4 : 0.35)
       }
     }
-    if (category && !isNegativePreferenceAction) {
+    if (category && !isNegativePreferenceAction && !isNegativeSatisfactionAction) {
       scoreMapIncrement(aggregate.topCategoryScores, category, normalizedAction === "drop_unwrapped" ? 2 : 0.25)
     }
-    if (!isNegativePreferenceAction) {
+    if (!isNegativePreferenceAction && !isNegativeSatisfactionAction) {
       tags.forEach((tag) => scoreMapIncrement(aggregate.topThemeScores, tag, normalizedAction === "drop_unwrapped" ? 1.2 : 0.18))
     }
-    if (!isNegativePreferenceAction) {
+    if (!isNegativePreferenceAction && !isNegativeSatisfactionAction) {
       scoreMapIncrement(
         aggregate.topExperienceScores,
         experienceKey,
@@ -1461,6 +1673,27 @@ function buildUserProfileDoc(input: {
     },
     sessionIds: Array.from(input.aggregate.searchIntentSessionIds).slice(0, 8),
   }
+  const satisfactionProfile = {
+    version: 1,
+    halfLifeDays: SATISFACTION_SIGNAL_HALF_LIFE_DAYS,
+    latestAtMs: input.aggregate.satisfactionLatestAtMs,
+    drops: Object.fromEntries(Array.from(input.aggregate.satisfactionDrops.entries()).slice(0, 24).map(([dropId, record]) => [dropId, buildSatisfactionRecord({
+      entityId: dropId,
+      record,
+    })])),
+    creators: Object.fromEntries(Array.from(input.aggregate.satisfactionCreators.entries()).slice(0, 24).map(([creatorId, record]) => [creatorId, buildSatisfactionRecord({
+      entityId: creatorId,
+      record,
+    })])),
+    categories: Object.fromEntries(Array.from(input.aggregate.satisfactionCategories.entries()).slice(0, 24).map(([category, record]) => [category, buildSatisfactionRecord({
+      entityId: category,
+      record,
+    })])),
+    recommendationReasons: Object.fromEntries(Array.from(input.aggregate.satisfactionRecommendationReasons.entries()).slice(0, 24).map(([recommendationId, record]) => [recommendationId, buildSatisfactionRecord({
+      entityId: recommendationId,
+      record,
+    })])),
+  }
   const repeatedCreatorSignalCount = topCreatorEntries.filter((entry) => entry.score >= 2).length
   const categorySignalCount = topCategoryEntries.filter((entry) => entry.score >= 0.75).length
   const themeSignalCount = topThemeEntries.filter((entry) => entry.score >= 0.5).length
@@ -1666,6 +1899,7 @@ function buildUserProfileDoc(input: {
     repeatedSkipDropIds: negativePreferenceProfile.repeatedSkipDropIds,
     lowWatchAfterRecommendationDropIds: negativePreferenceProfile.lowWatchAfterRecommendationDropIds,
     negativePreferenceProfile,
+    satisfactionProfile,
     searchIntentProfile,
     eventCount: input.aggregate.eventCount,
     watchSessionCount: input.aggregate.watchSessionCount,
@@ -1712,6 +1946,9 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
   const uniqueViewers = aggregate.uniqueViewerIds.size
   const repeatViewers = aggregate.repeatViewerIds.size
   const feedbackCount = aggregate.positiveFeedbackCount + aggregate.negativeFeedbackCount
+  const satisfactionScore = aggregate.satisfactionSampleCount > 0
+    ? clamp01(aggregate.satisfactionScoreTotal / Math.max(1, aggregate.satisfactionSampleCount))
+    : 0.5
   const ageDays = aggregate.validFrom > 0 ? Math.max(0, (nowMs - aggregate.validFrom) / (24 * 60 * 60 * 1000)) : 0
   const watchScoreSource = aggregate.watchSecondsSamples.length > 0
     ? "watch_session_rollup"
@@ -1812,6 +2049,9 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
     viewerToUnlockRate: clamp01(aggregate.viewerOpens === 0 ? 0 : aggregate.unlocks / Math.max(1, aggregate.viewerOpens)),
     positiveFeedbackCount: aggregate.positiveFeedbackCount,
     negativeFeedbackCount: aggregate.negativeFeedbackCount,
+    satisfactionScore: round(satisfactionScore, 4),
+    satisfactionSampleCount: aggregate.satisfactionSampleCount,
+    satisfactionLatestAtMs: aggregate.satisfactionLatestAtMs,
     negativeSignalRate: clamp01(feedbackCount === 0 ? 0 : aggregate.negativeFeedbackCount / feedbackCount),
     freshnessDecayScore: freshnessScore,
     sourceReliability: round(sourceReliability, 2),

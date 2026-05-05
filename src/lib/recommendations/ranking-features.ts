@@ -5,6 +5,10 @@ import {
   type BehavioralPredictionOutputs,
 } from "@/lib/behavioral/behavioral-math-calibration";
 import type { NegativePreferenceProfile } from "@/lib/behavioral/negative-preference-score";
+import {
+  buildRecommendationSatisfactionSignal,
+  type SatisfactionProfile,
+} from "@/lib/behavioral/satisfaction-score";
 import type { SearchIntentProfile } from "@/lib/behavioral/search-intent-profile";
 import {
   buildDropMomentumBoost,
@@ -44,6 +48,7 @@ export type RecommendationBehavioralProfileLike = {
   repeatedSkipDropIds?: Record<string, number>;
   lowWatchAfterRecommendationDropIds?: Record<string, number>;
   negativePreferenceProfile?: NegativePreferenceProfile;
+  satisfactionProfile?: SatisfactionProfile;
   searchIntentProfile?: SearchIntentProfile;
   recentDropIds?: string[];
   recentCreatorIds?: string[];
@@ -85,6 +90,9 @@ export type RecommendationDropIntelligenceLike = {
   schemaCompleteness?: number;
   positiveFeedbackCount?: number;
   negativeFeedbackCount?: number;
+  satisfactionScore?: number;
+  satisfactionSampleCount?: number;
+  satisfactionLatestAtMs?: number;
   creatorBaselineMomentumScore?: number;
 } & DropMomentumIntelligenceLike;
 
@@ -136,6 +144,9 @@ export type RecommendationRankingFeatures = RecommendationPrimitiveSignals & {
   dropMomentumBoost: number;
   dropMomentumLabel: string;
   dropMomentumReasons: string[];
+  satisfactionScore: number;
+  satisfactionBoost: number;
+  satisfactionReasons: string[];
   truthScore: number;
   confidence: number;
 };
@@ -358,6 +369,17 @@ export function buildRecommendationRankingFeatures(input: {
   const suppression = buildRecommendationSuppression({ drop, profile, nowMs });
   const queryIntent = buildQueryIntentRanking({ drop, searchIntentProfile: profile?.searchIntentProfile, nowMs });
   const momentum = buildDropMomentumBoost({ drop, intelligence });
+  const satisfaction = buildRecommendationSatisfactionSignal({
+    dropId: drop.id,
+    creatorId,
+    category: categoryKey,
+    profile: profile?.satisfactionProfile,
+    dropSatisfactionScore: intelligence?.satisfactionScore,
+    completionQuality,
+    repeatCreatorInterest: creatorAffinity,
+    lowRefundRisk: clamp01(1 - (intelligence?.negativeSignalRate || 0)),
+    nowMs,
+  });
 
   const pPurchase7d = clamp01(
     (creatorAffinity * 0.22) +
@@ -409,9 +431,10 @@ export function buildRecommendationRankingFeatures(input: {
   );
   const pNegativeFeedback = clamp01(
     (intelligence?.negativeSignalRate || 0) * 0.4 +
-    (suppression.suppressionScore * 0.35) +
-    (profile?.fatigueScore || 0) * 0.2 +
-    (previousExposurePenalty / 100) * 0.05,
+    (suppression.suppressionScore * 0.3) +
+    (satisfaction.suppressionScore * 0.2) +
+    (profile?.fatigueScore || 0) * 0.08 +
+    (previousExposurePenalty / 100) * 0.02,
   );
   const profilePredictions = profile?.predictionOutputs ?? {};
   const predictedPaidConversion = clamp01(profilePredictions.pPurchase7d ?? pPurchase7d);
@@ -457,6 +480,9 @@ export function buildRecommendationRankingFeatures(input: {
     dropMomentumBoost: momentum.momentumBoost,
     dropMomentumLabel: momentum.sampleLabel,
     dropMomentumReasons: momentum.reasons,
+    satisfactionScore: satisfaction.satisfactionScore,
+    satisfactionBoost: satisfaction.recommendationBoost,
+    satisfactionReasons: satisfaction.reasons,
     truthScore,
     confidence,
     diagnostics: {

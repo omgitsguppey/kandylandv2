@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 200,
+  "validatorCount": 201,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -104,6 +104,7 @@
       "check:notification-quality",
       "check:notification-read-truth",
       "check:recommendation-ranker",
+      "check:satisfaction-signal",
       "check:search-intent-truth",
       "check:tracking-surface-coverage",
       "validate:behavioral-predictions",
@@ -334,6 +335,7 @@
     "check:diversity-reranking": "behavioral-intelligence",
     "check:drop-momentum-score": "behavioral-intelligence",
     "check:negative-preferences": "behavioral-intelligence",
+    "check:satisfaction-signal": "behavioral-intelligence",
     "check:search-intent-truth": "behavioral-intelligence",
     "check:beta-score": "speed-security",
     "check:cloud-cost": "google-cost",

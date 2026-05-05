@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-04T20:20:55.682Z",
+  "generatedAt": "2026-05-05T11:03:21.196Z",
   "splitPolicy": {
     "type": "time_based",
-    "trainEndsBefore": "2026-02-21T20:20:55.556Z",
-    "validateStartsAt": "2026-02-21T20:20:55.556Z",
+    "trainEndsBefore": "2026-02-22T11:03:21.072Z",
+    "validateStartsAt": "2026-02-22T11:03:21.072Z",
     "leakageGuard": "Older synthetic behavioral scenarios train first; newer scenarios validate later. No random-only split is used."
   },
   "overallStatus": "aligned",
@@ -22,7 +22,7 @@
         "precisionAt5": 0.6667,
         "precisionAt10": 0.6667,
         "recallAt10": 0.6667,
-        "calibrationError": 0.305,
+        "calibrationError": 0.245,
         "auc": 1,
         "hitRate": 0.6667,
         "falsePositiveRate": 0,
@@ -46,7 +46,7 @@
         },
         "beatsBaseline": true,
         "improvementSummary": [
-          "calibration error improved by 0.102"
+          "calibration error improved by 0.162"
         ]
       },
       "activeMode": "deterministic",
@@ -102,8 +102,8 @@
         "precisionAt5": 0.2667,
         "precisionAt10": 0.1333,
         "recallAt10": 0.6667,
-        "calibrationError": 0.0693,
-        "auc": 0.9495,
+        "calibrationError": 0.0855,
+        "auc": 0.9591,
         "hitRate": 0.6667,
         "falsePositiveRate": 0.0962,
         "coverage": 1,
@@ -116,8 +116,8 @@
           "precisionAt5": 0.2667,
           "precisionAt10": 0.1333,
           "recallAt10": 0.6667,
-          "calibrationError": 0.0675,
-          "auc": 0.9748,
+          "calibrationError": 0.0967,
+          "auc": 0.9736,
           "hitRate": 0.6667,
           "falsePositiveRate": 0.0962,
           "coverage": 1,
@@ -125,7 +125,9 @@
           "sourceDisagreementRate": 0.3333
         },
         "beatsBaseline": true,
-        "improvementSummary": []
+        "improvementSummary": [
+          "calibration error improved by 0.011"
+        ]
       },
       "activeMode": "deterministic",
       "reasons": [

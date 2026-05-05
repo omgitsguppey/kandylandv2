@@ -200,6 +200,35 @@ Rules:
 - Creator baseline lift compares against the creator's own historical drop response before global popularity.
 - Admin-facing reasons stay plain English, for example: "Boosted by early drop momentum."
 
+## Satisfaction Feedback Loop
+
+KandyDrops captures lightweight satisfaction after meaningful content consumption so ranking can optimize for satisfaction, not just watch time or spend.
+
+Events:
+
+- `content_satisfaction_positive`
+- `content_satisfaction_negative`
+- `content_satisfaction_skipped`
+- `recommendation_reason_helpful`
+- `recommendation_reason_not_helpful`
+
+Satisfaction score:
+
+```text
+0.35 * explicitRating +
+0.25 * completionQuality +
+0.20 * repeatCreatorInterest +
+0.10 * feedbackRecency +
+0.10 * lowRefundRisk
+```
+
+Rules:
+
+- Satisfaction is separate from watch time; completion quality is only one component.
+- Prompts appear only after meaningful consumption and use cooldowns to avoid spam.
+- Negative satisfaction lowers similar recommendations through satisfaction suppression and `pNegativeFeedback`.
+- Admin-facing reasons stay plain English, for example: "Lowered because recent satisfaction feedback was negative."
+
 ## Notification Quality Ranking
 
 KandyDrops ranks and throttles notifications by return likelihood and fatigue instead of treating every notification as equally worth sending or showing.

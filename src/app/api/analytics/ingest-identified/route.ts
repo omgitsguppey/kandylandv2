@@ -115,6 +115,11 @@ function resolveIdentifiedSourceTruth(
         || canonicalEventName === "category_not_interested"
         || canonicalEventName === "creator_muted"
         || canonicalEventName === "recommendation_dismissed"
+        || canonicalEventName === "content_satisfaction_positive"
+        || canonicalEventName === "content_satisfaction_negative"
+        || canonicalEventName === "content_satisfaction_skipped"
+        || canonicalEventName === "recommendation_reason_helpful"
+        || canonicalEventName === "recommendation_reason_not_helpful"
         || isSearchIntentEventName(canonicalEventName)
     ) {
         return "client" as const;

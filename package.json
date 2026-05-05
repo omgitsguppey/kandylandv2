@@ -39,6 +39,7 @@
         "validate:behavioral-predictions": "tsx scripts/validate-behavioral-predictions.ts",
         "check:behavioral-math-calibration": "tsx scripts/agent/validate-behavioral-math-calibration.ts",
         "check:negative-preferences": "tsx scripts/agent/validate-negative-preferences.ts",
+        "check:satisfaction-signal": "tsx scripts/agent/validate-satisfaction-signal.ts",
         "check:search-intent-truth": "tsx scripts/agent/validate-search-intent-truth.ts",
         "check:diversity-reranking": "tsx scripts/agent/validate-diversity-reranking.ts",
         "check:drop-momentum-score": "tsx scripts/agent/validate-drop-momentum-score.ts",

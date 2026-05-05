@@ -103,6 +103,7 @@ function toFeatureMap(features: RecommendationRankingFeatures) {
     suppressionScore: features.suppressionScore,
     queryIntentScore: features.queryIntentScore,
     dropMomentumScore: features.dropMomentumScore / 100,
+    satisfactionScore: features.satisfactionScore,
   };
 }
 
@@ -211,7 +212,8 @@ export function scoreRecommendationWithArtifact(input: {
     100,
     applyRecommendationSuppression(baseScore, input.features.suppressionScore)
       + input.features.queryIntentBoost
-      + input.features.dropMomentumBoost,
+      + input.features.dropMomentumBoost
+      + input.features.satisfactionBoost,
   );
 
   return {
