@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.23.0",
+  "currentVersion": "1.24.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T19:52:58.641Z",
-  "generatedAtUtc": "2026-05-05T19:52:58.641Z",
-  "lastCommitSha": "d1525d633c0b6b9ffaabc94eb497e78afffd96a9",
+  "generatedAt": "2026-05-05T20:06:40.297Z",
+  "generatedAtUtc": "2026-05-05T20:06:40.297Z",
+  "lastCommitSha": "aa1284ac84c31d43a050e542fc4811c62fb28749",
   "notes": [
+    {
+      "version": "1.24.0",
+      "previousVersion": "1.23.0",
+      "commitSha": "aa1284ac84c31d43a050e542fc4811c62fb28749",
+      "commitTitle": "fix(chat): bound attachment completion lookup",
+      "committedAt": "2026-05-05T20:06:27.000Z",
+      "generatedAt": "2026-05-05T20:06:40.297Z",
+      "committedAtUtc": "2026-05-05T20:06:27.000Z",
+      "generatedAtUtc": "2026-05-05T20:06:40.297Z",
+      "diffStats": {
+        "rawAdditions": 143,
+        "rawDeletions": 28,
+        "rawChangeCount": 171,
+        "additions": 143,
+        "deletions": 28,
+        "effectiveAdditions": 137,
+        "effectiveDeletions": 5,
+        "changedFiles": 4,
+        "effectiveChangeCount": 142,
+        "excludedGeneratedChangeCount": 29
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved behind-the-scenes safety checks for chat media uploads.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "chat",
+        "repo-tooling",
+        "security"
+      ]
+    },
     {
       "version": "1.23.0",
       "previousVersion": "1.22.0",
@@ -137,40 +170,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "documentation",
         "repo-tooling",
         "security"
-      ]
-    },
-    {
-      "version": "1.20.1",
-      "previousVersion": "1.20.0",
-      "commitSha": "1f08985ddfa85ad9d9742ae5d1bfbbbf69eaf24a",
-      "commitTitle": "fix(release): keep beta notes user safe",
-      "committedAt": "2026-05-05T19:16:35.000Z",
-      "generatedAt": "2026-05-05T19:16:50.354Z",
-      "committedAtUtc": "2026-05-05T19:16:35.000Z",
-      "generatedAtUtc": "2026-05-05T19:16:50.354Z",
-      "diffStats": {
-        "rawAdditions": 128,
-        "rawDeletions": 43,
-        "rawChangeCount": 171,
-        "additions": 128,
-        "deletions": 43,
-        "effectiveAdditions": 41,
-        "effectiveDeletions": 3,
-        "changedFiles": 7,
-        "effectiveChangeCount": 44,
-        "excludedGeneratedChangeCount": 127
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved Beta update notes so changes are easier to match with support reports.",
-      "bullets": [
-        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
-        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "release-notes",
-        "repo-tooling"
       ]
     }
   ]
