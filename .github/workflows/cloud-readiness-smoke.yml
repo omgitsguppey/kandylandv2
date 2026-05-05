@@ -1,0 +1,77 @@
+name: Cloud Readiness Smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  read-only-cloud-smoke:
+    name: Read-only cloud smoke
+    runs-on: ubuntu-latest
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      CLOUD_SQL_INSTANCE: kandydrops-db
+      GCP_REGION: us-central1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate WIF variables
+        run: |
+          if [ -z "${{ vars.GCP_PROJECT_ID }}" ] || [ -z "${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}" ] || [ -z "${{ vars.GCP_SERVICE_ACCOUNT }}" ]; then
+            echo "GCP_PROJECT_ID, GCP_WORKLOAD_IDENTITY_PROVIDER, and GCP_SERVICE_ACCOUNT repo variables are required."
+            exit 1
+          fi
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          create_credentials_file: true
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Run read-only cloud checks
+        shell: bash
+        run: |
+          mkdir -p output
+          checks_file="output/cloud-readiness-checks.jsonl"
+          : > "$checks_file"
+
+          run_check() {
+            local id="$1"
+            shift
+            set +e
+            "$@" > /tmp/cloud-readiness-output.json 2> /tmp/cloud-readiness-error.txt
+            local status=$?
+            set -e
+            jq -n \
+              --arg id "$id" \
+              --arg command "$*" \
+              --arg status "$status" \
+              --arg stderrPreview "$(head -c 300 /tmp/cloud-readiness-error.txt)" \
+              '{id: $id, command: $command, exitCode: ($status | tonumber), ok: (($status | tonumber) == 0), stderrPreview: $stderrPreview}' >> "$checks_file"
+          }
+
+          run_check "cloud_sql_describe" gcloud sql instances describe "$CLOUD_SQL_INSTANCE" --project "$GCP_PROJECT_ID" --format=json
+          run_check "app_engine_services" gcloud app services list --project "$GCP_PROJECT_ID" --format=json
+          run_check "cloud_run_services" gcloud run services list --region "$GCP_REGION" --project "$GCP_PROJECT_ID" --format=json
+          run_check "cloud_scheduler_jobs" gcloud scheduler jobs list --location "$GCP_REGION" --project "$GCP_PROJECT_ID" --format=json
+          run_check "bigquery_datasets" bq ls --project_id "$GCP_PROJECT_ID" --format=json
+
+          jq -s \
+            --arg generatedAt "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            --arg projectId "$GCP_PROJECT_ID" \
+            '{generatedAt: $generatedAt, projectId: $projectId, mode: "read_only", checks: .}' \
+            "$checks_file" > cloud-readiness-smoke.json
+
+      - name: Upload smoke artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-readiness-smoke
+          path: cloud-readiness-smoke.json

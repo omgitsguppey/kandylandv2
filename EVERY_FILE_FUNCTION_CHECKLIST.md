@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Codex Native Auth Readiness Coverage
+
+- [x] `src/lib/devops/auth-surface-contract.ts` owns the auth surface status contract, readiness report shape, blocked mutation commands, KandyDrops project/repo constants, and Workload Identity Federation bootstrap command plan.
+- [x] `scripts/agent/verify-codex-native-auth.ts`, `scripts/agent/plan-cloud-auth-bootstrap.ts`, `scripts/agent/validate-codex-auth-readiness.ts`, package scripts `check:codex-auth` / `plan:cloud-auth-bootstrap` / `check:codex-auth-readiness`, and `agent/state/codex-auth-readiness.generated.json` provide read-only local auth probing and validation.
+- [x] `.github/workflows/cloud-readiness-smoke.yml`, `docs/agent-truth/codex-native-auth-readiness.md`, `docs/runbooks/cloud-auth-bootstrap.md`, README, AGENTS, and `.env.example` document the manual-only WIF path, current auth gaps, and no-secret/no-mutation boundaries.
+
 ## 2026-05-05 Behavioral Math Calibration Coverage
 
 - [x] `src/lib/behavioral/behavioral-math-calibration.ts`, `src/lib/behavioral/user-engagement-score.ts`, `src/lib/behavioral/user-value-score.ts`, `src/lib/server/user-behavior-rollup.ts`, and `src/lib/user-behavior-rollup-contract.ts` define calibrated truth, engagement, value, admin-user objective, prediction output, and validation-mode contracts.

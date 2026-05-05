@@ -1,5 +1,23 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #169] PRE: Codex Native Auth Readiness
+
+Scope started:
+- Adding a repo-side read-only authentication readiness layer so Codex can determine which GitHub, Google Cloud, Firebase, BigQuery, Data Connect, App Engine, Cloud Run, Scheduler, Artifact Registry, PayPal, PostHog, and GA checks it can perform natively.
+- Required outputs include a shared devops auth contract, auth verifier, WIF bootstrap planner, validator, generated readiness report, manual-only cloud readiness workflow, docs, runbook, package scripts, README/AGENTS guidance, and safe env placeholders.
+- This pass must not deploy, mutate cloud resources, print secret values, call PayPal APIs, run BigQuery mutation jobs, run browser audits, or run full `npm run check`.
+
+Scope completed:
+- Added `src/lib/devops/auth-surface-contract.ts`, `npm run check:codex-auth`, `npm run plan:cloud-auth-bootstrap`, `npm run check:codex-auth-readiness`, and `agent/state/codex-auth-readiness.generated.json`.
+- Added `.github/workflows/cloud-readiness-smoke.yml` as a manual-only WIF workflow with `contents: read` and `id-token: write`, limited to read-only cloud metadata checks.
+- Added `docs/agent-truth/codex-native-auth-readiness.md`, `docs/runbooks/cloud-auth-bootstrap.md`, README/AGENTS guidance, and safe `.env.example` key placeholders.
+
+Verification:
+- `npm run check:codex-auth` passed and reported `repo_only_ready`: GitHub CLI is authenticated as `omgitsguppey` with ADMIN repo metadata access; `gcloud`, `firebase`, and `bq` are currently missing from PATH.
+- `npm run plan:cloud-auth-bootstrap` passed and printed the WIF bootstrap plan without applying it.
+- `npm run check:codex-auth-readiness` passed.
+- `npm run typecheck` passed.
+
 ## [2026-05-05 #168] PRE: Behavioral Math Calibration
 
 Scope started:

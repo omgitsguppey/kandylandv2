@@ -73,6 +73,15 @@ KandyDrops uses Firebase Data Connect with Cloud SQL only as an agent-context mi
 - Doctrine: [docs/agent-truth/global-cost-surfaces.md](./docs/agent-truth/global-cost-surfaces.md)
 - Commands: `npm run score:global-cost` and `npm run check:global-cost`
 
+## Codex Cloud Auth Readiness
+
+Codex must verify authentication before attempting cloud or billing checks. Read-only checks are allowed after auth verification. Mutations require explicit instruction.
+
+- Report: [agent/state/codex-auth-readiness.generated.json](./agent/state/codex-auth-readiness.generated.json)
+- Doctrine: [docs/agent-truth/codex-native-auth-readiness.md](./docs/agent-truth/codex-native-auth-readiness.md)
+- Bootstrap runbook: [docs/runbooks/cloud-auth-bootstrap.md](./docs/runbooks/cloud-auth-bootstrap.md)
+- Commands: `npm run check:codex-auth`, `npm run plan:cloud-auth-bootstrap`, and `npm run check:codex-auth-readiness`
+
 ## Contributor Gateway
 
 - [Contributing](./CONTRIBUTING.md)

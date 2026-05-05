@@ -389,6 +389,12 @@ KandyDrops uses Firebase Data Connect with Cloud SQL only as an agent-context mi
 
 Use `npm run score:cloud-cost` and `npm run check:cloud-cost` for this deterministic lane. Do not run `gcloud`, `firebase deploy`, BigQuery jobs, Data Connect deploys, Playwright, Lighthouse, Cypress, or full `npm run check` for this source-only guardrail unless a human explicitly promotes the task.
 
+## Codex Cloud Auth Readiness
+
+Codex must verify authentication before attempting cloud or billing checks. Repo/code changes are native, but Google Cloud, Firebase Console, PayPal, GitHub settings, and secrets require existing CLI/API auth or a configured GitHub Actions Workload Identity Federation path. Read-only checks are allowed after auth verification. Mutations require explicit instruction.
+
+Use `npm run check:codex-auth` to write `agent/state/codex-auth-readiness.generated.json`, `npm run plan:cloud-auth-bootstrap` to print the Workload Identity Federation bootstrap plan, and `npm run check:codex-auth-readiness` to validate the readiness lane. The manual-only `.github/workflows/cloud-readiness-smoke.yml` workflow may run read-only cloud checks only after WIF repo variables are configured.
+
 ## Git Push
 
 Remote repo: `https://github.com/omgitsguppey/kandylandv2.git`
