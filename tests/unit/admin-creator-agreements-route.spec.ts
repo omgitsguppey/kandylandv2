@@ -100,7 +100,7 @@ vi.mock("@/lib/server/auth", () => ({
 }));
 
 vi.mock("@/lib/server/rate-limit", () => ({
-  ADMIN: {},
+  MEDIA_PROXY: { maxRequests: 15, windowMs: 60_000 },
 }));
 
 vi.mock("@/lib/server/firebase-admin", () => ({
@@ -155,11 +155,27 @@ describe("/api/admin/creator-agreements", () => {
     const payload = await response.json();
 
     expect(response.status, JSON.stringify(payload)).toBe(200);
+    expect(mockState.guardApiRequest).toHaveBeenCalledWith(expect.any(NextRequest), expect.objectContaining({
+      auth: "admin",
+      requireTrustedOrigin: true,
+      rateLimit: { maxRequests: 15, windowMs: 60_000 },
+    }));
+    expect(payload).toMatchObject({
+      adminAgreementRoute: true,
+      adminOnly: true,
+      storageEgressGuarded: true,
+      mediaProxyGuarded: true,
+      mediaProxyPolicy: "MEDIA_PROXY",
+      rawStorageUrlExposed: false,
+      defaultDocumentResponse: "metadata_only",
+      maxPreviewTtlSeconds: 300,
+    });
     expect(payload.activeTemplate).toMatchObject({
       agreementVersion: "v1",
       agreementHashAvailable: true,
     });
     expect(payload.activeTemplate).not.toHaveProperty("pdfStoragePath");
+    expect(JSON.stringify(payload)).not.toContain("storage.googleapis.com");
   });
 
   it("lets owners create and activate active templates", async () => {
@@ -173,6 +189,12 @@ describe("/api/admin/creator-agreements", () => {
 
     expect(response.status, JSON.stringify(payload)).toBe(200);
     expect(payload.success).toBe(true);
+    expect(payload).toMatchObject({
+      adminAgreementRoute: true,
+      storageEgressGuarded: true,
+      mediaProxyPolicy: "MEDIA_PROXY",
+      rawStorageUrlExposed: false,
+    });
     expect(mockState.activateCreatorAgreementTemplate).toHaveBeenCalledWith(expect.objectContaining({
       template: expect.objectContaining({
         agreementVersion: "v2.0",

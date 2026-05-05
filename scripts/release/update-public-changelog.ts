@@ -246,6 +246,13 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
     return "Added a Beta badge with app update notes in the top navigation.";
   }
   if (
+    normalized.includes("guard creator agreement document egress")
+    || (normalized.includes("creator agreement") && normalized.includes("document") && normalized.includes("egress"))
+    || (normalized.includes("creator agreement") && normalized.includes("document safety"))
+  ) {
+    return "Improved internal document safety checks for creator agreement tools.";
+  }
+  if (
     normalized.includes("prove admin content entitlement scope")
     || normalized.includes("protect locked content access")
     || (normalized.includes("admin") && normalized.includes("content") && normalized.includes("entitlement"))

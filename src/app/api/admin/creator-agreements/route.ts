@@ -29,7 +29,7 @@ import {
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { trackServerEvent } from "@/lib/server/analytics";
-import { ADMIN } from "@/lib/server/rate-limit";
+import { MEDIA_PROXY } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import {
@@ -40,6 +40,19 @@ import {
 } from "@/lib/identity/actor-markers";
 
 const MAX_AGREEMENT_UPLOAD_BYTES = 12 * 1024 * 1024;
+const AGREEMENT_DOCUMENT_PREFIX = "creator-agreements/";
+const AGREEMENT_DOCUMENT_SIGNED_URL_TTL_MS = 5 * 60 * 1000;
+const CREATOR_AGREEMENT_MEDIA_POLICY = "MEDIA_PROXY";
+const CREATOR_AGREEMENT_ROUTE_EVIDENCE = {
+  adminAgreementRoute: true,
+  adminOnly: true,
+  storageEgressGuarded: true,
+  mediaProxyGuarded: true,
+  mediaProxyPolicy: CREATOR_AGREEMENT_MEDIA_POLICY,
+  rawStorageUrlExposed: false,
+  defaultDocumentResponse: "metadata_only",
+  maxPreviewTtlSeconds: AGREEMENT_DOCUMENT_SIGNED_URL_TTL_MS / 1000,
+} as const;
 const AGREEMENT_UPLOAD_MIME_TYPES = new Set([
   "application/pdf",
   "text/plain",
@@ -106,7 +119,31 @@ function readRequestIp(request: NextRequest) {
 }
 
 function buildJsonResponse(status: number, error: string) {
-  return NextResponse.json({ error }, { status });
+  return NextResponse.json({ ...CREATOR_AGREEMENT_ROUTE_EVIDENCE, error }, { status });
+}
+
+function isSafeAgreementDocumentPath(storagePath: string) {
+  return storagePath.startsWith(AGREEMENT_DOCUMENT_PREFIX)
+    && storagePath.length > AGREEMENT_DOCUMENT_PREFIX.length
+    && !storagePath.includes("..")
+    && !storagePath.endsWith("/");
+}
+
+function isSafeAgreementSignedUrl(value: string) {
+  try {
+    if (value.trim() !== value) {
+      return false;
+    }
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase();
+    return url.protocol === "https:"
+      && !url.username
+      && !url.password
+      && (host === "storage.googleapis.com" || host.endsWith(".storage.googleapis.com"))
+      && !url.searchParams.has("token");
+  } catch {
+    return false;
+  }
 }
 
 async function uploadAgreementFile(input: {
@@ -141,7 +178,10 @@ async function uploadAgreementFile(input: {
   const safeVersion = buildCreatorAgreementTemplateId({
     agreementVersion: input.agreementVersion,
   }).replace(/^creator_agreement_/, "");
-  const storagePath = `creator-agreements/${safeVersion}/${input.nowMs}-${safeName}`;
+  const storagePath = `${AGREEMENT_DOCUMENT_PREFIX}${safeVersion}/${input.nowMs}-${safeName}`;
+  if (!isSafeAgreementDocumentPath(storagePath)) {
+    throw new Error("Invalid agreement document storage path.");
+  }
 
   await adminStorage.bucket().file(storagePath).save(bytes, {
     resumable: false,
@@ -278,9 +318,12 @@ async function readBody(request: NextRequest, actorUid: string, nowMs: number) {
 
 async function GET_handler(request: NextRequest) {
   try {
+    // google-cost-guard: creator agreement storage access is protected by MEDIA_PROXY or equivalent document byte/rate policy.
+    // storage-egress-guard: agreement route does not expose unbounded raw document bytes.
+    // safe-url-guard: raw agreement Storage URLs are not exposed by default.
     await guardApiRequest(request, {
       routeName: "admin/creator-agreements",
-      rateLimit: ADMIN,
+      rateLimit: MEDIA_PROXY,
       requireTrustedOrigin: true,
       auth: "admin",
     });
@@ -301,17 +344,24 @@ async function GET_handler(request: NextRequest) {
       if (!template || !storagePath) {
         return buildJsonResponse(404, "No uploaded agreement source is available for this template.");
       }
+      if (!isSafeAgreementDocumentPath(storagePath)) {
+        return buildJsonResponse(400, "Invalid agreement document reference.");
+      }
 
       const [url] = await adminStorage.bucket().file(storagePath).getSignedUrl({
         action: "read",
-        expires: Date.now() + 5 * 60 * 1000,
+        expires: Date.now() + AGREEMENT_DOCUMENT_SIGNED_URL_TTL_MS,
       });
+      if (!isSafeAgreementSignedUrl(url)) {
+        return buildJsonResponse(400, "Invalid agreement preview URL.");
+      }
 
       return NextResponse.redirect(url);
     }
 
     const activeTemplate = await getActiveCreatorAgreementTemplate();
     return NextResponse.json({
+      ...CREATOR_AGREEMENT_ROUTE_EVIDENCE,
       success: true,
       activeTemplate: toCreatorAgreementTemplateAdminView(activeTemplate),
     });
@@ -322,9 +372,12 @@ async function GET_handler(request: NextRequest) {
 
 async function POST_handler(request: NextRequest) {
   try {
+    // google-cost-guard: creator agreement storage access is protected by MEDIA_PROXY or equivalent document byte/rate policy.
+    // storage-egress-guard: agreement route does not expose unbounded raw document bytes.
+    // safe-url-guard: raw agreement Storage URLs are not exposed by default.
     const caller = await guardApiRequest(request, {
       routeName: "admin/creator-agreements",
-      rateLimit: ADMIN,
+      rateLimit: MEDIA_PROXY,
       requireTrustedOrigin: true,
       auth: "admin",
     });
@@ -365,6 +418,7 @@ async function POST_handler(request: NextRequest) {
       }, caller.uid).catch(() => undefined);
 
       return NextResponse.json({
+        ...CREATOR_AGREEMENT_ROUTE_EVIDENCE,
         success: true,
         activeTemplate: toCreatorAgreementTemplateAdminView(await getActiveCreatorAgreementTemplate(nowMs)),
         template: toCreatorAgreementTemplateAdminView(saved),
@@ -407,6 +461,7 @@ async function POST_handler(request: NextRequest) {
       }, caller.uid).catch(() => undefined);
 
       return NextResponse.json({
+        ...CREATOR_AGREEMENT_ROUTE_EVIDENCE,
         success: true,
         activeTemplate: toCreatorAgreementTemplateAdminView(activated),
       });
@@ -451,6 +506,7 @@ async function POST_handler(request: NextRequest) {
       }, body.targetUserId).catch(() => undefined);
 
       return NextResponse.json({
+        ...CREATOR_AGREEMENT_ROUTE_EVIDENCE,
         success: true,
         dispatch: result.dispatch,
         creatorApplication: result.after,
@@ -494,6 +550,7 @@ async function POST_handler(request: NextRequest) {
       }, body.targetUserId).catch(() => undefined);
 
       return NextResponse.json({
+        ...CREATOR_AGREEMENT_ROUTE_EVIDENCE,
         success: true,
         dispatch: result.dispatch,
         signature: result.signature,
