@@ -1,12 +1,44 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.24.6",
+  "currentVersion": "1.24.7",
   "channel": "beta",
-  "generatedAt": "2026-05-05T20:55:56.912Z",
-  "generatedAtUtc": "2026-05-05T20:55:56.912Z",
-  "lastCommitSha": "e604e86721c793094ad83d2f853ad55d59ca9495",
+  "generatedAt": "2026-05-05T21:03:50.292Z",
+  "generatedAtUtc": "2026-05-05T21:03:50.292Z",
+  "lastCommitSha": "280f1e9d303c4439d34b76c3d0b54f35bf9b8508",
   "notes": [
+    {
+      "version": "1.24.7",
+      "previousVersion": "1.24.6",
+      "commitSha": "280f1e9d303c4439d34b76c3d0b54f35bf9b8508",
+      "commitTitle": "fix(cost): guard admin content media egress",
+      "committedAt": "2026-05-05T21:03:35.000Z",
+      "generatedAt": "2026-05-05T21:03:50.291Z",
+      "committedAtUtc": "2026-05-05T21:03:35.000Z",
+      "generatedAtUtc": "2026-05-05T21:03:50.291Z",
+      "diffStats": {
+        "rawAdditions": 472,
+        "rawDeletions": 113,
+        "rawChangeCount": 585,
+        "additions": 472,
+        "deletions": 113,
+        "effectiveAdditions": 46,
+        "effectiveDeletions": 2,
+        "changedFiles": 6,
+        "effectiveChangeCount": 48,
+        "excludedGeneratedChangeCount": 537
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal media safety checks to prevent unnecessary storage traffic.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.24.6",
       "previousVersion": "1.24.5",
@@ -120,37 +152,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "effectiveDeletions": 0,
         "changedFiles": 1,
         "effectiveChangeCount": 0,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes session safety checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.2",
-      "previousVersion": "1.24.1",
-      "commitSha": "92ee96e665d2802f0ff8da3934d07f3ad7d240e0",
-      "commitTitle": "fix(auth): refresh navigation session read bounds",
-      "committedAt": "2026-05-05T20:24:14.000Z",
-      "generatedAt": "2026-05-05T20:24:26.012Z",
-      "committedAtUtc": "2026-05-05T20:24:14.000Z",
-      "generatedAtUtc": "2026-05-05T20:24:26.012Z",
-      "diffStats": {
-        "rawAdditions": 2,
-        "rawDeletions": 2,
-        "rawChangeCount": 4,
-        "additions": 2,
-        "deletions": 2,
-        "effectiveAdditions": 1,
-        "effectiveDeletions": 1,
-        "changedFiles": 2,
-        "effectiveChangeCount": 2,
         "excludedGeneratedChangeCount": 2
       },
       "bumpType": "patch",
