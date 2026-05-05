@@ -1,12 +1,43 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.26.0",
+  "currentVersion": "1.27.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T21:16:47.540Z",
-  "generatedAtUtc": "2026-05-05T21:16:47.540Z",
-  "lastCommitSha": "648a07ef1b19c9d176c9ea1cd2ec4cf4bf92c14b",
+  "generatedAt": "2026-05-05T21:22:15.204Z",
+  "generatedAtUtc": "2026-05-05T21:22:15.204Z",
+  "lastCommitSha": "d706c48009e93b61f92d02246fa74cd29cec6f32",
   "notes": [
+    {
+      "version": "1.27.0",
+      "previousVersion": "1.26.0",
+      "commitSha": "d706c48009e93b61f92d02246fa74cd29cec6f32",
+      "commitTitle": "fix(cost): guard creator agreement document egress",
+      "committedAt": "2026-05-05T21:22:00.000Z",
+      "generatedAt": "2026-05-05T21:22:15.204Z",
+      "committedAtUtc": "2026-05-05T21:22:00.000Z",
+      "generatedAtUtc": "2026-05-05T21:22:15.204Z",
+      "diffStats": {
+        "rawAdditions": 269,
+        "rawDeletions": 36,
+        "rawChangeCount": 305,
+        "additions": 269,
+        "deletions": 36,
+        "effectiveAdditions": 242,
+        "effectiveDeletions": 5,
+        "changedFiles": 5,
+        "effectiveChangeCount": 247,
+        "excludedGeneratedChangeCount": 58
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved safety checks for creator agreement document access.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.26.0",
       "previousVersion": "1.25.0",
@@ -133,37 +164,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "affectedSurfaces": [
         "admin",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.24.6",
-      "previousVersion": "1.24.5",
-      "commitSha": "e604e86721c793094ad83d2f853ad55d59ca9495",
-      "commitTitle": "fix(chat): refresh attachment completion read bounds",
-      "committedAt": "2026-05-05T20:55:44.000Z",
-      "generatedAt": "2026-05-05T20:55:56.911Z",
-      "committedAtUtc": "2026-05-05T20:55:44.000Z",
-      "generatedAtUtc": "2026-05-05T20:55:56.911Z",
-      "diffStats": {
-        "rawAdditions": 1,
-        "rawDeletions": 1,
-        "rawChangeCount": 2,
-        "additions": 1,
-        "deletions": 1,
-        "effectiveAdditions": 0,
-        "effectiveDeletions": 0,
-        "changedFiles": 1,
-        "effectiveChangeCount": 0,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes safety checks for chat media uploads.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "security"
       ]
     }
   ]
