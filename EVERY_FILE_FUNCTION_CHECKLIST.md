@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Audit Runtime Ledger Coverage
+
+- [x] `src/lib/agent-audit/audit-runtime-contract.ts` owns the append-only JSONL ledger schema, accuracy/resource enums, forbidden command detection, run id/cache key helpers, and ledger line parsing/serialization.
+- [x] `src/lib/agent-audit/audit-speed-score.ts` owns audit speed, accuracy, usefulness, aggregate score, slowest audit, false-positive, and terminal-heavy summary math.
+- [x] `scripts/agent/run-audit-with-ledger.ts`, `scripts/agent/score-audit-runtime.ts`, `scripts/agent/validate-audit-runtime-ledger.ts`, `agent/state/audit-runtime-ledger.jsonl`, `agent/state/audit-runtime-summary.generated.json`, `docs/agent-truth/audit-runtime-ledger.md`, and package scripts `audit:run` / `score:audit-runtime` / `check:audit-runtime-ledger` provide the runtime instrumentation lane.
+
 ## 2026-05-04 Behavioral Tracking Surface Coverage
 
 - [x] `src/lib/behavioral/event-fact-contract.ts`, `src/lib/behavioral/normalize-event-fact.ts`, and `src/lib/server/analytics.ts` now carry the expanded canonical behavioral fact contract, alias coverage, and server-truth metadata persistence needed for wallet/unlock/security/admin facts to join the same normalized foundation.

@@ -1,5 +1,28 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #155] PRE: Audit Runtime Ledger
+
+Scope started:
+- Adding a global audit runtime ledger so deterministic audits, validators, and checks can be timed, cost-scored, streamed, and later reviewed for confirmed findings versus false positives.
+- Required outputs include the audit runtime contract, speed/usefulness scorer, generic `audit:run` wrapper, runtime score and validation scripts, append-only JSONL ledger, generated summary state, docs, package scripts, and acceptance smoke coverage for `check:wallet-density`.
+- This pass must not change product behavior, must not run Playwright/Lighthouse/Cypress/full `npm run check`, and must keep the ledger append-only rather than a giant JSON array.
+
+Evidence:
+- Control tower routing, doctrine/governance ledgers, `EVERY_FILE_FUNCTION_CHECKLIST.md`, package scripts, and adjacency trace for `scripts/agent/validate-codebase-hardening.ts` were consulted before implementation.
+
+Scope completed:
+- Added `src/lib/agent-audit/audit-runtime-contract.ts` and `src/lib/agent-audit/audit-speed-score.ts` to own the JSONL audit run schema, forbidden-command detection, cache keys, speed score, accuracy, usefulness, and aggregate summary math.
+- Added `scripts/agent/run-audit-with-ledger.ts`, `scripts/agent/score-audit-runtime.ts`, `scripts/agent/validate-audit-runtime-ledger.ts`, package scripts `audit:run` / `score:audit-runtime` / `check:audit-runtime-ledger`, and docs under `docs/agent-truth/audit-runtime-ledger.md`.
+- Created `agent/state/audit-runtime-ledger.jsonl` and `agent/state/audit-runtime-summary.generated.json` as streamable append-only run history plus generated top slow/useful/false-positive/terminal-heavy summaries.
+
+Verification:
+- `npm run audit:run -- --audit check:wallet-density --trigger acceptance_smoke` passed and appended a wallet-density audit run with duration, inspected files, terminal command, cache, and findings metadata.
+- `npm run audit:run -- --audit scripts/agent/validate-audit-runtime-ledger.ts --trigger direct_validator_smoke` passed, proving direct `scripts/agent/validate-*.ts` files can run through the ledger wrapper.
+- `npm run score:audit-runtime` passed and wrote the generated runtime summary.
+- `npm run check:audit-runtime-ledger` passed for 4 ledger runs.
+- `npm run typecheck` passed.
+- `git diff --check` passed with line-ending warnings only.
+
 ## [2026-05-04 #154] PRE: Behavioral Tracking Surface Coverage
 
 Scope started:

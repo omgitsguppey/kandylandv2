@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Audit runtime ledger
+
+KandyDrops audits now have an append-only runtime ledger. `npm run audit:run -- --audit <script-or-validator>` wraps package scripts and direct `scripts/agent/validate-*.ts` files, records duration, changed files, inferred inspected files, terminal command execution, forbidden command attempts, cache hits, findings counts, accuracy status, resource class, and trigger reason into `agent/state/audit-runtime-ledger.jsonl`. `npm run score:audit-runtime` writes `agent/state/audit-runtime-summary.generated.json` with slowestAudits, mostUsefulAudits, leastUsefulAudits, mostFalsePositiveAudits, and terminalHeavyAudits. `npm run check:audit-runtime-ledger` validates the contract, JSONL stream shape, package scripts, forbidden-command budget, and docs.
+
 ## 2026-05-04 Behavioral tracking surface coverage
 
 KandyDrops now treats behavioral event-fact coverage as a scored control surface instead of an ad hoc telemetry assumption. `src/lib/behavioral/tracking-surface-map.ts` defines the canonical surfaces, critical events, and required payload fields. `scripts/agent/score-tracking-surface-coverage.ts` writes `agent/state/tracking-surface-coverage.generated.json`, and `scripts/agent/validate-tracking-surface-coverage.ts` enforces server-truth purchase/unlock coverage, viewer watch-session coverage, notification-read canonical scoring, and telemetry redaction constraints. `src/lib/server/analytics.ts` now persists normalized behavioral fact metadata for server events, so wallet/unlock/security facts can join the same admin and behavioral pipelines as identified ingest.
