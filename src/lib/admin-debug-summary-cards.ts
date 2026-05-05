@@ -30,6 +30,26 @@ export type AdminDebugCardCopy = {
     debugExplanation: AdminDebugExplanation;
 };
 
+export type AdminDebugDiagnosticClusterCard = {
+    id: string;
+    fingerprint: string;
+    severity: string;
+    count: number;
+    lastSeenAt: number;
+    source: string;
+    sourceRouteOrComponent: string;
+    message: string;
+    suggestedValidator: string;
+};
+
+export type AdminDebugScorePenaltyCard = {
+    id: string;
+    label: string;
+    points: number;
+    source: string;
+    truthState: AdminSurfaceState;
+};
+
 function formatWindowHours(windowMs?: number) {
     if (!windowMs) return "current window";
     return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
@@ -78,6 +98,8 @@ export function createAdminDebugCardCopy(input: {
 }
 
 export function buildAdminDebugSystemHealthNowModel(input: {
+    score?: number;
+    scorePenalties?: AdminDebugScorePenaltyCard[];
     pipelineStatus?: string;
     activePipelineFailureCount: number;
     recentPipelineFailureCount: number;
@@ -88,6 +110,7 @@ export function buildAdminDebugSystemHealthNowModel(input: {
     recentDiagnosticCount: number;
     sampledDiagnosticCount: number;
     activeIssueClusterCount: number;
+    activeDiagnosticClusters?: AdminDebugDiagnosticClusterCard[];
     routeFailureCount: number;
     writerSampleCount: number;
     writerWarnCount: number;
@@ -98,8 +121,9 @@ export function buildAdminDebugSystemHealthNowModel(input: {
     const nowMs = input.nowMs ?? Date.now();
     const diagnosticsDegraded = input.activeDiagnosticCount > 0 || input.activeIssueClusterCount > 0;
     const pipelineHasFailures = input.activePipelineFailureCount > 0 || input.recentPipelineFailureCount > 0 || input.sampledPipelineFailureCount > 0;
+    const routeAggregateWithoutBreakdown = input.activePipelineFailureCount > 0 && input.routeFailureCount === 0;
     const pipelineValue = input.activePipelineFailureCount > 0
-        ? "Active route failures"
+        ? routeAggregateWithoutBreakdown ? "Active pipeline failures" : "Active route failures"
         : input.recentPipelineFailureCount > 0 || input.sampledPipelineFailureCount > 0
             ? "Recent route failures"
             : "No route failures";
@@ -109,7 +133,7 @@ export function buildAdminDebugSystemHealthNowModel(input: {
             ? "degraded"
             : "live";
     const pipelineDetail = pipelineHasFailures
-        ? `Route pipeline sample last failed ${formatRelative(input.lastPipelineFailureAt, nowMs)}. Active ${input.activePipelineFailureCount}, recent ${input.recentPipelineFailureCount}, sample ${input.sampledPipelineFailureCount}.`
+        ? `Route pipeline sample last failed ${formatRelative(input.lastPipelineFailureAt, nowMs)}. Active ${input.activePipelineFailureCount}, recent ${input.recentPipelineFailureCount}, sample ${input.sampledPipelineFailureCount}. ${routeAggregateWithoutBreakdown ? "No active route failures are present in the current per-route sample; the active aggregate came from a stale or incomplete route-count cluster/window." : ""}`.trim()
         : `Route pipeline sample has no failures in the last ${formatWindowHours(input.activePipelineWindowMs)}. Active ${input.activePipelineFailureCount}, recent ${input.recentPipelineFailureCount}, sample ${input.sampledPipelineFailureCount}.`;
     const diagnosticDetail = diagnosticsDegraded
         ? `${input.activeIssueClusterCount} current issue clusters. Active ${input.activeDiagnosticCount}, recent ${input.recentDiagnosticCount}, sample ${input.sampledDiagnosticCount}.`
@@ -121,8 +145,18 @@ export function buildAdminDebugSystemHealthNowModel(input: {
                 ? "degraded"
                 : "live"
         : "unavailable";
+    const writerHealthyCount = Math.max(0, input.writerSampleCount - input.writerWarnCount - input.writerFailCount);
+    const topScorePenalties = (input.scorePenalties || []).slice(0, 3);
 
     return {
+        score: {
+            value: typeof input.score === "number" ? input.score : null,
+            penalties: topScorePenalties,
+            penaltyCount: topScorePenalties.length,
+            detail: topScorePenalties.length > 0
+                ? topScorePenalties.map((penalty) => `${penalty.label} (-${penalty.points})`).join(" | ")
+                : "No score penalties are present in the loaded health sample.",
+        },
         pipeline: {
             value: pipelineValue,
             truthState: pipelineTruthState,
@@ -130,17 +164,23 @@ export function buildAdminDebugSystemHealthNowModel(input: {
             detail: diagnosticsDegraded
                 ? `${pipelineDetail} Diagnostics need review: ${input.activeDiagnosticCount} active across ${input.activeIssueClusterCount} clusters.`
                 : pipelineDetail,
+            sampleWindowMs: input.activePipelineWindowMs ?? 0,
+            sampleDescription: routeAggregateWithoutBreakdown ? "aggregate_pipeline_without_route_breakdown" : "route_pipeline_sample",
         },
         diagnostics: {
             value: input.activeDiagnosticCount,
             truthState: diagnosticsDegraded ? "degraded" as AdminSurfaceState : "live" as AdminSurfaceState,
             tone: diagnosticsDegraded ? "warn" as const : "good" as const,
             detail: diagnosticDetail,
+            clusters: input.activeDiagnosticClusters || [],
+            clusterCount: input.activeIssueClusterCount,
         },
         writers: {
             value: input.writerSampleCount > 0 ? input.writerSampleCount : "No sample",
-            summaryValue: input.writerSampleCount > 0 ? `${input.writerWarnCount}/${input.writerFailCount}` : "No sample",
+            summaryValue: input.writerSampleCount > 0 ? `${writerHealthyCount}/${input.writerSampleCount}` : "No sample",
             truthState: writerTruthState,
+            writerTruthState,
+            writerCountSource: "opsHealth.materializers",
             tone: writerTruthState === "failed" ? "bad" as const : writerTruthState === "degraded" ? "warn" as const : writerTruthState === "live" ? "good" as const : "neutral" as const,
             detail: input.writerSampleCount > 0
                 ? `${input.writerSampleCount} tracked materializers. Warn ${input.writerWarnCount}, fail ${input.writerFailCount}. This does not prove untracked writers are healthy.`
@@ -158,7 +198,9 @@ export function buildAdminDebugSystemHealthNowModel(input: {
             value: input.routeFailureCount,
             truthState: input.routeFailureCount > 0 ? "degraded" as AdminSurfaceState : "live" as AdminSurfaceState,
             tone: input.routeFailureCount > 0 ? "warn" as const : "good" as const,
-            emptyDetail: diagnosticsDegraded
+            emptyDetail: routeAggregateWithoutBreakdown
+                ? "No active route failures in current sample; previous active count came from stale cluster/window."
+                : diagnosticsDegraded
                 ? "No route failures are present in the pipeline sample. Other active diagnostics still need review."
                 : "No route failures are present in the loaded pipeline sample.",
         },

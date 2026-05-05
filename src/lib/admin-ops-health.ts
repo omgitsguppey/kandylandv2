@@ -17,6 +17,20 @@ export interface AdminOpsHealthDiagnosticItem {
   message: string;
   timestamp: number;
   detailPreview: string;
+  route?: string;
+  component?: string;
+}
+
+export interface AdminOpsHealthDiagnosticCluster {
+  id: string;
+  fingerprint: string;
+  severity: AdminOpsHealthSeverity;
+  count: number;
+  lastSeenAt: number;
+  source: string;
+  sourceRouteOrComponent: string;
+  message: string;
+  suggestedValidator: string;
 }
 
 export interface AdminOpsHealthChannelItem {
@@ -49,6 +63,7 @@ export interface AdminOpsHealthDiagnostics {
   lastDiagnosticAt: number;
   channels: AdminOpsHealthChannelItem[];
   recent: AdminOpsHealthDiagnosticItem[];
+  activeIssueClusters?: AdminOpsHealthDiagnosticCluster[];
 }
 
 export interface AdminOpsHealthPipelineRoute {
@@ -94,8 +109,17 @@ export interface AdminOpsHealthCanonicalState {
   reason?: string;
 }
 
+export interface AdminOpsHealthScorePenalty {
+  id: string;
+  label: string;
+  points: number;
+  source: string;
+  truthState: "failed" | "degraded";
+}
+
 export interface AdminOpsHealth {
   score: number;
+  scorePenalties?: AdminOpsHealthScorePenalty[];
   canonicalState: AdminOpsHealthCanonicalState;
   runtime: AdminOpsHealthRuntime;
   diagnostics: AdminOpsHealthDiagnostics;

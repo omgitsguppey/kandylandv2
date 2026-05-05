@@ -235,4 +235,80 @@ describe("admin debug summary cards", () => {
         expect(model.routeFailures.emptyDetail).toContain("Other active diagnostics still need review.");
         expect(model.writers.detail).toContain("This does not prove untracked writers are healthy.");
     });
+
+    it("explains aggregate route failures when the per-route sample is empty", () => {
+        const model = buildAdminDebugSystemHealthNowModel({
+            score: 40,
+            scorePenalties: [{
+                id: "pipeline-active-failures",
+                label: "Active route pipeline failures",
+                points: 30,
+                source: "opsHealth.pipeline",
+                truthState: "failed",
+            }],
+            activePipelineFailureCount: 8,
+            recentPipelineFailureCount: 8,
+            sampledPipelineFailureCount: 53,
+            activePipelineWindowMs: 60 * 60 * 1000,
+            lastPipelineFailureAt: Date.now() - 21 * 60 * 1000,
+            activeDiagnosticCount: 0,
+            recentDiagnosticCount: 0,
+            sampledDiagnosticCount: 0,
+            activeIssueClusterCount: 0,
+            routeFailureCount: 0,
+            writerSampleCount: 10,
+            writerWarnCount: 0,
+            writerFailCount: 0,
+            runtimeWarningCount: 0,
+        });
+
+        expect(model.pipeline.value).toBe("Active pipeline failures");
+        expect(model.pipeline.detail).toContain("current per-route sample");
+        expect(model.routeFailures.emptyDetail).toContain("No active route failures in current sample");
+        expect(model.writers.summaryValue).toBe("10/10");
+        expect(model.writers.writerCountSource).toBe("opsHealth.materializers");
+        expect(model.score.penaltyCount).toBe(1);
+    });
+
+    it("surfaces active diagnostic clusters with validator context", () => {
+        const model = buildAdminDebugSystemHealthNowModel({
+            score: 86,
+            scorePenalties: [{
+                id: "active-diagnostics",
+                label: "14 active diagnostics across 2 clusters",
+                points: 14,
+                source: "opsHealth.diagnostics",
+                truthState: "degraded",
+            }],
+            activePipelineFailureCount: 0,
+            recentPipelineFailureCount: 0,
+            sampledPipelineFailureCount: 0,
+            activePipelineWindowMs: 60 * 60 * 1000,
+            activeDiagnosticCount: 14,
+            recentDiagnosticCount: 14,
+            sampledDiagnosticCount: 14,
+            activeIssueClusterCount: 2,
+            activeDiagnosticClusters: [{
+                id: "diagnostic:admin:warn:abc",
+                fingerprint: "admin|warn|Debug route delayed",
+                severity: "warn",
+                count: 9,
+                lastSeenAt: Date.UTC(2026, 4, 5, 21),
+                source: "admin",
+                sourceRouteOrComponent: "/api/admin/debug",
+                message: "Debug route delayed",
+                suggestedValidator: "npm run check:admin-debug-control-tower",
+            }],
+            routeFailureCount: 0,
+            writerSampleCount: 10,
+            writerWarnCount: 0,
+            writerFailCount: 0,
+            runtimeWarningCount: 0,
+        });
+
+        expect(model.diagnostics.clusterCount).toBe(2);
+        expect(model.diagnostics.clusters[0]?.fingerprint).toBe("admin|warn|Debug route delayed");
+        expect(model.diagnostics.clusters[0]?.suggestedValidator).toBe("npm run check:admin-debug-control-tower");
+        expect(model.score.detail).toContain("14 active diagnostics across 2 clusters");
+    });
 });

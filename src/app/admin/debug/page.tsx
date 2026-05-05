@@ -364,7 +364,7 @@ export default function DebugConsole() {
         [aiAssistantRealtime.feedStatus, aiDebugData, aiDebugError],
     );
     const systemStateStatus = data?.opsHealth?.canonicalState?.status || "--";
-    const systemStateHealthy = data?.opsHealth?.canonicalState?.status === "healthy";
+    const systemStateHealthy = data?.opsHealth?.canonicalState?.status === "Live";
     const systemStateMeta = !data && isLoading
         ? "Waiting for first system snapshot."
         : error

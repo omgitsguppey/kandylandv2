@@ -2,6 +2,7 @@ import "server-only";
 
 import {
   type AdminOpsHealth,
+  type AdminOpsHealthDiagnosticCluster,
   type AdminOpsHealthDiagnosticItem,
   type AdminOpsHealthMaterializerItem,
   type AdminOpsHealthStatus,
@@ -153,6 +154,23 @@ function buildDiagnosticPreview(detail: Record<string, unknown>) {
     .join(" | ");
 }
 
+function getDiagnosticSuggestedValidator(channel: string, message: string) {
+  const normalized = `${channel} ${message}`.toLowerCase();
+  if (normalized.includes("auth") || normalized.includes("route") || normalized.includes("permission")) {
+    return "npm run check:speed-security";
+  }
+  if (normalized.includes("cost") || normalized.includes("storage") || normalized.includes("media")) {
+    return "npm run check:google-cost";
+  }
+  if (normalized.includes("telemetry") || normalized.includes("analytics")) {
+    return "npm run check:telemetry-parity-score";
+  }
+  if (normalized.includes("firebase") || normalized.includes("runtime")) {
+    return "npm run check:firebase-runtime";
+  }
+  return "npm run check:admin-debug-control-tower";
+}
+
 function buildRouteLabel(routeKey: string) {
   return routeKey
     .replaceAll("_", " ")
@@ -182,6 +200,63 @@ function countDiagnosticIssueClustersWithinWindow(
       .filter((entry) => entry.timestamp >= nowMs - windowMs)
       .map((entry) => `${entry.channel}|${entry.severity}|${entry.message}`),
   ).size;
+}
+
+function buildDiagnosticIssueClustersWithinWindow(
+  diagnostics: AdminOpsHealthDiagnosticItem[],
+  nowMs: number,
+  windowMs: number,
+): AdminOpsHealthDiagnosticCluster[] {
+  const clusters = diagnostics
+    .filter((entry) => entry.timestamp >= nowMs - windowMs)
+    .reduce((map, entry) => {
+      const fingerprint = `${entry.channel}|${entry.severity}|${entry.message}`;
+      const existing = map.get(fingerprint);
+      const sourceRouteOrComponent = entry.route || entry.component || entry.channel || "unknown";
+      if (existing) {
+        existing.count += 1;
+        existing.lastSeenAt = Math.max(existing.lastSeenAt, entry.timestamp);
+        if (existing.sourceRouteOrComponent === "unknown" && sourceRouteOrComponent !== "unknown") {
+          existing.sourceRouteOrComponent = sourceRouteOrComponent;
+        }
+        return map;
+      }
+
+      map.set(fingerprint, {
+        id: `diagnostic:${entry.channel}:${entry.severity}:${Math.abs(hashString(entry.message)).toString(36)}`,
+        fingerprint,
+        severity: entry.severity,
+        count: 1,
+        lastSeenAt: entry.timestamp,
+        source: entry.channel,
+        sourceRouteOrComponent,
+        message: entry.message,
+        suggestedValidator: getDiagnosticSuggestedValidator(entry.channel, entry.message),
+      });
+      return map;
+    }, new Map<string, AdminOpsHealthDiagnosticCluster>());
+
+  return Array.from(clusters.values())
+    .sort((left, right) => (
+      severityRank(right.severity) - severityRank(left.severity)
+      || right.count - left.count
+      || right.lastSeenAt - left.lastSeenAt
+    ))
+    .slice(0, 6);
+}
+
+function hashString(value: string) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
+  }
+  return hash;
+}
+
+function severityRank(severity: AdminOpsHealthDiagnosticItem["severity"]) {
+  if (severity === "error") return 3;
+  if (severity === "warn") return 2;
+  return 1;
 }
 
 function getPipelineStatus(nowMs: number, lastFailureAt: number): AdminOpsHealthStatus {
@@ -219,13 +294,16 @@ export function buildAdminOpsHealth(input: {
 
   const diagnostics = input.diagnosticsDocs.map((doc) => {
     const data = getDocData(doc);
+    const detail = (data.detail as Record<string, unknown> | undefined) ?? {};
     return {
       id: doc.id,
       channel: toStringValue(data.channel) || "runtime",
       severity: (toStringValue(data.severity) || "warn") as AdminOpsHealthDiagnosticItem["severity"],
       message: toStringValue(data.message) || "Unknown diagnostic",
       timestamp: toNumber(data.createdAtMs) || toTimestampNumber(data.createdAt),
-      detailPreview: buildDiagnosticPreview((data.detail as Record<string, unknown> | undefined) ?? {}),
+      detailPreview: buildDiagnosticPreview(detail),
+      route: toStringValue(data.route ?? data.routeName ?? data.path ?? detail.route ?? detail.routeName ?? detail.path),
+      component: toStringValue(data.component ?? detail.component),
     };
   }).sort((left, right) => right.timestamp - left.timestamp);
 
@@ -456,6 +534,7 @@ export function buildAdminOpsHealth(input: {
   const recentDiagnosticsWarnCount = countDiagnosticsWithinWindow(diagnostics, nowMs, RECENT_DIAGNOSTIC_WINDOW_MS, "warn");
   const activeDiagnosticIssueClusterCount = countDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, ACTIVE_DIAGNOSTIC_WINDOW_MS);
   const recentDiagnosticIssueClusterCount = countDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, RECENT_DIAGNOSTIC_WINDOW_MS);
+  const activeDiagnosticIssueClusters = buildDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, ACTIVE_DIAGNOSTIC_WINDOW_MS);
   const pipelineStatus = getPipelineStatus(nowMs, lastPipelineEntry?.lastFailureAtMs || 0);
   const materializerSummary = {
     total: materializers.length,
@@ -504,14 +583,91 @@ export function buildAdminOpsHealth(input: {
   // Runtime warning penalties (capped at -15)
   score -= Math.min(15, runtimeWarnings.length * 5);
 
-  // Enforce canonical status ceiling to prevent false-green
+  const scoreBeforeStatusCeiling = score;
+
+  // Enforce canonical status ceiling to prevent false-green.
   if (canonicalStatus === "Degraded") score = Math.min(score, 40);
   else if (canonicalStatus === "Partial") score = Math.min(score, 80);
 
   score = Math.max(0, Math.min(100, score));
 
+  const scorePenalties = [
+    pipelineStatus === "fail"
+      ? {
+        id: "pipeline-active-failures",
+        label: "Active route pipeline failures",
+        points: 30,
+        source: "opsHealth.pipeline",
+        truthState: "failed" as const,
+      }
+      : pipelineStatus === "warn"
+        ? {
+          id: "pipeline-recent-failures",
+          label: "Recent route pipeline failures",
+          points: 15,
+          source: "opsHealth.pipeline",
+          truthState: "degraded" as const,
+        }
+        : null,
+    materializerSummary.fail > 0
+      ? {
+        id: "writer-failures",
+        label: `${materializerSummary.fail} downstream writer failure${materializerSummary.fail === 1 ? "" : "s"}`,
+        points: materializerSummary.fail * 10,
+        source: "opsHealth.materializers",
+        truthState: "failed" as const,
+      }
+      : null,
+    materializerSummary.warn > 0
+      ? {
+        id: "writer-warnings",
+        label: `${materializerSummary.warn} downstream writer warning${materializerSummary.warn === 1 ? "" : "s"}`,
+        points: materializerSummary.warn * 5,
+        source: "opsHealth.materializers",
+        truthState: "degraded" as const,
+      }
+      : null,
+    activeDiagnosticsErrorCount > 0 || activeDiagnosticsWarnCount > 0
+      ? {
+        id: "active-diagnostics",
+        label: `${activeDiagnosticsErrorCount + activeDiagnosticsWarnCount} active diagnostic${activeDiagnosticsErrorCount + activeDiagnosticsWarnCount === 1 ? "" : "s"} across ${activeDiagnosticIssueClusterCount} cluster${activeDiagnosticIssueClusterCount === 1 ? "" : "s"}`,
+        points: Math.min(20, activeDiagnosticsErrorCount * 2 + activeDiagnosticsWarnCount),
+        source: "opsHealth.diagnostics",
+        truthState: activeDiagnosticsErrorCount > 0 ? "failed" as const : "degraded" as const,
+      }
+      : null,
+    runtimeWarnings.length > 0
+      ? {
+        id: "runtime-warnings",
+        label: `${runtimeWarnings.length} runtime warning${runtimeWarnings.length === 1 ? "" : "s"}`,
+        points: Math.min(15, runtimeWarnings.length * 5),
+        source: "opsHealth.runtime",
+        truthState: runtimeWarnings.length > 2 ? "failed" as const : "degraded" as const,
+      }
+      : null,
+    scoreBeforeStatusCeiling > score
+      ? {
+        id: "canonical-status-ceiling",
+        label: `${canonicalStatus} status caps the health score`,
+        points: scoreBeforeStatusCeiling - score,
+        source: "opsHealth.canonicalState",
+        truthState: canonicalStatus === "Degraded" ? "failed" as const : "degraded" as const,
+      }
+      : null,
+  ].filter((penalty): penalty is {
+    id: string;
+    label: string;
+    points: number;
+    source: string;
+    truthState: "failed" | "degraded";
+  } => penalty !== null)
+    .filter((penalty) => penalty.points > 0)
+    .sort((left, right) => right.points - left.points)
+    .slice(0, 3);
+
   return {
     score,
+    scorePenalties,
     canonicalState: {
       status: canonicalStatus,
       reason: canonicalReason,
@@ -544,6 +700,7 @@ export function buildAdminOpsHealth(input: {
         || right.count - left.count
       )),
       recent: diagnostics.slice(0, 10),
+      activeIssueClusters: activeDiagnosticIssueClusters,
     },
     pipeline: {
       status: pipelineStatus,

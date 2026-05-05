@@ -17,6 +17,9 @@ function formatRelative(timestamp?: number) {
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
 }
+function formatUtc(timestamp?: number) {
+    return timestamp ? new Date(timestamp).toISOString() : "unavailable";
+}
 function toneForPanelStatus(status?: string) {
     if (status === "healthy") return "good" as const;
     if (status === "warn") return "warn" as const;
@@ -65,10 +68,14 @@ export function DebugTabNow({
     const writerFailCount = data?.opsHealth?.materializerSummary?.fail ?? 0;
     const writerSampleCount = (data?.opsHealth?.materializers || []).length;
     const freshestLoadedSignalTruthState = freshestLoadedSignalAt ? "live" : "unavailable";
+    const healthGeneratedAtUtc = formatUtc(freshestLoadedSignalAt);
+    const healthFreshnessState = freshestLoadedSignalAt ? "live" : "unavailable";
     const creatorLaneDebug = data?.creatorOnboardingDiagnostics?.creatorLaneDebug;
     const creatorLaneIssues = data?.creatorOnboardingDiagnostics?.issues || [];
     const creatorLaneNeedsReview = (data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0;
     const systemHealthNow = buildAdminDebugSystemHealthNowModel({
+        score: data?.opsHealth?.score,
+        scorePenalties: data?.opsHealth?.scorePenalties || [],
         pipelineStatus: data?.opsHealth?.pipeline?.status,
         activePipelineFailureCount,
         recentPipelineFailureCount,
@@ -79,22 +86,37 @@ export function DebugTabNow({
         recentDiagnosticCount,
         sampledDiagnosticCount,
         activeIssueClusterCount: data?.opsHealth?.diagnostics?.activeIssueClusterCount ?? 0,
+        activeDiagnosticClusters: data?.opsHealth?.diagnostics?.activeIssueClusters || [],
         routeFailureCount: (data?.opsHealth?.pipeline?.routes || []).length,
         writerSampleCount,
         writerWarnCount,
         writerFailCount,
         runtimeWarningCount: (data?.opsHealth?.runtime?.warnings || []).length,
     });
+    const systemHealthTruthState = systemHealthNow.pipeline.truthState === "failed" || systemHealthNow.writers.truthState === "failed"
+        ? "failed"
+        : systemHealthNow.pipeline.truthState === "degraded" || systemHealthNow.diagnostics.truthState === "degraded" || systemHealthNow.writers.truthState === "degraded"
+            ? "degraded"
+            : healthFreshnessState;
 
     return (
         <div className="space-y-4">
             <DebugControlTower />
 
+            <div
+                data-debug-health-freshness={healthFreshnessState}
+                data-debug-health-generated-at-utc={healthGeneratedAtUtc}
+                data-debug-route-failure-count={systemHealthNow.routeFailures.value}
+                data-debug-diagnostics-cluster-count={systemHealthNow.diagnostics.clusterCount}
+                data-debug-writer-count={writerSampleCount}
+                data-debug-score-penalty-count={systemHealthNow.score.penaltyCount}
+                data-debug-truth-state={systemHealthTruthState}
+            >
             <Section
                         title="System health now"
                         subtitle="Current admin health, open diagnostics, and recent route checks."
                         defaultOpen
-                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline sample" value={systemHealthNow.pipeline.value} tone={systemHealthNow.pipeline.tone} truthState={systemHealthNow.pipeline.truthState} /><Pill label="Active diagnostics" value={systemHealthNow.diagnostics.value} tone={systemHealthNow.diagnostics.tone} truthState={systemHealthNow.diagnostics.truthState} /><Pill label="Writers" value={systemHealthNow.writers.summaryValue} tone={systemHealthNow.writers.tone} truthState={systemHealthNow.writers.truthState} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} /></>}
+                        summary={<><Pill label="Score" value={`${systemHealthNow.score.value ?? 0}%`} tone={(systemHealthNow.score.value ?? 0) >= 90 ? "good" : (systemHealthNow.score.value ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Penalties" value={systemHealthNow.score.penaltyCount} tone={systemHealthNow.score.penaltyCount > 0 ? "warn" : "good"} truthState={systemHealthNow.score.penaltyCount > 0 ? "degraded" : "live"} /><Pill label="Pipeline sample" value={systemHealthNow.pipeline.value} tone={systemHealthNow.pipeline.tone} truthState={systemHealthNow.pipeline.truthState} /><Pill label="Active diagnostics" value={systemHealthNow.diagnostics.value} tone={systemHealthNow.diagnostics.tone} truthState={systemHealthNow.diagnostics.truthState} /><Pill label="Writers" value={systemHealthNow.writers.summaryValue} tone={systemHealthNow.writers.tone} truthState={systemHealthNow.writers.truthState} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} /></>}
                     >
                         <div className="grid gap-4 lg:grid-cols-1">
                             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
@@ -107,16 +129,33 @@ export function DebugTabNow({
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Diagnostics</p>
                                     <p className="mt-2 text-xl font-black text-white">{systemHealthNow.diagnostics.value}</p>
                                     <p className="mt-1 text-sm text-gray-400">{systemHealthNow.diagnostics.detail}</p>
+                                    {systemHealthNow.diagnostics.clusters.length ? (
+                                        <div className="mt-3 space-y-2">
+                                            {systemHealthNow.diagnostics.clusters.slice(0, 3).map((cluster) => (
+                                                <div key={cluster.id} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
+                                                    <p className="font-semibold text-white">{cluster.fingerprint}</p>
+                                                    <p>{cluster.severity} | {cluster.count}x | lastSeenAtUtc {formatUtc(cluster.lastSeenAt)}</p>
+                                                    <p>{cluster.sourceRouteOrComponent} | {cluster.suggestedValidator}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : null}
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Downstream writers</p>
                                     <p className="mt-2 text-xl font-black text-white">{systemHealthNow.writers.value}</p>
                                     <p className="mt-1 text-sm text-gray-400">{systemHealthNow.writers.detail}</p>
+                                    <p className="mt-1 text-xs text-gray-500">{systemHealthNow.writers.writerCountSource} | {systemHealthNow.writers.writerTruthState}</p>
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime warnings</p>
                                     <p className="mt-2 text-xl font-black text-white">{systemHealthNow.runtimeWarnings.value}</p>
                                     <p className="mt-1 text-sm text-gray-400">{systemHealthNow.runtimeWarnings.detail}</p>
+                                </div>
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Score penalties</p>
+                                    <p className="mt-2 text-sm text-gray-300">{systemHealthNow.score.detail}</p>
+                                    <p className="mt-1 text-xs text-gray-500">generatedAtUtc {healthGeneratedAtUtc} | source /api/admin/debug | freshnessState {healthFreshnessState}</p>
                                 </div>
                             </div>
                             <div className="space-y-4">
@@ -174,6 +213,7 @@ export function DebugTabNow({
                             </div>
                         </div>
                     </Section>
+            </div>
 
                     <Section
                         title="Creator Lane"

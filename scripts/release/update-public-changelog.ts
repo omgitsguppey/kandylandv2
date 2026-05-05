@@ -239,6 +239,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("debug-first") || normalized.includes("stabilization roadmap") || normalized.includes("roadmap")) {
     return "Improved beta stabilization guidance so fixes stay focused and easier to track.";
   }
+  if (normalized.includes("refresh system health truth") || normalized.includes("health reporting")) {
+    return "Improved internal health reporting so beta issues show fresher, clearer status.";
+  }
   if (isInternalBetaStabilizationChange(title, surfaces)) {
     return "Improved internal beta reliability and support traceability.";
   }
