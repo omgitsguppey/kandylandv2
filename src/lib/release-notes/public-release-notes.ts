@@ -1,12 +1,44 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.21.0",
+  "currentVersion": "1.21.1",
   "channel": "beta",
-  "generatedAt": "2026-05-05T19:34:10.417Z",
-  "generatedAtUtc": "2026-05-05T19:34:10.417Z",
-  "lastCommitSha": "193b4c8d663e0960cd2b9f10d0aac2241541237f",
+  "generatedAt": "2026-05-05T19:39:26.028Z",
+  "generatedAtUtc": "2026-05-05T19:39:26.028Z",
+  "lastCommitSha": "20c210996e720cbc024fe1b5b002883b44cea9ab",
   "notes": [
+    {
+      "version": "1.21.1",
+      "previousVersion": "1.21.0",
+      "commitSha": "20c210996e720cbc024fe1b5b002883b44cea9ab",
+      "commitTitle": "fix(auth): prove navigation session Firestore read bounds",
+      "committedAt": "2026-05-05T19:39:15.000Z",
+      "generatedAt": "2026-05-05T19:39:26.028Z",
+      "committedAtUtc": "2026-05-05T19:39:15.000Z",
+      "generatedAtUtc": "2026-05-05T19:39:26.028Z",
+      "diffStats": {
+        "rawAdditions": 130,
+        "rawDeletions": 807,
+        "rawChangeCount": 937,
+        "additions": 130,
+        "deletions": 807,
+        "effectiveAdditions": 23,
+        "effectiveDeletions": 3,
+        "changedFiles": 4,
+        "effectiveChangeCount": 26,
+        "excludedGeneratedChangeCount": 911
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved behind-the-scenes session safety checks.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "repo-tooling",
+        "security"
+      ]
+    },
     {
       "version": "1.21.0",
       "previousVersion": "1.20.1",
@@ -140,37 +172,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "affectedSurfaces": [
         "documentation",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.18.0",
-      "previousVersion": "1.17.0",
-      "commitSha": "0526931009edf197cce768fea15f91f75a7ad5af",
-      "commitTitle": "audit: document KandyDrops billing runtime surfaces",
-      "committedAt": "2026-05-05T13:11:22.000Z",
-      "generatedAt": "2026-05-05T18:48:32.252Z",
-      "committedAtUtc": "2026-05-05T13:11:22.000Z",
-      "generatedAtUtc": "2026-05-05T18:48:32.252Z",
-      "diffStats": {
-        "rawAdditions": 246,
-        "rawDeletions": 0,
-        "rawChangeCount": 246,
-        "additions": 246,
-        "deletions": 0,
-        "effectiveAdditions": 246,
-        "effectiveDeletions": 0,
-        "changedFiles": 2,
-        "effectiveChangeCount": 246,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Changed",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "documentation"
       ]
     }
   ]

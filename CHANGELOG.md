@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.21.1] - 2026-05-05
+
+### Fixed
+
+- Updated 2026-05-05 19:39 UTC
+- Improved behind-the-scenes session safety checks.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.21.0] - 2026-05-05
 
 ### Fixed
