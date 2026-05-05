@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T19:44:27.497Z",
+  "generatedAt": "2026-05-05T19:51:16.706Z",
   "overallScore": 42,
   "overallStatus": "fail",
   "domainScores": {
@@ -15,8 +15,8 @@
       "weight": 25,
       "score": 0,
       "status": "fail",
-      "findingCount": 95,
-      "criticalCount": 5,
+      "findingCount": 94,
+      "criticalCount": 4,
       "majorCount": 90
     },
     "firebaseRulesAppCheckReadiness": {
@@ -1775,7 +1775,7 @@
       "guardPresent": 117,
       "rateLimitEvidence": 117,
       "idempotencyRequired": 12,
-      "idempotencyEvidence": 15,
+      "idempotencyEvidence": 16,
       "bodyLimitRequired": 111,
       "bodyLimitEvidence": 12
     },
@@ -3341,7 +3341,7 @@
         "guardPresent": true,
         "rateLimitPresent": true,
         "idempotencyRequired": true,
-        "idempotencyPresent": false,
+        "idempotencyPresent": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -5244,22 +5244,6 @@
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "critical",
-      "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "title": "Sensitive mutating route lacks idempotency evidence",
-      "evidence": [
-        "/api/chat/attachments/cancel contract requires idempotency."
-      ],
-      "expectedRule": "Routes writing money, account, entitlement, or monetization state need idempotency/duplicate-prevention evidence.",
-      "actualPattern": "missing idempotency evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add or verify canonical idempotency keys/transactions before changing behavior.",
-      "humanReadableEscalation": "Idempotency touches payment/economy state and cannot be auto-repaired.",
-      "id": "speed_security_ff1lbd"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "critical",
       "filePath": "src/app/api/chat/attachments/complete/route.ts",
       "title": "Sensitive mutating route lacks idempotency evidence",
       "evidence": [
@@ -5936,7 +5920,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 76,
+      "line": 227,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -5947,7 +5931,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_p5ny51"
+      "id": "speed_security_1r2q2gv"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -7881,22 +7865,6 @@
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "critical",
-      "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "title": "Sensitive mutating route lacks idempotency evidence",
-      "evidence": [
-        "/api/chat/attachments/cancel contract requires idempotency."
-      ],
-      "expectedRule": "Routes writing money, account, entitlement, or monetization state need idempotency/duplicate-prevention evidence.",
-      "actualPattern": "missing idempotency evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add or verify canonical idempotency keys/transactions before changing behavior.",
-      "humanReadableEscalation": "Idempotency touches payment/economy state and cannot be auto-repaired.",
-      "id": "speed_security_ff1lbd"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "critical",
       "filePath": "src/app/api/chat/attachments/complete/route.ts",
       "title": "Sensitive mutating route lacks idempotency evidence",
       "evidence": [
@@ -8419,22 +8387,6 @@
     }
   ],
   "findings": [
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "critical",
-      "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "title": "Sensitive mutating route lacks idempotency evidence",
-      "evidence": [
-        "/api/chat/attachments/cancel contract requires idempotency."
-      ],
-      "expectedRule": "Routes writing money, account, entitlement, or monetization state need idempotency/duplicate-prevention evidence.",
-      "actualPattern": "missing idempotency evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add or verify canonical idempotency keys/transactions before changing behavior.",
-      "humanReadableEscalation": "Idempotency touches payment/economy state and cannot be auto-repaired.",
-      "id": "speed_security_ff1lbd"
-    },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "critical",
@@ -9879,7 +9831,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 76,
+      "line": 227,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -9890,7 +9842,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_p5ny51"
+      "id": "speed_security_1r2q2gv"
     },
     {
       "domain": "contentPaymentEconomyProtection",
@@ -11183,5 +11135,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 162 findings across 118 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 161 findings across 118 API routes."
 }

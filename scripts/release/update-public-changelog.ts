@@ -258,6 +258,12 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
     return "Improved behind-the-scenes session safety checks.";
   }
   if (
+    normalized.includes("make attachment cancel idempotent")
+    || normalized.includes("attachment cancel idempotent")
+  ) {
+    return "Improved reliability for canceling pending chat attachments.";
+  }
+  if (
     normalized.includes("bound attachment cancel lookup")
     || (normalized.includes("chat") && normalized.includes("attachment") && normalized.includes("cancel"))
   ) {

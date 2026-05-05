@@ -12,9 +12,33 @@ type StorageEntry = {
 
 const mockState = vi.hoisted(() => {
     const userDocs = new Map<string, Record<string, unknown>>();
+    const operationDocs = new Map<string, Record<string, unknown>>();
     const storageEntries = new Map<string, StorageEntry>();
     const setMetadata = vi.fn();
     const deleteObject = vi.fn();
+
+    function buildDocRef(collectionName: string, id: string) {
+        return {
+            collectionName,
+            id,
+            async get() {
+                const source = collectionName === "users" ? userDocs : operationDocs;
+                return {
+                    exists: source.has(id),
+                    data: () => source.get(id),
+                };
+            },
+            async set(data: Record<string, unknown>, options?: { merge?: boolean }) {
+                const source = collectionName === "users" ? userDocs : operationDocs;
+                const current = source.get(id) ?? {};
+                source.set(id, options?.merge ? { ...current, ...data } : data);
+            },
+            async update(data: Record<string, unknown>) {
+                const source = collectionName === "users" ? userDocs : operationDocs;
+                source.set(id, { ...(source.get(id) ?? {}), ...data });
+            },
+        };
+    }
 
     return {
         guardApiRequest: vi.fn(),
@@ -28,16 +52,20 @@ const mockState = vi.hoisted(() => {
             collection(name: string) {
                 return {
                     doc(id: string) {
-                        return {
-                            async get() {
-                                return {
-                                    exists: name === "users" ? userDocs.has(id) : false,
-                                    data: () => userDocs.get(id),
-                                };
-                            },
-                        };
+                        return buildDocRef(name, id);
                     },
                 };
+            },
+            async runTransaction<T>(callback: (transaction: {
+                get: (ref: ReturnType<typeof buildDocRef>) => ReturnType<ReturnType<typeof buildDocRef>["get"]>;
+                set: (ref: ReturnType<typeof buildDocRef>, data: Record<string, unknown>, options?: { merge?: boolean }) => Promise<void>;
+                update: (ref: ReturnType<typeof buildDocRef>, data: Record<string, unknown>) => Promise<void>;
+            }) => Promise<T>) {
+                return callback({
+                    get: (ref) => ref.get(),
+                    set: (ref, data, options) => ref.set(data, options),
+                    update: (ref, data) => ref.update(data),
+                });
             },
         },
         adminStorage: {
@@ -72,10 +100,12 @@ const mockState = vi.hoisted(() => {
             },
         },
         userDocs,
+        operationDocs,
         storageEntries,
         deleteObject,
         reset() {
             userDocs.clear();
+            operationDocs.clear();
             storageEntries.clear();
             setMetadata.mockReset();
             deleteObject.mockReset();
@@ -233,17 +263,108 @@ describe("chat attachment routes", () => {
 
         expect(response.status).toBe(200);
         expect(body.success).toBe(true);
-        expect(body.removed).toBe(true);
+        expect(body.status).toBe("canceled");
+        expect(body.idempotencyKey).toMatch(/^chat_attachment_cancel:fan_1:thread_1:/u);
+        expect(body.idempotentReplay).toBe(false);
         expect(body).toMatchObject({
             firestoreReadScope: "single_document",
             attachmentCancelGuarded: true,
             ownershipChecked: true,
             storagePathValidated: true,
             rawStorageUrlExposed: false,
+            idempotencyGuarded: true,
+            idempotencyScope: "caller_attachment_action",
+            transactionBound: true,
         });
         expect(body).not.toHaveProperty("storagePath");
         expect(mockState.deleteObject).toHaveBeenCalledWith("creator/messages/fan_1/thread_1/file.png");
         expect(mockState.storageEntries.has("creator/messages/fan_1/thread_1/file.png")).toBe(false);
+    });
+
+    it("treats repeated attachment cancellation as an idempotent replay", async () => {
+        mockState.storageEntries.set("creator/messages/fan_1/thread_1/retry.png", {
+            exists: true,
+            metadata: {
+                contentType: "image/png",
+                size: "4096",
+            },
+        });
+
+        const body = JSON.stringify({
+            threadId: "thread_1",
+            storagePath: "creator/messages/fan_1/thread_1/retry.png",
+        });
+        const firstResponse = await cancelPost(new NextRequest("http://localhost/api/chat/attachments/cancel", {
+            method: "POST",
+            body,
+        }));
+        const firstBody = await firstResponse.json();
+
+        const secondResponse = await cancelPost(new NextRequest("http://localhost/api/chat/attachments/cancel", {
+            method: "POST",
+            body,
+        }));
+        const secondBody = await secondResponse.json();
+
+        expect(firstResponse.status).toBe(200);
+        expect(firstBody.idempotentReplay).toBe(false);
+        expect(secondResponse.status).toBe(200);
+        expect(secondBody).toMatchObject({
+            success: true,
+            status: "canceled",
+            idempotencyKey: firstBody.idempotencyKey,
+            idempotentReplay: true,
+        });
+        expect(mockState.deleteObject).toHaveBeenCalledTimes(1);
+        expect(secondBody).not.toHaveProperty("storagePath");
+    });
+
+    it("accepts a valid caller-scoped client idempotency key for repeat cancellation", async () => {
+        mockState.storageEntries.set("creator/messages/fan_1/thread_1/client-key.png", {
+            exists: true,
+            metadata: {
+                contentType: "image/png",
+                size: "4096",
+            },
+        });
+
+        const requestInit = {
+            method: "POST",
+            headers: {
+                "idempotency-key": "cancel-key-123",
+            },
+            body: JSON.stringify({
+                threadId: "thread_1",
+                storagePath: "creator/messages/fan_1/thread_1/client-key.png",
+            }),
+        };
+        const firstResponse = await cancelPost(new NextRequest("http://localhost/api/chat/attachments/cancel", requestInit));
+        const firstBody = await firstResponse.json();
+        const secondResponse = await cancelPost(new NextRequest("http://localhost/api/chat/attachments/cancel", requestInit));
+        const secondBody = await secondResponse.json();
+
+        expect(firstResponse.status).toBe(200);
+        expect(firstBody.idempotencyKey).toContain("cancel-key-123");
+        expect(firstBody.idempotentReplay).toBe(false);
+        expect(secondResponse.status).toBe(200);
+        expect(secondBody.idempotentReplay).toBe(true);
+        expect(secondBody.idempotencyKey).toBe(firstBody.idempotencyKey);
+    });
+
+    it("rejects malformed client idempotency keys", async () => {
+        const response = await cancelPost(new NextRequest("http://localhost/api/chat/attachments/cancel", {
+            method: "POST",
+            body: JSON.stringify({
+                threadId: "thread_1",
+                storagePath: "creator/messages/fan_1/thread_1/file.png",
+                idempotencyKey: "bad key with spaces",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body.errorCode).toBe("invalid_idempotency_key");
+        expect(mockState.deleteObject).not.toHaveBeenCalled();
     });
 
     it("rejects unauthenticated attachment cancellation with a typed error", async () => {
