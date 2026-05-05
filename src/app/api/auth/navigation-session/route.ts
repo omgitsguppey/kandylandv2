@@ -25,7 +25,7 @@ async function POST_handler(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated", errorCode: "not_authenticated" }, { status: 401 });
     }
 
-    // cost-bound: single Firestore document read scoped to authenticated/session identity; not a collection scan.
+    // cost-bound: single Firestore document read scoped to authenticated navigation session; not a collection scan.
     const profileSnapshot = await adminDb.collection("users").doc(userId).get();
     const profileData = profileSnapshot.data() ?? {};
     const role = (profileData.role || "user") as NavigationRole;
