@@ -59,12 +59,23 @@ function validateDocument(document: PublicReleaseNotesDocument | null) {
   const major = Number(document.currentVersion.split(".")[0]);
   if (major > 1) failures.push("major version must not auto-increment above 1 without an explicit allowMajorVersionBump gate.");
   if (!Array.isArray(document.notes)) failures.push("notes must be an array.");
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(document.generatedAtUtc)) {
+    failures.push("document.generatedAtUtc must be a full ISO UTC timestamp ending in Z.");
+  }
 
   for (const [index, note] of document.notes.entries()) {
-    for (const field of ["version", "previousVersion", "commitSha", "commitTitle", "committedAt", "generatedAt", "category", "userFacingTitle"] as const) {
+    for (const field of ["version", "previousVersion", "commitSha", "commitTitle", "committedAt", "generatedAt", "committedAtUtc", "generatedAtUtc", "category", "userFacingTitle"] as const) {
       if (typeof note[field] !== "string" || note[field].trim().length === 0) {
         failures.push(`notes[${index}].${field} must be non-empty.`);
       }
+    }
+    for (const field of ["committedAtUtc", "generatedAtUtc"] as const) {
+      if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(note[field])) {
+        failures.push(`notes[${index}].${field} must be a full ISO UTC timestamp ending in Z.`);
+      }
+    }
+    if (/^\d{4}-\d{2}-\d{2}$/u.test(note.committedAt) || /^\d{4}-\d{2}-\d{2}$/u.test(note.generatedAt)) {
+      failures.push(`notes[${index}] must not store date-only timestamps.`);
     }
     if (!Array.isArray(note.bullets) || note.bullets.length === 0 || note.bullets.length > 3) {
       failures.push(`notes[${index}].bullets must include 1-3 user-facing bullets.`);
@@ -138,7 +149,6 @@ for (const expected of [
   "data-beta-version",
   "lazy(() =>",
   "beta_badge_clicked",
-  "beta_changelog_opened",
   "beta_changelog_closed",
 ]) {
   requireIncludes(betaBadge, expected, "BetaBadge");
@@ -158,6 +168,13 @@ for (const expected of [
   "data-beta-changelog-source",
   "What&apos;s new in Beta",
   "Updated continuously as KandyDrops improves.",
+  "beta_changelog_opened",
+  "currentVersion",
+  "latestNoteCommittedAtUtc",
+  "latestNoteCommitSha",
+  "releaseNotesFreshnessState",
+  "Updated ",
+  " UTC",
 ]) {
   requireIncludes(drawer, expected, "Beta release notes drawer");
 }
@@ -194,6 +211,9 @@ for (const expected of [
   "rawAdditions",
   "rawDeletions",
   "skip release-notes",
+  "committedAtUtc",
+  "generatedAtUtc",
+  "formatUtcTimestamp",
 ]) {
   requireIncludes(releaseScript, expected, "release notes update script");
 }
@@ -258,6 +278,8 @@ for (const source of [readme, agents, docs] as const) {
 }
 
 requireIncludes(changelog, "# Changelog", "CHANGELOG.md");
+requireIncludes(changelog, "Updated 20", "CHANGELOG.md UTC entries");
+requireIncludes(changelog, " UTC", "CHANGELOG.md UTC entries");
 requireIncludes(publicNotesTs, "PUBLIC_RELEASE_NOTES_FALLBACK", "public release notes fallback");
 requireIncludes(ciWorkflow, "npm run check:release-notes", "CI workflow");
 requireIncludes(releaseWorkflow, "npm run release:notes", "public release notes workflow");

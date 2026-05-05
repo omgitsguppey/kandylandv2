@@ -82,6 +82,13 @@ Codex must verify authentication before attempting cloud or billing checks. Read
 - Bootstrap runbook: [docs/runbooks/cloud-auth-bootstrap.md](./docs/runbooks/cloud-auth-bootstrap.md)
 - Commands: `npm run check:codex-auth`, `npm run plan:cloud-auth-bootstrap`, and `npm run check:codex-auth-readiness`
 
+## Beta Stabilization
+
+Phase 1 is debug-first stabilization: fix one selected Debug Control Tower/admin-evidence issue at a time, with allowed files, forbidden files, validator, release-note impact, and rollback note stated before implementation. KreditFlow by iKandy is Phase 2. Advocacy and referrals are Phase 3.
+
+- Roadmap: [docs/agent-truth/beta-roadmap.md](./docs/agent-truth/beta-roadmap.md)
+- Command: `npm run check:debug-first-roadmap`
+
 ## Contributor Gateway
 
 - [Contributing](./CONTRIBUTING.md)

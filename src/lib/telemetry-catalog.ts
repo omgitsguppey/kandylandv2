@@ -817,6 +817,11 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   idleMs: "idle_ms",
   reasonCodes: "reason_codes",
   releaseChannel: "release_channel",
+  currentVersion: "current_version",
+  latestNoteCommittedAtUtc: "latest_note_committed_at_utc",
+  latestNoteCommitSha: "latest_note_commit_sha",
+  releaseNotesFreshnessState: "release_notes_freshness_state",
+  releaseNotesSource: "release_notes_source",
   watchSeconds: "watch_seconds",
 };
 

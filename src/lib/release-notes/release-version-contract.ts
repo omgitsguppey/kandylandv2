@@ -24,6 +24,8 @@ export type PublicReleaseNote = {
   commitTitle: string;
   committedAt: string;
   generatedAt: string;
+  committedAtUtc: string;
+  generatedAtUtc: string;
   diffStats: {
     rawAdditions: number;
     rawDeletions: number;
@@ -48,6 +50,7 @@ export type PublicReleaseNotesDocument = {
   currentVersion: string;
   channel: typeof PUBLIC_RELEASE_CHANNEL;
   generatedAt: string;
+  generatedAtUtc: string;
   lastCommitSha: string;
   notes: PublicReleaseNote[];
 };

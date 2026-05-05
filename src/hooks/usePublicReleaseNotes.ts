@@ -33,6 +33,8 @@ function isPublicReleaseNote(value: unknown): value is PublicReleaseNote {
     && typeof note.commitTitle === "string"
     && typeof note.committedAt === "string"
     && typeof note.generatedAt === "string"
+    && typeof note.committedAtUtc === "string"
+    && typeof note.generatedAtUtc === "string"
     && typeof note.userFacingTitle === "string"
     && Array.isArray(note.bullets)
     && Array.isArray(note.affectedSurfaces)
@@ -46,6 +48,7 @@ function isPublicReleaseNotesDocument(value: unknown): value is PublicReleaseNot
   return isValidPublicVersion(document.currentVersion)
     && document.channel === PUBLIC_RELEASE_CHANNEL
     && typeof document.generatedAt === "string"
+    && typeof document.generatedAtUtc === "string"
     && typeof document.lastCommitSha === "string"
     && Array.isArray(document.notes)
     && document.notes.every(isPublicReleaseNote);
@@ -60,12 +63,12 @@ function getFreshness(generatedAt: string): PublicReleaseNotesFreshness {
 }
 
 export function usePublicReleaseNotes(enabled: boolean) {
-  const [state, setState] = useState<PublicReleaseNotesState>({
+  const [state, setState] = useState<PublicReleaseNotesState>(() => ({
     releaseNotes: PUBLIC_RELEASE_NOTES_FALLBACK,
     source: "bundled-fallback",
     freshness: "fallback",
-    isLoading: false,
-  });
+    isLoading: enabled,
+  }));
 
   useEffect(() => {
     if (!enabled) return;
@@ -108,4 +111,3 @@ export function usePublicReleaseNotes(enabled: boolean) {
     versionContext: PUBLIC_RELEASE_NOTES_VERSION_CONTEXT,
   };
 }
-

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 
 import { usePublicReleaseNotes } from "@/hooks/usePublicReleaseNotes";
@@ -7,38 +8,51 @@ import {
   getPublicReleaseNotesVisibleNotes,
   type PublicReleaseNote,
 } from "@/lib/release-notes/release-version-contract";
+import { trackEvent } from "@/lib/telemetry";
 
 type BetaReleaseNotesDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
-function formatReleaseDate(note: PublicReleaseNote) {
-  const timestamp = Date.parse(note.committedAt || note.generatedAt);
-  if (!Number.isFinite(timestamp)) return "Beta update";
+function formatUtcTimestamp(value: string) {
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp)) return "UTC timestamp unavailable";
 
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(timestamp));
+  const date = new Date(timestamp);
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())} UTC`;
+}
+
+function formatReleaseTimestamp(note: PublicReleaseNote) {
+  return `Updated ${formatUtcTimestamp(note.committedAtUtc || note.committedAt || note.generatedAtUtc || note.generatedAt)}`;
 }
 
 function formatLastUpdated(generatedAt: string) {
-  const timestamp = Date.parse(generatedAt);
-  if (!Number.isFinite(timestamp)) return "Last updated: bundled fallback";
-
-  return `Last updated ${new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(timestamp))}`;
+  return `Last updated ${formatUtcTimestamp(generatedAt)}`;
 }
 
 export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDrawerProps) {
   const { releaseNotes, source, freshness, isLoading } = usePublicReleaseNotes(isOpen);
   const visibleNotes = getPublicReleaseNotesVisibleNotes(releaseNotes.notes);
+  const openedTrackedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isOpen || isLoading || openedTrackedRef.current) return;
+
+    const latestNote = getPublicReleaseNotesVisibleNotes(releaseNotes.notes)[0] ?? releaseNotes.notes[0];
+    trackEvent("beta_changelog_opened", {
+      source_component: "navbar_beta_badge",
+      release_channel: releaseNotes.channel,
+      app_version: releaseNotes.currentVersion,
+      currentVersion: releaseNotes.currentVersion,
+      latestNoteCommittedAtUtc: latestNote?.committedAtUtc ?? "none",
+      latestNoteCommitSha: latestNote?.commitSha ?? "none",
+      releaseNotesFreshnessState: freshness,
+      releaseNotesSource: source,
+    });
+    openedTrackedRef.current = true;
+  }, [freshness, isLoading, isOpen, releaseNotes, source]);
 
   if (!isOpen) return null;
 
@@ -91,7 +105,7 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
               <article key={`${note.version}:${note.commitSha}`} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-white/55">
                   <span className="font-mono text-white/80">v{note.version}</span>
-                  <span>{formatReleaseDate(note)}</span>
+                  <span>{formatReleaseTimestamp(note)}</span>
                   <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2 py-0.5 font-bold text-brand-purple">
                     {note.category}
                   </span>
@@ -115,4 +129,3 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
     </div>
   );
 }
-

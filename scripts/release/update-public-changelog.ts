@@ -33,6 +33,22 @@ const publicJsonPath = join(root, "public/kandydrops-release-notes.json");
 const fallbackTsPath = join(root, "src/lib/release-notes/public-release-notes.ts");
 const changelogPath = join(root, "CHANGELOG.md");
 
+function toUtcIso(value: string) {
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : new Date(0).toISOString();
+}
+
+function nowUtcIso() {
+  return new Date().toISOString();
+}
+
+function formatUtcTimestamp(value: string) {
+  const date = new Date(toUtcIso(value));
+  const pad = (part: number) => String(part).padStart(2, "0");
+
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())} UTC`;
+}
+
 function runGit(args: string[]) {
   return execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
 }
@@ -47,10 +63,12 @@ function safeRunGit(args: string[]) {
 
 function readExistingDocument(): PublicReleaseNotesDocument {
   if (!existsSync(publicJsonPath)) {
+    const generatedAtUtc = new Date(0).toISOString();
     return {
       currentVersion: INITIAL_PUBLIC_VERSION,
       channel: PUBLIC_RELEASE_CHANNEL,
-      generatedAt: new Date(0).toISOString(),
+      generatedAt: generatedAtUtc,
+      generatedAtUtc,
       lastCommitSha: "",
       notes: [],
     };
@@ -136,17 +154,27 @@ function buildDiffStats(sha: string) {
 function normalizeExistingNote(note: PublicReleaseNote): PublicReleaseNote {
   const diffStats = buildDiffStats(note.commitSha);
   const bumpType = classifyPublicVersionBump(diffStats.effectiveChangeCount);
+  const committedAtUtc = toUtcIso(note.committedAtUtc ?? note.committedAt);
+  const generatedAtUtc = toUtcIso(note.generatedAtUtc ?? note.generatedAt);
 
   return {
     ...note,
+    committedAt: committedAtUtc,
+    generatedAt: generatedAtUtc,
+    committedAtUtc,
+    generatedAtUtc,
     diffStats,
     bumpType,
   };
 }
 
 function normalizeExistingDocument(document: PublicReleaseNotesDocument): PublicReleaseNotesDocument {
+  const generatedAtUtc = toUtcIso(document.generatedAtUtc ?? document.generatedAt);
+
   return {
     ...document,
+    generatedAt: generatedAtUtc,
+    generatedAtUtc,
     notes: document.notes.map(normalizeExistingNote),
   };
 }
@@ -235,14 +263,18 @@ function createNote(commit: CommitRecord, previousVersion: string, isInitial: bo
   const nextVersion = isInitial ? INITIAL_PUBLIC_VERSION : bumpPublicVersion(previousVersion, bumpType);
   const category = classifyCategory(commit.title, changedFiles);
   const affectedSurfaces = affectedSurfacesFor(changedFiles);
+  const committedAtUtc = toUtcIso(commit.committedAt);
+  const generatedAtUtc = nowUtcIso();
 
   return {
     version: nextVersion,
     previousVersion,
     commitSha: commit.sha,
     commitTitle: commit.title,
-    committedAt: commit.committedAt,
-    generatedAt: new Date().toISOString(),
+    committedAt: committedAtUtc,
+    generatedAt: generatedAtUtc,
+    committedAtUtc,
+    generatedAtUtc,
     diffStats,
     bumpType: bumpType as PublicReleaseBumpType,
     category,
@@ -264,8 +296,16 @@ function renderFallbackTs(document: PublicReleaseNotesDocument) {
 function renderChangelog(notes: PublicReleaseNote[]) {
   const lines = ["# Changelog", "", "User-facing KandyDrops Beta updates, newest first.", ""];
   for (const note of notes) {
-    const date = note.committedAt.slice(0, 10);
-    lines.push(`## [${note.version}] - ${date}`, "", `### ${note.category}`, "", `- ${note.userFacingTitle}`);
+    const committedAtUtc = note.committedAtUtc ?? toUtcIso(note.committedAt);
+    const date = committedAtUtc.slice(0, 10);
+    lines.push(
+      `## [${note.version}] - ${date}`,
+      "",
+      `### ${note.category}`,
+      "",
+      `- Updated ${formatUtcTimestamp(committedAtUtc)}`,
+      `- ${note.userFacingTitle}`,
+    );
     for (const bullet of note.bullets.slice(0, 3)) lines.push(`- ${bullet}`);
     lines.push("");
   }
@@ -298,10 +338,12 @@ function main() {
   }
 
   const nextNotes = [...newNotes.reverse(), ...existing.notes].slice(0, PUBLIC_RELEASE_NOTES_MAX_COUNT);
+  const generatedAtUtc = nowUtcIso();
   const nextDocument: PublicReleaseNotesDocument = {
     currentVersion,
     channel: PUBLIC_RELEASE_CHANNEL,
-    generatedAt: new Date().toISOString(),
+    generatedAt: generatedAtUtc,
+    generatedAtUtc,
     lastCommitSha: newNotes[0]?.commitSha ?? existing.lastCommitSha,
     notes: nextNotes,
   };

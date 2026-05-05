@@ -20,11 +20,6 @@ export function BetaBadge() {
       release_channel: PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.releaseChannel,
       app_version: PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion,
     });
-    trackEvent("beta_changelog_opened", {
-      source_component: "navbar_beta_badge",
-      release_channel: PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.releaseChannel,
-      app_version: PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion,
-    });
     startTransition(() => setIsOpen(true));
   };
 

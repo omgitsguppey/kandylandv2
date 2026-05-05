@@ -186,6 +186,22 @@ KandyDrops debug evidence is structured, fingerprinted, stored, and injected int
 
 Admin Debug v2 is the mobile-first Control Tower. It surfaces generated public-beta reports, live debug evidence, stale/missing state truth, cost/security/device/telemetry/economy/watch-time/support findings, and deterministic next actions. Missing or stale data must never be shown as healthy. Heavy raw JSON stays collapsed. Existing ops health and creator lane parity remain visible, but they no longer define the whole debug truth.
 
+## Phase 1 Debug-First Stabilization
+
+Phase 1 fixes must work from one Debug Control Tower/admin-evidence issue at a time. No broad fixes, unrelated refactors, or cleanup sweeps are canonical in Phase 1 unless a specific selected debug issue demands them.
+
+Every prompt or fix must include:
+- `selectedIssueIdOrFingerprint`
+- `affectedSurface`
+- `expectedUserImpact`
+- `filesAllowed`
+- `filesForbidden`
+- `validatorToRun`
+- `releaseNoteImpact`
+- `rollbackNote`
+
+KreditFlow by iKandy is Phase 2 only. Advocacy and referral economy work is Phase 3 only, after KreditFlow and current experience loops are stable.
+
 ## Admin Moderation Real Risk
 
 KandyDrops moderation must never pretend browser/PWA screenshot detection is confirmed. Screenshot-like events are weak heuristic context unless confirmed by a real platform/server source. Moderation decisions are based on evidence-weighted scrape-risk scoring: entitlement failures, abnormal asset requests, viewer velocity, watch-time mismatch, repeated behavior, and server-backed content-protection events. Weak visibility/blur events alone do not justify action.

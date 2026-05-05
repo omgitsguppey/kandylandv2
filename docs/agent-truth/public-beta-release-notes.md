@@ -17,6 +17,9 @@ KandyDrops Beta release notes are user-facing and update after every commit. The
 - Human changelog: `CHANGELOG.md`.
 - Generator: `npm run release:notes`.
 - Validator: `npm run check:release-notes`.
+- Each note stores `committedAtUtc` and `generatedAtUtc` as ISO UTC strings ending in `Z`.
+- The drawer displays UTC timestamps such as `Updated 2026-05-05 14:23 UTC`.
+- `CHANGELOG.md` keeps date headings and includes an entry-level UTC timestamp for correlation with commits, user complaints, billing spikes, and screenshots.
 
 ## Automation
 
@@ -42,4 +45,3 @@ npm run typecheck
 ```
 
 Targeted component/release-note tests are allowed. Do not run Playwright, Lighthouse, Cypress, or full `npm run check` for this lane by default.
-

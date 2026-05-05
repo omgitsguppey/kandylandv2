@@ -70,6 +70,7 @@
         "check:doctrine-retrieval-optimizer": "tsx scripts/agent/validate-doctrine-retrieval-optimizer.ts",
         "release:notes": "tsx scripts/release/update-public-changelog.ts",
         "check:release-notes": "tsx scripts/agent/validate-public-beta-changelog.ts",
+        "check:debug-first-roadmap": "tsx scripts/agent/validate-debug-first-roadmap.ts",
         "check:human-dev-readiness": "tsx scripts/agent/validate-human-dev-readiness.ts",
         "score:speed-security": "tsx scripts/agent/score-speed-security-hardening.ts",
         "check:speed-security": "tsx scripts/agent/validate-speed-security-hardening.ts",

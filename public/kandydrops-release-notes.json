@@ -1,15 +1,79 @@
 {
-  "currentVersion": "1.17.0",
+  "currentVersion": "1.19.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T12:49:32.625Z",
-  "lastCommitSha": "1cbef6884a9c0f0273d22e9f14e1eff32968de26",
+  "generatedAt": "2026-05-05T18:48:32.785Z",
+  "generatedAtUtc": "2026-05-05T18:48:32.785Z",
+  "lastCommitSha": "e262ae44f608f2b3c095bb127c2dfb4124004617",
   "notes": [
+    {
+      "version": "1.19.0",
+      "previousVersion": "1.18.0",
+      "commitSha": "e262ae44f608f2b3c095bb127c2dfb4124004617",
+      "commitTitle": "chore(devops): verify Codex native auth readiness",
+      "committedAt": "2026-05-05T14:11:31.000Z",
+      "generatedAt": "2026-05-05T18:48:32.784Z",
+      "committedAtUtc": "2026-05-05T14:11:31.000Z",
+      "generatedAtUtc": "2026-05-05T18:48:32.784Z",
+      "diffStats": {
+        "rawAdditions": 1831,
+        "rawDeletions": 0,
+        "rawChangeCount": 1831,
+        "additions": 1831,
+        "deletions": 0,
+        "effectiveAdditions": 1293,
+        "effectiveDeletions": 0,
+        "changedFiles": 14,
+        "effectiveChangeCount": 1293,
+        "excludedGeneratedChangeCount": 538
+      },
+      "bumpType": "minor",
+      "category": "Internal",
+      "userFacingTitle": "Improved internal beta reliability.",
+      "bullets": [
+        "Improved internal beta reliability without changing your core flows."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.18.0",
+      "previousVersion": "1.17.0",
+      "commitSha": "0526931009edf197cce768fea15f91f75a7ad5af",
+      "commitTitle": "audit: document KandyDrops billing runtime surfaces",
+      "committedAt": "2026-05-05T13:11:22.000Z",
+      "generatedAt": "2026-05-05T18:48:32.252Z",
+      "committedAtUtc": "2026-05-05T13:11:22.000Z",
+      "generatedAtUtc": "2026-05-05T18:48:32.252Z",
+      "diffStats": {
+        "rawAdditions": 246,
+        "rawDeletions": 0,
+        "rawChangeCount": 246,
+        "additions": 246,
+        "deletions": 0,
+        "effectiveAdditions": 246,
+        "effectiveDeletions": 0,
+        "changedFiles": 2,
+        "effectiveChangeCount": 246,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Changed",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation"
+      ]
+    },
     {
       "version": "1.17.0",
       "previousVersion": "1.16.1",
       "commitSha": "1cbef6884a9c0f0273d22e9f14e1eff32968de26",
       "commitTitle": "chore(ci): route repo automation through cloud build",
-      "committedAt": "2026-05-05T07:49:13-05:00",
+      "committedAt": "2026-05-05T12:49:13.000Z",
       "generatedAt": "2026-05-05T12:49:32.622Z",
       "diffStats": {
         "rawAdditions": 207,
@@ -34,14 +98,16 @@
         "documentation",
         "release-notes",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T12:49:13.000Z",
+      "generatedAtUtc": "2026-05-05T12:49:32.622Z"
     },
     {
       "version": "1.16.1",
       "previousVersion": "1.16.0",
       "commitSha": "d9eef92897173dc95929d74909d5995b7dcc5e2a",
       "commitTitle": "fix(functions): raise default memory limit [skip ci]",
-      "committedAt": "2026-05-05T07:14:35-05:00",
+      "committedAt": "2026-05-05T12:14:35.000Z",
       "generatedAt": "2026-05-05T12:14:53.215Z",
       "diffStats": {
         "rawAdditions": 3,
@@ -63,14 +129,16 @@
       ],
       "affectedSurfaces": [
         "documentation"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T12:14:35.000Z",
+      "generatedAtUtc": "2026-05-05T12:14:53.215Z"
     },
     {
       "version": "1.16.0",
       "previousVersion": "1.15.0",
       "commitSha": "408fc0dcd0a7affd9243dd591c6d9b670c8e3d1f",
       "commitTitle": "feat(experiments): add behavioral ranking holdout validation",
-      "committedAt": "2026-05-05T06:55:18-05:00",
+      "committedAt": "2026-05-05T11:55:18.000Z",
       "generatedAt": "2026-05-05T12:02:57.969Z",
       "diffStats": {
         "rawAdditions": 884,
@@ -93,14 +161,16 @@
       "affectedSurfaces": [
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T11:55:18.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:57.969Z"
     },
     {
       "version": "1.15.0",
       "previousVersion": "1.14.0",
       "commitSha": "6a7e79c065680ef4ea03cbb83651b1d781750ce4",
       "commitTitle": "feat(recommendations): add integrity demotion layer",
-      "committedAt": "2026-05-05T06:40:11-05:00",
+      "committedAt": "2026-05-05T11:40:11.000Z",
       "generatedAt": "2026-05-05T12:02:57.633Z",
       "diffStats": {
         "rawAdditions": 626,
@@ -124,14 +194,16 @@
         "admin",
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T11:40:11.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:57.633Z"
     },
     {
       "version": "1.14.0",
       "previousVersion": "1.13.0",
       "commitSha": "f7258668a3b29e5b29f970664f2df5bd8db43463",
       "commitTitle": "feat(creator): add creator supply quality score",
-      "committedAt": "2026-05-05T06:33:36-05:00",
+      "committedAt": "2026-05-05T11:33:36.000Z",
       "generatedAt": "2026-05-05T12:02:57.294Z",
       "diffStats": {
         "rawAdditions": 724,
@@ -155,14 +227,16 @@
         "admin",
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T11:33:36.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:57.294Z"
     },
     {
       "version": "1.13.0",
       "previousVersion": "1.12.0",
       "commitSha": "1420446301c40159345fb5aa96a4e268ef32b942",
       "commitTitle": "feat(recommendations): add cold-start exploration budget",
-      "committedAt": "2026-05-05T06:20:34-05:00",
+      "committedAt": "2026-05-05T11:20:34.000Z",
       "generatedAt": "2026-05-05T12:02:56.927Z",
       "diffStats": {
         "rawAdditions": 873,
@@ -185,14 +259,16 @@
       "affectedSurfaces": [
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T11:20:34.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:56.927Z"
     },
     {
       "version": "1.12.0",
       "previousVersion": "1.11.0",
       "commitSha": "b441e04bd5b8578a3ac2c04543f6aee23efe25d3",
       "commitTitle": "feat(behavioral): add content satisfaction signal",
-      "committedAt": "2026-05-05T06:04:48-05:00",
+      "committedAt": "2026-05-05T11:04:48.000Z",
       "generatedAt": "2026-05-05T12:02:56.598Z",
       "diffStats": {
         "rawAdditions": 1154,
@@ -216,14 +292,16 @@
         "documentation",
         "repo-tooling",
         "telemetry"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T11:04:48.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:56.598Z"
     },
     {
       "version": "1.11.0",
       "previousVersion": "1.10.0",
       "commitSha": "5abf2801ef0bd013b619fa999e06378507644f27",
       "commitTitle": "feat(notifications): add quality ranking and fatigue policy",
-      "committedAt": "2026-05-05T05:35:51-05:00",
+      "committedAt": "2026-05-05T10:35:51.000Z",
       "generatedAt": "2026-05-05T12:02:56.284Z",
       "diffStats": {
         "rawAdditions": 939,
@@ -246,14 +324,16 @@
       "affectedSurfaces": [
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T10:35:51.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:56.284Z"
     },
     {
       "version": "1.10.0",
       "previousVersion": "1.9.0",
       "commitSha": "9af46b5e1a013b06f04628804a69952006234322",
       "commitTitle": "feat(analytics): add drop momentum scoring",
-      "committedAt": "2026-05-05T05:18:00-05:00",
+      "committedAt": "2026-05-05T10:18:00.000Z",
       "generatedAt": "2026-05-05T12:02:55.972Z",
       "diffStats": {
         "rawAdditions": 770,
@@ -277,14 +357,16 @@
         "admin",
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T10:18:00.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:55.972Z"
     },
     {
       "version": "1.9.0",
       "previousVersion": "1.8.0",
       "commitSha": "edb76d0098fe6c91c9b59c41f750f42c11ca79cf",
       "commitTitle": "feat(recommendations): add diversity reranking rules",
-      "committedAt": "2026-05-05T04:57:10-05:00",
+      "committedAt": "2026-05-05T09:57:10.000Z",
       "generatedAt": "2026-05-05T12:02:55.668Z",
       "diffStats": {
         "rawAdditions": 596,
@@ -308,14 +390,16 @@
         "admin",
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T09:57:10.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:55.668Z"
     },
     {
       "version": "1.8.0",
       "previousVersion": "1.7.0",
       "commitSha": "2793af1c20a351ce206efbb5afc0768646898e03",
       "commitTitle": "feat(analytics): add search intent ranking signal",
-      "committedAt": "2026-05-05T04:41:39-05:00",
+      "committedAt": "2026-05-05T09:41:39.000Z",
       "generatedAt": "2026-05-05T12:02:55.384Z",
       "diffStats": {
         "rawAdditions": 882,
@@ -340,14 +424,16 @@
         "documentation",
         "repo-tooling",
         "telemetry"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T09:41:39.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:55.384Z"
     },
     {
       "version": "1.7.0",
       "previousVersion": "1.6.0",
       "commitSha": "31cea2053114d543694e12d7f424a0d536e2b53c",
       "commitTitle": "feat(recommendations): add negative preference suppression",
-      "committedAt": "2026-05-05T04:23:16-05:00",
+      "committedAt": "2026-05-05T09:23:16.000Z",
       "generatedAt": "2026-05-05T12:02:55.070Z",
       "diffStats": {
         "rawAdditions": 991,
@@ -372,14 +458,16 @@
         "documentation",
         "repo-tooling",
         "telemetry"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T09:23:16.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:55.070Z"
     },
     {
       "version": "1.6.0",
       "previousVersion": "1.5.0",
       "commitSha": "d3fb8d344ddd848da19d9276370375171a5d86b5",
       "commitTitle": "feat(analytics): calibrate behavioral math to product goals",
-      "committedAt": "2026-05-05T03:48:49-05:00",
+      "committedAt": "2026-05-05T08:48:49.000Z",
       "generatedAt": "2026-05-05T12:02:54.757Z",
       "diffStats": {
         "rawAdditions": 1487,
@@ -403,14 +491,16 @@
         "admin",
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T08:48:49.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:54.757Z"
     },
     {
       "version": "1.5.0",
       "previousVersion": "1.4.0",
       "commitSha": "96aaa606bb6d732651f64ad69a0efc9318b0bb70",
       "commitTitle": "feat(cost): add global cost surface guardrails",
-      "committedAt": "2026-05-05T03:15:29-05:00",
+      "committedAt": "2026-05-05T08:15:29.000Z",
       "generatedAt": "2026-05-05T12:02:54.377Z",
       "diffStats": {
         "rawAdditions": 3377,
@@ -433,14 +523,16 @@
       "affectedSurfaces": [
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T08:15:29.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:54.377Z"
     },
     {
       "version": "1.4.0",
       "previousVersion": "1.3.0",
       "commitSha": "b5e3656bcfb1f99402cee8b3fa3cc3b83fd47ec3",
       "commitTitle": "feat(agent): optimize doctrine retrieval context",
-      "committedAt": "2026-05-05T02:51:59-05:00",
+      "committedAt": "2026-05-05T07:51:59.000Z",
       "generatedAt": "2026-05-05T12:02:54.007Z",
       "diffStats": {
         "rawAdditions": 1919,
@@ -463,14 +555,16 @@
       "affectedSurfaces": [
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T07:51:59.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:54.007Z"
     },
     {
       "version": "1.3.0",
       "previousVersion": "1.2.0",
       "commitSha": "126b39356ce3e0100239904c8f4777cc11dffc95",
       "commitTitle": "docs(doctrine): split surface UI and server truth hierarchy",
-      "committedAt": "2026-05-05T02:26:45-05:00",
+      "committedAt": "2026-05-05T07:26:45.000Z",
       "generatedAt": "2026-05-05T12:02:53.651Z",
       "diffStats": {
         "rawAdditions": 1095,
@@ -494,14 +588,16 @@
         "admin",
         "documentation",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T07:26:45.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:53.651Z"
     },
     {
       "version": "1.2.0",
       "previousVersion": "1.1.0",
       "commitSha": "a30bea630ee0fdc8768333e8a03a9ab4b1bb44bd",
       "commitTitle": "fix(release): exclude generated files from version bumps",
-      "committedAt": "2026-05-05T02:10:24-05:00",
+      "committedAt": "2026-05-05T07:10:24.000Z",
       "generatedAt": "2026-05-05T07:10:40.358Z",
       "diffStats": {
         "rawAdditions": 175,
@@ -525,14 +621,16 @@
       "affectedSurfaces": [
         "release-notes",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T07:10:24.000Z",
+      "generatedAtUtc": "2026-05-05T07:10:40.358Z"
     },
     {
       "version": "1.1.0",
       "previousVersion": "1.0.0",
       "commitSha": "c5b3501b12e69b442fcac74a4ee018a4f6fc70de",
       "commitTitle": "feat(app): add beta release notes badge",
-      "committedAt": "2026-05-05T02:02:41-05:00",
+      "committedAt": "2026-05-05T07:02:41.000Z",
       "generatedAt": "2026-05-05T07:03:00.935Z",
       "diffStats": {
         "rawAdditions": 1284,
@@ -559,14 +657,16 @@
         "release-notes",
         "repo-tooling",
         "telemetry"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T07:02:41.000Z",
+      "generatedAtUtc": "2026-05-05T07:03:00.935Z"
     },
     {
       "version": "1.0.0",
       "previousVersion": "1.0.0",
       "commitSha": "b944cbd4a76840bc8a4efded2ada8d4c66c0204d",
       "commitTitle": "docs(doctrine): consolidate hierarchy and agent context",
-      "committedAt": "2026-05-05T01:25:37-05:00",
+      "committedAt": "2026-05-05T06:25:37.000Z",
       "generatedAt": "2026-05-05T06:55:57.092Z",
       "diffStats": {
         "rawAdditions": 1715,
@@ -593,7 +693,9 @@
         "security",
         "telemetry",
         "wallet"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T06:25:37.000Z",
+      "generatedAtUtc": "2026-05-05T06:55:57.092Z"
     }
   ]
 }

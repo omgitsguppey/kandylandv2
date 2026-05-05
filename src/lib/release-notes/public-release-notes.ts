@@ -1,17 +1,81 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.17.0",
+  "currentVersion": "1.19.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T12:49:32.625Z",
-  "lastCommitSha": "1cbef6884a9c0f0273d22e9f14e1eff32968de26",
+  "generatedAt": "2026-05-05T18:48:32.785Z",
+  "generatedAtUtc": "2026-05-05T18:48:32.785Z",
+  "lastCommitSha": "e262ae44f608f2b3c095bb127c2dfb4124004617",
   "notes": [
+    {
+      "version": "1.19.0",
+      "previousVersion": "1.18.0",
+      "commitSha": "e262ae44f608f2b3c095bb127c2dfb4124004617",
+      "commitTitle": "chore(devops): verify Codex native auth readiness",
+      "committedAt": "2026-05-05T14:11:31.000Z",
+      "generatedAt": "2026-05-05T18:48:32.784Z",
+      "committedAtUtc": "2026-05-05T14:11:31.000Z",
+      "generatedAtUtc": "2026-05-05T18:48:32.784Z",
+      "diffStats": {
+        "rawAdditions": 1831,
+        "rawDeletions": 0,
+        "rawChangeCount": 1831,
+        "additions": 1831,
+        "deletions": 0,
+        "effectiveAdditions": 1293,
+        "effectiveDeletions": 0,
+        "changedFiles": 14,
+        "effectiveChangeCount": 1293,
+        "excludedGeneratedChangeCount": 538
+      },
+      "bumpType": "minor",
+      "category": "Internal",
+      "userFacingTitle": "Improved internal beta reliability.",
+      "bullets": [
+        "Improved internal beta reliability without changing your core flows."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.18.0",
+      "previousVersion": "1.17.0",
+      "commitSha": "0526931009edf197cce768fea15f91f75a7ad5af",
+      "commitTitle": "audit: document KandyDrops billing runtime surfaces",
+      "committedAt": "2026-05-05T13:11:22.000Z",
+      "generatedAt": "2026-05-05T18:48:32.252Z",
+      "committedAtUtc": "2026-05-05T13:11:22.000Z",
+      "generatedAtUtc": "2026-05-05T18:48:32.252Z",
+      "diffStats": {
+        "rawAdditions": 246,
+        "rawDeletions": 0,
+        "rawChangeCount": 246,
+        "additions": 246,
+        "deletions": 0,
+        "effectiveAdditions": 246,
+        "effectiveDeletions": 0,
+        "changedFiles": 2,
+        "effectiveChangeCount": 246,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Changed",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation"
+      ]
+    },
     {
       "version": "1.17.0",
       "previousVersion": "1.16.1",
       "commitSha": "1cbef6884a9c0f0273d22e9f14e1eff32968de26",
       "commitTitle": "chore(ci): route repo automation through cloud build",
-      "committedAt": "2026-05-05T07:49:13-05:00",
+      "committedAt": "2026-05-05T12:49:13.000Z",
       "generatedAt": "2026-05-05T12:49:32.622Z",
       "diffStats": {
         "rawAdditions": 207,
@@ -36,14 +100,16 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "documentation",
         "release-notes",
         "repo-tooling"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T12:49:13.000Z",
+      "generatedAtUtc": "2026-05-05T12:49:32.622Z"
     },
     {
       "version": "1.16.1",
       "previousVersion": "1.16.0",
       "commitSha": "d9eef92897173dc95929d74909d5995b7dcc5e2a",
       "commitTitle": "fix(functions): raise default memory limit [skip ci]",
-      "committedAt": "2026-05-05T07:14:35-05:00",
+      "committedAt": "2026-05-05T12:14:35.000Z",
       "generatedAt": "2026-05-05T12:14:53.215Z",
       "diffStats": {
         "rawAdditions": 3,
@@ -65,14 +131,16 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "affectedSurfaces": [
         "documentation"
-      ]
+      ],
+      "committedAtUtc": "2026-05-05T12:14:35.000Z",
+      "generatedAtUtc": "2026-05-05T12:14:53.215Z"
     },
     {
       "version": "1.16.0",
       "previousVersion": "1.15.0",
       "commitSha": "408fc0dcd0a7affd9243dd591c6d9b670c8e3d1f",
       "commitTitle": "feat(experiments): add behavioral ranking holdout validation",
-      "committedAt": "2026-05-05T06:55:18-05:00",
+      "committedAt": "2026-05-05T11:55:18.000Z",
       "generatedAt": "2026-05-05T12:02:57.969Z",
       "diffStats": {
         "rawAdditions": 884,
@@ -95,69 +163,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "affectedSurfaces": [
         "documentation",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.15.0",
-      "previousVersion": "1.14.0",
-      "commitSha": "6a7e79c065680ef4ea03cbb83651b1d781750ce4",
-      "commitTitle": "feat(recommendations): add integrity demotion layer",
-      "committedAt": "2026-05-05T06:40:11-05:00",
-      "generatedAt": "2026-05-05T12:02:57.633Z",
-      "diffStats": {
-        "rawAdditions": 626,
-        "rawDeletions": 4,
-        "rawChangeCount": 630,
-        "additions": 626,
-        "deletions": 4,
-        "effectiveAdditions": 626,
-        "effectiveDeletions": 4,
-        "changedFiles": 10,
-        "effectiveChangeCount": 630,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
       ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.14.0",
-      "previousVersion": "1.13.0",
-      "commitSha": "f7258668a3b29e5b29f970664f2df5bd8db43463",
-      "commitTitle": "feat(creator): add creator supply quality score",
-      "committedAt": "2026-05-05T06:33:36-05:00",
-      "generatedAt": "2026-05-05T12:02:57.294Z",
-      "diffStats": {
-        "rawAdditions": 724,
-        "rawDeletions": 3,
-        "rawChangeCount": 727,
-        "additions": 724,
-        "deletions": 3,
-        "effectiveAdditions": 724,
-        "effectiveDeletions": 3,
-        "changedFiles": 15,
-        "effectiveChangeCount": 727,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
+      "committedAtUtc": "2026-05-05T11:55:18.000Z",
+      "generatedAtUtc": "2026-05-05T12:02:57.969Z"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

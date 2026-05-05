@@ -2,10 +2,27 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.19.0] - 2026-05-05
+
+### Internal
+
+- Updated 2026-05-05 14:11 UTC
+- Improved internal beta reliability.
+- Improved internal beta reliability without changing your core flows.
+
+## [1.18.0] - 2026-05-05
+
+### Changed
+
+- Updated 2026-05-05 13:11 UTC
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.17.0] - 2026-05-05
 
 ### Internal
 
+- Updated 2026-05-05 12:49 UTC
 - Added a Beta badge with app update notes in the top navigation.
 - Tap Beta beside KandyDrops to see the latest app-style updates.
 - The current beta version now stays tied to the public changelog.
@@ -14,6 +31,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Fixed
 
+- Updated 2026-05-05 12:14 UTC
 - Fixed a beta issue to make KandyDrops smoother to use.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -21,6 +39,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 11:55 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -28,6 +47,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 11:40 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -35,6 +55,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 11:33 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -42,6 +63,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 11:20 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -49,6 +71,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 11:04 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -56,6 +79,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 10:35 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -63,6 +87,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 10:18 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -70,6 +95,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 09:57 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -77,6 +103,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 09:41 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -84,6 +111,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 09:23 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -91,6 +119,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 08:48 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -98,6 +127,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 08:15 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -105,6 +135,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 07:51 UTC
 - Updated internal product guidance so future fixes stay more consistent.
 - Kept the update focused on user-visible polish and reliability.
 
@@ -112,6 +143,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Internal
 
+- Updated 2026-05-05 07:26 UTC
 - Updated internal product guidance so future fixes stay more consistent.
 - Improved internal beta reliability without changing your core flows.
 
@@ -119,6 +151,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Fixed
 
+- Updated 2026-05-05 07:10 UTC
 - Improved Beta version numbering so generated files do not overstate app updates.
 - Generated release-note files no longer inflate public beta version bumps.
 - Raw change counts are still kept behind the scenes for debugging.
@@ -127,6 +160,7 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Added
 
+- Updated 2026-05-05 07:02 UTC
 - Added a Beta badge with app update notes in the top navigation.
 - Tap Beta beside KandyDrops to see the latest app-style updates.
 - The current beta version now stays tied to the public changelog.
@@ -135,5 +169,6 @@ User-facing KandyDrops Beta updates, newest first.
 
 ### Internal
 
+- Updated 2026-05-05 06:25 UTC
 - Updated internal product guidance so future fixes stay more consistent.
 - Improved internal beta reliability without changing your core flows.
