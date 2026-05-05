@@ -257,7 +257,7 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
     || (normalized.includes("creator agreement") && normalized.includes("document") && normalized.includes("egress"))
     || (normalized.includes("creator agreement") && normalized.includes("document safety"))
   ) {
-    return "Improved internal document safety checks for creator agreement tools.";
+    return "Improved safety checks for creator agreement document access.";
   }
   if (
     normalized.includes("prove admin content entitlement scope")

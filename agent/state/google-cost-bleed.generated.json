@@ -1,7 +1,7 @@
 {
   "score": 0,
   "status": "fail",
-  "generatedAt": "2026-05-05T21:15:24.476Z",
+  "generatedAt": "2026-05-05T21:20:27.715Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [
     {
@@ -1637,22 +1637,6 @@
       "severity": "critical",
       "category": "storage_egress",
       "title": "Storage/media route lacks MEDIA_PROXY or equivalent byte/rate guard",
-      "filePath": "src/app/api/creator/onboarding/agreement-document/route.ts",
-      "routePath": "/api/creator/onboarding/agreement-document",
-      "costClass": "storage_egress",
-      "suggestedFix": "Apply MEDIA_PROXY or a route-specific byte/rate guard before Storage/media egress.",
-      "escalation": "Unbounded media routes can create immediate billing spikes.",
-      "evidence": [
-        "MEDIA_PROXY"
-      ],
-      "id": "google-cost-13fyp3s",
-      "scoreImpact": -25,
-      "canAutofix": false
-    },
-    {
-      "severity": "critical",
-      "category": "storage_egress",
-      "title": "Storage/media route lacks MEDIA_PROXY or equivalent byte/rate guard",
       "filePath": "src/app/api/creator/onboarding/id-submission/route.ts",
       "routePath": "/api/creator/onboarding/id-submission",
       "costClass": "storage_egress",
@@ -1682,7 +1666,7 @@
       "canAutofix": false
     }
   ],
-  "criticalCount": 3,
+  "criticalCount": 2,
   "majorCount": 89,
   "routeContracts": [
     {
@@ -1993,6 +1977,22 @@
       "maxExpectedCallsPerUserPerMinute": 20,
       "maxExpectedStorageBytesPerCall": 20000000,
       "notes": "Creator asset upload/download surface; must stay creator/user-scoped and rate limited."
+    },
+    {
+      "routePattern": "/api/creator/onboarding/agreement-document",
+      "methods": [
+        "GET"
+      ],
+      "costClass": "storage_egress",
+      "ratePolicy": "MEDIA_PROXY",
+      "cachePolicy": "no_store",
+      "authRequired": "user",
+      "trustedOriginRequired": true,
+      "budgetGuardRequired": true,
+      "maxExpectedCallsPerUserPerMinute": 15,
+      "maxExpectedStorageBytesPerCall": 12582912,
+      "maxExpectedFirestoreReadsPerCall": 2,
+      "notes": "Creator agreement document preview is authenticated, creator-scoped, MEDIA_PROXY rate limited, path-scoped to creator-agreements/, and exposes only short-lived signed document URLs."
     },
     {
       "routePattern": "/api/creator/bookings",
@@ -4681,24 +4681,20 @@
         "GET"
       ],
       "contract": {
-        "routePattern": "/api/creator/**",
+        "routePattern": "/api/creator/onboarding/agreement-document",
         "methods": [
-          "GET",
-          "POST",
-          "PUT",
-          "PATCH",
-          "DELETE"
+          "GET"
         ],
-        "costClass": "firestore_write",
-        "ratePolicy": "STANDARD / SENSITIVE_WRITE",
+        "costClass": "storage_egress",
+        "ratePolicy": "MEDIA_PROXY",
         "cachePolicy": "no_store",
         "authRequired": "user",
         "trustedOriginRequired": true,
         "budgetGuardRequired": true,
-        "maxExpectedCallsPerUserPerMinute": 20,
-        "maxExpectedFirestoreReadsPerCall": 80,
-        "maxExpectedFirestoreWritesPerCall": 12,
-        "notes": "Default creator API contract; creator state changes must be user-scoped, trusted-origin, and rate limited."
+        "maxExpectedCallsPerUserPerMinute": 15,
+        "maxExpectedStorageBytesPerCall": 12582912,
+        "maxExpectedFirestoreReadsPerCall": 2,
+        "notes": "Creator agreement document preview is authenticated, creator-scoped, MEDIA_PROXY rate limited, path-scoped to creator-agreements/, and exposes only short-lived signed document URLs."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -7929,5 +7925,5 @@
       "broad UI audits"
     ]
   },
-  "summary": "Detected 97 Google API cost/rate-limit finding(s); no business logic was auto-fixed."
+  "summary": "Detected 96 Google API cost/rate-limit finding(s); no business logic was auto-fixed."
 }
