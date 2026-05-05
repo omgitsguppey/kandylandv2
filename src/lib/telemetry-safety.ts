@@ -15,6 +15,8 @@ const PRIORITY_KEYS = [
     "event_modules",
     "tracking_origin",
     "tracking_sources",
+    "release_channel",
+    "app_version",
     "source_truth",
     "event_schema_version",
     "task_discriminator",

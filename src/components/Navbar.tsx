@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
+import { BetaBadge } from "@/components/ReleaseNotes/BetaBadge";
 
 const ProfileDropdown = dynamic(
     () => import("@/components/Navigation/ProfileDropdown").then((mod) => mod.ProfileDropdown),
@@ -56,16 +57,19 @@ export function Navbar() {
                     className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/10 bg-black/55 px-3.5 py-2 shadow-xl shadow-black/40 backdrop-blur-xl sm:px-6 sm:py-3"
                     style={{ WebkitBackdropFilter: "blur(20px)" }}
                 >
-                    <Link
-                        href={homeHref}
-                        onClick={() => {
-                            trackEvent("navigation_click", { destination: homeHref, source: "navbar_logo" });
-                        }}
-                        aria-label="KandyDrops home"
-                        className="shrink-0 text-white text-base font-bold sm:text-2xl"
-                    >
-                        KandyDrops
-                    </Link>
+                    <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+                        <Link
+                            href={homeHref}
+                            onClick={() => {
+                                trackEvent("navigation_click", { destination: homeHref, source: "navbar_logo" });
+                            }}
+                            aria-label="KandyDrops home"
+                            className="shrink-0 text-base font-bold text-white sm:text-2xl"
+                        >
+                            KandyDrops
+                        </Link>
+                        <BetaBadge />
+                    </div>
 
                     <div className="flex min-w-0 items-center gap-2 sm:gap-4">
                         {!authSettled ? (

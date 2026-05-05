@@ -1,0 +1,221 @@
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import {
+  INITIAL_PUBLIC_VERSION,
+  PUBLIC_RELEASE_CHANNEL,
+  bumpPublicVersion,
+  classifyPublicVersionBump,
+  comparePublicVersions,
+  getPublicReleaseNotesVisibleNotes,
+  isValidPublicVersion,
+  type PublicReleaseNotesDocument,
+} from "../../src/lib/release-notes/release-version-contract";
+
+const root = process.cwd();
+const failures: string[] = [];
+
+function readRequired(relativePath: string) {
+  const fullPath = join(root, relativePath);
+  if (!existsSync(fullPath)) {
+    failures.push(`Missing required file: ${relativePath}`);
+    return "";
+  }
+  return readFileSync(fullPath, "utf8");
+}
+
+function requireIncludes(source: string, expected: string, label: string) {
+  if (!source.includes(expected)) failures.push(`${label} must include "${expected}".`);
+}
+
+function git(args: string[]) {
+  try {
+    return execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
+  } catch {
+    return "";
+  }
+}
+
+function readJson<T>(relativePath: string): T | null {
+  const source = readRequired(relativePath);
+  if (!source) return null;
+  try {
+    return JSON.parse(source) as T;
+  } catch (error) {
+    failures.push(`${relativePath} must be valid JSON: ${(error as Error).message}`);
+    return null;
+  }
+}
+
+function validateDocument(document: PublicReleaseNotesDocument | null) {
+  if (!document) return;
+  if (document.channel !== PUBLIC_RELEASE_CHANNEL) failures.push("public release notes channel must be beta.");
+  if (!isValidPublicVersion(document.currentVersion)) failures.push("currentVersion must be MAJOR.MINOR.PATCH.");
+  if (comparePublicVersions(document.currentVersion, INITIAL_PUBLIC_VERSION) < 0) {
+    failures.push("currentVersion must start at or above 1.0.0.");
+  }
+  const major = Number(document.currentVersion.split(".")[0]);
+  if (major > 1) failures.push("major version must not auto-increment above 1 without an explicit allowMajorVersionBump gate.");
+  if (!Array.isArray(document.notes)) failures.push("notes must be an array.");
+
+  for (const [index, note] of document.notes.entries()) {
+    for (const field of ["version", "previousVersion", "commitSha", "commitTitle", "committedAt", "generatedAt", "category", "userFacingTitle"] as const) {
+      if (typeof note[field] !== "string" || note[field].trim().length === 0) {
+        failures.push(`notes[${index}].${field} must be non-empty.`);
+      }
+    }
+    if (!Array.isArray(note.bullets) || note.bullets.length === 0 || note.bullets.length > 3) {
+      failures.push(`notes[${index}].bullets must include 1-3 user-facing bullets.`);
+    }
+    if (!Array.isArray(note.affectedSurfaces) || note.affectedSurfaces.length === 0) {
+      failures.push(`notes[${index}].affectedSurfaces must be non-empty.`);
+    }
+    if (!note.diffStats || note.diffStats.effectiveChangeCount !== note.diffStats.additions + note.diffStats.deletions) {
+      failures.push(`notes[${index}].diffStats effective count must equal additions + deletions after exclusions.`);
+    }
+    if (/src\/|scripts\/|agent\/state|\.tsx|\.ts\b|commit\b/iu.test(note.userFacingTitle)) {
+      failures.push(`notes[${index}].userFacingTitle must not expose internal file names or raw commit noise.`);
+    }
+  }
+
+  const latestTitle = git(["log", "-1", "--format=%s"]);
+  const latestSha = git(["rev-parse", "HEAD"]);
+  if (latestTitle && !/\[skip release-notes\]/iu.test(latestTitle) && !document.notes.some((note) => note.commitSha === latestSha)) {
+    failures.push("last git commit must be represented in public release notes unless it includes [skip release-notes].");
+  }
+  if (latestTitle && /\[skip release-notes\]/iu.test(latestTitle)) {
+    const previousSha = git(["rev-list", "-n", "1", "HEAD^", "--grep=\\[skip release-notes\\]", "--invert-grep", "--regexp-ignore-case"]);
+    if (previousSha && !document.notes.some((note) => note.commitSha === previousSha)) {
+      failures.push("previous non-skip commit must be represented when the latest commit skips release notes.");
+    }
+  }
+
+  const visibleNotes = getPublicReleaseNotesVisibleNotes(document.notes);
+  const drawer = readRequired("src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx");
+  if (visibleNotes.length === 0) requireIncludes(drawer, "No beta updates have been published yet.", "Beta release notes drawer");
+}
+
+const betaBadge = readRequired("src/components/ReleaseNotes/BetaBadge.tsx");
+const drawer = readRequired("src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx");
+const hook = readRequired("src/hooks/usePublicReleaseNotes.ts");
+const navbar = readRequired("src/components/Navbar.tsx");
+const publicNotesTs = readRequired("src/lib/release-notes/public-release-notes.ts");
+const contract = readRequired("src/lib/release-notes/release-version-contract.ts");
+const releaseScript = readRequired("scripts/release/update-public-changelog.ts");
+const validatorScript = readRequired("scripts/agent/validate-public-beta-changelog.ts");
+const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
+const packageJson = readRequired("package.json");
+const readme = readRequired("README.md");
+const agents = readRequired("AGENTS.md");
+const docs = readRequired("docs/agent-truth/public-beta-release-notes.md");
+const changelog = readRequired("CHANGELOG.md");
+const ciWorkflow = readRequired(".github/workflows/ci.yml");
+const releaseWorkflow = readRequired(".github/workflows/public-release-notes.yml");
+const document = readJson<PublicReleaseNotesDocument>("public/kandydrops-release-notes.json");
+
+validateDocument(document);
+
+for (const expected of [
+  "data-beta-badge=\"public-release-notes\"",
+  "data-beta-version",
+  "lazy(() =>",
+  "beta_badge_clicked",
+  "beta_changelog_opened",
+  "beta_changelog_closed",
+]) {
+  requireIncludes(betaBadge, expected, "BetaBadge");
+}
+
+for (const expected of [
+  "BetaBadge",
+  "KandyDrops",
+  "<BetaBadge />",
+]) {
+  requireIncludes(navbar, expected, "Navbar");
+}
+
+for (const expected of [
+  "data-beta-release-notes-count",
+  "data-beta-release-notes-freshness",
+  "data-beta-changelog-source",
+  "What&apos;s new in Beta",
+  "Updated continuously as KandyDrops improves.",
+]) {
+  requireIncludes(drawer, expected, "Beta release notes drawer");
+}
+
+for (const expected of [
+  "fetch(\"/kandydrops-release-notes.json\"",
+  "PUBLIC_RELEASE_NOTES_FALLBACK",
+  "bundled-fallback",
+]) {
+  requireIncludes(hook, expected, "usePublicReleaseNotes");
+}
+
+for (const expected of [
+  "type PublicReleaseNote",
+  "MAJOR.MINOR.PATCH",
+  "classifyPublicVersionBump",
+  "effectiveChangeCount > 100 ? \"minor\" : \"patch\"",
+]) {
+  requireIncludes(contract, expected, "release version contract");
+}
+
+if (classifyPublicVersionBump(101) !== "minor" || bumpPublicVersion("1.0.4", "minor") !== "1.1.0") {
+  failures.push("effectiveChangeCount > 100 must bump minor and reset patch.");
+}
+if (classifyPublicVersionBump(100) !== "patch" || bumpPublicVersion("1.0.0", "patch") !== "1.0.1") {
+  failures.push("effectiveChangeCount <= 100 must bump patch.");
+}
+
+for (const expected of [
+  "agent\\/state\\/.*\\.generated\\.json",
+  "agent/cache/",
+  "coverage/",
+  ".next/",
+  "public/kandydrops-release-notes.json",
+  "src/lib/release-notes/public-release-notes.ts",
+  "CHANGELOG.md",
+  "package-lock.json",
+  "effectiveChangeCount",
+  "skip release-notes",
+]) {
+  requireIncludes(releaseScript, expected, "release notes update script");
+}
+
+for (const eventName of [
+  "beta_badge_clicked",
+  "beta_changelog_opened",
+  "beta_changelog_closed",
+  "beta_changelog_entry_clicked",
+]) {
+  requireIncludes(telemetryCatalog, eventName, "telemetry catalog");
+}
+
+for (const expected of [
+  "\"release:notes\": \"tsx scripts/release/update-public-changelog.ts\"",
+  "\"check:release-notes\": \"tsx scripts/agent/validate-public-beta-changelog.ts\"",
+]) {
+  requireIncludes(packageJson, expected, "package.json");
+}
+
+for (const source of [readme, agents, docs] as const) {
+  requireIncludes(source, "KandyDrops Beta release notes are user-facing", "release notes doctrine docs");
+  requireIncludes(source, "MAJOR.MINOR.PATCH", "release notes doctrine docs");
+}
+
+requireIncludes(changelog, "# Changelog", "CHANGELOG.md");
+requireIncludes(publicNotesTs, "PUBLIC_RELEASE_NOTES_FALLBACK", "public release notes fallback");
+requireIncludes(ciWorkflow, "npm run check:release-notes", "CI workflow");
+requireIncludes(releaseWorkflow, "npm run release:notes", "public release notes workflow");
+requireIncludes(releaseWorkflow, "[skip release-notes]", "public release notes workflow");
+requireIncludes(validatorScript, "last git commit must be represented", "release notes validator");
+
+if (failures.length > 0) {
+  console.error("Public beta changelog validation failed:");
+  for (const failure of failures) console.error(`- ${failure}`);
+  process.exit(1);
+}
+
+console.log("Public beta changelog validation passed.");

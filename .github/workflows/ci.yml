@@ -36,5 +36,8 @@ jobs:
       - name: Validate human developer readiness
         run: npm run check:human-dev-readiness
 
+      - name: Validate public beta release notes
+        run: npm run check:release-notes
+
       - name: Typecheck
         run: npm run typecheck

@@ -28,6 +28,15 @@ This command budget is mandatory for doctrine and governance work.
 - Use `npm run typecheck` when TypeScript changed.
 - Do not run Playwright, Lighthouse, Cypress, deploys, or full `npm run check` by default.
 
+Public beta release notes doctrine:
+
+KandyDrops Beta release notes are user-facing and update after every commit. The Beta badge beside the top nav title opens the last 5 app-style updates. Versioning uses MAJOR.MINOR.PATCH starting at 1.0.0. MAJOR never auto-increments. Effective non-generated diff size above 100 additions/deletions bumps MINOR and resets PATCH. Effective diff size of 100 or below bumps PATCH. Changelog copy must explain what changed for users, not dump technical commit noise.
+
+- Read `docs/agent-truth/public-beta-release-notes.md` before changing release-note automation or the Beta badge.
+- Run `npm run release:notes` after commits that need public changelog updates.
+- Run `npm run check:release-notes` and targeted release-note tests for this lane.
+- Do not run Playwright, Lighthouse, Cypress, or full `npm run check` for this lane by default.
+
 > [!CAUTION]
 > **MANDATORY CONTROL TOWER ROUTING:**
 > Before touching UI, copy, telemetry, state, admin truth, or Firebase architecture, you MUST start with /control-tower/00-START-HERE.md.

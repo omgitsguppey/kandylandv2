@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Public Beta Release Notes Coverage
+
+- [x] `src/lib/release-notes/release-version-contract.ts`, `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, and `CHANGELOG.md` define the public Beta release-note/version contract, current app version, bundled fallback, and human changelog.
+- [x] `src/components/ReleaseNotes/BetaBadge.tsx`, `src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx`, `src/hooks/usePublicReleaseNotes.ts`, and `src/components/Navbar.tsx` add the interactive top-nav Beta badge and lazy release-note drawer without changing the KandyDrops title or bottom nav.
+- [x] `scripts/release/update-public-changelog.ts`, `scripts/agent/validate-public-beta-changelog.ts`, `.github/workflows/public-release-notes.yml`, `.github/workflows/ci.yml`, package scripts `release:notes` / `check:release-notes`, and `tests/unit/public-beta-release-notes.spec.tsx` provide deterministic generation, stale validation, CI enforcement, main-branch automation, and targeted coverage.
+
 ## 2026-05-05 Doctrine Hierarchy Consolidation Coverage
 
 - [x] `docs/doctrine/00-product-constitution.md`, `docs/doctrine/01-source-of-truth-constitution.md`, `docs/doctrine/02-engineering-constitution.md`, and `docs/doctrine/surfaces/*.md` define the canonical doctrine authority hierarchy and surface ownership layer.

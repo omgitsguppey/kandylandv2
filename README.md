@@ -44,6 +44,15 @@ Do not run Playwright, Lighthouse, Cypress, deploys, or full `npm run check` by 
 - [Environment Contract](./docs/agent-truth/environment-contract.md)
 - [Contractor Onboarding](./docs/agent-truth/contractor-onboarding.md)
 
+## Beta Release Notes
+
+KandyDrops Beta release notes are user-facing and update after every commit. The Beta badge beside the top nav title opens the last 5 app-style updates. Versioning uses MAJOR.MINOR.PATCH starting at 1.0.0. MAJOR never auto-increments. Effective non-generated diff size above 100 additions/deletions bumps MINOR and resets PATCH. Effective diff size of 100 or below bumps PATCH. Changelog copy must explain what changed for users, not dump technical commit noise.
+
+- Public notes: [public/kandydrops-release-notes.json](./public/kandydrops-release-notes.json)
+- Human changelog: [CHANGELOG.md](./CHANGELOG.md)
+- Dev truth: [Public Beta Release Notes](./docs/agent-truth/public-beta-release-notes.md)
+- Commands: `npm run release:notes` and `npm run check:release-notes`
+
 ## Current Rule
 
 If a README sentence appears to conflict with a constitution, surface doctrine, registry entry, or verified runtime code, the README loses.

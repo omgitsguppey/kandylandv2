@@ -318,6 +318,10 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "identity_linked", label: "Guest identity linked", category: "auth", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["auth", "engagement"], auditCoveredBy: ["auth_sign_in_success", "auth_sign_up_success"] },
   { eventName: "system_job_ran", label: "System job ran", category: "system", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["runtime"], auditCoveredBy: ["feature_flag_exposed"] },
   { eventName: "navigation_click", label: "Navigation click", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
+  { eventName: "beta_badge_clicked", label: "Beta badge clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
+  { eventName: "beta_changelog_opened", label: "Beta changelog opened", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
+  { eventName: "beta_changelog_closed", label: "Beta changelog closed", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
+  { eventName: "beta_changelog_entry_clicked", label: "Beta changelog entry clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation", "runtime"] },
   { eventName: "semantic_page_viewed", label: "Semantic page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "semantic_page_engaged", label: "Semantic page engaged", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "semantic_page_passive", label: "Semantic passive page view", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
@@ -709,6 +713,7 @@ export function buildTelemetryEventMetadata(eventName: string): TelemetryResolve
 const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   adminId: "admin_id",
   anonymousVisitorId: "anonymous_visitor_id",
+  appVersion: "app_version",
   actionKey: "action_key",
   actorAdminId: "actor_admin_id",
   actorClassificationReason: "actor_classification_reason",
@@ -786,6 +791,7 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   hiddenMs: "hidden_ms",
   idleMs: "idle_ms",
   reasonCodes: "reason_codes",
+  releaseChannel: "release_channel",
   watchSeconds: "watch_seconds",
 };
 

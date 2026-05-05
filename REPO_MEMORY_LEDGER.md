@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Public beta release notes
+
+KandyDrops now has user-facing Beta release notes tied to a small interactive `Beta` badge beside the unchanged top-nav `KandyDrops` title. `src/lib/release-notes/release-version-contract.ts` owns the public note/version contract and MAJOR.MINOR.PATCH bump rules, `scripts/release/update-public-changelog.ts` generates `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, and `CHANGELOG.md`, and `scripts/agent/validate-public-beta-changelog.ts` validates staleness, generated-file exclusions, version rules, telemetry, UI wiring, docs, and CI automation. `.github/workflows/public-release-notes.yml` updates notes on main pushes and commits generated updates with `[skip release-notes]` to avoid loops. `npm run release:notes`, `npm run check:release-notes`, targeted release-note tests, and `npm run typecheck` are the canonical lane.
+
 ## 2026-05-05 Doctrine hierarchy consolidation
 
 KandyDrops doctrine now has an explicit authority hierarchy: Product Constitution, Source-of-Truth Constitution, Engineering Constitution, Surface Doctrine Cards, Runbooks/ADRs, Generated Reports, and Legacy Docs. `npm run score:doctrine` writes compact `agent/context/doctrine-registry.json`, streamable `agent/context/doctrine-cards.jsonl`, and `agent/context/doctrine-conflicts.generated.json`; `npm run check:doctrine` validates canonical docs, one canonical owner per surface, conflict winners, legacy superseded-by metadata, README gateway behavior, AGENTS compact-context-first behavior, and validator linkage. README is now a gateway instead of a doctrine dump, and AGENTS instructs agents not to read every Markdown file by default.

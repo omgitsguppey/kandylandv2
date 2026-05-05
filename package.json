@@ -54,6 +54,8 @@
         "check:code-organization": "tsx scripts/agent/validate-code-organization.ts",
         "score:doctrine": "tsx scripts/agent/score-doctrine-hierarchy.ts",
         "check:doctrine": "tsx scripts/agent/validate-doctrine-hierarchy.ts",
+        "release:notes": "tsx scripts/release/update-public-changelog.ts",
+        "check:release-notes": "tsx scripts/agent/validate-public-beta-changelog.ts",
         "check:human-dev-readiness": "tsx scripts/agent/validate-human-dev-readiness.ts",
         "score:speed-security": "tsx scripts/agent/score-speed-security-hardening.ts",
         "check:speed-security": "tsx scripts/agent/validate-speed-security-hardening.ts",

@@ -1,5 +1,30 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #163] PRE: Public Beta Release Notes Badge
+
+Scope started:
+- Adding a subtle interactive Beta badge beside the unchanged top-nav KandyDrops title, backed by public release notes JSON, bundled fallback notes, deterministic version bump rules, changelog generation, and a stale-release-notes validator.
+- Required outputs include release-note contracts/data, `public/kandydrops-release-notes.json`, `CHANGELOG.md`, Beta badge/drawer UI, `usePublicReleaseNotes`, release update/validation scripts, docs, package scripts, and CI stale-check wiring.
+- This pass must not change wallet/payment/creator/content behavior, bottom navigation, protected content rules, or top-nav layout beyond the small Beta badge.
+
+Evidence:
+- Control tower execution order, product/copy/UI doctrine, surface matrix, banned patterns, telemetry doctrine, source-of-truth map, shared component ownership, React/Next performance guidance, Navbar, CoreLayoutWrapper, telemetry catalog, package scripts, Git hooks, and GitHub workflow setup were inspected before implementation.
+
+Doctrine:
+- Release notes are user-facing Beta reliability copy, not raw internal commit dumps. The nav badge is a real interactive affordance with telemetry, a static public source of truth, and an explicit bundled-fallback state.
+
+Scope completed:
+- Added typed release-note/version contracts, public JSON, bundled fallback, `CHANGELOG.md`, deterministic generator, stale validator, CI check, and main-branch release-note workflow with `[skip release-notes]` loop prevention.
+- Added `BetaBadge`, lazy `BetaReleaseNotesDrawer`, `usePublicReleaseNotes`, and rendered the badge beside the unchanged top-nav `KandyDrops` title.
+- Added beta changelog telemetry events, release-note telemetry parameter priority, user-facing release-note docs, README/AGENTS doctrine notes, and targeted component/contract coverage.
+
+Verification:
+- `npm run release:notes` passed and initialized public release notes at v1.0.0 from the current HEAD only.
+- `npm run check:release-notes` passed.
+- `npx vitest run tests/unit/public-beta-release-notes.spec.tsx` passed.
+- `npm run typecheck` passed.
+- Playwright, Lighthouse, Cypress, full `npm run check`, payment/economy/unlock/browser audits, and bottom-nav changes were not run or made.
+
 ## [2026-05-05 #162] PRE: Doctrine Hierarchy Consolidation
 
 Scope started:
