@@ -1,12 +1,46 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.20.0",
+  "currentVersion": "1.20.1",
   "channel": "beta",
-  "generatedAt": "2026-05-05T19:15:29.544Z",
-  "generatedAtUtc": "2026-05-05T19:15:29.544Z",
-  "lastCommitSha": "f7500283807314a26d05dc1f6a86b0f28d02aeb1",
+  "generatedAt": "2026-05-05T19:16:50.354Z",
+  "generatedAtUtc": "2026-05-05T19:16:50.354Z",
+  "lastCommitSha": "1f08985ddfa85ad9d9742ae5d1bfbbbf69eaf24a",
   "notes": [
+    {
+      "version": "1.20.1",
+      "previousVersion": "1.20.0",
+      "commitSha": "1f08985ddfa85ad9d9742ae5d1bfbbbf69eaf24a",
+      "commitTitle": "fix(release): keep beta notes user safe",
+      "committedAt": "2026-05-05T19:16:35.000Z",
+      "generatedAt": "2026-05-05T19:16:50.354Z",
+      "committedAtUtc": "2026-05-05T19:16:35.000Z",
+      "generatedAtUtc": "2026-05-05T19:16:50.354Z",
+      "diffStats": {
+        "rawAdditions": 128,
+        "rawDeletions": 43,
+        "rawChangeCount": 171,
+        "additions": 128,
+        "deletions": 43,
+        "effectiveAdditions": 41,
+        "effectiveDeletions": 3,
+        "changedFiles": 7,
+        "effectiveChangeCount": 44,
+        "excludedGeneratedChangeCount": 127
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved Beta update notes so changes are easier to match with support reports.",
+      "bullets": [
+        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
+        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.20.0",
       "previousVersion": "1.19.0",
@@ -138,37 +172,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "committedAtUtc": "2026-05-05T12:49:13.000Z",
       "generatedAtUtc": "2026-05-05T12:49:32.622Z"
-    },
-    {
-      "version": "1.16.1",
-      "previousVersion": "1.16.0",
-      "commitSha": "d9eef92897173dc95929d74909d5995b7dcc5e2a",
-      "commitTitle": "fix(functions): raise default memory limit [skip ci]",
-      "committedAt": "2026-05-05T12:14:35.000Z",
-      "generatedAt": "2026-05-05T12:14:53.215Z",
-      "diffStats": {
-        "rawAdditions": 3,
-        "rawDeletions": 0,
-        "rawChangeCount": 3,
-        "additions": 3,
-        "deletions": 0,
-        "effectiveAdditions": 3,
-        "effectiveDeletions": 0,
-        "changedFiles": 2,
-        "effectiveChangeCount": 3,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Fixed a beta issue to make KandyDrops smoother to use.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "documentation"
-      ],
-      "committedAtUtc": "2026-05-05T12:14:35.000Z",
-      "generatedAtUtc": "2026-05-05T12:14:53.215Z"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

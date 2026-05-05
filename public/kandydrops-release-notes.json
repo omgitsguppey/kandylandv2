@@ -1,10 +1,44 @@
 {
-  "currentVersion": "1.20.0",
+  "currentVersion": "1.20.1",
   "channel": "beta",
-  "generatedAt": "2026-05-05T19:15:29.544Z",
-  "generatedAtUtc": "2026-05-05T19:15:29.544Z",
-  "lastCommitSha": "f7500283807314a26d05dc1f6a86b0f28d02aeb1",
+  "generatedAt": "2026-05-05T19:16:50.354Z",
+  "generatedAtUtc": "2026-05-05T19:16:50.354Z",
+  "lastCommitSha": "1f08985ddfa85ad9d9742ae5d1bfbbbf69eaf24a",
   "notes": [
+    {
+      "version": "1.20.1",
+      "previousVersion": "1.20.0",
+      "commitSha": "1f08985ddfa85ad9d9742ae5d1bfbbbf69eaf24a",
+      "commitTitle": "fix(release): keep beta notes user safe",
+      "committedAt": "2026-05-05T19:16:35.000Z",
+      "generatedAt": "2026-05-05T19:16:50.354Z",
+      "committedAtUtc": "2026-05-05T19:16:35.000Z",
+      "generatedAtUtc": "2026-05-05T19:16:50.354Z",
+      "diffStats": {
+        "rawAdditions": 128,
+        "rawDeletions": 43,
+        "rawChangeCount": 171,
+        "additions": 128,
+        "deletions": 43,
+        "effectiveAdditions": 41,
+        "effectiveDeletions": 3,
+        "changedFiles": 7,
+        "effectiveChangeCount": 44,
+        "excludedGeneratedChangeCount": 127
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved Beta update notes so changes are easier to match with support reports.",
+      "bullets": [
+        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
+        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.20.0",
       "previousVersion": "1.19.0",
