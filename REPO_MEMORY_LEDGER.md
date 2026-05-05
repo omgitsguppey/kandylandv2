@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Affected audit router
+
+KandyDrops now has a deterministic affected-file precheck for audit routing. `npm run plan:affected-audits` reads Git changed files or explicit `--files`, maps them through KandyDrops surface/dependency rules in `src/lib/agent-audit/affected-surface-router.ts`, applies command budgets from `src/lib/agent-audit/verification-command-budget.ts`, and writes `agent/state/affected-audit-plan.generated.json`. Plans include command-level `whyThisCommand`, `whyNotFullCheck`, terminal allow-list justification, forbidden full-suite commands, and safe skip explanations. `npm run check:affected-audit-router` validates wallet, docs-only, PayPal API, chat, viewer, admin users, rules, and agent-tooling routing examples.
+
 ## 2026-05-05 Audit runtime ledger
 
 KandyDrops audits now have an append-only runtime ledger. `npm run audit:run -- --audit <script-or-validator>` wraps package scripts and direct `scripts/agent/validate-*.ts` files, records duration, changed files, inferred inspected files, terminal command execution, forbidden command attempts, cache hits, findings counts, accuracy status, resource class, and trigger reason into `agent/state/audit-runtime-ledger.jsonl`. `npm run score:audit-runtime` writes `agent/state/audit-runtime-summary.generated.json` with slowestAudits, mostUsefulAudits, leastUsefulAudits, mostFalsePositiveAudits, and terminalHeavyAudits. `npm run check:audit-runtime-ledger` validates the contract, JSONL stream shape, package scripts, forbidden-command budget, and docs.

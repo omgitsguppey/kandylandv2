@@ -22,6 +22,11 @@ import {
   type AuditRuntimeLedgerEntry,
 } from "../../src/lib/agent-audit/audit-runtime-contract";
 import { summarizeAuditRuntime } from "../../src/lib/agent-audit/audit-speed-score";
+import {
+  AFFECTED_AUDIT_PLAN_PATH,
+  explainTerminalGate,
+  type AffectedAuditPlan,
+} from "../../src/lib/agent-audit/verification-command-budget";
 
 type PackageJson = {
   scripts?: Record<string, string>;
@@ -38,6 +43,9 @@ type ParsedArgs = {
   inspectedFiles: string[];
   changedFiles: string[];
   cacheHit: boolean;
+  allowUnplanned: boolean;
+  criticalUncertainty: boolean;
+  terminalReason: string;
   passThroughArgs: string[];
 };
 
@@ -67,6 +75,9 @@ function parseArgs(argv: string[]): ParsedArgs {
     inspectedFiles: [],
     changedFiles: [],
     cacheHit: false,
+    allowUnplanned: false,
+    criticalUncertainty: false,
+    terminalReason: "",
     passThroughArgs,
   };
 
@@ -135,6 +146,18 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--cacheHit":
         parsed.cacheHit = true;
         break;
+      case "--allow-unplanned":
+      case "--allowUnplanned":
+        parsed.allowUnplanned = true;
+        break;
+      case "--critical-uncertainty":
+      case "--criticalUncertainty":
+        parsed.criticalUncertainty = true;
+        break;
+      case "--terminal-reason":
+      case "--terminalReason":
+        parsed.terminalReason = nextValue();
+        break;
       default:
         if (current.trim().length > 0) {
           throw new Error(`Unknown audit runtime option "${current}".`);
@@ -162,6 +185,16 @@ function splitList(value: string) {
 
 function readPackageJson(): PackageJson {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as PackageJson;
+}
+
+function readAffectedAuditPlan() {
+  const planPath = join(root, AFFECTED_AUDIT_PLAN_PATH);
+  if (!existsSync(planPath)) return null;
+  try {
+    return JSON.parse(readFileSync(planPath, "utf8")) as AffectedAuditPlan;
+  } catch {
+    return null;
+  }
 }
 
 function resolveAuditCommand(auditName: string, scripts: Record<string, string>, passThroughArgs: string[]): ResolvedAuditCommand {
@@ -378,16 +411,28 @@ function main() {
   } else if (parsed.cacheHit) {
     console.log(`audit:run cache hit for ${resolved.auditName}; skipped terminal execution.`);
   } else {
-    terminalCommands = [resolved.terminalCommand];
-    const result = spawnSync(resolved.executable, resolved.args, {
-      cwd: root,
-      stdio: "inherit",
-      shell: false,
+    const gate = explainTerminalGate(resolved.terminalCommand, readAffectedAuditPlan(), {
+      explicitOverride: parsed.allowUnplanned,
+      criticalUncertainty: parsed.criticalUncertainty,
+      overrideReason: parsed.terminalReason || parsed.triggerReason,
     });
-    if (result.error) {
-      console.error(`audit:run command failed to start: ${result.error.message}`);
+    if (!gate.allowed) {
+      console.error(`audit:run terminal gate blocked ${resolved.terminalCommand}: ${gate.reason}`);
+      forbiddenCommandsAttempted.push(`terminal_gate:${resolved.terminalCommand}`);
+      exitCode = 1;
+    } else {
+      console.log(`audit:run terminal gate allowed ${resolved.terminalCommand}: ${gate.reason}`);
+      terminalCommands = [resolved.terminalCommand];
+      const result = spawnSync(resolved.executable, resolved.args, {
+        cwd: root,
+        stdio: "inherit",
+        shell: false,
+      });
+      if (result.error) {
+        console.error(`audit:run command failed to start: ${result.error.message}`);
+      }
+      exitCode = result.status ?? 1;
     }
-    exitCode = result.status ?? 1;
   }
 
   const endedAt = Date.now();

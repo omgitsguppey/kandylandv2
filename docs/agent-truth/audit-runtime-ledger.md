@@ -3,10 +3,11 @@
 KandyDrops audit speed instrumentation is append-only. Every validator, check, or audit should be launched through:
 
 ```bash
+npm run plan:affected-audits -- --files src/components/PurchaseModal.tsx --task "wallet check"
 npm run audit:run -- --audit check:wallet-density
 ```
 
-The wrapper records runtime metadata in `agent/state/audit-runtime-ledger.jsonl` and refreshes `agent/state/audit-runtime-summary.generated.json`. The ledger is JSONL, not a giant JSON array, so agents can stream historical runs without loading the whole history.
+The affected plan is the terminal gate. The wrapper records runtime metadata in `agent/state/audit-runtime-ledger.jsonl` and refreshes `agent/state/audit-runtime-summary.generated.json`. The ledger is JSONL, not a giant JSON array, so agents can stream historical runs without loading the whole history.
 
 ## JSONL Contract
 

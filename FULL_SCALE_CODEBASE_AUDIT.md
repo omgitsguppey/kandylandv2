@@ -1,5 +1,29 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #156] PRE: Affected Audit Router
+
+Scope started:
+- Adding a deterministic affected-file precheck router that maps Git-changed files, repo surface rules, dependency-risk hints, and task context into the minimum safe validators/tests before terminal runs.
+- Required outputs include affected-surface routing helpers, command budget helpers, planning and validation scripts, generated affected audit plan state, docs, package scripts, and examples proving wallet/docs/payment/rules/script paths do not trigger unrelated broad checks.
+- This pass must not change product behavior, must not run broad audits, and must keep full-suite commands forbidden unless explicitly overridden with a reason.
+
+Evidence:
+- Control tower routing, source-of-truth map, preflight/postflight checklists, product doctrine, governance ledgers, prior audit-runtime lane, generated surface/dependency/verification indexes, and Nx affected documentation were consulted before implementation.
+
+Scope completed:
+- Added `src/lib/agent-audit/affected-surface-router.ts` with deterministic KandyDrops surface routing for wallet, PayPal API, chat, viewer, admin users, Firebase rules, docs-only, agent tooling, unlock, functions, and Data Connect mirror changes.
+- Added `src/lib/agent-audit/verification-command-budget.ts` to own affected plan shape, max command budgets, full-suite forbidden commands, terminal run justifications, and safe-skip helpers.
+- Added `scripts/agent/plan-affected-audits.ts`, `scripts/agent/validate-affected-audit-router.ts`, `agent/state/affected-audit-plan.generated.json`, package scripts `plan:affected-audits` / `check:affected-audit-router`, and docs under `docs/agent-truth/affected-audit-router.md`.
+- Wired `scripts/agent/run-audit-with-ledger.ts` to consult the affected audit plan before spawning terminal audit commands, while preserving explicit override and critical-uncertainty escape hatches.
+
+Verification:
+- `npm run plan:affected-audits -- --task="build affected-file audit router"` passed and wrote a 3-command plan for this agent-tooling changeset.
+- `npm run check:affected-audit-router` passed.
+- `npm run check:audit-runtime-ledger` passed for 4 ledger runs.
+- `npm run typecheck` passed.
+- `npm run check:generated-artifacts` was run from the initial generated plan and passed before typecheck was promoted into the required plan.
+- Broad audits, Playwright, Lighthouse, Cypress, and full `npm run check` were not run.
+
 ## [2026-05-05 #155] PRE: Audit Runtime Ledger
 
 Scope started:

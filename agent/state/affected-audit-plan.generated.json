@@ -1,0 +1,279 @@
+{
+  "generatedAt": "2026-05-05T02:04:23.273Z",
+  "source": [
+    "agent/state/affected-audit-plan.generated.json",
+    "agent/index/surface-map.json",
+    "agent/index/dependency-graph.summary.json",
+    "agent/index/verification-commands.json",
+    "package.json"
+  ],
+  "researchModel": "Nx-style affected planning: Git changed files plus repo surface map and dependency/ownership hints determine the minimum affected checks; Nx is not required.",
+  "taskSummary": "build affected-file audit router",
+  "changedFiles": [
+    "agent/state/affected-audit-plan.generated.json",
+    "docs/agent-truth/affected-audit-router.md",
+    "docs/agent-truth/audit-runtime-ledger.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "package.json",
+    "REPO_MEMORY_LEDGER.md",
+    "scripts/agent/plan-affected-audits.ts",
+    "scripts/agent/run-audit-with-ledger.ts",
+    "scripts/agent/validate-affected-audit-router.ts",
+    "src/lib/agent-audit/affected-surface-router.ts",
+    "src/lib/agent-audit/verification-command-budget.ts"
+  ],
+  "changedPackageScripts": [
+    "check:affected-audit-router",
+    "plan:affected-audits"
+  ],
+  "affectedSurfaces": [
+    "agent_tooling_surface",
+    "agent_truth_docs",
+    "package_script_validation",
+    "surface_map:governance",
+    "surface_map:repo_tooling",
+    "surface_map:shared_server_helpers"
+  ],
+  "requiredStaticScans": [
+    {
+      "command": "npm run check:affected-audit-router",
+      "packageScript": "check:affected-audit-router",
+      "group": "required_static_scan",
+      "surface": "package_script_validation",
+      "whyThisCommand": "Changed package audit/check scripts need affected-router validation.",
+      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+      "budgetCost": 1,
+      "priority": 85
+    },
+    {
+      "command": "npm run check:audit-runtime-ledger",
+      "packageScript": "check:audit-runtime-ledger",
+      "group": "required_static_scan",
+      "surface": "agent_tooling_surface",
+      "whyThisCommand": "Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
+      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+      "budgetCost": 1,
+      "priority": 80
+    },
+    {
+      "command": "npm run typecheck",
+      "packageScript": "typecheck",
+      "group": "required_static_scan",
+      "surface": "agent_tooling_surface",
+      "whyThisCommand": "Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
+      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+      "budgetCost": 1,
+      "priority": 80
+    }
+  ],
+  "requiredTargetedTests": [],
+  "optionalChecks": [],
+  "forbiddenByDefault": [
+    {
+      "command": "npm run check",
+      "packageScript": "check",
+      "group": "forbidden_by_default",
+      "surface": "repo_wide",
+      "whyThisCommand": "Full-suite or browser-heavy command is not needed for the affected files.",
+      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+      "safeSkipReason": "Targeted affected checks must run before broad terminal sweeps.",
+      "budgetCost": 1,
+      "priority": 0
+    },
+    {
+      "command": "npm run check:continuity",
+      "packageScript": "check:continuity",
+      "group": "forbidden_by_default",
+      "surface": "repo_wide",
+      "whyThisCommand": "Full-suite or browser-heavy command is not needed for the affected files.",
+      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+      "safeSkipReason": "Targeted affected checks must run before broad terminal sweeps.",
+      "budgetCost": 1,
+      "priority": 0
+    },
+    {
+      "command": "npm run check:ui:audits",
+      "packageScript": "check:ui:audits",
+      "group": "forbidden_by_default",
+      "surface": "repo_wide",
+      "whyThisCommand": "Full-suite or browser-heavy command is not needed for the affected files.",
+      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+      "safeSkipReason": "Targeted affected checks must run before broad terminal sweeps.",
+      "budgetCost": 1,
+      "priority": 0
+    },
+    {
+      "command": "npm run check:ui:lighthouse",
+      "packageScript": "check:ui:lighthouse",
+      "group": "forbidden_by_default",
+      "surface": "repo_wide",
+      "whyThisCommand": "Full-suite or browser-heavy command is not needed for the affected files.",
+      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+      "safeSkipReason": "Targeted affected checks must run before broad terminal sweeps.",
+      "budgetCost": 1,
+      "priority": 0
+    },
+    {
+      "command": "npm run check:ui:continuity",
+      "packageScript": "check:ui:continuity",
+      "group": "forbidden_by_default",
+      "surface": "repo_wide",
+      "whyThisCommand": "Full-suite or browser-heavy command is not needed for the affected files.",
+      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+      "safeSkipReason": "Targeted affected checks must run before broad terminal sweeps.",
+      "budgetCost": 1,
+      "priority": 0
+    },
+    {
+      "command": "npx cypress run",
+      "group": "forbidden_by_default",
+      "surface": "repo_wide",
+      "whyThisCommand": "Full-suite or browser-heavy command is not needed for the affected files.",
+      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+      "safeSkipReason": "Targeted affected checks must run before broad terminal sweeps.",
+      "budgetCost": 1,
+      "priority": 0
+    },
+    {
+      "command": "playwright test",
+      "group": "forbidden_by_default",
+      "surface": "repo_wide",
+      "whyThisCommand": "Full-suite or browser-heavy command is not needed for the affected files.",
+      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+      "safeSkipReason": "Targeted affected checks must run before broad terminal sweeps.",
+      "budgetCost": 1,
+      "priority": 0
+    }
+  ],
+  "terminalRunJustification": [
+    {
+      "command": "npm run check:affected-audit-router",
+      "surface": "package_script_validation",
+      "whyThisCommand": "Changed package audit/check scripts need affected-router validation.",
+      "allowedBy": "required_static_scan"
+    },
+    {
+      "command": "npm run check:audit-runtime-ledger",
+      "surface": "agent_tooling_surface",
+      "whyThisCommand": "Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
+      "allowedBy": "required_static_scan"
+    },
+    {
+      "command": "npm run typecheck",
+      "surface": "agent_tooling_surface",
+      "whyThisCommand": "Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
+      "allowedBy": "required_static_scan"
+    }
+  ],
+  "maxCommandBudget": 3,
+  "commandBudgetClass": "agent_tooling",
+  "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
+  "skipReasons": [
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_truth_docs",
+      "whySafeToSkip": "No typecheck: docs-only edits do not affect TypeScript runtime."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_truth_docs",
+      "whySafeToSkip": "No app tests: docs cannot change product behavior."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_truth_docs",
+      "whySafeToSkip": "No typecheck: docs-only edits do not affect TypeScript runtime."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_truth_docs",
+      "whySafeToSkip": "No app tests: docs cannot change product behavior."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_truth_docs",
+      "whySafeToSkip": "No typecheck: docs-only edits do not affect TypeScript runtime."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_truth_docs",
+      "whySafeToSkip": "No app tests: docs cannot change product behavior."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_truth_docs",
+      "whySafeToSkip": "No typecheck: docs-only edits do not affect TypeScript runtime."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_truth_docs",
+      "whySafeToSkip": "No app tests: docs cannot change product behavior."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "npm run check:generated-artifacts",
+      "surface": "agent_truth_docs",
+      "whySafeToSkip": "Skipped by affected command budget 3; higher-priority checks cover the same changed files first."
+    }
+  ]
+}

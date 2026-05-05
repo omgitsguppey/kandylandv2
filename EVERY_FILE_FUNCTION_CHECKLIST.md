@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Affected Audit Router Coverage
+
+- [x] `src/lib/agent-audit/affected-surface-router.ts` owns deterministic changed-file to surface routing, including wallet, PayPal API, chat, viewer, admin users, Firebase rules, docs-only, agent tooling, unlock, functions, and Data Connect mirror surfaces.
+- [x] `src/lib/agent-audit/verification-command-budget.ts` owns affected plan shape, command budget classes, full-suite forbidden commands, terminal run justifications, and safe-skip helpers.
+- [x] `scripts/agent/plan-affected-audits.ts`, `scripts/agent/validate-affected-audit-router.ts`, `agent/state/affected-audit-plan.generated.json`, `docs/agent-truth/affected-audit-router.md`, and package scripts `plan:affected-audits` / `check:affected-audit-router` provide the pre-terminal routing lane.
+
 ## 2026-05-05 Audit Runtime Ledger Coverage
 
 - [x] `src/lib/agent-audit/audit-runtime-contract.ts` owns the append-only JSONL ledger schema, accuracy/resource enums, forbidden command detection, run id/cache key helpers, and ledger line parsing/serialization.
