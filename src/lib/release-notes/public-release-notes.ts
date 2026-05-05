@@ -1,12 +1,43 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.24.5",
+  "currentVersion": "1.24.6",
   "channel": "beta",
-  "generatedAt": "2026-05-05T20:41:47.310Z",
-  "generatedAtUtc": "2026-05-05T20:41:47.310Z",
-  "lastCommitSha": "527f833df0272619b7d5909dd0c217a526112444",
+  "generatedAt": "2026-05-05T20:55:56.912Z",
+  "generatedAtUtc": "2026-05-05T20:55:56.912Z",
+  "lastCommitSha": "e604e86721c793094ad83d2f853ad55d59ca9495",
   "notes": [
+    {
+      "version": "1.24.6",
+      "previousVersion": "1.24.5",
+      "commitSha": "e604e86721c793094ad83d2f853ad55d59ca9495",
+      "commitTitle": "fix(chat): refresh attachment completion read bounds",
+      "committedAt": "2026-05-05T20:55:44.000Z",
+      "generatedAt": "2026-05-05T20:55:56.911Z",
+      "committedAtUtc": "2026-05-05T20:55:44.000Z",
+      "generatedAtUtc": "2026-05-05T20:55:56.911Z",
+      "diffStats": {
+        "rawAdditions": 1,
+        "rawDeletions": 1,
+        "rawChangeCount": 2,
+        "additions": 1,
+        "deletions": 1,
+        "effectiveAdditions": 0,
+        "effectiveDeletions": 0,
+        "changedFiles": 1,
+        "effectiveChangeCount": 0,
+        "excludedGeneratedChangeCount": 2
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved behind-the-scenes safety checks for chat media uploads.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "security"
+      ]
+    },
     {
       "version": "1.24.5",
       "previousVersion": "1.24.4",
@@ -129,38 +160,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "Kept the update focused on user-visible polish and reliability."
       ],
       "affectedSurfaces": [
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.1",
-      "previousVersion": "1.24.0",
-      "commitSha": "739808bba955704939fa378db2accfbee7a52b28",
-      "commitTitle": "fix(admin): refresh content storage guard evidence",
-      "committedAt": "2026-05-05T20:20:00.000Z",
-      "generatedAt": "2026-05-05T20:20:16.201Z",
-      "committedAtUtc": "2026-05-05T20:20:00.000Z",
-      "generatedAtUtc": "2026-05-05T20:20:16.201Z",
-      "diffStats": {
-        "rawAdditions": 35,
-        "rawDeletions": 3,
-        "rawChangeCount": 38,
-        "additions": 35,
-        "deletions": 3,
-        "effectiveAdditions": 34,
-        "effectiveDeletions": 2,
-        "changedFiles": 3,
-        "effectiveChangeCount": 36,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal content safety checks for admin media tools.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
         "security"
       ]
     }
