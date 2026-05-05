@@ -167,6 +167,39 @@ predictedScore - diversityPenalty + explorationBoost
 
 Admin-facing reasons stay plain English, for example: "Moved lower to keep creator/category diversity."
 
+## Drop Momentum Scoring
+
+KandyDrops scores new drops with early response velocity so promising drops can surface before large-sample behavioral profiles exist. Momentum is a bounded ranking boost, not a payment, unlock, entitlement, or creator earnings source of truth.
+
+Signals:
+
+- impressions in the first `1h`, `6h`, and `24h`
+- preview opens per impression in the first `1h`
+- server unlocks per preview in the first `6h`
+- valid watch completions per viewer in the first `6h`
+- purchases after viewing in the first `24h` when drop attribution exists
+- negative feedback rate
+- creator-local baseline response
+
+Momentum score:
+
+```text
+100 * (
+  0.25 * previewRate1h +
+  0.25 * unlockRate6h +
+  0.20 * watchCompletionRate6h +
+  0.20 * purchaseAfterViewRate24h +
+  0.10 * creatorBaselineLift
+) - negativeFeedbackPenalty
+```
+
+Rules:
+
+- Fewer than `20` impressions is labeled `early signal`.
+- Strong positive verdicts require at least `20` impressions.
+- Creator baseline lift compares against the creator's own historical drop response before global popularity.
+- Admin-facing reasons stay plain English, for example: "Boosted by early drop momentum."
+
 ## Surface Objectives
 
 - User drops page: `pUnlock24h`, `pPurchase7d`, freshness

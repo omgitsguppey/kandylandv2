@@ -132,14 +132,24 @@ type DropSignalAggregate = {
   validUntil: number
   status: string
   impressions: number
+  impressions1h: number
+  impressions6h: number
+  impressions24h: number
   previewOpens: number
+  previewOpens1h: number
+  previewOpens6h: number
   viewerOpens: number
+  viewerOpens6h: number
+  viewerOpens24h: number
   watchSecondsTotal: number
   watchSecondsSamples: number[]
   watchScores: number[]
   watchScoreSources: Set<string>
   completionCount: number
+  validWatchCompletions6h: number
   unlocks: number
+  unlocks6h: number
+  purchasesAfterView24h: number
   uniqueViewerIds: Set<string>
   repeatViewerIds: Set<string>
   positiveFeedbackCount: number
@@ -178,6 +188,14 @@ function clamp01(value: number) {
   }
 
   return Math.max(0, Math.min(1, value))
+}
+
+function clampScore(value: number) {
+  if (!Number.isFinite(value)) {
+    return 0
+  }
+
+  return Math.max(0, Math.min(100, value))
 }
 
 function round(value: number, digits = 4) {
@@ -713,14 +731,24 @@ function ensureDropAggregate(drop: DropRecord, store: Map<string, DropSignalAggr
     validUntil: readNumber(drop.validUntil),
     status: readString(drop.status) || "unknown",
     impressions: 0,
+    impressions1h: 0,
+    impressions6h: 0,
+    impressions24h: 0,
     previewOpens: 0,
+    previewOpens1h: 0,
+    previewOpens6h: 0,
     viewerOpens: 0,
+    viewerOpens6h: 0,
+    viewerOpens24h: 0,
     watchSecondsTotal: 0,
     watchSecondsSamples: [],
     watchScores: [],
     watchScoreSources: new Set(),
     completionCount: 0,
+    validWatchCompletions6h: 0,
     unlocks: 0,
+    unlocks6h: 0,
+    purchasesAfterView24h: 0,
     uniqueViewerIds: new Set(),
     repeatViewerIds: new Set(),
     positiveFeedbackCount: 0,
@@ -731,6 +759,12 @@ function ensureDropAggregate(drop: DropRecord, store: Map<string, DropSignalAggr
   }
   store.set(drop.id, created)
   return created
+}
+
+function isWithinDropLaunchHours(aggregate: DropSignalAggregate, timestamp: number, hours: number) {
+  return aggregate.validFrom > 0
+    && timestamp >= aggregate.validFrom
+    && timestamp <= aggregate.validFrom + (hours * 60 * 60 * 1000)
 }
 
 function isActionEvent(eventName: string) {
@@ -934,15 +968,42 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       const dropAggregate = ensureDropAggregate(drop, dropAggregates)
       if (eventName === "drop_card_impression") {
         dropAggregate.impressions += 1
+        if (isWithinDropLaunchHours(dropAggregate, timestamp, 1)) {
+          dropAggregate.impressions1h += 1
+        }
+        if (isWithinDropLaunchHours(dropAggregate, timestamp, 6)) {
+          dropAggregate.impressions6h += 1
+        }
+        if (isWithinDropLaunchHours(dropAggregate, timestamp, 24)) {
+          dropAggregate.impressions24h += 1
+        }
       }
       if (normalizedAction === "drop_preview_opened" || normalizedAction === "drop_viewed") {
         dropAggregate.previewOpens += 1
+        if (isWithinDropLaunchHours(dropAggregate, timestamp, 1)) {
+          dropAggregate.previewOpens1h += 1
+        }
+        if (isWithinDropLaunchHours(dropAggregate, timestamp, 6)) {
+          dropAggregate.previewOpens6h += 1
+        }
       }
       if (eventName === "viewer_opened" || eventName === "viewer_session_started") {
         dropAggregate.viewerOpens += 1
+        if (isWithinDropLaunchHours(dropAggregate, timestamp, 6)) {
+          dropAggregate.viewerOpens6h += 1
+        }
+        if (isWithinDropLaunchHours(dropAggregate, timestamp, 24)) {
+          dropAggregate.viewerOpens24h += 1
+        }
       }
       if (normalizedAction === "drop_unwrapped" && isServerUnlockFact(eventName, event)) {
         dropAggregate.unlocks += 1
+        if (isWithinDropLaunchHours(dropAggregate, timestamp, 6)) {
+          dropAggregate.unlocks6h += 1
+        }
+      }
+      if (normalizedAction === "gumdrops_purchased" && isServerPurchaseFact(eventName, event) && isWithinDropLaunchHours(dropAggregate, timestamp, 24)) {
+        dropAggregate.purchasesAfterView24h += 1
       }
       if (isNegativePreferenceAction) {
         dropAggregate.negativeFeedbackCount += 1
@@ -1107,6 +1168,9 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       dropAggregate.watchScoreSources.add(watchScoreSource)
       if (session.completedSession === true || readString(session.sessionOutcome) === "completed") {
         dropAggregate.completionCount += 1
+        if (hasVerifiedWatch && isWithinDropLaunchHours(dropAggregate, watchedAtMs, 6)) {
+          dropAggregate.validWatchCompletions6h += 1
+        }
       }
       if (userId) {
         if (dropAggregate.uniqueViewerIds.has(userId)) {
@@ -1691,6 +1755,33 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
   const urgency = aggregate.validUntil > nowMs
     ? clamp01(1 - ((aggregate.validUntil - nowMs) / (72 * 60 * 60 * 1000)))
     : 0
+  const earlyMomentumSignals = {
+    impressions1h: aggregate.impressions1h,
+    impressions6h: aggregate.impressions6h,
+    impressions24h: aggregate.impressions24h,
+    previewOpens1h: aggregate.previewOpens1h,
+    previewOpens6h: aggregate.previewOpens6h,
+    viewerOpens6h: aggregate.viewerOpens6h,
+    viewerOpens24h: aggregate.viewerOpens24h,
+    unlocks6h: aggregate.unlocks6h,
+    validWatchCompletions6h: aggregate.validWatchCompletions6h,
+    purchasesAfterView24h: aggregate.purchasesAfterView24h,
+    negativeFeedbackCount: aggregate.negativeFeedbackCount,
+    feedbackCount,
+  }
+  const earlyMomentumBase = 100 * (
+    (0.25 * clamp01(aggregate.previewOpens1h / Math.max(1, aggregate.impressions1h))) +
+    (0.25 * clamp01(aggregate.unlocks6h / Math.max(1, aggregate.previewOpens6h))) +
+    (0.20 * clamp01(aggregate.validWatchCompletions6h / Math.max(1, aggregate.viewerOpens6h))) +
+    (0.20 * clamp01(aggregate.purchasesAfterView24h / Math.max(1, aggregate.viewerOpens24h)))
+  )
+  const earlyMomentumNegativePenalty = clamp01(aggregate.negativeFeedbackCount / Math.max(1, feedbackCount)) * 40
+  const earlyMomentumScore = clampScore(earlyMomentumBase - earlyMomentumNegativePenalty)
+  const earlyMomentumSampleLabel = aggregate.impressions24h === 0
+    ? "no signal"
+    : aggregate.impressions24h < 20
+      ? "early signal"
+      : "sampled"
   return {
     dropId: aggregate.dropId,
     creatorId: aggregate.creatorId,
@@ -1728,6 +1819,13 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
     schemaCompleteness: round(schemaCompleteness, 4),
     sourceDisagreementPenalty: round(sourceDisagreementPenalty, 4),
     predictionOutputs,
+    earlyMomentum: {
+      version: 1,
+      ...earlyMomentumSignals,
+      momentumScore: round(earlyMomentumScore, 4),
+      sampleLabel: earlyMomentumSampleLabel,
+      negativeFeedbackPenalty: round(earlyMomentumNegativePenalty, 4),
+    },
     dropRecommendationScore: round(computeDropRecommendationScore({
       pPurchase7d: predictionOutputs.pPurchase7d,
       pUnlock24h: predictionOutputs.pUnlock24h,

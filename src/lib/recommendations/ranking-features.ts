@@ -6,6 +6,10 @@ import {
 } from "@/lib/behavioral/behavioral-math-calibration";
 import type { NegativePreferenceProfile } from "@/lib/behavioral/negative-preference-score";
 import type { SearchIntentProfile } from "@/lib/behavioral/search-intent-profile";
+import {
+  buildDropMomentumBoost,
+  type DropMomentumIntelligenceLike,
+} from "@/lib/recommendations/drop-momentum-boost";
 import { buildQueryIntentRanking } from "@/lib/recommendations/query-intent-ranking";
 import { buildRecommendationSuppression } from "@/lib/recommendations/suppression-rules";
 
@@ -81,7 +85,8 @@ export type RecommendationDropIntelligenceLike = {
   schemaCompleteness?: number;
   positiveFeedbackCount?: number;
   negativeFeedbackCount?: number;
-};
+  creatorBaselineMomentumScore?: number;
+} & DropMomentumIntelligenceLike;
 
 export type RecommendationCandidate = {
   drop: Drop;
@@ -127,6 +132,10 @@ export type RecommendationRankingFeatures = RecommendationPrimitiveSignals & {
   queryIntentScore: number;
   queryIntentBoost: number;
   queryIntentReasons: string[];
+  dropMomentumScore: number;
+  dropMomentumBoost: number;
+  dropMomentumLabel: string;
+  dropMomentumReasons: string[];
   truthScore: number;
   confidence: number;
 };
@@ -348,6 +357,7 @@ export function buildRecommendationRankingFeatures(input: {
   const diversityBoost = computeDiversityBoost({ drop, profile, candidate: input.candidate });
   const suppression = buildRecommendationSuppression({ drop, profile, nowMs });
   const queryIntent = buildQueryIntentRanking({ drop, searchIntentProfile: profile?.searchIntentProfile, nowMs });
+  const momentum = buildDropMomentumBoost({ drop, intelligence });
 
   const pPurchase7d = clamp01(
     (creatorAffinity * 0.22) +
@@ -443,6 +453,10 @@ export function buildRecommendationRankingFeatures(input: {
     queryIntentScore: queryIntent.queryIntentScore,
     queryIntentBoost: queryIntent.queryIntentBoost,
     queryIntentReasons: queryIntent.reasons,
+    dropMomentumScore: momentum.momentumScore,
+    dropMomentumBoost: momentum.momentumBoost,
+    dropMomentumLabel: momentum.sampleLabel,
+    dropMomentumReasons: momentum.reasons,
     truthScore,
     confidence,
     diagnostics: {

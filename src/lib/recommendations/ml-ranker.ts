@@ -102,6 +102,7 @@ function toFeatureMap(features: RecommendationRankingFeatures) {
     pNegativeFeedback: features.pNegativeFeedback,
     suppressionScore: features.suppressionScore,
     queryIntentScore: features.queryIntentScore,
+    dropMomentumScore: features.dropMomentumScore / 100,
   };
 }
 
@@ -206,7 +207,12 @@ export function scoreRecommendationWithArtifact(input: {
     repeatExposurePenalty: input.features.previousExposurePenalty,
     diversityBoost: input.features.diversityBoost,
   });
-  const score = Math.min(100, applyRecommendationSuppression(baseScore, input.features.suppressionScore) + input.features.queryIntentBoost);
+  const score = Math.min(
+    100,
+    applyRecommendationSuppression(baseScore, input.features.suppressionScore)
+      + input.features.queryIntentBoost
+      + input.features.dropMomentumBoost,
+  );
 
   return {
     mode: "ml_artifact",

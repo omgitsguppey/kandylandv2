@@ -86,6 +86,29 @@ rerankedScore = predictedScore - diversityPenalty + explorationBoost
 
 Admin diagnostics must explain diversity movement in plain English, for example: "Moved lower to keep creator/category diversity."
 
+## Drop momentum boost
+
+New drops can receive a bounded momentum boost from early response velocity. The boost uses materialized drop intelligence, not live fan-out queries:
+
+- first `1h`, `6h`, and `24h` impressions
+- preview rate, unlock rate, valid watch completion rate, and purchase-after-view rate
+- negative feedback penalty
+- creator-local baseline lift
+
+Momentum formula:
+
+```txt
+100 * (
+0.25 * previewRate1h +
+0.25 * unlockRate6h +
+0.20 * watchCompletionRate6h +
+0.20 * purchaseAfterViewRate24h +
+0.10 * creatorBaselineLift
+) - negativeFeedbackPenalty
+```
+
+Samples below `20` impressions stay labeled `early signal`; they may get a bounded lift, but cannot become a strong verdict. Admin diagnostics explain the boost as "Boosted by early drop momentum."
+
 ## UI truth
 
 - Confidence below 30 percent suppresses personalized recommendation explanations.

@@ -108,6 +108,12 @@ type DropIntelligenceDoc = {
   schemaCompleteness?: number;
   positiveFeedbackCount?: number;
   negativeFeedbackCount?: number;
+  creatorBaselineMomentumScore?: number;
+  earlyMomentum?: {
+    momentumScore?: number;
+    [key: string]: unknown;
+  };
+  dropRecommendationScore?: number;
 };
 
 type RankedDropRecommendation = {
@@ -140,6 +146,12 @@ type RankedDropRecommendation = {
   queryIntent: {
     score: number;
     boost: number;
+    reasons: string[];
+  };
+  momentum: {
+    score: number;
+    boost: number;
+    label: string;
     reasons: string[];
   };
   diversity: RecommendationDiversityDiagnostics;
@@ -275,7 +287,32 @@ export async function listDropIntelligence(limit = 20) {
 async function readDropIntelligenceMap() {
   if (!adminDb) return new Map<string, DropIntelligenceDoc>();
   const snapshot = await adminDb.collection(DROP_INTELLIGENCE_COLLECTION).get();
-  return new Map(snapshot.docs.map((doc) => [doc.id, { ...(doc.data() as DropIntelligenceDoc), dropId: doc.id }]));
+  const docs = snapshot.docs.map((doc) => ({ ...(doc.data() as DropIntelligenceDoc), dropId: doc.id }));
+  const creatorScores = new Map<string, Array<{ dropId: string; score: number }>>();
+
+  docs.forEach((doc) => {
+    if (!doc.creatorId) {
+      return;
+    }
+
+    const score = typeof doc.earlyMomentum?.momentumScore === "number"
+      ? doc.earlyMomentum.momentumScore
+      : typeof doc.dropRecommendationScore === "number"
+        ? doc.dropRecommendationScore
+        : 0;
+    if (score > 0) {
+      creatorScores.set(doc.creatorId, [...(creatorScores.get(doc.creatorId) || []), { dropId: doc.dropId, score }]);
+    }
+  });
+
+  return new Map<string, DropIntelligenceDoc>(docs.map((doc) => [doc.dropId, {
+    ...doc,
+    creatorBaselineMomentumScore: doc.creatorBaselineMomentumScore ?? (() => {
+      const creatorDropScores = creatorScores.get(doc.creatorId || "") || [];
+      const peerScores = creatorDropScores.filter((entry) => entry.dropId !== doc.dropId).map((entry) => entry.score);
+      return peerScores.reduce((sum, score) => sum + score, 0) / Math.max(1, peerScores.length);
+    })(),
+  }]));
 }
 
 async function readAnalyticsTruthDropMap() {
@@ -387,10 +424,16 @@ export async function buildDeterministicDropRecommendations(input: {
           boost: entry.features.queryIntentBoost,
           reasons: entry.features.queryIntentReasons,
         },
+        momentum: {
+          score: entry.features.dropMomentumScore,
+          boost: entry.features.dropMomentumBoost,
+          label: entry.features.dropMomentumLabel,
+          reasons: entry.features.dropMomentumReasons,
+        },
         explanationEligible: recommendationState.explanationEligible,
         fallbackReason: recommendationState.fallbackReason,
         explanationSummary: explanation.summary,
-        explanationReasons: explanation.reasons,
+        explanationReasons: Array.from(new Set([...explanation.reasons, ...explanation.adminReasons])),
         candidateSources: entry.candidateSources,
         rankingMode: effectiveMode,
         mlDiagnostics: artifactScore ? {

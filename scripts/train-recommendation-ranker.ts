@@ -45,6 +45,7 @@ const FEATURE_NAMES = [
   "pNegativeFeedback",
   "suppressionScore",
   "queryIntentScore",
+  "dropMomentumScore",
 ] as const;
 
 function getTrainingAdminDb() {
@@ -116,6 +117,7 @@ function toFeatureMap(features: ReturnType<typeof buildRecommendationRankingFeat
     pNegativeFeedback: features.pNegativeFeedback,
     suppressionScore: features.suppressionScore,
     queryIntentScore: features.queryIntentScore,
+    dropMomentumScore: features.dropMomentumScore / 100,
   };
 }
 
