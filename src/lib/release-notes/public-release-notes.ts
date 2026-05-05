@@ -1,12 +1,44 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.24.7",
+  "currentVersion": "1.24.8",
   "channel": "beta",
-  "generatedAt": "2026-05-05T21:03:50.292Z",
-  "generatedAtUtc": "2026-05-05T21:03:50.292Z",
-  "lastCommitSha": "280f1e9d303c4439d34b76c3d0b54f35bf9b8508",
+  "generatedAt": "2026-05-05T21:07:01.585Z",
+  "generatedAtUtc": "2026-05-05T21:07:01.585Z",
+  "lastCommitSha": "b1cee605c8a7290f34b0f5f48cd97086f1f1d686",
   "notes": [
+    {
+      "version": "1.24.8",
+      "previousVersion": "1.24.7",
+      "commitSha": "b1cee605c8a7290f34b0f5f48cd97086f1f1d686",
+      "commitTitle": "fix(cost): prove admin content entitlement scope",
+      "committedAt": "2026-05-05T21:06:49.000Z",
+      "generatedAt": "2026-05-05T21:07:01.584Z",
+      "committedAtUtc": "2026-05-05T21:06:49.000Z",
+      "generatedAtUtc": "2026-05-05T21:07:01.584Z",
+      "diffStats": {
+        "rawAdditions": 40,
+        "rawDeletions": 1,
+        "rawChangeCount": 41,
+        "additions": 40,
+        "deletions": 1,
+        "effectiveAdditions": 39,
+        "effectiveDeletions": 0,
+        "changedFiles": 6,
+        "effectiveChangeCount": 39,
+        "excludedGeneratedChangeCount": 2
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal checks that protect locked content access.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.24.7",
       "previousVersion": "1.24.6",
@@ -126,37 +158,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "patch",
       "category": "Fixed",
       "userFacingTitle": "Improved behind-the-scenes safety checks for chat attachments.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.3",
-      "previousVersion": "1.24.2",
-      "commitSha": "14f7addf6b9ec646a31b6c712c7c9dcf3c4a401d",
-      "commitTitle": "fix(auth): refresh navigation session read bounds",
-      "committedAt": "2026-05-05T20:29:08.000Z",
-      "generatedAt": "2026-05-05T20:29:25.369Z",
-      "committedAtUtc": "2026-05-05T20:29:08.000Z",
-      "generatedAtUtc": "2026-05-05T20:29:25.369Z",
-      "diffStats": {
-        "rawAdditions": 1,
-        "rawDeletions": 1,
-        "rawChangeCount": 2,
-        "additions": 1,
-        "deletions": 1,
-        "effectiveAdditions": 0,
-        "effectiveDeletions": 0,
-        "changedFiles": 1,
-        "effectiveChangeCount": 0,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes session safety checks.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],
