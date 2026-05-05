@@ -1,10 +1,42 @@
 {
-  "currentVersion": "1.27.0",
+  "currentVersion": "1.27.1",
   "channel": "beta",
-  "generatedAt": "2026-05-05T21:22:15.204Z",
-  "generatedAtUtc": "2026-05-05T21:22:15.204Z",
-  "lastCommitSha": "d706c48009e93b61f92d02246fa74cd29cec6f32",
+  "generatedAt": "2026-05-05T21:28:21.886Z",
+  "generatedAtUtc": "2026-05-05T21:28:21.886Z",
+  "lastCommitSha": "40b96762e144c2f5983c1f8437dd903639d33606",
   "notes": [
+    {
+      "version": "1.27.1",
+      "previousVersion": "1.27.0",
+      "commitSha": "40b96762e144c2f5983c1f8437dd903639d33606",
+      "commitTitle": "fix(security): verify media and Firestore guard evidence",
+      "committedAt": "2026-05-05T21:28:06.000Z",
+      "generatedAt": "2026-05-05T21:28:21.886Z",
+      "committedAtUtc": "2026-05-05T21:28:06.000Z",
+      "generatedAtUtc": "2026-05-05T21:28:21.886Z",
+      "diffStats": {
+        "rawAdditions": 15,
+        "rawDeletions": 43,
+        "rawChangeCount": 58,
+        "additions": 15,
+        "deletions": 43,
+        "effectiveAdditions": 6,
+        "effectiveDeletions": 0,
+        "changedFiles": 3,
+        "effectiveChangeCount": 6,
+        "excludedGeneratedChangeCount": 52
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal media and session safety checks.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "repo-tooling",
+        "security"
+      ]
+    },
     {
       "version": "1.27.0",
       "previousVersion": "1.26.0",

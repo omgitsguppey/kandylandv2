@@ -1,12 +1,44 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.27.0",
+  "currentVersion": "1.27.1",
   "channel": "beta",
-  "generatedAt": "2026-05-05T21:22:15.204Z",
-  "generatedAtUtc": "2026-05-05T21:22:15.204Z",
-  "lastCommitSha": "d706c48009e93b61f92d02246fa74cd29cec6f32",
+  "generatedAt": "2026-05-05T21:28:21.886Z",
+  "generatedAtUtc": "2026-05-05T21:28:21.886Z",
+  "lastCommitSha": "40b96762e144c2f5983c1f8437dd903639d33606",
   "notes": [
+    {
+      "version": "1.27.1",
+      "previousVersion": "1.27.0",
+      "commitSha": "40b96762e144c2f5983c1f8437dd903639d33606",
+      "commitTitle": "fix(security): verify media and Firestore guard evidence",
+      "committedAt": "2026-05-05T21:28:06.000Z",
+      "generatedAt": "2026-05-05T21:28:21.886Z",
+      "committedAtUtc": "2026-05-05T21:28:06.000Z",
+      "generatedAtUtc": "2026-05-05T21:28:21.886Z",
+      "diffStats": {
+        "rawAdditions": 15,
+        "rawDeletions": 43,
+        "rawChangeCount": 58,
+        "additions": 15,
+        "deletions": 43,
+        "effectiveAdditions": 6,
+        "effectiveDeletions": 0,
+        "changedFiles": 3,
+        "effectiveChangeCount": 6,
+        "excludedGeneratedChangeCount": 52
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal media and session safety checks.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "repo-tooling",
+        "security"
+      ]
+    },
     {
       "version": "1.27.0",
       "previousVersion": "1.26.0",
@@ -126,38 +158,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "patch",
       "category": "Fixed",
       "userFacingTitle": "Improved internal checks that protect locked content access.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.24.7",
-      "previousVersion": "1.24.6",
-      "commitSha": "280f1e9d303c4439d34b76c3d0b54f35bf9b8508",
-      "commitTitle": "fix(cost): guard admin content media egress",
-      "committedAt": "2026-05-05T21:03:35.000Z",
-      "generatedAt": "2026-05-05T21:03:50.291Z",
-      "committedAtUtc": "2026-05-05T21:03:35.000Z",
-      "generatedAtUtc": "2026-05-05T21:03:50.291Z",
-      "diffStats": {
-        "rawAdditions": 472,
-        "rawDeletions": 113,
-        "rawChangeCount": 585,
-        "additions": 472,
-        "deletions": 113,
-        "effectiveAdditions": 46,
-        "effectiveDeletions": 2,
-        "changedFiles": 6,
-        "effectiveChangeCount": 48,
-        "excludedGeneratedChangeCount": 537
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal media safety checks to prevent unnecessary storage traffic.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],
