@@ -1,11 +1,42 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.1.0",
+  "currentVersion": "1.2.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T07:03:00.939Z",
-  "lastCommitSha": "c5b3501b12e69b442fcac74a4ee018a4f6fc70de",
+  "generatedAt": "2026-05-05T07:10:40.361Z",
+  "lastCommitSha": "a30bea630ee0fdc8768333e8a03a9ab4b1bb44bd",
   "notes": [
+    {
+      "version": "1.2.0",
+      "previousVersion": "1.1.0",
+      "commitSha": "a30bea630ee0fdc8768333e8a03a9ab4b1bb44bd",
+      "commitTitle": "fix(release): exclude generated files from version bumps",
+      "committedAt": "2026-05-05T02:10:24-05:00",
+      "generatedAt": "2026-05-05T07:10:40.358Z",
+      "diffStats": {
+        "rawAdditions": 175,
+        "rawDeletions": 35,
+        "rawChangeCount": 210,
+        "additions": 175,
+        "deletions": 35,
+        "effectiveAdditions": 151,
+        "effectiveDeletions": 31,
+        "changedFiles": 8,
+        "effectiveChangeCount": 182,
+        "excludedGeneratedChangeCount": 28
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved Beta version numbering so generated files do not overstate app updates.",
+      "bullets": [
+        "Generated release-note files no longer inflate public beta version bumps.",
+        "Raw change counts are still kept behind the scenes for debugging."
+      ],
+      "affectedSurfaces": [
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.1.0",
       "previousVersion": "1.0.0",
