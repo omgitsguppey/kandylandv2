@@ -9,6 +9,7 @@ import {
   classifyPublicVersionBump,
   comparePublicVersions,
   getPublicReleaseNotesVisibleNotes,
+  isReleaseGeneratedArtifactPath,
   isValidPublicVersion,
   type PublicReleaseNotesDocument,
 } from "../../src/lib/release-notes/release-version-contract";
@@ -71,8 +72,24 @@ function validateDocument(document: PublicReleaseNotesDocument | null) {
     if (!Array.isArray(note.affectedSurfaces) || note.affectedSurfaces.length === 0) {
       failures.push(`notes[${index}].affectedSurfaces must be non-empty.`);
     }
-    if (!note.diffStats || note.diffStats.effectiveChangeCount !== note.diffStats.additions + note.diffStats.deletions) {
-      failures.push(`notes[${index}].diffStats effective count must equal additions + deletions after exclusions.`);
+    if (!note.diffStats) {
+      failures.push(`notes[${index}].diffStats must exist.`);
+      continue;
+    }
+    if (note.diffStats.additions !== note.diffStats.rawAdditions || note.diffStats.deletions !== note.diffStats.rawDeletions) {
+      failures.push(`notes[${index}].diffStats additions/deletions must store raw Git stats for debug.`);
+    }
+    if (note.diffStats.rawChangeCount !== note.diffStats.rawAdditions + note.diffStats.rawDeletions) {
+      failures.push(`notes[${index}].diffStats rawChangeCount must equal raw additions + deletions.`);
+    }
+    if (note.diffStats.effectiveChangeCount !== note.diffStats.effectiveAdditions + note.diffStats.effectiveDeletions) {
+      failures.push(`notes[${index}].diffStats effective count must equal effective additions + deletions after exclusions.`);
+    }
+    if (note.diffStats.rawChangeCount !== note.diffStats.effectiveChangeCount + note.diffStats.excludedGeneratedChangeCount) {
+      failures.push(`notes[${index}].diffStats raw count must reconcile to effective + excluded generated changes.`);
+    }
+    if (note.bumpType !== classifyPublicVersionBump(note.diffStats.effectiveChangeCount)) {
+      failures.push(`notes[${index}].bumpType must be based on effectiveChangeCount, not raw additions/deletions.`);
     }
     if (/src\/|scripts\/|agent\/state|\.tsx|\.ts\b|commit\b/iu.test(note.userFacingTitle)) {
       failures.push(`notes[${index}].userFacingTitle must not expose internal file names or raw commit noise.`);
@@ -170,18 +187,53 @@ if (classifyPublicVersionBump(100) !== "patch" || bumpPublicVersion("1.0.0", "pa
 }
 
 for (const expected of [
+  "isReleaseGeneratedArtifactPath",
+  "effectiveChangeCount",
+  "effectiveAdditions",
+  "effectiveDeletions",
+  "rawAdditions",
+  "rawDeletions",
+  "skip release-notes",
+]) {
+  requireIncludes(releaseScript, expected, "release notes update script");
+}
+
+for (const expected of [
   "agent\\/state\\/.*\\.generated\\.json",
+  "agent\\/context\\/.*\\.generated\\.json",
   "agent/cache/",
   "coverage/",
   ".next/",
+  "dist/",
+  "build/",
   "public/kandydrops-release-notes.json",
   "src/lib/release-notes/public-release-notes.ts",
   "CHANGELOG.md",
   "package-lock.json",
-  "effectiveChangeCount",
-  "skip release-notes",
 ]) {
-  requireIncludes(releaseScript, expected, "release notes update script");
+  requireIncludes(contract, expected, "release version contract generated artifact exclusions");
+}
+
+const generatedOnlyFixture = [
+  { path: "agent/state/public-beta-score.generated.json", additions: 700, deletions: 10 },
+  { path: "agent/context/task-pack.generated.json", additions: 300, deletions: 0 },
+  { path: "coverage/coverage-summary.json", additions: 250, deletions: 0 },
+  { path: "dist/server.js", additions: 220, deletions: 0 },
+  { path: "build/app.js", additions: 180, deletions: 0 },
+  { path: "package-lock.json", additions: 500, deletions: 200 },
+];
+const generatedOnlyEffectiveCount = generatedOnlyFixture.reduce((total, item) => {
+  return total + (isReleaseGeneratedArtifactPath(item.path, false) ? 0 : item.additions + item.deletions);
+}, 0);
+const generatedOnlyRawCount = generatedOnlyFixture.reduce((total, item) => total + item.additions + item.deletions, 0);
+if (generatedOnlyRawCount <= 100) {
+  failures.push("Generated-only validator fixture must have a raw count large enough to catch minor bump regressions.");
+}
+if (generatedOnlyEffectiveCount !== 0) {
+  failures.push("Generated/build/report-only changes must have effectiveChangeCount 0.");
+}
+if (classifyPublicVersionBump(generatedOnlyEffectiveCount) !== "patch") {
+  failures.push("Generated/build/report-only raw changes must not be able to bump MINOR.");
 }
 
 for (const eventName of [

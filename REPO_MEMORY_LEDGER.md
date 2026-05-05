@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Release notes effective diff bumping
+
+Public Beta version bumping now separates raw Git stats from effective release-impact stats. `src/lib/release-notes/release-version-contract.ts` owns generated/build/report exclusions, and `scripts/release/update-public-changelog.ts` stores raw additions/deletions for debug while bumping versions only from `effectiveChangeCount`. `npm run check:release-notes` now includes a generated-only high-raw-count fixture so generated reports cannot trigger a minor bump.
+
 ## 2026-05-05 Public beta release notes
 
 KandyDrops now has user-facing Beta release notes tied to a small interactive `Beta` badge beside the unchanged top-nav `KandyDrops` title. `src/lib/release-notes/release-version-contract.ts` owns the public note/version contract and MAJOR.MINOR.PATCH bump rules, `scripts/release/update-public-changelog.ts` generates `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, and `CHANGELOG.md`, and `scripts/agent/validate-public-beta-changelog.ts` validates staleness, generated-file exclusions, version rules, telemetry, UI wiring, docs, and CI automation. `.github/workflows/public-release-notes.yml` updates notes on main pushes and commits generated updates with `[skip release-notes]` to avoid loops. `npm run release:notes`, `npm run check:release-notes`, targeted release-note tests, and `npm run typecheck` are the canonical lane.

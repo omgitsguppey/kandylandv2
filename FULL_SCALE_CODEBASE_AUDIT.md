@@ -1,5 +1,23 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #164] PRE: Release Notes Effective Diff Bumping
+
+Scope started:
+- Refining public Beta release-note version bumping so generated/build/report files cannot inflate public version numbers.
+- Touched release-note generator, release-note validator, version contract, generated public release-note artifacts, and targeted release-note test fixture only.
+
+Scope completed:
+- `scripts/release/update-public-changelog.ts` now stores raw additions/deletions for debug while calculating `effectiveAdditions`, `effectiveDeletions`, and `effectiveChangeCount` after generated/build/report exclusions.
+- `src/lib/release-notes/release-version-contract.ts` now owns generated artifact exclusion rules for release bumping, including `agent/state/*.generated.json`, `agent/context/*.generated.json`, `agent/cache/**`, `coverage/**`, `.next/**`, `dist/**`, `build/**`, generated reports, release-note generated outputs, and `package-lock.json` unless `package.json` changed.
+- `scripts/agent/validate-public-beta-changelog.ts` now fails if raw generated-only changes can trigger a minor bump and validates that bump type is based on `effectiveChangeCount`, not raw counts.
+
+Verification:
+- `npm run release:notes` passed.
+- `npm run check:release-notes` passed.
+- `npx vitest run tests/unit/public-beta-release-notes.spec.tsx` passed.
+- `npm run typecheck` passed.
+- Broad audits, Playwright, Lighthouse, Cypress, and full `npm run check` were not run.
+
 ## [2026-05-05 #163] PRE: Public Beta Release Notes Badge
 
 Scope started:

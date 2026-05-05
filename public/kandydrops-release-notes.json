@@ -12,8 +12,13 @@
       "committedAt": "2026-05-05T02:02:41-05:00",
       "generatedAt": "2026-05-05T07:03:00.935Z",
       "diffStats": {
-        "additions": 1193,
+        "rawAdditions": 1284,
+        "rawDeletions": 10,
+        "rawChangeCount": 1294,
+        "additions": 1284,
         "deletions": 10,
+        "effectiveAdditions": 1193,
+        "effectiveDeletions": 10,
         "changedFiles": 22,
         "effectiveChangeCount": 1203,
         "excludedGeneratedChangeCount": 91
@@ -41,8 +46,13 @@
       "committedAt": "2026-05-05T01:25:37-05:00",
       "generatedAt": "2026-05-05T06:55:57.092Z",
       "diffStats": {
-        "additions": 1714,
+        "rawAdditions": 1715,
+        "rawDeletions": 101,
+        "rawChangeCount": 1816,
+        "additions": 1715,
         "deletions": 101,
+        "effectiveAdditions": 1714,
+        "effectiveDeletions": 101,
         "changedFiles": 33,
         "effectiveChangeCount": 1815,
         "excludedGeneratedChangeCount": 1

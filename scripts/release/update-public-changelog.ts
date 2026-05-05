@@ -9,6 +9,7 @@ import {
   PUBLIC_RELEASE_NOTES_VISIBLE_COUNT,
   bumpPublicVersion,
   classifyPublicVersionBump,
+  isReleaseGeneratedArtifactPath,
   type PublicReleaseBumpType,
   type PublicReleaseNote,
   type PublicReleaseNoteCategory,
@@ -95,47 +96,58 @@ function parseNumstat(sha: string): NumstatRecord[] {
   });
 }
 
-function isExcludedGeneratedPath(path: string, packageJsonChanged: boolean) {
-  return /^agent\/state\/.*\.generated\.json$/u.test(path)
-    || path.startsWith("agent/cache/")
-    || path.startsWith("coverage/")
-    || path.startsWith(".next/")
-    || path.startsWith("playwright-report/")
-    || path.startsWith("test-results/")
-    || path.startsWith("lighthouse-results/")
-    || path.endsWith(".generated.json")
-    || path.endsWith(".generated.md")
-    || path === "build.log"
-    || path === "public/kandydrops-release-notes.json"
-    || path === "src/lib/release-notes/public-release-notes.ts"
-    || path === "CHANGELOG.md"
-    || (path === "package-lock.json" && !packageJsonChanged);
-}
-
 function buildDiffStats(sha: string) {
   const stats = parseNumstat(sha);
   const packageJsonChanged = stats.some((item) => item.path === "package.json");
   const changedFiles = new Set(stats.map((item) => item.path));
-  let additions = 0;
-  let deletions = 0;
+  let rawAdditions = 0;
+  let rawDeletions = 0;
+  let effectiveAdditions = 0;
+  let effectiveDeletions = 0;
   let excludedGeneratedChangeCount = 0;
 
   for (const item of stats) {
     const changeCount = item.additions + item.deletions;
-    if (isExcludedGeneratedPath(item.path, packageJsonChanged)) {
+    rawAdditions += item.additions;
+    rawDeletions += item.deletions;
+
+    if (isReleaseGeneratedArtifactPath(item.path, packageJsonChanged)) {
       excludedGeneratedChangeCount += changeCount;
       continue;
     }
-    additions += item.additions;
-    deletions += item.deletions;
+    effectiveAdditions += item.additions;
+    effectiveDeletions += item.deletions;
   }
 
   return {
-    additions,
-    deletions,
+    rawAdditions,
+    rawDeletions,
+    rawChangeCount: rawAdditions + rawDeletions,
+    additions: rawAdditions,
+    deletions: rawDeletions,
+    effectiveAdditions,
+    effectiveDeletions,
     changedFiles: changedFiles.size,
-    effectiveChangeCount: additions + deletions,
+    effectiveChangeCount: effectiveAdditions + effectiveDeletions,
     excludedGeneratedChangeCount,
+  };
+}
+
+function normalizeExistingNote(note: PublicReleaseNote): PublicReleaseNote {
+  const diffStats = buildDiffStats(note.commitSha);
+  const bumpType = classifyPublicVersionBump(diffStats.effectiveChangeCount);
+
+  return {
+    ...note,
+    diffStats,
+    bumpType,
+  };
+}
+
+function normalizeExistingDocument(document: PublicReleaseNotesDocument): PublicReleaseNotesDocument {
+  return {
+    ...document,
+    notes: document.notes.map(normalizeExistingNote),
   };
 }
 
@@ -267,9 +279,10 @@ function writeIfChanged(path: string, content: string) {
 }
 
 function main() {
-  const existing = readExistingDocument();
+  const existing = normalizeExistingDocument(readExistingDocument());
   const pendingCommits = getPendingCommits(existing.lastCommitSha);
   if (pendingCommits.length === 0 && existsSync(publicJsonPath) && existsSync(fallbackTsPath) && existsSync(changelogPath)) {
+    writeIfChanged(publicJsonPath, `${JSON.stringify(existing, null, 2)}\n`);
     writeIfChanged(fallbackTsPath, renderFallbackTs(existing));
     writeIfChanged(changelogPath, renderChangelog(existing.notes));
     console.log("Public release notes already current.");

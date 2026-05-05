@@ -35,8 +35,13 @@ function buildReleaseNotesResponse() {
         committedAt: "2026-05-05T14:30:00.000Z",
         generatedAt: "2026-05-05T15:00:00.000Z",
         diffStats: {
+          rawAdditions: 10,
+          rawDeletions: 2,
+          rawChangeCount: 12,
           additions: 10,
           deletions: 2,
+          effectiveAdditions: 10,
+          effectiveDeletions: 2,
           changedFiles: 3,
           effectiveChangeCount: 12,
           excludedGeneratedChangeCount: 200,

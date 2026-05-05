@@ -25,8 +25,13 @@ export type PublicReleaseNote = {
   committedAt: string;
   generatedAt: string;
   diffStats: {
+    rawAdditions: number;
+    rawDeletions: number;
+    rawChangeCount: number;
     additions: number;
     deletions: number;
+    effectiveAdditions: number;
+    effectiveDeletions: number;
     changedFiles: number;
     effectiveChangeCount: number;
     excludedGeneratedChangeCount: number;
@@ -83,6 +88,29 @@ export function comparePublicVersions(left: string, right: string) {
 
 export function classifyPublicVersionBump(effectiveChangeCount: number): PublicReleaseBumpType {
   return effectiveChangeCount > 100 ? "minor" : "patch";
+}
+
+export function isReleaseGeneratedArtifactPath(path: string, packageJsonChanged: boolean) {
+  const normalizedPath = path.replace(/\\/gu, "/");
+
+  return /^agent\/state\/.*\.generated\.json$/u.test(normalizedPath)
+    || /^agent\/context\/.*\.generated\.json$/u.test(normalizedPath)
+    || normalizedPath.startsWith("agent/cache/")
+    || normalizedPath.startsWith("coverage/")
+    || normalizedPath.startsWith(".next/")
+    || normalizedPath.startsWith("dist/")
+    || normalizedPath.startsWith("build/")
+    || normalizedPath.startsWith("playwright-report/")
+    || normalizedPath.startsWith("test-results/")
+    || normalizedPath.startsWith("lighthouse-results/")
+    || normalizedPath.endsWith(".generated.json")
+    || normalizedPath.endsWith(".generated.md")
+    || normalizedPath.endsWith(".generated.jsonl")
+    || normalizedPath === "build.log"
+    || normalizedPath === "public/kandydrops-release-notes.json"
+    || normalizedPath === "src/lib/release-notes/public-release-notes.ts"
+    || normalizedPath === "CHANGELOG.md"
+    || (normalizedPath === "package-lock.json" && !packageJsonChanged);
 }
 
 export function bumpPublicVersion(
