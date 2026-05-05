@@ -306,8 +306,10 @@ function FeaturedDropSlide({
                 isAuthenticated: Boolean(user),
                 isUnlocked,
                 gumDropsBalance: userProfile?.gumDropsBalance,
+                actorUserId: user?.uid ?? userProfile?.uid ?? null,
+                activeCreatorId: userProfile?.role === "creator" ? userProfile.uid : null,
             }),
-        [drop, isUnlocked, user, userProfile?.gumDropsBalance],
+        [drop, isUnlocked, user, userProfile?.gumDropsBalance, userProfile?.role, userProfile?.uid],
     );
     const ctaLabel = getFeaturedCtaLabel(visibilityState.ctaState, drop.unlockCost);
     const coverAccent = useMemo(() => resolveFeaturedCoverAccent(drop), [drop]);
@@ -356,10 +358,11 @@ function FeaturedDropSlide({
                     preload={imagePolicy.preload}
                     fetchPriority={imagePolicy.fetchPriority}
                     quality={imagePolicy.quality}
-                    className="bg-black object-cover object-center"
+                    className={cn("bg-black object-cover object-center transition-all duration-500", visibilityState.shouldBlurCover && "blur-[10px] brightness-[0.72] saturate-[0.86]")}
                     sizes={imagePolicy.sizes}
                     {...getImagePolicyDataAttributes(imagePolicy)}
                 />
+                {visibilityState.shouldBlurCover ? <div className="absolute inset-0 bg-black/20" aria-hidden="true" /> : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/30 to-transparent" />
 
                 <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 md:left-4 md:top-4 md:gap-2">
@@ -486,10 +489,13 @@ function getFeaturedCtaLabel(ctaState: DropCtaState, unlockCost: number) {
         return "View Content";
     }
     if (ctaState === "create_profile") {
-        return "Create Profile";
+        return "Create account to unwrap";
     }
     if (ctaState === "refill") {
-        return "Refill GumDrops";
+        return "Refill to unwrap";
+    }
+    if (ctaState === "preview") {
+        return "Preview cover";
     }
     if (ctaState === "unavailable") {
         return "Unavailable";

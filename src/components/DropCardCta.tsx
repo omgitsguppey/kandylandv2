@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Lock, Loader2, Unlock, Wallet } from "lucide-react";
+import { Eye, Lock, Loader2, Unlock, Wallet } from "lucide-react";
 import type { User } from "firebase/auth";
 
-import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { cn } from "@/lib/utils";
+import type { DropCtaState } from "@/lib/drop-card-visibility";
 import type { Drop } from "@/types/db";
 
 interface DropCardCtaProps {
@@ -13,6 +13,7 @@ interface DropCardCtaProps {
     user: User | null;
     isUnlocked: boolean;
     canAfford: boolean;
+    ctaState: DropCtaState;
     unlocking: boolean;
     confirming: boolean;
     onUnlock: () => void;
@@ -24,6 +25,7 @@ export function DropCardCta({
     user,
     isUnlocked,
     canAfford,
+    ctaState,
     unlocking,
     confirming,
     onUnlock,
@@ -62,15 +64,20 @@ export function DropCardCta({
                     <Loader2 className="h-3 w-3 animate-spin" />
                     <span>Unwrapping...</span>
                 </>
-            ) : !user ? (
+            ) : !user || ctaState === "create_profile" ? (
                 <>
                     <Lock className="h-3 w-3" />
-                    <span>{SECONDARY_UNWRAP_CTA}</span>
+                    <span>Create account to unwrap</span>
                 </>
-            ) : !canAfford ? (
+            ) : ctaState === "preview" ? (
+                <>
+                    <Eye className="h-3 w-3" />
+                    <span>Preview cover</span>
+                </>
+            ) : !canAfford || ctaState === "refill" ? (
                 <>
                     <Wallet className="h-3 w-3" />
-                    <span>Refill GumDrops</span>
+                    <span>Refill to unwrap</span>
                 </>
             ) : confirming ? (
                 <>

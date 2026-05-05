@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { User } from "firebase/auth";
 import { authFetch } from "@/lib/authFetch";
+import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
@@ -47,6 +48,7 @@ function DropCardBase({
 }: DropCardProps) {
     const router = useRouter();
     const { userProfile, setUserProfile } = useUserProfile();
+    const { viewAsState } = useAdminViewAs();
     const { openAuthModal, openPurchaseModal } = useUI();
     const [unlocking, setUnlocking] = useState(false);
     const [confirming, setConfirming] = useState(false);
@@ -56,6 +58,9 @@ function DropCardBase({
     const cardRef = useRef<HTMLDivElement | null>(null);
     const resolvedRatio = aspectRatio ?? getSupportedDropAspectRatio(drop);
     const ratioStyle = { aspectRatio: resolvedRatio.replace(":", " / ") };
+    const viewAsCreatorId = viewAsState?.adminViewingAsRole === "creator" ? viewAsState.adminViewingAsUserId : null;
+    const profileCreatorId = userProfile?.role === "creator" ? userProfile.uid : null;
+    const activeCreatorId = viewAsCreatorId ?? profileCreatorId;
     const visibilityState = useMemo(
         () =>
             resolveDropCardVisibilityState({
@@ -63,8 +68,10 @@ function DropCardBase({
                 isAuthenticated: Boolean(user),
                 isUnlocked,
                 gumDropsBalance: userProfile?.gumDropsBalance,
+                actorUserId: user?.uid ?? userProfile?.uid ?? null,
+                activeCreatorId,
             }),
-        [drop, isUnlocked, user, userProfile?.gumDropsBalance],
+        [activeCreatorId, drop, isUnlocked, user, userProfile?.gumDropsBalance, userProfile?.uid],
     );
 
     useEffect(() => {
@@ -130,6 +137,11 @@ function DropCardBase({
     };
 
     const handleUnlock = async () => {
+        if (visibilityState.shouldShowCreatorShareCta) {
+            handlePreviewOpen();
+            return;
+        }
+
         if (!user) {
             openAuthModal("signup");
             return;
@@ -246,6 +258,7 @@ function DropCardBase({
             user={user}
             isUnlocked={isUnlocked}
             canAfford={visibilityState.canAfford}
+            ctaState={visibilityState.ctaState}
             unlocking={unlocking}
             confirming={confirming}
             onUnlock={handleUnlock}

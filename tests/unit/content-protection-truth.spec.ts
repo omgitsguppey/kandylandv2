@@ -60,6 +60,8 @@ describe("locked content protection truth", () => {
     expect(truth.safePreviewFieldsOnly).toBe(true);
     expect(truth.ctaState).toBe("signup");
     expect(truth.coverTreatment).toBe("guest_protected");
+    expect(truth.shouldBlurCover).toBe(true);
+    expect(truth.shouldShowSignupCta).toBe(true);
     expect(truth.reasonCodes).toContain("guest_protected");
   });
 
@@ -76,6 +78,9 @@ describe("locked content protection truth", () => {
     expect(truth.safePreviewFieldsOnly).toBe(true);
     expect(truth.ctaState).toBe("unlocked_success");
     expect(truth.coverTreatment).toBe("owned");
+    expect(truth.hasUnlockedDrop).toBe(true);
+    expect(truth.shouldShowViewOwnedCta).toBe(true);
+    expect(truth.shouldBlurCover).toBe(false);
   });
 
   it("allows creators to preview their own cover without granting full content entitlement", () => {
@@ -94,6 +99,9 @@ describe("locked content protection truth", () => {
     expect(truth.canPreviewCoverAsCreator).toBe(true);
     expect(truth.creatorCoverPreviewEligible).toBe(true);
     expect(truth.isCreatorPreview).toBe(true);
+    expect(truth.isOwnerOrCreator).toBe(true);
+    expect(truth.shouldBlurCover).toBe(false);
+    expect(truth.shouldShowCreatorShareCta).toBe(true);
     expect(truth.ctaState).toBe("creator_preview");
     expect(truth.coverTreatment).toBe("creator_preview");
     expect(truth.reasonCodes).toContain("creator_cover_preview");
@@ -111,8 +119,29 @@ describe("locked content protection truth", () => {
     });
 
     expect(truth.creatorCoverPreviewEligible).toBe(false);
+    expect(truth.shouldBlurCover).toBe(true);
+    expect(truth.shouldShowTopUpCta).toBe(true);
     expect(truth.ctaState).toBe("refill");
     expect(truth.coverTreatment).toBe("insufficient_softened");
+  });
+
+  it("shows enough-balance non-owner previews clear with unwrap CTA but no file entitlement", () => {
+    const safeDrop = toLockedDropPreviewSafeDrop(sanitizeDropForClient(lockedDrop));
+    const truth = resolveLockedDropPreviewTruth({
+      drop: safeDrop,
+      isAuthenticated: true,
+      isUnlocked: false,
+      gumDropsBalance: lockedDrop.unlockCost,
+      actorUserId: "fan_1",
+      nowMs: Date.now(),
+    });
+
+    expect(truth.hasEnoughGumDrops).toBe(true);
+    expect(truth.hasUnlockedDrop).toBe(false);
+    expect(truth.shouldBlurCover).toBe(false);
+    expect(truth.shouldShowUnwrapCta).toBe(true);
+    expect(truth.coverTreatment).toBe("clear");
+    expect(truth.ctaState).toBe("unwrap");
   });
 
   it("treats matching active creator context as cover-preview eligible", () => {
@@ -140,6 +169,7 @@ describe("locked content protection truth", () => {
     expect(viewSource).toContain("w-[min(64vw,280px)]");
     expect(viewSource).toContain("sm:w-[min(52vw,320px)]");
     expect(viewSource).toContain("data-drop-preview-cover-aspect=\"1:1\"");
+    expect(viewSource).toContain("getCoverCtaLabel");
     expect(imagePolicySource).toContain("const DROP_GRID_STANDARD_SIZES");
     expect(imagePolicySource).toContain("const DROP_PREVIEW_SIZES = \"(max-width: 640px) 64vw, 320px\"");
   });
@@ -150,6 +180,10 @@ describe("locked content protection truth", () => {
 
     expect(clientSource).toContain("drop_preview_creator_cover_viewed");
     expect(clientSource).toContain("drop_preview_creator_share_clicked");
+    expect(clientSource).toContain("drop_preview_guest_signup_cta_");
+    expect(clientSource).toContain("drop_preview_topup_cta_");
+    expect(clientSource).toContain("drop_preview_unwrap_cta_");
+    expect(clientSource).toContain("drop_preview_owned_view_clicked");
     expect(clientSource).toContain("sourceComponent: \"drop_preview_page\"");
     expect(viewSource).toContain("data-drop-preview-share-button=\"true\"");
   });

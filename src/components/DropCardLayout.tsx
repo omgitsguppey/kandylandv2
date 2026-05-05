@@ -62,8 +62,7 @@ export function DropCardLayout({
     onPreviewOpen,
 }: DropCardLayoutProps) {
     const coverSrc = imageError ? resolvePublicDropCoverSrc(null) : resolvePublicDropCoverSrc(drop.imageUrl);
-    const hasProductCoverBlur =
-        visibilityState.coverTreatment === "blurred_guest" || visibilityState.coverTreatment === "blurred_insufficient_balance";
+    const hasProductCoverBlur = visibilityState.shouldBlurCover;
     const imagePolicy = getImageLoadingPolicy("drops_grid", {
         dropGridLayout: resolvedRatio === "16:9" ? "wide" : "standard",
     });
@@ -73,6 +72,8 @@ export function DropCardLayout({
         "data-drop-affordability-reason": visibilityState.reasonCode,
         "data-drop-card-auth-state": visibilityState.authState,
         "data-drop-card-brand-fallback": "KD",
+        "data-drop-card-should-blur-cover": visibilityState.shouldBlurCover,
+        "data-drop-card-owner-or-creator": visibilityState.isOwnerOrCreator,
     };
     const imageTreatmentClassName = cn(
         imageLoaded ? "scale-100" : "scale-105 blur-md",

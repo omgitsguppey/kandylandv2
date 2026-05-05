@@ -18,6 +18,7 @@ import {
     resolveLockedDropPreviewTruth,
     type LockedDropPreviewCreator,
     type LockedDropPreviewSafeDrop,
+    type LockedDropPreviewTruth,
 } from "@/lib/locked-drop-preview-truth";
 import { applyUnlockedDropPreviewProfilePatch } from "@/lib/locked-drop-preview-profile";
 import { getUnlockProblemCopy } from "@/lib/problem-state-copy";
@@ -82,14 +83,22 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         authState: user ? "authenticated" : "guest",
     }), [creator, drop, sourceComponent, truth, user]);
     const getTelemetryPayload = useCallback(() => latestTelemetryPayloadRef.current ?? telemetryPayload, [telemetryPayload]);
-    const getCreatorPreviewTelemetryPayload = useCallback(() => ({
+    const getPreviewStateTelemetryPayload = useCallback(() => ({
         ...getTelemetryPayload(),
         dropId: drop.id,
         creatorId: drop.creatorId ?? drop.submittedByCreatorId ?? creator?.uid ?? "",
         actorUserId: actorUserId ?? "",
         sourceComponent: "drop_preview_page",
+        isGuest: truth.isGuest,
+        isOwnerOrCreator: truth.isOwnerOrCreator,
+        hasEnoughGumDrops: truth.hasEnoughGumDrops,
+        hasUnlockedDrop: truth.hasUnlockedDrop,
+        shouldBlurCover: truth.shouldBlurCover,
+    }), [actorUserId, creator?.uid, drop.creatorId, drop.id, drop.submittedByCreatorId, getTelemetryPayload, truth.hasEnoughGumDrops, truth.hasUnlockedDrop, truth.isGuest, truth.isOwnerOrCreator, truth.shouldBlurCover]);
+    const getCreatorPreviewTelemetryPayload = useCallback(() => ({
+        ...getPreviewStateTelemetryPayload(),
         creatorPreviewEligible: true,
-    }), [actorUserId, creator?.uid, drop.creatorId, drop.id, drop.submittedByCreatorId, getTelemetryPayload]);
+    }), [getPreviewStateTelemetryPayload]);
 
     trackIncompleteOnUnmountRef.current = !truth.isUnlocked && !successTransactionId;
 
@@ -117,9 +126,13 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             if (payload) {
                 trackEvent("drop_preview_cta_viewed", payload);
             }
+            const stateEvent = getPreviewCtaEventName(truth, "viewed");
+            if (stateEvent) {
+                trackEvent(stateEvent, getPreviewStateTelemetryPayload());
+            }
         }, 0);
         return () => window.clearTimeout(timer);
-    }, [drop.id, truth.ctaState, truth.shortfallGd]);
+    }, [drop.id, getPreviewStateTelemetryPayload, truth, truth.ctaState, truth.shortfallGd]);
 
     useEffect(() => {
         if (!truth.creatorCoverPreviewEligible) return;
@@ -201,6 +214,10 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
 
         const payload = getTelemetryPayload();
         trackEvent("drop_preview_cta_clicked", payload);
+        const stateClickEvent = getPreviewCtaEventName(truth, "clicked");
+        if (stateClickEvent) {
+            trackEvent(stateClickEvent, getPreviewStateTelemetryPayload());
+        }
 
         if (truth.ctaState === "signup") {
             openAuthModal("signup");
@@ -296,6 +313,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     const handleOpenLibrary = () => {
         trackIncompleteOnUnmountRef.current = false;
         trackEvent("drop_preview_open_library_clicked", getTelemetryPayload());
+        trackEvent("drop_preview_owned_view_clicked", getPreviewStateTelemetryPayload());
         router.push(truth.libraryOpenHref);
     };
 
@@ -369,4 +387,11 @@ function triggerHaptic() {
     if (typeof navigator !== "undefined" && navigator.vibrate) {
         navigator.vibrate(10);
     }
+}
+
+function getPreviewCtaEventName(truth: LockedDropPreviewTruth, action: "viewed" | "clicked") {
+    if (truth.shouldShowSignupCta) return `drop_preview_guest_signup_cta_${action}` as const;
+    if (truth.shouldShowTopUpCta) return `drop_preview_topup_cta_${action}` as const;
+    if (truth.shouldShowUnwrapCta) return `drop_preview_unwrap_cta_${action}` as const;
+    return null;
 }

@@ -44,7 +44,10 @@ export interface LockedDropPreviewCreator {
 export interface LockedDropPreviewTruth {
     dropId: string;
     isGuest: boolean;
+    isOwnerOrCreator: boolean;
     isUnlocked: boolean;
+    hasUnlockedDrop: boolean;
+    hasEnoughGumDrops: boolean;
     isExpired: boolean;
     isActive: boolean;
     canAfford: boolean;
@@ -55,6 +58,12 @@ export interface LockedDropPreviewTruth {
     canPreviewCoverAsCreator: boolean;
     creatorCoverPreviewEligible: boolean;
     isCreatorPreview: boolean;
+    shouldBlurCover: boolean;
+    shouldShowSignupCta: boolean;
+    shouldShowTopUpCta: boolean;
+    shouldShowUnwrapCta: boolean;
+    shouldShowViewOwnedCta: boolean;
+    shouldShowCreatorShareCta: boolean;
     urgencyTier: DropPreviewUrgencyTier;
     socialProofType: DropPreviewSocialProofType;
     socialProofCount: number;
@@ -173,18 +182,22 @@ export function resolveLockedDropPreviewTruth({
     const isActive = !isExpired && !isScheduled && drop.status === "active";
     const urgencyTier = isExpired ? "expired" : resolveDropPreviewUrgencyTier(drop.validUntil, nowMs);
     const socialProof = getLockedDropPreviewSocialProof(drop);
-    const creatorCoverPreviewEligible = isAuthenticated && isDropCreatorPreviewEligible({
+    const isOwnerOrCreator = isAuthenticated && isDropCreatorPreviewEligible({
         drop,
         actorUserId,
         activeCreatorId,
     });
+    const hasUnlockedDrop = isUnlocked;
+    const hasEnoughGumDrops = balanceKnown && shortfallGd === 0;
+    const shouldBlurCover = isGuest || (!hasUnlockedDrop && !isOwnerOrCreator && !hasEnoughGumDrops);
     const reasonCodes: string[] = [];
 
-    if (isUnlocked) {
+    if (hasUnlockedDrop) {
         reasonCodes.push("owned");
         return buildTruth({
             drop,
             isGuest,
+            isOwnerOrCreator,
             isUnlocked: true,
             isExpired,
             isActive,
@@ -193,7 +206,8 @@ export function resolveLockedDropPreviewTruth({
             shortfallGd: 0,
             ctaState: "unlocked_success",
             coverTreatment: "owned",
-            creatorCoverPreviewEligible,
+            hasEnoughGumDrops: true,
+            shouldBlurCover: false,
             urgencyTier,
             socialProof,
             reasonCodes,
@@ -205,6 +219,7 @@ export function resolveLockedDropPreviewTruth({
         return buildTruth({
             drop,
             isGuest,
+            isOwnerOrCreator,
             isUnlocked: false,
             isExpired,
             isActive,
@@ -213,7 +228,8 @@ export function resolveLockedDropPreviewTruth({
             shortfallGd: unlockCost,
             ctaState: "unavailable",
             coverTreatment: "clear",
-            creatorCoverPreviewEligible,
+            hasEnoughGumDrops: false,
+            shouldBlurCover: false,
             urgencyTier,
             socialProof,
             reasonCodes,
@@ -224,6 +240,7 @@ export function resolveLockedDropPreviewTruth({
         reasonCodes.push("guest_protected");
         return buildTruth({
             drop,
+            isOwnerOrCreator: false,
             isGuest: true,
             isUnlocked: false,
             isExpired,
@@ -233,7 +250,8 @@ export function resolveLockedDropPreviewTruth({
             shortfallGd: unlockCost,
             ctaState: "signup",
             coverTreatment: "guest_protected",
-            creatorCoverPreviewEligible: false,
+            hasEnoughGumDrops: false,
+            shouldBlurCover: true,
             urgencyTier,
             socialProof,
             reasonCodes,
@@ -248,26 +266,24 @@ export function resolveLockedDropPreviewTruth({
         reasonCodes.push("authenticated_can_afford");
     }
 
-    if (creatorCoverPreviewEligible) {
+    if (isOwnerOrCreator) {
         reasonCodes.push("creator_cover_preview");
     }
-
-    const canUnwrap = balanceKnown && shortfallGd === 0;
-    const isCreatorPreview = creatorCoverPreviewEligible && !canUnwrap;
 
     return buildTruth({
         drop,
         isGuest: false,
+        isOwnerOrCreator,
         isUnlocked: false,
         isExpired,
         isActive,
-        canAfford: canUnwrap,
+        canAfford: hasEnoughGumDrops,
         balanceGd,
         shortfallGd,
-        ctaState: canUnwrap ? "unwrap" : creatorCoverPreviewEligible ? "creator_preview" : "refill",
-        coverTreatment: creatorCoverPreviewEligible ? "creator_preview" : balanceKnown && shortfallGd > 0 ? "insufficient_softened" : "clear",
-        creatorCoverPreviewEligible,
-        isCreatorPreview,
+        ctaState: isOwnerOrCreator ? "creator_preview" : hasEnoughGumDrops ? "unwrap" : "refill",
+        coverTreatment: isOwnerOrCreator ? "creator_preview" : shouldBlurCover ? "insufficient_softened" : "clear",
+        hasEnoughGumDrops,
+        shouldBlurCover,
         urgencyTier,
         socialProof,
         reasonCodes,
@@ -277,6 +293,7 @@ export function resolveLockedDropPreviewTruth({
 function buildTruth(input: {
     drop: LockedDropPreviewSafeDrop;
     isGuest: boolean;
+    isOwnerOrCreator?: boolean;
     isUnlocked: boolean;
     isExpired: boolean;
     isActive: boolean;
@@ -285,8 +302,8 @@ function buildTruth(input: {
     shortfallGd: number;
     ctaState: DropPreviewCtaState;
     coverTreatment: DropPreviewCoverTreatment;
-    creatorCoverPreviewEligible?: boolean;
-    isCreatorPreview?: boolean;
+    hasEnoughGumDrops?: boolean;
+    shouldBlurCover?: boolean;
     urgencyTier: DropPreviewUrgencyTier;
     socialProof: ReturnType<typeof getLockedDropPreviewSocialProof>;
     reasonCodes: string[];
@@ -294,7 +311,10 @@ function buildTruth(input: {
     return {
         dropId: input.drop.id,
         isGuest: input.isGuest,
+        isOwnerOrCreator: input.isOwnerOrCreator === true,
         isUnlocked: input.isUnlocked,
+        hasUnlockedDrop: input.isUnlocked,
+        hasEnoughGumDrops: input.hasEnoughGumDrops === true,
         isExpired: input.isExpired,
         isActive: input.isActive,
         canAfford: input.canAfford,
@@ -302,9 +322,15 @@ function buildTruth(input: {
         shortfallGd: input.shortfallGd,
         ctaState: input.ctaState,
         coverTreatment: input.coverTreatment,
-        canPreviewCoverAsCreator: input.creatorCoverPreviewEligible === true,
-        creatorCoverPreviewEligible: input.creatorCoverPreviewEligible === true,
-        isCreatorPreview: input.isCreatorPreview === true,
+        canPreviewCoverAsCreator: input.isOwnerOrCreator === true,
+        creatorCoverPreviewEligible: input.isOwnerOrCreator === true,
+        isCreatorPreview: input.ctaState === "creator_preview",
+        shouldBlurCover: input.shouldBlurCover === true,
+        shouldShowSignupCta: input.ctaState === "signup",
+        shouldShowTopUpCta: input.ctaState === "refill",
+        shouldShowUnwrapCta: input.ctaState === "unwrap",
+        shouldShowViewOwnedCta: input.ctaState === "unlocked_success",
+        shouldShowCreatorShareCta: input.ctaState === "creator_preview",
         urgencyTier: input.urgencyTier,
         socialProofType: input.socialProof.type,
         socialProofCount: input.socialProof.count,

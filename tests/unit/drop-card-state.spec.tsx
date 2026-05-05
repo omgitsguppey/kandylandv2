@@ -47,6 +47,12 @@ vi.mock("@/context/AuthContext", () => ({
   }),
 }));
 
+vi.mock("@/context/AdminViewAsContext", () => ({
+  useAdminViewAs: () => ({
+    viewAsState: null,
+  }),
+}));
+
 vi.mock("@/context/UIContext", () => ({
   useUI: () => ({
     openAuthModal: mockState.openAuthModal,
@@ -116,11 +122,12 @@ describe("DropCard state behavior", () => {
 
     render(<DropCard drop={drop} user={guestAuthState.user} onPreview={vi.fn()} />);
 
-    await userEvent.click(screen.getByRole("button", { name: /unwrap now/i }));
+    await userEvent.click(screen.getByRole("button", { name: /create account to unwrap/i }));
 
     expect(mockState.openAuthModal).toHaveBeenCalledWith("signup");
     expect(mockState.openPurchaseModal).not.toHaveBeenCalled();
     expect(screen.getByText(drop.title).closest("[data-drop-card-auth-state]")).toHaveAttribute("data-drop-card-auth-state", "guest");
+    expect(screen.getByText(drop.title).closest("[data-drop-cover-treatment]")).toHaveAttribute("data-drop-card-should-blur-cover", "true");
   });
 
   it("keeps logged-in enough-balance covers clear", () => {
@@ -133,6 +140,7 @@ describe("DropCard state behavior", () => {
     const card = screen.getByText(drop.title).closest("[data-drop-cover-treatment]");
     expect(card).toHaveAttribute("data-drop-card-auth-state", "authenticated");
     expect(card).toHaveAttribute("data-drop-cover-treatment", "clear");
+    expect(card).toHaveAttribute("data-drop-card-should-blur-cover", "false");
     expect(card).toHaveAttribute("data-drop-cta-state", "unwrap");
     expect(card).toHaveAttribute("data-drop-affordability-reason", "authenticated_can_afford");
     expect(screen.getByRole("button", { name: /^unwrap$/i })).toBeEnabled();
@@ -147,12 +155,33 @@ describe("DropCard state behavior", () => {
 
     const card = screen.getByText(drop.title).closest("[data-drop-cover-treatment]");
     expect(card).toHaveAttribute("data-drop-cover-treatment", "blurred_insufficient_balance");
+    expect(card).toHaveAttribute("data-drop-card-should-blur-cover", "true");
     expect(card).toHaveAttribute("data-drop-cta-state", "refill");
     expect(card).toHaveAttribute("data-drop-affordability-reason", "authenticated_insufficient_balance");
 
-    await userEvent.click(screen.getByRole("button", { name: /refill gumdrops/i }));
+    await userEvent.click(screen.getByRole("button", { name: /refill to unwrap/i }));
 
     expect(mockState.openPurchaseModal).toHaveBeenCalledWith(1);
+  });
+
+  it("lets creators preview their own card cover without showing a refill CTA", async () => {
+    const drop = buildTestDrop({ creatorId: "creator_1", submittedByCreatorId: "creator_1", unlockCost: 500 });
+    const auth = insufficientGumDropsState(drop.unlockCost, { uid: "creator_1", role: "creator" });
+    const onPreview = vi.fn();
+    mockState.userProfile = auth.userProfile;
+
+    render(<DropCard drop={drop} user={auth.user} onPreview={onPreview} />);
+
+    const card = screen.getByText(drop.title).closest("[data-drop-cover-treatment]");
+    expect(card).toHaveAttribute("data-drop-cover-treatment", "creator_preview");
+    expect(card).toHaveAttribute("data-drop-card-owner-or-creator", "true");
+    expect(card).toHaveAttribute("data-drop-card-should-blur-cover", "false");
+    expect(card).toHaveAttribute("data-drop-cta-state", "preview");
+
+    await userEvent.click(screen.getByRole("button", { name: /preview cover/i }));
+
+    expect(onPreview).toHaveBeenCalledWith(drop, "compact_drop_card");
+    expect(mockState.openPurchaseModal).not.toHaveBeenCalled();
   });
 
   it("renders owned drops as viewable and clear of affordability blur", () => {
@@ -165,6 +194,7 @@ describe("DropCard state behavior", () => {
     const card = screen.getByText(drop.title).closest("[data-drop-cover-treatment]");
     expect(card).toHaveAttribute("data-drop-cover-treatment", "owned");
     expect(card).toHaveAttribute("data-drop-cta-state", "view");
+    expect(card).toHaveAttribute("data-drop-card-should-blur-cover", "false");
     expect(screen.getByRole("link", { name: /view content/i })).toHaveAttribute("href", `/dashboard/viewer?id=${drop.id}`);
   });
 });
