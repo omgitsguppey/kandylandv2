@@ -1,3 +1,10 @@
+import {
+  computeEngagementScoreFromSignals,
+  logNorm,
+} from "@/lib/behavioral/behavioral-math-calibration";
+
+export { logNorm };
+
 export type UserEngagementTier = "dormant" | "light" | "active" | "engaged" | "power";
 
 export type UserEngagementReasonCode =
@@ -54,12 +61,6 @@ export type UserEngagementScoreResult = {
   breakdown: UserEngagementScoreBreakdown;
   inputs: UserEngagementScoreInput;
 };
-
-export function logNorm(value: number, cap: number) {
-  const safeValue = Math.max(0, Number.isFinite(value) ? value : 0);
-  const safeCap = Math.max(1, Number.isFinite(cap) ? cap : 1);
-  return Math.min(1, Math.log10(safeValue + 1) / Math.log10(safeCap + 1));
-}
 
 export function recencyDecay(ageDays: number, halfLifeDays: number) {
   const safeAgeDays = Math.max(0, Number.isFinite(ageDays) ? ageDays : 0);
@@ -183,21 +184,21 @@ export function computeUserEngagementScore(input: UserEngagementScoreInput): Use
     freeIntentComponent: logNorm(normalizedInput.freeGdEarned30d, 1000),
   };
 
-  const score = Math.round(100 * (
-    (0.12 * breakdown.actionComponent) +
-    (0.23 * breakdown.unwrapComponent) +
-    (0.23 * breakdown.watchComponent) +
-    (0.20 * breakdown.purchaseComponent) +
-    (0.14 * breakdown.returnComponent) +
-    (0.08 * breakdown.freeIntentComponent)
-  ));
+  const score = computeEngagementScoreFromSignals({
+    purchaseSignal: breakdown.purchaseComponent,
+    unwrapSignal: breakdown.unwrapComponent,
+    validWatchSignal: breakdown.watchComponent,
+    return7dSignal: breakdown.returnComponent,
+    meaningfulActionSignal: breakdown.actionComponent,
+    freeIntentSignal: breakdown.freeIntentComponent,
+  });
 
   const tier = getTier(score);
   const reasons: UserEngagementReason[] = [
     {
       code: "meaningful_actions" as const,
       label: "Meaningful actions",
-      contribution: roundContribution(0.12 * breakdown.actionComponent),
+      contribution: roundContribution(0.10 * breakdown.actionComponent),
       value: normalizedInput.normalizedActionCount7d,
       summary: `${normalizedInput.normalizedActionCount7d} normalized actions in the last 7 days`,
     },
@@ -218,21 +219,21 @@ export function computeUserEngagementScore(input: UserEngagementScoreInput): Use
     {
       code: "purchases" as const,
       label: "Purchases",
-      contribution: roundContribution(0.20 * breakdown.purchaseComponent),
+      contribution: roundContribution(0.24 * breakdown.purchaseComponent),
       value: normalizedInput.purchaseCount90d,
       summary: `${normalizedInput.purchaseCount90d} purchases in the last 90 days`,
     },
     {
       code: "repeat_visits" as const,
       label: "Repeat visits",
-      contribution: roundContribution(0.14 * breakdown.returnComponent),
+      contribution: roundContribution(0.13 * breakdown.returnComponent),
       value: normalizedInput.activeDays7d,
       summary: `${normalizedInput.activeDays7d} active days in the last 7 days`,
     },
     {
       code: "free_gd_intent" as const,
       label: "Free GD intent",
-      contribution: roundContribution(0.08 * breakdown.freeIntentComponent),
+      contribution: roundContribution(0.07 * breakdown.freeIntentComponent),
       value: normalizedInput.freeGdEarned30d,
       summary: `${normalizedInput.freeGdEarned30d} free GD earned in the last 30 days`,
     },

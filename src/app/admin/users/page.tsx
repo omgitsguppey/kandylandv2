@@ -929,13 +929,15 @@ export default function UserManagementPage() {
                                         className="rounded-2xl border border-white/10 bg-black/25 px-3 py-3"
                                         data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
                                         data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
+                                        data-user-behavior-math-mode={behaviorRollup?.mathCalibration?.activeMode ?? "deterministic"}
+                                        data-user-behavior-truth-score={behaviorRollup?.truthScore ?? 0}
                                     >
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-bold text-white">{user.username ? `@${user.username}` : user.displayName || user.email || user.uid}</p>
                                                 <div className="mt-1 flex flex-wrap items-center gap-2">
                                                     <p className="text-xs text-gray-500">
-                                                        {engagementExplanation.verdict} &middot; Value {valueExplanation.verdict} &middot; {engagementExplanation.confidenceLabel} truth
+                                                        {engagementExplanation.verdict} &middot; Value {valueExplanation.verdict} &middot; {engagementExplanation.confidenceLabel} truth &middot; {behaviorRollup?.mathCalibration?.verdict ?? "unvalidated"}
                                                     </p>
                                                     <AdminReviewBadge decision={reviewDecision} className="px-1.5 py-0 text-[8px] tracking-[0.08em]" />
                                                 </div>

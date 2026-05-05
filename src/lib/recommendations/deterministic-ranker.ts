@@ -1,4 +1,5 @@
 import type { Drop } from "@/types/db";
+import { computeDropRecommendationScore } from "@/lib/behavioral/behavioral-math-calibration";
 
 import {
   buildRecommendationRankingFeatures,
@@ -26,17 +27,19 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export function computeDeterministicRecommendationScore(features: RecommendationRankingFeatures) {
-  const baseScore = 100 * (
-    (0.35 * features.predictedPaidConversion) +
-    (0.20 * features.predictedWatchCompletion) +
-    (0.15 * features.predictedUnlock) +
-    (0.10 * features.creatorAffinity) +
-    (0.08 * features.contentAffinity) +
-    (0.07 * features.freshness) +
-    (0.05 * features.urgency)
-  );
-
-  return clamp(baseScore - features.fatiguePenalty - features.previousExposurePenalty, 0, 100);
+  return clamp(computeDropRecommendationScore({
+    pPurchase7d: features.pPurchase7d,
+    pUnlock24h: features.pUnlock24h,
+    pWatchComplete: features.pWatchComplete,
+    pReturn7d: features.pReturn7d,
+    pCreatorFollow: features.pCreatorFollow,
+    pNegativeFeedback: features.pNegativeFeedback,
+    freshness: features.freshness,
+    urgency: features.urgency,
+    fatiguePenalty: features.fatiguePenalty,
+    repeatExposurePenalty: features.previousExposurePenalty,
+    diversityBoost: features.diversityBoost,
+  }), 0, 100);
 }
 
 export function rankDeterministicRecommendations(input: {

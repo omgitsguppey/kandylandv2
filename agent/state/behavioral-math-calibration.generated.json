@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-05T08:39:50.757Z",
+  "sourceReliabilityWeights": {
+    "server_transaction": 1,
+    "server_entitlement_unlock": 1,
+    "watch_session_rollup": 0.95,
+    "server_creator_relationship": 0.9,
+    "identified_event_fact": 0.75,
+    "client_ui_event": 0.6,
+    "guest_batch": 0.45,
+    "legacy_page_duration": 0.2
+  },
+  "activeMode": "deterministic",
+  "activationVerdict": "ml_inactive_sample_too_small",
+  "activationReasons": [
+    "Sample size 5 is below 50, so no ML verdict is active."
+  ],
+  "validationMetrics": {
+    "precisionAt5": 0.2667,
+    "precisionAt10": 0.1333,
+    "unlockHitRateWithin24h": 0.6667,
+    "purchaseHitRateWithin7d": 0.25,
+    "watchCompletionHitRate": 0.3333,
+    "returnHitRateWithin7d": 0.6667,
+    "calibrationError": 0.0693,
+    "deterministicBaselineComparison": {
+      "baselineName": "deterministic_goal_calibrated_ranker",
+      "beatsBaseline": true,
+      "deterministicPrecisionAt5": 0.2667,
+      "deterministicPrecisionAt10": 0.1333,
+      "deterministicHitRate": 0.6667,
+      "deterministicCalibrationError": 0.0675
+    },
+    "sampleSize": 5,
+    "validationSampleSize": 720,
+    "sourceTruthCoverage": 1
+  },
+  "truthRequirements": {
+    "purchaseTruthPresent": true,
+    "entitlementUnlockTruthPresent": true,
+    "watchSessionTruthPresent": true,
+    "legacyPageDurationDemoted": true,
+    "predictionOutputsPresent": true,
+    "criticalFindings": []
+  },
+  "modelPolicy": {
+    "minimumMlSampleSize": 50,
+    "mlVerdictsActive": false,
+    "deterministicStaysActiveWhenMlUnderperforms": true,
+    "trainingSource": "synthetic_bootstrap"
+  }
+}

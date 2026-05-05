@@ -721,7 +721,7 @@ export default function AdminUserAnalyticsPage() {
                         <AdminReviewBadge decision={behaviorReviewDecision} className="mr-1 py-0.5" />
                         <AdminTruthBadge state={behaviorTruthState} className="mr-1 py-0.5" hasUsableValue={Boolean(behaviorRollup)} />{" "}
                         {behaviorRollup
-                            ? `Behavior rollup: ${behaviorRollup.sourceLabel} / ${behaviorRollup.confidence} (${behaviorRollup.confidenceScore}%).`
+                            ? `Behavior rollup: ${behaviorRollup.sourceLabel} / ${behaviorRollup.confidence} (${behaviorRollup.confidenceScore}%). Math: ${behaviorRollup.mathCalibration?.activeMode ?? "deterministic"} / ${behaviorRollup.mathCalibration?.verdict ?? "unvalidated"} / truth ${Math.round((behaviorRollup.truthScore ?? 0) * 100)}%.`
                             : "Behavior rollup unavailable."}
                         {behaviorIssueSummary ? ` Issues: ${behaviorIssueSummary}` : ""}
                     </div>
@@ -810,6 +810,9 @@ export default function AdminUserAnalyticsPage() {
                         <span className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
                             Confidence {behavioralConfidence}%
                         </span>
+                        <span className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                            Math {recommendationDebug?.mathCalibration?.verdict || behavioralProfile?.mathCalibration?.verdict || "unvalidated"}
+                        </span>
                     </div>
                 </div>
                 <div className="mt-4">
@@ -847,6 +850,11 @@ export default function AdminUserAnalyticsPage() {
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Session depth</p>
                                 <p className="mt-2 text-lg font-black text-white">{behavioralProfile?.averageSessionDepth || 0}</p>
                                 <p className="mt-1 text-xs text-gray-400">{behavioralProfile?.watchSessionCount || 0} tracked watch sessions in the current profile window.</p>
+                            </div>
+                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Truth score</p>
+                                <p className="mt-2 text-lg font-black text-white">{Math.round(((recommendationDebug?.truthScore ?? behavioralProfile?.truthScore ?? 0) as number) * 100)}%</p>
+                                <p className="mt-1 text-xs text-gray-400">Validated/decorative state: {recommendationDebug?.mathCalibration?.activeMode || behavioralProfile?.mathCalibration?.activeMode || "deterministic"}.</p>
                             </div>
                         </div>
 

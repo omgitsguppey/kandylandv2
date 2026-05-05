@@ -32,11 +32,11 @@ export function buildRecommendationExplanation(input: {
   if (features.contentAffinity >= 0.45) {
     addIfMissing(reasons, "The content theme lines up with recent watch and unwrap behavior.");
   }
-  if (features.predictedWatchCompletion >= 0.45) {
+  if (features.pWatchComplete >= 0.45) {
     addIfMissing(reasons, "Viewer behavior suggests a meaningful chance of watch completion.");
   }
-  if (features.predictedPaidConversion >= 0.4) {
-    addIfMissing(reasons, "Paid conversion likelihood is stronger than a generic fallback pick.");
+  if (features.pPurchase7d >= 0.4) {
+    addIfMissing(reasons, "Purchase likelihood is stronger than a generic fallback pick.");
   }
   if (sources.includes("ending_soon") && features.urgency > 0) {
     addIfMissing(reasons, "It is close to ending, so urgency legitimately boosts ranking.");
@@ -60,12 +60,19 @@ export function buildRecommendationExplanation(input: {
     reasons: reasons.slice(0, 3),
     diagnostics: [
       { label: "Predicted paid conversion", value: features.predictedPaidConversion },
+      { label: "pPurchase7d", value: features.pPurchase7d },
+      { label: "pUnlock24h", value: features.pUnlock24h },
+      { label: "pWatchComplete", value: features.pWatchComplete },
+      { label: "pReturn7d", value: features.pReturn7d },
+      { label: "pCreatorFollow", value: features.pCreatorFollow },
+      { label: "pNegativeFeedback", value: features.pNegativeFeedback },
       { label: "Predicted unlock", value: features.predictedUnlock },
       { label: "Predicted watch completion", value: features.predictedWatchCompletion },
       { label: "Creator affinity", value: features.creatorAffinity },
       { label: "Content affinity", value: features.contentAffinity },
       { label: "Freshness", value: features.freshness },
       { label: "Urgency", value: features.urgency },
+      { label: "Truth score", value: features.truthScore },
       { label: "Confidence", value: features.confidence },
       { label: "Fatigue penalty", value: features.fatiguePenalty / 100 },
       { label: "Previous exposure penalty", value: features.previousExposurePenalty / 100 },

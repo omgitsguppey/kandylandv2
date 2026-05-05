@@ -1,4 +1,5 @@
 import { logNorm, recencyDecay } from "@/lib/behavioral/user-engagement-score";
+import { computeValueScoreFromSignals } from "@/lib/behavioral/behavioral-math-calibration";
 
 export type UserValueTier = "observer" | "warm" | "buyer" | "repeat_buyer" | "VIP";
 
@@ -195,13 +196,13 @@ export function computeUserValueScore(input: UserValueScoreInput): UserValueScor
     freeConversionComponent: clampUnit(Math.min(1, normalizedInput.freeGdEarned30d / 500) * (hasNoPurchase ? 1 : 0.4)),
   };
 
-  const valueScore = Math.round(100 * (
-    (0.45 * breakdown.spendComponent) +
-    (0.25 * breakdown.purchaseCountComponent) +
-    (0.12 * breakdown.recencyComponent) +
-    (0.10 * breakdown.postPurchaseUsageComponent) +
-    (0.08 * breakdown.freeConversionComponent)
-  ));
+  const valueScore = computeValueScoreFromSignals({
+    verifiedSpendSignal: breakdown.spendComponent,
+    purchaseCountSignal: breakdown.purchaseCountComponent,
+    purchaseRecencySignal: breakdown.recencyComponent,
+    postPurchaseUsageSignal: breakdown.postPurchaseUsageComponent,
+    freeToPaidIntentSignal: breakdown.freeConversionComponent,
+  });
 
   const repeatPurchaseLikelihood = Math.round(100 * clampUnit(
     (0.45 * breakdown.purchaseCountComponent) +

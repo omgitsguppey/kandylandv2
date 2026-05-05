@@ -1,4 +1,9 @@
 import type { Drop } from "@/types/db";
+import {
+  clamp01,
+  computeBehavioralTruthScore,
+  type BehavioralPredictionOutputs,
+} from "@/lib/behavioral/behavioral-math-calibration";
 
 export type RecommendationMode = "deterministic" | "ml_artifact";
 
@@ -14,8 +19,10 @@ export type RecommendationCandidateSource =
 
 export type RecommendationBehavioralProfileLike = {
   confidenceScore?: number;
+  truthScore?: number;
   freshnessLabel?: string;
   recommendationState?: string;
+  predictionOutputs?: Partial<BehavioralPredictionOutputs>;
   creatorAffinity?: Record<string, number>;
   categoryAffinity?: Record<string, number>;
   themeAffinity?: Record<string, number>;
@@ -57,6 +64,9 @@ export type RecommendationDropIntelligenceLike = {
   negativeSignalRate?: number;
   freshnessDecayScore?: number;
   confidenceScore?: number;
+  truthScore?: number;
+  sourceReliability?: number;
+  schemaCompleteness?: number;
   positiveFeedbackCount?: number;
   negativeFeedbackCount?: number;
 };
@@ -86,12 +96,20 @@ export type RecommendationPrimitiveSignals = {
 };
 
 export type RecommendationRankingFeatures = RecommendationPrimitiveSignals & {
+  pPurchase7d: number;
+  pUnlock24h: number;
+  pWatchComplete: number;
+  pReturn7d: number;
+  pCreatorFollow: number;
+  pNegativeFeedback: number;
   predictedPaidConversion: number;
   predictedUnlock: number;
   predictedWatchCompletion: number;
   predictedReturn: number;
   previousExposurePenalty: number;
   fatiguePenalty: number;
+  diversityBoost: number;
+  truthScore: number;
   confidence: number;
 };
 
@@ -101,14 +119,6 @@ export type RecommendationDiagnostics = {
   negativeSignalRate: number;
   sourceReasons: string[];
 };
-
-function clamp01(value: number) {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  return Math.max(0, Math.min(1, value));
-}
 
 function average(values: number[]) {
   if (values.length === 0) {
@@ -219,6 +229,25 @@ function normalizeConfidence(profile: RecommendationBehavioralProfileLike | null
   return clamp01(Math.min(profileConfidence, dropConfidence));
 }
 
+function normalizeTruthScore(profile: RecommendationBehavioralProfileLike | null | undefined, intelligence: RecommendationDropIntelligenceLike | undefined) {
+  if (typeof intelligence?.truthScore === "number") {
+    return clamp01(intelligence.truthScore);
+  }
+
+  if (typeof profile?.truthScore === "number") {
+    return clamp01(profile.truthScore);
+  }
+
+  const confidence = normalizeConfidence(profile, intelligence);
+  return computeBehavioralTruthScore({
+    sourceReliability: intelligence?.sourceReliability ?? confidence,
+    freshnessScore: intelligence?.freshnessDecayScore ?? (profile?.freshnessLabel === "live" ? 1 : 0.35),
+    sampleScore: intelligence?.confidenceScore ?? confidence,
+    schemaCompleteness: intelligence?.schemaCompleteness ?? confidence,
+    sourceDisagreementPenalty: intelligence?.negativeSignalRate ?? 0,
+  });
+}
+
 function computePreviousExposurePenalty(input: {
   drop: Drop;
   profile: RecommendationBehavioralProfileLike | null | undefined;
@@ -246,6 +275,18 @@ function computeFatiguePenalty(input: {
 }) {
   const creatorRepeatPenalty = input.drop.creatorId && input.profile?.recentCreatorIds?.includes(input.drop.creatorId) ? 4 : 0;
   return Math.max(0, Math.min(16, ((input.profile?.fatigueScore || 0) * 12) + creatorRepeatPenalty));
+}
+
+function computeDiversityBoost(input: {
+  drop: Drop;
+  profile: RecommendationBehavioralProfileLike | null | undefined;
+  candidate?: RecommendationCandidate | null;
+}) {
+  const creatorId = input.drop.creatorId || "";
+  const newCreatorBoost = creatorId && !input.profile?.recentCreatorIds?.includes(creatorId) ? 2.5 : 0;
+  const similarTasteBoost = input.candidate?.sources.includes("similar_users") ? 1.5 : 0;
+  const freshSurfaceBoost = input.candidate?.sources.includes("fresh") ? 1 : 0;
+  return Math.max(0, Math.min(6, newCreatorBoost + similarTasteBoost + freshSurfaceBoost));
 }
 
 export function buildRecommendationRankingFeatures(input: {
@@ -286,10 +327,12 @@ export function buildRecommendationRankingFeatures(input: {
   const previousUnlockCreatorBoost = input.candidate?.sources.includes("previously_unlocked_creator") ? 1 : 0;
   const similarUserBoost = input.candidate?.sources.includes("similar_users") ? 1 : 0;
   const confidence = normalizeConfidence(profile, intelligence);
+  const truthScore = normalizeTruthScore(profile, intelligence);
   const previousExposurePenalty = computePreviousExposurePenalty({ drop, profile });
   const fatiguePenalty = computeFatiguePenalty({ drop, profile });
+  const diversityBoost = computeDiversityBoost({ drop, profile, candidate: input.candidate });
 
-  const predictedPaidConversion = clamp01(
+  const pPurchase7d = clamp01(
     (creatorAffinity * 0.22) +
     (contentAffinity * 0.12) +
     (unlockQuality * 0.18) +
@@ -297,9 +340,9 @@ export function buildRecommendationRankingFeatures(input: {
     (priceFit * 0.14) +
     (followedCreatorBoost * 0.07) +
     (similarUserBoost * 0.04) +
-    (confidence * 0.03),
+    (truthScore * 0.03),
   );
-  const predictedUnlock = clamp01(
+  const pUnlock24h = clamp01(
     (contentAffinity * 0.18) +
     (creatorAffinity * 0.14) +
     (unlockQuality * 0.22) +
@@ -307,9 +350,9 @@ export function buildRecommendationRankingFeatures(input: {
     (freshness * 0.08) +
     (previousUnlockCreatorBoost * 0.1) +
     (similarUserBoost * 0.08) +
-    (confidence * 0.08),
+    (truthScore * 0.08),
   );
-  const predictedWatchCompletion = clamp01(
+  const pWatchComplete = clamp01(
     (contentAffinity * 0.16) +
     (creatorAffinity * 0.1) +
     (completionQuality * 0.26) +
@@ -317,9 +360,9 @@ export function buildRecommendationRankingFeatures(input: {
     (freshness * 0.1) +
     (popularity * 0.1) +
     (returnCadence * 0.08) +
-    (confidence * 0.12),
+    (truthScore * 0.12),
   );
-  const predictedReturn = clamp01(
+  const pReturn7d = clamp01(
     (creatorAffinity * 0.18) +
     (contentAffinity * 0.16) +
     (experienceAffinity * 0.12) +
@@ -327,8 +370,27 @@ export function buildRecommendationRankingFeatures(input: {
     (urgency * 0.08) +
     (returnCadence * 0.18) +
     (popularity * 0.08) +
-    (confidence * 0.12),
+    (truthScore * 0.12),
   );
+  const pCreatorFollow = clamp01(
+    (creatorAffinity * 0.34) +
+    (followedCreatorBoost * 0.18) +
+    (previousUnlockCreatorBoost * 0.16) +
+    (contentAffinity * 0.12) +
+    (pWatchComplete * 0.1) +
+    (truthScore * 0.1),
+  );
+  const pNegativeFeedback = clamp01(
+    (intelligence?.negativeSignalRate || 0) * 0.4 +
+    (profile?.negativeDropIds?.includes(drop.id) ? 0.3 : 0) +
+    (profile?.fatigueScore || 0) * 0.2 +
+    (previousExposurePenalty / 100) * 0.1,
+  );
+  const profilePredictions = profile?.predictionOutputs ?? {};
+  const predictedPaidConversion = clamp01(profilePredictions.pPurchase7d ?? pPurchase7d);
+  const predictedUnlock = clamp01(profilePredictions.pUnlock24h ?? pUnlock24h);
+  const predictedWatchCompletion = clamp01(profilePredictions.pWatchComplete ?? pWatchComplete);
+  const predictedReturn = clamp01(profilePredictions.pReturn7d ?? pReturn7d);
 
   return {
     creatorAffinity,
@@ -345,12 +407,20 @@ export function buildRecommendationRankingFeatures(input: {
     followedCreatorBoost,
     previousUnlockCreatorBoost,
     similarUserBoost,
+    pPurchase7d: predictedPaidConversion,
+    pUnlock24h: predictedUnlock,
+    pWatchComplete: predictedWatchCompletion,
+    pReturn7d: predictedReturn,
+    pCreatorFollow: clamp01(profilePredictions.pCreatorFollow ?? pCreatorFollow),
+    pNegativeFeedback: clamp01(profilePredictions.pNegativeFeedback ?? pNegativeFeedback),
     predictedPaidConversion,
     predictedUnlock,
     predictedWatchCompletion,
     predictedReturn,
     previousExposurePenalty,
     fatiguePenalty,
+    diversityBoost,
+    truthScore,
     confidence,
     diagnostics: {
       telemetryFreshness: intelligence?.freshnessLabel || profile?.freshnessLabel || "unknown",

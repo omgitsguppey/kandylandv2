@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { Drop } from "@/types/db";
+import { computeDropRecommendationScore } from "@/lib/behavioral/behavioral-math-calibration";
 
 import type {
   RecommendationRankingFeatures,
@@ -41,6 +42,10 @@ export type MlRecommendationScore = {
   modelSource: RecommendationModelArtifact["trainingSource"];
   modelFreshness: "fresh" | "stale" | "missing";
   blendWeight: number;
+  pPurchase7d: number;
+  pUnlock24h: number;
+  pWatchComplete: number;
+  pReturn7d: number;
   predictedPaidConversion: number;
   predictedUnlock: number;
   predictedWatchCompletion: number;
@@ -184,25 +189,29 @@ export function scoreRecommendationWithArtifact(input: {
   const predictedUnlock = scoreHead(artifact.heads.predictedUnlock, featureMap);
   const predictedWatchCompletion = scoreHead(artifact.heads.predictedWatchCompletion, featureMap);
   const predictedReturn = scoreHead(artifact.heads.predictedReturn, featureMap);
-  const mlBaseScore = 100 * (
-    (0.35 * predictedPaidConversion) +
-    (0.20 * predictedWatchCompletion) +
-    (0.15 * predictedUnlock) +
-    (0.10 * input.features.creatorAffinity) +
-    (0.08 * input.features.contentAffinity) +
-    (0.07 * input.features.freshness) +
-    (0.05 * input.features.urgency)
-  );
-  const score = Math.max(
-    0,
-    Math.min(100, mlBaseScore - input.features.previousExposurePenalty - input.features.fatiguePenalty),
-  );
+  const score = computeDropRecommendationScore({
+    pPurchase7d: predictedPaidConversion,
+    pUnlock24h: predictedUnlock,
+    pWatchComplete: predictedWatchCompletion,
+    pReturn7d: predictedReturn,
+    pCreatorFollow: input.features.pCreatorFollow,
+    pNegativeFeedback: input.features.pNegativeFeedback,
+    freshness: input.features.freshness,
+    urgency: input.features.urgency,
+    fatiguePenalty: input.features.fatiguePenalty,
+    repeatExposurePenalty: input.features.previousExposurePenalty,
+    diversityBoost: input.features.diversityBoost,
+  });
 
   return {
     mode: "ml_artifact",
     modelSource: artifact.trainingSource,
     modelFreshness,
     blendWeight: clamp01(artifact.blendWeight),
+    pPurchase7d: predictedPaidConversion,
+    pUnlock24h: predictedUnlock,
+    pWatchComplete: predictedWatchCompletion,
+    pReturn7d: predictedReturn,
     predictedPaidConversion,
     predictedUnlock,
     predictedWatchCompletion,

@@ -25,7 +25,7 @@ const adminTypes = read("src/types/admin-analytics.ts");
 const failures: string[] = [];
 
 [
-  "export function logNorm(",
+  "export { logNorm };",
   "export function recencyDecay(",
   "normalizedActionCount7d",
   "unwrappedCount30d",
@@ -33,12 +33,13 @@ const failures: string[] = [];
   "purchaseCount90d",
   "activeDays7d",
   "freeGdEarned30d",
-  "0.12 * breakdown.actionComponent",
+  "computeEngagementScoreFromSignals",
+  "0.10 * breakdown.actionComponent",
   "0.23 * breakdown.unwrapComponent",
   "0.23 * breakdown.watchComponent",
-  "0.20 * breakdown.purchaseComponent",
-  "0.14 * breakdown.returnComponent",
-  "0.08 * breakdown.freeIntentComponent",
+  "0.24 * breakdown.purchaseComponent",
+  "0.13 * breakdown.returnComponent",
+  "0.07 * breakdown.freeIntentComponent",
   "\"dormant\"",
   "\"light\"",
   "\"active\"",

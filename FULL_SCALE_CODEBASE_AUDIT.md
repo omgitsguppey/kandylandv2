@@ -1,5 +1,29 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #168] PRE: Behavioral Math Calibration
+
+Scope started:
+- Replacing vague aggregate behavioral scoring with source-truthed, goal-calibrated prediction math for purchases, unlocks, watch completion, return, creator follow, and negative feedback.
+- Required outputs include shared behavioral math contract helpers, server/functions materializer wiring, recommendation ranker updates, admin math visibility, targeted validators, generated calibration report, docs, and package scripts.
+- This pass must not run Playwright, Lighthouse, Cypress, full `npm run check`, deploy commands, Firebase/Google Cloud commands, or broad audit suites.
+
+Evidence:
+- Control tower startup/source-truth/postflight docs, Source-of-Truth and Server Truth doctrine, existing behavioral confidence/truth/value/engagement helpers, recommendation candidate/ranker/model/explanation helpers, admin user rollups/pages/routes, analytics ingest source truth, watch-session scoring, GumDrop ledger server-truth helpers, behavioral model validation artifacts, package scripts, and governance ledgers were inspected before implementation.
+
+Scope completed:
+- Added `src/lib/behavioral/behavioral-math-calibration.ts` with source reliability weights, truth/engagement/value/drop ranking formulas, prediction output contract, surface objectives, candidate/filter doctrine, and ML activation guardrails.
+- Updated recommendation features, deterministic ranking, ML artifact scoring, candidate filtering, and explanations to expose `pPurchase7d`, `pUnlock24h`, `pWatchComplete`, `pReturn7d`, `pCreatorFollow`, and `pNegativeFeedback` while retaining plain-English user explanations and collapsed admin diagnostics.
+- Updated behavioral Functions materialization and admin user rollups so verified server purchases, server entitlement unlocks, and watch-session rollups are first-class truth while client UI events and legacy page duration remain lower-trust context.
+- Added `npm run validate:behavioral-predictions`, `npm run check:behavioral-math-calibration`, generated `agent/state/behavioral-math-calibration.generated.json`, and documented the lane in `docs/agent-truth/behavioral-math-calibration.md`.
+
+Verification:
+- `npm run validate:behavioral-predictions` passed and wrote deterministic mode because current recommendation artifact sample size is 5, below the 50-sample ML threshold.
+- `npm run check:behavioral-math-calibration` passed.
+- `npm run typecheck` passed.
+- `npx tsc --ignoreConfig --noEmit --pretty --strict --module NodeNext --moduleResolution NodeNext --target es2017 --skipLibCheck --esModuleInterop --ignoreDeprecations 6.0 functions\src\behavioral-intelligence-runtime.ts functions\src\analytics-core.ts functions\src\firebase-admin.ts` passed.
+- Full Functions project no-emit check was attempted but blocked by pre-existing `functions/tsconfig.json` TypeScript 6 `baseUrl` deprecation and `rootDir`/`../shared/runtime` configuration errors; the targeted changed-runtime check above passed instead.
+- Playwright, Lighthouse, Cypress, full `npm run check`, deploy commands, Firebase/Google Cloud commands, and broad audit suites were not run.
+
 ## [2026-05-05 #167] PRE: Global Cost Surface Guardrails
 
 Scope started:

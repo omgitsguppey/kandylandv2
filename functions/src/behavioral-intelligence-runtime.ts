@@ -19,6 +19,17 @@ const MAX_USER_PROFILE_WRITES = 500
 const MAX_GUEST_PROFILE_WRITES = 250
 const MAX_DROP_PROFILE_WRITES = 500
 
+const SOURCE_RELIABILITY_WEIGHTS = {
+  server_transaction: 1,
+  server_entitlement_unlock: 1,
+  watch_session_rollup: 0.95,
+  server_creator_relationship: 0.9,
+  identified_event_fact: 0.75,
+  client_ui_event: 0.6,
+  guest_batch: 0.45,
+  legacy_page_duration: 0.2,
+} as const
+
 type DropRecord = Record<string, unknown> & {
   id: string
   creatorId?: string
@@ -43,11 +54,13 @@ type UserSignalAggregate = {
   eventCount: number
   watchSessionCount: number
   purchaseCount: number
+  serverPurchaseCount: number
   walletOpenCount: number
   checkoutStartCount: number
   previewOpenCount: number
   viewerOpenCount: number
   unlockCount: number
+  serverUnlockCount: number
   repeatViewCount: number
   feedbackCount: number
   positiveFeedbackCount: number
@@ -73,6 +86,8 @@ type UserSignalAggregate = {
     watchSessions: number[]
     relationships: number[]
     feedbacks: number[]
+    serverTransactions: number[]
+    serverUnlocks: number[]
   }
 }
 
@@ -299,6 +314,66 @@ function computeBehavioralTruthConfidence(input: {
   }
 }
 
+function computeBehavioralTruthScore(input: {
+  sourceReliability: number
+  freshnessScore: number
+  sampleScore: number
+  schemaCompleteness: number
+  sourceDisagreementPenalty: number
+}) {
+  return clamp01(
+    (0.40 * clamp01(input.sourceReliability)) +
+    (0.25 * clamp01(input.freshnessScore)) +
+    (0.20 * clamp01(input.sampleScore)) +
+    (0.10 * clamp01(input.schemaCompleteness)) -
+    (0.05 * clamp01(input.sourceDisagreementPenalty)),
+  )
+}
+
+function computeDropRecommendationScore(input: {
+  pPurchase7d: number
+  pUnlock24h: number
+  pWatchComplete: number
+  pReturn7d: number
+  freshness: number
+  urgency: number
+  fatiguePenalty: number
+  repeatExposurePenalty: number
+  diversityBoost: number
+}) {
+  const baseScore = 100 * (
+    (0.35 * clamp01(input.pPurchase7d)) +
+    (0.25 * clamp01(input.pUnlock24h)) +
+    (0.20 * clamp01(input.pWatchComplete)) +
+    (0.10 * clamp01(input.pReturn7d)) +
+    (0.05 * clamp01(input.freshness)) +
+    (0.05 * clamp01(input.urgency))
+  )
+
+  return Math.max(0, Math.min(100, baseScore - input.fatiguePenalty - input.repeatExposurePenalty + input.diversityBoost))
+}
+
+function readSourceTruth(record: Record<string, unknown>) {
+  return readString(record.sourceTruth || record.normalizedActionSourceTruth).toLowerCase()
+}
+
+function isServerPurchaseFact(eventName: string, record: Record<string, unknown>) {
+  const sourceTruth = readSourceTruth(record)
+  return eventName === "purchase_verified"
+    || sourceTruth === "server"
+    || sourceTruth === "canonical"
+    || sourceTruth === "server_transaction"
+}
+
+function isServerUnlockFact(eventName: string, record: Record<string, unknown>) {
+  const sourceTruth = readSourceTruth(record)
+  return eventName === "drop_unwrapped"
+    || eventName === "entitlement_granted"
+    || sourceTruth === "server"
+    || sourceTruth === "canonical"
+    || sourceTruth === "server_entitlement_unlock"
+}
+
 function ensureUserAggregate(userId: string, store: Map<string, UserSignalAggregate>) {
   const existing = store.get(userId)
   if (existing) {
@@ -310,11 +385,13 @@ function ensureUserAggregate(userId: string, store: Map<string, UserSignalAggreg
     eventCount: 0,
     watchSessionCount: 0,
     purchaseCount: 0,
+    serverPurchaseCount: 0,
     walletOpenCount: 0,
     checkoutStartCount: 0,
     previewOpenCount: 0,
     viewerOpenCount: 0,
     unlockCount: 0,
+    serverUnlockCount: 0,
     repeatViewCount: 0,
     feedbackCount: 0,
     positiveFeedbackCount: 0,
@@ -340,6 +417,8 @@ function ensureUserAggregate(userId: string, store: Map<string, UserSignalAggreg
       watchSessions: [],
       relationships: [],
       feedbacks: [],
+      serverTransactions: [],
+      serverUnlocks: [],
     },
   }
 
@@ -435,6 +514,7 @@ function readNormalizedAction(record: Record<string, unknown>) {
     return "drop_preview_opened"
   case "unlock_drop_success":
   case "drop_unwrapped":
+  case "entitlement_granted":
     return "drop_unwrapped"
   case "viewer_asset_started":
   case "viewer_asset_changed":
@@ -452,6 +532,7 @@ function readNormalizedAction(record: Record<string, unknown>) {
     return "creator_followed"
   case "notification_opened":
   case "notification_clicked":
+  case "notification_read":
     return "notification_opened"
   case "support_ticket_created":
   case "support_ticket_submitted":
@@ -573,7 +654,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       if (eventName === "viewer_opened" || eventName === "viewer_session_started") {
         dropAggregate.viewerOpens += 1
       }
-      if (normalizedAction === "drop_unwrapped") {
+      if (normalizedAction === "drop_unwrapped" && isServerUnlockFact(eventName, event)) {
         dropAggregate.unlocks += 1
       }
       if (timestamp >= nowMs - (24 * 60 * 60 * 1000)) {
@@ -622,7 +703,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       if (eventName === "wallet_opened" && existingSession.walletAtMs === 0) {
         existingSession.walletAtMs = timestamp
       }
-      if (eventName === "unlock_drop_success" && existingSession.unlockAtMs === 0) {
+      if ((eventName === "drop_unwrapped" || eventName === "entitlement_granted") && existingSession.unlockAtMs === 0) {
         existingSession.unlockAtMs = timestamp
       }
       sessionAggregates.set(sessionId, existingSession)
@@ -634,8 +715,10 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     if (eventName === "begin_checkout") {
       aggregate.checkoutStartCount += 1
     }
-    if (normalizedAction === "gumdrops_purchased") {
+    if (normalizedAction === "gumdrops_purchased" && isServerPurchaseFact(eventName, event)) {
       aggregate.purchaseCount += 1
+      aggregate.serverPurchaseCount += 1
+      aggregate.sourceTimestamps.serverTransactions.push(timestamp)
     }
     if (normalizedAction === "drop_preview_opened" || normalizedAction === "drop_viewed") {
       aggregate.previewOpenCount += 1
@@ -643,8 +726,10 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     if (eventName === "viewer_opened" || eventName === "viewer_session_started") {
       aggregate.viewerOpenCount += 1
     }
-    if (normalizedAction === "drop_unwrapped") {
+    if (normalizedAction === "drop_unwrapped" && isServerUnlockFact(eventName, event)) {
       aggregate.unlockCount += 1
+      aggregate.serverUnlockCount += 1
+      aggregate.sourceTimestamps.serverUnlocks.push(timestamp)
     }
 
     if (dropId) {
@@ -895,33 +980,84 @@ function buildUserProfileDoc(input: {
     input.aggregate.sourceTimestamps.watchSessions.length > 0,
     input.aggregate.sourceTimestamps.relationships.length > 0,
     input.aggregate.sourceTimestamps.feedbacks.length > 0,
+    input.aggregate.sourceTimestamps.serverTransactions.length > 0,
+    input.aggregate.sourceTimestamps.serverUnlocks.length > 0,
+  ].filter(Boolean).length
+  const profileSampleCount = Math.max(
+    input.aggregate.watchSessionCount,
+    input.aggregate.serverUnlockCount,
+    repeatedCreatorSignalCount + categorySignalCount + themeSignalCount,
+    input.aggregate.serverPurchaseCount,
+    sessionFrequency30d,
+    signalEvidenceCount,
+  )
+  const profileRequiredFieldsPresent = [
+    input.aggregate.watchSessionCount > 0,
+    input.aggregate.serverUnlockCount > 0,
+    repeatedCreatorSignalCount > 0,
+    categorySignalCount + themeSignalCount > 0,
+    input.aggregate.serverPurchaseCount > 0,
+    sessionFrequency30d > 0,
+    consentAvailability > 0,
   ].filter(Boolean).length
   const confidenceResult = computeBehavioralTruthConfidence({
     agreeingSources: availableSourceCount,
     availableSources: availableSourceCount,
     ageMs: latestSourceAtMs > 0 ? Math.max(0, input.nowMs - latestSourceAtMs) : Number.MAX_SAFE_INTEGER,
     maxFreshnessMs: STALE_AFTER_MS,
-    sampleCount: Math.max(
-      input.aggregate.watchSessionCount,
-      input.aggregate.unlockCount,
-      repeatedCreatorSignalCount + categorySignalCount + themeSignalCount,
-      input.aggregate.purchaseCount,
-      sessionFrequency30d,
-      signalEvidenceCount,
-    ),
-    requiredFieldsPresent: [
-      input.aggregate.watchSessionCount > 0,
-      input.aggregate.unlockCount > 0,
-      repeatedCreatorSignalCount > 0,
-      categorySignalCount + themeSignalCount > 0,
-      input.aggregate.purchaseCount > 0,
-      sessionFrequency30d > 0,
-      consentAvailability > 0,
-    ].filter(Boolean).length,
+    sampleCount: profileSampleCount,
+    requiredFieldsPresent: profileRequiredFieldsPresent,
     requiredFieldsTotal: 7,
     issueCount: 0,
   })
   const confidenceScore = confidenceResult.normalizedScore
+  const freshnessScore = latestSourceAtMs > 0
+    ? Math.max(0, 1 - (Math.max(0, input.nowMs - latestSourceAtMs) / STALE_AFTER_MS))
+    : 0
+  const sampleScore = Math.min(1, Math.log10(profileSampleCount + 1) / 3)
+  const schemaCompleteness = profileRequiredFieldsPresent / 7
+  const sourceReliability = Math.max(
+    input.aggregate.serverPurchaseCount > 0 ? SOURCE_RELIABILITY_WEIGHTS.server_transaction : 0,
+    input.aggregate.serverUnlockCount > 0 ? SOURCE_RELIABILITY_WEIGHTS.server_entitlement_unlock : 0,
+    input.aggregate.watchSessionCount > 0 ? SOURCE_RELIABILITY_WEIGHTS.watch_session_rollup : 0,
+    input.aggregate.sourceTimestamps.relationships.length > 0 ? SOURCE_RELIABILITY_WEIGHTS.server_creator_relationship : 0,
+    input.aggregate.sourceTimestamps.eventFacts.length > 0 ? SOURCE_RELIABILITY_WEIGHTS.identified_event_fact : 0,
+    watchScoreSource === "legacy_page_duration" ? SOURCE_RELIABILITY_WEIGHTS.legacy_page_duration : 0,
+  )
+  const sourceDisagreementPenalty = clamp01(
+    (watchScoreSource === "legacy_page_duration" ? 0.45 : 0) +
+    (input.aggregate.purchaseCount > input.aggregate.serverPurchaseCount ? 0.2 : 0) +
+    (input.aggregate.unlockCount > input.aggregate.serverUnlockCount ? 0.2 : 0),
+  )
+  const truthScore = computeBehavioralTruthScore({
+    sourceReliability,
+    freshnessScore,
+    sampleScore,
+    schemaCompleteness,
+    sourceDisagreementPenalty,
+  })
+  const predictionOutputs = {
+    pPurchase7d: clamp01(
+      (input.aggregate.serverPurchaseCount > 0 ? 0.45 : 0) +
+      (input.aggregate.checkoutStartCount > 0 ? 0.15 : 0) +
+      (walletOpenPropensity * 0.15) +
+      (viewerToUnlockConversion * 0.15) +
+      (truthScore * 0.10),
+    ),
+    pUnlock24h: clamp01((viewerToUnlockConversion * 0.55) + (unlockPropensity * 0.25) + (truthScore * 0.20)),
+    pWatchComplete: clamp01((average(input.aggregate.watchScores) / 100 * 0.55) + (completionPropensity * 0.25) + (truthScore * 0.20)),
+    pReturn7d: clamp01((sessionFrequency30d / 7 * 0.55) + (repeatConsumptionRate * 0.20) + (truthScore * 0.25)),
+    pCreatorFollow: clamp01((repeatedCreatorSignalCount / 6 * 0.35) + (loyaltyScore * 0.35) + (truthScore * 0.30)),
+    pNegativeFeedback: clamp01((input.aggregate.negativeFeedbackCount / Math.max(1, input.aggregate.feedbackCount) * 0.55) + (fatigueScore * 0.45)),
+  }
+  const calibratedEngagementScore = Math.round(100 * (
+    (0.24 * predictionOutputs.pPurchase7d) +
+    (0.23 * predictionOutputs.pUnlock24h) +
+    (0.23 * predictionOutputs.pWatchComplete) +
+    (0.13 * predictionOutputs.pReturn7d) +
+    (0.10 * clamp01(input.aggregate.eventCount / 100)) +
+    (0.07 * clamp01(input.aggregate.checkoutStartCount / 8))
+  ))
   const insufficientSignal = confidenceScore < 0.35 || signalEvidenceCount < 2
   const confidenceLabel = confidenceResult.label
   const recommendationState = !consentAvailability
@@ -945,6 +1081,10 @@ function buildUserProfileDoc(input: {
       eligible: recommendationsEnabled && !gpcBlocked,
     },
     confidenceScore: round(confidenceScore, 3),
+    truthScore: round(truthScore, 4),
+    sourceReliability: round(sourceReliability, 2),
+    schemaCompleteness: round(schemaCompleteness, 4),
+    sourceDisagreementPenalty: round(sourceDisagreementPenalty, 4),
     confidenceLabel,
     recommendationThresholdMet: !insufficientSignal && consentAvailability === 1,
     insufficientSignal,
@@ -954,13 +1094,36 @@ function buildUserProfileDoc(input: {
     signalSummary: {
       watchSessions: input.aggregate.watchSessionCount,
       completedUnwraps: input.aggregate.unlockCount,
+      serverEntitlementUnlocks: input.aggregate.serverUnlockCount,
       repeatedCreators: repeatedCreatorSignalCount,
       categorySignals: categorySignalCount,
       themeSignals: themeSignalCount,
-      purchases: input.aggregate.purchaseCount,
+      purchases: input.aggregate.serverPurchaseCount,
+      clientPurchaseContextCount: Math.max(0, input.aggregate.purchaseCount - input.aggregate.serverPurchaseCount),
       returnCadence30d: sessionFrequency30d,
       consentAvailability,
       evidenceCount: signalEvidenceCount,
+    },
+    predictionOutputs,
+    surfaceObjectives: {
+      userDropsPage: ["pUnlock24h", "pPurchase7d", "freshness"],
+      previewPage: ["pPurchase7d", "pUnlock24h", "urgency"],
+      creatorProfile: ["pCreatorFollow", "pFanPass", "pBooking"],
+      dashboard: ["pReturn7d", "pTaskCompletion", "pUnlock24h"],
+      adminUsers: ["valueScore", "engagementScore", "truthScore"],
+      moderation: ["server_backed_risk_score"],
+    },
+    behavioralGoalScores: {
+      engagementScore: calibratedEngagementScore,
+      dropRecommendationReadiness: round((predictionOutputs.pPurchase7d + predictionOutputs.pUnlock24h + predictionOutputs.pWatchComplete + predictionOutputs.pReturn7d) / 4, 4),
+      valueProxyScore: Math.round(100 * ((0.45 * clamp01(input.aggregate.serverPurchaseCount / 4)) + (0.25 * clamp01(input.aggregate.serverPurchaseCount / 8)) + (0.12 * predictionOutputs.pPurchase7d) + (0.10 * predictionOutputs.pUnlock24h) + (0.08 * walletOpenPropensity))),
+    },
+    mathCalibration: {
+      activeMode: "deterministic",
+      verdict: "deterministic_active",
+      reason: "Functions runtime emits deterministic, source-truthed prediction artifacts; ML verdicts remain controlled by validation reports.",
+      sampleSize: profileSampleCount,
+      minimumMlSampleSize: 50,
     },
     topCreators: topCreatorEntries,
     topCategories: topCategoryEntries,
@@ -1000,7 +1163,7 @@ function buildUserProfileDoc(input: {
     negativeDropIds: Array.from(input.aggregate.negativeDropIds),
     eventCount: input.aggregate.eventCount,
     watchSessionCount: input.aggregate.watchSessionCount,
-    purchaseCount: input.aggregate.purchaseCount,
+    purchaseCount: input.aggregate.serverPurchaseCount,
     uniqueDropCount: input.aggregate.uniqueDropIds.size,
     uniqueCreatorCount: input.aggregate.uniqueCreatorIds.size,
     provenance: {
@@ -1049,6 +1212,43 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
     : aggregate.viewerOpens > 0
       ? "legacy_page_duration"
       : "unavailable"
+  const sourceReliability = Math.max(
+    aggregate.unlocks > 0 ? SOURCE_RELIABILITY_WEIGHTS.server_entitlement_unlock : 0,
+    aggregate.watchSecondsSamples.length > 0 ? SOURCE_RELIABILITY_WEIGHTS.watch_session_rollup : 0,
+    aggregate.viewerOpens > 0 ? SOURCE_RELIABILITY_WEIGHTS.identified_event_fact : 0,
+    watchScoreSource === "legacy_page_duration" ? SOURCE_RELIABILITY_WEIGHTS.legacy_page_duration : 0,
+  )
+  const freshnessScore = clamp01(1 - (ageDays / 30))
+  const sampleCount = aggregate.viewerOpens + aggregate.previewOpens + aggregate.unlocks + aggregate.watchSecondsSamples.length
+  const sampleScore = Math.min(1, Math.log10(sampleCount + 1) / 3)
+  const schemaCompleteness = [
+    aggregate.dropId.length > 0,
+    aggregate.creatorId.length > 0,
+    aggregate.status === "active",
+    aggregate.validFrom > 0,
+    aggregate.unlocks >= 0,
+    aggregate.viewerOpens >= 0,
+    aggregate.watchSecondsSamples.length > 0,
+  ].filter(Boolean).length / 7
+  const sourceDisagreementPenalty = watchScoreSource === "legacy_page_duration" ? 0.45 : 0
+  const truthScore = computeBehavioralTruthScore({
+    sourceReliability,
+    freshnessScore,
+    sampleScore,
+    schemaCompleteness,
+    sourceDisagreementPenalty,
+  })
+  const predictionOutputs = {
+    pPurchase7d: clamp01((aggregate.unlocks / Math.max(1, aggregate.previewOpens) * 0.45) + (aggregate.viewerOpens / 100 * 0.2) + (truthScore * 0.35)),
+    pUnlock24h: clamp01((aggregate.unlocks / Math.max(1, aggregate.viewerOpens) * 0.65) + (freshnessScore * 0.15) + (truthScore * 0.2)),
+    pWatchComplete: clamp01((aggregate.completionCount / Math.max(1, aggregate.viewerOpens) * 0.55) + (average(aggregate.watchScores) / 100 * 0.25) + (truthScore * 0.2)),
+    pReturn7d: clamp01((repeatViewers / Math.max(1, uniqueViewers) * 0.55) + (aggregate.last7dInteractions / Math.max(1, aggregate.viewerOpens + aggregate.previewOpens) * 0.2) + (truthScore * 0.25)),
+    pCreatorFollow: clamp01((aggregate.positiveFeedbackCount / Math.max(1, feedbackCount) * 0.25) + (aggregate.unlocks / Math.max(1, aggregate.viewerOpens) * 0.35) + (truthScore * 0.4)),
+    pNegativeFeedback: clamp01(aggregate.negativeFeedbackCount / Math.max(1, feedbackCount)),
+  }
+  const urgency = aggregate.validUntil > nowMs
+    ? clamp01(1 - ((aggregate.validUntil - nowMs) / (72 * 60 * 60 * 1000)))
+    : 0
   return {
     dropId: aggregate.dropId,
     creatorId: aggregate.creatorId,
@@ -1080,7 +1280,23 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
     positiveFeedbackCount: aggregate.positiveFeedbackCount,
     negativeFeedbackCount: aggregate.negativeFeedbackCount,
     negativeSignalRate: clamp01(feedbackCount === 0 ? 0 : aggregate.negativeFeedbackCount / feedbackCount),
-    freshnessDecayScore: clamp01(1 - (ageDays / 30)),
+    freshnessDecayScore: freshnessScore,
+    sourceReliability: round(sourceReliability, 2),
+    truthScore: round(truthScore, 4),
+    schemaCompleteness: round(schemaCompleteness, 4),
+    sourceDisagreementPenalty: round(sourceDisagreementPenalty, 4),
+    predictionOutputs,
+    dropRecommendationScore: round(computeDropRecommendationScore({
+      pPurchase7d: predictionOutputs.pPurchase7d,
+      pUnlock24h: predictionOutputs.pUnlock24h,
+      pWatchComplete: predictionOutputs.pWatchComplete,
+      pReturn7d: predictionOutputs.pReturn7d,
+      freshness: freshnessScore,
+      urgency,
+      fatiguePenalty: predictionOutputs.pNegativeFeedback * 16,
+      repeatExposurePenalty: clamp01(repeatViewers / Math.max(1, uniqueViewers)) * 20,
+      diversityBoost: 0,
+    }), 3),
     timeWindowPerformance: {
       last24hInteractions: aggregate.last24hInteractions,
       last7dInteractions: aggregate.last7dInteractions,

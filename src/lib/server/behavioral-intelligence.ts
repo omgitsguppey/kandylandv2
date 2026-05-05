@@ -22,7 +22,22 @@ type BehavioralProfileDoc = {
   freshnessLabel?: string;
   recommendationState?: string;
   confidenceScore?: number;
+  truthScore?: number;
   confidenceLabel?: string;
+  predictionOutputs?: {
+    pPurchase7d?: number;
+    pUnlock24h?: number;
+    pWatchComplete?: number;
+    pReturn7d?: number;
+    pCreatorFollow?: number;
+    pNegativeFeedback?: number;
+  };
+  mathCalibration?: {
+    activeMode?: string;
+    verdict?: string;
+    reason?: string;
+    sampleSize?: number;
+  };
   recommendationThresholdMet?: boolean;
   insufficientSignal?: boolean;
   insufficientSignalReason?: string;
@@ -74,6 +89,9 @@ type DropIntelligenceDoc = {
   negativeSignalRate?: number;
   freshnessDecayScore?: number;
   confidenceScore?: number;
+  truthScore?: number;
+  sourceReliability?: number;
+  schemaCompleteness?: number;
   positiveFeedbackCount?: number;
   negativeFeedbackCount?: number;
 };
@@ -91,6 +109,15 @@ type RankedDropRecommendation = {
     label: string;
     value: number;
   }>;
+  predictions: {
+    pPurchase7d: number;
+    pUnlock24h: number;
+    pWatchComplete: number;
+    pReturn7d: number;
+    pCreatorFollow: number;
+    pNegativeFeedback: number;
+  };
+  truthScore: number;
   explanationEligible: boolean;
   fallbackReason: string;
   explanationSummary: string;
@@ -102,6 +129,10 @@ type RankedDropRecommendation = {
     predictedUnlock: number;
     predictedWatchCompletion: number;
     predictedReturn: number;
+    pPurchase7d: number;
+    pUnlock24h: number;
+    pWatchComplete: number;
+    pReturn7d: number;
     blendWeight: number;
     modelSource: string;
     modelFreshness: string;
@@ -294,6 +325,15 @@ export async function buildDeterministicDropRecommendations(input: {
         telemetryQualityLabel,
         telemetryConfidenceScore,
         factors: explanation.diagnostics,
+        predictions: {
+          pPurchase7d: artifactScore?.pPurchase7d ?? entry.features.pPurchase7d,
+          pUnlock24h: artifactScore?.pUnlock24h ?? entry.features.pUnlock24h,
+          pWatchComplete: artifactScore?.pWatchComplete ?? entry.features.pWatchComplete,
+          pReturn7d: artifactScore?.pReturn7d ?? entry.features.pReturn7d,
+          pCreatorFollow: entry.features.pCreatorFollow,
+          pNegativeFeedback: entry.features.pNegativeFeedback,
+        },
+        truthScore: entry.features.truthScore,
         explanationEligible: recommendationState.explanationEligible,
         fallbackReason: recommendationState.fallbackReason,
         explanationSummary: explanation.summary,
@@ -305,6 +345,10 @@ export async function buildDeterministicDropRecommendations(input: {
           predictedUnlock: artifactScore.predictedUnlock,
           predictedWatchCompletion: artifactScore.predictedWatchCompletion,
           predictedReturn: artifactScore.predictedReturn,
+          pPurchase7d: artifactScore.pPurchase7d,
+          pUnlock24h: artifactScore.pUnlock24h,
+          pWatchComplete: artifactScore.pWatchComplete,
+          pReturn7d: artifactScore.pReturn7d,
           blendWeight: artifactScore.blendWeight,
           modelSource: artifactScore.modelSource,
           modelFreshness: artifactScore.modelFreshness,

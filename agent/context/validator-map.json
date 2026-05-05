@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 193,
+  "validatorCount": 195,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -92,6 +92,7 @@
       "check:admin-analytics-daily-task-pipeline",
       "check:behavioral-explanations",
       "check:behavioral-intelligence-confidence",
+      "check:behavioral-math-calibration",
       "check:behavioral-truth-source",
       "check:daily-task-telemetry-truth",
       "check:event-fact-truth",
@@ -100,6 +101,7 @@
       "check:notification-read-truth",
       "check:recommendation-ranker",
       "check:tracking-surface-coverage",
+      "validate:behavioral-predictions",
       "score:tracking-surface-coverage"
     ],
     "repo-governance": [
@@ -322,6 +324,7 @@
     "check:background-job-idempotency": "speed-security",
     "check:behavioral-explanations": "behavioral-intelligence",
     "check:behavioral-intelligence-confidence": "behavioral-intelligence",
+    "check:behavioral-math-calibration": "behavioral-intelligence",
     "check:behavioral-truth-source": "behavioral-intelligence",
     "check:beta-score": "speed-security",
     "check:cloud-cost": "google-cost",
@@ -466,7 +469,8 @@
     "score:telemetry": "telemetry",
     "score:telemetry-identified-parity": "telemetry",
     "score:tracking-surface-coverage": "behavioral-intelligence",
-    "validate:behavioral-models": "ai-panel"
+    "validate:behavioral-models": "ai-panel",
+    "validate:behavioral-predictions": "behavioral-intelligence"
   },
   "unmappedPackageScripts": []
 }

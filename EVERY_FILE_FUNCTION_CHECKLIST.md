@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Behavioral Math Calibration Coverage
+
+- [x] `src/lib/behavioral/behavioral-math-calibration.ts`, `src/lib/behavioral/user-engagement-score.ts`, `src/lib/behavioral/user-value-score.ts`, `src/lib/server/user-behavior-rollup.ts`, and `src/lib/user-behavior-rollup-contract.ts` define calibrated truth, engagement, value, admin-user objective, prediction output, and validation-mode contracts.
+- [x] `src/lib/recommendations/candidate-generation.ts`, `ranking-features.ts`, `deterministic-ranker.ts`, `ml-ranker.ts`, `recommendation-explanations.ts`, and `src/lib/server/behavioral-intelligence.ts` wire candidate generation, filtering, deterministic/ML ranking, predictions, diversity/fatigue/exposure penalties, plain-English explanations, and admin diagnostics to the shared product-goal formula.
+- [x] `functions/src/behavioral-intelligence-runtime.ts`, `src/app/api/admin/user/[userId]/route.ts`, `src/app/admin/user/[userId]/page.tsx`, `src/app/admin/users/page.tsx`, `scripts/validate-behavioral-predictions.ts`, `scripts/agent/validate-behavioral-math-calibration.ts`, `agent/state/behavioral-math-calibration.generated.json`, package scripts, validator map, and `docs/agent-truth/behavioral-math-calibration.md` provide source-truthed server purchase/unlock/watch rollups, admin visibility, targeted validation, generated state, and doctrine coverage.
+
 ## 2026-05-05 Global Cost Surface Guardrails Coverage
 
 - [x] `src/lib/server/global-cost-surface-contract.ts` owns the global cost surface ids, risk classes, score buckets, hard limits, forbidden/default command budget, report shape, and the 21 required cost-surface contracts.

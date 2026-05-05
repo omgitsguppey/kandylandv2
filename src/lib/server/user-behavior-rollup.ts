@@ -1,6 +1,13 @@
 import { buildBehavioralTruthSummary } from "@/lib/behavioral/behavioral-truth-source";
 import { computeUserEngagementScore, type UserEngagementScoreInput } from "@/lib/behavioral/user-engagement-score";
 import { computeUserValueScore, type UserValueScoreInput } from "@/lib/behavioral/user-value-score";
+import {
+  clamp01,
+  computeBehavioralTruthScore,
+  getBehavioralSourceReliability,
+  logNorm,
+  resolveBehavioralModelActivation,
+} from "@/lib/behavioral/behavioral-math-calibration";
 import type {
   UserBehaviorRollup,
   UserBehaviorRollupConfidence,
@@ -11,6 +18,39 @@ import "server-only";
 
 function readNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function resolveSourceReliability(input: {
+  hasTransactions?: boolean;
+  hasWatchSessions?: boolean;
+  hasFacts?: boolean;
+  hasSessionFacts?: boolean;
+  hasLegacyPageDuration?: boolean;
+  purchasesCount: number;
+  revenueUsd: number;
+  unwraps: number;
+}) {
+  if (input.hasTransactions === true && (input.purchasesCount > 0 || input.revenueUsd > 0)) {
+    return getBehavioralSourceReliability("server_transaction");
+  }
+
+  if ((input.hasFacts === true || input.hasSessionFacts === true) && input.unwraps > 0) {
+    return getBehavioralSourceReliability("server_entitlement_unlock");
+  }
+
+  if (input.hasWatchSessions === true) {
+    return getBehavioralSourceReliability("watch_session_rollup");
+  }
+
+  if (input.hasFacts === true || input.hasSessionFacts === true) {
+    return getBehavioralSourceReliability("identified_event_fact");
+  }
+
+  if (input.hasLegacyPageDuration === true) {
+    return getBehavioralSourceReliability("legacy_page_duration");
+  }
+
+  return 0;
 }
 
 export function buildUserBehaviorRollup(input: {
@@ -191,33 +231,66 @@ export function buildUserBehaviorRollup(input: {
   const confidence: UserBehaviorRollupConfidence = truthSummary.source === "unavailable" && !hasValue
     ? "unknown"
     : truthSummary.confidenceLabel;
+  const purchasesCount = Math.max(0, Math.round(readNumber(input.purchasesCount)));
+  const unwraps = Math.max(0, Math.round(readNumber(input.unwraps)));
+  const revenueUsd = Math.max(0, readNumber(input.revenueUsd));
+  const sourceReliability = resolveSourceReliability({
+    hasTransactions: input.hasTransactions,
+    hasWatchSessions: input.hasWatchSessions,
+    hasFacts: input.hasFacts,
+    hasSessionFacts: input.hasSessionFacts,
+    hasLegacyPageDuration: input.hasLegacyPageDuration,
+    purchasesCount,
+    revenueUsd,
+    unwraps,
+  });
+  const truthScore = computeBehavioralTruthScore({
+    sourceReliability,
+    freshnessScore: truthSummary.breakdown.freshnessScore,
+    sampleScore: truthSummary.breakdown.sampleScore,
+    schemaCompleteness: truthSummary.requiredFieldsPresent / Math.max(1, truthSummary.requiredFieldsTotal),
+    sourceDisagreementPenalty: clamp01(issues.length / 5),
+  });
   const engagement = computeUserEngagementScore(input.engagementInput ?? {
     normalizedActionCount7d: Math.max(0, Math.round(readNumber(input.totalActions))),
-    unwrappedCount30d: Math.max(0, Math.round(readNumber(input.unwraps))),
+    unwrappedCount30d: unwraps,
     validWatchMinutes30d: Math.max(0, Math.round(watchTimeMs / 60_000)),
-    purchaseCount90d: Math.max(0, Math.round(readNumber(input.purchasesCount))),
+    purchaseCount90d: purchasesCount,
     activeDays7d: readNumber(input.lastSeenAt) > 0 ? 1 : 0,
     freeGdEarned30d: Math.max(0, Math.round(readNumber(input.rewardGdEarned))),
   });
   const value = computeUserValueScore(input.valueInput ?? {
-    totalSpendUsd: Math.max(0, readNumber(input.revenueUsd)),
-    purchaseCount: Math.max(0, Math.round(readNumber(input.purchasesCount))),
+    totalSpendUsd: revenueUsd,
+    purchaseCount: purchasesCount,
     paidGdPurchased: Math.max(0, Math.round(readNumber(input.paidGdPurchased))),
     bonusGdDelivered: 0,
     rewardGdEarned: Math.max(0, Math.round(readNumber(input.rewardGdEarned))),
     freeGdEarned30d: Math.max(0, Math.round(readNumber(input.rewardGdEarned))),
-    unwrapsAfterPurchase: Math.max(0, Math.round(readNumber(input.unwraps))),
-    daysSinceLastPurchase: readNumber(input.purchasesCount) > 0 && readNumber(input.lastSeenAt) > 0 ? 0 : null,
+    unwrapsAfterPurchase: unwraps,
+    daysSinceLastPurchase: purchasesCount > 0 && readNumber(input.lastSeenAt) > 0 ? 0 : null,
   });
+  const predictionOutputs = {
+    pPurchase7d: value.repeatPurchaseLikelihood,
+    pUnlock24h: clamp01(views === 0 ? 0 : unwraps / Math.max(1, views)),
+    pWatchComplete: clamp01(watchTimeMs / (30 * 60_000)),
+    pReturn7d: clamp01((input.engagementInput?.activeDays7d ?? (readNumber(input.lastSeenAt) > 0 ? 1 : 0)) / 7),
+    pCreatorFollow: clamp01(logNorm(readNumber(input.totalActions), 100) * 0.25 + logNorm(unwraps, 25) * 0.35 + truthScore * 0.4),
+    pNegativeFeedback: clamp01(issues.filter((issue) => issue.severity === "fail" || issue.severity === "warn").length / 5),
+  };
+  const mathCalibration = {
+    ...resolveBehavioralModelActivation({ sampleSize: 0 }),
+    surfaceObjective: "admin_users" as const,
+    validationSource: "behavioral-math-calibration" as const,
+  };
 
   return {
     userId: input.userId,
     totalActions: Math.max(0, Math.round(readNumber(input.totalActions))),
     views,
-    unwraps: Math.max(0, Math.round(readNumber(input.unwraps))),
+    unwraps,
     watchTimeMs,
-    purchasesCount: Math.max(0, Math.round(readNumber(input.purchasesCount))),
-    revenueUsd: Math.max(0, readNumber(input.revenueUsd)),
+    purchasesCount,
+    revenueUsd,
     paidGdPurchased: Math.max(0, Math.round(readNumber(input.paidGdPurchased))),
     rewardGdEarned: Math.max(0, Math.round(readNumber(input.rewardGdEarned))),
     onboardingCompleted: input.onboardingCompleted === true,
@@ -226,6 +299,10 @@ export function buildUserBehaviorRollup(input: {
     lastSeenAt: Math.max(0, readNumber(input.lastSeenAt)),
     confidence,
     confidenceScore: truthSummary.confidenceScore,
+    truthScore,
+    sourceReliability,
+    predictionOutputs,
+    mathCalibration,
     source: truthSummary.source,
     sourceLabel: truthSummary.sourceLabel,
     freshnessState: truthSummary.freshnessState,

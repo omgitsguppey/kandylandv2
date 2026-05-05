@@ -10,6 +10,7 @@ import { scoreTheftRisk } from "@/lib/moderation/theft-risk-score";
 import type { RecommendationModelArtifact } from "@/lib/recommendations/ml-ranker";
 import { computeDeterministicRecommendationScore } from "@/lib/recommendations/deterministic-ranker";
 import type { RecommendationRankingFeatures } from "@/lib/recommendations/ranking-features";
+import { computeDropRecommendationScore } from "@/lib/behavioral/behavioral-math-calibration";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const REPORT_PATH = path.resolve(process.cwd(), "agent/state/behavioral-model-validation.generated.json");
@@ -311,17 +312,19 @@ function scoreRecommendationArtifact(artifact: RecommendationModelArtifact, feat
   const predictedUnlock = scoreRecommendationHead(artifact.heads.predictedUnlock, featureMap);
   const predictedWatchCompletion = scoreRecommendationHead(artifact.heads.predictedWatchCompletion, featureMap);
   const predictedReturn = scoreRecommendationHead(artifact.heads.predictedReturn, featureMap);
-  const mlBaseScore = 100 * (
-    (0.35 * predictedPaidConversion) +
-    (0.20 * predictedWatchCompletion) +
-    (0.15 * predictedUnlock) +
-    (0.10 * features.creatorAffinity) +
-    (0.08 * features.contentAffinity) +
-    (0.07 * features.freshness) +
-    (0.05 * features.urgency)
-  );
-
-  return clamp01((Math.max(0, Math.min(100, mlBaseScore - features.previousExposurePenalty - features.fatiguePenalty))) / 100);
+  return computeDropRecommendationScore({
+    pPurchase7d: predictedPaidConversion,
+    pUnlock24h: predictedUnlock,
+    pWatchComplete: predictedWatchCompletion,
+    pReturn7d: predictedReturn,
+    pCreatorFollow: features.pCreatorFollow,
+    pNegativeFeedback: features.pNegativeFeedback,
+    freshness: features.freshness,
+    urgency: features.urgency,
+    fatiguePenalty: features.fatiguePenalty,
+    repeatExposurePenalty: features.previousExposurePenalty,
+    diversityBoost: features.diversityBoost,
+  }) / 100;
 }
 
 function buildRecommendationFeatures(kind: number, slot: number): RecommendationRankingFeatures {
@@ -353,12 +356,20 @@ function buildRecommendationFeatures(kind: number, slot: number): Recommendation
     followedCreatorBoost: aligned ? 1 : 0,
     previousUnlockCreatorBoost: slot === 1 ? 1 : 0,
     similarUserBoost: kind === 2 && aligned ? 1 : 0,
+    pPurchase7d: kind === 0 ? (aligned ? 0.8 : moderate ? 0.38 : 0.08) : aligned ? 0.34 : moderate ? 0.2 : 0.06,
+    pUnlock24h: predictedUnlock,
+    pWatchComplete: predictedWatchCompletion,
+    pReturn7d: predictedReturn,
+    pCreatorFollow: aligned ? 0.58 : moderate ? 0.28 : 0.06,
+    pNegativeFeedback: slot > 7 ? 0.42 : slot > 5 ? 0.22 : 0.03,
     predictedPaidConversion: kind === 0 ? (aligned ? 0.8 : moderate ? 0.38 : 0.08) : aligned ? 0.34 : moderate ? 0.2 : 0.06,
     predictedUnlock,
     predictedWatchCompletion,
     predictedReturn,
     previousExposurePenalty,
     fatiguePenalty,
+    diversityBoost: aligned && slot % 2 === 0 ? 2 : 0,
+    truthScore: aligned ? 0.9 : moderate ? 0.68 : 0.32,
     confidence: aligned ? 0.82 : moderate ? 0.62 : 0.28,
   };
 }

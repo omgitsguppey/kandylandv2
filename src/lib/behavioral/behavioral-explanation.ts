@@ -242,10 +242,12 @@ export function buildEngagementBehavioralExplanation(input: {
     summary: mapped.summary,
     reasons: input.engagement.topReasons.slice(0, 3).map((reason) => reason.summary),
     debugFacts: [
-      `Score ${input.engagement.score}/100`,
-      `Tier ${input.engagement.tier}`,
-      `Confidence ${confidenceScore}% (${confidenceLabel})`,
-      `Source ${input.behaviorRollup?.sourceLabel ?? "unavailable"}`,
+        `Score ${input.engagement.score}/100`,
+        `Tier ${input.engagement.tier}`,
+        `Math ${input.behaviorRollup?.mathCalibration.activeMode ?? "deterministic"} / ${input.behaviorRollup?.mathCalibration.verdict ?? "unvalidated"}`,
+        `Truth score ${Math.round((input.behaviorRollup?.truthScore ?? 0) * 100)}%`,
+        `Confidence ${confidenceScore}% (${confidenceLabel})`,
+        `Source ${input.behaviorRollup?.sourceLabel ?? "unavailable"}`,
     ],
   };
 }
@@ -303,6 +305,8 @@ export function buildValueBehavioralExplanation(input: {
       `Score ${input.value.valueScore}/100`,
       `Tier ${input.value.valueTier}`,
       `Repeat purchase likelihood ${Math.round(input.value.repeatPurchaseLikelihood * 100)}%`,
+      `Math ${input.behaviorRollup?.mathCalibration.activeMode ?? "deterministic"} / ${input.behaviorRollup?.mathCalibration.verdict ?? "unvalidated"}`,
+      `Truth score ${Math.round((input.behaviorRollup?.truthScore ?? 0) * 100)}%`,
       `Source ${input.behaviorRollup?.sourceLabel ?? "unavailable"}`,
     ],
   };

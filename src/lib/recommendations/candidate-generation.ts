@@ -43,6 +43,24 @@ function buildFreshPopularityScore(intelligence: RecommendationDropIntelligenceL
   return clamp01((Math.log10(viewerOpens + 1) / 3) * 0.7 + clamp01(previewOpens / 40) * 0.3);
 }
 
+function isRecommendationEligibleDrop(drop: Drop, nowMs: number) {
+  const approvalStatus = drop.approvalStatus || "approved";
+
+  if (drop.status !== "active") {
+    return false;
+  }
+
+  if (drop.validUntil && drop.validUntil <= nowMs) {
+    return false;
+  }
+
+  if (approvalStatus === "rejected" || approvalStatus === "pending_review") {
+    return false;
+  }
+
+  return true;
+}
+
 export function generateRecommendationCandidates(input: {
   drops: Drop[];
   profile?: RecommendationBehavioralProfileLike | null;
@@ -58,7 +76,7 @@ export function generateRecommendationCandidates(input: {
   const lookalikeCreatorIds = new Set(profile?.lookalikeCreatorIds ?? []);
 
   input.drops
-    .filter((drop) => drop.status === "active")
+    .filter((drop) => isRecommendationEligibleDrop(drop, nowMs))
     .filter((drop) => drop.id !== input.currentDropId)
     .forEach((drop) => {
       const candidate: RecommendationCandidate = {

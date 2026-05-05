@@ -11,6 +11,10 @@ import type {
 import type {
   UserValueScoreResult,
 } from "@/lib/behavioral/user-value-score";
+import type {
+  BehavioralModelActivationResult,
+  BehavioralPredictionOutputs,
+} from "@/lib/behavioral/behavioral-math-calibration";
 
 export type UserBehaviorRollupConfidence = BehavioralConfidenceLabel | "unknown";
 
@@ -47,6 +51,13 @@ export type UserBehaviorRollup = {
   lastSeenAt: number;
   confidence: UserBehaviorRollupConfidence;
   confidenceScore: number;
+  truthScore: number;
+  sourceReliability: number;
+  predictionOutputs: BehavioralPredictionOutputs;
+  mathCalibration: BehavioralModelActivationResult & {
+    surfaceObjective: "admin_users";
+    validationSource: "behavioral-math-calibration";
+  };
   source: UserBehaviorRollupSource;
   sourceLabel: string;
   freshnessState: BehavioralFreshnessState;
