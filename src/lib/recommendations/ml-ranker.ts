@@ -104,6 +104,8 @@ function toFeatureMap(features: RecommendationRankingFeatures) {
     queryIntentScore: features.queryIntentScore,
     dropMomentumScore: features.dropMomentumScore / 100,
     satisfactionScore: features.satisfactionScore,
+    creatorSupplyScore: features.creatorSupplyScore / 100,
+    creatorSupplyConfidenceMultiplier: features.creatorSupplyConfidenceMultiplier,
   };
 }
 

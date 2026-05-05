@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 202,
+  "validatorCount": 203,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -157,6 +157,7 @@
       "check:creator-profile-routing",
       "check:creator-projection-normalizer",
       "check:creator-review-queue-materializer",
+      "check:creator-supply-quality",
       "check:experiences-compact-layout",
       "check:fan-pass-gumdrops-truth",
       "check:synthetic-creators-view-as"
@@ -362,6 +363,7 @@
     "check:creator-profile-routing": "creator-dashboard",
     "check:creator-projection-normalizer": "creator-dashboard",
     "check:creator-review-queue-materializer": "creator-dashboard",
+    "check:creator-supply-quality": "creator-dashboard",
     "check:cycles": "repo-governance",
     "check:cycles:app": "repo-governance",
     "check:cycles:functions": "repo-governance",

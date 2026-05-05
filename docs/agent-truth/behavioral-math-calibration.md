@@ -252,6 +252,26 @@ Rules:
 - Negative satisfaction lowers similar recommendations through satisfaction suppression and `pNegativeFeedback`.
 - Admin-facing reasons stay plain English, for example: "Lowered because recent satisfaction feedback was negative."
 
+## Creator Supply Quality
+
+Creator-side supply health is scored separately from user demand so a creator can be operationally reliable even before large recommendation samples exist.
+
+Creator supply score:
+
+```text
+100 * (
+  0.20 * activeInventory +
+  0.20 * freshness +
+  0.20 * satisfaction +
+  0.15 * responseReliability +
+  0.10 * monetizationReadiness +
+  0.10 * lowIssueRate +
+  0.05 * profileCompleteness
+)
+```
+
+Signals include active Drops count, recent Drop freshness, fulfillment and response health, Fan Pass availability, booking availability, support and moderation issues, positive satisfaction, refund or negative feedback risk, and profile completeness. Low supply score reduces recommendation confidence, not visibility. New creators are not buried only because supply data is still low. Admin diagnostics must list exact missing operational pieces.
+
 ## Notification Quality Ranking
 
 KandyDrops ranks and throttles notifications by return likelihood and fatigue instead of treating every notification as equally worth sending or showing.

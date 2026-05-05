@@ -393,6 +393,11 @@ function buildRecommendationFeatures(kind: number, slot: number): Recommendation
     satisfactionScore: aligned ? 0.72 : moderate ? 0.54 : 0.38,
     satisfactionBoost: aligned ? 2.64 : moderate ? 0.48 : -1.44,
     satisfactionReasons: aligned ? ["Boosted because similar Drops earned satisfaction feedback."] : [],
+    creatorSupplyScore: aligned ? 82 : moderate ? 68 : 50,
+    creatorSupplyConfidenceMultiplier: 1,
+    creatorSupplyScoreAdjustment: 0,
+    creatorSupplyReasons: [],
+    creatorSupplyQuality: null,
     truthScore: aligned ? 0.9 : moderate ? 0.68 : 0.32,
     confidence: aligned ? 0.82 : moderate ? 0.62 : 0.28,
   };

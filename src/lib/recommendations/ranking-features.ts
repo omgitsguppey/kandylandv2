@@ -14,6 +14,8 @@ import {
   buildDropMomentumBoost,
   type DropMomentumIntelligenceLike,
 } from "@/lib/recommendations/drop-momentum-boost";
+import type { CreatorSupplyQualityScoreResult } from "@/lib/creator/creator-supply-quality-score";
+import { buildCreatorQualityAdjustment } from "@/lib/recommendations/creator-quality-adjustment";
 import { buildQueryIntentRanking } from "@/lib/recommendations/query-intent-ranking";
 import { buildRecommendationSuppression } from "@/lib/recommendations/suppression-rules";
 
@@ -152,6 +154,11 @@ export type RecommendationRankingFeatures = RecommendationPrimitiveSignals & {
   satisfactionScore: number;
   satisfactionBoost: number;
   satisfactionReasons: string[];
+  creatorSupplyScore: number;
+  creatorSupplyConfidenceMultiplier: number;
+  creatorSupplyScoreAdjustment: number;
+  creatorSupplyReasons: string[];
+  creatorSupplyQuality: CreatorSupplyQualityScoreResult | null;
   truthScore: number;
   confidence: number;
 };
@@ -340,6 +347,7 @@ export function buildRecommendationRankingFeatures(input: {
   profile?: RecommendationBehavioralProfileLike | null;
   intelligence?: RecommendationDropIntelligenceLike;
   candidate?: RecommendationCandidate | null;
+  creatorSupplyQuality?: CreatorSupplyQualityScoreResult | null;
   nowMs?: number;
   surface?: "viewer" | "drops";
 }) : RecommendationRankingFeatures & { diagnostics: RecommendationDiagnostics } {
@@ -377,6 +385,7 @@ export function buildRecommendationRankingFeatures(input: {
   const previousExposurePenalty = computePreviousExposurePenalty({ drop, profile });
   const fatiguePenalty = computeFatiguePenalty({ drop, profile });
   const diversityBoost = computeDiversityBoost({ drop, profile, candidate: input.candidate });
+  const creatorQuality = buildCreatorQualityAdjustment({ creatorSupplyQuality: input.creatorSupplyQuality });
   const suppression = buildRecommendationSuppression({ drop, profile, nowMs });
   const queryIntent = buildQueryIntentRanking({ drop, searchIntentProfile: profile?.searchIntentProfile, nowMs });
   const momentum = buildDropMomentumBoost({ drop, intelligence });
@@ -452,6 +461,7 @@ export function buildRecommendationRankingFeatures(input: {
   const predictedUnlock = clamp01(profilePredictions.pUnlock24h ?? pUnlock24h);
   const predictedWatchCompletion = clamp01(profilePredictions.pWatchComplete ?? pWatchComplete);
   const predictedReturn = clamp01(profilePredictions.pReturn7d ?? pReturn7d);
+  const adjustedConfidence = clamp01(confidence * creatorQuality.confidenceMultiplier);
 
   return {
     creatorAffinity,
@@ -494,8 +504,13 @@ export function buildRecommendationRankingFeatures(input: {
     satisfactionScore: satisfaction.satisfactionScore,
     satisfactionBoost: satisfaction.recommendationBoost,
     satisfactionReasons: satisfaction.reasons,
+    creatorSupplyScore: creatorQuality.creatorSupplyScore,
+    creatorSupplyConfidenceMultiplier: creatorQuality.confidenceMultiplier,
+    creatorSupplyScoreAdjustment: creatorQuality.scoreAdjustment,
+    creatorSupplyReasons: creatorQuality.adminReasons,
+    creatorSupplyQuality: creatorQuality.quality,
     truthScore,
-    confidence,
+    confidence: adjustedConfidence,
     diagnostics: {
       telemetryFreshness: intelligence?.freshnessLabel || profile?.freshnessLabel || "unknown",
       profileConfidence: clamp01(profile?.confidenceScore || 0),

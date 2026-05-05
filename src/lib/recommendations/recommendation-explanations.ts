@@ -75,6 +75,7 @@ export function buildRecommendationExplanation(input: {
       ...features.queryIntentReasons,
       ...features.dropMomentumReasons,
       ...features.satisfactionReasons,
+      ...features.creatorSupplyReasons,
       ...features.suppressionReasons,
     ],
     diagnostics: [
@@ -99,6 +100,8 @@ export function buildRecommendationExplanation(input: {
       { label: "Drop momentum boost", value: features.dropMomentumBoost / 100 },
       { label: "Satisfaction score", value: features.satisfactionScore },
       { label: "Satisfaction boost", value: features.satisfactionBoost / 100 },
+      { label: "Creator supply score", value: features.creatorSupplyScore / 100 },
+      { label: "Creator supply confidence", value: features.creatorSupplyConfidenceMultiplier },
       { label: "Fatigue penalty", value: features.fatiguePenalty / 100 },
       { label: "Previous exposure penalty", value: features.previousExposurePenalty / 100 },
     ],

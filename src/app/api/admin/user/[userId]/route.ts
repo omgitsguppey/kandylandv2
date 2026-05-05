@@ -1290,6 +1290,7 @@ async function GET_handler(
                     suppression: entry.suppression,
                     queryIntent: entry.queryIntent,
                     momentum: entry.momentum,
+                    creatorSupplyQuality: entry.creatorSupplyQuality,
                     diversity: entry.diversity,
                     factors: entry.factors,
                     explanationEligible: entry.explanationEligible,

@@ -1,5 +1,7 @@
 import type { Drop } from "@/types/db";
 import { computeDropRecommendationScore } from "@/lib/behavioral/behavioral-math-calibration";
+import type { CreatorSupplyQualityScoreResult } from "@/lib/creator/creator-supply-quality-score";
+import { applyCreatorQualityAdjustment, buildCreatorQualityAdjustment } from "@/lib/recommendations/creator-quality-adjustment";
 import { applyRecommendationSuppression } from "@/lib/recommendations/suppression-rules";
 
 import {
@@ -43,13 +45,21 @@ export function computeDeterministicRecommendationScore(features: Recommendation
   });
 
   const suppressedScore = applyRecommendationSuppression(baseScore, features.suppressionScore);
-  return clamp(suppressedScore + features.queryIntentBoost + features.dropMomentumBoost + features.satisfactionBoost, 0, 100);
+  const creatorAdjusted = applyCreatorQualityAdjustment(suppressedScore, buildCreatorQualityAdjustment({
+    creatorSupplyQuality: features.creatorSupplyQuality,
+  }));
+  return clamp(
+    creatorAdjusted.adjustedScore + features.queryIntentBoost + features.dropMomentumBoost + features.satisfactionBoost,
+    0,
+    100,
+  );
 }
 
 export function rankDeterministicRecommendations(input: {
   candidates: RecommendationCandidate[];
   profile?: RecommendationBehavioralProfileLike | null;
   dropIntelligence?: Map<string, RecommendationDropIntelligenceLike>;
+  creatorSupplyQuality?: Map<string, CreatorSupplyQualityScoreResult>;
   surface?: "viewer" | "drops";
   nowMs?: number;
 }) : DeterministicRecommendationRanking[] {
@@ -60,6 +70,7 @@ export function rankDeterministicRecommendations(input: {
         profile: input.profile,
         intelligence: input.dropIntelligence?.get(candidate.drop.id),
         candidate,
+        creatorSupplyQuality: candidate.drop.creatorId ? input.creatorSupplyQuality?.get(candidate.drop.creatorId) : null,
         nowMs: input.nowMs,
         surface: input.surface,
       });

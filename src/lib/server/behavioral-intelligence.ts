@@ -12,10 +12,12 @@ import {
   EXPLORATION_ADMIN_REASON,
   type RecommendationExplorationDiagnostics,
 } from "@/lib/recommendations/exploration-policy";
+import { buildCreatorSupplyQualityMap } from "@/lib/recommendations/creator-quality-adjustment";
 import {
   rerankRecommendationsForDiversity,
   type RecommendationDiversityDiagnostics,
 } from "@/lib/recommendations/diversity-reranker";
+import type { CreatorSupplyQualityScoreResult } from "@/lib/creator/creator-supply-quality-score";
 import type { RecommendationCandidate } from "@/lib/recommendations/ranking-features";
 import type { NegativePreferenceProfile } from "@/lib/behavioral/negative-preference-score";
 import type { SearchIntentProfile } from "@/lib/behavioral/search-intent-profile";
@@ -115,6 +117,9 @@ type DropIntelligenceDoc = {
   schemaCompleteness?: number;
   positiveFeedbackCount?: number;
   negativeFeedbackCount?: number;
+  satisfactionScore?: number;
+  satisfactionSampleCount?: number;
+  satisfactionLatestAtMs?: number;
   creatorBaselineMomentumScore?: number;
   earlyMomentum?: {
     momentumScore?: number;
@@ -161,6 +166,7 @@ type RankedDropRecommendation = {
     label: string;
     reasons: string[];
   };
+  creatorSupplyQuality: CreatorSupplyQualityScoreResult | null;
   exploration: RecommendationExplorationDiagnostics;
   diversity: RecommendationDiversityDiagnostics;
   explanationEligible: boolean;
@@ -210,6 +216,7 @@ function withDiversityDiagnostics(entry: RankedDropRecommendation) {
     { label: "Diversity penalty", value: round(entry.diversity.diversityPenalty / 100, 4) },
     { label: "Exploration boost", value: round(entry.diversity.explorationBoost / 100, 4) },
     { label: "Explore budget boost", value: round(entry.exploration.scoreBoost / 100, 4) },
+    { label: "Creator supply score", value: round((entry.creatorSupplyQuality?.creatorSupplyScore || 0) / 100, 4) },
   ];
   const explanationReasons = Array.from(new Set([
     ...entry.explanationReasons,
@@ -401,6 +408,11 @@ export async function buildDeterministicDropRecommendations(input: {
     nowMs,
     limit: Math.max(limit * 3, 24),
   });
+  const creatorSupplyQualityMap = buildCreatorSupplyQualityMap({
+    drops,
+    dropIntelligence: intelligenceMap,
+    nowMs,
+  });
   const coldStartCandidates = generateColdStartCandidates({
     drops: drops
       .filter((drop) => drop.status === "active")
@@ -416,6 +428,7 @@ export async function buildDeterministicDropRecommendations(input: {
     candidates: mergeRecommendationCandidates([...candidates, ...coldStartCandidates]),
     profile,
     dropIntelligence: intelligenceMap,
+    creatorSupplyQuality: creatorSupplyQualityMap,
     surface: input.currentDropId ? "viewer" : "drops",
     nowMs,
   });
@@ -483,6 +496,7 @@ export async function buildDeterministicDropRecommendations(input: {
           label: entry.features.dropMomentumLabel,
           reasons: entry.features.dropMomentumReasons,
         },
+        creatorSupplyQuality: entry.features.creatorSupplyQuality,
         explanationEligible: recommendationState.explanationEligible,
         fallbackReason: recommendationState.fallbackReason,
         explanationSummary: explanation.summary,

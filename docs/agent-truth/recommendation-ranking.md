@@ -85,6 +85,24 @@ If the artifact is missing or stale, KandyDrops uses deterministic ranking only.
 
 If the artifact comes from a synthetic bootstrap pass, it stays bounded by a low blend weight. It can inform ordering, but it does not replace deterministic retrieval or deterministic penalties.
 
+## Creator supply quality
+
+Creator supply quality is an operational confidence layer, not user demand. It scores active inventory, Drop freshness, satisfaction, response reliability, monetization readiness, issue rate, and profile completeness:
+
+```txt
+creatorSupplyScore = 100 * (
+0.20 * activeInventory +
+0.20 * freshness +
+0.20 * satisfaction +
+0.15 * responseReliability +
+0.10 * monetizationReadiness +
+0.10 * lowIssueRate +
+0.05 * profileCompleteness
+)
+```
+
+Recommendations expose `creatorSupplyQuality` and use it to reduce confidence when operational supply is weak. Visibility score is not reduced by default, and new creators are not buried solely because they have low data. Admin diagnostics must show exact missing operational pieces.
+
 ## Diversity reranking
 
 After deterministic or blended ML scores are calculated, KandyDrops applies a list-level diversity reranker. It preserves high predicted scores, then penalizes repetitive top windows:

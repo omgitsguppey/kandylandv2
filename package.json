@@ -204,6 +204,7 @@
         "check:creator-agreement-version-truth": "tsx scripts/agent/validate-creator-agreement-version-truth.ts",
         "check:creator-admin-action-route": "tsx scripts/agent/validate-creator-admin-action-route.ts",
         "check:creator-experience-transaction-truth": "tsx scripts/agent/validate-creator-experience-transaction-truth.ts",
+        "check:creator-supply-quality": "tsx scripts/agent/validate-creator-supply-quality.ts",
         "check:creator-booking-error-copy": "tsx scripts/agent/validate-creator-booking-error-copy.ts",
         "check:fan-pass-gumdrops-truth": "tsx scripts/agent/validate-fan-pass-gumdrops-truth.ts",
         "check:watch-time-truth": "tsx scripts/agent/validate-watch-time-truth.ts",
