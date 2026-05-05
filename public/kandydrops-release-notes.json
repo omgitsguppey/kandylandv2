@@ -1,10 +1,41 @@
 {
-  "currentVersion": "1.24.3",
+  "currentVersion": "1.24.4",
   "channel": "beta",
-  "generatedAt": "2026-05-05T20:29:25.370Z",
-  "generatedAtUtc": "2026-05-05T20:29:25.370Z",
-  "lastCommitSha": "14f7addf6b9ec646a31b6c712c7c9dcf3c4a401d",
+  "generatedAt": "2026-05-05T20:38:54.620Z",
+  "generatedAtUtc": "2026-05-05T20:38:54.620Z",
+  "lastCommitSha": "46cfb75edefe9bc556eaf0a12af15774cd52994c",
   "notes": [
+    {
+      "version": "1.24.4",
+      "previousVersion": "1.24.3",
+      "commitSha": "46cfb75edefe9bc556eaf0a12af15774cd52994c",
+      "commitTitle": "fix(chat): refresh attachment cancel read bounds",
+      "committedAt": "2026-05-05T20:38:44.000Z",
+      "generatedAt": "2026-05-05T20:38:54.619Z",
+      "committedAtUtc": "2026-05-05T20:38:44.000Z",
+      "generatedAtUtc": "2026-05-05T20:38:54.619Z",
+      "diffStats": {
+        "rawAdditions": 1,
+        "rawDeletions": 1,
+        "rawChangeCount": 2,
+        "additions": 1,
+        "deletions": 1,
+        "effectiveAdditions": 0,
+        "effectiveDeletions": 0,
+        "changedFiles": 1,
+        "effectiveChangeCount": 0,
+        "excludedGeneratedChangeCount": 2
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved behind-the-scenes safety checks for chat attachments.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "security"
+      ]
+    },
     {
       "version": "1.24.3",
       "previousVersion": "1.24.2",
