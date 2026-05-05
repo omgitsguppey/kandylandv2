@@ -71,12 +71,18 @@ const mockState = vi.hoisted(() => {
     files.set(name, file);
     return file;
   };
+  const getFiles = vi.fn(async ({ prefix, maxResults }: { prefix: string; maxResults?: number }) => [
+    [...files.values()]
+      .filter((file) => !file.isDeleted() && file.name.startsWith(prefix))
+      .slice(0, maxResults),
+  ]);
 
   return {
     files,
     getOrCreateFile,
     reset() {
       files.clear();
+      getFiles.mockClear();
       this.guardApiRequest.mockReset();
       this.handleApiError.mockReset();
       this.recordRouteWarning.mockReset();
@@ -85,7 +91,7 @@ const mockState = vi.hoisted(() => {
       bucket() {
         return {
           name: "kandydrops-test.appspot.com",
-          getFiles: async ({ prefix }: { prefix: string }) => [[...files.values()].filter((file) => !file.isDeleted() && file.name.startsWith(prefix))],
+          getFiles,
           file(name: string) {
             return getOrCreateFile(name);
           },
@@ -96,6 +102,7 @@ const mockState = vi.hoisted(() => {
     handleApiError: vi.fn(),
     recordRouteWarning: vi.fn(),
     MEDIA_PROXY: { maxRequests: 15, windowMs: 60_000 },
+    getFiles,
   };
 });
 
@@ -165,6 +172,10 @@ describe("admin content route", () => {
       requireTrustedOrigin: true,
       rateLimit: mockState.MEDIA_PROXY,
     }));
+    expect(mockState.getFiles).toHaveBeenCalledWith({
+      prefix: "drops/",
+      maxResults: 100,
+    });
     expect(payload).toMatchObject({
       adminContentRoute: true,
       storageAccessGuarded: true,

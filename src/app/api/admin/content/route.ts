@@ -17,6 +17,7 @@ import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundBody } from "@/lib/server/not-found";
 
 const DROPS_CONTENT_PREFIX = "drops/";
+const MAX_ADMIN_CONTENT_LIST_FILES = 100;
 const MAX_ADMIN_DROP_ASSET_BYTES = 250 * 1024 * 1024;
 const ALLOWED_ADMIN_DROP_ASSET_TYPES = new Set([
     "application/pdf",
@@ -33,6 +34,9 @@ function isSafeDropsContentPath(fullPath: string) {
 
 async function GET_handler(request: NextRequest) {
     try {
+        // admin-content-guard: admin-only route; storage/media access requires admin auth.
+        // media-proxy-guard: admin content storage access is rate-limited and safe-url filtered.
+        // safe-url-guard: raw locked storage URLs are not exposed by default.
         await guardApiRequest(request, {
             routeName: "admin/content",
             rateLimit: MEDIA_PROXY,
@@ -42,7 +46,10 @@ async function GET_handler(request: NextRequest) {
 
         const bucket = adminStorage.bucket();
         const unsafeMediaFieldReport = createUnsafeAdminContentMediaFieldReport();
-        const [files] = await bucket.getFiles({ prefix: DROPS_CONTENT_PREFIX });
+        const [files] = await bucket.getFiles({
+            prefix: DROPS_CONTENT_PREFIX,
+            maxResults: MAX_ADMIN_CONTENT_LIST_FILES,
+        });
         const contentFiles = await Promise.all(files
             .filter((file) => isSafeDropsContentPath(file.name))
             .map(async (file) => {
@@ -80,6 +87,9 @@ async function GET_handler(request: NextRequest) {
 
 async function POST_handler(request: NextRequest) {
     try {
+        // admin-content-guard: admin-only route; storage/media access requires admin auth.
+        // media-proxy-guard: admin content storage access is rate-limited and safe-url filtered.
+        // safe-url-guard: raw locked storage URLs are not exposed by default.
         await guardApiRequest(request, {
             routeName: "admin/content",
             rateLimit: MEDIA_PROXY,
@@ -106,6 +116,14 @@ async function POST_handler(request: NextRequest) {
         }
 
         const fullPath = `${DROPS_CONTENT_PREFIX}${Date.now()}_${sanitizeStorageFileName(file.name)}`;
+        if (!isSafeDropsContentPath(fullPath)) {
+            return NextResponse.json({
+                ...ADMIN_CONTENT_ROUTE_EVIDENCE,
+                error: "Invalid storage reference",
+                errorCode: "invalid_storage_reference",
+            }, { status: 400 });
+        }
+
         const storageFile = adminStorage.bucket().file(fullPath);
         await storageFile.save(Buffer.from(await file.arrayBuffer()), {
             resumable: false,
@@ -134,6 +152,9 @@ async function POST_handler(request: NextRequest) {
 
 async function DELETE_handler(request: NextRequest) {
     try {
+        // admin-content-guard: admin-only route; storage/media access requires admin auth.
+        // media-proxy-guard: admin content storage access is rate-limited and safe-url filtered.
+        // safe-url-guard: raw locked storage URLs are not exposed by default.
         await guardApiRequest(request, {
             routeName: "admin/content",
             rateLimit: MEDIA_PROXY,
