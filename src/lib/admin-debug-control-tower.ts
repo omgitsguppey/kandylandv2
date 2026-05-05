@@ -132,7 +132,8 @@ export const ADMIN_DEBUG_CONTROL_TOWER_REPORTS: ReportDefinition[] = [
     { id: "debug-evidence", label: "Debug Evidence", section: "live_issues", fileName: "debug-evidence-index.generated.json", command: "npm run check:debug-evidence-pipeline" },
     { id: "precatch-runtime", label: "Pre-catcher", section: "live_issues", fileName: "precatch-runtime-issues.generated.json", command: "npm run precheck:runtime-issues" },
     { id: "support-recovery", label: "Support Recovery", section: "support_creator", fileName: "support-recovery-flow-audit.generated.json", command: "npm run check:support-recovery-flows" },
-    { id: "creator-lane", label: "Creator Lane", section: "support_creator", fileName: "creator-lane-legacy-truth-inventory.generated.json", command: "npm run check:creator-lane-legacy-truth-inventory" },
+    { id: "creator-lane", label: "Creator Lane", section: "support_creator", fileName: "creator-lane-debug-parity.generated.json", command: "npm run score:creator-lane-debug-parity" },
+    { id: "creator-lane-legacy", label: "Creator Lane Legacy", section: "support_creator", fileName: "creator-lane-legacy-truth-inventory.generated.json", command: "npm run check:creator-lane-legacy-truth-inventory" },
     { id: "orphaned-logic", label: "Orphaned Logic", section: "support_creator", fileName: "orphaned-logic-score.generated.json", command: "npm run check:orphaned-logic" },
 ];
 
@@ -153,7 +154,7 @@ function normalizeSeverity(value: unknown): AdminDebugSeverity {
     const raw = String(value ?? "").toLowerCase();
     if (raw === "critical") return "critical";
     if (raw === "major" || raw === "error" || raw === "fail" || raw === "failed") return "major";
-    if (raw === "moderate" || raw === "warn" || raw === "warning" || raw === "beta-risk") return "moderate";
+    if (raw === "moderate" || raw === "warn" || raw === "warning" || raw === "beta-risk" || raw === "review" || raw === "needs_review") return "moderate";
     if (raw === "minor") return "minor";
     return "info";
 }
@@ -176,7 +177,7 @@ function truthStateFromStatus(status: string, freshness: AdminDebugReportCard["f
     if (freshness === "stale_24h" || freshness === "stale_72h") return "stale";
     const normalized = status.toLowerCase();
     if (["fail", "failed", "critical"].includes(normalized)) return "failed";
-    if (["warning", "warn", "beta-risk", "degraded"].includes(normalized)) return "stale";
+    if (["warning", "warn", "beta-risk", "degraded", "review", "needs_review"].includes(normalized)) return "stale";
     if (["clean", "pass", "live", "healthy"].includes(normalized)) return "live";
     return "unknown";
 }
@@ -190,6 +191,7 @@ function collectFindings(raw: Record<string, unknown>): unknown[] {
         raw.exploitRisks,
         raw.costRisks,
         raw.speedRisks,
+        raw.mismatches,
     ];
     return candidates.flatMap((candidate) => Array.isArray(candidate) ? candidate : []);
 }
@@ -218,8 +220,8 @@ function normalizeFinding(
         title,
         domain: toStringValue(raw.domain ?? raw.category ?? raw.routeOrSurface, section),
         filePath: toStringValue(raw.filePath ?? raw.routePath ?? raw.surface, "unknown"),
-        humanReadableWarning: toStringValue(raw.humanReadableWarning ?? raw.escalation ?? raw.suggestedFix, title),
-        suggestedValidator: command,
+        humanReadableWarning: toStringValue(raw.humanReadableWarning ?? raw.escalation ?? raw.suggestedAction ?? raw.suggestedFix, title),
+        suggestedValidator: toStringValue(raw.validator, command),
         evidence,
         truthState: severity === "critical" ? "failed" : severity === "major" ? "stale" : "live",
     };

@@ -49,6 +49,7 @@ const runtimeHealth = readRequired("src/lib/route-runtime-health.ts");
 const adminOpsHealth = readRequired("src/lib/server/admin-ops-health.ts");
 const adminOpsHealthContract = readRequired("src/lib/admin-ops-health.ts");
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
+const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
 const debugPage = readRequired("src/app/admin/debug/page.tsx");
 const controlTower = readRequired("src/app/admin/debug/components/DebugControlTower.tsx");
 const controlTowerCards = readRequired("src/app/admin/debug/components/DebugControlTowerCards.tsx");
@@ -62,6 +63,7 @@ const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
 const repoMemory = readRequired("REPO_MEMORY_LEDGER.md");
 const releaseNotesScript = readRequired("scripts/release/update-public-changelog.ts");
+const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}`;
 
 if (packageJson.scripts?.["check:admin-debug-control-tower"] !== "tsx scripts/agent/validate-admin-debug-control-tower.ts") {
   fail("package.json must expose check:admin-debug-control-tower.");
@@ -80,6 +82,7 @@ for (const expected of [
   "telemetry-parity-score.generated.json",
   "debug-evidence-index.generated.json",
   "precatch-runtime-issues.generated.json",
+  "creator-lane-debug-parity.generated.json",
   "Required generated state is missing and cannot be treated as healthy.",
   "FRESH_MS = 24 * ONE_HOUR_MS",
   "STALE_MAJOR_MS = 72 * ONE_HOUR_MS",
@@ -120,8 +123,11 @@ for (const expected of [
   "lastSeenAtUtc",
   "Score penalties",
 ]) {
-  requireIncludes(debugTabNow, expected, "DebugTabNow must keep old diagnostics while mounting Control Tower");
+  requireIncludes(debugNowBundle, expected, "DebugTabNow must keep old diagnostics while mounting Control Tower");
 }
+requireIncludes(debugTabNow, "<DebugCreatorLane", "DebugTabNow must mount the Creator Lane detail card");
+requireIncludes(debugCreatorLane, "Top creator lane mismatches", "Creator Lane card must surface actionable mismatch details");
+requireIncludes(debugCreatorLane, "Materializer has no recorded completion timestamp.", "Creator Lane card must explain missing materialization timestamps");
 
 for (const expected of [
   "scorePenalties",
@@ -315,7 +321,12 @@ try {
     /^src\/app\/api\/admin\/debug\/control-tower\/route\.ts$/u,
     /^src\/app\/admin\/debug\/page\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
+    /^src\/lib\/creator-lane-debug-parity\.ts$/u,
+    /^src\/lib\/server\/creator-onboarding-diagnostics\.ts$/u,
+    /^scripts\/agent\/score-creator-lane-debug-parity\.ts$/u,
+    /^scripts\/agent\/validate-creator-lane-debug-parity\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
     /^scripts\/release\/update-public-changelog\.ts$/u,
     /^tests\/unit\/admin-debug-control-tower(?:-component)?\.spec\.tsx?$/u,
@@ -324,7 +335,9 @@ try {
     /^agent\/state\/precatch-runtime-issues\.generated\.json$/u,
     /^agent\/state\/speed-security-hardening\.generated\.json$/u,
     /^agent\/state\/google-cost-bleed\.generated\.json$/u,
+    /^agent\/state\/creator-lane-debug-parity\.generated\.json$/u,
     /^docs\/agent-truth\/admin-debug-control-tower\.md$/u,
+    /^docs\/agent-truth\/creator-lane-debug-parity\.md$/u,
     /^docs\/agent-truth\/human-readable-admin-truth\.md$/u,
     /^docs\/agent-truth\/debug-evidence-pipeline\.md$/u,
     /^README\.md$/u,

@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-05-05T21:55:24.628Z",
+  "generatedAtUtc": "2026-05-05T21:55:24.628Z",
+  "status": "review",
+  "overallStatus": "review",
+  "lastMaterializedAtUtc": null,
+  "materializationFreshnessState": "not_recorded",
+  "sourceSnapshots": {
+    "queueEntries": 0,
+    "userProjections": 0,
+    "settingsRecords": 0,
+    "experienceRecords": 0,
+    "historyRecords": 0
+  },
+  "issueCount": 0,
+  "historyGapCount": 0,
+  "mismatches": [],
+  "nextActions": [
+    "Load the admin Debug snapshot to populate creatorId-level mismatch rows from canonical creator onboarding, queue, projection, settings, experience, and history sources.",
+    "If Last Materialized is not recorded in the live snapshot, keep Creator Lane in review and run npm run check:creator-review-queue-materializer before repairing data."
+  ],
+  "localTruthNote": "Source-only local refresh confirms Creator Lane can expose actionable runtime mismatch rows, but no live Firebase creator snapshot was queried in this run."
+}

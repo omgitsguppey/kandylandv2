@@ -4,6 +4,12 @@ import {
     normalizeCreatorApplication,
 } from "@/lib/creator-application";
 import {
+    getCreatorLaneMaterializationFreshnessState,
+    getCreatorLaneStatus,
+    toCreatorLaneParityMismatch,
+    type CreatorLaneDebugParityReport,
+} from "@/lib/creator-lane-debug-parity";
+import {
     normalizeCreatorOnboardingHistoryEntry,
     normalizeCreatorOnboardingCanonicalRecord,
     type CreatorOnboardingCanonicalRecord,
@@ -115,8 +121,12 @@ export type CreatorLaneDebugGroup = {
     mismatches: CreatorOnboardingDiagnosticIssue[];
     historyCoverage: CreatorLaneHistoryCoverage[];
     lastMaterializedAt: number;
+    lastMaterializedAtUtc: string | null;
+    materializationFreshnessState: CreatorLaneDebugParityReport["materializationFreshnessState"];
+    reportStatus: CreatorLaneDebugParityReport["status"];
     recommendedFix: string;
     canSelfHeal: boolean;
+    report: CreatorLaneDebugParityReport;
 };
 
 type HistoryRecordInput = {
@@ -812,7 +822,14 @@ export function buildCreatorOnboardingDiagnostics(input: {
         reviewQueueOutOfSyncCount: issues.filter((entry) => entry.rosterWarning === "Review queue out of sync").length,
     };
 
+    const nowMs = Date.now();
     const lastMaterializedAt = input.queueRecords.reduce((latest, record) => Math.max(latest, readNumber(record.queueMaterializedAt)), 0);
+    const materializationFreshnessState = getCreatorLaneMaterializationFreshnessState(lastMaterializedAt, nowMs);
+    const reportStatus = getCreatorLaneStatus({
+        issueCount: issues.length,
+        materializationFreshnessState,
+    });
+    const lastMaterializedAtUtc = lastMaterializedAt > 0 ? new Date(lastMaterializedAt).toISOString() : null;
     const sourceSnapshots = {
         onboardingCount: onboardingByUser.size,
         reviewQueueCount: queueByUser.size,
@@ -821,6 +838,25 @@ export function buildCreatorOnboardingDiagnostics(input: {
         restrictionsCount: input.users.filter((entry) => hasRecord(entry.raw.creatorRestrictions)).length,
         creatorExperienceActivityCount: input.creatorExperienceRecords?.length ?? 0,
     };
+    const report: CreatorLaneDebugParityReport = {
+        generatedAt: new Date(nowMs).toISOString(),
+        generatedAtUtc: new Date(nowMs).toISOString(),
+        status: reportStatus,
+        overallStatus: reportStatus,
+        lastMaterializedAtUtc,
+        materializationFreshnessState,
+        sourceSnapshots: {
+            queueEntries: sourceSnapshots.reviewQueueCount,
+            userProjections: sourceSnapshots.userProjectionCount,
+            settingsRecords: sourceSnapshots.settingsCount,
+            experienceRecords: sourceSnapshots.creatorExperienceActivityCount,
+            historyRecords: input.historyRecords?.length ?? 0,
+        },
+        issueCount: issues.length,
+        historyGapCount: issues.filter((entry) => entry.key === "sensitive_history_missing").length,
+        mismatches: issues.map(toCreatorLaneParityMismatch),
+        nextActions: issues.slice(0, 6).map((entry) => entry.recommendedFix),
+    };
     const creatorLaneDebug: CreatorLaneDebugGroup = {
         groupTitle: "Creator Lane",
         parityStatus: issues.length > 0 ? "needs_review" : "ok",
@@ -828,10 +864,14 @@ export function buildCreatorOnboardingDiagnostics(input: {
         mismatches: issues,
         historyCoverage,
         lastMaterializedAt,
+        lastMaterializedAtUtc,
+        materializationFreshnessState,
+        reportStatus,
         recommendedFix: issues.length > 0
             ? "Open the affected creator in Admin Roster, then use Debug source details to rebuild projections or repair missing evidence."
             : "No action needed.",
         canSelfHeal: issues.some((entry) => entry.canSelfHeal),
+        report,
     };
 
     return {

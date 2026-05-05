@@ -13,6 +13,17 @@ function readRequired(relativePath: string) {
     return readFileSync(fullPath, "utf8");
 }
 
+function readJson(relativePath: string) {
+    const source = readRequired(relativePath);
+    if (!source) return null;
+    try {
+        return JSON.parse(source) as Record<string, unknown>;
+    } catch (error) {
+        failures.push(`${relativePath} must contain valid JSON: ${(error as Error).message}`);
+        return null;
+    }
+}
+
 function requireIncludes(source: string, needle: string, label: string) {
     if (!source.includes(needle)) {
         failures.push(`${label} must include "${needle}".`);
@@ -25,12 +36,27 @@ function requireNotIncludes(source: string, needle: string, label: string) {
     }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function isIsoUtc(value: unknown) {
+    return typeof value === "string" && value.endsWith("Z") && Number.isFinite(Date.parse(value));
+}
+
 const diagnostics = readRequired("src/lib/server/creator-onboarding-diagnostics.ts");
+const creatorLaneHelper = readRequired("src/lib/creator-lane-debug-parity.ts");
 const debugNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
+const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
 const rosterPage = readRequired("src/app/admin/roster/page.tsx");
 const rosterRoute = readRequired("src/app/api/admin/roster/route.ts");
+const scorer = readRequired("scripts/agent/score-creator-lane-debug-parity.ts");
+const controlTower = readRequired("src/lib/admin-debug-control-tower.ts");
 const doc = readRequired("docs/agent-truth/creator-lane-debug-parity.md");
-const packageJson = readRequired("package.json");
+const packageJsonSource = readRequired("package.json");
+const generatedReport = readJson("agent/state/creator-lane-debug-parity.generated.json");
+const packageJson = packageJsonSource ? JSON.parse(packageJsonSource) as { scripts?: Record<string, string> } : { scripts: {} };
+const debugBundle = `${debugNow}\n${debugCreatorLane}`;
 
 for (const issueKey of [
     "missing_queue_record",
@@ -47,6 +73,7 @@ for (const issueKey of [
     "sensitive_history_missing",
 ]) {
     requireIncludes(diagnostics, issueKey, "Creator lane parity diagnostics");
+    requireIncludes(creatorLaneHelper, issueKey, "Creator lane mismatch surface map");
 }
 
 for (const warning of [
@@ -67,18 +94,72 @@ for (const field of [
     "mismatches",
     "historyCoverage",
     "lastMaterializedAt",
+    "lastMaterializedAtUtc",
+    "materializationFreshnessState",
+    "generatedAtUtc",
     "recommendedFix",
     "canSelfHeal",
 ]) {
     requireIncludes(diagnostics, field, "Creator lane debug metadata");
-    requireIncludes(debugNow, field, "Admin Debug Creator Lane group");
+    requireIncludes(debugBundle, field, "Admin Debug Creator Lane group");
 }
 
-requireIncludes(debugNow, "Creator Lane", "Admin Debug group title");
-requireIncludes(debugNow, "Full source evidence stays here", "Debug evidence location copy");
+for (const uiNeedle of [
+    "Creator Lane",
+    "Top creator lane mismatches",
+    "creatorId",
+    "surface",
+    "Expected:",
+    "Actual:",
+    "Suggested action:",
+    "Materializer has no recorded completion timestamp.",
+    "Source snapshots loaded, but queue materializer completion was not recorded.",
+    "data-creator-lane-generated-at-utc",
+    "data-creator-lane-materialization-freshness",
+    "Full source evidence stays here",
+]) {
+    requireIncludes(debugBundle, uiNeedle, "Creator Lane Debug card");
+}
+
+for (const helperNeedle of [
+    "CreatorLaneDebugParityReport",
+    "CreatorLaneParityMismatch",
+    "getCreatorLaneMaterializationFreshnessState",
+    "getCreatorLaneStatus",
+    "toCreatorLaneParityMismatch",
+    "History event(s):",
+    "Evidence field(s):",
+]) {
+    requireIncludes(creatorLaneHelper, helperNeedle, "Creator lane parity helper");
+}
+
+for (const scorerNeedle of [
+    "creator-lane-debug-parity.generated.json",
+    "generatedAtUtc",
+    "lastMaterializedAtUtc: null",
+    "materializationFreshnessState",
+    "Source-only local refresh",
+]) {
+    requireIncludes(scorer, scorerNeedle, "Creator lane debug parity scorer");
+}
+
+for (const controlTowerNeedle of [
+    "creator-lane-debug-parity.generated.json",
+    "npm run score:creator-lane-debug-parity",
+    "raw.mismatches",
+]) {
+    requireIncludes(controlTower, controlTowerNeedle, "Admin Debug Control Tower report wiring");
+}
+
 requireIncludes(rosterRoute, "buildCreatorLaneRosterWarnings", "Roster API shared warning builder");
 requireIncludes(rosterPage, "Needs review", "Roster short action copy");
-requireIncludes(packageJson, "check:creator-lane-debug-parity", "Package validation script");
+
+if (packageJson.scripts?.["score:creator-lane-debug-parity"] !== "tsx scripts/agent/score-creator-lane-debug-parity.ts") {
+    failures.push("package.json must expose score:creator-lane-debug-parity.");
+}
+if (packageJson.scripts?.["check:creator-lane-debug-parity"] !== "tsx scripts/agent/validate-creator-lane-debug-parity.ts") {
+    failures.push("package.json must expose check:creator-lane-debug-parity.");
+}
 
 for (const hiddenTechnicalCopy of [
     "creator_onboarding/",
@@ -97,8 +178,45 @@ for (const docNeedle of [
     "owner override active without a reason",
     "required sensitive lifecycle history event is missing",
     "recommended fix",
+    "creator-lane-debug-parity.generated.json",
+    "Materializer has no recorded completion timestamp",
 ]) {
     requireIncludes(doc, docNeedle, "Creator lane debug parity doc");
+}
+
+if (generatedReport) {
+    const generatedAtUtc = generatedReport.generatedAtUtc;
+    if (!isIsoUtc(generatedAtUtc)) {
+        failures.push("creator-lane-debug-parity.generated.json must include generatedAtUtc as an ISO UTC timestamp.");
+    }
+    if (generatedReport.status === "live" && generatedReport.lastMaterializedAtUtc == null) {
+        failures.push("Creator Lane generated report must not be live when lastMaterializedAtUtc is missing.");
+    }
+    if (generatedReport.lastMaterializedAtUtc == null && generatedReport.materializationFreshnessState !== "not_recorded") {
+        failures.push("Missing Last Materialized must use materializationFreshnessState not_recorded.");
+    }
+    if (!isRecord(generatedReport.sourceSnapshots)) {
+        failures.push("Creator Lane generated report must include sourceSnapshots.");
+    }
+    if (!Array.isArray(generatedReport.nextActions)) {
+        failures.push("Creator Lane generated report must include nextActions.");
+    }
+
+    const mismatches = Array.isArray(generatedReport.mismatches) ? generatedReport.mismatches : [];
+    mismatches.forEach((entry, index) => {
+        if (!isRecord(entry)) {
+            failures.push(`Creator Lane mismatch ${index} must be an object.`);
+            return;
+        }
+        for (const key of ["creatorId", "surface", "expected", "actual", "suggestedAction", "validator"]) {
+            if (typeof entry[key] !== "string" || String(entry[key]).trim().length === 0) {
+                failures.push(`Creator Lane mismatch ${index} must include ${key}.`);
+            }
+        }
+        if (entry.surface === "history" && !String(entry.expected).toLowerCase().includes("history event")) {
+            failures.push(`Creator Lane history mismatch ${index} must name the missing history event type.`);
+        }
+    });
 }
 
 if (failures.length > 0) {

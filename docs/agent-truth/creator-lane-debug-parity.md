@@ -49,15 +49,35 @@ Do not show raw collection paths, raw enum blobs, queue deltas, signature hashes
 
 Admin Debug exposes a `Creator Lane` group with:
 
+- `generatedAtUtc`
 - source snapshot counts
 - parity status
-- mismatch rows
+- top creator-level mismatch rows with `creatorId`, surface, expected state, actual state, suggested action, and validator
 - history coverage
-- last materialized time
+- last materialized time or `Not recorded`
+- materialization freshness state
 - recommended fix
 - `canSelfHeal`
 
 Debug can include raw field names and technical evidence. Roster copy must stay short and action-oriented.
+
+If `lastMaterializedAtUtc` is missing, the lane must stay in review and say: "Materializer has no recorded completion timestamp." When source snapshots are present but the materializer timestamp is missing, the card must also explain: "Source snapshots loaded, but queue materializer completion was not recorded." Missing materializer evidence must never render as live.
+
+## Generated Report
+
+Local Creator Lane parity evidence is refreshed into `agent/state/creator-lane-debug-parity.generated.json` by `npm run score:creator-lane-debug-parity`. The source-only scorer does not query Firebase or repair creator data; it records local runtime wiring, `generatedAtUtc`, materialization freshness, source snapshot counts, mismatch rows when available, and next actions. Live creator-specific IDs and mismatches come from the Admin Debug creator onboarding snapshot.
+
+The generated report must keep this shape:
+
+- `generatedAtUtc`
+- `status`
+- `lastMaterializedAtUtc`
+- `materializationFreshnessState`
+- `sourceSnapshots`
+- `issueCount`
+- `historyGapCount`
+- `mismatches`
+- `nextActions`
 
 ## Recommended Fix Rules
 
