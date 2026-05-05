@@ -40,6 +40,9 @@ async function GET_handler(request: NextRequest) {
         // google-cost-guard: admin content storage access is protected by MEDIA_PROXY or equivalent byte/rate policy.
         // storage-egress-guard: route does not expose unbounded raw media bytes.
         // media-byte-guard: default response returns safe metadata or short-lived admin-scoped preview only.
+        // entitlement-guard: admin content route uses admin authorization as entitlement proof for review/inventory access.
+        // locked-content-guard: default response does not expose locked media bytes or raw content URLs.
+        // ownership-entitlement-scope: user media access remains ownership/unlocked-content gated outside this admin route.
         await guardApiRequest(request, {
             routeName: "admin/content",
             rateLimit: MEDIA_PROXY,
@@ -96,6 +99,9 @@ async function POST_handler(request: NextRequest) {
         // google-cost-guard: admin content storage access is protected by MEDIA_PROXY or equivalent byte/rate policy.
         // storage-egress-guard: route does not expose unbounded raw media bytes.
         // media-byte-guard: default response returns safe metadata or short-lived admin-scoped preview only.
+        // entitlement-guard: admin content route uses admin authorization as entitlement proof for review/inventory access.
+        // locked-content-guard: default response does not expose locked media bytes or raw content URLs.
+        // ownership-entitlement-scope: user media access remains ownership/unlocked-content gated outside this admin route.
         await guardApiRequest(request, {
             routeName: "admin/content",
             rateLimit: MEDIA_PROXY,
@@ -164,6 +170,9 @@ async function DELETE_handler(request: NextRequest) {
         // google-cost-guard: admin content storage access is protected by MEDIA_PROXY or equivalent byte/rate policy.
         // storage-egress-guard: route does not expose unbounded raw media bytes.
         // media-byte-guard: default response returns safe metadata or short-lived admin-scoped preview only.
+        // entitlement-guard: admin content route uses admin authorization as entitlement proof for review/inventory access.
+        // locked-content-guard: default response does not expose locked media bytes or raw content URLs.
+        // ownership-entitlement-scope: user media access remains ownership/unlocked-content gated outside this admin route.
         await guardApiRequest(request, {
             routeName: "admin/content",
             rateLimit: MEDIA_PROXY,

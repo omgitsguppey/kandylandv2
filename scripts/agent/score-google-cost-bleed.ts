@@ -767,6 +767,14 @@ function scanStorageRisks(findings: GoogleCostFinding[], routes: RouteSummary[],
       route.authMode === "admin" &&
       adminContentEvidenceSource.includes("adminContentRoute: true") &&
       adminContentEvidenceSource.includes("adminOnly: true") &&
+      adminContentEvidenceSource.includes("entitlement-guard: admin content route uses admin authorization as entitlement proof") &&
+      adminContentEvidenceSource.includes("locked-content-guard: default response does not expose locked media bytes") &&
+      adminContentEvidenceSource.includes("ownership-entitlement-scope: user media access remains ownership/unlocked-content gated outside this admin route") &&
+      adminContentEvidenceSource.includes("entitlementGuarded: true") &&
+      adminContentEvidenceSource.includes("entitlementGuardType: \"admin_content_review\"") &&
+      adminContentEvidenceSource.includes("unlockedContentRoute: false") &&
+      adminContentEvidenceSource.includes("ownershipEntitlementRequiredForUserRoutes: true") &&
+      adminContentEvidenceSource.includes("rawLockedMediaExposed: false") &&
       adminContentEvidenceSource.includes("storageEgressGuarded: true") &&
       adminContentEvidenceSource.includes("safeUrlHandling: true") &&
       adminContentEvidenceSource.includes("rawStorageUrlExposed: false") &&

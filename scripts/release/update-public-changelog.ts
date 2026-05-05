@@ -246,6 +246,13 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
     return "Added a Beta badge with app update notes in the top navigation.";
   }
   if (
+    normalized.includes("prove admin content entitlement scope")
+    || normalized.includes("protect locked content access")
+    || (normalized.includes("admin") && normalized.includes("content") && normalized.includes("entitlement"))
+  ) {
+    return "Improved internal checks that protect locked content access.";
+  }
+  if (
     normalized.includes("guard admin content media egress")
     || normalized.includes("prevent unnecessary storage traffic")
     || (normalized.includes("admin") && normalized.includes("content") && normalized.includes("media egress"))
