@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.27.1",
+  "currentVersion": "1.28.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T21:28:21.886Z",
-  "generatedAtUtc": "2026-05-05T21:28:21.886Z",
-  "lastCommitSha": "40b96762e144c2f5983c1f8437dd903639d33606",
+  "generatedAt": "2026-05-05T21:43:02.235Z",
+  "generatedAtUtc": "2026-05-05T21:43:02.235Z",
+  "lastCommitSha": "61bbf8464515651c9bff7d85608c7da5c6bc99b5",
   "notes": [
+    {
+      "version": "1.28.0",
+      "previousVersion": "1.27.1",
+      "commitSha": "61bbf8464515651c9bff7d85608c7da5c6bc99b5",
+      "commitTitle": "fix(admin): refresh system health truth",
+      "committedAt": "2026-05-05T21:42:49.000Z",
+      "generatedAt": "2026-05-05T21:43:02.235Z",
+      "committedAtUtc": "2026-05-05T21:42:49.000Z",
+      "generatedAtUtc": "2026-05-05T21:43:02.235Z",
+      "diffStats": {
+        "rawAdditions": 473,
+        "rawDeletions": 12,
+        "rawChangeCount": 485,
+        "additions": 473,
+        "deletions": 12,
+        "effectiveAdditions": 469,
+        "effectiveDeletions": 8,
+        "changedFiles": 12,
+        "effectiveChangeCount": 477,
+        "excludedGeneratedChangeCount": 8
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal health reporting so beta issues show fresher, clearer status.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "security"
+      ]
+    },
     {
       "version": "1.27.1",
       "previousVersion": "1.27.0",
@@ -126,38 +159,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "minor",
       "category": "Fixed",
       "userFacingTitle": "Improved internal document safety checks for creator agreement tools.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.24.8",
-      "previousVersion": "1.24.7",
-      "commitSha": "b1cee605c8a7290f34b0f5f48cd97086f1f1d686",
-      "commitTitle": "fix(cost): prove admin content entitlement scope",
-      "committedAt": "2026-05-05T21:06:49.000Z",
-      "generatedAt": "2026-05-05T21:07:01.584Z",
-      "committedAtUtc": "2026-05-05T21:06:49.000Z",
-      "generatedAtUtc": "2026-05-05T21:07:01.584Z",
-      "diffStats": {
-        "rawAdditions": 40,
-        "rawDeletions": 1,
-        "rawChangeCount": 41,
-        "additions": 40,
-        "deletions": 1,
-        "effectiveAdditions": 39,
-        "effectiveDeletions": 0,
-        "changedFiles": 6,
-        "effectiveChangeCount": 39,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal checks that protect locked content access.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],

@@ -1,10 +1,43 @@
 {
-  "currentVersion": "1.27.1",
+  "currentVersion": "1.28.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T21:28:21.886Z",
-  "generatedAtUtc": "2026-05-05T21:28:21.886Z",
-  "lastCommitSha": "40b96762e144c2f5983c1f8437dd903639d33606",
+  "generatedAt": "2026-05-05T21:43:02.235Z",
+  "generatedAtUtc": "2026-05-05T21:43:02.235Z",
+  "lastCommitSha": "61bbf8464515651c9bff7d85608c7da5c6bc99b5",
   "notes": [
+    {
+      "version": "1.28.0",
+      "previousVersion": "1.27.1",
+      "commitSha": "61bbf8464515651c9bff7d85608c7da5c6bc99b5",
+      "commitTitle": "fix(admin): refresh system health truth",
+      "committedAt": "2026-05-05T21:42:49.000Z",
+      "generatedAt": "2026-05-05T21:43:02.235Z",
+      "committedAtUtc": "2026-05-05T21:42:49.000Z",
+      "generatedAtUtc": "2026-05-05T21:43:02.235Z",
+      "diffStats": {
+        "rawAdditions": 473,
+        "rawDeletions": 12,
+        "rawChangeCount": 485,
+        "additions": 473,
+        "deletions": 12,
+        "effectiveAdditions": 469,
+        "effectiveDeletions": 8,
+        "changedFiles": 12,
+        "effectiveChangeCount": 477,
+        "excludedGeneratedChangeCount": 8
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal health reporting so beta issues show fresher, clearer status.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "security"
+      ]
+    },
     {
       "version": "1.27.1",
       "previousVersion": "1.27.0",
