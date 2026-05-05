@@ -262,6 +262,8 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   }
   if (
     normalized.includes("make attachment cancel idempotent")
+    || normalized.includes("refresh attachment cancel idempotency")
+    || normalized.includes("attachment cancel idempotency")
     || normalized.includes("attachment cancel idempotent")
   ) {
     return "Improved reliability for canceling pending chat attachments.";
