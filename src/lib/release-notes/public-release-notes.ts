@@ -1,11 +1,43 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.16.1",
+  "currentVersion": "1.17.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T12:14:53.220Z",
-  "lastCommitSha": "d9eef92897173dc95929d74909d5995b7dcc5e2a",
+  "generatedAt": "2026-05-05T12:49:32.625Z",
+  "lastCommitSha": "1cbef6884a9c0f0273d22e9f14e1eff32968de26",
   "notes": [
+    {
+      "version": "1.17.0",
+      "previousVersion": "1.16.1",
+      "commitSha": "1cbef6884a9c0f0273d22e9f14e1eff32968de26",
+      "commitTitle": "chore(ci): route repo automation through cloud build",
+      "committedAt": "2026-05-05T07:49:13-05:00",
+      "generatedAt": "2026-05-05T12:49:32.622Z",
+      "diffStats": {
+        "rawAdditions": 207,
+        "rawDeletions": 18,
+        "rawChangeCount": 225,
+        "additions": 207,
+        "deletions": 18,
+        "effectiveAdditions": 207,
+        "effectiveDeletions": 18,
+        "changedFiles": 9,
+        "effectiveChangeCount": 225,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Internal",
+      "userFacingTitle": "Added a Beta badge with app update notes in the top navigation.",
+      "bullets": [
+        "Tap Beta beside KandyDrops to see the latest app-style updates.",
+        "The current beta version now stays tied to the public changelog."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.16.1",
       "previousVersion": "1.16.0",
@@ -123,36 +155,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "affectedSurfaces": [
         "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.13.0",
-      "previousVersion": "1.12.0",
-      "commitSha": "1420446301c40159345fb5aa96a4e268ef32b942",
-      "commitTitle": "feat(recommendations): add cold-start exploration budget",
-      "committedAt": "2026-05-05T06:20:34-05:00",
-      "generatedAt": "2026-05-05T12:02:56.927Z",
-      "diffStats": {
-        "rawAdditions": 873,
-        "rawDeletions": 32,
-        "rawChangeCount": 905,
-        "additions": 873,
-        "deletions": 32,
-        "effectiveAdditions": 873,
-        "effectiveDeletions": 32,
-        "changedFiles": 11,
-        "effectiveChangeCount": 905,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
         "documentation",
         "repo-tooling"
       ]
