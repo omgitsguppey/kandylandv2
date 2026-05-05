@@ -343,7 +343,7 @@
         "postcss": "^8.5.10",
         "puppeteer": "^24.40.0",
         "storybook": "^10.3.5",
-        "syncpack": "^14.3.0",
+        "syncpack": "^15.0.0",
         "tailwindcss": "^4.2.2",
         "ts-morph": "^28.0.0",
         "tsx": "^4.21.0",
