@@ -134,7 +134,7 @@ describe("creator onboarding diagnostics", () => {
         expect(result.issues.some((issue) => issue.rosterWarning === "Agreement evidence missing")).toBe(true);
     });
 
-    it("detects owner override without a reason", () => {
+    it("treats owner override reason as optional audit context", () => {
         const result = buildCreatorOnboardingDiagnostics({
             users: [{ uid: "override_gap", raw: { role: "user" } }],
             onboardingRecords: [
@@ -148,8 +148,17 @@ describe("creator onboarding diagnostics", () => {
             queueRecords: [queue({ userId: "override_gap", creatorDisplayName: "Override Gap", ownerOverrideActive: true })],
         });
 
-        expect(issueKeys(result)).toContain("owner_override_missing_reason");
-        expect(result.issues.find((issue) => issue.key === "owner_override_missing_reason")?.rosterWarning).toBe("Role needs review");
+        expect(issueKeys(result)).not.toContain("role_status_mismatch");
+        expect(result.summary.roleMismatchCount).toBe(0);
+        expect(result.optionalAuditNotes).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                key: "owner_override_reason_optional",
+                status: "reason_optional",
+                severity: "info",
+                message: "Owner override reason is optional for admins.",
+                suggestedAction: "No action required unless you want additional audit context.",
+            }),
+        ]));
     });
 
     it("detects missing sensitive history coverage when history snapshots are provided", () => {

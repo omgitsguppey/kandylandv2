@@ -45,6 +45,8 @@ The typed action registry and transition rules live in `src/lib/server/creator-a
 - Each state change appends creator onboarding history with actor markers.
 - Telemetry includes actor marker fields, target creator, action key, source version, and lifecycle state.
 - Invalid transitions return a clear 400/403/409 response instead of silently rewriting state.
+- Admin and owner override reasons are optional. Missing `ownerOverrideReason` may be shown as an optional audit note but is not an error, parity failure, or launch blocker unless a specific high-risk action explicitly requires a reason.
+- Owner override audit evidence still requires actor id, action type, override active flag, target creator/user id, timestamp, source surface, and owner/admin actor marker.
 
 ## Forbidden
 

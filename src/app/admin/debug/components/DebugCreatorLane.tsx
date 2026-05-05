@@ -28,6 +28,9 @@ export function DebugCreatorLane({ data }: { data: any }) {
         ?? (creatorLaneDebug?.lastMaterializedAt ? "live" : "not_recorded");
     const reportStatus = creatorLaneReport?.status ?? creatorLaneDebug?.reportStatus ?? (creatorLaneNeedsReview ? "review" : "live");
     const generatedAtUtc = creatorLaneReport?.generatedAtUtc ?? "live admin snapshot";
+    const optionalAuditNotes = creatorLaneReport?.optionalAuditNotes
+        ?? creatorLaneDebug?.optionalAuditNotes
+        ?? [];
     const normalizedMismatches: CreatorLaneParityMismatch[] = creatorLaneReport?.mismatches?.length
         ? creatorLaneReport.mismatches
         : creatorLaneIssues.map(toCreatorLaneParityMismatch);
@@ -51,6 +54,7 @@ export function DebugCreatorLane({ data }: { data: any }) {
                 data-creator-lane-generated-at-utc={generatedAtUtc}
                 data-creator-lane-materialization-freshness={materializationState}
                 data-creator-lane-mismatch-count={normalizedMismatches.length}
+                data-creator-lane-optional-audit-note-count={optionalAuditNotes.length}
             >
                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Source snapshots</p>
@@ -103,6 +107,33 @@ export function DebugCreatorLane({ data }: { data: any }) {
                                 <p className="text-xs text-gray-300">Actual: {mismatch.actual}</p>
                                 <p className="text-xs text-gray-400">Suggested action: {mismatch.suggestedAction}</p>
                                 <p className="text-xs font-semibold text-white/80">{mismatch.validator}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : null}
+
+            {optionalAuditNotes.length > 0 ? (
+                <div className="mt-4 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                    <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+                        <div>
+                            <p className="font-semibold text-white">Optional audit notes</p>
+                            <p className="text-xs text-gray-400">Low-severity context that does not block creator parity.</p>
+                        </div>
+                        <Pill label="Rows" value={optionalAuditNotes.length} tone="neutral" />
+                    </div>
+                    <div className="divide-y divide-white/10">
+                        {optionalAuditNotes.slice(0, 6).map((note: any) => (
+                            <div key={`${note.key}-${note.creatorId ?? note.userId}`} className="space-y-2 px-4 py-3">
+                                <div className="flex flex-wrap items-start justify-between gap-2">
+                                    <div>
+                                        <p className="font-semibold text-white">{note.message}</p>
+                                        <p className="text-xs text-gray-400">{note.creatorDisplayName ?? "Creator"} - {note.creatorId ?? note.userId}</p>
+                                    </div>
+                                    <Pill label="Severity" value={note.severity ?? "info"} tone="neutral" />
+                                </div>
+                                <p className="text-sm text-gray-300">{note.detail}</p>
+                                <p className="text-xs text-gray-400">Suggested action: {note.suggestedAction}</p>
                             </div>
                         ))}
                     </div>

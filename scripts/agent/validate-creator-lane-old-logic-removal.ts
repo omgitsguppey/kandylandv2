@@ -304,8 +304,8 @@ function runPositiveContractChecks(failures: string[]) {
   for (const needle of [
     "buildAdminOnBehalfMarker",
     "actorMarkerToTelemetryPayload",
-    "Owner override requires a clear reason.",
-    "ownerOverrideReason = reason",
+    "ownerOverrideActive",
+    "source.ownerOverrideReason = reason || undefined",
   ]) {
     requireIncludes(creatorActionSource, needle, "typed creator admin lifecycle action path", failures);
   }

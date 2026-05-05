@@ -248,6 +248,13 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("annotate missing id request history evidence") || normalized.includes("id request history")) {
     return "Improved internal creator review history checks.";
   }
+  if (
+    normalized.includes("downgrade optional owner override reason")
+    || normalized.includes("owner override reason")
+    || normalized.includes("admin override rules")
+  ) {
+    return "Adjusted internal creator review warnings to match admin override rules.";
+  }
   if (isInternalBetaStabilizationChange(title, surfaces)) {
     return "Improved internal beta reliability and support traceability.";
   }

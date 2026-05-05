@@ -8,6 +8,7 @@ import {
     getCreatorLaneStatus,
     toCreatorLaneParityMismatch,
     type CreatorLaneDebugParityReport,
+    type CreatorLaneOptionalAuditNote,
 } from "@/lib/creator-lane-debug-parity";
 import {
     normalizeCreatorOnboardingHistoryEntry,
@@ -42,7 +43,6 @@ export type CreatorOnboardingDiagnosticIssueKey =
     | "legal_signed_without_matching_signatures"
     | "creator_signature_missing_evidence"
     | "admin_signature_missing_evidence"
-    | "owner_override_missing_reason"
     | "creator_settings_missing"
     | "creator_restrictions_conflict"
     | "sensitive_history_missing";
@@ -119,6 +119,7 @@ export type CreatorLaneDebugGroup = {
         creatorExperienceActivityCount: number;
     };
     mismatches: CreatorOnboardingDiagnosticIssue[];
+    optionalAuditNotes: CreatorLaneOptionalAuditNote[];
     historyCoverage: CreatorLaneHistoryCoverage[];
     lastMaterializedAt: number;
     lastMaterializedAtUtc: string | null;
@@ -369,7 +370,6 @@ export function buildCreatorLaneRosterWarnings(input: {
     if (
         (approvalStatus === "creator_approved" && role !== "creator" && role !== "admin")
         || (approvalStatus !== "creator_approved" && role === "creator")
-        || (input.entry.ownerOverrideActive === true && !readString(input.entry.ownerOverrideReason))
     ) {
         addWarning(warnings, "Role needs review");
     }
@@ -416,6 +416,7 @@ export function buildCreatorOnboardingDiagnostics(input: {
     const queueByUser = new Map<string, CreatorReviewQueueEntry>();
     const historyByUser = new Map<string, CreatorOnboardingHistoryEntry[]>();
     const issues: CreatorOnboardingDiagnosticIssue[] = [];
+    const optionalAuditNotes: CreatorLaneOptionalAuditNote[] = [];
 
     input.onboardingRecords.forEach((record) => {
         const canonical = normalizeCreatorOnboardingCanonicalRecord(record);
@@ -471,6 +472,14 @@ export function buildCreatorOnboardingDiagnostics(input: {
             }),
             mismatches: issue.mismatches ?? [],
         });
+    };
+
+    const pushOptionalAuditNote = (note: CreatorLaneOptionalAuditNote) => {
+        if (optionalAuditNotes.some((entry) => entry.key === note.key && entry.creatorId === note.creatorId)) {
+            return;
+        }
+
+        optionalAuditNotes.push(note);
     };
 
     onboardingByUser.forEach((canonical, userId) => {
@@ -687,19 +696,19 @@ export function buildCreatorOnboardingDiagnostics(input: {
         }
 
         if (canonical.ownerOverrideActive && !canonical.ownerOverrideReason) {
-            pushIssue({
-                key: "owner_override_missing_reason",
-                severity: "error",
+            pushOptionalAuditNote({
+                key: "owner_override_reason_optional",
+                status: "reason_optional",
+                severity: "info",
                 userId,
+                creatorId: userId,
                 creatorDisplayName: canonical.creatorDisplayName,
-                message: "Owner override is active without a reason",
-                detail: "Owner overrides must explain what was bypassed so launch support can audit why creator access changed.",
-                link: `/admin/user/${userId}`,
-                rosterWarning: "Role needs review",
-                recommendedFix: "Add an owner override reason or clear the override.",
-                canSelfHeal: false,
+                message: "Owner override reason is optional for admins.",
+                detail: "Owner override is active without optional reason. Reason optional by current admin doctrine.",
+                suggestedAction: "No action required unless you want additional audit context.",
+                ownerOverrideReasonOptional: true,
+                evidenceFields: ["ownerOverrideActive"],
                 sourceSnapshots: sourceSnapshot,
-                missingEvidenceFields: ["ownerOverrideReason"],
             });
         }
 
@@ -873,6 +882,7 @@ export function buildCreatorOnboardingDiagnostics(input: {
         issueCount: issues.length,
         historyGapCount: issues.filter((entry) => entry.key === "sensitive_history_missing").length,
         mismatches: issues.map(toCreatorLaneParityMismatch),
+        optionalAuditNotes,
         nextActions: issues.slice(0, 6).map((entry) => entry.recommendedFix),
     };
     const creatorLaneDebug: CreatorLaneDebugGroup = {
@@ -880,6 +890,7 @@ export function buildCreatorOnboardingDiagnostics(input: {
         parityStatus: issues.length > 0 ? "needs_review" : "ok",
         sourceSnapshots,
         mismatches: issues,
+        optionalAuditNotes,
         historyCoverage,
         lastMaterializedAt,
         lastMaterializedAtUtc,
@@ -900,6 +911,7 @@ export function buildCreatorOnboardingDiagnostics(input: {
         mismatches: issues,
         historyCoverage,
         lastMaterializedAt,
+        optionalAuditNotes,
         recommendedFix: creatorLaneDebug.recommendedFix,
         canSelfHeal: creatorLaneDebug.canSelfHeal,
         issues: issues.sort((left, right) => left.creatorDisplayName.localeCompare(right.creatorDisplayName)),

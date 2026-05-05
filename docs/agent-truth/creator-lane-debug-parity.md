@@ -28,10 +28,18 @@ Admin Debug owns the full technical evidence for these checks:
 - creator signature missing agreement version, hash, or signature timestamp
 - admin countersign missing agreement version, hash, or signature timestamp
 - ID verified or submitted without durable document metadata
-- owner override active without a reason
 - live or approved creator missing CreatorSettings
 - CreatorSettings enabled lane conflicts with CreatorRestrictions pause
 - required sensitive lifecycle history event is missing
+
+Admin and owner override reasons are optional. Missing `ownerOverrideReason` may be shown as an optional audit note but is not an error, parity failure, or launch blocker unless a specific high-risk action explicitly requires a reason.
+
+If owner override is active without a reason, Creator Lane may show:
+
+- `severity: "info"` or `severity: "warn"`
+- `status: "reason_optional"` or `status: "optional_audit_note"`
+- `message: "Owner override reason is optional for admins."`
+- `suggestedAction: "No action required unless you want additional audit context."`
 
 The canonical ID request lifecycle event is `id_requested`. If a creator source state has `idVerificationStatus: "id_requested"`, Creator Lane parity must require a matching `id_requested` history entry unless a future canonical event migration explicitly supersedes it.
 
@@ -93,7 +101,6 @@ Human review is required for evidence-sensitive issues:
 
 - missing agreement version/hash/signature timestamp
 - missing ID document metadata
-- owner override without reason
 - role/approval disagreement before creator access changes
 - missing history for sensitive lifecycle actions
 

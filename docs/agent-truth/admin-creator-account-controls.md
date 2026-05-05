@@ -48,6 +48,8 @@ Required payload fields include `actorType`, `actorUid`, `targetUserId`, `perfor
 
 Creator onboarding history records `admin_account_updated`. Role activation still writes `creator_role_activated` or `creator_role_activation_blocked`; owner-only actions keep `owner_override_applied` where applicable.
 
+Admin and owner override reasons are optional. Missing `ownerOverrideReason` may be shown as an optional audit note but is not an error, parity failure, or launch blocker unless a specific high-risk action explicitly requires a reason. Required audit evidence still includes actor id, action type, override active flag, target user/creator id, timestamp, source surface, and owner/admin actor marker.
+
 ## Debug Fields
 
 Debug evidence may show raw ids. Main UI must not.

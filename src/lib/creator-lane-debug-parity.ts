@@ -30,6 +30,21 @@ export type CreatorLaneParityMismatch = {
   title?: string;
 };
 
+export type CreatorLaneOptionalAuditNote = {
+  key: "owner_override_reason_optional";
+  status: "reason_optional" | "optional_audit_note";
+  severity: "info" | "warn";
+  creatorId: string;
+  userId?: string;
+  creatorDisplayName?: string;
+  message: string;
+  detail: string;
+  suggestedAction: string;
+  ownerOverrideReasonOptional: true;
+  evidenceFields: string[];
+  sourceSnapshots?: unknown;
+};
+
 export type CreatorLaneDebugParityReport = {
   generatedAt: string;
   generatedAtUtc: string;
@@ -41,6 +56,7 @@ export type CreatorLaneDebugParityReport = {
   issueCount: number;
   historyGapCount: number;
   mismatches: CreatorLaneParityMismatch[];
+  optionalAuditNotes?: CreatorLaneOptionalAuditNote[];
   nextActions: string[];
   localTruthNote?: string;
 };
@@ -66,7 +82,6 @@ const SURFACE_BY_ISSUE_KEY: Record<string, CreatorLaneMismatchSurface> = {
   queue_parity_mismatch: "queue",
   user_projection_mismatch: "queue",
   role_status_mismatch: "role",
-  owner_override_missing_reason: "role",
   legal_signed_without_matching_signatures: "agreement",
   creator_signature_missing_evidence: "agreement",
   admin_signature_missing_evidence: "agreement",
@@ -196,4 +211,3 @@ export function toCreatorLaneParityMismatch(issue: CreatorLaneIssueLike): Creato
     title: issue.message || issue.creatorDisplayName || issue.key || "Creator lane mismatch",
   };
 }
-

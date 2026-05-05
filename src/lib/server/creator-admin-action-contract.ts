@@ -214,11 +214,8 @@ export function buildCreatorAdminLifecycleSource(input: {
     }
     case "apply_owner_override": {
       const reason = readCreatorAdminActionString(input.payload.reason);
-      if (reason.length < 8) {
-        throw new AuthError("Owner override requires a clear reason.", 400);
-      }
       source.ownerOverrideActive = true;
-      source.ownerOverrideReason = reason;
+      source.ownerOverrideReason = reason || undefined;
       source.ownerOverrideAt = input.nowMs;
       source.ownerOverrideBy = input.actor.label;
       return source;

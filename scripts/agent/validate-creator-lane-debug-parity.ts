@@ -48,6 +48,8 @@ const diagnostics = readRequired("src/lib/server/creator-onboarding-diagnostics.
 const serverOnboarding = readRequired("src/lib/server/creator-onboarding.ts");
 const pureOnboarding = readRequired("src/lib/creator-onboarding.ts");
 const creatorLaneHelper = readRequired("src/lib/creator-lane-debug-parity.ts");
+const creatorAdminActionContract = readRequired("src/lib/server/creator-admin-action-contract.ts");
+const creatorAdminActions = readRequired("src/lib/server/creator-admin-actions.ts");
 const debugNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
 const rosterPage = readRequired("src/app/admin/roster/page.tsx");
@@ -56,6 +58,8 @@ const scorer = readRequired("scripts/agent/score-creator-lane-debug-parity.ts");
 const repairScript = readRequired("scripts/agent/repair-creator-lifecycle-history-gap.ts");
 const controlTower = readRequired("src/lib/admin-debug-control-tower.ts");
 const doc = readRequired("docs/agent-truth/creator-lane-debug-parity.md");
+const accountControlsDoc = readRequired("docs/agent-truth/admin-creator-account-controls.md");
+const actionRouteDoc = readRequired("docs/agent-truth/creator-admin-action-route.md");
 const packageJsonSource = readRequired("package.json");
 const generatedReport = readJson("agent/state/creator-lane-debug-parity.generated.json");
 const packageJson = packageJsonSource ? JSON.parse(packageJsonSource) as { scripts?: Record<string, string> } : { scripts: {} };
@@ -70,7 +74,6 @@ for (const issueKey of [
     "creator_signature_missing_evidence",
     "admin_signature_missing_evidence",
     "id_verified_missing_metadata",
-    "owner_override_missing_reason",
     "creator_settings_missing",
     "creator_restrictions_conflict",
     "sensitive_history_missing",
@@ -100,6 +103,7 @@ for (const field of [
     "lastMaterializedAtUtc",
     "materializationFreshnessState",
     "generatedAtUtc",
+    "optionalAuditNotes",
     "recommendedFix",
     "canSelfHeal",
 ]) {
@@ -119,6 +123,9 @@ for (const uiNeedle of [
     "Source snapshots loaded, but queue materializer completion was not recorded.",
     "data-creator-lane-generated-at-utc",
     "data-creator-lane-materialization-freshness",
+    "data-creator-lane-optional-audit-note-count",
+    "Optional audit notes",
+    "Low-severity context that does not block creator parity.",
     "Full source evidence stays here",
 ]) {
     requireIncludes(debugBundle, uiNeedle, "Creator Lane Debug card");
@@ -127,6 +134,7 @@ for (const uiNeedle of [
 for (const helperNeedle of [
     "CreatorLaneDebugParityReport",
     "CreatorLaneParityMismatch",
+    "CreatorLaneOptionalAuditNote",
     "getCreatorLaneMaterializationFreshnessState",
     "getCreatorLaneStatus",
     "toCreatorLaneParityMismatch",
@@ -161,6 +169,54 @@ for (const repairNeedle of [
     requireIncludes(serverOnboarding, repairNeedle, "Creator lifecycle history gap repair helper");
 }
 
+for (const optionalOverrideNeedle of [
+    "owner_override_reason_optional",
+    "reason_optional",
+    "Owner override reason is optional for admins.",
+    "Owner override is active without optional reason. Reason optional by current admin doctrine.",
+    "No action required unless you want additional audit context.",
+    "ownerOverrideReasonOptional",
+    "evidenceFields: [\"ownerOverrideActive\"]",
+]) {
+    requireIncludes(diagnostics, optionalOverrideNeedle, "Optional owner override audit note handling");
+}
+
+for (const optionalOverrideNeedle of [
+    "owner_override_reason_optional",
+    "reason_optional",
+    "ownerOverrideReasonOptional",
+]) {
+    requireIncludes(creatorLaneHelper, optionalOverrideNeedle, "Creator Lane optional audit note type");
+}
+
+requireIncludes(creatorAdminActionContract, "source.ownerOverrideReason = reason || undefined", "Owner override reason must be optional in lifecycle action contract");
+requireNotIncludes(creatorAdminActionContract, "Owner override requires a clear reason.", "Owner override lifecycle action contract");
+
+for (const requiredEvidenceNeedle of [
+    "actorMarkerPresent",
+    "actionKey",
+    "ownerOverrideActive",
+    "targetUserId",
+    "targetCreatorId",
+    "occurredAt",
+    "source: \"admin_creator_action_route\"",
+    "actorType",
+    "performedAs",
+]) {
+    requireIncludes(`${creatorAdminActions}\n${creatorAdminActionContract}`, requiredEvidenceNeedle, "Owner override required audit evidence");
+}
+
+for (const forbiddenMandatoryReasonNeedle of [
+    "owner_override_missing_reason",
+    "Owner overrides must explain what was bypassed so launch support can audit why creator access changed.",
+    "Add an owner override reason or clear the override.",
+    "missingEvidenceFields: [\"ownerOverrideReason\"]",
+]) {
+    requireNotIncludes(diagnostics, forbiddenMandatoryReasonNeedle, "Creator Lane diagnostics must not require ownerOverrideReason");
+    requireNotIncludes(creatorLaneHelper, forbiddenMandatoryReasonNeedle, "Creator Lane mismatch helper must not require ownerOverrideReason");
+    requireNotIncludes(doc, forbiddenMandatoryReasonNeedle, "Creator Lane parity doc must not require ownerOverrideReason");
+}
+
 for (const repairScriptNeedle of [
     "repairCreatorLifecycleHistoryGap",
     "--userId",
@@ -177,6 +233,8 @@ for (const scorerNeedle of [
     "generatedAtUtc",
     "lastMaterializedAtUtc: null",
     "materializationFreshnessState",
+    "optionalAuditNotes",
+    "Missing ownerOverrideReason is optional admin audit context and should not block Creator Lane parity.",
     "Source-only local refresh",
     "repair:creator-lifecycle-history",
 ]) {
@@ -218,7 +276,11 @@ for (const docNeedle of [
     "review queue exists but canonical onboarding is missing",
     "user creatorApplication projection differs from canonical onboarding",
     "legal signed without matching creator/admin signature state",
-    "owner override active without a reason",
+    "Admin and owner override reasons are optional.",
+    "Missing `ownerOverrideReason` may be shown as an optional audit note",
+    "not an error, parity failure, or launch blocker",
+    "Owner override reason is optional for admins.",
+    "No action required unless you want additional audit context.",
     "required sensitive lifecycle history event is missing",
     "recommended fix",
     "creator-lane-debug-parity.generated.json",
@@ -227,6 +289,22 @@ for (const docNeedle of [
     "ID request history restored from source state",
 ]) {
     requireIncludes(doc, docNeedle, "Creator lane debug parity doc");
+}
+
+for (const doctrineNeedle of [
+    "Admin and owner override reasons are optional.",
+    "Missing `ownerOverrideReason` may be shown as an optional audit note",
+    "actor id, action type, override active flag, target user/creator id, timestamp, source surface, and owner/admin actor marker",
+]) {
+    requireIncludes(accountControlsDoc, doctrineNeedle, "Admin creator account controls doctrine");
+}
+
+for (const doctrineNeedle of [
+    "Admin and owner override reasons are optional.",
+    "Missing `ownerOverrideReason` may be shown as an optional audit note",
+    "actor id, action type, override active flag, target creator/user id, timestamp, source surface, and owner/admin actor marker",
+]) {
+    requireIncludes(actionRouteDoc, doctrineNeedle, "Creator admin action route doctrine");
 }
 
 if (generatedReport) {
