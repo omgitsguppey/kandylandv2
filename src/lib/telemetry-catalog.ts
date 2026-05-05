@@ -226,6 +226,8 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "drop_clicked", label: "Drop clicked", category: "content", sources: DEFAULT_SERVER_SOURCES, modules: ["content"] },
   { eventName: "drop_preview_opened", label: "Drop preview opened", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
   { eventName: "drop_preview_page_viewed", label: "Drop preview page viewed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
+  { eventName: "drop_preview_creator_cover_viewed", label: "Drop preview creator cover viewed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "creator"] },
+  { eventName: "drop_preview_creator_share_clicked", label: "Drop preview creator share clicked", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "creator"] },
   { eventName: "drop_preview_cta_viewed", label: "Drop preview CTA viewed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "commerce"] },
   { eventName: "drop_preview_cta_clicked", label: "Drop preview CTA clicked", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "commerce"] },
   { eventName: "drop_preview_feedback_reacted", label: "Drop preview feedback reacted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content"] },

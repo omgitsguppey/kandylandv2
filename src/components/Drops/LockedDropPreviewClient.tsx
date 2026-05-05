@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { LockedDropPreviewView } from "@/components/Drops/LockedDropPreviewView";
+import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { dispatchActivitySync } from "@/lib/activity-sync";
@@ -34,6 +35,7 @@ const PREVIEW_UNLOCK_FLOW_KEY = "drop_preview_unlock";
 export function LockedDropPreviewClient({ drop, creator, sourceComponent = "direct_preview_route" }: LockedDropPreviewClientProps) {
     const router = useRouter();
     const { user, userProfile, loading: authLoading, setUserProfile } = useAuth();
+    const { viewAsState } = useAdminViewAs();
     const { openAuthModal, openPurchaseModal } = useUI();
     const nowMs = useNow({ intervalMs: 1_000 });
     const [unlocking, setUnlocking] = useState(false);
@@ -43,8 +45,13 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
     const ctaViewedKeysRef = useRef<Set<string>>(new Set());
     const successStateViewedRef = useRef(false);
+    const creatorCoverViewedKeyRef = useRef<string | null>(null);
     const trackIncompleteOnUnmountRef = useRef(true);
     const latestTelemetryPayloadRef = useRef<ReturnType<typeof buildPreviewTelemetryPayload> | null>(null);
+    const actorUserId = user?.uid ?? userProfile?.uid ?? null;
+    const viewAsCreatorId = viewAsState?.adminViewingAsRole === "creator" ? viewAsState.adminViewingAsUserId : null;
+    const profileCreatorId = userProfile?.role === "creator" ? userProfile.uid : null;
+    const activeCreatorId = viewAsCreatorId ?? profileCreatorId;
 
     const isUnlocked = Boolean(
         successTransactionId
@@ -57,9 +64,11 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             isAuthenticated: Boolean(user),
             isUnlocked,
             gumDropsBalance: userProfile?.gumDropsBalance,
+            actorUserId,
+            activeCreatorId,
             nowMs,
         }),
-        [drop, isUnlocked, nowMs, user, userProfile?.gumDropsBalance],
+        [activeCreatorId, actorUserId, drop, isUnlocked, nowMs, user, userProfile?.gumDropsBalance],
     );
     const socialProof = useMemo(() => getLockedDropPreviewSocialProof(drop), [drop]);
     const mediaCounts = useMemo(() => getLockedDropPreviewMediaCounts(drop), [drop]);
@@ -73,6 +82,14 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         authState: user ? "authenticated" : "guest",
     }), [creator, drop, sourceComponent, truth, user]);
     const getTelemetryPayload = useCallback(() => latestTelemetryPayloadRef.current ?? telemetryPayload, [telemetryPayload]);
+    const getCreatorPreviewTelemetryPayload = useCallback(() => ({
+        ...getTelemetryPayload(),
+        dropId: drop.id,
+        creatorId: drop.creatorId ?? drop.submittedByCreatorId ?? creator?.uid ?? "",
+        actorUserId: actorUserId ?? "",
+        sourceComponent: "drop_preview_page",
+        creatorPreviewEligible: true,
+    }), [actorUserId, creator?.uid, drop.creatorId, drop.id, drop.submittedByCreatorId, getTelemetryPayload]);
 
     trackIncompleteOnUnmountRef.current = !truth.isUnlocked && !successTransactionId;
 
@@ -103,6 +120,19 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         }, 0);
         return () => window.clearTimeout(timer);
     }, [drop.id, truth.ctaState, truth.shortfallGd]);
+
+    useEffect(() => {
+        if (!truth.creatorCoverPreviewEligible) return;
+
+        const key = `${drop.id}:${actorUserId ?? "unknown"}`;
+        if (creatorCoverViewedKeyRef.current === key) return;
+
+        creatorCoverViewedKeyRef.current = key;
+        const timer = window.setTimeout(() => {
+            trackEvent("drop_preview_creator_cover_viewed", getCreatorPreviewTelemetryPayload());
+        }, 0);
+        return () => window.clearTimeout(timer);
+    }, [actorUserId, drop.id, getCreatorPreviewTelemetryPayload, truth.creatorCoverPreviewEligible]);
 
     useEffect(() => {
         const fiveSecondTimer = window.setTimeout(() => {
@@ -184,6 +214,11 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             });
             trackEvent("wallet_opened", { ...payload, preferred_refill_gd: Math.max(1, truth.shortfallGd) });
             openPurchaseModal(Math.max(1, truth.shortfallGd));
+            return;
+        }
+
+        if (truth.ctaState === "creator_preview") {
+            toast.message("You can preview and share the cover. Full viewer access still follows unlock rules.");
             return;
         }
 
@@ -274,6 +309,40 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         router.push(truth.keepUnwrappingHref);
     };
 
+    const handleShare = async () => {
+        const sharePath = `/drops/${encodeURIComponent(drop.id)}/preview`;
+        const shareUrl = `${window.location.origin}${sharePath}`;
+        const payload = getTelemetryPayload();
+
+        if (truth.creatorCoverPreviewEligible) {
+            trackEvent("drop_preview_creator_share_clicked", getCreatorPreviewTelemetryPayload());
+        }
+
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title: drop.title,
+                    text: `Preview ${drop.title} on KandyDrops.`,
+                    url: shareUrl,
+                });
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                trackEvent("drop_share_copied", {
+                    ...payload,
+                    share_path: sharePath,
+                    creator_preview_eligible: truth.creatorCoverPreviewEligible,
+                });
+            }
+            toast.success("Share link ready.");
+        } catch (error: unknown) {
+            const errorName = typeof error === "object" && error !== null && "name" in error
+                ? String((error as { name?: unknown }).name)
+                : "";
+            if (errorName === "AbortError") return;
+            toast.error("Share link unavailable.");
+        }
+    };
+
     return (
         <LockedDropPreviewView
             drop={drop}
@@ -291,6 +360,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             onCtaClick={handleCtaClick}
             onOpenLibrary={handleOpenLibrary}
             onKeepUnwrapping={handleKeepUnwrapping}
+            onShare={handleShare}
         />
     );
 }

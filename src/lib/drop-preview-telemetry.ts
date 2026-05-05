@@ -34,6 +34,9 @@ export function buildPreviewTelemetryPayload(input: {
         safe_preview_fields_only: input.truth.safePreviewFieldsOnly,
         cta_state: input.truth.ctaState,
         cover_treatment: input.truth.coverTreatment,
+        creator_preview_eligible: input.truth.creatorCoverPreviewEligible,
+        can_preview_cover_as_creator: input.truth.canPreviewCoverAsCreator,
+        is_creator_preview: input.truth.isCreatorPreview,
         reason_codes: input.truth.reasonCodes.join("|"),
     };
 }

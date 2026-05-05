@@ -6,14 +6,15 @@ import {
     DROP_COUNTDOWN_ONE_MINUTE_MS,
 } from "@/lib/drop-countdown";
 
-export type DropPreviewCtaState = "signup" | "unwrap" | "refill" | "unlocked_success" | "unavailable";
-export type DropPreviewCoverTreatment = "clear" | "guest_protected" | "insufficient_softened" | "owned";
+export type DropPreviewCtaState = "signup" | "unwrap" | "refill" | "creator_preview" | "unlocked_success" | "unavailable";
+export type DropPreviewCoverTreatment = "clear" | "guest_protected" | "insufficient_softened" | "creator_preview" | "owned";
 export type DropPreviewUrgencyTier = "calm" | "warm" | "urgent" | "critical" | "expired";
 export type DropPreviewSocialProofType = "views" | "unwraps";
 
 export interface LockedDropPreviewSafeDrop {
     id: string;
     creatorId?: string;
+    submittedByCreatorId?: string;
     title: string;
     description: string;
     imageUrl: string;
@@ -51,6 +52,9 @@ export interface LockedDropPreviewTruth {
     shortfallGd: number;
     ctaState: DropPreviewCtaState;
     coverTreatment: DropPreviewCoverTreatment;
+    canPreviewCoverAsCreator: boolean;
+    creatorCoverPreviewEligible: boolean;
+    isCreatorPreview: boolean;
     urgencyTier: DropPreviewUrgencyTier;
     socialProofType: DropPreviewSocialProofType;
     socialProofCount: number;
@@ -64,6 +68,7 @@ export function toLockedDropPreviewSafeDrop(drop: Drop): LockedDropPreviewSafeDr
     return {
         id: drop.id,
         creatorId: drop.creatorId,
+        submittedByCreatorId: drop.submittedByCreatorId,
         title: drop.title,
         description: drop.description,
         imageUrl: drop.imageUrl,
@@ -146,12 +151,16 @@ export function resolveLockedDropPreviewTruth({
     isAuthenticated,
     isUnlocked,
     gumDropsBalance,
+    actorUserId,
+    activeCreatorId,
     nowMs = Date.now(),
 }: {
     drop: LockedDropPreviewSafeDrop;
     isAuthenticated: boolean;
     isUnlocked: boolean;
     gumDropsBalance?: number | null;
+    actorUserId?: string | null;
+    activeCreatorId?: string | null;
     nowMs?: number;
 }): LockedDropPreviewTruth {
     const unlockCost = normalizeGd(drop.unlockCost);
@@ -164,6 +173,11 @@ export function resolveLockedDropPreviewTruth({
     const isActive = !isExpired && !isScheduled && drop.status === "active";
     const urgencyTier = isExpired ? "expired" : resolveDropPreviewUrgencyTier(drop.validUntil, nowMs);
     const socialProof = getLockedDropPreviewSocialProof(drop);
+    const creatorCoverPreviewEligible = isAuthenticated && isDropCreatorPreviewEligible({
+        drop,
+        actorUserId,
+        activeCreatorId,
+    });
     const reasonCodes: string[] = [];
 
     if (isUnlocked) {
@@ -179,6 +193,7 @@ export function resolveLockedDropPreviewTruth({
             shortfallGd: 0,
             ctaState: "unlocked_success",
             coverTreatment: "owned",
+            creatorCoverPreviewEligible,
             urgencyTier,
             socialProof,
             reasonCodes,
@@ -198,6 +213,7 @@ export function resolveLockedDropPreviewTruth({
             shortfallGd: unlockCost,
             ctaState: "unavailable",
             coverTreatment: "clear",
+            creatorCoverPreviewEligible,
             urgencyTier,
             socialProof,
             reasonCodes,
@@ -217,6 +233,7 @@ export function resolveLockedDropPreviewTruth({
             shortfallGd: unlockCost,
             ctaState: "signup",
             coverTreatment: "guest_protected",
+            creatorCoverPreviewEligible: false,
             urgencyTier,
             socialProof,
             reasonCodes,
@@ -231,17 +248,26 @@ export function resolveLockedDropPreviewTruth({
         reasonCodes.push("authenticated_can_afford");
     }
 
+    if (creatorCoverPreviewEligible) {
+        reasonCodes.push("creator_cover_preview");
+    }
+
+    const canUnwrap = balanceKnown && shortfallGd === 0;
+    const isCreatorPreview = creatorCoverPreviewEligible && !canUnwrap;
+
     return buildTruth({
         drop,
         isGuest: false,
         isUnlocked: false,
         isExpired,
         isActive,
-        canAfford: balanceKnown && shortfallGd === 0,
+        canAfford: canUnwrap,
         balanceGd,
         shortfallGd,
-        ctaState: balanceKnown && shortfallGd === 0 ? "unwrap" : "refill",
-        coverTreatment: balanceKnown && shortfallGd > 0 ? "insufficient_softened" : "clear",
+        ctaState: canUnwrap ? "unwrap" : creatorCoverPreviewEligible ? "creator_preview" : "refill",
+        coverTreatment: creatorCoverPreviewEligible ? "creator_preview" : balanceKnown && shortfallGd > 0 ? "insufficient_softened" : "clear",
+        creatorCoverPreviewEligible,
+        isCreatorPreview,
         urgencyTier,
         socialProof,
         reasonCodes,
@@ -259,6 +285,8 @@ function buildTruth(input: {
     shortfallGd: number;
     ctaState: DropPreviewCtaState;
     coverTreatment: DropPreviewCoverTreatment;
+    creatorCoverPreviewEligible?: boolean;
+    isCreatorPreview?: boolean;
     urgencyTier: DropPreviewUrgencyTier;
     socialProof: ReturnType<typeof getLockedDropPreviewSocialProof>;
     reasonCodes: string[];
@@ -274,6 +302,9 @@ function buildTruth(input: {
         shortfallGd: input.shortfallGd,
         ctaState: input.ctaState,
         coverTreatment: input.coverTreatment,
+        canPreviewCoverAsCreator: input.creatorCoverPreviewEligible === true,
+        creatorCoverPreviewEligible: input.creatorCoverPreviewEligible === true,
+        isCreatorPreview: input.isCreatorPreview === true,
         urgencyTier: input.urgencyTier,
         socialProofType: input.socialProof.type,
         socialProofCount: input.socialProof.count,
@@ -291,4 +322,30 @@ function normalizeGd(value: unknown) {
     }
 
     return Math.max(0, Math.floor(numeric));
+}
+
+function isDropCreatorPreviewEligible(input: {
+    drop: LockedDropPreviewSafeDrop;
+    actorUserId?: string | null;
+    activeCreatorId?: string | null;
+}) {
+    const ownerIds = new Set(
+        [input.drop.creatorId, input.drop.submittedByCreatorId]
+            .map(readIdentity)
+            .filter((value): value is string => Boolean(value)),
+    );
+    if (ownerIds.size === 0) {
+        return false;
+    }
+
+    const actorUserId = readIdentity(input.actorUserId);
+    const activeCreatorId = readIdentity(input.activeCreatorId);
+    return Boolean(
+        (actorUserId && ownerIds.has(actorUserId))
+        || (activeCreatorId && ownerIds.has(activeCreatorId)),
+    );
+}
+
+function readIdentity(value: unknown) {
+    return typeof value === "string" && value.trim().length > 0 ? value.trim() : "";
 }

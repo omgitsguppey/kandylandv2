@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { toLockedDropPreviewSafeDrop, resolveLockedDropPreviewTruth } from "@/lib/locked-drop-preview-truth";
@@ -7,6 +9,7 @@ import type { Drop } from "@/types/db";
 const lockedDrop = {
   id: "drop_locked_1",
   creatorId: "creator_1",
+  submittedByCreatorId: "creator_1",
   title: "Locked Drop",
   description: "Safe public description",
   imageUrl: "https://cdn.example.com/cover.jpg",
@@ -73,5 +76,81 @@ describe("locked content protection truth", () => {
     expect(truth.safePreviewFieldsOnly).toBe(true);
     expect(truth.ctaState).toBe("unlocked_success");
     expect(truth.coverTreatment).toBe("owned");
+  });
+
+  it("allows creators to preview their own cover without granting full content entitlement", () => {
+    const safeDrop = toLockedDropPreviewSafeDrop(sanitizeDropForClient(lockedDrop));
+    const truth = resolveLockedDropPreviewTruth({
+      drop: safeDrop,
+      isAuthenticated: true,
+      isUnlocked: false,
+      gumDropsBalance: 0,
+      actorUserId: "creator_1",
+      nowMs: Date.now(),
+    });
+
+    expect(truth.safePreviewFieldsOnly).toBe(true);
+    expect(truth.isUnlocked).toBe(false);
+    expect(truth.canPreviewCoverAsCreator).toBe(true);
+    expect(truth.creatorCoverPreviewEligible).toBe(true);
+    expect(truth.isCreatorPreview).toBe(true);
+    expect(truth.ctaState).toBe("creator_preview");
+    expect(truth.coverTreatment).toBe("creator_preview");
+    expect(truth.reasonCodes).toContain("creator_cover_preview");
+  });
+
+  it("keeps insufficient non-owner previews blurred and refill-gated", () => {
+    const safeDrop = toLockedDropPreviewSafeDrop(sanitizeDropForClient(lockedDrop));
+    const truth = resolveLockedDropPreviewTruth({
+      drop: safeDrop,
+      isAuthenticated: true,
+      isUnlocked: false,
+      gumDropsBalance: 0,
+      actorUserId: "fan_1",
+      nowMs: Date.now(),
+    });
+
+    expect(truth.creatorCoverPreviewEligible).toBe(false);
+    expect(truth.ctaState).toBe("refill");
+    expect(truth.coverTreatment).toBe("insufficient_softened");
+  });
+
+  it("treats matching active creator context as cover-preview eligible", () => {
+    const safeDrop = toLockedDropPreviewSafeDrop(sanitizeDropForClient(lockedDrop));
+    const truth = resolveLockedDropPreviewTruth({
+      drop: safeDrop,
+      isAuthenticated: true,
+      isUnlocked: false,
+      gumDropsBalance: 0,
+      actorUserId: "operator_1",
+      activeCreatorId: "creator_1",
+      nowMs: Date.now(),
+    });
+
+    expect(truth.creatorCoverPreviewEligible).toBe(true);
+    expect(truth.coverTreatment).toBe("creator_preview");
+    expect(truth.isUnlocked).toBe(false);
+  });
+
+  it("keeps the drop preview cover bounded and square without changing grid cards", () => {
+    const viewSource = readFileSync(join(process.cwd(), "src/components/Drops/LockedDropPreviewView.tsx"), "utf8");
+    const imagePolicySource = readFileSync(join(process.cwd(), "src/lib/image-loading-policy.ts"), "utf8");
+
+    expect(viewSource).toContain("aspect-square");
+    expect(viewSource).toContain("w-[min(64vw,280px)]");
+    expect(viewSource).toContain("sm:w-[min(52vw,320px)]");
+    expect(viewSource).toContain("data-drop-preview-cover-aspect=\"1:1\"");
+    expect(imagePolicySource).toContain("const DROP_GRID_STANDARD_SIZES");
+    expect(imagePolicySource).toContain("const DROP_PREVIEW_SIZES = \"(max-width: 640px) 64vw, 320px\"");
+  });
+
+  it("wires creator preview cover and share telemetry from the preview page", () => {
+    const clientSource = readFileSync(join(process.cwd(), "src/components/Drops/LockedDropPreviewClient.tsx"), "utf8");
+    const viewSource = readFileSync(join(process.cwd(), "src/components/Drops/LockedDropPreviewView.tsx"), "utf8");
+
+    expect(clientSource).toContain("drop_preview_creator_cover_viewed");
+    expect(clientSource).toContain("drop_preview_creator_share_clicked");
+    expect(clientSource).toContain("sourceComponent: \"drop_preview_page\"");
+    expect(viewSource).toContain("data-drop-preview-share-button=\"true\"");
   });
 });

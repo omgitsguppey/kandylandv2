@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Clock, Eye, Image as ImageIcon, Loader2, Lock, Unlock, Wallet } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Eye, Image as ImageIcon, Loader2, Lock, Share2, Unlock, Wallet } from "lucide-react";
 
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
@@ -30,6 +30,7 @@ interface LockedDropPreviewViewProps {
     onCtaClick: () => void;
     onOpenLibrary: () => void;
     onKeepUnwrapping: () => void;
+    onShare: () => void;
 }
 
 const FEEDBACK_REACTIONS = [
@@ -56,6 +57,7 @@ export function LockedDropPreviewView({
     onCtaClick,
     onOpenLibrary,
     onKeepUnwrapping,
+    onShare,
 }: LockedDropPreviewViewProps) {
     return (
         <div
@@ -64,6 +66,7 @@ export function LockedDropPreviewView({
             data-drop-preview-urgency-tier={truth.urgencyTier}
             data-drop-preview-cta-state={truth.ctaState}
             data-drop-preview-social-proof-type={truth.socialProofType}
+            data-drop-preview-creator-cover-eligible={truth.creatorCoverPreviewEligible}
             data-safe-preview-fields-only="true"
         >
             <div className="mb-3 flex items-center justify-between gap-3">
@@ -78,7 +81,7 @@ export function LockedDropPreviewView({
                 <CoverHero drop={drop} truth={truth} mediaCounts={mediaCounts} timerLabel={timerLabel} timerFullLabel={timerFullLabel} />
 
                 <div className="space-y-4">
-                    <SummaryPanel drop={drop} creator={creator} socialProof={socialProof} />
+                    <SummaryPanel drop={drop} creator={creator} socialProof={socialProof} truth={truth} onShare={onShare} />
                     <UrgencyBand truth={truth} timerLabel={timerLabel} />
 
                     {truth.isUnlocked ? (
@@ -107,8 +110,8 @@ function CoverHero({ drop, truth, mediaCounts, timerLabel, timerFullLabel }: Pic
     const imagePolicy = getImageLoadingPolicy("drop_preview", { isLcpCandidate: true });
 
     return (
-        <div className="relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-zinc-950 shadow-[0_24px_80px_rgba(0,0,0,0.42)] md:rounded-[2rem]" data-drop-preview-cover-treatment={truth.coverTreatment}>
-            <div className="relative aspect-[4/5] min-h-[21rem] w-full">
+        <div className="relative mx-auto w-[min(64vw,280px)] overflow-hidden rounded-[1.6rem] border border-white/10 bg-zinc-950 shadow-[0_24px_80px_rgba(0,0,0,0.42)] sm:w-[min(52vw,320px)] md:max-w-[320px] md:rounded-[2rem]" data-drop-preview-cover-treatment={truth.coverTreatment} data-drop-preview-cover-aspect="1:1">
+            <div className="relative aspect-square w-full">
                 <Image
                     src={drop.imageUrl || "/placeholder.jpg"}
                     alt={drop.title}
@@ -126,26 +129,32 @@ function CoverHero({ drop, truth, mediaCounts, timerLabel, timerFullLabel }: Pic
                     <PreviewChip label={drop.type === "promo" ? "Drop" : "Limited Release"} />
                     <PreviewTimerChip urgencyTier={truth.urgencyTier} label={timerLabel} fullLabel={timerFullLabel} />
                 </div>
-                <div className="absolute bottom-4 left-4 right-4 space-y-3">
+                <div className="absolute bottom-3 left-3 right-3 space-y-2">
                     <PreviewFileChip images={mediaCounts.images} videos={mediaCounts.videos} />
-                    <TitleMarquee title={drop.title} delaySeed={drop.id.charCodeAt(0) % 6} className="text-3xl font-black leading-[1.02] tracking-tight text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.55)] md:text-5xl" />
+                    <TitleMarquee title={drop.title} delaySeed={drop.id.charCodeAt(0) % 6} className="text-xl font-black leading-[1.04] tracking-tight text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.55)] md:text-2xl" />
                 </div>
             </div>
         </div>
     );
 }
 
-function SummaryPanel({ drop, creator, socialProof }: Pick<LockedDropPreviewViewProps, "drop" | "creator" | "socialProof">) {
+function SummaryPanel({ drop, creator, socialProof, truth, onShare }: Pick<LockedDropPreviewViewProps, "drop" | "creator" | "socialProof" | "truth" | "onShare">) {
     return (
         <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.035] p-4 backdrop-blur-md md:rounded-[1.6rem] md:p-5">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-purple">{creator?.displayName ?? "KandyDrops Creator"}</p>
                     {creator?.username ? <p className="mt-1 text-xs font-semibold text-gray-400">@{creator.username}</p> : null}
                 </div>
-                <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-bold text-white/80" data-drop-preview-social-proof-type={socialProof.type}>
-                    {socialProof.type === "unwraps" ? <Unlock className="h-3.5 w-3.5 text-brand-purple" /> : <Eye className="h-3.5 w-3.5 text-brand-purple" />}
-                    {socialProof.label}
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                    <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-bold text-white/80" data-drop-preview-social-proof-type={socialProof.type}>
+                        {socialProof.type === "unwraps" ? <Unlock className="h-3.5 w-3.5 text-brand-purple" /> : <Eye className="h-3.5 w-3.5 text-brand-purple" />}
+                        {socialProof.label}
+                    </div>
+                    <button type="button" onClick={onShare} className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-brand-purple/35 bg-brand-purple/12 px-3 text-xs font-black text-[#efe8ff] active:scale-[0.98]" data-drop-preview-share-button="true" data-drop-preview-creator-share-eligible={truth.creatorCoverPreviewEligible}>
+                        <Share2 className="h-3.5 w-3.5" />
+                        Share
+                    </button>
                 </div>
             </div>
             <p className="mt-4 text-sm leading-6 text-gray-300 md:text-base">{drop.description}</p>
@@ -212,6 +221,7 @@ function StickyPreviewCta({ truth, authLoading, unlocking, confirming, unlockCos
             <div className="mb-2 flex items-center justify-between gap-3 text-xs">
                 <span className="font-bold text-gray-300">{unlockCost.toLocaleString()} GD to unwrap</span>
                 {truth.ctaState === "refill" ? <span className="font-bold text-brand-purple">{truth.shortfallGd.toLocaleString()} GD short</span> : null}
+                {truth.ctaState === "creator_preview" ? <span className="font-bold text-brand-purple">Cover preview</span> : null}
             </div>
             <button type="button" onClick={onCtaClick} disabled={authLoading || unlocking || truth.ctaState === "unavailable"} className={cn("flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-[1rem] border px-4 py-3 text-sm font-black text-white shadow-[0_0_22px_rgba(164,118,255,0.22)] transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60", truth.urgencyTier === "critical" ? "border-fuchsia-300/60 bg-gradient-to-r from-fuchsia-500 via-brand-purple to-purple-500 motion-safe:animate-pulse" : "border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500")}>
                 <CtaIcon truth={truth} unlocking={unlocking} />
@@ -224,6 +234,7 @@ function StickyPreviewCta({ truth, authLoading, unlocking, confirming, unlockCos
 function CtaIcon({ truth, unlocking }: { truth: LockedDropPreviewTruth; unlocking: boolean }) {
     if (unlocking) return <Loader2 className="h-4 w-4 animate-spin" />;
     if (truth.ctaState === "refill") return <Wallet className="h-4 w-4" />;
+    if (truth.ctaState === "creator_preview") return <Eye className="h-4 w-4" />;
     return <Lock className="h-4 w-4" />;
 }
 
@@ -231,6 +242,7 @@ function getCtaLabel({ truth, authLoading, unlocking, confirming, unlockCost }: 
     if (authLoading) return "Checking access";
     if (unlocking) return "Unwrapping...";
     if (truth.ctaState === "signup") return "Create Profile";
+    if (truth.ctaState === "creator_preview") return "Full access follows unlock rules";
     if (truth.ctaState === "refill") return `Need ${truth.shortfallGd.toLocaleString()} more GD`;
     if (truth.ctaState === "unavailable") return "Unavailable";
     if (confirming) return `Confirm ${unlockCost.toLocaleString()} GD?`;
