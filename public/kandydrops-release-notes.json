@@ -1,9 +1,440 @@
 {
-  "currentVersion": "1.2.0",
+  "currentVersion": "1.16.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T07:10:40.361Z",
-  "lastCommitSha": "a30bea630ee0fdc8768333e8a03a9ab4b1bb44bd",
+  "generatedAt": "2026-05-05T12:02:57.969Z",
+  "lastCommitSha": "408fc0dcd0a7affd9243dd591c6d9b670c8e3d1f",
   "notes": [
+    {
+      "version": "1.16.0",
+      "previousVersion": "1.15.0",
+      "commitSha": "408fc0dcd0a7affd9243dd591c6d9b670c8e3d1f",
+      "commitTitle": "feat(experiments): add behavioral ranking holdout validation",
+      "committedAt": "2026-05-05T06:55:18-05:00",
+      "generatedAt": "2026-05-05T12:02:57.969Z",
+      "diffStats": {
+        "rawAdditions": 884,
+        "rawDeletions": 4,
+        "rawChangeCount": 888,
+        "additions": 884,
+        "deletions": 4,
+        "effectiveAdditions": 884,
+        "effectiveDeletions": 4,
+        "changedFiles": 10,
+        "effectiveChangeCount": 888,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.15.0",
+      "previousVersion": "1.14.0",
+      "commitSha": "6a7e79c065680ef4ea03cbb83651b1d781750ce4",
+      "commitTitle": "feat(recommendations): add integrity demotion layer",
+      "committedAt": "2026-05-05T06:40:11-05:00",
+      "generatedAt": "2026-05-05T12:02:57.633Z",
+      "diffStats": {
+        "rawAdditions": 626,
+        "rawDeletions": 4,
+        "rawChangeCount": 630,
+        "additions": 626,
+        "deletions": 4,
+        "effectiveAdditions": 626,
+        "effectiveDeletions": 4,
+        "changedFiles": 10,
+        "effectiveChangeCount": 630,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.14.0",
+      "previousVersion": "1.13.0",
+      "commitSha": "f7258668a3b29e5b29f970664f2df5bd8db43463",
+      "commitTitle": "feat(creator): add creator supply quality score",
+      "committedAt": "2026-05-05T06:33:36-05:00",
+      "generatedAt": "2026-05-05T12:02:57.294Z",
+      "diffStats": {
+        "rawAdditions": 724,
+        "rawDeletions": 3,
+        "rawChangeCount": 727,
+        "additions": 724,
+        "deletions": 3,
+        "effectiveAdditions": 724,
+        "effectiveDeletions": 3,
+        "changedFiles": 15,
+        "effectiveChangeCount": 727,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.13.0",
+      "previousVersion": "1.12.0",
+      "commitSha": "1420446301c40159345fb5aa96a4e268ef32b942",
+      "commitTitle": "feat(recommendations): add cold-start exploration budget",
+      "committedAt": "2026-05-05T06:20:34-05:00",
+      "generatedAt": "2026-05-05T12:02:56.927Z",
+      "diffStats": {
+        "rawAdditions": 873,
+        "rawDeletions": 32,
+        "rawChangeCount": 905,
+        "additions": 873,
+        "deletions": 32,
+        "effectiveAdditions": 873,
+        "effectiveDeletions": 32,
+        "changedFiles": 11,
+        "effectiveChangeCount": 905,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.12.0",
+      "previousVersion": "1.11.0",
+      "commitSha": "b441e04bd5b8578a3ac2c04543f6aee23efe25d3",
+      "commitTitle": "feat(behavioral): add content satisfaction signal",
+      "committedAt": "2026-05-05T06:04:48-05:00",
+      "generatedAt": "2026-05-05T12:02:56.598Z",
+      "diffStats": {
+        "rawAdditions": 1154,
+        "rawDeletions": 27,
+        "rawChangeCount": 1181,
+        "additions": 1154,
+        "deletions": 27,
+        "effectiveAdditions": 1142,
+        "effectiveDeletions": 17,
+        "changedFiles": 20,
+        "effectiveChangeCount": 1159,
+        "excludedGeneratedChangeCount": 22
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.11.0",
+      "previousVersion": "1.10.0",
+      "commitSha": "5abf2801ef0bd013b619fa999e06378507644f27",
+      "commitTitle": "feat(notifications): add quality ranking and fatigue policy",
+      "committedAt": "2026-05-05T05:35:51-05:00",
+      "generatedAt": "2026-05-05T12:02:56.284Z",
+      "diffStats": {
+        "rawAdditions": 939,
+        "rawDeletions": 6,
+        "rawChangeCount": 945,
+        "additions": 939,
+        "deletions": 6,
+        "effectiveAdditions": 939,
+        "effectiveDeletions": 6,
+        "changedFiles": 14,
+        "effectiveChangeCount": 945,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.10.0",
+      "previousVersion": "1.9.0",
+      "commitSha": "9af46b5e1a013b06f04628804a69952006234322",
+      "commitTitle": "feat(analytics): add drop momentum scoring",
+      "committedAt": "2026-05-05T05:18:00-05:00",
+      "generatedAt": "2026-05-05T12:02:55.972Z",
+      "diffStats": {
+        "rawAdditions": 770,
+        "rawDeletions": 8,
+        "rawChangeCount": 778,
+        "additions": 770,
+        "deletions": 8,
+        "effectiveAdditions": 770,
+        "effectiveDeletions": 8,
+        "changedFiles": 16,
+        "effectiveChangeCount": 778,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.9.0",
+      "previousVersion": "1.8.0",
+      "commitSha": "edb76d0098fe6c91c9b59c41f750f42c11ca79cf",
+      "commitTitle": "feat(recommendations): add diversity reranking rules",
+      "committedAt": "2026-05-05T04:57:10-05:00",
+      "generatedAt": "2026-05-05T12:02:55.668Z",
+      "diffStats": {
+        "rawAdditions": 596,
+        "rawDeletions": 8,
+        "rawChangeCount": 604,
+        "additions": 596,
+        "deletions": 8,
+        "effectiveAdditions": 596,
+        "effectiveDeletions": 8,
+        "changedFiles": 8,
+        "effectiveChangeCount": 604,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.8.0",
+      "previousVersion": "1.7.0",
+      "commitSha": "2793af1c20a351ce206efbb5afc0768646898e03",
+      "commitTitle": "feat(analytics): add search intent ranking signal",
+      "committedAt": "2026-05-05T04:41:39-05:00",
+      "generatedAt": "2026-05-05T12:02:55.384Z",
+      "diffStats": {
+        "rawAdditions": 882,
+        "rawDeletions": 9,
+        "rawChangeCount": 891,
+        "additions": 882,
+        "deletions": 9,
+        "effectiveAdditions": 882,
+        "effectiveDeletions": 9,
+        "changedFiles": 20,
+        "effectiveChangeCount": 891,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.7.0",
+      "previousVersion": "1.6.0",
+      "commitSha": "31cea2053114d543694e12d7f424a0d536e2b53c",
+      "commitTitle": "feat(recommendations): add negative preference suppression",
+      "committedAt": "2026-05-05T04:23:16-05:00",
+      "generatedAt": "2026-05-05T12:02:55.070Z",
+      "diffStats": {
+        "rawAdditions": 991,
+        "rawDeletions": 25,
+        "rawChangeCount": 1016,
+        "additions": 991,
+        "deletions": 25,
+        "effectiveAdditions": 991,
+        "effectiveDeletions": 25,
+        "changedFiles": 20,
+        "effectiveChangeCount": 1016,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.6.0",
+      "previousVersion": "1.5.0",
+      "commitSha": "d3fb8d344ddd848da19d9276370375171a5d86b5",
+      "commitTitle": "feat(analytics): calibrate behavioral math to product goals",
+      "committedAt": "2026-05-05T03:48:49-05:00",
+      "generatedAt": "2026-05-05T12:02:54.757Z",
+      "diffStats": {
+        "rawAdditions": 1487,
+        "rawDeletions": 126,
+        "rawChangeCount": 1613,
+        "additions": 1487,
+        "deletions": 126,
+        "effectiveAdditions": 1434,
+        "effectiveDeletions": 126,
+        "changedFiles": 27,
+        "effectiveChangeCount": 1560,
+        "excludedGeneratedChangeCount": 53
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.5.0",
+      "previousVersion": "1.4.0",
+      "commitSha": "96aaa606bb6d732651f64ad69a0efc9318b0bb70",
+      "commitTitle": "feat(cost): add global cost surface guardrails",
+      "committedAt": "2026-05-05T03:15:29-05:00",
+      "generatedAt": "2026-05-05T12:02:54.377Z",
+      "diffStats": {
+        "rawAdditions": 3377,
+        "rawDeletions": 11,
+        "rawChangeCount": 3388,
+        "additions": 3377,
+        "deletions": 11,
+        "effectiveAdditions": 1759,
+        "effectiveDeletions": 11,
+        "changedFiles": 17,
+        "effectiveChangeCount": 1770,
+        "excludedGeneratedChangeCount": 1618
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.4.0",
+      "previousVersion": "1.3.0",
+      "commitSha": "b5e3656bcfb1f99402cee8b3fa3cc3b83fd47ec3",
+      "commitTitle": "feat(agent): optimize doctrine retrieval context",
+      "committedAt": "2026-05-05T02:51:59-05:00",
+      "generatedAt": "2026-05-05T12:02:54.007Z",
+      "diffStats": {
+        "rawAdditions": 1919,
+        "rawDeletions": 17,
+        "rawChangeCount": 1936,
+        "additions": 1919,
+        "deletions": 17,
+        "effectiveAdditions": 1646,
+        "effectiveDeletions": 17,
+        "changedFiles": 20,
+        "effectiveChangeCount": 1663,
+        "excludedGeneratedChangeCount": 273
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Updated internal product guidance so future fixes stay more consistent.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.3.0",
+      "previousVersion": "1.2.0",
+      "commitSha": "126b39356ce3e0100239904c8f4777cc11dffc95",
+      "commitTitle": "docs(doctrine): split surface UI and server truth hierarchy",
+      "committedAt": "2026-05-05T02:26:45-05:00",
+      "generatedAt": "2026-05-05T12:02:53.651Z",
+      "diffStats": {
+        "rawAdditions": 1095,
+        "rawDeletions": 10,
+        "rawChangeCount": 1105,
+        "additions": 1095,
+        "deletions": 10,
+        "effectiveAdditions": 1095,
+        "effectiveDeletions": 10,
+        "changedFiles": 19,
+        "effectiveChangeCount": 1105,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Internal",
+      "userFacingTitle": "Updated internal product guidance so future fixes stay more consistent.",
+      "bullets": [
+        "Improved internal beta reliability without changing your core flows."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.2.0",
       "previousVersion": "1.1.0",

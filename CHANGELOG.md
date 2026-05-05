@@ -2,6 +2,104 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.16.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.15.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.14.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.13.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.12.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.11.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.10.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.9.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.8.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.7.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.6.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.5.0] - 2026-05-05
+
+### Added
+
+- Updated KandyDrops with a small beta improvement.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.4.0] - 2026-05-05
+
+### Added
+
+- Updated internal product guidance so future fixes stay more consistent.
+- Kept the update focused on user-visible polish and reliability.
+
+## [1.3.0] - 2026-05-05
+
+### Internal
+
+- Updated internal product guidance so future fixes stay more consistent.
+- Improved internal beta reliability without changing your core flows.
+
 ## [1.2.0] - 2026-05-05
 
 ### Fixed
