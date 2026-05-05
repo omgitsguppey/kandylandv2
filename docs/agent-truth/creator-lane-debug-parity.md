@@ -33,6 +33,8 @@ Admin Debug owns the full technical evidence for these checks:
 - CreatorSettings enabled lane conflicts with CreatorRestrictions pause
 - required sensitive lifecycle history event is missing
 
+The canonical ID request lifecycle event is `id_requested`. If a creator source state has `idVerificationStatus: "id_requested"`, Creator Lane parity must require a matching `id_requested` history entry unless a future canonical event migration explicitly supersedes it.
+
 ## Roster Warnings
 
 Admin Roster is the decision queue. It must show only short operator warnings:
@@ -94,3 +96,21 @@ Human review is required for evidence-sensitive issues:
 - owner override without reason
 - role/approval disagreement before creator access changes
 - missing history for sensitive lifecycle actions
+
+## History Gap Repair
+
+Do not blindly insert missing audit history. First verify the source state in Admin Debug or a dry run:
+
+```bash
+npm run repair:creator-lifecycle-history -- --userId FuJn6cyZi4UxZgN2TaJEwwkKUHz1 --event id_requested --sourceOnboardingUpdatedAt 1775425067822
+```
+
+Only after verifying the canonical creator onboarding source still has `idVerificationStatus: "id_requested"` should an operator apply the repair:
+
+```bash
+npm run repair:creator-lifecycle-history -- --userId FuJn6cyZi4UxZgN2TaJEwwkKUHz1 --event id_requested --sourceOnboardingUpdatedAt 1775425067822 --apply
+```
+
+The repair writes a provenance-marked history entry only. It uses actor `system_debug_repair`, role `system`, label `Debug parity repair`, summary `ID request history restored from source state`, and metadata including `repairReason: "missing_history_event"`, `missingHistoryEvent: "id_requested"`, `sourceStatus: "id_requested"`, `provenance: "creator_lane_debug_parity"`, `repairedAtUtc`, and `doesNotChangeCreatorState: true`.
+
+The repair must not change approval status, user role, ID verification status, legal/signature status, creator settings, restrictions, queue bucket, or queue parity. If `queueParityOk` is still false, that remains a separate visible Creator Lane issue.

@@ -277,6 +277,123 @@ export function recordCreatorOnboardingHistoryEntries(
     });
 }
 
+export type CreatorLifecycleHistoryGapRepairResult = {
+    success: true;
+    userId: string;
+    eventType: Extract<CreatorOnboardingHistoryEventType, "id_requested">;
+    dryRun: boolean;
+    historyWritten: boolean;
+    alreadyPresent: boolean;
+    historyDocId: string;
+    sourceStatus: "id_requested";
+    originalSourceTimestamp: number;
+    repairedAtUtc: string;
+    approvalStatus: CreatorOnboardingCanonicalRecord["approvalStatus"];
+    queueBucket: string | null;
+    queueParityOk: boolean | null;
+    doesNotChangeCreatorState: true;
+};
+
+export async function repairCreatorLifecycleHistoryGap(input: {
+    userId: string;
+    missingHistoryEvent: Extract<CreatorOnboardingHistoryEventType, "id_requested">;
+    sourceOnboardingUpdatedAt?: number | null;
+    dryRun?: boolean;
+    nowMs?: number;
+}): Promise<CreatorLifecycleHistoryGapRepairResult> {
+    if (!adminDb) {
+        throw new Error("Database not available");
+    }
+    if (input.missingHistoryEvent !== "id_requested") {
+        throw new Error("Only the canonical id_requested history repair is supported by this narrow debug parity path.");
+    }
+
+    const userId = readString(input.userId);
+    if (!userId) {
+        throw new Error("Creator user ID is required.");
+    }
+
+    const nowMs = typeof input.nowMs === "number" && Number.isFinite(input.nowMs)
+        ? Math.trunc(input.nowMs)
+        : Date.now();
+    const repairedAtUtc = new Date(nowMs).toISOString();
+    const onboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId);
+    const queueRef = adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).doc(userId);
+    const historyDocId = "debug_parity_repair_id_requested";
+    const historyRef = onboardingRef.collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).doc(historyDocId);
+
+    return adminDb.runTransaction(async (transaction) => {
+        const [onboardingSnap, queueSnap, existingHistorySnap] = await transaction.getAll(onboardingRef, queueRef, historyRef);
+        const canonical = normalizeCreatorOnboardingCanonicalRecord(onboardingSnap.data());
+        if (!canonical) {
+            throw new Error("Canonical creator onboarding source is missing; history repair requires source evidence first.");
+        }
+        if (canonical.idVerificationStatus !== "id_requested") {
+            throw new Error(`ID request history repair requires idVerificationStatus=id_requested; current status is ${canonical.idVerificationStatus}.`);
+        }
+
+        const queueData = queueSnap.exists ? queueSnap.data() as Record<string, unknown> : {};
+        const sourceOnboardingUpdatedAt = readOptionalTimestamp(input.sourceOnboardingUpdatedAt)
+            ?? canonical.idVerificationRequestedAt
+            ?? canonical.updatedAt
+            ?? nowMs;
+        const result: CreatorLifecycleHistoryGapRepairResult = {
+            success: true,
+            userId,
+            eventType: "id_requested",
+            dryRun: input.dryRun !== false,
+            historyWritten: false,
+            alreadyPresent: existingHistorySnap.exists,
+            historyDocId,
+            sourceStatus: "id_requested",
+            originalSourceTimestamp: sourceOnboardingUpdatedAt,
+            repairedAtUtc,
+            approvalStatus: canonical.approvalStatus,
+            queueBucket: readString(queueData.queueBucket) || null,
+            queueParityOk: typeof queueData.queueParityOk === "boolean" ? queueData.queueParityOk : null,
+            doesNotChangeCreatorState: true,
+        };
+
+        if (result.dryRun || existingHistorySnap.exists) {
+            return result;
+        }
+
+        transaction.set(historyRef, buildCreatorOnboardingHistoryEntry({
+            eventType: "id_requested",
+            actor: {
+                id: "system_debug_repair",
+                role: "system",
+                label: "Debug parity repair",
+            },
+            timestamp: sourceOnboardingUpdatedAt,
+            summary: "ID request history restored from source state",
+            detail: "Creator source state had idVerificationStatus=id_requested but history was missing the matching lifecycle event.",
+            targetUserId: userId,
+            targetCreatorId: userId,
+            metadata: {
+                creatorId: userId,
+                userId,
+                repairReason: "missing_history_event",
+                missingHistoryEvent: "id_requested",
+                sourceStatus: "id_requested",
+                sourceOnboardingUpdatedAt,
+                approvalStatus: canonical.approvalStatus,
+                queueBucket: result.queueBucket,
+                queueParityOk: result.queueParityOk,
+                provenance: "creator_lane_debug_parity",
+                repairedAtUtc,
+                originalSourceTimestamp: sourceOnboardingUpdatedAt,
+                doesNotChangeCreatorState: true,
+            },
+        }), { merge: true });
+
+        return {
+            ...result,
+            historyWritten: true,
+        };
+    });
+}
+
 export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
     before: CreatorOnboardingCanonicalRecord;
     after: CreatorOnboardingCanonicalRecord;

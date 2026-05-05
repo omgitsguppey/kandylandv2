@@ -45,12 +45,15 @@ function isIsoUtc(value: unknown) {
 }
 
 const diagnostics = readRequired("src/lib/server/creator-onboarding-diagnostics.ts");
+const serverOnboarding = readRequired("src/lib/server/creator-onboarding.ts");
+const pureOnboarding = readRequired("src/lib/creator-onboarding.ts");
 const creatorLaneHelper = readRequired("src/lib/creator-lane-debug-parity.ts");
 const debugNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
 const rosterPage = readRequired("src/app/admin/roster/page.tsx");
 const rosterRoute = readRequired("src/app/api/admin/roster/route.ts");
 const scorer = readRequired("scripts/agent/score-creator-lane-debug-parity.ts");
+const repairScript = readRequired("scripts/agent/repair-creator-lifecycle-history-gap.ts");
 const controlTower = readRequired("src/lib/admin-debug-control-tower.ts");
 const doc = readRequired("docs/agent-truth/creator-lane-debug-parity.md");
 const packageJsonSource = readRequired("package.json");
@@ -133,12 +136,49 @@ for (const helperNeedle of [
     requireIncludes(creatorLaneHelper, helperNeedle, "Creator lane parity helper");
 }
 
+for (const eventNeedle of [
+    '"id_requested"',
+    "CREATOR_ONBOARDING_REQUIRED_HISTORY_EVENT_TYPES",
+    "id_requested: \"ID requested\"",
+    "CreatorOnboardingHistoryEventType",
+]) {
+    requireIncludes(pureOnboarding, eventNeedle, "Creator onboarding canonical ID request history contract");
+}
+
+for (const repairNeedle of [
+    "repairCreatorLifecycleHistoryGap",
+    "system_debug_repair",
+    "Debug parity repair",
+    "ID request history restored from source state",
+    "Creator source state had idVerificationStatus=id_requested but history was missing the matching lifecycle event.",
+    "repairReason: \"missing_history_event\"",
+    "missingHistoryEvent: \"id_requested\"",
+    "sourceStatus: \"id_requested\"",
+    "provenance: \"creator_lane_debug_parity\"",
+    "doesNotChangeCreatorState: true",
+    "canonical.idVerificationStatus !== \"id_requested\"",
+]) {
+    requireIncludes(serverOnboarding, repairNeedle, "Creator lifecycle history gap repair helper");
+}
+
+for (const repairScriptNeedle of [
+    "repairCreatorLifecycleHistoryGap",
+    "--userId",
+    "--event",
+    "--apply",
+    "Dry run only",
+    "does not change creator approval, role, legal, ID, queue, settings, or projection state",
+]) {
+    requireIncludes(repairScript, repairScriptNeedle, "Creator lifecycle history repair command");
+}
+
 for (const scorerNeedle of [
     "creator-lane-debug-parity.generated.json",
     "generatedAtUtc",
     "lastMaterializedAtUtc: null",
     "materializationFreshnessState",
     "Source-only local refresh",
+    "repair:creator-lifecycle-history",
 ]) {
     requireIncludes(scorer, scorerNeedle, "Creator lane debug parity scorer");
 }
@@ -156,6 +196,9 @@ requireIncludes(rosterPage, "Needs review", "Roster short action copy");
 
 if (packageJson.scripts?.["score:creator-lane-debug-parity"] !== "tsx scripts/agent/score-creator-lane-debug-parity.ts") {
     failures.push("package.json must expose score:creator-lane-debug-parity.");
+}
+if (packageJson.scripts?.["repair:creator-lifecycle-history"] !== "tsx scripts/agent/repair-creator-lifecycle-history-gap.ts") {
+    failures.push("package.json must expose repair:creator-lifecycle-history.");
 }
 if (packageJson.scripts?.["check:creator-lane-debug-parity"] !== "tsx scripts/agent/validate-creator-lane-debug-parity.ts") {
     failures.push("package.json must expose check:creator-lane-debug-parity.");
@@ -180,6 +223,8 @@ for (const docNeedle of [
     "recommended fix",
     "creator-lane-debug-parity.generated.json",
     "Materializer has no recorded completion timestamp",
+    "repair:creator-lifecycle-history",
+    "ID request history restored from source state",
 ]) {
     requireIncludes(doc, docNeedle, "Creator lane debug parity doc");
 }

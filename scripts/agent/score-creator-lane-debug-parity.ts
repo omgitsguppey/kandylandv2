@@ -39,6 +39,7 @@ function main() {
       ? [
         "Load the admin Debug snapshot to populate creatorId-level mismatch rows from canonical creator onboarding, queue, projection, settings, experience, and history sources.",
         "If Last Materialized is not recorded in the live snapshot, keep Creator Lane in review and run npm run check:creator-review-queue-materializer before repairing data.",
+        "For a verified id_requested history gap, dry-run npm run repair:creator-lifecycle-history -- --userId <uid> --event id_requested before adding --apply.",
       ]
       : [
         "Restore Creator Lane runtime report fields and Debug mismatch rendering.",

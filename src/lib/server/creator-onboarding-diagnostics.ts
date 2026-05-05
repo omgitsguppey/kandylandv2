@@ -304,6 +304,20 @@ function getHistoryWarning(missingEvents: CreatorOnboardingHistoryEventType[]): 
     return "Review queue out of sync";
 }
 
+function buildMissingHistoryRecommendation(input: {
+    userId: string;
+    missingEvents: CreatorOnboardingHistoryEventType[];
+    sourceSnapshot: CreatorLaneSourceSnapshot;
+}) {
+    if (input.missingEvents.includes("id_requested")) {
+        const sourceTimestamp = input.sourceSnapshot.sourceOnboardingUpdatedAt;
+        const timestampFlag = sourceTimestamp ? ` --sourceOnboardingUpdatedAt ${sourceTimestamp}` : "";
+        return `Can self-heal: No, repair command available: npm run repair:creator-lifecycle-history -- --userId ${input.userId} --event id_requested${timestampFlag} --apply. Verify Debug source evidence before applying; this writes provenance-marked history only and does not change creator state.`;
+    }
+
+    return `Can self-heal: No, manual annotation required for missing history event(s): ${input.missingEvents.join(", ")}. Verify source evidence in Debug before writing audit history.`;
+}
+
 function buildProjectionMismatches(canonical: CreatorOnboardingCanonicalRecord, projection: NonNullable<ReturnType<typeof normalizeCreatorApplication>> | undefined) {
     if (!projection) {
         return [];
@@ -736,7 +750,11 @@ export function buildCreatorOnboardingDiagnostics(input: {
                     detail: `History is missing ${missingHistoryEvents.join(", ")} for the current creator state.`,
                     link: `/admin/user/${userId}`,
                     rosterWarning: getHistoryWarning(missingHistoryEvents),
-                    recommendedFix: "Use Debug to verify source evidence, then rebuild or annotate the missing audit history.",
+                    recommendedFix: buildMissingHistoryRecommendation({
+                        userId,
+                        missingEvents: missingHistoryEvents,
+                        sourceSnapshot,
+                    }),
                     canSelfHeal: false,
                     sourceSnapshots: sourceSnapshot,
                     missingHistoryEvents,
