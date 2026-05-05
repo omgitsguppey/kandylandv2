@@ -1,12 +1,44 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.24.4",
+  "currentVersion": "1.24.5",
   "channel": "beta",
-  "generatedAt": "2026-05-05T20:38:54.620Z",
-  "generatedAtUtc": "2026-05-05T20:38:54.620Z",
-  "lastCommitSha": "46cfb75edefe9bc556eaf0a12af15774cd52994c",
+  "generatedAt": "2026-05-05T20:41:47.310Z",
+  "generatedAtUtc": "2026-05-05T20:41:47.310Z",
+  "lastCommitSha": "527f833df0272619b7d5909dd0c217a526112444",
   "notes": [
+    {
+      "version": "1.24.5",
+      "previousVersion": "1.24.4",
+      "commitSha": "527f833df0272619b7d5909dd0c217a526112444",
+      "commitTitle": "fix(chat): refresh attachment cancel idempotency",
+      "committedAt": "2026-05-05T20:41:36.000Z",
+      "generatedAt": "2026-05-05T20:41:47.310Z",
+      "committedAtUtc": "2026-05-05T20:41:36.000Z",
+      "generatedAtUtc": "2026-05-05T20:41:47.310Z",
+      "diffStats": {
+        "rawAdditions": 3,
+        "rawDeletions": 1,
+        "rawChangeCount": 4,
+        "additions": 3,
+        "deletions": 1,
+        "effectiveAdditions": 2,
+        "effectiveDeletions": 0,
+        "changedFiles": 2,
+        "effectiveChangeCount": 2,
+        "excludedGeneratedChangeCount": 2
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved reliability for canceling pending chat attachments.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "repo-tooling",
+        "security"
+      ]
+    },
     {
       "version": "1.24.4",
       "previousVersion": "1.24.3",
@@ -129,39 +161,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "affectedSurfaces": [
         "admin",
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.0",
-      "previousVersion": "1.23.0",
-      "commitSha": "aa1284ac84c31d43a050e542fc4811c62fb28749",
-      "commitTitle": "fix(chat): bound attachment completion lookup",
-      "committedAt": "2026-05-05T20:06:27.000Z",
-      "generatedAt": "2026-05-05T20:06:40.297Z",
-      "committedAtUtc": "2026-05-05T20:06:27.000Z",
-      "generatedAtUtc": "2026-05-05T20:06:40.297Z",
-      "diffStats": {
-        "rawAdditions": 143,
-        "rawDeletions": 28,
-        "rawChangeCount": 171,
-        "additions": 143,
-        "deletions": 28,
-        "effectiveAdditions": 137,
-        "effectiveDeletions": 5,
-        "changedFiles": 4,
-        "effectiveChangeCount": 142,
-        "excludedGeneratedChangeCount": 29
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes safety checks for chat media uploads.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "chat",
-        "repo-tooling",
         "security"
       ]
     }

@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.24.5] - 2026-05-05
+
+### Fixed
+
+- Updated 2026-05-05 20:41 UTC
+- Improved reliability for canceling pending chat attachments.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.24.4] - 2026-05-05
 
 ### Fixed
