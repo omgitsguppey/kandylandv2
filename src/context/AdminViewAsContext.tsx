@@ -8,6 +8,7 @@ import { useAuthIdentity } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
 import {
   buildAdminViewAsDebugFields,
+  buildAdminViewAsTelemetryPayload,
   clearAdminViewAsStateFromStorage,
   readAdminViewAsStateFromStorage,
   writeAdminViewAsStateToStorage,
@@ -88,15 +89,16 @@ export function AdminViewAsProvider({ children }: { children: ReactNode }) {
 
     writeAdminViewAsStateToStorage(nextState);
     setViewAsState(nextState);
-    trackEvent("admin_view_as_creator_started", {
-      actorType: "admin",
-      actorUid: user.uid,
+    trackEvent("admin_view_as_creator_started", buildAdminViewAsTelemetryPayload({
+      actorAdminId: user.uid,
       targetUserId: input.targetUserId,
-      performedAs: "admin_view_as_creator",
       route: pathname || "/admin/roster",
+      actionKey: "admin_view_as_creator_started",
       reason: input.reason,
       syntheticCreatorType: input.syntheticCreatorType ?? "",
-    });
+      simulationStartedAt,
+      sourceComponent: "AdminViewAsContext",
+    }));
     toast.success(`Viewing as ${nextState.adminViewingAsDisplayName}.`);
   }, [pathname, user?.uid]);
 
@@ -127,14 +129,15 @@ export function AdminViewAsProvider({ children }: { children: ReactNode }) {
       // The local simulation is already cleared; server diagnostics retain failed audit attempts.
     }
 
-    trackEvent("admin_view_as_creator_ended", {
-      actorType: "admin",
-      actorUid: user?.uid ?? current.viewAsActorUid,
+    trackEvent("admin_view_as_creator_ended", buildAdminViewAsTelemetryPayload({
+      actorAdminId: user?.uid ?? current.viewAsActorUid,
       targetUserId: current.adminViewingAsUserId,
-      performedAs: "admin_view_as_creator",
       route: pathname || "/admin/roster",
+      actionKey: "admin_view_as_creator_ended",
       reason,
-    });
+      simulationStartedAt: current.simulationStartedAt,
+      sourceComponent: "AdminViewAsContext",
+    }));
     router.push(current.viewAsReturnHref || "/admin/roster");
   }, [pathname, router, user?.uid, viewAsState]);
 

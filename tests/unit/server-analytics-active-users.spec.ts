@@ -116,4 +116,32 @@ describe("trackServerEvent active user mirror", () => {
 
     expect(mockState.writes.some((write) => write.collection === "analytics_active_users")).toBe(false);
   });
+
+  it("does not create an active user mirror for admin projection telemetry", async () => {
+    await trackServerEvent("admin_projection_write_blocked", {
+      page_path: "/api/paypal/capture",
+      actor_admin_id: "admin_1",
+      target_user_id: "creator_1",
+      target_creator_id: "creator_1",
+      performed_as: "admin_view_as_creator",
+      projection_mode: "read_only_creator_projection",
+      source_truth: "local_projection",
+    }, "admin_1");
+
+    const eventWrite = mockState.writes.find((write) => write.collection === "analytics_event_facts");
+    expect(eventWrite?.data).toMatchObject({
+      userId: "admin_1",
+      analyticsUserId: "",
+      actorType: "admin",
+      actorAdminId: "admin_1",
+      actorUserId: "",
+      actorCreatorId: "",
+      targetUserId: "creator_1",
+      targetCreatorId: "creator_1",
+      performedAs: "admin_view_as_creator",
+      projectionMode: "read_only_creator_projection",
+      includeInUserBehavior: false,
+    });
+    expect(mockState.writes.some((write) => write.collection === "analytics_active_users")).toBe(false);
+  });
 });

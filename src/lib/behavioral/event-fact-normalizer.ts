@@ -15,7 +15,7 @@ export type IdentifiedMetricFamily =
   | "admin"
   | "security";
 
-export type IdentifiedMetricSourceTruth = "client" | "server" | "canonical" | "materialized" | "legacy";
+export type IdentifiedMetricSourceTruth = "client" | "server" | "canonical" | "materialized" | "legacy" | "local_projection";
 
 export type IdentifiedMetricExclusionReason =
   | "admin_event"
@@ -131,7 +131,10 @@ function clamp01(value: number) {
 
 function isProjectionEvent(params: Record<string, unknown>, eventName: string) {
   return eventName.startsWith("admin_view_as_")
+    || eventName.startsWith("admin_projection_")
     || eventName.includes("projection")
+    || readString(params, "performed_as", "performedAs") === "admin_view_as_creator"
+    || readString(params, "source_truth", "sourceTruth") === "local_projection"
     || readString(params, "projection_mode", "projectionMode", "view_as_mode", "viewAsMode") === "read_only_creator_projection";
 }
 
@@ -233,7 +236,15 @@ export function normalizeIdentifiedMetricEventFact(input: NormalizeInput): Ident
     creatorId: targetCreatorId,
     assetKey: targetFileId,
     assetIndex: params.asset_index ?? params.assetIndex ?? params.media_index ?? params.mediaIndex,
-    source: input.sourceTruth === "canonical" ? "server" : input.sourceTruth === "materialized" ? "materialized" : input.sourceTruth === "legacy" ? "legacy" : "server",
+    source: input.sourceTruth === "canonical"
+      ? "server"
+      : input.sourceTruth === "materialized"
+        ? "materialized"
+        : input.sourceTruth === "legacy"
+          ? "legacy"
+          : input.sourceTruth === "client" || input.sourceTruth === "local_projection"
+            ? "client"
+            : "server",
     valueUsd: params.gross_revenue_usd ?? params.grossRevenueUsd ?? params.amount_usd ?? params.amountUsd ?? params.value_usd ?? params.valueUsd,
     gumDropsAmount: params.delivered_gumdrops ?? params.deliveredGumDrops ?? params.gumdrops_amount ?? params.gumDropsAmount,
   });
@@ -247,6 +258,7 @@ export function normalizeIdentifiedMetricEventFact(input: NormalizeInput): Ident
       : input.sourceTruth === "server" ? 0.98
       : input.sourceTruth === "materialized" ? 0.9
       : input.sourceTruth === "legacy" ? 0.45
+      : input.sourceTruth === "local_projection" ? 0.2
       : 0.75,
   );
   const eligibility = resolveMetricEligibility({

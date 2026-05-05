@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildAdminViewAsHeaders,
+  buildAdminViewAsTelemetryPayload,
   buildSyntheticCreatorMarker,
   isAdminViewAsBlockedRequest,
   normalizeSyntheticCreatorType,
@@ -75,5 +76,30 @@ describe("synthetic creators and admin view-as helpers", () => {
     expect(isAdminViewAsBlockedRequest("/api/paypal/capture", "POST")?.reason).toBe(
       "Payment actions are blocked while viewing as a creator.",
     );
+  });
+
+  it("builds local-only projection telemetry with admin actor and target creator fields", () => {
+    expect(buildAdminViewAsTelemetryPayload({
+      actorAdminId: "admin_1",
+      targetUserId: "creator_1",
+      route: "/admin/roster",
+      actionKey: "admin_view_as_creator_started",
+      reason: "QA check",
+      simulationStartedAt: 1_714_600_000_000,
+    })).toMatchObject({
+      actorType: "admin",
+      actorAdminId: "admin_1",
+      adminId: "admin_1",
+      actorCreatorId: "",
+      targetUserId: "creator_1",
+      targetCreatorId: "creator_1",
+      performedAs: "admin_view_as_creator",
+      projectionMode: "read_only_creator_projection",
+      projectionScope: "local_only",
+      includeInUserBehavior: false,
+      metricEligible: false,
+      metricExclusionReason: "admin_projection",
+      sourceTruth: "local_projection",
+    });
   });
 });

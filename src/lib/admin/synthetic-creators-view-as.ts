@@ -37,6 +37,10 @@ export type AdminViewAsState = {
 };
 
 export const ADMIN_VIEW_AS_STORAGE_KEY = "kandydrops.admin.view_as_creator.v1";
+export const ADMIN_VIEW_AS_PERFORMED_AS = "admin_view_as_creator";
+export const ADMIN_VIEW_AS_PROJECTION_MODE = "read_only_creator_projection";
+export const ADMIN_VIEW_AS_SOURCE_TRUTH = "local_projection";
+export const ADMIN_PROJECTION_WRITE_BLOCKED_EVENT = "admin_projection_write_blocked";
 
 const BLOCKED_VIEW_AS_ROUTE_RULES = [
   { routePrefix: "/api/paypal", reason: "Payment actions are blocked while viewing as a creator." },
@@ -173,6 +177,50 @@ export function buildAdminViewAsHeaders(state: AdminViewAsState) {
     "x-admin-view-as-role": state.adminViewingAsRole,
     "x-admin-view-as-actor-uid": state.viewAsActorUid,
     "x-admin-view-as-started-at": String(state.simulationStartedAt),
+  };
+}
+
+export function buildAdminViewAsTelemetryPayload(input: {
+  actorAdminId: string;
+  targetUserId: string;
+  targetCreatorId?: string | null;
+  route: string;
+  actionKey: string;
+  reason?: string | null;
+  syntheticCreatorType?: string | null;
+  simulationStartedAt?: number | null;
+  sourceComponent?: string | null;
+}) {
+  const actorAdminId = readString(input.actorAdminId);
+  const targetUserId = readString(input.targetUserId);
+  const targetCreatorId = readString(input.targetCreatorId) || targetUserId;
+  const route = readString(input.route) || "/admin/roster";
+  const reason = readString(input.reason);
+  const syntheticCreatorType = readString(input.syntheticCreatorType);
+  const sourceComponent = readString(input.sourceComponent) || "admin_view_as_creator";
+
+  return {
+    actorType: "admin",
+    actorAdminId,
+    adminId: actorAdminId,
+    actorUid: actorAdminId,
+    actorCreatorId: "",
+    targetUserId,
+    targetCreatorId,
+    performedAs: ADMIN_VIEW_AS_PERFORMED_AS,
+    projectionMode: ADMIN_VIEW_AS_PROJECTION_MODE,
+    projectionScope: "local_only",
+    includeInUserBehavior: false,
+    metricEligible: false,
+    metricExclusionReason: "admin_projection",
+    sourceTruth: ADMIN_VIEW_AS_SOURCE_TRUTH,
+    route,
+    pagePath: route,
+    actionKey: input.actionKey,
+    reason,
+    syntheticCreatorType,
+    simulationStartedAt: input.simulationStartedAt ? Math.trunc(input.simulationStartedAt) : 0,
+    sourceComponent,
   };
 }
 

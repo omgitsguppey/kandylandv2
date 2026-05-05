@@ -132,28 +132,38 @@ export async function trackServerEvent(
   };
   const pagePath = readStringParam(enrichedParams, "page_path", "pagePath");
   const explicitAdminId = readStringParam(enrichedParams, "admin_id", "adminId");
+  const explicitActorAdminId = readStringParam(enrichedParams, "actor_admin_id", "actorAdminId");
   const explicitActorType = readStringParam(enrichedParams, "actor_type", "actorType");
   const explicitActorUid = readStringParam(enrichedParams, "actor_uid", "actorUid");
   const explicitActorRole = readStringParam(enrichedParams, "actor_role", "actorRole");
   const performedAs = readStringParam(enrichedParams, "performed_as", "performedAs");
+  const projectionMode = readStringParam(enrichedParams, "projection_mode", "projectionMode", "view_as_mode", "viewAsMode");
+  const explicitSourceTruth = readStringParam(enrichedParams, "source_truth", "sourceTruth");
   const targetUserId = readStringParam(enrichedParams, "target_user_id", "targetUserId");
   const targetCreatorId = readStringParam(enrichedParams, "target_creator_id", "targetCreatorId", "creator_id", "creatorId");
   const adminRouteOrEvent = option?.category === "admin"
     || canonicalEventName.startsWith("admin_")
+    || performedAs === "admin_view_as_creator"
+    || projectionMode.includes("projection")
+    || explicitSourceTruth === "local_projection"
     || pagePath === "/admin"
     || pagePath.startsWith("/admin/");
   const inclusion = explainEventInclusion({
     eventName: canonicalEventName,
     userId,
-    adminId: adminRouteOrEvent ? explicitActorUid || explicitAdminId || userId : explicitAdminId,
+    actorAdminId: explicitActorAdminId,
+    adminId: adminRouteOrEvent ? explicitActorAdminId || explicitActorUid || explicitAdminId || userId : explicitAdminId,
     actorType: explicitActorType || (adminRouteOrEvent ? "admin" : userId ? "user" : "system"),
     roles: explicitActorRole ? [explicitActorRole] : null,
     route: pagePath,
     surface: "server",
     source: "server",
+    performedAs,
+    projectionMode,
+    sourceTruth: explicitSourceTruth,
   });
   const actorClassification = inclusion.actorClassification;
-  const actorAdminId = actorClassification.isAdmin ? (explicitActorUid || explicitAdminId || userId || "") : "";
+  const actorAdminId = actorClassification.isAdmin ? (explicitActorAdminId || explicitActorUid || explicitAdminId || userId || "") : "";
   const actorCreatorId = actorClassification.isCreator
     ? (readStringParam(enrichedParams, "actor_creator_id", "actorCreatorId", "creator_actor_id", "creatorActorId", "creator_uid", "creatorUid") || explicitActorUid || userId || "")
     : "";
@@ -202,6 +212,7 @@ export async function trackServerEvent(
         actorUid: explicitActorUid || userId || "",
         actorRole: explicitActorRole,
         performedAs,
+        projectionMode,
         targetUserId,
         targetCreatorId,
         transactionId,

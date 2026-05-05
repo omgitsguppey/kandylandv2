@@ -87,6 +87,9 @@ export interface CanonicalAnalyticsEvent {
   actorAdminId: string | null;
   targetUserId: string | null;
   targetCreatorId: string | null;
+  performedAs: string | null;
+  projectionMode: string | null;
+  sourceTruth: string | null;
   surface: string | null;
   route: string | null;
   component: string | null;
@@ -140,6 +143,10 @@ export interface AnalyticsActorClassificationInput {
   surface?: string | null;
   source?: string | null;
   eventName?: string | null;
+  performedAs?: string | null;
+  projectionMode?: string | null;
+  sourceTruth?: string | null;
+  includeInUserBehavior?: boolean | null;
   roles?: string[] | null;
   claims?: Record<string, unknown> | null;
   systemGenerated?: boolean | null;
@@ -225,6 +232,27 @@ function resolveActorAdminId(input: Pick<CanonicalAnalyticsEventInput, "actorAdm
     ?? ((actorType === "admin" || actorType === "owner_admin") ? (stringOrNull(input.adminId) ?? stringOrNull(input.userId)) : null);
 }
 
+function isAdminPerformedAs(value: unknown) {
+  const performedAs = stringOrNull(value)?.toLowerCase() ?? "";
+  return performedAs === "admin_on_behalf"
+    || performedAs === "owner_override"
+    || performedAs === "admin_view_as_creator";
+}
+
+function isAdminProjectionInput(input: AnalyticsActorClassificationInput) {
+  const eventName = stringOrNull(input.eventName)?.toLowerCase() ?? "";
+  const performedAs = stringOrNull(input.performedAs)?.toLowerCase() ?? "";
+  const projectionMode = stringOrNull(input.projectionMode)?.toLowerCase() ?? "";
+  const sourceTruth = stringOrNull(input.sourceTruth)?.toLowerCase() ?? "";
+
+  return eventName.startsWith("admin_projection_")
+    || eventName.startsWith("admin_view_as_")
+    || eventName.includes("_projection_")
+    || performedAs === "admin_view_as_creator"
+    || projectionMode.includes("projection")
+    || sourceTruth === "local_projection";
+}
+
 export function normalizeAnalyticsActorType(value: unknown): AnalyticsActorType {
   return isOneOf(value, ANALYTICS_ACTOR_TYPES) ? value : "unknown";
 }
@@ -248,10 +276,13 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
   const route = stringOrNull(input.route)?.toLowerCase() ?? "";
   const source = stringOrNull(input.source);
   const eventName = stringOrNull(input.eventName)?.toLowerCase() ?? "";
+  const performedAs = stringOrNull(input.performedAs);
   const reasons: string[] = [];
   const actorUserId = stringOrNull(input.actorUserId) ?? stringOrNull(input.userId);
   const actorCreatorId = stringOrNull(input.actorCreatorId);
   const actorAdminId = stringOrNull(input.actorAdminId) ?? stringOrNull(input.adminId);
+  const adminProjection = isAdminProjectionInput(input);
+  const adminPerformedAs = isAdminPerformedAs(performedAs);
 
   const hasAdminRole =
     roles.some((role) => role === "admin" || role === "owner" || role === "owner_admin" || role === "super_admin") ||
@@ -310,14 +341,19 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
     explicitActorType === "admin" ||
     Boolean(actorAdminId) ||
     hasAdminRole ||
+    adminProjection ||
+    adminPerformedAs ||
     route === "/admin" ||
     route.startsWith("/admin/") ||
     eventName.startsWith("admin_");
 
   if (isAdmin) {
-    reasons.push("Admin id, role, route, event name, or explicit actor type is present.");
+    reasons.push("Admin id, role, route, event name, projection marker, performedAs, or explicit actor type is present.");
     if (stringOrNull(input.userId)) {
       reasons.push("A userId is present, but admin classification wins and must not be counted as user behavior.");
+    }
+    if (adminProjection) {
+      reasons.push("Admin projection/view-as markers are excluded from live user behavior metrics.");
     }
     return {
       actorType: "admin",
@@ -500,6 +536,9 @@ export function createCanonicalAnalyticsEvent(input: CanonicalAnalyticsEventInpu
     actorAdminId,
     targetUserId: stringOrNull(input.targetUserId),
     targetCreatorId: stringOrNull(input.targetCreatorId) ?? stringOrNull(input.creatorId),
+    performedAs: stringOrNull(input.performedAs),
+    projectionMode: stringOrNull(input.projectionMode),
+    sourceTruth: stringOrNull(input.sourceTruth),
     surface: stringOrNull(input.surface),
     route: stringOrNull(input.route),
     component: stringOrNull(input.component),
@@ -583,6 +622,10 @@ export function createIdentityLinkedEvent(input: {
 }
 
 export function shouldExcludeFromUserAnalytics(event: AnalyticsActorClassificationInput) {
+  if (isAdminProjectionInput(event) || isAdminPerformedAs(event.performedAs) || event.includeInUserBehavior === false) {
+    return true;
+  }
+
   const classification = classifyAnalyticsActor(event);
   return (
     classification.actorType === "admin" ||
@@ -612,7 +655,13 @@ export function explainEventInclusion(event: AnalyticsActorClassificationInput):
   const includeInGlobalEvents = shouldIncludeInGlobalEvents(event);
   const exclusionReason = includeInUserBehavior
     ? null
-    : actorClassification.actorType === "admin" || actorClassification.actorType === "owner_admin"
+    : isAdminProjectionInput(event)
+      ? "Admin projection/view-as events are excluded from user behavior analytics."
+      : isAdminPerformedAs(event.performedAs)
+        ? "Admin performed-as events are excluded from user behavior analytics."
+        : event.includeInUserBehavior === false
+          ? "Event explicitly marked includeInUserBehavior=false."
+        : actorClassification.actorType === "admin" || actorClassification.actorType === "owner_admin"
       ? "Admin events are excluded from user/guest behavior analytics."
       : actorClassification.actorType === "system"
         ? "System events are excluded from user/guest behavior analytics."

@@ -399,7 +399,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "admin_synthetic_creator_created", label: "Admin synthetic creator created", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "security"] },
   { eventName: "admin_view_as_creator_started", label: "Admin view-as creator started", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "security"] },
   { eventName: "admin_view_as_creator_ended", label: "Admin view-as creator ended", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "security"] },
-  { eventName: "admin_view_as_creator_action_blocked", label: "Admin view-as creator action blocked", category: "security", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "security"] },
+  { eventName: "admin_projection_write_blocked", label: "Admin projection write blocked", category: "security", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "creator", "security"], aliases: ["admin_view_as_creator_action_blocked"] },
   { eventName: "admin_user_detail_viewed", label: "Admin user detail viewed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin", "navigation"] },
   { eventName: "admin_ai_cover_toggle_updated", label: "Admin AI cover toggle updated", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "runtime"] },
   { eventName: "admin_ai_cover_generate_succeeded", label: "Admin AI cover generate succeeded", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin", "content", "runtime"] },
@@ -612,7 +612,7 @@ export const ADMIN_TELEMETRY_LOG_EVENT_NAMES = [
   "admin_synthetic_creator_created",
   "admin_view_as_creator_started",
   "admin_view_as_creator_ended",
-  "admin_view_as_creator_action_blocked",
+  "admin_projection_write_blocked",
   "admin_user_detail_viewed",
   "admin_privacy_viewed",
   "admin_ai_cover_toggle_updated",
@@ -751,6 +751,9 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   notificationType: "notification_type",
   orderId: "order_id",
   pagePath: "page_path",
+  performedAs: "performed_as",
+  projectionMode: "projection_mode",
+  projectionScope: "projection_scope",
   purchaseId: "purchase_id",
   recipientId: "recipient_id",
   semanticScopeLabel: "semantic_scope_label",
@@ -760,6 +763,9 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   rewardGd: "reward_gd",
   sourceComponent: "source_component",
   sourceTruth: "source_truth",
+  includeInUserBehavior: "include_in_user_behavior",
+  metricEligible: "metric_eligible",
+  metricExclusionReason: "metric_exclusion_reason",
   stepKey: "step_key",
   taskId: "task_id",
   taskKey: "task_key",
@@ -939,6 +945,14 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     ];
   }
 
+  if (
+    eventName === "admin_view_as_creator_started"
+    || eventName === "admin_view_as_creator_ended"
+    || eventName === "admin_projection_write_blocked"
+  ) {
+    return ["target_user_id|targetUserId", "target_creator_id|targetCreatorId"];
+  }
+
   if (eventName.startsWith("watch_session") || eventName === "watch_score_computed") {
     return ["drop_id|dropId", "watch_session_id|watchSessionId"];
   }
@@ -1013,8 +1027,16 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
 }
 
 function buildRequiredActorFields(eventName: string, family: TelemetryEventFamily) {
+  if (
+    eventName === "admin_view_as_creator_started"
+    || eventName === "admin_view_as_creator_ended"
+    || eventName === "admin_projection_write_blocked"
+  ) {
+    return ["actor_admin_id|actorAdminId|admin_id|adminId", "performed_as|performedAs"];
+  }
+
   if (family === "admin") {
-    return ["admin_id|adminId"];
+    return ["actor_admin_id|actorAdminId|admin_id|adminId"];
   }
 
   if (family === "unlock" || eventName === "purchase_verified" || eventName.startsWith("gumdrops_purchase_")) {

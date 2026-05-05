@@ -46,8 +46,10 @@ describe("telemetry catalog contracts", () => {
     expect(normalizeTelemetryEventName("featured_drop_viewed")).toBe("featured_slide_viewed");
     expect(normalizeTelemetryEventName("featured_drop_clicked")).toBe("featured_slide_clicked");
     expect(normalizeTelemetryEventName("creator_spotlight_viewed")).toBe("creator_rail_impression");
+    expect(normalizeTelemetryEventName("admin_view_as_creator_action_blocked")).toBe("admin_projection_write_blocked");
 
     expect(normalizeTelemetryEventPayloadParams({
+      actorAdminId: "admin_1",
       dropId: "drop_1",
       fileId: "file_1",
       transactionId: "txn_1",
@@ -59,7 +61,11 @@ describe("telemetry catalog contracts", () => {
       mediaType: "video",
       rewardGd: 100,
       sourceTruth: "canonical",
+      performedAs: "admin_view_as_creator",
+      projectionMode: "read_only_creator_projection",
+      includeInUserBehavior: false,
     })).toMatchObject({
+      actor_admin_id: "admin_1",
       drop_id: "drop_1",
       file_id: "file_1",
       transaction_id: "txn_1",
@@ -71,6 +77,9 @@ describe("telemetry catalog contracts", () => {
       media_type: "video",
       reward_gd: 100,
       source_truth: "canonical",
+      performed_as: "admin_view_as_creator",
+      projection_mode: "read_only_creator_projection",
+      include_in_user_behavior: false,
     });
   });
 
@@ -113,6 +122,10 @@ describe("telemetry catalog contracts", () => {
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.featured_slide_clicked.requiredObjectFields.join(" ")).toContain("position");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.creator_rail_impression.aliases).toContain("creator_spotlight_viewed");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.creator_rail_impression.requiredObjectFields.join(" ")).toContain("creator_id");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.admin_projection_write_blocked.aliases).toContain("admin_view_as_creator_action_blocked");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.admin_projection_write_blocked.requiredActorFields.join(" ")).toContain("actor_admin_id");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.admin_projection_write_blocked.requiredActorFields.join(" ")).toContain("performed_as");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.admin_projection_write_blocked.adminExcludedFromUserAnalytics).toBe(true);
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.admin_analytics_viewed.adminExcludedFromUserAnalytics).toBe(true);
   });
 });

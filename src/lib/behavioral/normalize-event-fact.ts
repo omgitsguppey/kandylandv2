@@ -113,6 +113,8 @@ const ACTION_ALIASES: Record<string, ActionAliasConfig> = {
   admin_user_detail_viewed: { normalizedAction: "admin_user_opened", entityType: "admin", entityKeys: ["target_user_id", "targetUserId", "entity_id", "entityId", "user_id", "userId"] },
   admin_view_as_creator_started: { normalizedAction: "admin_user_action_taken", entityType: "admin", entityKeys: ["target_user_id", "targetUserId", "target_creator_id", "targetCreatorId"] },
   admin_view_as_creator_ended: { normalizedAction: "admin_user_action_taken", entityType: "admin", entityKeys: ["target_user_id", "targetUserId", "target_creator_id", "targetCreatorId"] },
+  admin_projection_write_blocked: { normalizedAction: "admin_user_action_taken", entityType: "admin", entityKeys: ["target_user_id", "targetUserId", "target_creator_id", "targetCreatorId", "blocked_route", "blockedRoute", "route"] },
+  admin_view_as_creator_action_blocked: { normalizedAction: "admin_user_action_taken", entityType: "admin", entityKeys: ["target_user_id", "targetUserId", "target_creator_id", "targetCreatorId", "blocked_route", "blockedRoute", "route"] },
   admin_user_action_taken: { normalizedAction: "admin_user_action_taken", entityType: "admin", entityKeys: ["target_user_id", "targetUserId", "target_creator_id", "targetCreatorId", "action", "action_key", "actionKey"] },
 };
 

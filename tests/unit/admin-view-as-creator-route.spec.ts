@@ -148,9 +148,13 @@ describe("POST /api/admin/view-as-creator", () => {
     });
     expect(mockState.trackServerEvent).toHaveBeenCalledWith("admin_view_as_creator_started", expect.objectContaining({
       actorType: "admin",
+      actorAdminId: "admin_1",
       targetUserId: "creator_1",
+      targetCreatorId: "creator_1",
       performedAs: "admin_view_as_creator",
-    }), "creator_1");
+      includeInUserBehavior: false,
+      sourceTruth: "local_projection",
+    }), "admin_1");
     expect(mockState.historySet).toHaveBeenCalledWith(expect.objectContaining({
       eventType: "admin_view_as_started",
     }), { merge: true });
@@ -168,11 +172,14 @@ describe("POST /api/admin/view-as-creator", () => {
     }));
 
     expect(response.status).toBe(200);
-    expect(mockState.trackServerEvent).toHaveBeenCalledWith("admin_view_as_creator_action_blocked", expect.objectContaining({
-      route: "/api/admin/view-as-creator",
+    expect(mockState.trackServerEvent).toHaveBeenCalledWith("admin_projection_write_blocked", expect.objectContaining({
+      actorAdminId: "admin_1",
       targetUserId: "creator_1",
+      targetCreatorId: "creator_1",
       performedAs: "admin_view_as_creator",
-    }), "creator_1");
+      includeInUserBehavior: false,
+      sourceTruth: "local_projection",
+    }), "admin_1");
     expect(mockState.historySet).toHaveBeenCalledWith(expect.objectContaining({
       eventType: "admin_view_as_action_blocked",
     }), { merge: true });

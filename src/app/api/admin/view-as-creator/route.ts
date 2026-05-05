@@ -20,6 +20,7 @@ import {
 } from "@/lib/identity/actor-markers";
 import {
   buildAdminViewAsDebugFields,
+  buildAdminViewAsTelemetryPayload,
   normalizeSyntheticCreatorType,
   parseAdminViewAsState,
 } from "@/lib/admin/synthetic-creators-view-as";
@@ -73,7 +74,7 @@ async function POST_handler(request: NextRequest) {
     const telemetryEventName = action === "end"
       ? "admin_view_as_creator_ended"
       : action === "blocked"
-        ? "admin_view_as_creator_action_blocked"
+        ? "admin_projection_write_blocked"
         : "admin_view_as_creator_started";
 
     if (!targetUserId) {
@@ -172,8 +173,22 @@ async function POST_handler(request: NextRequest) {
           },
         }), { merge: true }),
       trackServerEvent(telemetryEventName, {
+        ...actorMarkerToTelemetryPayload(marker),
+        ...buildAdminViewAsTelemetryPayload({
+          actorAdminId: caller.uid,
+          targetUserId,
+          targetCreatorId: targetUserId,
+          route,
+          actionKey: telemetryEventName,
+          reason,
+          syntheticCreatorType: target.isSyntheticCreator === true
+            ? normalizeSyntheticCreatorType(target.syntheticCreatorType)
+            : readString(body.syntheticCreatorType),
+          simulationStartedAt,
+          sourceComponent: "admin_view_as_creator_route",
+        }),
         page_path: route,
-        reason,
+        blocked_route_prefix: readString(body.routePrefix),
         syntheticCreatorType: target.isSyntheticCreator === true
           ? normalizeSyntheticCreatorType(target.syntheticCreatorType)
           : readString(body.syntheticCreatorType),
@@ -181,8 +196,7 @@ async function POST_handler(request: NextRequest) {
           ? normalizeSyntheticCreatorType(target.syntheticCreatorType)
           : readString(body.syntheticCreatorType),
         ...debugFields,
-        ...actorMarkerToTelemetryPayload(marker),
-      }, targetUserId),
+      }, caller.uid),
     ]);
 
     return NextResponse.json({

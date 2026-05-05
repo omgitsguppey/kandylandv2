@@ -55,8 +55,8 @@ const packageJson = read("package.json");
 [
   "admin_view_as_creator_started",
   "admin_view_as_creator_ended",
-  "admin_view_as_creator_action_blocked",
-  "performedAs: \"admin_view_as_creator\"",
+  "admin_projection_write_blocked",
+  "buildAdminViewAsTelemetryPayload",
   "admin_view_as_started",
   "admin_view_as_ended",
   "admin_view_as_action_blocked",
@@ -99,6 +99,7 @@ requireIncludes(helper, "\"x-admin-view-as-user-id\"", "view-as helper headers")
   "admin_synthetic_creator_created",
   "admin_view_as_creator_started",
   "admin_view_as_creator_ended",
+  "admin_projection_write_blocked",
   "admin_view_as_creator_action_blocked",
 ].forEach((eventName) => requireIncludes(telemetryCatalog, eventName, "telemetry catalog"));
 

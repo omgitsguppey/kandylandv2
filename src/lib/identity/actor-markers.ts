@@ -341,9 +341,18 @@ export function buildActorMarkerDebugFields(marker: ActorMarker) {
 }
 
 export function actorMarkerToTelemetryPayload(marker: ActorMarker) {
+  const actorAdminId = marker.actorType === "admin" || marker.actorType === "owner_admin"
+    ? marker.actorUid ?? ""
+    : "";
+  const actorCreatorId = marker.actorType === "creator" ? marker.actorUid ?? "" : "";
+  const actorUserId = marker.actorType === "user" ? marker.actorUid ?? "" : "";
+
   return {
     actorType: marker.actorType,
     actorUid: marker.actorUid ?? "",
+    actorAdminId,
+    actorCreatorId,
+    actorUserId,
     actorEmail: marker.actorEmail ?? "",
     actorRole: marker.actorRole,
     targetUserId: marker.targetUserId ?? "",
@@ -359,6 +368,9 @@ export function actorMarkerToTelemetryPayload(marker: ActorMarker) {
     unknownActorBlocked: marker.unknownActorBlocked,
     actor_type: marker.actorType,
     actor_uid: marker.actorUid ?? "",
+    actor_admin_id: actorAdminId,
+    actor_creator_id: actorCreatorId,
+    actor_user_id: actorUserId,
     actor_email: marker.actorEmail ?? "",
     actor_role: marker.actorRole,
     target_user_id: marker.targetUserId ?? "",

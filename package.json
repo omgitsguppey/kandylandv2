@@ -103,6 +103,7 @@
         "check:viewer-file-tracking": "tsx scripts/agent/validate-viewer-file-tracking.ts",
         "check:support-tracking-truth": "tsx scripts/agent/validate-support-tracking-truth.ts",
         "check:discovery-tracking-truth": "tsx scripts/agent/validate-discovery-tracking-truth.ts",
+        "check:admin-projection-analytics-exclusion": "tsx scripts/agent/validate-admin-projection-analytics-exclusion.ts",
         "check:admin-analytics-hot-cache": "tsx scripts/agent/validate-admin-analytics-hot-cache.ts",
         "check:global-loading-performance": "tsx scripts/agent/validate-global-loading-performance.ts",
         "check:global-speed-hydration-cache": "tsx scripts/agent/validate-global-speed-hydration-cache.ts",

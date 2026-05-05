@@ -59,6 +59,33 @@ describe("analytics event contract", () => {
     expect(explanation.exclusionReason).toContain("Admin events are excluded");
   });
 
+  it("keeps admin projection markers out of user behavior even when the target is a creator", () => {
+    const event = createCanonicalAnalyticsEvent({
+      eventId: "evt_projection",
+      eventName: "admin_projection_write_blocked",
+      actorType: "user",
+      userId: "creator_target_1",
+      actorAdminId: "admin_1",
+      targetUserId: "creator_target_1",
+      targetCreatorId: "creator_target_1",
+      performedAs: "admin_view_as_creator",
+      sourceTruth: "local_projection",
+      route: "/api/paypal/capture",
+      source: "client",
+    });
+
+    const explanation = explainEventInclusion(event);
+
+    expect(event.actorType).toBe("admin");
+    expect(event.actorAdminId).toBe("admin_1");
+    expect(event.actorUserId).toBeNull();
+    expect(event.actorCreatorId).toBeNull();
+    expect(event.targetUserId).toBe("creator_target_1");
+    expect(event.targetCreatorId).toBe("creator_target_1");
+    expect(explanation.includeInUserBehavior).toBe(false);
+    expect(explanation.exclusionReason).toContain("Admin projection");
+  });
+
   it("classifies admin routes as admin lane even when the event name is generic", () => {
     const explanation = explainEventInclusion({
       eventName: "navigation_click",

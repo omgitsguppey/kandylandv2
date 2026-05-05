@@ -519,9 +519,11 @@ describe("POST /api/analytics/ingest-identified", () => {
         eventParams: {
           page_path: "/admin/users",
           session_id: "session_123",
-          admin_id: "user_123",
+          actor_admin_id: "admin_123",
           target_creator_id: "creator_789",
+          performed_as: "admin_view_as_creator",
           projection_mode: "read_only_creator_projection",
+          source_truth: "local_projection",
         },
       }],
     }));
@@ -533,14 +535,66 @@ describe("POST /api/analytics/ingest-identified", () => {
     expect(eventWrite?.data).toMatchObject({
       actorType: "admin",
       analyticsUserId: "",
+      includeInUserBehavior: false,
       metricEligible: false,
       metricExclusionReason: "admin_projection",
-      actorAdminId: "user_123",
+      actorAdminId: "admin_123",
+      actorUserId: "",
+      actorCreatorId: "",
       targetCreatorId: "creator_789",
+      performedAs: "admin_view_as_creator",
+      projectionMode: "read_only_creator_projection",
+      sourceTruth: "local_projection",
     });
 
     const activeUserWrite = mockState.writes.find((write) => write.path === "analytics_active_users/user_123");
-    expect(activeUserWrite?.data).not.toHaveProperty("lastMeaningfulActionAt");
+    expect(activeUserWrite).toBeUndefined();
+  });
+
+  it("canonicalizes blocked projection writes and excludes them from active user metrics", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_projection_blocked",
+        eventTimestampMs: 1767225600000,
+        eventName: "admin_view_as_creator_action_blocked",
+        eventParams: {
+          page_path: "/api/paypal/capture",
+          session_id: "session_123",
+          actor_admin_id: "admin_123",
+          target_user_id: "creator_789",
+          target_creator_id: "creator_789",
+          performed_as: "admin_view_as_creator",
+          projection_mode: "read_only_creator_projection",
+          source_truth: "local_projection",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_projection_blocked");
+    expect(eventWrite?.data).toMatchObject({
+      eventName: "admin_projection_write_blocked",
+      actorType: "admin",
+      analyticsUserId: "",
+      includeInUserBehavior: false,
+      metricEligible: false,
+      metricExclusionReason: "admin_projection",
+      actorAdminId: "admin_123",
+      actorUserId: "",
+      actorCreatorId: "",
+      targetUserId: "creator_789",
+      targetCreatorId: "creator_789",
+      performedAs: "admin_view_as_creator",
+      projectionMode: "read_only_creator_projection",
+      sourceTruth: "local_projection",
+      params: expect.objectContaining({
+        legacy_event_name: "admin_view_as_creator_action_blocked",
+      }),
+    });
+
+    expect(mockState.writes.some((write) => write.path === "analytics_active_users/user_123")).toBe(false);
   });
 
   it("skips unsupported telemetry before it can create orphaned event facts", async () => {

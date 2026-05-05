@@ -71,6 +71,10 @@ function resolveIdentifiedSourceTruth(
         return "client" as const;
     }
 
+    if (explicitSourceTruth === "local_projection") {
+        return "local_projection" as const;
+    }
+
     if (explicitSourceTruth === "legacy") {
         return "legacy" as const;
     }
@@ -224,21 +228,40 @@ async function POST_handler(request: NextRequest) {
             };
             const sourceSurface = String(params.page_path || params.pagePath || "client");
             const pagePath = String(enrichedParams.page_path || enrichedParams.pagePath || "");
+            const performedAs = readStringParam(enrichedParams, "performed_as", "performedAs");
+            const projectionMode = readStringParam(enrichedParams, "projection_mode", "projectionMode", "view_as_mode", "viewAsMode");
+            const sourceTruth = resolveIdentifiedSourceTruth(canonicalEventName, enrichedParams);
+            const explicitActorAdminId = readStringParam(
+                enrichedParams,
+                "actor_admin_id",
+                "actorAdminId",
+                "admin_id",
+                "adminId",
+                "actor_uid",
+                "actorUid",
+            );
             const adminRouteOrEvent = telemetryEvent.option?.category === "admin"
                 || canonicalEventName.startsWith("admin_")
+                || performedAs === "admin_view_as_creator"
+                || projectionMode.includes("projection")
+                || sourceTruth === "local_projection"
                 || pagePath === "/admin"
                 || pagePath.startsWith("/admin/");
             const inclusion = explainEventInclusion({
                 eventName: canonicalEventName,
                 userId: caller.uid,
-                adminId: adminRouteOrEvent ? caller.uid : readStringParam(enrichedParams, "admin_id", "adminId"),
-                actorType: adminRouteOrEvent ? "admin" : "user",
+                actorAdminId: explicitActorAdminId,
+                adminId: adminRouteOrEvent ? (explicitActorAdminId || caller.uid) : readStringParam(enrichedParams, "admin_id", "adminId"),
+                actorType: readStringParam(enrichedParams, "actor_type", "actorType") || (adminRouteOrEvent ? "admin" : "user"),
                 route: pagePath,
                 surface: sourceSurface,
                 source: "identified_ingest",
+                performedAs,
+                projectionMode,
+                sourceTruth,
             });
             const actorClassification = inclusion.actorClassification;
-            const adminId = actorClassification.isAdmin ? caller.uid : "";
+            const adminId = actorClassification.isAdmin ? (explicitActorAdminId || caller.uid) : "";
             const parityFact = normalizeIdentifiedMetricEventFact({
                 eventId,
                 eventName: canonicalEventName,
@@ -249,7 +272,7 @@ async function POST_handler(request: NextRequest) {
                 includeInUserBehavior: inclusion.includeInUserBehavior,
                 actorType: actorClassification.actorType,
                 actorLane: actorClassification.actorLane,
-                sourceTruth: resolveIdentifiedSourceTruth(canonicalEventName, enrichedParams),
+                sourceTruth,
             });
             const normalizedEventFact = parityFact.behavioralFact;
             
@@ -264,6 +287,8 @@ async function POST_handler(request: NextRequest) {
                 adminId,
                 actorType: actorClassification.actorType,
                 actorLane: actorClassification.actorLane,
+                performedAs,
+                projectionMode,
                 includeInUserBehavior: inclusion.includeInUserBehavior,
                 includeInAdminAnalytics: inclusion.includeInAdminAnalytics,
                 analyticsExclusionReason: inclusion.exclusionReason ?? "",
@@ -344,7 +369,7 @@ async function POST_handler(request: NextRequest) {
             batch.set(ref, finalEvent, { merge: false });
             processed++;
 
-            if (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0)) {
+            if (inclusion.includeInUserBehavior && (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0))) {
                 latestActiveUserPatch = buildIdentifiedActiveUserPatch({
                     uid: caller.uid,
                     timestampMs: timestamp,
