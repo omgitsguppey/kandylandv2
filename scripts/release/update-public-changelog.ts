@@ -251,6 +251,12 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   ) {
     return "Improved internal content safety checks for admin media tools.";
   }
+  if (
+    normalized.includes("navigation session firestore read bounds")
+    || (normalized.includes("auth") && normalized.includes("navigation session") && normalized.includes("firestore"))
+  ) {
+    return "Improved behind-the-scenes session safety checks.";
+  }
   if (surfaces.includes("release-notes")) {
     return "Improved Beta update notes so changes are easier to match with support reports.";
   }

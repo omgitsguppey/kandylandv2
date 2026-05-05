@@ -278,6 +278,20 @@ function hasBodyLimitEvidence(source: string) {
   return /bodyLimit|MAX_[A-Z0-9_]*BYTES|payloadTooLarge|content-length|Content-Length|safeParseJson|parseJsonBody|requestBodyLimit|MAX_PAYLOAD/u.test(source);
 }
 
+function hasBoundedFirestoreGetEvidence(source: string, getIndex: number) {
+  const prefix = source.slice(Math.max(0, getIndex - 360), getIndex);
+  const normalizedPrefix = prefix.replace(/\s+/gu, " ");
+  const directDocRead = /(?:adminDb|adminFirestore|db|firestore)\s*(?:\.\s*collection\([^)]*\)\s*)+\.\s*doc\([^)]*\)\s*$/u.test(prefix)
+    || /(?:adminDb|adminFirestore|db|firestore)\s*\.\s*doc\([^)]*\)\s*$/u.test(prefix);
+  const aggregateCountRead = /\.count\(\)\s*$/u.test(prefix);
+  const explicitBoundEvidence = /\.limit\(|limit\(|pageSize|cursor|bounded|ALLOW_UNBOUNDED|hot-cache|snapshot/u.test(prefix)
+    || /cost-bound:\s*single Firestore document read/u.test(normalizedPrefix)
+    || /cost-bound:\s*Firestore query is limited to \d+ records/u.test(normalizedPrefix)
+    || /cost-bound:\s*aggregate count read/u.test(normalizedPrefix);
+
+  return directDocRead || aggregateCountRead || explicitBoundEvidence;
+}
+
 function buildFinding(input: SpeedSecurityFindingInput): SpeedSecurityFinding {
   const normalizedPath = normalizePath(input.filePath);
   const seed = [input.domain, input.severity, normalizedPath, input.line ?? "", input.title, input.actualPattern].join("|");
@@ -547,8 +561,7 @@ function classifyApiRoutes(root: string, findings: SpeedSecurityFindingInput[]) 
 
     const firestoreGetMatches = Array.from(source.matchAll(/\.get\(\)/gu));
     const unboundedGets = firestoreGetMatches.filter((match) => {
-      const prefix = source.slice(Math.max(0, (match.index ?? 0) - 360), match.index);
-      return !/\.limit\(|limit\(|pageSize|cursor|bounded|ALLOW_UNBOUNDED|hot-cache|snapshot/u.test(prefix);
+      return !hasBoundedFirestoreGetEvidence(source, match.index ?? 0);
     });
     if (unboundedGets.length > 0) {
       pushFinding(findings, {
