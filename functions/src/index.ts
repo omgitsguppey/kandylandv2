@@ -43,6 +43,7 @@ export {onTransactionCreated} from "./analytics-transactions.js"
 
 setGlobalOptions({
   region: REGION,
+  memory: "512MiB",
   maxInstances: 10,
 })
 
