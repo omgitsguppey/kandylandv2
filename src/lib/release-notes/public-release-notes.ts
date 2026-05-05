@@ -1,12 +1,44 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.25.0",
+  "currentVersion": "1.26.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T21:10:43.517Z",
-  "generatedAtUtc": "2026-05-05T21:10:43.517Z",
-  "lastCommitSha": "79eb57843663fa21a78a14261fb06607d4350dde",
+  "generatedAt": "2026-05-05T21:16:47.540Z",
+  "generatedAtUtc": "2026-05-05T21:16:47.540Z",
+  "lastCommitSha": "648a07ef1b19c9d176c9ea1cd2ec4cf4bf92c14b",
   "notes": [
+    {
+      "version": "1.26.0",
+      "previousVersion": "1.25.0",
+      "commitSha": "648a07ef1b19c9d176c9ea1cd2ec4cf4bf92c14b",
+      "commitTitle": "fix(cost): guard creator ID document egress",
+      "committedAt": "2026-05-05T21:16:32.000Z",
+      "generatedAt": "2026-05-05T21:16:47.539Z",
+      "committedAtUtc": "2026-05-05T21:16:32.000Z",
+      "generatedAtUtc": "2026-05-05T21:16:47.539Z",
+      "diffStats": {
+        "rawAdditions": 174,
+        "rawDeletions": 38,
+        "rawChangeCount": 212,
+        "additions": 174,
+        "deletions": 38,
+        "effectiveAdditions": 147,
+        "effectiveDeletions": 7,
+        "changedFiles": 5,
+        "effectiveChangeCount": 154,
+        "excludedGeneratedChangeCount": 58
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal safety checks for creator verification documents.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.25.0",
       "previousVersion": "1.24.8",
@@ -131,38 +163,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "Kept the update focused on user-visible polish and reliability."
       ],
       "affectedSurfaces": [
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.5",
-      "previousVersion": "1.24.4",
-      "commitSha": "527f833df0272619b7d5909dd0c217a526112444",
-      "commitTitle": "fix(chat): refresh attachment cancel idempotency",
-      "committedAt": "2026-05-05T20:41:36.000Z",
-      "generatedAt": "2026-05-05T20:41:47.310Z",
-      "committedAtUtc": "2026-05-05T20:41:36.000Z",
-      "generatedAtUtc": "2026-05-05T20:41:47.310Z",
-      "diffStats": {
-        "rawAdditions": 3,
-        "rawDeletions": 1,
-        "rawChangeCount": 4,
-        "additions": 3,
-        "deletions": 1,
-        "effectiveAdditions": 2,
-        "effectiveDeletions": 0,
-        "changedFiles": 2,
-        "effectiveChangeCount": 2,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved reliability for canceling pending chat attachments.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "repo-tooling",
         "security"
       ]
     }

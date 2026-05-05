@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.26.0] - 2026-05-05
+
+### Fixed
+
+- Updated 2026-05-05 21:16 UTC
+- Improved internal safety checks for creator verification documents.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.25.0] - 2026-05-05
 
 ### Fixed
