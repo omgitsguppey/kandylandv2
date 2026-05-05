@@ -20,6 +20,7 @@
   "researchModel": "JSON Lines records are streamable and structured manifests are faster for deterministic lookup than narrative markdown.",
   "loadPlan": [
     "Read agent/context/doctrine.index.json first.",
+    "Read agent/context/surface-doctrine-map.json before applying UI density, copy, state, or server truth rules.",
     "Select surfaces by changed files, task terms, or validator map.",
     "Stream agent/context/doctrine.cards.jsonl and keep only matching surfaces.",
     "Stream agent/context/surface-contracts.jsonl for canonical files and validators.",
@@ -288,6 +289,12 @@
     "docs/agent-truth/user-engagement-score.md",
     "docs/agent-truth/user-value-score.md",
     "docs/agent-truth/watch-time-truth.md",
+    "docs/doctrine/03-surface-hierarchy.md",
+    "docs/doctrine/surfaces/admin-ui-doctrine.md",
+    "docs/doctrine/surfaces/creator-ui-doctrine.md",
+    "docs/doctrine/surfaces/server-truth-doctrine.md",
+    "docs/doctrine/surfaces/shared-brand-primitives.md",
+    "docs/doctrine/surfaces/user-ui-doctrine.md",
     "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md",
     "docs/doctrine/kandydrops-ui-doctrine.md"
   ],

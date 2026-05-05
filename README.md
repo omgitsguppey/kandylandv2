@@ -9,29 +9,42 @@ Read in this order:
 1. [Control Tower Start](./control-tower/00-START-HERE.md)
 2. [Doctrine Registry](./agent/context/doctrine-registry.json)
 3. [Compact Doctrine Cards](./agent/context/doctrine-cards.jsonl)
-4. [Product Constitution](./docs/doctrine/00-product-constitution.md)
-5. [Source-of-Truth Constitution](./docs/doctrine/01-source-of-truth-constitution.md)
-6. [Engineering Constitution](./docs/doctrine/02-engineering-constitution.md)
-7. [Surface Doctrine Cards](./docs/doctrine/surfaces/README.md)
-8. [Doctrine Hierarchy Explainer](./docs/agent-truth/doctrine-hierarchy.md)
+4. [Surface Doctrine Map](./agent/context/surface-doctrine-map.json)
+5. [Product Constitution](./docs/doctrine/00-product-constitution.md)
+6. [Source-of-Truth Constitution](./docs/doctrine/01-source-of-truth-constitution.md)
+7. [Engineering Constitution](./docs/doctrine/02-engineering-constitution.md)
+8. [Surface Hierarchy](./docs/doctrine/03-surface-hierarchy.md)
+9. [Surface Doctrine Cards](./docs/doctrine/surfaces/README.md)
+10. [Doctrine Hierarchy Explainer](./docs/agent-truth/doctrine-hierarchy.md)
 
-Agents and human contributors should read compact context first, then the relevant surface doctrine, then full historical Markdown only when needed.
+Agents and human contributors should read compact context first, route the file through the surface-specific doctrine map, then read the relevant surface doctrine and feature card. Full historical Markdown is only for unresolved uncertainty.
 
 ## Authority Summary
 
 - Level 1: Product Constitution.
 - Level 2: Source-of-Truth Constitution.
 - Level 3: Engineering Constitution.
-- Level 4: Surface doctrine cards.
+- Level 4: Surface hierarchy, surface doctrine cards, and feature doctrine cards.
 - Level 5: Runbooks and ADRs.
 - Level 6: Generated reports as snapshots, not doctrine.
 - Level 7: Legacy docs with superseded-by and phase-out metadata.
+
+## Surface Doctrine Gateway
+
+Use [agent/context/surface-doctrine-map.json](./agent/context/surface-doctrine-map.json) before editing UI, copy, telemetry, state, admin truth, or server truth. It routes files to User UI, Creator UI, Admin UI, Server Truth, Shared Brand Primitives, or Cross-Surface Contracts so surface-specific doctrine wins over generic layout assumptions.
+
+- User UI: [docs/doctrine/surfaces/user-ui-doctrine.md](./docs/doctrine/surfaces/user-ui-doctrine.md)
+- Creator UI: [docs/doctrine/surfaces/creator-ui-doctrine.md](./docs/doctrine/surfaces/creator-ui-doctrine.md)
+- Admin UI: [docs/doctrine/surfaces/admin-ui-doctrine.md](./docs/doctrine/surfaces/admin-ui-doctrine.md)
+- Server Truth: [docs/doctrine/surfaces/server-truth-doctrine.md](./docs/doctrine/surfaces/server-truth-doctrine.md)
+- Shared Brand Primitives: [docs/doctrine/surfaces/shared-brand-primitives.md](./docs/doctrine/surfaces/shared-brand-primitives.md)
 
 ## Required Checks For Doctrine Changes
 
 ```bash
 npm run score:doctrine
 npm run check:doctrine
+npm run check:surface-doctrine-split
 npm run typecheck
 ```
 

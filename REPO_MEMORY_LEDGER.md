@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Surface doctrine split
+
+KandyDrops now routes doctrine by primary surface before agents apply layout, density, copy, state, telemetry, admin truth, or server truth rules. `docs/doctrine/03-surface-hierarchy.md` defines the hierarchy and conflict winners; `docs/doctrine/surfaces/user-ui-doctrine.md`, `creator-ui-doctrine.md`, `admin-ui-doctrine.md`, `server-truth-doctrine.md`, and `shared-brand-primitives.md` split the former mixed UI rules into User, Creator, Admin, Server, and shared primitive layers. `agent/context/surface-doctrine-map.json` maps app paths/components/backend paths to one primary surface, and `npm run check:surface-doctrine-split` validates docs, map routing, README/AGENTS guidance, server/UI boundary checks, and shared primitive purity. Server truth beats all UI doctrine for money, unlocks, entitlements, security, support permission, moderation evidence, and creator monetization.
+
 ## 2026-05-05 Release notes effective diff bumping
 
 Public Beta version bumping now separates raw Git stats from effective release-impact stats. `src/lib/release-notes/release-version-contract.ts` owns generated/build/report exclusions, and `scripts/release/update-public-changelog.ts` stores raw additions/deletions for debug while bumping versions only from `effectiveChangeCount`. `npm run check:release-notes` now includes a generated-only high-raw-count fixture so generated reports cannot trigger a minor bump.

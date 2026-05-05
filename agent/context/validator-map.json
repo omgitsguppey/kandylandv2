@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 189,
+  "validatorCount": 190,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -123,6 +123,7 @@
       "check:outdated",
       "check:refresh-based-hot-cache",
       "check:scheduler:freshness",
+      "check:surface-doctrine-split",
       "check:test-fixtures-demo",
       "check:versions",
       "check:warnings"
@@ -409,6 +410,7 @@
     "check:speed-security": "speed-security",
     "check:support-recovery-flows": "support",
     "check:support-tracking-truth": "support",
+    "check:surface-doctrine-split": "repo-governance",
     "check:synthetic-creators-view-as": "creator-dashboard",
     "check:telemetry": "telemetry",
     "check:telemetry-identified-parity": "telemetry",

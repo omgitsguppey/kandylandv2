@@ -9,6 +9,26 @@ Do not read every Markdown file by default. Load doctrine in this order:
 3. The relevant canonical surface doc under `docs/doctrine/surfaces/`
 4. Full Markdown source docs only when compact context leaves uncertainty
 
+## Surface Doctrine Routing
+
+Before editing UI, copy, telemetry, state, admin truth, or server/backend truth, read `agent/context/surface-doctrine-map.json` and `docs/doctrine/03-surface-hierarchy.md`. Resolve exactly one primary surface first, then load the matching doctrine:
+
+- User UI: `docs/doctrine/surfaces/user-ui-doctrine.md`
+- Creator UI: `docs/doctrine/surfaces/creator-ui-doctrine.md`
+- Admin UI: `docs/doctrine/surfaces/admin-ui-doctrine.md`
+- Server Truth: `docs/doctrine/surfaces/server-truth-doctrine.md`
+- Shared Brand Primitives: `docs/doctrine/surfaces/shared-brand-primitives.md`
+
+Conflict rules:
+
+- Server truth beats all UI doctrine for data, security, payment, unlock, entitlement, support permission, moderation evidence, and creator monetization.
+- Admin UI doctrine beats User UI doctrine inside `src/app/admin/**`.
+- Creator UI doctrine beats User UI doctrine inside creator dashboard/tools.
+- User UI doctrine beats Admin density rules on public and user-facing surfaces.
+- Shared brand primitives apply everywhere unless a surface doctrine overrides density or state presentation.
+
+Operational rule: do not apply admin density to user surfaces, do not apply user conversion copy to admin diagnostics, and do not let client UI state define server truth.
+
 Canonical authority order:
 
 1. Product Constitution: `docs/doctrine/00-product-constitution.md`
@@ -25,6 +45,7 @@ This command budget is mandatory for doctrine and governance work.
 
 - Start with affected-file planning and compact context.
 - Use `npm run score:doctrine` and `npm run check:doctrine` for doctrine hierarchy work.
+- Use `npm run check:surface-doctrine-split` when changing surface hierarchy, UI doctrine, server truth doctrine, or the path-to-surface map.
 - Use `npm run typecheck` when TypeScript changed.
 - Do not run Playwright, Lighthouse, Cypress, deploys, or full `npm run check` by default.
 

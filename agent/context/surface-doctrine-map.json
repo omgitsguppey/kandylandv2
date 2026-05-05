@@ -1,0 +1,408 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-05T12:00:00.000Z",
+  "purpose": "Route changed files to one primary doctrine surface before applying layout, density, copy, telemetry, or server-truth rules.",
+  "authorityOrder": [
+    "Product Constitution",
+    "Shared Brand Primitives",
+    "Surface Doctrine",
+    "Feature Doctrine",
+    "Validators"
+  ],
+  "loadOrder": [
+    "docs/doctrine/00-product-constitution.md",
+    "docs/doctrine/surfaces/shared-brand-primitives.md",
+    "docs/doctrine/03-surface-hierarchy.md",
+    "agent/context/surface-doctrine-map.json",
+    "matching surface doctrine doc",
+    "matching feature doctrine card"
+  ],
+  "surfaces": {
+    "user": {
+      "title": "User UI",
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "priority": "conversion, clarity, reward loop, emotional momentum",
+      "forbiddenCarryover": [
+        "admin dense/debug layout",
+        "raw truth machinery",
+        "server source-truth definitions"
+      ]
+    },
+    "creator": {
+      "title": "Creator UI",
+      "doctrine": "docs/doctrine/surfaces/creator-ui-doctrine.md",
+      "priority": "operational creator control, earnings, content, fans, bookings",
+      "forbiddenCarryover": [
+        "admin-only diagnostics without debug mode",
+        "projection writes as live creator behavior"
+      ]
+    },
+    "admin": {
+      "title": "Admin UI",
+      "doctrine": "docs/doctrine/surfaces/admin-ui-doctrine.md",
+      "priority": "truth, speed, density, triage, evidence",
+      "forbiddenCarryover": [
+        "fake healthy states",
+        "user conversion copy hiding degraded source truth"
+      ]
+    },
+    "server": {
+      "title": "Server Truth",
+      "doctrine": "docs/doctrine/surfaces/server-truth-doctrine.md",
+      "priority": "canonical data, security, cost control, auditability",
+      "forbiddenCarryover": [
+        "UI owns source truth",
+        "inline route formulas",
+        "UI doctrine imports"
+      ]
+    },
+    "shared-primitives": {
+      "title": "Shared Brand Primitives",
+      "doctrine": "docs/doctrine/surfaces/shared-brand-primitives.md",
+      "priority": "brand primitives, accessibility, core components",
+      "forbiddenCarryover": [
+        "surface-specific business logic",
+        "server-truth definitions"
+      ]
+    },
+    "cross-surface-contract": {
+      "title": "Cross-Surface Contract",
+      "doctrine": "docs/doctrine/01-source-of-truth-constitution.md",
+      "priority": "contract names, telemetry, behavioral facts, recommendations",
+      "forbiddenCarryover": [
+        "surface-specific display rules as canonical truth"
+      ]
+    }
+  },
+  "pathRules": [
+    {
+      "pattern": "src/app/page.tsx",
+      "primarySurface": "user",
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "why": "Home is a public conversion surface."
+    },
+    {
+      "pattern": "src/app/drops/**",
+      "primarySurface": "user",
+      "featureSurfaces": [
+        "drops",
+        "viewer"
+      ],
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "why": "Drops are fan-facing discovery/unlock surfaces."
+    },
+    {
+      "pattern": "src/app/experiences/**",
+      "primarySurface": "user",
+      "featureSurfaces": [
+        "drops",
+        "creator-profile"
+      ],
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "why": "Experiences are fan-facing conversion and retention surfaces."
+    },
+    {
+      "pattern": "src/app/dashboard/**",
+      "primarySurface": "user",
+      "featureSurfaces": [
+        "viewer",
+        "watch-time",
+        "support",
+        "user-management"
+      ],
+      "doctrine": "docs/doctrine/surfaces/user-ui-doctrine.md",
+      "why": "Dashboard routes are signed-in fan/user surfaces unless a nested creator tool explicitly overrides."
+    },
+    {
+      "pattern": "src/app/dashboard/profile/components/ProfileCreator*.tsx",
+      "primarySurface": "creator",
+      "featureSurfaces": [
+        "creator-dashboard"
+      ],
+      "doctrine": "docs/doctrine/surfaces/creator-ui-doctrine.md",
+      "why": "Profile creator sections expose creator operational tools."
+    },
+    {
+      "pattern": "src/app/creators/[username]/**",
+      "primarySurface": "creator",
+      "featureSurfaces": [
+        "creator-profile",
+        "telemetry"
+      ],
+      "doctrine": "docs/doctrine/surfaces/creator-ui-doctrine.md",
+      "why": "Creator profile surfaces must preserve fan-targeted creator state without admin diagnostics."
+    },
+    {
+      "pattern": "src/app/creators/apply/**",
+      "primarySurface": "creator",
+      "featureSurfaces": [
+        "creator-dashboard"
+      ],
+      "doctrine": "docs/doctrine/surfaces/creator-ui-doctrine.md",
+      "why": "Creator intake is an operational creator workflow."
+    },
+    {
+      "pattern": "src/app/creators/waitlist/**",
+      "primarySurface": "creator",
+      "featureSurfaces": [
+        "creator-dashboard"
+      ],
+      "doctrine": "docs/doctrine/surfaces/creator-ui-doctrine.md",
+      "why": "Creator waitlist is an operational creator workflow."
+    },
+    {
+      "pattern": "src/components/Creators/**",
+      "primarySurface": "creator",
+      "featureSurfaces": [
+        "creator-dashboard",
+        "creator-profile"
+      ],
+      "doctrine": "docs/doctrine/surfaces/creator-ui-doctrine.md",
+      "why": "Creator components own creator-facing operations and profile projection."
+    },
+    {
+      "pattern": "src/app/admin/**",
+      "primarySurface": "admin",
+      "featureSurfaces": [
+        "admin-debug",
+        "admin-ai",
+        "user-management",
+        "moderation",
+        "support",
+        "telemetry"
+      ],
+      "doctrine": "docs/doctrine/surfaces/admin-ui-doctrine.md",
+      "why": "Admin route surfaces require truth badges, dense triage, source state, freshness, and confidence."
+    },
+    {
+      "pattern": "src/components/Admin/**",
+      "primarySurface": "admin",
+      "featureSurfaces": [
+        "admin-debug",
+        "moderation",
+        "support"
+      ],
+      "doctrine": "docs/doctrine/surfaces/admin-ui-doctrine.md",
+      "why": "Admin components are operational triage surfaces."
+    },
+    {
+      "pattern": "src/app/api/**",
+      "primarySurface": "server",
+      "featureSurfaces": [
+        "security/cost",
+        "telemetry"
+      ],
+      "doctrine": "docs/doctrine/surfaces/server-truth-doctrine.md",
+      "why": "API routes own or broker server truth and must not follow UI density doctrine."
+    },
+    {
+      "pattern": "src/lib/server/**",
+      "primarySurface": "server",
+      "featureSurfaces": [
+        "security/cost"
+      ],
+      "doctrine": "docs/doctrine/surfaces/server-truth-doctrine.md",
+      "why": "Server helpers own backend contracts, cost, auth, and source-truth logic."
+    },
+    {
+      "pattern": "functions/src/**",
+      "primarySurface": "server",
+      "featureSurfaces": [
+        "security/cost",
+        "behavioral-intelligence"
+      ],
+      "doctrine": "docs/doctrine/surfaces/server-truth-doctrine.md",
+      "why": "Cloud functions are backend truth and cost surfaces."
+    },
+    {
+      "pattern": "firestore.rules",
+      "primarySurface": "server",
+      "featureSurfaces": [
+        "security/cost"
+      ],
+      "doctrine": "docs/doctrine/surfaces/server-truth-doctrine.md",
+      "why": "Firestore rules are canonical access-control truth."
+    },
+    {
+      "pattern": "storage.rules",
+      "primarySurface": "server",
+      "featureSurfaces": [
+        "security/cost",
+        "image-loading"
+      ],
+      "doctrine": "docs/doctrine/surfaces/server-truth-doctrine.md",
+      "why": "Storage rules are canonical content-access truth."
+    },
+    {
+      "pattern": "dataconnect/**",
+      "primarySurface": "server",
+      "featureSurfaces": [
+        "cloud/sql/bigquery"
+      ],
+      "doctrine": "docs/doctrine/surfaces/server-truth-doctrine.md",
+      "why": "Data Connect remains a backend/agent-context mirror unless promoted by contract."
+    },
+    {
+      "pattern": "src/components/ui/**",
+      "primarySurface": "shared-primitives",
+      "doctrine": "docs/doctrine/surfaces/shared-brand-primitives.md",
+      "why": "Pure shared UI primitives cannot contain surface-specific business logic."
+    },
+    {
+      "pattern": "src/lib/telemetry*",
+      "primarySurface": "cross-surface-contract",
+      "featureSurfaces": [
+        "telemetry"
+      ],
+      "doctrine": "docs/doctrine/01-source-of-truth-constitution.md",
+      "why": "Telemetry contracts cross UI and server surfaces."
+    },
+    {
+      "pattern": "src/lib/behavioral*",
+      "primarySurface": "cross-surface-contract",
+      "featureSurfaces": [
+        "behavioral-intelligence"
+      ],
+      "doctrine": "docs/doctrine/01-source-of-truth-constitution.md",
+      "why": "Behavioral contracts cross user, admin, and server projections."
+    },
+    {
+      "pattern": "src/lib/recommendations*",
+      "primarySurface": "cross-surface-contract",
+      "featureSurfaces": [
+        "behavioral-intelligence"
+      ],
+      "doctrine": "docs/doctrine/01-source-of-truth-constitution.md",
+      "why": "Recommendation contracts cross display, scoring, and server facts."
+    }
+  ],
+  "majorRouteGroups": [
+    {
+      "route": "/",
+      "appPath": "src/app/page.tsx",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/drops",
+      "appPath": "src/app/drops/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/experiences",
+      "appPath": "src/app/experiences/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/dashboard",
+      "appPath": "src/app/dashboard/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/settings",
+      "appPath": "src/app/dashboard/profile/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/support",
+      "appPath": "src/app/dashboard/support/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/notifications",
+      "appPath": "src/components/Notifications/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/library",
+      "appPath": "src/app/dashboard/library/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/creators/[username]",
+      "appPath": "src/app/creators/[username]/**",
+      "primarySurface": "creator"
+    },
+    {
+      "route": "/creators/apply",
+      "appPath": "src/app/creators/apply/**",
+      "primarySurface": "creator"
+    },
+    {
+      "route": "/creators/waitlist",
+      "appPath": "src/app/creators/waitlist/**",
+      "primarySurface": "creator"
+    },
+    {
+      "route": "/admin",
+      "appPath": "src/app/admin/**",
+      "primarySurface": "admin"
+    },
+    {
+      "route": "/api",
+      "appPath": "src/app/api/**",
+      "primarySurface": "server"
+    },
+    {
+      "route": "/faq",
+      "appPath": "src/app/faq/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/offline",
+      "appPath": "src/app/offline/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/banned",
+      "appPath": "src/app/banned/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/legal",
+      "appPath": "src/app/(legal)/**",
+      "primarySurface": "user"
+    },
+    {
+      "route": "/__",
+      "appPath": "src/app/%5F%5F/**",
+      "primarySurface": "server"
+    }
+  ],
+  "conflictRules": [
+    {
+      "conflict": "data, security, payment, unlock, entitlement, support permission, moderation evidence, or creator monetization",
+      "winner": "server",
+      "rule": "Server truth beats all UI doctrine."
+    },
+    {
+      "conflict": "admin route layout, state, density, or copy",
+      "winner": "admin",
+      "rule": "Admin UI doctrine beats User UI inside /admin."
+    },
+    {
+      "conflict": "creator dashboard/tool layout, state, density, or copy",
+      "winner": "creator",
+      "rule": "Creator UI doctrine beats User UI inside creator tools."
+    },
+    {
+      "conflict": "public/user-facing layout density or copy",
+      "winner": "user",
+      "rule": "User UI doctrine beats Admin density on public/user surfaces."
+    },
+    {
+      "conflict": "shared primitives vs surface-specific business rules",
+      "winner": "surface",
+      "rule": "Shared brand primitives apply everywhere unless surface doctrine overrides layout density or state presentation."
+    },
+    {
+      "conflict": "feature doctrine contradicts server truth",
+      "winner": "server",
+      "rule": "Feature doctrine cannot contradict server truth."
+    }
+  ],
+  "validators": [
+    "check:surface-doctrine-split",
+    "check:doctrine",
+    "surface-specific feature validators"
+  ]
+}

@@ -6,6 +6,17 @@ This folder contains the short canonical doctrine card for each product or engin
 
 ## Surfaces
 
+Surface routing docs:
+
+- `../03-surface-hierarchy.md`
+- `user-ui-doctrine.md`
+- `creator-ui-doctrine.md`
+- `admin-ui-doctrine.md`
+- `server-truth-doctrine.md`
+- `shared-brand-primitives.md`
+
+Feature doctrine cards:
+
 - `wallet.md`
 - `drops.md`
 - `viewer.md`
@@ -23,5 +34,7 @@ This folder contains the short canonical doctrine card for each product or engin
 - `image-loading.md`
 - `security-cost.md`
 - `cloud-sql-bigquery.md`
+
+Use `agent/context/surface-doctrine-map.json` before choosing a surface doc. User, creator, admin, server, shared primitive, and cross-surface contract rules decide which feature doctrine applies.
 
 Run `npm run score:doctrine` to regenerate `agent/context/doctrine-registry.json`, `agent/context/doctrine-cards.jsonl`, and `agent/context/doctrine-conflicts.generated.json`.

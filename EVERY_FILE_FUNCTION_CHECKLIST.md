@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Surface Doctrine Split Coverage
+
+- [x] `docs/doctrine/03-surface-hierarchy.md`, `docs/doctrine/surfaces/user-ui-doctrine.md`, `docs/doctrine/surfaces/creator-ui-doctrine.md`, `docs/doctrine/surfaces/admin-ui-doctrine.md`, `docs/doctrine/surfaces/server-truth-doctrine.md`, and `docs/doctrine/surfaces/shared-brand-primitives.md` define the User, Creator, Admin, Server, and shared primitive doctrine layers.
+- [x] `agent/context/surface-doctrine-map.json` maps public/user, creator, admin, server, shared primitive, and cross-surface contract paths to one primary surface before feature doctrine is applied.
+- [x] `scripts/agent/validate-surface-doctrine-split.ts`, package script `check:surface-doctrine-split`, README/AGENTS guidance, `docs/agent-truth/doctrine-hierarchy.md`, compact context references, and `agent/context/validator-map.json` provide deterministic enforcement without changing runtime UI, moving routes, or editing product behavior.
+
 ## 2026-05-05 Public Beta Release Notes Coverage
 
 - [x] `src/lib/release-notes/release-version-contract.ts`, `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, and `CHANGELOG.md` define the public Beta release-note/version contract, current app version, bundled fallback, and human changelog.

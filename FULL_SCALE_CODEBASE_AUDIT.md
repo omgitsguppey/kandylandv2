@@ -1,5 +1,28 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #165] PRE: Surface Doctrine Split
+
+Scope started:
+- Splitting the combined UI/UX doctrine into User UI, Creator UI, Admin UI, Server Truth, and Shared Brand Primitive layers so agents stop applying one density/copy/state doctrine everywhere.
+- Required outputs include `docs/doctrine/03-surface-hierarchy.md`, surface-specific doctrine docs, `agent/context/surface-doctrine-map.json`, `scripts/agent/validate-surface-doctrine-split.ts`, package script wiring, README/AGENTS gateway updates, and compact context validator mapping.
+- This pass must not change runtime UI, move routes, delete old doctrine, modify Firebase rules, or run browser/full-suite checks.
+
+Evidence:
+- Control tower mission, roles, task routing, execution order, capabilities, source-of-truth map, shared component ownership, postflight checklist, product/source/engineering constitutions, legacy UI/product/copy doctrine, surface card index, doctrine hierarchy validator, compact context files, route groups, and component directories were inspected before implementation.
+
+Doctrine:
+- Surface routing now resolves one primary surface before layout, density, copy, telemetry, state, admin truth, or server truth rules are applied.
+- Server truth beats UI doctrine for data, security, payment, unlock, entitlement, support permission, moderation evidence, and creator monetization.
+
+Scope completed:
+- Added the surface hierarchy doc, User/Creator/Admin/Server/Shared doctrine docs, machine-readable path-to-surface map, source-only validator, package script, README/AGENTS routing instructions, surface README links, compact context references, validator map entry, and legacy combined UI doctrine split notice.
+
+Verification:
+- `npm run check:surface-doctrine-split` passed.
+- `npm run check:doctrine` passed.
+- `npm run typecheck` passed.
+- Playwright, Lighthouse, Cypress, full `npm run check`, runtime UI changes, route moves, Firebase rule edits, and product behavior changes were not run or made.
+
 ## [2026-05-05 #164] PRE: Release Notes Effective Diff Bumping
 
 Scope started:

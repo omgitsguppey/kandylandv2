@@ -1,5 +1,17 @@
 # KandyDrops UI Doctrine
 
+## Surface Split Notice
+
+This historical combined UI doctrine is now a legacy/supporting baseline. For active work, route the file through `agent/context/surface-doctrine-map.json`, then use `docs/doctrine/03-surface-hierarchy.md` and the matching surface doctrine:
+
+- `docs/doctrine/surfaces/user-ui-doctrine.md`
+- `docs/doctrine/surfaces/creator-ui-doctrine.md`
+- `docs/doctrine/surfaces/admin-ui-doctrine.md`
+- `docs/doctrine/surfaces/server-truth-doctrine.md`
+- `docs/doctrine/surfaces/shared-brand-primitives.md`
+
+When this combined document conflicts with a surface-specific doctrine, the surface-specific doctrine wins for layout, density, state display, and copy.
+
 ## Purpose
 This document dictates the interaction design and visual hierarchy rules for KandyDrops to ensure consistency, truthfulness, and a premium feel.
 
