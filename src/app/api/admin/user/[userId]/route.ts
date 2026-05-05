@@ -1291,6 +1291,7 @@ async function GET_handler(
                     queryIntent: entry.queryIntent,
                     momentum: entry.momentum,
                     creatorSupplyQuality: entry.creatorSupplyQuality,
+                    integrity: entry.integrity,
                     diversity: entry.diversity,
                     factors: entry.factors,
                     explanationEligible: entry.explanationEligible,

@@ -103,6 +103,26 @@ creatorSupplyScore = 100 * (
 
 Recommendations expose `creatorSupplyQuality` and use it to reduce confidence when operational supply is weak. Visibility score is not reduced by default, and new creators are not buried solely because they have low data. Admin diagnostics must show exact missing operational pieces.
 
+## Integrity demotions
+
+Before exploration and diversity, KandyDrops applies integrity demotions to scored candidates:
+
+```txt
+integrityMultiplier = 1 - clamp01(
+0.35 * moderationRisk +
+0.20 * supportComplaintRate +
+0.20 * negativeSatisfactionRate +
+0.15 * verificationRisk +
+0.10 * metadataRisk
+)
+```
+
+```txt
+finalScore = rankScore * integrityMultiplier
+```
+
+Critical policy or content-protection failures remove the candidate from the final ranking set. Medium risk remains eligible but demoted, with admin diagnostics that say "demoted by integrity risk."
+
 ## Diversity reranking
 
 After deterministic or blended ML scores are calculated, KandyDrops applies a list-level diversity reranker. It preserves high predicted scores, then penalizes repetitive top windows:

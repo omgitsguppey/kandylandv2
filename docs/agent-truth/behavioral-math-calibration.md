@@ -272,6 +272,30 @@ Creator supply score:
 
 Signals include active Drops count, recent Drop freshness, fulfillment and response health, Fan Pass availability, booking availability, support and moderation issues, positive satisfaction, refund or negative feedback risk, and profile completeness. Low supply score reduces recommendation confidence, not visibility. New creators are not buried only because supply data is still low. Admin diagnostics must list exact missing operational pieces.
 
+## Integrity Demotions
+
+Integrity risk is applied after candidate generation and scoring, before exploration and diversity reranking. This prevents risky content from ranking normally while preserving candidate generation unless policy requires removal.
+
+Integrity multiplier:
+
+```text
+1 - clamp01(
+  0.35 * moderationRisk +
+  0.20 * supportComplaintRate +
+  0.20 * negativeSatisfactionRate +
+  0.15 * verificationRisk +
+  0.10 * metadataRisk
+)
+```
+
+Final score:
+
+```text
+rankScore * integrityMultiplier
+```
+
+Critical policy or content-protection failures remove the candidate. Medium and high risk candidates are demoted. Admin diagnostics must say "demoted by integrity risk" and include the risk components.
+
 ## Notification Quality Ranking
 
 KandyDrops ranks and throttles notifications by return likelihood and fatigue instead of treating every notification as equally worth sending or showing.

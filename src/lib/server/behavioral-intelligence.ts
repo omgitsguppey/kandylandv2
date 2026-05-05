@@ -13,6 +13,11 @@ import {
   type RecommendationExplorationDiagnostics,
 } from "@/lib/recommendations/exploration-policy";
 import { buildCreatorSupplyQualityMap } from "@/lib/recommendations/creator-quality-adjustment";
+import { buildIntegrityRiskMap } from "@/lib/moderation/integrity-risk-map";
+import {
+  applyIntegrityDemotions,
+  type IntegrityDemotionDiagnostics,
+} from "@/lib/recommendations/integrity-demotions";
 import {
   rerankRecommendationsForDiversity,
   type RecommendationDiversityDiagnostics,
@@ -167,6 +172,7 @@ type RankedDropRecommendation = {
     reasons: string[];
   };
   creatorSupplyQuality: CreatorSupplyQualityScoreResult | null;
+  integrity: IntegrityDemotionDiagnostics;
   exploration: RecommendationExplorationDiagnostics;
   diversity: RecommendationDiversityDiagnostics;
   explanationEligible: boolean;
@@ -217,9 +223,11 @@ function withDiversityDiagnostics(entry: RankedDropRecommendation) {
     { label: "Exploration boost", value: round(entry.diversity.explorationBoost / 100, 4) },
     { label: "Explore budget boost", value: round(entry.exploration.scoreBoost / 100, 4) },
     { label: "Creator supply score", value: round((entry.creatorSupplyQuality?.creatorSupplyScore || 0) / 100, 4) },
+    { label: "Integrity multiplier", value: entry.integrity.integrityMultiplier },
   ];
   const explanationReasons = Array.from(new Set([
     ...entry.explanationReasons,
+    ...entry.integrity.reasons,
     ...entry.exploration.reasons,
     ...entry.diversity.reasons,
   ]));
@@ -413,6 +421,11 @@ export async function buildDeterministicDropRecommendations(input: {
     dropIntelligence: intelligenceMap,
     nowMs,
   });
+  const integrityRiskMap = buildIntegrityRiskMap({
+    drops,
+    dropIntelligence: intelligenceMap,
+    nowMs,
+  });
   const coldStartCandidates = generateColdStartCandidates({
     drops: drops
       .filter((drop) => drop.status === "active")
@@ -516,12 +529,16 @@ export async function buildDeterministicDropRecommendations(input: {
           modelSource: artifactScore.modelSource,
           modelFreshness: artifactScore.modelFreshness,
         } : undefined,
-      } satisfies Omit<RankedDropRecommendation, "diversity" | "exploration">;
+      } satisfies Omit<RankedDropRecommendation, "diversity" | "exploration" | "integrity">;
     })
     .sort((left, right) => right.score - left.score || right.drop.validFrom - left.drop.validFrom);
   const recommendationLimit = recommendationState.explanationEligible ? limit : Math.min(limit, 3);
-  const explored = applyExplorationBudget({
+  const integrityAdjusted = applyIntegrityDemotions({
     entries: scored,
+    integrityRiskMap,
+  });
+  const explored = applyExplorationBudget({
+    entries: integrityAdjusted,
     limit: recommendationLimit,
     nowMs,
   });
