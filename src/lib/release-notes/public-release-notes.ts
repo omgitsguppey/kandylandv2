@@ -1,11 +1,40 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.0.0",
+  "currentVersion": "1.1.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T06:55:57.093Z",
-  "lastCommitSha": "b944cbd4a76840bc8a4efded2ada8d4c66c0204d",
+  "generatedAt": "2026-05-05T07:03:00.939Z",
+  "lastCommitSha": "c5b3501b12e69b442fcac74a4ee018a4f6fc70de",
   "notes": [
+    {
+      "version": "1.1.0",
+      "previousVersion": "1.0.0",
+      "commitSha": "c5b3501b12e69b442fcac74a4ee018a4f6fc70de",
+      "commitTitle": "feat(app): add beta release notes badge",
+      "committedAt": "2026-05-05T02:02:41-05:00",
+      "generatedAt": "2026-05-05T07:03:00.935Z",
+      "diffStats": {
+        "additions": 1193,
+        "deletions": 10,
+        "changedFiles": 22,
+        "effectiveChangeCount": 1203,
+        "excludedGeneratedChangeCount": 91
+      },
+      "bumpType": "minor",
+      "category": "Added",
+      "userFacingTitle": "Added a Beta badge with app update notes in the top navigation.",
+      "bullets": [
+        "Tap Beta beside KandyDrops to see the latest app-style updates.",
+        "The current beta version now stays tied to the public changelog."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "navigation",
+        "release-notes",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.0.0",
       "previousVersion": "1.0.0",
