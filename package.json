@@ -40,6 +40,7 @@
         "check:behavioral-math-calibration": "tsx scripts/agent/validate-behavioral-math-calibration.ts",
         "check:negative-preferences": "tsx scripts/agent/validate-negative-preferences.ts",
         "check:search-intent-truth": "tsx scripts/agent/validate-search-intent-truth.ts",
+        "check:diversity-reranking": "tsx scripts/agent/validate-diversity-reranking.ts",
         "analytics:truth:rebuild": "tsx scripts/rebuild-analytics-truth.ts",
         "check:telemetry": "tsx scripts/audit-telemetry.ts && tsx scripts/check-telemetry-parity-contracts.ts",
         "check:telemetry-orphan-cleanup": "tsx scripts/agent/validate-telemetry-orphan-cleanup.ts",

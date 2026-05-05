@@ -138,6 +138,35 @@ finalScore += queryIntentScore * 15
 
 Search intent decays with a 24-hour half-life and expires fast. It should influence the current session more than the long-term profile. Admin-facing reasons stay plain English, for example: "Boosted by recent search intent."
 
+## Diversity Reranking
+
+KandyDrops applies a list-level diversity pass after predicted recommendation scores are calculated. This prevents one creator, category, media type, or price tier from monopolizing the feed while preserving high-scoring candidates.
+
+Top-window constraints:
+
+- No more than `2` drops from the same creator in the top `6` when alternatives exist.
+- No more than `3` drops from the same category in the top `8` unless the user has very high category affinity.
+- Mix price tiers when possible through bounded exploration boost.
+- Mix fresh, urgent, personalized, and fallback candidates when possible.
+- Penalize drops and creators already shown across recent sessions.
+
+Diversity penalty:
+
+```text
+sameCreatorPenalty +
+sameCategoryPenalty +
+sameMediaTypePenalty +
+recentExposurePenalty
+```
+
+Reranked score:
+
+```text
+predictedScore - diversityPenalty + explorationBoost
+```
+
+Admin-facing reasons stay plain English, for example: "Moved lower to keep creator/category diversity."
+
 ## Surface Objectives
 
 - User drops page: `pUnlock24h`, `pPurchase7d`, freshness

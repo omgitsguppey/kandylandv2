@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 197,
+  "validatorCount": 198,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -94,6 +94,7 @@
       "check:behavioral-intelligence-confidence",
       "check:behavioral-math-calibration",
       "check:behavioral-truth-source",
+      "check:diversity-reranking",
       "check:daily-task-telemetry-truth",
       "check:event-fact-truth",
       "check:math-goal-alignment",
@@ -328,6 +329,7 @@
     "check:behavioral-intelligence-confidence": "behavioral-intelligence",
     "check:behavioral-math-calibration": "behavioral-intelligence",
     "check:behavioral-truth-source": "behavioral-intelligence",
+    "check:diversity-reranking": "behavioral-intelligence",
     "check:negative-preferences": "behavioral-intelligence",
     "check:search-intent-truth": "behavioral-intelligence",
     "check:beta-score": "speed-security",

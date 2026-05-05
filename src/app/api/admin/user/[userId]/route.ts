@@ -1289,6 +1289,7 @@ async function GET_handler(
                     truthScore: entry.truthScore,
                     suppression: entry.suppression,
                     queryIntent: entry.queryIntent,
+                    diversity: entry.diversity,
                     factors: entry.factors,
                     explanationEligible: entry.explanationEligible,
                     fallbackReason: entry.fallbackReason,

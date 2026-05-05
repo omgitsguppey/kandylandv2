@@ -69,6 +69,23 @@ If the artifact is missing or stale, KandyDrops uses deterministic ranking only.
 
 If the artifact comes from a synthetic bootstrap pass, it stays bounded by a low blend weight. It can inform ordering, but it does not replace deterministic retrieval or deterministic penalties.
 
+## Diversity reranking
+
+After deterministic or blended ML scores are calculated, KandyDrops applies a list-level diversity reranker. It preserves high predicted scores, then penalizes repetitive top windows:
+
+- maximum `2` drops from one creator in the top `6` when alternatives exist
+- maximum `3` drops from one category in the top `8` unless category affinity is very high
+- bounded penalties for repeated media type and recent exposure
+- exploration boost for underrepresented price tiers and fresh/urgent/personalized candidate mix
+
+Formula:
+
+```txt
+rerankedScore = predictedScore - diversityPenalty + explorationBoost
+```
+
+Admin diagnostics must explain diversity movement in plain English, for example: "Moved lower to keep creator/category diversity."
+
 ## UI truth
 
 - Confidence below 30 percent suppresses personalized recommendation explanations.

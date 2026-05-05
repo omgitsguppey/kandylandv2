@@ -6,6 +6,10 @@ import { generateRecommendationCandidates } from "@/lib/recommendations/candidat
 import { rankDeterministicRecommendations } from "@/lib/recommendations/deterministic-ranker";
 import { scoreRecommendationWithArtifact } from "@/lib/recommendations/ml-ranker";
 import { buildRecommendationExplanation } from "@/lib/recommendations/recommendation-explanations";
+import {
+  rerankRecommendationsForDiversity,
+  type RecommendationDiversityDiagnostics,
+} from "@/lib/recommendations/diversity-reranker";
 import type { NegativePreferenceProfile } from "@/lib/behavioral/negative-preference-score";
 import type { SearchIntentProfile } from "@/lib/behavioral/search-intent-profile";
 import type { Drop } from "@/types/db";
@@ -138,6 +142,7 @@ type RankedDropRecommendation = {
     boost: number;
     reasons: string[];
   };
+  diversity: RecommendationDiversityDiagnostics;
   explanationEligible: boolean;
   fallbackReason: string;
   explanationSummary: string;
@@ -177,6 +182,24 @@ function round(value: number, digits = 3) {
   if (!Number.isFinite(value)) return 0;
   const multiplier = 10 ** digits;
   return Math.round((value + Number.EPSILON) * multiplier) / multiplier;
+}
+
+function withDiversityDiagnostics(entry: RankedDropRecommendation) {
+  const factors = [
+    ...entry.factors,
+    { label: "Diversity penalty", value: round(entry.diversity.diversityPenalty / 100, 4) },
+    { label: "Exploration boost", value: round(entry.diversity.explorationBoost / 100, 4) },
+  ];
+  const explanationReasons = Array.from(new Set([
+    ...entry.explanationReasons,
+    ...entry.diversity.reasons,
+  ]));
+
+  return {
+    ...entry,
+    factors,
+    explanationReasons,
+  };
 }
 
 function buildProfileConfidence(profile: Partial<BehavioralProfileDoc> | null) {
@@ -307,7 +330,7 @@ export async function buildDeterministicDropRecommendations(input: {
     nowMs,
   });
 
-  const ranked = deterministicRanked
+  const scored = deterministicRanked
     .map((entry) => {
       const artifactScore = scoreRecommendationWithArtifact({
         features: entry.features,
@@ -383,9 +406,13 @@ export async function buildDeterministicDropRecommendations(input: {
           modelSource: artifactScore.modelSource,
           modelFreshness: artifactScore.modelFreshness,
         } : undefined,
-      } satisfies RankedDropRecommendation;
+      } satisfies Omit<RankedDropRecommendation, "diversity">;
     })
-    .sort((left, right) => right.score - left.score || right.drop.validFrom - left.drop.validFrom)
+    .sort((left, right) => right.score - left.score || right.drop.validFrom - left.drop.validFrom);
+  const ranked = rerankRecommendationsForDiversity({
+    entries: scored,
+    profile,
+  })
     .slice(0, recommendationState.explanationEligible ? limit : Math.min(limit, 3));
 
   if (recommendationState.insufficientSignal) {
@@ -401,10 +428,13 @@ export async function buildDeterministicDropRecommendations(input: {
     }));
   }
 
-  return ranked.map((entry) => ({
-    ...entry,
-    factors: entry.explanationEligible ? entry.factors : [],
-  }));
+  return ranked.map((entry) => {
+    const annotated = withDiversityDiagnostics(entry);
+    return {
+      ...annotated,
+      factors: annotated.explanationEligible ? annotated.factors : [],
+    };
+  });
 }
 
 export async function buildDeterministicCreatorRecommendations(input: {
