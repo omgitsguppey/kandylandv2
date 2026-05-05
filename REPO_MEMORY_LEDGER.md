@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Doctrine hierarchy consolidation
+
+KandyDrops doctrine now has an explicit authority hierarchy: Product Constitution, Source-of-Truth Constitution, Engineering Constitution, Surface Doctrine Cards, Runbooks/ADRs, Generated Reports, and Legacy Docs. `npm run score:doctrine` writes compact `agent/context/doctrine-registry.json`, streamable `agent/context/doctrine-cards.jsonl`, and `agent/context/doctrine-conflicts.generated.json`; `npm run check:doctrine` validates canonical docs, one canonical owner per surface, conflict winners, legacy superseded-by metadata, README gateway behavior, AGENTS compact-context-first behavior, and validator linkage. README is now a gateway instead of a doctrine dump, and AGENTS instructs agents not to read every Markdown file by default.
+
 ## 2026-05-05 Human developer readiness rails
 
 KandyDrops now has outsourced-human-development governance rails. `CONTRIBUTING.md`, `SECURITY.md`, `.env.example`, `.github/CODEOWNERS`, PR/issue templates, Dependabot, lightweight CI, Dependency Review, report-only OpenSSF Scorecard, ADR template, runbooks, environment contract, contractor onboarding, and `docs/agent-truth/human-dev-readiness.md` define review, security, dependency, incident, and onboarding expectations. `npm run check:human-dev-readiness` runs `scripts/agent/validate-human-dev-readiness.ts`, validates required files, sensitive CODEOWNERS entries, least-permission workflows, safe env examples, docs/runbooks, package wiring, and writes `agent/state/human-dev-readiness.generated.json`.

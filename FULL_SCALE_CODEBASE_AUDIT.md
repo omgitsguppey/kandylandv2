@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #162] PRE: Doctrine Hierarchy Consolidation
+
+Scope started:
+- Consolidating KandyDrops doctrine into explicit authority levels, canonical constitutions, canonical surface cards, generated registry/cards/conflict outputs, README gateway, AGENTS compact-context rules, and doctrine score/check scripts.
+- Required outputs include `docs/doctrine/00-product-constitution.md`, `docs/doctrine/01-source-of-truth-constitution.md`, `docs/doctrine/02-engineering-constitution.md`, `docs/doctrine/surfaces/*`, `agent/context/doctrine-registry.json`, `agent/context/doctrine-cards.jsonl`, `agent/context/doctrine-conflicts.generated.json`, score/check scripts, and `docs/agent-truth/doctrine-hierarchy.md`.
+- This pass must not delete existing human docs blindly, change product runtime behavior, run browser/full-suite checks, or treat generated reports as canonical doctrine.
+
+Evidence:
+- Existing README doctrine dump, AGENTS instructions, compact context artifacts, doctrine docs, agent-truth docs, runbooks, ADRs, generated reports, and package validator patterns were inspected before implementation.
+
+Doctrine:
+- Authority now flows Product Constitution -> Source-of-Truth Constitution -> Engineering Constitution -> Surface Doctrine Cards -> Runbooks/ADRs -> Generated Reports -> Legacy Docs.
+- Agents must read `agent/context/doctrine-registry.json` first, then relevant `agent/context/doctrine-cards.jsonl` records, then canonical surface docs, and only then full Markdown if needed.
+
+Scope completed:
+- Added three constitutions and 17 canonical surface doctrine cards.
+- Replaced README's long doctrine dump with a gateway linking control tower, registry, compact cards, constitutions, surface docs, and contributor/security gateways.
+- Added `scripts/agent/score-doctrine-hierarchy.ts` and `scripts/agent/validate-doctrine-hierarchy.ts`, with package scripts `score:doctrine` and `check:doctrine`.
+- Generated compact `agent/context/doctrine-registry.json`, streamable `agent/context/doctrine-cards.jsonl`, and compact `agent/context/doctrine-conflicts.generated.json`.
+- Added `docs/agent-truth/doctrine-hierarchy.md` and updated AGENTS with compact-context-first load order and command budget doctrine.
+
+Verification:
+- `npm run score:doctrine` passed with score 100/100, 250 registry entries, 26 compact cards, and 8 known conflicts resolved by authority.
+- `npm run check:doctrine` passed.
+- `npm run typecheck` passed.
+- Broad audits, Playwright, Lighthouse, Cypress, deploys, and full `npm run check` were not run.
+
 ## [2026-05-05 #161] PRE: Human Developer Readiness Rails
 
 Scope started:

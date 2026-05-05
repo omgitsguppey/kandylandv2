@@ -1,5 +1,33 @@
 ﻿# Agent Instructions
 
+## Doctrine Hierarchy Fast Path
+
+Do not read every Markdown file by default. Load doctrine in this order:
+
+1. `agent/context/doctrine-registry.json`
+2. Task-specific records from `agent/context/doctrine-cards.jsonl`
+3. The relevant canonical surface doc under `docs/doctrine/surfaces/`
+4. Full Markdown source docs only when compact context leaves uncertainty
+
+Canonical authority order:
+
+1. Product Constitution: `docs/doctrine/00-product-constitution.md`
+2. Source-of-Truth Constitution: `docs/doctrine/01-source-of-truth-constitution.md`
+3. Engineering Constitution: `docs/doctrine/02-engineering-constitution.md`
+4. Surface Doctrine Cards: `docs/doctrine/surfaces/*.md`
+5. Runbooks and ADRs
+6. Generated reports as snapshots, not doctrine
+7. Legacy docs with `supersededBy`, `reviewBy`, and `removeBy`
+
+Command budget doctrine:
+
+This command budget is mandatory for doctrine and governance work.
+
+- Start with affected-file planning and compact context.
+- Use `npm run score:doctrine` and `npm run check:doctrine` for doctrine hierarchy work.
+- Use `npm run typecheck` when TypeScript changed.
+- Do not run Playwright, Lighthouse, Cypress, deploys, or full `npm run check` by default.
+
 > [!CAUTION]
 > **MANDATORY CONTROL TOWER ROUTING:**
 > Before touching UI, copy, telemetry, state, admin truth, or Firebase architecture, you MUST start with /control-tower/00-START-HERE.md.

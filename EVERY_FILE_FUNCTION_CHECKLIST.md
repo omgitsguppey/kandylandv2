@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Doctrine Hierarchy Consolidation Coverage
+
+- [x] `docs/doctrine/00-product-constitution.md`, `docs/doctrine/01-source-of-truth-constitution.md`, `docs/doctrine/02-engineering-constitution.md`, and `docs/doctrine/surfaces/*.md` define the canonical doctrine authority hierarchy and surface ownership layer.
+- [x] `scripts/agent/score-doctrine-hierarchy.ts`, `scripts/agent/validate-doctrine-hierarchy.ts`, `agent/context/doctrine-registry.json`, `agent/context/doctrine-cards.jsonl`, `agent/context/doctrine-conflicts.generated.json`, and package scripts `score:doctrine` / `check:doctrine` provide the deterministic doctrine consolidation lane.
+- [x] `README.md`, `AGENTS.md`, and `docs/agent-truth/doctrine-hierarchy.md` now point humans and agents to compact registry/cards first, then canonical surface docs, while preserving historical Markdown as supporting or legacy registry entries.
+
 ## 2026-05-05 Human Developer Readiness Coverage
 
 - [x] `CONTRIBUTING.md`, `SECURITY.md`, `.env.example`, `.github/CODEOWNERS`, GitHub PR/issue templates, Dependabot config, CI, Dependency Review, and OpenSSF Scorecard workflows provide outside-developer governance, security, dependency, and review rails.

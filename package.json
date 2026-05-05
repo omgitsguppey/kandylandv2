@@ -52,6 +52,8 @@
         "repair:hardening": "tsx scripts/agent/repair-codebase-hardening-safe.ts",
         "score:code-organization": "tsx scripts/agent/score-code-organization.ts",
         "check:code-organization": "tsx scripts/agent/validate-code-organization.ts",
+        "score:doctrine": "tsx scripts/agent/score-doctrine-hierarchy.ts",
+        "check:doctrine": "tsx scripts/agent/validate-doctrine-hierarchy.ts",
         "check:human-dev-readiness": "tsx scripts/agent/validate-human-dev-readiness.ts",
         "score:speed-security": "tsx scripts/agent/score-speed-security-hardening.ts",
         "check:speed-security": "tsx scripts/agent/validate-speed-security-hardening.ts",
