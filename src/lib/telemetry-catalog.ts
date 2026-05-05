@@ -262,7 +262,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "creator_profile_viewed", label: "Creator profile viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_profile_link_clicked", label: "Creator profile link clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
   { eventName: "creator_profile_link_missing", label: "Creator profile link missing", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation", "runtime"] },
-  { eventName: "creator_spotlight_viewed", label: "Creator spotlight viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
+  { eventName: "creator_rail_impression", label: "Creator rail impression", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"], aliases: ["creator_spotlight_viewed"] },
   { eventName: "creator_settings_updated", label: "Creator settings updated", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator"] },
   { eventName: "creator_broadcast_opened", label: "Creator broadcast opened", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "notifications"] },
   { eventName: "creator_experience_lane_opened", label: "Creator experience lane opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
@@ -344,8 +344,8 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "cookie_consent_updated", label: "Cookie consent updated", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "insufficient_balance_modal_closed", label: "Insufficient balance modal closed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "insufficient_balance_get_more_clicked", label: "Insufficient balance get more clicked", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
-  { eventName: "featured_drop_viewed", label: "Featured drop viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content"] },
-  { eventName: "featured_drop_clicked", label: "Featured drop clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content"] },
+  { eventName: "featured_slide_viewed", label: "Featured slide viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content"], aliases: ["featured_drop_viewed"] },
+  { eventName: "featured_slide_clicked", label: "Featured slide clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content"], aliases: ["featured_drop_clicked"] },
   { eventName: "admin_chart_view_changed", label: "Admin chart view changed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin"] },
   { eventName: "admin_action_performed", label: "Admin action performed", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin"], auditCoveredBy: ["admin_analytics_viewed"] },
   { eventName: "asset_upload_started", label: "Asset upload started", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin"] },
@@ -909,6 +909,36 @@ export function classifyTelemetryEventFamily(
 }
 
 function buildRequiredObjectFields(eventName: string, family: TelemetryEventFamily) {
+  if (eventName === "drop_card_impression") {
+    return [
+      "drop_id|dropId",
+      "impression_session_id|impressionSessionId|session_id|sessionId",
+      "surface|impression_surface|source_component|sourceComponent",
+    ];
+  }
+
+  if (eventName === "featured_slide_viewed" || eventName === "featured_slide_clicked") {
+    return [
+      "drop_id|dropId",
+      "position|featured_rank|featuredRank",
+    ];
+  }
+
+  if (eventName === "creator_rail_impression") {
+    return [
+      "creator_id|creatorId|target_creator_id|targetCreatorId",
+      "position",
+    ];
+  }
+
+  if (eventName === "drops_searched" || eventName === "drops_category_selected") {
+    return [
+      "query",
+      "category",
+      "sort",
+    ];
+  }
+
   if (eventName.startsWith("watch_session") || eventName === "watch_score_computed") {
     return ["drop_id|dropId", "watch_session_id|watchSessionId"];
   }
@@ -1020,6 +1050,17 @@ function buildRequiredActorFields(eventName: string, family: TelemetryEventFamil
 }
 
 function buildRequiredSurfaceFields(eventName: string, family: TelemetryEventFamily) {
+  if (
+    eventName === "drop_card_impression"
+    || eventName === "featured_slide_viewed"
+    || eventName === "featured_slide_clicked"
+    || eventName === "creator_rail_impression"
+    || eventName === "drops_searched"
+    || eventName === "drops_category_selected"
+  ) {
+    return ["route|page_path|pagePath|surface|source_component|sourceComponent"];
+  }
+
   const requiresSurface = family === "drop"
     || family === "unlock"
     || family === "purchase"
@@ -1061,6 +1102,9 @@ export function buildTelemetryEventPayloadContract(eventName: string): Telemetry
   const dedupeKeyRequired = family === "unlock"
     || family === "notification"
     || family === "chat_message"
+    || canonicalEventName === "drop_card_impression"
+    || canonicalEventName === "featured_slide_viewed"
+    || canonicalEventName === "creator_rail_impression"
     || canonicalEventName === "purchase_verified"
     || canonicalEventName.startsWith("gumdrops_purchase_");
   const highRiskFamilies: TelemetryEventFamily[] = ["unlock", "purchase", "notification", "admin"];

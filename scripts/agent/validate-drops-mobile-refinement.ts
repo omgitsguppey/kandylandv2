@@ -45,6 +45,7 @@ const dropCardCta = readRequired("src/components/DropCardCta.tsx");
 const dropImpressionHook = readRequired("src/hooks/useDropCardImpression.ts");
 const useDrops = readRequired("src/hooks/useDrops.ts");
 const dropCountdown = readRequired("src/lib/drop-countdown.ts");
+const dropUnlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
 const uiDoctrine = readRequired("docs/doctrine/kandydrops-ui-doctrine.md");
 const agentDoc = readRequired("docs/agent-truth/drops-mobile-refinement.md");
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
@@ -167,11 +168,17 @@ for (const needle of [
   "drop_unlock_attempted",
   "drop_unwrap_intent_blocked_by_funds",
   "view_drop_details",
-  "unlock_drop_success",
   "source_component: \"compact_drop_card\"",
   "ui_density: DROPS_MOBILE_UI_DENSITY",
 ]) {
   requireIncludes(dropCard, needle, "DropCard telemetry path");
+}
+
+for (const needle of [
+  'trackServerEvent("drop_unwrapped"',
+  '"unlock_drop_success"',
+]) {
+  requireIncludes(dropUnlockRoute, needle, "Drop unlock server-truth telemetry path");
 }
 
 for (const needle of [

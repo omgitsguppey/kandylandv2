@@ -11,10 +11,16 @@ import { Drop } from "@/types/db";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { useDrops } from "@/hooks/useDrops";
-import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
+import { KandyDropsAccountOverview } from "@/components/KandyDropsAccountOverview";
 import type { CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
 import { DROPS_MOBILE_UI_DENSITY } from "@/hooks/useDropCardImpression";
+import { buildAccountOverviewViewModel } from "@/lib/drops-account-overview-view-model";
+import {
+    createDiscoveryTrackingSessionId,
+    resolveDropsDiscoverySort,
+    sanitizeDiscoveryQuery,
+} from "@/lib/discovery-telemetry";
 
 const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
     ssr: false,
@@ -28,89 +34,12 @@ interface DropsClientProps {
     creatorRailProfiles: CreatorDiscoveryProfile[];
 }
 
-interface AccountOverviewViewModel {
-    state: AccountOverviewState;
-    displayName: string;
-    subtitle: string;
-    avatarUrl: string | null;
-    avatarFallback: string;
-    balanceLabel: string;
-}
-
-function toPositiveInteger(value: unknown): number {
-    const numeric = Number(value);
-    if (!Number.isFinite(numeric)) {
-        return 0;
-    }
-
-    return Math.max(0, Math.floor(numeric));
-}
-
-function buildAccountOverviewViewModel(params: {
-    authLoading: boolean;
-    userDisplayName: string | null;
-    userEmail: string | null;
-    userPhotoURL: string | null;
-    profileBalance: number | null;
-}): AccountOverviewViewModel {
-    if (params.authLoading) {
-        return {
-            state: "loading",
-            displayName: "Loading profile",
-            subtitle: "Loading account",
-            avatarUrl: null,
-            avatarFallback: "...",
-            balanceLabel: "Loading GD",
-        };
-    }
-
-    const normalizedName = params.userDisplayName?.trim() || "Collector";
-    const normalizedEmail = params.userEmail?.trim() || "Signed in";
-    const normalizedBalance = toPositiveInteger(params.profileBalance);
-    const normalizedFallback = normalizedName.charAt(0).toUpperCase() || "K";
-
-    if (!params.userDisplayName && !params.userEmail) {
-        return {
-            state: "guest",
-            displayName: "Guest collector",
-            subtitle: "Unwrap now to start your stash",
-            avatarUrl: null,
-            avatarFallback: "G",
-            balanceLabel: "0 GD",
-        };
-    }
-
-    return {
-        state: "authenticated",
-        displayName: normalizedName,
-        subtitle: normalizedEmail,
-        avatarUrl: params.userPhotoURL?.trim() || null,
-        avatarFallback: normalizedFallback,
-        balanceLabel: `${normalizedBalance.toLocaleString()} GD`,
-    };
-}
-
 export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientProps) {
     const router = useRouter();
     const { user, userProfile, loading: authLoading } = useAuth();
     const { openAuthModal, openPurchaseModal, openProfileSidebar } = useUI();
     const { drops: liveDrops, size, setSize, isLoadingMore, isReachingEnd } = useDrops(["active", "scheduled"], initialDrops);
-    const [impressionTrackingSessionId] = useState(() => {
-        let token = "";
-        if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-            token = crypto.randomUUID().slice(0, 8);
-        } else if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-            const buffer = new Uint8Array(4);
-            crypto.getRandomValues(buffer);
-            token = Array.from(buffer)
-                .map((b) => b.toString(36))
-                .join("")
-                .slice(0, 8);
-        } else {
-            throw new Error("Cryptographically secure random number generation is not available in this environment.");
-        }
-        return `drops_${Date.now().toString(36)}_${token}`;
-    });
+    const [impressionTrackingSessionId] = useState(() => createDiscoveryTrackingSessionId("drops"));
 
     const observerRef = useRef<HTMLDivElement>(null);
     const pageViewTrackedRef = useRef(false);
@@ -202,18 +131,25 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
 
     useEffect(() => {
         const normalizedQuery = deferredSearchQuery.trim();
-        if (normalizedQuery.length <= 2 || normalizedQuery === lastTrackedSearchRef.current) {
+        const sanitizedQuery = sanitizeDiscoveryQuery(normalizedQuery);
+        const discoverySort = resolveDropsDiscoverySort(selectedCategory);
+        const searchKey = `${sanitizedQuery}:${selectedCategory}:${discoverySort}`;
+        if (sanitizedQuery.length <= 2 || searchKey === lastTrackedSearchRef.current) {
             return;
         }
 
-        lastTrackedSearchRef.current = normalizedQuery;
+        lastTrackedSearchRef.current = searchKey;
         trackEvent("drops_searched", {
-            query: normalizedQuery,
+            query: sanitizedQuery,
+            category: selectedCategory,
+            sort: discoverySort,
+            query_length: normalizedQuery.length,
+            query_sanitized: sanitizedQuery !== normalizedQuery,
             source_component: "compact_drops_filter_bar",
             ui_density: DROPS_MOBILE_UI_DENSITY,
             result_count: filteredDrops.length,
         });
-    }, [deferredSearchQuery, filteredDrops.length]);
+    }, [deferredSearchQuery, filteredDrops.length, selectedCategory]);
 
     const handleSelectDrop = useCallback((drop: Drop, sourceComponent = "drops_page") => {
         router.push(`/drops/${encodeURIComponent(drop.id)}/preview?source_component=${encodeURIComponent(sourceComponent)}`);
@@ -224,12 +160,14 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
         if (category !== selectedCategory) {
             trackEvent("drops_category_selected", {
                 category,
+                query: sanitizeDiscoveryQuery(deferredSearchQuery),
+                sort: resolveDropsDiscoverySort(category),
                 source_component: "compact_drops_filter_bar",
                 ui_density: DROPS_MOBILE_UI_DENSITY,
                 visible_drop_count: filteredDrops.length,
             });
         }
-    }, [filteredDrops.length, selectedCategory]);
+    }, [deferredSearchQuery, filteredDrops.length, selectedCategory]);
 
     return (
         <div

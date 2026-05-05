@@ -13,6 +13,11 @@ import { DROP_COUNTDOWN_ONE_DAY_MS, DROP_COUNTDOWN_ONE_HOUR_MS, formatDropCountd
 import { getDropCardVisibilityTelemetryPayload, resolveDropCardVisibilityState, type DropCtaState } from "@/lib/drop-card-visibility";
 import { getDropViewCount } from "@/lib/drop-engagement";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import {
+    buildDiscoveryImpressionKey,
+    createDiscoveryTrackingSessionId,
+    DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD,
+} from "@/lib/discovery-telemetry";
 import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
@@ -72,8 +77,15 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
     const intervalRef = useRef<number | null>(null);
     const prefersReducedMotion = usePrefersReducedMotion();
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: true });
+    const carouselViewportRef = useRef<HTMLDivElement | null>(null);
+    const [featuredTrackingSessionId] = useState(() => createDiscoveryTrackingSessionId("featured"));
+    const [isCarouselVisible, setIsCarouselVisible] = useState(false);
 
     const featuredDrops = useMemo(() => drops.slice(0, 5), [drops]);
+    const setCarouselViewportRef = useCallback((node: HTMLDivElement | null) => {
+        carouselViewportRef.current = node;
+        emblaRef(node);
+    }, [emblaRef]);
 
     const onSelect = useCallback(() => {
         if (!emblaApi) {
@@ -139,33 +151,60 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
         return stopAutoAdvance;
     }, [startAutoAdvance, stopAutoAdvance]);
 
-    const featuredDropViewedKeyRef = useRef("");
+    useEffect(() => {
+        const node = carouselViewportRef.current;
+        if (!node || typeof IntersectionObserver === "undefined") {
+            return;
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            setIsCarouselVisible(Boolean(entry?.isIntersecting && entry.intersectionRatio >= DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD));
+        }, { threshold: [DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD] });
+
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, []);
+
+    const featuredDropViewedKeysRef = useRef(new Set<string>());
 
     useEffect(() => {
+        if (!isCarouselVisible) {
+            return;
+        }
+
         const activeFeaturedDrop = featuredDrops[safeIndex(activeIndex, featuredDrops.length)];
         if (!activeFeaturedDrop) {
             return;
         }
 
-        const viewedKey = `${activeFeaturedDrop.id}:${safeIndex(activeIndex, featuredDrops.length)}`;
-        if (featuredDropViewedKeyRef.current === viewedKey) {
+        const position = safeIndex(activeIndex, featuredDrops.length) + 1;
+        const viewedKey = buildDiscoveryImpressionKey({
+            sessionId: featuredTrackingSessionId,
+            entityId: activeFeaturedDrop.id,
+            surface: "featured_carousel",
+        });
+        if (featuredDropViewedKeysRef.current.has(viewedKey)) {
             return;
         }
 
-        featuredDropViewedKeyRef.current = viewedKey;
-        trackEvent("featured_drop_viewed", {
+        featuredDropViewedKeysRef.current.add(viewedKey);
+        trackEvent("featured_slide_viewed", {
             drop_id: activeFeaturedDrop.id,
             creator_id: activeFeaturedDrop.creatorId || "",
             drop_category: activeFeaturedDrop.type,
-            featured_rank: safeIndex(activeIndex, featuredDrops.length) + 1,
+            position,
+            featured_rank: position,
             source_component: "compact_featured_carousel",
             surface: "featured_carousel",
-            route: "/",
+            route: "/drops",
             entity_type: "drop",
             entity_id: activeFeaturedDrop.id,
+            impression_session_id: featuredTrackingSessionId,
+            viewport_threshold: DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD,
             ui_density: DROPS_MOBILE_UI_DENSITY,
         });
-    }, [activeIndex, featuredDrops]);
+    }, [activeIndex, featuredDrops, featuredTrackingSessionId, isCarouselVisible]);
 
     if (featuredDrops.length === 0) {
         return null;
@@ -194,7 +233,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                     activeAspectRatio === "9:16" && "max-w-[348px]",
                 )}
                 style={aspectStyle}
-                ref={emblaRef}
+                ref={setCarouselViewportRef}
             >
                 <div className="flex h-full w-full">
                     {featuredDrops.map((drop, index) => (
@@ -206,6 +245,7 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                             user={user}
                             userProfile={userProfile}
                             onSelectDrop={onSelectDrop}
+                            trackingSessionId={featuredTrackingSessionId}
                         />
                     ))}
                 </div>
@@ -248,6 +288,7 @@ function FeaturedDropSlide({
     user,
     userProfile,
     onSelectDrop,
+    trackingSessionId,
 }: {
     drop: Drop;
     index: number;
@@ -255,6 +296,7 @@ function FeaturedDropSlide({
     user: ReturnType<typeof useAuthIdentity>["user"];
     userProfile: ReturnType<typeof useUserProfile>["userProfile"];
     onSelectDrop: (drop: Drop, sourceComponent?: string) => void;
+    trackingSessionId: string;
 }) {
     const isUnlocked = Boolean(userProfile?.unlockedContent?.includes(drop.id));
     const visibilityState = useMemo(
@@ -285,11 +327,15 @@ function FeaturedDropSlide({
         >
             <button
                 onClick={() => {
-                    trackEvent("featured_drop_clicked", {
+                    trackEvent("featured_slide_clicked", {
                         drop_id: drop.id,
                         drop_category: drop.type,
+                        position: index + 1,
                         featured_rank: index + 1,
+                        surface: "featured_carousel",
+                        route: "/drops",
                         source_component: "compact_featured_carousel",
+                        impression_session_id: trackingSessionId,
                         ui_density: DROPS_MOBILE_UI_DENSITY,
                         featured_cta_accent: coverAccent.accentName,
                         featured_social_proof_type: socialProof.type,

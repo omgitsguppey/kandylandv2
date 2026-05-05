@@ -168,7 +168,7 @@ if (report) {
     "view_drop_details",
     "drop_unlock_attempted",
     "drop_unwrap_intent_blocked_by_funds",
-    "featured_drop_clicked",
+    "featured_slide_clicked",
     "drop_preview_page_viewed",
     "drop_preview_feedback_reacted",
     "drop_preview_open_library_clicked",
@@ -216,7 +216,7 @@ const checklist = readRequired("EVERY_FILE_FUNCTION_CHECKLIST.md");
 
 for (const expected of [
   "\"score:telemetry\": \"tsx scripts/agent/score-telemetry-parity.ts\"",
-  "\"check:telemetry-parity-score\": \"tsx scripts/agent/validate-telemetry-parity-score.ts\"",
+  "\"check:telemetry-parity-score\": \"npm run score:telemetry && tsx scripts/agent/validate-telemetry-parity-score.ts\"",
 ]) {
   requireIncludes(packageJson, expected, "package scripts");
 }

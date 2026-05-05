@@ -21,6 +21,11 @@ import { trackEvent } from "@/lib/telemetry";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { CompactNumber } from "@/components/ui/CompactNumber";
 import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
+import {
+    buildDiscoveryImpressionKey,
+    createDiscoveryTrackingSessionId,
+    DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD,
+} from "@/lib/discovery-telemetry";
 
 type CreatorCard = CreatorDiscoveryProfile & {
     bio?: string;
@@ -152,6 +157,7 @@ function CreatorDiscoveryRailView({
     support,
     title,
     userId,
+    trackingSessionId,
     onFollowToggle,
 }: {
     compact: boolean;
@@ -161,6 +167,7 @@ function CreatorDiscoveryRailView({
     support: string | null;
     title?: string;
     userId?: string;
+    trackingSessionId: string;
     onFollowToggle: (creator: CreatorCard) => void;
 }) {
     const actor = useMemo(() => ({
@@ -169,6 +176,67 @@ function CreatorDiscoveryRailView({
     }), [userId]);
     const currentRoute = surface === "home" ? "/" : `/${surface}`;
     const imagePolicy = useMemo(() => getImageLoadingPolicy("home_creator_rail"), []);
+    const creatorCardRefs = useRef(new Map<string, HTMLElement>());
+    const trackedCreatorImpressionKeysRef = useRef(new Set<string>());
+    const setCreatorCardRef = useCallback((creatorId: string, node: HTMLElement | null) => {
+        if (node) {
+            creatorCardRefs.current.set(creatorId, node);
+            return;
+        }
+
+        creatorCardRefs.current.delete(creatorId);
+    }, []);
+
+    useEffect(() => {
+        if (typeof IntersectionObserver === "undefined") {
+            return;
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                const target = entry.target as HTMLElement;
+                const creatorId = target.dataset.creatorId || "";
+                const position = Number(target.dataset.creatorRailPosition || 0);
+                const isVisibleEnough = entry.isIntersecting && entry.intersectionRatio >= DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD;
+                if (!creatorId || !isVisibleEnough) {
+                    return;
+                }
+
+                const impressionKey = buildDiscoveryImpressionKey({
+                    sessionId: trackingSessionId,
+                    entityId: creatorId,
+                    surface: `creator_rail:${surface}`,
+                });
+                if (trackedCreatorImpressionKeysRef.current.has(impressionKey)) {
+                    return;
+                }
+
+                trackedCreatorImpressionKeysRef.current.add(impressionKey);
+                trackEvent("creator_rail_impression", {
+                    source_component: "creator_discovery_rail",
+                    surface,
+                    route: currentRoute,
+                    auth_state: userId ? "authenticated" : "guest",
+                    creator_id: creatorId,
+                    target_creator_id: creatorId,
+                    entity_type: "creator",
+                    entity_id: creatorId,
+                    position,
+                    impression_session_id: trackingSessionId,
+                    viewport_threshold: DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD,
+                });
+            });
+        }, { threshold: [DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD] });
+
+        creators.forEach((creator) => {
+            const node = creatorCardRefs.current.get(creator.uid);
+            if (node) {
+                observer.observe(node);
+            }
+        });
+
+        return () => observer.disconnect();
+    }, [creators, currentRoute, surface, trackingSessionId, userId]);
 
     return (
         <section
@@ -196,7 +264,7 @@ function CreatorDiscoveryRailView({
 
             <div className="overflow-x-auto pb-1">
                 <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
-                    {creators.map((creator) => {
+                    {creators.map((creator, index) => {
                         const creatorRouteInput = {
                             uid: creator.uid,
                             creatorId: creator.uid,
@@ -264,6 +332,9 @@ function CreatorDiscoveryRailView({
                         return (
                             <article
                                 key={creator.uid}
+                                ref={(node) => setCreatorCardRef(creator.uid, node)}
+                                data-creator-id={creator.uid}
+                                data-creator-rail-position={index + 1}
                                 className={cn(
                                     "group flex shrink-0 flex-col justify-between rounded-[1.45rem] border border-white/5 bg-white/[0.03] text-center",
                                     compact
@@ -345,11 +416,11 @@ export function CreatorDiscoveryRail({
     const [, startCreatorsTransition] = useTransition();
     const missingProfileRouteTelemetryKeyRef = useRef("");
     const authSettled = !authLoading;
+    const [railTrackingSessionId] = useState(() => createDiscoveryTrackingSessionId("creator_rail"));
     const initialCreatorKey = useMemo(
         () => initialCreators.map((creator) => creator.uid).join("|"),
         [initialCreators],
     );
-    const creatorSpotlightViewedKeyRef = useRef("");
 
     useEffect(() => {
         startCreatorsTransition(() => {
@@ -505,30 +576,6 @@ export function CreatorDiscoveryRail({
     }, [followedCreators, recommendedCreators, user?.uid]);
 
     useEffect(() => {
-        if (!primaryCreators.length) {
-            return;
-        }
-
-        const viewedKey = `${surface}:${primaryCreators.map((creator) => creator.uid).slice(0, 6).join("|")}`;
-        if (creatorSpotlightViewedKeyRef.current === viewedKey) {
-            return;
-        }
-
-        creatorSpotlightViewedKeyRef.current = viewedKey;
-        trackEvent("creator_spotlight_viewed", {
-            source_component: "creator_discovery_rail",
-            surface,
-            route: surface === "home" ? "/" : `/${surface}`,
-            auth_state: user ? "authenticated" : "guest",
-            creator_id: primaryCreators[0]?.uid ?? "",
-            entity_type: "creator",
-            entity_id: primaryCreators[0]?.uid ?? "",
-            visible_creator_ids: primaryCreators.slice(0, 6).map((creator) => creator.uid).join(","),
-            visible_creator_count: primaryCreators.length,
-        });
-    }, [primaryCreators, surface, user]);
-
-    useEffect(() => {
         const missingCreators = primaryCreators
             .map((creator) => {
                 const routeInput = {
@@ -666,6 +713,7 @@ export function CreatorDiscoveryRail({
             support={support}
             title={title}
             userId={user?.uid}
+            trackingSessionId={railTrackingSessionId}
             onFollowToggle={handleFollowToggle}
         />
     );

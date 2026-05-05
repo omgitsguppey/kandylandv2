@@ -126,6 +126,7 @@ export const DropGrid = memo(function DropGrid({
                                 aspectRatio={aspectRatio}
                                 impressionTrackingSurface={impressionTrackingSurface}
                                 impressionTrackingSessionId={impressionTrackingSessionId}
+                                impressionTrackingPosition={index + 1}
                             />
                         )}
                     </div>

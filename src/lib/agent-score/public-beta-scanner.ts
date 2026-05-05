@@ -316,7 +316,7 @@ function scanTelemetry(root: string, findings: PublicBetaFindingInput[]) {
     "chat_message_sent",
     "drop_preview_page_viewed",
     "drop_preview_cta_clicked",
-    "featured_drop_clicked",
+    "featured_slide_clicked",
   ];
   for (const eventName of requiredEvents) {
     if (catalog && !catalog.source.includes(eventName)) {

@@ -215,4 +215,44 @@ describe("behavioral event facts", () => {
       entityId: "thread-1",
     });
   });
+
+  it("normalizes discovery impressions and featured slide aliases without render-only names", () => {
+    const creatorImpression = normalizeBehavioralEventFactWithDiagnostics({
+      eventName: "creator_rail_impression",
+      params: {
+        source_component: "creator_discovery_rail",
+        route: "/drops",
+        creator_id: "creator-1",
+        position: 2,
+      },
+      timestamp: 1000,
+      sessionId: "session-1",
+      source: "client",
+    }).fact;
+    const featuredClick = normalizeBehavioralEventFactWithDiagnostics({
+      eventName: "featured_drop_clicked",
+      params: {
+        source_component: "compact_featured_carousel",
+        route: "/drops",
+        drop_id: "drop-1",
+        position: 1,
+      },
+      timestamp: 2000,
+      sessionId: "session-1",
+      source: "client",
+    }).fact;
+
+    expect(creatorImpression).toMatchObject({
+      eventName: "creator_rail_impression",
+      normalizedAction: "creator_spotlight_viewed",
+      entityType: "creator",
+      entityId: "creator-1",
+    });
+    expect(featuredClick).toMatchObject({
+      eventName: "featured_slide_clicked",
+      normalizedAction: "drop_card_viewed",
+      entityType: "drop",
+      entityId: "drop-1",
+    });
+  });
 });

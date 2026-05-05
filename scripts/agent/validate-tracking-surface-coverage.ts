@@ -35,7 +35,8 @@ assert(telemetryCatalog.includes('eventName: "purchase_verified"'), "Purchase su
 assert(paypalCaptureRoute.includes('trackServerEvent("purchase_verified"'), "Purchase success is not recorded from the server route.");
 assert(paypalCaptureRoute.includes('"gumdrops_purchase_completed"'), "Purchase completion is not server-backed from PayPal capture.");
 
-assert(dropUnlockRoute.includes('"unlock_drop_success"'), "Unlock success is missing from the canonical unlock route.");
+assert(dropUnlockRoute.includes('trackServerEvent("drop_unwrapped"'), "Drop unwrapped server truth is missing from the canonical unlock route.");
+assert(dropUnlockRoute.includes('"unlock_drop_success"'), "Legacy unlock task receipt compatibility is missing from the canonical unlock route.");
 assert(serverAnalytics.includes("normalizedActionSourceTruth"), "Server analytics are not persisting canonical source truth.");
 
 assert(viewerHook.includes('trackEvent("watch_session_started"'), "Viewer is missing watch_session_started.");

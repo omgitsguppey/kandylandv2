@@ -43,6 +43,9 @@ describe("telemetry catalog contracts", () => {
     expect(normalizeTelemetryEventName("support_ticket_submitted")).toBe("support_ticket_created");
     expect(normalizeTelemetryEventName("feedback_submitted")).toBe("bug_report_submitted");
     expect(normalizeTelemetryEventName("support_thread_replied")).toBe("support_reply_sent");
+    expect(normalizeTelemetryEventName("featured_drop_viewed")).toBe("featured_slide_viewed");
+    expect(normalizeTelemetryEventName("featured_drop_clicked")).toBe("featured_slide_clicked");
+    expect(normalizeTelemetryEventName("creator_spotlight_viewed")).toBe("creator_rail_impression");
 
     expect(normalizeTelemetryEventPayloadParams({
       dropId: "drop_1",
@@ -106,6 +109,10 @@ describe("telemetry catalog contracts", () => {
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.support_ticket_created.aliases).toContain("support_ticket_submitted");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.support_reply_sent.aliases).toContain("support_thread_replied");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.bug_report_submitted.aliases).toContain("feedback_submitted");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.featured_slide_clicked.aliases).toContain("featured_drop_clicked");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.featured_slide_clicked.requiredObjectFields.join(" ")).toContain("position");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.creator_rail_impression.aliases).toContain("creator_spotlight_viewed");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.creator_rail_impression.requiredObjectFields.join(" ")).toContain("creator_id");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.admin_analytics_viewed.adminExcludedFromUserAnalytics).toBe(true);
   });
 });

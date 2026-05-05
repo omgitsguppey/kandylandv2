@@ -5,11 +5,14 @@ import { RefObject, useEffect } from "react";
 import { trackEvent } from "@/lib/telemetry";
 import type { SupportedAspectRatio } from "@/lib/drop-presentation";
 import type { Drop } from "@/types/db";
+import {
+    buildDiscoveryImpressionKey,
+    DISCOVERY_IMPRESSION_MIN_VISIBLE_MS,
+    DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD,
+} from "@/lib/discovery-telemetry";
 
 export const DROPS_MOBILE_UI_DENSITY = "compact_mobile_apple_2026";
 
-const CARD_IMPRESSION_VISIBILITY_THRESHOLD = 0.6;
-const CARD_IMPRESSION_MIN_VISIBLE_MS = 500;
 const trackedDropCardImpressions = new Set<string>();
 
 interface UseDropCardImpressionInput {
@@ -19,6 +22,7 @@ interface UseDropCardImpressionInput {
     aspectRatio: SupportedAspectRatio;
     impressionTrackingSurface?: string;
     impressionTrackingSessionId?: string;
+    impressionTrackingPosition?: number;
 }
 
 export function useDropCardImpression({
@@ -28,13 +32,18 @@ export function useDropCardImpression({
     aspectRatio,
     impressionTrackingSurface,
     impressionTrackingSessionId,
+    impressionTrackingPosition,
 }: UseDropCardImpressionInput) {
     useEffect(() => {
         if (!impressionTrackingSurface || !impressionTrackingSessionId || !cardRef.current) {
             return;
         }
 
-        const impressionKey = `${impressionTrackingSessionId}:${drop.id}`;
+        const impressionKey = buildDiscoveryImpressionKey({
+            sessionId: impressionTrackingSessionId,
+            entityId: drop.id,
+            surface: impressionTrackingSurface,
+        });
         if (trackedDropCardImpressions.has(impressionKey)) {
             return;
         }
@@ -52,8 +61,12 @@ export function useDropCardImpression({
                 drop_id: drop.id,
                 drop_category: drop.type,
                 is_unlocked: isUnlocked,
+                position: impressionTrackingPosition ?? 0,
+                source_component: "compact_drop_card",
+                surface: impressionTrackingSurface,
                 impression_surface: impressionTrackingSurface,
-                viewport_threshold: CARD_IMPRESSION_VISIBILITY_THRESHOLD,
+                impression_session_id: impressionTrackingSessionId,
+                viewport_threshold: DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD,
                 card_aspect_ratio: aspectRatio,
                 ui_density: DROPS_MOBILE_UI_DENSITY,
             });
@@ -77,7 +90,7 @@ export function useDropCardImpression({
 
         const observer = new IntersectionObserver((entries) => {
             const entry = entries[0];
-            const isVisibleEnough = entry?.isIntersecting && entry.intersectionRatio >= CARD_IMPRESSION_VISIBILITY_THRESHOLD;
+            const isVisibleEnough = entry?.isIntersecting && entry.intersectionRatio >= DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD;
             if (!isVisibleEnough) {
                 if (visibleTimer) {
                     clearTimeout(visibleTimer);
@@ -90,9 +103,9 @@ export function useDropCardImpression({
                 visibleTimer = setTimeout(() => {
                     visibleTimer = null;
                     void flushImpression();
-                }, CARD_IMPRESSION_MIN_VISIBLE_MS);
+                }, DISCOVERY_IMPRESSION_MIN_VISIBLE_MS);
             }
-        }, { threshold: [CARD_IMPRESSION_VISIBILITY_THRESHOLD] });
+        }, { threshold: [DISCOVERY_IMPRESSION_VISIBILITY_THRESHOLD] });
 
         observer.observe(cardRef.current);
 
@@ -103,5 +116,5 @@ export function useDropCardImpression({
                 clearTimeout(visibleTimer);
             }
         };
-    }, [aspectRatio, cardRef, drop.id, drop.type, impressionTrackingSessionId, impressionTrackingSurface, isUnlocked]);
+    }, [aspectRatio, cardRef, drop.id, drop.type, impressionTrackingPosition, impressionTrackingSessionId, impressionTrackingSurface, isUnlocked]);
 }

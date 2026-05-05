@@ -30,6 +30,7 @@ const dropGrid = readRequired("src/components/DropGrid.tsx");
 const dropCard = readRequired("src/components/DropCard.tsx");
 const dropCardLayout = readRequired("src/components/DropCardLayout.tsx");
 const featuredCarousel = readRequired("src/components/FeaturedCarousel.tsx");
+const dropUnlockRoute = readRequired("src/app/api/drops/unlock/route.ts");
 const packageJson = readRequired("package.json");
 const readme = readRequired("README.md");
 const agentInstructions = readRequired("AGENTS.md");
@@ -68,9 +69,15 @@ for (const expected of [
   "drop_unwrap_intent_blocked_by_funds",
   "drop_unlock_attempted",
   "view_drop_details",
-  "unlock_drop_success",
 ]) {
   requireIncludes(dropCard, expected, "DropCard affordability and telemetry path");
+}
+
+for (const expected of [
+  'trackServerEvent("drop_unwrapped"',
+  '"unlock_drop_success"',
+]) {
+  requireIncludes(dropUnlockRoute, expected, "Drop unlock route entitlement-truth path");
 }
 
 for (const expected of [
@@ -96,7 +103,7 @@ for (const expected of [
   "Refill GumDrops",
   "Unwrap for",
   "View Content",
-  "featured_drop_clicked",
+  "featured_slide_clicked",
 ]) {
   requireIncludes(featuredCarousel, expected, "Featured carousel visibility and CTA path");
 }

@@ -30,6 +30,7 @@ interface DropCardProps {
     aspectRatio?: SupportedAspectRatio;
     impressionTrackingSurface?: string;
     impressionTrackingSessionId?: string;
+    impressionTrackingPosition?: number;
 }
 
 const CATEGORY_TAGS = new Set(["Sweet", "Spicy", "RAW"]);
@@ -42,6 +43,7 @@ function DropCardBase({
     aspectRatio,
     impressionTrackingSurface,
     impressionTrackingSessionId,
+    impressionTrackingPosition,
 }: DropCardProps) {
     const router = useRouter();
     const { userProfile, setUserProfile } = useUserProfile();
@@ -85,6 +87,7 @@ function DropCardBase({
         aspectRatio: resolvedRatio,
         impressionTrackingSurface,
         impressionTrackingSessionId,
+        impressionTrackingPosition,
     });
 
     const displayedTags = useMemo(() => {
