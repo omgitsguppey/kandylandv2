@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.21.1",
+  "currentVersion": "1.22.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T19:39:26.028Z",
-  "generatedAtUtc": "2026-05-05T19:39:26.028Z",
-  "lastCommitSha": "20c210996e720cbc024fe1b5b002883b44cea9ab",
+  "generatedAt": "2026-05-05T19:44:57.658Z",
+  "generatedAtUtc": "2026-05-05T19:44:57.658Z",
+  "lastCommitSha": "b9d1c3fa010e9cbbcb1e47e4eacb68963404c9e9",
   "notes": [
+    {
+      "version": "1.22.0",
+      "previousVersion": "1.21.1",
+      "commitSha": "b9d1c3fa010e9cbbcb1e47e4eacb68963404c9e9",
+      "commitTitle": "fix(chat): bound attachment cancel lookup",
+      "committedAt": "2026-05-05T19:44:47.000Z",
+      "generatedAt": "2026-05-05T19:44:57.658Z",
+      "committedAtUtc": "2026-05-05T19:44:47.000Z",
+      "generatedAtUtc": "2026-05-05T19:44:57.658Z",
+      "diffStats": {
+        "rawAdditions": 184,
+        "rawDeletions": 38,
+        "rawChangeCount": 222,
+        "additions": 184,
+        "deletions": 38,
+        "effectiveAdditions": 174,
+        "effectiveDeletions": 11,
+        "changedFiles": 4,
+        "effectiveChangeCount": 185,
+        "excludedGeneratedChangeCount": 37
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved behind-the-scenes safety checks for chat attachments.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "chat",
+        "repo-tooling",
+        "security"
+      ]
+    },
     {
       "version": "1.21.1",
       "previousVersion": "1.21.0",
@@ -140,38 +173,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "release-notes",
         "repo-tooling",
         "telemetry"
-      ]
-    },
-    {
-      "version": "1.19.0",
-      "previousVersion": "1.18.0",
-      "commitSha": "e262ae44f608f2b3c095bb127c2dfb4124004617",
-      "commitTitle": "chore(devops): verify Codex native auth readiness",
-      "committedAt": "2026-05-05T14:11:31.000Z",
-      "generatedAt": "2026-05-05T18:48:32.784Z",
-      "committedAtUtc": "2026-05-05T14:11:31.000Z",
-      "generatedAtUtc": "2026-05-05T18:48:32.784Z",
-      "diffStats": {
-        "rawAdditions": 1831,
-        "rawDeletions": 0,
-        "rawChangeCount": 1831,
-        "additions": 1831,
-        "deletions": 0,
-        "effectiveAdditions": 1293,
-        "effectiveDeletions": 0,
-        "changedFiles": 14,
-        "effectiveChangeCount": 1293,
-        "excludedGeneratedChangeCount": 538
-      },
-      "bumpType": "minor",
-      "category": "Internal",
-      "userFacingTitle": "Improved internal beta reliability.",
-      "bullets": [
-        "Improved internal beta reliability without changing your core flows."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "repo-tooling"
       ]
     }
   ]
