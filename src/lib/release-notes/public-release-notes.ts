@@ -1,11 +1,40 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.16.0",
+  "currentVersion": "1.16.1",
   "channel": "beta",
-  "generatedAt": "2026-05-05T12:02:57.969Z",
-  "lastCommitSha": "408fc0dcd0a7affd9243dd591c6d9b670c8e3d1f",
+  "generatedAt": "2026-05-05T12:14:53.220Z",
+  "lastCommitSha": "d9eef92897173dc95929d74909d5995b7dcc5e2a",
   "notes": [
+    {
+      "version": "1.16.1",
+      "previousVersion": "1.16.0",
+      "commitSha": "d9eef92897173dc95929d74909d5995b7dcc5e2a",
+      "commitTitle": "fix(functions): raise default memory limit [skip ci]",
+      "committedAt": "2026-05-05T07:14:35-05:00",
+      "generatedAt": "2026-05-05T12:14:53.215Z",
+      "diffStats": {
+        "rawAdditions": 3,
+        "rawDeletions": 0,
+        "rawChangeCount": 3,
+        "additions": 3,
+        "deletions": 0,
+        "effectiveAdditions": 3,
+        "effectiveDeletions": 0,
+        "changedFiles": 2,
+        "effectiveChangeCount": 3,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Fixed a beta issue to make KandyDrops smoother to use.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation"
+      ]
+    },
     {
       "version": "1.16.0",
       "previousVersion": "1.15.0",
@@ -126,37 +155,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "affectedSurfaces": [
         "documentation",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.12.0",
-      "previousVersion": "1.11.0",
-      "commitSha": "b441e04bd5b8578a3ac2c04543f6aee23efe25d3",
-      "commitTitle": "feat(behavioral): add content satisfaction signal",
-      "committedAt": "2026-05-05T06:04:48-05:00",
-      "generatedAt": "2026-05-05T12:02:56.598Z",
-      "diffStats": {
-        "rawAdditions": 1154,
-        "rawDeletions": 27,
-        "rawChangeCount": 1181,
-        "additions": 1154,
-        "deletions": 27,
-        "effectiveAdditions": 1142,
-        "effectiveDeletions": 17,
-        "changedFiles": 20,
-        "effectiveChangeCount": 1159,
-        "excludedGeneratedChangeCount": 22
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "repo-tooling",
-        "telemetry"
       ]
     }
   ]

@@ -2,6 +2,13 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.16.1] - 2026-05-05
+
+### Fixed
+
+- Fixed a beta issue to make KandyDrops smoother to use.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.16.0] - 2026-05-05
 
 ### Added
