@@ -66,8 +66,7 @@ vi.mock("@/lib/server/server-diagnostics", () => ({
 }));
 
 vi.mock("@/lib/server/rate-limit", () => ({
-    ADMIN: {},
-    HEAVY_READ: {},
+    MEDIA_PROXY: { maxRequests: 15, windowMs: 60_000 },
 }));
 
 import { GET } from "@/app/api/admin/user/[userId]/creator-onboarding/id-document/route";
@@ -131,6 +130,13 @@ describe("GET /api/admin/user/[userId]/creator-onboarding/id-document", () => {
 
         expect(response.status).toBe(200);
         expect(response.headers.get("Content-Type")).toBe("application/pdf");
+        expect(response.headers.get("Location")).toBeNull();
+        expect(mockState.guardApiRequest).toHaveBeenCalledWith(request, expect.objectContaining({
+            auth: "admin",
+            requireTrustedOrigin: true,
+            preAuthRateLimit: { maxRequests: 15, windowMs: 60_000 },
+            rateLimit: { maxRequests: 15, windowMs: 60_000 },
+        }));
         expect(mockState.fileApi.download).toHaveBeenCalledTimes(1);
     });
 
@@ -152,5 +158,46 @@ describe("GET /api/admin/user/[userId]/creator-onboarding/id-document", () => {
         expect(payload).toMatchObject({
             error: "No submitted back ID document found",
         });
+    });
+
+    it("rejects ID document metadata that points outside the scoped creator prefix", async () => {
+        const current = mockState.documents.get("creator_onboarding/creator_1") as Record<string, unknown>;
+        mockState.documents.set("creator_onboarding/creator_1", {
+            ...current,
+            idDocuments: {
+                ...(current.idDocuments as Record<string, unknown>),
+                front: {
+                    ...(current.idDocuments as Record<string, Record<string, unknown>>).front,
+                    storagePath: "creator-onboarding/another_user/id/front/front.png",
+                },
+            },
+        });
+
+        const request = new NextRequest("http://localhost/api/admin/user/creator_1/creator-onboarding/id-document?side=front");
+        const response = await GET(request, {
+            params: Promise.resolve({ userId: "creator_1" }),
+        });
+        const payload = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(payload).toMatchObject({
+            error: "Invalid ID document reference",
+            adminIdDocumentRoute: true,
+            adminOnly: true,
+            sensitiveDocumentAccess: true,
+            storageEgressGuarded: true,
+            mediaProxyGuarded: true,
+            mediaProxyPolicy: "MEDIA_PROXY",
+            rawStorageUrlExposed: false,
+        });
+        expect(mockState.fileApi.download).not.toHaveBeenCalled();
+        expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
+            detail: expect.objectContaining({
+                storagePathRedacted: true,
+                rawUrlValuesLogged: false,
+                rawStorageUrlExposed: false,
+            }),
+        }));
+        expect(JSON.stringify(mockState.recordServerDiagnostic.mock.calls)).not.toContain("another_user");
     });
 });

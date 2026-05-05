@@ -1,7 +1,7 @@
 {
   "score": 0,
   "status": "fail",
-  "generatedAt": "2026-05-05T21:09:42.009Z",
+  "generatedAt": "2026-05-05T21:15:24.476Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [
     {
@@ -1637,22 +1637,6 @@
       "severity": "critical",
       "category": "storage_egress",
       "title": "Storage/media route lacks MEDIA_PROXY or equivalent byte/rate guard",
-      "filePath": "src/app/api/admin/user/[userId]/creator-onboarding/id-document/route.ts",
-      "routePath": "/api/admin/user/[userId]/creator-onboarding/id-document",
-      "costClass": "storage_egress",
-      "suggestedFix": "Apply MEDIA_PROXY or a route-specific byte/rate guard before Storage/media egress.",
-      "escalation": "Unbounded media routes can create immediate billing spikes.",
-      "evidence": [
-        "MEDIA_PROXY"
-      ],
-      "id": "google-cost-1si1074",
-      "scoreImpact": -25,
-      "canAutofix": false
-    },
-    {
-      "severity": "critical",
-      "category": "storage_egress",
-      "title": "Storage/media route lacks MEDIA_PROXY or equivalent byte/rate guard",
       "filePath": "src/app/api/creator/onboarding/agreement-document/route.ts",
       "routePath": "/api/creator/onboarding/agreement-document",
       "costClass": "storage_egress",
@@ -1698,7 +1682,7 @@
       "canAutofix": false
     }
   ],
-  "criticalCount": 4,
+  "criticalCount": 3,
   "majorCount": 89,
   "routeContracts": [
     {
@@ -1846,6 +1830,22 @@
       "maxExpectedFirestoreReadsPerCall": 20,
       "maxExpectedFirestoreWritesPerCall": 8,
       "notes": "Admin creator agreement document surface. Storage calls must stay admin-only, MEDIA_PROXY rate limited, path-scoped to creator-agreements/, and expose metadata or short-lived signed document previews only."
+    },
+    {
+      "routePattern": "/api/admin/user/[userId]/creator-onboarding/id-document",
+      "methods": [
+        "GET"
+      ],
+      "costClass": "storage_egress",
+      "ratePolicy": "MEDIA_PROXY",
+      "cachePolicy": "no_store",
+      "authRequired": "admin",
+      "trustedOriginRequired": true,
+      "budgetGuardRequired": true,
+      "maxExpectedCallsPerUserPerMinute": 15,
+      "maxExpectedStorageBytesPerCall": 15728640,
+      "maxExpectedFirestoreReadsPerCall": 1,
+      "notes": "Admin creator ID document preview surface. Storage calls must stay admin-only, MEDIA_PROXY rate limited, path-scoped to creator-onboarding/{userId}/id/{side}/, and never expose raw Storage URLs."
     },
     {
       "routePattern": "/api/admin/**",
@@ -3918,24 +3918,20 @@
         "GET"
       ],
       "contract": {
-        "routePattern": "/api/admin/**",
+        "routePattern": "/api/admin/user/[userId]/creator-onboarding/id-document",
         "methods": [
-          "GET",
-          "POST",
-          "PUT",
-          "PATCH",
-          "DELETE"
+          "GET"
         ],
-        "costClass": "firestore_read",
-        "ratePolicy": "ADMIN / route-specific admin limits",
+        "costClass": "storage_egress",
+        "ratePolicy": "MEDIA_PROXY",
         "cachePolicy": "no_store",
         "authRequired": "admin",
         "trustedOriginRequired": true,
         "budgetGuardRequired": true,
-        "maxExpectedCallsPerUserPerMinute": 30,
-        "maxExpectedFirestoreReadsPerCall": 250,
-        "maxExpectedFirestoreWritesPerCall": 20,
-        "notes": "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached."
+        "maxExpectedCallsPerUserPerMinute": 15,
+        "maxExpectedStorageBytesPerCall": 15728640,
+        "maxExpectedFirestoreReadsPerCall": 1,
+        "notes": "Admin creator ID document preview surface. Storage calls must stay admin-only, MEDIA_PROXY rate limited, path-scoped to creator-onboarding/{userId}/id/{side}/, and never expose raw Storage URLs."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -7933,5 +7929,5 @@
       "broad UI audits"
     ]
   },
-  "summary": "Detected 98 Google API cost/rate-limit finding(s); no business logic was auto-fixed."
+  "summary": "Detected 97 Google API cost/rate-limit finding(s); no business logic was auto-fixed."
 }
