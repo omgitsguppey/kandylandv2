@@ -1,12 +1,43 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.24.1",
+  "currentVersion": "1.24.2",
   "channel": "beta",
-  "generatedAt": "2026-05-05T20:20:16.202Z",
-  "generatedAtUtc": "2026-05-05T20:20:16.202Z",
-  "lastCommitSha": "739808bba955704939fa378db2accfbee7a52b28",
+  "generatedAt": "2026-05-05T20:24:26.013Z",
+  "generatedAtUtc": "2026-05-05T20:24:26.013Z",
+  "lastCommitSha": "92ee96e665d2802f0ff8da3934d07f3ad7d240e0",
   "notes": [
+    {
+      "version": "1.24.2",
+      "previousVersion": "1.24.1",
+      "commitSha": "92ee96e665d2802f0ff8da3934d07f3ad7d240e0",
+      "commitTitle": "fix(auth): refresh navigation session read bounds",
+      "committedAt": "2026-05-05T20:24:14.000Z",
+      "generatedAt": "2026-05-05T20:24:26.012Z",
+      "committedAtUtc": "2026-05-05T20:24:14.000Z",
+      "generatedAtUtc": "2026-05-05T20:24:26.012Z",
+      "diffStats": {
+        "rawAdditions": 2,
+        "rawDeletions": 2,
+        "rawChangeCount": 4,
+        "additions": 2,
+        "deletions": 2,
+        "effectiveAdditions": 1,
+        "effectiveDeletions": 1,
+        "changedFiles": 2,
+        "effectiveChangeCount": 2,
+        "excludedGeneratedChangeCount": 2
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved behind-the-scenes session safety checks.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "security"
+      ]
+    },
     {
       "version": "1.24.1",
       "previousVersion": "1.24.0",
@@ -134,38 +165,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "affectedSurfaces": [
         "chat",
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.21.1",
-      "previousVersion": "1.21.0",
-      "commitSha": "20c210996e720cbc024fe1b5b002883b44cea9ab",
-      "commitTitle": "fix(auth): prove navigation session Firestore read bounds",
-      "committedAt": "2026-05-05T19:39:15.000Z",
-      "generatedAt": "2026-05-05T19:39:26.028Z",
-      "committedAtUtc": "2026-05-05T19:39:15.000Z",
-      "generatedAtUtc": "2026-05-05T19:39:26.028Z",
-      "diffStats": {
-        "rawAdditions": 130,
-        "rawDeletions": 807,
-        "rawChangeCount": 937,
-        "additions": 130,
-        "deletions": 807,
-        "effectiveAdditions": 23,
-        "effectiveDeletions": 3,
-        "changedFiles": 4,
-        "effectiveChangeCount": 26,
-        "excludedGeneratedChangeCount": 911
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes session safety checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
         "repo-tooling",
         "security"
       ]

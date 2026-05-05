@@ -252,7 +252,10 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
     return "Improved internal content safety checks for admin media tools.";
   }
   if (
-    normalized.includes("navigation session firestore read bounds")
+    normalized.includes("refresh navigation session read bounds")
+    || normalized.includes("navigation session read bounds")
+    || normalized.includes("navigation session firestore read bounds")
+    || normalized.includes("prove navigation session firestore read bounds")
     || (normalized.includes("auth") && normalized.includes("navigation session") && normalized.includes("firestore"))
   ) {
     return "Improved behind-the-scenes session safety checks.";
