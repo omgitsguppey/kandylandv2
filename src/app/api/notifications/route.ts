@@ -18,6 +18,7 @@ import { sanitizeFirestorePayload } from "@/lib/server/firestore-sanitize";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { buildBrowserNotificationTag, buildNotificationIdempotencyKey } from "@/lib/notification-identity";
+import { buildNotificationQualityMetadata } from "@/lib/notifications/notification-quality-score";
 
 const DUPLICATE_NOTIFICATION_WINDOW_MS = 2 * 60 * 1000;
 
@@ -156,6 +157,11 @@ export async function POST(request: NextRequest) {
     const dispatchRef = adminDb.collection("notificationDispatchLocks").doc(dispatchFingerprint);
     const notificationRef = adminDb.collection("notifications").doc();
     const nowMs = Date.now();
+    const qualityMetadata = buildNotificationQualityMetadata({
+      notificationType: payload.dropContext ? "new_drop" : payload.type,
+      nowMs,
+      dropUrgency: payload.type === "warning" || payload.type === "error" ? 0.85 : payload.dropContext ? 0.64 : 0.35,
+    });
 
     const result = await adminDb.runTransaction(async (transaction) => {
       const existingDispatch = await transaction.get(dispatchRef);
@@ -182,6 +188,7 @@ export async function POST(request: NextRequest) {
         idempotencyKey,
         dedupeKey: idempotencyKey,
         browserTag,
+        ...qualityMetadata,
       }));
       transaction.set(dispatchRef, sanitizeFirestorePayload({
         dispatchedAtMs: nowMs,
@@ -217,6 +224,7 @@ export async function POST(request: NextRequest) {
               skippedPermissionDeniedCount: report.permissionSkippedCount,
               skippedMissingTokenCount: report.missingTokenSkippedCount,
               skippedPreferencesDisabledCount: report.preferenceSkippedCount,
+              skippedQualityThrottleCount: report.throttleSkippedCount,
               duplicatePushPreventedCount: report.duplicatePushPreventedCount,
             },
           });

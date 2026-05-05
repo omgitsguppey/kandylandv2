@@ -3,6 +3,8 @@ import "server-only";
 import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 import { normalizeNotificationDoc } from "@/lib/notification-contracts";
+import type { NotificationQualityResult } from "@/lib/notifications/notification-quality-score";
+import { selectNotificationsForDisplay } from "@/lib/notifications/notification-throttle-policy";
 import { adminDb } from "@/lib/server/firebase-admin";
 
 const NOTIFICATION_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -24,6 +26,10 @@ export interface NotificationInboxEntry {
     dropTitle: string;
     previewImageUrl: string;
   };
+  lifecycleEvent?: string;
+  qualityScore?: number;
+  qualityPolicyVersion?: string;
+  notificationQuality?: NotificationQualityResult;
   createdAtMs: number;
 }
 
@@ -121,9 +127,15 @@ export async function fetchUnreadNotificationsForUser(
     cursor = snapshot.docs[snapshot.docs.length - 1] ?? null;
   }
 
-  return results
-    .sort((left, right) => right.createdAtMs - left.createdAtMs)
-    .slice(0, targetLimit);
+  return selectNotificationsForDisplay(
+    results.sort((left, right) => right.createdAtMs - left.createdAtMs),
+    {
+      nowMs,
+      unreadNotificationCount: results.length,
+      recentNotificationVolume24h: results.filter((notification) => nowMs - notification.createdAtMs <= 24 * 60 * 60 * 1000).length,
+      maxVisibleNotifications: targetLimit,
+    },
+  );
 }
 
 export async function hasUnreadNotificationsForUser(uid: string, nowMs = Date.now()) {

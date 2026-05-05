@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 199,
+  "validatorCount": 200,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -101,6 +101,7 @@
       "check:math-goal-alignment",
       "check:negative-preferences",
       "check:notification-pipeline",
+      "check:notification-quality",
       "check:notification-read-truth",
       "check:recommendation-ranker",
       "check:search-intent-truth",
@@ -410,6 +411,7 @@
     "check:mobile-shell-safe-area": "device-ui",
     "check:not-found": "repo-governance",
     "check:notification-pipeline": "behavioral-intelligence",
+    "check:notification-quality": "behavioral-intelligence",
     "check:notification-read-truth": "behavioral-intelligence",
     "check:notification-return-loop": "repo-governance",
     "check:orphaned-logic": "legacy-phaseout",

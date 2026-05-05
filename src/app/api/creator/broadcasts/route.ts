@@ -11,6 +11,7 @@ import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { buildNotificationQualityMetadata } from "@/lib/notifications/notification-quality-score";
 
 const createBroadcastSchema = z.object({
     title: z.string().trim().min(2).max(80).optional(),
@@ -166,6 +167,12 @@ async function POST_handler(request: NextRequest) {
 
         if (notificationUserIds.length > 0) {
             const notificationRef = adminDb.collection("notifications").doc();
+            const qualityMetadata = buildNotificationQualityMetadata({
+                notificationType: "creator_broadcast",
+                nowMs: now,
+                creatorAffinity: 0.55,
+                dropUrgency: 0.35,
+            });
             batch.set(notificationRef, {
                 title: title?.trim() || `${creatorDisplayName} posted an update`,
                 message,
@@ -183,6 +190,8 @@ async function POST_handler(request: NextRequest) {
                 createdAt: FieldValue.serverTimestamp(),
                 createdAtMs: now,
                 readBy: [],
+                lifecycleEvent: "creator_broadcast",
+                ...qualityMetadata,
             });
             markNotificationsRuntimeChanged(batch, now);
         }

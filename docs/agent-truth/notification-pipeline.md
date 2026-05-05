@@ -38,6 +38,7 @@ Server push dispatch must record enough counts to explain why a notification did
 
 - permission/browser-push disabled
 - notification preference disabled
+- quality/fatigue throttle skipped
 - push token missing
 - duplicate push token suppressed
 - FCM send failure
@@ -66,6 +67,25 @@ The shared runtime event must initialize BroadcastChannel listeners in tabs that
 The Admin Analytics Notification Funnel is a compact summary only. It may show prompted, enabled, sent, opened, read, cleared, duplicate prevented, and failed/skipped states when sources exist. Missing delivery or skip telemetry must show Waiting or Debug-only, not fake zero.
 
 Detailed notification health lives in Admin Debug: idempotency keys, browser tags, duplicate-created prevention, duplicate-push prevention, duplicate-browser-display prevention, skipped reasons, foreground/background counts, service-worker display counts, click handler wiring, read persistence lag, and unread reconciliation.
+
+## Quality ranking and fatigue policy
+
+Unread notifications are not equally valuable. Server-created notification documents carry deterministic quality metadata, and the unread inbox ranks by predicted open, predicted return, creator affinity, urgency, novelty, monetization relevance, and fatigue penalty before falling back to recency.
+
+Notification score:
+
+```text
+100 * (
+  0.30 * predictedOpen +
+  0.20 * predictedReturn +
+  0.20 * creatorAffinity +
+  0.15 * urgency +
+  0.10 * novelty +
+  0.05 * monetizationRelevance
+) - fatiguePenalty
+```
+
+Push fan-out applies the same policy when a user profile exposes notification quality counters. A user is capped at `5` notifications per day, no more than `2` of the same type per day by default, and repeated same-type sends inside `4h` are suppressed unless the quality score is high enough. Opens and clicks are diagnostic signals used by the score; `notification_read` remains the canonical behavioral action.
 
 ## Phase 5 Snapshot Migration
 

@@ -3,6 +3,7 @@ import { adminDb } from "./firebase-admin";
 import { recordRouteWarning } from "./route-diagnostics";
 import * as admin from "firebase-admin";
 import { buildBrowserNotificationTag, buildNotificationIdempotencyKey } from "@/lib/notification-identity";
+import { evaluateNotificationThrottle, readNotificationQualityProfile } from "@/lib/notifications/notification-throttle-policy";
 
 export type NotificationBroadcastType = "new_drop" | "expiring_soon" | "system_alert" | "general";
 
@@ -27,6 +28,7 @@ export interface NotificationBroadcastReport {
     preferenceSkippedCount: number;
     missingTokenSkippedCount: number;
     duplicatePushPreventedCount: number;
+    throttleSkippedCount: number;
     tokensQueuedCount: number;
     invalidTokenRemovedCount: number;
     maxRecipientsPerRun: number;
@@ -51,6 +53,7 @@ function buildBroadcastReport(input: Partial<NotificationBroadcastReport>): Noti
         preferenceSkippedCount: input.preferenceSkippedCount ?? 0,
         missingTokenSkippedCount: input.missingTokenSkippedCount ?? 0,
         duplicatePushPreventedCount: input.duplicatePushPreventedCount ?? 0,
+        throttleSkippedCount: input.throttleSkippedCount ?? 0,
         tokensQueuedCount: input.tokensQueuedCount ?? 0,
         invalidTokenRemovedCount: input.invalidTokenRemovedCount ?? 0,
         maxRecipientsPerRun: input.maxRecipientsPerRun ?? FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN,
@@ -125,6 +128,7 @@ export async function broadcastFCMWithReport(
         let preferenceSkippedCount = 0;
         let missingTokenSkippedCount = 0;
         let duplicatePushPreventedCount = 0;
+        let throttleSkippedCount = 0;
         let invalidTokenRemovedCount = 0;
         let dispatchedBatchCount = 0;
         let recipientCapReached = false;
@@ -155,7 +159,7 @@ export async function broadcastFCMWithReport(
         });
 
         const stream = adminDb.collection("users")
-            .select("fcmTokens", "notificationSettings")
+            .select("fcmTokens", "notificationSettings", "notificationQuality", "lastActiveAtMs")
             .stream();
 
         const dispatchBatch = async (tokens: string[]) => {
@@ -243,6 +247,19 @@ export async function broadcastFCMWithReport(
                 permissionSkippedCount++;
             }
 
+            if (shouldSend) {
+                const throttle = evaluateNotificationThrottle({
+                    notificationType: type,
+                    userId: documentSnapshot.id,
+                    nowMs: Date.now(),
+                    ...readNotificationQualityProfile(data, type),
+                });
+                if (!throttle.allowed) {
+                    shouldSend = false;
+                    throttleSkippedCount++;
+                }
+            }
+
             if (shouldSend && tokens.length === 0) {
                 missingTokenSkippedCount++;
             }
@@ -293,6 +310,7 @@ export async function broadcastFCMWithReport(
                     preferenceSkippedCount,
                     missingTokenSkippedCount,
                     duplicatePushPreventedCount,
+                    throttleSkippedCount,
                     tokensQueuedCount: queuedTokens.size,
                     invalidTokenRemovedCount,
                     maxRecipientsPerRun: FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN,
@@ -315,6 +333,7 @@ export async function broadcastFCMWithReport(
                 preferenceSkippedCount,
                 missingTokenSkippedCount,
                 duplicatePushPreventedCount,
+                throttleSkippedCount,
                 tokensQueuedCount: queuedTokens.size,
                 invalidTokenRemovedCount,
                 maxRecipientsPerRun: FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN,
@@ -336,6 +355,7 @@ export async function broadcastFCMWithReport(
             preferenceSkippedCount,
             missingTokenSkippedCount,
             duplicatePushPreventedCount,
+            throttleSkippedCount,
             tokensQueuedCount: queuedTokens.size,
             invalidTokenRemovedCount,
             maxRecipientsPerRun: FCM_MAX_RECIPIENTS_PER_BROADCAST_RUN,

@@ -200,6 +200,27 @@ Rules:
 - Creator baseline lift compares against the creator's own historical drop response before global popularity.
 - Admin-facing reasons stay plain English, for example: "Boosted by early drop momentum."
 
+## Notification Quality Ranking
+
+KandyDrops ranks and throttles notifications by return likelihood and fatigue instead of treating every notification as equally worth sending or showing.
+
+Notification score:
+
+```text
+100 * (
+  0.30 * predictedOpen +
+  0.20 * predictedReturn +
+  0.20 * creatorAffinity +
+  0.15 * urgency +
+  0.10 * novelty +
+  0.05 * monetizationRelevance
+) - fatiguePenalty
+```
+
+Signals include notification type, user last active time, creator affinity, unread notification count, past notification read/click rate, recent notification volume, drop urgency, and purchase/unwrap history. Push delivery is capped per user per day and repeated same-type sends are suppressed. Inbox display uses the same quality score and a top-window same-type diversity rule so one notification type does not monopolize the visible list.
+
+`notification_read` is still the only canonical behavioral notification action. `notification_opened`, `notification_action_clicked`, and browser click/open diagnostics can inform predicted open only when explicitly used by the quality score; they do not become separate engagement facts.
+
 ## Surface Objectives
 
 - User drops page: `pUnlock24h`, `pPurchase7d`, freshness

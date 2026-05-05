@@ -1,3 +1,5 @@
+import type { NotificationQualityResult } from "@/lib/notifications/notification-quality-score";
+
 export const NOTIFICATION_TYPES = ["info", "success", "warning", "error"] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -25,6 +27,10 @@ export interface AppNotification {
   target: NotificationTarget;
   link?: string;
   dropContext?: DropNotificationContext;
+  lifecycleEvent?: string;
+  qualityScore?: number;
+  qualityPolicyVersion?: string;
+  notificationQuality?: NotificationQualityResult;
 }
 
 export interface NotificationTimestampLike {
@@ -48,6 +54,10 @@ interface UnknownNotificationDoc {
   target?: unknown;
   link?: unknown;
   dropContext?: unknown;
+  lifecycleEvent?: unknown;
+  qualityScore?: unknown;
+  qualityPolicyVersion?: unknown;
+  notificationQuality?: unknown;
 }
 
 function toNumberOrNull(value: unknown) {
@@ -118,6 +128,12 @@ export function normalizeNotificationDoc(id: string, data: UnknownNotificationDo
     target,
     link: typeof data.link === "string" ? data.link : undefined,
     dropContext,
+    lifecycleEvent: typeof data.lifecycleEvent === "string" ? data.lifecycleEvent : undefined,
+    qualityScore: toNumberOrNull(data.qualityScore) ?? undefined,
+    qualityPolicyVersion: typeof data.qualityPolicyVersion === "string" ? data.qualityPolicyVersion : undefined,
+    notificationQuality: data.notificationQuality && typeof data.notificationQuality === "object"
+      ? data.notificationQuality as NotificationQualityResult
+      : undefined,
   };
 }
 

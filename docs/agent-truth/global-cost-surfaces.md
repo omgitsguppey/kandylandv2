@@ -18,7 +18,7 @@ KandyDrops cost control is broader than Google API, Cloud SQL, and BigQuery usag
 - Cloud/server logging must cap detail previews, redact sensitive fields, and avoid full request/response payload logs.
 - Media proxy and signed-url routes require entitlement checks, allowed-host checks, private/no-store cache behavior, byte budgets, rate policies, and no raw asset URL telemetry.
 - Auth/signup/login/reset routes require trusted-origin and rate/abuse policies; future phone auth is disabled until an SMS budget guard and fictional QA test-number policy exist.
-- Notification fan-out requires idempotency, duplicate prevention, batch caps, recipient caps, retry caps, and user preference gates.
+- Notification fan-out requires idempotency, duplicate prevention, batch caps, recipient caps, retry caps, user preference gates, quality scoring, per-user daily caps, and same-type fatigue throttles.
 - Browser audits and visual snapshots are forbidden in default CI and default agent lanes unless explicitly requested with a budget; browser audits stay opt-in.
 - Scheduled rebuilds and analytics materializers require dry-run mode, max rows, max runtime, retry caps, bounded source windows, and no every-commit automatic rebuild.
 - PostHog, GA, and future session replay must stay consent-aware; session replay is disabled by default until a privacy and budget contract exists.

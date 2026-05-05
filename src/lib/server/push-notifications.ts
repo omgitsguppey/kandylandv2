@@ -7,6 +7,7 @@ import {
     buildNotificationDocumentId,
     buildNotificationIdempotencyKey,
 } from "@/lib/notification-identity";
+import { buildNotificationQualityMetadata } from "@/lib/notifications/notification-quality-score";
 import { adminDb } from "./firebase-admin";
 import { broadcastFCMWithReport, type NotificationBroadcastReport } from "./fcm-utils";
 import { touchNotificationsRuntime } from "./notification-runtime";
@@ -103,6 +104,12 @@ async function queueDropNotificationDoc(input: {
     const nowMs = Date.now();
     const notificationId = buildNotificationDocumentId(input.identity.idempotencyKey);
     const notificationRef = adminDb.collection("notifications").doc(notificationId);
+    const qualityMetadata = buildNotificationQualityMetadata({
+        notificationType: input.identity.lifecycleEvent,
+        nowMs,
+        dropUrgency: input.identity.lifecycleEvent === "drop_requeued_live" ? 0.72 : 0.64,
+        creatorAffinity: 0.35,
+    });
     let queued = false;
     let duplicateCreatedPrevented = false;
 
@@ -128,6 +135,7 @@ async function queueDropNotificationDoc(input: {
             dedupeKey: input.identity.idempotencyKey,
             browserTag: input.identity.browserTag,
             lifecycleEvent: input.identity.lifecycleEvent,
+            ...qualityMetadata,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             createdAtMs: nowMs,
             readBy: [],
@@ -185,6 +193,7 @@ function buildFcmDispatchDetail(report: NotificationBroadcastReport) {
         skippedPermissionDeniedCount: report.permissionSkippedCount,
         skippedMissingTokenCount: report.missingTokenSkippedCount,
         skippedPreferencesDisabledCount: report.preferenceSkippedCount,
+        skippedQualityThrottleCount: report.throttleSkippedCount,
         duplicatePushPreventedCount: report.duplicatePushPreventedCount,
         invalidTokenRemovedCount: report.invalidTokenRemovedCount,
         dataOnlyPayload: report.dataOnlyPayload,
