@@ -29,6 +29,14 @@ App Hosting uses:
 - `firebase.json` framework backend region `us-central1`
 - `.firebaserc` default project `kandydrops-by-ikandy`
 
+Repo automation uses Cloud Build, not GitHub-hosted runner billing, for automated verification:
+
+- `cloudbuild.yaml` owns lightweight CI checks.
+- `cloudbuild.release-notes.yaml` owns public release-note generation and generated changelog commits.
+- GitHub Actions workflows are manual fallback only while hosted-runner billing is not a reliable source of truth.
+
+Firebase Functions may orchestrate webhooks or record automation evidence, but Cloud Build/App Hosting must execute build, typecheck, and validator work.
+
 Runtime secrets that the app reads must be declared in `apphosting.yaml` under `env` using `secret:`. Do not rely on top-level App Hosting `secrets:` blocks for runtime variables.
 
 Required secret references:

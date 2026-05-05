@@ -1,9 +1,12 @@
 name: Public Beta Release Notes
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+
+# Automated release-note truth now belongs to Cloud Build through
+# cloudbuild.release-notes.yaml. Keep this workflow as a manual fallback only;
+# GitHub-hosted runners can fail before checkout when account runner billing is
+# locked.
 
 permissions:
   contents: write
@@ -11,7 +14,6 @@ permissions:
 jobs:
   update-release-notes:
     name: Update Public Beta Release Notes
-    if: ${{ !contains(github.event.head_commit.message, '[skip release-notes]') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,4 +45,3 @@ jobs:
           git add public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts CHANGELOG.md
           git commit -m "chore(release): update public changelog [skip release-notes]"
           git push
-

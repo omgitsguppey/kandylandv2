@@ -1,10 +1,11 @@
 name: CI
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+
+# Automated CI truth now belongs to Cloud Build through cloudbuild.yaml.
+# Keep this GitHub workflow as a manual fallback only; GitHub-hosted runners can
+# fail before checkout when account runner billing is locked.
 
 permissions:
   contents: read

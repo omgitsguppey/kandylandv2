@@ -19,6 +19,10 @@ KandyDrops human-dev readiness is a repo-governance lane for outsourced developm
 
 Lightweight PR CI runs `npm ci`, affected-audit planning, affected-router validation, human-dev readiness validation, and `npm run typecheck`. It does not run Playwright, Lighthouse, Cypress, or full `npm run check` by default.
 
+Automated repo truth now runs through Cloud Build using `cloudbuild.yaml` because GitHub-hosted runners can fail before checkout when hosted-runner billing is locked. `.github/workflows/ci.yml`, `.github/workflows/dependency-review.yml`, and `.github/workflows/openssf-scorecard.yml` remain manual fallbacks, not the default source of CI truth.
+
+Public beta release-note automation runs through `cloudbuild.release-notes.yaml`. The GitHub release-note workflow is manual fallback only.
+
 ## Security And Incidents
 
 - `SECURITY.md` defines supported branch, private vulnerability reporting, response window, production secrets policy, and emergency contact placeholder.

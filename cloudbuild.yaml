@@ -1,0 +1,39 @@
+# KandyDrops Cloud Build CI truth lane.
+#
+# GitHub-hosted Actions are manual fallback only because they can fail before
+# checkout when GitHub runner billing is locked. Cloud Build runs the same
+# deterministic lightweight checks inside the Firebase/GCP deployment boundary.
+timeout: "1800s"
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - id: "install-root-dependencies"
+    name: "node:22-bookworm"
+    entrypoint: "npm"
+    args: ["ci"]
+
+  - id: "plan-affected-audits"
+    name: "node:22-bookworm"
+    entrypoint: "npm"
+    args: ["run", "plan:affected-audits", "--", "--task=cloud build"]
+
+  - id: "validate-affected-audit-router"
+    name: "node:22-bookworm"
+    entrypoint: "npm"
+    args: ["run", "check:affected-audit-router"]
+
+  - id: "validate-human-dev-readiness"
+    name: "node:22-bookworm"
+    entrypoint: "npm"
+    args: ["run", "check:human-dev-readiness"]
+
+  - id: "validate-public-beta-release-notes"
+    name: "node:22-bookworm"
+    entrypoint: "npm"
+    args: ["run", "check:release-notes"]
+
+  - id: "typecheck"
+    name: "node:22-bookworm"
+    entrypoint: "npm"
+    args: ["run", "typecheck"]

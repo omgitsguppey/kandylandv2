@@ -1,13 +1,18 @@
 name: Dependency Review
 
 on:
-  pull_request:
-    paths:
-      - "package.json"
-      - "package-lock.json"
-      - "functions/package.json"
-      - "functions/package-lock.json"
-      - ".github/workflows/**"
+  workflow_dispatch:
+
+# Manual fallback only while GitHub-hosted runner billing is not a reliable
+# source of truth. Dependency gates should run in the Cloud Build CI lane or by
+# local targeted validators before merge.
+#
+# Dependency manifest scope:
+# - package.json
+# - package-lock.json
+# - functions/package.json
+# - functions/package-lock.json
+# - .github/workflows/**
 
 permissions:
   contents: read

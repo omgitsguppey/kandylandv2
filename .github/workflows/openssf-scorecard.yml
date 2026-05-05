@@ -2,8 +2,10 @@ name: OpenSSF Scorecard
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "20 14 * * 1"
+
+# Manual report-only fallback while GitHub-hosted runner billing is not a
+# reliable source of truth. Do not let a scheduled hosted-runner billing failure
+# masquerade as a repository security failure.
 
 permissions: read-all
 
