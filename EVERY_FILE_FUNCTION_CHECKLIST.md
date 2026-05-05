@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Compact Agent Context Coverage
+
+- [x] `scripts/agent/build-compact-agent-context.ts` owns compact doctrine card definitions, surface contracts, package-validator surface mapping, file-size budget reporting, legacy registry mirroring, and changed-file task-pack generation.
+- [x] `scripts/agent/validate-compact-agent-context.ts`, `agent/context/doctrine.index.json`, `agent/context/doctrine.cards.jsonl`, `agent/context/surface-contracts.jsonl`, `agent/context/validator-map.json`, `agent/context/legacy-registry.json`, `agent/context/file-size-budget.json`, and `agent/context/task-pack.generated.json` provide the compact context validation lane.
+- [x] `scripts/agent/build-task-context.ts`, `src/lib/agent-audit/affected-surface-router.ts`, `docs/agent-truth/compact-agent-context.md`, and package scripts `build:agent-context` / `check:agent-context` wire compact packs into existing agent startup and affected-audit routing without changing product runtime behavior.
+
 ## 2026-05-05 Legacy Phaseout Registry Coverage
 
 - [x] KandyDrops legacy phaseout is a hardcoded registry. `src/lib/legacy/legacy-registry.ts` owns legacy item ids, statuses, canonical replacements, owner surfaces, phase-out stages, review/remove deadlines, allowed references, blocked references, risk weights, and debt scoring helpers.

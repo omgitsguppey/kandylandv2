@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Compact agent context
+
+KandyDrops now has a compact agent-readable doctrine/context layer under `agent/context/`. `npm run build:agent-context` writes `doctrine.index.json`, streamable `doctrine.cards.jsonl`, streamable `surface-contracts.jsonl`, `validator-map.json`, `legacy-registry.json`, `file-size-budget.json`, and `task-pack.generated.json`. Agents should load `doctrine.index.json` first, stream only relevant JSONL card/contract records, read the task pack for changed-file-specific cards/validators/legacy warnings, and open long Markdown only when compact cards leave uncertainty. `npm run check:agent-context` preserves the existing repo intelligence self-check and validates the compact context lane.
+
 ## 2026-05-05 Legacy phaseout registry
 
 KandyDrops legacy phaseout is a hardcoded registry. `src/lib/legacy/legacy-registry.ts` records old/simulative/deprecated/blocked logic with owner surfaces, canonical replacements, review and remove deadlines, allowed references, and blocked references. `npm run score:legacy-phaseout` writes `agent/state/legacy-phaseout.generated.json` with `legacyDebtScore = sum(stagePenalty * riskWeight * overdueMultiplier)`, critical blocked-reference findings, and phase-out next actions. `npm run check:legacy-phaseout` validates the registry, generated report, docs, package scripts, and runtime source scans so blocked legacy cannot silently become canonical again.

@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #159] PRE: Compact Agent Context
+
+Scope started:
+- Adding compact machine-readable agent context artifacts so agents load doctrine indexes, JSONL cards, surface contracts, validator maps, legacy phaseout data, file-size budgets, and task-specific packs before falling back to long Markdown.
+- Required outputs include `agent/context/*`, compact context build/check scripts, docs, package scripts, generated task-pack state, and validator coverage for critical surfaces and package validator mapping.
+- This pass must not delete human docs, must not change product runtime behavior, and must keep verification targeted to agent-context/tooling lanes rather than broad browser or full-suite checks.
+
+Evidence:
+- Control tower routing, source-of-truth map, product doctrine, governance ledgers, existing agent index/task context builders, package validator scripts, and prior audit runtime/affected router/cache/legacy phaseout lanes were consulted before implementation.
+
+Doctrine:
+- Compact agent context is a retrieval plane. Agents should load `agent/context/doctrine.index.json` first, then stream matching JSONL card/contract records, then open source Markdown only for unresolved uncertainty.
+
+Scope completed:
+- Added `scripts/agent/build-compact-agent-context.ts` to generate doctrine cards, surface contracts, validator maps, legacy registry mirror, file-size budget report, and changed-file task packs under `agent/context/`.
+- Added `scripts/agent/validate-compact-agent-context.ts`, `docs/agent-truth/compact-agent-context.md`, package script `build:agent-context`, and extended `check:agent-context` to preserve the existing repo intelligence check while validating compact context artifacts.
+- Wired `scripts/agent/build-task-context.ts` to refresh compact task packs for explicit task/file hints and extended the affected audit router with a compact-agent-context surface.
+- Regenerated `agent/index/*`, `agent/state/task-context.generated.json`, SQL mirror status/payload, and task prompts through the existing agent-context self-check so the repo intelligence layer sees the new compact artifacts.
+
+Verification:
+- `npm run build:agent-context -- --task="compact doctrine into task context packs"` passed and generated 19 compact cards, streamable card/contract JSONL, a validator map for all package validators, and a changed-file task pack.
+- `npm exec -- tsx scripts/agent/validate-compact-agent-context.ts` passed with expected warnings for oversized historical docs/generated JSON.
+- `npm run plan:affected-audits -- --task="compact doctrine into task context packs"` passed and selected `check:affected-audit-router`, `check:agent-context`, and `typecheck`.
+- `npm run check:affected-audit-router` passed.
+- `npm run check:agent-context` passed, including the existing repo intelligence check and the compact context validator.
+- `npm run typecheck` passed.
+- Broad audits, Playwright, Lighthouse, Cypress, and full `npm run check` were not run.
+
 ## [2026-05-05 #158] PRE: Legacy Phaseout Registry
 
 Scope started:

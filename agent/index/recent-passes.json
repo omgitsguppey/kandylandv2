@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T21:16:36.493Z",
+  "generatedAt": "2026-05-05T05:20:41.123Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,159 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-05-05-pre-compact-agent-context",
+      "date": "2026-05-05",
+      "title": "PRE: Compact Agent Context",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "agent/context/",
+        "agent/context/*",
+        "agent/context/doctrine.index.json",
+        "agent/index/*",
+        "agent/state/task-context.generated.json",
+        "docs/agent-truth/compact-agent-context.md",
+        "npm exec -- tsx scripts/agent/validate-compact-agent-context.ts",
+        "scripts/agent/build-compact-agent-context.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/validate-compact-agent-context.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui",
+        "tooling"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-05-pre-legacy-phaseout-registry",
+      "date": "2026-05-05",
+      "title": "PRE: Legacy Phaseout Registry",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        " / ",
+        " so future registry/docs/script changes route to ",
+        "agent/state/legacy-phaseout.generated.json",
+        "docs/agent-truth/legacy-phaseout.md",
+        "docs/agent-truth/orphaned-logic-score.md",
+        "scripts/agent/score-legacy-phaseout.ts",
+        "scripts/agent/score-orphaned-logic.ts",
+        "scripts/agent/validate-legacy-phaseout.ts",
+        "src/lib/legacy/legacy-registry.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-05-pre-audit-cache-fingerprints",
+      "date": "2026-05-05",
+      "title": "PRE: Audit Cache Fingerprints",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        " / ",
+        "agent/cache/audit-cache-index.json",
+        "docs/agent-truth/audit-cache.md",
+        "scripts/agent/cache-audit-result.ts",
+        "scripts/agent/run-audit-with-ledger.ts",
+        "scripts/agent/validate-audit-cache.ts",
+        "src/lib/agent-audit/audit-cache.ts",
+        "src/lib/agent-audit/file-fingerprint.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-05-pre-affected-audit-router",
+      "date": "2026-05-05",
+      "title": "PRE: Affected Audit Router",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        " / ",
+        "agent/state/affected-audit-plan.generated.json",
+        "docs/agent-truth/affected-audit-router.md",
+        "scripts/agent/plan-affected-audits.ts",
+        "scripts/agent/run-audit-with-ledger.ts",
+        "scripts/agent/validate-affected-audit-router.ts",
+        "src/lib/agent-audit/affected-surface-router.ts",
+        "src/lib/agent-audit/verification-command-budget.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-05-pre-audit-runtime-ledger",
+      "date": "2026-05-05",
+      "title": "PRE: Audit Runtime Ledger",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        " / ",
+        "agent/state/audit-runtime-ledger.jsonl",
+        "agent/state/audit-runtime-summary.generated.json",
+        "docs/agent-truth/audit-runtime-ledger.md",
+        "npm run audit:run -- --audit scripts/agent/validate-audit-runtime-ledger.ts --trigger direct_validator_smoke",
+        "scripts/agent/run-audit-with-ledger.ts",
+        "scripts/agent/score-audit-runtime.ts",
+        "scripts/agent/validate-*.ts",
+        "scripts/agent/validate-audit-runtime-ledger.ts",
+        "scripts/agent/validate-codebase-hardening.ts",
+        "src/lib/agent-audit/audit-runtime-contract.ts",
+        "src/lib/agent-audit/audit-speed-score.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "runtime",
+        "tooling",
+        "architecture"
+      ]
+    },
     {
       "stable_id": "pass__2026-05-04-pre-behavioral-tracking-surface-coverage",
       "date": "2026-05-04",
@@ -104,161 +257,6 @@
       "changeKinds": [
         "admin",
         "runtime",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-04-pre-behavioral-event-fact-truth",
-      "date": "2026-05-04",
-      "title": "PRE: Behavioral Event Fact Truth",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "docs/agent-truth/event-fact-truth.md",
-        "functions/src/behavioral-intelligence-runtime.ts",
-        "npx vitest run tests/unit/event-fact-truth.spec.ts tests/unit/user-action-taxonomy.spec.ts",
-        "scripts/agent/validate-event-fact-truth.ts",
-        "src/app/admin/user/[userId]/page.tsx",
-        "src/app/api/admin/user/[userId]/route.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/lib/analytics-action-taxonomy.ts",
-        "src/lib/behavioral/event-fact-contract.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
-        "src/lib/server/analytics-metrics.ts",
-        "src/lib/server/event-fact-rollup.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/event-fact-truth.spec.ts",
-        "tests/unit/user-action-taxonomy.spec.ts"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/telemetry-catalog.ts"
-      ],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "runtime",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-04-pre-admin-moderation-real-risk-console",
-      "date": "2026-05-04",
-      "title": "PRE: Admin Moderation Real Risk Console",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "npx vitest run --config vitest.contracts.config.ts tests/unit/moderation-scrape-risk-score.spec.ts tests/unit/admin-moderation-security-alerts.spec.ts",
-        "scripts/agent/validate-admin-moderation-real-risk.ts",
-        "src/lib/admin-moderation-control-tower.ts",
-        "src/lib/moderation/moderation-evidence.ts",
-        "src/lib/moderation/scrape-risk-score.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": true,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "security",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-04-pre-admin-debug-control-tower-v2",
-      "date": "2026-05-04",
-      "title": "PRE: Admin Debug Control Tower V2",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "GET /api/admin/debug/control-tower",
-        "admin/debug/control-tower:GET",
-        "agent/state",
-        "agent/state/*.generated.json",
-        "npx vitest run --config vitest.contracts.config.ts tests/unit/admin-debug-control-tower.spec.ts tests/unit/admin-debug-control-tower-component.spec.tsx",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "src/lib/admin-debug-control-tower.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-04-pre-wallet-single-paypal-checkout-button",
-      "date": "2026-05-04",
-      "title": "PRE: Wallet Single PayPal Checkout Button",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        " for PurchaseModal/PayPalProvider/PayPal routes, local installed ",
-        ", pill shape, single-button checkout/debug markers, a compact one-button skeleton, PayPal-only render fallback reporting, and package-aware ",
-        "@paypal/react-paypal-js",
-        "npx vitest run --config vitest.contracts.config.ts tests/unit/purchase-modal-density.spec.tsx",
-        "scripts/agent/validate-wallet-single-paypal-button.ts",
-        "src/components/PayPalProvider.tsx",
-        "src/components/PurchaseModal.tsx"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "ui",
-        "tooling"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-04-pre-sitewide-speed-security-hardening",
-      "date": "2026-05-04",
-      "title": "PRE: Sitewide Speed Security Hardening",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "37/fail",
-        "agent/state/speed-security-hardening.generated.json",
-        "scripts/agent/repair-speed-security-hardening-safe.ts",
-        "scripts/agent/score-speed-security-hardening.ts",
-        "scripts/agent/validate-speed-security-hardening.ts",
-        "src/lib/server/route-cache-contract.ts",
-        "src/lib/server/security-hardening-contract.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": true,
-      "maintenance_only": false,
-      "changeKinds": [
-        "security",
         "tooling",
         "architecture"
       ]

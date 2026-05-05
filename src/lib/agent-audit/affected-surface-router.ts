@@ -134,6 +134,20 @@ const SURFACE_RULES: SurfaceRule[] = [
     safeSkips: ["No full firebase rules suite: only storage.rules changed.", "No app typecheck: rules are not TypeScript runtime code."],
   },
   {
+    id: "compact_agent_context",
+    label: "compact_agent_context_surface",
+    priority: 98,
+    match: (filePath) =>
+      filePath.startsWith("agent/context/") ||
+      filePath.includes("compact-agent-context") ||
+      filePath.endsWith("build-compact-agent-context.ts") ||
+      filePath.endsWith("validate-compact-agent-context.ts"),
+    staticScripts: ["check:agent-context", "check:affected-audit-router", "typecheck"],
+    budgetClass: "agent_tooling",
+    why: "Compact agent context changes affect doctrine cards, validator maps, task packs, and agent context load plans.",
+    safeSkips: ["No app tests by default: compact context changes only affect agent retrieval metadata.", "No full check: compact context and router self-checks cover this path first."],
+  },
+  {
     id: "audit_cache",
     label: "audit_cache_surface",
     priority: 95,

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T21:17:28.239Z",
+  "generatedAt": "2026-05-05T05:20:46.638Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -115,7 +115,7 @@
     },
     {
       "path": "src/lib/server/analytics.ts",
-      "inboundCount": 30,
+      "inboundCount": 33,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
@@ -132,9 +132,9 @@
       "likelySharedHelper": false
     },
     {
-      "path": "src/lib/route-runtime-health.ts",
-      "inboundCount": 25,
-      "runtimeCritical": true,
+      "path": "scripts/agent/shared.ts",
+      "inboundCount": 26,
+      "runtimeCritical": false,
       "likelySharedHelper": true
     }
   ],
@@ -452,12 +452,12 @@
       "helperPaths": [
         "src/lib/analytics/analytics-event-contract.ts",
         "src/lib/behavioral/event-fact-contract.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
+        "src/lib/behavioral/event-fact-normalizer.ts",
+        "src/lib/behavioral/identified-metric-parity.ts",
         "src/lib/server/analytics-event-utils.ts",
         "src/lib/server/analytics-governance.ts",
         "src/lib/server/auth.ts",
-        "src/lib/server/firebase-admin.ts",
-        "src/lib/server/rate-limit.ts"
+        "src/lib/server/firebase-admin.ts"
       ]
     },
     {

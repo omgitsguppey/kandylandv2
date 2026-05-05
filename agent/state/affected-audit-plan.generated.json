@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T02:45:25.362Z",
+  "generatedAt": "2026-05-05T05:17:17.720Z",
   "source": [
     "agent/state/affected-audit-plan.generated.json",
     "agent/index/surface-map.json",
@@ -8,31 +8,48 @@
     "package.json"
   ],
   "researchModel": "Nx-style affected planning: Git changed files plus repo surface map and dependency/ownership hints determine the minimum affected checks; Nx is not required.",
-  "taskSummary": "add legacy phaseout registry",
+  "taskSummary": "compact doctrine into task context packs",
   "changedFiles": [
+    "agent/context/",
+    "agent/index/blast-radius.json",
+    "agent/index/canonical-helpers.json",
+    "agent/index/dependency-graph.summary.json",
+    "agent/index/governance-truth.json",
+    "agent/index/known-pitfalls.json",
+    "agent/index/package-manager-truth.json",
+    "agent/index/recent-passes.json",
+    "agent/index/repo-inventory.json",
+    "agent/index/retrieval-index.json",
+    "agent/index/runtime-observability.json",
+    "agent/index/surface-map.json",
+    "agent/index/ui-surface-coverage.json",
+    "agent/index/verification-commands.json",
+    "agent/index/workflow-guidance.json",
+    "agent/prompts/task-prompt.deep.md",
+    "agent/prompts/task-prompt.short.md",
+    "agent/prompts/task-prompt.standard.md",
     "agent/state/affected-audit-plan.generated.json",
-    "agent/state/legacy-phaseout.generated.json",
-    "agent/state/orphaned-logic-score.generated.json",
-    "docs/agent-truth/legacy-phaseout.md",
-    "docs/agent-truth/orphaned-logic-score.md",
+    "agent/state/sql-mirror-status.generated.json",
+    "agent/state/sql-sync.payload.generated.json",
+    "agent/state/task-context.generated.json",
+    "docs/agent-truth/compact-agent-context.md",
     "EVERY_FILE_FUNCTION_CHECKLIST.md",
     "FULL_SCALE_CODEBASE_AUDIT.md",
     "package.json",
     "REPO_MEMORY_LEDGER.md",
-    "scripts/agent/score-legacy-phaseout.ts",
-    "scripts/agent/score-orphaned-logic.ts",
-    "scripts/agent/validate-legacy-phaseout.ts",
-    "src/lib/agent-audit/affected-surface-router.ts",
-    "src/lib/legacy/"
+    "scripts/agent/build-compact-agent-context.ts",
+    "scripts/agent/build-task-context.ts",
+    "scripts/agent/validate-compact-agent-context.ts",
+    "src/lib/agent-audit/affected-surface-router.ts"
   ],
   "changedPackageScripts": [
-    "check:legacy-phaseout",
-    "score:legacy-phaseout"
+    "build:agent-context",
+    "check:agent-context"
   ],
   "affectedSurfaces": [
     "agent_tooling_surface",
     "agent_truth_docs",
-    "legacy_phaseout_surface",
+    "compact_agent_context_surface",
     "package_script_validation",
     "surface_map:governance",
     "surface_map:repo_tooling",
@@ -43,47 +60,35 @@
       "command": "npm run check:affected-audit-router",
       "packageScript": "check:affected-audit-router",
       "group": "required_static_scan",
-      "surface": "legacy_phaseout_surface",
-      "whyThisCommand": "Legacy phaseout changes affect blocked-reference guardrails, owner deadlines, and orphaned-logic governance. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests. Changed package audit/check scripts need affected-router validation.",
+      "surface": "compact_agent_context_surface",
+      "whyThisCommand": "Compact agent context changes affect doctrine cards, validator maps, task packs, and agent context load plans. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests. Changed package audit/check scripts need affected-router validation.",
       "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
       "budgetCost": 1,
-      "priority": 94
+      "priority": 98
     },
     {
-      "command": "npm run check:legacy-phaseout",
-      "packageScript": "check:legacy-phaseout",
+      "command": "npm run check:agent-context",
+      "packageScript": "check:agent-context",
       "group": "required_static_scan",
-      "surface": "legacy_phaseout_surface",
-      "whyThisCommand": "Legacy phaseout changes affect blocked-reference guardrails, owner deadlines, and orphaned-logic governance.",
+      "surface": "compact_agent_context_surface",
+      "whyThisCommand": "Compact agent context changes affect doctrine cards, validator maps, task packs, and agent context load plans.",
       "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
       "budgetCost": 1,
-      "priority": 94
+      "priority": 98
     },
     {
       "command": "npm run typecheck",
       "packageScript": "typecheck",
       "group": "required_static_scan",
-      "surface": "legacy_phaseout_surface",
-      "whyThisCommand": "Legacy phaseout changes affect blocked-reference guardrails, owner deadlines, and orphaned-logic governance. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
+      "surface": "compact_agent_context_surface",
+      "whyThisCommand": "Compact agent context changes affect doctrine cards, validator maps, task packs, and agent context load plans. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
       "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
       "budgetCost": 1,
-      "priority": 94
+      "priority": 98
     }
   ],
   "requiredTargetedTests": [],
-  "optionalChecks": [
-    {
-      "command": "npm run check:orphaned-logic",
-      "packageScript": "check:orphaned-logic",
-      "group": "optional",
-      "surface": "legacy_phaseout_surface",
-      "whyThisCommand": "Legacy phaseout changes affect blocked-reference guardrails, owner deadlines, and orphaned-logic governance. This is optional unless TypeScript uncertainty remains.",
-      "whyNotFullCheck": "The affected router uses changed files plus KandyDrops surface and dependency rules to select the minimum targeted checks; full-suite checks stay forbidden unless explicitly overridden with a reason.",
-      "safeSkipReason": "Optional unless the required affected checks leave critical uncertainty.",
-      "budgetCost": 1,
-      "priority": 74
-    }
-  ],
+  "optionalChecks": [],
   "forbiddenByDefault": [
     {
       "command": "npm run check",
@@ -164,20 +169,20 @@
   "terminalRunJustification": [
     {
       "command": "npm run check:affected-audit-router",
-      "surface": "legacy_phaseout_surface",
-      "whyThisCommand": "Legacy phaseout changes affect blocked-reference guardrails, owner deadlines, and orphaned-logic governance. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests. Changed package audit/check scripts need affected-router validation.",
+      "surface": "compact_agent_context_surface",
+      "whyThisCommand": "Compact agent context changes affect doctrine cards, validator maps, task packs, and agent context load plans. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests. Changed package audit/check scripts need affected-router validation.",
       "allowedBy": "required_static_scan"
     },
     {
-      "command": "npm run check:legacy-phaseout",
-      "surface": "legacy_phaseout_surface",
-      "whyThisCommand": "Legacy phaseout changes affect blocked-reference guardrails, owner deadlines, and orphaned-logic governance.",
+      "command": "npm run check:agent-context",
+      "surface": "compact_agent_context_surface",
+      "whyThisCommand": "Compact agent context changes affect doctrine cards, validator maps, task packs, and agent context load plans.",
       "allowedBy": "required_static_scan"
     },
     {
       "command": "npm run typecheck",
-      "surface": "legacy_phaseout_surface",
-      "whyThisCommand": "Legacy phaseout changes affect blocked-reference guardrails, owner deadlines, and orphaned-logic governance. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
+      "surface": "compact_agent_context_surface",
+      "whyThisCommand": "Compact agent context changes affect doctrine cards, validator maps, task packs, and agent context load plans. Agent tooling changes should validate the affected router and audit runtime metadata before any app tests.",
       "allowedBy": "required_static_scan"
     }
   ],
@@ -187,23 +192,13 @@
   "skipReasons": [
     {
       "command": "broad checks",
-      "surface": "agent_tooling_surface",
-      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+      "surface": "compact_agent_context_surface",
+      "whySafeToSkip": "No app tests by default: compact context changes only affect agent retrieval metadata."
     },
     {
       "command": "broad checks",
-      "surface": "agent_tooling_surface",
-      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
-    },
-    {
-      "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No app tests by default: legacy phaseout changes only affect deterministic audit/governance metadata."
-    },
-    {
-      "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No full check: legacy phaseout and router self-checks cover this path first."
+      "surface": "compact_agent_context_surface",
+      "whySafeToSkip": "No full check: compact context and router self-checks cover this path first."
     },
     {
       "command": "broad checks",
@@ -217,13 +212,13 @@
     },
     {
       "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No app tests by default: legacy phaseout changes only affect deterministic audit/governance metadata."
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
     },
     {
       "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No full check: legacy phaseout and router self-checks cover this path first."
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
     },
     {
       "command": "broad checks",
@@ -237,13 +232,163 @@
     },
     {
       "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No app tests by default: legacy phaseout changes only affect deterministic audit/governance metadata."
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
     },
     {
       "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No full check: legacy phaseout and router self-checks cover this path first."
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No app tests by default: only agent tooling changed."
+    },
+    {
+      "command": "broad checks",
+      "surface": "agent_tooling_surface",
+      "whySafeToSkip": "No full check: self-check validators cover the tooling path first."
+    },
+    {
+      "command": "broad checks",
+      "surface": "compact_agent_context_surface",
+      "whySafeToSkip": "No app tests by default: compact context changes only affect agent retrieval metadata."
+    },
+    {
+      "command": "broad checks",
+      "surface": "compact_agent_context_surface",
+      "whySafeToSkip": "No full check: compact context and router self-checks cover this path first."
     },
     {
       "command": "broad checks",
@@ -257,16 +402,6 @@
     },
     {
       "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No app tests by default: legacy phaseout changes only affect deterministic audit/governance metadata."
-    },
-    {
-      "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No full check: legacy phaseout and router self-checks cover this path first."
-    },
-    {
-      "command": "broad checks",
       "surface": "agent_truth_docs",
       "whySafeToSkip": "No typecheck: docs-only edits do not affect TypeScript runtime."
     },
@@ -287,23 +422,13 @@
     },
     {
       "command": "broad checks",
-      "surface": "agent_truth_docs",
-      "whySafeToSkip": "No typecheck: docs-only edits do not affect TypeScript runtime."
+      "surface": "compact_agent_context_surface",
+      "whySafeToSkip": "No app tests by default: compact context changes only affect agent retrieval metadata."
     },
     {
       "command": "broad checks",
-      "surface": "agent_truth_docs",
-      "whySafeToSkip": "No app tests: docs cannot change product behavior."
-    },
-    {
-      "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No app tests by default: legacy phaseout changes only affect deterministic audit/governance metadata."
-    },
-    {
-      "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No full check: legacy phaseout and router self-checks cover this path first."
+      "surface": "compact_agent_context_surface",
+      "whySafeToSkip": "No full check: compact context and router self-checks cover this path first."
     },
     {
       "command": "broad checks",
@@ -327,13 +452,13 @@
     },
     {
       "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No app tests by default: legacy phaseout changes only affect deterministic audit/governance metadata."
+      "surface": "compact_agent_context_surface",
+      "whySafeToSkip": "No app tests by default: compact context changes only affect agent retrieval metadata."
     },
     {
       "command": "broad checks",
-      "surface": "legacy_phaseout_surface",
-      "whySafeToSkip": "No full check: legacy phaseout and router self-checks cover this path first."
+      "surface": "compact_agent_context_surface",
+      "whySafeToSkip": "No full check: compact context and router self-checks cover this path first."
     },
     {
       "command": "broad checks",

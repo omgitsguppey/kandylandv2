@@ -1,4 +1,5 @@
 import { buildAgentIndexes } from "./build-agent-indexes";
+import { buildCompactAgentContext } from "./build-compact-agent-context";
 import type { RepoInventoryEntry } from "./classify-repo-files";
 import { buildLocalImportGraph } from "./summarize-dependency-graph";
 import { compact, createMetadata, readJsonFile, toStableId, tokenize, validateWithSchema, writeJsonFile, writeTextFile } from "./shared";
@@ -501,6 +502,11 @@ export function buildTaskContext() {
   buildAgentIndexes();
 
   const { task, mode: rawMode, files: fileHints } = parseArgs();
+  buildCompactAgentContext([
+    "--task",
+    task,
+    ...fileHints.flatMap((fileHint) => ["--file", fileHint]),
+  ]);
   const mode = rawMode ?? inferMode(task);
   const taskTokens = tokenize(task).concat(fileHints.flatMap((entry) => tokenize(entry)));
   const signalTokens = taskTokens.filter((token) => !NOISE_TOKENS.has(token));

@@ -1,0 +1,298 @@
+{
+  "generatedAt": "2026-05-05T05:24:26.965Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "docs/doctrine/**",
+    "docs/agent-truth/**",
+    "AGENTS.md",
+    "REPO_MEMORY_LEDGER.md"
+  ],
+  "version": 1,
+  "researchModel": "JSON Lines records are streamable and structured manifests are faster for deterministic lookup than narrative markdown.",
+  "loadPlan": [
+    "Read agent/context/doctrine.index.json first.",
+    "Select surfaces by changed files, task terms, or validator map.",
+    "Stream agent/context/doctrine.cards.jsonl and keep only matching surfaces.",
+    "Stream agent/context/surface-contracts.jsonl for canonical files and validators.",
+    "Open source Markdown only when the compact card leaves uncertainty."
+  ],
+  "budgets": {
+    "markdownDoctrineMaxRecommendedLines": 300,
+    "generatedJsonReportMaxRecommendedLines": 500,
+    "generatedJsonReportMaxRecommendedLinesUnlessJsonl": 500,
+    "agentCardMaxChars": 1500,
+    "singleSourceFileWarningLoc": 800,
+    "singleSourceFileCriticalLoc": 1500,
+    "generatedStateFileWarningLines": 1000,
+    "generatedStateFileCriticalLines": 5000,
+    "generatedStateJsonlExempt": true
+  },
+  "requiredSurfaces": [
+    "wallet",
+    "drops",
+    "viewer",
+    "watch-time",
+    "user-management",
+    "behavioral-intelligence",
+    "telemetry",
+    "support",
+    "moderation",
+    "creator-dashboard",
+    "admin-debug",
+    "ai-panel",
+    "device-ui",
+    "image-policy",
+    "speed-security",
+    "google-cost",
+    "legacy-phaseout"
+  ],
+  "surfaces": [
+    {
+      "id": "doctrine_card__wallet",
+      "title": "Wallet And Purchase Truth",
+      "surface": "wallet",
+      "sourceDoc": "docs/agent-truth/payment-wallet-unlock-entitlement.md",
+      "priority": "critical",
+      "tokenEstimate": 229,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__drops",
+      "title": "Drop Discovery And Unlock Truth",
+      "surface": "drops",
+      "sourceDoc": "docs/agent-truth/drop-preview-page.md",
+      "priority": "critical",
+      "tokenEstimate": 232,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__viewer",
+      "title": "Viewer File Tracking",
+      "surface": "viewer",
+      "sourceDoc": "docs/agent-truth/watch-time-truth.md",
+      "priority": "critical",
+      "tokenEstimate": 220,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__watch-time",
+      "title": "Watch Time Truth",
+      "surface": "watch-time",
+      "sourceDoc": "docs/agent-truth/watch-time-truth.md",
+      "priority": "critical",
+      "tokenEstimate": 227,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__user-management",
+      "title": "User Management Truth",
+      "surface": "user-management",
+      "sourceDoc": "docs/agent-truth/admin-user-behavior-truth.md",
+      "priority": "critical",
+      "tokenEstimate": 241,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__behavioral-intelligence",
+      "title": "Behavioral Intelligence Facts",
+      "surface": "behavioral-intelligence",
+      "sourceDoc": "docs/agent-truth/event-fact-truth.md",
+      "priority": "critical",
+      "tokenEstimate": 247,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__telemetry",
+      "title": "Telemetry Actor And Target Truth",
+      "surface": "telemetry",
+      "sourceDoc": "docs/agent-truth/telemetry-parity-score.md",
+      "priority": "critical",
+      "tokenEstimate": 247,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__support",
+      "title": "Support And Bug Report Truth",
+      "surface": "support",
+      "sourceDoc": "docs/agent-truth/support-recovery-flows.md",
+      "priority": "high",
+      "tokenEstimate": 216,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__moderation",
+      "title": "Moderation Real Risk",
+      "surface": "moderation",
+      "sourceDoc": "docs/agent-truth/admin-moderation-real-risk.md",
+      "priority": "high",
+      "tokenEstimate": 213,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__creator-dashboard",
+      "title": "Creator Dashboard And Experience Truth",
+      "surface": "creator-dashboard",
+      "sourceDoc": "docs/agent-truth/creator-experience-transaction-truth.md",
+      "priority": "high",
+      "tokenEstimate": 261,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__admin-debug",
+      "title": "Admin Debug Control Tower",
+      "surface": "admin-debug",
+      "sourceDoc": "docs/agent-truth/admin-debug-control-tower.md",
+      "priority": "high",
+      "tokenEstimate": 217,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__ai-panel",
+      "title": "AI Panel Runtime Truth",
+      "surface": "ai-panel",
+      "sourceDoc": "docs/agent-truth/admin-debug-control-tower.md",
+      "priority": "high",
+      "tokenEstimate": 208,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__device-ui",
+      "title": "Device UI And Layout Contract",
+      "surface": "device-ui",
+      "sourceDoc": "docs/agent-truth/device-layout-contract.md",
+      "priority": "critical",
+      "tokenEstimate": 211,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__image-policy",
+      "title": "Image Loading And Content Safety",
+      "surface": "image-policy",
+      "sourceDoc": "docs/agent-truth/sitewide-image-optimization.md",
+      "priority": "high",
+      "tokenEstimate": 187,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__speed-security",
+      "title": "Speed And Security Hardening",
+      "surface": "speed-security",
+      "sourceDoc": "docs/agent-truth/speed-security-hardening.md",
+      "priority": "critical",
+      "tokenEstimate": 209,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__google-cost",
+      "title": "Google Cost Guardrails",
+      "surface": "google-cost",
+      "sourceDoc": "docs/agent-truth/google-cost-bleed.md",
+      "priority": "critical",
+      "tokenEstimate": 208,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__legacy-phaseout",
+      "title": "Legacy Phaseout Registry",
+      "surface": "legacy-phaseout",
+      "sourceDoc": "docs/agent-truth/legacy-phaseout.md",
+      "priority": "critical",
+      "tokenEstimate": 227,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__agent-context",
+      "title": "Compact Agent Context",
+      "surface": "agent-context",
+      "sourceDoc": "docs/agent-truth/compact-agent-context.md",
+      "priority": "high",
+      "tokenEstimate": 233,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    },
+    {
+      "id": "doctrine_card__repo-governance",
+      "title": "Repo Governance Ledgers",
+      "surface": "repo-governance",
+      "sourceDoc": "AGENTS.md",
+      "priority": "normal",
+      "tokenEstimate": 212,
+      "cardJsonl": "agent/context/doctrine.cards.jsonl"
+    }
+  ],
+  "cardsBySurface": {
+    "wallet": "doctrine_card__wallet",
+    "drops": "doctrine_card__drops",
+    "viewer": "doctrine_card__viewer",
+    "watch-time": "doctrine_card__watch-time",
+    "user-management": "doctrine_card__user-management",
+    "behavioral-intelligence": "doctrine_card__behavioral-intelligence",
+    "telemetry": "doctrine_card__telemetry",
+    "support": "doctrine_card__support",
+    "moderation": "doctrine_card__moderation",
+    "creator-dashboard": "doctrine_card__creator-dashboard",
+    "admin-debug": "doctrine_card__admin-debug",
+    "ai-panel": "doctrine_card__ai-panel",
+    "device-ui": "doctrine_card__device-ui",
+    "image-policy": "doctrine_card__image-policy",
+    "speed-security": "doctrine_card__speed-security",
+    "google-cost": "doctrine_card__google-cost",
+    "legacy-phaseout": "doctrine_card__legacy-phaseout",
+    "agent-context": "doctrine_card__agent-context",
+    "repo-governance": "doctrine_card__repo-governance"
+  },
+  "sourceDocs": [
+    "AGENTS.md",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "docs/agent-truth/admin-debug-control-tower.md",
+    "docs/agent-truth/admin-moderation-real-risk.md",
+    "docs/agent-truth/admin-user-behavior-truth.md",
+    "docs/agent-truth/analytics-actor-taxonomy.md",
+    "docs/agent-truth/analytics-truth-layer-v2.md",
+    "docs/agent-truth/background-jobs-idempotency.md",
+    "docs/agent-truth/behavioral-truth-source.md",
+    "docs/agent-truth/cloudrun-sql-bigquery-guardrails.md",
+    "docs/agent-truth/codebase-hardening.md",
+    "docs/agent-truth/compact-agent-context.md",
+    "docs/agent-truth/content-protection-score.md",
+    "docs/agent-truth/creator-booking-error-copy.md",
+    "docs/agent-truth/creator-experience-transaction-truth.md",
+    "docs/agent-truth/creator-fan-experience-settings.md",
+    "docs/agent-truth/debug-evidence-pipeline.md",
+    "docs/agent-truth/device-layout-contract.md",
+    "docs/agent-truth/device-ui-dry-audit.md",
+    "docs/agent-truth/drop-cover-visibility-truth.md",
+    "docs/agent-truth/drop-preview-page.md",
+    "docs/agent-truth/event-fact-truth.md",
+    "docs/agent-truth/google-cost-bleed.md",
+    "docs/agent-truth/gumdrop-economy-score.md",
+    "docs/agent-truth/legacy-phaseout.md",
+    "docs/agent-truth/legal-payment-user-trust-copy.md",
+    "docs/agent-truth/orphaned-logic-score.md",
+    "docs/agent-truth/payment-wallet-unlock-entitlement.md",
+    "docs/agent-truth/recommendation-ranking.md",
+    "docs/agent-truth/sitewide-image-optimization.md",
+    "docs/agent-truth/speed-security-hardening.md",
+    "docs/agent-truth/support-recovery-flows.md",
+    "docs/agent-truth/telemetry-parity-score.md",
+    "docs/agent-truth/theft-risk-score.md",
+    "docs/agent-truth/user-engagement-score.md",
+    "docs/agent-truth/user-value-score.md",
+    "docs/agent-truth/watch-time-truth.md",
+    "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md",
+    "docs/doctrine/kandydrops-ui-doctrine.md"
+  ],
+  "warnings": [
+    "docs/agent-truth/analytics-file-inventory.md is 442 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/rollback-incident-response.md is 368 lines; compact cards should be preferred before loading the source doc."
+  ]
+}

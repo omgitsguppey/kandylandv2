@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T21:16:36.648Z",
+  "generatedAt": "2026-05-05T05:20:41.138Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -2203,6 +2203,7 @@
         "tests/unit/useViewerWatchSession-bench.spec.ts",
         "tests/unit/viewer-asset-prefetch-bench.spec.ts",
         "tests/unit/viewer-asset-prefetch.spec.ts",
+        "tests/unit/viewer-file-tracking.spec.ts",
         "tests/unit/viewer-watch-session-route.spec.ts",
         "tests/unit/viewer-watch-session.spec.ts"
       ],
