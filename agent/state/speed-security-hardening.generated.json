@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-04T10:41:08.621Z",
-  "overallScore": 37,
+  "generatedAt": "2026-05-05T19:32:17.638Z",
+  "overallScore": 40,
   "overallStatus": "fail",
   "domainScores": {
     "speedCachingHydration": {
@@ -15,9 +15,9 @@
       "weight": 25,
       "score": 0,
       "status": "fail",
-      "findingCount": 97,
-      "criticalCount": 6,
-      "majorCount": 91
+      "findingCount": 95,
+      "criticalCount": 5,
+      "majorCount": 90
     },
     "firebaseRulesAppCheckReadiness": {
       "weight": 20,
@@ -29,10 +29,10 @@
     },
     "contentPaymentEconomyProtection": {
       "weight": 15,
-      "score": 5,
-      "status": "fail",
-      "findingCount": 8,
-      "criticalCount": 1,
+      "score": 30,
+      "status": "beta-risk",
+      "findingCount": 7,
+      "criticalCount": 0,
       "majorCount": 7
     },
     "costRunawayWorkControls": {
@@ -45,9 +45,9 @@
     },
     "docsDebugEvidenceCompleteness": {
       "weight": 5,
-      "score": 100,
+      "score": 95,
       "status": "clean",
-      "findingCount": 0,
+      "findingCount": 1,
       "criticalCount": 0,
       "majorCount": 0
     }
@@ -58,7 +58,7 @@
       "force_cache": 0,
       "swr": 3,
       "hot_cache": 4,
-      "no_store": 86,
+      "no_store": 87,
       "must_not_cache": 22,
       "unknown": 0
     },
@@ -426,6 +426,20 @@
         "sensitive": true,
         "sourceNoStoreEvidence": true,
         "sourceForceDynamicEvidence": true
+      },
+      {
+        "routePath": "/api/admin/debug/control-tower",
+        "filePath": "src/app/api/admin/debug/control-tower/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "contractPattern": "/api/admin/**",
+        "cacheMode": "no_store",
+        "surface": "admin",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
       },
       {
         "routePath": "/api/admin/debug/preferences",
@@ -1754,15 +1768,15 @@
   },
   "routeSecurityClassification": {
     "totals": {
-      "routes": 117,
+      "routes": 118,
       "mutations": 86,
       "trustedOriginRequired": 86,
-      "trustedOriginPresent": 96,
-      "guardPresent": 116,
-      "rateLimitEvidence": 116,
+      "trustedOriginPresent": 97,
+      "guardPresent": 117,
+      "rateLimitEvidence": 117,
       "idempotencyRequired": 12,
-      "idempotencyEvidence": 13,
-      "bodyLimitRequired": 110,
+      "idempotencyEvidence": 15,
+      "bodyLimitRequired": 111,
       "bodyLimitEvidence": 12
     },
     "routes": [
@@ -2286,10 +2300,10 @@
           "POST",
           "DELETE"
         ],
-        "contractPattern": "/api/admin/**",
+        "contractPattern": "/api/admin/content",
         "authRequired": "admin",
-        "rateLimitPolicy": "admin",
-        "costRisk": "high",
+        "rateLimitPolicy": "media_proxy",
+        "costRisk": "critical",
         "csrfRisk": "high",
         "mutation": true,
         "sensitiveWrites": true,
@@ -2305,7 +2319,9 @@
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
-          "invalid_admin_request"
+          "invalid_storage_reference",
+          "unsupported_drop_asset_type",
+          "file_not_found"
         ]
       },
       {
@@ -2493,6 +2509,34 @@
         "sensitiveWrites": true,
         "trustedOriginRequired": true,
         "trustedOriginPresent": true,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "unauthorized",
+          "forbidden",
+          "invalid_admin_request"
+        ]
+      },
+      {
+        "routePath": "/api/admin/debug/control-tower",
+        "filePath": "src/app/api/admin/debug/control-tower/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "contractPattern": "/api/admin/**",
+        "authRequired": "admin",
+        "rateLimitPolicy": "admin",
+        "costRisk": "high",
+        "csrfRisk": "high",
+        "mutation": false,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": false,
+        "trustedOriginPresent": false,
         "trustedOriginChecked": true,
         "guardPresent": true,
         "rateLimitPresent": true,
@@ -3042,7 +3086,7 @@
         "guardPresent": true,
         "rateLimitPresent": true,
         "idempotencyRequired": false,
-        "idempotencyPresent": false,
+        "idempotencyPresent": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -3207,7 +3251,7 @@
         "mutation": true,
         "sensitiveWrites": true,
         "trustedOriginRequired": true,
-        "trustedOriginPresent": false,
+        "trustedOriginPresent": true,
         "trustedOriginChecked": true,
         "guardPresent": true,
         "rateLimitPresent": true,
@@ -4510,7 +4554,7 @@
         "guardPresent": true,
         "rateLimitPresent": true,
         "idempotencyRequired": true,
-        "idempotencyPresent": false,
+        "idempotencyPresent": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -5279,22 +5323,6 @@
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
-      "severity": "critical",
-      "filePath": "src/app/api/paypal/create/route.ts",
-      "title": "Sensitive mutating route lacks idempotency evidence",
-      "evidence": [
-        "/api/paypal/create contract requires idempotency."
-      ],
-      "expectedRule": "Routes writing money, account, entitlement, or monetization state need idempotency/duplicate-prevention evidence.",
-      "actualPattern": "missing idempotency evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add or verify canonical idempotency keys/transactions before changing behavior.",
-      "humanReadableEscalation": "Idempotency touches payment/economy state and cannot be auto-repaired.",
-      "id": "speed_security_facy9r"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/ai/drop-covers/feedback/route.ts",
       "line": 35,
@@ -5824,7 +5852,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 1213,
+      "line": 1800,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -5835,13 +5863,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_3wq79x"
+      "id": "speed_security_1dkygfr"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 6,
+      "line": 7,
       "title": "Route may collapse expected domain failures into generic 500s",
       "evidence": [
         "Missing expected safe code evidence: unauthorized, forbidden, invalid_admin_request."
@@ -5852,13 +5880,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
       "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_dtl3zt"
+      "id": "speed_security_powm9e"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/view-as-creator/route.ts",
-      "line": 65,
+      "line": 66,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -5869,24 +5897,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1fekjjo"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 6,
-      "title": "State-mutating route lacks trusted-origin evidence",
-      "evidence": [
-        "/api/analytics/ingest-identified requires trusted origin by contract."
-      ],
-      "expectedRule": "Mutations require requireTrustedOrigin: true unless they are explicitly webhook/cron exempt.",
-      "actualPattern": "missing requireTrustedOrigin: true",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Review origin semantics and enforce trusted-origin through guardApiRequest.",
-      "humanReadableEscalation": "Trusted-origin enforcement is security-sensitive and must be route-reviewed.",
-      "id": "speed_security_v7s839"
+      "id": "speed_security_ni19vz"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6041,7 +6052,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 128,
+      "line": 129,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6052,7 +6063,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_16jgjug"
+      "id": "speed_security_l8cf05"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6464,7 +6475,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/drops/unlock/route.ts",
-      "line": 35,
+      "line": 39,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 12288 bytes."
@@ -6475,7 +6486,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_u75ihd"
+      "id": "speed_security_1u39vz9"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6498,7 +6509,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/notifications/route.ts",
-      "line": 142,
+      "line": 143,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6509,7 +6520,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_wgn555"
+      "id": "speed_security_y2hszg"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6615,7 +6626,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/support/threads/[threadId]/route.ts",
-      "line": 72,
+      "line": 73,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -6626,7 +6637,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_15mbhhs"
+      "id": "speed_security_153a831"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6649,7 +6660,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/support/threads/route.ts",
-      "line": 81,
+      "line": 82,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -6660,7 +6671,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_8f3le2"
+      "id": "speed_security_svqozd"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6932,7 +6943,7 @@
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 1715,
+      "line": 1721,
       "title": "Public shell surface uses interval work",
       "evidence": [
         "Speed fixes must not add polling; startup timers can increase input delay and cost."
@@ -6943,7 +6954,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
       "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_11x1qzx"
+      "id": "speed_security_1v0an12"
     }
   ],
   "costRisks": [
@@ -7070,7 +7081,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/checkin/route.ts",
-      "line": 146,
+      "line": 152,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -7081,7 +7092,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1cfbxsw"
+      "id": "speed_security_8udr6h"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7104,7 +7115,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 36,
+      "line": 37,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 9 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -7115,7 +7126,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1e9bqdy"
+      "id": "speed_security_43um1l"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7376,7 +7387,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/drops/content/route.ts",
-      "line": 66,
+      "line": 67,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -7387,7 +7398,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1x6z7p4"
+      "id": "speed_security_1xkmkzv"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7427,7 +7438,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 332,
+      "line": 339,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -7438,7 +7449,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_bw272c"
+      "id": "speed_security_1me8zrh"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7478,7 +7489,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/support/threads/route.ts",
-      "line": 82,
+      "line": 83,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -7489,7 +7500,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1qx7h7v"
+      "id": "speed_security_6ties8"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7597,7 +7608,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/viewer/watch-session/route.ts",
-      "line": 173,
+      "line": 178,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -7608,7 +7619,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_2siwbm"
+      "id": "speed_security_mx0ztb"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7818,10 +7829,10 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 211,
+      "line": 208,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
-        "Found 5 .get() call(s) without limit/pagination/hot-cache evidence."
+        "Found 4 .get() call(s) without limit/pagination/hot-cache evidence."
       ],
       "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
       "actualPattern": ".get() without nearby limit/pagination",
@@ -7829,7 +7840,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1rt6w9j"
+      "id": "speed_security_15prufh"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7869,7 +7880,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 99,
+      "line": 178,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 12 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -7880,7 +7891,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_kaaukc"
+      "id": "speed_security_n0jjwy"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7903,10 +7914,10 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 547,
+      "line": 490,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
-        "Found 15 .get() call(s) without limit/pagination/hot-cache evidence."
+        "Found 22 .get() call(s) without limit/pagination/hot-cache evidence."
       ],
       "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
       "actualPattern": ".get() without nearby limit/pagination",
@@ -7914,13 +7925,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1krijvu"
+      "id": "speed_security_75yjhx"
     },
     {
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/admin/view-as-creator/route.ts",
-      "line": 87,
+      "line": 88,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -7931,7 +7942,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1orpaas"
+      "id": "speed_security_dvbdld"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -8106,23 +8117,6 @@
   ],
   "criticalFindings": [
     {
-      "domain": "contentPaymentEconomyProtection",
-      "severity": "critical",
-      "filePath": "src/app/api/admin/content/route.ts",
-      "line": 5,
-      "title": "Storage/media route lacks entitlement or media-proxy guard evidence",
-      "evidence": [
-        "/api/admin/content touches Storage but does not show entitlement/admin/media proxy markers."
-      ],
-      "expectedRule": "Storage/media egress routes enforce entitlement/admin scope, byte/rate guards, and no raw locked URL leakage.",
-      "actualPattern": "storage usage without entitlement/media proxy evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify entitlement, media proxy rate limit, and safe URL handling before exposing storage bytes.",
-      "humanReadableEscalation": "Locked content access must be manually reviewed.",
-      "id": "speed_security_1uaj1g2"
-    },
-    {
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/auth/navigation-session/route.ts",
@@ -8325,7 +8319,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/checkin/route.ts",
-      "line": 146,
+      "line": 152,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -8336,7 +8330,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1cfbxsw"
+      "id": "speed_security_8udr6h"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -8359,7 +8353,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 36,
+      "line": 37,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 9 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -8370,7 +8364,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1e9bqdy"
+      "id": "speed_security_43um1l"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -8631,7 +8625,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/drops/content/route.ts",
-      "line": 66,
+      "line": 67,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -8642,7 +8636,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1x6z7p4"
+      "id": "speed_security_1xkmkzv"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -8682,7 +8676,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 332,
+      "line": 339,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -8693,23 +8687,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_bw272c"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "critical",
-      "filePath": "src/app/api/paypal/create/route.ts",
-      "title": "Sensitive mutating route lacks idempotency evidence",
-      "evidence": [
-        "/api/paypal/create contract requires idempotency."
-      ],
-      "expectedRule": "Routes writing money, account, entitlement, or monetization state need idempotency/duplicate-prevention evidence.",
-      "actualPattern": "missing idempotency evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add or verify canonical idempotency keys/transactions before changing behavior.",
-      "humanReadableEscalation": "Idempotency touches payment/economy state and cannot be auto-repaired.",
-      "id": "speed_security_facy9r"
+      "id": "speed_security_1me8zrh"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -8749,7 +8727,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/support/threads/route.ts",
-      "line": 82,
+      "line": 83,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -8760,7 +8738,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1qx7h7v"
+      "id": "speed_security_6ties8"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -8868,7 +8846,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/viewer/watch-session/route.ts",
-      "line": 173,
+      "line": 178,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -8879,28 +8857,11 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_2siwbm"
+      "id": "speed_security_mx0ztb"
     }
   ],
   "findings": [
     {
-      "domain": "contentPaymentEconomyProtection",
-      "severity": "critical",
-      "filePath": "src/app/api/admin/content/route.ts",
-      "line": 5,
-      "title": "Storage/media route lacks entitlement or media-proxy guard evidence",
-      "evidence": [
-        "/api/admin/content touches Storage but does not show entitlement/admin/media proxy markers."
-      ],
-      "expectedRule": "Storage/media egress routes enforce entitlement/admin scope, byte/rate guards, and no raw locked URL leakage.",
-      "actualPattern": "storage usage without entitlement/media proxy evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify entitlement, media proxy rate limit, and safe URL handling before exposing storage bytes.",
-      "humanReadableEscalation": "Locked content access must be manually reviewed.",
-      "id": "speed_security_1uaj1g2"
-    },
-    {
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/auth/navigation-session/route.ts",
@@ -9103,7 +9064,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/checkin/route.ts",
-      "line": 146,
+      "line": 152,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -9114,7 +9075,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1cfbxsw"
+      "id": "speed_security_8udr6h"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -9137,7 +9098,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 36,
+      "line": 37,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 9 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -9148,7 +9109,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1e9bqdy"
+      "id": "speed_security_43um1l"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -9409,7 +9370,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/drops/content/route.ts",
-      "line": 66,
+      "line": 67,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -9420,7 +9381,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1x6z7p4"
+      "id": "speed_security_1xkmkzv"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -9460,7 +9421,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 332,
+      "line": 339,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -9471,23 +9432,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_bw272c"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "critical",
-      "filePath": "src/app/api/paypal/create/route.ts",
-      "title": "Sensitive mutating route lacks idempotency evidence",
-      "evidence": [
-        "/api/paypal/create contract requires idempotency."
-      ],
-      "expectedRule": "Routes writing money, account, entitlement, or monetization state need idempotency/duplicate-prevention evidence.",
-      "actualPattern": "missing idempotency evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add or verify canonical idempotency keys/transactions before changing behavior.",
-      "humanReadableEscalation": "Idempotency touches payment/economy state and cannot be auto-repaired.",
-      "id": "speed_security_facy9r"
+      "id": "speed_security_1me8zrh"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -9527,7 +9472,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/support/threads/route.ts",
-      "line": 82,
+      "line": 83,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -9538,7 +9483,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1qx7h7v"
+      "id": "speed_security_6ties8"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -9646,7 +9591,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "critical",
       "filePath": "src/app/api/viewer/watch-session/route.ts",
-      "line": 173,
+      "line": 178,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -9657,7 +9602,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_2siwbm"
+      "id": "speed_security_mx0ztb"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -10258,10 +10203,10 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 211,
+      "line": 208,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
-        "Found 5 .get() call(s) without limit/pagination/hot-cache evidence."
+        "Found 4 .get() call(s) without limit/pagination/hot-cache evidence."
       ],
       "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
       "actualPattern": ".get() without nearby limit/pagination",
@@ -10269,7 +10214,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1rt6w9j"
+      "id": "speed_security_15prufh"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -10445,7 +10390,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 99,
+      "line": 178,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 12 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -10456,7 +10401,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_kaaukc"
+      "id": "speed_security_n0jjwy"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -10496,7 +10441,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 1213,
+      "line": 1800,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -10507,16 +10452,16 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_3wq79x"
+      "id": "speed_security_1dkygfr"
     },
     {
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 547,
+      "line": 490,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
-        "Found 15 .get() call(s) without limit/pagination/hot-cache evidence."
+        "Found 22 .get() call(s) without limit/pagination/hot-cache evidence."
       ],
       "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
       "actualPattern": ".get() without nearby limit/pagination",
@@ -10524,13 +10469,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1krijvu"
+      "id": "speed_security_75yjhx"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 6,
+      "line": 7,
       "title": "Route may collapse expected domain failures into generic 500s",
       "evidence": [
         "Missing expected safe code evidence: unauthorized, forbidden, invalid_admin_request."
@@ -10541,13 +10486,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
       "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
-      "id": "speed_security_dtl3zt"
+      "id": "speed_security_powm9e"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/view-as-creator/route.ts",
-      "line": 65,
+      "line": 66,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -10558,13 +10503,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1fekjjo"
+      "id": "speed_security_ni19vz"
     },
     {
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/admin/view-as-creator/route.ts",
-      "line": 87,
+      "line": 88,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -10575,24 +10520,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1orpaas"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 6,
-      "title": "State-mutating route lacks trusted-origin evidence",
-      "evidence": [
-        "/api/analytics/ingest-identified requires trusted origin by contract."
-      ],
-      "expectedRule": "Mutations require requireTrustedOrigin: true unless they are explicitly webhook/cron exempt.",
-      "actualPattern": "missing requireTrustedOrigin: true",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Review origin semantics and enforce trusted-origin through guardApiRequest.",
-      "humanReadableEscalation": "Trusted-origin enforcement is security-sensitive and must be route-reviewed.",
-      "id": "speed_security_v7s839"
+      "id": "speed_security_dvbdld"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -10781,7 +10709,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 128,
+      "line": 129,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10792,7 +10720,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_16jgjug"
+      "id": "speed_security_l8cf05"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -11306,7 +11234,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/drops/unlock/route.ts",
-      "line": 35,
+      "line": 39,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 12288 bytes."
@@ -11317,7 +11245,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_u75ihd"
+      "id": "speed_security_1u39vz9"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -11357,7 +11285,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/notifications/route.ts",
-      "line": 142,
+      "line": 143,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -11368,7 +11296,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_wgn555"
+      "id": "speed_security_y2hszg"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -11491,7 +11419,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/support/threads/[threadId]/route.ts",
-      "line": 72,
+      "line": 73,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -11502,7 +11430,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_15mbhhs"
+      "id": "speed_security_153a831"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -11525,7 +11453,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/support/threads/route.ts",
-      "line": 81,
+      "line": 82,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -11536,7 +11464,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_8f3le2"
+      "id": "speed_security_svqozd"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -11740,7 +11668,7 @@
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 1715,
+      "line": 1721,
       "title": "Public shell surface uses interval work",
       "evidence": [
         "Speed fixes must not add polling; startup timers can increase input delay and cost."
@@ -11751,7 +11679,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
       "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_11x1qzx"
+      "id": "speed_security_1v0an12"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -11890,6 +11818,22 @@
       "id": "speed_security_lhk3rc"
     },
     {
+      "domain": "docsDebugEvidenceCompleteness",
+      "severity": "moderate",
+      "filePath": "README.md",
+      "title": "Speed/security doctrine note missing from source-of-truth doc",
+      "evidence": [
+        "Broad hardening lanes must update user manual, dev truth, AI context, and agent-truth docs."
+      ],
+      "expectedRule": "Docs/source-of-truth repeat the deterministic speed/security hardening doctrine.",
+      "actualPattern": "missing speed-security doctrine note",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Add the doctrine note and command lane to the relevant source-of-truth document.",
+      "humanReadableEscalation": "Documentation update only; no runtime behavior change.",
+      "id": "speed_security_jqcftn"
+    },
+    {
       "domain": "firebaseRulesAppCheckReadiness",
       "severity": "moderate",
       "filePath": "src/lib/authFetch.ts",
@@ -11927,7 +11871,8 @@
     "Close route guard, trusted-origin, rate-limit, idempotency, typed-error, and body-limit gaps with targeted route tests.",
     "Review Firebase rules default-deny/owner-admin scopes and stage App Check monitor before enforcement.",
     "Escalate locked-content, payment, unlock, and GumDrops findings before any behavior change.",
-    "Bound Firestore reads, paid Google calls, cleanup loops, and Cloud Run/SQL/BigQuery cost surfaces."
+    "Bound Firestore reads, paid Google calls, cleanup loops, and Cloud Run/SQL/BigQuery cost surfaces.",
+    "Update source-of-truth docs and keep debug evidence/route runtime health connected."
   ],
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
@@ -11952,5 +11897,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 180 findings across 117 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 178 findings across 118 API routes."
 }

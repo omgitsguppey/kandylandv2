@@ -13,9 +13,10 @@ import { toast } from "sonner";
 import Image from "next/image";
 
 interface StorageFile {
+    id: string;
     name: string;
-    fullPath: string;
-    url: string;
+    displayPath?: string;
+    url?: string | null;
     size?: number;
     contentType?: string;
     timeCreated?: string;
@@ -109,7 +110,7 @@ export default function ContentManagerPage() {
                 throw new Error(payload.error || "Upload failed.");
             }
 
-            setFiles((current) => [uploadedFile, ...current.filter((entry) => entry.fullPath !== uploadedFile.fullPath)]);
+            setFiles((current) => [uploadedFile, ...current.filter((entry) => entry.id !== uploadedFile.id)]);
             toast.success("File uploaded.");
         } catch (error) {
             reportClientIssue({
@@ -130,20 +131,20 @@ export default function ContentManagerPage() {
         }
     };
 
-    const handleDelete = async (fullPath: string) => {
+    const handleDelete = async (fileId: string) => {
         if (!confirm("Are you sure you want to permanently delete this file?")) return;
         setError(null);
         try {
             const response = await authFetch("/api/admin/content", {
                 method: "DELETE",
-                body: JSON.stringify({ fullPath }),
+                body: JSON.stringify({ fileId }),
             });
             const payload = await response.json() as { error?: string };
             if (!response.ok) {
                 throw new Error(payload.error || "Delete failed.");
             }
 
-            setFiles((current) => current.filter((file) => file.fullPath !== fullPath));
+            setFiles((current) => current.filter((file) => file.id !== fileId));
             toast.success("File deleted.");
         } catch (error) {
             reportClientIssue({
@@ -152,7 +153,7 @@ export default function ContentManagerPage() {
                 error,
                 detail: {
                     action: "delete_file",
-                    fullPath,
+                    fileId,
                 },
                 consoleLabel: "[Admin Content] delete failed",
             });
@@ -267,15 +268,21 @@ export default function ContentManagerPage() {
                         No files match the {activeTab} category.
                     </div>
                 ) : (
-                    filteredFiles.map((file) => (
-                        <div key={file.fullPath} className="group relative flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4 rounded-2xl border border-white/10 bg-black/35 p-3 md:p-4 transition-all hover:border-white/20 hover:bg-white/[0.03]">
+                    filteredFiles.map((file) => {
+                        const displayPath = file.displayPath || file.name;
+                        const previewUrl = typeof file.url === "string" && file.url.length > 0 ? file.url : "";
+                        const isImagePreview = Boolean(previewUrl) && ['jpg', 'jpeg', 'png', 'webp', 'gif'].some(ext => file.name.toLowerCase().endsWith(ext));
+                        const isVideoPreview = Boolean(previewUrl) && ['mp4', 'webm', 'ogg', 'mov'].some(ext => file.name.toLowerCase().endsWith(ext));
+
+                        return (
+                        <div key={file.id} className="group relative flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4 rounded-2xl border border-white/10 bg-black/35 p-3 md:p-4 transition-all hover:border-white/20 hover:bg-white/[0.03]">
                             
                             <div className="flex items-start gap-3 w-full sm:w-auto overflow-hidden">
                                 <div className="shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl bg-black/50 overflow-hidden flex items-center justify-center border border-white/5 relative">
-                                    {['jpg', 'jpeg', 'png', 'webp', 'gif'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
-                                        <Image src={file.url} alt={file.name} fill sizes="(max-width: 768px) 64px, 80px" className="object-cover bg-black" />
-                                    ) : ['mp4', 'webm', 'ogg', 'mov'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
-                                        <video src={file.url} className="w-full h-full object-cover bg-black" muted loop playsInline />
+                                    {isImagePreview ? (
+                                        <Image src={previewUrl} alt={file.name} fill sizes="(max-width: 768px) 64px, 80px" className="object-cover bg-black" />
+                                    ) : isVideoPreview ? (
+                                        <video src={previewUrl} className="w-full h-full object-cover bg-black" muted loop playsInline />
                                     ) : (
                                         getFileIcon(file.name)
                                     )}
@@ -283,7 +290,7 @@ export default function ContentManagerPage() {
                                 <div className="min-w-0 flex-1 sm:hidden">
                                     {/* Mobile layout title/metadata */}
                                     <div className="font-semibold text-sm text-white truncate w-full" title={file.name}>{file.name}</div>
-                                    <div className="mt-1 text-[11px] text-gray-500 font-mono truncate" title={file.fullPath}>{truncatePath(file.fullPath, 35)}</div>
+                                    <div className="mt-1 text-[11px] text-gray-500 font-mono truncate" title={displayPath}>{truncatePath(displayPath, 35)}</div>
                                     <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-gray-400">
                                         {file.size ? <span className="bg-white/5 px-1.5 py-0.5 rounded uppercase">{formatBytes(file.size)}</span> : null}
                                         {file.timeCreated ? <span>{new Date(file.timeCreated).toLocaleDateString()}</span> : null}
@@ -294,7 +301,7 @@ export default function ContentManagerPage() {
                             <div className="hidden sm:block min-w-0 flex-1">
                                 {/* Desktop layout title/metadata */}
                                 <div className="font-semibold text-sm text-white truncate max-w-lg" title={file.name}>{file.name}</div>
-                                <div className="mt-1 text-[11px] text-gray-500 font-mono truncate max-w-lg" title={file.fullPath}>{truncatePath(file.fullPath, 50)}</div>
+                                <div className="mt-1 text-[11px] text-gray-500 font-mono truncate max-w-lg" title={displayPath}>{truncatePath(displayPath, 50)}</div>
                                 <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-gray-400">
                                     {file.size ? <span className="bg-white/5 border border-white/5 px-1.5 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider">{formatBytes(file.size)}</span> : null}
                                     {file.timeCreated ? <span>{new Date(file.timeCreated).toLocaleDateString()}</span> : null}
@@ -304,22 +311,24 @@ export default function ContentManagerPage() {
                             <div className="flex items-center gap-1.5 sm:gap-2 sm:shrink-0 pt-2 sm:pt-0 border-t border-white/5 sm:border-0 mt-1 sm:mt-0 justify-between sm:justify-end w-full sm:w-auto">
                                 <div className="flex items-center gap-1.5">
                                     <button
-                                        onClick={() => window.open(file.url, '_blank')}
-                                        className="inline-flex items-center justify-center p-2 rounded-lg bg-white/5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
-                                        title="View File"
+                                        onClick={() => previewUrl ? window.open(previewUrl, '_blank', 'noopener,noreferrer') : undefined}
+                                        className="inline-flex items-center justify-center p-2 rounded-lg bg-white/5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                                        title={previewUrl ? "View File" : "Preview unavailable"}
+                                        disabled={!previewUrl}
                                     >
                                         <ExternalLink className="w-4 h-4" />
                                     </button>
                                     <button
-                                        onClick={() => copyToClipboard(file.url)}
-                                        className="inline-flex items-center justify-center p-2 rounded-lg bg-white/5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
-                                        title="Copy URL"
+                                        onClick={() => previewUrl ? copyToClipboard(previewUrl) : undefined}
+                                        className="inline-flex items-center justify-center p-2 rounded-lg bg-white/5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                                        title={previewUrl ? "Copy short-lived preview URL" : "Preview unavailable"}
+                                        disabled={!previewUrl}
                                     >
                                         <Copy className="w-4 h-4" />
                                     </button>
                                 </div>
                                 <button
-                                    onClick={() => handleDelete(file.fullPath)}
+                                    onClick={() => handleDelete(file.id)}
                                     className="inline-flex items-center justify-center p-2 rounded-lg bg-red-500/10 text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300"
                                     title="Delete File"
                                 >
@@ -327,7 +336,8 @@ export default function ContentManagerPage() {
                                 </button>
                             </div>
                         </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
         </div>

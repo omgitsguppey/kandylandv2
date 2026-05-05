@@ -2,16 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
-import { adminStorage } from "@/lib/server/firebase-admin";
-import { ADMIN } from "@/lib/server/rate-limit";
-import { guardApiRequest } from "@/lib/server/request-guard";
 import {
-    ensureFirebaseDownloadUrl,
-    sanitizeStorageFileName,
-    serializeStorageFile,
-} from "@/lib/server/storage-assets";
+    ADMIN_CONTENT_ROUTE_EVIDENCE,
+    createUnsafeAdminContentMediaFieldReport,
+    decodeAdminContentFileId,
+    recordUnsafeAdminContentMediaFieldsIfNeeded,
+    serializeAdminContentFile,
+} from "@/lib/server/admin-content-storage-safety";
+import { adminStorage } from "@/lib/server/firebase-admin";
+import { MEDIA_PROXY } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
+import { sanitizeStorageFileName } from "@/lib/server/storage-assets";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
-import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { buildNotFoundBody } from "@/lib/server/not-found";
 
 const DROPS_CONTENT_PREFIX = "drops/";
 const MAX_ADMIN_DROP_ASSET_BYTES = 250 * 1024 * 1024;
@@ -32,23 +35,26 @@ async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/content",
-            rateLimit: ADMIN,
+            rateLimit: MEDIA_PROXY,
             requireTrustedOrigin: true,
             auth: "admin",
         });
 
-        const [files] = await adminStorage.bucket().getFiles({ prefix: DROPS_CONTENT_PREFIX });
+        const bucket = adminStorage.bucket();
+        const unsafeMediaFieldReport = createUnsafeAdminContentMediaFieldReport();
+        const [files] = await bucket.getFiles({ prefix: DROPS_CONTENT_PREFIX });
         const contentFiles = await Promise.all(files
             .filter((file) => isSafeDropsContentPath(file.name))
             .map(async (file) => {
                 const [metadata] = await file.getMetadata();
-                const url = await ensureFirebaseDownloadUrl(adminStorage.bucket(), file, metadata);
-                return serializeStorageFile(file.name, metadata, url);
+                return serializeAdminContentFile(file, metadata, bucket.name, unsafeMediaFieldReport);
             }));
+        recordUnsafeAdminContentMediaFieldsIfNeeded(unsafeMediaFieldReport, "list");
 
         contentFiles.sort((left, right) => (right.timeCreated || "").localeCompare(left.timeCreated || ""));
 
         return NextResponse.json({
+            ...ADMIN_CONTENT_ROUTE_EVIDENCE,
             files: contentFiles,
             verification: buildServerAdminModuleVerification({
                 module: "admin_content_manager",
@@ -76,7 +82,7 @@ async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/content",
-            rateLimit: ADMIN,
+            rateLimit: MEDIA_PROXY,
             requireTrustedOrigin: true,
             auth: "admin",
         });
@@ -107,11 +113,19 @@ async function POST_handler(request: NextRequest) {
         });
 
         const [metadata] = await storageFile.getMetadata();
-        const url = await ensureFirebaseDownloadUrl(adminStorage.bucket(), storageFile, metadata);
+        const unsafeMediaFieldReport = createUnsafeAdminContentMediaFieldReport();
+        const safeFile = await serializeAdminContentFile(
+            storageFile,
+            metadata,
+            adminStorage.bucket().name,
+            unsafeMediaFieldReport,
+        );
+        recordUnsafeAdminContentMediaFieldsIfNeeded(unsafeMediaFieldReport, "upload");
 
         return NextResponse.json({
+            ...ADMIN_CONTENT_ROUTE_EVIDENCE,
             success: true,
-            file: serializeStorageFile(fullPath, metadata, url),
+            file: safeFile,
         }, { status: 201 });
     } catch (error) {
         return handleApiError(error, "Admin.Content.POST");
@@ -122,24 +136,36 @@ async function DELETE_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/content",
-            rateLimit: ADMIN,
+            rateLimit: MEDIA_PROXY,
             requireTrustedOrigin: true,
             auth: "admin",
         });
 
-        const { fullPath } = await request.json() as { fullPath?: string };
-        if (typeof fullPath !== "string" || !isSafeDropsContentPath(fullPath)) {
-            return NextResponse.json({ error: "Invalid storage path" }, { status: 400 });
+        const { fileId, fullPath } = await request.json() as { fileId?: string; fullPath?: string };
+        const decodedPath = typeof fileId === "string" ? decodeAdminContentFileId(fileId, isSafeDropsContentPath) : null;
+        const targetPath = decodedPath ?? fullPath;
+        if (typeof targetPath !== "string" || !isSafeDropsContentPath(targetPath)) {
+            return NextResponse.json({
+                ...ADMIN_CONTENT_ROUTE_EVIDENCE,
+                error: "Invalid storage reference",
+                errorCode: "invalid_storage_reference",
+            }, { status: 400 });
         }
 
-        const storageFile = adminStorage.bucket().file(fullPath);
+        const storageFile = adminStorage.bucket().file(targetPath);
         const [exists] = await storageFile.exists();
         if (!exists) {
-            return buildNotFoundResponse("file", "File not found");
+            return NextResponse.json({
+                ...ADMIN_CONTENT_ROUTE_EVIDENCE,
+                ...buildNotFoundBody("file", "File not found", "file_not_found"),
+            }, { status: 404 });
         }
 
         await storageFile.delete();
-        return NextResponse.json({ success: true });
+        return NextResponse.json({
+            ...ADMIN_CONTENT_ROUTE_EVIDENCE,
+            success: true,
+        });
     } catch (error) {
         return handleApiError(error, "Admin.Content.DELETE");
     }

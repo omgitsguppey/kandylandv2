@@ -65,6 +65,8 @@ Do not run Playwright, Lighthouse, Cypress, deploys, or full `npm run check` by 
 
 KandyDrops global cost guardrails cover runtime telemetry, PostHog/GA/session replay, cloud logging, debug evidence, Firebase Storage/media proxy access, auth abuse, notification fan-out, CI/build minutes, visual/browser audit tooling, scheduled rebuilds, analytics materializers, dependency tooling, and admin import/export jobs.
 
+KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default.
+
 Google cost-bearing surfaces must be declared before use.
 KandyDrops uses Firebase Data Connect with Cloud SQL only as an agent-context mirror unless explicitly promoted.
 

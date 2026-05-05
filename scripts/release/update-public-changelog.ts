@@ -245,6 +245,12 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (shippedBetaBadgeFeature(title)) {
     return "Added a Beta badge with app update notes in the top navigation.";
   }
+  if (
+    normalized.includes("guard content storage route evidence")
+    || (normalized.includes("admin") && normalized.includes("content") && normalized.includes("storage"))
+  ) {
+    return "Improved internal content safety checks for admin media tools.";
+  }
   if (surfaces.includes("release-notes")) {
     return "Improved Beta update notes so changes are easier to match with support reports.";
   }
