@@ -242,6 +242,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("refresh system health truth") || normalized.includes("health reporting")) {
     return "Improved internal health reporting so beta issues show fresher, clearer status.";
   }
+  if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
+    return "Improved internal creator review status checks.";
+  }
   if (isInternalBetaStabilizationChange(title, surfaces)) {
     return "Improved internal beta reliability and support traceability.";
   }

@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.28.0",
+  "currentVersion": "1.29.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T21:43:02.235Z",
-  "generatedAtUtc": "2026-05-05T21:43:02.235Z",
-  "lastCommitSha": "61bbf8464515651c9bff7d85608c7da5c6bc99b5",
+  "generatedAt": "2026-05-05T21:56:27.587Z",
+  "generatedAtUtc": "2026-05-05T21:56:27.587Z",
+  "lastCommitSha": "0f4e79dc70b526231b4708f0bc312551b36ddfcd",
   "notes": [
+    {
+      "version": "1.29.0",
+      "previousVersion": "1.28.0",
+      "commitSha": "0f4e79dc70b526231b4708f0bc312551b36ddfcd",
+      "commitTitle": "fix(admin): refresh creator lane parity evidence",
+      "committedAt": "2026-05-05T21:56:04.000Z",
+      "generatedAt": "2026-05-05T21:56:27.587Z",
+      "committedAtUtc": "2026-05-05T21:56:04.000Z",
+      "generatedAtUtc": "2026-05-05T21:56:27.587Z",
+      "diffStats": {
+        "rawAdditions": 643,
+        "rawDeletions": 85,
+        "rawChangeCount": 728,
+        "additions": 643,
+        "deletions": 85,
+        "effectiveAdditions": 620,
+        "effectiveDeletions": 85,
+        "changedFiles": 11,
+        "effectiveChangeCount": 705,
+        "excludedGeneratedChangeCount": 23
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal creator review status checks.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.28.0",
       "previousVersion": "1.27.1",
@@ -127,38 +160,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "minor",
       "category": "Fixed",
       "userFacingTitle": "Improved internal safety checks for creator verification documents.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.25.0",
-      "previousVersion": "1.24.8",
-      "commitSha": "79eb57843663fa21a78a14261fb06607d4350dde",
-      "commitTitle": "fix(cost): guard creator agreement document egress",
-      "committedAt": "2026-05-05T21:10:32.000Z",
-      "generatedAt": "2026-05-05T21:10:43.516Z",
-      "committedAtUtc": "2026-05-05T21:10:32.000Z",
-      "generatedAtUtc": "2026-05-05T21:10:43.516Z",
-      "diffStats": {
-        "rawAdditions": 139,
-        "rawDeletions": 32,
-        "rawChangeCount": 171,
-        "additions": 139,
-        "deletions": 32,
-        "effectiveAdditions": 108,
-        "effectiveDeletions": 7,
-        "changedFiles": 5,
-        "effectiveChangeCount": 115,
-        "excludedGeneratedChangeCount": 56
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal document safety checks for creator agreement tools.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],
