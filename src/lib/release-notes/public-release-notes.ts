@@ -1,12 +1,44 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.24.0",
+  "currentVersion": "1.24.1",
   "channel": "beta",
-  "generatedAt": "2026-05-05T20:06:40.297Z",
-  "generatedAtUtc": "2026-05-05T20:06:40.297Z",
-  "lastCommitSha": "aa1284ac84c31d43a050e542fc4811c62fb28749",
+  "generatedAt": "2026-05-05T20:20:16.202Z",
+  "generatedAtUtc": "2026-05-05T20:20:16.202Z",
+  "lastCommitSha": "739808bba955704939fa378db2accfbee7a52b28",
   "notes": [
+    {
+      "version": "1.24.1",
+      "previousVersion": "1.24.0",
+      "commitSha": "739808bba955704939fa378db2accfbee7a52b28",
+      "commitTitle": "fix(admin): refresh content storage guard evidence",
+      "committedAt": "2026-05-05T20:20:00.000Z",
+      "generatedAt": "2026-05-05T20:20:16.201Z",
+      "committedAtUtc": "2026-05-05T20:20:00.000Z",
+      "generatedAtUtc": "2026-05-05T20:20:16.201Z",
+      "diffStats": {
+        "rawAdditions": 35,
+        "rawDeletions": 3,
+        "rawChangeCount": 38,
+        "additions": 35,
+        "deletions": 3,
+        "effectiveAdditions": 34,
+        "effectiveDeletions": 2,
+        "changedFiles": 3,
+        "effectiveChangeCount": 36,
+        "excludedGeneratedChangeCount": 2
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal content safety checks for admin media tools.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "security"
+      ]
+    },
     {
       "version": "1.24.0",
       "previousVersion": "1.23.0",
@@ -134,40 +166,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "Kept the update focused on user-visible polish and reliability."
       ],
       "affectedSurfaces": [
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.21.0",
-      "previousVersion": "1.20.1",
-      "commitSha": "193b4c8d663e0960cd2b9f10d0aac2241541237f",
-      "commitTitle": "fix(admin): guard content storage route evidence",
-      "committedAt": "2026-05-05T19:33:58.000Z",
-      "generatedAt": "2026-05-05T19:34:10.416Z",
-      "committedAtUtc": "2026-05-05T19:33:58.000Z",
-      "generatedAtUtc": "2026-05-05T19:34:10.416Z",
-      "diffStats": {
-        "rawAdditions": 629,
-        "rawDeletions": 302,
-        "rawChangeCount": 931,
-        "additions": 629,
-        "deletions": 302,
-        "effectiveAdditions": 449,
-        "effectiveDeletions": 67,
-        "changedFiles": 9,
-        "effectiveChangeCount": 516,
-        "excludedGeneratedChangeCount": 415
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal content safety checks for admin media tools.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
         "repo-tooling",
         "security"
       ]
