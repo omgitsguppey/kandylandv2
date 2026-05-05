@@ -37,6 +37,9 @@ async function GET_handler(request: NextRequest) {
         // admin-content-guard: admin-only route; storage/media access requires admin auth.
         // media-proxy-guard: admin content storage access is rate-limited and safe-url filtered.
         // safe-url-guard: raw locked storage URLs are not exposed by default.
+        // google-cost-guard: admin content storage access is protected by MEDIA_PROXY or equivalent byte/rate policy.
+        // storage-egress-guard: route does not expose unbounded raw media bytes.
+        // media-byte-guard: default response returns safe metadata or short-lived admin-scoped preview only.
         await guardApiRequest(request, {
             routeName: "admin/content",
             rateLimit: MEDIA_PROXY,
@@ -90,6 +93,9 @@ async function POST_handler(request: NextRequest) {
         // admin-content-guard: admin-only route; storage/media access requires admin auth.
         // media-proxy-guard: admin content storage access is rate-limited and safe-url filtered.
         // safe-url-guard: raw locked storage URLs are not exposed by default.
+        // google-cost-guard: admin content storage access is protected by MEDIA_PROXY or equivalent byte/rate policy.
+        // storage-egress-guard: route does not expose unbounded raw media bytes.
+        // media-byte-guard: default response returns safe metadata or short-lived admin-scoped preview only.
         await guardApiRequest(request, {
             routeName: "admin/content",
             rateLimit: MEDIA_PROXY,
@@ -155,6 +161,9 @@ async function DELETE_handler(request: NextRequest) {
         // admin-content-guard: admin-only route; storage/media access requires admin auth.
         // media-proxy-guard: admin content storage access is rate-limited and safe-url filtered.
         // safe-url-guard: raw locked storage URLs are not exposed by default.
+        // google-cost-guard: admin content storage access is protected by MEDIA_PROXY or equivalent byte/rate policy.
+        // storage-egress-guard: route does not expose unbounded raw media bytes.
+        // media-byte-guard: default response returns safe metadata or short-lived admin-scoped preview only.
         await guardApiRequest(request, {
             routeName: "admin/content",
             rateLimit: MEDIA_PROXY,

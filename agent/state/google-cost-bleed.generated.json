@@ -1,25 +1,9 @@
 {
   "score": 0,
   "status": "fail",
-  "generatedAt": "2026-05-04T08:28:31.637Z",
+  "generatedAt": "2026-05-05T21:02:42.526Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [
-    {
-      "severity": "major",
-      "category": "trusted_origin",
-      "title": "Mutating route is missing requireTrustedOrigin",
-      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "routePath": "/api/analytics/ingest-identified",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add requireTrustedOrigin: true to guardApiRequest unless the route has an explicit non-browser exemption.",
-      "escalation": "Trusted-origin fixes affect auth/payment/admin boundaries and need targeted verification.",
-      "evidence": [
-        "POST"
-      ],
-      "id": "google-cost-vdhn04",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
     {
       "severity": "moderate",
       "category": "cache_policy",
@@ -420,7 +404,7 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 218,
+      "line": 206,
       "excerpt": "adminDb.collection(\"users\") .where(\"createdAt\", \">=\", previousStartMs) .get(",
       "routePath": "/api/admin/overview",
       "costClass": "firestore_read",
@@ -429,7 +413,7 @@
       "evidence": [
         "adminDb.collection(\"users\") .where(\"createdAt\", \">=\", previousStartMs) .get("
       ],
-      "id": "google-cost-8u84l",
+      "id": "google-cost-8r2mm",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -438,7 +422,7 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 227,
+      "line": 215,
       "excerpt": "adminDb.collection(\"drops\").get(",
       "routePath": "/api/admin/overview",
       "costClass": "firestore_read",
@@ -447,7 +431,7 @@
       "evidence": [
         "adminDb.collection(\"drops\").get("
       ],
-      "id": "google-cost-1v47e73",
+      "id": "google-cost-12t17i",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -456,7 +440,7 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 262,
+      "line": 250,
       "excerpt": "adminDb.collection(\"analytics_commerce_daily\") .where(\"dayKey\", \">=\", previousStartDayKey) .get(",
       "routePath": "/api/admin/overview",
       "costClass": "firestore_read",
@@ -465,7 +449,7 @@
       "evidence": [
         "adminDb.collection(\"analytics_commerce_daily\") .where(\"dayKey\", \">=\", previousStartDayKey) .get("
       ],
-      "id": "google-cost-wf8gho",
+      "id": "google-cost-vb6w7t",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -474,7 +458,7 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 271,
+      "line": 259,
       "excerpt": "adminDb.collection(\"analytics_drop_daily\") .where(\"dayKey\", \">=\", currentStartDayKey) .get(",
       "routePath": "/api/admin/overview",
       "costClass": "firestore_read",
@@ -483,7 +467,7 @@
       "evidence": [
         "adminDb.collection(\"analytics_drop_daily\") .where(\"dayKey\", \">=\", currentStartDayKey) .get("
       ],
-      "id": "google-cost-yd8tug",
+      "id": "google-cost-x9442m",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -492,7 +476,7 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 338,
+      "line": 331,
       "excerpt": "adminDb.collection(\"users\"), userIds: overviewUserIds, }); const recentTransactions = recentTransactionsSource.map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(",
       "routePath": "/api/admin/overview",
       "costClass": "firestore_read",
@@ -501,7 +485,7 @@
       "evidence": [
         "adminDb.collection(\"users\"), userIds: overviewUserIds, }); const recentTransactions = recentTransactionsSource.map((transaction) => serializeRecentTransaction(transaction, userNameMap.get("
       ],
-      "id": "google-cost-1sk557w",
+      "id": "google-cost-1v21kgn",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -546,7 +530,7 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 111,
+      "line": 190,
       "excerpt": "adminDb.collection(\"analytics_session_facts\") .where(\"userId\", \"==\", userId) .orderBy(\"lastEventAt\", \"desc\") .get(",
       "routePath": "/api/admin/user/[userId]",
       "costClass": "firestore_read",
@@ -555,7 +539,7 @@
       "evidence": [
         "adminDb.collection(\"analytics_session_facts\") .where(\"userId\", \"==\", userId) .orderBy(\"lastEventAt\", \"desc\") .get("
       ],
-      "id": "google-cost-aaalxz",
+      "id": "google-cost-5l8sr0",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -564,7 +548,25 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 115,
+      "line": 194,
+      "excerpt": "adminDb.collection(\"analytics_watch_sessions\") .where(\"userId\", \"==\", userId) .get(",
+      "routePath": "/api/admin/user/[userId]",
+      "costClass": "firestore_read",
+      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
+      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
+      "evidence": [
+        "adminDb.collection(\"analytics_watch_sessions\") .where(\"userId\", \"==\", userId) .get("
+      ],
+      "id": "google-cost-4hadz4",
+      "scoreImpact": -10,
+      "canAutofix": false
+    },
+    {
+      "severity": "major",
+      "category": "firestore",
+      "title": "Firestore collection get appears unbounded",
+      "filePath": "src/app/api/admin/user/[userId]/route.ts",
+      "line": 197,
       "excerpt": "adminDb.collection(\"analytics_user_daily\") .where(\"uid\", \"==\", userId) .orderBy(\"dayKey\", \"desc\") .get(",
       "routePath": "/api/admin/user/[userId]",
       "costClass": "firestore_read",
@@ -573,7 +575,7 @@
       "evidence": [
         "adminDb.collection(\"analytics_user_daily\") .where(\"uid\", \"==\", userId) .orderBy(\"dayKey\", \"desc\") .get("
       ],
-      "id": "google-cost-96c763",
+      "id": "google-cost-5b9721",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -582,7 +584,7 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 826,
+      "line": 1104,
       "excerpt": "adminDb.collection(\"drops\").where(\"submittedByCreatorId\", \"==\", userId).get(",
       "routePath": "/api/admin/user/[userId]",
       "costClass": "firestore_read",
@@ -591,7 +593,7 @@
       "evidence": [
         "adminDb.collection(\"drops\").where(\"submittedByCreatorId\", \"==\", userId).get("
       ],
-      "id": "google-cost-17dxepm",
+      "id": "google-cost-1x0dm6o",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -600,7 +602,25 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 547,
+      "line": 490,
+      "excerpt": "adminDb.collection(\"analytics_watch_sessions\").get(",
+      "routePath": "/api/admin/users",
+      "costClass": "firestore_read",
+      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
+      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
+      "evidence": [
+        "adminDb.collection(\"analytics_watch_sessions\").get("
+      ],
+      "id": "google-cost-1tgmn23",
+      "scoreImpact": -10,
+      "canAutofix": false
+    },
+    {
+      "severity": "major",
+      "category": "firestore",
+      "title": "Firestore collection get appears unbounded",
+      "filePath": "src/app/api/admin/users/route.ts",
+      "line": 780,
       "excerpt": "adminDb.collection(\"users\").orderBy(\"createdAt\", \"desc\").get(",
       "routePath": "/api/admin/users",
       "costClass": "firestore_read",
@@ -609,7 +629,7 @@
       "evidence": [
         "adminDb.collection(\"users\").orderBy(\"createdAt\", \"desc\").get("
       ],
-      "id": "google-cost-1pgzuic",
+      "id": "google-cost-118wy8n",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -618,7 +638,61 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 548,
+      "line": 812,
+      "excerpt": "adminDb.collection(\"analytics_user_daily\").where(\"uid\", \"==\", userId).get(",
+      "routePath": "/api/admin/users",
+      "costClass": "firestore_read",
+      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
+      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
+      "evidence": [
+        "adminDb.collection(\"analytics_user_daily\").where(\"uid\", \"==\", userId).get("
+      ],
+      "id": "google-cost-kov4cl",
+      "scoreImpact": -10,
+      "canAutofix": false
+    },
+    {
+      "severity": "major",
+      "category": "firestore",
+      "title": "Firestore collection get appears unbounded",
+      "filePath": "src/app/api/admin/users/route.ts",
+      "line": 813,
+      "excerpt": "adminDb.collection(\"analytics_watch_sessions\").where(\"userId\", \"==\", userId).get(",
+      "routePath": "/api/admin/users",
+      "costClass": "firestore_read",
+      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
+      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
+      "evidence": [
+        "adminDb.collection(\"analytics_watch_sessions\").where(\"userId\", \"==\", userId).get("
+      ],
+      "id": "google-cost-kevinm",
+      "scoreImpact": -10,
+      "canAutofix": false
+    },
+    {
+      "severity": "major",
+      "category": "firestore",
+      "title": "Firestore collection get appears unbounded",
+      "filePath": "src/app/api/admin/users/route.ts",
+      "line": 780,
+      "excerpt": "adminDb.collection(\"users\").orderBy(\"createdAt\", \"desc\").get(",
+      "routePath": "/api/admin/users",
+      "costClass": "firestore_read",
+      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
+      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
+      "evidence": [
+        "adminDb.collection(\"users\").orderBy(\"createdAt\", \"desc\").get("
+      ],
+      "id": "google-cost-118wy8n",
+      "scoreImpact": -10,
+      "canAutofix": false
+    },
+    {
+      "severity": "major",
+      "category": "firestore",
+      "title": "Firestore collection get appears unbounded",
+      "filePath": "src/app/api/admin/users/route.ts",
+      "line": 1040,
       "excerpt": "adminDb.collection(\"analytics_users_rollup\").get(",
       "routePath": "/api/admin/users",
       "costClass": "firestore_read",
@@ -627,7 +701,7 @@
       "evidence": [
         "adminDb.collection(\"analytics_users_rollup\").get("
       ],
-      "id": "google-cost-1mz3f9l",
+      "id": "google-cost-5o80mn",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -636,7 +710,7 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 549,
+      "line": 1041,
       "excerpt": "adminDb.collection(\"analytics_user_daily\").get(",
       "routePath": "/api/admin/users",
       "costClass": "firestore_read",
@@ -645,7 +719,7 @@
       "evidence": [
         "adminDb.collection(\"analytics_user_daily\").get("
       ],
-      "id": "google-cost-1mp3tkm",
+      "id": "google-cost-5e8exo",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -654,7 +728,25 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 558,
+      "line": 490,
+      "excerpt": "adminDb.collection(\"analytics_watch_sessions\").get(",
+      "routePath": "/api/admin/users",
+      "costClass": "firestore_read",
+      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
+      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
+      "evidence": [
+        "adminDb.collection(\"analytics_watch_sessions\").get("
+      ],
+      "id": "google-cost-1tgmn23",
+      "scoreImpact": -10,
+      "canAutofix": false
+    },
+    {
+      "severity": "major",
+      "category": "firestore",
+      "title": "Firestore collection get appears unbounded",
+      "filePath": "src/app/api/admin/users/route.ts",
+      "line": 1051,
       "excerpt": "adminDb.collection(\"drops\").where(\"approvalStatus\", \"==\", \"pending_review\").get(",
       "routePath": "/api/admin/users",
       "costClass": "firestore_read",
@@ -663,7 +755,7 @@
       "evidence": [
         "adminDb.collection(\"drops\").where(\"approvalStatus\", \"==\", \"pending_review\").get("
       ],
-      "id": "google-cost-lshitc",
+      "id": "google-cost-13spruh",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -672,7 +764,7 @@
       "category": "firestore",
       "title": "Firestore collection get appears unbounded",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 828,
+      "line": 1359,
       "excerpt": "adminDb.collection(\"analytics_event_facts\") .where(\"userId\", \"in\", uids) .get(",
       "routePath": "/api/admin/users",
       "costClass": "firestore_read",
@@ -681,24 +773,7 @@
       "evidence": [
         "adminDb.collection(\"analytics_event_facts\") .where(\"userId\", \"in\", uids) .get("
       ],
-      "id": "google-cost-1lb2zt8",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Delete/cleanup loop lacks a visible bounded batch limit",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 1722,
-      "excerpt": "[`unlockedContentTimestamps.${normalizedDropId}`]: FieldValue.delete(),",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add a deterministic batch limit and route cost contract before running cleanup deletes.",
-      "escalation": "Cleanup write loops can create cost spikes and must be reviewed.",
-      "evidence": [
-        ".delete()"
-      ],
-      "id": "google-cost-1poh50s",
+      "id": "google-cost-zumcwg",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -1444,7 +1519,7 @@
       "category": "firestore",
       "title": "Non-admin Firestore listener lacks visible query limit",
       "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 1423,
+      "line": 1429,
       "excerpt": "return onSnapshot(",
       "costClass": "firestore_listener",
       "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
@@ -1452,7 +1527,7 @@
       "evidence": [
         "onSnapshot("
       ],
-      "id": "google-cost-ba92u5",
+      "id": "google-cost-8id1wf",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -1478,7 +1553,7 @@
       "category": "firestore",
       "title": "Non-admin Firestore listener lacks visible query limit",
       "filePath": "src/context/AuthContext.tsx",
-      "line": 292,
+      "line": 300,
       "excerpt": "return onSnapshot(profileDocRef, async (snapshot) => {",
       "costClass": "firestore_listener",
       "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
@@ -1486,7 +1561,7 @@
       "evidence": [
         "onSnapshot("
       ],
-      "id": "google-cost-1f6x8yp",
+      "id": "google-cost-8n8ilh",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -1529,7 +1604,7 @@
       "category": "firestore",
       "title": "Non-admin Firestore listener lacks visible query limit",
       "filePath": "scripts/agent/score-orphaned-logic.ts",
-      "line": 652,
+      "line": 659,
       "excerpt": "for (const needle of [\"onSnapshot(\", \"setInterval(\"]) {",
       "costClass": "firestore_listener",
       "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
@@ -1537,7 +1612,7 @@
       "evidence": [
         "onSnapshot("
       ],
-      "id": "google-cost-1asev15",
+      "id": "google-cost-1c6cvi0",
       "scoreImpact": -10,
       "canAutofix": false
     },
@@ -1556,38 +1631,6 @@
       ],
       "id": "google-cost-1tun5eu",
       "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "critical",
-      "category": "storage_egress",
-      "title": "Storage/media route lacks MEDIA_PROXY or equivalent byte/rate guard",
-      "filePath": "src/app/api/admin/content/route.ts",
-      "routePath": "/api/admin/content",
-      "costClass": "storage_egress",
-      "suggestedFix": "Apply MEDIA_PROXY or a route-specific byte/rate guard before Storage/media egress.",
-      "escalation": "Unbounded media routes can create immediate billing spikes.",
-      "evidence": [
-        "MEDIA_PROXY"
-      ],
-      "id": "google-cost-sxh9wo",
-      "scoreImpact": -25,
-      "canAutofix": false
-    },
-    {
-      "severity": "critical",
-      "category": "storage_egress",
-      "title": "Unlocked media/content route lacks visible entitlement check",
-      "filePath": "src/app/api/admin/content/route.ts",
-      "routePath": "/api/admin/content",
-      "costClass": "storage_egress",
-      "suggestedFix": "Verify ownership/unlock entitlement before fetching or proxying internal media.",
-      "escalation": "Locked media entitlement regressions are release blockers.",
-      "evidence": [
-        "unlockedContent or ownership entitlement"
-      ],
-      "id": "google-cost-nz5hs0",
-      "scoreImpact": -25,
       "canAutofix": false
     },
     {
@@ -1671,8 +1714,8 @@
       "canAutofix": false
     }
   ],
-  "criticalCount": 7,
-  "majorCount": 85,
+  "criticalCount": 5,
+  "majorCount": 89,
   "routeContracts": [
     {
       "routePattern": "/api/health",
@@ -1790,14 +1833,14 @@
         "DELETE"
       ],
       "costClass": "storage_egress",
-      "ratePolicy": "ADMIN",
+      "ratePolicy": "MEDIA_PROXY",
       "cachePolicy": "no_store",
       "authRequired": "admin",
       "trustedOriginRequired": true,
       "budgetGuardRequired": true,
       "maxExpectedCallsPerUserPerMinute": 30,
-      "maxExpectedStorageBytesPerCall": 20000000,
-      "notes": "Admin content/storage surface. Storage calls must stay admin-only and bounded."
+      "maxExpectedStorageBytesPerCall": 262144000,
+      "notes": "Admin content/storage surface. Storage calls must stay admin-only, MEDIA_PROXY rate limited, and expose short-lived admin preview URLs only."
     },
     {
       "routePattern": "/api/admin/**",
@@ -3004,14 +3047,14 @@
           "DELETE"
         ],
         "costClass": "storage_egress",
-        "ratePolicy": "ADMIN",
+        "ratePolicy": "MEDIA_PROXY",
         "cachePolicy": "no_store",
         "authRequired": "admin",
         "trustedOriginRequired": true,
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 30,
-        "maxExpectedStorageBytesPerCall": 20000000,
-        "notes": "Admin content/storage surface. Storage calls must stay admin-only and bounded."
+        "maxExpectedStorageBytesPerCall": 262144000,
+        "notes": "Admin content/storage surface. Storage calls must stay admin-only, MEDIA_PROXY rate limited, and expose short-lived admin preview URLs only."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -3251,6 +3294,40 @@
       "cachePolicyEvidence": [
         "no-store",
         "revalidate = 0",
+        "Cache-Control"
+      ]
+    },
+    {
+      "filePath": "src/app/api/admin/debug/control-tower/route.ts",
+      "routePath": "/api/admin/debug/control-tower",
+      "methods": [
+        "GET"
+      ],
+      "contract": {
+        "routePattern": "/api/admin/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_read",
+        "ratePolicy": "ADMIN / route-specific admin limits",
+        "cachePolicy": "no_store",
+        "authRequired": "admin",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 30,
+        "maxExpectedFirestoreReadsPerCall": 250,
+        "maxExpectedFirestoreWritesPerCall": 20,
+        "notes": "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": false,
+      "hasRateGuard": true,
+      "authMode": "admin",
+      "cachePolicyEvidence": [
         "Cache-Control"
       ]
     },
@@ -4053,7 +4130,7 @@
         "notes": "Telemetry ingest must preserve consent/session enrichment and avoid unbounded write fanout."
       },
       "hasGuard": true,
-      "hasTrustedOrigin": false,
+      "hasTrustedOrigin": true,
       "hasRateGuard": true,
       "authMode": "none",
       "cachePolicyEvidence": []
@@ -6223,6 +6300,12 @@
       "kind": "firestore-client"
     },
     {
+      "filePath": "src/app/admin/debug/components/DebugControlTowerCards.tsx",
+      "line": 50,
+      "excerpt": "subtitle: \"GumDrops economy truth, PayPal-adjacent health, Google cost, Cloud Run, SQL/Data Connect, BigQuery, Storage, and rate-limit risk.\",",
+      "kind": "data-connect"
+    },
+    {
       "filePath": "src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts",
       "line": 12,
       "excerpt": "} from \"firebase/firestore\";",
@@ -6260,13 +6343,13 @@
     },
     {
       "filePath": "src/app/api/admin/content/route.ts",
-      "line": 5,
+      "line": 12,
       "excerpt": "import { adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
       "filePath": "src/app/api/admin/content/route.ts",
-      "line": 5,
+      "line": 12,
       "excerpt": "import { adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "admin-storage"
     },
@@ -6416,13 +6499,13 @@
     },
     {
       "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 6,
+      "line": 8,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
       "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 6,
+      "line": 8,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "admin-storage"
     },
@@ -6824,7 +6907,7 @@
     },
     {
       "filePath": "src/context/AuthContext.tsx",
-      "line": 287,
+      "line": 295,
       "excerpt": "const { doc, onSnapshot } = await import(\"firebase/firestore\");",
       "kind": "firestore-client"
     },
@@ -6863,6 +6946,36 @@
       "line": 167,
       "excerpt": "import(\"firebase/firestore\"),",
       "kind": "firestore-client"
+    },
+    {
+      "filePath": "src/lib/admin-debug-control-tower.ts",
+      "line": 128,
+      "excerpt": "{ id: \"sql-mirror\", label: \"Data Connect Mirror\", section: \"money_cost\", fileName: \"sql-mirror-status.generated.json\", command: \"npm run agent:sync-sql\" },",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/agent-audit/affected-surface-router.ts",
+      "line": 229,
+      "excerpt": "why: \"Data Connect mirror changes affect Cloud SQL/Google cost guardrails.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/agent-audit/affected-surface-router.ts",
+      "line": 229,
+      "excerpt": "why: \"Data Connect mirror changes affect Cloud SQL/Google cost guardrails.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "src/lib/devops/auth-surface-contract.ts",
+      "line": 72,
+      "excerpt": "{ id: \"cloud_sql_data_connect\", label: \"Cloud SQL / Data Connect\", tool: \"gcloud\" },",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/devops/auth-surface-contract.ts",
+      "line": 72,
+      "excerpt": "{ id: \"cloud_sql_data_connect\", label: \"Cloud SQL / Data Connect\", tool: \"gcloud\" },",
+      "kind": "cloud-sql"
     },
     {
       "filePath": "src/lib/firebase-data.ts",
@@ -7019,6 +7132,18 @@
       "line": 42,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/server/cloud-cost-contract.ts",
+      "line": 144,
+      "excerpt": "notes: \"Data Connect is allowed only for the agent-context mirror unless explicitly promoted.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/server/cloud-cost-contract.ts",
+      "line": 179,
+      "excerpt": "notes: \"Firebase Data Connect is Cloud SQL-backed and is only approved for the agent-context mirror in this repo.\",",
+      "kind": "cloud-sql"
     },
     {
       "filePath": "src/lib/server/creator-admin-actions.ts",
@@ -7339,6 +7464,18 @@
       "kind": "data-connect"
     },
     {
+      "filePath": "scripts/agent/build-compact-agent-context.ts",
+      "line": 270,
+      "excerpt": "rules: [\"Google cost-bearing surfaces must be declared before use.\", \"Data Connect remains an agent-context mirror unless explicitly promoted.\", \"Provider jobs and deploy commands are documentation-only unless a human promotes them.\"],",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/build-compact-agent-context.ts",
+      "line": 271,
+      "excerpt": "blockedPatterns: [\"undocumented Cloud SQL runtime path\", \"BigQuery mutates runtime balances\", \"gcloud deploy from audit lane\"],",
+      "kind": "cloud-sql"
+    },
+    {
       "filePath": "scripts/agent/check-agent-context.ts",
       "line": 74,
       "excerpt": "assert(fileExists(\"dataconnect/schema/agent-context.gql\"), \"Missing Data Connect schema for agent context mirror.\");",
@@ -7379,6 +7516,78 @@
       "line": 15,
       "excerpt": "const admin = await import(\"firebase-admin\");",
       "kind": "firebase-admin"
+    },
+    {
+      "filePath": "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
+      "line": 74,
+      "excerpt": "\"Data Connect deploys\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
+      "line": 179,
+      "excerpt": "suggestedFix: \"Document and configure concurrency; Cloud Run default is 80 and Cloud SQL surfaces need lower route-specific guidance.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
+      "line": 336,
+      "excerpt": "{ label: \"postgres\", pattern: /from\\s+[\"']postgres[\"']|require\\([\"']postgres[\"']\\)/u },",
+      "kind": "postgres"
+    },
+    {
+      "filePath": "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
+      "line": 339,
+      "excerpt": "{ label: \"prisma\", pattern: /@prisma\\/client|new\\s+PrismaClient\\s*\\(/u },",
+      "kind": "prisma"
+    },
+    {
+      "filePath": "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
+      "line": 337,
+      "excerpt": "{ label: \"mysql\", pattern: /from\\s+[\"']mysql[\"']|require\\([\"']mysql[\"']\\)/u },",
+      "kind": "mysql"
+    },
+    {
+      "filePath": "scripts/agent/score-codebase-hardening.ts",
+      "line": 323,
+      "excerpt": "line: lineOf(source, \"@google-cloud/vertexai\"),",
+      "kind": "vertex-ai"
+    },
+    {
+      "filePath": "scripts/agent/score-codebase-hardening.ts",
+      "line": 299,
+      "excerpt": "title: \"Runtime SQL/Data Connect usage appears outside the approved agent mirror\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/score-codebase-hardening.ts",
+      "line": 301,
+      "excerpt": "expectedRule: \"Data Connect/Cloud SQL is allowed only for agent-context mirror paths unless a route contract explicitly approves runtime usage.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/score-codebase-hardening.ts",
+      "line": 291,
+      "excerpt": "const hasRuntimeSqlClient = /(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
+      "kind": "postgres"
+    },
+    {
+      "filePath": "scripts/agent/score-codebase-hardening.ts",
+      "line": 291,
+      "excerpt": "const hasRuntimeSqlClient = /(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
+      "kind": "mysql"
+    },
+    {
+      "filePath": "scripts/agent/score-doctrine-hierarchy.ts",
+      "line": 215,
+      "excerpt": "must: [\"Data Connect and Cloud SQL remain agent-context mirror unless explicitly promoted.\"],",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/score-doctrine-hierarchy.ts",
+      "line": 215,
+      "excerpt": "must: [\"Data Connect and Cloud SQL remain agent-context mirror unless explicitly promoted.\"],",
+      "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
@@ -7447,16 +7656,100 @@
       "kind": "mysql"
     },
     {
+      "filePath": "scripts/agent/score-speed-security-hardening.ts",
+      "line": 980,
+      "excerpt": "line: lineOf(source, \"@google-cloud/vertexai\") ?? lineOf(source, \"BetaAnalyticsDataClient\") ?? lineOf(source, \"GoogleAuth\"),",
+      "kind": "vertex-ai"
+    },
+    {
+      "filePath": "scripts/agent/score-speed-security-hardening.ts",
+      "line": 583,
+      "excerpt": "if (/adminStorage|storage\\.bucket|bucket\\(/u.test(source) && !/entitlement|unlocked|owner|participant|MEDIA_PROXY|media_proxy|requireAdmin/u.test(source)) {",
+      "kind": "admin-storage"
+    },
+    {
+      "filePath": "scripts/agent/score-speed-security-hardening.ts",
+      "line": 927,
+      "excerpt": "title: \"Runtime SQL/Data Connect usage appears outside approved agent mirror\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/score-speed-security-hardening.ts",
+      "line": 928,
+      "excerpt": "evidence: [\"Firebase Data Connect/Cloud SQL is allowed only for agent-context mirror infrastructure unless explicitly contracted.\"],",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/score-speed-security-hardening.ts",
+      "line": 920,
+      "excerpt": "if (/(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
+      "kind": "postgres"
+    },
+    {
+      "filePath": "scripts/agent/score-speed-security-hardening.ts",
+      "line": 920,
+      "excerpt": "if (/(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
+      "kind": "mysql"
+    },
+    {
+      "filePath": "scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts",
+      "line": 128,
+      "excerpt": "requireIncludes(dataconnect, expected, \"Data Connect config\");",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts",
+      "line": 114,
+      "excerpt": "\"Cloud SQL-backed\",",
+      "kind": "cloud-sql"
+    },
+    {
       "filePath": "scripts/agent/validate-debug-evidence-pipeline.ts",
       "line": 49,
       "excerpt": "const firestoreRuleTests = readRequired(\"tests/firebase/firestore.rules.spec.ts\");",
       "kind": "firestore-client"
     },
     {
+      "filePath": "scripts/agent/validate-doctrine-hierarchy.ts",
+      "line": 210,
+      "excerpt": "\"SQL forbidden vs Data Connect allowed mirror.\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-doctrine-retrieval-optimizer.ts",
+      "line": 90,
+      "excerpt": "taskSummary: \"Cloud SQL Data Connect cost BigQuery guardrail\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-doctrine-retrieval-optimizer.ts",
+      "line": 90,
+      "excerpt": "taskSummary: \"Cloud SQL Data Connect cost BigQuery guardrail\",",
+      "kind": "cloud-sql"
+    },
+    {
       "filePath": "scripts/agent/validate-google-cost-bleed.ts",
       "line": 304,
       "excerpt": "\"Data Connect\",",
       "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-human-dev-readiness.ts",
+      "line": 121,
+      "excerpt": "[\"Data Connect/Cloud SQL\", [\"/dataconnect/\", \"/src/lib/server/api-cost-contract.ts\"]],",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-human-dev-readiness.ts",
+      "line": 121,
+      "excerpt": "[\"Data Connect/Cloud SQL\", [\"/dataconnect/\", \"/src/lib/server/api-cost-contract.ts\"]],",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-recommendation-ranker.ts",
+      "line": 104,
+      "excerpt": "!requireIncludes(trainScript, \"@google-cloud/vertexai\")",
+      "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/validate-security-role-boundaries.ts",
@@ -7471,10 +7764,28 @@
       "kind": "admin-storage"
     },
     {
+      "filePath": "scripts/agent/validate-surface-doctrine-split.ts",
+      "line": 286,
+      "excerpt": "const sharedBusinessPattern = /firebase-admin|@\\/lib\\/server|sourceTruth|entitlement|gumDrops?|wallet|creatorRevenue|moderation|supportTicket|adminProjection/iu;",
+      "kind": "firebase-admin"
+    },
+    {
       "filePath": "scripts/agent/validate-test-fixtures-demo.ts",
       "line": 103,
       "excerpt": "const firestoreRulesTest = readRequired(\"tests/firebase/firestore.rules.spec.ts\");",
       "kind": "firestore-client"
+    },
+    {
+      "filePath": "scripts/agent/verify-codex-native-auth.ts",
+      "line": 388,
+      "excerpt": "surface: \"Cloud SQL / Data Connect\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/verify-codex-native-auth.ts",
+      "line": 388,
+      "excerpt": "surface: \"Cloud SQL / Data Connect\",",
+      "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/backfill-analytics-parity.ts",
@@ -7522,6 +7833,12 @@
       "filePath": "scripts/runtime-admin.ts",
       "line": 1,
       "excerpt": "import * as admin from \"firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "scripts/train-recommendation-ranker.ts",
+      "line": 4,
+      "excerpt": "import admin from \"firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
@@ -7582,15 +7899,13 @@
     }
   ],
   "requiredFixes": [
-    "Add requireTrustedOrigin: true to guardApiRequest unless the route has an explicit non-browser exemption.",
     "Add explicit cache headers, ETag/SWR behavior, or update the contract to no_store if caching is unsafe.",
     "Review whether this cheap public GET should use cache/edge-friendly throttling instead of Firestore-backed rate-limit writes.",
     "Add a route-specific rate limit or document a deterministic upstream budget guard in the ApiCostContract.",
     "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
     "Add a deterministic batch limit and route cost contract before running cleanup deletes.",
     "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
-    "Apply MEDIA_PROXY or a route-specific byte/rate guard before Storage/media egress.",
-    "Verify ownership/unlock entitlement before fetching or proxying internal media."
+    "Apply MEDIA_PROXY or a route-specific byte/rate guard before Storage/media egress."
   ],
   "safeAutofixSuggestions": [],
   "minimalVerificationCommands": [
@@ -7612,5 +7927,5 @@
       "broad UI audits"
     ]
   },
-  "summary": "Detected 97 Google API cost/rate-limit finding(s); no business logic was auto-fixed."
+  "summary": "Detected 99 Google API cost/rate-limit finding(s); no business logic was auto-fixed."
 }

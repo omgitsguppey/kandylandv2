@@ -182,8 +182,11 @@ describe("admin content route", () => {
       adminOnly: true,
       mediaProxyGuarded: true,
       mediaProxyPolicy: "MEDIA_PROXY",
+      storageEgressGuarded: true,
       safeUrlHandling: true,
       rawStorageUrlExposed: false,
+      maxPreviewTtlSeconds: 300,
+      defaultMediaResponse: "short_lived_admin_preview",
     });
     expect(payload.files).toHaveLength(1);
     expect(payload.verification.module).toBe("admin_content_manager");
@@ -194,8 +197,11 @@ describe("admin content route", () => {
       displayPath: "drops/[asset]/banner.png",
       contentType: "image/png",
       size: 123,
+      storageEgressGuarded: true,
       safeUrlHandling: true,
       rawStorageUrlExposed: false,
+      maxPreviewTtlSeconds: 300,
+      defaultMediaResponse: "short_lived_admin_preview",
     });
     expect(payload.files[0]).not.toHaveProperty("fullPath");
     expect(payload.files[0].url).toContain("X-Goog-Signature=signed");

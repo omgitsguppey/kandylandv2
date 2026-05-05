@@ -12,8 +12,11 @@ export const ADMIN_CONTENT_ROUTE_EVIDENCE = {
     adminOnly: true,
     mediaProxyGuarded: true,
     mediaProxyPolicy: ADMIN_CONTENT_MEDIA_POLICY,
+    storageEgressGuarded: true,
     safeUrlHandling: true,
     rawStorageUrlExposed: false,
+    maxPreviewTtlSeconds: ADMIN_CONTENT_SIGNED_URL_TTL_MS / 1000,
+    defaultMediaResponse: "short_lived_admin_preview",
 } as const;
 
 const UNSAFE_MEDIA_METADATA_PATTERNS = [

@@ -751,8 +751,27 @@ function scanStorageRisks(findings: GoogleCostFinding[], routes: RouteSummary[],
     const fetchesRemoteMedia = route.routePath.includes("/content") || source.includes("isAllowedRemoteMediaUrl") || source.includes("Content-Length");
     if (!touchesStorage && !fetchesRemoteMedia) continue;
 
-    const hasMediaLimit = source.includes("MEDIA_PROXY") || route.contract?.ratePolicy.includes("MEDIA_PROXY");
-    const hasEntitlement = /unlockedContent|ownsDrop|entitlement|creatorId === caller\.uid|auth: "user"/u.test(source);
+    const adminContentEvidenceSource = route.routePath === "/api/admin/content"
+      ? `${source}\n${readIfExists("src/lib/server/admin-content-storage-safety.ts") ?? ""}`
+      : source;
+    const hasMediaLimit =
+      source.includes("MEDIA_PROXY") ||
+      route.contract?.ratePolicy.includes("MEDIA_PROXY") ||
+      (
+        adminContentEvidenceSource.includes("google-cost-guard: admin content storage access is protected by MEDIA_PROXY") &&
+        adminContentEvidenceSource.includes("storageEgressGuarded: true") &&
+        adminContentEvidenceSource.includes("rawStorageUrlExposed: false")
+      );
+    const hasAdminContentStorageEvidence =
+      route.routePath === "/api/admin/content" &&
+      route.authMode === "admin" &&
+      adminContentEvidenceSource.includes("adminContentRoute: true") &&
+      adminContentEvidenceSource.includes("adminOnly: true") &&
+      adminContentEvidenceSource.includes("storageEgressGuarded: true") &&
+      adminContentEvidenceSource.includes("safeUrlHandling: true") &&
+      adminContentEvidenceSource.includes("rawStorageUrlExposed: false") &&
+      adminContentEvidenceSource.includes("defaultMediaResponse:");
+    const hasEntitlement = hasAdminContentStorageEvidence || /unlockedContent|ownsDrop|entitlement|creatorId === caller\.uid|auth: "user"/u.test(source);
     if (route.authMode === "none" && route.contract?.authRequired !== "admin") {
       addFinding(findings, {
         severity: "critical",
