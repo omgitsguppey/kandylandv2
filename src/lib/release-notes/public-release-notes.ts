@@ -1,12 +1,46 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.20.1",
+  "currentVersion": "1.21.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T19:16:50.354Z",
-  "generatedAtUtc": "2026-05-05T19:16:50.354Z",
-  "lastCommitSha": "1f08985ddfa85ad9d9742ae5d1bfbbbf69eaf24a",
+  "generatedAt": "2026-05-05T19:34:10.417Z",
+  "generatedAtUtc": "2026-05-05T19:34:10.417Z",
+  "lastCommitSha": "193b4c8d663e0960cd2b9f10d0aac2241541237f",
   "notes": [
+    {
+      "version": "1.21.0",
+      "previousVersion": "1.20.1",
+      "commitSha": "193b4c8d663e0960cd2b9f10d0aac2241541237f",
+      "commitTitle": "fix(admin): guard content storage route evidence",
+      "committedAt": "2026-05-05T19:33:58.000Z",
+      "generatedAt": "2026-05-05T19:34:10.416Z",
+      "committedAtUtc": "2026-05-05T19:33:58.000Z",
+      "generatedAtUtc": "2026-05-05T19:34:10.416Z",
+      "diffStats": {
+        "rawAdditions": 629,
+        "rawDeletions": 302,
+        "rawChangeCount": 931,
+        "additions": 629,
+        "deletions": 302,
+        "effectiveAdditions": 449,
+        "effectiveDeletions": 67,
+        "changedFiles": 9,
+        "effectiveChangeCount": 516,
+        "excludedGeneratedChangeCount": 415
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal content safety checks for admin media tools.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "security"
+      ]
+    },
     {
       "version": "1.20.1",
       "previousVersion": "1.20.0",
@@ -138,40 +172,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "affectedSurfaces": [
         "documentation"
       ]
-    },
-    {
-      "version": "1.17.0",
-      "previousVersion": "1.16.1",
-      "commitSha": "1cbef6884a9c0f0273d22e9f14e1eff32968de26",
-      "commitTitle": "chore(ci): route repo automation through cloud build",
-      "committedAt": "2026-05-05T12:49:13.000Z",
-      "generatedAt": "2026-05-05T12:49:32.622Z",
-      "diffStats": {
-        "rawAdditions": 207,
-        "rawDeletions": 18,
-        "rawChangeCount": 225,
-        "additions": 207,
-        "deletions": 18,
-        "effectiveAdditions": 207,
-        "effectiveDeletions": 18,
-        "changedFiles": 9,
-        "effectiveChangeCount": 225,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Internal",
-      "userFacingTitle": "Added a Beta badge with app update notes in the top navigation.",
-      "bullets": [
-        "Tap Beta beside KandyDrops to see the latest app-style updates.",
-        "The current beta version now stays tied to the public changelog."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "release-notes",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T12:49:13.000Z",
-      "generatedAtUtc": "2026-05-05T12:49:32.622Z"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
