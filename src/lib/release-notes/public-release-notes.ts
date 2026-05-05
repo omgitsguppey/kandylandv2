@@ -1,12 +1,44 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.24.8",
+  "currentVersion": "1.25.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T21:07:01.585Z",
-  "generatedAtUtc": "2026-05-05T21:07:01.585Z",
-  "lastCommitSha": "b1cee605c8a7290f34b0f5f48cd97086f1f1d686",
+  "generatedAt": "2026-05-05T21:10:43.517Z",
+  "generatedAtUtc": "2026-05-05T21:10:43.517Z",
+  "lastCommitSha": "79eb57843663fa21a78a14261fb06607d4350dde",
   "notes": [
+    {
+      "version": "1.25.0",
+      "previousVersion": "1.24.8",
+      "commitSha": "79eb57843663fa21a78a14261fb06607d4350dde",
+      "commitTitle": "fix(cost): guard creator agreement document egress",
+      "committedAt": "2026-05-05T21:10:32.000Z",
+      "generatedAt": "2026-05-05T21:10:43.516Z",
+      "committedAtUtc": "2026-05-05T21:10:32.000Z",
+      "generatedAtUtc": "2026-05-05T21:10:43.516Z",
+      "diffStats": {
+        "rawAdditions": 139,
+        "rawDeletions": 32,
+        "rawChangeCount": 171,
+        "additions": 139,
+        "deletions": 32,
+        "effectiveAdditions": 108,
+        "effectiveDeletions": 7,
+        "changedFiles": 5,
+        "effectiveChangeCount": 115,
+        "excludedGeneratedChangeCount": 56
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal document safety checks for creator agreement tools.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.24.8",
       "previousVersion": "1.24.7",
@@ -131,37 +163,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "affectedSurfaces": [
         "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.4",
-      "previousVersion": "1.24.3",
-      "commitSha": "46cfb75edefe9bc556eaf0a12af15774cd52994c",
-      "commitTitle": "fix(chat): refresh attachment cancel read bounds",
-      "committedAt": "2026-05-05T20:38:44.000Z",
-      "generatedAt": "2026-05-05T20:38:54.619Z",
-      "committedAtUtc": "2026-05-05T20:38:44.000Z",
-      "generatedAtUtc": "2026-05-05T20:38:54.619Z",
-      "diffStats": {
-        "rawAdditions": 1,
-        "rawDeletions": 1,
-        "rawChangeCount": 2,
-        "additions": 1,
-        "deletions": 1,
-        "effectiveAdditions": 0,
-        "effectiveDeletions": 0,
-        "changedFiles": 1,
-        "effectiveChangeCount": 0,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes safety checks for chat attachments.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
         "security"
       ]
     }
