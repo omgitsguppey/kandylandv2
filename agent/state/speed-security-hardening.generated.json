@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-05T19:38:51.599Z",
-  "overallScore": 41,
+  "generatedAt": "2026-05-05T19:44:27.497Z",
+  "overallScore": 42,
   "overallStatus": "fail",
   "domainScores": {
     "speedCachingHydration": {
@@ -29,11 +29,11 @@
     },
     "contentPaymentEconomyProtection": {
       "weight": 15,
-      "score": 30,
+      "score": 40,
       "status": "beta-risk",
-      "findingCount": 7,
+      "findingCount": 6,
       "criticalCount": 0,
-      "majorCount": 7
+      "majorCount": 6
     },
     "costRunawayWorkControls": {
       "weight": 10,
@@ -5936,7 +5936,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 42,
+      "line": 76,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -5947,7 +5947,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_10l495w"
+      "id": "speed_security_p5ny51"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -9879,7 +9879,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 42,
+      "line": 76,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -9890,24 +9890,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_10l495w"
-    },
-    {
-      "domain": "contentPaymentEconomyProtection",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 6,
-      "title": "Storage/media route lacks entitlement or media-proxy guard evidence",
-      "evidence": [
-        "/api/chat/attachments/cancel touches Storage but does not show entitlement/admin/media proxy markers."
-      ],
-      "expectedRule": "Storage/media egress routes enforce entitlement/admin scope, byte/rate guards, and no raw locked URL leakage.",
-      "actualPattern": "storage usage without entitlement/media proxy evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Verify entitlement, media proxy rate limit, and safe URL handling before exposing storage bytes.",
-      "humanReadableEscalation": "Locked content access must be manually reviewed.",
-      "id": "speed_security_1ebp8zw"
+      "id": "speed_security_p5ny51"
     },
     {
       "domain": "contentPaymentEconomyProtection",
@@ -11200,5 +11183,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 163 findings across 118 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 162 findings across 118 API routes."
 }

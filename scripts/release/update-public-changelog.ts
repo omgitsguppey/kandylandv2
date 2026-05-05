@@ -257,6 +257,12 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   ) {
     return "Improved behind-the-scenes session safety checks.";
   }
+  if (
+    normalized.includes("bound attachment cancel lookup")
+    || (normalized.includes("chat") && normalized.includes("attachment") && normalized.includes("cancel"))
+  ) {
+    return "Improved behind-the-scenes safety checks for chat attachments.";
+  }
   if (surfaces.includes("release-notes")) {
     return "Improved Beta update notes so changes are easier to match with support reports.";
   }
