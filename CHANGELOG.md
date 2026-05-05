@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.31.0] - 2026-05-05
+
+### Fixed
+
+- Updated 2026-05-05 22:19 UTC
+- Adjusted internal creator review warnings to match admin override rules.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.30.0] - 2026-05-05
 
 ### Fixed

@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.30.0",
+  "currentVersion": "1.31.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T22:05:58.505Z",
-  "generatedAtUtc": "2026-05-05T22:05:58.505Z",
-  "lastCommitSha": "a0973fdb3d307dd0e79e0ec1ab9bb96f875e0e02",
+  "generatedAt": "2026-05-05T22:19:29.626Z",
+  "generatedAtUtc": "2026-05-05T22:19:29.626Z",
+  "lastCommitSha": "2598da003f071e915bdc3aeb9f86d4657ad1e274",
   "notes": [
+    {
+      "version": "1.31.0",
+      "previousVersion": "1.30.0",
+      "commitSha": "2598da003f071e915bdc3aeb9f86d4657ad1e274",
+      "commitTitle": "fix(admin): downgrade optional owner override reason",
+      "committedAt": "2026-05-05T22:19:17.000Z",
+      "generatedAt": "2026-05-05T22:19:29.625Z",
+      "committedAtUtc": "2026-05-05T22:19:17.000Z",
+      "generatedAtUtc": "2026-05-05T22:19:29.625Z",
+      "diffStats": {
+        "rawAdditions": 200,
+        "rawDeletions": 31,
+        "rawChangeCount": 231,
+        "additions": 200,
+        "deletions": 31,
+        "effectiveAdditions": 195,
+        "effectiveDeletions": 28,
+        "changedFiles": 15,
+        "effectiveChangeCount": 223,
+        "excludedGeneratedChangeCount": 8
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Adjusted internal creator review warnings to match admin override rules.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.30.0",
       "previousVersion": "1.29.0",
@@ -136,37 +169,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "affectedSurfaces": [
         "repo-tooling",
         "security"
-      ]
-    },
-    {
-      "version": "1.27.0",
-      "previousVersion": "1.26.0",
-      "commitSha": "d706c48009e93b61f92d02246fa74cd29cec6f32",
-      "commitTitle": "fix(cost): guard creator agreement document egress",
-      "committedAt": "2026-05-05T21:22:00.000Z",
-      "generatedAt": "2026-05-05T21:22:15.204Z",
-      "committedAtUtc": "2026-05-05T21:22:00.000Z",
-      "generatedAtUtc": "2026-05-05T21:22:15.204Z",
-      "diffStats": {
-        "rawAdditions": 269,
-        "rawDeletions": 36,
-        "rawChangeCount": 305,
-        "additions": 269,
-        "deletions": 36,
-        "effectiveAdditions": 242,
-        "effectiveDeletions": 5,
-        "changedFiles": 5,
-        "effectiveChangeCount": 247,
-        "excludedGeneratedChangeCount": 58
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved safety checks for creator agreement document access.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "repo-tooling"
       ]
     }
   ]
