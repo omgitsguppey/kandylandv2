@@ -123,6 +123,12 @@ finalScore = rankScore * integrityMultiplier
 
 Critical policy or content-protection failures remove the candidate from the final ranking set. Medium risk remains eligible but demoted, with admin diagnostics that say "demoted by integrity risk."
 
+## Causal holdouts
+
+Ranking changes must prove causal lift before activation. Risky recommendation variants start with a `90%` deterministic-baseline control and a `10%` variant lane, assigned by `hash(userOrSessionId + experimentId) % 100`.
+
+Activation requires at least `200` users or sessions, lift above the configured threshold, no worsening in negative feedback or support complaints, no future-event training leakage, and a confidence interval that does not cross zero when one is available.
+
 ## Diversity reranking
 
 After deterministic or blended ML scores are calculated, KandyDrops applies a list-level diversity reranker. It preserves high predicted scores, then penalizes repetitive top windows:

@@ -45,6 +45,7 @@
         "check:drop-momentum-score": "tsx scripts/agent/validate-drop-momentum-score.ts",
         "check:exploration-budget": "tsx scripts/agent/validate-exploration-budget.ts",
         "check:integrity-demotions": "tsx scripts/agent/validate-integrity-demotions.ts",
+        "check:behavioral-experiments": "tsx scripts/agent/validate-behavioral-experiments.ts",
         "check:notification-quality": "tsx scripts/agent/validate-notification-quality.ts",
         "analytics:truth:rebuild": "tsx scripts/rebuild-analytics-truth.ts",
         "check:telemetry": "tsx scripts/audit-telemetry.ts && tsx scripts/check-telemetry-parity-contracts.ts",

@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 204,
+  "validatorCount": 205,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -91,6 +91,7 @@
     "behavioral-intelligence": [
       "check:admin-analytics-daily-task-pipeline",
       "check:behavioral-explanations",
+      "check:behavioral-experiments",
       "check:behavioral-intelligence-confidence",
       "check:behavioral-math-calibration",
       "check:behavioral-truth-source",
@@ -332,6 +333,7 @@
     "check:audit-runtime-ledger": "agent-context",
     "check:background-job-idempotency": "speed-security",
     "check:behavioral-explanations": "behavioral-intelligence",
+    "check:behavioral-experiments": "behavioral-intelligence",
     "check:behavioral-intelligence-confidence": "behavioral-intelligence",
     "check:behavioral-math-calibration": "behavioral-intelligence",
     "check:behavioral-truth-source": "behavioral-intelligence",

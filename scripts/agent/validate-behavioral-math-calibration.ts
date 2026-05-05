@@ -60,6 +60,7 @@ function main() {
   const deterministicRanker = read("src/lib/recommendations/deterministic-ranker.ts");
   const mlRanker = read("src/lib/recommendations/ml-ranker.ts");
   const candidateGeneration = read("src/lib/recommendations/candidate-generation.ts");
+  const explorationPolicy = read("src/lib/recommendations/exploration-policy.ts");
   const runtime = read("functions/src/behavioral-intelligence-runtime.ts");
   const rollupContract = read("src/lib/user-behavior-rollup-contract.ts");
   const rollupHelper = read("src/lib/server/user-behavior-rollup.ts");
@@ -133,9 +134,13 @@ function main() {
       contract.includes("recent_live_drops")
         && contract.includes("popular_with_similar_users")
         && contract.includes("fallback_popular_fresh")
-        && candidateGeneration.includes("isRecommendationEligibleDrop")
-        && candidateGeneration.includes("validUntil && drop.validUntil <= nowMs")
-        && candidateGeneration.includes("approvalStatus === \"rejected\" || approvalStatus === \"pending_review\""),
+        && ((candidateGeneration.includes("isRecommendationEligibleDrop")
+          && candidateGeneration.includes("validUntil && drop.validUntil <= nowMs")
+          && candidateGeneration.includes("approvalStatus === \"rejected\" || approvalStatus === \"pending_review\""))
+        || (candidateGeneration.includes("isExplorationEligibleDrop")
+          && explorationPolicy.includes("drop.validUntil && drop.validUntil <= nowMs")
+          && explorationPolicy.includes("\"pending_review\"")
+          && explorationPolicy.includes("\"rejected\""))),
       "Candidate sources and eligibility filters must be explicit.",
     ),
     check(

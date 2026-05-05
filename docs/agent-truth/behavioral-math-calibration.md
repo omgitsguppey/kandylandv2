@@ -296,6 +296,22 @@ rankScore * integrityMultiplier
 
 Critical policy or content-protection failures remove the candidate. Medium and high risk candidates are demoted. Admin diagnostics must say "demoted by integrity risk" and include the risk components.
 
+## Causal Holdout Validation
+
+Correlation is not enough to activate ranking or behavioral math changes. Risky ranking changes must use a deterministic holdout experiment before promotion:
+
+- default rollout is `90%` deterministic baseline control and `10%` variant
+- assignment uses `hash(userOrSessionId + experimentId) % 100`
+- success metrics include `purchase_7d`, `unlock_24h`, `watch_completion`, and `return_7d`
+- guardrails include `negative_feedback` and `support_complaints`
+- activation requires at least `200` users or sessions, positive lift above threshold, clean guardrails, and no future-event training leakage
+
+Targeted validator:
+
+```bash
+npm run check:behavioral-experiments
+```
+
 ## Notification Quality Ranking
 
 KandyDrops ranks and throttles notifications by return likelihood and fatigue instead of treating every notification as equally worth sending or showing.
