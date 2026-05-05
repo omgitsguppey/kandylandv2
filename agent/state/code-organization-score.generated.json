@@ -1,0 +1,1457 @@
+{
+  "generatedAt": "2026-05-05T05:48:19.557Z",
+  "doctrine": {
+    "note": "KandyDrops code organization protects source-truth hierarchy, small self-contained change surfaces, affected validation, deterministic cacheability, and compact agent context before broad audits or route moves.",
+    "agentTruthDoc": "docs/agent-truth/code-organization-doctrine.md",
+    "productDoctrineDoc": "docs/doctrine/kandydrops-code-organization.md",
+    "compactIndex": "agent/context/code-organization.index.json"
+  },
+  "overallScore": 10,
+  "status": "fail",
+  "bucketScores": {
+    "hierarchyCompliance": {
+      "weight": 20,
+      "score": 0,
+      "status": "fail",
+      "findingCount": 126,
+      "criticalCount": 1,
+      "reviewRequiredCount": 0
+    },
+    "fileSizeHealth": {
+      "weight": 15,
+      "score": 0,
+      "status": "fail",
+      "findingCount": 111,
+      "criticalCount": 8,
+      "reviewRequiredCount": 44
+    },
+    "featureOwnership": {
+      "weight": 15,
+      "score": 0,
+      "status": "review_required",
+      "findingCount": 12,
+      "criticalCount": 0,
+      "reviewRequiredCount": 12
+    },
+    "truthLayerSeparation": {
+      "weight": 20,
+      "score": 0,
+      "status": "fail",
+      "findingCount": 160,
+      "criticalCount": 104,
+      "reviewRequiredCount": 56
+    },
+    "agentContextEfficiency": {
+      "weight": 10,
+      "score": 0,
+      "status": "fail",
+      "findingCount": 27,
+      "criticalCount": 6,
+      "reviewRequiredCount": 5
+    },
+    "legacyPhaseOut": {
+      "weight": 10,
+      "score": 0,
+      "status": "fail",
+      "findingCount": 99,
+      "criticalCount": 6,
+      "reviewRequiredCount": 0
+    },
+    "validatorCoverage": {
+      "weight": 10,
+      "score": 100,
+      "status": "clean",
+      "findingCount": 0,
+      "criticalCount": 0,
+      "reviewRequiredCount": 0
+    }
+  },
+  "findings": [
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/index/blast-radius.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/index/blast-radius.json is 15253 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 15253 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_168ooru"
+    },
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/index/repo-inventory.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/index/repo-inventory.json is 27527 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 27527 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_m6pvrd"
+    },
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/index/retrieval-index.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/index/retrieval-index.json is 45665 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 45665 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_1ba4uee"
+    },
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/state/event-catalog-telemetry-audit.generated.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/state/event-catalog-telemetry-audit.generated.json is 6809 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 6809 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_1xukmue"
+    },
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/state/google-cost-bleed.generated.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/state/google-cost-bleed.generated.json is 7617 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 7617 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_1n02hd6"
+    },
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/state/speed-security-hardening.generated.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/state/speed-security-hardening.generated.json is 11957 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 11957 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_r81hpf"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx is 2324 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 2324 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_yofa1k"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/roster/page.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/roster/page.tsx is 1546 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 1546 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1bxakft"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/users/page.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/users/page.tsx is 1581 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 1581 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1olqle5"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/api/admin/debug/route.ts",
+      "title": "routeHandler exceeds code organization size budget",
+      "evidence": [
+        "src/app/api/admin/debug/route.ts is 2049 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "routeHandler 2049 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_len62r"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/api/admin/users/route.ts",
+      "title": "routeHandler exceeds code organization size budget",
+      "evidence": [
+        "src/app/api/admin/users/route.ts is 2504 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "routeHandler 2504 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_15f8f22"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/components/Chat/ChatExperience.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/components/Chat/ChatExperience.tsx is 2923 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 2923 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1mkj0ju"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/lib/creator-onboarding.ts",
+      "title": "source exceeds code organization size budget",
+      "evidence": [
+        "src/lib/creator-onboarding.ts is 1927 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "source 1927 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_15xk5gn"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/lib/server/ai-drop-covers.ts",
+      "title": "serverHelper exceeds code organization size budget",
+      "evidence": [
+        "src/lib/server/ai-drop-covers.ts is 2778 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "serverHelper 2778 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_juunnx"
+    },
+    {
+      "bucket": "hierarchyCompliance",
+      "severity": "critical",
+      "filePath": "src/lib/drops-account-overview-view-model.ts",
+      "line": 1,
+      "title": "Shared lib imports product or route layer",
+      "evidence": [
+        "Shared primitives must not depend on feature, app, or component runtime layers."
+      ],
+      "expectedRule": "Dependency direction is feature/app -> shared lib, never shared lib -> feature/app UI.",
+      "actualPattern": "src/lib import from app/components/features",
+      "suggestedFix": "Invert the dependency by moving feature-specific logic behind a contract or feature-local adapter.",
+      "id": "code_org_1vlznu"
+    },
+    {
+      "bucket": "legacyPhaseOut",
+      "severity": "critical",
+      "filePath": "scripts/agent/build-compact-agent-context.ts",
+      "line": 91,
+      "title": "Blocked legacy pattern appears outside allowed references",
+      "evidence": [
+        "Legacy item old-wallet-total-only-balance-chip blocked pattern: total-only balance chip."
+      ],
+      "expectedRule": "Blocked legacy cannot be imported or treated as canonical runtime.",
+      "actualPattern": "total-only balance chip",
+      "suggestedFix": "Remove the blocked reference or update the registry only after owner-approved promotion.",
+      "id": "code_org_5gkqn5"
+    },
+    {
+      "bucket": "legacyPhaseOut",
+      "severity": "critical",
+      "filePath": "scripts/agent/validate-theft-risk-score.ts",
+      "line": 78,
+      "title": "Blocked legacy pattern appears outside allowed references",
+      "evidence": [
+        "Legacy item old-moderation-screenshot-certainty blocked pattern: screenshot detected."
+      ],
+      "expectedRule": "Blocked legacy cannot be imported or treated as canonical runtime.",
+      "actualPattern": "screenshot detected",
+      "suggestedFix": "Remove the blocked reference or update the registry only after owner-approved promotion.",
+      "id": "code_org_9ds2li"
+    },
+    {
+      "bucket": "legacyPhaseOut",
+      "severity": "critical",
+      "filePath": "src/lib/legacy/legacy-registry.ts",
+      "line": 155,
+      "title": "Blocked legacy pattern appears outside allowed references",
+      "evidence": [
+        "Legacy item old-moderation-screenshot-certainty blocked pattern: Screenshot detected."
+      ],
+      "expectedRule": "Blocked legacy cannot be imported or treated as canonical runtime.",
+      "actualPattern": "Screenshot detected",
+      "suggestedFix": "Remove the blocked reference or update the registry only after owner-approved promotion.",
+      "id": "code_org_1y6gyik"
+    },
+    {
+      "bucket": "legacyPhaseOut",
+      "severity": "critical",
+      "filePath": "src/lib/legacy/legacy-registry.ts",
+      "line": 211,
+      "title": "Blocked legacy pattern appears outside allowed references",
+      "evidence": [
+        "Legacy item old-wallet-total-only-balance-chip blocked pattern: data-wallet-balance-chip='total-only'."
+      ],
+      "expectedRule": "Blocked legacy cannot be imported or treated as canonical runtime.",
+      "actualPattern": "data-wallet-balance-chip='total-only'",
+      "suggestedFix": "Remove the blocked reference or update the registry only after owner-approved promotion.",
+      "id": "code_org_8ut0x7"
+    },
+    {
+      "bucket": "legacyPhaseOut",
+      "severity": "critical",
+      "filePath": "src/lib/legacy/legacy-registry.ts",
+      "line": 235,
+      "title": "Blocked legacy pattern appears outside allowed references",
+      "evidence": [
+        "Legacy item old-green-bonus-chips blocked pattern: data-wallet-bonus-chip-theme='green'."
+      ],
+      "expectedRule": "Blocked legacy cannot be imported or treated as canonical runtime.",
+      "actualPattern": "data-wallet-bonus-chip-theme='green'",
+      "suggestedFix": "Remove the blocked reference or update the registry only after owner-approved promotion.",
+      "id": "code_org_fb35ay"
+    }
+  ],
+  "criticalFindings": [
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/index/blast-radius.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/index/blast-radius.json is 15253 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 15253 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_168ooru"
+    },
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/index/repo-inventory.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/index/repo-inventory.json is 27527 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 27527 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_m6pvrd"
+    },
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/index/retrieval-index.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/index/retrieval-index.json is 45665 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 45665 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_1ba4uee"
+    },
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/state/event-catalog-telemetry-audit.generated.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/state/event-catalog-telemetry-audit.generated.json is 6809 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 6809 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_1xukmue"
+    },
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/state/google-cost-bleed.generated.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/state/google-cost-bleed.generated.json is 7617 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 7617 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_1n02hd6"
+    },
+    {
+      "bucket": "agentContextEfficiency",
+      "severity": "critical",
+      "filePath": "agent/state/speed-security-hardening.generated.json",
+      "title": "Generated JSON exceeds compact context budget",
+      "evidence": [
+        "agent/state/speed-security-hardening.generated.json is 11957 lines and is not JSONL/sharded."
+      ],
+      "expectedRule": "Append-only or large generated history should use JSONL or sharded records.",
+      "actualPattern": "generated JSON 11957 lines",
+      "suggestedFix": "Shard the report by surface or convert append-only history to JSONL.",
+      "id": "code_org_r81hpf"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx is 2324 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 2324 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_yofa1k"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/roster/page.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/roster/page.tsx is 1546 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 1546 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1bxakft"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/admin/users/page.tsx",
+      "title": "component exceeds code organization size budget",
+      "evidence": [
+        "src/app/admin/users/page.tsx is 1581 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "component 1581 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_1olqle5"
+    },
+    {
+      "bucket": "fileSizeHealth",
+      "severity": "critical",
+      "filePath": "src/app/api/admin/debug/route.ts",
+      "title": "routeHandler exceeds code organization size budget",
+      "evidence": [
+        "src/app/api/admin/debug/route.ts is 2049 LOC."
+      ],
+      "expectedRule": "Split large files into view, state, server, contract, telemetry, validator, or docs layers before they become whack-a-mole risk.",
+      "actualPattern": "routeHandler 2049 LOC",
+      "suggestedFix": "Create a feature-folder migration slice or extract a stable contract/helper without changing runtime behavior.",
+      "id": "code_org_len62r"
+    }
+  ],
+  "topRefactorTargets": [
+    {
+      "filePath": "src/components/Chat/ChatExperience.tsx",
+      "lines": 2923,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/lib/server/ai-drop-covers.ts",
+      "lines": 2778,
+      "classification": "serverHelper",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/users/route.ts",
+      "lines": 2504,
+      "classification": "routeHandler",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "lines": 2324,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/debug/route.ts",
+      "lines": 2049,
+      "classification": "routeHandler",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/lib/creator-onboarding.ts",
+      "lines": 1927,
+      "classification": "source",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/users/page.tsx",
+      "lines": 1581,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/roster/page.tsx",
+      "lines": 1546,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/user/[userId]/page.tsx",
+      "lines": 1416,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/user/[userId]/route.ts",
+      "lines": 1325,
+      "classification": "routeHandler",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/drops/page.tsx",
+      "lines": 1189,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/analytics/historical/route.ts",
+      "lines": 1110,
+      "classification": "routeHandler",
+      "severity": "critical"
+    }
+  ],
+  "largestSourceFiles": [
+    {
+      "filePath": "src/components/Chat/ChatExperience.tsx",
+      "lines": 2923,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/lib/server/ai-drop-covers.ts",
+      "lines": 2778,
+      "classification": "serverHelper",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/users/route.ts",
+      "lines": 2504,
+      "classification": "routeHandler",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "lines": 2324,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/debug/route.ts",
+      "lines": 2049,
+      "classification": "routeHandler",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/lib/creator-onboarding.ts",
+      "lines": 1927,
+      "classification": "source",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/users/page.tsx",
+      "lines": 1581,
+      "classification": "component",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/roster/page.tsx",
+      "lines": 1546,
+      "classification": "component",
+      "severity": "critical"
+    }
+  ],
+  "largestDocs": [
+    {
+      "filePath": "REPO_MEMORY_LEDGER.md",
+      "lines": 3231,
+      "classification": "markdown",
+      "severity": "review_required"
+    },
+    {
+      "filePath": "docs/agent-truth/analytics-file-inventory.md",
+      "lines": 442,
+      "classification": "markdown",
+      "severity": "warning"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "lines": 391,
+      "classification": "markdown",
+      "severity": "warning"
+    },
+    {
+      "filePath": "docs/agent-truth/rollback-incident-response.md",
+      "lines": 368,
+      "classification": "markdown",
+      "severity": "warning"
+    },
+    {
+      "filePath": "docs/agent-truth/analytics-truth-layer-v2.md",
+      "lines": 251,
+      "classification": "markdown",
+      "severity": "info"
+    }
+  ],
+  "largestGeneratedStateFiles": [
+    {
+      "filePath": "agent/index/retrieval-index.json",
+      "lines": 45665,
+      "classification": "generatedJson",
+      "severity": "critical"
+    },
+    {
+      "filePath": "agent/index/repo-inventory.json",
+      "lines": 27527,
+      "classification": "generatedJson",
+      "severity": "critical"
+    },
+    {
+      "filePath": "agent/index/blast-radius.json",
+      "lines": 15253,
+      "classification": "generatedJson",
+      "severity": "critical"
+    },
+    {
+      "filePath": "agent/state/speed-security-hardening.generated.json",
+      "lines": 11957,
+      "classification": "generatedJson",
+      "severity": "critical"
+    },
+    {
+      "filePath": "agent/state/google-cost-bleed.generated.json",
+      "lines": 7617,
+      "classification": "generatedJson",
+      "severity": "critical"
+    }
+  ],
+  "vagueHelperFiles": [],
+  "misplacedFeatureLogicInSrcLib": [
+    {
+      "filePath": "src/lib/ai-drop-covers.ts",
+      "lines": 1244,
+      "classification": "src/lib feature logic: creator-profile",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/telemetry-catalog.ts",
+      "lines": 1161,
+      "classification": "src/lib feature logic: analytics",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/route-runtime-health.ts",
+      "lines": 1143,
+      "classification": "src/lib feature logic: moderation, analytics",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/device-layout-score.ts",
+      "lines": 1124,
+      "classification": "src/lib feature logic: wallet, drops, chat",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/device-ui-dry-audit.ts",
+      "lines": 1098,
+      "classification": "src/lib feature logic: wallet, drops",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/tasks/task-observability.ts",
+      "lines": 805,
+      "classification": "src/lib feature logic: wallet, analytics",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/analytics/analytics-event-contract.ts",
+      "lines": 725,
+      "classification": "src/lib feature logic: wallet, creator-profile, analytics",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/hydration-performance-score.ts",
+      "lines": 624,
+      "classification": "src/lib feature logic: analytics",
+      "severity": "warning"
+    }
+  ],
+  "routeHandlersWithTooManyResponsibilities": [
+    {
+      "filePath": "src/app/api/admin/users/route.ts",
+      "lines": 2504,
+      "responsibilities": [
+        "auth",
+        "validation",
+        "firestore",
+        "scoring",
+        "formatting",
+        "telemetry",
+        "external",
+        "cache"
+      ],
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/debug/route.ts",
+      "lines": 2049,
+      "responsibilities": [
+        "auth",
+        "validation",
+        "firestore",
+        "scoring",
+        "formatting",
+        "telemetry",
+        "external",
+        "cache"
+      ],
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/analytics/historical/route.ts",
+      "lines": 1110,
+      "responsibilities": [
+        "auth",
+        "validation",
+        "firestore",
+        "scoring",
+        "formatting",
+        "telemetry",
+        "external",
+        "cache"
+      ],
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/user/[userId]/route.ts",
+      "lines": 1325,
+      "responsibilities": [
+        "auth",
+        "validation",
+        "firestore",
+        "scoring",
+        "formatting",
+        "telemetry",
+        "external"
+      ],
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/viewer/watch-session/route.ts",
+      "lines": 601,
+      "responsibilities": [
+        "auth",
+        "validation",
+        "firestore",
+        "scoring",
+        "formatting",
+        "telemetry",
+        "external"
+      ],
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/analytics/realtime/route.ts",
+      "lines": 591,
+      "responsibilities": [
+        "auth",
+        "validation",
+        "firestore",
+        "scoring",
+        "formatting",
+        "telemetry",
+        "cache"
+      ],
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/overview/route.ts",
+      "lines": 572,
+      "responsibilities": [
+        "auth",
+        "validation",
+        "firestore",
+        "scoring",
+        "formatting",
+        "telemetry",
+        "cache"
+      ],
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/api/admin/creator-agreements/route.ts",
+      "lines": 512,
+      "responsibilities": [
+        "auth",
+        "validation",
+        "firestore",
+        "scoring",
+        "formatting",
+        "telemetry",
+        "external"
+      ],
+      "severity": "critical"
+    }
+  ],
+  "duplicateMetricScoringFormulas": [
+    {
+      "normalizedFormula": "<Pill label=\"s\" value={\"s\"} />",
+      "files": [
+        "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
+        "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
+        "src/app/admin/debug/components/DebugAdvancedExperiments.tsx",
+        "src/app/admin/debug/components/DebugMonitoringRoutes.tsx"
+      ],
+      "severity": "critical"
+    },
+    {
+      "normalizedFormula": "dictionaryTooltip=\"s\"",
+      "files": [
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/page.tsx"
+      ],
+      "severity": "critical"
+    },
+    {
+      "normalizedFormula": "return new Intl.NumberFormat(\"s\", { notation: \"s\", maximumFractionDigits: # }).format(value || #);",
+      "files": [
+        "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
+        "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx",
+        "src/app/admin/debug/components/DebugAdvancedTruth.tsx"
+      ],
+      "severity": "critical"
+    },
+    {
+      "normalizedFormula": "<Pill label=\"s\" value={entry.trackingSource} tone={entry.trackingSource === \"s\" ? \"s\" : \"s\"} />",
+      "files": [
+        "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
+        "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx"
+      ],
+      "severity": "critical"
+    },
+    {
+      "normalizedFormula": "<Pill label=\"s\" value={issue.issueCount} tone=\"s\" />",
+      "files": [
+        "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
+        "src/app/admin/debug/components/DebugTabActions.tsx"
+      ],
+      "severity": "critical"
+    }
+  ],
+  "componentSplitCandidates": [
+    {
+      "filePath": "src/components/Chat/ChatExperience.tsx",
+      "lines": 2923,
+      "classification": "18 domain imports",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "lines": 2324,
+      "classification": "27 domain imports",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/users/page.tsx",
+      "lines": 1581,
+      "classification": "16 domain imports",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/roster/page.tsx",
+      "lines": 1546,
+      "classification": "23 domain imports",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/user/[userId]/page.tsx",
+      "lines": 1416,
+      "classification": "19 domain imports",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/admin/drops/page.tsx",
+      "lines": 1189,
+      "classification": "14 domain imports",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/app/creators/waitlist/page.tsx",
+      "lines": 1030,
+      "classification": "9 domain imports",
+      "severity": "critical"
+    },
+    {
+      "filePath": "src/components/Admin/CreateDropModal.tsx",
+      "lines": 1025,
+      "classification": "11 domain imports",
+      "severity": "critical"
+    }
+  ],
+  "missingFeatureOwnership": [
+    {
+      "feature": "wallet",
+      "targetPath": "src/features/wallet",
+      "exists": false,
+      "candidateFiles": [
+        "functions/src/analytics-core.ts",
+        "functions/src/analytics-timeline.ts",
+        "functions/src/analytics-transactions.ts",
+        "functions/src/gumdrop-economics.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Wallet, PayPal, GumDrop ledger, and paid-source truth should have one feature owner."
+    },
+    {
+      "feature": "drops",
+      "targetPath": "src/features/drops",
+      "exists": false,
+      "candidateFiles": [
+        "functions/src/analytics-bigquery-export.ts",
+        "functions/src/analytics-core.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-security-events.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Drop discovery, preview, unlock, and entitlement UI need one migration lane."
+    },
+    {
+      "feature": "viewer",
+      "targetPath": "src/features/viewer",
+      "exists": false,
+      "candidateFiles": [
+        "functions/src/analytics-truth-runtime.ts",
+        "functions/src/orchestration-contract.ts",
+        "functions/src/orchestration-engine.ts",
+        "functions/src/orchestration-parity.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Viewer file continuity and watch sessions should colocate under viewer ownership."
+    },
+    {
+      "feature": "creator-profile",
+      "targetPath": "src/features/creator-profile",
+      "exists": false,
+      "candidateFiles": [
+        "functions/src/analytics-timeline.ts",
+        "functions/src/behavioral-intelligence-runtime.ts",
+        "functions/src/orchestration-identity.ts",
+        "scripts/agent/score-code-organization.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Public creator profile projection should be separate from creator dashboard operations."
+    },
+    {
+      "feature": "creator-dashboard",
+      "targetPath": "src/features/creator-dashboard",
+      "exists": false,
+      "candidateFiles": [
+        "functions/src/analytics-transactions.ts",
+        "functions/src/orchestration-contract.ts",
+        "functions/src/orchestration-engine.ts",
+        "functions/src/orchestration-routing.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Creator operations and paid experience server truth need a dedicated feature owner."
+    },
+    {
+      "feature": "chat",
+      "targetPath": "src/features/chat",
+      "exists": false,
+      "candidateFiles": [
+        "scripts/agent/run-ast-grep-rules.ts",
+        "scripts/agent/score-code-organization.ts",
+        "scripts/agent/score-codebase-hardening.ts",
+        "scripts/agent/score-orphaned-logic.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Chat shell, viewport, and message-state logic should not sprawl across shared primitives."
+    },
+    {
+      "feature": "support",
+      "targetPath": "src/features/support",
+      "exists": false,
+      "candidateFiles": [
+        "scripts/agent/inject-debug-evidence.ts",
+        "scripts/agent/precatch-runtime-issues.ts",
+        "scripts/agent/score-code-organization.ts",
+        "scripts/agent/validate-admin-debug-control-tower.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Support and bug-report user facts need one user/admin split owner."
+    },
+    {
+      "feature": "moderation",
+      "targetPath": "src/features/moderation",
+      "exists": false,
+      "candidateFiles": [
+        "functions/src/analytics-semantics.ts",
+        "functions/src/orchestration-readiness.ts",
+        "scripts/agent/build-compact-agent-context.ts",
+        "scripts/agent/build-ui-surface-coverage.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Moderation evidence, score, and admin display must stay evidence-weighted."
+    },
+    {
+      "feature": "notifications",
+      "targetPath": "src/features/notifications",
+      "exists": false,
+      "candidateFiles": [
+        "scripts/agent/score-code-organization.ts",
+        "scripts/agent/score-telemetry-identified-parity.ts",
+        "scripts/agent/validate-analytics-event-contract.ts",
+        "scripts/agent/validate-event-fact-truth.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Notification read truth and UI diagnostics should not fragment across hooks/components."
+    },
+    {
+      "feature": "admin-users",
+      "targetPath": "src/features/admin-users",
+      "exists": false,
+      "candidateFiles": [
+        "scripts/agent/validate-admin-user-behavior-truth.ts",
+        "scripts/agent/validate-admin-user-metrics-snapshot.ts",
+        "scripts/agent/validate-admin-users-loading-lanes.ts",
+        "scripts/agent/validate-admin-users-stats-grid.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Admin user metrics need one hot-cache and source-state owner."
+    },
+    {
+      "feature": "analytics",
+      "targetPath": "src/features/analytics",
+      "exists": false,
+      "candidateFiles": [
+        "functions/src/analytics-bigquery-export.ts",
+        "functions/src/analytics-core.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-guest-batches.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Analytics contracts, ingestion, normalization, and admin projections need one ownership map."
+    },
+    {
+      "feature": "recommendations",
+      "targetPath": "src/features/recommendations",
+      "exists": false,
+      "candidateFiles": [
+        "functions/src/behavioral-intelligence-cli.ts",
+        "functions/src/behavioral-intelligence-runtime.ts",
+        "functions/src/orchestration-contract.ts",
+        "functions/src/orchestration-readiness.ts"
+      ],
+      "missingChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators"
+      ],
+      "migrationReason": "Behavioral inputs and recommendation scoring should be separated from UI panels."
+    }
+  ],
+  "legacyFilesWithoutPhaseOut": [
+    {
+      "filePath": "src/lib/creator-onboarding.ts",
+      "lines": 1927,
+      "classification": "legacy candidate",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/app/admin/roster/page.tsx",
+      "lines": 1546,
+      "classification": "legacy candidate",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/lib/telemetry-catalog.ts",
+      "lines": 1161,
+      "classification": "legacy candidate",
+      "severity": "warning"
+    },
+    {
+      "filePath": "src/app/api/admin/roster/route.ts",
+      "lines": 1055,
+      "classification": "legacy candidate",
+      "severity": "warning"
+    },
+    {
+      "filePath": "scripts/agent/score-code-organization.ts",
+      "lines": 966,
+      "classification": "legacy candidate",
+      "severity": "warning"
+    }
+  ],
+  "docsLackingCompactCards": [
+    {
+      "filePath": "docs/agent-truth/analytics-file-inventory.md",
+      "lines": 442,
+      "classification": "markdown without compact card",
+      "severity": "warning"
+    },
+    {
+      "filePath": "docs/agent-truth/rollback-incident-response.md",
+      "lines": 368,
+      "classification": "markdown without compact card",
+      "severity": "warning"
+    },
+    {
+      "filePath": "docs/agent-truth/admin-revenue-trends.md",
+      "lines": 194,
+      "classification": "markdown without compact card",
+      "severity": "info"
+    },
+    {
+      "filePath": "docs/agent-truth/admin-analytics-hot-cache.md",
+      "lines": 181,
+      "classification": "markdown without compact card",
+      "severity": "info"
+    },
+    {
+      "filePath": "docs/agent-truth/admin-revenue-top-drops.md",
+      "lines": 173,
+      "classification": "markdown without compact card",
+      "severity": "info"
+    }
+  ],
+  "suggestedFeatureFolderMigrations": [
+    {
+      "feature": "wallet",
+      "targetPath": "src/features/wallet",
+      "currentEntrypoints": [
+        "functions/src/analytics-core.ts",
+        "functions/src/analytics-timeline.ts",
+        "functions/src/analytics-transactions.ts"
+      ],
+      "firstMoveCandidates": [
+        "functions/src/analytics-core.ts",
+        "functions/src/analytics-timeline.ts"
+      ],
+      "guardrails": [
+        "Server purchase facts stay in server modules.",
+        "Client begin_checkout remains funnel context only."
+      ]
+    },
+    {
+      "feature": "drops",
+      "targetPath": "src/features/drops",
+      "currentEntrypoints": [
+        "functions/src/analytics-bigquery-export.ts",
+        "functions/src/analytics-core.ts",
+        "functions/src/analytics-event-facts.ts"
+      ],
+      "firstMoveCandidates": [
+        "functions/src/analytics-bigquery-export.ts",
+        "functions/src/analytics-core.ts"
+      ],
+      "guardrails": [
+        "Locked content URLs stay out of pre-unlock UI.",
+        "Unlock metrics come from server entitlement truth."
+      ]
+    },
+    {
+      "feature": "viewer",
+      "targetPath": "src/features/viewer",
+      "currentEntrypoints": [
+        "functions/src/analytics-truth-runtime.ts",
+        "functions/src/orchestration-contract.ts",
+        "functions/src/orchestration-engine.ts"
+      ],
+      "firstMoveCandidates": [
+        "functions/src/analytics-truth-runtime.ts",
+        "functions/src/orchestration-contract.ts"
+      ],
+      "guardrails": [
+        "Telemetry must not include internal content URLs.",
+        "File views connect to watch-session facts."
+      ]
+    },
+    {
+      "feature": "creator-profile",
+      "targetPath": "src/features/creator-profile",
+      "currentEntrypoints": [
+        "functions/src/analytics-timeline.ts",
+        "functions/src/behavioral-intelligence-runtime.ts",
+        "functions/src/orchestration-identity.ts"
+      ],
+      "firstMoveCandidates": [
+        "functions/src/analytics-timeline.ts",
+        "functions/src/behavioral-intelligence-runtime.ts"
+      ],
+      "guardrails": [
+        "Fan actions target creators without becoming creator behavior."
+      ]
+    },
+    {
+      "feature": "creator-dashboard",
+      "targetPath": "src/features/creator-dashboard",
+      "currentEntrypoints": [
+        "functions/src/analytics-transactions.ts",
+        "functions/src/orchestration-contract.ts",
+        "functions/src/orchestration-engine.ts"
+      ],
+      "firstMoveCandidates": [
+        "functions/src/analytics-transactions.ts",
+        "functions/src/orchestration-contract.ts"
+      ],
+      "guardrails": [
+        "Paid-source spend rules stay server-truth first.",
+        "Expected booking failures use typed safe errors."
+      ]
+    },
+    {
+      "feature": "chat",
+      "targetPath": "src/features/chat",
+      "currentEntrypoints": [
+        "scripts/agent/run-ast-grep-rules.ts",
+        "scripts/agent/score-code-organization.ts",
+        "scripts/agent/score-codebase-hardening.ts"
+      ],
+      "firstMoveCandidates": [
+        "scripts/agent/run-ast-grep-rules.ts",
+        "scripts/agent/score-code-organization.ts"
+      ],
+      "guardrails": [
+        "Chat owns its stable viewport shell.",
+        "Diagnostics cannot block input focus paths."
+      ]
+    },
+    {
+      "feature": "support",
+      "targetPath": "src/features/support",
+      "currentEntrypoints": [
+        "scripts/agent/inject-debug-evidence.ts",
+        "scripts/agent/precatch-runtime-issues.ts",
+        "scripts/agent/score-code-organization.ts"
+      ],
+      "firstMoveCandidates": [
+        "scripts/agent/inject-debug-evidence.ts",
+        "scripts/agent/precatch-runtime-issues.ts"
+      ],
+      "guardrails": [
+        "Admin support actions stay excluded from user behavior.",
+        "Permission errors feed debug evidence."
+      ]
+    },
+    {
+      "feature": "moderation",
+      "targetPath": "src/features/moderation",
+      "currentEntrypoints": [
+        "functions/src/analytics-semantics.ts",
+        "functions/src/orchestration-readiness.ts",
+        "scripts/agent/build-compact-agent-context.ts"
+      ],
+      "firstMoveCandidates": [
+        "functions/src/analytics-semantics.ts",
+        "functions/src/orchestration-readiness.ts"
+      ],
+      "guardrails": [
+        "Browser screenshot heuristics cannot be confirmed facts.",
+        "Weak signals stay contextual."
+      ]
+    },
+    {
+      "feature": "notifications",
+      "targetPath": "src/features/notifications",
+      "currentEntrypoints": [
+        "scripts/agent/score-code-organization.ts",
+        "scripts/agent/score-telemetry-identified-parity.ts",
+        "scripts/agent/validate-analytics-event-contract.ts"
+      ],
+      "firstMoveCandidates": [
+        "scripts/agent/score-code-organization.ts",
+        "scripts/agent/score-telemetry-identified-parity.ts"
+      ],
+      "guardrails": [
+        "notification_read is the behavioral fact.",
+        "Opened/clicked events are diagnostics unless promoted."
+      ]
+    },
+    {
+      "feature": "admin-users",
+      "targetPath": "src/features/admin-users",
+      "currentEntrypoints": [
+        "scripts/agent/validate-admin-user-behavior-truth.ts",
+        "scripts/agent/validate-admin-user-metrics-snapshot.ts",
+        "scripts/agent/validate-admin-users-loading-lanes.ts"
+      ],
+      "firstMoveCandidates": [
+        "scripts/agent/validate-admin-user-behavior-truth.ts",
+        "scripts/agent/validate-admin-user-metrics-snapshot.ts"
+      ],
+      "guardrails": [
+        "Admin/projection facts never contaminate user metrics.",
+        "Cards expose live/cached/stale/error state."
+      ]
+    },
+    {
+      "feature": "analytics",
+      "targetPath": "src/features/analytics",
+      "currentEntrypoints": [
+        "functions/src/analytics-bigquery-export.ts",
+        "functions/src/analytics-core.ts",
+        "functions/src/analytics-event-facts.ts"
+      ],
+      "firstMoveCandidates": [
+        "functions/src/analytics-bigquery-export.ts",
+        "functions/src/analytics-core.ts"
+      ],
+      "guardrails": [
+        "Actor and target ids remain separate.",
+        "Client-only events cannot anchor revenue or unlock metrics."
+      ]
+    },
+    {
+      "feature": "recommendations",
+      "targetPath": "src/features/recommendations",
+      "currentEntrypoints": [
+        "functions/src/behavioral-intelligence-cli.ts",
+        "functions/src/behavioral-intelligence-runtime.ts",
+        "functions/src/orchestration-contract.ts"
+      ],
+      "firstMoveCandidates": [
+        "functions/src/behavioral-intelligence-cli.ts",
+        "functions/src/behavioral-intelligence-runtime.ts"
+      ],
+      "guardrails": [
+        "Deterministic ranking remains baseline.",
+        "ML promotion needs validator-backed evidence."
+      ]
+    }
+  ],
+  "routeGroupMigrationPlan": [
+    "Do not move routes automatically; create route groups only in owner-approved migration slices.",
+    "src/app/(public): route group target for organizational grouping without URL changes.",
+    "src/app/(auth): route group target for organizational grouping without URL changes.",
+    "src/app/(user): route group target for organizational grouping without URL changes.",
+    "src/app/(creator): route group target for organizational grouping without URL changes.",
+    "src/app/(admin): route group target for organizational grouping without URL changes.",
+    "src/app/(system): route group target for organizational grouping without URL changes.",
+    "Route moves require parity checks for URL, metadata, auth, telemetry, and adjacent validators before merge."
+  ],
+  "minimalCommands": [
+    "npm run score:code-organization",
+    "npm run check:code-organization",
+    "npm run typecheck if TypeScript changed"
+  ],
+  "forbiddenCommands": [
+    "npm run check",
+    "npm run check:ui:audits",
+    "npm run check:ui:continuity",
+    "npm run check:ui:lighthouse",
+    "playwright",
+    "cypress",
+    "lighthouse"
+  ],
+  "summary": "KandyDrops code organization protects source-truth hierarchy, small self-contained change surfaces, affected validation, deterministic cacheability, and compact agent context before broad audits or route moves. Current report scored 10/100 with 535 organization findings; report arrays are capped for compact agent loading."
+}

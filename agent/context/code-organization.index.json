@@ -1,0 +1,316 @@
+{
+  "generatedAt": "2026-05-05T05:48:19.557Z",
+  "version": 1,
+  "surface": "code-organization",
+  "researchBasis": [
+    "Google code health and small CL doctrine: optimize maintainability, reviewability, rollback safety, and related tests.",
+    "Next.js App Router: use route groups, private folders, colocation, and src separation without route URL churn.",
+    "Nx affected model: changed files plus project/dependency graph choose minimum affected checks.",
+    "Turborepo cache model: deterministic task inputs/outputs/logs make repeat audits cacheable."
+  ],
+  "loadPlan": [
+    "agent/context/code-organization.index.json",
+    "agent/state/code-organization-score.generated.json",
+    "docs/agent-truth/code-organization-doctrine.md",
+    "docs/doctrine/kandydrops-code-organization.md"
+  ],
+  "doctrineCard": {
+    "id": "doctrine_card__code-organization",
+    "title": "Code Organization Doctrine",
+    "surface": "repo-governance",
+    "scope": [
+      "src/app/**",
+      "src/features/**",
+      "src/lib/**",
+      "src/components/**",
+      "scripts/agent/**",
+      "docs/agent-truth/**",
+      "docs/doctrine/**",
+      "agent/context/**"
+    ],
+    "canonicalFiles": [
+      "src/lib/code-organization/code-organization-contract.ts",
+      "scripts/agent/score-code-organization.ts",
+      "scripts/agent/validate-code-organization.ts",
+      "agent/state/code-organization-score.generated.json"
+    ],
+    "rules": [
+      "Read this compact index before full organization doctrine Markdown.",
+      "Route moves are migration-plan only unless explicitly approved.",
+      "Source truth flows contract -> server truth -> client projection -> UI display -> telemetry -> validator -> docs.",
+      "Use affected-file and cache-first audit lanes before broad checks."
+    ],
+    "blockedPatterns": [
+      "route handler with 5+ inline responsibilities",
+      "UI-owned payment/auth/entitlement truth",
+      "duplicated admin metric formula",
+      "blocked legacy imported by canonical runtime"
+    ],
+    "requiredValidators": [
+      "score:code-organization",
+      "check:code-organization"
+    ],
+    "sourceDocs": [
+      "docs/agent-truth/code-organization-doctrine.md",
+      "docs/doctrine/kandydrops-code-organization.md"
+    ],
+    "tokenEstimate": 300
+  },
+  "hierarchy": {
+    "src/app": "Route entrypoints only; use route groups for organization without URL changes.",
+    "src/features": "Domain and product ownership. Route/client components should delegate here over time.",
+    "src/lib": "Shared primitives only; no feature-specific product ownership.",
+    "src/lib/server": "Server-only shared logic and source-truth helpers.",
+    "src/components/ui": "Pure reusable UI only, without product source truth.",
+    "scripts/agent": "Repo inspection and validation only.",
+    "docs": "Human-readable doctrine.",
+    "agent/context": "Machine-readable compact doctrine and context packs."
+  },
+  "featureTargets": [
+    {
+      "feature": "wallet",
+      "targetPath": "src/features/wallet",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "drops",
+      "targetPath": "src/features/drops",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "viewer",
+      "targetPath": "src/features/viewer",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "creator-profile",
+      "targetPath": "src/features/creator-profile",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "creator-dashboard",
+      "targetPath": "src/features/creator-dashboard",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "chat",
+      "targetPath": "src/features/chat",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "support",
+      "targetPath": "src/features/support",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "moderation",
+      "targetPath": "src/features/moderation",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "notifications",
+      "targetPath": "src/features/notifications",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "admin-users",
+      "targetPath": "src/features/admin-users",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "analytics",
+      "targetPath": "src/features/analytics",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    },
+    {
+      "feature": "recommendations",
+      "targetPath": "src/features/recommendations",
+      "allowedChildren": [
+        "components",
+        "hooks",
+        "server",
+        "contracts",
+        "scoring",
+        "validators",
+        "tests",
+        "index.ts"
+      ]
+    }
+  ],
+  "truthLayerOrder": [
+    "contract",
+    "server truth",
+    "client projection",
+    "UI display",
+    "telemetry",
+    "validator",
+    "docs"
+  ],
+  "reportDigest": {
+    "overallScore": 10,
+    "status": "fail",
+    "topRefactorTargets": [
+      {
+        "filePath": "src/components/Chat/ChatExperience.tsx",
+        "lines": 2923,
+        "classification": "component",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/lib/server/ai-drop-covers.ts",
+        "lines": 2778,
+        "classification": "serverHelper",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/app/api/admin/users/route.ts",
+        "lines": 2504,
+        "classification": "routeHandler",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "lines": 2324,
+        "classification": "component",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/app/api/admin/debug/route.ts",
+        "lines": 2049,
+        "classification": "routeHandler",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/lib/creator-onboarding.ts",
+        "lines": 1927,
+        "classification": "source",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/app/admin/users/page.tsx",
+        "lines": 1581,
+        "classification": "component",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/app/admin/roster/page.tsx",
+        "lines": 1546,
+        "classification": "component",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/app/admin/user/[userId]/page.tsx",
+        "lines": 1416,
+        "classification": "component",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/app/api/admin/user/[userId]/route.ts",
+        "lines": 1325,
+        "classification": "routeHandler",
+        "severity": "critical"
+      }
+    ],
+    "criticalCount": 10,
+    "missingFeatureOwnership": 12
+  }
+}

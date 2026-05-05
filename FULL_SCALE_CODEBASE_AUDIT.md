@@ -1,5 +1,30 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-05 #160] PRE: Code Organization Doctrine
+
+Scope started:
+- Adding code organization doctrine, feature-folder migration guidance, file-size and hierarchy scoring, compact agent context index, generated score state, package scripts, and a deterministic validator for organization regressions.
+- Required outputs include `docs/agent-truth/code-organization-doctrine.md`, `docs/doctrine/kandydrops-code-organization.md`, `src/lib/code-organization/code-organization-contract.ts`, score/check scripts, `agent/state/code-organization-score.generated.json`, and `agent/context/code-organization.index.json`.
+- This pass must not move routes, rewrite product behavior, run browser/full-suite checks, delete docs, or delete legacy code without registry approval.
+
+Evidence:
+- Control tower routing, source-of-truth map, product doctrine, compact agent context lane, existing hardening/legacy/audit validators, and official Google/Next.js/Nx/Turborepo engineering documentation were consulted before implementation.
+
+Doctrine:
+- KandyDrops code organization is now a deterministic governance lane: `src/app` remains route entrypoints only, `src/features/*` is the feature ownership migration target, `src/lib` is shared primitives, source truth flows contract -> server truth -> client projection -> UI display -> telemetry -> validator -> docs, and route-group moves are plan-only unless explicitly approved.
+
+Scope completed:
+- Added `docs/agent-truth/code-organization-doctrine.md` and `docs/doctrine/kandydrops-code-organization.md` with source hierarchy, feature folder targets, truth-layer rules, file-size budgets, naming rules, route-group migration guidance, agent-context efficiency rules, and legacy phase-out rules.
+- Added `src/lib/code-organization/code-organization-contract.ts` with report shapes, score buckets, feature targets, file-size budgets, naming allowlist, truth-layer order, and command budget.
+- Added `scripts/agent/score-code-organization.ts` and `scripts/agent/validate-code-organization.ts`, plus package scripts `score:code-organization` and `check:code-organization`.
+- Generated `agent/state/code-organization-score.generated.json` and `agent/context/code-organization.index.json`, including current top refactor targets, feature-folder migration plan, compact load plan, and capped organization findings.
+
+Verification:
+- `npm run score:code-organization` passed and generated the report/index. The generated report status is `fail` by design because it found existing critical organization debt, led by oversized components/routes and mixed-responsibility handlers.
+- `npm run check:code-organization` passed.
+- `npm run typecheck` passed.
+- Broad audits, Playwright, Lighthouse, Cypress, and full `npm run check` were not run.
+
 ## [2026-05-05 #159] PRE: Compact Agent Context
 
 Scope started:

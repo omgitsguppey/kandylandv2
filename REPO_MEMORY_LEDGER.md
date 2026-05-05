@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-05 Code organization doctrine
+
+KandyDrops now has a deterministic code organization doctrine and score lane. `src/lib/code-organization/code-organization-contract.ts` owns hierarchy rules, feature-folder targets, truth-layer order, file-size budgets, naming rules, score buckets, and command budgets. `npm run score:code-organization` writes `agent/state/code-organization-score.generated.json` plus compact `agent/context/code-organization.index.json`, identifying largest source/docs/generated state files, vague helper names, misplaced feature logic, mixed-responsibility routes, duplicate formulas, split candidates, missing feature ownership, legacy gaps, compact-card gaps, and suggested `src/features/*` migrations. `npm run check:code-organization` validates the doctrine/docs/report/index/package wiring. The lane is source-only and does not move routes or run browser/full-suite checks.
+
 ## 2026-05-05 Compact agent context
 
 KandyDrops now has a compact agent-readable doctrine/context layer under `agent/context/`. `npm run build:agent-context` writes `doctrine.index.json`, streamable `doctrine.cards.jsonl`, streamable `surface-contracts.jsonl`, `validator-map.json`, `legacy-registry.json`, `file-size-budget.json`, and `task-pack.generated.json`. Agents should load `doctrine.index.json` first, stream only relevant JSONL card/contract records, read the task pack for changed-file-specific cards/validators/legacy warnings, and open long Markdown only when compact cards leave uncertainty. `npm run check:agent-context` preserves the existing repo intelligence self-check and validates the compact context lane.

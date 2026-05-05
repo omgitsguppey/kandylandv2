@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-05 Code Organization Doctrine Coverage
+
+- [x] `src/lib/code-organization/code-organization-contract.ts` owns the code organization report contract, hierarchy doctrine, feature migration targets, truth-layer order, file-size budgets, naming rules, severity scoring, and command budget.
+- [x] `scripts/agent/score-code-organization.ts`, `scripts/agent/validate-code-organization.ts`, `agent/state/code-organization-score.generated.json`, `agent/context/code-organization.index.json`, and package scripts `score:code-organization` / `check:code-organization` provide the deterministic source-only organization score/check lane.
+- [x] `docs/agent-truth/code-organization-doctrine.md` and `docs/doctrine/kandydrops-code-organization.md` document the route-entrypoint hierarchy, `src/features/*` migration plan, truth-layer separation, file-size/naming budgets, route-group guidance, agent-context compact loading, and legacy phase-out requirements.
+
 ## 2026-05-05 Compact Agent Context Coverage
 
 - [x] `scripts/agent/build-compact-agent-context.ts` owns compact doctrine card definitions, surface contracts, package-validator surface mapping, file-size budget reporting, legacy registry mirroring, and changed-file task-pack generation.

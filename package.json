@@ -50,6 +50,8 @@
         "score:hardening": "tsx scripts/agent/score-codebase-hardening.ts",
         "check:hardening": "tsx scripts/agent/validate-codebase-hardening.ts",
         "repair:hardening": "tsx scripts/agent/repair-codebase-hardening-safe.ts",
+        "score:code-organization": "tsx scripts/agent/score-code-organization.ts",
+        "check:code-organization": "tsx scripts/agent/validate-code-organization.ts",
         "score:speed-security": "tsx scripts/agent/score-speed-security-hardening.ts",
         "check:speed-security": "tsx scripts/agent/validate-speed-security-hardening.ts",
         "repair:speed-security": "tsx scripts/agent/repair-speed-security-hardening-safe.ts",
