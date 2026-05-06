@@ -400,9 +400,39 @@ type TaskTelemetryMappingSummary = {
     lifecycleExpectedCount: number;
     supportingTelemetryCount: number;
     sharedEventGroups: SharedTaskEventGroup[];
+    receiptMappingGroups: TaskReceiptMappingGroup[];
     unsupportedRuntimeGroups: RuntimeUnsupportedGroup[];
     alignmentWarnings: TaskTelemetryAlignmentWarning[];
     mappingRows: TaskTelemetryMappingRow[];
+};
+
+type TaskReceiptMappingGroup = {
+    eventName: string;
+    normalizedAction: string;
+    kind: "receipt";
+    count: number;
+    mappedTaskIds: string[];
+    mappedTaskTitles: string[];
+    receiptLane:
+    | "daily_checkin_reward"
+    | "task_reward"
+    | "feedback_reward"
+    | "purchase_receipt"
+    | "unlock_receipt"
+    | "not_task_receipt"
+    | "unknown";
+    mappingState:
+    | "mapped"
+    | "alias_mapped"
+    | "lane_classified"
+    | "unmapped_needs_task"
+    | "not_task_receipt"
+    | "unknown";
+    severity: "info" | "review" | "error";
+    explanation: string;
+    sampleReceiptIds: string[];
+    firstSeenAtUtc: string | null;
+    lastSeenAtUtc: string | null;
 };
 
 type TaskTelemetryEventPurpose =
@@ -1445,6 +1475,72 @@ function resolveTaskTelemetryTrackingSource(entries: Array<{ trackingSource?: st
     const only = values[0];
     if (only === "canonical" || only === "telemetry" || only === "legacy") return only;
     return "mixed";
+}
+
+function classifyTaskReceiptLane(
+    normalizedAction: string,
+    mappedDefinitions: DailyTaskDefinition[],
+    rawEventName: string,
+): Pick<TaskReceiptMappingGroup, "receiptLane" | "mappingState" | "severity" | "explanation"> {
+    if (normalizedAction === "daily_checkin_claimed") {
+        const aliasMapped = rawEventName !== normalizedAction;
+        return {
+            receiptLane: "daily_checkin_reward",
+            mappingState: aliasMapped ? "alias_mapped" : "lane_classified",
+            severity: "info",
+            explanation: aliasMapped
+                ? "Alias mapped to daily_checkin_claimed and classified as the daily check-in reward lane tied to Claim today’s reward."
+                : "Classified as the daily check-in reward lane tied to Claim today’s reward.",
+        };
+    }
+    if (normalizedAction === "feedback_submitted") {
+        return {
+            receiptLane: "feedback_reward",
+            mappingState: "lane_classified",
+            severity: "review",
+            explanation: mappedDefinitions.length > 0
+                ? "Feedback receipt lane is shared across feedback tasks and requires feedback type or rating criteria before task-specific reward attribution is trusted."
+                : "Feedback receipt lane is tracked, but it is not currently mapped to a task-specific reward path.",
+        };
+    }
+    if (normalizedAction === "gumdrops_purchase_completed") {
+        return {
+            receiptLane: "purchase_receipt",
+            mappingState: "not_task_receipt",
+            severity: "info",
+            explanation: "Purchase receipt lane. These receipts prove package purchase, not task reward credit.",
+        };
+    }
+    if (normalizedAction === "unlock_drop_success") {
+        return {
+            receiptLane: "unlock_receipt",
+            mappingState: "lane_classified",
+            severity: "review",
+            explanation: "Unlock receipt lane is shared across unwrap tasks and cannot prove task-specific reward credit without taskId linkage.",
+        };
+    }
+    if (mappedDefinitions.length === 1) {
+        return {
+            receiptLane: "task_reward",
+            mappingState: "mapped",
+            severity: "info",
+            explanation: "Receipt event maps to a single task reward lane.",
+        };
+    }
+    if (mappedDefinitions.length > 1) {
+        return {
+            receiptLane: "task_reward",
+            mappingState: "lane_classified",
+            severity: "review",
+            explanation: "Receipt event maps to multiple task lanes and needs criteria before task-specific reward attribution is safe.",
+        };
+    }
+    return {
+        receiptLane: "unknown",
+        mappingState: "unknown",
+        severity: "review",
+        explanation: "Receipt event has no task mapping or known receipt lane classification yet.",
+    };
 }
 
 function readGeneratedAnalyticsStateFile(fileName: string): Record<string, unknown> | null {
@@ -3335,6 +3431,44 @@ export async function GET(request: NextRequest) {
             return stateRank[left.mappingState] - stateRank[right.mappingState]
                 || left.displayLabel.localeCompare(right.displayLabel);
         });
+        const receiptMappingGroupsMap = rawRecentReceipts.reduce((map, receipt) => {
+            const { canonicalEventName } = getTelemetryEventOption(receipt.eventName);
+            const mappedDefinitions = allTaskDefinitions.filter((definition) => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === canonicalEventName);
+            const lane = classifyTaskReceiptLane(canonicalEventName, mappedDefinitions, receipt.eventName);
+            const groupKey = [receipt.eventName, canonicalEventName, lane.receiptLane, lane.mappingState].join(":");
+            const current = map.get(groupKey) || {
+                eventName: receipt.eventName,
+                normalizedAction: canonicalEventName,
+                kind: "receipt" as const,
+                count: 0,
+                mappedTaskIds: mappedDefinitions.map((definition) => definition.id),
+                mappedTaskTitles: mappedDefinitions.map((definition) => definition.title),
+                receiptLane: lane.receiptLane,
+                mappingState: lane.mappingState,
+                severity: lane.severity,
+                explanation: lane.explanation,
+                sampleReceiptIds: [] as string[],
+                firstSeenAtUtc: null as string | null,
+                lastSeenAtUtc: null as string | null,
+            };
+            current.count += 1;
+            if (current.sampleReceiptIds.length < 3) {
+                current.sampleReceiptIds.push(receipt.id);
+            }
+            const receiptUtc = receipt.timestamp > 0 ? new Date(receipt.timestamp).toISOString() : null;
+            if (receiptUtc) {
+                current.firstSeenAtUtc = !current.firstSeenAtUtc || receiptUtc < current.firstSeenAtUtc ? receiptUtc : current.firstSeenAtUtc;
+                current.lastSeenAtUtc = !current.lastSeenAtUtc || receiptUtc > current.lastSeenAtUtc ? receiptUtc : current.lastSeenAtUtc;
+            }
+            map.set(groupKey, current);
+            return map;
+        }, new Map<string, TaskReceiptMappingGroup>());
+        const receiptMappingGroups = Array.from(receiptMappingGroupsMap.values()).sort((left, right) => {
+            const severityRank = { error: 0, review: 1, info: 2 };
+            return severityRank[left.severity] - severityRank[right.severity]
+                || right.count - left.count
+                || left.eventName.localeCompare(right.eventName);
+        });
         const runtimeTaskDriftSummary: RuntimeTaskDriftSummary = {
             generatedAtUtc: new Date(nowMs).toISOString(),
             sampledUsers: runtimeTaskAudit.summary.sampledUsers,
@@ -3370,6 +3504,7 @@ export async function GET(request: NextRequest) {
             lifecycleExpectedCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_lifecycle").length,
             supportingTelemetryCount: taskTelemetryMappingRows.filter((row) => row.mappingState === "supporting_not_task").length,
             sharedEventGroups,
+            receiptMappingGroups,
             unsupportedRuntimeGroups,
             alignmentWarnings: dedupedAlignmentWarnings,
             mappingRows: taskTelemetryMappingRows,

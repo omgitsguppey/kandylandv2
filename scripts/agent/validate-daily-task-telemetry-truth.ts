@@ -133,6 +133,13 @@ requireIncludes(adminDebugRoute, "TaskTelemetryMappingRow", "Admin debug telemet
 requireIncludes(adminDebugRoute, "TaskTelemetryEventPurpose", "Admin debug telemetry event purpose model");
 requireIncludes(adminDebugRoute, "taskTelemetryMappingSummary", "Admin debug task telemetry mapping payload");
 requireIncludes(adminDebugRoute, "mappingRows", "Admin debug task telemetry mapping rows payload");
+requireIncludes(adminDebugRoute, "TaskReceiptMappingGroup", "Admin debug receipt mapping group model");
+requireIncludes(adminDebugRoute, "receiptMappingGroups", "Admin debug receipt mapping groups payload");
+requireIncludes(adminDebugRoute, "\"daily_checkin_reward\"", "Admin debug daily check-in receipt lane");
+requireIncludes(adminDebugRoute, "\"alias_mapped\"", "Admin debug alias-mapped receipt state");
+requireIncludes(adminDebugRoute, "daily_checkin_claimed and classified as the daily check-in reward lane", "Admin debug daily check-in receipt explanation");
+requireIncludes(adminDebugRoute, "\"feedback_reward\"", "Admin debug feedback receipt lane");
+requireIncludes(adminDebugRoute, "Feedback receipt lane is shared across feedback tasks", "Admin debug feedback receipt explanation");
 requireIncludes(adminDebugRoute, "sharedByCount", "Admin debug shared event diagnostic count");
 requireIncludes(adminDebugRoute, "receiptMeaning", "Admin debug shared event receipt meaning");
 requireIncludes(adminDebugRoute, "sharedTasks", "Admin debug shared task diagnostic rows");
@@ -164,6 +171,10 @@ requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_completed"
 requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_guidance_completed"', "Event fact normalizer day-key dedupe guidance completion");
 
 requireIncludes(debugAdvancedTelemetry, "label=\"Task trigger events\"", "Telemetry mapping panel trigger summary");
+requireIncludes(debugAdvancedTelemetry, "Kind: receipt", "Telemetry mapping panel grouped receipt kind");
+requireIncludes(debugAdvancedTelemetry, "label=\"Lane\"", "Telemetry mapping panel receipt lane");
+requireIncludes(debugAdvancedTelemetry, "Sample receipts:", "Telemetry mapping panel receipt sample ids");
+requireIncludes(debugAdvancedTelemetry, "No grouped receipt mapping issues were detected in the sampled data.", "Telemetry mapping panel grouped receipt empty state");
 requireIncludes(debugAdvancedTelemetry, "label=\"Lifecycle events\"", "Telemetry mapping panel lifecycle summary");
 requireIncludes(debugAdvancedTelemetry, "label=\"Supporting telemetry\"", "Telemetry mapping panel supporting summary");
 requireIncludes(debugAdvancedTelemetry, "label=\"Shared by\"", "Telemetry mapping panel shared-by count");

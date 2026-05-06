@@ -77,6 +77,7 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
     const mappingSummary = data?.taskTelemetryMappingSummary;
     const mappingRows = mappingSummary?.mappingRows || [];
     const sharedEventGroups = mappingSummary?.sharedEventGroups || [];
+    const receiptMappingGroups = mappingSummary?.receiptMappingGroups || [];
     const unsupportedRuntimeGroups = mappingSummary?.unsupportedRuntimeGroups || [];
     const alignmentWarnings = mappingSummary?.alignmentWarnings || [];
 
@@ -182,6 +183,35 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                     </ScrollWrap>
 
                     <div className="space-y-4">
+                        <ScrollWrap>
+                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                                {receiptMappingGroups.length ? receiptMappingGroups.map((entry: any) => (
+                                    <div key={`${entry.eventName}-${entry.normalizedAction}-${entry.mappingState}`} className="space-y-2 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">{entry.normalizedAction === entry.eventName ? entry.eventName : `${entry.eventName} -> ${entry.normalizedAction}`}</p>
+                                                <p className="text-xs text-gray-400">Kind: receipt</p>
+                                            </div>
+                                            <Pill label="Mapping" value={entry.mappingState} tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={entry.severity === "error" ? "ERROR" : entry.severity === "review" ? "REVIEW" : "INFO"} />
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Count" value={entry.count} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Lane" value={entry.receiptLane} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="First seen" value={entry.firstSeenAtUtc || "unknown"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Last seen" value={entry.lastSeenAtUtc || "unknown"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                        </div>
+                                        {entry.mappedTaskTitles?.length ? (
+                                            <p className="text-xs text-gray-400">{entry.mappedTaskTitles.join(", ")}</p>
+                                        ) : null}
+                                        <p className="text-sm text-amber-100">{entry.explanation}</p>
+                                        <p className="text-xs text-gray-400">Sample receipts: {(entry.sampleReceiptIds || []).join(", ") || "none"}</p>
+                                    </div>
+                                )) : (
+                                    <div className="px-4 py-4 text-sm text-emerald-100">No grouped receipt mapping issues were detected in the sampled data.</div>
+                                )}
+                            </div>
+                        </ScrollWrap>
+
                         <ScrollWrap>
                             <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
                                 {unsafeSharedEventGroups.length ? unsafeSharedEventGroups.map((entry: any) => (

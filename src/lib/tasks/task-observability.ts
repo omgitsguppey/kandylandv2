@@ -972,7 +972,8 @@ export function buildDailyTaskRuntimeAudit({
   });
 
   receipts.forEach((receipt) => {
-    const mappedTaskIds = eventNameToTaskIds.get(receipt.eventName) ?? [];
+    const { canonicalEventName } = getTelemetryEventOption(receipt.eventName);
+    const mappedTaskIds = eventNameToTaskIds.get(canonicalEventName) ?? [];
     if (mappedTaskIds.length === 1) {
       const entry = distributionMap.get(mappedTaskIds[0]);
       if (entry) {
@@ -987,7 +988,7 @@ export function buildDailyTaskRuntimeAudit({
         kind: "receipt",
         taskId: "",
         title: "",
-        eventName: receipt.eventName,
+        eventName: canonicalEventName,
         userId: receipt.uid,
         detail: "task receipt event is not mapped to any known task definition",
         timestamp: normalizePositiveNumber(receipt.timestamp),
