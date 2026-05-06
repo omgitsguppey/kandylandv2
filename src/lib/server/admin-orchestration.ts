@@ -53,6 +53,28 @@ type HealthPenalty = {
     appliedPenalty: number;
 };
 
+type ActorRiskReasonCode =
+    | "admin_behavior_exclusion_missing"
+    | "system_event_in_user_behavior"
+    | "creator_event_counted_as_user"
+    | "missing_required_session"
+    | "missing_required_route"
+    | "actor_target_conflict"
+    | "notification_target_missing"
+    | "purchase_unlock_source_mismatch"
+    | "synthetic_creator_metadata_incomplete"
+    | "unknown";
+
+type ActorRiskReason = {
+    reasonCode: ActorRiskReasonCode;
+    severity: "info" | "warn" | "error";
+    count: number;
+    domain: string;
+    appliesToBleedRisk: boolean;
+    explanation: string;
+    sampleEventId?: string;
+};
+
 function mapSourceCollectionToBehaviorDomain(sourceCollection: string, eventDomain: string): BehaviorCoverageDomain {
     if (eventDomain === "tasks" || sourceCollection === "daily_task_events") return "tasks";
     if (eventDomain === "commerce" || sourceCollection === "transactions") return "commerce";
@@ -119,6 +141,148 @@ function buildPenalty(reasonCode: string, count: number, weight: number, cap?: n
         weight,
         appliedPenalty: cap === undefined ? rawPenalty : Math.min(rawPenalty, cap),
     };
+}
+
+function actorKeyForMatch(input: {
+    actorKey?: string;
+    actorId?: string;
+    actorLabel?: string;
+    actorType?: string;
+}) {
+    return input.actorKey
+        || input.actorId
+        || input.actorLabel
+        || input.actorType
+        || "unknown";
+}
+
+function actorRiskReasonMeta(reasonCode: ActorRiskReasonCode) {
+    switch (reasonCode) {
+        case "admin_behavior_exclusion_missing":
+            return {
+                explanation: "Admin-originated events are entering user behavior ownership without an explicit exclusion path.",
+                appliesToBleedRisk: true,
+            };
+        case "system_event_in_user_behavior":
+            return {
+                explanation: "Background or system events are being attributed to a user behavior lane and can contaminate scoring.",
+                appliesToBleedRisk: true,
+            };
+        case "creator_event_counted_as_user":
+            return {
+                explanation: "Creator-lane activity is being counted as end-user behavior without a clean ownership split.",
+                appliesToBleedRisk: true,
+            };
+        case "missing_required_session":
+            return {
+                explanation: "A foreground behavior event is missing required session ownership for scoring or replay attribution.",
+                appliesToBleedRisk: false,
+            };
+        case "missing_required_route":
+            return {
+                explanation: "A foreground behavior event is missing required route or surface attribution.",
+                appliesToBleedRisk: false,
+            };
+        case "actor_target_conflict":
+            return {
+                explanation: "Actor and target ownership disagree, so the event can bleed between user, creator, or system lanes.",
+                appliesToBleedRisk: true,
+            };
+        case "notification_target_missing":
+            return {
+                explanation: "Notification ownership is missing a canonical target user, so inbox delivery cannot be tied back safely.",
+                appliesToBleedRisk: true,
+            };
+        case "purchase_unlock_source_mismatch":
+            return {
+                explanation: "Commerce or unlock telemetry disagrees with its source-of-truth lane and can contaminate value analytics.",
+                appliesToBleedRisk: true,
+            };
+        case "synthetic_creator_metadata_incomplete":
+            return {
+                explanation: "Synthetic creator metadata is incomplete, so the actor lane cannot be separated cleanly from user behavior.",
+                appliesToBleedRisk: true,
+            };
+        default:
+            return {
+                explanation: "Risk count exists but no source reason was attached; inspect normalization evidence.",
+                appliesToBleedRisk: false,
+            };
+    }
+}
+
+function detectActorRiskReasonCode(input: {
+    actorType: string;
+    findingKey?: string;
+    detail?: string;
+    title?: string;
+    domain?: string;
+    eventContext?: BehaviorEventContext;
+    contaminationRisk?: boolean;
+}): ActorRiskReasonCode {
+    const text = [
+        input.findingKey ?? "",
+        input.detail ?? "",
+        input.title ?? "",
+        input.domain ?? "",
+    ].join(" ").toLowerCase();
+
+    if (text.includes("notification") && text.includes("target")) return "notification_target_missing";
+    if (text.includes("actor_target_conflict") || (text.includes("actor") && text.includes("target") && text.includes("conflict"))) return "actor_target_conflict";
+    if (text.includes("purchase_unlock_source_mismatch") || (text.includes("purchase") && text.includes("unlock") && text.includes("mismatch"))) return "purchase_unlock_source_mismatch";
+    if (text.includes("synthetic") && text.includes("creator")) return "synthetic_creator_metadata_incomplete";
+    if (text.includes("missing_session") || text.includes("missing session")) return "missing_required_session";
+    if (text.includes("missing_route") || text.includes("missing route")) return "missing_required_route";
+    if (text.includes("admin") && text.includes("behavior")) return "admin_behavior_exclusion_missing";
+    if (text.includes("creator") && text.includes("user")) return "creator_event_counted_as_user";
+
+    if (input.contaminationRisk) {
+        if (input.actorType === "admin") return "admin_behavior_exclusion_missing";
+        if (input.actorType === "creator") return "creator_event_counted_as_user";
+        if (input.eventContext && input.eventContext !== "foreground_user") return "system_event_in_user_behavior";
+    }
+
+    return "unknown";
+}
+
+function addActorRiskReason(
+    map: Map<string, ActorRiskReason>,
+    input: {
+        reasonCode: ActorRiskReasonCode;
+        severity: "info" | "warn" | "error";
+        domain: string;
+        sampleEventId?: string;
+        count?: number;
+    },
+) {
+    const meta = actorRiskReasonMeta(input.reasonCode);
+    const key = `${input.reasonCode}|${input.domain}|${input.sampleEventId ?? "no-sample"}`;
+    const existing = map.get(key);
+    if (existing) {
+        existing.count += input.count ?? 1;
+        if (existing.severity !== "error" && input.severity === "error") {
+            existing.severity = "error";
+        } else if (existing.severity === "info" && input.severity === "warn") {
+            existing.severity = "warn";
+        }
+        if (!existing.sampleEventId && input.sampleEventId) {
+            existing.sampleEventId = input.sampleEventId;
+        }
+        if (meta.appliesToBleedRisk) {
+            existing.appliesToBleedRisk = true;
+        }
+        return;
+    }
+
+    map.set(key, {
+        reasonCode: input.reasonCode,
+        severity: input.severity,
+        count: input.count ?? 1,
+        domain: input.domain,
+        appliesToBleedRisk: meta.appliesToBleedRisk,
+        explanation: meta.explanation,
+        sampleEventId: input.sampleEventId,
+    });
 }
 
 export function buildAdminOrchestrationSnapshot(input: {
@@ -260,6 +424,7 @@ export function buildAdminOrchestrationSnapshot(input: {
         const data = doc.data() as Record<string, unknown>;
         return {
             id: doc.id,
+            actorKey: toStringValue(data.actorKey),
             actorType: toStringValue(data.actorType),
             actorLabel: toStringValue(data.actorLabel),
             actorId: toStringValue(data.actorId),
@@ -328,7 +493,24 @@ export function buildAdminOrchestrationSnapshot(input: {
     const duplicateFindingCount = uniqueFindingGroups.reduce((total, group) => total + Math.max(0, group.count - 1), 0) + duplicateProposalCount;
     const criticalFindings = uniqueFindingGroups.filter((entry) => entry.severity === "error");
     const reviewFindings = uniqueFindingGroups.filter((entry) => entry.severity === "warn");
-    const contaminationRisks = events.filter((entry) => entry.actor.contaminationRisk).length;
+    const eventIdsByActorKey = new Map<string, Set<string>>();
+    const eventsByActorKey = new Map<string, typeof events>();
+    events.forEach((entry) => {
+        const actorKey = actorKeyForMatch({
+            actorKey: entry.actor.actorKey,
+            actorId: entry.actor.actorId,
+            actorLabel: entry.actor.actorLabel,
+            actorType: entry.actor.actorType,
+        });
+        const actorEvents = eventsByActorKey.get(actorKey) ?? [];
+        actorEvents.push(entry);
+        eventsByActorKey.set(actorKey, actorEvents);
+        const eventIds = eventIdsByActorKey.get(actorKey) ?? new Set<string>();
+        eventIds.add(entry.id);
+        eventIdsByActorKey.set(actorKey, eventIds);
+    });
+    const contaminationRisksFromEvents = events.filter((entry) => entry.actor.contaminationRisk).length;
+    const contaminationRisksFromRows = actorSummaries.reduce((total, actor) => total + actor.contaminationCount, 0);
     const lowConfidenceEvents = events.filter((entry) => entry.readiness.lowConfidence || entry.readiness.incomplete).length;
     const lowConfidenceRequiredEvents = events.filter((entry) => entry.lowConfidenceRequired).length;
     const trainingEligible = events.filter((entry) => entry.evalEligibleByContext).length;
@@ -421,6 +603,80 @@ export function buildAdminOrchestrationSnapshot(input: {
         };
     });
 
+    const actorSummariesWithReasons = actorSummaries.map((actor) => {
+        const actorKey = actorKeyForMatch(actor);
+        const actorEvents = eventsByActorKey.get(actorKey) ?? [];
+        const actorEventIds = eventIdsByActorKey.get(actorKey) ?? new Set<string>();
+        const actorFindings = openFindings.filter((finding) => {
+            const findingActorKey = actorKeyForMatch({
+                actorKey: finding.actorKey,
+            });
+            return findingActorKey === actorKey || (finding.eventRecordId ? actorEventIds.has(finding.eventRecordId) : false);
+        });
+        const reasonMap = new Map<string, ActorRiskReason>();
+
+        actorEvents.forEach((event) => {
+            if (!event.actor.contaminationRisk && !event.lowConfidenceRequired) {
+                return;
+            }
+            const reasonCode = detectActorRiskReasonCode({
+                actorType: event.actor.actorType,
+                domain: event.behaviorDomain,
+                eventContext: event.eventContext,
+                contaminationRisk: event.actor.contaminationRisk,
+            });
+            addActorRiskReason(reasonMap, {
+                reasonCode,
+                severity: event.actor.contaminationRisk ? "error" : "warn",
+                domain: event.behaviorDomain,
+                sampleEventId: event.id,
+            });
+        });
+
+        actorFindings.forEach((finding) => {
+            const matchingEvent = finding.eventRecordId
+                ? actorEvents.find((event) => event.id === finding.eventRecordId)
+                : undefined;
+            const reasonCode = detectActorRiskReasonCode({
+                actorType: actor.actorType,
+                findingKey: finding.findingKey,
+                detail: finding.detail,
+                title: finding.title,
+                domain: finding.domain,
+                eventContext: matchingEvent?.eventContext,
+                contaminationRisk: matchingEvent?.actor.contaminationRisk,
+            });
+            addActorRiskReason(reasonMap, {
+                reasonCode,
+                severity: finding.severity === "error" ? "error" : finding.severity === "warn" ? "warn" : "info",
+                domain: matchingEvent?.behaviorDomain ?? mapSourceCollectionToBehaviorDomain("", finding.domain),
+                sampleEventId: finding.eventRecordId || matchingEvent?.id,
+            });
+        });
+
+        if ((actor.criticalCount > 0 || actor.contaminationCount > 0) && reasonMap.size === 0) {
+            addActorRiskReason(reasonMap, {
+                reasonCode: "unknown",
+                severity: actor.criticalCount > 0 ? "error" : "warn",
+                domain: actor.topDomains[0] ?? "telemetry",
+                count: Math.max(actor.criticalCount, actor.contaminationCount, 1),
+            });
+        }
+
+        const riskReasons = Array.from(reasonMap.values()).sort((left, right) => {
+            const severityDelta = (right.severity === "error" ? 2 : right.severity === "warn" ? 1 : 0)
+                - (left.severity === "error" ? 2 : left.severity === "warn" ? 1 : 0);
+            return severityDelta || right.count - left.count;
+        }).slice(0, 4);
+        const riskDomains = uniqueStrings(riskReasons.map((reason) => reason.domain));
+
+        return {
+            ...actor,
+            riskReasons,
+            riskDomains,
+        };
+    });
+
     const penalties = [
         buildPenalty("required_missing_actor", dependencyReadiness.actorMissing.requiredMissing, 12),
         buildPenalty("required_missing_session", dependencyReadiness.sessionMissing.requiredMissing, 6),
@@ -457,7 +713,7 @@ export function buildAdminOrchestrationSnapshot(input: {
             duplicateProposalsCollapsed: duplicateProposalCount,
             groupedProposalCards: debugRepairProposalGroups.length,
             groupedSourceRecordsCollapsed: groupedSourceRecordCount,
-            contaminationRisks,
+            contaminationRisks: Math.max(contaminationRisksFromEvents, contaminationRisksFromRows),
             trainingEligible,
             recommendationReady,
             lowConfidenceEvents,
@@ -481,7 +737,7 @@ export function buildAdminOrchestrationSnapshot(input: {
         findings: findings.slice(0, 40),
         proposals: debugRepairProposals.slice(0, 40),
         proposalGroups: debugRepairProposalGroups.slice(0, 40),
-        actorSummaries: actorSummaries.slice(0, 30),
+        actorSummaries: actorSummariesWithReasons.slice(0, 30),
         repairActions: repairActions.slice(0, 30),
     };
 }

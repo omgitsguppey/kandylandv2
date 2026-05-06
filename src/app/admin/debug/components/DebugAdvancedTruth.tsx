@@ -25,6 +25,18 @@ function toneForDomainState(state?: string) {
     return "neutral" as const;
 }
 
+function shortId(value?: string) {
+    if (!value) return "anonymous";
+    if (value.length <= 12) return value;
+    return `${value.slice(0, 6)}...${value.slice(-4)}`;
+}
+
+function toneForActorRiskSeverity(severity?: string) {
+    if (severity === "error") return "bad" as const;
+    if (severity === "warn") return "warn" as const;
+    return "neutral" as const;
+}
+
 const DUPLICATE_INSPECT_EXPLANATION = "Most findings are duplicate inspect-only source-context items.";
 
 /* ─── Component ─── */
@@ -147,25 +159,61 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                 title="Actor ownership and bleed risk"
                 subtitle="Per-actor summaries from the normalization layer."
                 defaultOpen={false}
-                summary={<><Pill label="Actors" value={(data?.orchestration?.actorSummaries || []).length} /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} /></>}
+                summary={<><Pill label="Actors" value={(data?.orchestration?.actorSummaries || []).length} truthState="live" badgeLabel="LOADED" /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} truthState="live" badgeLabel="LOADED" /></>}
             >
                 <ScrollWrap>
                     <div className="divide-y divide-white/10">
                         {(data?.orchestration?.actorSummaries || []).map((actor: any) => (
-                            <div key={actor.id} className="space-y-2 px-4 py-3">
+                            <div
+                                key={actor.id}
+                                className="space-y-2 px-4 py-3"
+                                data-actor-event-count-state={typeof actor.eventCount === "number" ? "loaded" : "loading"}
+                                data-actor-event-count={actor.eventCount ?? 0}
+                                data-actor-bleed-risk-count={actor.contaminationCount ?? 0}
+                                data-actor-critical-count={actor.criticalCount ?? 0}
+                                data-actor-domains={(actor.topDomains || []).join(",")}
+                            >
                                 <div className="flex flex-wrap items-start justify-between gap-2">
                                     <div>
                                         <p className="font-semibold text-white">{actor.actorLabel || actor.actorId || actor.actorType}</p>
-                                        <p className="text-xs text-gray-400">{actor.actorType} | {actor.actorId || "anonymous"}</p>
+                                        <p className="text-xs text-gray-400">{actor.actorType} | {shortId(actor.actorId || actor.actorKey || "")}</p>
                                     </div>
-                                    <Pill label="Events" value={actor.eventCount} />
+                                    <Pill label="Events" value={actor.eventCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                    <Pill label="Warnings" value={actor.warningCount} tone={actor.warningCount ? "warn" : "good"} />
-                                    <Pill label="Critical" value={actor.criticalCount} tone={actor.criticalCount ? "bad" : "good"} />
-                                    <Pill label="Bleed risk" value={actor.contaminationCount} tone={actor.contaminationCount ? "bad" : "good"} />
+                                    <Pill label="Warnings" value={actor.warningCount} tone={actor.warningCount ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Critical" value={actor.criticalCount} tone={actor.criticalCount ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Bleed risk" value={actor.contaminationCount} tone={actor.contaminationCount ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
                                 </div>
                                 {actor.topDomains?.length ? <p className="text-xs text-gray-400">Domains: {actor.topDomains.join(", ")}</p> : null}
+                                {actor.riskDomains?.length ? <p className="text-xs text-gray-400">Risk domains: {actor.riskDomains.join(", ")}</p> : null}
+                                {(actor.riskReasons || []).length ? (
+                                    <div className="space-y-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Risk reasons</p>
+                                        <div className="space-y-2">
+                                            {(actor.riskReasons || []).map((reason: any, index: number) => (
+                                                <div
+                                                    key={`${actor.id}-reason-${reason.reasonCode}-${index}`}
+                                                    className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2"
+                                                    data-actor-risk-reason-code={reason.reasonCode || "unknown"}
+                                                    data-actor-risk-reason-count={reason.count ?? 0}
+                                                    data-actor-risk-applies-to-bleed={reason.appliesToBleedRisk ? "true" : "false"}
+                                                >
+                                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                                        <div className="flex flex-wrap gap-2">
+                                                            <Pill label="Reason" value={reason.reasonCode || "unknown"} tone={toneForActorRiskSeverity(reason.severity)} truthState="live" badgeLabel={reason.severity === "error" ? "ERROR" : reason.severity === "warn" ? "REVIEW" : "INFO"} />
+                                                            <Pill label="Count" value={reason.count ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                                            <Pill label="Domain" value={reason.domain || "telemetry"} tone="neutral" truthState="live" badgeLabel="INFO" />
+                                                            {reason.appliesToBleedRisk ? <Pill label="Bleed" value="yes" tone="bad" truthState="live" badgeLabel="RISK" /> : null}
+                                                        </div>
+                                                        {reason.sampleEventId ? <span className="text-[11px] text-gray-400">Sample {shortId(reason.sampleEventId)}</span> : null}
+                                                    </div>
+                                                    <p className="mt-2 text-xs text-gray-300">{reason.explanation || "Risk count exists but no source reason was attached; inspect normalization evidence."}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : null}
                             </div>
                         ))}
                     </div>

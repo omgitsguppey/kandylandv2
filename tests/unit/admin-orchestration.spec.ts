@@ -149,11 +149,13 @@ describe("buildAdminOrchestrationSnapshot repair proposals", () => {
         });
         expect(snapshot.proposalGroups[0]?.visibleRecords).toHaveLength(5);
         expect(snapshot.proposalGroups[0]?.missingContextFields).toEqual(expect.arrayContaining([
-            "userId",
+            "targetUserId or recipientUserId",
+            "actorUserId / actorType",
             "notificationType",
-            "sourceEventId",
-            "targetEntityId",
-            "route/sourceComponent",
+            "notificationId",
+            "sourceEntityId",
+            "route or surface (foreground only)",
+            "sourceComponent",
             "createdAt",
         ]));
     });
@@ -269,5 +271,101 @@ describe("buildAdminOrchestrationSnapshot repair proposals", () => {
             state: "review",
         });
         expect(notificationsDomain?.explanation).toContain("duplicate inspect-only");
+    });
+
+    it("adds actor bleed-risk reasons and keeps header contamination totals aligned with row counts", () => {
+        const snapshot = buildAdminOrchestrationSnapshot({
+            eventDocs: [
+                doc("event-admin-1", {
+                    sourceCollection: "analytics_event_facts",
+                    domain: "telemetry",
+                    normalizedEventName: "admin_user_opened",
+                    actor: {
+                        actorType: "admin",
+                        actorId: "admin-1",
+                        actorLabel: "Will Risk",
+                        actorKey: "admin-1",
+                        contaminationRisk: true,
+                    },
+                    session: { sourceSurface: "admin", routePath: "/admin/debug" },
+                    dependencyReadiness: { ready: ["actor"], missing: [] },
+                    readiness: { trainingEligible: false, recommendationReady: false, lowConfidence: false, incomplete: false },
+                }),
+            ],
+            findingDocs: [
+                doc("finding-admin-1", {
+                    findingKey: "missing_route_context",
+                    sourceDocumentPath: "analytics_event_facts/event-admin-1",
+                    domain: "telemetry",
+                    severity: "error",
+                    status: "open",
+                    actorKey: "admin-1",
+                    eventRecordId: "event-admin-1",
+                    title: "Missing route context",
+                    detail: "Foreground event is missing route context.",
+                }),
+            ],
+            proposalDocs: [],
+            actorSummaryDocs: [
+                doc("actor-admin-1", {
+                    actorKey: "admin-1",
+                    actorType: "admin",
+                    actorLabel: "Will Risk",
+                    actorId: "admin-1",
+                    eventCount: 2,
+                    warningCount: 0,
+                    criticalCount: 1,
+                    contaminationCount: 2,
+                    topDomains: ["telemetry"],
+                }),
+            ],
+            repairActionDocs: [],
+        });
+
+        expect(snapshot.summary.contaminationRisks).toBe(2);
+        expect(snapshot.actorSummaries).toHaveLength(1);
+        expect(snapshot.actorSummaries[0]).toMatchObject({
+            actorId: "admin-1",
+            contaminationCount: 2,
+            criticalCount: 1,
+            riskDomains: ["telemetry"],
+        });
+        expect(snapshot.actorSummaries[0]?.riskReasons).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                reasonCode: "admin_behavior_exclusion_missing",
+                appliesToBleedRisk: true,
+            }),
+            expect.objectContaining({
+                reasonCode: "missing_required_route",
+            }),
+        ]));
+    });
+
+    it("adds unknown actor risk reasons when counts exist without attached evidence", () => {
+        const snapshot = buildAdminOrchestrationSnapshot({
+            eventDocs: [],
+            findingDocs: [],
+            proposalDocs: [],
+            actorSummaryDocs: [
+                doc("actor-unknown-1", {
+                    actorType: "user",
+                    actorLabel: "Unknown Risk",
+                    actorId: "user-unknown",
+                    eventCount: 4,
+                    warningCount: 0,
+                    criticalCount: 1,
+                    contaminationCount: 1,
+                    topDomains: ["notifications"],
+                }),
+            ],
+            repairActionDocs: [],
+        });
+
+        expect(snapshot.actorSummaries[0]?.riskReasons).toEqual([
+            expect.objectContaining({
+                reasonCode: "unknown",
+                explanation: "Risk count exists but no source reason was attached; inspect normalization evidence.",
+            }),
+        ]);
     });
 });

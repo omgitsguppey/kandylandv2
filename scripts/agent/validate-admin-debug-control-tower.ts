@@ -248,6 +248,8 @@ for (const expected of [
 for (const expected of [
   "BehaviorEventContext",
   "BehaviorCoverageDomain",
+  "ActorRiskReason",
+  "ActorRiskReasonCode",
   "actorMissing: createGapCount()",
   "routeMissing: createGapCount()",
   "requiredMissing",
@@ -265,6 +267,12 @@ for (const expected of [
   "inspect_only_findings_capped",
   "evalEligibleExplanation",
   "Most findings are duplicate inspect-only source-context items.",
+  "riskReasons",
+  "riskDomains",
+  "notification_target_missing",
+  "system_event_in_user_behavior",
+  "creator_event_counted_as_user",
+  "Risk count exists but no source reason was attached; inspect normalization evidence.",
 ]) {
   requireIncludes(adminOrchestration, expected, "Admin orchestration snapshot must classify behavior gaps by context");
 }
@@ -441,6 +449,20 @@ for (const expected of [
   "Eval eligibility excludes background, system, and identity-linkage events.",
   "label=\"Events\" value={entry.eventCount} tone=\"neutral\" truthState=\"live\" badgeLabel=\"LOADED\"",
   "Most findings are duplicate inspect-only source-context items.",
+  "title=\"Actor ownership and bleed risk\"",
+  "data-actor-event-count-state",
+  "data-actor-event-count",
+  "data-actor-risk-reason-code",
+  "data-actor-risk-reason-count",
+  "data-actor-risk-applies-to-bleed",
+  "data-actor-bleed-risk-count",
+  "data-actor-critical-count",
+  "data-actor-domains",
+  "label=\"Events\" value={actor.eventCount} tone=\"neutral\" truthState=\"live\" badgeLabel=\"LOADED\"",
+  "Risk domains:",
+  "Risk reasons",
+  "Reason\" value={reason.reasonCode || \"unknown\"}",
+  "Risk count exists but no source reason was attached; inspect normalization evidence.",
 ]) {
   requireIncludes(debugAdvancedTruth, expected, "Behavior normalization internals panel must render loaded context-aware gap truth");
 }
