@@ -1127,6 +1127,70 @@ async function GET_handler(request: NextRequest) {
                 return total + toNumber(data.eventCount);
             }, 0);
             const legacyGuestLaneIdle = guestSessionsSnapshot.docs.length === 0;
+            const responseGeneratedAtMs = Date.now();
+            const guestBatchLastSeenAtMs = readLatestSnapshotTimestamp(guestBatchesSnapshot.docs, ["receivedAtMs", "createdAt", "updatedAt"]);
+            const consentedGuestBatchCount = guestBatchesSnapshot.docs.length;
+            const guestEstimateFormula = guestTraffic.truthLabel === "estimated"
+                ? "max(exact guest views, GA total views - identified first-party views)"
+                : null;
+            const guestEstimateSourceTruth = guestTraffic.truthLabel === "estimated"
+                ? "ga4"
+                : guestTraffic.qualityAvailable
+                    ? "event_estimate"
+                    : "unknown";
+            const guestQualityDiagnostics = (() => {
+                if (guestTraffic.qualityAvailable && consentedGuestBatchCount > 0) {
+                    return {
+                        estimatedSourceTruth: guestEstimateSourceTruth,
+                        estimatedFormula: guestEstimateFormula,
+                        estimatedFormulaState: guestEstimateFormula ? "available" : "missing",
+                        estimatedConfidencePct: null,
+                        estimatedLastUpdatedAtUtc: toUtcIsoOrNull(responseGeneratedAtMs),
+                        consentedGuestBatchCount,
+                        guestBatchCount: guestBatchesSnapshot.docs.length,
+                        lastGuestBatchAtUtc: toUtcIsoOrNull(guestBatchLastSeenAtMs),
+                        state: "available" as const,
+                        missingReason: "Consented guest quality batches are available for this range.",
+                        nextAction: "Review guest quality trend and batch freshness for the selected range.",
+                        seriesState: "available" as const,
+                        seriesExplanation: "Guest quality trend is available from consented guest batches in this range.",
+                    };
+                }
+
+                if (guestTraffic.estimatedGuestViews > 0) {
+                    return {
+                        estimatedSourceTruth: guestEstimateSourceTruth,
+                        estimatedFormula: guestEstimateFormula,
+                        estimatedFormulaState: guestEstimateFormula ? "available" : "missing",
+                        estimatedConfidencePct: null,
+                        estimatedLastUpdatedAtUtc: toUtcIsoOrNull(responseGeneratedAtMs),
+                        consentedGuestBatchCount,
+                        guestBatchCount: guestBatchesSnapshot.docs.length,
+                        lastGuestBatchAtUtc: toUtcIsoOrNull(guestBatchLastSeenAtMs),
+                        state: "no_sample" as const,
+                        missingReason: "Guest traffic is estimated for this range, but no consented guest quality batches were observed.",
+                        nextAction: "Wait for consented guest quality batches to arrive or inspect guest ingest health for this range.",
+                        seriesState: "unavailable" as const,
+                        seriesExplanation: "Guest quality trend unavailable until consented guest batches arrive.",
+                    };
+                }
+
+                return {
+                    estimatedSourceTruth: guestEstimateSourceTruth,
+                    estimatedFormula: guestEstimateFormula,
+                    estimatedFormulaState: guestEstimateFormula ? "available" : "missing",
+                    estimatedConfidencePct: null,
+                    estimatedLastUpdatedAtUtc: toUtcIsoOrNull(responseGeneratedAtMs),
+                    consentedGuestBatchCount,
+                    guestBatchCount: guestBatchesSnapshot.docs.length,
+                    lastGuestBatchAtUtc: toUtcIsoOrNull(guestBatchLastSeenAtMs),
+                    state: "unknown" as const,
+                    missingReason: "No guest quality sample was observed in this range.",
+                    nextAction: "Expand the time range or inspect guest ingest health if guest traffic was expected.",
+                    seriesState: "unavailable" as const,
+                    seriesExplanation: "Guest quality trend unavailable until consented guest batches arrive.",
+                };
+            })();
             if (
                 guestTraffic.truthLabel === "estimated"
                 && guestTraffic.estimatedGuestViews > 0
@@ -1253,7 +1317,7 @@ async function GET_handler(request: NextRequest) {
             } = buildHistoricalValidationSummary({
                 selectedRange: period,
                 lastValidatedAt: Date.now(),
-                generatedAtMs: Date.now(),
+                generatedAtMs: responseGeneratedAtMs,
                 propertyId,
                 gaEventCounts,
                 telemetryEventCounts,
@@ -1340,6 +1404,7 @@ async function GET_handler(request: NextRequest) {
                 data: chartData,
                 totals,
                 guestTraffic,
+                guestQualityDiagnostics,
                 events: eventsData,
                 eventBreakdown,
                 devices,

@@ -117,6 +117,8 @@ const adminModerationContracts = readRequired("src/lib/admin-moderation.ts");
 const adminModerationThreadsRoute = readRequired("src/app/api/admin/moderation/threads/route.ts");
 const adminModerationThreadDetailRoute = readRequired("src/app/api/admin/moderation/threads/[threadId]/route.ts");
 const adminModerationSecurityAlertsRoute = readRequired("src/app/api/admin/moderation/security-alerts/route.ts");
+const guestQualityHelper = readRequired("src/lib/admin-analytics-guest-bounce-quality.ts");
+const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
 
@@ -1947,6 +1949,34 @@ if (diagnosticClusterHealth.diagnostics.clusterCount > 0 && diagnosticClusterHea
   fail("Diagnostics count exists but clusters are not surfaced.");
 }
 
+for (const expected of [
+  "estimatedSourceTruth",
+  "estimatedFormula",
+  "consentedGuestBatchCount",
+  "missingReason",
+  "nextAction",
+  "seriesExplanation",
+  "Signed-in bounce sample only. Guest bounce remains unavailable without consented guest batches.",
+]) {
+  requireIncludes(guestQualityHelper, expected, "Guest quality truth helper");
+}
+for (const expected of [
+  "data-guest-quality-state",
+  "data-guest-estimated-views",
+  "data-guest-estimate-source-truth",
+  "data-guest-estimate-formula-state",
+  "data-guest-consented-batch-count",
+  "data-guest-last-batch-at-utc",
+  "data-signed-in-bounce-state",
+  "data-guest-quality-next-action",
+  "Source",
+  "Formula unavailable",
+  "Signed-in bounce sample only. Guest bounce unavailable.",
+]) {
+  requireIncludes(adminAnalyticsOperationsTab, expected, "Guest quality analytics panel");
+}
+requireNotIncludes(adminAnalyticsOperationsTab, "Series: collapsed", "Guest quality analytics panel");
+
 try {
   const changedFiles = execSync("git diff --name-only", { cwd: root, encoding: "utf8" })
     .split(/\r?\n/u)
@@ -1970,6 +2000,7 @@ try {
     /^src\/lib\/admin-debug-route-runtime\.ts$/u,
       /^src\/lib\/admin-overview\.ts$/u,
       /^src\/lib\/admin-analytics-live-pulse\.ts$/u,
+      /^src\/lib\/admin-analytics-guest-bounce-quality\.ts$/u,
       /^src\/lib\/admin-analytics-journey-funnel\.ts$/u,
       /^src\/lib\/admin-analytics-auth-outcome-split\.ts$/u,
       /^src\/lib\/auth-outcome-telemetry\.ts$/u,

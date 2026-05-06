@@ -566,6 +566,21 @@ export interface HistoricalAnalyticsResponse {
     sourceLabel: string;
     qualityAvailable: boolean;
   };
+  guestQualityDiagnostics?: {
+    estimatedSourceTruth: "ga4" | "event_estimate" | "server_estimate" | "legacy" | "unknown";
+    estimatedFormula: string | null;
+    estimatedFormulaState: "available" | "missing";
+    estimatedConfidencePct: number | null;
+    estimatedLastUpdatedAtUtc: string | null;
+    consentedGuestBatchCount: number;
+    guestBatchCount: number;
+    lastGuestBatchAtUtc: string | null;
+    state: "available" | "no_sample" | "blocked_by_consent" | "ingest_missing" | "disabled" | "unknown";
+    missingReason: string;
+    nextAction: string;
+    seriesState: "available" | "unavailable";
+    seriesExplanation: string;
+  };
   events?: Record<string, number>;
   eventBreakdown?: EventBreakdownItem[];
   devices?: DeviceMixItem[];

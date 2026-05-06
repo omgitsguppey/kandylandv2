@@ -2,12 +2,21 @@ import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { HistoricalAnalyticsResponse, RangeOption, SemanticCategorySummaryItem } from "@/types/admin-analytics";
 
 type GuestTraffic = NonNullable<HistoricalAnalyticsResponse["guestTraffic"]>;
+type GuestQualityDiagnostics = NonNullable<HistoricalAnalyticsResponse["guestQualityDiagnostics"]>;
 
-type MetricSource = "ga_estimate" | "first_party_semantic_batches" | "signed_in_semantic_batches" | "unavailable";
-
-export type AdminAnalyticsGuestQualityMetric = {
+export type AdminAnalyticsGuestQualityRate = {
   value: number | null;
-  source: MetricSource;
+  display: string;
+  sampleCount: number | null;
+  freshnessState: "live" | "stale" | "unknown";
+  explanation: string;
+  fakeZeroPrevented: boolean;
+  unavailableReason: string | null;
+};
+
+export type AdminAnalyticsGuestLegacyMetric = {
+  value: number | null;
+  source: "ga_estimate" | "first_party_semantic_batches" | "signed_in_semantic_batches" | "unavailable";
   numerator: number | null;
   denominator: number | null;
   formula: string | null;
@@ -17,39 +26,48 @@ export type AdminAnalyticsGuestQualityMetric = {
 
 export type AdminAnalyticsGuestBounceQualityModel = {
   selectedRange: RangeOption;
-  moduleTruthState: "estimated" | "partial" | "live" | "stale" | "waiting" | "error";
+  moduleTruthState: "verified" | "estimated" | "no_sample" | "stale" | "waiting" | "error";
   truthState: AdminSurfaceState;
-  badgeLabel: "LIVE" | "EST" | "STALE" | "WAIT" | "PARTIAL" | "ERROR" | "NO SAMPLE";
+  badgeLabel: "LIVE" | "EST" | "STALE" | "WAIT" | "ERROR" | "NO SAMPLE";
+  generatedAtUtc: string | null;
+  overallState: "verified" | "estimated" | "no_sample" | "stale" | "unavailable";
+  visibleCopy: string;
+  summaryFacts: string[];
+  estimatedGuestViews: {
+    value: number;
+    display: string;
+    sourceTruth: GuestQualityDiagnostics["estimatedSourceTruth"];
+    formula: string | null;
+    formulaState: GuestQualityDiagnostics["estimatedFormulaState"];
+    confidencePct: number | null;
+    freshnessState: "live" | "stale" | "unknown";
+    lastUpdatedAtUtc: string | null;
+    explanation: string;
+  };
+  guestQuality: {
+    state: GuestQualityDiagnostics["state"];
+    sampleCount: number;
+    consentedGuestBatchCount: number;
+    lastGuestBatchAtUtc: string | null;
+    missingReason: string;
+    nextAction: string;
+    explanation: string;
+  };
+  signedInBounce: AdminAnalyticsGuestQualityRate;
+  series: {
+    state: GuestQualityDiagnostics["seriesState"];
+    explanation: string;
+  };
   guestViews: {
     value: number | null;
-    source: MetricSource;
+    source: "ga_estimate" | "first_party_semantic_batches";
     formula: string | null;
   };
   guestViewsEstimated: boolean;
   guestEstimateFormula: string | null;
-  guestEstimateClamped: boolean;
-  guestBounce: AdminAnalyticsGuestQualityMetric;
-  guestEngaged: AdminAnalyticsGuestQualityMetric;
-  signedInBounce: AdminAnalyticsGuestQualityMetric;
-  semanticBatchStatus: "available" | "missing" | "partial";
-  consentedGuestBatchStatus: "available" | "missing";
-  anonymousFirstPartyBatchStatus: "available" | "missing";
-  identifiedFirstPartyTrafficStatus: "available" | "missing";
-  gaTotalsStatus: "available" | "missing" | "not_used";
-  gaDailyStatus: "unknown";
-  gaIntradayStatus: "unknown";
-  backendCacheStatus: "fresh" | "stale" | "miss" | "unknown";
-  stale: boolean;
-  cache: boolean;
-  serverConfirmed: boolean;
-  fallback: boolean;
-  fromCache: boolean | null;
-  hasPendingWrites: boolean | null;
-  chartSeriesStatus: "available" | "collapsed_empty" | "collapsed_unavailable";
+  guestBounce: AdminAnalyticsGuestLegacyMetric;
+  guestEngaged: AdminAnalyticsGuestLegacyMetric;
   chartCollapsedBecauseEmpty: boolean;
-  duplicateRefreshPrevented: boolean;
-  visibleCopy: string;
-  actionCopy: string;
   fullTechnicalReason: string;
 };
 
@@ -60,33 +78,47 @@ function findSemantic(
   return semanticCategories.find((item) => item.key === key);
 }
 
-function rateMetric(input: {
-  source: MetricSource;
-  numerator: number | null;
-  denominator: number | null;
-  formula: string;
-  unavailableReason: string;
-}): AdminAnalyticsGuestQualityMetric {
-  if (input.denominator === null || input.denominator <= 0) {
-    return {
-      value: null,
-      source: "unavailable",
-      numerator: input.numerator,
-      denominator: input.denominator,
-      formula: input.formula,
-      unavailableReason: input.unavailableReason,
-      fakeZeroPrevented: true,
-    };
+function formatCompactNumber(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 1,
+    notation: value >= 1000 ? "compact" : "standard",
+  }).format(value);
+}
+
+function formatPercent(value: number) {
+  return `${Math.round(value * 100)}%`;
+}
+
+function deriveFreshnessState(input: {
+  stale: boolean;
+  lastUpdatedAtUtc: string | null;
+}): "live" | "stale" | "unknown" {
+  if (!input.lastUpdatedAtUtc) {
+    return "unknown";
   }
 
+  return input.stale ? "stale" : "live";
+}
+
+function buildDefaultDiagnostics(input: {
+  guestTraffic?: GuestTraffic;
+}): GuestQualityDiagnostics {
   return {
-    value: (input.numerator ?? 0) / input.denominator,
-    source: input.source,
-    numerator: input.numerator ?? 0,
-    denominator: input.denominator,
-    formula: input.formula,
-    unavailableReason: null,
-    fakeZeroPrevented: false,
+    estimatedSourceTruth: input.guestTraffic?.truthLabel === "estimated" ? "ga4" : "unknown",
+    estimatedFormula: input.guestTraffic?.truthLabel === "estimated"
+      ? "max(exact guest views, GA total views - identified first-party views)"
+      : null,
+    estimatedFormulaState: input.guestTraffic?.truthLabel === "estimated" ? "available" : "missing",
+    estimatedConfidencePct: null,
+    estimatedLastUpdatedAtUtc: null,
+    consentedGuestBatchCount: 0,
+    guestBatchCount: 0,
+    lastGuestBatchAtUtc: null,
+    state: "unknown",
+    missingReason: "Guest quality diagnostics are unavailable.",
+    nextAction: "Inspect guest analytics ingest and consent-safe batch delivery for this range.",
+    seriesState: "unavailable",
+    seriesExplanation: "Guest quality trend unavailable until consented guest batches arrive.",
   };
 }
 
@@ -99,137 +131,156 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
   error?: Error;
   overviewTruthState?: AdminSurfaceState;
 }): AdminAnalyticsGuestBounceQualityModel {
-  const globalSemantic = findSemantic(input.semanticCategories, "global");
-  const userSemantic = findSemantic(input.semanticCategories, "user");
   const hasResponse = Boolean(input.response);
   const stale = Boolean(input.response && (input.error || input.response.cacheState === "stale"));
-  const cache = Boolean(input.response?.cacheState && input.response.cacheState !== "miss");
-  const truthState: AdminSurfaceState = !hasResponse
-    ? input.loading ? "loading" : "unavailable"
-    : stale
-      ? "stale"
-      : input.overviewTruthState ?? "live";
-  const guestEstimateRaw = (input.guestTraffic?.totalViews ?? 0) - (input.guestTraffic?.identifiedViews ?? 0);
-  const guestEstimateClamped = input.guestTraffic?.truthLabel === "estimated" && guestEstimateRaw < 0;
-  const guestViewsEstimated = input.guestTraffic?.truthLabel === "estimated";
-  const guestViewsValue = !hasResponse
-    ? null
-    : guestViewsEstimated
-      ? Math.max(0, input.guestTraffic?.estimatedGuestViews ?? guestEstimateRaw)
-      : input.guestTraffic?.exactGuestViews ?? globalSemantic?.viewCount ?? null;
-  const guestQualityUnavailable =
-    !input.guestTraffic?.qualityAvailable || input.guestTraffic.truthLabel === "estimated";
-  const guestBounce = guestQualityUnavailable
-    ? rateMetric({
-      source: "unavailable",
-      numerator: globalSemantic?.bounceCount ?? null,
-      denominator: null,
-      formula: "guest bounced visits / guest visits",
-      unavailableReason: "Guest quality unavailable until consented guest quality batches arrive.",
-    })
-    : rateMetric({
-      source: "first_party_semantic_batches",
-      numerator: globalSemantic?.bounceCount ?? null,
-      denominator: globalSemantic?.viewCount ?? null,
-      formula: "guest bounced visits / guest visits",
-      unavailableReason: "Guest bounce has no valid guest visit sample.",
-    });
-  const guestEngaged = guestQualityUnavailable
-    ? rateMetric({
-      source: "unavailable",
-      numerator: globalSemantic?.engagedViewCount ?? null,
-      denominator: null,
-      formula: "guest engaged visits / guest visits",
-      unavailableReason: "Guest engagement unavailable until consented guest quality batches arrive.",
-    })
-    : rateMetric({
-      source: "first_party_semantic_batches",
-      numerator: globalSemantic?.engagedViewCount ?? null,
-      denominator: globalSemantic?.viewCount ?? null,
-      formula: "guest engaged visits / guest visits",
-      unavailableReason: "Guest engagement has no valid guest visit sample.",
-    });
-  const signedInBounce = rateMetric({
-    source: "signed_in_semantic_batches",
-    numerator: userSemantic?.bounceCount ?? null,
-    denominator: userSemantic?.viewCount ?? null,
-    formula: "signed-in bounced visits / signed-in visits",
-    unavailableReason: "Signed-in bounce has no valid visit sample.",
+  const diagnostics = input.response?.guestQualityDiagnostics ?? buildDefaultDiagnostics({
+    guestTraffic: input.guestTraffic,
   });
-  const meaningfulChart =
-    !guestQualityUnavailable &&
-    input.semanticCategories.some((item) => item.viewCount > 0 || item.engagedViewCount > 0 || item.bounceCount > 0);
-  const partial = guestViewsEstimated || guestQualityUnavailable || signedInBounce.value === null;
-  const badgeLabel =
-    truthState === "loading"
-      ? "WAIT"
-      : truthState === "failed" || truthState === "unavailable"
-        ? "ERROR"
-        : stale
-          ? "STALE"
-          : signedInBounce.value === null && guestBounce.value === null
-            ? "NO SAMPLE"
-            : guestViewsEstimated
-              ? "EST"
-              : partial
-                ? "PARTIAL"
-                : "LIVE";
+  const generatedAtUtc = input.response?.generatedAtMs
+    ? new Date(input.response.generatedAtMs).toISOString()
+    : null;
+  const globalSemantic = findSemantic(input.semanticCategories, "global");
+  const userSemantic = findSemantic(input.semanticCategories, "user");
+  const guestViewsValue = input.guestTraffic?.truthLabel === "estimated"
+    ? Math.max(0, input.guestTraffic?.estimatedGuestViews ?? 0)
+    : Math.max(0, input.guestTraffic?.exactGuestViews ?? globalSemantic?.viewCount ?? 0);
+  const estimatedFreshness = deriveFreshnessState({
+    stale,
+    lastUpdatedAtUtc: diagnostics.estimatedLastUpdatedAtUtc ?? generatedAtUtc,
+  });
+  const signedInBounceValue = userSemantic?.viewCount
+    ? (userSemantic.bounceCount ?? 0) / userSemantic.viewCount
+    : null;
+  const guestQualityAvailable = diagnostics.state === "available";
+  const guestBounceValue = guestQualityAvailable && globalSemantic?.viewCount
+    ? (globalSemantic.bounceCount ?? 0) / globalSemantic.viewCount
+    : null;
+  const guestEngagedValue = guestQualityAvailable && globalSemantic?.viewCount
+    ? (globalSemantic.engagedViewCount ?? 0) / globalSemantic.viewCount
+    : null;
+  const signedInBounceFreshness = deriveFreshnessState({
+    stale,
+    lastUpdatedAtUtc: generatedAtUtc,
+  });
+
+  let truthState: AdminSurfaceState;
+  let overallState: AdminAnalyticsGuestBounceQualityModel["overallState"];
+  let moduleTruthState: AdminAnalyticsGuestBounceQualityModel["moduleTruthState"];
+  let badgeLabel: AdminAnalyticsGuestBounceQualityModel["badgeLabel"];
+
+  if (!hasResponse) {
+    truthState = input.loading ? "loading" : "unavailable";
+    overallState = "unavailable";
+    moduleTruthState = input.loading ? "waiting" : "error";
+    badgeLabel = input.loading ? "WAIT" : "ERROR";
+  } else if (stale) {
+    truthState = "stale";
+    overallState = "stale";
+    moduleTruthState = "stale";
+    badgeLabel = "STALE";
+  } else if (diagnostics.state === "available" && input.guestTraffic?.truthLabel !== "estimated") {
+    truthState = input.overviewTruthState ?? "live";
+    overallState = "verified";
+    moduleTruthState = "verified";
+    badgeLabel = "LIVE";
+  } else if (diagnostics.state === "available" || input.guestTraffic?.truthLabel === "estimated") {
+    truthState = "degraded";
+    overallState = "estimated";
+    moduleTruthState = "estimated";
+    badgeLabel = "EST";
+  } else {
+    truthState = "degraded";
+    overallState = "no_sample";
+    moduleTruthState = "no_sample";
+    badgeLabel = "NO SAMPLE";
+  }
+
+  const visibleCopy = diagnostics.state === "available"
+    ? "Guest traffic estimate and guest-quality sample are both available for this range."
+    : input.guestTraffic?.truthLabel === "estimated"
+      ? "Guest views are estimated for this range. Guest quality remains unavailable until consented guest batches arrive."
+      : "Guest quality has no consented sample for this range.";
 
   return {
     selectedRange: input.selectedRange,
-    moduleTruthState: truthState === "loading"
-      ? "waiting"
-      : truthState === "failed" || truthState === "unavailable"
-        ? "error"
-        : stale
-          ? "stale"
-          : guestViewsEstimated
-            ? "estimated"
-            : partial
-              ? "partial"
-              : "live",
+    moduleTruthState,
     truthState,
     badgeLabel,
+    generatedAtUtc,
+    overallState,
+    visibleCopy,
+    summaryFacts: [
+      `Guest traffic: ${input.guestTraffic?.truthLabel === "estimated" ? "estimated" : input.guestTraffic?.truthLabel === "exact" ? "tracked" : "unknown"}`,
+      `Guest quality: ${diagnostics.state === "available" ? "sample available" : diagnostics.state === "no_sample" ? "no consented sample" : diagnostics.state.replaceAll("_", " ")}`,
+      `Signed-in bounce: ${signedInBounceValue === null ? "sample unavailable" : signedInBounceFreshness === "stale" ? "stale sample" : "available"}`,
+    ],
+    estimatedGuestViews: {
+      value: guestViewsValue,
+      display: formatCompactNumber(guestViewsValue),
+      sourceTruth: diagnostics.estimatedSourceTruth,
+      formula: diagnostics.estimatedFormula,
+      formulaState: diagnostics.estimatedFormulaState,
+      confidencePct: diagnostics.estimatedConfidencePct,
+      freshnessState: estimatedFreshness,
+      lastUpdatedAtUtc: diagnostics.estimatedLastUpdatedAtUtc ?? generatedAtUtc,
+      explanation: diagnostics.estimatedFormula
+        ? `${diagnostics.estimatedFormula}. This is an estimated guest-view total, not unique guest users.`
+        : "Guest estimate formula unavailable.",
+    },
+    guestQuality: {
+      state: diagnostics.state,
+      sampleCount: diagnostics.state === "available" ? globalSemantic?.viewCount ?? 0 : 0,
+      consentedGuestBatchCount: diagnostics.consentedGuestBatchCount,
+      lastGuestBatchAtUtc: diagnostics.lastGuestBatchAtUtc,
+      missingReason: diagnostics.missingReason,
+      nextAction: diagnostics.nextAction,
+      explanation: diagnostics.state === "available"
+        ? "Guest quality comes from consented guest batches in this range."
+        : diagnostics.missingReason,
+    },
+    signedInBounce: {
+      value: signedInBounceValue,
+      display: signedInBounceValue === null ? "Unavailable" : formatPercent(signedInBounceValue),
+      sampleCount: userSemantic?.viewCount ?? null,
+      freshnessState: signedInBounceFreshness,
+      explanation: signedInBounceValue === null
+        ? "Signed-in bounce sample unavailable. Guest bounce is not inferred from this metric."
+        : "Signed-in bounce sample only. Guest bounce remains unavailable without consented guest batches.",
+      fakeZeroPrevented: signedInBounceValue === null,
+      unavailableReason: signedInBounceValue === null ? "Signed-in bounce has no valid visit sample." : null,
+    },
+    series: {
+      state: diagnostics.seriesState,
+      explanation: diagnostics.seriesExplanation,
+    },
     guestViews: {
       value: guestViewsValue,
-      source: guestViewsEstimated ? "ga_estimate" : "first_party_semantic_batches",
-      formula: guestViewsEstimated ? "GA total views - identified first-party views" : "first-party guest/public views",
+      source: input.guestTraffic?.truthLabel === "estimated" ? "ga_estimate" : "first_party_semantic_batches",
+      formula: input.guestTraffic?.truthLabel === "estimated" ? "GA total views - identified first-party views" : "first-party guest/public views",
     },
-    guestViewsEstimated,
-    guestEstimateFormula: guestViewsEstimated ? "GA total views - identified first-party views" : null,
-    guestEstimateClamped,
-    guestBounce,
-    guestEngaged,
-    signedInBounce,
-    semanticBatchStatus: input.semanticCategories.length > 0 ? guestQualityUnavailable ? "partial" : "available" : "missing",
-    consentedGuestBatchStatus: guestQualityUnavailable ? "missing" : "available",
-    anonymousFirstPartyBatchStatus: input.guestTraffic?.qualityAvailable ? "available" : "missing",
-    identifiedFirstPartyTrafficStatus: userSemantic && userSemantic.viewCount > 0 ? "available" : "missing",
-    gaTotalsStatus: guestViewsEstimated ? "available" : "not_used",
-    gaDailyStatus: "unknown",
-    gaIntradayStatus: "unknown",
-    backendCacheStatus: input.response?.cacheState ?? "unknown",
-    stale,
-    cache,
-    serverConfirmed: hasResponse && !input.error,
-    fallback: Boolean(input.error || input.response?.cacheRevalidating || guestViewsEstimated),
-    fromCache: input.response?.cacheState ? input.response.cacheState !== "miss" : null,
-    hasPendingWrites: null,
-    chartSeriesStatus: meaningfulChart ? "available" : guestQualityUnavailable ? "collapsed_unavailable" : "collapsed_empty",
-    chartCollapsedBecauseEmpty: !meaningfulChart,
-    duplicateRefreshPrevented: Boolean(input.response?.cacheRevalidating && input.loading),
-    visibleCopy: guestQualityUnavailable
-      ? "Guest views are estimated. Guest quality is unavailable until consented guest batches arrive."
-      : guestViewsEstimated
-        ? "Showing estimated guest views with source-labeled quality."
-        : "Showing source-labeled guest and signed-in quality.",
-    actionCopy: guestQualityUnavailable
-      ? "Guest bounce unavailable: consented guest quality batches did not arrive."
-      : signedInBounce.value === null
-        ? "Signed-in bounce unavailable: no valid visit sample."
-        : "Guest quality has a measurable sample.",
-    fullTechnicalReason: guestQualityUnavailable
-      ? "Guest bounce and engagement require consented guest semantic/quality batches; only estimated guest views are available for this range."
-      : "Guest and signed-in quality use first-party semantic category summaries for the selected range.",
+    guestViewsEstimated: input.guestTraffic?.truthLabel === "estimated",
+    guestEstimateFormula: input.guestTraffic?.truthLabel === "estimated" ? "GA total views - identified first-party views" : null,
+    guestBounce: {
+      value: guestBounceValue,
+      source: guestQualityAvailable ? "first_party_semantic_batches" : "unavailable",
+      numerator: globalSemantic?.bounceCount ?? null,
+      denominator: guestQualityAvailable ? globalSemantic?.viewCount ?? null : null,
+      formula: "guest bounced visits / guest visits",
+      unavailableReason: guestQualityAvailable ? null : "Guest quality unavailable until consented guest quality batches arrive.",
+      fakeZeroPrevented: !guestQualityAvailable,
+    },
+    guestEngaged: {
+      value: guestEngagedValue,
+      source: guestQualityAvailable ? "first_party_semantic_batches" : "unavailable",
+      numerator: globalSemantic?.engagedViewCount ?? null,
+      denominator: guestQualityAvailable ? globalSemantic?.viewCount ?? null : null,
+      formula: "guest engaged visits / guest visits",
+      unavailableReason: guestQualityAvailable ? null : "Guest engagement unavailable until consented guest quality batches arrive.",
+      fakeZeroPrevented: !guestQualityAvailable,
+    },
+    chartCollapsedBecauseEmpty: diagnostics.seriesState !== "available",
+    fullTechnicalReason: diagnostics.state === "available"
+      ? "Guest-quality metrics come from consent-safe guest batches; signed-in bounce remains a separate identified-user sample."
+      : "Guest-quality sample is unavailable for this range. Estimated guest views can still be shown from GA totals minus identified first-party traffic when the guest batch lane is absent.",
   };
 }

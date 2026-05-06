@@ -145,6 +145,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     value === null ? "Unavailable" : formatCompactNumber(value);
   const guestQualityRateLabel = (value: number | null) =>
     value === null ? "Unavailable" : formatPercent(value);
+  const formatRelativeUtc = (value: string | null) =>
+    value ? formatRelativeTime(new Date(value).getTime(), nowMs) : "none";
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -776,65 +778,106 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard
-                title="Guest Quality"
-                subtitle="Estimated guest traffic and source-labeled quality."
-                icon={Monitor}
-                rightSlot={renderSectionRangeControl("categorySemantics")}
+            <SectionCard
+              title="Guest Quality"
+              subtitle="Estimated guest traffic, consent-safe guest quality, and signed-in bounce truth."
+              icon={Monitor}
+              rightSlot={renderSectionRangeControl("categorySemantics")}
+            >
+              <div
+                className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between"
+                data-guest-quality-state={guestBounceQualityModel.guestQuality.state}
               >
-                <div className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
-                  <span>{guestBounceQualityModel.visibleCopy}</span>
-                  <AdminStatusBadge
-                    state={guestBounceQualityModel.truthState}
-                    label={guestBounceQualityModel.badgeLabel}
-                    className="max-w-[6.25rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
-                  />
+                <div className="min-w-0">
+                  <p>{guestBounceQualityModel.visibleCopy}</p>
+                  <p className="mt-1 text-[10px] text-gray-400">
+                    {guestBounceQualityModel.summaryFacts.join(" · ")}
+                  </p>
                 </div>
+                <AdminStatusBadge
+                  state={guestBounceQualityModel.truthState}
+                  label={guestBounceQualityModel.badgeLabel}
+                  className="max-w-[6.25rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                />
+              </div>
 
-                <div className="grid grid-cols-3 gap-2">
+              <div className="grid gap-2 md:grid-cols-3">
+                <div
+                  data-guest-estimated-views={guestBounceQualityModel.estimatedGuestViews.value}
+                  data-guest-estimate-source-truth={guestBounceQualityModel.estimatedGuestViews.sourceTruth}
+                  data-guest-estimate-formula-state={guestBounceQualityModel.estimatedGuestViews.formulaState}
+                >
                   <MetricCard
-                    label={guestBounceQualityModel.guestViewsEstimated ? "Est. Guest Views" : "Guest Views"}
-                    value={guestQualityCountLabel(guestBounceQualityModel.guestViews.value)}
-                    hint={guestBounceQualityModel.guestViewsEstimated ? "Estimated guest views" : "Tracked guest views"}
+                    label={guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}
+                    value={guestBounceQualityModel.estimatedGuestViews.display}
+                    hint={`Source ${guestBounceQualityModel.estimatedGuestViews.sourceTruth} · ${guestBounceQualityModel.estimatedGuestViews.formula ?? "Formula unavailable"}`}
                     icon={Users}
-                    truthState={guestBounceQualityModel.truthState}
-                    statusBadgeLabel={guestBounceQualityModel.guestViewsEstimated ? "EST" : guestBounceQualityModel.badgeLabel}
+                    truthState={guestBounceQualityModel.estimatedGuestViews.freshnessState === "stale" ? "stale" : guestBounceQualityModel.truthState}
+                    statusBadgeLabel="EST"
                     className="rounded-[1rem] p-2"
                     valueClassName="text-lg leading-6 md:text-xl"
                   />
+                </div>
+                <div
+                  data-guest-consented-batch-count={guestBounceQualityModel.guestQuality.consentedGuestBatchCount}
+                  data-guest-last-batch-at-utc={guestBounceQualityModel.guestQuality.lastGuestBatchAtUtc ?? "none"}
+                  data-guest-quality-next-action={guestBounceQualityModel.guestQuality.nextAction}
+                >
                   <MetricCard
                     label="Guest Quality"
-                    value={guestBounceQualityModel.guestBounce.value === null && guestBounceQualityModel.guestEngaged.value === null ? "Unavailable" : guestQualityRateLabel(guestBounceQualityModel.guestEngaged.value)}
-                    hint={guestBounceQualityModel.guestEngaged.unavailableReason ?? "Guest engaged rate"}
+                    value={guestBounceQualityModel.guestQuality.state === "available" ? guestQualityCountLabel(guestBounceQualityModel.guestQuality.sampleCount) : "No sample"}
+                    hint={guestBounceQualityModel.guestQuality.state === "available"
+                      ? `${guestBounceQualityModel.guestQuality.sampleCount} sampled guest views · last batch ${formatRelativeUtc(guestBounceQualityModel.guestQuality.lastGuestBatchAtUtc)}`
+                      : `${guestBounceQualityModel.guestQuality.missingReason} Next: ${guestBounceQualityModel.guestQuality.nextAction}`}
                     icon={AlertTriangle}
-                    truthState={guestBounceQualityModel.truthState}
-                    statusBadgeLabel={guestBounceQualityModel.guestEngaged.value === null ? "NO SAMPLE" : guestBounceQualityModel.badgeLabel}
+                    truthState={guestBounceQualityModel.guestQuality.state === "available" ? guestBounceQualityModel.truthState : "degraded"}
+                    statusBadgeLabel={guestBounceQualityModel.guestQuality.state === "available" ? "LIVE" : "NO SAMPLE"}
                     className="rounded-[1rem] p-2"
                     valueClassName="truncate text-base leading-6 md:text-lg"
                   />
+                </div>
+                <div data-signed-in-bounce-state={guestBounceQualityModel.signedInBounce.freshnessState}>
                   <MetricCard
                     label="Signed-in Bounce"
-                    value={guestQualityRateLabel(guestBounceQualityModel.signedInBounce.value)}
-                    hint={guestBounceQualityModel.signedInBounce.unavailableReason ?? "Signed-in bounce sample"}
+                    value={guestBounceQualityModel.signedInBounce.display}
+                    hint={guestBounceQualityModel.signedInBounce.sampleCount === null
+                      ? "Signed-in bounce sample only. Guest bounce unavailable."
+                      : `${guestBounceQualityModel.signedInBounce.sampleCount} signed-in sampled views · ${guestBounceQualityModel.signedInBounce.explanation}`}
                     icon={Activity}
-                    truthState={guestBounceQualityModel.truthState}
-                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.value === null ? "NO SAMPLE" : guestBounceQualityModel.badgeLabel}
+                    truthState={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "stale" : guestBounceQualityModel.signedInBounce.value === null ? "degraded" : "live"}
+                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.freshnessState === "stale" ? "STALE" : guestBounceQualityModel.signedInBounce.value === null ? "PARTIAL" : "LIVE"}
                     className="rounded-[1rem] p-2"
                     valueClassName="truncate text-base leading-6 md:text-lg"
                   />
                 </div>
+              </div>
 
-                <div className="mt-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-2">
-                  <span>
-                    <span className="font-semibold text-white">Action:</span>{" "}
-                    {guestBounceQualityModel.actionCopy}
-                  </span>
-                  <span>
-                    <span className="font-semibold text-white">Series:</span>{" "}
-                    {guestBounceQualityModel.chartCollapsedBecauseEmpty ? "collapsed" : "available"}
-                  </span>
-                </div>
-              </SectionCard>
+              <div className="mt-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-2">
+                <span>
+                  <span className="font-semibold text-white">Updated:</span>{" "}
+                  {formatRelativeUtc(guestBounceQualityModel.generatedAtUtc)}
+                </span>
+                <span>
+                  <span className="font-semibold text-white">Series:</span>{" "}
+                  {guestBounceQualityModel.series.explanation}
+                </span>
+              </div>
+
+              <div className="mt-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2 text-[10px] leading-5 text-gray-400 md:grid-cols-3">
+                <span>
+                  <span className="font-semibold text-white">Estimate freshness:</span>{" "}
+                  {guestBounceQualityModel.estimatedGuestViews.freshnessState}
+                </span>
+                <span>
+                  <span className="font-semibold text-white">Last guest batch:</span>{" "}
+                  {formatRelativeUtc(guestBounceQualityModel.guestQuality.lastGuestBatchAtUtc)}
+                </span>
+                <span>
+                  <span className="font-semibold text-white">Signed-in sample:</span>{" "}
+                  {guestBounceQualityModel.signedInBounce.sampleCount ?? "unavailable"}
+                </span>
+              </div>
+            </SectionCard>
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
