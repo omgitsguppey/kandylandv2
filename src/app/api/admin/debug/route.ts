@@ -72,6 +72,29 @@ const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "wat
 const TASK_ACTION_SET = new Set<string>(DAILY_TASK_ACTION_OPTIONS.map((option) => option.value));
 const TASK_ICON_SET = new Set<string>(DAILY_TASK_ICON_OPTIONS.map((option) => option.value));
 
+type TaskIssueAttribution = {
+    userId: string;
+    displayName: string;
+    expectedTaskCount: number;
+    foundTaskCount: number;
+    expectedSource: "task_catalog" | "assignment_policy" | "materialized_rollup";
+    foundSource: "task_assignments" | "daily_task_events" | "analytics_event_facts" | "sample" | "none";
+    issueType: "assignment_missing" | "task_rollup_stale" | "telemetry_missing" | "onboarding_not_complete" | "user_exempt" | "sample_window_incomplete" | "catalog_mismatch" | "unknown";
+    severity: "info" | "review" | "error";
+    canSelfHeal: boolean;
+    recommendedAction: string;
+    sourceFreshness: "live" | "stale" | "sample_only" | "unknown";
+    eligibleForTasks: boolean;
+    evidence: {
+        onboardingCompleted?: boolean;
+        userCreatedAt?: number;
+        lastTaskAssignmentAt?: number | null;
+        lastTaskEventAt?: number | null;
+        materializedAt?: number | null;
+        sampleWindowMs?: number;
+    };
+};
+
 function toNumber(value: unknown) {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric : 0;
@@ -79,6 +102,100 @@ function toNumber(value: unknown) {
 
 function toStringValue(value: unknown) {
     return typeof value === "string" ? value : "";
+}
+
+function getLatestTaskAssignmentAt(tasks: Array<{ assignedAt?: number }>) {
+    const latest = tasks.reduce((max, task) => Math.max(max, toNumber(task.assignedAt)), 0);
+    return latest > 0 ? latest : null;
+}
+
+function buildTaskIssueAttribution(input: {
+    userId: string;
+    displayName: string;
+    userData: Record<string, unknown>;
+    tasks: Array<{ assignedAt?: number }>;
+    taskEvents: Array<{ userId: string; timestamp: number }>;
+    materializedAt: number | null;
+    sampleWindowMs: number;
+}): TaskIssueAttribution | null {
+    const expectedTaskCount = DAILY_TASK_LIMIT;
+    const foundTaskCount = input.tasks.length;
+    const onboardingCompleted = typeof input.userData.onboardingCompleted === "boolean"
+        ? input.userData.onboardingCompleted
+        : undefined;
+    const explicitlyIncomplete = input.userData.onboardingCompleted === false;
+    const eligibleForTasks = !explicitlyIncomplete;
+    const lastTaskEventAt = input.taskEvents
+        .filter((event) => event.userId === input.userId)
+        .reduce((max, event) => Math.max(max, event.timestamp), 0) || null;
+    const lastTaskAssignmentAt = getLatestTaskAssignmentAt(input.tasks);
+    const userCreatedAt = toNumber(input.userData.createdAtMs)
+        || toTimestampNumber(input.userData.createdAt)
+        || toNumber(input.userData.createdAt);
+    const evidence = {
+        onboardingCompleted,
+        userCreatedAt: userCreatedAt || undefined,
+        lastTaskAssignmentAt,
+        lastTaskEventAt,
+        materializedAt: input.materializedAt,
+        sampleWindowMs: input.sampleWindowMs,
+    };
+
+    if (foundTaskCount === expectedTaskCount) {
+        return null;
+    }
+
+    if (!eligibleForTasks) {
+        return {
+            userId: input.userId,
+            displayName: input.displayName,
+            expectedTaskCount,
+            foundTaskCount,
+            expectedSource: "assignment_policy",
+            foundSource: foundTaskCount > 0 ? "task_assignments" : "none",
+            issueType: "onboarding_not_complete",
+            severity: "info",
+            canSelfHeal: false,
+            recommendedAction: "No task assignment repair is required until onboarding is complete.",
+            sourceFreshness: "live",
+            eligibleForTasks,
+            evidence,
+        };
+    }
+
+    if (foundTaskCount === 0) {
+        return {
+            userId: input.userId,
+            displayName: input.displayName,
+            expectedTaskCount,
+            foundTaskCount,
+            expectedSource: "task_catalog",
+            foundSource: "task_assignments",
+            issueType: "assignment_missing",
+            severity: "error",
+            canSelfHeal: true,
+            recommendedAction: "Rebuild task assignment for this user from canonical daily task rotation.",
+            sourceFreshness: "live",
+            eligibleForTasks,
+            evidence,
+        };
+    }
+
+    return {
+        userId: input.userId,
+        displayName: input.displayName,
+        expectedTaskCount,
+        foundTaskCount,
+        expectedSource: "task_catalog",
+        foundSource: "task_assignments",
+        issueType: foundTaskCount > expectedTaskCount ? "catalog_mismatch" : "assignment_missing",
+        severity: "review",
+        canSelfHeal: false,
+        recommendedAction: "Verify assignment source / rerun task materializer without overwriting existing progress.",
+        sourceFreshness: "live",
+        eligibleForTasks,
+        evidence,
+    };
 }
 
 function toTimestampNumber(value: unknown) {
@@ -610,6 +727,18 @@ export async function GET(request: NextRequest) {
         const telemetryOnlyTasks = coverage.filter((task) => task.trackingSource === "telemetry");
         const canonicalTasks = coverage.filter((task) => task.trackingSource === "canonical");
 
+        const taskEventsForAttribution = taskEventsSnapshot.docs.map((doc) => {
+            const data = doc.data() as Record<string, unknown>;
+            return {
+                userId: toStringValue(data.userId),
+                timestamp: toNumber(data.timestamp),
+            };
+        });
+        const materializedTaskRollupAt = taskRollupSnapshot.docs.reduce((latest, doc) => {
+            const data = doc.data() as Record<string, unknown>;
+            return Math.max(latest, toNumber(data.lastEventAt) || toNumber(data.updatedAt) || toTimestampNumber(data.updatedAt));
+        }, 0) || null;
+
         const assignmentIssues = usersSnapshot.docs.flatMap((doc) => {
             const data = doc.data() as Record<string, unknown>;
             const username = toStringValue(data.username) || toStringValue(data.displayName) || doc.id;
@@ -645,12 +774,23 @@ export async function GET(request: NextRequest) {
                 return [];
             }
 
+            const attribution = buildTaskIssueAttribution({
+                userId: doc.id,
+                displayName: username,
+                userData: data,
+                tasks,
+                taskEvents: taskEventsForAttribution,
+                materializedAt: materializedTaskRollupAt,
+                sampleWindowMs: ONE_WEEK_MS,
+            });
+
             return [{
                 uid: doc.id,
                 username,
                 issueCount: issues.length,
                 issues,
                 taskIds: ids,
+                attribution,
             }];
         }).slice(0, 50);
 

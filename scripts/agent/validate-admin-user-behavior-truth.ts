@@ -24,6 +24,8 @@ const userDetailPage = read("src/app/admin/user/[userId]/page.tsx");
 const overviewRoute = read("src/app/api/admin/overview/route.ts");
 const usersRoute = read("src/app/api/admin/users/route.ts");
 const userDetailRoute = read("src/app/api/admin/user/[userId]/route.ts");
+const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
+const debugTabActions = read("src/app/admin/debug/components/DebugTabActions.tsx");
 const watchTruthValidator = read("scripts/agent/validate-watch-time-rollup-truth.ts");
 const behaviorValidator = read("scripts/agent/validate-behavioral-intelligence-confidence.ts");
 const actionValidator = read("scripts/agent/validate-user-action-ledger-events.ts");
@@ -70,6 +72,13 @@ assert(usersRoute.includes("buildUserBehaviorRollup"), "User Management route mu
 assert(userDetailRoute.includes("buildUserBehaviorRollup"), "User detail route must build per-user behavior rollups.", failures);
 assert(usersPage.includes("behaviorRollup"), "User Management must render the per-user behavior rollup.", failures);
 assert(userDetailPage.includes("behaviorRollup"), "User detail must render the per-user behavior rollup.", failures);
+assert(adminDebugRoute.includes("TaskIssueAttribution"), "Admin debug task issue attribution model is missing.", failures);
+assert(adminDebugRoute.includes("expectedSource") && adminDebugRoute.includes("foundSource"), "Task issue attribution must show expected and found source truth.", failures);
+assert(adminDebugRoute.includes("issueType") && adminDebugRoute.includes("sourceFreshness"), "Task issue attribution must classify issue type and freshness.", failures);
+assert(adminDebugRoute.includes("eligibleForTasks"), "Task issue attribution must expose task eligibility.", failures);
+assert(adminDebugRoute.includes('foundSource: "task_assignments"'), "Task issue attribution must verify user task assignments before treating sample telemetry as canonical.", failures);
+assert(debugTabActions.includes("Expected source") && debugTabActions.includes("Found source"), "Task Issues Attribution UI must render source provenance.", failures);
+assert(debugTabActions.includes("Issue type") && debugTabActions.includes("Freshness"), "Task Issues Attribution UI must render issue type and freshness.", failures);
 
 assert(watchTruthValidator.includes("watch_session_rollup"), "Watch-time truth validator must enforce watch-session-first sourcing.", failures);
 assert(watchTruthValidator.includes("legacy_page_duration"), "Watch-time truth validator must enforce labeled legacy page-duration fallback.", failures);
@@ -86,7 +95,7 @@ assert(
 assert(userDetailPage.includes("Insufficient signal"), "User detail page must show the compact insufficient-signal state.", failures);
 assert(userDetailPage.includes("fallback recommendation"), "User detail page must clearly label fallback recommendations.", failures);
 
-assert(actionValidator.includes("normalizeUserAction"), "Action-ledger validator must enforce normalized user actions.", failures);
+assert(actionValidator.includes("normalizeBehavioralEventFact"), "Action-ledger validator must enforce normalized user actions.", failures);
 assert(actionValidator.includes("dedupeNormalizedUserActions"), "Action-ledger validator must enforce deduped action rows.", failures);
 assert(userDetailPage.includes("data-user-action-name"), "Action Ledger UI must keep normalized action markers.", failures);
 

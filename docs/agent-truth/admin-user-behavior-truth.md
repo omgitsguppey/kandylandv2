@@ -19,6 +19,7 @@ The admin user surfaces are allowed to load in lanes, but they are not allowed t
 - behavioral recommendations collapse to `Insufficient signal` when confidence is not high enough
 - action ledger rows use normalized user-action taxonomy, not raw random event names
 - truth badges follow the shared doctrine: `live`, `refreshing`, `stale`, `degraded`, `failed`, `unavailable`, `delayed`, `review`
+- task issue attribution uses explicit source provenance before repair: expected tasks come from the task catalog or assignment policy, found tasks come from user task assignments or a named materialized source, and telemetry samples cannot be treated as canonical assignment truth
 
 ## Required Surfaces
 
@@ -40,6 +41,8 @@ Realtime transport issues must not erase usable values. If a summary snapshot ex
 Watch time is not page-open duration. Admin summary totals, User Management cards, and user detail all derive watch-time truth from watch-session rollups first. Any fallback to route/page duration must be explicitly labeled `legacy_page_duration`.
 
 Behavioral intelligence must not fill the admin detail page with deterministic zero-affinity spam. Low-signal states collapse to `Insufficient signal`, and fallback recommendations stay capped and labeled.
+
+Task attribution diagnostics for users must show expected source, found source, issue type, source freshness, and whether the user is eligible for daily tasks. Missing assignments for an eligible user with fresh user task state can escalate to ERROR and a safe idempotent rebuild action. Incomplete onboarding or exempt users remain INFO, and stale or sample-only evidence remains REVIEW with a verification action.
 
 ## Validation
 

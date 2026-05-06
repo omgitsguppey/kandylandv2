@@ -55,6 +55,7 @@ Shows support admin thread/message access, support route failures, creator booki
 - Diagnostic cluster rows expose `data-debug-diagnostic-cluster-key` and `data-debug-diagnostic-cluster-count`.
 - Panel status by section uses `DebugSectionStatus` and typed signals. Inventory and activity counts such as bug intake, rollout entries, release entries, and tracked telemetry render as INFO unless a risk threshold is breached. Signal totals are shown separately from needs-review counts.
 - ERROR is reserved for active errors, active critical findings, source failures, required missing reports, and high-risk stale runtime lanes. REVIEW is used for active warnings, actionable repairs, orphaned telemetry, stale runtime samples, and recent non-active errors that need inspection.
+- Task Issues Attribution rows must expose `expectedSource`, `foundSource`, `issueType`, `sourceFreshness`, and task eligibility. "Expected X tasks, found Y" is incomplete without source provenance. User task assignment state is the canonical found source for assignment gaps; telemetry samples may support diagnosis but must not create ERROR by themselves. Known diagnostic values must not render as WAIT.
 - Raw generated evidence must stay capped and collapsed. The overview must not render giant JSON dumps.
 
 ## Critical Reports

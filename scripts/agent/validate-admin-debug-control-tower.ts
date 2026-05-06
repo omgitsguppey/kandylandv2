@@ -45,10 +45,12 @@ function lineCount(source: string) {
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
 const helper = readRequired("src/lib/admin-debug-control-tower.ts");
 const apiRoute = readRequired("src/app/api/admin/debug/control-tower/route.ts");
+const adminDebugRoute = readRequired("src/app/api/admin/debug/route.ts");
 const runtimeHealth = readRequired("src/lib/route-runtime-health.ts");
 const adminOpsHealth = readRequired("src/lib/server/admin-ops-health.ts");
 const adminOpsHealthContract = readRequired("src/lib/admin-ops-health.ts");
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
+const debugTabActions = readRequired("src/app/admin/debug/components/DebugTabActions.tsx");
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
 const debugPanelStatus = readRequired("src/app/admin/debug/components/DebugPanelStatusBySection.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
@@ -109,6 +111,21 @@ for (const expected of [
   "recordRouteRuntimeSample",
 ]) {
   requireIncludes(apiRoute, expected, "Admin debug control tower API route");
+}
+for (const expected of [
+  "TaskIssueAttribution",
+  "expectedSource",
+  "foundSource",
+  "issueType",
+  "sourceFreshness",
+  "eligibleForTasks",
+  "expectedSource: \"task_catalog\"",
+  "foundSource: \"task_assignments\"",
+  "assignment_missing",
+  "onboarding_not_complete",
+  "Rebuild task assignment for this user",
+]) {
+  requireIncludes(adminDebugRoute, expected, "Admin debug task issue attribution model");
 }
 requireIncludes(runtimeHealth, "admin/debug/control-tower:GET", "Route runtime health targets");
 
@@ -200,6 +217,16 @@ for (const expected of [
 }
 requireIncludes(debugPrimitives, "badgeLabel", "Debug primitive pills must allow quiet writer badges without WAIT labels");
 for (const expected of [
+  "Expected source",
+  "Found source",
+  "Issue type",
+  "Freshness",
+  "Eligible",
+  "canSelfHeal",
+]) {
+  requireIncludes(debugTabActions, expected, "Task Issues Attribution panel must show source-truth classification");
+}
+for (const expected of [
   "Signals total",
   "Needs review",
   "data-debug-section-status",
@@ -225,6 +252,7 @@ requireIncludes(debugPage, "canonicalState?.status === \"Live\"", "Debug page mu
 requireIncludes(releaseNotesScript, "Improved internal health reporting so beta issues show fresher, clearer status.", "Release notes script must include the System Health truth copy");
 requireIncludes(releaseNotesScript, "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.", "Release notes script must include downstream writer freshness copy");
 requireIncludes(releaseNotesScript, "Improved internal debug status labels so inventory counts do not look like system failures.", "Release notes script must include debug signal severity copy");
+requireIncludes(releaseNotesScript, "Improved internal task assignment diagnostics.", "Release notes script must include task issue attribution copy");
 
 for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
@@ -426,6 +454,7 @@ try {
     /^src\/lib\/server\/admin-ops-health\.ts$/u,
     /^src\/lib\/route-runtime-health\.ts$/u,
     /^src\/app\/api\/admin\/debug\/control-tower\/route\.ts$/u,
+    /^src\/app\/api\/admin\/debug\/route\.ts$/u,
     /^src\/app\/admin\/debug\/page\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
@@ -433,6 +462,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugPanelStatusBySection\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPrimitives\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugTabActions\.tsx$/u,
     /^src\/lib\/creator-experiences\.ts$/u,
     /^src\/lib\/creator-lane-debug-parity\.ts$/u,
     /^src\/lib\/creator-onboarding\.ts$/u,
@@ -454,6 +484,8 @@ try {
     /^scripts\/agent\/validate-creator-identity-markers\.ts$/u,
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
+    /^scripts\/agent\/validate-admin-user-behavior-truth\.ts$/u,
+    /^scripts\/agent\/validate-daily-task-telemetry-truth\.ts$/u,
     /^scripts\/release\/update-public-changelog\.ts$/u,
     /^CHANGELOG\.md$/u,
     /^public\/kandydrops-release-notes\.json$/u,
@@ -474,6 +506,7 @@ try {
     /^agent\/state\/google-cost-bleed\.generated\.json$/u,
     /^agent\/state\/creator-lane-debug-parity\.generated\.json$/u,
     /^docs\/agent-truth\/admin-debug-control-tower\.md$/u,
+    /^docs\/agent-truth\/admin-user-behavior-truth\.md$/u,
     /^docs\/agent-truth\/admin-creator-account-controls\.md$/u,
     /^docs\/agent-truth\/creator-admin-action-route\.md$/u,
     /^docs\/agent-truth\/creator-identity-markers\.md$/u,
@@ -483,6 +516,7 @@ try {
     /^docs\/agent-truth\/synthetic-creators-view-as\.md$/u,
     /^docs\/agent-truth\/human-readable-admin-truth\.md$/u,
     /^docs\/agent-truth\/debug-evidence-pipeline\.md$/u,
+    /^docs\/agent-truth\/admin-analytics-daily-task-pipeline\.md$/u,
     /^README\.md$/u,
     /^AGENTS\.md$/u,
     /^REPO_MEMORY_LEDGER\.md$/u,

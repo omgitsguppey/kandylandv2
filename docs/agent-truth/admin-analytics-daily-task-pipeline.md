@@ -6,6 +6,8 @@ Lifecycle states are assigned, started, completed, failed, and reminded. Guidanc
 
 Canonical source hierarchy is user task state first, lifecycle logs second, first-party telemetry third, GA/Firebase analytics fourth, and stale backend snapshot last. The current analytics payload uses lifecycle logs plus guidance telemetry, so the UI must label the mode as mixed or raw event counts instead of claiming a strict state pipeline.
 
+Per-user task issue attribution must classify "expected tasks vs found tasks" before repair. Expected count is sourced from the task catalog or assignment policy. Found count is sourced from user task assignments when diagnosing assignment gaps, not from telemetry samples alone. The diagnostic must expose `expectedSource`, `foundSource`, `issueType`, `sourceFreshness`, eligibility, and a safe action. Eligible users with fresh missing assignment state may escalate to ERROR; incomplete onboarding, exempt users, stale materializers, and sample-window uncertainty must stay INFO or REVIEW with source-specific next steps.
+
 A strict lifecycle pipeline requires identity linkage across userId or sessionId, taskId, assignment timestamp, start timestamp, and completion or failure timestamp. Without that linkage, the module shows directional lifecycle event counts and mismatch checks.
 
 Rates must expose denominators:

@@ -15,6 +15,12 @@ function formatRelative(timestamp?: number) {
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
 }
+function toneForTaskSeverity(severity?: string) {
+    if (severity === "error") return "bad" as const;
+    if (severity === "review") return "warn" as const;
+    if (severity === "info") return "neutral" as const;
+    return "neutral" as const;
+}
 
 /* ─── Props ─── */
 export interface DebugTabActionsProps {
@@ -47,22 +53,40 @@ export function DebugTabActions({
                     >
                         <ScrollWrap>
                             <div className="divide-y divide-white/10">
-                                {(data?.assignmentIssues || []).map((issue: any) => (
+                                {(data?.assignmentIssues || []).map((issue: any) => {
+                                    const attribution = issue.attribution;
+                                    return (
                                     <div key={issue.uid} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
                                                 <p className="font-semibold text-white">{issue.username}</p>
                                                 <p className="text-xs text-gray-400">{issue.uid}</p>
                                             </div>
-                                            <Pill label="Issues" value={issue.issueCount} tone="warn" />
+                                            <Pill label="Issues" value={issue.issueCount} tone={toneForTaskSeverity(attribution?.severity ?? "review")} />
                                         </div>
                                         <div className="mt-2 flex flex-wrap gap-2">
                                             {(issue.issues || []).map((desc: string, i: number) => (
-                                                <Pill key={i} label="Diagnostic" value={desc} />
+                                                <Pill key={i} label="Diagnostic" value={desc} tone={toneForTaskSeverity(attribution?.severity ?? "review")} />
                                             ))}
+                                            {attribution ? (
+                                                <>
+                                                    <Pill label="Expected source" value={attribution.expectedSource} />
+                                                    <Pill label="Found source" value={attribution.foundSource} />
+                                                    <Pill label="Issue type" value={attribution.issueType} tone={toneForTaskSeverity(attribution.severity)} />
+                                                    <Pill label="Freshness" value={attribution.sourceFreshness} tone={attribution.sourceFreshness === "live" ? "good" : "warn"} />
+                                                    <Pill label="Eligible" value={attribution.eligibleForTasks ? "yes" : "no"} tone={attribution.eligibleForTasks ? "good" : "neutral"} />
+                                                </>
+                                            ) : null}
                                         </div>
+                                        {attribution ? (
+                                            <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
+                                                <p>{attribution.recommendedAction}</p>
+                                                <p className="mt-1 text-gray-500">expected {attribution.expectedTaskCount} | found {attribution.foundTaskCount} | canSelfHeal {attribution.canSelfHeal ? "yes" : "no"}</p>
+                                            </div>
+                                        ) : null}
                                     </div>
-                                ))}
+                                    );
+                                })}
                                 {(data?.assignmentIssues || []).length === 0 ? (
                                     <div className="px-4 py-4 text-sm text-gray-300">No task assignment issues detected in the current sample.</div>
                                 ) : null}
