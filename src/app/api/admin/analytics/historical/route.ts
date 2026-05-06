@@ -454,7 +454,10 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 devices: payload.devices,
             });
         case "returnCadence":
-            return withSharedFields({ repeatVisitSegments: payload.repeatVisitSegments });
+            return withSharedFields({
+                repeatVisitSegments: payload.repeatVisitSegments,
+                returnCadenceState: payload.returnCadenceState,
+            });
         case "navigationDestinations":
             return withSharedFields({ destinationMix: payload.destinationMix });
         case "deviceMix":
@@ -1056,6 +1059,7 @@ async function GET_handler(request: NextRequest) {
                 authOutcomeSummary,
                 onboardingDurationBuckets,
                 repeatVisitSegments,
+                returnCadenceState,
                 destinationMix,
                 notificationFunnel,
                 notificationActions,
@@ -1066,6 +1070,10 @@ async function GET_handler(request: NextRequest) {
                 onboardingDurationMsSamples,
                 emailRegistrationCount,
                 canonicalRegistrationCount,
+                analyticsEventFacts: analyticsEventFactsSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+                sessionFacts: sessionFactsSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+                taskLifecycleLogs: normalizedTaskEvents,
+                transactionFacts: normalizedTransactionsInRange,
                 generatedAtUtc: new Date().toISOString(),
                 range: period ?? "30d",
             });
@@ -1463,6 +1471,7 @@ async function GET_handler(request: NextRequest) {
                 authOutcomeSummary,
                 onboardingDurationBuckets,
                 repeatVisitSegments,
+                returnCadenceState,
                 destinationMix,
                 notificationFunnel,
                 notificationActions,

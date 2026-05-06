@@ -24,6 +24,10 @@ const userDetailPage = read("src/app/admin/user/[userId]/page.tsx");
 const overviewRoute = read("src/app/api/admin/overview/route.ts");
 const usersRoute = read("src/app/api/admin/users/route.ts");
 const userDetailRoute = read("src/app/api/admin/user/[userId]/route.ts");
+const historicalEngagementHelper = read("src/lib/server/admin-analytics-historical-engagement.ts");
+const returnCadenceHelper = read("src/lib/admin-analytics-return-cadence.ts");
+const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
+const analyticsTypes = read("src/types/admin-analytics.ts");
 const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
 const debugTabActions = read("src/app/admin/debug/components/DebugTabActions.tsx");
 const watchTruthValidator = read("scripts/agent/validate-watch-time-rollup-truth.ts");
@@ -162,6 +166,23 @@ assert(!userDetailPage.includes("setInterval("), "User detail must not add polli
 assert(usersPage.includes('authFetch("/api/admin/users?mode=summary")'), "User Management must load summary from the bounded summary lane.", failures);
 assert(usersPage.includes('authFetch("/api/admin/users/realtime"'), "Realtime can remain for upgrades, but it must stay separate from the summary lane.", failures);
 assert(usersPage.includes("const getKpiCardTruthState"), "User Management must map KPI freshness into explicit admin truth states.", failures);
+
+assert(analyticsTypes.includes("export type ReturnCadenceState"), "Admin analytics types must expose the canonical return cadence state.", failures);
+assert(analyticsTypes.includes("\"mixed_fallback\""), "Return cadence state must model mixed authenticated activity fallback.", failures);
+assert(historicalEngagementHelper.includes("returnCadenceState"), "Historical engagement analytics must build return cadence state.", failures);
+assert(historicalEngagementHelper.includes("analyticsEventFacts"), "Return cadence must read identified event facts.", failures);
+assert(historicalEngagementHelper.includes("sessionFacts"), "Return cadence must read authenticated session facts.", failures);
+assert(historicalEngagementHelper.includes("taskLifecycleLogs"), "Return cadence must read task lifecycle activity for fallback.", failures);
+assert(historicalEngagementHelper.includes("transactionFacts"), "Return cadence must read purchase and unlock facts for fallback.", failures);
+assert(historicalEngagementHelper.includes("sourceTruth === \"missing\""), "Return cadence helper must distinguish missing source from verified zero.", failures);
+assert(returnCadenceHelper.includes("buildAdminAnalyticsReturnCadenceModel"), "Return cadence UI helper must build a typed model.", failures);
+assert(returnCadenceHelper.includes("Return cadence is using identified activity fallback because the cadence snapshot has not hydrated."), "Return cadence helper must explain fallback usage.", failures);
+assert(audienceTab.includes("data-return-cadence-source-truth"), "Return cadence panel must expose source-truth debug attrs.", failures);
+assert(audienceTab.includes("data-return-cadence-tracked-users"), "Return cadence panel must expose tracked-user debug attrs.", failures);
+assert(audienceTab.includes("Tracked Auth Users"), "Return cadence panel must render tracked authenticated users explicitly.", failures);
+assert(audienceTab.includes("No verified zero should be displayed"), "Return cadence panel must prevent false zero copy.", failures);
+assert(audienceTab.includes("Users active on 2+ distinct days"), "Return cadence panel must explain unique returners with a 2+ day denominator.", failures);
+assert(!audienceTab.includes("0 tracked users"), "Return cadence panel must not hard-code fake zero tracked users.", failures);
 
 if (failures.length > 0) {
   console.error("Admin user behavior truth validation failed:");

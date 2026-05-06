@@ -13,13 +13,16 @@ import type {
   AuthMethodOutcome,
   AuthOutcomeSummary,
   ReturnCadenceSegment,
+  ReturnCadenceState,
 } from "@/types/admin-analytics";
+import { toNumber, toStringValue } from "./admin-analytics-shared";
 
 export interface HistoricalEngagementAnalytics {
   authBreakdown: AuthBreakdownItem[];
   authOutcomeSummary: AuthOutcomeSummary;
   onboardingDurationBuckets: Array<{ label: string; count: number }>;
   repeatVisitSegments: ReturnCadenceSegment[];
+  returnCadenceState: ReturnCadenceState;
   destinationMix: Array<{ destination: string; count: number }>;
   notificationFunnel: Array<{ label: string; count: number }>;
   notificationActions: Array<{ label: string; value: number }>;
@@ -43,6 +46,210 @@ const AUTH_METHOD_LABELS: Record<AuthMethodKey, string> = {
   email_sign_up: "Email sign-up",
   google_sign_in: "Google sign-in",
 };
+
+const RETURN_CADENCE_DENOMINATOR_EXPLANATION =
+  "Tracked authenticated users are users with at least one qualifying authenticated activity day in the selected range. Unique returners are users active on 2+ distinct days. Conversion = unique returners / tracked authenticated users.";
+
+function resolveReturnCadenceSourceTruth(input: {
+  eventFactUsers: number;
+  sessionFactUsers: number;
+  taskUsers: number;
+  transactionUsers: number;
+  observedSourceCount: number;
+}): ReturnCadenceState["sourceTruth"] {
+  const { eventFactUsers, sessionFactUsers, taskUsers, transactionUsers, observedSourceCount } = input;
+  if (observedSourceCount === 0) {
+    return "missing";
+  }
+  const nonEventFactSourceCount = [sessionFactUsers, taskUsers, transactionUsers].filter((count) => count > 0).length;
+  if (eventFactUsers > 0 && nonEventFactSourceCount === 0) {
+    return "identified_event_facts";
+  }
+  if (eventFactUsers === 0 && sessionFactUsers > 0 && taskUsers === 0 && transactionUsers === 0) {
+    return "auth_sessions";
+  }
+  if (eventFactUsers > 0 || sessionFactUsers > 0 || taskUsers > 0 || transactionUsers > 0) {
+    return "mixed_fallback";
+  }
+  return observedSourceCount > 0 ? "mixed_fallback" : "missing";
+}
+
+function isAuthenticatedCadenceEventFact(data: Record<string, unknown>) {
+  const eventName = toStringValue(data.eventName).trim();
+  const userId = toStringValue(data.userId).trim() || toStringValue(data.actorUserId).trim();
+  const actorType = toStringValue(data.actorType).trim().toLowerCase();
+  const sourceTruth = toStringValue(data.sourceTruth).trim().toLowerCase();
+
+  if (!eventName || !userId) {
+    return false;
+  }
+  if (actorType && actorType !== "user") {
+    return false;
+  }
+  if (sourceTruth === "local_projection") {
+    return false;
+  }
+  return !/^(admin_|creator_|owner_)/u.test(eventName);
+}
+
+function buildReturnCadenceState(input: {
+  analyticsEventFacts?: Array<Record<string, unknown>>;
+  sessionFacts?: Array<Record<string, unknown>>;
+  taskLifecycleLogs?: Array<Record<string, unknown>>;
+  transactionFacts?: Array<Record<string, unknown>>;
+  generatedAtUtc: string;
+  range: string;
+}): { repeatVisitSegments: ReturnCadenceSegment[]; returnCadenceState: ReturnCadenceState } {
+  const activeDaysByUser = new Map<string, Set<string>>();
+  let latestSeenAtMs = 0;
+
+  const eventFactUsers = new Set<string>();
+  const sessionFactUsers = new Set<string>();
+  const taskUsers = new Set<string>();
+  const transactionUsers = new Set<string>();
+
+  const addActivityDay = (userId: string, timestampMs: number) => {
+    const normalizedUserId = userId.trim();
+    if (!normalizedUserId || timestampMs <= 0) {
+      return;
+    }
+    if (!activeDaysByUser.has(normalizedUserId)) {
+      activeDaysByUser.set(normalizedUserId, new Set());
+    }
+    activeDaysByUser.get(normalizedUserId)?.add(timestampToDayKey(timestampMs));
+    latestSeenAtMs = Math.max(latestSeenAtMs, timestampMs);
+  };
+
+  (input.analyticsEventFacts ?? []).forEach((fact) => {
+    if (!isAuthenticatedCadenceEventFact(fact)) {
+      return;
+    }
+    const userId = toStringValue(fact.userId).trim() || toStringValue(fact.actorUserId).trim();
+    const timestampMs = toNumber(fact.timestamp);
+    if (!userId || timestampMs <= 0) {
+      return;
+    }
+    eventFactUsers.add(userId);
+    addActivityDay(userId, timestampMs);
+  });
+
+  (input.sessionFacts ?? []).forEach((fact) => {
+    const userId = toStringValue(fact.userId).trim();
+    const timestampMs = toNumber(fact.lastEventAtMs) || toNumber(fact.firstEventAtMs) || toNumber(fact.lastEventAt) || toNumber(fact.firstEventAt);
+    if (!userId || timestampMs <= 0) {
+      return;
+    }
+    sessionFactUsers.add(userId);
+    addActivityDay(userId, timestampMs);
+  });
+
+  (input.taskLifecycleLogs ?? []).forEach((fact) => {
+    const userId = toStringValue(fact.userId).trim();
+    const timestampMs = toNumber(fact.timestamp);
+    if (!userId || timestampMs <= 0) {
+      return;
+    }
+    taskUsers.add(userId);
+    addActivityDay(userId, timestampMs);
+  });
+
+  (input.transactionFacts ?? []).forEach((fact) => {
+    const userId = toStringValue(fact.userId).trim();
+    const type = toStringValue(fact.type).trim();
+    const status = toStringValue(fact.status).trim();
+    const timestampMs = toNumber(fact.timestamp);
+    if (!userId || timestampMs <= 0) {
+      return;
+    }
+    if (type !== "purchase_currency" && type !== "unlock_content") {
+      return;
+    }
+    if (type === "purchase_currency" && status && status !== "completed") {
+      return;
+    }
+    transactionUsers.add(userId);
+    addActivityDay(userId, timestampMs);
+  });
+
+  const activeDayCounts = Array.from(activeDaysByUser.values()).map((days) => days.size);
+  const buckets = {
+    oneDay: activeDayCounts.filter((count) => count === 1).length,
+    twoDays: activeDayCounts.filter((count) => count === 2).length,
+    threeToFourDays: activeDayCounts.filter((count) => count >= 3 && count <= 4).length,
+    fivePlusDays: activeDayCounts.filter((count) => count >= 5).length,
+  };
+  const trackedAuthenticatedUsers =
+    buckets.oneDay + buckets.twoDays + buckets.threeToFourDays + buckets.fivePlusDays;
+  const uniqueReturners =
+    buckets.twoDays + buckets.threeToFourDays + buckets.fivePlusDays;
+  const observedSourceCount = [
+    (input.analyticsEventFacts ?? []).length > 0,
+    (input.sessionFacts ?? []).length > 0,
+    (input.taskLifecycleLogs ?? []).length > 0,
+    (input.transactionFacts ?? []).length > 0,
+  ].filter(Boolean).length;
+  const sourceTruth = resolveReturnCadenceSourceTruth({
+    eventFactUsers: eventFactUsers.size,
+    sessionFactUsers: sessionFactUsers.size,
+    taskUsers: taskUsers.size,
+    transactionUsers: transactionUsers.size,
+    observedSourceCount,
+  });
+  const generatedAtMs = Date.parse(input.generatedAtUtc);
+  const ageMs = latestSeenAtMs > 0 && Number.isFinite(generatedAtMs)
+    ? Math.max(0, generatedAtMs - latestSeenAtMs)
+    : Number.POSITIVE_INFINITY;
+  const freshnessState: ReturnCadenceState["freshnessState"] =
+    sourceTruth === "missing"
+      ? "missing"
+      : sourceTruth === "mixed_fallback"
+        ? "partial"
+        : ageMs > 72 * 60 * 60 * 1000
+          ? "stale"
+          : latestSeenAtMs > 0
+            ? "live"
+            : "unknown";
+
+  const warnings: string[] = [];
+  if (sourceTruth === "mixed_fallback") {
+    warnings.push(
+      "Return cadence is using identified activity fallback because the cadence snapshot has not hydrated.",
+    );
+  }
+  if (trackedAuthenticatedUsers === 0 && sourceTruth !== "missing") {
+    warnings.push(
+      "Authenticated activity sources were queried, but no qualifying authenticated activity days were observed in this range.",
+    );
+  }
+
+  const repeatVisitSegments: ReturnCadenceSegment[] = [
+    { label: "1 day", users: buckets.oneDay, count: buckets.oneDay },
+    { label: "2 days", users: buckets.twoDays, count: buckets.twoDays },
+    { label: "3-4 days", users: buckets.threeToFourDays, count: buckets.threeToFourDays },
+    { label: "5+ days", users: buckets.fivePlusDays, count: buckets.fivePlusDays },
+  ];
+
+  return {
+    repeatVisitSegments,
+    returnCadenceState: {
+      generatedAtUtc: input.generatedAtUtc,
+      range: input.range,
+      sourceTruth,
+      freshnessState,
+      trackedAuthenticatedUsers,
+      uniqueReturners,
+      conversionPct: trackedAuthenticatedUsers > 0 ? uniqueReturners / trackedAuthenticatedUsers : 0,
+      buckets,
+      denominatorExplanation: RETURN_CADENCE_DENOMINATOR_EXPLANATION,
+      missingReason: sourceTruth === "missing"
+        ? "Return cadence source missing. No verified zero should be displayed."
+        : trackedAuthenticatedUsers === 0
+          ? "No qualifying authenticated activity days were observed from the queried source set."
+          : undefined,
+      warnings,
+    },
+  };
+}
 
 function averageDuration(records: TelemetryLogRecord[]) {
   const durations = records
@@ -362,6 +569,10 @@ export function buildHistoricalEngagementAnalytics(input: {
   onboardingDurationMsSamples: number[];
   emailRegistrationCount: number;
   canonicalRegistrationCount: number;
+  analyticsEventFacts?: Array<Record<string, unknown>>;
+  sessionFacts?: Array<Record<string, unknown>>;
+  taskLifecycleLogs?: Array<Record<string, unknown>>;
+  transactionFacts?: Array<Record<string, unknown>>;
   generatedAtUtc?: string;
   range?: string;
 }) : HistoricalEngagementAnalytics {
@@ -396,28 +607,15 @@ export function buildHistoricalEngagementAnalytics(input: {
     { label: "5m+", max: Number.POSITIVE_INFINITY },
   ]);
 
-  const activeDaysByUser = new Map<string, Set<string>>();
-  input.telemetryLogs.forEach((record) => {
-    if (!record.userId) {
-      return;
-    }
-
-    const dayKey = timestampToDayKey(record.timestamp);
-    if (!activeDaysByUser.has(record.userId)) {
-      activeDaysByUser.set(record.userId, new Set());
-    }
-    activeDaysByUser.get(record.userId)?.add(dayKey);
+  const generatedAtUtc = input.generatedAtUtc || new Date().toISOString();
+  const { repeatVisitSegments, returnCadenceState } = buildReturnCadenceState({
+    analyticsEventFacts: input.analyticsEventFacts,
+    sessionFacts: input.sessionFacts,
+    taskLifecycleLogs: input.taskLifecycleLogs,
+    transactionFacts: input.transactionFacts,
+    generatedAtUtc,
+    range: input.range || "30d",
   });
-  const activeDayCounts = Array.from(activeDaysByUser.values()).map((days) => days.size);
-  const repeatVisitSegments: ReturnCadenceSegment[] = [
-    { label: "1 day", users: activeDayCounts.filter((count) => count === 1).length },
-    { label: "2 days", users: activeDayCounts.filter((count) => count === 2).length },
-    { label: "3-4 days", users: activeDayCounts.filter((count) => count >= 3 && count <= 4).length },
-    { label: "5+ days", users: activeDayCounts.filter((count) => count >= 5).length },
-  ].map((segment) => ({
-    ...segment,
-    count: segment.users,
-  }));
 
   const destinationMap = new Map<string, number>();
   (input.telemetryLogsByEvent.navigation_click || []).forEach((record) => {
@@ -430,6 +628,7 @@ export function buildHistoricalEngagementAnalytics(input: {
     authOutcomeSummary,
     onboardingDurationBuckets,
     repeatVisitSegments,
+    returnCadenceState,
     destinationMix: Array.from(destinationMap.entries())
       .map(([destination, count]) => ({ destination, count }))
       .sort((left, right) => right.count - left.count)

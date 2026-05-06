@@ -37,6 +37,7 @@ import { buildAdminNotificationFunnelModel } from "@/lib/admin-notification-funn
 import { buildAdminOnboardingVelocityModel } from "@/lib/admin-onboarding-velocity";
 import { buildAdminTaskPipelineModel } from "@/lib/admin-task-pipeline";
 import {
+  buildAdminAnalyticsReturnCadenceModel,
   buildAdminAnalyticsReturnCadenceSummary,
   normalizeAdminAnalyticsReturnCadenceSegments,
 } from "@/lib/admin-analytics-return-cadence";
@@ -2233,6 +2234,23 @@ const { user } = useAuth();
     : repeatVisitSegments;
   const returnCadenceSummary =
     buildAdminAnalyticsReturnCadenceSummary(returnCadenceSegments);
+  const returnCadenceModel = useMemo(
+    () => buildAdminAnalyticsReturnCadenceModel({
+      response: returnCadenceData,
+      selectedRange: returnCadenceRange,
+      loading: returnCadenceRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalLoading
+        : returnCadenceOverride.isLoading,
+      overviewTruthState: historicalOverviewTruthState,
+    }),
+    [
+      returnCadenceData,
+      returnCadenceRange,
+      historicalLoading,
+      returnCadenceOverride.isLoading,
+      historicalOverviewTruthState,
+    ],
+  );
   const navigationDestinationsData =
     navigationDestinationsRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -2666,7 +2684,7 @@ const { user } = useAuth();
     topEvents, liveInteractionStreamRange, liveInteractionStreamData, liveInteractionEvents, liveInteractionStreamModel,
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
     audienceTotals, audienceHistorySeries, audienceSnapshotModel,
-    returnCadenceRange, returnCadenceData, returnCadenceSegments, returnCadenceSummary,
+    returnCadenceRange, returnCadenceData, returnCadenceSegments, returnCadenceSummary, returnCadenceModel,
     navigationDestinationsRange, destinationMix, navigationDestinationsMix, deviceMixRange, getDeviceIcon, deviceMixDevices, deviceMixTotalUsers, topPathsRange, topPathsPages, regionsRange, regionsGeo,
     commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, commerceSnapshotModel, packagePerformanceRange, packagePerformance, packagePerformanceItems,
     PIE_COLORS, contentConversionRange, unlockCategoryMix, contentConversionItems, previewToUnlockRate, checkoutToPurchaseRate,

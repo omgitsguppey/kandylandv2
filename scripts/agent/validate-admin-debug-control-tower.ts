@@ -120,6 +120,7 @@ const adminModerationSecurityAlertsRoute = readRequired("src/app/api/admin/moder
 const guestQualityHelper = readRequired("src/lib/admin-analytics-guest-bounce-quality.ts");
 const eventMixHelper = readRequired("src/lib/admin-analytics-event-mix.ts");
 const liveInteractionStreamHelper = readRequired("src/lib/admin-analytics-live-interaction-stream.ts");
+const returnCadenceHelper = readRequired("src/lib/admin-analytics-return-cadence.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
@@ -2013,6 +2014,16 @@ for (const expected of [
   requireIncludes(liveInteractionStreamHelper, expected, "Live interaction stream truth helper");
 }
 for (const expected of [
+  "buildAdminAnalyticsReturnCadenceModel",
+  "Return cadence is using identified activity fallback because the cadence snapshot has not hydrated.",
+  "Return cadence source missing. No verified zero should be displayed.",
+  "trackedAuthenticatedUsers",
+  "uniqueReturners",
+  "conversionPct",
+]) {
+  requireIncludes(returnCadenceHelper, expected, "Return cadence truth helper");
+}
+for (const expected of [
   "Mode:",
   "Source:",
   "Last event:",
@@ -2055,6 +2066,7 @@ try {
       /^src\/lib\/admin-analytics-guest-bounce-quality\.ts$/u,
       /^src\/lib\/admin-analytics-event-mix\.ts$/u,
       /^src\/lib\/admin-analytics-audience-snapshot\.ts$/u,
+      /^src\/lib\/admin-analytics-return-cadence\.ts$/u,
       /^src\/lib\/admin-analytics-journey-funnel\.ts$/u,
       /^src\/lib\/admin-analytics-auth-outcome-split\.ts$/u,
       /^src\/lib\/auth-outcome-telemetry\.ts$/u,

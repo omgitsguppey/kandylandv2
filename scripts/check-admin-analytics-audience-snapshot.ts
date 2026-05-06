@@ -26,6 +26,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const helper = read("src/lib/admin-analytics-audience-snapshot.ts");
+const returnCadenceHelper = read("src/lib/admin-analytics-return-cadence.ts");
 const route = read("src/app/api/admin/analytics/historical/route.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 const types = read("src/types/admin-analytics.ts");
@@ -34,6 +35,7 @@ const doc = read("docs/agent-truth/admin-analytics-audience-snapshot.md");
 assertIncludes("audience types", types, "export type AudienceSnapshotState");
 assertIncludes("audience types", types, "sourceState: \"verified\" | \"mixed\" | \"estimated\" | \"partial\" | \"gap_detected\" | \"stale\"");
 assertIncludes("audience types", types, "export type AudienceSnapshotDiagnostics");
+assertIncludes("audience types", types, "export type ReturnCadenceState");
 
 assertIncludes("historical route", route, "audienceSnapshotDiagnostics");
 assertIncludes("historical route", route, "recoveredByGaDayKeys");
@@ -56,6 +58,12 @@ assertIncludes("audience component", component, "data-audience-recent-gap-days-c
 assertIncludes("audience component", component, "data-audience-recovery-mode");
 assertIncludes("audience component", component, "data-audience-estimated-share");
 assertIncludes("audience component", component, "data-audience-generated-at-utc");
+assertIncludes("audience component", component, "data-return-cadence-source-truth");
+assertIncludes("audience component", component, "data-return-cadence-tracked-users");
+assertIncludes("audience component", component, "data-return-cadence-generated-at-utc");
+assertIncludes("audience component", component, "Tracked Auth Users");
+assertIncludes("audience component", component, "No verified zero should be displayed");
+assertIncludes("return cadence helper", returnCadenceHelper, "Return cadence is using identified activity fallback because the cadence snapshot has not hydrated.");
 assertIncludes("audience component", component, "label=\"GA4 Users\"");
 assertIncludes("audience component", component, "Guest estimate");
 assertIncludes("audience component", component, "First-party continuity");

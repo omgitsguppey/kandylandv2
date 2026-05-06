@@ -16,6 +16,7 @@ The admin user surfaces are allowed to load in lanes, but they are not allowed t
 - per-user behavior comes from the canonical user behavior rollup
 - watch time prefers watch-session rollups and labels `legacy_page_duration` when fallback is used
 - engagement score is canonical and verdict-first: unwraps, valid watch time, purchases, repeat visits, meaningful actions, then low-weight free-GD intent
+- return cadence groups authenticated users by distinct active days from verified authenticated activity, not only login events, and it must not display a verified zero when the cadence source is missing
 - behavioral recommendations collapse to `Insufficient signal` when confidence is not high enough
 - action ledger rows use normalized user-action taxonomy, not raw random event names
 - truth badges follow the shared doctrine: `live`, `refreshing`, `stale`, `degraded`, `failed`, `unavailable`, `delayed`, `review`

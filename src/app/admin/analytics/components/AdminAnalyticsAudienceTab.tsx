@@ -23,7 +23,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,
     regionsRange, geo,
-    audienceHistorySeries, audienceSnapshotModel, returnCadenceSegments, returnCadenceSummary, navigationDestinationsMix, deviceMixDevices, deviceMixTotalUsers, topPathsPages, regionsGeo,
+    audienceHistorySeries, audienceSnapshotModel, returnCadenceModel, navigationDestinationsMix, deviceMixDevices, deviceMixTotalUsers, topPathsPages, regionsGeo,
 
     // Commerce Tab
     commerceSnapshotRange, commerce,
@@ -34,7 +34,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter
   } = props;
   const historicalPanelTruthState = historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable");
-  const returnCadenceTruthState = returnCadenceSummary ? historicalPanelTruthState : historicalLoading ? "loading" : "unavailable";
+  const returnCadenceTruthState = returnCadenceModel.truthState ?? (historicalLoading ? "loading" : "unavailable");
   React.useEffect(() => {
     (window as typeof window & {
       __KANDYDROPS_ADMIN_ANALYTICS_AUDIENCE_SNAPSHOT_DEBUG__?: unknown;
@@ -315,10 +315,36 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 icon={Route}
                 rightSlot={renderSectionRangeControl("returnCadence")}
               >
+                <div
+                  className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                  data-return-cadence-source-truth={returnCadenceModel.sourceTruth}
+                  data-return-cadence-freshness={returnCadenceModel.freshnessState}
+                  data-return-cadence-tracked-users={String(returnCadenceModel.trackedAuthenticatedUsers)}
+                  data-return-cadence-unique-returners={String(returnCadenceModel.uniqueReturners)}
+                  data-return-cadence-bucket-one={String(returnCadenceModel.buckets.oneDay)}
+                  data-return-cadence-bucket-two={String(returnCadenceModel.buckets.twoDays)}
+                  data-return-cadence-bucket-three-four={String(returnCadenceModel.buckets.threeToFourDays)}
+                  data-return-cadence-bucket-five-plus={String(returnCadenceModel.buckets.fivePlusDays)}
+                  data-return-cadence-generated-at-utc={returnCadenceModel.generatedAtUtc}
+                >
+                  {returnCadenceModel.visibleCopy.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                  <p className="text-gray-500">
+                    Source: {returnCadenceModel.sourceLabel}
+                    {" | "}Freshness: {returnCadenceModel.freshnessState}
+                    {" | "}Range: {returnCadenceModel.range}
+                  </p>
+                  <p className="text-gray-500">
+                    Generated: {returnCadenceModel.generatedAtUtc === new Date(0).toISOString()
+                      ? "Unavailable"
+                      : formatRelativeTime(Date.parse(returnCadenceModel.generatedAtUtc), nowMs)}
+                  </p>
+                </div>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                      data={returnCadenceSegments}
+                      data={returnCadenceModel.fakeZeroPrevented ? [] : returnCadenceModel.chartSegments}
                       margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
                     >
                       <CartesianGrid
@@ -348,22 +374,71 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/5 pt-4">
+                <div className="mt-3 grid gap-2 md:grid-cols-4">
+                  {[
+                    { label: "1 day", count: returnCadenceModel.buckets.oneDay },
+                    { label: "2 days", count: returnCadenceModel.buckets.twoDays },
+                    { label: "3-4 days", count: returnCadenceModel.buckets.threeToFourDays },
+                    { label: "5+ days", count: returnCadenceModel.buckets.fivePlusDays },
+                  ].map((bucket) => {
+                    const pct = returnCadenceModel.trackedAuthenticatedUsers > 0
+                      ? bucket.count / returnCadenceModel.trackedAuthenticatedUsers
+                      : 0;
+                    return (
+                      <div
+                        key={bucket.label}
+                        className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300"
+                      >
+                        <p className="font-semibold text-white">{bucket.label}</p>
+                        <p>{returnCadenceModel.fakeZeroPrevented ? "[unavailable]" : formatCompactNumber(bucket.count)}</p>
+                        <p className="text-gray-500">
+                          {returnCadenceModel.fakeZeroPrevented ? "No verified denominator" : formatPercent(pct)}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-[11px] text-gray-500">
+                  {returnCadenceModel.denominatorExplanation}
+                </p>
+                <div className="mt-4 grid gap-3 border-t border-white/5 pt-4 md:grid-cols-3">
                   <MetricCard
-                    label="Unique Returners"
-                    value={returnCadenceSummary ? formatCompactNumber(returnCadenceSummary.uniqueReturners) : "[unavailable]"}
-                    hint={returnCadenceSummary ? "Multiple days active" : "Return cadence source unavailable"}
+                    label="Tracked Auth Users"
+                    value={
+                      returnCadenceModel.fakeZeroPrevented
+                        ? "[unavailable]"
+                        : formatCompactNumber(returnCadenceModel.trackedAuthenticatedUsers)
+                    }
+                    hint={returnCadenceModel.sourceTruth === "missing"
+                      ? "No verified zero should be displayed"
+                      : "Authenticated activity days in range"}
                     icon={Users}
                     truthState={returnCadenceTruthState}
-                    dictionaryTooltip="Count of authenticated users who have logged in on multiple distinct days within the selected time window."
+                    dictionaryTooltip="Tracked authenticated users are users with at least one qualifying authenticated activity day in the selected range."
+                  />
+                  <MetricCard
+                    label="Unique Returners"
+                    value={returnCadenceModel.fakeZeroPrevented
+                      ? "[unavailable]"
+                      : formatCompactNumber(returnCadenceModel.uniqueReturners)}
+                    hint={returnCadenceModel.sourceTruth === "missing"
+                      ? "Return cadence source unavailable"
+                      : "Users active on 2+ distinct days"}
+                    icon={Users}
+                    truthState={returnCadenceTruthState}
+                    dictionaryTooltip="Count of authenticated users active on two or more distinct days within the selected time window."
                   />
                   <MetricCard
                     label="Conversion"
-                    value={returnCadenceSummary ? formatPercent(returnCadenceSummary.returnerConversionRate) : "[unavailable]"}
-                    hint={returnCadenceSummary ? `${returnCadenceSummary.trackedUsers.toLocaleString()} tracked users` : "Tracked user source unavailable"}
+                    value={returnCadenceModel.fakeZeroPrevented
+                      ? "[unavailable]"
+                      : formatPercent(returnCadenceModel.conversionPct)}
+                    hint={returnCadenceModel.sourceTruth === "missing"
+                      ? "Tracked user source unavailable"
+                      : `${returnCadenceModel.trackedAuthenticatedUsers.toLocaleString()} tracked authenticated users`}
                     icon={Activity}
                     truthState={returnCadenceTruthState}
-                    dictionaryTooltip="The percentage of all tracked authenticated users in this window who returned on multiple days."
+                    dictionaryTooltip="The percentage of tracked authenticated users in this window who were active on multiple distinct days."
                   />
                 </div>
               </SectionCard>

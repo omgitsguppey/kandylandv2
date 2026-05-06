@@ -164,6 +164,30 @@ export interface ReturnCadenceSegment extends CountBucketItem {
   users: number;
 }
 
+export type ReturnCadenceState = {
+  generatedAtUtc: string;
+  range: string;
+  sourceTruth:
+    | "materialized_user_activity"
+    | "identified_event_facts"
+    | "auth_sessions"
+    | "mixed_fallback"
+    | "missing";
+  freshnessState: "live" | "partial" | "stale" | "missing" | "unknown";
+  trackedAuthenticatedUsers: number;
+  uniqueReturners: number;
+  conversionPct: number;
+  buckets: {
+    oneDay: number;
+    twoDays: number;
+    threeToFourDays: number;
+    fivePlusDays: number;
+  };
+  denominatorExplanation: string;
+  missingReason?: string;
+  warnings: string[];
+};
+
 export interface SurfaceMixItem {
   key: string;
   label: string;
@@ -631,6 +655,7 @@ export interface HistoricalAnalyticsResponse {
   authOutcomeSummary?: AuthOutcomeSummary;
   onboardingDurationBuckets?: CountBucketItem[];
   repeatVisitSegments?: ReturnCadenceSegment[];
+  returnCadenceState?: ReturnCadenceState;
   destinationMix?: DestinationMixItem[];
   notificationFunnel?: CountBucketItem[];
   notificationActions?: Array<{ label: string; value: number }>;
