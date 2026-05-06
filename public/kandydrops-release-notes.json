@@ -1,10 +1,44 @@
 {
-  "currentVersion": "1.48.0",
+  "currentVersion": "1.48.1",
   "channel": "beta",
-  "generatedAt": "2026-05-06T03:12:27.468Z",
-  "generatedAtUtc": "2026-05-06T03:12:27.468Z",
-  "lastCommitSha": "874c1ba93f3a1152ba26ad009491f294c4ea6d84",
+  "generatedAt": "2026-05-06T03:16:50.927Z",
+  "generatedAtUtc": "2026-05-06T03:16:50.927Z",
+  "lastCommitSha": "0dd9d1e33525a45e777f6e1a01ecbe36e653ac36",
   "notes": [
+    {
+      "version": "1.48.1",
+      "previousVersion": "1.48.0",
+      "commitSha": "0dd9d1e33525a45e777f6e1a01ecbe36e653ac36",
+      "commitTitle": "fix(admin): normalize recent event flow context",
+      "committedAt": "2026-05-06T03:16:38.000Z",
+      "generatedAt": "2026-05-06T03:16:50.927Z",
+      "committedAtUtc": "2026-05-06T03:16:38.000Z",
+      "generatedAtUtc": "2026-05-06T03:16:50.927Z",
+      "diffStats": {
+        "rawAdditions": 51,
+        "rawDeletions": 24,
+        "rawChangeCount": 75,
+        "additions": 51,
+        "deletions": 24,
+        "effectiveAdditions": 51,
+        "effectiveDeletions": 24,
+        "changedFiles": 6,
+        "effectiveChangeCount": 75,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal event-flow diagnostics so background system events are not confused with user actions.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.48.0",
       "previousVersion": "1.47.1",
@@ -1603,38 +1637,6 @@
       ],
       "committedAtUtc": "2026-05-05T11:33:36.000Z",
       "generatedAtUtc": "2026-05-05T12:02:57.294Z"
-    },
-    {
-      "version": "1.13.0",
-      "previousVersion": "1.12.0",
-      "commitSha": "1420446301c40159345fb5aa96a4e268ef32b942",
-      "commitTitle": "feat(recommendations): add cold-start exploration budget",
-      "committedAt": "2026-05-05T11:20:34.000Z",
-      "generatedAt": "2026-05-05T12:02:56.927Z",
-      "diffStats": {
-        "rawAdditions": 873,
-        "rawDeletions": 32,
-        "rawChangeCount": 905,
-        "additions": 873,
-        "deletions": 32,
-        "effectiveAdditions": 873,
-        "effectiveDeletions": 32,
-        "changedFiles": 11,
-        "effectiveChangeCount": 905,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T11:20:34.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:56.927Z"
     }
   ]
 }

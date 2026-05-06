@@ -1,12 +1,46 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.48.0",
+  "currentVersion": "1.48.1",
   "channel": "beta",
-  "generatedAt": "2026-05-06T03:12:27.468Z",
-  "generatedAtUtc": "2026-05-06T03:12:27.468Z",
-  "lastCommitSha": "874c1ba93f3a1152ba26ad009491f294c4ea6d84",
+  "generatedAt": "2026-05-06T03:16:50.927Z",
+  "generatedAtUtc": "2026-05-06T03:16:50.927Z",
+  "lastCommitSha": "0dd9d1e33525a45e777f6e1a01ecbe36e653ac36",
   "notes": [
+    {
+      "version": "1.48.1",
+      "previousVersion": "1.48.0",
+      "commitSha": "0dd9d1e33525a45e777f6e1a01ecbe36e653ac36",
+      "commitTitle": "fix(admin): normalize recent event flow context",
+      "committedAt": "2026-05-06T03:16:38.000Z",
+      "generatedAt": "2026-05-06T03:16:50.927Z",
+      "committedAtUtc": "2026-05-06T03:16:38.000Z",
+      "generatedAtUtc": "2026-05-06T03:16:50.927Z",
+      "diffStats": {
+        "rawAdditions": 51,
+        "rawDeletions": 24,
+        "rawChangeCount": 75,
+        "additions": 51,
+        "deletions": 24,
+        "effectiveAdditions": 51,
+        "effectiveDeletions": 24,
+        "changedFiles": 6,
+        "effectiveChangeCount": 75,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal event-flow diagnostics so background system events are not confused with user actions.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.48.0",
       "previousVersion": "1.47.1",
@@ -139,39 +173,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "documentation",
         "repo-tooling",
         "wallet"
-      ]
-    },
-    {
-      "version": "1.45.0",
-      "previousVersion": "1.44.0",
-      "commitSha": "10b564958780c50abd44a654ef2ba485cb0e6d5c",
-      "commitTitle": "fix(admin): correct route runtime sample states",
-      "committedAt": "2026-05-06T02:40:29.000Z",
-      "generatedAt": "2026-05-06T02:40:47.854Z",
-      "committedAtUtc": "2026-05-06T02:40:29.000Z",
-      "generatedAtUtc": "2026-05-06T02:40:47.854Z",
-      "diffStats": {
-        "rawAdditions": 160,
-        "rawDeletions": 41,
-        "rawChangeCount": 201,
-        "additions": 160,
-        "deletions": 41,
-        "effectiveAdditions": 158,
-        "effectiveDeletions": 39,
-        "changedFiles": 9,
-        "effectiveChangeCount": 197,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal route runtime labels so unseen routes no longer appear as fake successes.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
       ]
     }
   ]
