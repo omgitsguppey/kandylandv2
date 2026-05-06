@@ -19,7 +19,7 @@ import {
     Video,
     X,
 } from "lucide-react";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { collection, limit, onSnapshot, query, where } from "firebase/firestore";
 import { onDisconnect, onValue, ref, remove, set } from "firebase/database";
 import { toast } from "sonner";
 
@@ -78,6 +78,7 @@ import {
 } from "@/lib/user-mobile-shell";
 
 const CHAT_COMPOSER_DEFAULT_HEIGHT_PX = 104;
+const CHAT_COMPOSER_CLEAN_PADDING_PX = 72;
 const CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME = "max-h-[min(28vh,10rem)] overflow-y-auto overscroll-y-contain";
 
 type ThreadListResponse = {
@@ -372,6 +373,8 @@ type LoadThreadDetailOptions = {
 };
 
 const MESSAGE_GROUP_GAP_MS = 15 * 60_000;
+const CHAT_THREAD_LISTENER_LIMIT = 250;
+const CHAT_MESSAGE_LISTENER_LIMIT = 250;
 const CHAT_THREAD_LIST_SCOPE = "chat thread list";
 const CHAT_MESSAGES_SCOPE = "chat messages";
 const CHAT_REALTIME_SCOPES = [
@@ -735,6 +738,11 @@ export function ChatExperience() {
     }, [normalizedThreadSearch, visibleThreads]);
     const showCompactThreadListOnly = isCompactViewport && !selectedThreadId;
     const canComposeFromFollowedCreators = followedCreators.length > 0;
+    const composerSummary = useMemo(
+        () => renderPriceSummary(selectedDetail, selectedThread?.viewerRole ?? "user"),
+        [selectedDetail, selectedThread?.viewerRole],
+    );
+    const hasComposerTray = Boolean(sendErrorMessage || sendWarningMessage || insufficientFunds || composerFile || composerSummary);
     const chatViewportShellStyle = useMemo(() => ({
         paddingBottom: isCompactViewport ? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET : undefined,
     }) satisfies CSSProperties, [isCompactViewport]);
@@ -754,10 +762,11 @@ export function ChatExperience() {
     const chatThreadSectionStyle = useMemo(() => ({
         ["--chat-composer-height" as "--chat-composer-height"]: `${chatComposerHeightPx}px`,
         ["--chat-safe-bottom" as "--chat-safe-bottom"]: isCompactViewport ? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET : "0px",
-    }) as CSSProperties, [chatComposerHeightPx, isCompactViewport]);
+        ["--chat-transcript-bottom-padding" as "--chat-transcript-bottom-padding"]: `calc(${hasComposerTray ? `${chatComposerHeightPx}px` : `${CHAT_COMPOSER_CLEAN_PADDING_PX}px`} + var(--chat-safe-bottom, 0px))`,
+    }) as CSSProperties, [chatComposerHeightPx, hasComposerTray, isCompactViewport]);
     const chatTranscriptStyle = useMemo(() => ({
-        paddingBottom: "calc(var(--chat-composer-height, 104px) + var(--chat-safe-bottom, 0px))",
-        scrollPaddingBottom: "calc(var(--chat-composer-height, 104px) + var(--chat-safe-bottom, 0px))",
+        paddingBottom: `max(calc(var(--chat-transcript-bottom-padding, ${CHAT_COMPOSER_CLEAN_PADDING_PX}px)), calc(${CHAT_COMPOSER_CLEAN_PADDING_PX}px + var(--chat-safe-bottom, 0px)))`,
+        scrollPaddingBottom: `max(calc(var(--chat-transcript-bottom-padding, ${CHAT_COMPOSER_CLEAN_PADDING_PX}px)), calc(${CHAT_COMPOSER_CLEAN_PADDING_PX}px + var(--chat-safe-bottom, 0px)))`,
     }) satisfies CSSProperties, []);
     const selectedThreadIdSet = useMemo(() => new Set(selectedThreadIds), [selectedThreadIds]);
     const liveViewerRole = useMemo(() => resolveChatViewerRole({
@@ -1469,7 +1478,7 @@ export function ChatExperience() {
         const observerControl = createAutoHealingObserver(() => {
             if (!active) return;
             return onSnapshot(
-                query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid)),
+                query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid), limit(CHAT_THREAD_LISTENER_LIMIT)),
                 (snapshot) => {
                     if (!active) {
                         return;
@@ -1535,7 +1544,8 @@ export function ChatExperience() {
                 query(
                     collection(db, CHAT_COLLECTIONS.messages),
                     where("threadId", "==", selectedThreadId),
-                    where(viewerField, "==", user.uid)
+                    where(viewerField, "==", user.uid),
+                    limit(CHAT_MESSAGE_LISTENER_LIMIT)
                 ),
                 (snapshot) => {
                     if (!active) return;
@@ -2237,11 +2247,6 @@ export function ChatExperience() {
         }
     }, [latestMessageSnapshot, scrollMessageListToBottom, selectedDetail?.messages, selectedThread]);
 
-    const composerSummary = useMemo(
-        () => renderPriceSummary(selectedDetail, selectedThread?.viewerRole ?? "user"),
-        [selectedDetail, selectedThread?.viewerRole],
-    );
-
     if (!user || !userProfile) {
         return null;
     }
@@ -2718,7 +2723,7 @@ export function ChatExperience() {
                                     data-chat-density="public-beta-compact"
                                     data-chat-composer-chin="compact"
                                 >
-                                    {(sendErrorMessage || sendWarningMessage || insufficientFunds || composerFile || composerSummary) ? (
+                                    {hasComposerTray ? (
                                         <div className={cn("mb-2.5 space-y-2", CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME)}>
                                             {sendErrorMessage ? (
                                                 <div className="rounded-[1.2rem] border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
