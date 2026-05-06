@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.35.0",
+  "currentVersion": "1.35.1",
   "channel": "beta",
-  "generatedAt": "2026-05-06T00:40:50.880Z",
-  "generatedAtUtc": "2026-05-06T00:40:50.880Z",
-  "lastCommitSha": "91ab9d6700726f95ec0dc2f0dfbaaa87c538c799",
+  "generatedAt": "2026-05-06T01:04:37.379Z",
+  "generatedAtUtc": "2026-05-06T01:04:37.379Z",
+  "lastCommitSha": "5fb376874b728d59e981d5001d07ff16c62f30c7",
   "notes": [
+    {
+      "version": "1.35.1",
+      "previousVersion": "1.35.0",
+      "commitSha": "5fb376874b728d59e981d5001d07ff16c62f30c7",
+      "commitTitle": "fix(creator): classify synthetic countersign evidence",
+      "committedAt": "2026-05-06T01:04:20.000Z",
+      "generatedAt": "2026-05-06T01:04:37.379Z",
+      "committedAtUtc": "2026-05-06T01:04:20.000Z",
+      "generatedAtUtc": "2026-05-06T01:04:37.379Z",
+      "diffStats": {
+        "rawAdditions": 57,
+        "rawDeletions": 12,
+        "rawChangeCount": 69,
+        "additions": 57,
+        "deletions": 12,
+        "effectiveAdditions": 55,
+        "effectiveDeletions": 10,
+        "changedFiles": 9,
+        "effectiveChangeCount": 65,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal creator classification checks.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.35.0",
       "previousVersion": "1.34.0",
@@ -136,39 +169,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "affectedSurfaces": [
         "telemetry"
-      ]
-    },
-    {
-      "version": "1.31.0",
-      "previousVersion": "1.30.0",
-      "commitSha": "2598da003f071e915bdc3aeb9f86d4657ad1e274",
-      "commitTitle": "fix(admin): downgrade optional owner override reason",
-      "committedAt": "2026-05-05T22:19:17.000Z",
-      "generatedAt": "2026-05-05T22:19:29.625Z",
-      "committedAtUtc": "2026-05-05T22:19:17.000Z",
-      "generatedAtUtc": "2026-05-05T22:19:29.625Z",
-      "diffStats": {
-        "rawAdditions": 200,
-        "rawDeletions": 31,
-        "rawChangeCount": 231,
-        "additions": 200,
-        "deletions": 31,
-        "effectiveAdditions": 195,
-        "effectiveDeletions": 28,
-        "changedFiles": 15,
-        "effectiveChangeCount": 223,
-        "excludedGeneratedChangeCount": 8
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Adjusted internal creator review warnings to match admin override rules.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
       ]
     }
   ]
