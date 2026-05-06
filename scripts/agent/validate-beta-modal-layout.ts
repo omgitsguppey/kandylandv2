@@ -7,9 +7,15 @@ const failures: string[] = [];
 
 for (const expected of [
   "fixed inset-0",
+  "z-[200]",
+  "isolate",
   "overflow-hidden",
   "overscroll-contain",
+  "overscroll-none",
   "document.body.style.overflow = \"hidden\"",
+  "document.documentElement.style.overflow = \"hidden\"",
+  "document.body.style.position = \"fixed\"",
+  "window.scrollTo(0, scrollY)",
   "max-w-[calc(100vw-1.5rem)]",
   "min-w-0",
   "max-w-full",

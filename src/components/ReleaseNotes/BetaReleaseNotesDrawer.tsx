@@ -56,11 +56,32 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
 
   useEffect(() => {
     if (!isOpen) return;
+    const scrollY = window.scrollY;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousHtmlOverscroll = document.documentElement.style.overscrollBehavior;
     const previousOverflow = document.body.style.overflow;
+    const previousPosition = document.body.style.position;
+    const previousTop = document.body.style.top;
+    const previousWidth = document.body.style.width;
+    const previousOverscroll = document.body.style.overscrollBehavior;
+
+    document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.overscrollBehavior = "none";
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
+    document.body.style.overscrollBehavior = "none";
 
     return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.documentElement.style.overscrollBehavior = previousHtmlOverscroll;
       document.body.style.overflow = previousOverflow;
+      document.body.style.position = previousPosition;
+      document.body.style.top = previousTop;
+      document.body.style.width = previousWidth;
+      document.body.style.overscrollBehavior = previousOverscroll;
+      window.scrollTo(0, scrollY);
     };
   }, [isOpen]);
 
@@ -68,7 +89,7 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
 
   return (
     <div
-      className="fixed inset-0 z-[90] overflow-hidden bg-black/45 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-[calc(4.5rem+env(safe-area-inset-top))] backdrop-blur-sm"
+      className="fixed inset-0 z-[200] isolate overflow-hidden overscroll-none bg-black/55 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-[calc(4.5rem+env(safe-area-inset-top))] backdrop-blur-sm"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
@@ -77,7 +98,7 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
       <section
         aria-modal="true"
         aria-labelledby="beta-release-notes-title"
-        className="ml-auto flex max-h-[min(34rem,calc(100dvh-7rem))] w-full max-w-md max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-[1.5rem] border border-white/12 bg-[#130819]/95 shadow-2xl shadow-black/50"
+        className="pointer-events-auto ml-auto flex max-h-[min(34rem,calc(100dvh-7rem))] w-full max-w-md max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-[1.5rem] border border-white/12 bg-[#130819]/95 shadow-2xl shadow-black/50"
         data-beta-release-notes-count={visibleNotes.length}
         data-beta-release-notes-freshness={freshness}
         data-beta-changelog-source={source}
