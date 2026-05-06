@@ -3,18 +3,9 @@
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
+import { DebugBugIntakePanel } from "./DebugBugIntakePanel";
 
 /* ─── Helpers ─── */
-function formatRelative(timestamp?: number) {
-    if (!timestamp) return "No recent activity";
-    const deltaMs = Math.max(0, Date.now() - timestamp);
-    const minutes = Math.floor(deltaMs / 60_000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-}
 function toneForTaskSeverity(severity?: string) {
     if (severity === "error") return "bad" as const;
     if (severity === "review") return "warn" as const;
@@ -196,36 +187,7 @@ export function DebugTabActions({
                         </ScrollWrap>
                     </Section>
 
-                    <Section
-                        title="Bug reports to triage"
-                        subtitle="Recent bug intake with severity, path, and diagnostic context."
-                        defaultOpen={(data?.bugReports || []).length > 0}
-                        summary={<><Pill label="Loaded" value={(data?.bugReports || []).length} /><Pill label="Last 7d" value={data?.stats?.bugReportsLast7d ?? 0} tone={(data?.stats?.bugReportsLast7d ?? 0) > 0 ? "warn" : "good"} /></>}
-                    >
-                        <div className="space-y-3">
-                            {(data?.bugReports || []).length ? (data?.bugReports || []).map((report: any) => (
-                                <div key={report.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                    <div className="flex flex-wrap items-start justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <p className="truncate font-semibold text-white">{report.summary || "Untitled bug report"}</p>
-                                            <p className="mt-1 text-xs text-gray-400">{report.currentPath || "Unknown path"} | {report.componentName || "Unknown component"}</p>
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            <Pill label="Status" value={report.status} />
-                                            <Pill label="Severity" value={report.severity} tone={report.severity === "high" || report.severity === "critical" ? "bad" : report.severity === "medium" ? "warn" : "neutral"} />
-                                        </div>
-                                    </div>
-                                    <p className="mt-3 line-clamp-3 text-sm text-gray-300">{report.message}</p>
-                                    <div className="mt-3 flex flex-wrap gap-2">
-                                        <Pill label="Breadcrumbs" value={report.breadcrumbsCount} />
-                                        <Pill label="Diagnostics" value={report.diagnosticsCount} />
-                                        <Pill label="Rollouts" value={report.rolloutCount} />
-                                        <Pill label="When" value={formatRelative(report.timestamp)} />
-                                    </div>
-                                </div>
-                            )) : <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">No bug reports are loaded in the current sample.</div>}
-                        </div>
-                    </Section>
+                    <DebugBugIntakePanel data={data} />
 
                     <Section
                         title="Manual utilities (not live health)"

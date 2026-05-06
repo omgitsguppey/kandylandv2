@@ -95,6 +95,53 @@ type TaskIssueAttribution = {
     };
 };
 
+type BugReportStatus = "new" | "triaged" | "in_progress" | "resolved" | "dismissed";
+type BugReportSeverity = "low" | "medium" | "high" | "critical";
+type BugReportAgeBucket = "last_7d" | "older_backlog";
+type BugReportTriageState = "new" | "review" | "in_progress" | "resolved";
+
+type BugReportTriageCard = {
+    reportId: string;
+    id: string;
+    title: string;
+    path: string;
+    currentPath: string;
+    sourceComponent: string;
+    componentName: string;
+    status: BugReportStatus;
+    severity: BugReportSeverity;
+    issueType: string;
+    userMessage: string;
+    message: string;
+    breadcrumbsCount: number;
+    diagnosticsCount: number;
+    rolloutCount: number;
+    createdAtUtc: string;
+    timestamp: number;
+    ageLabel: string;
+    ageBucket: BugReportAgeBucket;
+    state: BugReportTriageState;
+    inventoryState: "loaded" | "missing" | "partial";
+};
+
+type BugIntakeTriageSummary = {
+    loadedCount: number;
+    last7dCount: number;
+    backlogCount: number;
+    newCount: number;
+    mediumCount: number;
+    highCount: number;
+    needsTriageCount: number;
+    groupedByPath: Array<{
+        path: string;
+        count: number;
+        newestAtUtc: string;
+        highestSeverity: BugReportSeverity;
+    }>;
+    generatedAtUtc: string;
+    freshnessState: "live" | "stale" | "failed" | "unknown";
+};
+
 function toNumber(value: unknown) {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric : 0;
@@ -102,6 +149,72 @@ function toNumber(value: unknown) {
 
 function toStringValue(value: unknown) {
     return typeof value === "string" ? value : "";
+}
+
+function normalizeBugReportStatus(value: unknown): BugReportStatus {
+    const status = toStringValue(value);
+    if (status === "triaged" || status === "in_progress" || status === "resolved" || status === "dismissed") return status;
+    return "new";
+}
+
+function normalizeBugReportSeverity(value: unknown): BugReportSeverity {
+    const severity = toStringValue(value);
+    if (severity === "low" || severity === "high" || severity === "critical") return severity;
+    return "medium";
+}
+
+function getBugReportAgeLabel(nowMs: number, timestamp: number) {
+    if (timestamp <= 0) return "unknown age";
+    const minutes = Math.floor(Math.max(0, nowMs - timestamp) / 60_000);
+    if (minutes < 1) return "just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+}
+
+function getBugReportTriageState(status: BugReportStatus, severity: BugReportSeverity): BugReportTriageState {
+    if (status === "resolved" || status === "dismissed") return "resolved";
+    if (status === "in_progress") return "in_progress";
+    if (status === "new" && (severity === "medium" || severity === "high" || severity === "critical")) return "review";
+    return "new";
+}
+
+function bugReportNeedsTriage(report: Pick<BugReportTriageCard, "status" | "severity">) {
+    return (report.status === "new" || report.status === "in_progress")
+        && (report.severity === "medium" || report.severity === "high" || report.severity === "critical");
+}
+
+function getHighestBugSeverity(reports: Array<Pick<BugReportTriageCard, "severity">>): BugReportSeverity {
+    const rank: Record<BugReportSeverity, number> = { low: 1, medium: 2, high: 3, critical: 4 };
+    return reports.reduce<BugReportSeverity>((highest, report) => rank[report.severity] > rank[highest] ? report.severity : highest, "low");
+}
+
+function buildBugIntakeTriageSummary(reports: BugReportTriageCard[], nowMs: number): BugIntakeTriageSummary {
+    const pathGroups = new Map<string, BugReportTriageCard[]>();
+    reports.forEach((report) => {
+        const key = report.path || "Unknown path";
+        pathGroups.set(key, [...(pathGroups.get(key) ?? []), report]);
+    });
+    return {
+        loadedCount: reports.length,
+        last7dCount: reports.filter((report) => report.ageBucket === "last_7d").length,
+        backlogCount: reports.filter((report) => report.ageBucket === "older_backlog").length,
+        newCount: reports.filter((report) => report.status === "new").length,
+        mediumCount: reports.filter((report) => report.severity === "medium").length,
+        highCount: reports.filter((report) => report.severity === "high" || report.severity === "critical").length,
+        needsTriageCount: reports.filter(bugReportNeedsTriage).length,
+        groupedByPath: Array.from(pathGroups.entries())
+            .map(([path, group]) => ({
+                path,
+                count: group.length,
+                newestAtUtc: new Date(group.reduce((latest, report) => Math.max(latest, report.timestamp), 0) || nowMs).toISOString(),
+                highestSeverity: getHighestBugSeverity(group),
+            }))
+            .sort((left, right) => right.count - left.count || Date.parse(right.newestAtUtc) - Date.parse(left.newestAtUtc)),
+        generatedAtUtc: new Date(nowMs).toISOString(),
+        freshnessState: reports.length > 0 ? "live" : "unknown",
+    };
 }
 
 function getLatestTaskAssignmentAt(tasks: Array<{ assignedAt?: number }>) {
@@ -1188,32 +1301,59 @@ export async function GET(request: NextRequest) {
             })),
         };
 
-        const bugReports = feedbackSnapshot.docs
+        const bugReports: BugReportTriageCard[] = feedbackSnapshot.docs
             .map((doc) => {
                 const data = doc.data() as Record<string, unknown>;
+                const status = normalizeBugReportStatus(data.status);
+                const severity = normalizeBugReportSeverity(data.severity);
+                const timestamp = toTimestampNumber(data.timestamp)
+                    || toTimestampNumber(data.createdAt)
+                    || toNumber(data.createdAtMs);
+                const component = (data.component as Record<string, unknown> | undefined) ?? null;
+                const path = toStringValue(data.currentPath) || toStringValue(data.path) || "Unknown path";
+                const sourceComponent = toStringValue(data.componentName)
+                    || toStringValue(component?.name)
+                    || toStringValue(data.sourceComponent)
+                    || "Unknown component";
+                const diagnosticsCount = toNumber(data.diagnosticsCount);
+                const breadcrumbsCount = toNumber(data.breadcrumbsCount);
+                const rolloutCount = toNumber(data.rolloutCount);
+                const inventoryState: BugReportTriageCard["inventoryState"] = diagnosticsCount > 0 || breadcrumbsCount > 0 || rolloutCount > 0 ? "loaded" : "partial";
+                const ageBucket: BugReportAgeBucket = timestamp >= weekAgoMs ? "last_7d" : "older_backlog";
                 return {
+                    reportId: doc.id,
                     id: doc.id,
                     userId: toStringValue(data.userId),
                     email: toStringValue(data.email) || null,
+                    title: toStringValue(data.summary) || toStringValue(data.message) || "Untitled bug report",
                     summary: toStringValue(data.summary) || toStringValue(data.message),
+                    userMessage: toStringValue(data.message),
                     message: toStringValue(data.message),
                     category: toStringValue(data.category) || "general",
-                    status: toStringValue(data.status) || "new",
+                    status,
                     issueType: toStringValue(data.issueType) || "other",
-                    severity: toStringValue(data.severity) || "medium",
+                    severity,
                     contextId: toStringValue(data.contextId),
-                    currentPath: toStringValue(data.currentPath),
-                    componentName: toStringValue(data.componentName),
-                    diagnosticsCount: toNumber(data.diagnosticsCount),
-                    breadcrumbsCount: toNumber(data.breadcrumbsCount),
-                    rolloutCount: toNumber(data.rolloutCount),
-                    timestamp: toTimestampNumber(data.timestamp),
+                    path,
+                    currentPath: path,
+                    sourceComponent,
+                    componentName: sourceComponent,
+                    diagnosticsCount,
+                    breadcrumbsCount,
+                    rolloutCount,
+                    createdAtUtc: timestamp > 0 ? new Date(timestamp).toISOString() : "unknown",
+                    timestamp,
+                    ageLabel: getBugReportAgeLabel(nowMs, timestamp),
+                    ageBucket,
+                    state: getBugReportTriageState(status, severity),
+                    inventoryState,
                     autoContext: (data.autoContext as Record<string, unknown> | undefined) ?? null,
-                    component: (data.component as Record<string, unknown> | undefined) ?? null,
+                    component,
                 };
             })
             .filter((item) => item.category === "bug_report")
             .slice(0, 100);
+        const bugIntakeTriage = buildBugIntakeTriageSummary(bugReports, nowMs);
 
         const rollouts = getConfiguredRollouts().map((rollout) => ({
             id: rollout.id,
@@ -1270,7 +1410,7 @@ export async function GET(request: NextRequest) {
             legacyRewardVersionCount: legacyRewardVersionCount,
             trackedTelemetryEvents: eventStats.length,
             orphanedTelemetryEvents: orphanedEventStats.length,
-            bugReportsLast7d: bugReports.filter((report) => report.timestamp >= weekAgoMs).length,
+            bugReportsLast7d: bugIntakeTriage.last7dCount,
             rolloutCount: rollouts.length,
             releaseEntryCount: changeLog.length,
             creatorSpendViolationsLast7d: creatorSpendParity.restrictedSpendViolationCount,
@@ -1314,7 +1454,7 @@ export async function GET(request: NextRequest) {
                 creatorSpendViolationsLast7d: creatorSpendParity.restrictedSpendViolationCount,
                 trackedTelemetryEvents: eventStats.length,
                 orphanedTelemetryEvents: orphanedEventStats.length,
-                bugReportsLast7d: bugReports.filter((report) => report.timestamp >= weekAgoMs).length,
+                bugReportsLast7d: bugIntakeTriage.last7dCount,
                 creatorOnboardingIssues: creatorOnboardingDiagnostics.summary.totalIssues,
                 orchestrationEvents: orchestration.summary.eventCount,
                 orchestrationOpenFindings: orchestration.summary.openFindings,
@@ -1371,6 +1511,7 @@ export async function GET(request: NextRequest) {
                 legacyRewardVersionCount,
             },
             creatorSpendParity,
+            bugIntakeTriage,
             bugReports,
             creatorOnboardingDiagnostics,
             rollouts,

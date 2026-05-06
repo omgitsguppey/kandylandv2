@@ -16,6 +16,8 @@ Do not invent balance, entitlement, notification, or account state from client r
 
 KandyDrops debug evidence is structured, fingerprinted, stored, and injected into deterministic audits. Runtime issues already detected by the app must become pre-catcher issue candidates before relying on manual bug reports. Support uses one unified inbox model, with admin routes able to list/read/reply to all support threads and users scoped only to their own threads. Debug evidence writes must never block user flows.
 
+Bug report triage in Admin Debug is evidence-first and read-only. Operators must distinguish the loaded sample from the last-seven-day count and older backlog; known bug report fields and context counts must not be labeled WAIT. New medium-or-higher reports need triage, while resolved or dismissed reports remain backlog/inventory unless reopened.
+
 Admin Support Workspace truth comes from the admin support API routes, not direct client Firestore listeners. The canonical inbox model is `support_threads/{threadId}` with nested `support_messages/{messageId}`. Admin routes may list/read/reply to all support threads after `auth: "admin"` and trusted-origin checks. User routes may list/read/reply only to the caller's own threads. Permission failures must produce human-readable operational copy and structured debug evidence.
 
 ## Operator Paths

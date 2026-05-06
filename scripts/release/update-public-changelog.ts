@@ -260,6 +260,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("group inspect-only repair proposals") || normalized.includes("inspect-only repair proposals")) {
     return "Improved internal repair proposal grouping so repeated debug items are easier to review.";
   }
+  if (normalized.includes("clarify bug intake triage states") || normalized.includes("bug intake triage")) {
+    return "Improved internal bug report triage labels so loaded reports no longer appear stuck.";
+  }
   if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
     return "Improved internal creator review status checks.";
   }

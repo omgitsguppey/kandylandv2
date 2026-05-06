@@ -52,6 +52,8 @@ Downstream writer evidence uses writer-specific freshness instead of a broad mat
 
 Repair proposal evidence must be deduped before display. The Admin Debug action lane groups exact proposals by source collection, canonical source path, repair kind, and missing-context reason, then groups repeated inspect-only notification and server drop-click source-context records into compact review cards. Header counts separate actionable repairs from inspect-only/manual-review rows, and duplicate source proposals stay visible through duplicate count, affected record count, and collapsed ids instead of repeated Apply/Dismiss cards.
 
+Bug report evidence from `platform_feedback` is a loaded sample plus recent intake summary. Admin Debug must show total loaded reports, last-seven-day reports, older backlog, and needs-triage count separately. Numeric breadcrumb, diagnostic, and rollout context counts are evidence inventory and render as LOADED/INFO when known; WAIT is reserved for loading only.
+
 ## Pre-Catcher
 
 `npm run precheck:runtime-issues` reads the redacted evidence index and writes `agent/state/precatch-runtime-issues.generated.json`.
