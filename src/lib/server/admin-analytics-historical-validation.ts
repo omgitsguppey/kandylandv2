@@ -21,6 +21,7 @@ export interface HistoricalTaskGuidanceSummary {
 export interface HistoricalValidationSummary {
   moduleCoverage: ReturnType<typeof buildModuleCoverageReport>[];
   unhealthyModules: ReturnType<typeof buildModuleCoverageReport>[];
+  analyticsModuleCoverage: AnalyticsModuleCoverage;
   parityScore: number;
   truthState: AnalyticsTruthSummary;
   validations: DataValidationCheck[];
@@ -116,6 +117,7 @@ export interface DataValidationCheck {
   implemented?: boolean;
   required?: boolean;
   eventNames?: string[];
+  moduleCoverage?: AnalyticsModuleCoverage;
 }
 
 export interface FailureCluster {
@@ -139,6 +141,36 @@ export interface TelemetryParityValidation {
   status: "pass" | "review" | "fail";
   blockedReason?: "required_sample_missing" | "materializer_failed" | "range_mismatch" | "source_mismatch" | "unknown";
   failureClusters: FailureCluster[];
+}
+
+export interface AnalyticsModuleCoverageItem {
+  moduleId: string;
+  moduleLabel: string;
+  status: "verified" | "partial" | "empty" | "stale" | "failed" | "optional";
+  severity: "info" | "review" | "error";
+  requiredForBeta: boolean;
+  sourceCount: number;
+  expectedSources: string[];
+  presentSources: string[];
+  missingSources: string[];
+  sampleCount: number;
+  lastSeenAtUtc: string | null;
+  dependentPanels: string[];
+  nextValidator: string;
+  nextAction: string;
+}
+
+export interface AnalyticsModuleCoverage {
+  range: string;
+  generatedAtUtc: string;
+  totalModules: number;
+  verifiedModules: number;
+  partialModules: number;
+  emptyModules: number;
+  parityScore: number;
+  passAllowed: boolean;
+  blockedReason?: "required_source_missing" | "module_empty" | "module_partial" | "unknown";
+  modules: AnalyticsModuleCoverageItem[];
 }
 
 export interface CommerceParityCheck {
@@ -641,6 +673,107 @@ const VALIDATION_OPERATOR_COPY: Record<string, {
   },
 };
 
+const MODULE_COVERAGE_METADATA: Record<string, {
+  requiredForBeta: boolean;
+  dependentPanels: string[];
+  nextValidator: string;
+  nextAction: string;
+}> = {
+  auth: {
+    requiredForBeta: true,
+    dependentPanels: ["Telemetry parity", "Analytics source health", "Admin analytics overview"],
+    nextValidator: "check:telemetry-identified-parity",
+    nextAction: "Verify authenticated telemetry parity and route/session attribution for auth flows.",
+  },
+  onboarding: {
+    requiredForBeta: true,
+    dependentPanels: ["Onboarding/task parity", "Audience snapshot", "User behavior scoring"],
+    nextValidator: "check:event-fact-truth",
+    nextAction: "Verify onboarding event facts and completion/start source agreement.",
+  },
+  navigation: {
+    requiredForBeta: true,
+    dependentPanels: ["Telemetry parity", "Analytics source health", "Admin analytics overview"],
+    nextValidator: "check:telemetry-identified-parity",
+    nextAction: "Verify page/navigation telemetry continuity before trusting surface traffic coverage.",
+  },
+  notifications: {
+    requiredForBeta: true,
+    dependentPanels: ["Recent event flow", "Return loop", "Behavioral intelligence"],
+    nextValidator: "check:telemetry-identified-parity",
+    nextAction: "Verify notification system vs user-action telemetry and missing ownership context.",
+  },
+  tasks: {
+    requiredForBeta: true,
+    dependentPanels: ["Onboarding/task parity", "Recent task activity sample", "Task rollups"],
+    nextValidator: "check:daily-task-telemetry-truth",
+    nextAction: "Check task lifecycle logs, rollups, and canonical task event coverage.",
+  },
+  task_guidance: {
+    requiredForBeta: true,
+    dependentPanels: ["Onboarding/task parity", "Task completion guidance", "Behavioral intelligence"],
+    nextValidator: "check:daily-task-telemetry-truth",
+    nextAction: "Check task guidance view/tap/dismiss/completion telemetry and source component coverage.",
+  },
+  commerce: {
+    requiredForBeta: true,
+    dependentPanels: ["Commerce parity", "Recent receipts / dedupe sample", "User value score"],
+    nextValidator: "check:purchase-telemetry-truth",
+    nextAction: "Check canonical server purchase telemetry after PayPal capture and purchase alias normalization.",
+  },
+  content: {
+    requiredForBeta: true,
+    dependentPanels: ["Unlock/watch parity", "Drop performance", "Behavioral intelligence"],
+    nextValidator: "check:unlock-telemetry-truth",
+    nextAction: "Check drops/unlock server event emission and unlock alias normalization.",
+  },
+  viewer: {
+    requiredForBeta: true,
+    dependentPanels: ["Unlock/watch parity", "Watch-time", "Recommendations"],
+    nextValidator: "check:watch-time-truth-v2",
+    nextAction: "Check viewer_session_started/watch session coverage and raw-to-canonical watch reconstruction.",
+  },
+  creator: {
+    requiredForBeta: false,
+    dependentPanels: ["Creator lane", "Creator dashboard", "Creator performance"],
+    nextValidator: "check:admin-analytics-overview",
+    nextAction: "Check creator telemetry sources and dependent creator analytics panels.",
+  },
+  engagement: {
+    requiredForBeta: true,
+    dependentPanels: ["Analytics source health", "Audience snapshot", "Behavioral intelligence"],
+    nextValidator: "check:analytics:continuity",
+    nextAction: "Check engagement day coverage and whether missing buckets are being surfaced as continuity gaps.",
+  },
+  admin: {
+    requiredForBeta: false,
+    dependentPanels: ["Admin debug control tower", "Admin AI diagnostics", "Ops health"],
+    nextValidator: "check:admin-debug-control-tower",
+    nextAction: "Check admin-only telemetry and diagnostics routes before treating the module as verified.",
+  },
+  runtime: {
+    requiredForBeta: false,
+    dependentPanels: ["Analytics source health", "Refresh diagnostics", "Ops health"],
+    nextValidator: "check:admin-debug-control-tower",
+    nextAction: "Check runtime diagnostics and pipeline-health sources for missing route evidence.",
+  },
+  security: {
+    requiredForBeta: false,
+    dependentPanels: ["Security logs", "Moderation evidence", "Admin debug control tower"],
+    nextValidator: "check:admin-debug-control-tower",
+    nextAction: "Check security event and flagged-account sources before treating the module as verified.",
+  },
+};
+
+function resolveModuleCoverageSeverity(status: "verified" | "partial" | "empty" | "stale" | "failed" | "optional", requiredForBeta: boolean) {
+  if (!requiredForBeta) {
+    return status === "empty" ? "info" : status === "verified" || status === "optional" ? "info" : "review";
+  }
+  if (status === "empty" || status === "failed") return "error" as const;
+  if (status === "partial" || status === "stale") return "review" as const;
+  return "info" as const;
+}
+
 function statusFamily(status: DataValidationStatus): "pass" | "warn" | "fail" {
   if (status === "pass") return "pass";
   if (status === "fail" || status === "unavailable") return "fail";
@@ -693,6 +826,7 @@ function buildValidationCheck(input: {
   implemented?: boolean;
   required?: boolean;
   eventNames?: string[];
+  moduleCoverage?: AnalyticsModuleCoverage;
 }) {
   const requiredSourcesPresent = input.requiredSourcesPresent ?? true;
   const sampleRequired = input.sampleRequired ?? false;
@@ -744,6 +878,7 @@ function buildValidationCheck(input: {
     implemented: input.implemented,
     required: input.required,
     eventNames: input.eventNames,
+    moduleCoverage: input.moduleCoverage,
   } satisfies DataValidationCheck;
 }
 
@@ -806,52 +941,209 @@ export function buildHistoricalValidationSummary(input: {
 }): HistoricalValidationSummary {
   const selectedRange = input.selectedRange || "30d";
   const lastValidatedAt = input.lastValidatedAt || Date.now();
+  const generatedAtUtc = toUtcString(input.generatedAtMs ?? lastValidatedAt) ?? new Date(input.generatedAtMs ?? lastValidatedAt).toISOString();
   const moduleCoverage = TELEMETRY_MODULE_INDEXES.map((moduleIndex) => {
-    const sources = [
-      { key: "ga4", label: "GA4", count: sumEventCounts(input.gaEventCounts, moduleIndex.eventNames) },
-      { key: "facts", label: "Event facts", count: sumEventCounts(input.canonicalEventCounts, moduleIndex.eventNames) },
-      { key: "logs", label: "Telemetry logs", count: sumEventCounts(input.telemetryEventCounts, moduleIndex.eventNames) },
+    const sources: Array<{ key: string; label: string; count: number; lastSeenAtUtc: string | null }> = [
+      {
+        key: "ga4",
+        label: "GA4",
+        count: sumEventCounts(input.gaEventCounts, moduleIndex.eventNames),
+        lastSeenAtUtc: toUtcString(input.gaLastSeenAtMs),
+      },
+      {
+        key: "facts",
+        label: "Event facts",
+        count: sumEventCounts(input.canonicalEventCounts, moduleIndex.eventNames),
+        lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs),
+      },
+      {
+        key: "logs",
+        label: "Telemetry logs",
+        count: sumEventCounts(input.telemetryEventCounts, moduleIndex.eventNames),
+        lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs),
+      },
     ];
 
     if (moduleIndex.key === "navigation" || moduleIndex.key === "engagement") {
-      sources.push({ key: "pages", label: "Page rollups", count: input.pageRollupViewCount });
+      sources.push({
+        key: "pages",
+        label: "Page rollups",
+        count: input.pageRollupViewCount,
+        lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs),
+      });
     }
     if (moduleIndex.key === "engagement") {
-      sources.push({ key: "guest", label: "Guest batches", count: input.guestInteractionCount });
+      sources.push({
+        key: "guest",
+        label: "Guest batches",
+        count: input.guestInteractionCount,
+        lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs),
+      });
     }
     if (moduleIndex.key === "tasks") {
-      sources.push({ key: "task_events", label: "Task lifecycle", count: input.normalizedTaskEventCount || input.firstPartyTaskLifecycleEvents });
+      sources.push({
+        key: "task_events",
+        label: "Task lifecycle",
+        count: input.normalizedTaskEventCount || input.firstPartyTaskLifecycleEvents,
+        lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs),
+      });
     }
     if (moduleIndex.key === "task_guidance") {
-      sources.push({ key: "task_pipeline", label: "Task pipeline", count: sumCountBuckets(input.taskPipeline) });
+      sources.push({
+        key: "task_pipeline",
+        label: "Task pipeline",
+        count: sumCountBuckets(input.taskPipeline),
+        lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs),
+      });
     }
     if (moduleIndex.key === "commerce") {
-      sources.push({ key: "transactions", label: "Transactions", count: input.completedPurchaseTransactionsCount + input.unlockTransactionsCount });
-      sources.push({ key: "commerce_rollups", label: "Commerce rollups", count: input.firstPartyPurchaseCount + input.firstPartyUnlockCount });
+      sources.push({
+        key: "transactions",
+        label: "Transactions",
+        count: input.completedPurchaseTransactionsCount + input.unlockTransactionsCount,
+        lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs),
+      });
+      sources.push({
+        key: "commerce_rollups",
+        label: "Commerce rollups",
+        count: input.firstPartyPurchaseCount + input.firstPartyUnlockCount,
+        lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs),
+      });
     }
     if (moduleIndex.key === "content") {
-      sources.push({ key: "drop_rollups", label: "Drop rollups", count: input.dropRollupActivityCount });
-      sources.push({ key: "unlock_transactions", label: "Unlock transactions", count: input.unlockTransactionsCount });
+      sources.push({
+        key: "drop_rollups",
+        label: "Drop rollups",
+        count: input.dropRollupActivityCount,
+        lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs),
+      });
+      sources.push({
+        key: "unlock_transactions",
+        label: "Unlock transactions",
+        count: input.unlockTransactionsCount,
+        lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs),
+      });
     }
     if (moduleIndex.key === "viewer") {
-      sources.push({ key: "watch_sessions", label: "Watch sessions", count: input.watchSessionCount });
-      sources.push({ key: "watch_assets", label: "Watch assets", count: input.watchAssetCount });
-      sources.push({ key: "session_facts", label: "Session facts", count: input.viewerSessionFactCount });
+      sources.push({
+        key: "watch_sessions",
+        label: "Watch sessions",
+        count: input.watchSessionCount,
+        lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs),
+      });
+      sources.push({
+        key: "watch_assets",
+        label: "Watch assets",
+        count: input.watchAssetCount,
+        lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs),
+      });
+      sources.push({
+        key: "session_facts",
+        label: "Session facts",
+        count: input.viewerSessionFactCount,
+        lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs),
+      });
     }
     if (moduleIndex.key === "security") {
-      sources.push({ key: "security_events", label: "Security logs", count: input.securityEventsCount });
-      sources.push({ key: "flagged_users", label: "Flagged accounts", count: input.securityLogCount });
+      sources.push({
+        key: "security_events",
+        label: "Security logs",
+        count: input.securityEventsCount,
+        lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs),
+      });
+      sources.push({
+        key: "flagged_users",
+        label: "Flagged accounts",
+        count: input.securityLogCount,
+        lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs),
+      });
     }
 
     return buildModuleCoverageReport({
       key: moduleIndex.key,
       label: moduleIndex.label,
-      sources,
+      sources: sources.map(({ key, label, count }) => ({ key, label, count })),
       emptyDetail: `No indexed ${moduleIndex.label.toLowerCase()} signals landed in this range. Expected sources: ${moduleIndex.fallbackSources.join(", ")}.`,
     });
   });
 
   const unhealthyModules = moduleCoverage.filter((module) => module.status !== "healthy");
+  const moduleCoverageItems: AnalyticsModuleCoverageItem[] = TELEMETRY_MODULE_INDEXES.map((moduleIndex) => {
+    const module = moduleCoverage.find((entry) => entry.key === moduleIndex.key);
+    const metadata = MODULE_COVERAGE_METADATA[moduleIndex.key] ?? {
+      requiredForBeta: true,
+      dependentPanels: ["Analytics source health"],
+      nextValidator: "check:admin-debug-control-tower",
+      nextAction: "Review the missing analytics sources in Debug.",
+    };
+    const sourcesForModule = [
+      { label: "GA4", count: sumEventCounts(input.gaEventCounts, moduleIndex.eventNames), lastSeenAtUtc: toUtcString(input.gaLastSeenAtMs) },
+      { label: "Event facts", count: sumEventCounts(input.canonicalEventCounts, moduleIndex.eventNames), lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) },
+      { label: "Telemetry logs", count: sumEventCounts(input.telemetryEventCounts, moduleIndex.eventNames), lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) },
+    ];
+    if (moduleIndex.key === "navigation" || moduleIndex.key === "engagement") {
+      sourcesForModule.push({ label: "Page rollups", count: input.pageRollupViewCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
+    }
+    if (moduleIndex.key === "engagement") {
+      sourcesForModule.push({ label: "Guest batches", count: input.guestInteractionCount, lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) });
+    }
+    if (moduleIndex.key === "tasks") {
+      sourcesForModule.push({ label: "Task lifecycle", count: input.normalizedTaskEventCount || input.firstPartyTaskLifecycleEvents, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
+    }
+    if (moduleIndex.key === "task_guidance") {
+      sourcesForModule.push({ label: "Task pipeline", count: sumCountBuckets(input.taskPipeline), lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
+    }
+    if (moduleIndex.key === "commerce") {
+      sourcesForModule.push({ label: "Transactions", count: input.completedPurchaseTransactionsCount + input.unlockTransactionsCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
+      sourcesForModule.push({ label: "Commerce rollups", count: input.firstPartyPurchaseCount + input.firstPartyUnlockCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
+    }
+    if (moduleIndex.key === "content") {
+      sourcesForModule.push({ label: "Drop rollups", count: input.dropRollupActivityCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
+      sourcesForModule.push({ label: "Unlock transactions", count: input.unlockTransactionsCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
+    }
+    if (moduleIndex.key === "viewer") {
+      sourcesForModule.push({ label: "Watch sessions", count: input.watchSessionCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
+      sourcesForModule.push({ label: "Watch assets", count: input.watchAssetCount, lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs) });
+      sourcesForModule.push({ label: "Session facts", count: input.viewerSessionFactCount, lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) });
+    }
+    if (moduleIndex.key === "security") {
+      sourcesForModule.push({ label: "Security logs", count: input.securityEventsCount, lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) });
+      sourcesForModule.push({ label: "Flagged accounts", count: input.securityLogCount, lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs) });
+    }
+
+    const presentSources = sourcesForModule.filter((source) => source.count > 0);
+    const missingSources = sourcesForModule.filter((source) => source.count <= 0);
+    const lastSeenAtUtc = presentSources.reduce<string | null>((latest, source) => {
+      if (!source.lastSeenAtUtc) return latest;
+      if (!latest) return source.lastSeenAtUtc;
+      return source.lastSeenAtUtc > latest ? source.lastSeenAtUtc : latest;
+    }, null);
+    const status: AnalyticsModuleCoverageItem["status"] =
+      module?.status === "healthy"
+        ? "verified"
+        : module?.status === "partial"
+          ? "partial"
+          : module?.status === "empty"
+            ? "empty"
+            : "failed";
+
+    return {
+      moduleId: moduleIndex.key,
+      moduleLabel: moduleIndex.label,
+      status,
+      severity: resolveModuleCoverageSeverity(status, metadata.requiredForBeta),
+      requiredForBeta: metadata.requiredForBeta,
+      sourceCount: presentSources.length,
+      expectedSources: sourcesForModule.map((source) => source.label),
+      presentSources: presentSources.map((source) => source.label),
+      missingSources: missingSources.map((source) => source.label),
+      sampleCount: module?.total ?? 0,
+      lastSeenAtUtc,
+      dependentPanels: metadata.dependentPanels,
+      nextValidator: metadata.nextValidator,
+      nextAction: metadata.nextAction,
+    };
+  });
   const purchaseRevenueParity = buildParityInsight([
     { key: "transactions", label: "Transactions", count: input.completedPurchaseTransactionsCount },
     { key: "rollups", label: "Canonical rollups", count: input.firstPartyPurchaseCount },
@@ -1006,6 +1298,24 @@ export function buildHistoricalValidationSummary(input: {
     + creatorSpendParityScore
     + input.truthState.score
   ) / 7);
+  const analyticsModuleCoverage: AnalyticsModuleCoverage = {
+    range: selectedRange,
+    generatedAtUtc,
+    totalModules: moduleCoverageItems.length,
+    verifiedModules: moduleCoverageItems.filter((module) => module.status === "verified").length,
+    partialModules: moduleCoverageItems.filter((module) => module.status === "partial").length,
+    emptyModules: moduleCoverageItems.filter((module) => module.status === "empty").length,
+    parityScore,
+    passAllowed: moduleCoverageItems.every((module) => !module.requiredForBeta || module.status === "verified"),
+    blockedReason: moduleCoverageItems.some((module) => module.requiredForBeta && module.status === "empty")
+      ? "module_empty"
+      : moduleCoverageItems.some((module) => module.requiredForBeta && module.status === "partial")
+        ? "module_partial"
+        : moduleCoverageItems.some((module) => module.status !== "verified")
+          ? "required_source_missing"
+          : undefined,
+    modules: moduleCoverageItems,
+  };
   const telemetrySampleCoveragePct = input.firstPartyAuthenticatedEvents > 0
     ? Number(((input.canonicalSampleCount / input.firstPartyAuthenticatedEvents) * 100).toFixed(2))
     : 0;
@@ -1402,18 +1712,37 @@ export function buildHistoricalValidationSummary(input: {
     buildValidationCheck({
       checkKey: "module_coverage",
       title: "Module coverage",
-      status: unhealthyModules.length === 0 ? "pass" : unhealthyModules.length <= 3 ? "warn" : "fail",
-      detail: unhealthyModules.length === 0
-        ? `All ${moduleCoverage.length.toLocaleString()} indexed analytics modules are populated across the selected range. Parity score ${parityScore}%.`
-        : `${unhealthyModules.length.toLocaleString()} of ${moduleCoverage.length.toLocaleString()} indexed analytics modules are partial or empty. Parity score ${parityScore}%.`,
+      status: analyticsModuleCoverage.passAllowed
+        ? "pass"
+        : analyticsModuleCoverage.emptyModules > 0
+          ? "fail"
+          : "warn",
+      detail: analyticsModuleCoverage.passAllowed
+        ? `All ${analyticsModuleCoverage.totalModules.toLocaleString()} indexed analytics modules are verified across the selected range. Parity score ${analyticsModuleCoverage.parityScore}%.`
+        : `${analyticsModuleCoverage.partialModules + analyticsModuleCoverage.emptyModules} of ${analyticsModuleCoverage.totalModules.toLocaleString()} indexed analytics modules are partial or empty: ${analyticsModuleCoverage.modules.filter((module) => module.status !== "verified").map((module) => `${module.moduleLabel} (${module.missingSources.join(", ") || "missing sources not recorded"})`).join("; ")}. Parity score ${analyticsModuleCoverage.parityScore}%.`,
       source: "indexed analytics module coverage",
       selectedRange,
       lastValidatedAt,
-      confidence: parityScore,
-      requiredSourcesPresent: unhealthyModules.length === 0,
+      confidence: analyticsModuleCoverage.parityScore,
+      requiredSourcesPresent: analyticsModuleCoverage.passAllowed,
       sampleRequired: true,
-      sampleCount: moduleCoverage.length - unhealthyModules.length,
-      action: unhealthyModules.length === 0 ? "No action required." : "Review partial or empty analytics modules in Debug before treating coverage as complete.",
+      sampleCount: analyticsModuleCoverage.verifiedModules,
+      action: analyticsModuleCoverage.passAllowed ? "No action required." : "Review the named partial or empty analytics modules in Debug before treating coverage as complete.",
+      operatorSummary: analyticsModuleCoverage.passAllowed
+        ? "Analytics modules verified."
+        : "Named analytics module coverage gaps need review.",
+      operatorDetail: analyticsModuleCoverage.passAllowed
+        ? `Verified ${analyticsModuleCoverage.verifiedModules}/${analyticsModuleCoverage.totalModules} analytics modules.`
+        : `${analyticsModuleCoverage.partialModules + analyticsModuleCoverage.emptyModules} module gap(s): ${analyticsModuleCoverage.modules.filter((module) => module.status !== "verified").map((module) => `${module.moduleLabel} [${module.status}] missing ${module.missingSources.join(", ") || "missing sources not recorded"}`).join("; ")}`,
+      passAllowed: analyticsModuleCoverage.passAllowed,
+      blockedReason: analyticsModuleCoverage.blockedReason ?? null,
+      technicalEvidence: analyticsModuleCoverage.passAllowed
+        ? `Verified ${analyticsModuleCoverage.verifiedModules}/${analyticsModuleCoverage.totalModules} modules.`
+        : analyticsModuleCoverage.modules
+          .filter((module) => module.status !== "verified")
+          .map((module) => `${module.moduleLabel}: status ${module.status}; missing ${module.missingSources.join(", ") || "none recorded"}; panels ${module.dependentPanels.join(", ")}; validator ${module.nextValidator}.`)
+          .join(" "),
+      moduleCoverage: analyticsModuleCoverage,
     }),
     buildValidationCheck({
       checkKey: "viewer_activity_truth",
@@ -1468,6 +1797,7 @@ export function buildHistoricalValidationSummary(input: {
   return {
     moduleCoverage,
     unhealthyModules,
+    analyticsModuleCoverage,
     parityScore,
     truthState: input.truthState,
     validations,

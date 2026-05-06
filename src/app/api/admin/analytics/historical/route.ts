@@ -422,6 +422,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
             return withSharedFields({
                 moduleCoverage: payload.moduleCoverage,
                 unhealthyModules: payload.unhealthyModules,
+                analyticsModuleCoverage: payload.analyticsModuleCoverage,
                 parityScore: payload.parityScore,
             });
         case "categorySemantics":
@@ -436,6 +437,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 dataValidation: payload.dataValidation,
                 analyticsSourceHealth: payload.analyticsSourceHealth,
                 telemetryParityValidation: payload.telemetryParityValidation,
+                analyticsModuleCoverage: payload.analyticsModuleCoverage,
                 watchCaptureHealth: payload.watchCaptureHealth,
             });
         case "audienceSnapshot":
@@ -1237,6 +1239,7 @@ async function GET_handler(request: NextRequest) {
             const {
                 moduleCoverage,
                 unhealthyModules,
+                analyticsModuleCoverage,
                 parityScore,
                 validations,
                 analyticsSourceHealth,
@@ -1383,6 +1386,7 @@ async function GET_handler(request: NextRequest) {
                 socialMetrics: semanticMetricReport,
                 moduleCoverage,
                 unhealthyModules,
+                analyticsModuleCoverage,
                 parityScore,
                 truthState: analyticsTruth,
                 validations,

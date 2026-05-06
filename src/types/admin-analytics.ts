@@ -337,6 +337,37 @@ export interface ValidationItem {
     affectedRoute?: string;
     suggestedAction: string;
   }>;
+  moduleCoverage?: AnalyticsModuleCoverage;
+}
+
+export interface AnalyticsModuleCoverageItem {
+  moduleId: string;
+  moduleLabel: string;
+  status: "verified" | "partial" | "empty" | "stale" | "failed" | "optional";
+  severity: "info" | "review" | "error";
+  requiredForBeta: boolean;
+  sourceCount: number;
+  expectedSources: string[];
+  presentSources: string[];
+  missingSources: string[];
+  sampleCount: number;
+  lastSeenAtUtc: string | null;
+  dependentPanels: string[];
+  nextValidator: string;
+  nextAction: string;
+}
+
+export interface AnalyticsModuleCoverage {
+  range: string;
+  generatedAtUtc: string;
+  totalModules: number;
+  verifiedModules: number;
+  partialModules: number;
+  emptyModules: number;
+  parityScore: number;
+  passAllowed: boolean;
+  blockedReason?: "required_source_missing" | "module_empty" | "module_partial" | "unknown";
+  modules: AnalyticsModuleCoverageItem[];
 }
 
 export interface DataValidationPanelState {
@@ -562,6 +593,7 @@ export interface HistoricalAnalyticsResponse {
   dataValidation?: DataValidationPanelState;
   analyticsSourceHealth?: AnalyticsSourceHealth;
   telemetryParityValidation?: TelemetryParityValidation;
+  analyticsModuleCoverage?: AnalyticsModuleCoverage;
 }
 
 export interface RealtimeAnalyticsResponse {

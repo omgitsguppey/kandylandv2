@@ -241,6 +241,21 @@ describe("buildHistoricalValidationSummary", () => {
     expect(summary.validations.find((check) => check.checkKey === "daily_continuity_coverage")?.status).toBe("pass");
   });
 
+  it("names partial or empty module coverage gaps with missing sources and validators", () => {
+    const summary = build();
+    const moduleCoverageCheck = summary.validations.find((check) => check.checkKey === "module_coverage");
+
+    expect(summary.analyticsModuleCoverage.passAllowed).toBe(false);
+    expect(summary.analyticsModuleCoverage.modules.some((module) => module.status !== "verified")).toBe(true);
+    expect(moduleCoverageCheck?.moduleCoverage?.modules.filter((module) => module.status !== "verified").length).toBeGreaterThan(0);
+    expect(moduleCoverageCheck?.detail).toContain("Task Guidance");
+    expect(moduleCoverageCheck?.detail).toContain("missing");
+    expect(moduleCoverageCheck?.moduleCoverage?.modules.find((module) => module.moduleId === "task_guidance")).toMatchObject({
+      dependentPanels: expect.arrayContaining(["Onboarding/task parity"]),
+      nextValidator: "check:daily-task-telemetry-truth",
+    });
+  });
+
   it("returns not_validated when no validation rows are available", () => {
     const panelState = buildDataValidationPanelState({
       validations: [],
