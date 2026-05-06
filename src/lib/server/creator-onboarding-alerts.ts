@@ -6,6 +6,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import type { NotificationType } from "@/lib/notification-contracts";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
+import { buildNotificationRecord } from "@/lib/notification-contracts";
 
 const CREATOR_ONBOARDING_NOTIFICATION_WINDOW_MS = 5 * 60 * 1000;
 
@@ -83,18 +84,27 @@ export async function sendCreatorOnboardingAdminNotification(input: {
         }
 
         transaction.set(notificationRef, {
-            title: input.title,
-            message: input.message,
-            type,
-            target: {
-                global: false,
-                userIds: adminIds,
-            },
-            link: input.link,
+            ...buildNotificationRecord({
+                title: input.title,
+                message: input.message,
+                type,
+                target: {
+                    global: false,
+                    userIds: adminIds,
+                },
+                link: input.link,
+                createdAtMs: nowMs,
+                readBy: [],
+                actorType: "system",
+                sourceComponent: "creator_onboarding_alerts",
+                sourceEntityType: "creator_onboarding_event",
+                sourceEntityId: input.eventKey,
+                surface: "background",
+                metadata: {
+                    creatorOnboardingEventKey: input.eventKey,
+                },
+            }),
             createdAt: FieldValue.serverTimestamp(),
-            createdAtMs: nowMs,
-            readBy: [],
-            creatorOnboardingEventKey: input.eventKey,
         });
         transaction.set(dispatchRef, {
             dispatchedAtMs: nowMs,

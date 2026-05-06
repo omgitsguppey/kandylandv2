@@ -280,8 +280,11 @@ function NotificationItem({
         idempotency_key: `${note.id}:open`,
         notification_type: note.type,
         recipient_id: currentUserId ?? "",
+        actor_user_id: currentUserId ?? "",
+        target_user_id: currentUserId ?? "",
         entity_type: "notification",
         entity_id: note.id,
+        surface: "notifications_dropdown",
       });
       trackEvent("notification_opened", {
         source: "notifications_dropdown",
@@ -291,6 +294,9 @@ function NotificationItem({
         idempotency_key: note.id,
         notification_type: note.type,
         recipient_id: currentUserId ?? "",
+        actor_user_id: currentUserId ?? "",
+        target_user_id: currentUserId ?? "",
+        surface: "notifications_dropdown",
       });
       await markAsRead(note.id, { preserveVisible: true });
       router.push(destination);

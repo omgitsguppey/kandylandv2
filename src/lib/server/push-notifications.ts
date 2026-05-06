@@ -7,6 +7,7 @@ import {
     buildNotificationDocumentId,
     buildNotificationIdempotencyKey,
 } from "@/lib/notification-identity";
+import { buildNotificationRecord } from "@/lib/notification-contracts";
 import { buildNotificationQualityMetadata } from "@/lib/notifications/notification-quality-score";
 import { adminDb } from "./firebase-admin";
 import { broadcastFCMWithReport, type NotificationBroadcastReport } from "./fcm-utils";
@@ -121,24 +122,33 @@ async function queueDropNotificationDoc(input: {
         }
 
         transaction.set(notificationRef, {
-            title: input.title,
-            message: input.message,
-            type: "success",
-            target: { global: true, excludedUserIds: input.excludedUserIds ?? [], userIds: [] },
-            link: DROP_COLLECTION_LINK,
-            dropContext: input.imageUrl ? {
-                dropId: input.dropId,
-                dropTitle: input.dropTitle,
-                previewImageUrl: input.imageUrl,
-            } : null,
-            idempotencyKey: input.identity.idempotencyKey,
-            dedupeKey: input.identity.idempotencyKey,
-            browserTag: input.identity.browserTag,
-            lifecycleEvent: input.identity.lifecycleEvent,
-            ...qualityMetadata,
+            ...buildNotificationRecord({
+                title: input.title,
+                message: input.message,
+                type: "success",
+                target: { global: true, excludedUserIds: input.excludedUserIds ?? [], userIds: [] },
+                link: DROP_COLLECTION_LINK,
+                dropContext: input.imageUrl ? {
+                    dropId: input.dropId,
+                    dropTitle: input.dropTitle,
+                    previewImageUrl: input.imageUrl,
+                } : null,
+                createdAtMs: nowMs,
+                readBy: [],
+                actorType: "system",
+                sourceComponent: "push_notifications",
+                sourceEntityType: "drop",
+                sourceEntityId: input.dropId,
+                surface: "background",
+                lifecycleEvent: input.identity.lifecycleEvent,
+                metadata: {
+                    idempotencyKey: input.identity.idempotencyKey,
+                    dedupeKey: input.identity.idempotencyKey,
+                    browserTag: input.identity.browserTag,
+                    ...qualityMetadata,
+                },
+            }),
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            createdAtMs: nowMs,
-            readBy: [],
         });
         queued = true;
     });

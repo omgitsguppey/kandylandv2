@@ -66,6 +66,7 @@ assert(normalizer.includes('task_guidance_banner_viewed: { normalizedAction: "ta
 assert(normalizer.includes('task_guidance_cta_clicked: { normalizedAction: "task_guidance_tapped"'), "Task guidance tapped alias is missing from event fact normalization.");
 assert(normalizer.includes('task_guidance_banner_dismissed: { normalizedAction: "task_guidance_dismissed"'), "Task guidance dismissed alias is missing from event fact normalization.");
 assert(normalizer.includes('task_help_opened: { normalizedAction: "task_help_opened"'), "Task help event is missing from event fact normalization.");
+assert(normalizer.includes('notification_marked_read: { normalizedAction: "notification_read"'), "Notification read alias is missing from event fact normalization.");
 assert(normalizer.includes('unlock_drop_success: { normalizedAction: "drop_unlocked"'), "Legacy unlock success alias is missing from event fact normalization.");
 assert(normalizer.includes('drop_unwrapped: { normalizedAction: "drop_unlocked"'), "Canonical unlock alias is missing from event fact normalization.");
 assert(normalizer.includes('entitlement_granted: { normalizedAction: "drop_unlocked"'), "Entitlement granted unlock alias is missing from event fact normalization.");
@@ -80,6 +81,7 @@ assert(
   identifiedIngest.includes("normalizeIdentifiedMetricEventFact") || identifiedIngest.includes("normalizeBehavioralEventFact"),
   "Identified ingest does not use behavioral event facts.",
 );
+assert(identifiedIngest.includes("targetUserId: parityFact.targetUserId"), "Identified ingest must persist notification target user context.");
 assert(identifiedIngest.includes("behavioralEventFactVersion"), "Identified ingest does not persist behavioral event fact metadata.");
 assert(anonymousIngest.includes("buildBehavioralEventFactRollup"), "Anonymous ingest does not build behavioral event facts.");
 assert(anonymousIngest.includes("unknownBehavioralEvents"), "Anonymous ingest does not persist unknown event diagnostics.");

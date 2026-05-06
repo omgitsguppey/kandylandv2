@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
-import { normalizeNotificationCreatePayload, normalizeNotificationDoc } from "@/lib/notification-contracts";
+import { buildNotificationRecord, normalizeNotificationCreatePayload, normalizeNotificationDoc } from "@/lib/notification-contracts";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { broadcastFCMWithReport } from "@/lib/server/fcm-utils";
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
   };
 
   try {
-    await guardApiRequest(request, {
+    const caller = await guardApiRequest(request, {
       routeName: "notifications",
       rateLimit: STANDARD,
       requireTrustedOrigin: true,
@@ -175,20 +175,36 @@ export async function POST(request: NextRequest) {
       }
 
       transaction.set(notificationRef, sanitizeFirestorePayload({
-        title: payload.title,
-        message: payload.message,
-        type: payload.type,
+        ...buildNotificationRecord({
+          title: payload.title,
+          message: payload.message,
+          type: payload.type,
         target: payload.target,
-        link: payload.link || null,
-        dropContext: payload.dropContext || null,
+        targetUserId: !payload.target.global && payload.target.userIds.length === 1
+          ? payload.target.userIds[0] ?? null
+          : null,
+        recipientUserId: !payload.target.global && payload.target.userIds.length === 1
+          ? payload.target.userIds[0] ?? null
+          : null,
+        link: payload.link,
+          dropContext: payload.dropContext ?? null,
+          createdAtMs: nowMs,
+          readBy: [],
+          actorAdminId: caller?.uid ?? null,
+          actorType: "admin",
+          sourceComponent: "notifications_admin_route",
+          sourceEntityType: "notification_dispatch",
+          sourceEntityId: dispatchFingerprint,
+          surface: "background",
+          metadata: {
+            dispatchFingerprint,
+            idempotencyKey,
+            dedupeKey: idempotencyKey,
+            browserTag,
+            ...qualityMetadata,
+          },
+        }),
         createdAt: FieldValue.serverTimestamp(),
-        createdAtMs: nowMs,
-        readBy: [],
-        dispatchFingerprint,
-        idempotencyKey,
-        dedupeKey: idempotencyKey,
-        browserTag,
-        ...qualityMetadata,
       }));
       transaction.set(dispatchRef, sanitizeFirestorePayload({
         dispatchedAtMs: nowMs,

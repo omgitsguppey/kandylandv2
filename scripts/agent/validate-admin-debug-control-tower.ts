@@ -51,6 +51,14 @@ const adminOpsHealth = readRequired("src/lib/server/admin-ops-health.ts");
 const adminOpsHealthContract = readRequired("src/lib/admin-ops-health.ts");
 const adminOrchestration = readRequired("src/lib/server/admin-orchestration.ts");
 const adminOrchestrationRepairs = readRequired("src/lib/server/admin-orchestration-repairs.ts");
+const notificationContracts = readRequired("src/lib/notification-contracts.ts");
+const notificationsRoute = readRequired("src/app/api/notifications/route.ts");
+const notificationsHook = readRequired("src/hooks/useNotifications.ts");
+const notificationBell = readRequired("src/components/Navigation/NotificationBell.tsx");
+const notificationRuntimeBridge = readRequired("src/components/Notifications/NotificationRuntimeBridge.tsx");
+const creatorBroadcastsRoute = readRequired("src/app/api/creator/broadcasts/route.ts");
+const creatorSubscriptionsCronRoute = readRequired("src/app/api/cron/process-creator-subscriptions/route.ts");
+const creatorOnboardingAlerts = readRequired("src/lib/server/creator-onboarding-alerts.ts");
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
 const debugTabActions = readRequired("src/app/admin/debug/components/DebugTabActions.tsx");
 const debugBugIntakePanel = readRequired("src/app/admin/debug/components/DebugBugIntakePanel.tsx");
@@ -73,6 +81,7 @@ const summaryCardTest = readRequired("tests/unit/admin-debug-summary-cards.spec.
 const adminOpsHealthTest = readRequired("tests/unit/admin-ops-health.spec.ts");
 const adminPanelSystemLogsTest = readRequired("tests/unit/admin-panel-system-logs.spec.ts");
 const adminOrchestrationTest = readRequired("tests/unit/admin-orchestration.spec.ts");
+const notificationReadStateTest = readRequired("tests/unit/notification-read-state.spec.tsx");
 const componentTest = readRequired("tests/unit/admin-debug-control-tower-component.spec.tsx");
 const adminDataValidationTest = readRequired("tests/unit/admin-data-validation.spec.ts");
 const controlTowerDoc = readRequired("docs/agent-truth/admin-debug-control-tower.md");
@@ -258,6 +267,89 @@ for (const expected of [
   "Most findings are duplicate inspect-only source-context items.",
 ]) {
   requireIncludes(adminOrchestration, expected, "Admin orchestration snapshot must classify behavior gaps by context");
+}
+for (const expected of [
+  "notification_read",
+  "notification_opened",
+  "notification_action_clicked",
+  "notifications_dropdown_opened",
+  "backgroundExempt",
+]) {
+  requireIncludes(adminOrchestration, expected, "Admin orchestration must treat foreground notification interactions differently from background delivery");
+}
+for (const expected of [
+  "targetUserId or recipientUserId",
+  "actorUserId / actorType",
+  "route or surface (foreground only)",
+  "Notification source context missing",
+]) {
+  requireIncludes(adminOrchestrationRepairs, expected, "Admin orchestration repairs must describe notification ownership context precisely");
+}
+for (const expected of [
+  "NotificationCanonicalContext",
+  "buildNotificationRecord",
+  "\"background_route_not_required\"",
+  "\"missing_target_user\"",
+  "\"missing_actor_for_foreground\"",
+  "\"missing_route_for_foreground\"",
+]) {
+  requireIncludes(notificationContracts, expected, "Notification contracts must expose canonical ownership context");
+}
+for (const expected of [
+  "buildNotificationRecord",
+  "targetUserId",
+  "actorType: \"admin\"",
+  "sourceComponent: \"notifications_admin_route\"",
+]) {
+  requireIncludes(notificationsRoute, expected, "Notifications API must write canonical ownership context");
+}
+for (const expected of [
+  "actor_user_id: userId",
+  "target_user_id: userId",
+  "surface: \"notifications_inbox\"",
+]) {
+  requireIncludes(notificationsHook, expected, "Notifications hook must keep actor and target explicit for foreground reads");
+}
+for (const expected of [
+  "actor_user_id: currentUserId ?? \"\"",
+  "target_user_id: currentUserId ?? \"\"",
+  "surface: \"notifications_dropdown\"",
+]) {
+  requireIncludes(notificationBell, expected, "Notification bell must keep actor and target explicit for foreground interactions");
+}
+for (const expected of [
+  "actor_user_id: user.uid",
+  "target_user_id: user.uid",
+  "surface: \"notification_runtime\"",
+]) {
+  requireIncludes(notificationRuntimeBridge, expected, "Notification runtime bridge must keep actor and target explicit for service-worker interactions");
+}
+for (const expected of [
+  "buildNotificationRecord",
+  "sourceComponent: \"creator_broadcasts_route\"",
+  "sourceEntityType: \"creator_broadcast\"",
+]) {
+  requireIncludes(creatorBroadcastsRoute, expected, "Creator broadcasts must write notification ownership context");
+}
+for (const expected of [
+  "buildNotificationRecord",
+  "sourceComponent: \"creator_subscription_cron\"",
+  "targetUserId: userId",
+]) {
+  requireIncludes(creatorSubscriptionsCronRoute, expected, "Creator subscription cron must write notification ownership context");
+}
+for (const expected of [
+  "buildNotificationRecord",
+  "sourceComponent: \"creator_onboarding_alerts\"",
+]) {
+  requireIncludes(creatorOnboardingAlerts, expected, "Creator onboarding alerts must write notification ownership context");
+}
+for (const expected of [
+  "actor_user_id: \"notify_user\"",
+  "target_user_id: \"notify_user\"",
+  "surface: \"notifications_dropdown\"",
+]) {
+  requireIncludes(notificationReadStateTest, expected, "Notification read tests must cover explicit actor and target ownership");
 }
 for (const expected of [
   "attachDataValidationState",
@@ -1299,6 +1391,7 @@ try {
     /^src\/app\/api\/admin\/analytics\/historical\/route\.ts$/u,
     /^src\/app\/api\/admin\/user\/\[userId\]\/route\.ts$/u,
     /^src\/app\/api\/analytics\/ingest-identified\/route\.ts$/u,
+    /^src\/app\/api\/notifications\/route\.ts$/u,
     /^src\/app\/api\/drops\/unlock\/route\.ts$/u,
     /^src\/app\/api\/paypal\/capture\/route\.ts$/u,
     /^src\/app\/api\/admin\/overview\/route\.ts$/u,
@@ -1321,12 +1414,16 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabActions\.tsx$/u,
     /^src\/components\/Dashboard\/DailyTasksModule\.tsx$/u,
+    /^src\/components\/Navigation\/NotificationBell\.tsx$/u,
+    /^src\/components\/Notifications\/NotificationRuntimeBridge\.tsx$/u,
     /^src\/components\/Dashboard\/TaskGuidanceBanner\.tsx$/u,
     /^src\/lib\/creator-experiences\.ts$/u,
     /^src\/lib\/creator-lane-debug-parity\.ts$/u,
     /^src\/lib\/creator-onboarding\.ts$/u,
     /^src\/lib\/admin\/synthetic-creators-view-as\.ts$/u,
     /^src\/lib\/telemetry-catalog\.ts$/u,
+    /^src\/lib\/notification-contracts\.ts$/u,
+    /^src\/lib\/notifications\.ts$/u,
     /^src\/lib\/behavioral\/tracking-surface-map\.ts$/u,
     /^src\/lib\/task-guidance\.ts$/u,
     /^src\/lib\/user-utils\.ts$/u,
@@ -1337,6 +1434,8 @@ try {
     /^src\/lib\/behavioral\/normalize-event-fact\.ts$/u,
     /^src\/lib\/behavioral\/event-fact-normalizer\.ts$/u,
     /^src\/lib\/server\/analytics\.ts$/u,
+    /^src\/lib\/server\/creator-onboarding-alerts\.ts$/u,
+    /^src\/lib\/server\/push-notifications\.ts$/u,
     /^src\/lib\/server\/daily-tasks\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-validation\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-viewer\.ts$/u,
@@ -1348,8 +1447,11 @@ try {
     /^src\/lib\/server\/creator-onboarding-diagnostics\.ts$/u,
     /^src\/lib\/server\/creator-review-queue\.ts$/u,
     /^src\/app\/admin\/roster\/page\.tsx$/u,
+    /^src\/app\/api\/creator\/broadcasts\/route\.ts$/u,
+    /^src\/app\/api\/cron\/process-creator-subscriptions\/route\.ts$/u,
     /^src\/app\/api\/admin\/roster\/route\.ts$/u,
     /^src\/app\/api\/tasks\/materialize\/route\.ts$/u,
+    /^src\/hooks\/useNotifications\.ts$/u,
     /^functions\/src\/analytics-task-events\.ts$/u,
     /^functions\/src\/daily-task-materializer\.ts$/u,
     /^functions\/src\/index\.ts$/u,
@@ -1363,6 +1465,7 @@ try {
     /^scripts\/agent\/validate-creator-identity-markers\.ts$/u,
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
+    /^scripts\/agent\/validate-notification-read-truth\.ts$/u,
     /^scripts\/agent\/validate-purchase-telemetry-truth\.ts$/u,
     /^scripts\/agent\/validate-unlock-telemetry-truth\.ts$/u,
     /^scripts\/agent\/validate-telemetry-identified-parity\.ts$/u,
@@ -1384,6 +1487,7 @@ try {
     /^tests\/unit\/admin-debug-summary-cards\.spec\.ts$/u,
     /^tests\/unit\/admin-panel-system-logs\.spec\.ts$/u,
     /^tests\/unit\/admin-orchestration\.spec\.ts$/u,
+    /^tests\/unit\/notification-read-state\.spec\.tsx$/u,
     /^tests\/unit\/admin-ops-health\.spec\.ts$/u,
     /^tests\/unit\/event-fact-truth\.spec\.ts$/u,
     /^functions\/src\/behavioral-intelligence-runtime\.ts$/u,

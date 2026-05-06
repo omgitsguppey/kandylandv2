@@ -69,6 +69,17 @@ function getBehaviorEventContext(event: {
     behaviorDomain: BehaviorCoverageDomain;
     sourceSurface: string;
 }) {
+    if (
+        event.behaviorDomain === "notifications"
+        && [
+            "notification_read",
+            "notification_opened",
+            "notification_action_clicked",
+            "notifications_dropdown_opened",
+        ].includes(event.normalizedEventName)
+    ) {
+        return "foreground_user" as const;
+    }
     if (event.normalizedEventName === "identity_linked") return "identity_linkage" as const;
     if (event.sourceCollection === "daily_task_events" || event.behaviorDomain === "tasks") return "background_task_engine" as const;
     if (event.sourceCollection === "transactions" && event.behaviorDomain === "commerce") return "background_ledger" as const;
@@ -334,7 +345,7 @@ export function buildAdminOrchestrationSnapshot(input: {
     events.forEach((entry) => {
         const missing = uniqueStrings(entry.dependencyReadiness.missing);
         const domain = entry.behaviorDomain as BehaviorCoverageDomain;
-        const actorRequired = ["foreground_user", "identity_linkage", "background_task_engine", "background_ledger", "materialized_relationship", "notification_system", "admin"].includes(entry.eventContext);
+        const actorRequired = ["foreground_user", "identity_linkage", "background_task_engine", "background_ledger", "materialized_relationship", "admin"].includes(entry.eventContext);
         const sessionRequired = entry.evalEligibleByContext;
         const routeRequired = entry.eventContext === "foreground_user" || entry.eventContext === "admin";
         const creatorRequired = domain === "creator" && entry.eventContext !== "materialized_relationship";

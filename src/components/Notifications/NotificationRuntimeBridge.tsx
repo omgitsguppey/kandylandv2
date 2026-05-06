@@ -78,8 +78,11 @@ export function NotificationRuntimeBridge() {
                 idempotency_key: message.idempotencyKey ?? message.tag ?? message.notificationId ?? "unknown",
                 notification_type: "browser_push",
                 recipient_id: user.uid,
+                actor_user_id: user.uid,
+                target_user_id: user.uid,
                 tag: message.tag ?? "unknown",
                 destination: message.url ?? "/experiences",
+                surface: "notification_runtime",
             });
 
             if (message.notificationId) {
@@ -92,8 +95,11 @@ export function NotificationRuntimeBridge() {
                             idempotency_key: `${message.notificationId}:read`,
                             notification_type: "browser_push",
                             recipient_id: user.uid,
+                            actor_user_id: user.uid,
+                            target_user_id: user.uid,
                             tag: message.tag ?? "unknown",
                             destination: message.url ?? "/experiences",
+                            surface: "notification_runtime",
                         });
                         dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
                     }

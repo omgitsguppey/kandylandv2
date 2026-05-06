@@ -229,15 +229,37 @@ function resolveMetricEligibility(input: {
 
 export function normalizeIdentifiedMetricEventFact(input: NormalizeInput): IdentifiedMetricParityFact {
   const params = input.params;
+  const notificationInteractionEvent = input.eventName === "notification_read"
+    || input.eventName === "notification_opened"
+    || input.eventName === "notification_action_clicked"
+    || input.eventName === "notifications_dropdown_opened"
+    || input.eventName === "notification_mark_all_read"
+    || input.eventName === "notification_cleared";
   const actorAdminId = readString(params, "actor_admin_id", "actorAdminId", "admin_id", "adminId");
   const actorCreatorId = input.actorType === "creator"
     ? (readString(params, "actor_creator_id", "actorCreatorId", "creator_actor_id", "creatorActorId", "creator_uid", "creatorUid", "user_id", "userId") || input.callerUid)
     : "";
   const actorUserId = input.actorType === "user" || (!actorAdminId && !actorCreatorId)
-    ? (readString(params, "actor_user_id", "actorUserId", "user_id", "userId") || input.callerUid)
+    ? (readString(
+      params,
+      "actor_user_id",
+      "actorUserId",
+      "recipient_id",
+      "recipientId",
+      "user_id",
+      "userId",
+    ) || input.callerUid)
     : "";
   const targetCreatorId = readString(params, "target_creator_id", "targetCreatorId", "creator_id", "creatorId");
-  const targetUserId = readString(params, "target_user_id", "targetUserId", "subject_user_id", "subjectUserId");
+  const targetUserId = readString(
+    params,
+    "target_user_id",
+    "targetUserId",
+    "recipient_id",
+    "recipientId",
+    "subject_user_id",
+    "subjectUserId",
+  );
   const targetDropId = readString(params, "drop_id", "dropId", "target_drop_id", "targetDropId");
   const targetFileId = readString(params, "file_id", "fileId", "asset_key", "assetKey", "target_file_id", "targetFileId");
   const targetThreadId = readString(params, "thread_id", "threadId", "conversation_id", "conversationId", "ticket_id", "ticketId");
@@ -291,6 +313,7 @@ export function normalizeIdentifiedMetricEventFact(input: NormalizeInput): Ident
     sourceTruth: input.sourceTruth ?? "server",
     params,
   });
+  const normalizedMetricEligible = eligibility.metricEligible && !(notificationInteractionEvent && !targetUserId);
 
   return {
     behavioralFact: behavioral,
@@ -307,8 +330,8 @@ export function normalizeIdentifiedMetricEventFact(input: NormalizeInput): Ident
     transactionId,
     sourceTruth: input.sourceTruth ?? "server",
     sourceConfidence,
-    metricEligible: eligibility.metricEligible,
-    metricExclusionReason: eligibility.metricExclusionReason,
+    metricEligible: normalizedMetricEligible,
+    metricExclusionReason: normalizedMetricEligible ? eligibility.metricExclusionReason : "missing_required_context",
     reasonCode: readString(params, "reason_code", "reasonCode", "security_reason", "securityReason", "error_code", "errorCode"),
   };
 }

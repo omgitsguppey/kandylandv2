@@ -3,6 +3,7 @@ import "server-only";
 import { FieldPath, FieldValue, type Transaction } from "firebase-admin/firestore";
 
 import { normalizeNotificationDoc } from "@/lib/notification-contracts";
+import { buildNotificationRecord } from "@/lib/notification-contracts";
 import { randomBytes } from "node:crypto";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { hasUnreadNotificationsForUser, isUnreadNotificationForUser } from "@/lib/server/notification-inbox";
@@ -1071,19 +1072,28 @@ function queueUserNotification(
 ) {
   const notificationRef = adminDb.collection("notifications").doc();
   transaction.set(notificationRef, {
-    title: payload.title,
-    message: payload.message,
-    type: payload.type,
-    target: {
-      global: false,
-      userIds: [uid],
-      excludedUserIds: [],
-    },
-    link: payload.link || "/experiences",
-    dropContext: null,
+    ...buildNotificationRecord({
+      title: payload.title,
+      message: payload.message,
+      type: payload.type,
+      target: {
+        global: false,
+        userIds: [uid],
+        excludedUserIds: [],
+      },
+      targetUserId: uid,
+      recipientUserId: uid,
+      link: payload.link || "/experiences",
+      dropContext: null,
+      createdAtMs: nowMs,
+      readBy: [],
+      actorType: "system",
+      sourceComponent: "daily_tasks",
+      sourceEntityType: "daily_task_window",
+      sourceEntityId: uid,
+      surface: "background",
+    }),
     createdAt: FieldValue.serverTimestamp(),
-    createdAtMs: nowMs,
-    readBy: [],
   });
   markNotificationsRuntimeChanged(transaction, nowMs);
 }

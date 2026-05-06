@@ -112,12 +112,12 @@ function sourceContextStateForProposal(findingKey: string, detail: string, actio
 function missingContextFieldsForProposal(sourceCollection: string, findingKey: string) {
     const fields = new Set<string>();
     if (findingKey === "missing_actor_context") {
-        fields.add("userId");
-        fields.add("actor ownership");
+        fields.add("actorUserId");
+        fields.add("actorType");
     }
     if (findingKey === "missing_route_context") {
         fields.add("routePath");
-        fields.add("sourceSurface");
+        fields.add("surface");
     }
     if (findingKey === "viewer_event_missing_watch_session") {
         fields.add("watchSessionId");
@@ -132,11 +132,13 @@ function missingContextFieldsForProposal(sourceCollection: string, findingKey: s
         fields.add("normalizedAction");
     }
     if (sourceCollection === "notifications") {
-        fields.add("userId");
+        fields.add("targetUserId or recipientUserId");
+        fields.add("actorUserId / actorType");
         fields.add("notificationType");
-        fields.add("sourceEventId");
-        fields.add("targetEntityId");
-        fields.add("route/sourceComponent");
+        fields.add("notificationId");
+        fields.add("sourceEntityId");
+        fields.add("route or surface (foreground only)");
+        fields.add("sourceComponent");
         fields.add("createdAt");
     }
     return Array.from(fields);

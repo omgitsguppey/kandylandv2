@@ -12,6 +12,7 @@ import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runti
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildNotificationQualityMetadata } from "@/lib/notifications/notification-quality-score";
+import { buildNotificationRecord } from "@/lib/notification-contracts";
 
 const createBroadcastSchema = z.object({
     title: z.string().trim().min(2).max(80).optional(),
@@ -174,24 +175,33 @@ async function POST_handler(request: NextRequest) {
                 dropUrgency: 0.35,
             });
             batch.set(notificationRef, {
-                title: title?.trim() || `${creatorDisplayName} posted an update`,
-                message,
-                type: "info",
-                target: {
-                    global: false,
-                    userIds: notificationUserIds,
-                },
-                link: buildCreatorPublicHref({
-                    uid: caller.uid,
-                    creatorId: caller.uid,
-                    username: creatorUsername,
-                    creatorUsername,
-                }) ?? "/dashboard/profile",
+                ...buildNotificationRecord({
+                    title: title?.trim() || `${creatorDisplayName} posted an update`,
+                    message,
+                    type: "info",
+                    target: {
+                        global: false,
+                        userIds: notificationUserIds,
+                    },
+                    link: buildCreatorPublicHref({
+                        uid: caller.uid,
+                        creatorId: caller.uid,
+                        username: creatorUsername,
+                        creatorUsername,
+                    }) ?? "/dashboard/profile",
+                    createdAtMs: now,
+                    readBy: [],
+                    actorType: "creator",
+                    actorUserId: caller.uid,
+                    actorCreatorId: caller.uid,
+                    sourceComponent: "creator_broadcasts_route",
+                    sourceEntityType: "creator_broadcast",
+                    sourceEntityId: broadcastRef.id,
+                    surface: "background",
+                    lifecycleEvent: "creator_broadcast",
+                    metadata: qualityMetadata,
+                }),
                 createdAt: FieldValue.serverTimestamp(),
-                createdAtMs: now,
-                readBy: [],
-                lifecycleEvent: "creator_broadcast",
-                ...qualityMetadata,
             });
             markNotificationsRuntimeChanged(batch, now);
         }

@@ -7,6 +7,7 @@ import { CRON } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, CREATOR_SUBSCRIPTION_MIN_GD, isCreatorRole } from "@/lib/creator-experiences";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
+import { buildNotificationRecord } from "@/lib/notification-contracts";
 import { buildCreatorAccrual, buildSourceAwareBalancePatch, readSourceAwareBalance, spendCreatorExperienceGumdrops } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
@@ -145,22 +146,31 @@ async function GET_handler(request: NextRequest) {
 
                         const notificationRef = adminDb.collection("notifications").doc();
                         transaction.set(notificationRef, {
-                            title: `${creatorDisplayName} renews in 7 days`,
-                            message: "Your creator subscription will auto-renew soon using purchased Gum Drops only. Continue holding enough Gum Drops or cancel before renewal day.",
-                            type: "warning",
-                            target: {
-                                global: false,
-                                userIds: [userId],
-                            },
-                            link: buildCreatorPublicHref({
-                                uid: creatorId,
-                                creatorId,
-                                username: creatorUsername,
-                                creatorUsername,
-                            }) ?? "/dashboard/profile",
+                            ...buildNotificationRecord({
+                                title: `${creatorDisplayName} renews in 7 days`,
+                                message: "Your creator subscription will auto-renew soon using purchased Gum Drops only. Continue holding enough Gum Drops or cancel before renewal day.",
+                                type: "warning",
+                                target: {
+                                    global: false,
+                                    userIds: [userId],
+                                },
+                                targetUserId: userId,
+                                recipientUserId: userId,
+                                link: buildCreatorPublicHref({
+                                    uid: creatorId,
+                                    creatorId,
+                                    username: creatorUsername,
+                                    creatorUsername,
+                                }) ?? "/dashboard/profile",
+                                createdAtMs: now,
+                                readBy: [],
+                                actorType: "system",
+                                sourceComponent: "creator_subscription_cron",
+                                sourceEntityType: "creator_subscription",
+                                sourceEntityId: subscriptionDoc.id,
+                                surface: "background",
+                            }),
                             createdAt: FieldValue.serverTimestamp(),
-                            createdAtMs: now,
-                            readBy: [],
                         });
                         transaction.set(subscriptionDoc.ref, {
                             lastRenewalWarningAt: now,
@@ -219,22 +229,31 @@ async function GET_handler(request: NextRequest) {
                             renewalFailureReason: "insufficient_purchased_balance",
                         }, { merge: true });
                         transaction.set(failedNotificationRef, {
-                            title: `${creatorDisplayName} subscription lapsed`,
-                            message: "Renewal failed because your purchased Gum Drops balance was too low. Top up and resubscribe anytime.",
-                            type: "error",
-                            target: {
-                                global: false,
-                                userIds: [userId],
-                            },
-                            link: buildCreatorPublicHref({
-                                uid: creatorId,
-                                creatorId,
-                                username: creatorUsername,
-                                creatorUsername,
-                            }) ?? "/dashboard/profile",
+                            ...buildNotificationRecord({
+                                title: `${creatorDisplayName} subscription lapsed`,
+                                message: "Renewal failed because your purchased Gum Drops balance was too low. Top up and resubscribe anytime.",
+                                type: "error",
+                                target: {
+                                    global: false,
+                                    userIds: [userId],
+                                },
+                                targetUserId: userId,
+                                recipientUserId: userId,
+                                link: buildCreatorPublicHref({
+                                    uid: creatorId,
+                                    creatorId,
+                                    username: creatorUsername,
+                                    creatorUsername,
+                                }) ?? "/dashboard/profile",
+                                createdAtMs: now,
+                                readBy: [],
+                                actorType: "system",
+                                sourceComponent: "creator_subscription_cron",
+                                sourceEntityType: "creator_subscription",
+                                sourceEntityId: subscriptionDoc.id,
+                                surface: "background",
+                            }),
                             createdAt: FieldValue.serverTimestamp(),
-                            createdAtMs: now,
-                            readBy: [],
                         });
                         markNotificationsRuntimeChanged(transaction, now);
                         return { status: "failed" as const, amount: priceGd };

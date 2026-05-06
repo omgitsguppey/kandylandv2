@@ -120,6 +120,9 @@ describe("Notification read state", () => {
     expect(mockState.trackEvent).toHaveBeenCalledWith("notification_read", expect.objectContaining({
       notification_id: "note_1",
       recipient_id: "notify_user",
+      actor_user_id: "notify_user",
+      target_user_id: "notify_user",
+      surface: "notifications_inbox",
       optimistic: true,
     }));
     expect(mockState.dispatchClientRuntimeEvent).toHaveBeenCalledWith("kandydrops:notifications-sync", true);
@@ -163,6 +166,9 @@ describe("Notification read state", () => {
     expect(mockState.trackEvent).toHaveBeenCalledWith("notification_read", expect.objectContaining({
       notification_id: "note_2",
       recipient_id: "notify_user",
+      actor_user_id: "notify_user",
+      target_user_id: "notify_user",
+      surface: "notifications_inbox",
       optimistic: true,
     }));
   });
@@ -200,15 +206,24 @@ describe("Notification read state", () => {
     expect(readCalls[0]?.[1]).toEqual(expect.objectContaining({
       notification_id: "note_3",
       recipient_id: "notify_user",
+      actor_user_id: "notify_user",
+      target_user_id: "notify_user",
+      surface: "notifications_inbox",
       optimistic: true,
     }));
     expect(mockState.trackEvent).toHaveBeenCalledWith("notification_opened", expect.objectContaining({
       notification_id: "note_3",
       destination: "/drops/drop_1/preview",
+      actor_user_id: "notify_user",
+      target_user_id: "notify_user",
+      surface: "notifications_dropdown",
     }));
     expect(mockState.trackEvent).toHaveBeenCalledWith("notification_action_clicked", expect.objectContaining({
       notification_id: "note_3",
       destination: "/drops/drop_1/preview",
+      actor_user_id: "notify_user",
+      target_user_id: "notify_user",
+      surface: "notifications_dropdown",
     }));
   });
 });

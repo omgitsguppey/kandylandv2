@@ -177,9 +177,12 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             notification_id: id,
             idempotency_key: id,
             recipient_id: userId,
+            actor_user_id: userId,
+            target_user_id: userId,
             notification_type: "in_app",
             optimistic: true,
             source_component: "use_notifications",
+            surface: "notifications_inbox",
         });
 
         dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
@@ -203,9 +206,12 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         trackEvent("notification_mark_all_read", {
             idempotency_key: `mark_all:${userId}:${unreadIds.join("|")}`,
             recipient_id: userId,
+            actor_user_id: userId,
+            target_user_id: userId,
             notification_type: "in_app",
             unread_count: unreadIds.length,
             source_component: "use_notifications",
+            surface: "notifications_inbox",
         });
 
         const previousNotifications = notificationsState;
@@ -234,9 +240,12 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
                 source_component: "use_notifications",
                 idempotency_key: `clear_all:${userId}:${succeededIds.join("|")}`,
                 recipient_id: userId,
+                actor_user_id: userId,
+                target_user_id: userId,
                 notification_type: "in_app",
                 cleared_count: succeededIds.length,
                 failed_count: failedCount,
+                surface: "notifications_inbox",
             });
         }
 

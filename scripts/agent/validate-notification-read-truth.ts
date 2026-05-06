@@ -31,6 +31,7 @@ const packageJson = JSON.parse(readRequired("package.json") || "{}") as {
 const notificationBell = readRequired("src/components/Navigation/NotificationBell.tsx");
 const notificationRuntimeBridge = readRequired("src/components/Notifications/NotificationRuntimeBridge.tsx");
 const notificationsHook = readRequired("src/hooks/useNotifications.ts");
+const notificationContracts = readRequired("src/lib/notification-contracts.ts");
 const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
 const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identified/route.ts");
 const eventFactNormalizer = readRequired("src/lib/behavioral/event-fact-normalizer.ts");
@@ -45,13 +46,38 @@ if (packageJson.scripts?.["check:notification-read-truth"] !== "tsx scripts/agen
 
 requireIncludes(notificationsHook, 'trackEvent("notification_read"', "useNotifications hook");
 requireExcludes(notificationsHook, 'trackEvent("notification_marked_read"', "useNotifications hook");
+requireIncludes(notificationsHook, "actor_user_id: userId", "useNotifications hook");
+requireIncludes(notificationsHook, "target_user_id: userId", "useNotifications hook");
+requireIncludes(notificationsHook, 'surface: "notifications_inbox"', "useNotifications hook");
 
 requireIncludes(notificationBell, 'trackEvent("notification_opened"', "Notification bell diagnostics");
 requireIncludes(notificationBell, 'trackEvent("notification_action_clicked"', "Notification bell diagnostics");
 requireExcludes(notificationBell, 'trackEvent("notification_marked_read"', "Notification bell");
+requireIncludes(notificationBell, 'actor_user_id: currentUserId ?? ""', "Notification bell diagnostics");
+requireIncludes(notificationBell, 'target_user_id: currentUserId ?? ""', "Notification bell diagnostics");
+requireIncludes(notificationBell, 'surface: "notifications_dropdown"', "Notification bell diagnostics");
 
 requireIncludes(notificationRuntimeBridge, 'trackEvent("notification_opened"', "Notification runtime bridge diagnostics");
 requireIncludes(notificationRuntimeBridge, 'trackEvent("notification_read"', "Notification runtime bridge canonical read");
+requireIncludes(notificationRuntimeBridge, "actor_user_id: user.uid", "Notification runtime bridge diagnostics");
+requireIncludes(notificationRuntimeBridge, "target_user_id: user.uid", "Notification runtime bridge diagnostics");
+requireIncludes(notificationRuntimeBridge, 'surface: "notification_runtime"', "Notification runtime bridge diagnostics");
+
+for (const expected of [
+  "NotificationCanonicalContext",
+  "targetUserId",
+  "recipientUserId",
+  "actorUserId",
+  "actorType",
+  "\"background_route_not_required\"",
+  "\"missing_target_user\"",
+  "\"missing_actor_for_foreground\"",
+  "\"missing_route_for_foreground\"",
+  "buildNotificationRecord",
+  "deriveNotificationCanonicalContext",
+]) {
+  requireIncludes(notificationContracts, expected, "Notification contracts canonical ownership context");
+}
 
 requireIncludes(telemetryCatalog, '{ eventName: "notification_read"', "Telemetry catalog canonical notification read");
 requireIncludes(telemetryCatalog, 'aliases: ["notification_marked_read"]', "Telemetry catalog notification read compatibility alias");
