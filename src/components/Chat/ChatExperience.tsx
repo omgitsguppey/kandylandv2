@@ -79,6 +79,7 @@ import {
 
 const CHAT_COMPOSER_DEFAULT_HEIGHT_PX = 104;
 const CHAT_COMPOSER_CLEAN_PADDING_PX = 72;
+const CHAT_COMPOSER_SUMMARY_PADDING_PX = 92;
 const CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME = "max-h-[min(28vh,10rem)] overflow-y-auto overscroll-y-contain";
 
 type ThreadListResponse = {
@@ -742,7 +743,9 @@ export function ChatExperience() {
         () => renderPriceSummary(selectedDetail, selectedThread?.viewerRole ?? "user"),
         [selectedDetail, selectedThread?.viewerRole],
     );
-    const hasComposerTray = Boolean(sendErrorMessage || sendWarningMessage || insufficientFunds || composerFile || composerSummary);
+    const hasFullComposerTray = Boolean(sendErrorMessage || sendWarningMessage || insufficientFunds || composerFile);
+    const hasSummaryOnlyComposerTray = Boolean(composerSummary) && !hasFullComposerTray;
+    const composerPaddingMode = hasFullComposerTray ? "tray" : hasSummaryOnlyComposerTray ? "summary" : "clean";
     const chatViewportShellStyle = useMemo(() => ({
         paddingBottom: isCompactViewport ? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET : undefined,
     }) satisfies CSSProperties, [isCompactViewport]);
@@ -762,8 +765,12 @@ export function ChatExperience() {
     const chatThreadSectionStyle = useMemo(() => ({
         ["--chat-composer-height" as "--chat-composer-height"]: `${chatComposerHeightPx}px`,
         ["--chat-safe-bottom" as "--chat-safe-bottom"]: isCompactViewport ? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET : "0px",
-        ["--chat-transcript-bottom-padding" as "--chat-transcript-bottom-padding"]: `calc(${hasComposerTray ? `${chatComposerHeightPx}px` : `${CHAT_COMPOSER_CLEAN_PADDING_PX}px`} + var(--chat-safe-bottom, 0px))`,
-    }) as CSSProperties, [chatComposerHeightPx, hasComposerTray, isCompactViewport]);
+        ["--chat-transcript-bottom-padding" as "--chat-transcript-bottom-padding"]: composerPaddingMode === "tray"
+            ? `calc(${chatComposerHeightPx}px + var(--chat-safe-bottom, 0px))`
+            : composerPaddingMode === "summary"
+                ? `calc(${CHAT_COMPOSER_SUMMARY_PADDING_PX}px + var(--chat-safe-bottom, 0px))`
+                : `calc(${CHAT_COMPOSER_CLEAN_PADDING_PX}px + var(--chat-safe-bottom, 0px))`,
+    }) as CSSProperties, [chatComposerHeightPx, composerPaddingMode, isCompactViewport]);
     const chatTranscriptStyle = useMemo(() => ({
         paddingBottom: `max(calc(var(--chat-transcript-bottom-padding, ${CHAT_COMPOSER_CLEAN_PADDING_PX}px)), calc(${CHAT_COMPOSER_CLEAN_PADDING_PX}px + var(--chat-safe-bottom, 0px)))`,
         scrollPaddingBottom: `max(calc(var(--chat-transcript-bottom-padding, ${CHAT_COMPOSER_CLEAN_PADDING_PX}px)), calc(${CHAT_COMPOSER_CLEAN_PADDING_PX}px + var(--chat-safe-bottom, 0px)))`,
@@ -2723,7 +2730,7 @@ export function ChatExperience() {
                                     data-chat-density="public-beta-compact"
                                     data-chat-composer-chin="compact"
                                 >
-                                    {hasComposerTray ? (
+                                    {(hasFullComposerTray || hasSummaryOnlyComposerTray) ? (
                                         <div className={cn("mb-2.5 space-y-2", CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME)}>
                                             {sendErrorMessage ? (
                                                 <div className="rounded-[1.2rem] border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
