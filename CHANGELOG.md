@@ -2,6 +2,15 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.52.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 04:17 UTC
+- Improved Beta update notes so changes are easier to match with support reports.
+- Beta notes stay user-safe while preserving enough detail for support follow-up.
+- UTC timestamps make updates easier to compare with screenshots, reports, and incidents.
+
 ## [1.51.0] - 2026-05-06
 
 ### Fixed
@@ -398,11 +407,3 @@ User-facing KandyDrops Beta updates, newest first.
 - Added a Beta badge with app update notes in the top navigation.
 - Tap Beta beside KandyDrops to see the latest app-style updates.
 - The current beta version now stays tied to the public changelog.
-
-## [1.16.1] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 12:14 UTC
-- Fixed a beta issue to make KandyDrops smoother to use.
-- Kept the update focused on user-visible polish and reliability.

@@ -1,12 +1,46 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.51.0",
+  "currentVersion": "1.52.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T04:17:27.967Z",
-  "generatedAtUtc": "2026-05-06T04:17:27.967Z",
-  "lastCommitSha": "4eb73b3eaa23a74611c19278c63de430c609f83d",
+  "generatedAt": "2026-05-06T04:18:07.081Z",
+  "generatedAtUtc": "2026-05-06T04:18:07.081Z",
+  "lastCommitSha": "4234e36711426775f67e05653593fd2bcd4d59f6",
   "notes": [
+    {
+      "version": "1.52.0",
+      "previousVersion": "1.51.0",
+      "commitSha": "4234e36711426775f67e05653593fd2bcd4d59f6",
+      "commitTitle": "fix(admin): complete dependency inventory panel",
+      "committedAt": "2026-05-06T04:17:55.000Z",
+      "generatedAt": "2026-05-06T04:18:07.080Z",
+      "committedAtUtc": "2026-05-06T04:17:55.000Z",
+      "generatedAtUtc": "2026-05-06T04:18:07.080Z",
+      "diffStats": {
+        "rawAdditions": 770,
+        "rawDeletions": 238,
+        "rawChangeCount": 1008,
+        "additions": 770,
+        "deletions": 238,
+        "effectiveAdditions": 685,
+        "effectiveDeletions": 157,
+        "changedFiles": 7,
+        "effectiveChangeCount": 842,
+        "excludedGeneratedChangeCount": 166
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved Beta update notes so changes are easier to match with support reports.",
+      "bullets": [
+        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
+        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.51.0",
       "previousVersion": "1.50.0",
@@ -133,40 +167,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "patch",
       "category": "Fixed",
       "userFacingTitle": "Improved internal event-flow diagnostics so background system events are not confused with user actions.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "telemetry"
-      ]
-    },
-    {
-      "version": "1.48.0",
-      "previousVersion": "1.47.1",
-      "commitSha": "874c1ba93f3a1152ba26ad009491f294c4ea6d84",
-      "commitTitle": "fix(admin): clarify recent event flow context",
-      "committedAt": "2026-05-06T03:12:12.000Z",
-      "generatedAt": "2026-05-06T03:12:27.467Z",
-      "committedAtUtc": "2026-05-06T03:12:12.000Z",
-      "generatedAtUtc": "2026-05-06T03:12:27.467Z",
-      "diffStats": {
-        "rawAdditions": 233,
-        "rawDeletions": 12,
-        "rawChangeCount": 245,
-        "additions": 233,
-        "deletions": 12,
-        "effectiveAdditions": 231,
-        "effectiveDeletions": 10,
-        "changedFiles": 8,
-        "effectiveChangeCount": 241,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal event-flow diagnostics so background events and user actions are easier to tell apart.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],
