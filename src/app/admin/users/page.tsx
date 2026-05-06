@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { UserProfile } from "@/types/db";
 import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3, Activity } from "lucide-react";
@@ -29,7 +29,6 @@ import {
 } from "@/lib/behavioral/review-badge-rules";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import {
-    coerceAdminTruthState,
     hasUsableAdminTruthValue,
     resolveAdminTruthState,
     type AdminTruthState,
@@ -37,6 +36,7 @@ import {
 import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
 import type { 
+    AdminUsersKpiCard,
     UserAnalytics, 
     UsersSummary, 
     DropReference, 
@@ -75,7 +75,6 @@ export default function UserManagementPage() {
     const [summary, setSummary] = useState<UsersSummary | null>(null);
     const [loading, setLoading] = useState(true);
     const [summaryLoading, setSummaryLoading] = useState(true);
-    const [summaryRefreshInFlight, setSummaryRefreshInFlight] = useState(false);
     const [selectedUserDetailLoading, setSelectedUserDetailLoading] = useState<string | null>(null);
     const [realtimeState, setRealtimeState] = useState<AdminSurfaceState>("loading");
     const [searchQuery, setSearchQuery] = useState("");
@@ -163,8 +162,6 @@ export default function UserManagementPage() {
     const fetchSummary = useCallback(async (options: { silent?: boolean; reason?: string } = {}) => {
         if (!options.silent) {
             setSummaryLoading(true);
-        } else {
-            setSummaryRefreshInFlight(true);
         }
         try {
             const response = await authFetch("/api/admin/users?mode=summary");
@@ -198,8 +195,6 @@ export default function UserManagementPage() {
         } finally {
             if (!options.silent) {
                 setSummaryLoading(false);
-            } else {
-                setSummaryRefreshInFlight(false);
             }
         }
     }, []);
@@ -397,12 +392,10 @@ export default function UserManagementPage() {
         valueState: behaviorRollup?.confidence === "unknown" ? "unavailable" : behaviorRollup?.freshnessState,
         reviewRequired: Boolean(behaviorRollup?.issues.length) || behaviorRollup?.confidence === "insufficient" || behaviorRollup?.confidence === "low",
     });
-    const SUMMARY_PLACEHOLDER = "—";
     const formatMoney = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `$${value.toFixed(2)}` : "[unavailable]";
     const formatPercent = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "[unavailable]";
     const formatCount = (value?: number, analytics?: UserAnalytics) =>
         !analytics || analytics.metricTruthLabel === "unknown" ? "[unavailable]" : (value ?? 0).toLocaleString();
-    const formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : SUMMARY_PLACEHOLDER;
     const formatWatchHours = (watchTimeMs?: number, fallbackHours?: number) => {
         if (typeof watchTimeMs === "number" && Number.isFinite(watchTimeMs)) {
             return `${Number((watchTimeMs / 3_600_000).toFixed(1))}h`;
@@ -410,78 +403,73 @@ export default function UserManagementPage() {
 
         return `${fallbackHours || 0}h`;
     };
-    const formatCompactMoney = (value?: number) => {
-        if (typeof value !== "number" || !Number.isFinite(value)) {
-            return SUMMARY_PLACEHOLDER;
-        }
-
-        if (Math.abs(value) >= 1000) {
-            const compact = new Intl.NumberFormat("en-US", {
-                notation: "compact",
-                maximumFractionDigits: 1,
-            }).format(value);
-            return `$${compact}`;
-        }
-
-        return `$${value.toFixed(2)}`;
+    const getKpiCardTruthState = (card: AdminUsersKpiCard): AdminTruthState => {
+        if (card.freshnessState === "live") return "live";
+        if (card.freshnessState === "stale") return "stale";
+        if (card.freshnessState === "degraded") return "degraded";
+        if (card.freshnessState === "delayed") return "delayed";
+        if (card.freshnessState === "review") return "review";
+        return "unavailable";
     };
-    const summaryTransportState: AdminSurfaceState = summary ? realtimeState : summaryLoading ? "loading" : "failed";
-    const summarySnapshotTruthState = summary?.metricsSnapshot?.freshnessState ?? null;
-    const summarySnapshotSource = summary?.metricsSnapshot?.source ?? "unavailable";
-    const getSummaryMetricState = (
-        values: unknown[],
-        valueTruthState?: unknown,
-        options?: {
-            delayed?: boolean;
-            reviewRequired?: boolean;
-        },
-    ): AdminTruthState => resolveAdminTruthState({
-        hasUsableValue: hasUsableAdminTruthValue(...values),
-        transportState: summaryTransportState,
-        sourceConfigured: summarySnapshotSource !== "unavailable" || Boolean(summary) || summaryLoading,
-        refreshInFlight: summaryRefreshInFlight,
-        valueState: valueTruthState,
-        delayed: options?.delayed,
-        reviewRequired: options?.reviewRequired,
-    });
-    const renderSummaryMetricCard = ({
-        title,
-        value,
-        detail,
-        metricState,
-        reviewDecision,
-    }: {
-        title: string;
-        value: string;
-        detail: ReactNode;
-        metricState: AdminTruthState;
-        reviewDecision?: ReturnType<typeof buildAdminReviewBadge>;
-    }) => (
+    const renderSummaryMetricCard = (card: AdminUsersKpiCard) => {
+        const metricState = getKpiCardTruthState(card);
+        const hasUsableValue = hasUsableAdminTruthValue(card.primaryValue);
+        const reviewDecision = buildAdminReviewBadge({
+            truthState: metricState,
+            missingRequiredData: card.freshnessState === "unknown",
+            viewsExistButWatchMissing: card.id === "watch_time" && card.reasonCode === "watch_time_missing_despite_views",
+            revenueExistsButPurchaseCountMissing: card.id === "revenue" && card.reasonCode === "revenue_missing_purchase_count",
+            delayedExpected: card.freshnessState === "delayed",
+            reviewSummary: card.reasonCode
+                ? `${card.explanation}${card.warnings.length ? ` Warnings: ${card.warnings.join(" | ")}` : ""}`
+                : card.explanation,
+        });
+        const sourceDetail = `${card.scope.replace(/_/g, " ")} | ${(card.sourceLabel ?? card.sourceTruth).replace(/_/g, " ")}`;
+        const footerReason = card.reasonCode
+            ? card.reasonCode.replace(/_/g, " ")
+            : card.freshnessState === "live"
+                ? "source verified"
+                : card.freshnessState.replace(/_/g, " ");
+
+        return (
         <div
             className="rounded-2xl border border-white/10 bg-white/[0.045] px-2.5 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:px-3 sm:py-3"
+            title={`${card.explanation}${card.formula ? ` Formula: ${card.formula}.` : ""}${card.warnings.length ? ` Warnings: ${card.warnings.join(" | ")}` : ""}`}
             data-admin-metric-state={metricState}
-            data-admin-metric-source={summarySnapshotSource}
-            data-admin-metric-freshness={summarySnapshotTruthState ?? "unavailable"}
+            data-admin-metric-source={card.sourceLabel ?? card.sourceTruth}
+            data-admin-metric-freshness={card.freshnessState}
             data-admin-users-metric-state={metricState}
-            data-admin-users-metric-source={summarySnapshotSource}
+            data-admin-users-metric-source={card.sourceLabel ?? card.sourceTruth}
             data-admin-review-reason={reviewDecision?.reasonCode ?? "none"}
+            data-admin-users-kpi-id={card.id}
+            data-admin-users-kpi-source-truth={card.sourceTruth}
+            data-admin-users-kpi-freshness={card.freshnessState}
+            data-admin-users-kpi-scope={card.scope}
+            data-admin-users-kpi-reason={card.reasonCode ?? "none"}
+            data-admin-users-kpi-generated-at-utc={card.generatedAtUtc}
         >
             <div className="flex min-h-5 items-start justify-between gap-1.5">
-                <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.13em] text-gray-500">{title}</p>
+                <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.13em] text-gray-500">{card.label}</p>
                 <div className="flex shrink-0 items-center gap-1">
                     <AdminReviewBadge decision={reviewDecision ?? null} className="px-1.5 py-0 text-[8px] tracking-[0.08em]" />
                     <AdminTruthBadge
                         state={metricState}
                         className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
                         pendingInitialLoad={!summary && summaryLoading}
-                        hasUsableValue={hasUsableAdminTruthValue(value)}
+                        hasUsableValue={hasUsableValue}
                     />
                 </div>
             </div>
-            <p className="mt-1 truncate text-xl font-black leading-none text-white sm:text-2xl">{value}</p>
-            <p className="mt-1 min-h-7 text-[10px] leading-snug text-gray-400 sm:text-[11px]">{detail}</p>
+            <p className="mt-1 truncate text-xl font-black leading-none text-white sm:text-2xl">{String(card.primaryValue)}</p>
+            <div className="mt-1 min-h-9 space-y-1">
+                <p className="text-[10px] leading-snug text-gray-300 sm:text-[11px]">{card.secondaryValue ?? card.explanation}</p>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[9px] uppercase tracking-[0.08em] text-gray-500">
+                    <span>{sourceDetail}</span>
+                    <span>{footerReason}</span>
+                </div>
+            </div>
         </div>
-    );
+    )};
     const formatJoined = (value: unknown) => {
         const timestamp = typeof value === "number"
             ? value
@@ -764,119 +752,11 @@ export default function UserManagementPage() {
                         className="grid grid-cols-2 gap-2 min-[390px]:grid-cols-3 md:gap-2.5 xl:grid-cols-5"
                         data-admin-users-stats-layout="compact-grid"
                     >
-                        {renderSummaryMetricCard({
-                            title: "Users",
-                            value: formatSummaryCount(summary?.totalUsers),
-                            detail: `${formatSummaryCount(summary?.activeUsers)} active`,
-                            metricState: getSummaryMetricState([summary?.totalUsers, summary?.activeUsers], summarySnapshotTruthState),
-                            reviewDecision: buildAdminReviewBadge({
-                                truthState: getSummaryMetricState([summary?.totalUsers, summary?.activeUsers], summarySnapshotTruthState),
-                                missingRequiredData: !summary,
-                            }),
-                        })}
-                        {renderSummaryMetricCard({
-                            title: "Returned in last 7 days",
-                            value: formatSummaryCount(summary?.returnedInLast7Days ?? summary?.activeLast7Days),
-                            detail: "logged in, visited, or tracked",
-                            metricState: getSummaryMetricState([summary?.returnedInLast7Days ?? summary?.activeLast7Days], summarySnapshotTruthState),
-                            reviewDecision: buildAdminReviewBadge({
-                                truthState: getSummaryMetricState([summary?.returnedInLast7Days ?? summary?.activeLast7Days], summarySnapshotTruthState),
-                                missingRequiredData: !summary,
-                            }),
-                        })}
-                        {renderSummaryMetricCard({
-                            title: "Unwraps",
-                            value: formatSummaryCount(summary?.totalUnwraps),
-                            detail: `${formatSummaryCount(summary?.totalPurchases)} tracked purchases`,
-                            metricState: getSummaryMetricState([summary?.totalUnwraps, summary?.totalPurchases], summarySnapshotTruthState),
-                            reviewDecision: buildAdminReviewBadge({
-                                truthState: getSummaryMetricState([summary?.totalUnwraps, summary?.totalPurchases], summarySnapshotTruthState),
-                                missingRequiredData: !summary,
-                                revenueExistsButPurchaseCountMissing: Boolean((summary?.grossRevenueUsd ?? 0) > 0 && !summary?.totalPurchases),
-                            }),
-                        })}
-                        {renderSummaryMetricCard({
-                            title: "Watch",
-                            value: summary ? `${summary.totalWatchHours ?? 0}h` : SUMMARY_PLACEHOLDER,
-                            detail: "foreground viewer time",
-                            metricState: getSummaryMetricState([summary?.totalWatchHours], summarySnapshotTruthState),
-                            reviewDecision: buildAdminReviewBadge({
-                                truthState: getSummaryMetricState([summary?.totalWatchHours], summarySnapshotTruthState),
-                                missingRequiredData: !summary,
-                                viewsExistButWatchMissing: Boolean((summary?.activeUsers ?? 0) > 0 && !summary?.totalWatchHours),
-                            }),
-                        })}
-                        {renderSummaryMetricCard({
-                            title: "Revenue",
-                            value: formatCompactMoney(summary?.grossRevenueUsd),
-                            detail: summary?.commerceEmptyReason || `adj ${formatCompactMoney(summary?.adjustedProfitUsd)} / bonus ${formatCompactMoney(summary?.bonusValueUsd)}`,
-                            metricState: getSummaryMetricState(
-                                [summary?.grossRevenueUsd, summary?.adjustedProfitUsd, summary?.bonusValueUsd],
-                                coerceAdminTruthState(summary?.commerceTruthLabel),
-                                {
-                                    delayed: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale",
-                                },
-                            ),
-                            reviewDecision: buildAdminReviewBadge({
-                                truthState: getSummaryMetricState(
-                                    [summary?.grossRevenueUsd, summary?.adjustedProfitUsd, summary?.bonusValueUsd],
-                                    coerceAdminTruthState(summary?.commerceTruthLabel),
-                                    { delayed: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale" },
-                                ),
-                                delayedExpected: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale",
-                                revenueExistsButPurchaseCountMissing: Boolean((summary?.grossRevenueUsd ?? 0) > 0 && !summary?.totalPurchases),
-                            }),
-                        })}
-                        {renderSummaryMetricCard({
-                            title: "Paying",
-                            value: formatSummaryCount(summary?.payingUsers),
-                            detail: `avg ${formatCompactMoney(summary?.averageOrderUsd)} / rate ${formatCompactMoney(summary?.effectiveUsdPer100Gd)}`,
-                            metricState: getSummaryMetricState(
-                                [summary?.payingUsers, summary?.averageOrderUsd, summary?.effectiveUsdPer100Gd],
-                                coerceAdminTruthState(summary?.commerceTruthLabel),
-                                {
-                                    delayed: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale",
-                                },
-                            ),
-                            reviewDecision: buildAdminReviewBadge({
-                                truthState: getSummaryMetricState(
-                                    [summary?.payingUsers, summary?.averageOrderUsd, summary?.effectiveUsdPer100Gd],
-                                    coerceAdminTruthState(summary?.commerceTruthLabel),
-                                    { delayed: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale" },
-                                ),
-                                delayedExpected: coerceAdminTruthState(summary?.commerceTruthLabel) === "stale",
-                            }),
-                        })}
-                        {renderSummaryMetricCard({
-                            title: "Verified",
-                            value: formatSummaryCount(summary?.verifiedUsers),
-                            detail: "badge-ready accounts",
-                            metricState: getSummaryMetricState([summary?.verifiedUsers], summarySnapshotTruthState),
-                            reviewDecision: buildAdminReviewBadge({
-                                truthState: getSummaryMetricState([summary?.verifiedUsers], summarySnapshotTruthState),
-                                missingRequiredData: !summary,
-                            }),
-                        })}
-                        {renderSummaryMetricCard({
-                            title: "Push",
-                            value: formatSummaryCount(summary?.notificationsEnabledUsers),
-                            detail: "browser alerts on",
-                            metricState: getSummaryMetricState([summary?.notificationsEnabledUsers], summarySnapshotTruthState),
-                            reviewDecision: buildAdminReviewBadge({
-                                truthState: getSummaryMetricState([summary?.notificationsEnabledUsers], summarySnapshotTruthState),
-                                missingRequiredData: !summary,
-                            }),
-                        })}
-                        {renderSummaryMetricCard({
-                            title: "Onboarded",
-                            value: formatSummaryCount(summary?.onboardingCompletedUsers),
-                            detail: "completed setup",
-                            metricState: getSummaryMetricState([summary?.onboardingCompletedUsers], summarySnapshotTruthState),
-                            reviewDecision: buildAdminReviewBadge({
-                                truthState: getSummaryMetricState([summary?.onboardingCompletedUsers], summarySnapshotTruthState),
-                                missingRequiredData: !summary,
-                            }),
-                        })}
+                        {(summary?.kpiCards ?? []).map((card) => (
+                            <div key={card.id}>
+                                {renderSummaryMetricCard(card)}
+                            </div>
+                        ))}
                     </div>
 
                     <div className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">

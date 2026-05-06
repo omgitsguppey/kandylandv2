@@ -49,6 +49,9 @@ const failures: string[] = [];
   "generatedAt",
   "source",
   "freshnessState",
+  "watchTimeSource",
+  "watchTimeIssues",
+  "watchTimeDiagnosticEstimate",
 ].forEach((field) => {
   assert(snapshotContract.includes(field), `Admin user metrics snapshot contract missing ${field}.`, failures);
 });
@@ -65,6 +68,14 @@ assert(!usersPage.includes('value: summary ? `${summary.totalWatchHours ?? 0}h` 
 assert(!usersPage.includes('formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : "[unavailable]"'), "Summary metric cards must not hide the compact grid behind [unavailable] placeholders.", failures);
 assert(usersPage.includes("data-admin-users-metric-state"), "User Management metric cards must expose data-admin-users-metric-state.", failures);
 assert(usersPage.includes("data-admin-users-metric-source"), "User Management metric cards must expose data-admin-users-metric-source.", failures);
+assert(usersPage.includes("data-admin-users-kpi-id"), "User Management KPI cards must expose data-admin-users-kpi-id.", failures);
+assert(usersPage.includes("data-admin-users-kpi-source-truth"), "User Management KPI cards must expose data-admin-users-kpi-source-truth.", failures);
+assert(usersPage.includes("data-admin-users-kpi-freshness"), "User Management KPI cards must expose data-admin-users-kpi-freshness.", failures);
+assert(usersPage.includes("data-admin-users-kpi-scope"), "User Management KPI cards must expose data-admin-users-kpi-scope.", failures);
+assert(usersPage.includes("data-admin-users-kpi-reason"), "User Management KPI cards must expose data-admin-users-kpi-reason.", failures);
+assert(usersPage.includes("data-admin-users-kpi-generated-at-utc"), "User Management KPI cards must expose data-admin-users-kpi-generated-at-utc.", failures);
+assert(usersPage.includes("(summary?.kpiCards ?? []).map"), "User Management must render KPI cards from the canonical summary contract.", failures);
+assert(!usersPage.includes("tracked purchases"), "User Management must not show purchase counts inside the Unwraps card.", failures);
 
 assert(behaviorContract.includes("confidence") && behaviorContract.includes("source") && behaviorContract.includes("issues"), "Per-user behavior rollup contract is incomplete.", failures);
 assert(behaviorHelper.includes("watch_time_missing_despite_views"), "Per-user behavior rollup helper must flag missing watch time despite views.", failures);
@@ -85,6 +96,16 @@ assert(watchTruthValidator.includes("legacy_page_duration"), "Watch-time truth v
 assert(userDetailRoute.includes("buildWatchTimeRollupFromRecords"), "User detail route must use canonical watch-time rollups.", failures);
 assert(usersRoute.includes("buildWatchTimeRollupFromRecords"), "User Management route must use canonical watch-time rollups.", failures);
 assert(snapshotHelper.includes("analytics_watch_sessions"), "Admin user metrics snapshot must read watch-session rollups.", failures);
+assert(snapshotHelper.includes("watchTimeSource: watchRollup.source"), "Admin user metrics snapshot must persist watch source truth.", failures);
+assert(snapshotHelper.includes("watchTimeDiagnosticEstimate: watchRollup.diagnosticEstimate"), "Admin user metrics snapshot must persist watch diagnostic estimates.", failures);
+assert(usersRoute.includes("buildAdminUsersKpiCards"), "User Management route must build explicit KPI cards.", failures);
+assert(usersRoute.includes("kpiCards: buildAdminUsersKpiCards"), "User Management summary must return KPI cards.", failures);
+assert(usersRoute.includes('label: "Purchases"'), "User Management summary must expose a dedicated Purchases KPI.", failures);
+assert(usersRoute.includes('label: "Paying users"'), "User Management summary must name the paying-users KPI explicitly.", failures);
+assert(usersRoute.includes("status-active accounts"), "User Management total-users KPI must distinguish account status from active-now presence.", failures);
+assert(usersRoute.includes("watchTimeDiagnosticEstimate"), "User Management summary must carry watch diagnostic estimates into KPI truth.", failures);
+assert(usersRoute.includes("verified watch unavailable"), "User Management watch KPI must explain missing verified watch totals.", failures);
+assert(usersRoute.includes('/ ${formatCount(totalUsers)} users'), "Returned and onboarded KPIs must show denominators.", failures);
 
 assert(behaviorValidator.includes("Insufficient signal"), "Behavioral confidence validator must enforce compact insufficient-signal state.", failures);
 assert(
@@ -122,7 +143,7 @@ assert(!usersPage.includes("setInterval("), "User Management must not add pollin
 assert(!userDetailPage.includes("setInterval("), "User detail must not add polling via setInterval.", failures);
 assert(usersPage.includes('authFetch("/api/admin/users?mode=summary")'), "User Management must load summary from the bounded summary lane.", failures);
 assert(usersPage.includes('authFetch("/api/admin/users/realtime"'), "Realtime can remain for upgrades, but it must stay separate from the summary lane.", failures);
-assert(usersPage.includes("const summaryTransportState"), "User Management must separate static snapshot truth from transport truth.", failures);
+assert(usersPage.includes("const getKpiCardTruthState"), "User Management must map KPI freshness into explicit admin truth states.", failures);
 
 if (failures.length > 0) {
   console.error("Admin user behavior truth validation failed:");

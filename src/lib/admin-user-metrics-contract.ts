@@ -5,6 +5,11 @@ import type {
   BehavioralFreshnessState,
   BehavioralTruthSource,
 } from "@/lib/behavioral/behavioral-truth-source";
+import type {
+  WatchTimeRollupIssue,
+  WatchTimeRollupSource,
+} from "@/lib/watch-time-rollup-contract";
+import type { WatchTimeDiagnosticEstimate } from "@/lib/behavioral/watch-time-estimation";
 
 export type AdminUserMetricsSnapshotSource = "hot_cache" | "materialized" | "live_fallback";
 
@@ -19,6 +24,9 @@ export type AdminUserMetricsSnapshot = {
   trackedUnwraps: number;
   trackedPurchases: number;
   watchTimeMs: number;
+  watchTimeSource: WatchTimeRollupSource;
+  watchTimeIssues: WatchTimeRollupIssue[];
+  watchTimeDiagnosticEstimate: WatchTimeDiagnosticEstimate | null;
   onboardedUsers: number;
   totalRevenueUsd: number;
   payingUsers: number;

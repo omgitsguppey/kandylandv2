@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
-import type { AdminUsersResponse } from "@/types/admin-analytics";
+import type {
+  AdminUsersKpiCard,
+  AdminUsersResponse,
+  UsersSummary,
+} from "@/types/admin-analytics";
 import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
 
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -62,6 +66,8 @@ import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
 
+type AdminUsersKpiFreshness = AdminUsersKpiCard["freshnessState"];
+
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value;
@@ -85,6 +91,294 @@ function toTimestampNumber(value: unknown): number {
 
 function toStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+}
+
+function toUtcIsoString(timestampMs: number) {
+  return timestampMs > 0 ? new Date(timestampMs).toISOString() : new Date().toISOString();
+}
+
+function formatCount(value: number) {
+  return value.toLocaleString();
+}
+
+function formatCompactMoney(value: number) {
+  if (!Number.isFinite(value)) {
+    return "$0.00";
+  }
+
+  return `$${value.toFixed(2)}`;
+}
+
+function formatHoursOrMinutes(valueMs: number) {
+  const safeMs = Math.max(0, Math.round(valueMs));
+  const totalMinutes = Math.round(safeMs / 60_000);
+
+  if (safeMs >= 3_600_000) {
+    return `${Number((safeMs / 3_600_000).toFixed(1))}h`;
+  }
+
+  if (totalMinutes > 0) {
+    return `${totalMinutes}m`;
+  }
+
+  return "0h";
+}
+
+function mapSnapshotFreshnessToKpiState(
+  freshnessState: AdminUserMetricsSnapshot["freshnessState"],
+): AdminUsersKpiFreshness {
+  if (freshnessState === "live") return "live";
+  if (freshnessState === "stale") return "stale";
+  if (freshnessState === "degraded") return "degraded";
+  return "unknown";
+}
+
+function mapCommerceTruthToKpiState(
+  commerceTruthLabel: UsersSummary["commerceTruthLabel"],
+  options?: { delayedExpected?: boolean },
+): AdminUsersKpiFreshness {
+  if (commerceTruthLabel === "live") {
+    return "live";
+  }
+
+  if (commerceTruthLabel === "partial") {
+    return "review";
+  }
+
+  if (commerceTruthLabel === "stale") {
+    return options?.delayedExpected ? "delayed" : "stale";
+  }
+
+  return "unknown";
+}
+
+function buildAdminUsersKpiCards(input: {
+  summary: Omit<UsersSummary, "kpiCards">;
+}): AdminUsersKpiCard[] {
+  const summary = input.summary;
+  const snapshot = summary.metricsSnapshot;
+  const generatedAtUtc = toUtcIsoString(snapshot?.generatedAt ?? Date.now());
+  const totalUsers = Math.max(0, summary.totalUsers);
+  const returnedShare = totalUsers > 0
+    ? `${formatCount(summary.returnedInLast7Days ?? summary.activeLast7Days ?? 0)} / ${formatCount(totalUsers)} users`
+    : "0 / 0 users";
+  const onboardedShare = totalUsers > 0
+    ? `${formatCount(summary.onboardingCompletedUsers)} / ${formatCount(totalUsers)} users`
+    : "0 / 0 users";
+  const snapshotFreshness = mapSnapshotFreshnessToKpiState(snapshot?.freshnessState ?? "unavailable");
+  const commerceFreshness = mapCommerceTruthToKpiState(summary.commerceTruthLabel);
+  const commerceDelayedFreshness = mapCommerceTruthToKpiState(summary.commerceTruthLabel, { delayedExpected: true });
+  const watchEstimate = snapshot?.watchTimeDiagnosticEstimate;
+  const watchSource = snapshot?.watchTimeSource ?? "unavailable";
+  const watchWarnings = snapshot?.watchTimeIssues.map((issue) => issue.message) ?? [];
+  const hasVerifiedWatch = watchSource === "watch_session_rollup";
+  const hasLegacyWatch = watchSource === "legacy_page_duration";
+  const watchEstimatedDisplay = watchEstimate ? formatHoursOrMinutes(watchEstimate.estimatedWatchMs) : null;
+  const watchPrimaryValue = hasVerifiedWatch || hasLegacyWatch
+    ? formatHoursOrMinutes(snapshot?.watchTimeMs ?? 0)
+    : watchEstimate
+      ? "Unknown"
+      : "Unknown";
+  const watchSecondaryValue = hasVerifiedWatch
+    ? "foreground viewer time"
+    : hasLegacyWatch
+      ? `${formatHoursOrMinutes(snapshot?.watchTimeMs ?? 0)} legacy page-duration fallback`
+      : watchEstimatedDisplay
+        ? `verified watch unavailable · ${watchEstimatedDisplay} diagnostics-only estimate`
+        : "watch-session source unavailable";
+  const watchFreshness: AdminUsersKpiFreshness = hasVerifiedWatch
+    ? snapshotFreshness
+    : hasLegacyWatch
+      ? "review"
+      : watchEstimate
+        ? "degraded"
+        : "unknown";
+  const watchReasonCode = hasLegacyWatch
+    ? "legacy_watch_fallback"
+    : watchEstimate
+      ? "watch_time_estimate_only"
+      : watchSource === "unavailable"
+        ? "watch_time_source_unavailable"
+        : snapshot?.watchTimeIssues.some((issue) => issue.code === "watch_time_missing_despite_views")
+          ? "watch_time_missing_despite_views"
+          : undefined;
+
+  return [
+    {
+      id: "total_users",
+      label: "Total users",
+      primaryValue: formatCount(totalUsers),
+      secondaryValue: `${formatCount(summary.activeUsers)} status-active accounts`,
+      scope: "lifetime",
+      sourceTruth: "user_docs",
+      freshnessState: snapshotFreshness === "unknown" ? "review" : snapshotFreshness,
+      explanation: "Lifetime account count from user docs. The secondary line reflects account status, not live presence or active-now usage.",
+      generatedAtUtc,
+      warnings: snapshot?.source === "live_fallback" ? ["Summary is using a live fallback snapshot."] : [],
+      sourceLabel: snapshot?.source ?? "user_docs",
+    },
+    {
+      id: "returned_7d",
+      label: "Returned in last 7 days",
+      primaryValue: formatCount(summary.returnedInLast7Days ?? summary.activeLast7Days ?? 0),
+      secondaryValue: returnedShare,
+      scope: "rolling_7d",
+      sourceTruth: snapshot?.source === "live_fallback" ? "partial" : "materialized_snapshot",
+      freshnessState: snapshotFreshness,
+      reasonCode: snapshotFreshness === "degraded" || snapshotFreshness === "stale"
+        ? "activity_snapshot_partial"
+        : undefined,
+      explanation: "Logged in, visited, or emitted tracked activity in the last 7 days.",
+      generatedAtUtc,
+      warnings: snapshot?.issues ?? [],
+      sourceLabel: snapshot?.truthSource ?? snapshot?.source ?? "materialized_snapshot",
+    },
+    {
+      id: "unwraps",
+      label: "Unwraps",
+      primaryValue: formatCount(summary.totalUnwraps),
+      secondaryValue: "lifetime unlock/access count",
+      scope: "lifetime",
+      sourceTruth: "unlock_rollups",
+      freshnessState: commerceFreshness,
+      reasonCode: commerceFreshness === "review" || commerceFreshness === "stale"
+        ? "unlock_rollup_partial"
+        : undefined,
+      explanation: "Unlock/access count from commerce and entitlement rollups. Purchase counts are tracked separately.",
+      generatedAtUtc,
+      warnings: [],
+      sourceLabel: summary.commerceSourceLabel ?? "unlock_rollups",
+    },
+    {
+      id: "purchases",
+      label: "Purchases",
+      primaryValue: formatCount(summary.totalPurchases),
+      secondaryValue: "lifetime completed purchases",
+      scope: "lifetime",
+      sourceTruth: "commerce_rollups",
+      freshnessState: commerceFreshness,
+      reasonCode: commerceFreshness === "review" || commerceFreshness === "stale"
+        ? "purchase_rollup_partial"
+        : undefined,
+      explanation: "Completed purchase count from commerce rollups and transaction-backed analytics summaries.",
+      generatedAtUtc,
+      warnings: summary.commerceEmptyReason ? [summary.commerceEmptyReason] : [],
+      sourceLabel: summary.commerceSourceLabel ?? "commerce_rollups",
+    },
+    {
+      id: "watch_time",
+      label: "Watch time",
+      primaryValue: watchPrimaryValue,
+      secondaryValue: watchSecondaryValue,
+      scope: "lifetime",
+      sourceTruth: hasVerifiedWatch ? "watch_sessions" : "partial",
+      freshnessState: watchFreshness,
+      reasonCode: watchReasonCode,
+      explanation: hasVerifiedWatch
+        ? "Verified foreground viewer time from canonical watch sessions."
+        : hasLegacyWatch
+          ? "Watch time is visible, but it comes from labeled legacy page-duration fallback instead of canonical watch sessions."
+          : watchEstimate
+            ? "Verified watch time is unavailable here. The estimate is diagnostics-only and does not count as verified watch time."
+            : "No canonical watch-session total is available for this summary card yet.",
+      generatedAtUtc,
+      warnings: watchWarnings,
+      sourceLabel: watchSource,
+      formula: hasVerifiedWatch
+        ? "watch time = summed foreground-visible watch session intervals"
+        : hasLegacyWatch
+          ? "watch time = legacy page-duration fallback"
+          : watchEstimate
+            ? "estimated watch = diagnostics-only fallback; not counted as verified watch"
+            : undefined,
+    },
+    {
+      id: "revenue",
+      label: "Revenue",
+      primaryValue: formatCompactMoney(summary.grossRevenueUsd),
+      secondaryValue: `adjustments ${formatCompactMoney(summary.adjustedProfitUsd)} · bonus exposure ${formatCompactMoney(summary.bonusValueUsd)}`,
+      scope: "lifetime",
+      sourceTruth: "commerce_rollups",
+      freshnessState: commerceDelayedFreshness,
+      reasonCode: commerceDelayedFreshness === "delayed"
+        ? "expected_settlement_delay"
+        : commerceDelayedFreshness === "review" || commerceDelayedFreshness === "stale"
+          ? "commerce_snapshot_partial"
+          : undefined,
+      explanation: "Gross revenue is shown separately from adjustments and bonus exposure. Settlement timing can delay the latest commerce snapshot.",
+      generatedAtUtc,
+      warnings: summary.commerceEmptyReason ? [summary.commerceEmptyReason] : [],
+      sourceLabel: summary.commerceSourceLabel ?? "commerce_rollups",
+      formula: "gross revenue = completed commerce total; adjustments and bonus exposure are tracked separately",
+    },
+    {
+      id: "paying_users",
+      label: "Paying users",
+      primaryValue: formatCount(summary.payingUsers),
+      secondaryValue: `avg ${formatCompactMoney(summary.averageOrderUsd)} · rate ${formatCompactMoney(summary.effectiveUsdPer100Gd)}`,
+      scope: "lifetime",
+      sourceTruth: "commerce_rollups",
+      freshnessState: commerceDelayedFreshness,
+      reasonCode: commerceDelayedFreshness === "delayed"
+        ? "expected_settlement_delay"
+        : commerceDelayedFreshness === "review" || commerceDelayedFreshness === "stale"
+          ? "commerce_snapshot_partial"
+          : undefined,
+      explanation: "Paying users are accounts with at least one tracked purchase. Average order is gross revenue divided by completed purchases. Rate is gross revenue per delivered 100 GumDrops.",
+      generatedAtUtc,
+      warnings: summary.commerceEmptyReason ? [summary.commerceEmptyReason] : [],
+      sourceLabel: summary.commerceSourceLabel ?? "commerce_rollups",
+      formula: "avg order = gross revenue / purchases; rate = gross revenue / (delivered GumDrops / 100)",
+    },
+    {
+      id: "verified",
+      label: "Verified accounts",
+      primaryValue: formatCount(summary.verifiedUsers),
+      secondaryValue: "badge-ready accounts",
+      scope: "lifetime",
+      sourceTruth: "verification_profile",
+      freshnessState: snapshotFreshness === "unknown" ? "review" : snapshotFreshness,
+      reasonCode: snapshotFreshness === "stale" || snapshotFreshness === "degraded"
+        ? "verification_snapshot_partial"
+        : undefined,
+      explanation: "Accounts with verification status ready for the badge/program state shown in admin.",
+      generatedAtUtc,
+      warnings: [],
+      sourceLabel: snapshot?.source ?? "verification_profile",
+    },
+    {
+      id: "push_enabled",
+      label: "Push enabled",
+      primaryValue: formatCount(summary.notificationsEnabledUsers),
+      secondaryValue: "browser alerts on",
+      scope: "lifetime",
+      sourceTruth: "push_profile",
+      freshnessState: snapshotFreshness === "unknown" ? "review" : snapshotFreshness,
+      reasonCode: snapshotFreshness === "stale" || snapshotFreshness === "degraded"
+        ? "push_profile_partial"
+        : undefined,
+      explanation: "Accounts with browser push notifications enabled in the user profile.",
+      generatedAtUtc,
+      warnings: [],
+      sourceLabel: snapshot?.source ?? "push_profile",
+    },
+    {
+      id: "onboarded",
+      label: "Onboarded",
+      primaryValue: formatCount(summary.onboardingCompletedUsers),
+      secondaryValue: onboardedShare,
+      scope: "lifetime",
+      sourceTruth: "onboarding_facts",
+      freshnessState: snapshotFreshness === "unknown" ? "review" : snapshotFreshness,
+      reasonCode: snapshotFreshness === "stale" || snapshotFreshness === "degraded"
+        ? "onboarding_snapshot_partial"
+        : undefined,
+      explanation: "Users who completed the onboarding/setup flow.",
+      generatedAtUtc,
+      warnings: [],
+      sourceLabel: snapshot?.source ?? "onboarding_facts",
+    },
+  ];
 }
 
 function buildUserEngagementDay(raw: Record<string, unknown>): UserEngagementActivityDay {
@@ -546,6 +840,9 @@ async function readAdminUsersFastSummarySnapshot() {
     trackedUnwraps: Math.round(readMetric(commerceSummaryRaw, "unlockCount", "totalUnlocks", "unwrapCount")),
     trackedPurchases: Math.round(readMetric(commerceSummaryRaw, "purchaseCount", "purchaseTransactionCount")),
     watchTimeMs: watchRollup.watchTimeMs,
+    watchTimeSource: watchRollup.source,
+    watchTimeIssues: watchRollup.issues,
+    watchTimeDiagnosticEstimate: watchRollup.diagnosticEstimate,
     onboardedUsers,
     totalRevenueUsd: readMetric(commerceSummaryRaw, "grossRevenueUsdTotal", "grossRevenueUsd"),
     payingUsers,
@@ -1695,7 +1992,7 @@ async function GET_handler(request: NextRequest) {
     });
     const userMetricsSnapshot = metricsSnapshotMeta.snapshot;
 
-    const summary = {
+    const summaryBase: Omit<UsersSummary, "kpiCards" | "creatorOps"> = {
       totalUsers: userMetricsSnapshot.totalUsers,
       totalCreators: users.filter((user) => user.role === "creator").length,
       totalAdmins: users.filter((user) => user.role === "admin").length,
@@ -1735,6 +2032,10 @@ async function GET_handler(request: NextRequest) {
       commerceSourceLabel: commerceSummaryMetrics.commerceSourceLabel,
       commerceEmptyReason: commerceSummaryMetrics.commerceEmptyReason,
       metricsSnapshot: userMetricsSnapshot,
+    };
+    const summary: UsersSummary = {
+      ...summaryBase,
+      kpiCards: buildAdminUsersKpiCards({ summary: summaryBase }),
       creatorOps: {
         creatorsWithFollowers: Array.from(creatorOpsByUser.values()).filter((entry) => entry.followerCount > 0).length,
         totalFollowers: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.followerCount, 0),
@@ -2416,7 +2717,7 @@ function buildSummaryFromMetricsSnapshot(input: {
   };
   commerceSummaryRaw?: Record<string, unknown>;
   commerceSummaryExists?: boolean;
-}) {
+}): UsersSummary {
   const users = input.users ?? [];
   const userMetricsSnapshot = input.metricsSnapshotMeta.snapshot;
   const commerceSummaryRaw = input.commerceSummaryRaw ?? {};
@@ -2428,7 +2729,7 @@ function buildSummaryFromMetricsSnapshot(input: {
     commerceSummaryMetrics.unlockSpendGdTotal,
   );
 
-  return {
+  const summaryBase: Omit<UsersSummary, "kpiCards" | "creatorOps"> = {
     totalUsers: userMetricsSnapshot.totalUsers,
     totalCreators: users.filter((user) => user.role === "creator").length,
     totalAdmins: users.filter((user) => user.role === "admin").length,
@@ -2462,6 +2763,11 @@ function buildSummaryFromMetricsSnapshot(input: {
     commerceSourceLabel: commerceSummaryMetrics.commerceSourceLabel,
     commerceEmptyReason: commerceSummaryMetrics.commerceEmptyReason,
     metricsSnapshot: userMetricsSnapshot,
+  };
+
+  return {
+    ...summaryBase,
+    kpiCards: buildAdminUsersKpiCards({ summary: summaryBase }),
   };
 }
 

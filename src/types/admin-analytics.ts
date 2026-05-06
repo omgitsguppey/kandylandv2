@@ -705,6 +705,7 @@ export type UsersSummary = {
   commerceTruthLabel?: "live" | "partial" | "stale" | "unknown";
   commerceSourceLabel?: string;
   commerceEmptyReason?: string | null;
+  kpiCards: AdminUsersKpiCard[];
   metricsSnapshot?: AdminUserMetricsSnapshot;
   creatorOps?: {
     creatorsWithFollowers: number;
@@ -719,6 +720,45 @@ export type UsersSummary = {
     totalAccruedGd: number;
     pendingCashoutGd: number;
   };
+};
+
+export type AdminUsersKpiCard = {
+  id:
+    | "total_users"
+    | "active_now"
+    | "returned_7d"
+    | "unwraps"
+    | "purchases"
+    | "watch_time"
+    | "revenue"
+    | "settlement"
+    | "paying_users"
+    | "verified"
+    | "push_enabled"
+    | "onboarded";
+  label: string;
+  primaryValue: string | number;
+  secondaryValue?: string;
+  scope: "lifetime" | "rolling_7d" | "rolling_30d" | "current" | "settlement_window";
+  sourceTruth:
+    | "user_docs"
+    | "active_user_snapshot"
+    | "transactions"
+    | "commerce_rollups"
+    | "unlock_rollups"
+    | "watch_sessions"
+    | "push_profile"
+    | "verification_profile"
+    | "onboarding_facts"
+    | "materialized_snapshot"
+    | "partial";
+  freshnessState: "live" | "review" | "degraded" | "stale" | "delayed" | "unknown";
+  reasonCode?: string;
+  explanation: string;
+  generatedAtUtc: string;
+  warnings: string[];
+  sourceLabel?: string;
+  formula?: string;
 };
 
 export type DropReference = {
