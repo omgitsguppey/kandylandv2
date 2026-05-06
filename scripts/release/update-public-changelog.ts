@@ -254,6 +254,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("clarify task issue attribution") || normalized.includes("task issue attribution")) {
     return "Improved internal task assignment diagnostics.";
   }
+  if (normalized.includes("dedupe debug repair proposals") || normalized.includes("debug repair proposals")) {
+    return "Improved internal repair proposal grouping so duplicate debug actions are easier to review.";
+  }
   if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
     return "Improved internal creator review status checks.";
   }

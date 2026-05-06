@@ -21,6 +21,11 @@ function toneForTaskSeverity(severity?: string) {
     if (severity === "info") return "neutral" as const;
     return "neutral" as const;
 }
+function toneForRepairActionability(actionability?: string) {
+    if (actionability === "actionable") return "warn" as const;
+    if (actionability === "inspect_only" || actionability === "manual_review") return "neutral" as const;
+    return "neutral" as const;
+}
 
 /* ─── Props ─── */
 export interface DebugTabActionsProps {
@@ -95,37 +100,70 @@ export function DebugTabActions({
                     </Section>
                     <Section
                         title="Repairs available now"
-                        subtitle="Open repair proposals that can be applied or dismissed."
-                        defaultOpen={(data?.stats?.orchestrationActionableRepairs ?? 0) > 0}
-                        summary={<><Pill label="Actionable" value={data?.stats?.orchestrationActionableRepairs ?? 0} tone={(data?.stats?.orchestrationActionableRepairs ?? 0) ? "warn" : "good"} /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} /></>}
+                        subtitle="Deduped repair and inspection proposals grouped by canonical source."
+                        defaultOpen={(data?.orchestration?.summary?.actionableProposals ?? 0) > 0 || (data?.orchestration?.summary?.inspectOnlyProposals ?? 0) > 0}
+                        summary={<><Pill label="Actionable repairs" value={data?.orchestration?.summary?.actionableProposals ?? 0} tone={(data?.orchestration?.summary?.actionableProposals ?? 0) ? "warn" : "good"} /><Pill label="Inspect-only" value={data?.orchestration?.summary?.inspectOnlyProposals ?? 0} tone={(data?.orchestration?.summary?.inspectOnlyProposals ?? 0) ? "warn" : "good"} /><Pill label="Duplicates collapsed" value={data?.orchestration?.summary?.duplicateProposalsCollapsed ?? 0} tone={(data?.orchestration?.summary?.duplicateProposalsCollapsed ?? 0) ? "warn" : "good"} /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} /></>}
                     >
                         <ScrollWrap>
                             <div className="divide-y divide-white/10">
                                 {(data?.orchestration?.proposals || []).length ? (data?.orchestration?.proposals || []).map((proposal: any) => (
-                                    <div key={proposal.id} className="space-y-2 px-4 py-3">
+                                    <div
+                                        key={proposal.dedupeKey ?? proposal.proposalId}
+                                        className="space-y-2 px-4 py-3"
+                                        data-debug-repair-proposal-id={proposal.proposalId}
+                                        data-debug-repair-dedupe-key={proposal.dedupeKey}
+                                        data-debug-repair-canonical-source-path={proposal.canonicalSourcePath}
+                                        data-debug-repair-actionability={proposal.actionability}
+                                        data-debug-repair-source-context-state={proposal.sourceContextState}
+                                        data-debug-repair-duplicate-count={proposal.duplicateCount}
+                                    >
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
                                                 <p className="font-semibold text-white">{proposal.label}</p>
-                                                <p className="text-xs text-gray-400">{proposal.sourceDocumentPath}</p>
+                                                <p className="text-xs text-gray-400">{proposal.canonicalSourcePath ?? proposal.sourceDocumentPath}</p>
                                             </div>
-                                            <Pill label="Status" value={proposal.status} tone={proposal.status === "open" ? "warn" : proposal.status === "resolved" ? "good" : "neutral"} />
+                                            <Pill label="Actionability" value={proposal.actionability ?? "unknown"} tone={toneForRepairActionability(proposal.actionability)} />
                                         </div>
                                         <p className="text-sm text-gray-200">{proposal.detail}</p>
                                         <div className="flex flex-wrap gap-2">
-                                            <Button
-                                                variant="glass"
-                                                size="sm"
-                                                disabled={repairingId === proposal.id || proposal.actionType !== "rebuild_projection" || proposal.status !== "open"}
-                                                onClick={() => onRepairProposal(proposal.id, "apply")}
-                                            >
-                                                {repairingId === proposal.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                                Apply
-                                            </Button>
+                                            <Pill label="Status" value={proposal.status} tone={proposal.status === "open" ? "warn" : proposal.status === "applied" ? "good" : "neutral"} />
+                                            <Pill label="Source type" value={proposal.sourceType ?? "unknown"} />
+                                            <Pill label="Context" value={proposal.sourceContextState ?? "unknown"} tone={proposal.sourceContextState === "complete" ? "good" : "warn"} />
+                                            <Pill label="Duplicates" value={`${proposal.duplicateCount ?? 1}x`} tone={(proposal.duplicateCount ?? 1) > 1 ? "warn" : "neutral"} />
+                                            <Pill label="First seen UTC" value={proposal.firstSeenAtUtc ?? "unknown"} />
+                                            <Pill label="Last seen UTC" value={proposal.lastSeenAtUtc ?? "unknown"} />
+                                        </div>
+                                        <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
+                                            <p>{proposal.suggestedAction}</p>
+                                            <p className="mt-1 text-gray-500">Missing context: {(proposal.missingContextFields || []).join(", ") || proposal.missingContextReason || "unknown"}</p>
+                                            {(proposal.duplicateCount ?? 1) > 1 ? (
+                                                <details className="mt-2">
+                                                    <summary className="cursor-pointer text-gray-200">Duplicated {(proposal.duplicateCount ?? 1)}x</summary>
+                                                    <p className="mt-1 break-all text-gray-500">{(proposal.duplicateProposalIds || []).join(", ")}</p>
+                                                </details>
+                                            ) : null}
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {proposal.actionability === "actionable" ? (
+                                                <Button
+                                                    variant="glass"
+                                                    size="sm"
+                                                    disabled={repairingId === proposal.proposalId || proposal.status !== "open" || (proposal.duplicateCount ?? 1) > 1}
+                                                    onClick={() => onRepairProposal(proposal.proposalId, "apply")}
+                                                >
+                                                    {repairingId === proposal.proposalId ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                                    Apply
+                                                </Button>
+                                            ) : (
+                                                <Button variant="glass" size="sm" disabled>
+                                                    Inspect
+                                                </Button>
+                                            )}
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                disabled={repairingId === proposal.id || proposal.status !== "open"}
-                                                onClick={() => onRepairProposal(proposal.id, "dismiss")}
+                                                disabled={repairingId === proposal.proposalId || proposal.status !== "open" || (proposal.duplicateCount ?? 1) > 1}
+                                                onClick={() => onRepairProposal(proposal.proposalId, "dismiss")}
                                             >
                                                 Dismiss
                                             </Button>

@@ -23,6 +23,133 @@ function asRecord(value: unknown) {
         : {};
 }
 
+export type DebugRepairProposal = {
+    proposalId: string;
+    canonicalSourcePath: string;
+    repairKind:
+        | "inspect_canonical_source"
+        | "repair_missing_source_context"
+        | "dismiss_false_positive"
+        | "manual_review_required";
+    status: "open" | "applied" | "dismissed" | "superseded" | "duplicate";
+    severity: "info" | "review" | "error";
+    actionability: "actionable" | "inspect_only" | "manual_review" | "not_actionable";
+    sourceContextState: "complete" | "missing_required_context" | "stale" | "unknown";
+    duplicateCount: number;
+    duplicateProposalIds: string[];
+    firstSeenAtUtc: string;
+    lastSeenAtUtc: string;
+    suggestedAction: string;
+    sourceType: string;
+    missingContextReason: string;
+    missingContextFields: string[];
+    dedupeKey: string;
+    label: string;
+    detail: string;
+    sourceDocumentPath: string;
+    statusRaw: string;
+    actionType: string;
+    requiresAdminConfirmation: boolean;
+};
+
+function normalizeProposalStatus(status: string): DebugRepairProposal["status"] {
+    if (status === "open") return "open";
+    if (status === "dismissed" || status === "reviewed_no_change") return "dismissed";
+    if (status === "applying" || status === "resolved") return "applied";
+    return "superseded";
+}
+
+function repairKindForAction(actionType: string): DebugRepairProposal["repairKind"] {
+    if (actionType === "rebuild_projection") return "repair_missing_source_context";
+    if (actionType === "inspect_source_record") return "inspect_canonical_source";
+    return "manual_review_required";
+}
+
+function actionabilityForProposal(input: {
+    status: string;
+    actionType: string;
+}): DebugRepairProposal["actionability"] {
+    if (input.status !== "open") return "not_actionable";
+    if (input.actionType === "rebuild_projection") return "actionable";
+    if (input.actionType === "inspect_source_record") return "inspect_only";
+    return "manual_review";
+}
+
+function severityForProposal(finding?: { severity: string }): DebugRepairProposal["severity"] {
+    if (finding?.severity === "error") return "error";
+    if (finding?.severity === "warn") return "review";
+    return "info";
+}
+
+function sourceContextStateForProposal(input: {
+    findingKey: string;
+    detail: string;
+    actionType: string;
+}): DebugRepairProposal["sourceContextState"] {
+    const contextText = `${input.findingKey} ${input.detail}`.toLowerCase();
+    if (contextText.includes("missing") || input.actionType === "inspect_source_record") {
+        return "missing_required_context";
+    }
+    if (contextText.includes("stale")) return "stale";
+    return "unknown";
+}
+
+function missingContextFieldsForProposal(input: {
+    sourceCollection: string;
+    findingKey: string;
+}) {
+    const fields = new Set<string>();
+    if (input.findingKey === "missing_actor_context") {
+        fields.add("userId");
+        fields.add("actor ownership");
+    }
+    if (input.findingKey === "missing_route_context") {
+        fields.add("routePath");
+        fields.add("sourceSurface");
+    }
+    if (input.findingKey === "viewer_event_missing_watch_session") {
+        fields.add("watchSessionId");
+        fields.add("sessionId");
+    }
+    if (input.findingKey === "notification_missing_target_user") {
+        fields.add("userId");
+        fields.add("notification type");
+        fields.add("source event");
+    }
+    if (input.findingKey === "creator_signal_missing_creator_context") {
+        fields.add("creatorId");
+        fields.add("creator context");
+    }
+    if (input.findingKey === "security_event_missing_surface_context") {
+        fields.add("routePath");
+        fields.add("sourceSurface");
+    }
+    if (input.sourceCollection === "analytics_event_facts" && fields.size === 0) {
+        fields.add("userId");
+        fields.add("sessionId");
+        fields.add("sourceSurface");
+        fields.add("dropId");
+    }
+    if (input.sourceCollection === "notifications" && fields.size === 0) {
+        fields.add("userId");
+        fields.add("notification type");
+        fields.add("source event");
+    }
+    return Array.from(fields);
+}
+
+function buildDedupeKey(input: {
+    canonicalSourcePath: string;
+    repairKind: DebugRepairProposal["repairKind"];
+    missingContextReason: string;
+}) {
+    return `${input.canonicalSourcePath}:${input.repairKind}:${input.missingContextReason || "no-reason"}`;
+}
+
+function toUtcString(value: number) {
+    return new Date(value > 0 ? value : Date.now()).toISOString();
+}
+
 export function buildAdminOrchestrationSnapshot(input: {
     eventDocs: QueryDocumentSnapshot[];
     findingDocs: QueryDocumentSnapshot[];
@@ -165,8 +292,75 @@ export function buildAdminOrchestrationSnapshot(input: {
         };
     });
 
+    const findingsByProposalId = new Map(findings.map((finding) => [finding.id, finding]));
+    const debugRepairProposals = Array.from(proposals.reduce((groups, proposal) => {
+        const finding = findingsByProposalId.get(proposal.id)
+            || findings.find((entry) => entry.sourceDocumentPath === proposal.sourceDocumentPath && entry.findingKey === proposal.findingKey);
+        const repairKind = repairKindForAction(proposal.actionType);
+        const missingContextReason = proposal.findingKey || finding?.findingKey || "no-reason";
+        const canonicalSourcePath = proposal.sourceDocumentPath || `${proposal.sourceCollection}/${proposal.sourceDocumentId}`;
+        const dedupeKey = buildDedupeKey({ canonicalSourcePath, repairKind, missingContextReason });
+        const existing = groups.get(dedupeKey);
+        const detectedAtMs = proposal.detectedAtMs || proposal.updatedAtMs;
+        const updatedAtMs = proposal.updatedAtMs || proposal.detectedAtMs;
+        const proposalId = existing?.proposalId ?? proposal.id;
+        const duplicateProposalIds = existing
+            ? Array.from(new Set([...existing.duplicateProposalIds, proposal.id]))
+            : [proposal.id];
+
+        groups.set(dedupeKey, {
+            proposalId,
+            canonicalSourcePath,
+            repairKind,
+            status: existing?.status ?? normalizeProposalStatus(proposal.status),
+            severity: existing?.severity === "error" ? "error" : severityForProposal(finding),
+            actionability: existing?.actionability === "actionable" ? "actionable" : actionabilityForProposal({
+                status: proposal.status,
+                actionType: proposal.actionType,
+            }),
+            sourceContextState: sourceContextStateForProposal({
+                findingKey: missingContextReason,
+                detail: proposal.detail || finding?.detail || "",
+                actionType: proposal.actionType,
+            }),
+            duplicateCount: duplicateProposalIds.length,
+            duplicateProposalIds,
+            firstSeenAtUtc: toUtcString(Math.min(
+                Date.parse(existing?.firstSeenAtUtc ?? "") || detectedAtMs || updatedAtMs,
+                detectedAtMs || updatedAtMs,
+            )),
+            lastSeenAtUtc: toUtcString(Math.max(
+                Date.parse(existing?.lastSeenAtUtc ?? "") || updatedAtMs || detectedAtMs,
+                updatedAtMs || detectedAtMs,
+            )),
+            suggestedAction: repairKind === "inspect_canonical_source"
+                ? "Inspect the canonical source record and repair the writer that omitted required context."
+                : "Queue the canonical repair only after confirming the grouped source record is safe to rebuild.",
+            sourceType: proposal.sourceCollection,
+            missingContextReason,
+            missingContextFields: missingContextFieldsForProposal({
+                sourceCollection: proposal.sourceCollection,
+                findingKey: missingContextReason,
+            }),
+            dedupeKey,
+            label: proposal.label,
+            detail: proposal.detail,
+            sourceDocumentPath: canonicalSourcePath,
+            statusRaw: proposal.status,
+            actionType: proposal.actionType,
+            requiresAdminConfirmation: proposal.requiresAdminConfirmation,
+        } satisfies DebugRepairProposal);
+        return groups;
+    }, new Map<string, DebugRepairProposal>()).values())
+        .sort((left, right) => {
+            const actionDelta = (right.actionability === "actionable" ? 1 : 0) - (left.actionability === "actionable" ? 1 : 0);
+            return actionDelta || Date.parse(right.lastSeenAtUtc) - Date.parse(left.lastSeenAtUtc);
+        });
+
     const openFindings = findings.filter((entry) => entry.status === "open");
-    const actionableProposals = proposals.filter((entry) => entry.status === "open" && entry.actionType === "rebuild_projection");
+    const actionableProposals = debugRepairProposals.filter((entry) => entry.status === "open" && entry.actionability === "actionable");
+    const inspectOnlyProposals = debugRepairProposals.filter((entry) => entry.status === "open" && entry.actionability === "inspect_only");
+    const duplicateProposalCount = debugRepairProposals.reduce((total, proposal) => total + Math.max(0, proposal.duplicateCount - 1), 0);
     const criticalFindings = openFindings.filter((entry) => entry.severity === "error");
     const contaminationRisks = events.filter((entry) => entry.actor.contaminationRisk).length;
     const lowConfidenceEvents = events.filter((entry) => entry.readiness.lowConfidence || entry.readiness.incomplete).length;
@@ -232,6 +426,9 @@ export function buildAdminOrchestrationSnapshot(input: {
             openFindings: openFindings.length,
             criticalFindings: criticalFindings.length,
             actionableProposals: actionableProposals.length,
+            inspectOnlyProposals: inspectOnlyProposals.length,
+            dedupedProposals: debugRepairProposals.length,
+            duplicateProposalsCollapsed: duplicateProposalCount,
             contaminationRisks,
             trainingEligible,
             recommendationReady,
@@ -241,7 +438,7 @@ export function buildAdminOrchestrationSnapshot(input: {
         dependencyReadiness,
         events: events.slice(0, 60),
         findings: findings.slice(0, 40),
-        proposals: proposals.slice(0, 40),
+        proposals: debugRepairProposals.slice(0, 40),
         actorSummaries: actorSummaries.slice(0, 30),
         repairActions: repairActions.slice(0, 30),
     };

@@ -49,6 +49,7 @@ const adminDebugRoute = readRequired("src/app/api/admin/debug/route.ts");
 const runtimeHealth = readRequired("src/lib/route-runtime-health.ts");
 const adminOpsHealth = readRequired("src/lib/server/admin-ops-health.ts");
 const adminOpsHealthContract = readRequired("src/lib/admin-ops-health.ts");
+const adminOrchestration = readRequired("src/lib/server/admin-orchestration.ts");
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
 const debugTabActions = readRequired("src/app/admin/debug/components/DebugTabActions.tsx");
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
@@ -62,6 +63,7 @@ const modelTest = readRequired("tests/unit/admin-debug-control-tower.spec.ts");
 const summaryCardTest = readRequired("tests/unit/admin-debug-summary-cards.spec.ts");
 const adminOpsHealthTest = readRequired("tests/unit/admin-ops-health.spec.ts");
 const adminPanelSystemLogsTest = readRequired("tests/unit/admin-panel-system-logs.spec.ts");
+const adminOrchestrationTest = readRequired("tests/unit/admin-orchestration.spec.ts");
 const componentTest = readRequired("tests/unit/admin-debug-control-tower-component.spec.tsx");
 const controlTowerDoc = readRequired("docs/agent-truth/admin-debug-control-tower.md");
 const adminTruthDoc = readRequired("docs/agent-truth/human-readable-admin-truth.md");
@@ -217,6 +219,22 @@ for (const expected of [
 }
 requireIncludes(debugPrimitives, "badgeLabel", "Debug primitive pills must allow quiet writer badges without WAIT labels");
 for (const expected of [
+  "DebugRepairProposal",
+  "canonicalSourcePath",
+  "repairKind",
+  "actionability",
+  "sourceContextState",
+  "duplicateCount",
+  "duplicateProposalIds",
+  "firstSeenAtUtc",
+  "lastSeenAtUtc",
+  "dedupeKey",
+  "inspectOnlyProposals",
+  "duplicateProposalsCollapsed",
+]) {
+  requireIncludes(adminOrchestration, expected, "Debug repair proposals must be deduped with source context truth");
+}
+for (const expected of [
   "Expected source",
   "Found source",
   "Issue type",
@@ -226,6 +244,22 @@ for (const expected of [
 ]) {
   requireIncludes(debugTabActions, expected, "Task Issues Attribution panel must show source-truth classification");
 }
+for (const expected of [
+  "Actionable repairs",
+  "Inspect-only",
+  "Duplicates collapsed",
+  "data-debug-repair-dedupe-key",
+  "data-debug-repair-canonical-source-path",
+  "data-debug-repair-actionability",
+  "data-debug-repair-source-context-state",
+  "data-debug-repair-duplicate-count",
+  "proposal.actionability === \"actionable\"",
+  "Apply",
+  "Inspect",
+]) {
+  requireIncludes(debugTabActions, expected, "Repairs panel must separate actionable, inspect-only, and deduped proposals");
+}
+requireNotIncludes(debugTabActions, "proposal.actionType !== \"rebuild_projection\"", "Repairs panel must not decide actionability from raw actionType in the UI");
 for (const expected of [
   "Signals total",
   "Needs review",
@@ -253,6 +287,7 @@ requireIncludes(releaseNotesScript, "Improved internal health reporting so beta 
 requireIncludes(releaseNotesScript, "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.", "Release notes script must include downstream writer freshness copy");
 requireIncludes(releaseNotesScript, "Improved internal debug status labels so inventory counts do not look like system failures.", "Release notes script must include debug signal severity copy");
 requireIncludes(releaseNotesScript, "Improved internal task assignment diagnostics.", "Release notes script must include task issue attribution copy");
+requireIncludes(releaseNotesScript, "Improved internal repair proposal grouping so duplicate debug actions are easier to review.", "Release notes script must include repair proposal dedupe copy");
 
 for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
@@ -340,6 +375,14 @@ for (const expected of [
   "totalSignalCount",
 ]) {
   requireIncludes(adminPanelSystemLogsTest, expected, "Admin panel system log signal classification tests");
+}
+for (const expected of [
+  "dedupes inspect-only repair proposals and excludes them from actionable count",
+  "keeps rebuild projection proposals actionable after dedupe",
+  "duplicateProposalsCollapsed",
+  "inspectOnlyProposals",
+]) {
+  requireIncludes(adminOrchestrationTest, expected, "Admin orchestration repair proposal dedupe tests");
 }
 
 for (const expected of [
@@ -452,6 +495,7 @@ try {
     /^src\/lib\/admin-ops-health\.ts$/u,
     /^src\/lib\/server\/admin-panel-system-logs\.ts$/u,
     /^src\/lib\/server\/admin-ops-health\.ts$/u,
+    /^src\/lib\/server\/admin-orchestration\.ts$/u,
     /^src\/lib\/route-runtime-health\.ts$/u,
     /^src\/app\/api\/admin\/debug\/control-tower\/route\.ts$/u,
     /^src\/app\/api\/admin\/debug\/route\.ts$/u,
@@ -493,6 +537,7 @@ try {
     /^tests\/unit\/admin-debug-control-tower(?:-component)?\.spec\.tsx?$/u,
     /^tests\/unit\/admin-debug-summary-cards\.spec\.ts$/u,
     /^tests\/unit\/admin-panel-system-logs\.spec\.ts$/u,
+    /^tests\/unit\/admin-orchestration\.spec\.ts$/u,
     /^tests\/unit\/admin-ops-health\.spec\.ts$/u,
     /^tests\/unit\/ai-debug-assistant\.spec\.ts$/u,
     /^tests\/unit\/creator-experiences\.spec\.ts$/u,
