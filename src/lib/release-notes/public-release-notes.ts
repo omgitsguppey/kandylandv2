@@ -1,12 +1,46 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.47.1",
+  "currentVersion": "1.48.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T03:02:52.203Z",
-  "generatedAtUtc": "2026-05-06T03:02:52.203Z",
-  "lastCommitSha": "d5a84e8f29d0992eefe53c0e64d544ecb7297d48",
+  "generatedAt": "2026-05-06T03:12:27.468Z",
+  "generatedAtUtc": "2026-05-06T03:12:27.468Z",
+  "lastCommitSha": "874c1ba93f3a1152ba26ad009491f294c4ea6d84",
   "notes": [
+    {
+      "version": "1.48.0",
+      "previousVersion": "1.47.1",
+      "commitSha": "874c1ba93f3a1152ba26ad009491f294c4ea6d84",
+      "commitTitle": "fix(admin): clarify recent event flow context",
+      "committedAt": "2026-05-06T03:12:12.000Z",
+      "generatedAt": "2026-05-06T03:12:27.467Z",
+      "committedAtUtc": "2026-05-06T03:12:12.000Z",
+      "generatedAtUtc": "2026-05-06T03:12:27.467Z",
+      "diffStats": {
+        "rawAdditions": 233,
+        "rawDeletions": 12,
+        "rawChangeCount": 245,
+        "additions": 233,
+        "deletions": 12,
+        "effectiveAdditions": 231,
+        "effectiveDeletions": 10,
+        "changedFiles": 8,
+        "effectiveChangeCount": 241,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal event-flow diagnostics so background events and user actions are easier to tell apart.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.47.1",
       "previousVersion": "1.47.0",
@@ -131,39 +165,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "minor",
       "category": "Fixed",
       "userFacingTitle": "Improved internal route runtime labels so unseen routes no longer appear as fake successes.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.44.0",
-      "previousVersion": "1.43.0",
-      "commitSha": "45435fb9926905f18e4ae6d32dfc76b264573c38",
-      "commitTitle": "fix(admin): clarify route runtime health states",
-      "committedAt": "2026-05-06T02:30:27.000Z",
-      "generatedAt": "2026-05-06T02:30:41.583Z",
-      "committedAtUtc": "2026-05-06T02:30:27.000Z",
-      "generatedAtUtc": "2026-05-06T02:30:41.583Z",
-      "diffStats": {
-        "rawAdditions": 314,
-        "rawDeletions": 23,
-        "rawChangeCount": 337,
-        "additions": 314,
-        "deletions": 23,
-        "effectiveAdditions": 312,
-        "effectiveDeletions": 21,
-        "changedFiles": 9,
-        "effectiveChangeCount": 333,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal route health labels so loaded runtime metrics no longer appear stuck.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],
