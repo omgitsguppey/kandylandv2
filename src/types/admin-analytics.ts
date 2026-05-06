@@ -581,6 +581,7 @@ export interface HistoricalAnalyticsResponse {
     seriesState: "available" | "unavailable";
     seriesExplanation: string;
   };
+  audienceSnapshotDiagnostics?: AudienceSnapshotDiagnostics;
   events?: Record<string, number>;
   eventBreakdown?: EventBreakdownItem[];
   devices?: DeviceMixItem[];
@@ -840,6 +841,59 @@ export type AnalyticsOverviewCard = {
   generatedAtUtc: string | null;
   explanation: string;
   warnings: string[];
+};
+
+export type AudienceSnapshotState = {
+  generatedAtUtc: string;
+  range: string;
+  sourceState: "verified" | "mixed" | "estimated" | "partial" | "gap_detected" | "stale";
+  ga: {
+    totalUsers: number | null;
+    sessions: number | null;
+    views: number | null;
+    engagementRatePct: number | null;
+    avgSessionSeconds: number | null;
+    lastSeenAtUtc: string | null;
+    freshnessState: "live" | "stale" | "missing" | "unknown";
+  };
+  firstParty: {
+    identifiedViews: number;
+    guestBatchViews: number | null;
+    guestEstimatedVisits: number | null;
+    authenticatedEvents: number;
+    lastSeenAtUtc: string | null;
+    freshnessState: "live" | "stale" | "missing" | "unknown";
+  };
+  continuity: {
+    expectedDays: number;
+    presentDays: number;
+    missingDays: string[];
+    recentGapDays: string[];
+    gapStartUtc?: string;
+    gapEndUtc?: string;
+    gapSeverity: "none" | "review" | "error";
+  };
+  recovery: {
+    mode: "none" | "ga_bridge" | "estimated_guest_bridge" | "partial_first_party" | "unavailable";
+    recoveredDays: string[];
+    unrecoveredDays: string[];
+    estimatedSharePct: number;
+    explanation: string;
+  };
+};
+
+export type AudienceSnapshotDiagnostics = {
+  expectedDayKeys: string[];
+  recentWindowDayKeys: string[];
+  gaPresentDayKeys: string[];
+  firstPartyPresentDayKeys: string[];
+  guestBatchPresentDayKeys: string[];
+  guestEstimatedOnlyDayKeys: string[];
+  recoveredByGaDayKeys: string[];
+  unrecoveredDayKeys: string[];
+  gaLastSeenAtUtc: string | null;
+  firstPartyLastSeenAtUtc: string | null;
+  guestBatchLastSeenAtUtc: string | null;
 };
 
 export type EventChainStep = {

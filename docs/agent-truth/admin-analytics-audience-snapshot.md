@@ -18,6 +18,16 @@ Guest/public traffic may be estimated only for the selected range and only when 
 
 If the raw estimate is negative, clamp to zero only with `guestEstimateClamped: true` and a debug warning. The main UI says `Guest traffic is estimated until anonymous batches arrive.`
 
+## Traffic Continuity Rule
+
+Audience Snapshot must expose first-party day continuity directly. If first-party day buckets are missing for the selected range, the panel must say so, list the missing days, and separate:
+
+- recovered by GA totals
+- estimated guest bridge days
+- unrecovered days
+
+GA can bridge traffic reporting, but it cannot pretend first-party event coverage exists on the missing days.
+
 ## Identified-Only Rule
 
 If GA totals are unavailable and only identified first-party activity is available, the UI must say `identified only`. Future agents must not display authenticated-only or identified-only activity as total audience.

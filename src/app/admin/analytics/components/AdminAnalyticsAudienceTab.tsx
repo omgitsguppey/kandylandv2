@@ -47,12 +47,17 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     waitingLabel = "Unavailable",
   ) => (value === null ? waitingLabel : formatter(value));
   const audienceWaitingLabel =
-    audienceSnapshotModel.fakeZeroPrevented && historicalLoading
-      ? "Waiting for first snapshot"
+    audienceSnapshotModel.refreshStatus === "running" && !audienceSnapshotModel.serverConfirmed
+      ? "Waiting for audience snapshot"
       : "Unavailable";
   const guestBadgeLabel = audienceSnapshotModel.guestEstimateFormulaUsed
     ? "EST"
     : undefined;
+  const continuityLabel = audienceSnapshotModel.continuity.gapSeverity === "error"
+    ? "Traffic gap detected"
+    : audienceSnapshotModel.continuity.gapSeverity === "review"
+      ? "Continuity needs review"
+      : "Continuity verified";
 
   return (
     <>
@@ -64,22 +69,79 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
               defaultExpanded
               rightSlot={renderSectionRangeControl("audienceSnapshot")}
             >
-              <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300">
-                {audienceSnapshotModel.visibleCopy.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-                <p className="mt-1 text-gray-500">
-                  Identified first-party:{" "}
-                  {audienceSnapshotModel.identifiedViews.value === null
-                    ? audienceWaitingLabel
-                    : `${audienceSnapshotModel.identifiedViews.value.toLocaleString()} views`}
-                  {" "}· Guest: {audienceSnapshotModel.guestVisits.label}
-                </p>
+              <div
+                className="mb-3 space-y-3"
+                data-audience-source-state={audienceSnapshotModel.sourceState}
+                data-audience-ga-freshness={audienceSnapshotModel.ga.freshnessState}
+                data-audience-first-party-freshness={audienceSnapshotModel.firstParty.freshnessState}
+                data-audience-missing-days-count={String(audienceSnapshotModel.continuity.missingDays.length)}
+                data-audience-recent-gap-days-count={String(audienceSnapshotModel.continuity.recentGapDays.length)}
+                data-audience-recovery-mode={audienceSnapshotModel.recovery.mode}
+                data-audience-estimated-share={String(audienceSnapshotModel.recovery.estimatedSharePct)}
+                data-audience-generated-at-utc={audienceSnapshotModel.generatedAtUtc}
+              >
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300">
+                  {audienceSnapshotModel.visibleCopy.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                  <p className="mt-1 text-gray-500">
+                    Identified first-party:{" "}
+                    {audienceSnapshotModel.identifiedViews.value === null
+                      ? audienceWaitingLabel
+                      : `${audienceSnapshotModel.identifiedViews.value.toLocaleString()} views`}
+                    {" | "}Guest: {audienceSnapshotModel.guestVisits.label}
+                  </p>
+                  <p className="text-gray-500">
+                    Last updated: {audienceSnapshotModel.generatedAtUtc === new Date(0).toISOString()
+                      ? "Unavailable"
+                      : formatRelativeTime(Date.parse(audienceSnapshotModel.generatedAtUtc), nowMs)}
+                    {" | "}Source: {audienceSnapshotModel.sourceState}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-6">
+                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Expected days</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{audienceSnapshotModel.continuity.expectedDays}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Present days</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{audienceSnapshotModel.continuity.presentDays}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Missing days</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{audienceSnapshotModel.continuity.missingDays.length}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Recovered by GA</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{audienceSnapshotModel.recovery.recoveredDays.length}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Estimated guest days</p>
+                    <p className="mt-1 text-sm font-semibold text-white">
+                      {audienceSnapshotModel.recovery.mode === "estimated_guest_bridge"
+                        ? audienceSnapshotModel.recovery.recoveredDays.length
+                        : 0}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Unrecovered days</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{audienceSnapshotModel.recovery.unrecoveredDays.length}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+                  <p className="font-semibold text-white">{continuityLabel}</p>
+                  <p>{audienceSnapshotModel.continuitySummary}</p>
+                  <p className="text-gray-500">
+                    Users source: GA4 site users | Views source: mixed GA + first-party | Recovery: {audienceSnapshotModel.recovery.mode}
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
                 <MetricCard
-                  label="GA Users"
+                  label="GA4 Users"
                   value={formatAudienceValue(
                     audienceSnapshotModel.totalUsers.value,
                     formatCompactNumber,
@@ -88,7 +150,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   hint={audienceSnapshotModel.totalUsers.label}
                   icon={Users}
                   truthState={audienceSnapshotModel.totalUsers.truthState}
-                  dictionaryTooltip="GA total users for the selected range. This is not the same as authenticated KandyDrops user accounts."
+                  dictionaryTooltip="GA4 users for the selected range. This is site traffic, not authenticated KandyDrops accounts."
                 />
                 <MetricCard
                   label="Guest Visits"
@@ -101,7 +163,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   icon={Smartphone}
                   truthState={audienceSnapshotModel.guestVisits.truthState}
                   statusBadgeLabel={guestBadgeLabel}
-                  dictionaryTooltip="Guest/public visits. When anonymous first-party batches are missing, this is estimated and labeled as estimated."
+                  dictionaryTooltip="Guest/public visits. When consented guest batches are missing, this stays estimated and does not become verified first-party traffic."
                 />
                 <MetricCard
                   label="Sessions"
@@ -113,11 +175,11 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   hint={
                     audienceSnapshotModel.views.value === null
                       ? audienceSnapshotModel.sessions.label
-                      : `${audienceSnapshotModel.views.value.toLocaleString()} views`
+                      : `${audienceSnapshotModel.views.value.toLocaleString()} GA views`
                   }
                   icon={Activity}
                   truthState={audienceSnapshotModel.sessions.truthState}
-                  dictionaryTooltip="Sessions use GA totals and first-party activity, with the higher verified source shown for the selected range."
+                  dictionaryTooltip="GA sessions for the selected range. Page views stay labeled separately so sessions and views are not merged into one implied denominator."
                 />
                 <MetricCard
                   label="Engagement"
@@ -129,12 +191,39 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   hint={
                     audienceSnapshotModel.avgSession.value === null
                       ? audienceSnapshotModel.engagementRate.label
-                      : `${formatDuration(audienceSnapshotModel.avgSession.value)} avg session`
+                      : `${formatDuration(audienceSnapshotModel.avgSession.value)} avg GA session`
                   }
                   icon={Clock3}
                   truthState={audienceSnapshotModel.engagementRate.truthState}
-                  dictionaryTooltip="GA engagement rate for the selected range. It is not a count of all first-party visits."
+                  dictionaryTooltip="GA engagement rate and average GA session duration. This is not first-party watch or activity quality."
                 />
+              </div>
+
+              <div className="mt-3 grid gap-2.5 lg:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+                  <p className="font-semibold text-white">Guest estimate</p>
+                  <p>Source: {audienceSnapshotModel.guestEstimateMetadata.sourceTruth}</p>
+                  <p>Formula: {audienceSnapshotModel.guestEstimateMetadata.formula ?? "Unavailable"}</p>
+                  <p>Freshness: {audienceSnapshotModel.guestEstimateMetadata.freshnessState}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+                  <p className="font-semibold text-white">First-party continuity</p>
+                  <p>
+                    Last seen: {audienceSnapshotModel.firstParty.lastSeenAtUtc
+                      ? formatRelativeTime(Date.parse(audienceSnapshotModel.firstParty.lastSeenAtUtc), nowMs)
+                      : "Unavailable"}
+                  </p>
+                  <p>
+                    Missing days: {audienceSnapshotModel.continuity.missingDays.length === 0
+                      ? "None"
+                      : audienceSnapshotModel.continuity.missingDays.join(", ")}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+                  <p className="font-semibold text-white">Recovery</p>
+                  <p>{audienceSnapshotModel.recovery.explanation}</p>
+                  <p>Estimated share: {audienceSnapshotModel.recovery.estimatedSharePct}%</p>
+                </div>
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
@@ -148,6 +237,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   </span>
                 ))}
               </div>
+
+              <p className="mt-2 text-[11px] text-gray-500">
+                Chart source: GA users plus GA views. First-party continuity gaps stay labeled above and do not become verified first-party traffic.
+              </p>
 
               <div className={`mt-2.5 ${audienceSnapshotModel.chartHeightClass} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">

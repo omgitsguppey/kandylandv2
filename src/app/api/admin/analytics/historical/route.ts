@@ -448,6 +448,9 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 data: payload.data,
                 totals: payload.totals,
                 guestTraffic: payload.guestTraffic,
+                guestQualityDiagnostics: payload.guestQualityDiagnostics,
+                analyticsSourceHealth: payload.analyticsSourceHealth,
+                audienceSnapshotDiagnostics: payload.audienceSnapshotDiagnostics,
                 devices: payload.devices,
             });
         case "returnCadence":
@@ -1301,6 +1304,34 @@ async function GET_handler(request: NextRequest) {
                 diagnosticsDocs: serverDiagnosticsSnapshot.docs,
             });
             const pageRollupViewCount = Array.from(pageRollupMap.values()).reduce((total, entry) => total + entry.views, 0);
+            const audienceSnapshotDiagnostics = {
+                expectedDayKeys,
+                recentWindowDayKeys,
+                gaPresentDayKeys,
+                firstPartyPresentDayKeys: snapshotPresentDayKeys,
+                guestBatchPresentDayKeys: collectDocDayKeys(guestBatchesSnapshot.docs, {
+                    explicitKeys: ["dayKey"],
+                    fallbackTimestampKeys: ["receivedAtMs", "updatedAt"],
+                }),
+                guestEstimatedOnlyDayKeys: expectedDayKeys.filter((dayKey) => (
+                    gaPresentDayKeys.includes(dayKey)
+                    && !snapshotPresentDayKeys.includes(dayKey)
+                    && !legacySupportDayKeys.includes(dayKey)
+                )),
+                recoveredByGaDayKeys: expectedDayKeys.filter((dayKey) => (
+                    gaPresentDayKeys.includes(dayKey) && !snapshotPresentDayKeys.includes(dayKey)
+                )),
+                unrecoveredDayKeys: expectedDayKeys.filter((dayKey) => (
+                    !gaPresentDayKeys.includes(dayKey) && !snapshotPresentDayKeys.includes(dayKey)
+                )),
+                gaLastSeenAtUtc: toUtcIsoOrNull(response.rows?.length ? endMs : 0),
+                firstPartyLastSeenAtUtc: toUtcIsoOrNull(Math.max(
+                    readLatestSnapshotTimestamp(filteredDailyRollups, ["lastEventAt", "updatedAt"]),
+                    readLatestSnapshotTimestamp(pageRollupsSnapshot.docs, ["lastEventAt", "updatedAt"]),
+                    readLatestSnapshotTimestamp(sessionFactsSnapshot.docs, ["lastEventAtMs", "lastEventAt", "updatedAt"]),
+                )),
+                guestBatchLastSeenAtUtc: toUtcIsoOrNull(guestBatchLastSeenAtMs),
+            } as const;
             const dropRollupActivityCount = dropDailySnapshot.docs.reduce((total, doc) => {
                 const data = doc.data() as Record<string, unknown>;
                 return total + toNumber(data.eventCount) + toNumber(data.unwrapCount);
@@ -1405,6 +1436,7 @@ async function GET_handler(request: NextRequest) {
                 totals,
                 guestTraffic,
                 guestQualityDiagnostics,
+                audienceSnapshotDiagnostics,
                 events: eventsData,
                 eventBreakdown,
                 devices,
