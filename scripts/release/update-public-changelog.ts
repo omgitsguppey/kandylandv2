@@ -307,6 +307,8 @@ function ensureReleaseVerb(value: string) {
 
 function buildAppStoreTitle(title: string, category: PublicReleaseNoteCategory, surfaces: string[]) {
   const normalized = title.toLowerCase();
+  if (normalized.includes("changelog modal") || normalized.includes("above page chrome")) return "Fixed Beta notes overlay";
+  if (normalized.includes("badge opens latest notes") || normalized.includes("latest notes")) return "Fixed Beta badge updates";
   if (shippedBetaBadgeFeature(title) || surfaces.includes("release-notes")) return "Improved Beta update notes";
   if (normalized.includes("admin") && normalized.includes("truth")) return "Improved admin status accuracy";
   if (normalized.includes("gumdrops") || normalized.includes("treasury") || normalized.includes("economy")) return "Improved GumDrops review tools";
@@ -410,11 +412,25 @@ function buildAppStoreBullets(
   const normalized = title.toLowerCase();
   let bullets: string[];
   if (surfaces.includes("release-notes") || normalized.includes("release notes") || normalized.includes("beta")) {
-    bullets = [
-      "Improved Beta notes with cleaner summaries and compact bullets.",
-      "Updated timestamps so recent changes are easier to compare with reports.",
-      "Reduced technical wording in public update notes.",
-    ];
+    if (normalized.includes("changelog modal") || normalized.includes("above page chrome")) {
+      bullets = [
+        "Fixed the Beta notes panel so it stays above page controls.",
+        "Improved page locking while the changelog is open.",
+        "Updated the overlay spacing for small mobile screens.",
+      ];
+    } else if (normalized.includes("badge opens latest notes") || normalized.includes("latest notes")) {
+      bullets = [
+        "Fixed the Beta badge so taps open the current notes panel.",
+        "Updated the notes request so the latest changelog is loaded.",
+        "Reduced cases where an older app tab could miss the newest notes.",
+      ];
+    } else {
+      bullets = [
+        "Improved Beta notes with cleaner summaries and compact bullets.",
+        "Updated timestamps so recent changes are easier to compare with reports.",
+        "Reduced technical wording in public update notes.",
+      ];
+    }
   } else if (resolveAudience(title, surfaces) === "admins") {
     bullets = buildAdminBullets(title);
   } else if (category === "Security") {

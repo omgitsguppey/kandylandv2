@@ -7,10 +7,6 @@ import { SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitiv
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import type { AdminTaskPipelineModel, AdminTaskPipelineMetric } from "@/lib/admin-task-pipeline";
 
-const GUIDANCE_GAP_WARNING = "Task guidance telemetry is missing; guidance impact cannot be evaluated.";
-const REWARD_PARITY_WARNINGS_LABEL = "Reward parity warnings";
-const PIPELINE_DELTA_FORMULA_COPY = "Pipeline delta is leaderboard completed total minus pipeline completed total.";
-
 export function AdminDailyTaskPipelineModule(props: {
     renderSectionRangeControl: (sectionKey: string) => ReactNode;
     model: AdminTaskPipelineModel;
@@ -61,7 +57,7 @@ export function AdminDailyTaskPipelineModule(props: {
             icon={Funnel}
             rightSlot={props.renderSectionRangeControl("dailyTaskPipeline")}
         >
-            <div className="space-y-2.5">
+            <div className="space-y-2.5" data-task-pipeline-delta-source="leaderboardPipelineDelta">
                 <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                         <p>{props.model.recommendation}</p>
@@ -85,7 +81,7 @@ export function AdminDailyTaskPipelineModule(props: {
                 {props.model.hasData ? (
                     <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
                         <div className="mb-2 grid gap-1.5 text-[10px] text-gray-400 sm:grid-cols-2 xl:grid-cols-5">
-                            <span>Start from assigned: <span className="text-white">{formatRate(props.model.rates.startFromAssignedPct)}</span></span>
+                            <span>Start rate uses started / assigned: <span className="text-white">{formatRate(props.model.rates.startFromAssignedPct)}</span></span>
                             <span>Completed / started: <span className="text-white">{formatRate(props.model.rates.completionFromStartedPct)}</span></span>
                             <span>Completed / assigned: <span className="text-white">{formatRate(props.model.rates.completionFromAssignedPct)}</span></span>
                             <span>Failed / assigned: <span className="text-white">{formatRate(props.model.rates.failureFromAssignedPct)}</span></span>
@@ -123,7 +119,7 @@ export function AdminDailyTaskPipelineModule(props: {
                     </p>
                     {guidanceNeedsReview ? (
                         <p className="rounded-[0.8rem] border border-amber-400/25 bg-amber-500/10 px-2.5 py-2 text-[10px] leading-5 text-amber-100">
-                            {GUIDANCE_GAP_WARNING}
+                            Task guidance telemetry is missing; guidance impact cannot be evaluated.
                         </p>
                     ) : null}
                     <div className="grid grid-cols-2 gap-1.5 text-[10px] text-gray-400">
@@ -261,13 +257,13 @@ function TaskLeaderboardPanel(props: {
             )}
 
             <div className="mt-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-400 sm:grid-cols-4">
-                <span>{REWARD_PARITY_WARNINGS_LABEL}: <span className="text-white">{props.model.checks.rewardChecks}</span></span>
+                <span>Reward parity warnings: <span className="text-white">{props.model.checks.rewardChecks}</span></span>
                 <span>Lifecycle checks: <span className="text-white">{props.model.checks.lifecycleChecks}</span></span>
                 <span>Timing partial: <span className="text-white">{props.model.checks.timingPartial}</span></span>
                 <span>Pipeline delta: <span className="text-white">{props.formatCount(props.model.checks.pipelineDelta)}</span></span>
             </div>
             <p className="mt-2 text-[10px] leading-5 text-gray-500">
-                {PIPELINE_DELTA_FORMULA_COPY} {props.model.checks.pipelineDeltaExplanation}
+                Pipeline delta is leaderboard completed total minus pipeline completed total. {props.model.checks.pipelineDeltaExplanation}
             </p>
         </div>
     );

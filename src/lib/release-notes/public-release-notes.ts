@@ -35,9 +35,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
       "userFacingTitle": "Improved Beta update notes",
       "bullets": [
-        "Improved Beta notes with cleaner summaries and compact bullets.",
-        "Updated timestamps so recent changes are easier to compare with reports.",
-        "Reduced technical wording in public update notes."
+        "Fixed the Beta notes panel so it stays above page controls.",
+        "Improved page locking while the changelog is open.",
+        "Updated the overlay spacing for small mobile screens."
       ],
       "audience": "all",
       "technicalDetails": [
@@ -76,9 +76,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
       "userFacingTitle": "Improved Beta update notes",
       "bullets": [
-        "Improved Beta notes with cleaner summaries and compact bullets.",
-        "Updated timestamps so recent changes are easier to compare with reports.",
-        "Reduced technical wording in public update notes."
+        "Fixed the Beta badge so taps open the current notes panel.",
+        "Updated the notes request so the latest changelog is loaded.",
+        "Reduced cases where an older app tab could miss the newest notes."
       ],
       "audience": "all",
       "technicalDetails": [

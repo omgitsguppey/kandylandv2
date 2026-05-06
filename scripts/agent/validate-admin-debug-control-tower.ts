@@ -2334,6 +2334,7 @@ try {
     /^src\/components\/Dashboard\/DailyTasksModule\.tsx$/u,
     /^src\/components\/AdminErrorCatcher\.tsx$/u,
     /^src\/components\/Admin\/Analytics\/AdminTaskAndNotificationModules\.tsx$/u,
+    /^src\/components\/Admin\/Analytics\/AdminAnalyticsPrimitives\.tsx$/u,
     /^src\/components\/Admin\/AdminModerationConsole\.tsx$/u,
     /^src\/components\/Admin\/AdminModerationSecurityAlerts\.tsx$/u,
     /^src\/components\/Admin\/AdminStatsBar\.tsx$/u,

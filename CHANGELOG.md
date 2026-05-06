@@ -9,9 +9,9 @@ User-facing KandyDrops Beta updates, newest first.
 - Updated 2026-05-06 19:46 UTC
 - Improved Beta update notes
 - Cleaner Beta update notes with clearer summaries and timestamps.
-- Improved Beta notes with cleaner summaries and compact bullets.
-- Updated timestamps so recent changes are easier to compare with reports.
-- Reduced technical wording in public update notes.
+- Fixed the Beta notes panel so it stays above page controls.
+- Improved page locking while the changelog is open.
+- Updated the overlay spacing for small mobile screens.
 
 ## [1.113.1] - 2026-05-06
 
@@ -20,9 +20,9 @@ User-facing KandyDrops Beta updates, newest first.
 - Updated 2026-05-06 19:33 UTC
 - Improved Beta update notes
 - Cleaner Beta update notes with clearer summaries and timestamps.
-- Improved Beta notes with cleaner summaries and compact bullets.
-- Updated timestamps so recent changes are easier to compare with reports.
-- Reduced technical wording in public update notes.
+- Fixed the Beta badge so taps open the current notes panel.
+- Updated the notes request so the latest changelog is loaded.
+- Reduced cases where an older app tab could miss the newest notes.
 
 ## [1.113.0] - 2026-05-06
 

@@ -52,7 +52,7 @@ const ANALYTICS_METRIC_BADGE_LABELS: Record<AdminSurfaceState, string> = {
     degraded: "REVIEW",
     fallback: "SNAP",
     stale: "DELAYED",
-    unavailable: "WAIT",
+    unavailable: "UNAVAILABLE",
     failed: "ERROR",
 };
 
