@@ -66,6 +66,10 @@ The shared runtime event must initialize BroadcastChannel listeners in tabs that
 
 The Admin Analytics Notification Funnel is a compact summary only. It may show prompted, enabled, sent, opened, read, cleared, duplicate prevented, and failed/skipped states when sources exist. Missing delivery or skip telemetry must show Waiting or Debug-only, not fake zero.
 
+Prompted, enabled, opened, read, and cleared are event-count summaries unless a future joined source proves notification-id or user-linked sequencing. Do not imply sequential conversion/drop-off when the panel is using partial event counts. Read and clear counts are separate mutation actions, not an automatic open-to-read denominator.
+
+If permission telemetry is missing, render `No permission sample`, not `0 enabled`. If delivery, duplicate-prevention, or failed/skipped sources are missing after the snapshot loads, render `Unavailable` with an explicit Debug-source explanation, not an endless waiting state.
+
 Detailed notification health lives in Admin Debug: idempotency keys, browser tags, duplicate-created prevention, duplicate-push prevention, duplicate-browser-display prevention, skipped reasons, foreground/background counts, service-worker display counts, click handler wiring, read persistence lag, and unread reconciliation.
 
 Admin Debug queue runtime rows must show human drop context before raw scheduler keys. For `drop-activation:{dropId}:{timestampMs}` outcomes, the bounded debug feed resolves drop title, creator label, scheduled UTC time, last outcome UTC, outcome/error state, and admin-only drop/creator links. Raw activation keys, drop IDs, and timestamps stay collapsed for audit. If the drop document cannot be resolved, the row shows `Unknown drop`, a short drop ID, and `drop_metadata_missing`; this is review context only and must not trigger notification resend or queue mutation by itself.

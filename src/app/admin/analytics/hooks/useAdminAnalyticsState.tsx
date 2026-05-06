@@ -2375,8 +2375,20 @@ const { user } = useAuth();
         actionItems: notificationActionItems,
         reminderReasons: notificationReminderReasons,
         selectedRange: notificationFunnelRange,
+        response: notificationFunnelData,
+        loading: notificationFunnelRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+          ? historicalLoading
+          : notificationFunnelOverride.isLoading,
       }),
-    [notificationActionItems, notificationFunnelItems, notificationReminderReasons, notificationFunnelRange],
+    [
+      historicalLoading,
+      notificationActionItems,
+      notificationFunnelData,
+      notificationFunnelItems,
+      notificationFunnelOverride.isLoading,
+      notificationReminderReasons,
+      notificationFunnelRange,
+    ],
   );
   const deviceMixTotalUsers = deviceMixDevices.reduce(
     (sum, item) => sum + item.users,

@@ -37,6 +37,8 @@ const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identif
 const eventFactNormalizer = readRequired("src/lib/behavioral/event-fact-normalizer.ts");
 const adminHistoricalEngagement = readRequired("src/lib/server/admin-analytics-historical-engagement.ts");
 const taskCatalog = readRequired("src/lib/tasks/task-catalog.ts");
+const notificationFunnelHelper = readRequired("src/lib/admin-notification-funnel.ts");
+const notificationFunnelComponent = readRequired("src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx");
 const notificationReadTests = readRequired("tests/unit/notification-read-state.spec.tsx");
 const ingestTests = readRequired("tests/unit/analytics-ingest-identified-route.spec.ts");
 
@@ -86,6 +88,31 @@ requireIncludes(taskCatalog, 'eventName: "notification_read"', "Task catalog can
 requireIncludes(eventFactNormalizer, 'input.metricFamily === "notification" && input.eventName !== "notification_read"', "Notification metric eligibility gate");
 requireIncludes(identifiedIngestRoute, "normalizeIdentifiedMetricEventFact", "Identified ingest route");
 requireIncludes(adminHistoricalEngagement, 'input.eventsData.notification_read || 0', "Admin historical engagement notification read count");
+for (const expected of [
+  "denominatorMode",
+  "No permission sample",
+  "Duplicate-prevention telemetry not instrumented.",
+  "Delivery counts unavailable from Debug source.",
+  "Prompt, enabled, opened, read, and cleared are event counts.",
+]) {
+  requireIncludes(notificationFunnelHelper, expected, "Notification funnel truth helper");
+}
+for (const expected of [
+  "data-notification-funnel-state",
+  "data-notification-denominator-mode",
+  "data-notification-step",
+  "data-notification-step-source",
+  "data-notification-step-status",
+  "data-notification-step-freshness",
+  "data-notification-reminder-reason-count",
+  "data-notification-missing-source-count",
+  "No permission sample",
+  "Debug notification records",
+  "task reminder telemetry",
+]) {
+  requireIncludes(notificationFunnelComponent, expected, "Notification funnel analytics component");
+}
+requireExcludes(notificationFunnelComponent, "Waiting", "Notification funnel analytics component must not render WAIT for unavailable sources after load");
 
 requireIncludes(notificationReadTests, '"notification_read"', "Notification read state tests");
 requireIncludes(notificationReadTests, 'expect(readCalls).toHaveLength(1);', "Notification read dedupe test");

@@ -18,18 +18,37 @@ describe("admin notification funnel model", () => {
             reminderReasons: [
                 { label: "Time ran out", count: 4 },
             ],
+            response: { success: true, cacheState: "fresh", generatedAtMs: Date.UTC(2026, 4, 6, 12, 0, 0) } as never,
         });
 
         expect(model.hasData).toBe(true);
         expect(model.truthLabel).toBe("PARTIAL");
-        expect(model.metrics.find((metric) => metric.key === "prompted")?.value).toBe(24);
-        expect(model.metrics.find((metric) => metric.key === "enabled")?.value).toBe(0);
-        expect(model.metrics.find((metric) => metric.key === "sent")?.value).toBeNull();
-        expect(model.metrics.find((metric) => metric.key === "cleared")?.value).toBe(7);
-        expect(model.metrics.find((metric) => metric.key === "prompted")?.truthState).toBe("degraded");
-        expect(model.metrics.find((metric) => metric.key === "sent")?.truthState).toBe("unavailable");
-        expect(model.metrics.find((metric) => metric.key === "sent")?.fakeZeroPrevented).toBe(true);
-        expect(model.reminderReasonSummary).toContain("Time ran out: 4");
+        expect(model.denominatorMode).toBe("partial");
+        expect(model.prompt.count).toBe(24);
+        expect(model.permissionEnabled.count).toBe(0);
+        expect(model.sent.count).toBeNull();
+        expect(model.cleared.count).toBe(7);
+        expect(model.prompt.status).toBe("loaded");
+        expect(model.sent.status).toBe("unavailable");
+        expect(model.sent.fakeZeroPrevented).toBe(true);
+        expect(model.permissionEnabled.displayValue).toBe("0");
+        expect(model.reminderReasonSummary).toContain("Total reminders 4");
         expect(model.debug.duplicateBrowserDisplayPreventedCount).toBeNull();
+    });
+
+    it("shows no permission sample instead of verified zero when permission telemetry is missing", () => {
+        const model = buildAdminNotificationFunnelModel({
+            funnelItems: [{ label: "Prompted", count: 10 }],
+            actionItems: [],
+            reminderReasons: [],
+            response: { success: true, cacheState: "fresh", generatedAtMs: Date.UTC(2026, 4, 6, 12, 0, 0) } as never,
+        });
+
+        expect(model.permissionEnabled.count).toBeNull();
+        expect(model.permissionEnabled.displayValue).toBe("No permission sample");
+        expect(model.permissionEnabled.status).toBe("unavailable");
+        expect(model.sent.displayValue).toBe("Unavailable");
+        expect(model.duplicatePrevented.displayValue).toBe("Unavailable");
+        expect(model.failedSkipped.displayValue).toBe("Unavailable");
     });
 });
