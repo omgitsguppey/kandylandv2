@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.52.0",
+  "currentVersion": "1.53.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T04:18:07.081Z",
-  "generatedAtUtc": "2026-05-06T04:18:07.081Z",
-  "lastCommitSha": "4234e36711426775f67e05653593fd2bcd4d59f6",
+  "generatedAt": "2026-05-06T04:58:48.626Z",
+  "generatedAtUtc": "2026-05-06T04:58:48.626Z",
+  "lastCommitSha": "fef2058a653f662446f2453c2a939a59b5fd2766",
   "notes": [
+    {
+      "version": "1.53.0",
+      "previousVersion": "1.52.0",
+      "commitSha": "fef2058a653f662446f2453c2a939a59b5fd2766",
+      "commitTitle": "fix(admin): upgrade debug assistant model routing",
+      "committedAt": "2026-05-06T04:48:48.000Z",
+      "generatedAt": "2026-05-06T04:58:48.626Z",
+      "committedAtUtc": "2026-05-06T04:48:48.000Z",
+      "generatedAtUtc": "2026-05-06T04:58:48.626Z",
+      "diffStats": {
+        "rawAdditions": 1527,
+        "rawDeletions": 245,
+        "rawChangeCount": 1772,
+        "additions": 1527,
+        "deletions": 245,
+        "effectiveAdditions": 1527,
+        "effectiveDeletions": 245,
+        "changedFiles": 24,
+        "effectiveChangeCount": 1772,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal admin tools used to keep beta features stable.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.52.0",
       "previousVersion": "1.51.0",
@@ -133,40 +166,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "minor",
       "category": "Fixed",
       "userFacingTitle": "Improved daily task reset reliability so tasks are prepared on the daily schedule.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "telemetry"
-      ]
-    },
-    {
-      "version": "1.48.1",
-      "previousVersion": "1.48.0",
-      "commitSha": "0dd9d1e33525a45e777f6e1a01ecbe36e653ac36",
-      "commitTitle": "fix(admin): normalize recent event flow context",
-      "committedAt": "2026-05-06T03:16:38.000Z",
-      "generatedAt": "2026-05-06T03:16:50.927Z",
-      "committedAtUtc": "2026-05-06T03:16:38.000Z",
-      "generatedAtUtc": "2026-05-06T03:16:50.927Z",
-      "diffStats": {
-        "rawAdditions": 51,
-        "rawDeletions": 24,
-        "rawChangeCount": 75,
-        "additions": 51,
-        "deletions": 24,
-        "effectiveAdditions": 51,
-        "effectiveDeletions": 24,
-        "changedFiles": 6,
-        "effectiveChangeCount": 75,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal event-flow diagnostics so background system events are not confused with user actions.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],

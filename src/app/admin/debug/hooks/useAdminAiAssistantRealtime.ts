@@ -26,7 +26,7 @@ import { db } from "@/lib/firebase-data";
 import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { createAutoHealingObserver } from "@/lib/self-healing";
-import type { RouteRuntimeHealthItem } from "@/lib/route-runtime-health";
+import { toRouteRuntimeHealthDocId, type RouteRuntimeHealthItem } from "@/lib/route-runtime-health";
 
 type ListenerErrors = {
     settingsFailed: boolean;
@@ -122,7 +122,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
         ));
 
         const readRouteControl = createAutoHealingObserver(() => onSnapshot(
-            doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.read),
+            doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), toRouteRuntimeHealthDocId(ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.read)),
             (snapshot) => {
                 if (cancelled) return;
                 setRouteHealthByKey((current) => ({
@@ -156,7 +156,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
         ));
 
         const writeRouteControl = createAutoHealingObserver(() => onSnapshot(
-            doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.write),
+            doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), toRouteRuntimeHealthDocId(ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.write)),
             (snapshot) => {
                 if (cancelled) return;
                 setRouteHealthByKey((current) => ({
@@ -190,7 +190,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
         ));
 
         const generateRouteControl = createAutoHealingObserver(() => onSnapshot(
-            doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.generate),
+            doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), toRouteRuntimeHealthDocId(ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.generate)),
             (snapshot) => {
                 if (cancelled) return;
                 setRouteHealthByKey((current) => ({
@@ -223,6 +223,40 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
             },
         ));
 
+        const fixRouteControl = createAutoHealingObserver(() => onSnapshot(
+            doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), toRouteRuntimeHealthDocId(ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.fix)),
+            (snapshot) => {
+                if (cancelled) return;
+                setRouteHealthByKey((current) => ({
+                    ...current,
+                    [ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.fix]: snapshot.exists()
+                        ? snapshot.data() as RouteRuntimeHealthItem
+                        : null,
+                }));
+                setListenerState((current) => ({
+                    ...current,
+                    routesLoaded: true,
+                }));
+                setListenerErrors((current) => ({ ...current, routesFailed: false }));
+            },
+            (error) => {
+                if (cancelled) return;
+                setListenerErrors((current) => ({ ...current, routesFailed: true }));
+                reportClientIssue({
+                    channel: "firebase",
+                    severity: "warn",
+                    message: "Admin AI assistant fix-route realtime listener failed",
+                    error,
+                    detail: buildFirestoreClientIssueDetail(error, {
+                        listener: "admin_ai_debug_route_fix",
+                        scope: "admin debug assistant",
+                    }),
+                    consoleLabel: "[Admin AI Debug] fix-route listener failed",
+                });
+                fixRouteControl.triggerReconnect(error);
+            },
+        ));
+
         return () => {
             cancelled = true;
             settingsControl.cleanup();
@@ -230,6 +264,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
             readRouteControl.cleanup();
             generateRouteControl.cleanup();
             writeRouteControl.cleanup();
+            fixRouteControl.cleanup();
         };
     }, [summary?.configured_model, summary?.enabled]);
 

@@ -1,6 +1,6 @@
 import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
 import { AI_DEBUG_ASSISTANT_MODEL } from "@/lib/ai-debug-assistant";
-import { normalizeAdminAiModelAlias } from "@/lib/admin-ai-models";
+import { normalizeAdminAiModelAliasForRole } from "@/lib/admin-ai-models";
 import {
     getRouteRuntimeHealthStatus,
     type RouteRuntimeHealthItem,
@@ -23,6 +23,7 @@ export type AdminAiDebugRealtimeFeedStatus =
     | "failed";
 
 export type AdminAiDebugPreflightStatus = "pass" | "warn" | "fail";
+export type AdminAiDebugObserverState = "live" | "failed" | "stale" | "not_observed" | "unknown";
 
 export interface AdminAiDebugAssistantSettingsSnapshot {
     enabled: boolean;
@@ -42,8 +43,11 @@ export interface AdminAiDebugPreflightCheck {
     key: string;
     label: string;
     status: AdminAiDebugPreflightStatus;
+    state: AdminAiDebugObserverState;
+    reason: string;
     detail: string;
     updatedAtMs: number | null;
+    updatedAtUtc: string | null;
     sourceLabel: "realtime" | "polled";
 }
 
@@ -81,6 +85,68 @@ function mapRouteStatusToPreflight(status: ReturnType<typeof getRouteRuntimeHeal
     return "pass" as const;
 }
 
+function toIsoOrNull(timestamp?: number | null) {
+    if (!timestamp || !Number.isFinite(timestamp) || timestamp <= 0) {
+        return null;
+    }
+
+    return new Date(timestamp).toISOString();
+}
+
+function buildObserverStateFromTimestamp(timestamp?: number | null, nowMs = Date.now()) {
+    if (!timestamp || !Number.isFinite(timestamp) || timestamp <= 0) {
+        return "not_observed" as const;
+    }
+
+    const ageMs = Math.max(0, nowMs - timestamp);
+    if (ageMs > 1000 * 60 * 60 * 24) {
+        return "stale" as const;
+    }
+
+    return "live" as const;
+}
+
+function buildRouteObserver(input: {
+    route: RouteRuntimeHealthItem | null;
+    routeStatus: ReturnType<typeof getRouteRuntimeHealthStatus>;
+    label: string;
+    missingReason: string;
+    successDetail: string;
+    sourceLabel: "realtime" | "polled";
+}) : AdminAiDebugPreflightCheck {
+    if (!input.route) {
+        return {
+            key: input.label.toLowerCase().replace(/\s+/g, "_"),
+            label: input.label,
+            status: "warn",
+            state: "not_observed",
+            reason: input.missingReason,
+            detail: input.missingReason,
+            updatedAtMs: null,
+            updatedAtUtc: null,
+            sourceLabel: input.sourceLabel,
+        };
+    }
+
+    const state: AdminAiDebugObserverState = input.routeStatus === "fail"
+        ? "failed"
+        : input.routeStatus === "stale"
+            ? "stale"
+            : "live";
+
+    return {
+        key: input.label.toLowerCase().replace(/\s+/g, "_"),
+        label: input.label,
+        status: mapRouteStatusToPreflight(input.routeStatus),
+        state,
+        reason: input.successDetail,
+        detail: input.successDetail,
+        updatedAtMs: typeof input.route.updatedAtMs === "number" ? input.route.updatedAtMs : null,
+        updatedAtUtc: toIsoOrNull(input.route.updatedAtMs),
+        sourceLabel: input.sourceLabel,
+    };
+}
+
 export function normalizeAdminAiDebugAssistantSettingsSnapshot(
     value: unknown,
     fallback?: Partial<AdminAiDebugAssistantSettingsSnapshot>,
@@ -91,9 +157,9 @@ export function normalizeAdminAiDebugAssistantSettingsSnapshot(
 
     return {
         enabled: source.enabled !== false && fallback?.enabled !== false,
-        model: normalizeAdminAiModelAlias(
+        model: normalizeAdminAiModelAliasForRole(
             typeof source.model === "string" ? source.model : fallback?.model,
-            "debug_assistant",
+            "admin_debug_assistant",
         ) || AI_DEBUG_ASSISTANT_MODEL,
         updatedAtMs: typeof source.updatedAtMs === "number" && Number.isFinite(source.updatedAtMs)
             ? Math.max(0, Math.trunc(source.updatedAtMs))
@@ -213,82 +279,104 @@ export function buildAdminAiDebugRealtimeSignals(input: {
             key: "feature_toggle",
             label: "Feature toggle",
             status: settings.enabled ? "pass" : "warn",
+            state: buildObserverStateFromTimestamp(settings.updatedAtMs, nowMs),
+            reason: settings.enabled
+                ? "AI debug assistant is enabled in admin settings."
+                : "AI debug assistant is disabled in admin settings. Deterministic fallback remains available.",
             detail: settings.enabled
                 ? "AI debug assistant is enabled in admin settings."
                 : "AI debug assistant is disabled in admin settings. Deterministic fallback remains available.",
             updatedAtMs: settings.updatedAtMs || null,
+            updatedAtUtc: toIsoOrNull(settings.updatedAtMs),
             sourceLabel: listenerState.settingsLoaded ? "realtime" : "polled",
         },
         {
             key: "configured_model",
             label: "Configured model",
             status: configuredModel === AI_DEBUG_ASSISTANT_MODEL ? "pass" : "warn",
+            state: buildObserverStateFromTimestamp(settings.updatedAtMs, nowMs),
+            reason: configuredModel === AI_DEBUG_ASSISTANT_MODEL
+                ? `Configured model is pinned to the canonical ${AI_DEBUG_ASSISTANT_MODEL} alias.`
+                : `Configured model is ${configuredModel}, while the canonical debug alias is ${AI_DEBUG_ASSISTANT_MODEL}. Resolved runtime model is ${resolvedModel}.`,
             detail: configuredModel === AI_DEBUG_ASSISTANT_MODEL
                 ? `Configured model is pinned to the canonical ${AI_DEBUG_ASSISTANT_MODEL} alias.`
                 : `Configured model is ${configuredModel}, while the canonical debug alias is ${AI_DEBUG_ASSISTANT_MODEL}. Resolved runtime model is ${resolvedModel}.`,
             updatedAtMs: settings.updatedAtMs || null,
+            updatedAtUtc: toIsoOrNull(settings.updatedAtMs),
             sourceLabel: listenerState.settingsLoaded ? "realtime" : "polled",
         },
         {
             key: "runtime_gate",
             label: "Runtime gate",
             status: runtimeReady ? "pass" : "fail",
+            state: runtimeReady
+                ? buildObserverStateFromTimestamp(summary?.generated_at ? Date.parse(summary.generated_at) : 0, nowMs)
+                : "failed",
+            reason: runtimeReady
+                ? `Vertex runtime is ready for ${resolvedModel} in ${summary?.runtime_location || "the configured location"}.`
+                : summary?.availability_note || "Vertex runtime is not ready yet. Canonical diagnostics remain authoritative until runtime access is proven.",
             detail: runtimeReady
                 ? `Vertex runtime is ready for ${resolvedModel} in ${summary?.runtime_location || "the configured location"}.`
                 : summary?.availability_note || "Vertex runtime is not ready yet. Canonical diagnostics remain authoritative until runtime access is proven.",
             updatedAtMs: summary?.generated_at ? Date.parse(summary.generated_at) : null,
+            updatedAtUtc: summary?.generated_at || null,
             sourceLabel: "polled",
         },
-        {
-            key: "assistant_live_generation_route",
+        buildRouteObserver({
+            route: generateRoute,
+            routeStatus: generateRouteStatus,
             label: "Assistant live generation route",
-            status: mapRouteStatusToPreflight(generateRouteStatus),
-            detail: generateRoute
-                ? `Explicit live-summary route health is ${generateRouteStatus}. Last result: ${generateRoute.lastResult.replace("_", " ")} at ${new Date(generateRoute.updatedAtMs).toLocaleString()}.`
-                : "No canonical route runtime sample has been observed yet for explicit live summary generation.",
-            updatedAtMs: typeof generateRoute?.updatedAtMs === "number" ? generateRoute.updatedAtMs : null,
+            missingReason: "No runtime sample observed for explicit live summary generation.",
+            successDetail: `Explicit live-summary route health is ${generateRouteStatus}. Last result: ${generateRoute?.lastResult.replace("_", " ")}.`,
             sourceLabel: listenerState.routesLoaded ? "realtime" : "polled",
-        },
-        {
-            key: "assistant_read_route",
+        }),
+        buildRouteObserver({
+            route: readRoute,
+            routeStatus: readRouteStatus,
             label: "Assistant read route",
-            status: mapRouteStatusToPreflight(readRouteStatus),
-            detail: readRoute
-                ? `Status route health is ${readRouteStatus}. Last result: ${readRoute.lastResult.replace("_", " ")} at ${new Date(readRoute.updatedAtMs).toLocaleString()}.`
-                : "No canonical route runtime sample has been observed yet for the assistant status route.",
-            updatedAtMs: typeof readRoute?.updatedAtMs === "number" ? readRoute.updatedAtMs : null,
+            missingReason: "No runtime sample observed for the assistant status route.",
+            successDetail: `Status route health is ${readRouteStatus}. Last result: ${readRoute?.lastResult.replace("_", " ")}.`,
             sourceLabel: listenerState.routesLoaded ? "realtime" : "polled",
-        },
-        {
-            key: "assistant_settings_write",
+        }),
+        buildRouteObserver({
+            route: writeRoute,
+            routeStatus: writeRouteStatus,
             label: "Assistant settings writes",
-            status: mapRouteStatusToPreflight(writeRouteStatus),
-            detail: writeRoute
-                ? `Settings write route health is ${writeRouteStatus}. Last result: ${writeRoute.lastResult.replace("_", " ")} at ${new Date(writeRoute.updatedAtMs).toLocaleString()}.`
-                : "No canonical route runtime sample has been observed yet for assistant settings writes.",
-            updatedAtMs: typeof writeRoute?.updatedAtMs === "number" ? writeRoute.updatedAtMs : null,
+            missingReason: "No runtime sample observed for assistant settings writes.",
+            successDetail: `Settings write route health is ${writeRouteStatus}. Last result: ${writeRoute?.lastResult.replace("_", " ")}.`,
             sourceLabel: listenerState.routesLoaded ? "realtime" : "polled",
-        },
-        {
-            key: "assistant_fix_route",
+        }),
+        buildRouteObserver({
+            route: fixRoute,
+            routeStatus: fixRouteStatus,
             label: "Assistant fix route",
-            status: mapRouteStatusToPreflight(fixRouteStatus),
-            detail: fixRoute
-                ? `Fix route health is ${fixRouteStatus}. Last result: ${fixRoute.lastResult.replace("_", " ")} at ${new Date(fixRoute.updatedAtMs).toLocaleString()}.`
-                : "No canonical route runtime sample has been observed yet for the assistant fix route.",
-            updatedAtMs: typeof fixRoute?.updatedAtMs === "number" ? fixRoute.updatedAtMs : null,
+            missingReason: "No runtime sample observed for the assistant fix route.",
+            successDetail: `Fix route health is ${fixRouteStatus}. Last result: ${fixRoute?.lastResult.replace("_", " ")}.`,
             sourceLabel: listenerState.routesLoaded ? "realtime" : "polled",
-        },
+        }),
         {
             key: "recent_ai_diagnostics",
             label: "Recent AI diagnostics",
             status: diagnosticErrorCount > 0 ? "fail" : diagnosticWarnCount > 0 ? "warn" : "pass",
+            state: latestDiagnostic
+                ? diagnosticErrorCount > 0
+                    ? "failed"
+                    : diagnosticWarnCount > 0
+                        ? "stale"
+                        : "live"
+                : "unknown",
+            reason: diagnosticErrorCount > 0
+                ? `${diagnosticErrorCount} recent AI error diagnostic${diagnosticErrorCount === 1 ? "" : "s"} detected. Latest: ${latestDiagnostic?.message || "AI diagnostic error"}.`
+                : diagnosticWarnCount > 0
+                    ? `${diagnosticWarnCount} recent AI warning diagnostic${diagnosticWarnCount === 1 ? "" : "s"} detected. Latest: ${latestDiagnostic?.message || "AI diagnostic warning"}.`
+                    : "No recent AI warning or error diagnostics are present in the live Firestore sample.",
             detail: diagnosticErrorCount > 0
                 ? `${diagnosticErrorCount} recent AI error diagnostic${diagnosticErrorCount === 1 ? "" : "s"} detected. Latest: ${latestDiagnostic?.message || "AI diagnostic error"}.`
                 : diagnosticWarnCount > 0
                     ? `${diagnosticWarnCount} recent AI warning diagnostic${diagnosticWarnCount === 1 ? "" : "s"} detected. Latest: ${latestDiagnostic?.message || "AI diagnostic warning"}.`
                     : "No recent AI warning or error diagnostics are present in the live Firestore sample.",
             updatedAtMs: latestDiagnostic?.createdAtMs || null,
+            updatedAtUtc: toIsoOrNull(latestDiagnostic?.createdAtMs || null),
             sourceLabel: listenerState.diagnosticsLoaded ? "realtime" : "polled",
         },
     ];

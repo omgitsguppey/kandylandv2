@@ -23,6 +23,12 @@ function formatRelative(timestamp?: number) {
     return `${Math.floor(hours / 24)}d ago`;
 }
 
+function formatOptionalTimestamp(value?: string) {
+    if (!value) return "Not recorded";
+    const parsed = Date.parse(value);
+    return Number.isFinite(parsed) ? new Date(parsed).toLocaleString() : value;
+}
+
 /* ─── Props ─── */
 export interface DebugTabAiProps {
     aiDebugData: AdminAiDebugSummary | undefined;
@@ -63,6 +69,21 @@ export function DebugTabAi({
             : aiDebugData?.response_state === "fallback"
                 ? "Fallback"
                 : "Unknown";
+    const displayedSourceLabel = aiDebugData?.displayed_summary_source === "live_model"
+        ? "Live model"
+        : aiDebugData?.displayed_summary_source === "saved_guidance"
+            ? "Saved guidance"
+            : "Deterministic fallback";
+    const summaryFreshnessLabel = aiDebugData?.displayed_summary_freshness === "fresh"
+        ? "Fresh"
+        : aiDebugData?.displayed_summary_freshness === "stale"
+            ? "Stale"
+            : "Unknown";
+    const liveStatusLabel = aiDebugData?.live_summary_status
+        ? aiDebugData.live_summary_status.replace(/_/g, " ")
+        : "unknown";
+    const lastLiveRunLabel = aiDebugData?.last_model_call_at ? formatRelative(Date.parse(aiDebugData.last_model_call_at)) : "Not available";
+    const fallbackGeneratedLabel = aiDebugData?.last_fallback_generated_at ? formatRelative(Date.parse(aiDebugData.last_fallback_generated_at)) : "Not recorded";
 
     return (
         <div className="space-y-4">
@@ -70,7 +91,7 @@ export function DebugTabAi({
                 title="AI debug assistant"
                 subtitle="Explicit live guidance over current debug evidence. Page load reads saved status only and does not trigger paid AI calls."
                 defaultOpen
-                summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Response" value={responseStateLabel} tone={aiDebugData?.response_state === "live" ? "good" : aiDebugData?.response_state === "saved" ? "warn" : "warn"} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-3.1-flash-lite-preview"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Live call" value={aiDebugData?.live_call_eligible ? "Eligible" : "Blocked"} tone={aiDebugData?.live_call_eligible ? "good" : "warn"} /><Pill label="Cost guard" value={aiDebugData?.cost_guard_state || "unknown"} tone={aiDebugData?.cost_guard_state === "admin_gated" ? "good" : "warn"} /><Pill label="Update source" value={aiAssistantRealtime.feedStatus === "realtime" ? "Live" : aiAssistantRealtime.feedStatus === "failed" ? "Delayed" : "Saved"} tone={aiAssistantRealtime.feedStatus === "realtime" ? "good" : aiAssistantRealtime.feedStatus === "failed" ? "bad" : "warn"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
+                summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Displayed source" value={displayedSourceLabel} tone={aiDebugData?.response_state === "live" ? "good" : "warn"} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Current model" value={aiDebugData?.resolved_model || aiAssistantModel || "gemini-3.1-flash-lite-preview"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Live summary" value={liveStatusLabel} tone={aiDebugData?.live_summary_status === "live" ? "good" : aiDebugData?.live_summary_status === "failed" ? "bad" : "warn"} /><Pill label="Summary freshness" value={summaryFreshnessLabel} tone={aiDebugData?.displayed_summary_freshness === "fresh" ? "good" : aiDebugData?.displayed_summary_freshness === "stale" ? "warn" : "neutral"} /><Pill label="Cost guard" value={aiDebugData?.cost_guard_state || "unknown"} tone={aiDebugData?.cost_guard_state === "admin_gated" ? "good" : "warn"} /><Pill label="Last live run" value={lastLiveRunLabel} /><Pill label="Fallback latency" value={aiDebugData?.last_fallback_latency_ms != null ? `${aiDebugData.last_fallback_latency_ms}ms` : "Not recorded"} tone={aiDebugData?.last_fallback_latency_ms != null ? "warn" : "neutral"} /></>}
             >
                 {aiDebugError ? (
                     <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">
@@ -93,6 +114,10 @@ export function DebugTabAi({
                                 <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.configured_model || aiAssistantModel || "gemini-3.1-flash-lite-preview"}</p>
                             </div>
                             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Resolved model</p>
+                                <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.resolved_model || aiDebugData?.model || aiAssistantModel || "gemini-3.1-flash-lite-preview"}</p>
+                            </div>
+                            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime status</p>
                                 <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.runtime_ready ? "Ready" : "Unavailable"}</p>
                             </div>
@@ -103,6 +128,10 @@ export function DebugTabAi({
                             <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Location</p>
                                 <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.runtime_location || "Missing"}</p>
+                            </div>
+                            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime checked</p>
+                                <p className="mt-2 text-sm font-semibold text-white">{formatOptionalTimestamp(aiDebugData?.runtime_checked_at)}</p>
                             </div>
                         </div>
                     </div>
@@ -145,13 +174,20 @@ export function DebugTabAi({
                                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">What it found</p>
                                 <p className="mt-3 text-sm leading-6 text-gray-200">{aiDebugData.summary}</p>
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    <Pill label="Source" value={aiDebugData.response_state === "live" ? "Live model" : aiDebugData.response_state === "saved" ? "Saved guidance" : "Deterministic fallback"} tone={aiDebugData.response_state === "live" ? "good" : "warn"} />
+                                    <Pill label="Displayed source" value={displayedSourceLabel} tone={aiDebugData.response_state === "live" ? "good" : "warn"} />
                                     <Pill label="Provider" value={aiDebugData.provider} />
                                     <Pill label="Role" value={aiDebugData.model_role} />
                                     <Pill label="Prompt" value={aiDebugData.prompt_version} />
-                                    <Pill label="Generated" value={formatTimestamp(Date.parse(aiDebugData.generated_at))} />
+                                    <Pill label="Displayed summary" value={formatOptionalTimestamp(aiDebugData.displayed_summary_generated_at)} />
+                                    <Pill label="Debug evidence" value={formatOptionalTimestamp(aiDebugData.debug_evidence_generated_at)} />
                                     <Pill label="Runtime" value={aiDebugData.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData.runtime_ready ? "good" : "bad"} />
                                 </div>
+                                {aiDebugData.saved_summary_model && aiDebugData.saved_summary_model !== aiDebugData.resolved_model ? (
+                                    <p className="mt-3 text-xs leading-6 text-amber-200">Saved summary model: {aiDebugData.saved_summary_model}. Current configured model: {aiDebugData.resolved_model}.</p>
+                                ) : null}
+                                {aiDebugData.displayed_summary_freshness_reason ? (
+                                    <p className="mt-3 text-xs leading-6 text-gray-400">{aiDebugData.displayed_summary_freshness_reason}</p>
+                                ) : null}
                                 {aiDebugData.availability_note ? (<p className="mt-3 text-xs leading-6 text-gray-400">{aiDebugData.availability_note}</p>) : null}
                             </div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
@@ -173,6 +209,10 @@ export function DebugTabAi({
                                 <p className="mt-3 text-sm text-gray-200">{aiDebugData.apply_eligibility.state}</p>
                                 <p className="mt-2 text-xs text-gray-400">{aiDebugData.apply_eligibility.reason}</p>
                                 <p className="mt-2 text-xs text-gray-400">Rollback: {aiDebugData.rollback_note}</p>
+                                <p className="mt-2 text-xs text-gray-400">Last live model run: {formatOptionalTimestamp(aiDebugData.last_model_call_at)}</p>
+                                <p className="mt-2 text-xs text-gray-400">Model latency: {aiDebugData.last_model_latency_ms != null ? `${aiDebugData.last_model_latency_ms}ms` : "Not recorded"}</p>
+                                <p className="mt-2 text-xs text-gray-400">Fallback generated: {formatOptionalTimestamp(aiDebugData.last_fallback_generated_at)}</p>
+                                <p className="mt-2 text-xs text-gray-400">Fallback latency: {aiDebugData.last_fallback_latency_ms != null ? `${aiDebugData.last_fallback_latency_ms}ms` : "Not recorded"}</p>
                             </div>
                         </div>
                         <details className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">

@@ -67,6 +67,7 @@ Shows support admin thread/message access, support route failures, creator booki
 - Recent task activity is loaded lifecycle evidence. Loaded recent event, rollup, daily point, user, reward, and progress fields render as LOADED/INFO/REVIEW, never WAIT. Task rows must show `dailyTaskWindowId`, reason code, source, assigned/updated UTC, expiration UTC, and status so daily-window rollover is distinguishable from on-demand backfill.
 - Admin AI debug assistant page-load status is saved guidance or deterministic fallback only. Live guidance requires explicit admin action. Fallback must render as degraded/fallback, not live, and repeated assistant parse failures should cluster instead of spamming duplicate rows.
 - Admin AI assistant guidance should expose issue summary, source evidence, likely cause, safe fix plan, files to inspect, validators to run, apply eligibility, rollback note, and confidence. Inspect-only actions must not render Apply.
+- Admin AI assistant freshness must separate current configured/resolved model from saved-summary model, separate displayed summary time from live model run time, and separate fallback latency from live model latency. Preflight observers without runtime samples render `not_observed` or `unknown`, not generic "update time not recorded".
   - Raw generated evidence must stay capped and collapsed. The overview must not render giant JSON dumps.
 
 ## Critical Reports

@@ -65,6 +65,12 @@ for (const expected of [
   "AI_DEBUG_FIX_PLANNER_MODEL = getAdminAiModelAliasForRole(\"admin_debug_fix_planner\")",
   "response_state: z.enum([\"live\", \"saved\", \"fallback\"])",
   "cost_guard_state: z.enum([\"admin_gated\", \"blocked\", \"disabled\"])",
+  "resolved_model: z.string().trim().min(1)",
+  "live_summary_status: z.enum([\"live\", \"delayed\", \"failed\", \"disabled\", \"fallback\"])",
+  "displayed_summary_source: z.enum([\"live_model\", \"saved_guidance\", \"deterministic_fallback\"])",
+  "displayed_summary_freshness: z.enum([\"fresh\", \"stale\", \"unknown\"])",
+  "last_model_latency_ms: z.number().int().nonnegative().nullable().optional()",
+  "last_fallback_latency_ms: z.number().int().nonnegative().nullable().optional()",
 ]) {
   requireIncludes(debugAssistant, expected, "Admin AI debug assistant contract");
 }
@@ -72,6 +78,8 @@ for (const expected of [
 for (const expected of [
   "buildAdminAiDebugSavedSummary",
   "buildAdminAiDebugFallback",
+  "buildDisplayedSummaryFreshness",
+  "buildLiveSummaryStatus",
   "buildLiveCallEligibility",
   "roleValidation = validateAdminAiModelRoleAssignment(\"admin_debug_assistant\", settings.model)",
   "validateAdminAiModelRoleAssignment(\"admin_debug_fix_planner\", runtime.model)",
@@ -115,7 +123,7 @@ for (const expected of [
   "method: \"POST\"",
   "generate_live_summary",
   "response_state === \"saved\"",
-  "Fallback",
+  "setAiAssistantModel(aiDebugData.configured_model || aiDebugData.resolved_model || aiDebugData.model || AI_DEBUG_ASSISTANT_MODEL);",
 ]) {
   requireIncludes(debugPage, expected, "Admin debug page AI lane");
 }
@@ -128,18 +136,31 @@ for (const expected of [
   "Live model",
   "Cost guard",
   "Role",
+  "Current model",
+  "Displayed source",
+  "Summary freshness",
+  "Last live run",
+  "Fallback latency",
+  "Saved summary model:",
+  "Debug evidence",
+  "Displayed summary",
 ]) {
   requireIncludes(debugTabAi, expected, "Debug AI tab");
 }
+requireNotIncludes(debugTabAi, "Pill label=\"Last run\"", "Debug AI tab");
+requireNotIncludes(debugTabAi, "Pill label=\"Latency\"", "Debug AI tab");
 
 for (const expected of [
   "Inspect",
   "Dismiss",
   "Apply eligibility",
+  "observerStateLabel",
+  "check.updatedAtUtc ? `Updated ${formatSignalAge(check.updatedAtMs)}` : check.reason",
 ]) {
   requireIncludes(realtimePanel, expected, "Realtime diagnostics AI panel");
 }
 requireNotIncludes(realtimePanel, "AI Auto-Fix", "Realtime diagnostics AI panel");
+requireNotIncludes(realtimePanel, "Update time not recorded", "Realtime diagnostics AI panel");
 
 for (const expected of [
   "optimizerModel: z.literal(ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL)",
@@ -157,6 +178,8 @@ for (const expected of [
   "No paid AI calls on admin page load",
   "deterministic fallback",
   "inspect/apply/dismiss",
+  "displayed summary freshness",
+  "fallback latency vs live model latency",
 ]) {
   requireIncludes(adminAiDoc, expected, "Admin AI control tower doctrine");
 }
@@ -165,6 +188,8 @@ for (const expected of [
   "saved guidance",
   "deterministic fallback",
   "Live guidance",
+  "current configured/resolved model",
+  "fallback latency from live model latency",
 ]) {
   requireIncludes(adminDebugDoc, expected, "Admin debug doctrine");
 }

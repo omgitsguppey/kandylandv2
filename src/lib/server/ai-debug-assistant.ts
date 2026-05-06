@@ -183,6 +183,62 @@ function buildAdminAiDebugResponseState(input: {
     return "live" as const;
 }
 
+function buildDisplayedSummaryFreshness(input: {
+    debugEvidenceGeneratedAt: string;
+    displayedSummaryGeneratedAt?: string | null;
+}) {
+    const evidenceAt = Date.parse(input.debugEvidenceGeneratedAt);
+    const displayedAt = input.displayedSummaryGeneratedAt ? Date.parse(input.displayedSummaryGeneratedAt) : Number.NaN;
+
+    if (!Number.isFinite(evidenceAt) || !Number.isFinite(displayedAt)) {
+        return {
+            state: "unknown" as const,
+            reason: "Displayed summary freshness cannot be verified from the current timestamps.",
+        };
+    }
+
+    if (displayedAt < evidenceAt) {
+        return {
+            state: "stale" as const,
+            reason: "Saved summary may be stale because current debug evidence is newer than the displayed summary.",
+        };
+    }
+
+    return {
+        state: "fresh" as const,
+        reason: "Displayed summary is current with the bounded debug evidence snapshot.",
+    };
+}
+
+function buildLiveSummaryStatus(input: {
+    enabled: boolean;
+    runtimeReady: boolean;
+    responseState: "live" | "saved" | "fallback";
+    fallbackReason?: string | null;
+}) {
+    if (!input.enabled) {
+        return "disabled" as const;
+    }
+
+    if (input.responseState === "live") {
+        return "live" as const;
+    }
+
+    if (input.responseState === "saved") {
+        return "delayed" as const;
+    }
+
+    if (input.fallbackReason === "page_load_no_live_call") {
+        return "delayed" as const;
+    }
+
+    if (!input.runtimeReady) {
+        return "failed" as const;
+    }
+
+    return "fallback" as const;
+}
+
 function extractJsonBlock(raw: string) {
     const trimmed = raw.trim();
     const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
@@ -431,6 +487,11 @@ export function buildAdminAiDebugFallback(input: {
 }) : AdminAiDebugSummary {
     const signal = input.signal;
     const eligibility = buildLiveCallEligibility(input.settings, input.runtime.project);
+    const displayedSummaryFreshness = buildDisplayedSummaryFreshness({
+        debugEvidenceGeneratedAt: signal.generatedAt,
+        displayedSummaryGeneratedAt: signal.generatedAt,
+    });
+    const runtimeReady = Boolean(input.runtime.project) && input.settings.enabled;
     const likelyRootCauses = trimList([
         signal.ops.pipelineFailureCount > 0 ? "Recent route or pipeline failures are already present in canonical admin ops health." : "",
         signal.orchestration.openFindings > 0 ? "Open orchestration findings indicate unresolved cross-system parity or projection issues." : "",
@@ -502,17 +563,37 @@ export function buildAdminAiDebugFallback(input: {
         fallback_used: true,
         response_state: buildAdminAiDebugResponseState({ fallbackUsed: true }),
         enabled: input.settings.enabled,
-        runtime_ready: Boolean(input.runtime.project) && input.settings.enabled,
+        runtime_ready: runtimeReady,
         live_call_eligible: eligibility.liveCallEligible,
         cost_guard_state: eligibility.costGuardState,
         provider: "vertex_ai",
         model_role: "admin_debug_assistant",
         configured_model: input.settings.model,
+        resolved_model: input.runtime.model,
         runtime_project: input.runtime.project || undefined,
         runtime_location: input.runtime.location,
+        runtime_checked_at: signal.generatedAt,
         model: input.runtime.model,
+        saved_summary_model: undefined,
         prompt_version: AI_DEBUG_ASSISTANT_PROMPT_VERSION,
         generated_at: signal.generatedAt,
+        debug_evidence_generated_at: signal.generatedAt,
+        live_summary_status: buildLiveSummaryStatus({
+            enabled: input.settings.enabled,
+            runtimeReady,
+            responseState: "fallback",
+            fallbackReason: input.fallbackReason,
+        }),
+        live_summary_generated_at: undefined,
+        saved_summary_generated_at: undefined,
+        displayed_summary_source: "deterministic_fallback",
+        displayed_summary_generated_at: signal.generatedAt,
+        displayed_summary_freshness: displayedSummaryFreshness.state,
+        displayed_summary_freshness_reason: displayedSummaryFreshness.reason,
+        last_model_call_at: input.settings.lastLiveCallAtMs ? new Date(input.settings.lastLiveCallAtMs).toISOString() : undefined,
+        last_model_latency_ms: null,
+        last_fallback_generated_at: signal.generatedAt,
+        last_fallback_latency_ms: Math.max(0, Math.round(input.latencyMs || 0)),
         latency_ms: Math.max(0, Math.round(input.latencyMs || 0)),
         availability_note: input.availabilityNote,
         fallback_reason: input.fallbackReason || "live_ai_unavailable",
@@ -527,22 +608,46 @@ export function buildAdminAiDebugSavedSummary(input: {
     savedSummary: AdminAiDebugSummary;
 }) {
     const eligibility = buildLiveCallEligibility(input.settings, input.runtime.project);
+    const displayedSummaryFreshness = buildDisplayedSummaryFreshness({
+        debugEvidenceGeneratedAt: input.signal.generatedAt,
+        displayedSummaryGeneratedAt: input.savedSummary.generated_at,
+    });
+    const runtimeReady = Boolean(input.runtime.project) && input.settings.enabled;
     return adminAiDebugSummarySchema.parse({
         ...input.savedSummary,
         response_state: buildAdminAiDebugResponseState({ fallbackUsed: false, savedSummary: true }),
         fallback_used: false,
         enabled: input.settings.enabled,
-        runtime_ready: Boolean(input.runtime.project) && input.settings.enabled,
+        runtime_ready: runtimeReady,
         live_call_eligible: eligibility.liveCallEligible,
         cost_guard_state: eligibility.costGuardState,
         provider: "vertex_ai",
         model_role: "admin_debug_assistant",
         configured_model: input.settings.model,
+        resolved_model: input.runtime.model,
         runtime_project: input.runtime.project || input.savedSummary.runtime_project,
         runtime_location: input.runtime.location || input.savedSummary.runtime_location,
+        runtime_checked_at: input.signal.generatedAt,
         model: input.savedSummary.model || input.runtime.model,
+        saved_summary_model: input.savedSummary.model || input.runtime.model,
         availability_note: "Live AI summary is delayed. Showing the latest saved guidance.",
         fallback_reason: undefined,
+        debug_evidence_generated_at: input.signal.generatedAt,
+        live_summary_status: buildLiveSummaryStatus({
+            enabled: input.settings.enabled,
+            runtimeReady,
+            responseState: "saved",
+        }),
+        live_summary_generated_at: input.savedSummary.last_model_call_at || input.savedSummary.last_live_call_at || input.savedSummary.generated_at,
+        saved_summary_generated_at: input.savedSummary.generated_at,
+        displayed_summary_source: "saved_guidance",
+        displayed_summary_generated_at: input.savedSummary.generated_at,
+        displayed_summary_freshness: displayedSummaryFreshness.state,
+        displayed_summary_freshness_reason: displayedSummaryFreshness.reason,
+        last_model_call_at: input.settings.lastLiveCallAtMs ? new Date(input.settings.lastLiveCallAtMs).toISOString() : input.savedSummary.last_model_call_at || input.savedSummary.last_live_call_at,
+        last_model_latency_ms: input.savedSummary.last_model_latency_ms ?? input.savedSummary.latency_ms,
+        last_fallback_generated_at: input.savedSummary.last_fallback_generated_at,
+        last_fallback_latency_ms: input.savedSummary.last_fallback_latency_ms ?? null,
         last_live_call_at: input.settings.lastLiveCallAtMs ? new Date(input.settings.lastLiveCallAtMs).toISOString() : input.savedSummary.last_live_call_at,
     });
 }
@@ -741,11 +846,26 @@ export async function generateAdminAiDebugSummary(
             provider: "vertex_ai",
             model_role: "admin_debug_assistant",
             configured_model: settings.model,
+            resolved_model: runtime.model,
             runtime_project: project,
             runtime_location: location,
+            runtime_checked_at: signal.generatedAt,
             model: runtime.model,
+            saved_summary_model: runtime.model,
             prompt_version: AI_DEBUG_ASSISTANT_PROMPT_VERSION,
             generated_at: signal.generatedAt,
+            debug_evidence_generated_at: signal.generatedAt,
+            live_summary_status: "live",
+            live_summary_generated_at: signal.generatedAt,
+            saved_summary_generated_at: signal.generatedAt,
+            displayed_summary_source: "live_model",
+            displayed_summary_generated_at: signal.generatedAt,
+            displayed_summary_freshness: "fresh",
+            displayed_summary_freshness_reason: "Displayed summary was generated from the current bounded live model call.",
+            last_model_call_at: new Date().toISOString(),
+            last_model_latency_ms: latencyMs,
+            last_fallback_generated_at: undefined,
+            last_fallback_latency_ms: null,
             latency_ms: latencyMs,
             last_live_call_at: new Date().toISOString(),
         });

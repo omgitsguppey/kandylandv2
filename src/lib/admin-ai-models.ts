@@ -232,9 +232,16 @@ export function normalizeAdminAiModelAliasForRole(alias: string | null | undefin
     if (!roleDefinition || roleDefinition.provider === "deterministic") {
         return "";
     }
+    const pinnedPreviewRole = role === "admin_debug_assistant"
+        || role === "admin_debug_fix_planner"
+        || role === "cover_prompt_refinement";
 
     const trimmedAlias = alias?.trim() || "";
     if (!trimmedAlias) {
+        return roleDefinition.alias;
+    }
+
+    if (pinnedPreviewRole) {
         return roleDefinition.alias;
     }
 

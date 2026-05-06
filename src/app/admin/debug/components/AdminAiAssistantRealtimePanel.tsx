@@ -32,6 +32,10 @@ function toTone(status: AdminAiDebugRealtimeSignals["feedStatus"] | AdminAiDebug
     return "neutral" as const;
 }
 
+function observerStateLabel(state: AdminAiDebugRealtimeSignals["preflightChecks"][number]["state"]) {
+    return state.replace(/_/g, " ");
+}
+
 function formatSignalAge(timestamp?: number | null) {
     if (!timestamp || !Number.isFinite(timestamp) || timestamp <= 0) {
         return "Not recorded";
@@ -152,11 +156,14 @@ export function AdminAiAssistantRealtimePanel({ state }: { state: AdminAiDebugRe
                                 <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-gray-200">
                                     {check.sourceLabel}
                                 </span>
+                                <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-gray-200">
+                                    {observerStateLabel(check.state)}
+                                </span>
                             </div>
                         </div>
                         <div className="mt-3 flex items-center gap-2 text-[11px] text-gray-300">
                             <Activity className="h-3.5 w-3.5" />
-                            <span>{check.updatedAtMs ? `Updated ${formatSignalAge(check.updatedAtMs)}` : "Update time not recorded"}</span>
+                            <span>{check.updatedAtUtc ? `Updated ${formatSignalAge(check.updatedAtMs)}` : check.reason}</span>
                         </div>
                     </div>
                 ))}

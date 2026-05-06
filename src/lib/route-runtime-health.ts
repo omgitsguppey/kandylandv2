@@ -1,5 +1,9 @@
 export const ROUTE_RUNTIME_HEALTH_COLLECTION = "route_runtime_health";
 
+export function toRouteRuntimeHealthDocId(key: string) {
+    return encodeURIComponent(key);
+}
+
 export const ROUTE_RUNTIME_HEALTH_TARGETS = {
     "__/auth/[...path]:GET": {
         routeName: "__/auth/[...path]",

@@ -329,7 +329,7 @@ export default function DebugConsole() {
         }
 
         setAiAssistantEnabled(aiDebugData.enabled !== false);
-        setAiAssistantModel(aiDebugData.configured_model || aiDebugData.model || AI_DEBUG_ASSISTANT_MODEL);
+        setAiAssistantModel(aiDebugData.configured_model || aiDebugData.resolved_model || aiDebugData.model || AI_DEBUG_ASSISTANT_MODEL);
     }, [aiDebugData]);
     const aiAssistantRealtime = useAdminAiAssistantRealtime(aiDebugData);
 

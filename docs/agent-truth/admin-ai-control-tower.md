@@ -33,6 +33,20 @@ Required fallback language:
 
 If a saved live summary exists, it may be shown as saved guidance, not as a new live result.
 
+Required freshness fields:
+
+- current configured model
+- resolved runtime model
+- displayed summary source
+- displayed summary freshness
+- debug evidence generated timestamp
+- displayed summary generated timestamp
+- last live model run timestamp
+- fallback generated timestamp
+- fallback latency vs live model latency
+
+Saved summaries generated with an older model must stay distinguishable from the current configured model.
+
 ## Safe Action Model
 
 The assistant supports inspect/apply/dismiss presentation, but safe mutation is narrow:

@@ -1,10 +1,43 @@
 {
-  "currentVersion": "1.52.0",
+  "currentVersion": "1.53.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T04:18:07.081Z",
-  "generatedAtUtc": "2026-05-06T04:18:07.081Z",
-  "lastCommitSha": "4234e36711426775f67e05653593fd2bcd4d59f6",
+  "generatedAt": "2026-05-06T04:58:48.626Z",
+  "generatedAtUtc": "2026-05-06T04:58:48.626Z",
+  "lastCommitSha": "fef2058a653f662446f2453c2a939a59b5fd2766",
   "notes": [
+    {
+      "version": "1.53.0",
+      "previousVersion": "1.52.0",
+      "commitSha": "fef2058a653f662446f2453c2a939a59b5fd2766",
+      "commitTitle": "fix(admin): upgrade debug assistant model routing",
+      "committedAt": "2026-05-06T04:48:48.000Z",
+      "generatedAt": "2026-05-06T04:58:48.626Z",
+      "committedAtUtc": "2026-05-06T04:48:48.000Z",
+      "generatedAtUtc": "2026-05-06T04:58:48.626Z",
+      "diffStats": {
+        "rawAdditions": 1527,
+        "rawDeletions": 245,
+        "rawChangeCount": 1772,
+        "additions": 1527,
+        "deletions": 245,
+        "effectiveAdditions": 1527,
+        "effectiveDeletions": 245,
+        "changedFiles": 24,
+        "effectiveChangeCount": 1772,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal admin tools used to keep beta features stable.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.52.0",
       "previousVersion": "1.51.0",
@@ -1610,40 +1643,6 @@
       "affectedSurfaces": [
         "documentation"
       ]
-    },
-    {
-      "version": "1.17.0",
-      "previousVersion": "1.16.1",
-      "commitSha": "1cbef6884a9c0f0273d22e9f14e1eff32968de26",
-      "commitTitle": "chore(ci): route repo automation through cloud build",
-      "committedAt": "2026-05-05T12:49:13.000Z",
-      "generatedAt": "2026-05-05T12:49:32.622Z",
-      "diffStats": {
-        "rawAdditions": 207,
-        "rawDeletions": 18,
-        "rawChangeCount": 225,
-        "additions": 207,
-        "deletions": 18,
-        "effectiveAdditions": 207,
-        "effectiveDeletions": 18,
-        "changedFiles": 9,
-        "effectiveChangeCount": 225,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Internal",
-      "userFacingTitle": "Added a Beta badge with app update notes in the top navigation.",
-      "bullets": [
-        "Tap Beta beside KandyDrops to see the latest app-style updates.",
-        "The current beta version now stays tied to the public changelog."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "release-notes",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T12:49:13.000Z",
-      "generatedAtUtc": "2026-05-05T12:49:32.622Z"
     }
   ]
 }
