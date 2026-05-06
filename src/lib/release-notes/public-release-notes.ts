@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.47.0",
+  "currentVersion": "1.47.1",
   "channel": "beta",
-  "generatedAt": "2026-05-06T02:58:43.643Z",
-  "generatedAtUtc": "2026-05-06T02:58:43.643Z",
-  "lastCommitSha": "d5451d05813434695624a15b22bfff52a02dab34",
+  "generatedAt": "2026-05-06T03:02:52.203Z",
+  "generatedAtUtc": "2026-05-06T03:02:52.203Z",
+  "lastCommitSha": "d5a84e8f29d0992eefe53c0e64d544ecb7297d48",
   "notes": [
+    {
+      "version": "1.47.1",
+      "previousVersion": "1.47.0",
+      "commitSha": "d5a84e8f29d0992eefe53c0e64d544ecb7297d48",
+      "commitTitle": "fix(admin): clarify session config readiness",
+      "committedAt": "2026-05-06T03:02:35.000Z",
+      "generatedAt": "2026-05-06T03:02:52.202Z",
+      "committedAtUtc": "2026-05-06T03:02:35.000Z",
+      "generatedAtUtc": "2026-05-06T03:02:52.202Z",
+      "diffStats": {
+        "rawAdditions": 84,
+        "rawDeletions": 10,
+        "rawChangeCount": 94,
+        "additions": 84,
+        "deletions": 10,
+        "effectiveAdditions": 84,
+        "effectiveDeletions": 10,
+        "changedFiles": 5,
+        "effectiveChangeCount": 94,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "userFacingTitle": "Clarified internal admin readiness checks so config presence is not confused with live service health.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.47.0",
       "previousVersion": "1.46.0",
@@ -131,39 +164,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "minor",
       "category": "Fixed",
       "userFacingTitle": "Improved internal route health labels so loaded runtime metrics no longer appear stuck.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.43.0",
-      "previousVersion": "1.42.0",
-      "commitSha": "0ad07275579c41228c0b793f181d7f722e36918e",
-      "commitTitle": "fix(admin): clarify bug intake triage states",
-      "committedAt": "2026-05-06T02:19:16.000Z",
-      "generatedAt": "2026-05-06T02:19:29.663Z",
-      "committedAtUtc": "2026-05-06T02:19:16.000Z",
-      "generatedAtUtc": "2026-05-06T02:19:29.663Z",
-      "diffStats": {
-        "rawAdditions": 352,
-        "rawDeletions": 54,
-        "rawChangeCount": 406,
-        "additions": 352,
-        "deletions": 54,
-        "effectiveAdditions": 350,
-        "effectiveDeletions": 52,
-        "changedFiles": 10,
-        "effectiveChangeCount": 402,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal bug report triage labels so loaded reports no longer appear stuck.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],

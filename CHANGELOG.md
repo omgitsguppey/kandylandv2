@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.47.1] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 03:02 UTC
+- Clarified internal admin readiness checks so config presence is not confused with live service health.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.47.0] - 2026-05-06
 
 ### Fixed
@@ -395,13 +403,5 @@ User-facing KandyDrops Beta updates, newest first.
 ### Added
 
 - Updated 2026-05-05 11:04 UTC
-- Updated KandyDrops with a small beta improvement.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.11.0] - 2026-05-05
-
-### Added
-
-- Updated 2026-05-05 10:35 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
