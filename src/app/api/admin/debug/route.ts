@@ -301,7 +301,45 @@ type RuntimeTaskDriftSummary = {
     cooldownDriftCount: number;
     unsupportedRuntimeCount: number;
     unsupportedRuntimeGroups: RuntimeUnsupportedGroup[];
+    tasksSampled: number;
+    alignedCount: number;
+    partialCount: number;
+    mismatchCount: number;
+    unknownCount: number;
+    sourceParityRows: RuntimeTaskSourceParityRow[];
     state: "live" | "review" | "error";
+};
+
+type TaskSourceMismatchReason =
+    | "rollup_completed_exceeds_task_completed"
+    | "event_stats_exceeds_assignments"
+    | "rewarded_without_receipts"
+    | "receipts_without_task_completion"
+    | "claims_without_completion"
+    | "completion_without_reward"
+    | "event_stats_not_task_scoped"
+    | "legacy_alias_mismatch"
+    | "unknown";
+
+type RuntimeTaskSourceParityRow = {
+    taskId: string;
+    taskTitle: string;
+    triggerEvent: string;
+    origin: "built_in" | "custom" | "legacy";
+    mode: "route" | "runtime" | "background";
+    scope: "built_in" | "custom" | "legacy";
+    cooldown: string;
+    assignedUsers: number;
+    claimedCount: number;
+    taskCompletedCount: number;
+    rewardClaimCount: number;
+    receiptCount: number;
+    rollupCompletedCount: number;
+    eventStatsCount: number;
+    sourceParityState: "aligned" | "partial" | "mismatch" | "unknown";
+    mismatchReasons: TaskSourceMismatchReason[];
+    canonicalCompletionSource: "task_completion" | "reward_receipt" | "rollup" | "event_stats" | "unknown";
+    explanation: string;
 };
 
 type DependencyPackageName = "root" | "functions" | "workspace" | "unknown";
@@ -1016,6 +1054,159 @@ function sourceLabelForRuntimeDriftKind(kind: string): RuntimeUnsupportedGroup["
         return kind;
     }
     return "unknown";
+}
+
+function resolveRuntimeTaskParityOrigin(entry: {
+    definitionOrigin: "built_in" | "custom";
+    taskId: string;
+    eventName: string;
+}): RuntimeTaskSourceParityRow["origin"] {
+    if (entry.definitionOrigin === "custom") {
+        return "custom";
+    }
+    if (isRetiredLegacyDailyTaskId(entry.taskId) || entry.eventName === "unlock_drop_success") {
+        return "legacy";
+    }
+    return "built_in";
+}
+
+function resolveRuntimeTaskParityScope(entry: {
+    definitionOrigin: "built_in" | "custom";
+    scope: string;
+    taskId: string;
+    eventName: string;
+}): RuntimeTaskSourceParityRow["scope"] {
+    if (entry.scope === "built_in") {
+        return "built_in";
+    }
+    if (isRetiredLegacyDailyTaskId(entry.taskId) || entry.eventName === "unlock_drop_success") {
+        return "legacy";
+    }
+    return "custom";
+}
+
+function resolveRuntimeTaskCanonicalCompletionSource(entry: {
+    recentCompletedCount: number;
+    recentRewardClaimCount: number;
+    recentReceiptCount: number;
+    rollupCompletedCount: number;
+    eventStatTotalCount: number;
+}): RuntimeTaskSourceParityRow["canonicalCompletionSource"] {
+    if (entry.recentCompletedCount > 0) return "task_completion";
+    if (entry.recentRewardClaimCount > 0 || entry.recentReceiptCount > 0) return "reward_receipt";
+    if (entry.rollupCompletedCount > 0) return "rollup";
+    if (entry.eventStatTotalCount > 0) return "event_stats";
+    return "unknown";
+}
+
+function buildRuntimeTaskMismatchReasons(entry: {
+    taskId: string;
+    eventName: string;
+    definitionOrigin: "built_in" | "custom";
+    assignedUsers: number;
+    claimedAssignments: number;
+    recentCompletedCount: number;
+    recentRewardClaimCount: number;
+    recentReceiptCount: number;
+    rollupCompletedCount: number;
+    eventStatTotalCount: number;
+}): TaskSourceMismatchReason[] {
+    const reasons = new Set<TaskSourceMismatchReason>();
+
+    if (entry.rollupCompletedCount > entry.recentCompletedCount) {
+        reasons.add("rollup_completed_exceeds_task_completed");
+    }
+    if (entry.eventStatTotalCount > Math.max(entry.assignedUsers, entry.claimedAssignments, 0)) {
+        reasons.add("event_stats_exceeds_assignments");
+    }
+    if (entry.eventStatTotalCount > 0 && entry.recentCompletedCount === 0) {
+        reasons.add("event_stats_not_task_scoped");
+    }
+    if (entry.recentRewardClaimCount > entry.recentReceiptCount) {
+        reasons.add("rewarded_without_receipts");
+    }
+    if (entry.recentReceiptCount > entry.recentCompletedCount) {
+        reasons.add("receipts_without_task_completion");
+    }
+    if (entry.claimedAssignments > 0 && entry.recentCompletedCount === 0) {
+        reasons.add("claims_without_completion");
+    }
+    if (entry.recentCompletedCount > 0 && entry.recentRewardClaimCount === 0) {
+        reasons.add("completion_without_reward");
+    }
+    if ((entry.definitionOrigin === "built_in" && isRetiredLegacyDailyTaskId(entry.taskId)) || entry.eventName === "unlock_drop_success") {
+        reasons.add("legacy_alias_mismatch");
+    }
+
+    return Array.from(reasons);
+}
+
+function resolveRuntimeTaskSourceParityState(reasons: TaskSourceMismatchReason[]): RuntimeTaskSourceParityRow["sourceParityState"] {
+    if (reasons.length === 0) return "aligned";
+
+    if (reasons.some((reason) => (
+        reason === "rollup_completed_exceeds_task_completed"
+        || reason === "rewarded_without_receipts"
+        || reason === "receipts_without_task_completion"
+        || reason === "legacy_alias_mismatch"
+        || reason === "unknown"
+    ))) {
+        return "mismatch";
+    }
+
+    if (reasons.some((reason) => (
+        reason === "event_stats_exceeds_assignments"
+        || reason === "event_stats_not_task_scoped"
+        || reason === "claims_without_completion"
+        || reason === "completion_without_reward"
+    ))) {
+        return "partial";
+    }
+
+    return "unknown";
+}
+
+function explainRuntimeTaskSourceParity(row: Omit<RuntimeTaskSourceParityRow, "explanation">) {
+    if (row.sourceParityState === "aligned") {
+        return `Assignment, completion, reward, and receipt signals are aligned. Canonical completion source: ${row.canonicalCompletionSource}.`;
+    }
+
+    const details: string[] = [];
+    row.mismatchReasons.forEach((reason) => {
+        switch (reason) {
+            case "rollup_completed_exceeds_task_completed":
+                details.push(`Rollup completions exceed task completion records by ${Math.max(0, row.rollupCompletedCount - row.taskCompletedCount)}.`);
+                break;
+            case "event_stats_exceeds_assignments":
+                details.push(`Trigger event stats exceed assigned users by ${Math.max(0, row.eventStatsCount - row.assignedUsers)}.`);
+                break;
+            case "rewarded_without_receipts":
+                details.push("Reward claims exist without matching task reward receipts.");
+                break;
+            case "receipts_without_task_completion":
+                details.push(`Receipts exceed task completions by ${Math.max(0, row.receiptCount - row.taskCompletedCount)}; this may be related sample evidence instead of task-scoped reward receipts.`);
+                break;
+            case "claims_without_completion":
+                details.push(`Assignments were claimed ${row.claimedCount} time(s) without task completion records.`);
+                break;
+            case "completion_without_reward":
+                details.push("Task completions exist without matching reward claims.");
+                break;
+            case "event_stats_not_task_scoped":
+                details.push("Event stats are trigger evidence only and are not task-scoped completion proof.");
+                break;
+            case "legacy_alias_mismatch":
+                details.push("Legacy unlock/task alias evidence is still in the path and should not be treated as canonical completion proof.");
+                break;
+            default:
+                details.push("Source mismatch reason is unknown; inspect runtime evidence directly.");
+                break;
+        }
+    });
+
+    return details.length > 0
+        ? `${details.join(" ")} Canonical completion source: ${row.canonicalCompletionSource}.`
+        : `Runtime task source parity is ${row.sourceParityState}; inspect the underlying sampled records.`;
 }
 
 function readGeneratedAnalyticsStateFile(fileName: string): Record<string, unknown> | null {
@@ -2577,6 +2768,37 @@ export async function GET(request: NextRequest) {
                     || right.count - left.count
                     || (left.taskId || "").localeCompare(right.taskId || "");
             });
+        const runtimeTaskSourceParityRows: RuntimeTaskSourceParityRow[] = runtimeTaskAudit.distribution.map((entry) => {
+            const mismatchReasons = buildRuntimeTaskMismatchReasons(entry);
+            const rowBase = {
+                taskId: entry.taskId,
+                taskTitle: entry.title,
+                triggerEvent: entry.eventName,
+                origin: resolveRuntimeTaskParityOrigin(entry),
+                mode: entry.actionMode === "runtime" ? "runtime" : "route",
+                scope: resolveRuntimeTaskParityScope(entry),
+                cooldown: `${entry.cooldownDays}d`,
+                assignedUsers: entry.assignedUsers,
+                claimedCount: entry.claimedAssignments,
+                taskCompletedCount: entry.recentCompletedCount,
+                rewardClaimCount: entry.recentRewardClaimCount,
+                receiptCount: entry.recentReceiptCount,
+                rollupCompletedCount: entry.rollupCompletedCount,
+                eventStatsCount: entry.eventStatTotalCount,
+                sourceParityState: resolveRuntimeTaskSourceParityState(mismatchReasons),
+                mismatchReasons,
+                canonicalCompletionSource: resolveRuntimeTaskCanonicalCompletionSource(entry),
+            } satisfies Omit<RuntimeTaskSourceParityRow, "explanation">;
+
+            return {
+                ...rowBase,
+                explanation: explainRuntimeTaskSourceParity(rowBase),
+            } satisfies RuntimeTaskSourceParityRow;
+        });
+        const alignedRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "aligned").length;
+        const partialRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "partial").length;
+        const mismatchRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "mismatch").length;
+        const unknownRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "unknown").length;
         const runtimeTaskDriftSummary: RuntimeTaskDriftSummary = {
             generatedAtUtc: new Date(nowMs).toISOString(),
             sampledUsers: runtimeTaskAudit.summary.sampledUsers,
@@ -2585,9 +2807,15 @@ export async function GET(request: NextRequest) {
             cooldownDriftCount: runtimeTaskAudit.summary.cooldownConflictUsers,
             unsupportedRuntimeCount: runtimeTaskAudit.summary.unsupportedRuntimeRecords,
             unsupportedRuntimeGroups,
-            state: unsupportedRuntimeGroups.some((entry) => entry.severity === "error")
+            tasksSampled: runtimeTaskSourceParityRows.length,
+            alignedCount: alignedRuntimeTaskCount,
+            partialCount: partialRuntimeTaskCount,
+            mismatchCount: mismatchRuntimeTaskCount,
+            unknownCount: unknownRuntimeTaskCount,
+            sourceParityRows: runtimeTaskSourceParityRows,
+            state: mismatchRuntimeTaskCount > 0 || unsupportedRuntimeGroups.some((entry) => entry.severity === "error")
                 ? "error"
-                : unsupportedRuntimeGroups.length > 0
+                : partialRuntimeTaskCount > 0 || unknownRuntimeTaskCount > 0 || unsupportedRuntimeGroups.length > 0
                     ? "review"
                     : "live",
         };

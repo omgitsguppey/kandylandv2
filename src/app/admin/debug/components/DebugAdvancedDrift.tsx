@@ -292,6 +292,10 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                     <>
                         <Pill label="Sampled users" value={runtimeTaskDrift?.sampledUsers ?? data?.runtimeTaskAudit?.summary?.sampledUsers ?? 0} truthState="live" badgeLabel="LOADED" />
                         <Pill label="Assignments" value={runtimeTaskDrift?.assignmentCount ?? data?.stats?.runtimeAssignedTasks ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Tasks sampled" value={runtimeTaskDrift?.tasksSampled ?? data?.runtimeTaskAudit?.distribution?.length ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Aligned" value={runtimeTaskDrift?.alignedCount ?? 0} tone={(runtimeTaskDrift?.alignedCount ?? 0) > 0 ? "good" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Partial" value={runtimeTaskDrift?.partialCount ?? 0} tone={(runtimeTaskDrift?.partialCount ?? 0) > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Mismatch" value={runtimeTaskDrift?.mismatchCount ?? 0} tone={(runtimeTaskDrift?.mismatchCount ?? 0) > 0 ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
                         <Pill label="Custom assigned" value={runtimeTaskDrift?.customAssignedCount ?? data?.stats?.runtimeCustomAssignments ?? 0} tone={(runtimeTaskDrift?.customAssignedCount ?? data?.stats?.runtimeCustomAssignments ?? 0) === 0 ? "good" : "neutral"} truthState="live" badgeLabel="LOADED" />
                         <Pill label="Cooldown drift" value={runtimeTaskDrift?.cooldownDriftCount ?? data?.stats?.runtimeCooldownConflictUsers ?? 0} tone={(runtimeTaskDrift?.cooldownDriftCount ?? data?.stats?.runtimeCooldownConflictUsers ?? 0) === 0 ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
                         <Pill label="Unsupported runtime" value={runtimeTaskDrift?.unsupportedRuntimeCount ?? data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={toneForGuardrailState(runtimeTaskDrift?.state)} truthState="live" badgeLabel="LOADED" />
@@ -320,6 +324,7 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                         </div>
                         <p className="mt-3 text-xs leading-6 text-gray-400">
                             Unsupported runtime records are grouped by reason and source so active assignment risk stays separate from historical-only drift.
+                            Task rows below separate assignment, completion, reward, receipt, rollup, and trigger evidence lanes instead of treating event stats as completion proof.
                         </p>
                     </div>
                     <ScrollWrap>
@@ -367,45 +372,55 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                     </ScrollWrap>
                     <ScrollWrap>
                         <div className="divide-y divide-white/10">
-                            {(data?.runtimeTaskAudit?.distribution || []).slice(0, 24).map((entry: any) => (
-                                <div key={entry.taskId} className="space-y-2 px-4 py-3">
+                            {(runtimeTaskDrift?.sourceParityRows || []).slice(0, 24).map((entry: any) => (
+                                <div
+                                    key={entry.taskId}
+                                    className="space-y-2 px-4 py-3"
+                                    data-task-runtime-assigned-users={entry.assignedUsers}
+                                    data-task-runtime-claimed-count={entry.claimedCount}
+                                    data-task-runtime-completed-count={entry.taskCompletedCount}
+                                    data-task-runtime-reward-count={entry.rewardClaimCount}
+                                    data-task-runtime-receipt-count={entry.receiptCount}
+                                    data-task-runtime-rollup-completed={entry.rollupCompletedCount}
+                                    data-task-runtime-event-stats={entry.eventStatsCount}
+                                    data-task-runtime-source-parity={entry.sourceParityState}
+                                    data-task-runtime-canonical-source={entry.canonicalCompletionSource}
+                                >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
-                                            <p className="font-semibold text-white">{entry.title}</p>
-                                            <p className="text-xs text-gray-400">{entry.taskId} | {entry.eventLabel}</p>
+                                            <p className="font-semibold text-white">{entry.taskTitle}</p>
+                                            <p className="text-xs text-gray-400">{entry.taskId} | {entry.triggerEvent}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Origin" value={entry.definitionOrigin} tone={entry.definitionOrigin === "custom" ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Assigned users" value={entry.assignedUsers} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Parity" value={entry.sourceParityState} tone={entry.sourceParityState === "mismatch" ? "bad" : entry.sourceParityState === "partial" ? "warn" : "good"} truthState="live" badgeLabel={entry.sourceParityState === "mismatch" ? "ERROR" : entry.sourceParityState === "partial" ? "REVIEW" : "LIVE"} />
+                                            <Pill label="Canonical source" value={entry.canonicalCompletionSource} tone="neutral" truthState="live" badgeLabel="INFO" />
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                        <Pill label="Mode" value={entry.actionMode === "runtime" ? "runtime" : "route"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Origin" value={entry.origin} tone={entry.origin === "custom" ? "warn" : entry.origin === "legacy" ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Mode" value={entry.mode} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                         <Pill label="Scope" value={entry.scope} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                        <Pill label="Claimed" value={entry.claimedAssignments} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                        <Pill label="Completed" value={entry.recentCompletedCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                        <Pill label="Rewards" value={entry.recentRewardClaimCount} tone={entry.recentCompletedCount !== entry.recentRewardClaimCount ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
-                                        <Pill label="Cooldown" value={`${entry.cooldownDays}d`} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                        {entry.active === false ? <Pill label="Status" value="inactive" tone="warn" truthState="degraded" badgeLabel="REVIEW" /> : null}
+                                        <Pill label="Cooldown" value={entry.cooldown} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                        {entry.usersWithRefreshIssues ? <Pill label="Refresh issues" value={entry.usersWithRefreshIssues} tone="warn" truthState="degraded" badgeLabel="REVIEW" /> : null}
-                                        {entry.cooldownConflictUsers ? <Pill label="Cooldown drift" value={entry.cooldownConflictUsers} tone="warn" truthState="degraded" badgeLabel="REVIEW" /> : null}
-                                        {entry.recentReceiptCount ? <Pill label="Receipts" value={entry.recentReceiptCount} tone="neutral" truthState="live" badgeLabel="LOADED" /> : null}
-                                        {entry.rollupCompletedCount ? <Pill label="Rollup completed" value={entry.rollupCompletedCount} tone="neutral" truthState="live" badgeLabel="LOADED" /> : null}
-                                        {entry.eventStatTotalCount ? <Pill label="Event stats" value={compactNumber(entry.eventStatTotalCount)} tone="neutral" truthState="live" badgeLabel="LOADED" /> : null}
+                                        <Pill label="Assigned users" value={entry.assignedUsers} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Claimed" value={entry.claimedCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Completed" value={entry.taskCompletedCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Rewards" value={entry.rewardClaimCount} tone={entry.taskCompletedCount !== entry.rewardClaimCount ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Receipts" value={entry.receiptCount} tone={entry.receiptCount > entry.taskCompletedCount || (entry.rewardClaimCount > 0 && entry.receiptCount === 0) ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Rollup completed" value={entry.rollupCompletedCount} tone={entry.rollupCompletedCount > entry.taskCompletedCount ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Event stats" value={compactNumber(entry.eventStatsCount)} tone={entry.eventStatsCount > Math.max(entry.assignedUsers, entry.taskCompletedCount) ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
                                     </div>
-                                    {entry.driftReasons?.length ? (
+                                    {entry.mismatchReasons?.length ? (
                                         <div className="space-y-1 text-sm text-amber-100">
-                                            {entry.driftReasons.map((reason: string) => (
-                                                <div key={reason}>- {reason.replaceAll("_", " ")}</div>
+                                            {entry.mismatchReasons.map((reason: string) => (
+                                                <div key={reason} data-task-runtime-mismatch-reason={reason}>- {reason.replaceAll("_", " ")}</div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-xs leading-6 text-gray-400">
-                                            {entry.actionLabel} {"->"} {entry.destinationHref}
-                                        </p>
+                                        <p className="text-xs leading-6 text-emerald-100">No source parity mismatches detected in the sampled runtime evidence.</p>
                                     )}
+                                    <p className="text-xs leading-6 text-gray-400">{entry.explanation}</p>
                                 </div>
                             ))}
                         </div>
