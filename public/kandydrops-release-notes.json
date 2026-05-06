@@ -1,10 +1,53 @@
 {
-  "currentVersion": "1.112.0",
+  "currentVersion": "1.113.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T17:11:11.469Z",
-  "generatedAtUtc": "2026-05-06T17:11:11.469Z",
-  "lastCommitSha": "6b88d0fd95672cbf18e4cbcb91a4996037520dd7",
+  "generatedAt": "2026-05-06T17:17:20.048Z",
+  "generatedAtUtc": "2026-05-06T17:17:20.048Z",
+  "lastCommitSha": "8b5a6256cf5b7660590df0c4e3786a1a1875ac11",
   "notes": [
+    {
+      "version": "1.113.0",
+      "previousVersion": "1.112.0",
+      "commitSha": "8b5a6256cf5b7660590df0c4e3786a1a1875ac11",
+      "commitTitle": "fix(beta): polish release notes and admin truth cleanup",
+      "committedAt": "2026-05-06T17:16:55.000Z",
+      "generatedAt": "2026-05-06T17:17:20.048Z",
+      "committedAtUtc": "2026-05-06T17:16:55.000Z",
+      "generatedAtUtc": "2026-05-06T17:17:20.048Z",
+      "diffStats": {
+        "rawAdditions": 2413,
+        "rawDeletions": 1432,
+        "rawChangeCount": 3845,
+        "additions": 2413,
+        "deletions": 1432,
+        "effectiveAdditions": 498,
+        "effectiveDeletions": 35,
+        "changedFiles": 15,
+        "effectiveChangeCount": 533,
+        "excludedGeneratedChangeCount": 3312
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved Beta update notes",
+      "updatedAtUtc": "2026-05-06T17:17:20.048Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved Beta update notes",
+      "bullets": [
+        "Improved Beta notes with cleaner summaries and compact bullets.",
+        "Updated timestamps so recent changes are easier to compare with reports.",
+        "Reduced technical wording in public update notes."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries.",
+        "Release note summaries are generated separately from collapsed technical details."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.112.0",
       "previousVersion": "1.111.0",
@@ -1936,44 +1979,6 @@
         "Improved admin reliability and status accuracy.",
         "Clarified unavailable data without showing fake zeroes.",
         "Updated labels for review and support follow-up."
-      ],
-      "audience": "admins",
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.64.0",
-      "previousVersion": "1.63.0",
-      "commitSha": "60aadc5660de5a127437a09a048b936806c32798",
-      "commitTitle": "fix(admin): explain actor ownership risk rows",
-      "committedAt": "2026-05-06T07:11:47.000Z",
-      "generatedAt": "2026-05-06T17:11:04.668Z",
-      "committedAtUtc": "2026-05-06T07:11:47.000Z",
-      "generatedAtUtc": "2026-05-06T17:11:04.668Z",
-      "diffStats": {
-        "rawAdditions": 438,
-        "rawDeletions": 14,
-        "rawChangeCount": 452,
-        "additions": 438,
-        "deletions": 14,
-        "effectiveAdditions": 438,
-        "effectiveDeletions": 14,
-        "changedFiles": 4,
-        "effectiveChangeCount": 452,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "title": "Improved admin AI status",
-      "updatedAtUtc": "2026-05-06T17:11:04.668Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
-      "userFacingTitle": "Improved admin AI status",
-      "bullets": [
-        "Fixed admin labels that could appear stuck after data loaded.",
-        "Improved how hidden, delayed, or unavailable data is labeled.",
-        "Reduced confusing status messages in Beta admin tools."
       ],
       "audience": "admins",
       "affectedSurfaces": [
