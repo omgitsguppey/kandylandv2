@@ -23,7 +23,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,
     regionsRange, geo,
-    audienceHistorySeries, audienceSnapshotModel, returnCadenceModel, navigationDestinationsModel, deviceMixDevices, deviceMixTotalUsers, topPathsPages, regionsGeo,
+    audienceHistorySeries, audienceSnapshotModel, returnCadenceModel, navigationDestinationsModel, deviceMixDevices, deviceMixTotalUsers, deviceMixModel, topPathsPages, regionsGeo,
 
     // Commerce Tab
     commerceSnapshotRange, commerce,
@@ -574,50 +574,116 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
             <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
               <SectionCard
                 title="Device Mix"
-                subtitle="Device share and engagement with mobile kept first."
+                subtitle="Compact device intelligence with source truth and mobile-first implications."
                 icon={Smartphone}
                 rightSlot={renderSectionRangeControl("deviceMix")}
               >
+                <div
+                  className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                  data-device-mix-source-truth={deviceMixModel.sourceTruth}
+                  data-device-mix-freshness={deviceMixModel.freshnessState}
+                  data-device-mix-total-sessions={String(deviceMixModel.totalSessions)}
+                  data-device-mix-classified-sessions={String(deviceMixModel.classifiedSessions)}
+                  data-device-mix-unknown-sessions={String(deviceMixModel.unknownSessions)}
+                  data-device-mix-generated-at-utc={deviceMixModel.generatedAtUtc}
+                >
+                  {deviceMixModel.visibleCopy.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                  <p className="text-gray-500">
+                    Range: {deviceMixModel.range}
+                    {" | "}Source: {deviceMixModel.sourceLabel}
+                    {" | "}Freshness: {deviceMixModel.freshnessLabel}
+                  </p>
+                  <p className="text-gray-500">
+                    Total sessions: {deviceMixModel.totalSessions.toLocaleString()}
+                    {" | "}Classified: {deviceMixModel.classifiedSessions.toLocaleString()}
+                    {" | "}Unknown: {deviceMixModel.unknownSessions.toLocaleString()}
+                  </p>
+                  <p className="text-gray-500">
+                    Generated: {deviceMixModel.generatedAtUtc === new Date(0).toISOString()
+                      ? "Unavailable"
+                      : formatRelativeTime(Date.parse(deviceMixModel.generatedAtUtc), nowMs)}
+                    {" | "}Engagement: {deviceMixModel.engagementDefinition}
+                  </p>
+                </div>
+                <div className="mb-3 grid gap-2 md:grid-cols-2">
+                  {deviceMixModel.designImplications.map((item) => (
+                    <div
+                      key={item}
+                      className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300"
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
                 <div className="space-y-3">
-                  {deviceMixDevices.length > 0 ? (
-                    deviceMixDevices.map((item: any) => {
-                      const Icon = getDeviceIcon(item.device);
-                      const share =
-                        deviceMixTotalUsers > 0
-                          ? item.users / deviceMixTotalUsers
-                          : 0;
+                  {deviceMixModel.rows.length > 0 ? (
+                    deviceMixModel.rows.map((item) => {
+                      const Icon = getDeviceIcon(item.deviceCategory);
                       return (
                         <div
-                          key={item.device}
-                          className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
+                          key={item.deviceCategory}
+                          className="rounded-[1.6rem] border border-white/10 bg-black/30 p-3"
                         >
-                          <div className="mb-3 flex items-center justify-between gap-3">
+                          <div className="mb-2 flex items-start justify-between gap-3">
                             <div className="flex items-center gap-3">
                               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 text-brand-purple">
                                 <Icon className="h-4 w-4" />
                               </div>
-                              <div>
+                              <div className="min-w-0">
                                 <p className="text-sm font-semibold capitalize text-white">
-                                  {item.device}
+                                  {item.deviceCategory}
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-[11px] text-gray-500">
                                   {item.sessions.toLocaleString()} sessions
+                                  {" | "}Source: {item.sourceTruth}
+                                  {" | "}Confidence: {item.confidenceState}
                                 </p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <p className="text-lg font-black text-white">
-                                {formatPercent(share)}
+                            <div className="text-right text-[11px]">
+                              <p className="text-base font-black text-white">
+                                {formatPercent(item.sessionSharePct)}
                               </p>
-                              <p className="text-xs text-gray-500">
-                                {formatPercent(item.engagementRate)} engaged
+                              <p className="text-gray-500">
+                                {item.engagementRatePct === null
+                                  ? "Engagement unavailable"
+                                  : `${formatPercent(item.engagementRatePct)} engaged`}
                               </p>
                             </div>
                           </div>
+                          <div className="mb-2 grid grid-cols-2 gap-2 text-[11px] text-gray-400 md:grid-cols-4">
+                            <div className="rounded-xl bg-white/5 px-2 py-1.5">
+                              <p className="text-[10px] uppercase tracking-[0.12em] text-gray-500">Sessions</p>
+                              <p className="mt-0.5 font-semibold text-white">{item.sessions.toLocaleString()}</p>
+                            </div>
+                            <div className="rounded-xl bg-white/5 px-2 py-1.5">
+                              <p className="text-[10px] uppercase tracking-[0.12em] text-gray-500">Share</p>
+                              <p className="mt-0.5 font-semibold text-white">{formatPercent(item.sessionSharePct)}</p>
+                            </div>
+                            <div className="rounded-xl bg-white/5 px-2 py-1.5">
+                              <p className="text-[10px] uppercase tracking-[0.12em] text-gray-500">Engaged</p>
+                              <p className="mt-0.5 font-semibold text-white">
+                                {item.engagedSessions === null ? "Unavailable" : item.engagedSessions.toLocaleString()}
+                              </p>
+                            </div>
+                            <div className="rounded-xl bg-white/5 px-2 py-1.5">
+                              <p className="text-[10px] uppercase tracking-[0.12em] text-gray-500">Commerce / watch</p>
+                              <p className="mt-0.5 font-semibold text-white">
+                                {deviceMixModel.commerceByDeviceAvailable || deviceMixModel.watchByDeviceAvailable
+                                  ? "Available"
+                                  : "Unavailable"}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="mb-2 text-[11px] text-gray-500">
+                            {item.recommendation}
+                          </p>
                           <div className="h-2 overflow-hidden rounded-full bg-white/10">
                             <div
                               className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
-                              style={{ width: `${Math.max(8, share * 100)}%` }}
+                              style={{ width: `${Math.max(8, item.sessionSharePct * 100)}%` }}
                             />
                           </div>
                         </div>
@@ -629,6 +695,12 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                       this range.
                     </div>
                   )}
+                </div>
+                <div className="mt-3 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+                  <p className="font-semibold text-white">Optional device metrics</p>
+                  <p>
+                    Purchase rate, unwrap rate, bounce rate, average session length, and watch time by device are unavailable in this lane until a canonical per-device source exists.
+                  </p>
                 </div>
               </SectionCard>
 

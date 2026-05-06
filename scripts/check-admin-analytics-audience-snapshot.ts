@@ -26,6 +26,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const helper = read("src/lib/admin-analytics-audience-snapshot.ts");
+const deviceMixHelper = read("src/lib/admin-analytics-device-mix.ts");
 const returnCadenceHelper = read("src/lib/admin-analytics-return-cadence.ts");
 const route = read("src/app/api/admin/analytics/historical/route.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
@@ -36,11 +37,16 @@ assertIncludes("audience types", types, "export type AudienceSnapshotState");
 assertIncludes("audience types", types, "sourceState: \"verified\" | \"mixed\" | \"estimated\" | \"partial\" | \"gap_detected\" | \"stale\"");
 assertIncludes("audience types", types, "export type AudienceSnapshotDiagnostics");
 assertIncludes("audience types", types, "export type ReturnCadenceState");
+assertIncludes("audience types", types, "export type DeviceMixPanelState");
+assertIncludes("audience types", types, "engagementDefinition: string");
+assertIncludes("audience types", types, "unknownSessions: number");
 
 assertIncludes("historical route", route, "audienceSnapshotDiagnostics");
 assertIncludes("historical route", route, "recoveredByGaDayKeys");
 assertIncludes("historical route", route, "firstPartyPresentDayKeys");
 assertIncludes("historical route", route, "guestEstimatedOnlyDayKeys");
+assertIncludes("historical route", route, "deviceMixPanelState");
+assertIncludes("historical route", route, "analyticsSourceHealth");
 
 assertIncludes("audience helper", helper, "continuitySummary");
 assertIncludes("audience helper", helper, "Traffic gap detected");
@@ -49,6 +55,11 @@ assertIncludes("audience helper", helper, "Estimated because consented guest bat
 assertIncludes("audience helper", helper, "sourceState");
 assertIncludes("audience helper", helper, "gap_detected");
 assertIncludes("audience helper", helper, "guestEstimateMetadata");
+assertIncludes("device mix helper", deviceMixHelper, "buildAdminAnalyticsDeviceMixModel");
+assertIncludes("device mix helper", deviceMixHelper, "GA engaged sessions / GA sessions for each device category.");
+assertIncludes("device mix helper", deviceMixHelper, "Device mix is GA session-based, not authenticated-user based.");
+assertIncludes("device mix helper", deviceMixHelper, "Mobile is dominant; prioritize mobile layout, thumb-reach CTAs, and image payload limits.");
+assertIncludes("device mix helper", deviceMixHelper, "Unknown device sessions need classification review");
 
 assertIncludes("audience component", component, "data-audience-source-state");
 assertIncludes("audience component", component, "data-audience-ga-freshness");
@@ -70,6 +81,13 @@ assertIncludes("audience component", component, "First-party continuity");
 assertIncludes("audience component", component, "Recovery");
 assertIncludes("audience component", component, "Users source: GA4 site users | Views source: mixed GA + first-party");
 assertIncludes("audience component", component, "Chart source: GA users plus GA views.");
+assertIncludes("audience component", component, "data-device-mix-source-truth");
+assertIncludes("audience component", component, "data-device-mix-freshness");
+assertIncludes("audience component", component, "data-device-mix-total-sessions");
+assertIncludes("audience component", component, "data-device-mix-unknown-sessions");
+assertIncludes("audience component", component, "Total sessions:");
+assertIncludes("audience component", component, "Engagement: {deviceMixModel.engagementDefinition}");
+assertIncludes("audience component", component, "Purchase rate, unwrap rate, bounce rate, average session length, and watch time by device are unavailable");
 assertNotIncludes("audience component", component, "label=\"Active Users\"");
 
 assertIncludes("debug route", debugRoute, "adminAnalyticsAudienceSnapshot");

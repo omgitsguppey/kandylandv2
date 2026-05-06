@@ -122,6 +122,7 @@ const eventMixHelper = readRequired("src/lib/admin-analytics-event-mix.ts");
 const liveInteractionStreamHelper = readRequired("src/lib/admin-analytics-live-interaction-stream.ts");
 const returnCadenceHelper = readRequired("src/lib/admin-analytics-return-cadence.ts");
 const navigationDestinationsHelper = readRequired("src/lib/admin-analytics-navigation-destinations.ts");
+const deviceMixHelper = readRequired("src/lib/admin-analytics-device-mix.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
@@ -2036,6 +2037,15 @@ for (const expected of [
   requireIncludes(navigationDestinationsHelper, expected, "Navigation destinations truth helper");
 }
 for (const expected of [
+  "buildAdminAnalyticsDeviceMixModel",
+  "GA engaged sessions / GA sessions for each device category.",
+  "Device mix is GA session-based, not authenticated-user based.",
+  "\"ga4\"",
+  "Mobile is dominant; prioritize mobile layout, thumb-reach CTAs, and image payload limits.",
+]) {
+  requireIncludes(deviceMixHelper, expected, "Device mix truth helper");
+}
+for (const expected of [
   "Source mode:",
   "Explicit taps:",
   "Fallback views:",
@@ -2046,6 +2056,17 @@ for (const expected of [
   requireIncludes(adminAnalyticsAudienceTab, expected, "Navigation destinations audience panel");
 }
 requireNotIncludes(adminAnalyticsAudienceTab, "Destination drill-down will fill in once more navigation taps are tracked.", "Navigation destinations audience panel");
+for (const expected of [
+  "data-device-mix-source-truth",
+  "data-device-mix-freshness",
+  "data-device-mix-total-sessions",
+  "data-device-mix-unknown-sessions",
+  "Total sessions:",
+  "Engagement: {deviceMixModel.engagementDefinition}",
+  "Purchase rate, unwrap rate, bounce rate, average session length, and watch time by device are unavailable",
+]) {
+  requireIncludes(adminAnalyticsAudienceTab, expected, "Device mix audience panel");
+}
 for (const expected of [
   "Mode:",
   "Source:",
@@ -2091,6 +2112,7 @@ try {
       /^src\/lib\/admin-analytics-audience-snapshot\.ts$/u,
       /^src\/lib\/admin-analytics-return-cadence\.ts$/u,
       /^src\/lib\/admin-analytics-navigation-destinations\.ts$/u,
+      /^src\/lib\/admin-analytics-device-mix\.ts$/u,
       /^src\/lib\/admin-analytics-journey-funnel\.ts$/u,
       /^src\/lib\/admin-analytics-auth-outcome-split\.ts$/u,
       /^src\/lib\/auth-outcome-telemetry\.ts$/u,
@@ -2211,6 +2233,7 @@ try {
     /^src\/types\/admin-analytics\.ts$/u,
     /^tests\/unit\/admin-analytics-event-mix\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-live-interaction-stream\.spec\.ts$/u,
+    /^tests\/unit\/admin-analytics-device-mix\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-navigation-destinations\.spec\.ts$/u,
     /^tests\/unit\/admin-notification-funnel\.spec\.ts$/u,
     /^tests\/unit\/admin-task-pipeline\.spec\.ts$/u,

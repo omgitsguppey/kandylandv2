@@ -46,6 +46,38 @@ export interface DeviceMixItem {
   engagementRate: number;
 }
 
+export type DeviceMixRow = {
+  deviceCategory: "mobile" | "desktop" | "tablet" | "unknown";
+  sessions: number;
+  sessionSharePct: number;
+  engagedSessions: number | null;
+  engagementRatePct: number | null;
+  avgSessionSeconds?: number | null;
+  bounceRatePct?: number | null;
+  views?: number | null;
+  purchases?: number | null;
+  purchaseRatePct?: number | null;
+  unwraps?: number | null;
+  watchSeconds?: number | null;
+  sourceTruth: string;
+  confidenceState: "verified" | "partial" | "estimated" | "unknown";
+  recommendation: string;
+};
+
+export type DeviceMixPanelState = {
+  generatedAtUtc: string;
+  range: string;
+  sourceTruth: "ga4" | "first_party" | "mixed" | "fallback" | "unknown";
+  freshnessState: "live" | "recent" | "stale" | "partial" | "unknown";
+  totalSessions: number;
+  classifiedSessions: number;
+  unknownSessions: number;
+  engagementDefinition: string;
+  rows: DeviceMixRow[];
+  warnings: string[];
+  designImplications: string[];
+};
+
 export interface GeoItem {
   country: string;
   city: string;
@@ -687,6 +719,7 @@ export interface HistoricalAnalyticsResponse {
   returnCadenceState?: ReturnCadenceState;
   destinationMix?: DestinationMixItem[];
   navigationDestinationsState?: NavigationDestinationsState;
+  deviceMixPanelState?: DeviceMixPanelState;
   notificationFunnel?: CountBucketItem[];
   notificationActions?: Array<{ label: string; value: number }>;
   taskPipeline?: CountBucketItem[];

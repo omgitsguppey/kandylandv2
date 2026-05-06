@@ -50,6 +50,7 @@ import { buildAdminAnalyticsGuestBounceQualityModel } from "@/lib/admin-analytic
 import { buildAdminAnalyticsEventMixModel } from "@/lib/admin-analytics-event-mix";
 import { buildAdminAnalyticsLiveInteractionStreamModel } from "@/lib/admin-analytics-live-interaction-stream";
 import { buildAdminAnalyticsNavigationDestinationsModel } from "@/lib/admin-analytics-navigation-destinations";
+import { buildAdminAnalyticsDeviceMixModel } from "@/lib/admin-analytics-device-mix";
 import { summarizeAdminIssueForOperator } from "@/lib/admin-copy/admin-truth-copy";
 
 
@@ -2280,6 +2281,21 @@ const { user } = useAuth();
       ? historicalResponse
       : deviceMixOverride.data;
   const deviceMixDevices = deviceMixData?.devices ?? devices;
+  const deviceMixModel = useMemo(
+    () => buildAdminAnalyticsDeviceMixModel({
+      response: deviceMixData,
+      selectedRange: deviceMixRange,
+      loading: deviceMixRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalLoading
+        : deviceMixOverride.isLoading,
+    }),
+    [
+      deviceMixData,
+      deviceMixRange,
+      historicalLoading,
+      deviceMixOverride.isLoading,
+    ],
+  );
   const topPathsData =
     topPathsRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -2703,7 +2719,7 @@ const { user } = useAuth();
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
     audienceTotals, audienceHistorySeries, audienceSnapshotModel,
     returnCadenceRange, returnCadenceData, returnCadenceSegments, returnCadenceSummary, returnCadenceModel,
-    navigationDestinationsRange, destinationMix, navigationDestinationsMix, navigationDestinationsModel, deviceMixRange, getDeviceIcon, deviceMixDevices, deviceMixTotalUsers, topPathsRange, topPathsPages, regionsRange, regionsGeo,
+    navigationDestinationsRange, destinationMix, navigationDestinationsMix, navigationDestinationsModel, deviceMixRange, getDeviceIcon, deviceMixDevices, deviceMixTotalUsers, deviceMixModel, topPathsRange, topPathsPages, regionsRange, regionsGeo,
     commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, commerceSnapshotModel, packagePerformanceRange, packagePerformance, packagePerformanceItems,
     PIE_COLORS, contentConversionRange, unlockCategoryMix, contentConversionItems, previewToUnlockRate, checkoutToPurchaseRate,
     topDropConversionRange, topDrops, topDropConversionItems, recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,

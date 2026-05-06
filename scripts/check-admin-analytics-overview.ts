@@ -40,6 +40,7 @@ const debugRoute = read("src/app/api/admin/debug/route.ts");
 const historicalRoute = read("src/app/api/admin/analytics/historical/route.ts");
 const analyticsTypes = read("src/types/admin-analytics.ts");
 const navigationDestinationsHelper = read("src/lib/admin-analytics-navigation-destinations.ts");
+const deviceMixHelper = read("src/lib/admin-analytics-device-mix.ts");
 const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const doc = read("docs/agent-truth/admin-analytics-overview.md");
 const adminOverviewPage = read("src/app/admin/page.tsx");
@@ -131,11 +132,15 @@ assertIncludes("navigation destinations helper", navigationDestinationsHelper, "
 assertIncludes("navigation destinations helper", navigationDestinationsHelper, "\"destination_views_only\"");
 assertIncludes("navigation destinations helper", navigationDestinationsHelper, "notification_action_clicked");
 assertIncludes("navigation destinations helper", navigationDestinationsHelper, "semantic_target_clicked with destination");
+assertIncludes("device mix helper", deviceMixHelper, "GA engaged sessions / GA sessions for each device category.");
+assertIncludes("device mix helper", deviceMixHelper, "\"ga4\"");
 assertIncludes("audience tab", audienceTab, "Source mode:");
 assertIncludes("audience tab", audienceTab, "Explicit taps:");
 assertIncludes("audience tab", audienceTab, "Fallback views:");
 assertIncludes("audience tab", audienceTab, "Top source events:");
 assertIncludes("audience tab", audienceTab, "No navigation tap or destination-view events found in this range.");
+assertIncludes("audience tab", audienceTab, "Total sessions:");
+assertIncludes("audience tab", audienceTab, "Commerce / watch");
 assertNotIncludes("audience tab", audienceTab, "Destination drill-down will fill in once more navigation taps are tracked.");
 
 assertIncludes("agent truth doc", doc, "Badge Containment Rule");
