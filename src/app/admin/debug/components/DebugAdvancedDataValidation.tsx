@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
-import type { ValidationItem } from "@/types/admin-analytics";
+import type { DataValidationPanelState, ValidationItem } from "@/types/admin-analytics";
 
 import { Pill, ScrollWrap, Section, type PillTone } from "./DebugPrimitives";
 
@@ -13,6 +13,7 @@ type ValidationResponse = {
     cacheState?: "miss" | "fresh" | "stale";
     cacheRevalidating?: boolean;
     validations?: ValidationItem[];
+    dataValidation?: DataValidationPanelState;
 };
 
 const DEBUG_VALIDATION_PATH = "/admin/debug?tab=advanced#data-validation";
@@ -21,6 +22,13 @@ function toneForStatus(status?: string): PillTone {
     if (status === "pass") return "good";
     if (status === "fail" || status === "unavailable") return "bad";
     return "warn";
+}
+
+function toneForPanelState(status: DataValidationPanelState["status"]): PillTone {
+    if (status === "failed") return "bad";
+    if (status === "stale" || status === "not_validated") return "warn";
+    if (status === "loaded") return "good";
+    return "neutral";
 }
 
 function groupForCheck(check: ValidationItem) {
@@ -38,6 +46,62 @@ function formatTimestamp(timestamp?: number) {
     return new Date(timestamp).toLocaleString();
 }
 
+function formatUtcTimestamp(value?: string | null) {
+    if (!value) return "Not validated";
+    return new Date(value).toLocaleString();
+}
+
+function countDisplay(value: number | null) {
+    return value === null ? "--" : value;
+}
+
+function buildFallbackPanelState(response?: ValidationResponse): DataValidationPanelState {
+    const validations = response?.validations ?? [];
+    const generatedAtUtc = response?.generatedAtMs ? new Date(response.generatedAtMs).toISOString() : null;
+
+    if (validations.length === 0) {
+        return {
+            status: "not_validated",
+            checkCount: null,
+            failCount: null,
+            warnCount: null,
+            staleCount: null,
+            blockedPassCount: null,
+            range: "30d",
+            cacheState: response?.cacheState === "fresh" ? "hit" : response?.cacheState ?? (generatedAtUtc ? "unknown" : "not_loaded"),
+            lastValidatedAtUtc: null,
+            generatedAtUtc,
+            sourcePath: DEBUG_VALIDATION_PATH,
+            nextAction: "Validation has not run for this range yet.",
+        };
+    }
+
+    const failCount = validations.filter((check) => check.status === "fail" || check.status === "unavailable").length;
+    const warnCount = validations.filter((check) => check.status === "warn" || check.status === "unknown").length;
+    const staleCount = validations.filter((check) => check.status === "stale" || check.freshnessState === "stale").length;
+    const blockedPassCount = validations.filter((check) => check.passAllowed === false).length;
+    const lastValidatedAtMs = validations.reduce((latest, check) => Math.max(latest, check.lastValidatedAt ?? 0), 0);
+
+    return {
+        status: failCount > 0 ? "failed" : staleCount > 0 ? "stale" : "loaded",
+        checkCount: validations.length,
+        failCount,
+        warnCount,
+        staleCount,
+        blockedPassCount,
+        range: validations[0]?.selectedRange || "30d",
+        cacheState: response?.cacheState === "fresh" ? "hit" : response?.cacheState ?? "unknown",
+        lastValidatedAtUtc: lastValidatedAtMs ? new Date(lastValidatedAtMs).toISOString() : null,
+        generatedAtUtc,
+        sourcePath: DEBUG_VALIDATION_PATH,
+        nextAction: failCount > 0
+            ? "Review failed validation rows before trusting analytics parity."
+            : staleCount > 0 || warnCount > 0 || blockedPassCount > 0
+                ? "Review warnings, stale checks, or blocked passes before treating validation as clean."
+                : "No action required.",
+    };
+}
+
 export function DebugAdvancedDataValidation() {
     const { data, error, isLoading } = useAdminPollingSWR<ValidationResponse>(
         "/api/admin/analytics/historical?section=dataValidation&period=30d",
@@ -49,11 +113,46 @@ export function DebugAdvancedDataValidation() {
     );
 
     const validations = useMemo(() => data?.validations ?? [], [data?.validations]);
+    const panelState = useMemo<DataValidationPanelState>(() => {
+        if (error) {
+            return {
+                status: "failed",
+                checkCount: null,
+                failCount: null,
+                warnCount: null,
+                staleCount: null,
+                blockedPassCount: null,
+                range: data?.dataValidation?.range || "30d",
+                cacheState: data?.dataValidation?.cacheState || "unknown",
+                lastValidatedAtUtc: data?.dataValidation?.lastValidatedAtUtc || null,
+                generatedAtUtc: data?.dataValidation?.generatedAtUtc || (data?.generatedAtMs ? new Date(data.generatedAtMs).toISOString() : null),
+                sourcePath: data?.dataValidation?.sourcePath || DEBUG_VALIDATION_PATH,
+                loadError: error instanceof Error ? error.message : "Validation route could not load.",
+                nextAction: "Retry the validation route or inspect admin analytics historical route errors.",
+            };
+        }
+
+        if (!data && isLoading) {
+            return {
+                status: "loading",
+                checkCount: null,
+                failCount: null,
+                warnCount: null,
+                staleCount: null,
+                blockedPassCount: null,
+                range: "30d",
+                cacheState: "not_loaded",
+                lastValidatedAtUtc: null,
+                generatedAtUtc: null,
+                sourcePath: DEBUG_VALIDATION_PATH,
+                nextAction: "Loading validation checks...",
+            };
+        }
+
+        return data?.dataValidation ?? buildFallbackPanelState(data);
+    }, [data, error, isLoading]);
+
     const summary = useMemo(() => {
-        const failCount = validations.filter((check) => check.status === "fail" || check.status === "unavailable").length;
-        const warnCount = validations.filter((check) => check.status === "warn" || check.status === "stale" || check.status === "unknown").length;
-        const staleValidationCount = validations.filter((check) => check.status === "stale" || check.freshnessState === "stale").length;
-        const passBlockedCount = validations.filter((check) => check.passAllowed === false).length;
         const grouped = validations.reduce<Record<string, ValidationItem[]>>((accumulator, check) => {
             const group = groupForCheck(check);
             accumulator[group] = [...(accumulator[group] ?? []), check];
@@ -61,16 +160,12 @@ export function DebugAdvancedDataValidation() {
         }, {});
 
         return {
-            failCount,
-            warnCount,
-            staleValidationCount,
-            passBlockedCount,
             grouped,
-            issueCount: failCount + warnCount,
+            issueCount: (panelState.failCount ?? 0) + (panelState.warnCount ?? 0) + (panelState.staleCount ?? 0),
         };
-    }, [validations]);
+    }, [panelState.failCount, panelState.warnCount, panelState.staleCount, validations]);
 
-    const defaultOpen = summary.issueCount > 0 || Boolean(error);
+    const defaultOpen = summary.issueCount > 0 || panelState.status !== "loaded";
 
     return (
         <Section
@@ -79,32 +174,60 @@ export function DebugAdvancedDataValidation() {
             defaultOpen={defaultOpen}
             summary={(
                 <>
-                    <Pill label="Checks" value={validations.length || (isLoading ? "Loading" : 0)} />
-                    <Pill label="Fail" value={summary.failCount} tone={summary.failCount > 0 ? "bad" : "good"} />
-                    <Pill label="Warn" value={summary.warnCount} tone={summary.warnCount > 0 ? "warn" : "good"} />
-                    <Pill label="Stale" value={summary.staleValidationCount} tone={summary.staleValidationCount > 0 ? "warn" : "good"} />
-                    <Pill label="Blocked pass" value={summary.passBlockedCount} tone={summary.passBlockedCount > 0 ? "warn" : "good"} />
+                    <Pill
+                        label="Checks"
+                        value={panelState.status === "loading"
+                            ? "Loading"
+                            : panelState.status === "not_validated"
+                                ? "Not validated"
+                                : panelState.checkCount === null
+                                    ? "Unavailable"
+                                    : `Loaded ${panelState.checkCount}`}
+                        tone={toneForPanelState(panelState.status)}
+                    />
+                    <Pill label="Fail" value={countDisplay(panelState.failCount)} tone={panelState.failCount && panelState.failCount > 0 ? "bad" : "neutral"} />
+                    <Pill label="Warn" value={countDisplay(panelState.warnCount)} tone={panelState.warnCount && panelState.warnCount > 0 ? "warn" : "neutral"} />
+                    <Pill label="Stale" value={countDisplay(panelState.staleCount)} tone={panelState.staleCount && panelState.staleCount > 0 ? "warn" : "neutral"} />
+                    <Pill label="Blocked pass" value={countDisplay(panelState.blockedPassCount)} tone={panelState.blockedPassCount && panelState.blockedPassCount > 0 ? "warn" : "neutral"} />
                 </>
             )}
         >
             <div id="data-validation" className="space-y-3">
-                {error ? (
-                    <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100">
-                        Validation unavailable. The Debug surface could not load the validation route.
+                {panelState.status === "loading" ? (
+                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-100">
+                        Loading validation checks...
                     </div>
                 ) : null}
-                {!error && validations.length === 0 ? (
+                {panelState.status === "not_validated" ? (
                     <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">
-                        {isLoading ? "Loading validation checks..." : "Validation unavailable for this range."}
+                        Validation has not run for this range yet.
+                    </div>
+                ) : null}
+                {panelState.status === "failed" ? (
+                    <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100">
+                        Validation failed. Retry the validation route or inspect admin analytics historical route errors.
                     </div>
                 ) : null}
                 <div className="flex flex-wrap gap-2">
-                    <Pill label="Path" value={DEBUG_VALIDATION_PATH} />
-                    <Pill label="Range" value="30d" />
-                    <Pill label="Cache" value={data?.cacheState || "unknown"} tone={data?.cacheState === "stale" ? "warn" : "neutral"} />
-                    <Pill label="Last validated" value={formatTimestamp(data?.generatedAtMs)} />
+                    <Pill label="Path" value={panelState.sourcePath} truthState="live" badgeLabel="INFO" />
+                    <Pill label="Range" value={panelState.range} truthState="live" badgeLabel="INFO" />
+                    <Pill
+                        label="Cache"
+                        value={panelState.cacheState}
+                        tone={panelState.cacheState === "stale" ? "warn" : "neutral"}
+                        truthState={panelState.cacheState === "unknown" || panelState.cacheState === "not_loaded" ? "unavailable" : "live"}
+                        badgeLabel={panelState.cacheState === "unknown" ? "UNKNOWN" : panelState.cacheState === "not_loaded" ? "NOT LOADED" : panelState.cacheState === "stale" ? "STALE" : "INFO"}
+                    />
+                    <Pill
+                        label="Last validated"
+                        value={formatUtcTimestamp(panelState.lastValidatedAtUtc)}
+                        tone={panelState.lastValidatedAtUtc ? "neutral" : "warn"}
+                        truthState={panelState.lastValidatedAtUtc ? "live" : "unavailable"}
+                        badgeLabel={panelState.lastValidatedAtUtc ? "INFO" : "NOT VALIDATED"}
+                    />
                 </div>
-                {Object.entries(summary.grouped).map(([group, checks]) => (
+                <p className="text-xs text-gray-400">{panelState.nextAction}</p>
+                {panelState.checkCount !== null ? Object.entries(summary.grouped).map(([group, checks]) => (
                     <div key={group} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-3">
                         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                             <h3 className="text-sm font-semibold text-white">{group}</h3>
@@ -142,7 +265,7 @@ export function DebugAdvancedDataValidation() {
                             </div>
                         </ScrollWrap>
                     </div>
-                ))}
+                )) : null}
             </div>
         </Section>
     );

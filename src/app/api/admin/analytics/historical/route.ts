@@ -23,6 +23,7 @@ import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-
 import { buildHistoricalTaskAnalytics } from "@/lib/server/admin-analytics-historical-tasks";
 import { buildHistoricalTrafficOverview } from "@/lib/server/admin-analytics-historical-traffic";
 import { buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
+import { buildDataValidationPanelState } from "@/lib/server/admin-analytics-historical-validation";
 import { buildHistoricalViewerOverview } from "@/lib/server/admin-analytics-historical-viewer";
 import { buildHistoricalAnalyticsUserMap } from "@/lib/server/admin-analytics-historical-users";
 import { buildWatchCaptureHealthSummary } from "@/lib/server/admin-analytics-capture-health";
@@ -168,6 +169,29 @@ function annotateHistoricalCacheState(
     } satisfies HistoricalAnalyticsResponse;
 }
 
+function attachDataValidationState(
+    payload: HistoricalAnalyticsResponse,
+    section: string | null,
+    range: string | null,
+) {
+    if (section && section !== "dataValidation") {
+        return payload;
+    }
+
+    return {
+        ...payload,
+        dataValidation: buildDataValidationPanelState({
+            validations: payload.validations as Parameters<typeof buildDataValidationPanelState>[0]["validations"],
+            range: section === "dataValidation" ? range : undefined,
+            cacheState: payload.cacheState ?? null,
+            lastValidatedAt: payload.generatedAtMs ?? null,
+            generatedAtMs: payload.generatedAtMs ?? null,
+            sourcePath: "/admin/debug?tab=advanced#data-validation",
+            loadError: payload.error ?? null,
+        }),
+    } satisfies HistoricalAnalyticsResponse;
+}
+
 function scopeHistoricalResponse(section: string | null, payload: Record<string, unknown>) {
     const withSharedFields = (value: Record<string, unknown>) => ({
         generatedAtMs: payload.generatedAtMs,
@@ -223,6 +247,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
         case "dataValidation":
             return withSharedFields({
                 validations: payload.validations,
+                dataValidation: payload.dataValidation,
                 watchCaptureHealth: payload.watchCaptureHealth,
             });
         case "audienceSnapshot":
@@ -1099,7 +1124,10 @@ async function GET_handler(request: NextRequest) {
             },
         });
 
-        return finalize(NextResponse.json(annotateHistoricalCacheState(cacheResult)));
+        const annotatedPayload = annotateHistoricalCacheState(cacheResult);
+        const responsePayload = attachDataValidationState(annotatedPayload, section, period);
+
+        return finalize(NextResponse.json(responsePayload));
 
     } catch (error) {
         return finalize(handleApiError(error, "Admin.Analytics.Historical.GET"), error);

@@ -22,6 +22,23 @@ export interface HistoricalValidationSummary {
 }
 
 type DataValidationStatus = "pass" | "warn" | "fail" | "unavailable" | "stale" | "unknown";
+type DataValidationCacheState = "hit" | "miss" | "stale" | "unknown" | "not_loaded";
+
+export interface DataValidationPanelState {
+  status: "loading" | "loaded" | "not_validated" | "stale" | "failed" | "unavailable";
+  checkCount: number | null;
+  failCount: number | null;
+  warnCount: number | null;
+  staleCount: number | null;
+  blockedPassCount: number | null;
+  range: string;
+  cacheState: DataValidationCacheState;
+  lastValidatedAtUtc: string | null;
+  generatedAtUtc: string | null;
+  sourcePath: string;
+  loadError?: string;
+  nextAction: string;
+}
 
 export interface DataValidationCheck {
   checkKey: string;
@@ -46,6 +63,101 @@ export interface DataValidationCheck {
   recommendedNextCheck: string;
   technicalEvidence: string;
   fullDetails: string;
+}
+
+function toUtcString(timestamp?: number | null) {
+  return timestamp && Number.isFinite(timestamp) && timestamp > 0
+    ? new Date(timestamp).toISOString()
+    : null;
+}
+
+function maxValidationTimestamp(validations: DataValidationCheck[]) {
+  return validations.reduce((latest, validation) => {
+    return Math.max(latest, validation.lastValidatedAt || 0);
+  }, 0);
+}
+
+function normalizeCacheState(cacheState?: "miss" | "fresh" | "stale" | null): DataValidationCacheState {
+  if (cacheState === "fresh") return "hit";
+  if (cacheState === "miss") return "miss";
+  if (cacheState === "stale") return "stale";
+  return "unknown";
+}
+
+export function buildDataValidationPanelState(input: {
+  validations?: DataValidationCheck[] | null;
+  range?: string | null;
+  cacheState?: "miss" | "fresh" | "stale" | null;
+  lastValidatedAt?: number | null;
+  generatedAtMs?: number | null;
+  sourcePath?: string;
+  loadError?: string | null;
+}): DataValidationPanelState {
+  const validations = Array.isArray(input.validations) ? input.validations : [];
+  const range = input.range || validations[0]?.selectedRange || "30d";
+  const sourcePath = input.sourcePath || "/admin/debug?tab=advanced#data-validation";
+  const generatedAtUtc = toUtcString(input.generatedAtMs ?? null);
+  const cacheState = generatedAtUtc ? normalizeCacheState(input.cacheState ?? null) : "not_loaded";
+
+  if (input.loadError) {
+    return {
+      status: "failed",
+      checkCount: null,
+      failCount: null,
+      warnCount: null,
+      staleCount: null,
+      blockedPassCount: null,
+      range,
+      cacheState,
+      lastValidatedAtUtc: null,
+      generatedAtUtc,
+      sourcePath,
+      loadError: input.loadError,
+      nextAction: "Retry the validation route or inspect admin analytics historical route errors.",
+    };
+  }
+
+  if (validations.length === 0) {
+    return {
+      status: "not_validated",
+      checkCount: null,
+      failCount: null,
+      warnCount: null,
+      staleCount: null,
+      blockedPassCount: null,
+      range,
+      cacheState,
+      lastValidatedAtUtc: null,
+      generatedAtUtc,
+      sourcePath,
+      nextAction: "Validation has not run for this range yet.",
+    };
+  }
+
+  const failCount = validations.filter((check) => check.status === "fail" || check.status === "unavailable").length;
+  const warnCount = validations.filter((check) => check.status === "warn" || check.status === "unknown").length;
+  const staleCount = validations.filter((check) => check.status === "stale" || check.freshnessState === "stale").length;
+  const blockedPassCount = validations.filter((check) => check.passAllowed === false).length;
+  const lastValidatedAt = maxValidationTimestamp(validations) || input.lastValidatedAt || 0;
+
+  return {
+    status: failCount > 0 ? "failed" : staleCount > 0 ? "stale" : "loaded",
+    checkCount: validations.length,
+    failCount,
+    warnCount,
+    staleCount,
+    blockedPassCount,
+    range,
+    cacheState,
+    lastValidatedAtUtc: toUtcString(lastValidatedAt),
+    generatedAtUtc,
+    sourcePath,
+    nextAction: failCount > 0
+      ? "Review failed validation rows before trusting analytics parity."
+      : staleCount > 0 || warnCount > 0 || blockedPassCount > 0
+        ? "Review warnings, stale checks, or blocked passes before treating validation as clean."
+        : "No action required.",
+  };
 }
 
 const VALIDATION_OPERATOR_COPY: Record<string, {

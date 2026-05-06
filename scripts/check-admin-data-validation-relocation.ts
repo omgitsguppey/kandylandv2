@@ -51,12 +51,20 @@ assertNotIncludes("useAdminAnalyticsState", analyticsHook, "validationItems");
 
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "DebugAdvancedDataValidation");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "/api/admin/analytics/historical?section=dataValidation&period=30d");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "data?.dataValidation ?? buildFallbackPanelState(data)");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "status: \"not_validated\"");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "Validation has not run for this range yet.");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "Validation failed. Retry the validation route or inspect admin analytics historical route errors.");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "cacheState === \"unknown\" ? \"UNKNOWN\"");
+assertIncludes("DebugAdvancedDataValidation", debugComponent, "badgeLabel={panelState.lastValidatedAtUtc ? \"INFO\" : \"NOT VALIDATED\"}");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "Analytics source health");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "Commerce parity");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "Unlock/watch parity");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "Onboarding/task parity");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "Pass allowed");
 assertIncludes("DebugAdvancedDataValidation", debugComponent, "passBlockedReason");
+assertNotIncludes("DebugAdvancedDataValidation", debugComponent, "validations.length || (isLoading ? \"Loading\" : 0)");
+assertNotIncludes("DebugAdvancedDataValidation", debugComponent, "tone={summary.failCount > 0 ? \"bad\" : \"good\"}");
 assertIncludes("DebugTabAdvanced", debugTab, "<DebugAdvancedDataValidation />");
 
 for (const required of [

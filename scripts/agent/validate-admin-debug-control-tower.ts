@@ -58,18 +58,22 @@ const debugTabInfrastructure = readRequired("src/app/admin/debug/components/Debu
 const debugTabMonitoring = readRequired("src/app/admin/debug/components/DebugTabMonitoring.tsx");
 const debugMonitoringRoutes = readRequired("src/app/admin/debug/components/DebugMonitoringRoutes.tsx");
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
+const debugAdvancedDataValidation = readRequired("src/app/admin/debug/components/DebugAdvancedDataValidation.tsx");
 const debugPanelStatus = readRequired("src/app/admin/debug/components/DebugPanelStatusBySection.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
 const debugPrimitives = readRequired("src/app/admin/debug/components/DebugPrimitives.tsx");
 const debugPage = readRequired("src/app/admin/debug/page.tsx");
 const controlTower = readRequired("src/app/admin/debug/components/DebugControlTower.tsx");
 const controlTowerCards = readRequired("src/app/admin/debug/components/DebugControlTowerCards.tsx");
+const analyticsHistoricalRoute = readRequired("src/app/api/admin/analytics/historical/route.ts");
+const analyticsValidationHelper = readRequired("src/lib/server/admin-analytics-historical-validation.ts");
 const modelTest = readRequired("tests/unit/admin-debug-control-tower.spec.ts");
 const summaryCardTest = readRequired("tests/unit/admin-debug-summary-cards.spec.ts");
 const adminOpsHealthTest = readRequired("tests/unit/admin-ops-health.spec.ts");
 const adminPanelSystemLogsTest = readRequired("tests/unit/admin-panel-system-logs.spec.ts");
 const adminOrchestrationTest = readRequired("tests/unit/admin-orchestration.spec.ts");
 const componentTest = readRequired("tests/unit/admin-debug-control-tower-component.spec.tsx");
+const adminDataValidationTest = readRequired("tests/unit/admin-data-validation.spec.ts");
 const controlTowerDoc = readRequired("docs/agent-truth/admin-debug-control-tower.md");
 const adminTruthDoc = readRequired("docs/agent-truth/human-readable-admin-truth.md");
 const evidenceDoc = readRequired("docs/agent-truth/debug-evidence-pipeline.md");
@@ -162,6 +166,50 @@ for (const expected of [
   "Rebuild task assignment for this user",
 ]) {
   requireIncludes(adminDebugRoute, expected, "Admin debug task issue attribution model");
+}
+for (const expected of [
+  "buildDataValidationPanelState",
+  "DataValidationPanelState",
+  "\"loading\" | \"loaded\" | \"not_validated\" | \"stale\" | \"failed\" | \"unavailable\"",
+  "status: \"not_validated\"",
+  "status: \"failed\"",
+  "Validation has not run for this range yet.",
+  "Retry the validation route or inspect admin analytics historical route errors.",
+]) {
+  requireIncludes(analyticsValidationHelper, expected, "Data validation helper must expose explicit loading truth states");
+}
+for (const expected of [
+  "attachDataValidationState",
+  "dataValidation: payload.dataValidation",
+  "dataValidation: buildDataValidationPanelState",
+  "section !== \"dataValidation\"",
+]) {
+  requireIncludes(analyticsHistoricalRoute, expected, "Historical analytics route must return explicit dataValidation state");
+}
+for (const expected of [
+  "data?.dataValidation ?? buildFallbackPanelState(data)",
+  "Loading validation checks...",
+  "Validation has not run for this range yet.",
+  "Validation failed. Retry the validation route or inspect admin analytics historical route errors.",
+  "badgeLabel=\"INFO\"",
+  "badgeLabel={panelState.lastValidatedAtUtc ? \"INFO\" : \"NOT VALIDATED\"}",
+  "panelState.cacheState === \"unknown\" ? \"UNKNOWN\"",
+  "Path",
+  "Range",
+  "Cache",
+  "Last validated",
+  "Loaded ${panelState.checkCount}",
+  "countDisplay(panelState.failCount)",
+]) {
+  requireIncludes(debugAdvancedDataValidation, expected, "Data Validation debug panel must render explicit loaded/not_validated/failed truth");
+}
+for (const forbidden of [
+  "validations.length || (isLoading ? \"Loading\" : 0)",
+  "tone={summary.failCount > 0 ? \"bad\" : \"good\"}",
+  "value={data?.cacheState || \"unknown\"}",
+  "value={formatTimestamp(data?.generatedAtMs)}",
+]) {
+  requireNotIncludes(debugAdvancedDataValidation, forbidden, "Data Validation debug panel must not show fake zero/live loading placeholders");
 }
 for (const expected of [
   "ReceiptSampleView",
@@ -943,6 +991,14 @@ for (const expected of [
 ]) {
   requireIncludes(adminOpsHealthTest, expected, "Admin ops health diagnostics truth tests");
 }
+for (const expected of [
+  "returns not_validated when no validation rows are available",
+  "returns loaded counts only after validation rows exist",
+  "returns failed when the validation route errors",
+  "buildDataValidationPanelState",
+]) {
+  requireIncludes(adminDataValidationTest, expected, "Admin data validation tests must cover not_validated and failed states");
+}
 
 for (const expected of [
   "classifies bug intake counts as info instead of review",
@@ -1090,6 +1146,7 @@ try {
     /^src\/app\/api\/admin\/debug\/assistant\/route\.ts$/u,
     /^src\/app\/api\/admin\/debug\/assistant\/fix\/route\.ts$/u,
     /^src\/app\/api\/admin\/debug\/route\.ts$/u,
+    /^src\/app\/api\/admin\/analytics\/historical\/route\.ts$/u,
     /^src\/app\/api\/admin\/overview\/route\.ts$/u,
     /^src\/app\/admin\/ai\/components\/AdminAiOptimizerhealthSection\.tsx$/u,
     /^src\/app\/admin\/debug\/page\.tsx$/u,
@@ -1100,6 +1157,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabAi\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabInfrastructure\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugAdvancedDataValidation\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugNowDiagnostics\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPanelStatusBySection\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabMonitoring\.tsx$/u,
@@ -1117,6 +1175,7 @@ try {
     /^src\/lib\/tasks\/task-catalog\.ts$/u,
     /^src\/lib\/tasks\/task-observability\.ts$/u,
     /^src\/lib\/server\/daily-tasks\.ts$/u,
+    /^src\/lib\/server\/admin-analytics-historical-validation\.ts$/u,
     /^src\/lib\/server\/creator-admin-action-contract\.ts$/u,
     /^src\/lib\/server\/admin-overview-users\.ts$/u,
     /^src\/lib\/server\/creator-onboarding\.ts$/u,
@@ -1129,6 +1188,7 @@ try {
     /^functions\/src\/daily-task-materializer\.ts$/u,
     /^functions\/src\/index\.ts$/u,
     /^src\/types\/db\.ts$/u,
+    /^src\/types\/admin-analytics\.ts$/u,
     /^scripts\/agent\/repair-creator-lifecycle-history-gap\.ts$/u,
     /^scripts\/agent\/score-creator-lane-debug-parity\.ts$/u,
     /^scripts\/agent\/validate-creator-fan-experience-settings\.ts$/u,
@@ -1137,6 +1197,7 @@ try {
     /^scripts\/agent\/validate-creator-identity-markers\.ts$/u,
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
+    /^scripts\/check-admin-data-validation-relocation\.ts$/u,
     /^scripts\/agent\/validate-admin-ai-control-tower\.ts$/u,
     /^scripts\/agent\/check-dependency-truth\.ts$/u,
     /^scripts\/agent\/validate-admin-user-behavior-truth\.ts$/u,
@@ -1148,6 +1209,7 @@ try {
     /^public\/kandydrops-release-notes\.json$/u,
     /^src\/lib\/release-notes\/public-release-notes\.ts$/u,
     /^tests\/unit\/admin-debug-control-tower(?:-component)?\.spec\.tsx?$/u,
+    /^tests\/unit\/admin-data-validation\.spec\.ts$/u,
     /^tests\/unit\/admin-debug-summary-cards\.spec\.ts$/u,
     /^tests\/unit\/admin-panel-system-logs\.spec\.ts$/u,
     /^tests\/unit\/admin-orchestration\.spec\.ts$/u,

@@ -324,6 +324,22 @@ export interface ValidationItem {
   fullDetails?: string;
 }
 
+export interface DataValidationPanelState {
+  status: "loading" | "loaded" | "not_validated" | "stale" | "failed" | "unavailable";
+  checkCount: number | null;
+  failCount: number | null;
+  warnCount: number | null;
+  staleCount: number | null;
+  blockedPassCount: number | null;
+  range: string;
+  cacheState: "hit" | "miss" | "stale" | "unknown" | "not_loaded";
+  lastValidatedAtUtc: string | null;
+  generatedAtUtc: string | null;
+  sourcePath: string;
+  loadError?: string;
+  nextAction: string;
+}
+
 export interface ComponentContextItem {
   key: string;
   label: string;
@@ -468,6 +484,7 @@ export interface HistoricalAnalyticsResponse {
   truthState?: AnalyticsTruthSummary;
   truthSources?: AnalyticsTruthSourceSummary[];
   validations?: ValidationItem[];
+  dataValidation?: DataValidationPanelState;
 }
 
 export interface RealtimeAnalyticsResponse {

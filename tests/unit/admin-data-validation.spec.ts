@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
+import { buildDataValidationPanelState, buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
 import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
 
 const truthState: AnalyticsTruthSummary = {
@@ -110,6 +110,64 @@ describe("buildHistoricalValidationSummary", () => {
       sampleRequired: true,
       sampleCount: 0,
       passAllowed: false,
+    });
+  });
+
+  it("returns not_validated when no validation rows are available", () => {
+    const panelState = buildDataValidationPanelState({
+      validations: [],
+      range: "30d",
+      generatedAtMs: 1_700_000_000_000,
+      cacheState: "fresh",
+    });
+
+    expect(panelState).toMatchObject({
+      status: "not_validated",
+      checkCount: null,
+      failCount: null,
+      warnCount: null,
+      staleCount: null,
+      blockedPassCount: null,
+      range: "30d",
+      cacheState: "hit",
+      lastValidatedAtUtc: null,
+    });
+  });
+
+  it("returns loaded counts only after validation rows exist", () => {
+    const summary = build();
+    const panelState = buildDataValidationPanelState({
+      validations: summary.validations,
+      range: "30d",
+      generatedAtMs: 1_700_000_000_000,
+      cacheState: "fresh",
+    });
+
+    expect(panelState.checkCount).toBe(summary.validations.length);
+    expect(panelState.failCount).toBeGreaterThan(0);
+    expect(panelState.warnCount).toBeGreaterThan(0);
+    expect(panelState.lastValidatedAtUtc).toBe("2023-11-14T22:13:20.000Z");
+    expect(["loaded", "stale", "failed"]).toContain(panelState.status);
+  });
+
+  it("returns failed when the validation route errors", () => {
+    const panelState = buildDataValidationPanelState({
+      validations: null,
+      range: "30d",
+      generatedAtMs: 1_700_000_000_000,
+      cacheState: "stale",
+      loadError: "Route failed",
+    });
+
+    expect(panelState).toMatchObject({
+      status: "failed",
+      checkCount: null,
+      failCount: null,
+      warnCount: null,
+      staleCount: null,
+      blockedPassCount: null,
+      cacheState: "stale",
+      loadError: "Route failed",
     });
   });
 });
