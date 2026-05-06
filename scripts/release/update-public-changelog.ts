@@ -284,6 +284,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("materialize daily task reset windows") || normalized.includes("daily task reset windows")) {
     return "Improved daily task reset reliability so tasks are prepared on the daily schedule.";
   }
+  if (normalized.includes("separate paid and potential rewards") || normalized.includes("paid and potential rewards")) {
+    return "Improved daily task reward tracking so task totals reflect completed rewards more accurately.";
+  }
   if (normalized.includes("clarify recent event flow context") || normalized.includes("recent event flow context")) {
     return "Improved internal event-flow diagnostics so background events and user actions are easier to tell apart.";
   }

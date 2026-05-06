@@ -115,9 +115,14 @@ export interface DailyTaskRuntimeRollupEntry {
   title: string;
   eventCount: number;
   rewardTotal: number;
+  paidRewardTotalGd?: number;
+  potentialRewardTotalGd?: number;
+  forfeitedPotentialRewardGd?: number;
+  outOfBoundsEventCount?: number;
   completed: number;
   started: number;
   failed: number;
+  assigned?: number;
   reminders: number;
   lastEventAt: number;
 }
@@ -686,7 +691,7 @@ export function buildDailyTaskRuntimeAudit({
 
     entry.rollupEventCount += normalizePositiveNumber(rollup.eventCount);
     entry.rollupCompletedCount += normalizePositiveNumber(rollup.completed);
-    entry.rollupRewardTotal += normalizePositiveNumber(rollup.rewardTotal);
+    entry.rollupRewardTotal += normalizePositiveNumber(rollup.paidRewardTotalGd ?? rollup.rewardTotal);
     entry.lastRuntimeActivityAt = Math.max(entry.lastRuntimeActivityAt, normalizePositiveNumber(rollup.lastEventAt));
   });
 

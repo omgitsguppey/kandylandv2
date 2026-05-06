@@ -13,6 +13,7 @@ import {
     DAILY_TASK_LIMIT,
     DAILY_TASK_REWARD_MULTIPLIER,
     DAILY_TASK_REWARD_VERSION,
+    buildDailyTaskRewardContract,
     isRetiredLegacyDailyTaskId,
     resolveLegacyDailyTaskId,
     resolveDailyTaskReward,
@@ -680,6 +681,14 @@ function normalizeCustomTaskDefinition(id: string, rawValue: Record<string, unkn
         };
     }
 
+    const rewardContract = buildDailyTaskRewardContract({
+        id,
+        title,
+        eventName: buildTelemetryEventMetadata(eventName).canonicalEventName,
+        reward: toNumber(rawValue.reward),
+        maxProgress: Math.max(1, toNumber(rawValue.maxProgress) || 1),
+    });
+
     return {
         definition: {
             id,
@@ -687,6 +696,13 @@ function normalizeCustomTaskDefinition(id: string, rawValue: Record<string, unkn
             title,
             subtitle,
             reward: resolveDailyTaskReward(rawValue.reward, rawValue.rewardVersion),
+            rewardTier: rewardContract.rewardTier,
+            minRewardGd: rewardContract.minRewardGd,
+            maxRewardGd: rewardContract.maxRewardGd,
+            rewardSource: rewardContract.rewardSource,
+            payoutPolicy: rewardContract.payoutPolicy,
+            repeatPolicy: rewardContract.repeatPolicy,
+            economyRisk: rewardContract.economyRisk,
             maxProgress: Math.max(1, toNumber(rawValue.maxProgress) || 1),
             eventName: buildTelemetryEventMetadata(eventName).canonicalEventName,
             actionType: actionType as DailyTaskDefinition["actionType"],
@@ -1093,6 +1109,11 @@ export async function GET(request: NextRequest) {
                 userId: toStringValue(data.userId),
                 username: toStringValue(data.username) || toStringValue(data.userId),
                 reward: toNumber(data.reward),
+                potentialRewardGd: toNumber(data.potentialRewardGd),
+                creditedRewardGd: toNumber(data.creditedRewardGd),
+                forfeitedPotentialRewardGd: toNumber(data.forfeitedPotentialRewardGd),
+                expiredPotentialRewardGd: toNumber(data.expiredPotentialRewardGd),
+                reminderPotentialRewardGd: toNumber(data.reminderPotentialRewardGd),
                 progress: toNumber(data.progress),
                 maxProgress: toNumber(data.maxProgress),
                 timestamp: toNumber(data.timestamp),
@@ -1105,6 +1126,9 @@ export async function GET(request: NextRequest) {
                 assignedAtUtc: toStringValue(data.assignedAtUtc),
                 updatedAtUtc: toStringValue(data.updatedAtUtc) || toUtcString(data.timestamp),
                 expiresAtUtc: toStringValue(data.expiresAtUtc),
+                rewardCreditIdempotencyKey: toStringValue(data.rewardCreditIdempotencyKey),
+                rewardEventState: toStringValue(data.rewardEventState),
+                rewardAuditFlag: toStringValue(data.rewardAuditFlag),
             };
         });
 
@@ -1255,10 +1279,15 @@ export async function GET(request: NextRequest) {
                     taskId: doc.id,
                     title: toStringValue(data.title) || doc.id,
                     eventCount: toNumber(data.eventCount),
-                    rewardTotal: toNumber(data.rewardTotal),
+                    rewardTotal: toNumber(data.paidRewardTotalGd) || toNumber(data.rewardTotal),
+                    paidRewardTotalGd: toNumber(data.paidRewardTotalGd) || toNumber(data.rewardTotal),
+                    potentialRewardTotalGd: toNumber(data.potentialRewardTotalGd),
+                    forfeitedPotentialRewardGd: toNumber(data.forfeitedPotentialRewardGd),
+                    outOfBoundsEventCount: toNumber(data.outOfBoundsEventCount),
                     completed: toNumber((data.types as Record<string, unknown> | undefined)?.completed),
                     started: toNumber((data.types as Record<string, unknown> | undefined)?.started),
                     failed: toNumber((data.types as Record<string, unknown> | undefined)?.failed),
+                    assigned: toNumber((data.types as Record<string, unknown> | undefined)?.assigned),
                     reminders: toNumber((data.types as Record<string, unknown> | undefined)?.reminder_sent),
                     lastEventAt: toNumber(data.lastEventAt),
                 };
@@ -1289,7 +1318,7 @@ export async function GET(request: NextRequest) {
                 receiptCount: 0,
             };
             current.completedCount += 1;
-            current.rewardTotal += event.reward;
+            current.rewardTotal += event.creditedRewardGd || event.reward;
             rewardParityByTask.set(event.taskId, current);
         });
 
@@ -1398,16 +1427,108 @@ export async function GET(request: NextRequest) {
         }, new Map<string, { eventName: string; count: number; lastSeenAt: number }>()).values())
             .sort((left, right) => right.count - left.count);
 
+        const sampleTaskRollupMap = recentTaskEvents.reduce((map, event) => {
+            const current = map.get(event.taskId) || {
+                taskId: event.taskId,
+                title: event.title || event.taskId,
+                eventCount: 0,
+                paidRewardTotalGd: 0,
+                potentialRewardTotalGd: 0,
+                forfeitedPotentialRewardGd: 0,
+                outOfBoundsEventCount: 0,
+                completed: 0,
+                started: 0,
+                failed: 0,
+                assigned: 0,
+                reminders: 0,
+                lastEventAt: 0,
+            };
+            current.eventCount += 1;
+            current.paidRewardTotalGd += event.creditedRewardGd;
+            current.potentialRewardTotalGd += event.potentialRewardGd;
+            current.forfeitedPotentialRewardGd += event.forfeitedPotentialRewardGd;
+            current.outOfBoundsEventCount += event.rewardAuditFlag === "historical_reward_out_of_bounds" ? 1 : 0;
+            current.completed += event.type === "completed" ? 1 : 0;
+            current.started += event.type === "started" ? 1 : 0;
+            current.failed += event.type === "failed" ? 1 : 0;
+            current.assigned += event.type === "assigned" ? 1 : 0;
+            current.reminders += event.type === "reminder_sent" ? 1 : 0;
+            current.lastEventAt = Math.max(current.lastEventAt, event.timestamp);
+            map.set(event.taskId, current);
+            return map;
+        }, new Map<string, {
+            taskId: string;
+            title: string;
+            eventCount: number;
+            paidRewardTotalGd: number;
+            potentialRewardTotalGd: number;
+            forfeitedPotentialRewardGd: number;
+            outOfBoundsEventCount: number;
+            completed: number;
+            started: number;
+            failed: number;
+            assigned: number;
+            reminders: number;
+            lastEventAt: number;
+        }>());
+
+        const sampleDailyTaskSeriesMap = recentTaskEvents.reduce((map, event) => {
+            const dayKey = getCSTDateKey(event.timestamp || nowMs);
+            const current = map.get(dayKey) || {
+                dayKey,
+                eventCount: 0,
+                completedCount: 0,
+                failedCount: 0,
+                assignedCount: 0,
+                paidRewardTotalGd: 0,
+                potentialRewardTotalGd: 0,
+                forfeitedPotentialRewardGd: 0,
+                outOfBoundsEventCount: 0,
+            };
+            current.eventCount += 1;
+            current.completedCount += event.type === "completed" ? 1 : 0;
+            current.failedCount += event.type === "failed" ? 1 : 0;
+            current.assignedCount += event.type === "assigned" ? 1 : 0;
+            current.paidRewardTotalGd += event.creditedRewardGd;
+            current.potentialRewardTotalGd += event.potentialRewardGd;
+            current.forfeitedPotentialRewardGd += event.forfeitedPotentialRewardGd;
+            current.outOfBoundsEventCount += event.rewardAuditFlag === "historical_reward_out_of_bounds" ? 1 : 0;
+            map.set(dayKey, current);
+            return map;
+        }, new Map<string, {
+            dayKey: string;
+            eventCount: number;
+            completedCount: number;
+            failedCount: number;
+            assignedCount: number;
+            paidRewardTotalGd: number;
+            potentialRewardTotalGd: number;
+            forfeitedPotentialRewardGd: number;
+            outOfBoundsEventCount: number;
+        }>());
+
         const taskRollups = taskRollupSnapshot.docs.map((doc) => {
             const data = doc.data() as Record<string, unknown>;
+            const sample = sampleTaskRollupMap.get(doc.id);
+            const paidRewardTotalGd = toNumber(data.paidRewardTotalGd) || sample?.paidRewardTotalGd || 0;
+            const potentialRewardTotalGd = toNumber(data.potentialRewardTotalGd) || sample?.potentialRewardTotalGd || 0;
+            const forfeitedPotentialRewardGd = toNumber(data.forfeitedPotentialRewardGd)
+                || sample?.forfeitedPotentialRewardGd
+                || 0;
+            const completed = toNumber((data.types as Record<string, unknown> | undefined)?.completed) || sample?.completed || 0;
             return {
                 taskId: doc.id,
                 title: toStringValue(data.title) || doc.id,
                 eventCount: toNumber(data.eventCount),
-                rewardTotal: toNumber(data.rewardTotal),
-                completed: toNumber((data.types as Record<string, unknown> | undefined)?.completed),
+                rewardTotal: paidRewardTotalGd,
+                paidRewardTotalGd: completed > 0 ? paidRewardTotalGd : 0,
+                potentialRewardTotalGd,
+                forfeitedPotentialRewardGd,
+                outOfBoundsEventCount: toNumber(data.outOfBoundsEventCount) || sample?.outOfBoundsEventCount || 0,
+                completed,
                 started: toNumber((data.types as Record<string, unknown> | undefined)?.started),
                 failed: toNumber((data.types as Record<string, unknown> | undefined)?.failed),
+                assigned: toNumber((data.types as Record<string, unknown> | undefined)?.assigned) || sample?.assigned || 0,
                 reminders: toNumber((data.types as Record<string, unknown> | undefined)?.reminder_sent),
                 lastEventAt: toNumber(data.lastEventAt),
             };
@@ -1415,12 +1536,20 @@ export async function GET(request: NextRequest) {
 
         const dailyTaskSeries = taskDailySnapshot.docs.map((doc) => {
             const data = doc.data() as Record<string, unknown>;
+            const sample = sampleDailyTaskSeriesMap.get(doc.id);
+            const completedCount = toNumber((data.types as Record<string, unknown> | undefined)?.completed) || sample?.completedCount || 0;
+            const paidRewardTotalGd = toNumber(data.paidRewardTotalGd) || sample?.paidRewardTotalGd || 0;
             return {
                 dayKey: doc.id,
                 eventCount: toNumber(data.eventCount),
-                rewardTotal: toNumber(data.rewardTotal),
-                completed: toNumber((data.types as Record<string, unknown> | undefined)?.completed),
-                failed: toNumber((data.types as Record<string, unknown> | undefined)?.failed),
+                rewardTotal: completedCount > 0 ? paidRewardTotalGd : 0,
+                paidRewardTotalGd: completedCount > 0 ? paidRewardTotalGd : 0,
+                potentialRewardTotalGd: toNumber(data.potentialRewardTotalGd) || sample?.potentialRewardTotalGd || 0,
+                forfeitedPotentialRewardGd: toNumber(data.forfeitedPotentialRewardGd) || sample?.forfeitedPotentialRewardGd || 0,
+                completed: completedCount,
+                failed: toNumber((data.types as Record<string, unknown> | undefined)?.failed) || sample?.failedCount || 0,
+                assigned: toNumber((data.types as Record<string, unknown> | undefined)?.assigned) || sample?.assignedCount || 0,
+                outOfBoundsEventCount: toNumber(data.outOfBoundsEventCount) || sample?.outOfBoundsEventCount || 0,
             };
         }).sort((left, right) => left.dayKey.localeCompare(right.dayKey));
 

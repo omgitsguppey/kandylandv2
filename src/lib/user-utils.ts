@@ -1,6 +1,6 @@
 import { User } from "firebase/auth";
 import { UserProfile } from "@/types/db";
-import { BUILT_IN_DAILY_TASK_MAP, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
+import { BUILT_IN_DAILY_TASK_MAP, buildDailyTaskRewardContract, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
 import { readTaskTimestampMs } from "@/lib/tasks/task-timestamps";
 import { normalizeCreatorRestrictions, normalizeCreatorSettings } from "@/lib/creator-experiences";
 import { normalizeCreatorApplication } from "@/lib/creator-application";
@@ -189,32 +189,56 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
                             return acc;
                         }
 
+                        const builtInTask = BUILT_IN_DAILY_TASK_MAP[String(task.id)];
+                        const rewardContract = buildDailyTaskRewardContract({
+                            id: String(task.id),
+                            title: typeof task.title === "string"
+                                ? task.title
+                                : builtInTask?.title ?? "",
+                            eventName: typeof task.eventName === "string"
+                                ? task.eventName
+                                : builtInTask?.eventName ?? "",
+                            reward: Number(task.reward) || builtInTask?.reward || 0,
+                            maxProgress: Number(task.maxProgress) || builtInTask?.maxProgress || 1,
+                        });
+
                         acc.push({
                             id: String(task.id),
                             source: task.source === "global" || task.source === "user" ? task.source : "built_in",
                             title: typeof task.title === "string"
                                 ? task.title
-                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.title ?? "",
+                                : builtInTask?.title ?? "",
                             subtitle: typeof task.subtitle === "string"
                                 ? task.subtitle
-                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.subtitle ?? "",
-                            reward: Number(task.reward) || BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.reward || 0,
-                            maxProgress: Number(task.maxProgress) || BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.maxProgress || 1,
+                                : builtInTask?.subtitle ?? "",
+                            reward: Number(task.reward) || builtInTask?.reward || 0,
+                            rewardTier: typeof task.rewardTier === "string" ? task.rewardTier : rewardContract.rewardTier,
+                            minRewardGd: Number(task.minRewardGd) || builtInTask?.minRewardGd || rewardContract.minRewardGd,
+                            maxRewardGd: Number(task.maxRewardGd) || builtInTask?.maxRewardGd || rewardContract.maxRewardGd,
+                            rewardSource: task.rewardSource === "daily_task" ? task.rewardSource : "daily_task",
+                            payoutPolicy: task.payoutPolicy === "on_completion_only" ? task.payoutPolicy : "on_completion_only",
+                            repeatPolicy: task.repeatPolicy === "limited" || task.repeatPolicy === "once_per_daily_window"
+                                ? task.repeatPolicy
+                                : builtInTask?.repeatPolicy || rewardContract.repeatPolicy,
+                            economyRisk: task.economyRisk === "low" || task.economyRisk === "medium" || task.economyRisk === "high"
+                                ? task.economyRisk
+                                : builtInTask?.economyRisk || rewardContract.economyRisk,
+                            maxProgress: Number(task.maxProgress) || builtInTask?.maxProgress || 1,
                             eventName: typeof task.eventName === "string"
                                 ? task.eventName
-                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.eventName ?? "",
+                                : builtInTask?.eventName ?? "",
                             actionType: typeof task.actionType === "string"
                                 ? task.actionType
-                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.actionType ?? "open_experiences",
+                                : builtInTask?.actionType ?? "open_experiences",
                             ctaLabel: typeof task.ctaLabel === "string"
                                 ? task.ctaLabel
-                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.ctaLabel ?? "Keep going",
+                                : builtInTask?.ctaLabel ?? "Keep going",
                             icon: typeof task.icon === "string"
                                 ? task.icon
-                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.icon ?? "gift",
+                                : builtInTask?.icon ?? "gift",
                             group: typeof task.group === "string"
                                 ? task.group
-                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.group ?? "visit",
+                                : builtInTask?.group ?? "visit",
                             progress: Number(task.progress) || 0,
                             claimed: Boolean(task.claimed),
                             assignedAt: Number(task.assignedAt) || 0,
@@ -223,14 +247,14 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
                             progressKeys: toStringArray(task.progressKeys),
                             uniqueByParamKey: typeof task.uniqueByParamKey === "string"
                                 ? task.uniqueByParamKey
-                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.uniqueByParamKey,
+                                : builtInTask?.uniqueByParamKey,
                             targetUserId: typeof task.targetUserId === "string" ? task.targetUserId : undefined,
                             customTaskId: typeof task.customTaskId === "string" ? task.customTaskId : undefined,
-                            cooldownDays: Number(task.cooldownDays) || BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.cooldownDays || undefined,
-                            oneTime: task.oneTime === true || BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.oneTime === true,
+                            cooldownDays: Number(task.cooldownDays) || builtInTask?.cooldownDays || undefined,
+                            oneTime: task.oneTime === true || builtInTask?.oneTime === true,
                             criteria: task.criteria && typeof task.criteria === "object"
                                 ? task.criteria
-                                : BUILT_IN_DAILY_TASK_MAP[String(task.id)]?.criteria,
+                                : builtInTask?.criteria,
                         } satisfies DailyTaskAssignment);
 
                         return acc;

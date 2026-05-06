@@ -21,6 +21,7 @@ import {
   type DailyTaskGroup,
   type DailyTaskIconName,
   type DailyTasksState,
+  buildDailyTaskRewardContract,
   resolveDailyTaskReward,
 } from "@/lib/tasks/task-catalog";
 import { readTaskTimestampMs } from "@/lib/tasks/task-timestamps";
@@ -124,6 +125,10 @@ export function getDailyTaskWindow(
 
 function buildDailyTaskIdempotencyKey(userId: string, dailyTaskWindowId: string) {
   return `daily_tasks:${userId}:${dailyTaskWindowId}`;
+}
+
+function buildTaskRewardCreditIdempotencyKey(userId: string, dailyTaskWindowId: string, taskId: string) {
+  return `task_reward:${userId}:${dailyTaskWindowId}:${taskId}`;
 }
 
 function getAssignmentReasonCode(source: DailyTaskAssignmentSource): DailyTaskReasonCode {
@@ -585,12 +590,27 @@ async function fetchCustomTaskDefinitions(uid: string): Promise<DailyTaskDefinit
       return;
     }
 
+    const rewardContract = buildDailyTaskRewardContract({
+      id: `custom:${doc.id}`,
+      title: data.title,
+      eventName: data.eventName,
+      reward: Number(data.reward),
+      maxProgress: Number.isFinite(data.maxProgress) ? Number(data.maxProgress) : 1,
+    });
+
     tasks.push({
       id: `custom:${doc.id}`,
       source: data.scope === "user" ? "user" : "global",
       title: data.title,
       subtitle: data.subtitle,
       reward: resolveDailyTaskReward(data.reward, data.rewardVersion),
+      rewardTier: rewardContract.rewardTier,
+      minRewardGd: rewardContract.minRewardGd,
+      maxRewardGd: rewardContract.maxRewardGd,
+      rewardSource: rewardContract.rewardSource,
+      payoutPolicy: rewardContract.payoutPolicy,
+      repeatPolicy: rewardContract.repeatPolicy,
+      economyRisk: rewardContract.economyRisk,
       maxProgress: Number.isFinite(data.maxProgress) ? Number(data.maxProgress) : 1,
       eventName: data.eventName,
       actionType: data.actionType as DailyTaskActionType,
@@ -989,6 +1009,11 @@ function writeTaskLifecycleEvent(
     userId: string;
     username?: string | null;
     reward: number;
+    potentialRewardGd?: number;
+    creditedRewardGd?: number;
+    forfeitedPotentialRewardGd?: number;
+    expiredPotentialRewardGd?: number;
+    reminderPotentialRewardGd?: number;
     progress: number;
     maxProgress: number;
     timestamp: number;
@@ -1002,6 +1027,9 @@ function writeTaskLifecycleEvent(
     assignedAtUtc?: string;
     updatedAtUtc?: string;
     expiresAtUtc?: string;
+    rewardCreditIdempotencyKey?: string;
+    rewardEventState?: "potential" | "credited" | "forfeited" | "expired" | "reminder_only";
+    rewardAuditFlag?: "historical_reward_out_of_bounds";
   },
 ) {
   const eventRef = adminDb.collection(TASK_EVENT_COLLECTION).doc();
@@ -1083,6 +1111,9 @@ function applyRotationSideEffects({
       userId: uid,
       username,
       reward: task.reward,
+      potentialRewardGd: task.reward,
+      creditedRewardGd: 0,
+      forfeitedPotentialRewardGd: 0,
       progress: 0,
       maxProgress: task.maxProgress,
       timestamp: nowMs,
@@ -1093,6 +1124,8 @@ function applyRotationSideEffects({
       assignedAtUtc: new Date(nowMs).toISOString(),
       updatedAtUtc: new Date(nowMs).toISOString(),
       expiresAtUtc: result.dailyTaskWindow.windowEndAtUtc,
+      rewardEventState: "potential",
+      rewardAuditFlag: task.reward < 10 || task.reward > 1000 ? "historical_reward_out_of_bounds" : undefined,
     });
     incrementEventStat(transaction, "daily_task_assigned", nowMs, {
       task_id: task.id,
@@ -1114,6 +1147,10 @@ function applyRotationSideEffects({
         userId: uid,
         username,
         reward: task.reward,
+        potentialRewardGd: 0,
+        creditedRewardGd: 0,
+        forfeitedPotentialRewardGd: task.reward,
+        expiredPotentialRewardGd: task.reward,
         progress: task.progress,
         maxProgress: task.maxProgress,
         timestamp: nowMs,
@@ -1127,6 +1164,8 @@ function applyRotationSideEffects({
         expiresAtUtc: result.dailyTaskWindow.windowEndAtUtc,
         startedAt: task.startedAt,
         durationMs: task.startedAt ? Math.max(0, nowMs - task.startedAt) : undefined,
+        rewardEventState: "expired",
+        rewardAuditFlag: task.reward < 10 || task.reward > 1000 ? "historical_reward_out_of_bounds" : undefined,
       });
       incrementEventStat(transaction, "daily_task_failed", nowMs, {
         task_id: task.id,
@@ -1496,6 +1535,9 @@ export async function recordDailyTaskProgressFromEvent(
           userId: uid,
           username,
           reward: task.reward,
+          potentialRewardGd: task.reward,
+          creditedRewardGd: 0,
+          forfeitedPotentialRewardGd: 0,
           progress: nextProgress,
           maxProgress: task.maxProgress,
           timestamp: nowMs,
@@ -1507,6 +1549,8 @@ export async function recordDailyTaskProgressFromEvent(
           updatedAtUtc: new Date(nowMs).toISOString(),
           expiresAtUtc: task.expiresAtUtc || result.dailyTaskWindow.windowEndAtUtc,
           startedAt: nowMs,
+          rewardEventState: "potential",
+          rewardAuditFlag: task.reward < 10 || task.reward > 1000 ? "historical_reward_out_of_bounds" : undefined,
         });
         incrementEventStat(transaction, "daily_task_started", nowMs, {
           task_id: task.id,
@@ -1517,6 +1561,11 @@ export async function recordDailyTaskProgressFromEvent(
 
       if (justCompleted) {
         const durationMs = task.startedAt ? Math.max(0, nowMs - task.startedAt) : Math.max(0, nowMs - task.assignedAt);
+        const rewardCreditIdempotencyKey = buildTaskRewardCreditIdempotencyKey(
+          uid,
+          task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+          task.id,
+        );
         totalReward += task.reward;
         completedTasks.push({
           ...updatedTasks[index],
@@ -1532,6 +1581,9 @@ export async function recordDailyTaskProgressFromEvent(
           userId: uid,
           username,
           reward: task.reward,
+          potentialRewardGd: 0,
+          creditedRewardGd: task.reward,
+          forfeitedPotentialRewardGd: 0,
           progress: nextProgress,
           maxProgress: task.maxProgress,
           timestamp: nowMs,
@@ -1544,6 +1596,9 @@ export async function recordDailyTaskProgressFromEvent(
           expiresAtUtc: task.expiresAtUtc || result.dailyTaskWindow.windowEndAtUtc,
           startedAt: updatedTasks[index].startedAt,
           durationMs,
+          rewardCreditIdempotencyKey,
+          rewardEventState: "credited",
+          rewardAuditFlag: task.reward < 10 || task.reward > 1000 ? "historical_reward_out_of_bounds" : undefined,
         });
         incrementEventStat(transaction, "task_completed", nowMs, {
           task_id: task.id,
@@ -1557,10 +1612,24 @@ export async function recordDailyTaskProgressFromEvent(
         });
 
         const txRef = adminDb.collection("transactions").doc();
+        const rewardReceiptRef = adminDb.collection(TASK_RECEIPT_COLLECTION).doc(
+          buildTaskReceiptDocId(uid, "task_reward_credit", rewardCreditIdempotencyKey),
+        );
         const balanceBefore = ledgerBalanceCursor;
         const balanceAfter = computeNextGumdropBalance(balanceBefore, task.reward);
         ledgerBalanceCursor = balanceAfter;
         sourceAwareBalanceCursor = creditSourceAwareGumdrops(sourceAwareBalanceCursor, task.reward, "reward");
+        transaction.set(rewardReceiptRef, {
+          uid,
+          eventName: "task_reward_credit",
+          receiptKey: rewardCreditIdempotencyKey,
+          taskId: task.id,
+          dailyTaskWindowId: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+          rewardGd: task.reward,
+          createdAt: FieldValue.serverTimestamp(),
+          timestamp: nowMs,
+          source: "canonical",
+        });
         transaction.set(txRef, buildCompletedGumdropTransaction({
           userId: uid,
           amount: task.reward,
@@ -1570,6 +1639,11 @@ export async function recordDailyTaskProgressFromEvent(
           balanceBefore,
           balanceAfter,
           timestampMs: nowMs,
+          extra: {
+            taskRewardCreditIdempotencyKey: rewardCreditIdempotencyKey,
+            dailyTaskWindowId: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+            taskId: task.id,
+          },
         }));
       }
     });
@@ -1716,6 +1790,10 @@ export async function syncUserTaskReminder(uid: string) {
       userId: uid,
       username: getUserDisplayName(userData),
       reward: 0,
+      potentialRewardGd: 0,
+      creditedRewardGd: 0,
+      forfeitedPotentialRewardGd: 0,
+      reminderPotentialRewardGd: unfinishedTasks.reduce((sum, task) => sum + Math.max(0, task.reward || 0), 0),
       progress: unfinishedTasks.length,
       maxProgress: DAILY_TASK_LIMIT,
       timestamp: nowMs,
@@ -1724,6 +1802,7 @@ export async function syncUserTaskReminder(uid: string) {
         : pendingCheckIn
           ? "checkin"
           : "tasks",
+      rewardEventState: "reminder_only",
     });
     incrementEventStat(transaction, "daily_task_deadline_reminder_sent", nowMs, {
       pending_checkin: pendingCheckIn,

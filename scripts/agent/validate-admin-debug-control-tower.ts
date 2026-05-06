@@ -664,6 +664,13 @@ for (const expected of [
   "assignedAtUtc:",
   "updatedAtUtc:",
   "expiresAtUtc:",
+  "Paid reward",
+  "Potential reward",
+  "Forfeited potential",
+  "Paid rewards",
+  "Potential assigned",
+  "rewardCreditIdempotencyKey",
+  "rewardAuditFlag",
   "badgeLabel=\"LOADED\"",
 ]) {
   requireIncludes(debugTabMonitoring, expected, "Recent task activity panel must label loaded task fields and expose window/source/reason truth");
@@ -675,6 +682,8 @@ for (const forbidden of [
   "<Pill label=\"User\" value={event.username} />",
   "<Pill label=\"Reward\" value={event.reward} />",
   "<Pill label=\"Progress\" value={`${event.progress}/${event.maxProgress}`} />",
+  "<Pill label=\"Reward total\"",
+  "<Pill label=\"Rewards\" value={day.rewardTotal}",
 ]) {
   requireNotIncludes(debugTabMonitoring, forbidden, "Recent task activity panel must not render WAIT-style loaded task fields");
 }
@@ -956,6 +965,7 @@ try {
     /^src\/lib\/user-utils\.ts$/u,
     /^src\/lib\/route-runtime-health\.ts$/u,
     /^src\/lib\/tasks\/task-catalog\.ts$/u,
+    /^src\/lib\/tasks\/task-observability\.ts$/u,
     /^src\/lib\/server\/daily-tasks\.ts$/u,
     /^src\/lib\/server\/creator-admin-action-contract\.ts$/u,
     /^src\/lib\/server\/admin-overview-users\.ts$/u,
@@ -965,6 +975,7 @@ try {
     /^src\/app\/admin\/roster\/page\.tsx$/u,
     /^src\/app\/api\/admin\/roster\/route\.ts$/u,
     /^src\/app\/api\/tasks\/materialize\/route\.ts$/u,
+    /^functions\/src\/analytics-task-events\.ts$/u,
     /^functions\/src\/daily-task-materializer\.ts$/u,
     /^functions\/src\/index\.ts$/u,
     /^src\/types\/db\.ts$/u,
@@ -978,6 +989,7 @@ try {
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
     /^scripts\/agent\/validate-admin-user-behavior-truth\.ts$/u,
     /^scripts\/agent\/validate-daily-task-lifecycle\.ts$/u,
+    /^scripts\/agent\/validate-daily-task-reward-economy\.ts$/u,
     /^scripts\/agent\/validate-daily-task-telemetry-truth\.ts$/u,
     /^scripts\/release\/update-public-changelog\.ts$/u,
     /^CHANGELOG\.md$/u,
@@ -994,6 +1006,7 @@ try {
     /^tests\/unit\/creator-onboarding-server\.spec\.ts$/u,
     /^tests\/unit\/creator-onboarding\.spec\.ts$/u,
     /^tests\/unit\/synthetic-creators-view-as\.spec\.ts$/u,
+    /^tests\/unit\/task-observability\.spec\.ts$/u,
     /^agent\/state\/debug-evidence-index\.generated\.json$/u,
     /^agent\/state\/precatch-runtime-issues\.generated\.json$/u,
     /^agent\/state\/speed-security-hardening\.generated\.json$/u,
