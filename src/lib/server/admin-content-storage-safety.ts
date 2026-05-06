@@ -167,11 +167,27 @@ async function buildShortLivedAdminPreviewUrl(
         return null;
     }
 
-    const [signedUrl] = await file.getSignedUrl({
-        action: "read",
-        expires: Date.now() + ADMIN_CONTENT_SIGNED_URL_TTL_MS,
-        version: "v4",
-    });
+    let signedUrl: string;
+    try {
+        [signedUrl] = await file.getSignedUrl({
+            action: "read",
+            expires: Date.now() + ADMIN_CONTENT_SIGNED_URL_TTL_MS,
+            version: "v4",
+        });
+    } catch (error) {
+        recordRouteWarning("admin/content", "Admin content preview signing failed", error, {
+            channel: "admin",
+            actorRole: "admin",
+            moduleKey: "admin_content_manager",
+            detail: {
+                operation: "preview_signing",
+                safeUrlHandling: true,
+                rawStorageUrlExposed: false,
+                previewReturned: false,
+            },
+        });
+        return null;
+    }
 
     if (!isSafeAdminStorageUrl(signedUrl, bucketName)) {
         markUnsafeMediaField(report, "signedUrl");

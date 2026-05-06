@@ -30,6 +30,7 @@ export const RELAXED: RateLimitConfig = { maxRequests: 60, windowMs: 60_000 };
 export const ADMIN: RateLimitConfig = { maxRequests: 30, windowMs: 60_000 };
 export const ADMIN_REALTIME: RateLimitConfig = { maxRequests: 180, windowMs: 60_000 };
 export const ADMIN_ANALYTICS: RateLimitConfig = { maxRequests: 90, windowMs: 60_000 };
+export const ADMIN_STORAGE_UPLOAD: RateLimitConfig = { maxRequests: 10, windowMs: 60_000 };
 export const SENSITIVE_WRITE: RateLimitConfig = { maxRequests: 3, windowMs: 60_000 };
 export const HEAVY_READ: RateLimitConfig = { maxRequests: 10, windowMs: 60_000 };
 export const ANALYTICS_WRITE: RateLimitConfig = { maxRequests: 30, windowMs: 60_000 };

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { handleApiError } from "@/lib/server/auth";
+import { AuthError, handleApiError } from "@/lib/server/auth";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import {
     ADMIN_CONTENT_ROUTE_EVIDENCE,
@@ -10,8 +10,9 @@ import {
     serializeAdminContentFile,
 } from "@/lib/server/admin-content-storage-safety";
 import { adminStorage } from "@/lib/server/firebase-admin";
-import { MEDIA_PROXY } from "@/lib/server/rate-limit";
+import { ADMIN_STORAGE_UPLOAD, MEDIA_PROXY } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { sanitizeStorageFileName } from "@/lib/server/storage-assets";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundBody } from "@/lib/server/not-found";
@@ -24,12 +25,76 @@ const ALLOWED_ADMIN_DROP_ASSET_TYPES = new Set([
     "application/zip",
     "application/x-zip-compressed",
 ]);
+const ADMIN_CONTENT_UPLOAD_SOURCE_SURFACE = "admin_storage_content_manager";
+
+type AdminContentUploadErrorCode =
+    | "unauthorized"
+    | "forbidden"
+    | "invalid_file"
+    | "file_too_large"
+    | "invalid_content_type"
+    | "invalid_storage_path"
+    | "storage_bucket_unavailable"
+    | "upload_failed";
 
 function isSafeDropsContentPath(fullPath: string) {
     return fullPath.startsWith(DROPS_CONTENT_PREFIX)
         && fullPath.length > DROPS_CONTENT_PREFIX.length
         && !fullPath.includes("..")
         && !fullPath.endsWith("/");
+}
+
+function buildAdminContentUploadErrorResponse(
+    status: number,
+    errorCode: AdminContentUploadErrorCode,
+    error: string,
+) {
+    return NextResponse.json({
+        ...ADMIN_CONTENT_ROUTE_EVIDENCE,
+        error,
+        errorCode,
+        uploadGuarded: true,
+        sourceSurface: ADMIN_CONTENT_UPLOAD_SOURCE_SURFACE,
+    }, { status });
+}
+
+function hasUnsafeUploadFileName(fileName: string) {
+    const normalized = fileName.trim();
+    return normalized.length === 0
+        || normalized.includes("..")
+        || normalized.includes("\0")
+        || normalized.includes("://")
+        || /^[A-Za-z]+:/u.test(normalized)
+        || normalized.startsWith("/")
+        || normalized.startsWith("\\");
+}
+
+function getAdminStorageBucket() {
+    try {
+        const bucket = adminStorage?.bucket();
+        if (!bucket?.name || !bucket.name.trim()) {
+            return null;
+        }
+        return bucket;
+    } catch {
+        return null;
+    }
+}
+
+function normalizeUploadFailureMessage(error: unknown) {
+    const rawMessage = error instanceof Error ? error.message : String(error ?? "");
+    const normalizedMessage = rawMessage.trim().toLowerCase();
+    if (
+        normalizedMessage.includes("bucket")
+        || normalizedMessage.includes("signblob")
+        || normalizedMessage.includes("signing")
+        || normalizedMessage.includes("credential")
+        || normalizedMessage.includes("default credentials")
+        || normalizedMessage.includes("could not load the default credentials")
+    ) {
+        return "Storage bucket unavailable";
+    }
+    return "Upload failed";
 }
 
 async function GET_handler(request: NextRequest) {
@@ -102,9 +167,9 @@ async function POST_handler(request: NextRequest) {
         // entitlement-guard: admin content route uses admin authorization as entitlement proof for review/inventory access.
         // locked-content-guard: default response does not expose locked media bytes or raw content URLs.
         // ownership-entitlement-scope: user media access remains ownership/unlocked-content gated outside this admin route.
-        await guardApiRequest(request, {
-            routeName: "admin/content",
-            rateLimit: MEDIA_PROXY,
+        const caller = await guardApiRequest(request, {
+            routeName: "admin/content/upload",
+            rateLimit: ADMIN_STORAGE_UPLOAD,
             requireTrustedOrigin: true,
             auth: "admin",
         });
@@ -112,10 +177,10 @@ async function POST_handler(request: NextRequest) {
         const formData = await request.formData();
         const file = formData.get("file");
         if (!(file instanceof File)) {
-            return NextResponse.json({ error: "Missing upload file" }, { status: 400 });
+            return buildAdminContentUploadErrorResponse(400, "invalid_file", "Missing upload file");
         }
         if (file.size > MAX_ADMIN_DROP_ASSET_BYTES) {
-            return NextResponse.json({ error: "File exceeds upload limit" }, { status: 400 });
+            return buildAdminContentUploadErrorResponse(400, "file_too_large", "File exceeds upload limit");
         }
         const contentType = file.type || "application/octet-stream";
         if (
@@ -124,40 +189,100 @@ async function POST_handler(request: NextRequest) {
             && !contentType.startsWith("audio/")
             && !ALLOWED_ADMIN_DROP_ASSET_TYPES.has(contentType)
         ) {
-            return NextResponse.json({ error: "Unsupported drop asset type" }, { status: 400 });
+            return buildAdminContentUploadErrorResponse(400, "invalid_content_type", "Unsupported drop asset type");
+        }
+        if (hasUnsafeUploadFileName(file.name)) {
+            return buildAdminContentUploadErrorResponse(400, "invalid_storage_path", "Invalid storage reference");
         }
 
         const fullPath = `${DROPS_CONTENT_PREFIX}${Date.now()}_${sanitizeStorageFileName(file.name)}`;
         if (!isSafeDropsContentPath(fullPath)) {
-            return NextResponse.json({
-                ...ADMIN_CONTENT_ROUTE_EVIDENCE,
-                error: "Invalid storage reference",
-                errorCode: "invalid_storage_reference",
-            }, { status: 400 });
+            return buildAdminContentUploadErrorResponse(400, "invalid_storage_path", "Invalid storage reference");
         }
 
-        const storageFile = adminStorage.bucket().file(fullPath);
-        await storageFile.save(Buffer.from(await file.arrayBuffer()), {
-            resumable: false,
-            contentType,
-        });
+        const bucket = getAdminStorageBucket();
+        if (!bucket) {
+            return buildAdminContentUploadErrorResponse(503, "storage_bucket_unavailable", "Storage bucket unavailable");
+        }
 
-        const [metadata] = await storageFile.getMetadata();
-        const unsafeMediaFieldReport = createUnsafeAdminContentMediaFieldReport();
-        const safeFile = await serializeAdminContentFile(
-            storageFile,
-            metadata,
-            adminStorage.bucket().name,
-            unsafeMediaFieldReport,
-        );
-        recordUnsafeAdminContentMediaFieldsIfNeeded(unsafeMediaFieldReport, "upload");
+        const storageFile = bucket.file(fullPath);
+        const createdAtUtc = new Date().toISOString();
+        const fileBuffer = Buffer.from(await file.arrayBuffer());
+        try {
+            await storageFile.save(fileBuffer, {
+                resumable: false,
+                contentType,
+            });
+            if (typeof storageFile.setMetadata === "function") {
+                await storageFile.setMetadata({
+                    contentType,
+                    metadata: {
+                        uploadedByUid: caller?.uid ?? "admin",
+                        originalFilename: sanitizeStorageFileName(file.name),
+                        createdAtUtc,
+                        sourceSurface: ADMIN_CONTENT_UPLOAD_SOURCE_SURFACE,
+                    },
+                });
+            }
+        } catch (error) {
+            const message = normalizeUploadFailureMessage(error);
+            const code = message === "Storage bucket unavailable" ? "storage_bucket_unavailable" : "upload_failed";
+            return buildAdminContentUploadErrorResponse(
+                code === "storage_bucket_unavailable" ? 503 : 500,
+                code,
+                message,
+            );
+        }
+
+        let safeFile;
+        try {
+            const [metadata] = await storageFile.getMetadata();
+            const unsafeMediaFieldReport = createUnsafeAdminContentMediaFieldReport();
+            safeFile = await serializeAdminContentFile(
+                storageFile,
+                metadata,
+                bucket.name,
+                unsafeMediaFieldReport,
+            );
+            recordUnsafeAdminContentMediaFieldsIfNeeded(unsafeMediaFieldReport, "upload");
+        } catch (error) {
+            const message = normalizeUploadFailureMessage(error);
+            const code = message === "Storage bucket unavailable" ? "storage_bucket_unavailable" : "upload_failed";
+            return buildAdminContentUploadErrorResponse(
+                code === "storage_bucket_unavailable" ? 503 : 500,
+                code,
+                message,
+            );
+        }
 
         return NextResponse.json({
             ...ADMIN_CONTENT_ROUTE_EVIDENCE,
             success: true,
+            uploadGuarded: true,
+            sourceSurface: ADMIN_CONTENT_UPLOAD_SOURCE_SURFACE,
             file: safeFile,
         }, { status: 201 });
     } catch (error) {
+        if (error instanceof AuthError) {
+            if (error.status === 401) {
+                return buildAdminContentUploadErrorResponse(401, "unauthorized", "Unauthorized");
+            }
+            if (error.status === 403) {
+                return buildAdminContentUploadErrorResponse(403, "forbidden", "Admin access required");
+            }
+        }
+        if (error instanceof Error && /Failed to parse body as FormData/i.test(error.message)) {
+            return buildAdminContentUploadErrorResponse(400, "invalid_file", "Invalid upload payload");
+        }
+        recordRouteWarning("admin/content", "Admin content upload failed", error, {
+            channel: "admin",
+            actorRole: "admin",
+            moduleKey: "admin_content_manager",
+            detail: {
+                sourceSurface: ADMIN_CONTENT_UPLOAD_SOURCE_SURFACE,
+                uploadGuarded: true,
+            },
+        });
         return handleApiError(error, "Admin.Content.POST");
     }
 }

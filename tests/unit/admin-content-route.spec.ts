@@ -80,17 +80,19 @@ const mockState = vi.hoisted(() => {
   return {
     files,
     getOrCreateFile,
+    bucketName: "kandydrops-test.appspot.com",
     reset() {
       files.clear();
       getFiles.mockClear();
       this.guardApiRequest.mockReset();
       this.handleApiError.mockReset();
       this.recordRouteWarning.mockReset();
+      this.bucketName = "kandydrops-test.appspot.com";
     },
     adminStorage: {
       bucket() {
         return {
-          name: "kandydrops-test.appspot.com",
+          name: mockState.bucketName,
           getFiles,
           file(name: string) {
             return getOrCreateFile(name);
@@ -102,6 +104,7 @@ const mockState = vi.hoisted(() => {
     handleApiError: vi.fn(),
     recordRouteWarning: vi.fn(),
     MEDIA_PROXY: { maxRequests: 15, windowMs: 60_000 },
+    ADMIN_STORAGE_UPLOAD: { maxRequests: 10, windowMs: 60_000 },
     getFiles,
   };
 });
@@ -116,10 +119,18 @@ vi.mock("@/lib/server/request-guard", () => ({
 
 vi.mock("@/lib/server/auth", () => ({
   handleApiError: mockState.handleApiError,
+  AuthError: class AuthError extends Error {
+    status: number;
+    constructor(message: string, status: number) {
+      super(message);
+      this.status = status;
+    }
+  },
 }));
 
 vi.mock("@/lib/server/rate-limit", () => ({
   MEDIA_PROXY: mockState.MEDIA_PROXY,
+  ADMIN_STORAGE_UPLOAD: mockState.ADMIN_STORAGE_UPLOAD,
 }));
 
 vi.mock("@/lib/server/route-diagnostics", () => ({
@@ -281,6 +292,13 @@ describe("admin content route", () => {
     expect(payload.file.url).toContain("X-Goog-Signature=signed");
     expect(payload.file.url).not.toContain("token=");
     expect(mockState.getOrCreateFile(expectedPath).save).toHaveBeenCalled();
+    expect(mockState.getOrCreateFile(expectedPath).setMetadata).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        uploadedByUid: "admin_1",
+        originalFilename: "hero_image.png",
+        sourceSurface: "admin_storage_content_manager",
+      }),
+    }));
   });
 
   it("strips unsafe signed preview URLs instead of returning them", async () => {
@@ -318,6 +336,41 @@ describe("admin content route", () => {
     );
   });
 
+  it("keeps upload successful when preview signing fails", async () => {
+    const formData = new FormData();
+    formData.append("file", new File(["hello"], "hero image.png", { type: "image/png" }));
+    const expectedPath = `drops/${Date.now()}_hero_image.png`;
+    const file = mockState.getOrCreateFile(expectedPath);
+    file.getSignedUrl.mockRejectedValueOnce(new Error("signBlob permission missing"));
+
+    const request = new NextRequest("http://localhost/api/admin/content", {
+      method: "POST",
+      body: formData,
+    });
+
+    const response = await POST(request);
+    const payload = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(payload.file).toMatchObject({
+      name: "1775133296000_hero_image.png",
+      url: null,
+      safePreview: expect.objectContaining({
+        available: false,
+      }),
+    });
+    expect(mockState.recordRouteWarning).toHaveBeenCalledWith(
+      "admin/content",
+      "Admin content preview signing failed",
+      expect.any(Error),
+      expect.objectContaining({
+        detail: expect.objectContaining({
+          previewReturned: false,
+        }),
+      }),
+    );
+  });
+
   it("rejects unsupported drop asset upload types before writing storage", async () => {
     const formData = new FormData();
     formData.append("file", new File(["<script />"], "payload.html", { type: "text/html" }));
@@ -331,8 +384,35 @@ describe("admin content route", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(400);
-    expect(payload).toMatchObject({ error: "Unsupported drop asset type" });
+    expect(payload).toMatchObject({
+      error: "Unsupported drop asset type",
+      errorCode: "invalid_content_type",
+      uploadGuarded: true,
+    });
     expect(mockState.files.size).toBe(0);
+  });
+
+  it("returns a typed upload failure when storage save fails", async () => {
+    mockState.getOrCreateFile(`drops/${Date.now()}_hero_image.png`);
+    mockState.getOrCreateFile(`drops/${Date.now()}_hero_image.png`).save.mockRejectedValueOnce(new Error("storage save failed"));
+    const formData = new FormData();
+    formData.append("file", new File(["hello"], "hero image.png", { type: "image/png" }));
+
+    const request = new NextRequest("http://localhost/api/admin/content", {
+      method: "POST",
+      body: formData,
+    });
+
+    const response = await POST(request);
+    const payload = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(payload).toMatchObject({
+      error: "Upload failed",
+      errorCode: "upload_failed",
+      uploadGuarded: true,
+      sourceSurface: "admin_storage_content_manager",
+    });
   });
 
   it("deletes a drop asset when the opaque file id stays inside the drops prefix", async () => {
