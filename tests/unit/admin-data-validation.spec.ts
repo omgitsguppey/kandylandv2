@@ -97,7 +97,9 @@ function build(overrides: Partial<Parameters<typeof buildHistoricalValidationSum
       completed: 0,
     },
     firstPartyAuthenticatedEvents: 6846,
-    telemetryLogCount: 0,
+    canonicalSampleCount: 0,
+    telemetryParityEventSource: "analytics_rollups_daily.authenticatedEvents",
+    telemetryParitySampleSource: "analytics_event_facts",
     telemetryPurchaseCount: 1,
     telemetryUnlockCount: 3,
     viewerSessionCount: 1,
@@ -110,6 +112,7 @@ function build(overrides: Partial<Parameters<typeof buildHistoricalValidationSum
     filteredSessionFactsLength: 1,
     viewerSessionStartedLogsLength: 1,
     pipelineFailureCount: 6341,
+    pipelineFailureClusters: [],
     creatorSpendTransactionCount: 0,
     creatorSpendParityMismatchCount: 0,
     creatorRestrictedSpendViolationCount: 0,
@@ -124,7 +127,7 @@ describe("buildHistoricalValidationSummary", () => {
     const telemetryDepth = summary.validations.find((check) => check.checkKey === "telemetry_depth");
 
     expect(telemetryDepth).toMatchObject({
-      status: "warn",
+      status: "fail",
       sampleRequired: true,
       sampleCount: 0,
       passAllowed: false,

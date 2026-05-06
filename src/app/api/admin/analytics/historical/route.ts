@@ -148,6 +148,135 @@ function collectGaDayKeys(rows: Array<{ dimensionValues?: Array<{ value?: string
     return [...dayKeys].sort();
 }
 
+type PipelineFailureCluster = {
+    source: string;
+    reasonCode: string;
+    count: number;
+    firstSeenAtUtc: string;
+    lastSeenAtUtc: string;
+    affectedRoute?: string;
+    suggestedAction: string;
+};
+
+function toUtcIsoOrNull(timestamp: number) {
+    return timestamp > 0 ? new Date(timestamp).toISOString() : null;
+}
+
+function isCanonicalAuthenticatedEventSample(data: Record<string, unknown>) {
+    const actorType = toStringValue(data.actorType).toLowerCase();
+    const userId = toStringValue(data.userId) || toStringValue(data.actorUserId);
+    const sourceTruth = toStringValue(data.sourceTruth).toLowerCase();
+
+    if (!userId) {
+        return false;
+    }
+
+    if (actorType && actorType !== "user") {
+        return false;
+    }
+
+    return sourceTruth !== "local_projection";
+}
+
+function buildPipelineFailureClusters(input: {
+    pipelineDocs: FirebaseFirestore.QueryDocumentSnapshot[];
+    diagnosticsDocs: FirebaseFirestore.QueryDocumentSnapshot[];
+}) {
+    const clusters = new Map<string, {
+        source: string;
+        reasonCode: string;
+        count: number;
+        firstSeenAtMs: number;
+        lastSeenAtMs: number;
+        affectedRoute?: string;
+        suggestedAction: string;
+    }>();
+
+    const upsertCluster = (cluster: {
+        source: string;
+        reasonCode: string;
+        count: number;
+        firstSeenAtMs: number;
+        lastSeenAtMs: number;
+        affectedRoute?: string;
+        suggestedAction: string;
+    }) => {
+        const key = [cluster.source, cluster.reasonCode, cluster.affectedRoute || "unknown-route"].join("|");
+        const existing = clusters.get(key);
+        if (!existing) {
+            clusters.set(key, cluster);
+            return;
+        }
+
+        existing.count += cluster.count;
+        existing.firstSeenAtMs = existing.firstSeenAtMs > 0
+            ? Math.min(existing.firstSeenAtMs, cluster.firstSeenAtMs || existing.firstSeenAtMs)
+            : cluster.firstSeenAtMs;
+        existing.lastSeenAtMs = Math.max(existing.lastSeenAtMs, cluster.lastSeenAtMs);
+    };
+
+    input.pipelineDocs.forEach((doc) => {
+        const data = doc.data() as Record<string, unknown>;
+        const routeCounts = (data.routeCounts && typeof data.routeCounts === "object")
+            ? data.routeCounts as Record<string, unknown>
+            : {};
+        const lastFailureAtMs = toNumber(data.lastFailureAtMs);
+        Object.entries(routeCounts).forEach(([routeKey, countValue]) => {
+            const count = toNumber(countValue);
+            if (count <= 0) {
+                return;
+            }
+            upsertCluster({
+                source: "analytics_pipeline_daily",
+                reasonCode: "pipeline_failure",
+                count,
+                firstSeenAtMs: lastFailureAtMs,
+                lastSeenAtMs: lastFailureAtMs,
+                affectedRoute: routeKey,
+                suggestedAction: "Inspect the failing analytics route and rerun the bounded refresh path after the route-level error is fixed.",
+            });
+        });
+    });
+
+    input.diagnosticsDocs.forEach((doc) => {
+        const data = doc.data() as Record<string, unknown>;
+        if (toStringValue(data.channel).toLowerCase() !== "analytics") {
+            return;
+        }
+
+        const detail = (data.detail && typeof data.detail === "object")
+            ? data.detail as Record<string, unknown>
+            : {};
+        const affectedRoute = toStringValue(detail.routeContext) || toStringValue(data.route);
+        const reasonCode = toStringValue(detail.errorName) || toStringValue(data.severity) || "unknown_error";
+        const createdAtMs = toTimestampNumber(data.createdAt);
+        upsertCluster({
+            source: "server_diagnostics",
+            reasonCode,
+            count: 1,
+            firstSeenAtMs: createdAtMs,
+            lastSeenAtMs: createdAtMs,
+            affectedRoute,
+            suggestedAction: affectedRoute
+                ? `Inspect ${affectedRoute} diagnostics and fix the repeated ${reasonCode} failures before trusting refresh output.`
+                : `Inspect analytics server diagnostics and fix the repeated ${reasonCode} failures before trusting refresh output.`,
+        });
+    });
+
+    return [...clusters.values()]
+        .sort((left, right) => right.count - left.count || right.lastSeenAtMs - left.lastSeenAtMs)
+        .slice(0, 10)
+        .map((cluster): PipelineFailureCluster => ({
+            source: cluster.source,
+            reasonCode: cluster.reasonCode,
+            count: cluster.count,
+            firstSeenAtUtc: toUtcIsoOrNull(cluster.firstSeenAtMs) ?? new Date(0).toISOString(),
+            lastSeenAtUtc: toUtcIsoOrNull(cluster.lastSeenAtMs) ?? new Date(0).toISOString(),
+            affectedRoute: cluster.affectedRoute,
+            suggestedAction: cluster.suggestedAction,
+        }));
+}
+
 function buildHistoricalResponseCacheKey(input: {
     period: string | null;
     section: string | null;
@@ -305,6 +434,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 validations: payload.validations,
                 dataValidation: payload.dataValidation,
                 analyticsSourceHealth: payload.analyticsSourceHealth,
+                telemetryParityValidation: payload.telemetryParityValidation,
                 watchCaptureHealth: payload.watchCaptureHealth,
             });
         case "audienceSnapshot":
@@ -705,6 +835,14 @@ async function GET_handler(request: NextRequest) {
                 const data = doc.data() as Record<string, unknown>;
                 return total + toNumber(data.authenticatedEvents);
             }, 0);
+            const canonicalAuthenticatedSampleCount = analyticsEventFactsSnapshot.docs.reduce((total, doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                const timestamp = toNumber(data.timestamp);
+                if (timestamp < startMs || (period !== "all" && timestamp > endMs)) {
+                    return total;
+                }
+                return total + (isCanonicalAuthenticatedEventSample(data) ? 1 : 0);
+            }, 0);
             const firstPartyTaskLifecycleEvents = sumSnapshotField(taskDailySnapshot, "eventCount");
             const completedPurchaseTransactions = normalizedTransactionsInRange.filter((tx) => tx.type === "purchase_currency" && tx.status === "completed");
             const unlockTransactions = normalizedTransactionsInRange.filter((tx) => tx.type === "unlock_content");
@@ -1073,6 +1211,10 @@ async function GET_handler(request: NextRequest) {
                 const data = doc.data() as Record<string, unknown>;
                 return total + toNumber(data.failureCount);
             }, 0);
+            const pipelineFailureClusters = buildPipelineFailureClusters({
+                pipelineDocs: pipelineHealthSnapshot.docs,
+                diagnosticsDocs: serverDiagnosticsSnapshot.docs,
+            });
             const pageRollupViewCount = Array.from(pageRollupMap.values()).reduce((total, entry) => total + entry.views, 0);
             const dropRollupActivityCount = dropDailySnapshot.docs.reduce((total, doc) => {
                 const data = doc.data() as Record<string, unknown>;
@@ -1085,6 +1227,7 @@ async function GET_handler(request: NextRequest) {
                 parityScore,
                 validations,
                 analyticsSourceHealth,
+                telemetryParityValidation,
             } = buildHistoricalValidationSummary({
                 selectedRange: period,
                 lastValidatedAt: Date.now(),
@@ -1137,7 +1280,9 @@ async function GET_handler(request: NextRequest) {
                     completed: taskGuidance.completed,
                 },
                 firstPartyAuthenticatedEvents,
-                telemetryLogCount: telemetryLogs.length,
+                canonicalSampleCount: canonicalAuthenticatedSampleCount,
+                telemetryParityEventSource: "analytics_rollups_daily.authenticatedEvents",
+                telemetryParitySampleSource: "analytics_event_facts",
                 telemetryPurchaseCount,
                 telemetryUnlockCount,
                 viewerSessionCount: viewerOverviewCanonical.sessionCount,
@@ -1150,6 +1295,7 @@ async function GET_handler(request: NextRequest) {
                 filteredSessionFactsLength: filteredSessionFacts.length,
                 viewerSessionStartedLogsLength: viewerSessionStartedLogs.length,
                 pipelineFailureCount,
+                pipelineFailureClusters,
                 creatorSpendTransactionCount: creatorSpendParitySummary.creatorSpendTransactionCount,
                 creatorSpendParityMismatchCount: creatorSpendParitySummary.creatorSpendParityMismatchCount,
                 creatorRestrictedSpendViolationCount: creatorSpendParitySummary.creatorRestrictedSpendViolationCount,
@@ -1228,6 +1374,7 @@ async function GET_handler(request: NextRequest) {
                 truthState: analyticsTruth,
                 validations,
                 analyticsSourceHealth,
+                telemetryParityValidation,
                 opsHealth,
             };
 

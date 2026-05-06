@@ -322,6 +322,18 @@ export interface ValidationItem {
   recommendedNextCheck?: string;
   technicalEvidence?: string;
   fullDetails?: string;
+  eventSource?: string;
+  sampleSource?: string;
+  blockedReason?: string;
+  failureClusters?: Array<{
+    source: string;
+    reasonCode: string;
+    count: number;
+    firstSeenAtUtc: string;
+    lastSeenAtUtc: string;
+    affectedRoute?: string;
+    suggestedAction: string;
+  }>;
 }
 
 export interface DataValidationPanelState {
@@ -377,6 +389,27 @@ export interface AnalyticsSourceHealth {
     state: "ready" | "partial" | "gap_detected" | "unavailable";
     reason: string;
   };
+}
+
+export interface TelemetryParityValidation {
+  range: string;
+  generatedAtUtc: string;
+  canonicalAuthenticatedEventCount: number;
+  canonicalSampleCount: number;
+  sampleCoveragePct: number;
+  sampleSource: string;
+  eventSource: string;
+  status: "pass" | "review" | "fail";
+  blockedReason?: "required_sample_missing" | "materializer_failed" | "range_mismatch" | "source_mismatch" | "unknown";
+  failureClusters: Array<{
+    source: string;
+    reasonCode: string;
+    count: number;
+    firstSeenAtUtc: string;
+    lastSeenAtUtc: string;
+    affectedRoute?: string;
+    suggestedAction: string;
+  }>;
 }
 
 export interface ComponentContextItem {
@@ -525,6 +558,7 @@ export interface HistoricalAnalyticsResponse {
   validations?: ValidationItem[];
   dataValidation?: DataValidationPanelState;
   analyticsSourceHealth?: AnalyticsSourceHealth;
+  telemetryParityValidation?: TelemetryParityValidation;
 }
 
 export interface RealtimeAnalyticsResponse {

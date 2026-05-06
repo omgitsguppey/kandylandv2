@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
-import type { AnalyticsSourceHealth, DataValidationPanelState, ValidationItem } from "@/types/admin-analytics";
+import type { AnalyticsSourceHealth, DataValidationPanelState, TelemetryParityValidation, ValidationItem } from "@/types/admin-analytics";
 
 import { Pill, ScrollWrap, Section, type PillTone } from "./DebugPrimitives";
 
@@ -15,6 +15,7 @@ type ValidationResponse = {
     validations?: ValidationItem[];
     dataValidation?: DataValidationPanelState;
     analyticsSourceHealth?: AnalyticsSourceHealth;
+    telemetryParityValidation?: TelemetryParityValidation;
 };
 
 const DEBUG_VALIDATION_PATH = "/admin/debug?tab=advanced#data-validation";
@@ -54,6 +55,10 @@ function formatUtcTimestamp(value?: string | null) {
 
 function countDisplay(value: number | null) {
     return value === null ? "--" : value;
+}
+
+function formatConfidence(value?: number | null) {
+    return value === null || value === undefined ? "n/a" : value;
 }
 
 function toneForContinuity(status?: AnalyticsSourceHealth["continuity"]["gapSeverity"] | AnalyticsSourceHealth["chartReadiness"]["state"]) {
@@ -306,13 +311,33 @@ export function DebugAdvancedDataValidation() {
                                         </div>
                                         <p className="text-xs leading-5 text-gray-300">{check.detail}</p>
                                         {check.whyItMatters ? <p className="text-xs leading-5 text-gray-400">Why it matters: {check.whyItMatters}</p> : null}
+                                        {check.eventSource || check.sampleSource ? (
+                                            <div className="flex flex-wrap gap-2">
+                                                {check.eventSource ? <Pill label="Event source" value={check.eventSource} truthState="live" badgeLabel="INFO" /> : null}
+                                                {check.sampleSource ? <Pill label="Sample source" value={check.sampleSource} truthState="live" badgeLabel="INFO" /> : null}
+                                            </div>
+                                        ) : null}
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Confidence" value={check.confidence ?? "n/a"} tone={(check.confidence ?? 100) < 70 ? "warn" : "neutral"} />
-                                            <Pill label="Samples" value={check.sampleCount ?? 0} tone={check.sampleRequired && !check.sampleCount ? "warn" : "neutral"} />
+                                            <Pill label="Confidence" value={formatConfidence(check.confidence)} tone={(check.confidence ?? 100) < 70 ? "warn" : "neutral"} truthState={check.confidence === null || check.confidence === undefined ? "unavailable" : "live"} badgeLabel={check.confidence === null || check.confidence === undefined ? "UNAVAILABLE" : "INFO"} />
+                                            <Pill label="Samples" value={check.sampleCount ?? 0} tone={check.sampleRequired && !check.sampleCount ? "warn" : "neutral"} truthState="live" badgeLabel={check.sampleRequired && !check.sampleCount ? "MISSING" : "LOADED"} />
                                             <Pill label="Pass allowed" value={check.passAllowed === false ? "no" : "yes"} tone={check.passAllowed === false ? "warn" : "good"} />
                                             {check.passBlockedReason ? <Pill label="Blocked" value={check.passBlockedReason} tone="warn" /> : null}
                                         </div>
                                         <p className="text-xs text-gray-400">{check.recommendedNextCheck || check.action || "No action needed."}</p>
+                                        {check.failureClusters && check.failureClusters.length > 0 ? (
+                                            <div className="rounded-lg border border-white/10 bg-black/20 p-2 text-xs text-gray-300">
+                                                <p className="font-semibold text-gray-100">Top failure clusters</p>
+                                                <div className="mt-2 space-y-2">
+                                                    {check.failureClusters.map((cluster) => (
+                                                        <div key={`${cluster.source}:${cluster.reasonCode}:${cluster.affectedRoute || "unknown"}`} className="rounded-md border border-white/10 px-2 py-1.5">
+                                                            <p className="text-gray-100">{cluster.reasonCode} · {cluster.count} · {cluster.affectedRoute || "route unknown"}</p>
+                                                            <p className="text-gray-400">{cluster.source} · first {formatUtcTimestamp(cluster.firstSeenAtUtc)} · last {formatUtcTimestamp(cluster.lastSeenAtUtc)}</p>
+                                                            <p className="text-gray-400">{cluster.suggestedAction}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ) : null}
                                         <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-xs text-gray-300">
                                             <summary className="cursor-pointer font-semibold text-gray-100">Technical evidence</summary>
                                             <div className="mt-2 space-y-1">

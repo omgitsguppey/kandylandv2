@@ -20,6 +20,7 @@ export interface HistoricalValidationSummary {
   truthState: AnalyticsTruthSummary;
   validations: DataValidationCheck[];
   analyticsSourceHealth: AnalyticsSourceHealth;
+  telemetryParityValidation: TelemetryParityValidation;
 }
 
 type DataValidationStatus = "pass" | "warn" | "fail" | "unavailable" | "stale" | "unknown";
@@ -103,6 +104,33 @@ export interface DataValidationCheck {
   recommendedNextCheck: string;
   technicalEvidence: string;
   fullDetails: string;
+  eventSource?: string;
+  sampleSource?: string;
+  blockedReason?: string;
+  failureClusters?: FailureCluster[];
+}
+
+export interface FailureCluster {
+  source: string;
+  reasonCode: string;
+  count: number;
+  firstSeenAtUtc: string;
+  lastSeenAtUtc: string;
+  affectedRoute?: string;
+  suggestedAction: string;
+}
+
+export interface TelemetryParityValidation {
+  range: string;
+  generatedAtUtc: string;
+  canonicalAuthenticatedEventCount: number;
+  canonicalSampleCount: number;
+  sampleCoveragePct: number;
+  sampleSource: string;
+  eventSource: string;
+  status: "pass" | "review" | "fail";
+  blockedReason?: "required_sample_missing" | "materializer_failed" | "range_mismatch" | "source_mismatch" | "unknown";
+  failureClusters: FailureCluster[];
 }
 
 function toUtcString(timestamp?: number | null) {
@@ -572,19 +600,25 @@ function buildValidationCheck(input: {
   recommendedNextCheck?: string;
   technicalEvidence?: string;
   sourceDetails?: string;
+  eventSource?: string;
+  sampleSource?: string;
+  blockedReason?: string | null;
+  failureClusters?: FailureCluster[];
+  passAllowed?: boolean;
 }) {
   const requiredSourcesPresent = input.requiredSourcesPresent ?? true;
   const sampleRequired = input.sampleRequired ?? false;
   const sampleCount = Math.max(0, Math.round(input.sampleCount ?? 0));
   const freshnessState = input.freshnessState ?? "fresh";
-  const passBlockedReason = !requiredSourcesPresent
+  const inferredBlockedReason = !requiredSourcesPresent
     ? "required_source_missing"
     : sampleRequired && sampleCount <= 0
       ? "required_sample_missing"
       : freshnessState === "stale"
         ? "stale_validation"
         : null;
-  const passAllowed = passBlockedReason === null;
+  const passBlockedReason = input.blockedReason ?? inferredBlockedReason;
+  const passAllowed = input.passAllowed ?? (passBlockedReason === null && input.status !== "fail" && input.status !== "unavailable");
   const status = input.status === "pass" && !passAllowed
     ? freshnessState === "stale" ? "stale" : "warn"
     : input.status;
@@ -615,6 +649,10 @@ function buildValidationCheck(input: {
     recommendedNextCheck: input.recommendedNextCheck || operatorCopy.action || input.action,
     technicalEvidence,
     fullDetails: input.detail,
+    eventSource: input.eventSource,
+    sampleSource: input.sampleSource,
+    blockedReason: passBlockedReason ?? undefined,
+    failureClusters: input.failureClusters,
   } satisfies DataValidationCheck;
 }
 
@@ -654,7 +692,9 @@ export function buildHistoricalValidationSummary(input: {
   onboardingStartSource: string;
   taskGuidance: HistoricalTaskGuidanceSummary;
   firstPartyAuthenticatedEvents: number;
-  telemetryLogCount: number;
+  canonicalSampleCount: number;
+  telemetryParityEventSource: string;
+  telemetryParitySampleSource: string;
   telemetryPurchaseCount: number;
   telemetryUnlockCount: number;
   viewerSessionCount: number;
@@ -667,6 +707,7 @@ export function buildHistoricalValidationSummary(input: {
   filteredSessionFactsLength: number;
   viewerSessionStartedLogsLength: number;
   pipelineFailureCount: number;
+  pipelineFailureClusters: FailureCluster[];
   creatorSpendTransactionCount: number;
   creatorSpendParityMismatchCount: number;
   creatorRestrictedSpendViolationCount: number;
@@ -768,6 +809,33 @@ export function buildHistoricalValidationSummary(input: {
     + creatorSpendParityScore
     + input.truthState.score
   ) / 6);
+  const telemetrySampleCoveragePct = input.firstPartyAuthenticatedEvents > 0
+    ? Number(((input.canonicalSampleCount / input.firstPartyAuthenticatedEvents) * 100).toFixed(2))
+    : 0;
+  const telemetryParityStatus: TelemetryParityValidation["status"] =
+    input.firstPartyAuthenticatedEvents > 0 && input.canonicalSampleCount === 0
+      ? "fail"
+      : input.firstPartyAuthenticatedEvents > 0 && telemetrySampleCoveragePct < 1
+        ? "review"
+        : input.firstPartyAuthenticatedEvents > 0
+          ? "pass"
+          : "review";
+  const telemetryParityBlockedReason: TelemetryParityValidation["blockedReason"] =
+    input.firstPartyAuthenticatedEvents > 0 && input.canonicalSampleCount === 0
+      ? "required_sample_missing"
+      : undefined;
+  const telemetryParityValidation: TelemetryParityValidation = {
+    range: selectedRange,
+    generatedAtUtc: toUtcString(input.generatedAtMs ?? lastValidatedAt) ?? new Date(input.generatedAtMs ?? lastValidatedAt).toISOString(),
+    canonicalAuthenticatedEventCount: input.firstPartyAuthenticatedEvents,
+    canonicalSampleCount: input.canonicalSampleCount,
+    sampleCoveragePct: telemetrySampleCoveragePct,
+    sampleSource: input.telemetryParitySampleSource,
+    eventSource: input.telemetryParityEventSource,
+    status: telemetryParityStatus,
+    blockedReason: telemetryParityBlockedReason,
+    failureClusters: input.pipelineFailureClusters,
+  };
 
   const validations = [
     buildValidationCheck({
@@ -785,17 +853,32 @@ export function buildHistoricalValidationSummary(input: {
     buildValidationCheck({
       checkKey: "telemetry_depth",
       title: "Telemetry depth",
-      status: (input.telemetryLogCount > 0 && input.firstPartyAuthenticatedEvents > 0) ? "pass" : "warn",
-      detail: (input.telemetryLogCount > 0 || input.firstPartyAuthenticatedEvents > 0)
-        ? `${input.firstPartyAuthenticatedEvents.toLocaleString()} canonical authenticated events with ${input.telemetryLogCount.toLocaleString()} canonical event samples in range.`
+      status: telemetryParityValidation.status === "pass" ? "pass" : telemetryParityValidation.status === "review" ? "warn" : "fail",
+      detail: input.firstPartyAuthenticatedEvents > 0 || input.canonicalSampleCount > 0
+        ? `${input.firstPartyAuthenticatedEvents.toLocaleString()} canonical authenticated events with ${input.canonicalSampleCount.toLocaleString()} canonical event samples in range. Coverage ${telemetryParityValidation.sampleCoveragePct}%.`
         : "No authenticated telemetry events matched the selected range.",
       source: "first-party telemetry + canonical event samples",
       selectedRange,
       lastValidatedAt,
       sampleRequired: true,
-      sampleCount: Math.min(input.telemetryLogCount, input.firstPartyAuthenticatedEvents),
-      confidence: input.telemetryLogCount > 0 && input.firstPartyAuthenticatedEvents > 0 ? 100 : 60,
-      action: input.telemetryLogCount > 0 && input.firstPartyAuthenticatedEvents > 0 ? "No action required." : "Confirm canonical telemetry samples are landing for the selected range.",
+      sampleCount: input.canonicalSampleCount,
+      confidence: input.firstPartyAuthenticatedEvents > 0 && input.canonicalSampleCount > 0
+        ? Math.max(1, Math.min(100, Math.round(telemetryParityValidation.sampleCoveragePct)))
+        : input.firstPartyAuthenticatedEvents > 0
+          ? 60
+          : null,
+      requiredSourcesPresent: input.firstPartyAuthenticatedEvents > 0 || input.canonicalSampleCount > 0,
+      passAllowed: telemetryParityValidation.status === "pass",
+      blockedReason: telemetryParityValidation.blockedReason ?? null,
+      action: telemetryParityValidation.status === "pass"
+        ? "No action required."
+        : "Confirm the canonical sample materializer/read path is using analytics_event_facts for the selected range.",
+      eventSource: telemetryParityValidation.eventSource,
+      sampleSource: telemetryParityValidation.sampleSource,
+      sourceDetails: `${telemetryParityValidation.eventSource} -> ${telemetryParityValidation.sampleSource}`,
+      technicalEvidence: telemetryParityValidation.blockedReason === "required_sample_missing"
+        ? `${input.firstPartyAuthenticatedEvents.toLocaleString()} canonical authenticated events were counted from ${telemetryParityValidation.eventSource}, but ${telemetryParityValidation.sampleSource} returned 0 representative samples in range.`
+        : `${input.canonicalSampleCount.toLocaleString()} canonical samples were observed from ${telemetryParityValidation.sampleSource}.`,
     }),
     buildValidationCheck({
       checkKey: "task_lifecycle",
@@ -817,12 +900,21 @@ export function buildHistoricalValidationSummary(input: {
       status: input.pipelineFailureCount === 0 ? "pass" : input.pipelineFailureCount <= 5 ? "warn" : "fail",
       detail: input.pipelineFailureCount === 0
         ? "No analytics pipeline failures were recorded in the selected range."
-        : `${input.pipelineFailureCount.toLocaleString()} analytics pipeline failures were recorded in the selected range. Review server diagnostics for route-level detail.`,
+        : `${input.pipelineFailureCount.toLocaleString()} analytics pipeline failures were recorded in the selected range. Review route and reason clusters before trusting analytics refresh output.`,
       source: "analytics pipeline diagnostics",
       selectedRange,
       lastValidatedAt,
       sampleCount: input.pipelineFailureCount,
-      action: input.pipelineFailureCount === 0 ? "No action required." : "Open Admin Debug route diagnostics and clear active analytics pipeline failures.",
+      confidence: input.pipelineFailureCount === 0 ? 100 : null,
+      passAllowed: input.pipelineFailureCount === 0,
+      blockedReason: input.pipelineFailureCount > 0 ? "analytics_refresh_failures_present" : null,
+      action: input.pipelineFailureCount === 0 ? "No action required." : "Open Admin Debug route diagnostics and clear the top analytics refresh failure clusters.",
+      failureClusters: input.pipelineFailureClusters,
+      technicalEvidence: input.pipelineFailureCount === 0
+        ? "No pipeline failure diagnostics were recorded for the selected range."
+        : input.pipelineFailureClusters.length > 0
+          ? input.pipelineFailureClusters.map((cluster) => `${cluster.reasonCode} (${cluster.count})${cluster.affectedRoute ? ` on ${cluster.affectedRoute}` : ""}`).join("; ")
+          : "Pipeline failures were recorded, but no cluster details were derived.",
     }),
     buildValidationCheck({
       checkKey: "purchase_parity",
@@ -1071,5 +1163,6 @@ export function buildHistoricalValidationSummary(input: {
     truthState: input.truthState,
     validations,
     analyticsSourceHealth,
+    telemetryParityValidation,
   };
 }
