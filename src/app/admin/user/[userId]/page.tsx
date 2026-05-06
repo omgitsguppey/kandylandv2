@@ -416,13 +416,37 @@ export default function AdminUserAnalyticsPage() {
             }))
     ), [transactions]);
 
-    const totalSpentUsd = analytics?.grossRevenueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
-    const adjustedProfitUsd = analytics?.adjustedProfitUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.adjustedProfitUsd, 0);
-    const bonusValueUsd = analytics?.bonusValueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusValueUsd, 0);
-    const bonusGumDrops = analytics?.bonusGumDrops ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusGumDrops, 0);
-    const paypalFeeUsd = analytics?.paypalFeeUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paypalFeeUsd, 0);
-    const netRevenueUsd = analytics?.netRevenueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.netRevenueUsd, 0);
-    const deliveredGumDrops = analytics?.deliveredGumDrops ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
+    const transactionTotals = useMemo(() => {
+        return purchaseTransactions.reduce(
+            (totals, transaction) => {
+                totals.grossRevenueUsd += transaction.economics.grossRevenueUsd;
+                totals.adjustedProfitUsd += transaction.economics.adjustedProfitUsd;
+                totals.bonusValueUsd += transaction.economics.bonusValueUsd;
+                totals.bonusGumDrops += transaction.economics.bonusGumDrops;
+                totals.paypalFeeUsd += transaction.economics.paypalFeeUsd;
+                totals.netRevenueUsd += transaction.economics.netRevenueUsd;
+                totals.deliveredGumDrops += transaction.economics.deliveredGumDrops;
+                return totals;
+            },
+            {
+                grossRevenueUsd: 0,
+                adjustedProfitUsd: 0,
+                bonusValueUsd: 0,
+                bonusGumDrops: 0,
+                paypalFeeUsd: 0,
+                netRevenueUsd: 0,
+                deliveredGumDrops: 0,
+            }
+        );
+    }, [purchaseTransactions]);
+
+    const totalSpentUsd = analytics?.grossRevenueUsd ?? transactionTotals.grossRevenueUsd;
+    const adjustedProfitUsd = analytics?.adjustedProfitUsd ?? transactionTotals.adjustedProfitUsd;
+    const bonusValueUsd = analytics?.bonusValueUsd ?? transactionTotals.bonusValueUsd;
+    const bonusGumDrops = analytics?.bonusGumDrops ?? transactionTotals.bonusGumDrops;
+    const paypalFeeUsd = analytics?.paypalFeeUsd ?? transactionTotals.paypalFeeUsd;
+    const netRevenueUsd = analytics?.netRevenueUsd ?? transactionTotals.netRevenueUsd;
+    const deliveredGumDrops = analytics?.deliveredGumDrops ?? transactionTotals.deliveredGumDrops;
     const effectiveUsdPer100Gd = analytics?.effectiveUsdPer100Gd ?? (deliveredGumDrops > 0 ? totalSpentUsd / (deliveredGumDrops / 100) : 0);
     const averageOrderUsd = (analytics?.purchaseCount || purchaseTransactions.length) > 0
         ? totalSpentUsd / (analytics?.purchaseCount || purchaseTransactions.length)
