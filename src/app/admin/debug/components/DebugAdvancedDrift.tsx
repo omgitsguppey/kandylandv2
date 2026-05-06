@@ -23,8 +23,16 @@ function shortUid(value?: string) {
     return `${value.slice(0, 6)}...${value.slice(-4)}`;
 }
 
+function toneForRuntimeDriftSeverity(severity?: string) {
+    if (severity === "error") return "bad" as const;
+    if (severity === "review") return "warn" as const;
+    if (severity === "info") return "neutral" as const;
+    return "neutral" as const;
+}
+
 export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
     const guardrails = data?.taskGumdropGuardrails;
+    const runtimeTaskDrift = data?.runtimeTaskDriftSummary;
     const affectedUsers = data?.assignmentIssues || [];
     const taskReceiptParity = guardrails?.taskReceiptParity || data?.taskParity || [];
     const creatorSpendRows = data?.creatorSpendParity?.byType || [];
@@ -282,11 +290,11 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                 defaultOpen={false}
                 summary={
                     <>
-                        <Pill label="Sampled users" value={data?.runtimeTaskAudit?.summary?.sampledUsers ?? 0} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Assignments" value={data?.stats?.runtimeAssignedTasks ?? 0} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Custom assigned" value={data?.stats?.runtimeCustomAssignments ?? 0} tone={(data?.stats?.runtimeCustomAssignments ?? 0) > 0 ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Cooldown drift" value={data?.stats?.runtimeCooldownConflictUsers ?? 0} tone={(data?.stats?.runtimeCooldownConflictUsers ?? 0) === 0 ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
-                        <Pill label="Unsupported runtime" value={data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={(data?.stats?.runtimeUnsupportedTaskRecords ?? 0) === 0 ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Sampled users" value={runtimeTaskDrift?.sampledUsers ?? data?.runtimeTaskAudit?.summary?.sampledUsers ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Assignments" value={runtimeTaskDrift?.assignmentCount ?? data?.stats?.runtimeAssignedTasks ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Custom assigned" value={runtimeTaskDrift?.customAssignedCount ?? data?.stats?.runtimeCustomAssignments ?? 0} tone={(runtimeTaskDrift?.customAssignedCount ?? data?.stats?.runtimeCustomAssignments ?? 0) === 0 ? "good" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Cooldown drift" value={runtimeTaskDrift?.cooldownDriftCount ?? data?.stats?.runtimeCooldownConflictUsers ?? 0} tone={(runtimeTaskDrift?.cooldownDriftCount ?? data?.stats?.runtimeCooldownConflictUsers ?? 0) === 0 ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Unsupported runtime" value={runtimeTaskDrift?.unsupportedRuntimeCount ?? data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={toneForGuardrailState(runtimeTaskDrift?.state)} truthState="live" badgeLabel="LOADED" />
                         {(data?.stats?.taskEventsSamplePartial ?? 0) > 0 || (data?.stats?.taskReceiptsSamplePartial ?? 0) > 0 ? <Pill label="Sample" value="partial" tone="warn" truthState="degraded" badgeLabel="PARTIAL" /> : null}
                     </>
                 }
@@ -297,7 +305,66 @@ export function DebugAdvancedDrift({ data }: DebugAdvancedDriftProps) {
                         Increase the audit depth before treating every warning as global truth.
                     </div>
                 ) : null}
-                <div className="grid gap-4 lg:grid-cols-1">
+                <div
+                    className="grid gap-4 lg:grid-cols-1"
+                    data-runtime-task-sampled-users={runtimeTaskDrift?.sampledUsers ?? data?.runtimeTaskAudit?.summary?.sampledUsers ?? 0}
+                    data-runtime-task-assignment-count={runtimeTaskDrift?.assignmentCount ?? data?.stats?.runtimeAssignedTasks ?? 0}
+                    data-runtime-task-custom-assigned-count={runtimeTaskDrift?.customAssignedCount ?? data?.stats?.runtimeCustomAssignments ?? 0}
+                    data-runtime-task-cooldown-drift-count={runtimeTaskDrift?.cooldownDriftCount ?? data?.stats?.runtimeCooldownConflictUsers ?? 0}
+                    data-runtime-task-unsupported-count={runtimeTaskDrift?.unsupportedRuntimeCount ?? data?.stats?.runtimeUnsupportedTaskRecords ?? 0}
+                >
+                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                        <div className="flex flex-wrap gap-2">
+                            <Pill label="Generated" value={runtimeTaskDrift?.generatedAtUtc || "unknown"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                            <Pill label="State" value={runtimeTaskDrift?.state || "review"} tone={toneForGuardrailState(runtimeTaskDrift?.state)} truthState="live" badgeLabel={(runtimeTaskDrift?.state || "review") === "error" ? "ERROR" : (runtimeTaskDrift?.state || "review") === "review" ? "REVIEW" : "LIVE"} />
+                        </div>
+                        <p className="mt-3 text-xs leading-6 text-gray-400">
+                            Unsupported runtime records are grouped by reason and source so active assignment risk stays separate from historical-only drift.
+                        </p>
+                    </div>
+                    <ScrollWrap>
+                        <div className="divide-y divide-white/10">
+                            {(runtimeTaskDrift?.unsupportedRuntimeGroups || []).length ? (runtimeTaskDrift?.unsupportedRuntimeGroups || []).map((group: any) => (
+                                <div
+                                    key={group.groupKey}
+                                    className="space-y-2 px-4 py-3"
+                                    data-runtime-task-unsupported-reason={group.reason}
+                                    data-runtime-task-unsupported-group-count={group.count}
+                                    data-runtime-task-unsupported-severity={group.severity}
+                                >
+                                    <div className="flex flex-wrap items-start justify-between gap-2">
+                                        <div>
+                                            <p className="font-semibold text-white">{group.taskTitle || group.taskId || group.triggerEvent || group.reason}</p>
+                                            <p className="text-xs text-gray-400">{group.reason} | {group.source} | {group.activityScope}</p>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Count" value={group.count} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Severity" value={group.severity} tone={toneForRuntimeDriftSeverity(group.severity)} truthState="live" badgeLabel={group.severity === "error" ? "ERROR" : group.severity === "review" ? "REVIEW" : "INFO"} />
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {group.taskId ? <Pill label="Task" value={group.taskId} tone="neutral" truthState="live" badgeLabel="INFO" /> : null}
+                                        {group.triggerEvent ? <Pill label="Trigger" value={group.triggerEvent} tone="neutral" truthState="live" badgeLabel="INFO" /> : null}
+                                        {group.runtimeAction ? <Pill label="Action" value={group.runtimeAction} tone="neutral" truthState="live" badgeLabel="INFO" /> : null}
+                                        <Pill label="First seen" value={group.firstSeenAtUtc || "unknown"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Last seen" value={group.lastSeenAtUtc || "unknown"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                    </div>
+                                    {group.affectedUsersSample?.length ? (
+                                        <div className="flex flex-wrap gap-2">
+                                            {group.affectedUsersSample.map((user: any) => (
+                                                <Pill key={`${group.groupKey}-${user.userId}`} label="User" value={user.displayName || user.shortUserId} tone="neutral" truthState="live" badgeLabel={user.displayName ? "INFO" : "UID"} />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-gray-400">No active user sample was attached to this runtime drift group.</p>
+                                    )}
+                                    <p className="text-xs leading-6 text-gray-400">{group.suggestedAction}</p>
+                                </div>
+                            )) : (
+                                <div className="px-4 py-4 text-sm text-emerald-100">No unsupported runtime records were found in the sampled task audit.</div>
+                            )}
+                        </div>
+                    </ScrollWrap>
                     <ScrollWrap>
                         <div className="divide-y divide-white/10">
                             {(data?.runtimeTaskAudit?.distribution || []).slice(0, 24).map((entry: any) => (

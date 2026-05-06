@@ -30,6 +30,7 @@ import {
 } from "@/lib/tasks/task-observability";
 import {
     buildTelemetryEventMetadata,
+    getTelemetryEventOption,
     TELEMETRY_EVENT_LABELS,
     TELEMETRY_EVENT_NAMES,
 } from "@/lib/telemetry-catalog";
@@ -260,6 +261,47 @@ type TaskGumdropGuardrailState = {
     };
     taskReceiptParity: TaskReceiptParityRow[];
     affectedUsers: TaskIssueAttribution[];
+};
+
+type RuntimeUnsupportedReason =
+    | "task_id_not_in_catalog"
+    | "trigger_event_not_supported"
+    | "runtime_action_missing"
+    | "legacy_task_alias_unmapped"
+    | "custom_task_without_definition"
+    | "assignment_without_catalog_version"
+    | "unknown";
+
+type RuntimeUnsupportedGroup = {
+    groupKey: string;
+    count: number;
+    taskId?: string;
+    taskTitle?: string;
+    triggerEvent?: string;
+    runtimeAction?: string;
+    source: "assignment" | "task_event" | "receipt" | "reward_claim" | "rollup" | "unknown";
+    reason: RuntimeUnsupportedReason;
+    activityScope: "active" | "historical" | "mixed";
+    affectedUsersSample: Array<{
+        userId: string;
+        displayName?: string;
+        shortUserId: string;
+    }>;
+    firstSeenAtUtc: string | null;
+    lastSeenAtUtc: string | null;
+    severity: "info" | "review" | "error";
+    suggestedAction: string;
+};
+
+type RuntimeTaskDriftSummary = {
+    generatedAtUtc: string;
+    sampledUsers: number;
+    assignmentCount: number;
+    customAssignedCount: number;
+    cooldownDriftCount: number;
+    unsupportedRuntimeCount: number;
+    unsupportedRuntimeGroups: RuntimeUnsupportedGroup[];
+    state: "live" | "review" | "error";
 };
 
 type DependencyPackageName = "root" | "functions" | "workspace" | "unknown";
@@ -917,6 +959,63 @@ function scoreTaskCriteriaSpecificity(definition: DailyTaskDefinition) {
         return 1;
     }
     return 0;
+}
+
+function classifyRuntimeUnsupportedReason(record: {
+    kind: string;
+    taskId?: string;
+    eventName?: string;
+    detail?: string;
+}) : RuntimeUnsupportedReason {
+    const taskId = toStringValue(record.taskId);
+    const eventName = toStringValue(record.eventName);
+    const detail = toStringValue(record.detail).toLowerCase();
+
+    if (detail.includes("catalog version")) {
+        return "assignment_without_catalog_version";
+    }
+    if (eventName && !getTelemetryEventOption(eventName).option) {
+        return "trigger_event_not_supported";
+    }
+    if (taskId && resolveLegacyDailyTaskId(taskId) !== taskId) {
+        return "legacy_task_alias_unmapped";
+    }
+    if (record.kind === "assignment" && taskId.startsWith("custom_")) {
+        return "custom_task_without_definition";
+    }
+    if (record.kind === "assignment" || record.kind === "event" || record.kind === "reward_claim" || record.kind === "rollup") {
+        if (taskId) {
+            return "task_id_not_in_catalog";
+        }
+    }
+    return "unknown";
+}
+
+function suggestedActionForRuntimeUnsupportedReason(reason: RuntimeUnsupportedReason) {
+    switch (reason) {
+        case "task_id_not_in_catalog":
+            return "Check task assignment/runtime writers for stale task ids and compare against the active catalog.";
+        case "trigger_event_not_supported":
+            return "Validate telemetry event support and normalize or remove the unsupported trigger.";
+        case "runtime_action_missing":
+            return "Verify the task action path still exists and resolves to a reachable runtime surface.";
+        case "legacy_task_alias_unmapped":
+            return "Map the legacy task alias to the canonical task id before treating runtime drift as resolved.";
+        case "custom_task_without_definition":
+            return "Reconcile custom-task assignment state against current custom task definitions.";
+        case "assignment_without_catalog_version":
+            return "Inspect assignment materialization and ensure catalog version metadata is stored with assignments.";
+        default:
+            return "Inspect normalization evidence and runtime task writers for the missing source context.";
+    }
+}
+
+function sourceLabelForRuntimeDriftKind(kind: string): RuntimeUnsupportedGroup["source"] {
+    if (kind === "event") return "task_event";
+    if (kind === "assignment" || kind === "receipt" || kind === "reward_claim" || kind === "rollup") {
+        return kind;
+    }
+    return "unknown";
 }
 
 function readGeneratedAnalyticsStateFile(fileName: string): Record<string, unknown> | null {
@@ -1828,6 +1927,10 @@ export async function GET(request: NextRequest) {
                 refreshMetadataIssue: refreshMetadataIssue ?? undefined,
             };
         });
+        const runtimeUserIdentityMap = runtimeUserStates.reduce((map, entry) => {
+            map.set(entry.uid, entry.username);
+            return map;
+        }, new Map<string, string>());
 
         const transactionEntries = transactionsSnapshot.docs.map((doc) => {
             const data = doc.data() as Record<string, unknown>;
@@ -1851,6 +1954,7 @@ export async function GET(request: NextRequest) {
             eventName: string;
             userId: string;
             detail: string;
+            timestamp?: number;
         }> = [];
         const rewardClaims7d = rewardTransactions7d.flatMap((entry) => {
             const description = toStringValue(entry.description);
@@ -1876,6 +1980,7 @@ export async function GET(request: NextRequest) {
                 detail: matchedTaskIds.length > 1
                     ? "daily reward transaction title matched multiple task definitions"
                     : "daily reward transaction could not be matched to a task definition",
+                timestamp: toNumber(entry.timestampMs),
             });
             return [];
         });
@@ -2406,6 +2511,86 @@ export async function GET(request: NextRequest) {
                 .map((entry) => entry.attribution)
                 .filter((entry): entry is TaskIssueAttribution => Boolean(entry)),
         };
+        const unsupportedRuntimeGroupsMap = runtimeTaskAudit.unsupportedRuntimeRecords.reduce((map, record) => {
+            const reason = classifyRuntimeUnsupportedReason(record);
+            const source = sourceLabelForRuntimeDriftKind(record.kind);
+            const taskDefinition = record.taskId ? taskDefinitionsById.get(record.taskId) : undefined;
+            const inventoryEntry = record.taskId ? taskInventory.find((entry) => entry.taskId === record.taskId) : undefined;
+            const activityScope: RuntimeUnsupportedGroup["activityScope"] = typeof record.timestamp === "number" && record.timestamp >= currentDailyTaskWindow.windowStartMs
+                ? "active"
+                : "historical";
+            const groupKey = [
+                source,
+                reason,
+                record.taskId || "no_task",
+                record.eventName || "no_event",
+                inventoryEntry?.actionType || "no_action",
+            ].join(":");
+            const current = map.get(groupKey) || {
+                groupKey,
+                count: 0,
+                taskId: record.taskId || undefined,
+                taskTitle: record.title || taskDefinition?.title || undefined,
+                triggerEvent: record.eventName || taskDefinition?.eventName || undefined,
+                runtimeAction: inventoryEntry?.actionType || undefined,
+                source,
+                reason,
+                activityScope,
+                affectedUsersSample: [] as RuntimeUnsupportedGroup["affectedUsersSample"],
+                firstSeenAtUtc: null as string | null,
+                lastSeenAtUtc: null as string | null,
+                severity: "review" as RuntimeUnsupportedGroup["severity"],
+                suggestedAction: suggestedActionForRuntimeUnsupportedReason(reason),
+            };
+            current.count += 1;
+            current.activityScope = current.activityScope === activityScope ? current.activityScope : "mixed";
+            if (record.userId && !current.affectedUsersSample.some((entry) => entry.userId === record.userId)) {
+                current.affectedUsersSample.push({
+                    userId: record.userId,
+                    displayName: runtimeUserIdentityMap.get(record.userId),
+                    shortUserId: shortenAdminOverviewUserId(record.userId),
+                });
+            }
+            if (typeof record.timestamp === "number" && record.timestamp > 0) {
+                const timestampUtc = new Date(record.timestamp).toISOString();
+                current.firstSeenAtUtc = !current.firstSeenAtUtc || timestampUtc < current.firstSeenAtUtc ? timestampUtc : current.firstSeenAtUtc;
+                current.lastSeenAtUtc = !current.lastSeenAtUtc || timestampUtc > current.lastSeenAtUtc ? timestampUtc : current.lastSeenAtUtc;
+            }
+            current.severity = activityScope === "active"
+                ? "error"
+                : reason === "legacy_task_alias_unmapped" || reason === "custom_task_without_definition"
+                    ? "review"
+                    : reason === "unknown"
+                        ? "review"
+                        : "review";
+            map.set(groupKey, current);
+            return map;
+        }, new Map<string, RuntimeUnsupportedGroup>());
+        const unsupportedRuntimeGroups = Array.from(unsupportedRuntimeGroupsMap.values())
+            .map((entry) => ({
+                ...entry,
+                affectedUsersSample: entry.affectedUsersSample.slice(0, 3),
+            }))
+            .sort((left, right) => {
+                const severityRank = { error: 0, review: 1, info: 2 };
+                return severityRank[left.severity] - severityRank[right.severity]
+                    || right.count - left.count
+                    || (left.taskId || "").localeCompare(right.taskId || "");
+            });
+        const runtimeTaskDriftSummary: RuntimeTaskDriftSummary = {
+            generatedAtUtc: new Date(nowMs).toISOString(),
+            sampledUsers: runtimeTaskAudit.summary.sampledUsers,
+            assignmentCount: runtimeTaskAudit.summary.totalAssignments,
+            customAssignedCount: runtimeTaskAudit.summary.customAssignments,
+            cooldownDriftCount: runtimeTaskAudit.summary.cooldownConflictUsers,
+            unsupportedRuntimeCount: runtimeTaskAudit.summary.unsupportedRuntimeRecords,
+            unsupportedRuntimeGroups,
+            state: unsupportedRuntimeGroups.some((entry) => entry.severity === "error")
+                ? "error"
+                : unsupportedRuntimeGroups.length > 0
+                    ? "review"
+                    : "live",
+        };
 
         const bugReports: BugReportTriageCard[] = feedbackSnapshot.docs
             .map((doc) => {
@@ -2604,6 +2789,7 @@ export async function GET(request: NextRequest) {
             taskParity,
             taskParitySummary,
             taskGumdropGuardrails,
+            runtimeTaskDriftSummary,
             taskAuditSample,
             recentTaskEvents: recentTaskEvents.slice(0, 80),
             recentReceipts: recentReceipts.slice(0, 80),

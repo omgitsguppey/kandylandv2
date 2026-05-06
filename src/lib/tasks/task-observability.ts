@@ -269,6 +269,7 @@ export interface DailyTaskRuntimeDriftRecord {
   eventName: string;
   userId: string;
   detail: string;
+  timestamp?: number;
 }
 
 export interface DailyTaskAmbiguousEventMappingEntry {
@@ -888,6 +889,7 @@ export function buildDailyTaskRuntimeAudit({
           eventName: "",
           userId: userState.uid,
           detail: "runtime assignment is missing a matching task definition",
+          timestamp: normalizePositiveNumber(task.assignedAt) || normalizePositiveNumber(task.claimedAt),
         });
         return;
       }
@@ -942,6 +944,7 @@ export function buildDailyTaskRuntimeAudit({
         eventName: event.triggerEvent,
         userId: event.userId,
         detail: "task lifecycle event does not map to a current task definition",
+        timestamp: normalizePositiveNumber(event.timestamp),
       });
       return;
     }
@@ -987,6 +990,7 @@ export function buildDailyTaskRuntimeAudit({
         eventName: receipt.eventName,
         userId: receipt.uid,
         detail: "task receipt event is not mapped to any known task definition",
+        timestamp: normalizePositiveNumber(receipt.timestamp),
       });
     }
   });
@@ -1001,6 +1005,7 @@ export function buildDailyTaskRuntimeAudit({
         eventName: "",
         userId: "",
         detail: "reward claim could not be mapped to a known task definition",
+        timestamp: normalizePositiveNumber(claim.timestamp),
       });
       return;
     }
@@ -1032,6 +1037,7 @@ export function buildDailyTaskRuntimeAudit({
         eventName: "",
         userId: "",
         detail: "task rollup references a task definition that is no longer present",
+        timestamp: normalizePositiveNumber(rollup.lastEventAt),
       });
       return;
     }

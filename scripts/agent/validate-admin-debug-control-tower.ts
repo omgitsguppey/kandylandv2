@@ -199,6 +199,14 @@ for (const expected of [
   "Rebuild task assignment for this user",
   "taskCoverageSummary",
   "taskGumdropGuardrails",
+  "RuntimeTaskDriftSummary",
+  "RuntimeUnsupportedGroup",
+  "runtimeTaskDriftSummary",
+  "unsupportedRuntimeGroups",
+  "activityScope",
+  "classifyRuntimeUnsupportedReason",
+  "suggestedActionForRuntimeUnsupportedReason",
+  "sourceLabelForRuntimeDriftKind",
   "expectedReceiptPolicy",
   "receiptParityState",
   "taskRewardReceiptCount",
@@ -1239,6 +1247,32 @@ for (const forbidden of [
   "<Pill label=\"Tracked creator spends\" value={data?.creatorSpendParity?.trackedTransactions ?? 0} />",
 ]) {
   requireNotIncludes(debugAdvancedDrift, forbidden, "Task GumDrop guardrail panel must not leave ambiguous or unloaded labels");
+}
+for (const expected of [
+  "Runtime task sample and custom-task drift",
+  "data-runtime-task-sampled-users",
+  "data-runtime-task-assignment-count",
+  "data-runtime-task-custom-assigned-count",
+  "data-runtime-task-cooldown-drift-count",
+  "data-runtime-task-unsupported-count",
+  "data-runtime-task-unsupported-reason",
+  "data-runtime-task-unsupported-group-count",
+  "data-runtime-task-unsupported-severity",
+  "label=\"Sampled users\"",
+  "label=\"Assignments\"",
+  "label=\"Custom assigned\"",
+  "label=\"Cooldown drift\"",
+  "label=\"Unsupported runtime\"",
+  "Unsupported runtime records are grouped by reason and source",
+  "No unsupported runtime records were found",
+  "No active user sample was attached to this runtime drift group.",
+]) {
+  requireIncludes(debugAdvancedDrift, expected, "Runtime task drift panel must show grouped unsupported runtime truth");
+}
+for (const forbidden of [
+  "label=\"Custom assigned\" value={data?.stats?.runtimeCustomAssignments ?? 0} tone={(data?.stats?.runtimeCustomAssignments ?? 0) > 0 ? \"good\" : \"warn\"}",
+]) {
+  requireNotIncludes(debugAdvancedDrift, forbidden, "Runtime task drift panel must not flag zero custom assignments as review");
 }
 
 for (const expected of [
