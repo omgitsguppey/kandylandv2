@@ -1,10 +1,43 @@
 {
-  "currentVersion": "1.44.0",
+  "currentVersion": "1.45.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T02:30:41.584Z",
-  "generatedAtUtc": "2026-05-06T02:30:41.584Z",
-  "lastCommitSha": "45435fb9926905f18e4ae6d32dfc76b264573c38",
+  "generatedAt": "2026-05-06T02:40:47.854Z",
+  "generatedAtUtc": "2026-05-06T02:40:47.854Z",
+  "lastCommitSha": "10b564958780c50abd44a654ef2ba485cb0e6d5c",
   "notes": [
+    {
+      "version": "1.45.0",
+      "previousVersion": "1.44.0",
+      "commitSha": "10b564958780c50abd44a654ef2ba485cb0e6d5c",
+      "commitTitle": "fix(admin): correct route runtime sample states",
+      "committedAt": "2026-05-06T02:40:29.000Z",
+      "generatedAt": "2026-05-06T02:40:47.854Z",
+      "committedAtUtc": "2026-05-06T02:40:29.000Z",
+      "generatedAtUtc": "2026-05-06T02:40:47.854Z",
+      "diffStats": {
+        "rawAdditions": 160,
+        "rawDeletions": 41,
+        "rawChangeCount": 201,
+        "additions": 160,
+        "deletions": 41,
+        "effectiveAdditions": 158,
+        "effectiveDeletions": 39,
+        "changedFiles": 9,
+        "effectiveChangeCount": 197,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal route runtime labels so unseen routes no longer appear as fake successes.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.44.0",
       "previousVersion": "1.43.0",
@@ -1599,40 +1632,6 @@
       ],
       "committedAtUtc": "2026-05-05T09:57:10.000Z",
       "generatedAtUtc": "2026-05-05T12:02:55.668Z"
-    },
-    {
-      "version": "1.8.0",
-      "previousVersion": "1.7.0",
-      "commitSha": "2793af1c20a351ce206efbb5afc0768646898e03",
-      "commitTitle": "feat(analytics): add search intent ranking signal",
-      "committedAt": "2026-05-05T09:41:39.000Z",
-      "generatedAt": "2026-05-05T12:02:55.384Z",
-      "diffStats": {
-        "rawAdditions": 882,
-        "rawDeletions": 9,
-        "rawChangeCount": 891,
-        "additions": 882,
-        "deletions": 9,
-        "effectiveAdditions": 882,
-        "effectiveDeletions": 9,
-        "changedFiles": 20,
-        "effectiveChangeCount": 891,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "telemetry"
-      ],
-      "committedAtUtc": "2026-05-05T09:41:39.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:55.384Z"
     }
   ]
 }

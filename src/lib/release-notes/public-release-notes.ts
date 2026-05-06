@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.44.0",
+  "currentVersion": "1.45.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T02:30:41.584Z",
-  "generatedAtUtc": "2026-05-06T02:30:41.584Z",
-  "lastCommitSha": "45435fb9926905f18e4ae6d32dfc76b264573c38",
+  "generatedAt": "2026-05-06T02:40:47.854Z",
+  "generatedAtUtc": "2026-05-06T02:40:47.854Z",
+  "lastCommitSha": "10b564958780c50abd44a654ef2ba485cb0e6d5c",
   "notes": [
+    {
+      "version": "1.45.0",
+      "previousVersion": "1.44.0",
+      "commitSha": "10b564958780c50abd44a654ef2ba485cb0e6d5c",
+      "commitTitle": "fix(admin): correct route runtime sample states",
+      "committedAt": "2026-05-06T02:40:29.000Z",
+      "generatedAt": "2026-05-06T02:40:47.854Z",
+      "committedAtUtc": "2026-05-06T02:40:29.000Z",
+      "generatedAtUtc": "2026-05-06T02:40:47.854Z",
+      "diffStats": {
+        "rawAdditions": 160,
+        "rawDeletions": 41,
+        "rawChangeCount": 201,
+        "additions": 160,
+        "deletions": 41,
+        "effectiveAdditions": 158,
+        "effectiveDeletions": 39,
+        "changedFiles": 9,
+        "effectiveChangeCount": 197,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal route runtime labels so unseen routes no longer appear as fake successes.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.44.0",
       "previousVersion": "1.43.0",
@@ -137,40 +170,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "admin",
         "documentation",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.40.0",
-      "previousVersion": "1.39.0",
-      "commitSha": "69ffae9bedf9635a8924fdbc1732c95c1a83539b",
-      "commitTitle": "fix(admin): clarify task issue attribution",
-      "committedAt": "2026-05-06T01:47:59.000Z",
-      "generatedAt": "2026-05-06T01:48:10.316Z",
-      "committedAtUtc": "2026-05-06T01:47:59.000Z",
-      "generatedAtUtc": "2026-05-06T01:48:10.316Z",
-      "diffStats": {
-        "rawAdditions": 243,
-        "rawDeletions": 7,
-        "rawChangeCount": 250,
-        "additions": 243,
-        "deletions": 7,
-        "effectiveAdditions": 241,
-        "effectiveDeletions": 5,
-        "changedFiles": 11,
-        "effectiveChangeCount": 246,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal task assignment diagnostics.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "telemetry"
       ]
     }
   ]
