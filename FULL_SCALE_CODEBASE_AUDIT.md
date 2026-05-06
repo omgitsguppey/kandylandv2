@@ -13782,3 +13782,10 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2024-05-20 #1234] PRE: Consolidate unlockedDrops and categories useMemo
+- Exploring `src/app/dashboard/library/LibraryClient.tsx` to combine O(N) array traversals inside `useMemo` hooks.
+
+## [2024-05-20 #1234] POST: Consolidate unlockedDrops and categories useMemo
+- Combined `unlockedDrops` and `categories` logic into a single `useMemo` using a `for...of` loop in `src/app/dashboard/library/LibraryClient.tsx`, saving multiple array traversals.
+- Verified test suite and typecheck pass without regressions.

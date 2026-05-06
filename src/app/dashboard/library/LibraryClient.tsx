@@ -42,7 +42,27 @@ export function LibraryClient({ drops }: LibraryClientProps) {
         return Array.isArray(source) ? new Set(source) : new Set<string>();
     }, [userProfile?.unlockedContent]);
 
-    const unlockedDrops = useMemo(() => drops.filter((drop) => unlockedIds.has(drop.id)), [drops, unlockedIds]);
+    const { unlockedDrops, categories } = useMemo(() => {
+        const unlocked: Drop[] = [];
+        const creators = new Set<string>();
+
+        // ⚡ Bolt: Single pass iteration over drops array to build unlocked content and categories,
+        // avoiding multiple iterations and intermediate allocations for performance
+        for (const drop of drops) {
+            if (unlockedIds.has(drop.id)) {
+                unlocked.push(drop);
+                if (drop.creatorId) {
+                    creators.add(drop.creatorId);
+                }
+            }
+        }
+
+        return {
+            unlockedDrops: unlocked,
+            categories: ["All", ...Array.from(creators).sort()]
+        };
+    }, [drops, unlockedIds]);
+
     const router = useRouter();
 
     useEffect(() => {
@@ -79,17 +99,6 @@ export function LibraryClient({ drops }: LibraryClientProps) {
         }
         return res;
     }, [unlockedDrops, searchQuery, selectedCategory]);
-
-    const categories = useMemo(() => {
-        const base = ["All"];
-        const creators = new Set<string>();
-        unlockedDrops.forEach(d => {
-            if (d.creatorId) {
-                creators.add(d.creatorId);
-            }
-        });
-        return [...base, ...Array.from(creators).sort()];
-    }, [unlockedDrops]);
 
 if (authLoading) {
         return (

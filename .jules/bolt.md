@@ -21,3 +21,7 @@
 ## 2026-04-02 - Array/String Allocations in Cache Keys
 **Learning:** Creating cache keys using dynamic string concatenations of arrays (e.g., `drop.contentUrls?.join(",")`) defeats the purpose of caching by unconditionally allocating memory and adding garbage collection pressure on every call. This causes a net performance regression in hot paths compared to simple, non-allocating property checks.
 **Action:** Use lightweight, non-allocating cache keys. For entities where we know references do not mutate deeply without a new top-level reference (like `drop`), we can use the entity's ID or `WeakMap` on the entity itself to cache derived data, avoiding costly key generation strings entirely.
+
+## 2024-05-20 - Multi-derived state consolidation in useMemo
+**Learning:** When multiple derived states (e.g., a filtered list and an extracted set of categories) depend on the same base array in React components, keeping them in separate `useMemo` hooks often leads to redundant iterations and multiple intermediate object allocations (e.g. `array.filter(...)` then `filteredArray.forEach(...)`). This causes excessive garbage collection pressure during renders.
+**Action:** Consolidate them into a single `useMemo` returning an object. Use a single-pass `for...of` loop to build both simultaneously and avoid multiple iterations.
