@@ -6,16 +6,21 @@ export const PUBLIC_RELEASE_NOTES_MAJOR_LOCK = 1;
 export const PUBLIC_RELEASE_VERSION_SHAPE = "MAJOR.MINOR.PATCH";
 
 export const PUBLIC_RELEASE_NOTE_CATEGORIES = [
+  "New",
+  "Improved",
   "Added",
   "Changed",
   "Fixed",
   "Security",
   "Performance",
   "Internal",
+  "Admin",
+  "Beta",
 ] as const;
 
 export type PublicReleaseNoteCategory = typeof PUBLIC_RELEASE_NOTE_CATEGORIES[number];
 export type PublicReleaseBumpType = "major" | "minor" | "patch";
+export type PublicReleaseAudience = "users" | "creators" | "admins" | "all";
 
 export type PublicReleaseNote = {
   version: string;
@@ -40,8 +45,13 @@ export type PublicReleaseNote = {
   };
   bumpType: PublicReleaseBumpType;
   category: PublicReleaseNoteCategory;
+  title: string;
+  updatedAtUtc: string;
+  summary: string;
   userFacingTitle: string;
   bullets: string[];
+  audience: PublicReleaseAudience;
+  technicalDetails?: string[];
   affectedSurfaces: string[];
   hiddenFromPublic?: boolean;
 };

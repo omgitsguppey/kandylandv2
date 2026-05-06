@@ -1,137 +1,45 @@
 {
-  "currentVersion": "1.53.0",
+  "currentVersion": "1.112.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T04:58:48.626Z",
-  "generatedAtUtc": "2026-05-06T04:58:48.626Z",
-  "lastCommitSha": "fef2058a653f662446f2453c2a939a59b5fd2766",
+  "generatedAt": "2026-05-06T17:11:11.469Z",
+  "generatedAtUtc": "2026-05-06T17:11:11.469Z",
+  "lastCommitSha": "6b88d0fd95672cbf18e4cbcb91a4996037520dd7",
   "notes": [
     {
-      "version": "1.53.0",
-      "previousVersion": "1.52.0",
-      "commitSha": "fef2058a653f662446f2453c2a939a59b5fd2766",
-      "commitTitle": "fix(admin): upgrade debug assistant model routing",
-      "committedAt": "2026-05-06T04:48:48.000Z",
-      "generatedAt": "2026-05-06T04:58:48.626Z",
-      "committedAtUtc": "2026-05-06T04:48:48.000Z",
-      "generatedAtUtc": "2026-05-06T04:58:48.626Z",
+      "version": "1.112.0",
+      "previousVersion": "1.111.0",
+      "commitSha": "6b88d0fd95672cbf18e4cbcb91a4996037520dd7",
+      "commitTitle": "fix(system): harden deterministic admin truth surfaces",
+      "committedAt": "2026-05-06T17:01:38.000Z",
+      "generatedAt": "2026-05-06T17:11:11.469Z",
+      "committedAtUtc": "2026-05-06T17:01:38.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:11.469Z",
       "diffStats": {
-        "rawAdditions": 1527,
-        "rawDeletions": 245,
-        "rawChangeCount": 1772,
-        "additions": 1527,
-        "deletions": 245,
-        "effectiveAdditions": 1527,
-        "effectiveDeletions": 245,
-        "changedFiles": 24,
-        "effectiveChangeCount": 1772,
+        "rawAdditions": 605,
+        "rawDeletions": 36,
+        "rawChangeCount": 641,
+        "additions": 605,
+        "deletions": 36,
+        "effectiveAdditions": 605,
+        "effectiveDeletions": 36,
+        "changedFiles": 29,
+        "effectiveChangeCount": 641,
         "excludedGeneratedChangeCount": 0
       },
       "bumpType": "minor",
       "category": "Fixed",
-      "userFacingTitle": "Improved internal admin tools used to keep beta features stable.",
+      "title": "Improved admin status accuracy",
+      "updatedAtUtc": "2026-05-06T17:11:11.469Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin status accuracy",
       "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
       ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.52.0",
-      "previousVersion": "1.51.0",
-      "commitSha": "4234e36711426775f67e05653593fd2bcd4d59f6",
-      "commitTitle": "fix(admin): complete dependency inventory panel",
-      "committedAt": "2026-05-06T04:17:55.000Z",
-      "generatedAt": "2026-05-06T04:18:07.080Z",
-      "committedAtUtc": "2026-05-06T04:17:55.000Z",
-      "generatedAtUtc": "2026-05-06T04:18:07.080Z",
-      "diffStats": {
-        "rawAdditions": 770,
-        "rawDeletions": 238,
-        "rawChangeCount": 1008,
-        "additions": 770,
-        "deletions": 238,
-        "effectiveAdditions": 685,
-        "effectiveDeletions": 157,
-        "changedFiles": 7,
-        "effectiveChangeCount": 842,
-        "excludedGeneratedChangeCount": 166
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved Beta update notes so changes are easier to match with support reports.",
-      "bullets": [
-        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
-        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "release-notes",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.51.0",
-      "previousVersion": "1.50.0",
-      "commitSha": "4eb73b3eaa23a74611c19278c63de430c609f83d",
-      "commitTitle": "fix(admin): enrich receipt sample context",
-      "committedAt": "2026-05-06T04:07:47.000Z",
-      "generatedAt": "2026-05-06T04:17:27.967Z",
-      "committedAtUtc": "2026-05-06T04:07:47.000Z",
-      "generatedAtUtc": "2026-05-06T04:17:27.967Z",
-      "diffStats": {
-        "rawAdditions": 424,
-        "rawDeletions": 100,
-        "rawChangeCount": 524,
-        "additions": 424,
-        "deletions": 100,
-        "effectiveAdditions": 340,
-        "effectiveDeletions": 18,
-        "changedFiles": 6,
-        "effectiveChangeCount": 358,
-        "excludedGeneratedChangeCount": 166
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved Beta update notes so changes are easier to match with support reports.",
-      "bullets": [
-        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
-        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "release-notes",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.50.0",
-      "previousVersion": "1.49.0",
-      "commitSha": "e1ff6cd52370d9f6cf7be29ea084b5d86722ca5a",
-      "commitTitle": "fix(tasks): separate paid and potential rewards",
-      "committedAt": "2026-05-06T03:53:59.000Z",
-      "generatedAt": "2026-05-06T03:54:21.999Z",
-      "committedAtUtc": "2026-05-06T03:53:59.000Z",
-      "generatedAtUtc": "2026-05-06T03:54:21.999Z",
-      "diffStats": {
-        "rawAdditions": 597,
-        "rawDeletions": 34,
-        "rawChangeCount": 631,
-        "additions": 597,
-        "deletions": 34,
-        "effectiveAdditions": 597,
-        "effectiveDeletions": 34,
-        "changedFiles": 14,
-        "effectiveChangeCount": 631,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved daily task reward tracking so task totals reflect completed rewards more accurately.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
       ],
       "affectedSurfaces": [
         "admin",
@@ -141,100 +49,557 @@
       ]
     },
     {
-      "version": "1.49.0",
-      "previousVersion": "1.48.1",
-      "commitSha": "59435d8e5864bf43db5a453be94e21003fa105e3",
-      "commitTitle": "fix(tasks): materialize daily task reset windows",
-      "committedAt": "2026-05-06T03:34:58.000Z",
-      "generatedAt": "2026-05-06T03:35:20.858Z",
-      "committedAtUtc": "2026-05-06T03:34:58.000Z",
-      "generatedAtUtc": "2026-05-06T03:35:20.858Z",
+      "version": "1.111.0",
+      "previousVersion": "1.110.0",
+      "commitSha": "2df00e332c340fc3b5b7cdb5c0b4dad0463341c3",
+      "commitTitle": "fix(admin): clarify library viewer drilldown truth",
+      "committedAt": "2026-05-06T16:37:58.000Z",
+      "generatedAt": "2026-05-06T17:11:11.313Z",
+      "committedAtUtc": "2026-05-06T16:37:58.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:11.313Z",
       "diffStats": {
-        "rawAdditions": 691,
-        "rawDeletions": 23,
-        "rawChangeCount": 714,
-        "additions": 691,
-        "deletions": 23,
-        "effectiveAdditions": 691,
-        "effectiveDeletions": 23,
-        "changedFiles": 15,
-        "effectiveChangeCount": 714,
+        "rawAdditions": 297,
+        "rawDeletions": 43,
+        "rawChangeCount": 340,
+        "additions": 297,
+        "deletions": 43,
+        "effectiveAdditions": 297,
+        "effectiveDeletions": 43,
+        "changedFiles": 9,
+        "effectiveChangeCount": 340,
         "excludedGeneratedChangeCount": 0
       },
       "bumpType": "minor",
       "category": "Fixed",
-      "userFacingTitle": "Improved daily task reset reliability so tasks are prepared on the daily schedule.",
+      "title": "Improved admin status accuracy",
+      "updatedAtUtc": "2026-05-06T17:11:11.313Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin status accuracy",
       "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
+        "Clarified verified and estimated viewer watch time.",
+        "Improved stale and quiet viewer activity labels.",
+        "Updated viewer rows to use readable names where available."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
       ],
       "affectedSurfaces": [
         "admin",
-        "documentation",
-        "repo-tooling",
-        "telemetry"
+        "repo-tooling"
       ]
     },
     {
-      "version": "1.48.1",
-      "previousVersion": "1.48.0",
-      "commitSha": "0dd9d1e33525a45e777f6e1a01ecbe36e653ac36",
-      "commitTitle": "fix(admin): normalize recent event flow context",
-      "committedAt": "2026-05-06T03:16:38.000Z",
-      "generatedAt": "2026-05-06T03:16:50.927Z",
-      "committedAtUtc": "2026-05-06T03:16:38.000Z",
-      "generatedAtUtc": "2026-05-06T03:16:50.927Z",
+      "version": "1.110.0",
+      "previousVersion": "1.109.0",
+      "commitSha": "0f5c808375eb600082da4b19f178a08386119f38",
+      "commitTitle": "fix(admin): tighten commerce feed mobile cards",
+      "committedAt": "2026-05-06T16:22:45.000Z",
+      "generatedAt": "2026-05-06T17:11:11.166Z",
+      "committedAtUtc": "2026-05-06T16:22:45.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:11.166Z",
       "diffStats": {
-        "rawAdditions": 51,
-        "rawDeletions": 24,
-        "rawChangeCount": 75,
-        "additions": 51,
-        "deletions": 24,
-        "effectiveAdditions": 51,
-        "effectiveDeletions": 24,
-        "changedFiles": 6,
-        "effectiveChangeCount": 75,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal event-flow diagnostics so background system events are not confused with user actions.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "telemetry"
-      ]
-    },
-    {
-      "version": "1.48.0",
-      "previousVersion": "1.47.1",
-      "commitSha": "874c1ba93f3a1152ba26ad009491f294c4ea6d84",
-      "commitTitle": "fix(admin): clarify recent event flow context",
-      "committedAt": "2026-05-06T03:12:12.000Z",
-      "generatedAt": "2026-05-06T03:12:27.467Z",
-      "committedAtUtc": "2026-05-06T03:12:12.000Z",
-      "generatedAtUtc": "2026-05-06T03:12:27.467Z",
-      "diffStats": {
-        "rawAdditions": 233,
-        "rawDeletions": 12,
-        "rawChangeCount": 245,
-        "additions": 233,
-        "deletions": 12,
-        "effectiveAdditions": 231,
-        "effectiveDeletions": 10,
+        "rawAdditions": 364,
+        "rawDeletions": 29,
+        "rawChangeCount": 393,
+        "additions": 364,
+        "deletions": 29,
+        "effectiveAdditions": 364,
+        "effectiveDeletions": 29,
         "changedFiles": 8,
-        "effectiveChangeCount": 241,
-        "excludedGeneratedChangeCount": 4
+        "effectiveChangeCount": 393,
+        "excludedGeneratedChangeCount": 0
       },
       "bumpType": "minor",
       "category": "Fixed",
-      "userFacingTitle": "Improved internal event-flow diagnostics so background events and user actions are easier to tell apart.",
+      "title": "Improved transaction review",
+      "updatedAtUtc": "2026-05-06T17:11:11.166Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved transaction review",
       "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
+        "Added clearer names to recent transaction rows.",
+        "Improved GumDrops transaction labels and timestamps for admin review.",
+        "Clarified unavailable commerce details instead of showing waiting states."
       ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.109.0",
+      "previousVersion": "1.108.0",
+      "commitSha": "05ad94d6859c78ab686e479d8eab5c976631130d",
+      "commitTitle": "fix(admin): clarify top drop unwrap conversion",
+      "committedAt": "2026-05-06T16:10:11.000Z",
+      "generatedAt": "2026-05-06T17:11:11.020Z",
+      "committedAtUtc": "2026-05-06T16:10:11.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:11.020Z",
+      "diffStats": {
+        "rawAdditions": 532,
+        "rawDeletions": 131,
+        "rawChangeCount": 663,
+        "additions": 532,
+        "deletions": 131,
+        "effectiveAdditions": 532,
+        "effectiveDeletions": 131,
+        "changedFiles": 12,
+        "effectiveChangeCount": 663,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved drop conversion review",
+      "updatedAtUtc": "2026-05-06T17:11:11.020Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved drop conversion review",
+      "bullets": [
+        "Improved drop rows with readable names instead of long IDs.",
+        "Clarified unwrap counts and small conversion percentages.",
+        "Added page controls when more drop rows are available."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Display language uses unwrap; backend entitlement fields may still use unlock."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.108.0",
+      "previousVersion": "1.107.0",
+      "commitSha": "928e0e6b8b19f882bad75bfda214340ac7430f26",
+      "commitTitle": "fix(admin): hydrate content conversion analytics",
+      "committedAt": "2026-05-06T15:50:32.000Z",
+      "generatedAt": "2026-05-06T17:11:10.867Z",
+      "committedAtUtc": "2026-05-06T15:50:32.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:10.867Z",
+      "diffStats": {
+        "rawAdditions": 795,
+        "rawDeletions": 61,
+        "rawChangeCount": 856,
+        "additions": 795,
+        "deletions": 61,
+        "effectiveAdditions": 795,
+        "effectiveDeletions": 61,
+        "changedFiles": 9,
+        "effectiveChangeCount": 856,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved content conversion review",
+      "updatedAtUtc": "2026-05-06T17:11:10.867Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved content conversion review",
+      "bullets": [
+        "Improved content conversion rows so available preview and unwrap data can appear.",
+        "Clarified when content details are missing or unavailable.",
+        "Updated content group labels for easier admin review."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.107.0",
+      "previousVersion": "1.106.0",
+      "commitSha": "8dbaf09d09a61793fe79c4018ee7f7e1db676ed1",
+      "commitTitle": "fix(admin): hydrate package performance",
+      "committedAt": "2026-05-06T15:26:31.000Z",
+      "generatedAt": "2026-05-06T17:11:10.713Z",
+      "committedAtUtc": "2026-05-06T15:26:31.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:10.713Z",
+      "diffStats": {
+        "rawAdditions": 419,
+        "rawDeletions": 70,
+        "rawChangeCount": 489,
+        "additions": 419,
+        "deletions": 70,
+        "effectiveAdditions": 419,
+        "effectiveDeletions": 70,
+        "changedFiles": 7,
+        "effectiveChangeCount": 489,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved package performance review",
+      "updatedAtUtc": "2026-05-06T17:11:10.713Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved package performance review",
+      "bullets": [
+        "Improved GumDrops package rows so purchase data can appear when available.",
+        "Clarified when checkout data is unavailable for package conversion.",
+        "Updated package labels, prices, and GumDrops values for review."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.106.0",
+      "previousVersion": "1.105.0",
+      "commitSha": "e4cdebf96e7570212507ee98d9e02b9b1ec8b312",
+      "commitTitle": "fix(admin): clarify commerce snapshot denominators",
+      "committedAt": "2026-05-06T15:15:22.000Z",
+      "generatedAt": "2026-05-06T17:11:10.566Z",
+      "committedAtUtc": "2026-05-06T15:15:22.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:10.566Z",
+      "diffStats": {
+        "rawAdditions": 698,
+        "rawDeletions": 131,
+        "rawChangeCount": 829,
+        "additions": 698,
+        "deletions": 131,
+        "effectiveAdditions": 698,
+        "effectiveDeletions": 131,
+        "changedFiles": 7,
+        "effectiveChangeCount": 829,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved transaction review",
+      "updatedAtUtc": "2026-05-06T17:11:10.566Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved transaction review",
+      "bullets": [
+        "Added clearer names to recent transaction rows.",
+        "Improved GumDrops transaction labels and timestamps for admin review.",
+        "Clarified unavailable commerce details instead of showing waiting states."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.105.0",
+      "previousVersion": "1.104.0",
+      "commitSha": "3e0a096d518d37d767061cb3dcd423830c549883",
+      "commitTitle": "fix(admin): separate regional demand from internal traffic",
+      "committedAt": "2026-05-06T14:54:15.000Z",
+      "generatedAt": "2026-05-06T17:11:10.418Z",
+      "committedAtUtc": "2026-05-06T14:54:15.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:10.418Z",
+      "diffStats": {
+        "rawAdditions": 591,
+        "rawDeletions": 30,
+        "rawChangeCount": 621,
+        "additions": 591,
+        "deletions": 30,
+        "effectiveAdditions": 591,
+        "effectiveDeletions": 30,
+        "changedFiles": 12,
+        "effectiveChangeCount": 621,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:10.418Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.104.0",
+      "previousVersion": "1.103.0",
+      "commitSha": "1cbeb00c402890fcc5054871d9486e208cc8a54b",
+      "commitTitle": "fix(admin): paginate top paths analytics",
+      "committedAt": "2026-05-06T14:38:32.000Z",
+      "generatedAt": "2026-05-06T17:11:10.270Z",
+      "committedAtUtc": "2026-05-06T14:38:32.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:10.270Z",
+      "diffStats": {
+        "rawAdditions": 786,
+        "rawDeletions": 14,
+        "rawChangeCount": 800,
+        "additions": 786,
+        "deletions": 14,
+        "effectiveAdditions": 786,
+        "effectiveDeletions": 14,
+        "changedFiles": 9,
+        "effectiveChangeCount": 800,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:10.270Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.103.0",
+      "previousVersion": "1.102.0",
+      "commitSha": "802ba37895c0f24c824ddf0d959d69eabc820697",
+      "commitTitle": "fix(admin): deepen device mix analytics",
+      "committedAt": "2026-05-06T14:22:47.000Z",
+      "generatedAt": "2026-05-06T17:11:10.127Z",
+      "committedAtUtc": "2026-05-06T14:22:47.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:10.127Z",
+      "diffStats": {
+        "rawAdditions": 544,
+        "rawDeletions": 23,
+        "rawChangeCount": 567,
+        "additions": 544,
+        "deletions": 23,
+        "effectiveAdditions": 544,
+        "effectiveDeletions": 23,
+        "changedFiles": 9,
+        "effectiveChangeCount": 567,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:10.127Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.102.0",
+      "previousVersion": "1.101.0",
+      "commitSha": "9e25162658ff64e534cdcf966ec50c208593a89f",
+      "commitTitle": "fix(admin): hydrate navigation destinations",
+      "committedAt": "2026-05-06T14:14:19.000Z",
+      "generatedAt": "2026-05-06T17:11:09.977Z",
+      "committedAtUtc": "2026-05-06T14:14:19.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:09.977Z",
+      "diffStats": {
+        "rawAdditions": 801,
+        "rawDeletions": 29,
+        "rawChangeCount": 830,
+        "additions": 801,
+        "deletions": 29,
+        "effectiveAdditions": 801,
+        "effectiveDeletions": 29,
+        "changedFiles": 9,
+        "effectiveChangeCount": 830,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:09.977Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.101.0",
+      "previousVersion": "1.100.0",
+      "commitSha": "8a67faf045ca2f8f85d3c0bc377be721bfe6f4fa",
+      "commitTitle": "fix(admin): hydrate return cadence from activity truth",
+      "committedAt": "2026-05-06T14:02:35.000Z",
+      "generatedAt": "2026-05-06T17:11:09.828Z",
+      "committedAtUtc": "2026-05-06T14:02:35.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:09.828Z",
+      "diffStats": {
+        "rawAdditions": 536,
+        "rawDeletions": 33,
+        "rawChangeCount": 569,
+        "additions": 536,
+        "deletions": 33,
+        "effectiveAdditions": 536,
+        "effectiveDeletions": 33,
+        "changedFiles": 10,
+        "effectiveChangeCount": 569,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin status accuracy",
+      "updatedAtUtc": "2026-05-06T17:11:09.828Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin status accuracy",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.100.0",
+      "previousVersion": "1.99.0",
+      "commitSha": "cd49872cff015aec2922864740714ca9affe6f9c",
+      "commitTitle": "fix(admin): surface audience traffic gap recovery",
+      "committedAt": "2026-05-06T13:52:30.000Z",
+      "generatedAt": "2026-05-06T17:11:09.679Z",
+      "committedAtUtc": "2026-05-06T13:52:30.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:09.679Z",
+      "diffStats": {
+        "rawAdditions": 609,
+        "rawDeletions": 152,
+        "rawChangeCount": 761,
+        "additions": 609,
+        "deletions": 152,
+        "effectiveAdditions": 609,
+        "effectiveDeletions": 152,
+        "changedFiles": 8,
+        "effectiveChangeCount": 761,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:09.679Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.99.0",
+      "previousVersion": "1.98.0",
+      "commitSha": "ce24e093966346fa90199bf9dfb550e5e0feb6d9",
+      "commitTitle": "fix(admin): clarify notification funnel truth",
+      "committedAt": "2026-05-06T13:34:06.000Z",
+      "generatedAt": "2026-05-06T17:11:09.523Z",
+      "committedAtUtc": "2026-05-06T13:34:06.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:09.523Z",
+      "diffStats": {
+        "rawAdditions": 445,
+        "rawDeletions": 120,
+        "rawChangeCount": 565,
+        "additions": 445,
+        "deletions": 120,
+        "effectiveAdditions": 445,
+        "effectiveDeletions": 120,
+        "changedFiles": 9,
+        "effectiveChangeCount": 565,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin status accuracy",
+      "updatedAtUtc": "2026-05-06T17:11:09.523Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin status accuracy",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.98.0",
+      "previousVersion": "1.97.0",
+      "commitSha": "4b9db0e90c4d7fb913631bb58cbc328c9f86bf7a",
+      "commitTitle": "fix(tasks): clarify daily pipeline denominators",
+      "committedAt": "2026-05-06T13:24:24.000Z",
+      "generatedAt": "2026-05-06T17:11:09.373Z",
+      "committedAtUtc": "2026-05-06T13:24:24.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:09.373Z",
+      "diffStats": {
+        "rawAdditions": 260,
+        "rawDeletions": 24,
+        "rawChangeCount": 284,
+        "additions": 260,
+        "deletions": 24,
+        "effectiveAdditions": 260,
+        "effectiveDeletions": 24,
+        "changedFiles": 11,
+        "effectiveChangeCount": 284,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin AI status",
+      "updatedAtUtc": "2026-05-06T17:11:09.373Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin AI status",
+      "bullets": [
+        "Improved admin reliability and status accuracy.",
+        "Clarified unavailable data without showing fake zeroes.",
+        "Updated labels for review and support follow-up."
+      ],
+      "audience": "admins",
       "affectedSurfaces": [
         "admin",
         "documentation",
@@ -243,31 +608,193 @@
       ]
     },
     {
-      "version": "1.47.1",
-      "previousVersion": "1.47.0",
-      "commitSha": "d5a84e8f29d0992eefe53c0e64d544ecb7297d48",
-      "commitTitle": "fix(admin): clarify session config readiness",
-      "committedAt": "2026-05-06T03:02:35.000Z",
-      "generatedAt": "2026-05-06T03:02:52.202Z",
-      "committedAtUtc": "2026-05-06T03:02:35.000Z",
-      "generatedAtUtc": "2026-05-06T03:02:52.202Z",
+      "version": "1.97.0",
+      "previousVersion": "1.96.0",
+      "commitSha": "2aaa96ec13bd2d27137f8d64ec2425d0892bf5e8",
+      "commitTitle": "fix(admin): clarify live interaction stream freshness",
+      "committedAt": "2026-05-06T13:11:57.000Z",
+      "generatedAt": "2026-05-06T17:11:09.228Z",
+      "committedAtUtc": "2026-05-06T13:11:57.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:09.228Z",
       "diffStats": {
-        "rawAdditions": 84,
-        "rawDeletions": 10,
-        "rawChangeCount": 94,
-        "additions": 84,
-        "deletions": 10,
-        "effectiveAdditions": 84,
-        "effectiveDeletions": 10,
+        "rawAdditions": 378,
+        "rawDeletions": 134,
+        "rawChangeCount": 512,
+        "additions": 378,
+        "deletions": 134,
+        "effectiveAdditions": 378,
+        "effectiveDeletions": 134,
         "changedFiles": 5,
-        "effectiveChangeCount": 94,
+        "effectiveChangeCount": 512,
         "excludedGeneratedChangeCount": 0
       },
-      "bumpType": "patch",
+      "bumpType": "minor",
       "category": "Fixed",
-      "userFacingTitle": "Clarified internal admin readiness checks so config presence is not confused with live service health.",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:09.228Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
       "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.96.0",
+      "previousVersion": "1.95.0",
+      "commitSha": "7b76d284b8cbba3a75843b8b8b9c34fbca2c1f60",
+      "commitTitle": "fix(admin): clarify event mix surface context",
+      "committedAt": "2026-05-06T13:06:25.000Z",
+      "generatedAt": "2026-05-06T17:11:09.080Z",
+      "committedAtUtc": "2026-05-06T13:06:25.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:09.080Z",
+      "diffStats": {
+        "rawAdditions": 262,
+        "rawDeletions": 84,
+        "rawChangeCount": 346,
+        "additions": 262,
+        "deletions": 84,
+        "effectiveAdditions": 262,
+        "effectiveDeletions": 84,
+        "changedFiles": 5,
+        "effectiveChangeCount": 346,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:09.080Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.95.0",
+      "previousVersion": "1.94.0",
+      "commitSha": "77ad8eb608fa73f32fa40082950ef6972bf93c2b",
+      "commitTitle": "fix(admin): clarify guest quality consent samples",
+      "committedAt": "2026-05-06T12:59:11.000Z",
+      "generatedAt": "2026-05-06T17:11:08.933Z",
+      "committedAtUtc": "2026-05-06T12:59:11.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:08.933Z",
+      "diffStats": {
+        "rawAdditions": 422,
+        "rawDeletions": 234,
+        "rawChangeCount": 656,
+        "additions": 422,
+        "deletions": 234,
+        "effectiveAdditions": 422,
+        "effectiveDeletions": 234,
+        "changedFiles": 6,
+        "effectiveChangeCount": 656,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:08.933Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.94.0",
+      "previousVersion": "1.93.0",
+      "commitSha": "29ea66cc66b25cd54497bca1af5cb1046f036f61",
+      "commitTitle": "fix(auth): repair email sign-in outcome tracking",
+      "committedAt": "2026-05-06T12:45:21.000Z",
+      "generatedAt": "2026-05-06T17:11:08.787Z",
+      "committedAtUtc": "2026-05-06T12:45:21.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:08.787Z",
+      "diffStats": {
+        "rawAdditions": 1323,
+        "rawDeletions": 420,
+        "rawChangeCount": 1743,
+        "additions": 1323,
+        "deletions": 420,
+        "effectiveAdditions": 1323,
+        "effectiveDeletions": 420,
+        "changedFiles": 15,
+        "effectiveChangeCount": 1743,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin AI status",
+      "updatedAtUtc": "2026-05-06T17:11:08.787Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin AI status",
+      "bullets": [
+        "Improved admin reliability and status accuracy.",
+        "Clarified unavailable data without showing fake zeroes.",
+        "Updated labels for review and support follow-up."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.93.0",
+      "previousVersion": "1.92.0",
+      "commitSha": "4e91828a19cb821685a4d1873182d0cf54d488d2",
+      "commitTitle": "fix(admin): clarify event chain denominator truth",
+      "committedAt": "2026-05-06T12:19:22.000Z",
+      "generatedAt": "2026-05-06T17:11:08.649Z",
+      "committedAtUtc": "2026-05-06T12:19:22.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:08.649Z",
+      "diffStats": {
+        "rawAdditions": 231,
+        "rawDeletions": 47,
+        "rawChangeCount": 278,
+        "additions": 231,
+        "deletions": 47,
+        "effectiveAdditions": 231,
+        "effectiveDeletions": 47,
+        "changedFiles": 6,
+        "effectiveChangeCount": 278,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin status accuracy",
+      "updatedAtUtc": "2026-05-06T17:11:08.649Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin status accuracy",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
       ],
       "affectedSurfaces": [
         "admin",
@@ -276,65 +803,120 @@
       ]
     },
     {
-      "version": "1.47.0",
-      "previousVersion": "1.46.0",
-      "commitSha": "d5451d05813434695624a15b22bfff52a02dab34",
-      "commitTitle": "fix(admin): enrich queue runtime drop labels",
-      "committedAt": "2026-05-06T02:58:32.000Z",
-      "generatedAt": "2026-05-06T02:58:43.643Z",
-      "committedAtUtc": "2026-05-06T02:58:32.000Z",
-      "generatedAtUtc": "2026-05-06T02:58:43.643Z",
+      "version": "1.92.0",
+      "previousVersion": "1.91.0",
+      "commitSha": "f008ebe5c2b992ee05d9dafaed60efedc97c747b",
+      "commitTitle": "fix(admin): clarify live pulse snapshot truth",
+      "committedAt": "2026-05-06T12:10:34.000Z",
+      "generatedAt": "2026-05-06T17:11:08.527Z",
+      "committedAtUtc": "2026-05-06T12:10:34.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:08.527Z",
       "diffStats": {
-        "rawAdditions": 306,
-        "rawDeletions": 10,
-        "rawChangeCount": 316,
-        "additions": 306,
-        "deletions": 10,
-        "effectiveAdditions": 304,
-        "effectiveDeletions": 8,
-        "changedFiles": 9,
-        "effectiveChangeCount": 312,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal queue health views so drop activation outcomes show readable drop names.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.46.0",
-      "previousVersion": "1.45.0",
-      "commitSha": "662806fb6b761735a4efaba950986ec4f02b236c",
-      "commitTitle": "fix(admin): enrich recent transaction identities",
-      "committedAt": "2026-05-06T02:50:17.000Z",
-      "generatedAt": "2026-05-06T02:50:29.677Z",
-      "committedAtUtc": "2026-05-06T02:50:17.000Z",
-      "generatedAtUtc": "2026-05-06T02:50:29.677Z",
-      "diffStats": {
-        "rawAdditions": 351,
-        "rawDeletions": 25,
-        "rawChangeCount": 376,
-        "additions": 351,
-        "deletions": 25,
-        "effectiveAdditions": 351,
-        "effectiveDeletions": 25,
-        "changedFiles": 9,
-        "effectiveChangeCount": 376,
+        "rawAdditions": 305,
+        "rawDeletions": 31,
+        "rawChangeCount": 336,
+        "additions": 305,
+        "deletions": 31,
+        "effectiveAdditions": 305,
+        "effectiveDeletions": 31,
+        "changedFiles": 7,
+        "effectiveChangeCount": 336,
         "excludedGeneratedChangeCount": 0
       },
       "bumpType": "minor",
       "category": "Fixed",
-      "userFacingTitle": "Improved internal transaction review so admins can identify users more easily.",
+      "title": "Improved admin status accuracy",
+      "updatedAtUtc": "2026-05-06T17:11:08.527Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin status accuracy",
       "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
       ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.91.0",
+      "previousVersion": "1.90.0",
+      "commitSha": "877c29e24948c4668bc1e1573ad52a9b830038c6",
+      "commitTitle": "fix(admin): add analytics overview fallback truth",
+      "committedAt": "2026-05-06T12:00:33.000Z",
+      "generatedAt": "2026-05-06T17:11:08.398Z",
+      "committedAtUtc": "2026-05-06T12:00:33.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:08.398Z",
+      "diffStats": {
+        "rawAdditions": 434,
+        "rawDeletions": 51,
+        "rawChangeCount": 485,
+        "additions": 434,
+        "deletions": 51,
+        "effectiveAdditions": 434,
+        "effectiveDeletions": 51,
+        "changedFiles": 5,
+        "effectiveChangeCount": 485,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin status accuracy",
+      "updatedAtUtc": "2026-05-06T17:11:08.398Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin status accuracy",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.90.0",
+      "previousVersion": "1.89.0",
+      "commitSha": "64941f9da1b7bdedae7b8b16dfc546e52bae0c84",
+      "commitTitle": "feat(admin): add GumDrops commerce control center",
+      "committedAt": "2026-05-06T11:45:06.000Z",
+      "generatedAt": "2026-05-06T17:11:08.269Z",
+      "committedAtUtc": "2026-05-06T11:45:06.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:08.269Z",
+      "diffStats": {
+        "rawAdditions": 2356,
+        "rawDeletions": 7,
+        "rawChangeCount": 2363,
+        "additions": 2356,
+        "deletions": 7,
+        "effectiveAdditions": 2356,
+        "effectiveDeletions": 7,
+        "changedFiles": 29,
+        "effectiveChangeCount": 2363,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "New",
+      "title": "Improved GumDrops review tools",
+      "updatedAtUtc": "2026-05-06T17:11:08.269Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved GumDrops review tools",
+      "bullets": [
+        "Added clearer names to recent transaction rows.",
+        "Improved GumDrops transaction labels and timestamps for admin review.",
+        "Clarified unavailable commerce details instead of showing waiting states."
+      ],
+      "audience": "admins",
       "affectedSurfaces": [
         "admin",
         "documentation",
@@ -343,1305 +925,1060 @@
       ]
     },
     {
-      "version": "1.45.0",
-      "previousVersion": "1.44.0",
-      "commitSha": "10b564958780c50abd44a654ef2ba485cb0e6d5c",
-      "commitTitle": "fix(admin): correct route runtime sample states",
-      "committedAt": "2026-05-06T02:40:29.000Z",
-      "generatedAt": "2026-05-06T02:40:47.854Z",
-      "committedAtUtc": "2026-05-06T02:40:29.000Z",
-      "generatedAtUtc": "2026-05-06T02:40:47.854Z",
+      "version": "1.89.0",
+      "previousVersion": "1.88.0",
+      "commitSha": "31b07b57919c7bbd4de6d5b2a262d03b6149d2d3",
+      "commitTitle": "fix(admin): restore storage upload handling",
+      "committedAt": "2026-05-06T11:21:56.000Z",
+      "generatedAt": "2026-05-06T17:11:08.100Z",
+      "committedAtUtc": "2026-05-06T11:21:56.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:08.100Z",
       "diffStats": {
-        "rawAdditions": 160,
-        "rawDeletions": 41,
-        "rawChangeCount": 201,
-        "additions": 160,
-        "deletions": 41,
-        "effectiveAdditions": 158,
-        "effectiveDeletions": 39,
-        "changedFiles": 9,
-        "effectiveChangeCount": 197,
-        "excludedGeneratedChangeCount": 4
+        "rawAdditions": 489,
+        "rawDeletions": 127,
+        "rawChangeCount": 616,
+        "additions": 489,
+        "deletions": 127,
+        "effectiveAdditions": 276,
+        "effectiveDeletions": 37,
+        "changedFiles": 8,
+        "effectiveChangeCount": 313,
+        "excludedGeneratedChangeCount": 303
       },
       "bumpType": "minor",
       "category": "Fixed",
-      "userFacingTitle": "Improved internal route runtime labels so unseen routes no longer appear as fake successes.",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:08.100Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
       "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
       ],
+      "audience": "admins",
       "affectedSurfaces": [
         "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.44.0",
-      "previousVersion": "1.43.0",
-      "commitSha": "45435fb9926905f18e4ae6d32dfc76b264573c38",
-      "commitTitle": "fix(admin): clarify route runtime health states",
-      "committedAt": "2026-05-06T02:30:27.000Z",
-      "generatedAt": "2026-05-06T02:30:41.583Z",
-      "committedAtUtc": "2026-05-06T02:30:27.000Z",
-      "generatedAtUtc": "2026-05-06T02:30:41.583Z",
-      "diffStats": {
-        "rawAdditions": 314,
-        "rawDeletions": 23,
-        "rawChangeCount": 337,
-        "additions": 314,
-        "deletions": 23,
-        "effectiveAdditions": 312,
-        "effectiveDeletions": 21,
-        "changedFiles": 9,
-        "effectiveChangeCount": 333,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal route health labels so loaded runtime metrics no longer appear stuck.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.43.0",
-      "previousVersion": "1.42.0",
-      "commitSha": "0ad07275579c41228c0b793f181d7f722e36918e",
-      "commitTitle": "fix(admin): clarify bug intake triage states",
-      "committedAt": "2026-05-06T02:19:16.000Z",
-      "generatedAt": "2026-05-06T02:19:29.663Z",
-      "committedAtUtc": "2026-05-06T02:19:16.000Z",
-      "generatedAtUtc": "2026-05-06T02:19:29.663Z",
-      "diffStats": {
-        "rawAdditions": 352,
-        "rawDeletions": 54,
-        "rawChangeCount": 406,
-        "additions": 352,
-        "deletions": 54,
-        "effectiveAdditions": 350,
-        "effectiveDeletions": 52,
-        "changedFiles": 10,
-        "effectiveChangeCount": 402,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal bug report triage labels so loaded reports no longer appear stuck.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.42.0",
-      "previousVersion": "1.41.0",
-      "commitSha": "488a5750056f3b31076940183e006b43af7f6e45",
-      "commitTitle": "fix(admin): group inspect-only repair proposals",
-      "committedAt": "2026-05-06T02:05:25.000Z",
-      "generatedAt": "2026-05-06T02:05:40.352Z",
-      "committedAtUtc": "2026-05-06T02:05:25.000Z",
-      "generatedAtUtc": "2026-05-06T02:05:40.352Z",
-      "diffStats": {
-        "rawAdditions": 418,
-        "rawDeletions": 217,
-        "rawChangeCount": 635,
-        "additions": 418,
-        "deletions": 217,
-        "effectiveAdditions": 416,
-        "effectiveDeletions": 215,
-        "changedFiles": 11,
-        "effectiveChangeCount": 631,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal repair proposal grouping so repeated debug items are easier to review.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.41.0",
-      "previousVersion": "1.40.0",
-      "commitSha": "7d56e157afa44f20236a9b2093c72f4665f0832e",
-      "commitTitle": "fix(admin): dedupe debug repair proposals",
-      "committedAt": "2026-05-06T01:56:39.000Z",
-      "generatedAt": "2026-05-06T01:56:51.549Z",
-      "committedAtUtc": "2026-05-06T01:56:39.000Z",
-      "generatedAtUtc": "2026-05-06T01:56:51.549Z",
-      "diffStats": {
-        "rawAdditions": 413,
-        "rawDeletions": 21,
-        "rawChangeCount": 434,
-        "additions": 413,
-        "deletions": 21,
-        "effectiveAdditions": 411,
-        "effectiveDeletions": 19,
-        "changedFiles": 10,
-        "effectiveChangeCount": 430,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal repair proposal grouping so duplicate debug actions are easier to review.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.40.0",
-      "previousVersion": "1.39.0",
-      "commitSha": "69ffae9bedf9635a8924fdbc1732c95c1a83539b",
-      "commitTitle": "fix(admin): clarify task issue attribution",
-      "committedAt": "2026-05-06T01:47:59.000Z",
-      "generatedAt": "2026-05-06T01:48:10.316Z",
-      "committedAtUtc": "2026-05-06T01:47:59.000Z",
-      "generatedAtUtc": "2026-05-06T01:48:10.316Z",
-      "diffStats": {
-        "rawAdditions": 243,
-        "rawDeletions": 7,
-        "rawChangeCount": 250,
-        "additions": 243,
-        "deletions": 7,
-        "effectiveAdditions": 241,
-        "effectiveDeletions": 5,
-        "changedFiles": 11,
-        "effectiveChangeCount": 246,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal task assignment diagnostics.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
         "repo-tooling",
-        "telemetry"
+        "security"
       ]
     },
     {
-      "version": "1.39.0",
-      "previousVersion": "1.38.0",
-      "commitSha": "b0a9c66bd1a4845d15de04275013910999d9c2e3",
-      "commitTitle": "fix(admin): classify debug signals by severity",
-      "committedAt": "2026-05-06T01:38:46.000Z",
-      "generatedAt": "2026-05-06T01:39:08.312Z",
-      "committedAtUtc": "2026-05-06T01:38:46.000Z",
-      "generatedAtUtc": "2026-05-06T01:39:08.312Z",
+      "version": "1.88.0",
+      "previousVersion": "1.87.0",
+      "commitSha": "8434fb2d83a0da9e1bad9e1bdf84237aba8d9aaa",
+      "commitTitle": "fix(admin): refactor privacy console truth states",
+      "committedAt": "2026-05-06T11:11:38.000Z",
+      "generatedAt": "2026-05-06T17:11:07.969Z",
+      "committedAtUtc": "2026-05-06T11:11:38.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:07.969Z",
       "diffStats": {
-        "rawAdditions": 451,
-        "rawDeletions": 44,
-        "rawChangeCount": 495,
-        "additions": 451,
-        "deletions": 44,
-        "effectiveAdditions": 449,
-        "effectiveDeletions": 42,
-        "changedFiles": 11,
-        "effectiveChangeCount": 491,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal debug status labels so inventory counts do not look like system failures.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.38.0",
-      "previousVersion": "1.37.0",
-      "commitSha": "7762d379fe865b5845609e5ada26ebd304b8dcf8",
-      "commitTitle": "fix(admin): clarify downstream writer freshness",
-      "committedAt": "2026-05-06T01:29:36.000Z",
-      "generatedAt": "2026-05-06T01:29:49.267Z",
-      "committedAtUtc": "2026-05-06T01:29:36.000Z",
-      "generatedAtUtc": "2026-05-06T01:29:49.267Z",
-      "diffStats": {
-        "rawAdditions": 438,
-        "rawDeletions": 34,
-        "rawChangeCount": 472,
-        "additions": 438,
-        "deletions": 34,
-        "effectiveAdditions": 436,
-        "effectiveDeletions": 32,
-        "changedFiles": 12,
-        "effectiveChangeCount": 468,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.37.0",
-      "previousVersion": "1.36.0",
-      "commitSha": "38cbbf4ae10c432322454efaab57ed5348a33535",
-      "commitTitle": "fix(admin): separate diagnostics sample freshness",
-      "committedAt": "2026-05-06T01:19:52.000Z",
-      "generatedAt": "2026-05-06T01:20:04.721Z",
-      "committedAtUtc": "2026-05-06T01:19:52.000Z",
-      "generatedAtUtc": "2026-05-06T01:20:04.721Z",
-      "diffStats": {
-        "rawAdditions": 441,
-        "rawDeletions": 18,
-        "rawChangeCount": 459,
-        "additions": 441,
-        "deletions": 18,
-        "effectiveAdditions": 439,
-        "effectiveDeletions": 16,
-        "changedFiles": 11,
-        "effectiveChangeCount": 455,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal diagnostics timing so health panels separate current issues from older samples.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.36.0",
-      "previousVersion": "1.35.1",
-      "commitSha": "57b3e05b3320996d6a60f8067ba444ca4f86050a",
-      "commitTitle": "fix(creator): require synthetic creator default settings",
-      "committedAt": "2026-05-06T01:12:13.000Z",
-      "generatedAt": "2026-05-06T01:12:24.521Z",
-      "committedAtUtc": "2026-05-06T01:12:13.000Z",
-      "generatedAtUtc": "2026-05-06T01:12:24.521Z",
-      "diffStats": {
-        "rawAdditions": 161,
-        "rawDeletions": 11,
-        "rawChangeCount": 172,
-        "additions": 161,
-        "deletions": 11,
-        "effectiveAdditions": 159,
-        "effectiveDeletions": 9,
-        "changedFiles": 11,
-        "effectiveChangeCount": 168,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator experience defaults for beta reliability.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.35.1",
-      "previousVersion": "1.35.0",
-      "commitSha": "5fb376874b728d59e981d5001d07ff16c62f30c7",
-      "commitTitle": "fix(creator): classify synthetic countersign evidence",
-      "committedAt": "2026-05-06T01:04:20.000Z",
-      "generatedAt": "2026-05-06T01:04:37.379Z",
-      "committedAtUtc": "2026-05-06T01:04:20.000Z",
-      "generatedAtUtc": "2026-05-06T01:04:37.379Z",
-      "diffStats": {
-        "rawAdditions": 57,
-        "rawDeletions": 12,
-        "rawChangeCount": 69,
-        "additions": 57,
-        "deletions": 12,
-        "effectiveAdditions": 55,
-        "effectiveDeletions": 10,
-        "changedFiles": 9,
-        "effectiveChangeCount": 65,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator classification checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.35.0",
-      "previousVersion": "1.34.0",
-      "commitSha": "91ab9d6700726f95ec0dc2f0dfbaaa87c538c799",
-      "commitTitle": "fix(creator): classify synthetic agreement evidence",
-      "committedAt": "2026-05-06T00:40:26.000Z",
-      "generatedAt": "2026-05-06T00:40:50.880Z",
-      "committedAtUtc": "2026-05-06T00:40:26.000Z",
-      "generatedAtUtc": "2026-05-06T00:40:50.880Z",
-      "diffStats": {
-        "rawAdditions": 542,
-        "rawDeletions": 35,
-        "rawChangeCount": 577,
-        "additions": 542,
-        "deletions": 35,
-        "effectiveAdditions": 540,
-        "effectiveDeletions": 33,
-        "changedFiles": 26,
-        "effectiveChangeCount": 573,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator classification checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "telemetry"
-      ]
-    },
-    {
-      "version": "1.34.0",
-      "previousVersion": "1.33.0",
-      "commitSha": "ca194e18799da898e45e3a649f777afb10b1bdf1",
-      "commitTitle": "fix(creator): require default live creator settings",
-      "committedAt": "2026-05-06T00:04:10.000Z",
-      "generatedAt": "2026-05-06T00:40:50.502Z",
-      "committedAtUtc": "2026-05-06T00:04:10.000Z",
-      "generatedAtUtc": "2026-05-06T00:40:50.502Z",
-      "diffStats": {
-        "rawAdditions": 698,
-        "rawDeletions": 89,
-        "rawChangeCount": 787,
-        "additions": 698,
-        "deletions": 89,
-        "effectiveAdditions": 546,
-        "effectiveDeletions": 13,
-        "changedFiles": 20,
-        "effectiveChangeCount": 559,
-        "excludedGeneratedChangeCount": 228
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator experience defaults for beta reliability.",
-      "bullets": [
-        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
-        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "release-notes",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.33.0",
-      "previousVersion": "1.32.0",
-      "commitSha": "fa7cd3ed494b6e06dc32cfb5221f28bed48a1cb5",
-      "commitTitle": "fix(drops): clarify preview cover entitlement states",
-      "committedAt": "2026-05-05T22:44:37.000Z",
-      "generatedAt": "2026-05-05T23:56:39.730Z",
-      "committedAtUtc": "2026-05-05T22:44:37.000Z",
-      "generatedAtUtc": "2026-05-05T23:56:39.730Z",
-      "diffStats": {
-        "rawAdditions": 364,
-        "rawDeletions": 90,
-        "rawChangeCount": 454,
-        "additions": 364,
-        "deletions": 90,
-        "effectiveAdditions": 364,
-        "effectiveDeletions": 90,
-        "changedFiles": 12,
-        "effectiveChangeCount": 454,
+        "rawAdditions": 1330,
+        "rawDeletions": 242,
+        "rawChangeCount": 1572,
+        "additions": 1330,
+        "deletions": 242,
+        "effectiveAdditions": 1330,
+        "effectiveDeletions": 242,
+        "changedFiles": 10,
+        "effectiveChangeCount": 1572,
         "excludedGeneratedChangeCount": 0
       },
       "bumpType": "minor",
       "category": "Fixed",
-      "userFacingTitle": "Fixed a beta issue to make KandyDrops smoother to use.",
+      "title": "Improved admin status accuracy",
+      "updatedAtUtc": "2026-05-06T17:11:07.969Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin status accuracy",
       "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
       ],
       "affectedSurfaces": [
-        "telemetry"
+        "admin",
+        "repo-tooling"
       ]
     },
     {
-      "version": "1.32.0",
-      "previousVersion": "1.31.0",
-      "commitSha": "0a24f04764c97507d4e318e92ec8af5b5da3328a",
-      "commitTitle": "fix(drops): allow creator cover preview sharing",
-      "committedAt": "2026-05-05T22:33:59.000Z",
-      "generatedAt": "2026-05-05T23:56:39.393Z",
-      "committedAtUtc": "2026-05-05T22:33:59.000Z",
-      "generatedAtUtc": "2026-05-05T23:56:39.393Z",
+      "version": "1.87.0",
+      "previousVersion": "1.86.1",
+      "commitSha": "6a0203dd90e9710961911b835f8fd208a0deda1d",
+      "commitTitle": "fix(admin): restore moderation route loading",
+      "committedAt": "2026-05-06T10:56:38.000Z",
+      "generatedAt": "2026-05-06T17:11:07.846Z",
+      "committedAtUtc": "2026-05-06T10:56:38.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:07.846Z",
       "diffStats": {
-        "rawAdditions": 241,
-        "rawDeletions": 18,
-        "rawChangeCount": 259,
-        "additions": 241,
-        "deletions": 18,
-        "effectiveAdditions": 241,
-        "effectiveDeletions": 18,
+        "rawAdditions": 356,
+        "rawDeletions": 50,
+        "rawChangeCount": 406,
+        "additions": 356,
+        "deletions": 50,
+        "effectiveAdditions": 356,
+        "effectiveDeletions": 50,
+        "changedFiles": 8,
+        "effectiveChangeCount": 406,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin health labels",
+      "updatedAtUtc": "2026-05-06T17:11:07.846Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin health labels",
+      "bullets": [
+        "Fixed an issue where unavailable health checks could appear successful.",
+        "Improved labels for loaded, delayed, missing, and older samples.",
+        "Reduced confusing status messages in admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Route health labels now distinguish unseen, stale, and loaded states.",
+        "Runtime rows no longer show fake success states."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "security"
+      ]
+    },
+    {
+      "version": "1.86.1",
+      "previousVersion": "1.86.0",
+      "commitSha": "f643444ace390bd4c16ffe72056841a679af4db2",
+      "commitTitle": "fix(admin): clarify AI cover reference reporting",
+      "committedAt": "2026-05-06T10:44:45.000Z",
+      "generatedAt": "2026-05-06T17:11:07.724Z",
+      "committedAtUtc": "2026-05-06T10:44:45.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:07.724Z",
+      "diffStats": {
+        "rawAdditions": 24,
+        "rawDeletions": 2,
+        "rawChangeCount": 26,
+        "additions": 24,
+        "deletions": 2,
+        "effectiveAdditions": 24,
+        "effectiveDeletions": 2,
+        "changedFiles": 2,
+        "effectiveChangeCount": 26,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "title": "Improved admin AI status",
+      "updatedAtUtc": "2026-05-06T17:11:07.724Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin AI status",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.86.0",
+      "previousVersion": "1.85.0",
+      "commitSha": "474b3fe8f0f7c5c9e2263aae680284a290b39b96",
+      "commitTitle": "fix(admin): cap AI cover generation references",
+      "committedAt": "2026-05-06T10:41:04.000Z",
+      "generatedAt": "2026-05-06T17:11:07.606Z",
+      "committedAtUtc": "2026-05-06T10:41:04.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:07.606Z",
+      "diffStats": {
+        "rawAdditions": 316,
+        "rawDeletions": 10,
+        "rawChangeCount": 326,
+        "additions": 316,
+        "deletions": 10,
+        "effectiveAdditions": 316,
+        "effectiveDeletions": 10,
+        "changedFiles": 9,
+        "effectiveChangeCount": 326,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin AI status",
+      "updatedAtUtc": "2026-05-06T17:11:07.606Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin AI status",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.85.0",
+      "previousVersion": "1.84.0",
+      "commitSha": "bb9d8e18ee82dce68da713e737f3ab40256cfe4e",
+      "commitTitle": "fix(admin): guard cross-origin frame diagnostics",
+      "committedAt": "2026-05-06T10:31:52.000Z",
+      "generatedAt": "2026-05-06T17:11:07.482Z",
+      "committedAtUtc": "2026-05-06T10:31:52.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:07.482Z",
+      "diffStats": {
+        "rawAdditions": 692,
+        "rawDeletions": 10,
+        "rawChangeCount": 702,
+        "additions": 692,
+        "deletions": 10,
+        "effectiveAdditions": 692,
+        "effectiveDeletions": 10,
+        "changedFiles": 12,
+        "effectiveChangeCount": 702,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:07.482Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.84.0",
+      "previousVersion": "1.83.0",
+      "commitSha": "36e83b6d86e31eed4215fa40e0acfb7da7422a13",
+      "commitTitle": "fix(admin): add behavior leaderboard lane",
+      "committedAt": "2026-05-06T10:14:21.000Z",
+      "generatedAt": "2026-05-06T17:11:07.354Z",
+      "committedAtUtc": "2026-05-06T10:14:21.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:07.354Z",
+      "diffStats": {
+        "rawAdditions": 570,
+        "rawDeletions": 52,
+        "rawChangeCount": 622,
+        "additions": 570,
+        "deletions": 52,
+        "effectiveAdditions": 570,
+        "effectiveDeletions": 52,
+        "changedFiles": 4,
+        "effectiveChangeCount": 622,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:07.354Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.83.0",
+      "previousVersion": "1.82.0",
+      "commitSha": "f2f5222b86e4aa1b04b27aff33366a946c78ca55",
+      "commitTitle": "fix(admin): clarify user management KPI truth",
+      "committedAt": "2026-05-06T10:06:42.000Z",
+      "generatedAt": "2026-05-06T17:11:07.234Z",
+      "committedAtUtc": "2026-05-06T10:06:42.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:07.234Z",
+      "diffStats": {
+        "rawAdditions": 445,
+        "rawDeletions": 181,
+        "rawChangeCount": 626,
+        "additions": 445,
+        "deletions": 181,
+        "effectiveAdditions": 445,
+        "effectiveDeletions": 181,
         "changedFiles": 7,
+        "effectiveChangeCount": 626,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin status accuracy",
+      "updatedAtUtc": "2026-05-06T17:11:07.234Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin status accuracy",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.82.0",
+      "previousVersion": "1.81.0",
+      "commitSha": "3987c5316c3a58859d41525bab8cb8f656588f6f",
+      "commitTitle": "fix(admin): verify platform pulse rolling metrics",
+      "committedAt": "2026-05-06T09:49:43.000Z",
+      "generatedAt": "2026-05-06T17:11:07.112Z",
+      "committedAtUtc": "2026-05-06T09:49:43.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:07.112Z",
+      "diffStats": {
+        "rawAdditions": 448,
+        "rawDeletions": 129,
+        "rawChangeCount": 577,
+        "additions": 448,
+        "deletions": 129,
+        "effectiveAdditions": 448,
+        "effectiveDeletions": 129,
+        "changedFiles": 7,
+        "effectiveChangeCount": 577,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:07.112Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.81.0",
+      "previousVersion": "1.80.0",
+      "commitSha": "569dc7fa5b1e1d8785583abca473f6e3ead407b2",
+      "commitTitle": "fix(admin): label rollout sample evaluation mode",
+      "committedAt": "2026-05-06T09:34:19.000Z",
+      "generatedAt": "2026-05-06T17:11:06.987Z",
+      "committedAtUtc": "2026-05-06T09:34:19.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:06.987Z",
+      "diffStats": {
+        "rawAdditions": 136,
+        "rawDeletions": 42,
+        "rawChangeCount": 178,
+        "additions": 136,
+        "deletions": 42,
+        "effectiveAdditions": 136,
+        "effectiveDeletions": 42,
+        "changedFiles": 3,
+        "effectiveChangeCount": 178,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:06.987Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.80.0",
+      "previousVersion": "1.79.0",
+      "commitSha": "d90d4c8bdd30803f3e92ba72a33984b6ed486f20",
+      "commitTitle": "fix(admin): clarify rollout registry states",
+      "committedAt": "2026-05-06T09:30:07.000Z",
+      "generatedAt": "2026-05-06T17:11:06.858Z",
+      "committedAtUtc": "2026-05-06T09:30:07.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:06.858Z",
+      "diffStats": {
+        "rawAdditions": 390,
+        "rawDeletions": 44,
+        "rawChangeCount": 434,
+        "additions": 390,
+        "deletions": 44,
+        "effectiveAdditions": 390,
+        "effectiveDeletions": 44,
+        "changedFiles": 3,
+        "effectiveChangeCount": 434,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:06.858Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.79.0",
+      "previousVersion": "1.78.0",
+      "commitSha": "4e04fc693543d52b0af3c95f33364deae381ad32",
+      "commitTitle": "fix(admin): clarify user watch recovery rows",
+      "committedAt": "2026-05-06T09:19:16.000Z",
+      "generatedAt": "2026-05-06T17:11:06.734Z",
+      "committedAtUtc": "2026-05-06T09:19:16.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:06.734Z",
+      "diffStats": {
+        "rawAdditions": 248,
+        "rawDeletions": 11,
+        "rawChangeCount": 259,
+        "additions": 248,
+        "deletions": 11,
+        "effectiveAdditions": 248,
+        "effectiveDeletions": 11,
+        "changedFiles": 3,
         "effectiveChangeCount": 259,
         "excludedGeneratedChangeCount": 0
       },
       "bumpType": "minor",
       "category": "Fixed",
-      "userFacingTitle": "Fixed a beta issue to make KandyDrops smoother to use.",
+      "title": "Improved viewer analytics",
+      "updatedAtUtc": "2026-05-06T17:11:06.734Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved viewer analytics",
       "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
+        "Clarified verified and estimated viewer watch time.",
+        "Improved stale and quiet viewer activity labels.",
+        "Updated viewer rows to use readable names where available."
       ],
-      "affectedSurfaces": [
-        "telemetry"
-      ]
-    },
-    {
-      "version": "1.31.0",
-      "previousVersion": "1.30.0",
-      "commitSha": "2598da003f071e915bdc3aeb9f86d4657ad1e274",
-      "commitTitle": "fix(admin): downgrade optional owner override reason",
-      "committedAt": "2026-05-05T22:19:17.000Z",
-      "generatedAt": "2026-05-05T22:19:29.625Z",
-      "committedAtUtc": "2026-05-05T22:19:17.000Z",
-      "generatedAtUtc": "2026-05-05T22:19:29.625Z",
-      "diffStats": {
-        "rawAdditions": 200,
-        "rawDeletions": 31,
-        "rawChangeCount": 231,
-        "additions": 200,
-        "deletions": 31,
-        "effectiveAdditions": 195,
-        "effectiveDeletions": 28,
-        "changedFiles": 15,
-        "effectiveChangeCount": 223,
-        "excludedGeneratedChangeCount": 8
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Adjusted internal creator review warnings to match admin override rules.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
+      "audience": "admins",
       "affectedSurfaces": [
         "admin",
-        "documentation",
         "repo-tooling"
       ]
     },
     {
-      "version": "1.30.0",
-      "previousVersion": "1.29.0",
-      "commitSha": "a0973fdb3d307dd0e79e0ec1ab9bb96f875e0e02",
-      "commitTitle": "fix(creator): annotate missing ID request history evidence",
-      "committedAt": "2026-05-05T22:05:42.000Z",
-      "generatedAt": "2026-05-05T22:05:58.505Z",
-      "committedAtUtc": "2026-05-05T22:05:42.000Z",
-      "generatedAtUtc": "2026-05-05T22:05:58.505Z",
+      "version": "1.78.0",
+      "previousVersion": "1.77.0",
+      "commitSha": "251212a47e25edf5ad0bc8c514e3bfb87fd17121",
+      "commitTitle": "fix(admin): clarify drop recovery metric rows",
+      "committedAt": "2026-05-06T09:13:03.000Z",
+      "generatedAt": "2026-05-06T17:11:06.607Z",
+      "committedAtUtc": "2026-05-06T09:13:03.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:06.607Z",
       "diffStats": {
-        "rawAdditions": 268,
-        "rawDeletions": 4,
-        "rawChangeCount": 272,
-        "additions": 268,
-        "deletions": 4,
-        "effectiveAdditions": 264,
-        "effectiveDeletions": 1,
-        "changedFiles": 9,
-        "effectiveChangeCount": 265,
-        "excludedGeneratedChangeCount": 7
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator review history checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.29.0",
-      "previousVersion": "1.28.0",
-      "commitSha": "0f4e79dc70b526231b4708f0bc312551b36ddfcd",
-      "commitTitle": "fix(admin): refresh creator lane parity evidence",
-      "committedAt": "2026-05-05T21:56:04.000Z",
-      "generatedAt": "2026-05-05T21:56:27.587Z",
-      "committedAtUtc": "2026-05-05T21:56:04.000Z",
-      "generatedAtUtc": "2026-05-05T21:56:27.587Z",
-      "diffStats": {
-        "rawAdditions": 643,
-        "rawDeletions": 85,
-        "rawChangeCount": 728,
-        "additions": 643,
-        "deletions": 85,
-        "effectiveAdditions": 620,
-        "effectiveDeletions": 85,
-        "changedFiles": 11,
-        "effectiveChangeCount": 705,
-        "excludedGeneratedChangeCount": 23
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator review status checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.28.0",
-      "previousVersion": "1.27.1",
-      "commitSha": "61bbf8464515651c9bff7d85608c7da5c6bc99b5",
-      "commitTitle": "fix(admin): refresh system health truth",
-      "committedAt": "2026-05-05T21:42:49.000Z",
-      "generatedAt": "2026-05-05T21:43:02.235Z",
-      "committedAtUtc": "2026-05-05T21:42:49.000Z",
-      "generatedAtUtc": "2026-05-05T21:43:02.235Z",
-      "diffStats": {
-        "rawAdditions": 473,
-        "rawDeletions": 12,
-        "rawChangeCount": 485,
-        "additions": 473,
-        "deletions": 12,
-        "effectiveAdditions": 469,
-        "effectiveDeletions": 8,
-        "changedFiles": 12,
-        "effectiveChangeCount": 477,
-        "excludedGeneratedChangeCount": 8
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal health reporting so beta issues show fresher, clearer status.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.27.1",
-      "previousVersion": "1.27.0",
-      "commitSha": "40b96762e144c2f5983c1f8437dd903639d33606",
-      "commitTitle": "fix(security): verify media and Firestore guard evidence",
-      "committedAt": "2026-05-05T21:28:06.000Z",
-      "generatedAt": "2026-05-05T21:28:21.886Z",
-      "committedAtUtc": "2026-05-05T21:28:06.000Z",
-      "generatedAtUtc": "2026-05-05T21:28:21.886Z",
-      "diffStats": {
-        "rawAdditions": 15,
-        "rawDeletions": 43,
-        "rawChangeCount": 58,
-        "additions": 15,
-        "deletions": 43,
-        "effectiveAdditions": 6,
-        "effectiveDeletions": 0,
+        "rawAdditions": 241,
+        "rawDeletions": 10,
+        "rawChangeCount": 251,
+        "additions": 241,
+        "deletions": 10,
+        "effectiveAdditions": 241,
+        "effectiveDeletions": 10,
         "changedFiles": 3,
-        "effectiveChangeCount": 6,
-        "excludedGeneratedChangeCount": 52
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal media and session safety checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.27.0",
-      "previousVersion": "1.26.0",
-      "commitSha": "d706c48009e93b61f92d02246fa74cd29cec6f32",
-      "commitTitle": "fix(cost): guard creator agreement document egress",
-      "committedAt": "2026-05-05T21:22:00.000Z",
-      "generatedAt": "2026-05-05T21:22:15.204Z",
-      "committedAtUtc": "2026-05-05T21:22:00.000Z",
-      "generatedAtUtc": "2026-05-05T21:22:15.204Z",
-      "diffStats": {
-        "rawAdditions": 269,
-        "rawDeletions": 36,
-        "rawChangeCount": 305,
-        "additions": 269,
-        "deletions": 36,
-        "effectiveAdditions": 242,
-        "effectiveDeletions": 5,
-        "changedFiles": 5,
-        "effectiveChangeCount": 247,
-        "excludedGeneratedChangeCount": 58
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved safety checks for creator agreement document access.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.26.0",
-      "previousVersion": "1.25.0",
-      "commitSha": "648a07ef1b19c9d176c9ea1cd2ec4cf4bf92c14b",
-      "commitTitle": "fix(cost): guard creator ID document egress",
-      "committedAt": "2026-05-05T21:16:32.000Z",
-      "generatedAt": "2026-05-05T21:16:47.539Z",
-      "committedAtUtc": "2026-05-05T21:16:32.000Z",
-      "generatedAtUtc": "2026-05-05T21:16:47.539Z",
-      "diffStats": {
-        "rawAdditions": 174,
-        "rawDeletions": 38,
-        "rawChangeCount": 212,
-        "additions": 174,
-        "deletions": 38,
-        "effectiveAdditions": 147,
-        "effectiveDeletions": 7,
-        "changedFiles": 5,
-        "effectiveChangeCount": 154,
-        "excludedGeneratedChangeCount": 58
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal safety checks for creator verification documents.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.25.0",
-      "previousVersion": "1.24.8",
-      "commitSha": "79eb57843663fa21a78a14261fb06607d4350dde",
-      "commitTitle": "fix(cost): guard creator agreement document egress",
-      "committedAt": "2026-05-05T21:10:32.000Z",
-      "generatedAt": "2026-05-05T21:10:43.516Z",
-      "committedAtUtc": "2026-05-05T21:10:32.000Z",
-      "generatedAtUtc": "2026-05-05T21:10:43.516Z",
-      "diffStats": {
-        "rawAdditions": 139,
-        "rawDeletions": 32,
-        "rawChangeCount": 171,
-        "additions": 139,
-        "deletions": 32,
-        "effectiveAdditions": 108,
-        "effectiveDeletions": 7,
-        "changedFiles": 5,
-        "effectiveChangeCount": 115,
-        "excludedGeneratedChangeCount": 56
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal document safety checks for creator agreement tools.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.24.8",
-      "previousVersion": "1.24.7",
-      "commitSha": "b1cee605c8a7290f34b0f5f48cd97086f1f1d686",
-      "commitTitle": "fix(cost): prove admin content entitlement scope",
-      "committedAt": "2026-05-05T21:06:49.000Z",
-      "generatedAt": "2026-05-05T21:07:01.584Z",
-      "committedAtUtc": "2026-05-05T21:06:49.000Z",
-      "generatedAtUtc": "2026-05-05T21:07:01.584Z",
-      "diffStats": {
-        "rawAdditions": 40,
-        "rawDeletions": 1,
-        "rawChangeCount": 41,
-        "additions": 40,
-        "deletions": 1,
-        "effectiveAdditions": 39,
-        "effectiveDeletions": 0,
-        "changedFiles": 6,
-        "effectiveChangeCount": 39,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal checks that protect locked content access.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.24.7",
-      "previousVersion": "1.24.6",
-      "commitSha": "280f1e9d303c4439d34b76c3d0b54f35bf9b8508",
-      "commitTitle": "fix(cost): guard admin content media egress",
-      "committedAt": "2026-05-05T21:03:35.000Z",
-      "generatedAt": "2026-05-05T21:03:50.291Z",
-      "committedAtUtc": "2026-05-05T21:03:35.000Z",
-      "generatedAtUtc": "2026-05-05T21:03:50.291Z",
-      "diffStats": {
-        "rawAdditions": 472,
-        "rawDeletions": 113,
-        "rawChangeCount": 585,
-        "additions": 472,
-        "deletions": 113,
-        "effectiveAdditions": 46,
-        "effectiveDeletions": 2,
-        "changedFiles": 6,
-        "effectiveChangeCount": 48,
-        "excludedGeneratedChangeCount": 537
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal media safety checks to prevent unnecessary storage traffic.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.24.6",
-      "previousVersion": "1.24.5",
-      "commitSha": "e604e86721c793094ad83d2f853ad55d59ca9495",
-      "commitTitle": "fix(chat): refresh attachment completion read bounds",
-      "committedAt": "2026-05-05T20:55:44.000Z",
-      "generatedAt": "2026-05-05T20:55:56.911Z",
-      "committedAtUtc": "2026-05-05T20:55:44.000Z",
-      "generatedAtUtc": "2026-05-05T20:55:56.911Z",
-      "diffStats": {
-        "rawAdditions": 1,
-        "rawDeletions": 1,
-        "rawChangeCount": 2,
-        "additions": 1,
-        "deletions": 1,
-        "effectiveAdditions": 0,
-        "effectiveDeletions": 0,
-        "changedFiles": 1,
-        "effectiveChangeCount": 0,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes safety checks for chat media uploads.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.5",
-      "previousVersion": "1.24.4",
-      "commitSha": "527f833df0272619b7d5909dd0c217a526112444",
-      "commitTitle": "fix(chat): refresh attachment cancel idempotency",
-      "committedAt": "2026-05-05T20:41:36.000Z",
-      "generatedAt": "2026-05-05T20:41:47.310Z",
-      "committedAtUtc": "2026-05-05T20:41:36.000Z",
-      "generatedAtUtc": "2026-05-05T20:41:47.310Z",
-      "diffStats": {
-        "rawAdditions": 3,
-        "rawDeletions": 1,
-        "rawChangeCount": 4,
-        "additions": 3,
-        "deletions": 1,
-        "effectiveAdditions": 2,
-        "effectiveDeletions": 0,
-        "changedFiles": 2,
-        "effectiveChangeCount": 2,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved reliability for canceling pending chat attachments.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.4",
-      "previousVersion": "1.24.3",
-      "commitSha": "46cfb75edefe9bc556eaf0a12af15774cd52994c",
-      "commitTitle": "fix(chat): refresh attachment cancel read bounds",
-      "committedAt": "2026-05-05T20:38:44.000Z",
-      "generatedAt": "2026-05-05T20:38:54.619Z",
-      "committedAtUtc": "2026-05-05T20:38:44.000Z",
-      "generatedAtUtc": "2026-05-05T20:38:54.619Z",
-      "diffStats": {
-        "rawAdditions": 1,
-        "rawDeletions": 1,
-        "rawChangeCount": 2,
-        "additions": 1,
-        "deletions": 1,
-        "effectiveAdditions": 0,
-        "effectiveDeletions": 0,
-        "changedFiles": 1,
-        "effectiveChangeCount": 0,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes safety checks for chat attachments.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.3",
-      "previousVersion": "1.24.2",
-      "commitSha": "14f7addf6b9ec646a31b6c712c7c9dcf3c4a401d",
-      "commitTitle": "fix(auth): refresh navigation session read bounds",
-      "committedAt": "2026-05-05T20:29:08.000Z",
-      "generatedAt": "2026-05-05T20:29:25.369Z",
-      "committedAtUtc": "2026-05-05T20:29:08.000Z",
-      "generatedAtUtc": "2026-05-05T20:29:25.369Z",
-      "diffStats": {
-        "rawAdditions": 1,
-        "rawDeletions": 1,
-        "rawChangeCount": 2,
-        "additions": 1,
-        "deletions": 1,
-        "effectiveAdditions": 0,
-        "effectiveDeletions": 0,
-        "changedFiles": 1,
-        "effectiveChangeCount": 0,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes session safety checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.2",
-      "previousVersion": "1.24.1",
-      "commitSha": "92ee96e665d2802f0ff8da3934d07f3ad7d240e0",
-      "commitTitle": "fix(auth): refresh navigation session read bounds",
-      "committedAt": "2026-05-05T20:24:14.000Z",
-      "generatedAt": "2026-05-05T20:24:26.012Z",
-      "committedAtUtc": "2026-05-05T20:24:14.000Z",
-      "generatedAtUtc": "2026-05-05T20:24:26.012Z",
-      "diffStats": {
-        "rawAdditions": 2,
-        "rawDeletions": 2,
-        "rawChangeCount": 4,
-        "additions": 2,
-        "deletions": 2,
-        "effectiveAdditions": 1,
-        "effectiveDeletions": 1,
-        "changedFiles": 2,
-        "effectiveChangeCount": 2,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes session safety checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.1",
-      "previousVersion": "1.24.0",
-      "commitSha": "739808bba955704939fa378db2accfbee7a52b28",
-      "commitTitle": "fix(admin): refresh content storage guard evidence",
-      "committedAt": "2026-05-05T20:20:00.000Z",
-      "generatedAt": "2026-05-05T20:20:16.201Z",
-      "committedAtUtc": "2026-05-05T20:20:00.000Z",
-      "generatedAtUtc": "2026-05-05T20:20:16.201Z",
-      "diffStats": {
-        "rawAdditions": 35,
-        "rawDeletions": 3,
-        "rawChangeCount": 38,
-        "additions": 35,
-        "deletions": 3,
-        "effectiveAdditions": 34,
-        "effectiveDeletions": 2,
-        "changedFiles": 3,
-        "effectiveChangeCount": 36,
-        "excludedGeneratedChangeCount": 2
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal content safety checks for admin media tools.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "security"
-      ]
-    },
-    {
-      "version": "1.24.0",
-      "previousVersion": "1.23.0",
-      "commitSha": "aa1284ac84c31d43a050e542fc4811c62fb28749",
-      "commitTitle": "fix(chat): bound attachment completion lookup",
-      "committedAt": "2026-05-05T20:06:27.000Z",
-      "generatedAt": "2026-05-05T20:06:40.297Z",
-      "committedAtUtc": "2026-05-05T20:06:27.000Z",
-      "generatedAtUtc": "2026-05-05T20:06:40.297Z",
-      "diffStats": {
-        "rawAdditions": 143,
-        "rawDeletions": 28,
-        "rawChangeCount": 171,
-        "additions": 143,
-        "deletions": 28,
-        "effectiveAdditions": 137,
-        "effectiveDeletions": 5,
-        "changedFiles": 4,
-        "effectiveChangeCount": 142,
-        "excludedGeneratedChangeCount": 29
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes safety checks for chat media uploads.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "chat",
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.23.0",
-      "previousVersion": "1.22.0",
-      "commitSha": "d1525d633c0b6b9ffaabc94eb497e78afffd96a9",
-      "commitTitle": "fix(chat): make attachment cancel idempotent",
-      "committedAt": "2026-05-05T19:52:48.000Z",
-      "generatedAt": "2026-05-05T19:52:58.640Z",
-      "committedAtUtc": "2026-05-05T19:52:48.000Z",
-      "generatedAtUtc": "2026-05-05T19:52:58.640Z",
-      "diffStats": {
-        "rawAdditions": 386,
-        "rawDeletions": 73,
-        "rawChangeCount": 459,
-        "additions": 386,
-        "deletions": 73,
-        "effectiveAdditions": 376,
-        "effectiveDeletions": 15,
-        "changedFiles": 4,
-        "effectiveChangeCount": 391,
-        "excludedGeneratedChangeCount": 68
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved reliability for canceling pending chat attachments.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "chat",
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.22.0",
-      "previousVersion": "1.21.1",
-      "commitSha": "b9d1c3fa010e9cbbcb1e47e4eacb68963404c9e9",
-      "commitTitle": "fix(chat): bound attachment cancel lookup",
-      "committedAt": "2026-05-05T19:44:47.000Z",
-      "generatedAt": "2026-05-05T19:44:57.658Z",
-      "committedAtUtc": "2026-05-05T19:44:47.000Z",
-      "generatedAtUtc": "2026-05-05T19:44:57.658Z",
-      "diffStats": {
-        "rawAdditions": 184,
-        "rawDeletions": 38,
-        "rawChangeCount": 222,
-        "additions": 184,
-        "deletions": 38,
-        "effectiveAdditions": 174,
-        "effectiveDeletions": 11,
-        "changedFiles": 4,
-        "effectiveChangeCount": 185,
-        "excludedGeneratedChangeCount": 37
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes safety checks for chat attachments.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "chat",
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.21.1",
-      "previousVersion": "1.21.0",
-      "commitSha": "20c210996e720cbc024fe1b5b002883b44cea9ab",
-      "commitTitle": "fix(auth): prove navigation session Firestore read bounds",
-      "committedAt": "2026-05-05T19:39:15.000Z",
-      "generatedAt": "2026-05-05T19:39:26.028Z",
-      "committedAtUtc": "2026-05-05T19:39:15.000Z",
-      "generatedAtUtc": "2026-05-05T19:39:26.028Z",
-      "diffStats": {
-        "rawAdditions": 130,
-        "rawDeletions": 807,
-        "rawChangeCount": 937,
-        "additions": 130,
-        "deletions": 807,
-        "effectiveAdditions": 23,
-        "effectiveDeletions": 3,
-        "changedFiles": 4,
-        "effectiveChangeCount": 26,
-        "excludedGeneratedChangeCount": 911
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved behind-the-scenes session safety checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.21.0",
-      "previousVersion": "1.20.1",
-      "commitSha": "193b4c8d663e0960cd2b9f10d0aac2241541237f",
-      "commitTitle": "fix(admin): guard content storage route evidence",
-      "committedAt": "2026-05-05T19:33:58.000Z",
-      "generatedAt": "2026-05-05T19:34:10.416Z",
-      "committedAtUtc": "2026-05-05T19:33:58.000Z",
-      "generatedAtUtc": "2026-05-05T19:34:10.416Z",
-      "diffStats": {
-        "rawAdditions": 629,
-        "rawDeletions": 302,
-        "rawChangeCount": 931,
-        "additions": 629,
-        "deletions": 302,
-        "effectiveAdditions": 449,
-        "effectiveDeletions": 67,
-        "changedFiles": 9,
-        "effectiveChangeCount": 516,
-        "excludedGeneratedChangeCount": 415
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal content safety checks for admin media tools.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.20.1",
-      "previousVersion": "1.20.0",
-      "commitSha": "1f08985ddfa85ad9d9742ae5d1bfbbbf69eaf24a",
-      "commitTitle": "fix(release): keep beta notes user safe",
-      "committedAt": "2026-05-05T19:16:35.000Z",
-      "generatedAt": "2026-05-05T19:16:50.354Z",
-      "committedAtUtc": "2026-05-05T19:16:35.000Z",
-      "generatedAtUtc": "2026-05-05T19:16:50.354Z",
-      "diffStats": {
-        "rawAdditions": 128,
-        "rawDeletions": 43,
-        "rawChangeCount": 171,
-        "additions": 128,
-        "deletions": 43,
-        "effectiveAdditions": 41,
-        "effectiveDeletions": 3,
-        "changedFiles": 7,
-        "effectiveChangeCount": 44,
-        "excludedGeneratedChangeCount": 127
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved Beta update notes so changes are easier to match with support reports.",
-      "bullets": [
-        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
-        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "release-notes",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.20.0",
-      "previousVersion": "1.19.0",
-      "commitSha": "f7500283807314a26d05dc1f6a86b0f28d02aeb1",
-      "commitTitle": "docs(beta): lock debug-first stabilization roadmap",
-      "committedAt": "2026-05-05T18:56:53.000Z",
-      "generatedAt": "2026-05-05T19:15:29.544Z",
-      "committedAtUtc": "2026-05-05T18:56:53.000Z",
-      "generatedAtUtc": "2026-05-05T19:15:29.544Z",
-      "diffStats": {
-        "rawAdditions": 659,
-        "rawDeletions": 148,
-        "rawChangeCount": 807,
-        "additions": 659,
-        "deletions": 148,
-        "effectiveAdditions": 403,
-        "effectiveDeletions": 37,
-        "changedFiles": 16,
-        "effectiveChangeCount": 440,
-        "excludedGeneratedChangeCount": 367
-      },
-      "bumpType": "minor",
-      "category": "Changed",
-      "userFacingTitle": "Improved beta stabilization guidance so fixes stay focused and easier to track.",
-      "bullets": [
-        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
-        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "release-notes",
-        "repo-tooling",
-        "telemetry"
-      ]
-    },
-    {
-      "version": "1.19.0",
-      "previousVersion": "1.18.0",
-      "commitSha": "e262ae44f608f2b3c095bb127c2dfb4124004617",
-      "commitTitle": "chore(devops): verify Codex native auth readiness",
-      "committedAt": "2026-05-05T14:11:31.000Z",
-      "generatedAt": "2026-05-05T18:48:32.784Z",
-      "committedAtUtc": "2026-05-05T14:11:31.000Z",
-      "generatedAtUtc": "2026-05-05T18:48:32.784Z",
-      "diffStats": {
-        "rawAdditions": 1831,
-        "rawDeletions": 0,
-        "rawChangeCount": 1831,
-        "additions": 1831,
-        "deletions": 0,
-        "effectiveAdditions": 1293,
-        "effectiveDeletions": 0,
-        "changedFiles": 14,
-        "effectiveChangeCount": 1293,
-        "excludedGeneratedChangeCount": 538
-      },
-      "bumpType": "minor",
-      "category": "Internal",
-      "userFacingTitle": "Improved internal beta reliability.",
-      "bullets": [
-        "Improved internal beta reliability without changing your core flows."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.18.0",
-      "previousVersion": "1.17.0",
-      "commitSha": "0526931009edf197cce768fea15f91f75a7ad5af",
-      "commitTitle": "audit: document KandyDrops billing runtime surfaces",
-      "committedAt": "2026-05-05T13:11:22.000Z",
-      "generatedAt": "2026-05-05T18:48:32.252Z",
-      "committedAtUtc": "2026-05-05T13:11:22.000Z",
-      "generatedAtUtc": "2026-05-05T18:48:32.252Z",
-      "diffStats": {
-        "rawAdditions": 246,
-        "rawDeletions": 0,
-        "rawChangeCount": 246,
-        "additions": 246,
-        "deletions": 0,
-        "effectiveAdditions": 246,
-        "effectiveDeletions": 0,
-        "changedFiles": 2,
-        "effectiveChangeCount": 246,
+        "effectiveChangeCount": 251,
         "excludedGeneratedChangeCount": 0
       },
       "bumpType": "minor",
-      "category": "Changed",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:06.607Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
       "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.77.0",
+      "previousVersion": "1.76.0",
+      "commitSha": "e37f2c5a412de152a30c282bf17ea4e31ef349ac",
+      "commitTitle": "fix(analytics): group estimated watch recoveries",
+      "committedAt": "2026-05-06T09:09:23.000Z",
+      "generatedAt": "2026-05-06T17:11:06.479Z",
+      "committedAtUtc": "2026-05-06T09:09:23.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:06.479Z",
+      "diffStats": {
+        "rawAdditions": 249,
+        "rawDeletions": 1,
+        "rawChangeCount": 250,
+        "additions": 249,
+        "deletions": 1,
+        "effectiveAdditions": 249,
+        "effectiveDeletions": 1,
+        "changedFiles": 4,
+        "effectiveChangeCount": 250,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved viewer analytics",
+      "updatedAtUtc": "2026-05-06T17:11:06.479Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved viewer analytics",
+      "bullets": [
+        "Clarified verified and estimated viewer watch time.",
+        "Improved stale and quiet viewer activity labels.",
+        "Updated viewer rows to use readable names where available."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
       ],
       "affectedSurfaces": [
-        "documentation"
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.76.0",
+      "previousVersion": "1.75.0",
+      "commitSha": "01eeed72a6223c986c0928dd39fb03a190566971",
+      "commitTitle": "fix(admin): clarify telemetry recovery freshness",
+      "committedAt": "2026-05-06T09:01:32.000Z",
+      "generatedAt": "2026-05-06T17:11:06.350Z",
+      "committedAtUtc": "2026-05-06T09:01:32.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:06.350Z",
+      "diffStats": {
+        "rawAdditions": 408,
+        "rawDeletions": 37,
+        "rawChangeCount": 445,
+        "additions": 408,
+        "deletions": 37,
+        "effectiveAdditions": 408,
+        "effectiveDeletions": 37,
+        "changedFiles": 3,
+        "effectiveChangeCount": 445,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:06.350Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.75.0",
+      "previousVersion": "1.74.0",
+      "commitSha": "b344f7aeba7d5ef155fa0c1c518079b0ef6ebf06",
+      "commitTitle": "fix(admin): expose behavioral intelligence calibration",
+      "committedAt": "2026-05-06T08:50:59.000Z",
+      "generatedAt": "2026-05-06T17:11:06.219Z",
+      "committedAtUtc": "2026-05-06T08:50:59.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:06.219Z",
+      "diffStats": {
+        "rawAdditions": 471,
+        "rawDeletions": 24,
+        "rawChangeCount": 495,
+        "additions": 471,
+        "deletions": 24,
+        "effectiveAdditions": 471,
+        "effectiveDeletions": 24,
+        "changedFiles": 4,
+        "effectiveChangeCount": 495,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:06.219Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.74.0",
+      "previousVersion": "1.73.0",
+      "commitSha": "c13c4ce84e62bbc8f363f9a1c0a5baab4e8ee552",
+      "commitTitle": "fix(tasks): enforce three daily task window",
+      "committedAt": "2026-05-06T08:37:49.000Z",
+      "generatedAt": "2026-05-06T17:11:06.088Z",
+      "committedAtUtc": "2026-05-06T08:37:49.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:06.088Z",
+      "diffStats": {
+        "rawAdditions": 98,
+        "rawDeletions": 32,
+        "rawChangeCount": 130,
+        "additions": 98,
+        "deletions": 32,
+        "effectiveAdditions": 98,
+        "effectiveDeletions": 32,
+        "changedFiles": 6,
+        "effectiveChangeCount": 130,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved daily task tracking",
+      "updatedAtUtc": "2026-05-06T17:11:06.088Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved daily task tracking",
+      "bullets": [
+        "Improved admin reliability and status accuracy.",
+        "Clarified unavailable data without showing fake zeroes.",
+        "Updated labels for review and support follow-up."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.73.0",
+      "previousVersion": "1.72.0",
+      "commitSha": "9ac6f7b72bc7a9769b5c99e817096169771f2e89",
+      "commitTitle": "fix(telemetry): classify coverage sample events",
+      "committedAt": "2026-05-06T08:28:10.000Z",
+      "generatedAt": "2026-05-06T17:11:05.961Z",
+      "committedAtUtc": "2026-05-06T08:28:10.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:05.961Z",
+      "diffStats": {
+        "rawAdditions": 502,
+        "rawDeletions": 46,
+        "rawChangeCount": 548,
+        "additions": 502,
+        "deletions": 46,
+        "effectiveAdditions": 502,
+        "effectiveDeletions": 46,
+        "changedFiles": 4,
+        "effectiveChangeCount": 548,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:05.961Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Improved admin reliability and status accuracy.",
+        "Clarified unavailable data without showing fake zeroes.",
+        "Updated labels for review and support follow-up."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.72.0",
+      "previousVersion": "1.71.0",
+      "commitSha": "89cdcaf6eab069d41bcb3fb90c7d7761b754b971",
+      "commitTitle": "fix(tasks): group receipt mapping aliases",
+      "committedAt": "2026-05-06T08:17:32.000Z",
+      "generatedAt": "2026-05-06T17:11:05.828Z",
+      "committedAtUtc": "2026-05-06T08:17:32.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:05.828Z",
+      "diffStats": {
+        "rawAdditions": 186,
+        "rawDeletions": 2,
+        "rawChangeCount": 188,
+        "additions": 186,
+        "deletions": 2,
+        "effectiveAdditions": 186,
+        "effectiveDeletions": 2,
+        "changedFiles": 5,
+        "effectiveChangeCount": 188,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved transaction review",
+      "updatedAtUtc": "2026-05-06T17:11:05.828Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved transaction review",
+      "bullets": [
+        "Added clearer names to recent transaction rows.",
+        "Improved GumDrops transaction labels and timestamps for admin review.",
+        "Clarified unavailable commerce details instead of showing waiting states."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.71.0",
+      "previousVersion": "1.70.0",
+      "commitSha": "d0d06a7278f987915ce731c13e0cd5b87395ead6",
+      "commitTitle": "fix(tasks): explain shared event task criteria",
+      "committedAt": "2026-05-06T08:14:08.000Z",
+      "generatedAt": "2026-05-06T17:11:05.687Z",
+      "committedAtUtc": "2026-05-06T08:14:08.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:05.687Z",
+      "diffStats": {
+        "rawAdditions": 180,
+        "rawDeletions": 18,
+        "rawChangeCount": 198,
+        "additions": 180,
+        "deletions": 18,
+        "effectiveAdditions": 180,
+        "effectiveDeletions": 18,
+        "changedFiles": 4,
+        "effectiveChangeCount": 198,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin AI status",
+      "updatedAtUtc": "2026-05-06T17:11:05.687Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin AI status",
+      "bullets": [
+        "Improved admin reliability and status accuracy.",
+        "Clarified unavailable data without showing fake zeroes.",
+        "Updated labels for review and support follow-up."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.70.0",
+      "previousVersion": "1.69.0",
+      "commitSha": "784c2217d0d4a846e2c395f923902d4d91e723a9",
+      "commitTitle": "fix(tasks): clarify telemetry mapping purpose",
+      "committedAt": "2026-05-06T08:09:31.000Z",
+      "generatedAt": "2026-05-06T17:11:05.554Z",
+      "committedAtUtc": "2026-05-06T08:09:31.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:05.554Z",
+      "diffStats": {
+        "rawAdditions": 381,
+        "rawDeletions": 101,
+        "rawChangeCount": 482,
+        "additions": 381,
+        "deletions": 101,
+        "effectiveAdditions": 381,
+        "effectiveDeletions": 101,
+        "changedFiles": 4,
+        "effectiveChangeCount": 482,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:05.554Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Improved admin reliability and status accuracy.",
+        "Clarified unavailable data without showing fake zeroes.",
+        "Updated labels for review and support follow-up."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.69.0",
+      "previousVersion": "1.68.0",
+      "commitSha": "cf09dc0cfff57c10d994307aae9e8c8e580da292",
+      "commitTitle": "fix(tasks): explain telemetry mapping ambiguity",
+      "committedAt": "2026-05-06T08:03:13.000Z",
+      "generatedAt": "2026-05-06T17:11:05.421Z",
+      "committedAtUtc": "2026-05-06T08:03:13.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:05.421Z",
+      "diffStats": {
+        "rawAdditions": 405,
+        "rawDeletions": 54,
+        "rawChangeCount": 459,
+        "additions": 405,
+        "deletions": 54,
+        "effectiveAdditions": 405,
+        "effectiveDeletions": 54,
+        "changedFiles": 4,
+        "effectiveChangeCount": 459,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin AI status",
+      "updatedAtUtc": "2026-05-06T17:11:05.421Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin AI status",
+      "bullets": [
+        "Improved admin reliability and status accuracy.",
+        "Clarified unavailable data without showing fake zeroes.",
+        "Updated labels for review and support follow-up."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.68.0",
+      "previousVersion": "1.67.0",
+      "commitSha": "0df210f73f3cdf495be31a77bca6663bae154321",
+      "commitTitle": "fix(tasks): separate runtime task source parity",
+      "committedAt": "2026-05-06T07:54:17.000Z",
+      "generatedAt": "2026-05-06T17:11:05.286Z",
+      "committedAtUtc": "2026-05-06T07:54:17.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:05.286Z",
+      "diffStats": {
+        "rawAdditions": 303,
+        "rawDeletions": 26,
+        "rawChangeCount": 329,
+        "additions": 303,
+        "deletions": 26,
+        "effectiveAdditions": 303,
+        "effectiveDeletions": 26,
+        "changedFiles": 3,
+        "effectiveChangeCount": 329,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin health labels",
+      "updatedAtUtc": "2026-05-06T17:11:05.286Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin health labels",
+      "bullets": [
+        "Fixed an issue where unavailable health checks could appear successful.",
+        "Improved labels for loaded, delayed, missing, and older samples.",
+        "Reduced confusing status messages in admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Route health labels now distinguish unseen, stale, and loaded states.",
+        "Runtime rows no longer show fake success states.",
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.67.0",
+      "previousVersion": "1.66.0",
+      "commitSha": "c8cc08e95f6182cceee03fdd73bb630b010a9af6",
+      "commitTitle": "fix(tasks): explain runtime task drift",
+      "committedAt": "2026-05-06T07:47:06.000Z",
+      "generatedAt": "2026-05-06T17:11:05.131Z",
+      "committedAtUtc": "2026-05-06T07:47:06.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:05.131Z",
+      "diffStats": {
+        "rawAdditions": 299,
+        "rawDeletions": 6,
+        "rawChangeCount": 305,
+        "additions": 299,
+        "deletions": 6,
+        "effectiveAdditions": 299,
+        "effectiveDeletions": 6,
+        "changedFiles": 4,
+        "effectiveChangeCount": 305,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin health labels",
+      "updatedAtUtc": "2026-05-06T17:11:05.131Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin health labels",
+      "bullets": [
+        "Fixed an issue where unavailable health checks could appear successful.",
+        "Improved labels for loaded, delayed, missing, and older samples.",
+        "Reduced confusing status messages in admin tools."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Route health labels now distinguish unseen, stale, and loaded states.",
+        "Runtime rows no longer show fake success states."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.66.0",
+      "previousVersion": "1.65.0",
+      "commitSha": "eb5639952847b4b849116cb23b234b6c6d24258b",
+      "commitTitle": "fix(tasks): clarify GumDrop guardrail parity",
+      "committedAt": "2026-05-06T07:41:28.000Z",
+      "generatedAt": "2026-05-06T17:11:04.973Z",
+      "committedAtUtc": "2026-05-06T07:41:28.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:04.973Z",
+      "diffStats": {
+        "rawAdditions": 576,
+        "rawDeletions": 84,
+        "rawChangeCount": 660,
+        "additions": 576,
+        "deletions": 84,
+        "effectiveAdditions": 576,
+        "effectiveDeletions": 84,
+        "changedFiles": 3,
+        "effectiveChangeCount": 660,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin AI status",
+      "updatedAtUtc": "2026-05-06T17:11:04.973Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin AI status",
+      "bullets": [
+        "Improved admin reliability and status accuracy.",
+        "Clarified unavailable data without showing fake zeroes.",
+        "Updated labels for review and support follow-up."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.65.0",
+      "previousVersion": "1.64.0",
+      "commitSha": "566d2ff7d02e6a738b1f4d2b08d6357452411392",
+      "commitTitle": "fix(tasks): validate catalog coverage end to end",
+      "committedAt": "2026-05-06T07:29:07.000Z",
+      "generatedAt": "2026-05-06T17:11:04.819Z",
+      "committedAtUtc": "2026-05-06T07:29:07.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:04.819Z",
+      "diffStats": {
+        "rawAdditions": 699,
+        "rawDeletions": 28,
+        "rawChangeCount": 727,
+        "additions": 699,
+        "deletions": 28,
+        "effectiveAdditions": 699,
+        "effectiveDeletions": 28,
+        "changedFiles": 7,
+        "effectiveChangeCount": 727,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Bug fixes and quality-of-life improvements",
+      "updatedAtUtc": "2026-05-06T17:11:04.819Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Bug fixes and quality-of-life improvements",
+      "bullets": [
+        "Improved admin reliability and status accuracy.",
+        "Clarified unavailable data without showing fake zeroes.",
+        "Updated labels for review and support follow-up."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.64.0",
+      "previousVersion": "1.63.0",
+      "commitSha": "60aadc5660de5a127437a09a048b936806c32798",
+      "commitTitle": "fix(admin): explain actor ownership risk rows",
+      "committedAt": "2026-05-06T07:11:47.000Z",
+      "generatedAt": "2026-05-06T17:11:04.668Z",
+      "committedAtUtc": "2026-05-06T07:11:47.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:04.668Z",
+      "diffStats": {
+        "rawAdditions": 438,
+        "rawDeletions": 14,
+        "rawChangeCount": 452,
+        "additions": 438,
+        "deletions": 14,
+        "effectiveAdditions": 438,
+        "effectiveDeletions": 14,
+        "changedFiles": 4,
+        "effectiveChangeCount": 452,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "title": "Improved admin AI status",
+      "updatedAtUtc": "2026-05-06T17:11:04.668Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved admin AI status",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
       ]
     }
   ]

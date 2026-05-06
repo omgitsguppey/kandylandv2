@@ -64,12 +64,12 @@ function validateDocument(document: PublicReleaseNotesDocument | null) {
   }
 
   for (const [index, note] of document.notes.entries()) {
-    for (const field of ["version", "previousVersion", "commitSha", "commitTitle", "committedAt", "generatedAt", "committedAtUtc", "generatedAtUtc", "category", "userFacingTitle"] as const) {
+    for (const field of ["version", "previousVersion", "commitSha", "commitTitle", "committedAt", "generatedAt", "committedAtUtc", "generatedAtUtc", "updatedAtUtc", "category", "title", "summary", "userFacingTitle", "audience"] as const) {
       if (typeof note[field] !== "string" || note[field].trim().length === 0) {
         failures.push(`notes[${index}].${field} must be non-empty.`);
       }
     }
-    for (const field of ["committedAtUtc", "generatedAtUtc"] as const) {
+    for (const field of ["committedAtUtc", "generatedAtUtc", "updatedAtUtc"] as const) {
       if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(note[field])) {
         failures.push(`notes[${index}].${field} must be a full ISO UTC timestamp ending in Z.`);
       }
@@ -77,8 +77,16 @@ function validateDocument(document: PublicReleaseNotesDocument | null) {
     if (/^\d{4}-\d{2}-\d{2}$/u.test(note.committedAt) || /^\d{4}-\d{2}-\d{2}$/u.test(note.generatedAt)) {
       failures.push(`notes[${index}] must not store date-only timestamps.`);
     }
-    if (!Array.isArray(note.bullets) || note.bullets.length === 0 || note.bullets.length > 3) {
-      failures.push(`notes[${index}].bullets must include 1-3 user-facing bullets.`);
+    if (!Array.isArray(note.bullets) || note.bullets.length < 2 || note.bullets.length > 5) {
+      failures.push(`notes[${index}].bullets must include 2-5 App Store-style bullets.`);
+    }
+    for (const bullet of note.bullets ?? []) {
+      if (!/^(Added|Clarified|Fixed|Improved|Reduced|Updated)\b/u.test(bullet)) {
+        failures.push(`notes[${index}] bullet must start with an approved verb: ${bullet}`);
+      }
+    }
+    if (/Kept the update focused on user-visible polish and reliability/iu.test(note.bullets.join(" "))) {
+      failures.push(`notes[${index}] must not use the generic release-note placeholder.`);
     }
     if (!Array.isArray(note.affectedSurfaces) || note.affectedSurfaces.length === 0) {
       failures.push(`notes[${index}].affectedSurfaces must be non-empty.`);
@@ -102,8 +110,12 @@ function validateDocument(document: PublicReleaseNotesDocument | null) {
     if (note.bumpType !== classifyPublicVersionBump(note.diffStats.effectiveChangeCount)) {
       failures.push(`notes[${index}].bumpType must be based on effectiveChangeCount, not raw additions/deletions.`);
     }
-    if (/src\/|scripts\/|agent\/state|\.tsx|\.ts\b|commit\b/iu.test(note.userFacingTitle)) {
-      failures.push(`notes[${index}].userFacingTitle must not expose internal file names or raw commit noise.`);
+    const publicCopy = `${note.title} ${note.summary} ${note.userFacingTitle} ${note.bullets.join(" ")}`;
+    if (/src\/|scripts\/|agent\/state|\.tsx|\.ts\b|commit\b|route runtime|telemetry parity|validator|sourceTruth|Firestore|generatedAt|materializer|canonical|stale sample/iu.test(publicCopy)) {
+      failures.push(`notes[${index}] public copy must not expose raw technical jargon.`);
+    }
+    if (note.technicalDetails?.length && !Array.isArray(note.technicalDetails)) {
+      failures.push(`notes[${index}].technicalDetails must be an array when present.`);
     }
   }
 
@@ -167,7 +179,7 @@ for (const expected of [
   "data-beta-release-notes-freshness",
   "data-beta-changelog-source",
   "What&apos;s new in Beta",
-  "Updated continuously as KandyDrops improves.",
+  "App-style Beta notes",
   "beta_changelog_opened",
   "currentVersion",
   "latestNoteCommittedAtUtc",
@@ -175,6 +187,8 @@ for (const expected of [
   "releaseNotesFreshnessState",
   "Updated ",
   " UTC",
+  "Technical details",
+  "<details",
 ]) {
   requireIncludes(drawer, expected, "Beta release notes drawer");
 }
@@ -217,6 +231,9 @@ for (const expected of [
   "isInternalBetaStabilizationChange",
   "shippedBetaBadgeFeature",
   "support traceability",
+  "buildAppStoreTitle",
+  "buildAppStoreBullets",
+  "technicalDetails",
 ]) {
   requireIncludes(releaseScript, expected, "release notes update script");
 }

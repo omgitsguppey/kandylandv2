@@ -170,7 +170,10 @@ export function formatMoney(value: number): string {
 }
 
 export function formatPercent(value: number): string {
-  return `${Math.round(value * 100)}%`;
+  const percent = value * 100;
+  if (percent > 0 && percent < 0.1) return "<0.1%";
+  if (percent > 0 && percent < 10) return `${percent.toFixed(1)}%`;
+  return `${Math.round(percent)}%`;
 }
 
 export function formatDuration(seconds: number): string {
@@ -185,7 +188,7 @@ export function formatDuration(seconds: number): string {
 }
 
 export function formatRelativeTime(timestamp: number, nowMs: number): string {
-  if (!timestamp || !nowMs) return "Just now";
+  if (!timestamp || !nowMs) return "Unknown";
   const diff = Math.max(0, nowMs - timestamp);
   const seconds = Math.floor(diff / 1000);
   if (seconds < 60) return `${seconds}s ago`;

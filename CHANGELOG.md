@@ -2,407 +2,552 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
-## [1.53.0] - 2026-05-06
+## [1.112.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 04:48 UTC
-- Improved internal admin tools used to keep beta features stable.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 17:01 UTC
+- Improved admin status accuracy
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.52.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 04:17 UTC
-- Improved Beta update notes so changes are easier to match with support reports.
-- Beta notes stay user-safe while preserving enough detail for support follow-up.
-- UTC timestamps make updates easier to compare with screenshots, reports, and incidents.
-
-## [1.51.0] - 2026-05-06
+## [1.111.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 04:07 UTC
-- Improved Beta update notes so changes are easier to match with support reports.
-- Beta notes stay user-safe while preserving enough detail for support follow-up.
-- UTC timestamps make updates easier to compare with screenshots, reports, and incidents.
+- Updated 2026-05-06 16:37 UTC
+- Improved admin status accuracy
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Clarified verified and estimated viewer watch time.
+- Improved stale and quiet viewer activity labels.
+- Updated viewer rows to use readable names where available.
 
-## [1.50.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 03:53 UTC
-- Improved daily task reward tracking so task totals reflect completed rewards more accurately.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.49.0] - 2026-05-06
+## [1.110.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 03:34 UTC
-- Improved daily task reset reliability so tasks are prepared on the daily schedule.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 16:22 UTC
+- Improved transaction review
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Added clearer names to recent transaction rows.
+- Improved GumDrops transaction labels and timestamps for admin review.
+- Clarified unavailable commerce details instead of showing waiting states.
 
-## [1.48.1] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 03:16 UTC
-- Improved internal event-flow diagnostics so background system events are not confused with user actions.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.48.0] - 2026-05-06
+## [1.109.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 03:12 UTC
-- Improved internal event-flow diagnostics so background events and user actions are easier to tell apart.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 16:10 UTC
+- Improved drop conversion review
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved drop rows with readable names instead of long IDs.
+- Clarified unwrap counts and small conversion percentages.
+- Added page controls when more drop rows are available.
 
-## [1.47.1] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 03:02 UTC
-- Clarified internal admin readiness checks so config presence is not confused with live service health.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.47.0] - 2026-05-06
+## [1.108.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 02:58 UTC
-- Improved internal queue health views so drop activation outcomes show readable drop names.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 15:50 UTC
+- Improved content conversion review
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved content conversion rows so available preview and unwrap data can appear.
+- Clarified when content details are missing or unavailable.
+- Updated content group labels for easier admin review.
 
-## [1.46.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 02:50 UTC
-- Improved internal transaction review so admins can identify users more easily.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.45.0] - 2026-05-06
+## [1.107.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 02:40 UTC
-- Improved internal route runtime labels so unseen routes no longer appear as fake successes.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 15:26 UTC
+- Improved package performance review
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved GumDrops package rows so purchase data can appear when available.
+- Clarified when checkout data is unavailable for package conversion.
+- Updated package labels, prices, and GumDrops values for review.
 
-## [1.44.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 02:30 UTC
-- Improved internal route health labels so loaded runtime metrics no longer appear stuck.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.43.0] - 2026-05-06
+## [1.106.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 02:19 UTC
-- Improved internal bug report triage labels so loaded reports no longer appear stuck.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 15:15 UTC
+- Improved transaction review
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Added clearer names to recent transaction rows.
+- Improved GumDrops transaction labels and timestamps for admin review.
+- Clarified unavailable commerce details instead of showing waiting states.
 
-## [1.42.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 02:05 UTC
-- Improved internal repair proposal grouping so repeated debug items are easier to review.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.41.0] - 2026-05-06
+## [1.105.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 01:56 UTC
-- Improved internal repair proposal grouping so duplicate debug actions are easier to review.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 14:54 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.40.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 01:47 UTC
-- Improved internal task assignment diagnostics.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.39.0] - 2026-05-06
+## [1.104.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 01:38 UTC
-- Improved internal debug status labels so inventory counts do not look like system failures.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 14:38 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.38.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 01:29 UTC
-- Improved internal health panels so writer freshness and repeated diagnostics are easier to read.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.37.0] - 2026-05-06
+## [1.103.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 01:19 UTC
-- Improved internal diagnostics timing so health panels separate current issues from older samples.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 14:22 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.36.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 01:12 UTC
-- Improved internal creator experience defaults for beta reliability.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.35.1] - 2026-05-06
+## [1.102.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 01:04 UTC
-- Improved internal creator classification checks.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 14:14 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.35.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 00:40 UTC
-- Improved internal creator classification checks.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.34.0] - 2026-05-06
+## [1.101.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-06 00:04 UTC
-- Improved internal creator experience defaults for beta reliability.
-- Beta notes stay user-safe while preserving enough detail for support follow-up.
-- UTC timestamps make updates easier to compare with screenshots, reports, and incidents.
+- Updated 2026-05-06 14:02 UTC
+- Improved admin status accuracy
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.33.0] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 22:44 UTC
-- Fixed a beta issue to make KandyDrops smoother to use.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.32.0] - 2026-05-05
+## [1.100.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 22:33 UTC
-- Fixed a beta issue to make KandyDrops smoother to use.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 13:52 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.31.0] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 22:19 UTC
-- Adjusted internal creator review warnings to match admin override rules.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.30.0] - 2026-05-05
+## [1.99.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 22:05 UTC
-- Improved internal creator review history checks.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 13:34 UTC
+- Improved admin status accuracy
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.29.0] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 21:56 UTC
-- Improved internal creator review status checks.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.28.0] - 2026-05-05
+## [1.98.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 21:42 UTC
-- Improved internal health reporting so beta issues show fresher, clearer status.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 13:24 UTC
+- Improved admin AI status
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved admin reliability and status accuracy.
+- Clarified unavailable data without showing fake zeroes.
+- Updated labels for review and support follow-up.
 
-## [1.27.1] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 21:28 UTC
-- Improved internal media and session safety checks.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.27.0] - 2026-05-05
+## [1.97.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 21:22 UTC
-- Improved safety checks for creator agreement document access.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 13:11 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.26.0] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 21:16 UTC
-- Improved internal safety checks for creator verification documents.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.25.0] - 2026-05-05
+## [1.96.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 21:10 UTC
-- Improved internal document safety checks for creator agreement tools.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 13:06 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.24.8] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 21:06 UTC
-- Improved internal checks that protect locked content access.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.24.7] - 2026-05-05
+## [1.95.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 21:03 UTC
-- Improved internal media safety checks to prevent unnecessary storage traffic.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 12:59 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.24.6] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 20:55 UTC
-- Improved behind-the-scenes safety checks for chat media uploads.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.24.5] - 2026-05-05
+## [1.94.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 20:41 UTC
-- Improved reliability for canceling pending chat attachments.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 12:45 UTC
+- Improved admin AI status
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved admin reliability and status accuracy.
+- Clarified unavailable data without showing fake zeroes.
+- Updated labels for review and support follow-up.
 
-## [1.24.4] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 20:38 UTC
-- Improved behind-the-scenes safety checks for chat attachments.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.24.3] - 2026-05-05
+## [1.93.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 20:29 UTC
-- Improved behind-the-scenes session safety checks.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 12:19 UTC
+- Improved admin status accuracy
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.24.2] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 20:24 UTC
-- Improved behind-the-scenes session safety checks.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.24.1] - 2026-05-05
+## [1.92.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 20:20 UTC
-- Improved internal content safety checks for admin media tools.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 12:10 UTC
+- Improved admin status accuracy
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.24.0] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 20:06 UTC
-- Improved behind-the-scenes safety checks for chat media uploads.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.23.0] - 2026-05-05
+## [1.91.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 19:52 UTC
-- Improved reliability for canceling pending chat attachments.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 12:00 UTC
+- Improved admin status accuracy
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.22.0] - 2026-05-05
+## [1.90.0] - 2026-05-06
 
-### Fixed
+### New
 
-- Updated 2026-05-05 19:44 UTC
-- Improved behind-the-scenes safety checks for chat attachments.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 11:45 UTC
+- Improved GumDrops review tools
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Added clearer names to recent transaction rows.
+- Improved GumDrops transaction labels and timestamps for admin review.
+- Clarified unavailable commerce details instead of showing waiting states.
 
-## [1.21.1] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 19:39 UTC
-- Improved behind-the-scenes session safety checks.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.21.0] - 2026-05-05
+## [1.89.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 19:33 UTC
-- Improved internal content safety checks for admin media tools.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 11:21 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.20.1] - 2026-05-05
+## [1.88.0] - 2026-05-06
 
 ### Fixed
 
-- Updated 2026-05-05 19:16 UTC
-- Improved Beta update notes so changes are easier to match with support reports.
-- Beta notes stay user-safe while preserving enough detail for support follow-up.
-- UTC timestamps make updates easier to compare with screenshots, reports, and incidents.
+- Updated 2026-05-06 11:11 UTC
+- Improved admin status accuracy
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.20.0] - 2026-05-05
+## [1.87.0] - 2026-05-06
 
-### Changed
+### Fixed
 
-- Updated 2026-05-05 18:56 UTC
-- Improved beta stabilization guidance so fixes stay focused and easier to track.
-- Beta notes stay user-safe while preserving enough detail for support follow-up.
-- UTC timestamps make updates easier to compare with screenshots, reports, and incidents.
+- Updated 2026-05-06 10:56 UTC
+- Improved admin health labels
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed an issue where unavailable health checks could appear successful.
+- Improved labels for loaded, delayed, missing, and older samples.
+- Reduced confusing status messages in admin tools.
 
-## [1.19.0] - 2026-05-05
+## [1.86.1] - 2026-05-06
 
-### Internal
+### Fixed
 
-- Updated 2026-05-05 14:11 UTC
-- Improved internal beta reliability.
-- Improved internal beta reliability without changing your core flows.
+- Updated 2026-05-06 10:44 UTC
+- Improved admin AI status
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
 
-## [1.18.0] - 2026-05-05
+## [1.86.0] - 2026-05-06
 
-### Changed
+### Fixed
 
-- Updated 2026-05-05 13:11 UTC
-- Updated KandyDrops with a small beta improvement.
-- Kept the update focused on user-visible polish and reliability.
+- Updated 2026-05-06 10:41 UTC
+- Improved admin AI status
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
+
+## [1.85.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 10:31 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
+
+## [1.84.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 10:14 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
+
+## [1.83.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 10:06 UTC
+- Improved admin status accuracy
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
+
+## [1.82.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 09:49 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
+
+## [1.81.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 09:34 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
+
+## [1.80.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 09:30 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
+
+## [1.79.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 09:19 UTC
+- Improved viewer analytics
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Clarified verified and estimated viewer watch time.
+- Improved stale and quiet viewer activity labels.
+- Updated viewer rows to use readable names where available.
+
+## [1.78.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 09:13 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
+
+## [1.77.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 09:09 UTC
+- Improved viewer analytics
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Clarified verified and estimated viewer watch time.
+- Improved stale and quiet viewer activity labels.
+- Updated viewer rows to use readable names where available.
+
+## [1.76.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 09:01 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
+
+## [1.75.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 08:50 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.
+
+## [1.74.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 08:37 UTC
+- Improved daily task tracking
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved admin reliability and status accuracy.
+- Clarified unavailable data without showing fake zeroes.
+- Updated labels for review and support follow-up.
+
+## [1.73.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 08:28 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved admin reliability and status accuracy.
+- Clarified unavailable data without showing fake zeroes.
+- Updated labels for review and support follow-up.
+
+## [1.72.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 08:17 UTC
+- Improved transaction review
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Added clearer names to recent transaction rows.
+- Improved GumDrops transaction labels and timestamps for admin review.
+- Clarified unavailable commerce details instead of showing waiting states.
+
+## [1.71.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 08:14 UTC
+- Improved admin AI status
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved admin reliability and status accuracy.
+- Clarified unavailable data without showing fake zeroes.
+- Updated labels for review and support follow-up.
+
+## [1.70.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 08:09 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved admin reliability and status accuracy.
+- Clarified unavailable data without showing fake zeroes.
+- Updated labels for review and support follow-up.
+
+## [1.69.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 08:03 UTC
+- Improved admin AI status
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved admin reliability and status accuracy.
+- Clarified unavailable data without showing fake zeroes.
+- Updated labels for review and support follow-up.
+
+## [1.68.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 07:54 UTC
+- Improved admin health labels
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed an issue where unavailable health checks could appear successful.
+- Improved labels for loaded, delayed, missing, and older samples.
+- Reduced confusing status messages in admin tools.
+
+## [1.67.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 07:47 UTC
+- Improved admin health labels
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed an issue where unavailable health checks could appear successful.
+- Improved labels for loaded, delayed, missing, and older samples.
+- Reduced confusing status messages in admin tools.
+
+## [1.66.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 07:41 UTC
+- Improved admin AI status
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved admin reliability and status accuracy.
+- Clarified unavailable data without showing fake zeroes.
+- Updated labels for review and support follow-up.
+
+## [1.65.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 07:29 UTC
+- Bug fixes and quality-of-life improvements
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Improved admin reliability and status accuracy.
+- Clarified unavailable data without showing fake zeroes.
+- Updated labels for review and support follow-up.
+
+## [1.64.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 07:11 UTC
+- Improved admin AI status
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed admin labels that could appear stuck after data loaded.
+- Improved how hidden, delayed, or unavailable data is labeled.
+- Reduced confusing status messages in Beta admin tools.

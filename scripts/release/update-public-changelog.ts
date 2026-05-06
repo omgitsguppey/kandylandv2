@@ -11,6 +11,7 @@ import {
   classifyPublicVersionBump,
   isReleaseGeneratedArtifactPath,
   type PublicReleaseBumpType,
+  type PublicReleaseAudience,
   type PublicReleaseNote,
   type PublicReleaseNoteCategory,
   type PublicReleaseNotesDocument,
@@ -156,6 +157,14 @@ function normalizeExistingNote(note: PublicReleaseNote): PublicReleaseNote {
   const bumpType = classifyPublicVersionBump(diffStats.effectiveChangeCount);
   const committedAtUtc = toUtcIso(note.committedAtUtc ?? note.committedAt);
   const generatedAtUtc = toUtcIso(note.generatedAtUtc ?? note.generatedAt);
+  const changedFiles = getChangedFiles(note.commitSha);
+  const affectedSurfaces = note.affectedSurfaces?.length ? note.affectedSurfaces : affectedSurfacesFor(changedFiles);
+  const category = normalizeAppStoreCategory(note.commitTitle, note.category, affectedSurfaces);
+  const title = !note.title || note.title === "Bug fixes and quality-of-life improvements"
+    ? buildAppStoreTitle(note.commitTitle, category, affectedSurfaces)
+    : note.title;
+  const summary = note.summary || buildAppStoreSummary(note.commitTitle, category, affectedSurfaces);
+  const bullets = buildAppStoreBullets(note.commitTitle, category, affectedSurfaces, note.bullets);
 
   return {
     ...note,
@@ -165,6 +174,15 @@ function normalizeExistingNote(note: PublicReleaseNote): PublicReleaseNote {
     generatedAtUtc,
     diffStats,
     bumpType,
+    category,
+    title,
+    updatedAtUtc: note.updatedAtUtc || generatedAtUtc,
+    summary,
+    userFacingTitle: title,
+    bullets,
+    audience: note.audience || resolveAudience(note.commitTitle, affectedSurfaces),
+    technicalDetails: note.technicalDetails || buildTechnicalDetails(note.commitTitle, affectedSurfaces),
+    affectedSurfaces,
   };
 }
 
@@ -186,9 +204,9 @@ function getChangedFiles(sha: string) {
 function classifyCategory(title: string, changedFiles: string[]): PublicReleaseNoteCategory {
   const normalized = title.toLowerCase();
   if (/^(security|sec)(\(|:)/u.test(normalized)) return "Security";
-  if (/^perf(\(|:)/u.test(normalized)) return "Performance";
+  if (/^perf(\(|:)/u.test(normalized)) return "Improved";
   if (/^fix(\(|:)/u.test(normalized)) return "Fixed";
-  if (/^feat(\(|:)/u.test(normalized)) return "Added";
+  if (/^feat(\(|:)/u.test(normalized)) return "New";
 
   const touchesUserSurface = changedFiles.some((path) =>
     path.startsWith("src/app/")
@@ -197,8 +215,8 @@ function classifyCategory(title: string, changedFiles: string[]): PublicReleaseN
     || path.startsWith("public/"),
   );
 
-  if (/^(docs|chore|test)(\(|:)/u.test(normalized) && !touchesUserSurface) return "Internal";
-  return "Changed";
+  if (/^(docs|chore|test)(\(|:)/u.test(normalized) && !touchesUserSurface) return "Admin";
+  return "Improved";
 }
 
 function affectedSurfacesFor(paths: string[]) {
@@ -232,6 +250,208 @@ function shippedBetaBadgeFeature(title: string) {
   return normalized.includes("add beta release notes badge")
     || normalized.includes("beta release notes badge")
     || normalized.includes("public beta release notes badge");
+}
+
+const releaseBulletVerbs = ["Added", "Clarified", "Fixed", "Improved", "Reduced", "Updated"] as const;
+
+function normalizeAppStoreCategory(
+  title: string,
+  category: PublicReleaseNoteCategory,
+  surfaces: string[],
+): PublicReleaseNoteCategory {
+  const normalized = title.toLowerCase();
+  if (category === "Security") return "Security";
+  if (shippedBetaBadgeFeature(title)) return "New";
+  if (normalized.startsWith("feat")) return "New";
+  if (normalized.startsWith("fix")) return "Fixed";
+  if (surfaces.includes("admin") || surfaces.includes("repo-tooling") || surfaces.includes("documentation")) return "Admin";
+  if (category === "Added") return "New";
+  if (category === "Internal" || category === "Changed" || category === "Performance") return "Improved";
+  return category;
+}
+
+function resolveAudience(title: string, surfaces: string[]): PublicReleaseAudience {
+  const normalized = title.toLowerCase();
+  if (surfaces.includes("admin") || normalized.includes("admin") || normalized.includes("debug")) return "admins";
+  if (surfaces.includes("wallet") || surfaces.includes("chat") || surfaces.includes("navigation")) return "users";
+  if (normalized.includes("creator")) return "creators";
+  return "all";
+}
+
+function cleanReleaseCopy(value: string) {
+  return value
+    .replace(/\broute runtime\b/giu, "health")
+    .replace(/\btelemetry parity\b/giu, "tracking checks")
+    .replace(/\bsourceTruth\b/gu, "source")
+    .replace(/\bFirestore\b/gu, "data")
+    .replace(/\bgeneratedAt\b/gu, "updated time")
+    .replace(/\bmaterializer\b/giu, "background update")
+    .replace(/\bcanonical\b/giu, "verified")
+    .replace(/\bstale sample\b/giu, "older sample")
+    .replace(/\bunlock(s|ed|ing)?\b/giu, (match) => {
+      const lower = match.toLowerCase();
+      if (lower === "unlocks") return "unwraps";
+      if (lower === "unlocked") return "unwrapped";
+      if (lower === "unlocking") return "unwrapping";
+      return "unwrap";
+    })
+    .replace(/\s+/gu, " ")
+    .trim();
+}
+
+function ensureReleaseVerb(value: string) {
+  const trimmed = cleanReleaseCopy(value).replace(/\.$/u, "");
+  if (releaseBulletVerbs.some((verb) => trimmed.startsWith(`${verb} `))) return `${trimmed}.`;
+  return `Improved ${trimmed.charAt(0).toLowerCase()}${trimmed.slice(1)}.`;
+}
+
+function buildAppStoreTitle(title: string, category: PublicReleaseNoteCategory, surfaces: string[]) {
+  const normalized = title.toLowerCase();
+  if (shippedBetaBadgeFeature(title) || surfaces.includes("release-notes")) return "Improved Beta update notes";
+  if (normalized.includes("admin") && normalized.includes("truth")) return "Improved admin status accuracy";
+  if (normalized.includes("gumdrops") || normalized.includes("treasury") || normalized.includes("economy")) return "Improved GumDrops review tools";
+  if (normalized.includes("task") && normalized.includes("reward")) return "Improved task reward accuracy";
+  if (normalized.includes("transaction") || normalized.includes("receipt") || normalized.includes("commerce")) return "Improved transaction review";
+  if (normalized.includes("top drop") || normalized.includes("drop conversion")) return "Improved drop conversion review";
+  if (normalized.includes("content conversion")) return "Improved content conversion review";
+  if (normalized.includes("package performance")) return "Improved package performance review";
+  if (normalized.includes("viewer") || normalized.includes("watch")) return "Improved viewer analytics";
+  if (normalized.includes("notification")) return "Improved notification reporting";
+  if (normalized.includes("daily task")) return "Improved daily task tracking";
+  if (normalized.includes("route") || normalized.includes("runtime") || normalized.includes("debug")) return "Improved admin health labels";
+  if (normalized.includes("ai")) return "Improved admin AI status";
+  if (normalized.includes("creator")) return "Improved creator review tools";
+  if (category === "Security") return "Improved safety checks";
+  if (category === "New") return "Added Beta improvements";
+  if (category === "Fixed") return "Bug fixes and quality-of-life improvements";
+  if (category === "Admin") return "Improved admin reliability";
+  return "Improved Beta reliability";
+}
+
+function buildAppStoreSummary(title: string, category: PublicReleaseNoteCategory, surfaces: string[]) {
+  const audience = resolveAudience(title, surfaces);
+  if (audience === "admins") return "Bug fixes and quality-of-life improvements for admin review tools.";
+  if (category === "Security") return "Safety and reliability improvements for the beta.";
+  if (surfaces.includes("release-notes")) return "Cleaner Beta update notes with clearer summaries and timestamps.";
+  return "Bug fixes and quality-of-life improvements.";
+}
+
+function buildAdminBullets(title: string) {
+  const normalized = title.toLowerCase();
+  if (normalized.includes("route") || normalized.includes("runtime")) {
+    return [
+      "Fixed an issue where unavailable health checks could appear successful.",
+      "Improved labels for loaded, delayed, missing, and older samples.",
+      "Reduced confusing status messages in admin tools.",
+    ];
+  }
+  if (normalized.includes("transaction") || normalized.includes("receipt") || normalized.includes("commerce")) {
+    return [
+      "Added clearer names to recent transaction rows.",
+      "Improved GumDrops transaction labels and timestamps for admin review.",
+      "Clarified unavailable commerce details instead of showing waiting states.",
+    ];
+  }
+  if (normalized.includes("top drop") || normalized.includes("drop conversion")) {
+    return [
+      "Improved drop rows with readable names instead of long IDs.",
+      "Clarified unwrap counts and small conversion percentages.",
+      "Added page controls when more drop rows are available.",
+    ];
+  }
+  if (normalized.includes("content conversion")) {
+    return [
+      "Improved content conversion rows so available preview and unwrap data can appear.",
+      "Clarified when content details are missing or unavailable.",
+      "Updated content group labels for easier admin review.",
+    ];
+  }
+  if (normalized.includes("package performance")) {
+    return [
+      "Improved GumDrops package rows so purchase data can appear when available.",
+      "Clarified when checkout data is unavailable for package conversion.",
+      "Updated package labels, prices, and GumDrops values for review.",
+    ];
+  }
+  if (normalized.includes("task") && normalized.includes("reward")) {
+    return [
+      "Clarified which task rewards were earned versus only available.",
+      "Improved reward totals so expired tasks do not inflate paid rewards.",
+      "Updated admin labels for task reward review.",
+    ];
+  }
+  if (normalized.includes("viewer") || normalized.includes("watch")) {
+    return [
+      "Clarified verified and estimated viewer watch time.",
+      "Improved stale and quiet viewer activity labels.",
+      "Updated viewer rows to use readable names where available.",
+    ];
+  }
+  if (normalized.includes("debug") || normalized.includes("truth") || normalized.includes("admin")) {
+    return [
+      "Fixed admin labels that could appear stuck after data loaded.",
+      "Improved how hidden, delayed, or unavailable data is labeled.",
+      "Reduced confusing status messages in Beta admin tools.",
+    ];
+  }
+  return [
+    "Improved admin reliability and status accuracy.",
+    "Clarified unavailable data without showing fake zeroes.",
+    "Updated labels for review and support follow-up.",
+  ];
+}
+
+function buildAppStoreBullets(
+  title: string,
+  category: PublicReleaseNoteCategory,
+  surfaces: string[],
+  existingBullets: string[] = [],
+) {
+  const normalized = title.toLowerCase();
+  let bullets: string[];
+  if (surfaces.includes("release-notes") || normalized.includes("release notes") || normalized.includes("beta")) {
+    bullets = [
+      "Improved Beta notes with cleaner summaries and compact bullets.",
+      "Updated timestamps so recent changes are easier to compare with reports.",
+      "Reduced technical wording in public update notes.",
+    ];
+  } else if (resolveAudience(title, surfaces) === "admins") {
+    bullets = buildAdminBullets(title);
+  } else if (category === "Security") {
+    bullets = [
+      "Improved safety checks behind the scenes.",
+      "Updated admin review labels for clearer follow-up.",
+    ];
+  } else if (existingBullets.length > 0 && !existingBullets.some((bullet) => /Kept the update focused/iu.test(bullet))) {
+    bullets = existingBullets;
+  } else {
+    bullets = [
+      "Fixed a beta issue to make KandyDrops smoother to use.",
+      "Improved labels and loading states in the app.",
+    ];
+  }
+
+  const uniqueBullets = Array.from(new Set(bullets.map(ensureReleaseVerb))).slice(0, 5);
+  return uniqueBullets.length >= 2 ? uniqueBullets : [...uniqueBullets, "Improved Beta reliability."];
+}
+
+function buildTechnicalDetails(title: string, surfaces: string[]) {
+  const normalized = title.toLowerCase();
+  const details: string[] = [];
+  if (normalized.includes("route") || normalized.includes("runtime")) {
+    details.push("Route health labels now distinguish unseen, stale, and loaded states.");
+    details.push("Runtime rows no longer show fake success states.");
+  }
+  if (normalized.includes("source") || normalized.includes("truth") || normalized.includes("analytics")) {
+    details.push("Admin metrics keep source, range, and freshness details separate from public summaries.");
+  }
+  if (normalized.includes("unlock") || normalized.includes("unwrap")) {
+    details.push("Display language uses unwrap; backend entitlement fields may still use unlock.");
+  }
+  if (surfaces.includes("release-notes")) {
+    details.push("Release note summaries are generated separately from collapsed technical details.");
+  }
+  return details.length > 0 ? details : undefined;
 }
 
 function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory, surfaces: string[]) {
@@ -439,8 +659,10 @@ function createNote(commit: CommitRecord, previousVersion: string, isInitial: bo
   const nextVersion = isInitial ? INITIAL_PUBLIC_VERSION : bumpPublicVersion(previousVersion, bumpType);
   const category = classifyCategory(commit.title, changedFiles);
   const affectedSurfaces = affectedSurfacesFor(changedFiles);
+  const appCategory = normalizeAppStoreCategory(commit.title, category, affectedSurfaces);
   const committedAtUtc = toUtcIso(commit.committedAt);
   const generatedAtUtc = nowUtcIso();
+  const title = buildAppStoreTitle(commit.title, appCategory, affectedSurfaces);
 
   return {
     version: nextVersion,
@@ -453,9 +675,14 @@ function createNote(commit: CommitRecord, previousVersion: string, isInitial: bo
     generatedAtUtc,
     diffStats,
     bumpType: bumpType as PublicReleaseBumpType,
-    category,
-    userFacingTitle: buildUserFacingTitle(commit.title, category, affectedSurfaces),
-    bullets: buildBullets(category, affectedSurfaces),
+    category: appCategory,
+    title,
+    updatedAtUtc: generatedAtUtc,
+    summary: buildAppStoreSummary(commit.title, appCategory, affectedSurfaces),
+    userFacingTitle: title,
+    bullets: buildAppStoreBullets(commit.title, appCategory, affectedSurfaces, buildBullets(category, affectedSurfaces)),
+    audience: resolveAudience(commit.title, affectedSurfaces),
+    technicalDetails: buildTechnicalDetails(commit.title, affectedSurfaces),
     affectedSurfaces,
   };
 }
@@ -480,9 +707,10 @@ function renderChangelog(notes: PublicReleaseNote[]) {
       `### ${note.category}`,
       "",
       `- Updated ${formatUtcTimestamp(committedAtUtc)}`,
-      `- ${note.userFacingTitle}`,
+      `- ${note.title || note.userFacingTitle}`,
+      `- ${note.summary}`,
     );
-    for (const bullet of note.bullets.slice(0, 3)) lines.push(`- ${bullet}`);
+    for (const bullet of note.bullets.slice(0, 5)) lines.push(`- ${bullet}`);
     lines.push("");
   }
   return `${lines.join("\n").trim()}\n`;

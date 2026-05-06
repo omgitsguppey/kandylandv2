@@ -35,7 +35,11 @@ function isPublicReleaseNote(value: unknown): value is PublicReleaseNote {
     && typeof note.generatedAt === "string"
     && typeof note.committedAtUtc === "string"
     && typeof note.generatedAtUtc === "string"
+    && typeof note.title === "string"
+    && typeof note.updatedAtUtc === "string"
+    && typeof note.summary === "string"
     && typeof note.userFacingTitle === "string"
+    && typeof note.audience === "string"
     && Array.isArray(note.bullets)
     && Array.isArray(note.affectedSurfaces)
     && typeof note.diffStats?.effectiveChangeCount === "number";

@@ -144,7 +144,7 @@ const ANALYTICS_OVERVIEW_BADGE_LABELS: Record<AdminSurfaceState, string> = {
   degraded: "REVIEW",
   fallback: "SNAP",
   stale: "DELAYED",
-  unavailable: "WAIT",
+  unavailable: "UNAVAILABLE",
   failed: "ERROR",
 };
 
@@ -170,7 +170,7 @@ const SNAPSHOT_SOURCE_LABELS: Record<string, string> = {
   intraday: "UPDATED",
   estimated: "EST",
   fallback: "SNAP",
-  unavailable: "WAIT",
+  unavailable: "UNAVAILABLE",
   mixed: "PARTIAL",
 };
 
@@ -186,7 +186,7 @@ function SnapshotRefreshControl(props: { snapshotModule: AdminAnalyticsSnapshotM
     return null;
   }
 
-  const label = SNAPSHOT_SOURCE_LABELS[snapshotModule.sourceMode] ?? "WAIT";
+  const label = SNAPSHOT_SOURCE_LABELS[snapshotModule.sourceMode] ?? "UNKNOWN";
   const title = [
     `Snapshot module: ${snapshotModule.moduleKey}`,
     `Source: ${snapshotModule.sourceMode}`,
