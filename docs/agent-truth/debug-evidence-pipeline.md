@@ -56,6 +56,8 @@ Bug report evidence from `platform_feedback` is a loaded sample plus recent inta
 
 Tracked route runtime evidence is a route rollup truth model, not a single health badge. Summary rows show tracked, observed, unseen, stale, warn, fail, slow, and sample counts with explicit loaded/review labels. Route rows separate coverage and freshness from latency history so max latency and slow-count history can create a latency review without making a currently successful route look failed or stuck loading.
 
+Unseen route runtime rows are missing samples, not successful zero-latency samples. Admin Debug renders `no_sample`, unknown latency, loaded zero counters, and route risk class for unseen routes. Observed rows keep current result separate from historical client/server error counters and slow latency history.
+
 ## Pre-Catcher
 
 `npm run precheck:runtime-issues` reads the redacted evidence index and writes `agent/state/precatch-runtime-issues.generated.json`.

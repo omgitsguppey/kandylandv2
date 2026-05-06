@@ -53,7 +53,7 @@ function buildDefaultRouteRuntimeHealthItem(key: RouteRuntimeHealthKey): RouteRu
         averageLatencyMs: 0,
         maxLatencyMs: 0,
         lastLatencyMs: 0,
-        lastResult: "success",
+        lastResult: "no_sample",
         lastStatusCode: 0,
         lastErrorMessage: null,
         firstObservedAtMs: 0,

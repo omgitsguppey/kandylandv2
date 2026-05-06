@@ -41,22 +41,22 @@ export interface DebugMonitoringRoutesProps {
 }
 
 function toneForRouteRuntimeHealthState(state?: string) {
-    if (state === "error" || state === "slow") return "bad" as const;
-    if (state === "review" || state === "stale" || state === "unseen") return "warn" as const;
+    if (state === "server_error" || state === "slow" || state === "current_server_error") return "bad" as const;
+    if (state === "latency_review" || state === "client_error_review" || state === "healthy_with_history" || state === "review" || state === "stale" || state === "unseen" || state === "current_client_error" || state === "mixed_history" || state === "server_history" || state === "client_history") return "warn" as const;
     if (state === "healthy" || state === "fresh" || state === "observed" || state === "success") return "good" as const;
     return "neutral" as const;
 }
 
 function truthForRouteRuntimeHealthState(state?: string) {
-    if (state === "error" || state === "slow" || state === "server_error") return "failed" as const;
-    if (state === "review") return "degraded" as const;
+    if (state === "server_error" || state === "slow" || state === "current_server_error") return "failed" as const;
+    if (state === "latency_review" || state === "client_error_review" || state === "healthy_with_history" || state === "review" || state === "current_client_error" || state === "mixed_history" || state === "server_history" || state === "client_history") return "degraded" as const;
     if (state === "stale") return "stale" as const;
-    if (state === "unseen" || state === "unknown") return "unavailable" as const;
+    if (state === "unseen" || state === "unknown" || state === "no_sample") return "unavailable" as const;
     return "live" as const;
 }
 
 function formatLatency(value: number | null) {
-    return value === null ? "not observed" : `${value}ms`;
+    return value === null ? "—" : `${value}ms`;
 }
 
 function formatChatTriple(label: string, summary: any) {
@@ -156,7 +156,17 @@ export function DebugMonitoringRoutes({
                                     key={entry.key}
                                     className="space-y-2 px-4 py-3"
                                     data-route-runtime-health-state={truth.status}
+                                    data-route-runtime-status={truth.status}
+                                    data-route-runtime-coverage={truth.coverage}
+                                    data-route-runtime-freshness={truth.freshness}
+                                    data-route-runtime-has-sample={truth.hasSample ? "true" : "false"}
+                                    data-route-runtime-last-result={truth.lastResult}
+                                    data-route-runtime-last-latency-state={truth.latency.lastLatencyState}
+                                    data-route-runtime-avg-latency-state={truth.latency.avgLatencyState}
+                                    data-route-runtime-max-latency-state={truth.latency.maxLatencyState}
                                     data-route-runtime-latency-state={truth.latency.latencyState}
+                                    data-route-runtime-error-history-state={truth.errorHistoryState}
+                                    data-route-runtime-risk-class={truth.routeRiskClass}
                                     data-route-runtime-summary-reason={truth.stateReasons.join(" | ") || "Current route runtime record is loaded."}
                                 >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
@@ -165,29 +175,50 @@ export function DebugMonitoringRoutes({
                                             <p className="text-xs text-gray-400">{entry.routeName} | {entry.method} | {formatRelative(entry.updatedAtMs)}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Status" value={truth.status === "healthy" && truth.latency.latencyState === "review" ? "healthy with latency review" : status} tone={status === "healthy" ? "good" : status === "fail" ? "bad" : "warn"} truthState={truthForRouteRuntimeHealthState(truth.status)} />
+                                            <Pill label="Status" value={truth.status === "healthy_with_history" && truth.latency.latencyState === "review" ? "healthy with latency review" : truth.status} tone={toneForRouteRuntimeHealthState(truth.status)} truthState={truthForRouteRuntimeHealthState(truth.status)} />
                                             <Pill label="Coverage" value={coverageState} tone={coverageState === "observed" ? "good" : "warn"} />
                                             <Pill label="Freshness" value={freshness} tone={freshness === "fresh" ? "good" : freshness === "stale" ? "warn" : "neutral"} truthState={truthForRouteRuntimeHealthState(truth.freshness)} />
                                             <Pill label="Cluster" value={getRouteRuntimeHealthCluster(entry.key) === "native_chat" ? "native chat" : getRouteRuntimeHealthCluster(entry.key) === "compatibility_chat" ? "compatibility" : "other"} truthState="live" badgeLabel="INFO" />
-                                            <Pill label="Last result" value={truth.lastResult} tone={entry.lastResult === "success" ? "good" : entry.lastResult === "client_error" ? "warn" : "bad"} truthState={truthForRouteRuntimeHealthState(truth.lastResult)} />
+                                            <Pill label="Risk" value={truth.routeRiskClass} tone={truth.routeRiskClass === "critical" || truth.routeRiskClass === "high" ? "warn" : "neutral"} truthState={truth.routeRiskClass === "optional" || truth.routeRiskClass === "legacy" ? "live" : "degraded"} badgeLabel={truth.routeRiskClass.toUpperCase()} />
+                                            <Pill label="Last result" value={truth.lastResult === "no_sample" ? "No sample" : truth.lastResult} tone={toneForRouteRuntimeHealthState(truth.lastResult)} truthState={truthForRouteRuntimeHealthState(truth.lastResult)} />
                                         </div>
                                     </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        <Pill label="Last latency" value={formatLatency(truth.latency.lastMs)} tone={truth.latency.latencyState === "slow" ? "warn" : "good"} />
-                                        <Pill label="Avg latency" value={formatLatency(truth.latency.avgMs)} tone={truth.latency.avgMs !== null && truth.latency.avgMs >= truth.latency.slowThresholdMs ? "warn" : "good"} truthState="live" badgeLabel="INFO" />
-                                        <Pill label="Max latency" value={formatLatency(truth.latency.maxMs)} tone={truth.latency.maxMs !== null && truth.latency.maxMs >= truth.latency.slowThresholdMs ? "warn" : "good"} truthState={truth.latency.maxMs !== null && truth.latency.maxMs >= truth.latency.slowThresholdMs ? "degraded" : "live"} badgeLabel={truth.latency.maxMs !== null && truth.latency.maxMs >= truth.latency.slowThresholdMs ? "SLOW" : undefined} />
-                                        <Pill label="Success" value={truth.counts.success} tone="good" />
-                                        <Pill label="Client errors" value={truth.counts.clientErrors} tone={truth.counts.clientErrors > 0 ? "warn" : "good"} />
-                                        <Pill label="Server errors" value={truth.counts.serverErrors} tone={truth.counts.serverErrors > 0 ? "bad" : "good"} />
-                                        <Pill label="Samples" value={truth.counts.samples} truthState="live" badgeLabel="LOADED" />
-                                        <Pill label="Slow" value={truth.latency.slowCount} tone={truth.latency.slowCount > 0 ? "warn" : "good"} />
-                                    </div>
+                                    {truth.hasSample ? (
+                                        <>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Current" value={truth.lastResult} tone={toneForRouteRuntimeHealthState(truth.lastResult)} truthState={truthForRouteRuntimeHealthState(truth.lastResult)} />
+                                                <Pill label="Latency history" value={truth.latency.latencyState} tone={toneForRouteRuntimeHealthState(truth.latency.latencyState)} truthState={truthForRouteRuntimeHealthState(truth.latency.latencyState)} />
+                                                <Pill label="Error history" value={truth.errorHistoryState} tone={toneForRouteRuntimeHealthState(truth.errorHistoryState)} truthState={truthForRouteRuntimeHealthState(truth.errorHistoryState)} />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Last latency" value={formatLatency(truth.latency.lastMs)} tone={truth.latency.lastLatencyState === "review" ? "warn" : "good"} truthState={truth.latency.lastLatencyState === "review" ? "degraded" : "live"} badgeLabel={truth.latency.lastLatencyState === "review" ? "SLOW" : "LOADED"} />
+                                                <Pill label="Avg latency" value={formatLatency(truth.latency.avgMs)} tone={truth.latency.avgLatencyState === "review" ? "warn" : "good"} truthState={truth.latency.avgLatencyState === "review" ? "degraded" : "live"} badgeLabel={truth.latency.avgLatencyState === "review" ? "SLOW" : "INFO"} />
+                                                <Pill label="Max latency" value={formatLatency(truth.latency.maxMs)} tone={truth.latency.maxLatencyState === "review_history" ? "warn" : "good"} truthState={truth.latency.maxLatencyState === "review_history" ? "degraded" : "live"} badgeLabel={truth.latency.maxLatencyState === "review_history" ? "SLOW" : "INFO"} />
+                                                <Pill label="Success" value={truth.counts.success} tone="good" truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Client errors" value={truth.counts.clientErrors} tone={truth.counts.clientErrors > 0 ? "warn" : "good"} />
+                                                <Pill label="Server errors" value={truth.counts.serverErrors} tone={truth.counts.serverErrors > 0 ? "bad" : "good"} />
+                                                <Pill label="Samples" value={truth.counts.samples} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Slow" value={truth.latency.slowCount} tone={truth.latency.slowCount > 0 ? "warn" : "good"} />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                            <Pill label="Current" value="No sample" truthState="unavailable" badgeLabel="NO SAMPLE" />
+                                            <Pill label="Last latency" value="—" truthState="unavailable" badgeLabel="UNKNOWN" />
+                                            <Pill label="Avg latency" value="—" truthState="unavailable" badgeLabel="UNKNOWN" />
+                                            <Pill label="Max latency" value="—" truthState="unavailable" badgeLabel="UNKNOWN" />
+                                            <Pill label="Success" value={truth.counts.success} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Client errors" value={truth.counts.clientErrors} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Server errors" value={truth.counts.serverErrors} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Slow" value={truth.latency.slowCount} truthState="live" badgeLabel="LOADED" />
+                                        </div>
+                                    )}
                                     <p className="text-xs text-gray-400">
                                         {coverageState === "unseen"
-                                            ? "No runtime sample has been recorded for this route yet."
+                                            ? "No runtime sample has been recorded; metrics are unavailable, not zero."
                                             : freshness === "stale"
                                                 ? `Last sample ${formatRelative(entry.updatedAtMs)}. This route needs a fresh runtime sample before the lane can be treated as current.`
-                                                : `Slow threshold ${entry.slowThresholdMs ?? 0}ms. Last success ${formatRelative(entry.lastSuccessAtMs)}. Last server error ${formatRelative(entry.lastServerErrorAtMs)}. ${truth.latency.latencyState === "review" ? "Current result is healthy, but historical slow samples need latency review." : ""}`}
+                                                : `Slow threshold ${entry.slowThresholdMs ?? 0}ms. Last success ${formatRelative(entry.lastSuccessAtMs)}. Last server error ${formatRelative(entry.lastServerErrorAtMs)}. ${truth.stateReasons.join(" ")}`}
                                     </p>
                                     {entry.lastErrorMessage ? <p className="text-sm text-amber-100">{entry.lastErrorMessage}</p> : null}
                                 </div>

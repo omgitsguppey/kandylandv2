@@ -156,11 +156,21 @@ for (const expected of [
   "RouteRuntimeRecordTruth",
   "buildRouteRuntimeSummaryTruth",
   "buildRouteRuntimeRecordTruth",
+  "getRouteRuntimeRiskClass",
+  "no_sample",
+  "routeRiskClass",
+  "hasSample",
+  "lastLatencyState",
+  "avgLatencyState",
+  "maxLatencyState",
+  "errorHistoryState",
   "latencyState",
+  "No runtime sample has been recorded; metrics are unavailable, not zero.",
   "Historical latency contains slow samples; current health can still be healthy.",
 ]) {
   requireIncludes(runtimeHealth, expected, "Route runtime health truth model");
 }
+requireIncludes(readRequired("src/lib/server/route-runtime-health.ts"), "lastResult: \"no_sample\"", "Default route runtime records must not fake success before any sample exists");
 
 for (const expected of [
   "import { DebugControlTower }",
@@ -343,7 +353,17 @@ for (const expected of [
   "data-route-runtime-fail-count",
   "data-route-runtime-slow-count",
   "data-route-runtime-health-state",
+  "data-route-runtime-status",
+  "data-route-runtime-coverage",
+  "data-route-runtime-freshness",
+  "data-route-runtime-has-sample",
+  "data-route-runtime-last-result",
+  "data-route-runtime-last-latency-state",
+  "data-route-runtime-avg-latency-state",
+  "data-route-runtime-max-latency-state",
   "data-route-runtime-latency-state",
+  "data-route-runtime-error-history-state",
+  "data-route-runtime-risk-class",
   "data-route-runtime-summary-reason",
   "Native chat observed",
   "Native chat samples",
@@ -351,9 +371,13 @@ for (const expected of [
   "Compat samples",
   "badgeLabel=\"LOADED\"",
   "badgeLabel=\"INFO\"",
-  "badgeLabel={truth.latency.maxMs !== null && truth.latency.maxMs >= truth.latency.slowThresholdMs ? \"SLOW\" : undefined}",
+  "truth.latency.maxLatencyState === \"review_history\" ? \"SLOW\" : \"INFO\"",
+  "truth.lastResult === \"no_sample\" ? \"No sample\"",
+  "truth.hasSample ?",
+  "value=\"—\"",
+  "badgeLabel=\"NO SAMPLE\"",
+  "No runtime sample has been recorded; metrics are unavailable, not zero.",
   "healthy with latency review",
-  "Current result is healthy, but historical slow samples need latency review.",
 ]) {
   requireIncludes(debugMonitoringRoutes, expected, "Tracked route runtime rows must label loaded counts, chat triples, and latency review states");
 }
@@ -362,6 +386,8 @@ for (const forbidden of [
   "value={`${compatibilityChatRouteRuntimeSummary.fail}/${compatibilityChatRouteRuntimeSummary.warn}/${compatibilityChatRouteRuntimeSummary.stale}`}",
   "<Pill label=\"Avg latency\" value={`${entry.averageLatencyMs ?? 0}ms`} />",
   "<Pill label=\"Max latency\" value={`${entry.maxLatencyMs ?? 0}ms`} />",
+  "Last result\" value={entry.lastResult}",
+  "Last latency\" value={`${entry.lastLatencyMs ?? 0}ms`}",
   "<Pill label=\"Observed\" value={nativeChatRouteRuntimeHealth.length - nativeChatRouteRuntimeRates.unseenCount} />",
   "<Pill label=\"Samples\" value={nativeChatRouteRuntimeRates.totalSamples} />",
 ]) {
@@ -432,6 +458,7 @@ requireIncludes(releaseNotesScript, "Improved internal repair proposal grouping 
 requireIncludes(releaseNotesScript, "Improved internal repair proposal grouping so repeated debug items are easier to review.", "Release notes script must include inspect-only repair proposal grouping copy");
 requireIncludes(releaseNotesScript, "Improved internal bug report triage labels so loaded reports no longer appear stuck.", "Release notes script must include bug intake triage copy");
 requireIncludes(releaseNotesScript, "Improved internal route health labels so loaded runtime metrics no longer appear stuck.", "Release notes script must include route runtime health state copy");
+requireIncludes(releaseNotesScript, "Improved internal route runtime labels so unseen routes no longer appear as fake successes.", "Release notes script must include route runtime sample state copy");
 
 for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
@@ -645,6 +672,7 @@ try {
     /^src\/lib\/server\/admin-ops-health\.ts$/u,
     /^src\/lib\/server\/admin-orchestration\.ts$/u,
     /^src\/lib\/server\/admin-orchestration-repairs\.ts$/u,
+    /^src\/lib\/server\/route-runtime-health\.ts$/u,
     /^src\/lib\/route-runtime-health\.ts$/u,
     /^src\/lib\/admin-debug-route-runtime\.ts$/u,
     /^src\/app\/api\/admin\/debug\/control-tower\/route\.ts$/u,
