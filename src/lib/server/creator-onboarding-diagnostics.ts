@@ -25,6 +25,7 @@ export const CREATOR_LANE_ROSTER_WARNINGS = [
     "Role needs review",
     "Agreement evidence missing",
     "ID record needs review",
+    "Settings missing",
     "Settings need review",
 ] as const;
 
@@ -69,7 +70,8 @@ export type CreatorLaneSourceSnapshot = {
 
 export type CreatorOnboardingDiagnosticIssue = {
     key: CreatorOnboardingDiagnosticIssueKey;
-    severity: "warn" | "error";
+    severity: "warn" | "error" | "critical";
+    status?: "review" | "critical";
     userId: string;
     creatorDisplayName: string;
     message: string;
@@ -238,6 +240,13 @@ function buildSourceSnapshot(input: {
     };
 }
 
+function isLiveCreatorSource(snapshot: CreatorLaneSourceSnapshot) {
+    return snapshot.userRole === "creator"
+        || snapshot.approvalStatus === "creator_approved"
+        || snapshot.queueBucket === "approved"
+        || snapshot.creatorExperienceActivityCount > 0;
+}
+
 function getRequiredHistoryEvents(canonical: CreatorOnboardingCanonicalRecord): CreatorOnboardingHistoryEventType[] {
     const required = new Set<CreatorOnboardingHistoryEventType>();
 
@@ -388,8 +397,14 @@ export function buildCreatorLaneRosterWarnings(input: {
     if ((idStatus === "id_submitted" || idStatus === "id_verified") && countIdDocuments(input.entry) === 0) {
         addWarning(warnings, "ID record needs review");
     }
-    if ((approvalStatus === "creator_approved" || role === "creator") && !hasRecord(input.userRaw?.creatorSettings)) {
-        addWarning(warnings, "Settings need review");
+    const settingsSnapshot = buildSourceSnapshot({
+        queue: input.entry,
+        projectionExists: true,
+        userRaw: input.userRaw,
+        creatorExperienceActivityCount: 0,
+    });
+    if (isLiveCreatorSource(settingsSnapshot) && !hasRecord(input.userRaw?.creatorSettings)) {
+        addWarning(warnings, "Settings missing");
     }
     if (hasRestrictionConflict(input.userRaw)) {
         addWarning(warnings, "Settings need review");
@@ -712,19 +727,21 @@ export function buildCreatorOnboardingDiagnostics(input: {
             });
         }
 
-        if ((canonical.approvalStatus === "creator_approved" || canonical.role === "creator") && !hasRecord(userRaw?.creatorSettings)) {
+        if (isLiveCreatorSource(sourceSnapshot) && !hasRecord(userRaw?.creatorSettings)) {
             pushIssue({
                 key: "creator_settings_missing",
-                severity: "warn",
+                severity: "critical",
+                status: "critical",
                 userId,
                 creatorDisplayName: canonical.creatorDisplayName,
                 message: "Live creator settings are missing",
-                detail: "The creator is approved or live, but no fan experience settings are present on the user profile.",
+                detail: "Approved/live creators require normalized default fan experience settings.",
                 link: `/admin/user/${userId}`,
-                rosterWarning: "Settings need review",
-                recommendedFix: "Open Fan experience settings and save the normalized creator settings.",
+                rosterWarning: "Settings missing",
+                recommendedFix: "Create normalized default fan experience settings from canonical defaults.",
                 canSelfHeal: true,
                 sourceSnapshots: sourceSnapshot,
+                missingEvidenceFields: ["creatorSettings"],
             });
         }
 

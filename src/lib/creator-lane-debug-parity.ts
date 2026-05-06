@@ -94,8 +94,8 @@ const SURFACE_BY_ISSUE_KEY: Record<string, CreatorLaneMismatchSurface> = {
 
 const SOURCE_FILES_BY_SURFACE: Record<CreatorLaneMismatchSurface, string[]> = {
   queue: [
-    "src/lib/server/creator-review-queue-materializer.ts",
-    "src/lib/server/creator-projection-normalizer.ts",
+    "src/lib/server/creator-review-queue.ts",
+    "src/lib/creator-onboarding-projection.ts",
   ],
   role: [
     "src/lib/server/creator-admin-actions.ts",
@@ -110,7 +110,8 @@ const SOURCE_FILES_BY_SURFACE: Record<CreatorLaneMismatchSurface, string[]> = {
     "src/lib/server/creator-onboarding-diagnostics.ts",
   ],
   settings: [
-    "src/lib/server/creator-projection-normalizer.ts",
+    "src/lib/creator-onboarding-projection.ts",
+    "src/lib/creator-experiences.ts",
     "src/lib/server/creator-onboarding-diagnostics.ts",
   ],
   history: [

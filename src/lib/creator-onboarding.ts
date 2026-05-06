@@ -154,6 +154,7 @@ const HISTORY_EVENT_TYPE_SET = new Set<CreatorOnboardingHistoryEventType>([
     "creator_role_activation_blocked",
     "admin_account_updated",
     "creator_experience_settings_updated",
+    "creator_default_settings_created",
     "creator_restrictions_updated",
     "admin_notes_updated",
     "agreement_template_activated",
@@ -405,6 +406,7 @@ export type CreatorOnboardingHistoryEventType =
     | "creator_role_activation_blocked"
     | "admin_account_updated"
     | "creator_experience_settings_updated"
+    | "creator_default_settings_created"
     | "creator_restrictions_updated"
     | "admin_notes_updated"
     | "agreement_template_activated"
@@ -454,6 +456,7 @@ export const CREATOR_ONBOARDING_REQUIRED_HISTORY_EVENT_TYPES = [
     "creator_role_activated",
     "creator_role_activation_blocked",
     "creator_experience_settings_updated",
+    "creator_default_settings_created",
     "admin_account_updated",
     "synthetic_creator_created",
     "admin_view_as_started",
@@ -488,6 +491,7 @@ export const CREATOR_ONBOARDING_HISTORY_EVENT_LABELS: Record<CreatorOnboardingHi
     creator_role_activation_blocked: "Creator access blocked",
     admin_account_updated: "Account controls updated",
     creator_experience_settings_updated: "Fan experience settings updated",
+    creator_default_settings_created: "Default fan experience settings created",
     creator_restrictions_updated: "Creator restrictions updated",
     admin_notes_updated: "Admin notes updated",
     agreement_template_activated: "Agreement template activated",

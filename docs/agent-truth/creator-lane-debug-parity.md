@@ -52,6 +52,9 @@ Admin Roster is the decision queue. It must show only short operator warnings:
 - Agreement evidence missing
 - ID record needs review
 - Settings need review
+- Settings missing
+
+An approved/live creator missing settings is critical. "Live" means any of: `users/{uid}.role === "creator"`, canonical `approvalStatus === "creator_approved"`, review queue bucket `approved`, or creator experience activity exists. Missing settings must not be downgraded because legal, ID, or signature states are still pending once any live signal exists.
 
 Do not show raw collection paths, raw enum blobs, queue deltas, signature hashes, or storage details in the main roster row. Those details belong in Admin Debug.
 
@@ -96,6 +99,8 @@ Self-healing is allowed for deterministic projection repairs:
 - rebuild review queue from canonical onboarding
 - sync user creatorApplication projection from canonical onboarding
 - normalize missing creator settings from the existing settings model
+
+For live creators, the recommended fix is: "Create normalized default fan experience settings from canonical defaults." The self-heal path must create a `CreatorSettings` record with `schemaVersion`, `normalizedBy: "admin_debug_self_heal"`, provenance metadata, and a history entry `creator_default_settings_created`. It must not overwrite existing settings and must not change approval, role, legal, ID, signature, queue, payout, or ledger state. Booking defaults must be safe: bookings remain unavailable until availability is configured, with `creator_availability_not_configured` recorded as the reason.
 
 Human review is required for evidence-sensitive issues:
 

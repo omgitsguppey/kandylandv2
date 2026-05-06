@@ -1,12 +1,74 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.31.0",
+  "currentVersion": "1.33.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T22:19:29.626Z",
-  "generatedAtUtc": "2026-05-05T22:19:29.626Z",
-  "lastCommitSha": "2598da003f071e915bdc3aeb9f86d4657ad1e274",
+  "generatedAt": "2026-05-05T23:56:39.730Z",
+  "generatedAtUtc": "2026-05-05T23:56:39.730Z",
+  "lastCommitSha": "fa7cd3ed494b6e06dc32cfb5221f28bed48a1cb5",
   "notes": [
+    {
+      "version": "1.33.0",
+      "previousVersion": "1.32.0",
+      "commitSha": "fa7cd3ed494b6e06dc32cfb5221f28bed48a1cb5",
+      "commitTitle": "fix(drops): clarify preview cover entitlement states",
+      "committedAt": "2026-05-05T22:44:37.000Z",
+      "generatedAt": "2026-05-05T23:56:39.730Z",
+      "committedAtUtc": "2026-05-05T22:44:37.000Z",
+      "generatedAtUtc": "2026-05-05T23:56:39.730Z",
+      "diffStats": {
+        "rawAdditions": 364,
+        "rawDeletions": 90,
+        "rawChangeCount": 454,
+        "additions": 364,
+        "deletions": 90,
+        "effectiveAdditions": 364,
+        "effectiveDeletions": 90,
+        "changedFiles": 12,
+        "effectiveChangeCount": 454,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Fixed a beta issue to make KandyDrops smoother to use.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.32.0",
+      "previousVersion": "1.31.0",
+      "commitSha": "0a24f04764c97507d4e318e92ec8af5b5da3328a",
+      "commitTitle": "fix(drops): allow creator cover preview sharing",
+      "committedAt": "2026-05-05T22:33:59.000Z",
+      "generatedAt": "2026-05-05T23:56:39.393Z",
+      "committedAtUtc": "2026-05-05T22:33:59.000Z",
+      "generatedAtUtc": "2026-05-05T23:56:39.393Z",
+      "diffStats": {
+        "rawAdditions": 241,
+        "rawDeletions": 18,
+        "rawChangeCount": 259,
+        "additions": 241,
+        "deletions": 18,
+        "effectiveAdditions": 241,
+        "effectiveDeletions": 18,
+        "changedFiles": 7,
+        "effectiveChangeCount": 259,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Fixed a beta issue to make KandyDrops smoother to use.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "telemetry"
+      ]
+    },
     {
       "version": "1.31.0",
       "previousVersion": "1.30.0",
@@ -104,71 +166,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "admin",
         "documentation",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.28.0",
-      "previousVersion": "1.27.1",
-      "commitSha": "61bbf8464515651c9bff7d85608c7da5c6bc99b5",
-      "commitTitle": "fix(admin): refresh system health truth",
-      "committedAt": "2026-05-05T21:42:49.000Z",
-      "generatedAt": "2026-05-05T21:43:02.235Z",
-      "committedAtUtc": "2026-05-05T21:42:49.000Z",
-      "generatedAtUtc": "2026-05-05T21:43:02.235Z",
-      "diffStats": {
-        "rawAdditions": 473,
-        "rawDeletions": 12,
-        "rawChangeCount": 485,
-        "additions": 473,
-        "deletions": 12,
-        "effectiveAdditions": 469,
-        "effectiveDeletions": 8,
-        "changedFiles": 12,
-        "effectiveChangeCount": 477,
-        "excludedGeneratedChangeCount": 8
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal health reporting so beta issues show fresher, clearer status.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling",
-        "security"
-      ]
-    },
-    {
-      "version": "1.27.1",
-      "previousVersion": "1.27.0",
-      "commitSha": "40b96762e144c2f5983c1f8437dd903639d33606",
-      "commitTitle": "fix(security): verify media and Firestore guard evidence",
-      "committedAt": "2026-05-05T21:28:06.000Z",
-      "generatedAt": "2026-05-05T21:28:21.886Z",
-      "committedAtUtc": "2026-05-05T21:28:06.000Z",
-      "generatedAtUtc": "2026-05-05T21:28:21.886Z",
-      "diffStats": {
-        "rawAdditions": 15,
-        "rawDeletions": 43,
-        "rawChangeCount": 58,
-        "additions": 15,
-        "deletions": 43,
-        "effectiveAdditions": 6,
-        "effectiveDeletions": 0,
-        "changedFiles": 3,
-        "effectiveChangeCount": 6,
-        "excludedGeneratedChangeCount": 52
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal media and session safety checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "repo-tooling",
-        "security"
       ]
     }
   ]

@@ -82,6 +82,7 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 import {
     buildCreatorOnboardingHistoryEntry,
     ensureCreatorOnboardingSubmission,
+    repairMissingLiveCreatorSettings,
 } from "@/lib/server/creator-onboarding";
 
 describe("ensureCreatorOnboardingSubmission", () => {
@@ -246,6 +247,97 @@ describe("ensureCreatorOnboardingSubmission", () => {
                 actorMarkerPresent: true,
                 performedAs: "own_account",
             }),
+        });
+    });
+
+    it("self-heals missing live creator settings without enabling unconfigured bookings", async () => {
+        mockState.documents.set("users/live_creator", {
+            uid: "live_creator",
+            role: "creator",
+            displayName: "Live Creator",
+        });
+        mockState.documents.set("creator_onboarding/live_creator", {
+            userId: "live_creator",
+            email: "live@example.com",
+            role: "creator",
+            sourceVersion: 1,
+            signupType: "creator",
+            submissionStatus: "awaiting_manual_review",
+            approvalStatus: "creator_approved",
+            queuePosition: 1,
+            onboardingStartedAt: 1_710_000_000_000,
+            submittedAt: 1_710_000_000_000,
+            onboardingSubmittedAt: 1_710_000_000_000,
+            awaitingManualReviewAt: 1_710_000_000_000,
+            updatedAt: 1_710_000_000_000,
+            creatorDisplayName: "Live Creator",
+            legalStatus: "legal_pending",
+            contractDocumentStatus: "contract_sent",
+            creatorSignatureStatus: "signature_pending",
+            adminSignatureStatus: "signature_pending",
+            idVerificationStatus: "id_requested",
+            segmentationStatus: "segment_assigned",
+            creatorReviewQueueVisible: true,
+            blockingReasons: [],
+        });
+        mockState.documents.set("creator_review_queue/live_creator", {
+            userId: "live_creator",
+            queueBucket: "approved",
+        });
+
+        const result = await repairMissingLiveCreatorSettings({
+            userId: "live_creator",
+            dryRun: false,
+            nowMs: 1_710_000_002_000,
+        });
+
+        expect(result).toMatchObject({
+            settingsWritten: true,
+            alreadyPresent: false,
+            historyWritten: true,
+            doesNotChangeApproval: true,
+            doesNotOverwriteExistingSettings: true,
+            bookingUnavailableReason: "creator_availability_not_configured",
+        });
+        expect(mockState.documents.get("users/live_creator")).toMatchObject({
+            role: "creator",
+            creatorSettings: expect.objectContaining({
+                bookingsEnabled: false,
+                availabilityWindows: [],
+                schemaVersion: 1,
+                normalizedBy: "admin_debug_self_heal",
+                bookingUnavailableReason: "creator_availability_not_configured",
+                defaultSettingsProvenance: expect.objectContaining({
+                    source: "creator_lane_debug_parity",
+                    provenance: "creator_lane_debug_parity",
+                    doesNotChangeApproval: true,
+                }),
+            }),
+            creatorFanExperienceSettingsDebug: expect.objectContaining({
+                defaultSettingsRepair: true,
+                doesNotChangeApproval: true,
+            }),
+        });
+        expect(mockState.documents.get("creator_onboarding/live_creator/history/debug_parity_default_settings_created")).toMatchObject({
+            eventType: "creator_default_settings_created",
+            actorId: "system_debug_repair",
+            metadata: expect.objectContaining({
+                repairReason: "missing_live_creator_settings",
+                doesNotChangeApproval: true,
+                doesNotOverwriteExistingSettings: true,
+            }),
+        });
+
+        const second = await repairMissingLiveCreatorSettings({
+            userId: "live_creator",
+            dryRun: false,
+            nowMs: 1_710_000_003_000,
+        });
+
+        expect(second).toMatchObject({
+            settingsWritten: false,
+            alreadyPresent: true,
+            historyWritten: false,
         });
     });
 });

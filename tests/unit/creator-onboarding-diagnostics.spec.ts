@@ -134,6 +134,67 @@ describe("creator onboarding diagnostics", () => {
         expect(result.issues.some((issue) => issue.rosterWarning === "Agreement evidence missing")).toBe(true);
     });
 
+    it("treats approved live creator missing settings as critical and self-healable", () => {
+        const result = buildCreatorOnboardingDiagnostics({
+            users: [{ uid: "missing_settings", raw: { role: "creator" } }],
+            onboardingRecords: [
+                canonical({
+                    userId: "missing_settings",
+                    creatorDisplayName: "Missing Settings",
+                    role: "creator",
+                    approvalStatus: "creator_approved",
+                }),
+            ],
+            queueRecords: [queue({
+                userId: "missing_settings",
+                creatorDisplayName: "Missing Settings",
+                role: "creator",
+                approvalStatus: "creator_approved",
+                queueBucket: "approved",
+            })],
+            creatorExperienceRecords: [{ creatorId: "missing_settings" }],
+        });
+        const issue = result.issues.find((entry) => entry.key === "creator_settings_missing");
+
+        expect(issue).toMatchObject({
+            severity: "critical",
+            status: "critical",
+            rosterWarning: "Settings missing",
+            message: "Live creator settings are missing",
+            detail: "Approved/live creators require normalized default fan experience settings.",
+            recommendedFix: "Create normalized default fan experience settings from canonical defaults.",
+            canSelfHeal: true,
+        });
+        expect(result.creatorLaneDebug.report.mismatches.find((entry) => entry.surface === "settings")).toMatchObject({
+            severity: "critical",
+            creatorId: "missing_settings",
+        });
+    });
+
+    it("does not escalate missing settings for non-live applicants", () => {
+        const result = buildCreatorOnboardingDiagnostics({
+            users: [{ uid: "applicant", raw: { role: "user" } }],
+            onboardingRecords: [
+                canonical({
+                    userId: "applicant",
+                    creatorDisplayName: "Applicant",
+                    role: "user",
+                    approvalStatus: "creator_pending",
+                }),
+            ],
+            queueRecords: [queue({
+                userId: "applicant",
+                creatorDisplayName: "Applicant",
+                role: "user",
+                approvalStatus: "creator_pending",
+                queueBucket: "waiting_on_legal",
+            })],
+        });
+
+        expect(issueKeys(result)).not.toContain("creator_settings_missing");
+        expect(result.summary.settingsIssueCount).toBe(0);
+    });
+
     it("treats owner override reason as optional audit context", () => {
         const result = buildCreatorOnboardingDiagnostics({
             users: [{ uid: "override_gap", raw: { role: "user" } }],

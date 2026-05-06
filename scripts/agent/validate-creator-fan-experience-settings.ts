@@ -105,9 +105,23 @@ const checklist = read("EVERY_FILE_FUNCTION_CHECKLIST.md");
 [
   "CreatorSettings",
   "CreatorRestrictions",
+  "buildDefaultCreatorFanExperienceSettings",
+  "CREATOR_FAN_EXPERIENCE_SETTINGS_SCHEMA_VERSION",
+  "CREATOR_DEFAULT_BOOKING_UNAVAILABLE_REASON",
   "normalizeCreatorSettings",
   "normalizeCreatorRestrictions",
 ].forEach((needle) => requireIncludes(creatorExperiences, needle, "creator experiences canonical model"));
+
+[
+  "bookingsEnabled: false",
+  "availabilityWindows: []",
+  "schemaVersion",
+  "normalizedBy",
+  "defaultSettingsProvenance",
+  "provenance",
+  "creator_availability_not_configured",
+  "doesNotChangeApproval: true",
+].forEach((needle) => requireIncludes(creatorExperiences, needle, "creator default fan experience settings builder"));
 
 [
   "auth: \"admin\"",

@@ -255,6 +255,13 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   ) {
     return "Adjusted internal creator review warnings to match admin override rules.";
   }
+  if (
+    normalized.includes("require default live creator settings")
+    || normalized.includes("default live creator settings")
+    || normalized.includes("creator experience defaults")
+  ) {
+    return "Improved internal creator experience defaults for beta reliability.";
+  }
   if (isInternalBetaStabilizationChange(title, surfaces)) {
     return "Improved internal beta reliability and support traceability.";
   }

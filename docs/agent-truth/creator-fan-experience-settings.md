@@ -7,6 +7,16 @@ Last updated: 2026-05-02
 
 Admin Roster can edit creator fan experience settings, but it must not create a second settings model. The source shape is `CreatorSettings` and `CreatorRestrictions` from `src/lib/creator-experiences.ts`, which is also the shape read by `CreatorExperiencesPanel`.
 
+Approved/live creators must always have a normalized `CreatorSettings` record. If a creator becomes live through role, approval, approved queue bucket, or creator experience activity before manually configuring settings, the canonical fallback is `buildDefaultCreatorFanExperienceSettings(userId, actor)`.
+
+Default settings must be safe, not promotional:
+
+- Fan Pass, private chat, custom requests, messaging, and broadcasts use canonical default pricing and lane flags.
+- Live Time bookings are not enabled unless availability exists.
+- Empty availability records mean `creator_availability_not_configured`, not hidden open booking hours.
+- Defaults include `schemaVersion`, `normalizedBy`, timestamps, and provenance.
+- Debug self-heal uses `normalizedBy: "admin_debug_self_heal"` and never overwrites existing creator settings.
+
 The selected creator record shows `Fan experience settings` collapsed by default. Admins can update Fan Pass, private chat, custom requests, live time, broadcasts, pricing, request menu, availability, and restrictions from that section.
 
 ## Server Boundary

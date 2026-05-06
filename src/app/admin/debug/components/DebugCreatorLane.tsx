@@ -159,7 +159,7 @@ export function DebugCreatorLane({ data }: { data: any }) {
                                         <p className="font-semibold text-white">{issue.message}</p>
                                         <p className="text-xs text-gray-400">{issue.creatorDisplayName} - {issue.userId}</p>
                                     </div>
-                                    <Pill label="Severity" value={issue.severity} tone={issue.severity === "error" ? "bad" : "warn"} />
+                                    <Pill label="Severity" value={issue.severity} tone={issue.severity === "error" || issue.severity === "critical" ? "bad" : "warn"} />
                                 </div>
                                 <p className="text-sm text-gray-300">{issue.detail}</p>
                                 <p className="text-xs text-gray-400">Roster warning: {issue.rosterWarning}</p>

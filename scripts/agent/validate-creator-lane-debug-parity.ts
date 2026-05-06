@@ -47,6 +47,7 @@ function isIsoUtc(value: unknown) {
 const diagnostics = readRequired("src/lib/server/creator-onboarding-diagnostics.ts");
 const serverOnboarding = readRequired("src/lib/server/creator-onboarding.ts");
 const pureOnboarding = readRequired("src/lib/creator-onboarding.ts");
+const creatorExperiences = readRequired("src/lib/creator-experiences.ts");
 const creatorLaneHelper = readRequired("src/lib/creator-lane-debug-parity.ts");
 const creatorAdminActionContract = readRequired("src/lib/server/creator-admin-action-contract.ts");
 const creatorAdminActions = readRequired("src/lib/server/creator-admin-actions.ts");
@@ -87,6 +88,7 @@ for (const warning of [
     "Role needs review",
     "Agreement evidence missing",
     "ID record needs review",
+    "Settings missing",
     "Settings need review",
 ]) {
     requireIncludes(diagnostics, warning, "Shared roster warning vocabulary");
@@ -140,6 +142,7 @@ for (const helperNeedle of [
     "toCreatorLaneParityMismatch",
     "History event(s):",
     "Evidence field(s):",
+    "src/lib/creator-experiences.ts",
 ]) {
     requireIncludes(creatorLaneHelper, helperNeedle, "Creator lane parity helper");
 }
@@ -155,6 +158,9 @@ for (const eventNeedle of [
 
 for (const repairNeedle of [
     "repairCreatorLifecycleHistoryGap",
+    "repairMissingLiveCreatorSettings",
+    "buildDefaultCreatorFanExperienceSettings",
+    "creator_default_settings_created",
     "system_debug_repair",
     "Debug parity repair",
     "ID request history restored from source state",
@@ -164,9 +170,14 @@ for (const repairNeedle of [
     "sourceStatus: \"id_requested\"",
     "provenance: \"creator_lane_debug_parity\"",
     "doesNotChangeCreatorState: true",
+    "doesNotChangeApproval: true",
+    "doesNotOverwriteExistingSettings: true",
+    "bookingUnavailableReason",
+    "creator_availability_not_configured",
+    "Default fan experience settings created",
     "canonical.idVerificationStatus !== \"id_requested\"",
 ]) {
-    requireIncludes(serverOnboarding, repairNeedle, "Creator lifecycle history gap repair helper");
+    requireIncludes(`${serverOnboarding}\n${creatorExperiences}`, repairNeedle, "Creator Lane repair helpers");
 }
 
 for (const optionalOverrideNeedle of [
@@ -282,6 +293,9 @@ for (const docNeedle of [
     "Owner override reason is optional for admins.",
     "No action required unless you want additional audit context.",
     "required sensitive lifecycle history event is missing",
+    "approved/live creator missing settings is critical",
+    "Create normalized default fan experience settings from canonical defaults.",
+    "creator_availability_not_configured",
     "recommended fix",
     "creator-lane-debug-parity.generated.json",
     "Materializer has no recorded completion timestamp",

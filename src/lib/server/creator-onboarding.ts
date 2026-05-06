@@ -10,6 +10,10 @@ import {
 } from "@/lib/identity/actor-markers";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { normalizeCreatorApplication, resolveCreatorQueuePosition } from "@/lib/creator-application";
+import {
+    buildDefaultCreatorFanExperienceSettings,
+    CREATOR_DEFAULT_BOOKING_UNAVAILABLE_REASON,
+} from "@/lib/creator-experiences";
 import { CREATOR_INTAKE_STEPS, type CreatorIntakeFields } from "@/lib/creator-intake-flow";
 import { getActiveCreatorAgreementTemplate } from "@/lib/server/creator-agreement-templates";
 import {
@@ -293,6 +297,193 @@ export type CreatorLifecycleHistoryGapRepairResult = {
     queueParityOk: boolean | null;
     doesNotChangeCreatorState: true;
 };
+
+export type CreatorDefaultSettingsRepairResult = {
+    success: true;
+    userId: string;
+    dryRun: boolean;
+    settingsWritten: boolean;
+    alreadyPresent: boolean;
+    historyWritten: boolean;
+    historyDocId: string;
+    normalizedBy: "admin_debug_self_heal";
+    schemaVersion: number;
+    bookingUnavailableReason: typeof CREATOR_DEFAULT_BOOKING_UNAVAILABLE_REASON;
+    approvalStatus: CreatorOnboardingCanonicalRecord["approvalStatus"] | "unknown";
+    userRole: UserProfile["role"] | "unknown";
+    queueBucket: string | null;
+    creatorExperienceActivityCount: number;
+    repairedAtUtc: string;
+    doesNotChangeApproval: true;
+    doesNotOverwriteExistingSettings: true;
+};
+
+function readRecord(value: unknown): Record<string, unknown> | null {
+    return value && typeof value === "object" && !Array.isArray(value)
+        ? value as Record<string, unknown>
+        : null;
+}
+
+function hasRecord(value: unknown) {
+    return Boolean(readRecord(value));
+}
+
+export async function repairMissingLiveCreatorSettings(input: {
+    userId: string;
+    actor?: CreatorOnboardingActor;
+    dryRun?: boolean;
+    nowMs?: number;
+    creatorExperienceActivityCount?: number;
+}): Promise<CreatorDefaultSettingsRepairResult> {
+    if (!adminDb) {
+        throw new Error("Database not available");
+    }
+
+    const userId = readString(input.userId);
+    if (!userId) {
+        throw new Error("Creator user ID is required.");
+    }
+
+    const nowMs = typeof input.nowMs === "number" && Number.isFinite(input.nowMs)
+        ? Math.trunc(input.nowMs)
+        : Date.now();
+    const repairedAtUtc = new Date(nowMs).toISOString();
+    const actor = input.actor ?? {
+        id: "system_debug_repair",
+        role: "system",
+        label: "Debug parity repair",
+    } satisfies CreatorOnboardingActor;
+    const userRef = adminDb.collection("users").doc(userId);
+    const onboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId);
+    const queueRef = adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).doc(userId);
+    const historyDocId = "debug_parity_default_settings_created";
+    const historyRef = onboardingRef.collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).doc(historyDocId);
+
+    return adminDb.runTransaction(async (transaction) => {
+        const [userSnap, onboardingSnap, queueSnap, existingHistorySnap] = await transaction.getAll(
+            userRef,
+            onboardingRef,
+            queueRef,
+            historyRef,
+        );
+        const userData = (userSnap.data() as Record<string, unknown> | undefined) ?? {};
+        const canonical = normalizeCreatorOnboardingCanonicalRecord(onboardingSnap.data());
+        const queueData = (queueSnap.data() as Record<string, unknown> | undefined) ?? {};
+        const userRole = readRole(userData.role);
+        const approvalStatus = canonical?.approvalStatus ?? "unknown";
+        const queueBucket = readString(queueData.queueBucket) || null;
+        const creatorExperienceActivityCount = typeof input.creatorExperienceActivityCount === "number" && Number.isFinite(input.creatorExperienceActivityCount)
+            ? Math.max(0, Math.trunc(input.creatorExperienceActivityCount))
+            : 0;
+        const liveCreator =
+            userRole === "creator"
+            || approvalStatus === "creator_approved"
+            || queueBucket === "approved"
+            || creatorExperienceActivityCount > 0;
+
+        if (!userSnap.exists) {
+            throw new Error("Creator user profile is missing; default settings repair requires user source evidence.");
+        }
+        if (!liveCreator) {
+            throw new Error("Default settings repair requires live/approved creator source evidence.");
+        }
+
+        const alreadyPresent = hasRecord(userData.creatorSettings);
+        const defaultSettings = buildDefaultCreatorFanExperienceSettings(userId, {
+            id: actor.id,
+            role: actor.role,
+            label: actor.label,
+            normalizedBy: "admin_debug_self_heal",
+            source: "creator_lane_debug_parity",
+            nowMs,
+        });
+        const result: CreatorDefaultSettingsRepairResult = {
+            success: true,
+            userId,
+            dryRun: input.dryRun !== false,
+            settingsWritten: false,
+            alreadyPresent,
+            historyWritten: false,
+            historyDocId,
+            normalizedBy: "admin_debug_self_heal",
+            schemaVersion: defaultSettings.schemaVersion,
+            bookingUnavailableReason: CREATOR_DEFAULT_BOOKING_UNAVAILABLE_REASON,
+            approvalStatus,
+            userRole,
+            queueBucket,
+            creatorExperienceActivityCount,
+            repairedAtUtc,
+            doesNotChangeApproval: true,
+            doesNotOverwriteExistingSettings: true,
+        };
+
+        if (result.dryRun || alreadyPresent) {
+            return result;
+        }
+
+        const debugPatch = {
+            creatorSettingsSource: "creator_lane_debug_parity",
+            settingsNormalized: true,
+            settingsValidationWarnings: [],
+            lastSettingsUpdatedAt: nowMs,
+            lastSettingsUpdatedBy: actor.id,
+            changedKeys: ["creatorSettings"],
+            normalizedBy: "admin_debug_self_heal",
+            schemaVersion: defaultSettings.schemaVersion,
+            defaultSettingsRepair: true,
+            repairedAtUtc,
+            doesNotChangeApproval: true,
+        };
+
+        transaction.set(userRef, stripUndefinedDeep({
+            creatorSettings: defaultSettings,
+            creatorFanExperienceSettingsDebug: debugPatch,
+            updatedAt: nowMs,
+            updatedBy: actor.id,
+        }), { merge: true });
+        transaction.set(onboardingRef, stripUndefinedDeep({
+            creatorFanExperienceSettingsDebug: debugPatch,
+        }), { merge: true });
+        transaction.set(queueRef, stripUndefinedDeep({
+            creatorFanExperienceSettingsDebug: debugPatch,
+        }), { merge: true });
+
+        if (!existingHistorySnap.exists) {
+            transaction.set(historyRef, buildCreatorOnboardingHistoryEntry({
+                eventType: "creator_default_settings_created",
+                actor,
+                timestamp: nowMs,
+                summary: "Default fan experience settings created",
+                detail: "Approved/live creator was missing normalized fan experience settings; safe defaults were created from canonical settings.",
+                targetUserId: userId,
+                targetCreatorId: userId,
+                metadata: {
+                    creatorId: userId,
+                    userId,
+                    repairReason: "missing_live_creator_settings",
+                    source: "creator_lane_debug_parity",
+                    provenance: "creator_lane_debug_parity",
+                    normalizedBy: "admin_debug_self_heal",
+                    schemaVersion: defaultSettings.schemaVersion,
+                    bookingUnavailableReason: CREATOR_DEFAULT_BOOKING_UNAVAILABLE_REASON,
+                    approvalStatus,
+                    userRole,
+                    queueBucket,
+                    creatorExperienceActivityCount,
+                    repairedAtUtc,
+                    doesNotChangeApproval: true,
+                    doesNotOverwriteExistingSettings: true,
+                },
+            }), { merge: true });
+        }
+
+        return {
+            ...result,
+            settingsWritten: true,
+            historyWritten: !existingHistorySnap.exists,
+        };
+    });
+}
 
 export async function repairCreatorLifecycleHistoryGap(input: {
     userId: string;

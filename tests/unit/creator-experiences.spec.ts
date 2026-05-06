@@ -5,6 +5,7 @@ import {
     CREATOR_BOOKING_RATES,
     CREATOR_SUBSCRIPTION_MIN_GD,
     DEFAULT_CREATOR_SETTINGS,
+    buildDefaultCreatorFanExperienceSettings,
     cryptoSafeId,
     isCreatorMessagingAvailable,
     normalizeCreatorAvailabilityWindows,
@@ -114,6 +115,34 @@ describe("creator-experiences", () => {
             videoSubscriberDiscountPercent: 100,
             requestCategories: DEFAULT_CREATOR_SETTINGS.requestCategories,
             availabilityWindows: DEFAULT_CREATOR_SETTINGS.availabilityWindows,
+        });
+    });
+
+    it("builds safe default live creator settings without booking availability", () => {
+        const settings = buildDefaultCreatorFanExperienceSettings("creator_default", {
+            id: "system_debug_repair",
+            role: "system",
+            label: "Debug parity repair",
+            normalizedBy: "admin_debug_self_heal",
+            source: "creator_lane_debug_parity",
+            nowMs: 1_710_000_000_000,
+        });
+
+        expect(settings).toMatchObject({
+            messagingEnabled: true,
+            subscriptionsEnabled: true,
+            customRequestsEnabled: true,
+            bookingsEnabled: false,
+            availabilityWindows: [],
+            schemaVersion: 1,
+            normalizedBy: "admin_debug_self_heal",
+            bookingUnavailableReason: "creator_availability_not_configured",
+            defaultSettingsProvenance: expect.objectContaining({
+                creatorId: "creator_default",
+                source: "creator_lane_debug_parity",
+                provenance: "creator_lane_debug_parity",
+                doesNotChangeApproval: true,
+            }),
         });
     });
 });

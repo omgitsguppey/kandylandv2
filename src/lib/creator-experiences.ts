@@ -64,6 +64,9 @@ export const DEFAULT_CREATOR_AVAILABILITY_WINDOWS: CreatorAvailabilityWindow[] =
     },
 ];
 
+export const CREATOR_FAN_EXPERIENCE_SETTINGS_SCHEMA_VERSION = 1;
+export const CREATOR_DEFAULT_BOOKING_UNAVAILABLE_REASON = "creator_availability_not_configured";
+
 export const DEFAULT_CREATOR_SETTINGS: CreatorSettings = {
     messagingEnabled: true,
     broadcastsEnabled: true,
@@ -80,6 +83,81 @@ export const DEFAULT_CREATOR_SETTINGS: CreatorSettings = {
     availabilityTimezone: "America/Chicago",
     availabilityWindows: DEFAULT_CREATOR_AVAILABILITY_WINDOWS,
 };
+
+export type CreatorDefaultSettingsActor = {
+    id?: string | null;
+    role?: "admin" | "owner_admin" | "system" | "creator" | "user";
+    label?: string | null;
+    normalizedBy?: "system_default" | "admin_debug_self_heal";
+    source?: string;
+    nowMs?: number;
+};
+
+export type CreatorDefaultFanExperienceSettings = CreatorSettings & {
+    schemaVersion: number;
+    createdAt: number;
+    updatedAt: number;
+    normalizedBy: "system_default" | "admin_debug_self_heal";
+    availabilityConfigured: false;
+    bookingUnavailableReason: typeof CREATOR_DEFAULT_BOOKING_UNAVAILABLE_REASON;
+    defaultSettingsProvenance: {
+        creatorId: string;
+        userId: string;
+        schemaVersion: number;
+        normalizedBy: "system_default" | "admin_debug_self_heal";
+        source: string;
+        provenance: string;
+        actorId: string;
+        actorRole: string;
+        actorLabel: string;
+        createdAtUtc: string;
+        doesNotChangeApproval: true;
+    };
+};
+
+export function buildDefaultCreatorFanExperienceSettings(
+    userId: string,
+    actor: CreatorDefaultSettingsActor = {},
+): CreatorDefaultFanExperienceSettings {
+    const nowMs = typeof actor.nowMs === "number" && Number.isFinite(actor.nowMs)
+        ? Math.trunc(actor.nowMs)
+        : Date.now();
+    const normalizedBy = actor.normalizedBy ?? "system_default";
+    const actorRole = actor.role ?? "system";
+    const actorId = typeof actor.id === "string" && actor.id.trim().length > 0
+        ? actor.id.trim()
+        : normalizedBy;
+    const actorLabel = typeof actor.label === "string" && actor.label.trim().length > 0
+        ? actor.label.trim()
+        : normalizedBy === "admin_debug_self_heal"
+            ? "Debug parity repair"
+            : "System default";
+
+    return {
+        ...DEFAULT_CREATOR_SETTINGS,
+        bookingsEnabled: false,
+        availabilityWindows: [],
+        schemaVersion: CREATOR_FAN_EXPERIENCE_SETTINGS_SCHEMA_VERSION,
+        createdAt: nowMs,
+        updatedAt: nowMs,
+        normalizedBy,
+        availabilityConfigured: false,
+        bookingUnavailableReason: CREATOR_DEFAULT_BOOKING_UNAVAILABLE_REASON,
+        defaultSettingsProvenance: {
+            creatorId: userId,
+            userId,
+            schemaVersion: CREATOR_FAN_EXPERIENCE_SETTINGS_SCHEMA_VERSION,
+            normalizedBy,
+            source: actor.source ?? "creator_experiences_defaults",
+            provenance: actor.source ?? "creator_experiences_defaults",
+            actorId,
+            actorRole,
+            actorLabel,
+            createdAtUtc: new Date(nowMs).toISOString(),
+            doesNotChangeApproval: true,
+        },
+    };
+}
 
 export const DEFAULT_CREATOR_RESTRICTIONS: CreatorRestrictions = {
     messagingRestricted: false,
