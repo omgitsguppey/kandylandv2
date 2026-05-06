@@ -210,6 +210,78 @@ type ReceiptSummaryRow = {
     sourceState: ReceiptSampleView["sourceState"];
 };
 
+type DependencyPackageName = "root" | "functions" | "workspace" | "unknown";
+type DependencyType = "runtime" | "dev" | "optional";
+type DependencyCategory =
+    | "framework"
+    | "firebase_google"
+    | "payments"
+    | "analytics"
+    | "ui"
+    | "forms"
+    | "testing"
+    | "build"
+    | "agent_tooling"
+    | "security"
+    | "unknown";
+
+type DependencyEntry = {
+    name: string;
+    declaredVersion: string;
+    sourcePackage: DependencyPackageName;
+    dependencyType: DependencyType;
+    installedVersion?: string;
+    installedVersionState: "from_lockfile" | "not_checked" | "not_installed" | "unknown";
+    direct: true;
+    category: DependencyCategory;
+};
+
+type DependencyGroup = {
+    key: string;
+    label: string;
+    count: number;
+    entries: DependencyEntry[];
+    topEntries: string[];
+};
+
+type DependencyPackageSource = {
+    name: DependencyPackageName;
+    path: string;
+    dependencies: DependencyEntry[];
+    devDependencies: DependencyEntry[];
+    optionalDependencies: DependencyEntry[];
+};
+
+type DependencyInventory = {
+    generatedAtUtc: string;
+    nodeVersion: string;
+    firestoreConnectivity: "live" | "failed" | "unknown";
+    lastTelemetryPingAtUtc: string | null;
+    packageSources: DependencyPackageSource[];
+    totals: {
+        runtimeDependencies: number;
+        devDependencies: number;
+        optionalDependencies: number;
+        functionsDependencies: number;
+        overrideCount: number;
+        unknownDisplayed: number;
+    };
+    groups: DependencyGroup[];
+    overrides: Array<{
+        sourcePackage: "root" | "functions";
+        count: number;
+        names: string[];
+    }>;
+    notDirectDependencies: Array<{
+        name: string;
+        state: "transitive/not direct" | "absent";
+        installedVersion?: string;
+    }>;
+    freshnessState: "fresh" | "stale" | "unknown";
+    rootPackageUpdatedAtUtc: string | null;
+    functionsPackageUpdatedAtUtc: string | null;
+};
+
 function toNumber(value: unknown) {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric : 0;
@@ -281,6 +353,142 @@ function parseReceiptDateKey(receiptKey: string, timestamp: number) {
     const match = /(\d{4}-\d{2}-\d{2})/u.exec(receiptKey);
     if (match?.[1]) return match[1];
     return timestamp > 0 ? new Date(timestamp).toISOString().slice(0, 10) : "unknown-date";
+}
+
+function readJsonFile<T>(filePath: string, fallback: T): T {
+    if (!fs.existsSync(filePath)) {
+        return fallback;
+    }
+
+    try {
+        return JSON.parse(fs.readFileSync(filePath, "utf-8")) as T;
+    } catch {
+        return fallback;
+    }
+}
+
+function normalizeDependencyCategory(name: string): DependencyCategory {
+    if (["next", "react", "react-dom", "@next/third-parties", "server-only", "swr"].includes(name)) return "framework";
+    if (
+        name.startsWith("firebase")
+        || name.startsWith("@google-")
+        || name.startsWith("google-")
+    ) return "firebase_google";
+    if (name.includes("paypal")) return "payments";
+    if (name.includes("posthog") || name.includes("analytics")) return "analytics";
+    if (
+        name.startsWith("@radix-ui/")
+        || name.startsWith("@tailwindcss/")
+        || name.includes("tailwind")
+        || name.includes("lucide")
+        || name.includes("motion")
+        || name.includes("recharts")
+        || name.includes("embla")
+        || name.includes("skeleton")
+        || name.includes("sonner")
+        || name.includes("confetti")
+        || name.includes("crop")
+    ) return "ui";
+    if (name.includes("hook-form") || name === "zod" || name.includes("resolver")) return "forms";
+    if (
+        name.includes("vitest")
+        || name.includes("playwright")
+        || name.includes("cypress")
+        || name.includes("puppeteer")
+        || name.includes("storybook")
+        || name.includes("testing-library")
+        || name === "msw"
+        || name === "happy-dom"
+        || name.includes("axe")
+    ) return "testing";
+    if (
+        name.includes("eslint")
+        || name === "esbuild"
+        || name === "vite"
+        || name === "postcss"
+        || name === "tsx"
+        || name === "cross-env"
+        || name === "typescript"
+        || name === "dotenv"
+    ) return "build";
+    if (
+        name.includes("ts-morph")
+        || name.includes("dependency-cruiser")
+        || name.includes("madge")
+        || name.includes("knip")
+        || name.includes("syncpack")
+        || name.includes("ast-grep")
+        || name.includes("npm-check-updates")
+        || name.includes("firebase-tools")
+    ) return "agent_tooling";
+    if (name.includes("auth") || name.includes("dompurify")) return "security";
+    return "unknown";
+}
+
+function buildDependencyEntry(
+    sourcePackage: "root" | "functions",
+    dependencyType: DependencyType,
+    name: string,
+    declaredVersion: string,
+    installedVersion?: string,
+): DependencyEntry {
+    return {
+        name,
+        declaredVersion,
+        sourcePackage,
+        dependencyType,
+        installedVersion,
+        installedVersionState: installedVersion ? "from_lockfile" : "not_installed",
+        direct: true,
+        category: normalizeDependencyCategory(name),
+    };
+}
+
+function getLockfileInstalledVersion(lockfile: Record<string, unknown>, packageName: string) {
+    const packages = lockfile.packages;
+    if (!packages || typeof packages !== "object") {
+        return undefined;
+    }
+    const packageEntry = (packages as Record<string, unknown>)[`node_modules/${packageName}`];
+    if (!packageEntry || typeof packageEntry !== "object") {
+        return undefined;
+    }
+    return toOptionalString((packageEntry as Record<string, unknown>).version);
+}
+
+function buildDependencyEntries(
+    sourcePackage: "root" | "functions",
+    dependencyType: DependencyType,
+    source: Record<string, string>,
+    lockfile: Record<string, unknown>,
+) {
+    return Object.entries(source)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([name, declaredVersion]) => buildDependencyEntry(
+            sourcePackage,
+            dependencyType,
+            name,
+            declaredVersion,
+            getLockfileInstalledVersion(lockfile, name),
+        ));
+}
+
+function getDependencyGroupLabel(category: DependencyCategory) {
+    const labels: Record<DependencyCategory, string> = {
+        framework: "Framework / runtime",
+        firebase_google: "Firebase / Google",
+        payments: "Payments",
+        analytics: "Analytics / telemetry",
+        ui: "UI / design",
+        forms: "Forms / validation",
+        testing: "Testing / QA",
+        build: "Build / dev",
+        agent_tooling: "Agent / repo tooling",
+        security: "Security / overrides",
+        unknown: "Other direct dependencies",
+    };
+
+    return labels[category];
 }
 
 function parseQueueActivationKey(value: unknown) {
@@ -813,40 +1021,126 @@ function normalizeCustomTaskDefinition(id: string, rawValue: Record<string, unkn
 
 async function readInfrastructureDependencies() {
     try {
-        const pkgPath = path.join(process.cwd(), "package.json");
-        let pkg: any = { dependencies: {}, devDependencies: {} };
-        if (fs.existsSync(pkgPath)) {
-            pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-        }
-        
-        // Lightweight connection pings
-        let firestorePing = "unverified";
+        const rootDir = process.cwd();
+        const rootPackageRelativePath = "package.json";
+        const rootLockfileRelativePath = "package-lock.json";
+        const functionsPackageRelativePath = "functions/package.json";
+        const functionsLockfileRelativePath = "functions/package-lock.json";
+        const rootPackagePath = path.join(rootDir, rootPackageRelativePath);
+        const rootLockfilePath = path.join(rootDir, rootLockfileRelativePath);
+        const functionsPackagePath = path.join(rootDir, functionsPackageRelativePath);
+        const functionsLockfilePath = path.join(rootDir, functionsLockfileRelativePath);
+
+        const rootPkg = readJsonFile<Record<string, Record<string, string>>>(rootPackagePath, {});
+        const rootLockfile = readJsonFile<Record<string, unknown>>(rootLockfilePath, {});
+        const functionsPkg = readJsonFile<Record<string, Record<string, string>>>(functionsPackagePath, {});
+        const functionsLockfile = readJsonFile<Record<string, unknown>>(functionsLockfilePath, {});
+
+        const latestTelemetryPingSnapshotPromise = adminDb.collection("server_diagnostics")
+            .orderBy("createdAtMs", "desc")
+            .limit(1)
+            .get();
+
+        let firestorePing: DependencyInventory["firestoreConnectivity"] = "unknown";
+        let lastTelemetryPingAtUtc: string | null = null;
         try {
             await adminDb.collection("server_diagnostics").limit(1).get();
             firestorePing = "live";
-        } catch (e) {
+            const latestTelemetryPingSnapshot = await latestTelemetryPingSnapshotPromise;
+            const latestTelemetryPing = latestTelemetryPingSnapshot.docs[0]?.data() as Record<string, unknown> | undefined;
+            const latestTelemetryPingMs = toNumber(latestTelemetryPing?.createdAtMs)
+                || toNumber(latestTelemetryPing?.timestamp)
+                || toNumber(latestTelemetryPing?.timestampMs);
+            lastTelemetryPingAtUtc = latestTelemetryPingMs > 0 ? new Date(latestTelemetryPingMs).toISOString() : null;
+        } catch {
             firestorePing = "failed";
         }
 
+        const rootDependencies = buildDependencyEntries("root", "runtime", rootPkg.dependencies ?? {}, rootLockfile);
+        const rootDevDependencies = buildDependencyEntries("root", "dev", rootPkg.devDependencies ?? {}, rootLockfile);
+        const rootOptionalDependencies = buildDependencyEntries("root", "optional", rootPkg.optionalDependencies ?? {}, rootLockfile);
+
+        const functionsDependencies = buildDependencyEntries("functions", "runtime", functionsPkg.dependencies ?? {}, functionsLockfile);
+        const functionsDevDependencies = buildDependencyEntries("functions", "dev", functionsPkg.devDependencies ?? {}, functionsLockfile);
+        const functionsOptionalDependencies = buildDependencyEntries("functions", "optional", functionsPkg.optionalDependencies ?? {}, functionsLockfile);
+
+        const packageSources: DependencyPackageSource[] = [
+            {
+                name: "root",
+                path: rootPackageRelativePath,
+                dependencies: rootDependencies,
+                devDependencies: rootDevDependencies,
+                optionalDependencies: rootOptionalDependencies,
+            },
+            {
+                name: "functions",
+                path: functionsPackageRelativePath,
+                dependencies: functionsDependencies,
+                devDependencies: functionsDevDependencies,
+                optionalDependencies: functionsOptionalDependencies,
+            },
+        ];
+
+        const allEntries = packageSources.flatMap((source) => [
+            ...source.dependencies,
+            ...source.devDependencies,
+            ...source.optionalDependencies,
+        ]);
+
+        const groups = Array.from(allEntries.reduce((map, entry) => {
+            const current = map.get(entry.category) || {
+                key: entry.category,
+                label: getDependencyGroupLabel(entry.category),
+                count: 0,
+                entries: [] as DependencyEntry[],
+                topEntries: [] as string[],
+            };
+            current.count += 1;
+            current.entries.push(entry);
+            current.topEntries = current.entries.slice(0, 4).map((currentEntry) => currentEntry.name);
+            map.set(entry.category, current);
+            return map;
+        }, new Map<DependencyCategory, DependencyGroup>()).values()).sort((left, right) => right.count - left.count);
+
+        const rootOverrides = Object.keys(rootPkg.overrides ?? {}).sort();
+        const functionsOverrides = Object.keys(functionsPkg.overrides ?? {}).sort();
+        const notDirectDependencies = ["@google-cloud/pubsub", "@google-cloud/storage"].map((name) => {
+            const installedVersion = getLockfileInstalledVersion(rootLockfile, name) || getLockfileInstalledVersion(functionsLockfile, name);
+            const isDirect = allEntries.some((entry) => entry.name === name);
+            return {
+                name,
+                state: isDirect ? "transitive/not direct" as const : (installedVersion ? "transitive/not direct" as const : "absent" as const),
+                installedVersion,
+            };
+        }).filter((entry) => !allEntries.some((dependency) => dependency.name === entry.name));
+
+        const rootPackageUpdatedAtUtc = fs.existsSync(rootPackagePath) ? fs.statSync(rootPackagePath).mtime.toISOString() : null;
+        const functionsPackageUpdatedAtUtc = fs.existsSync(functionsPackagePath) ? fs.statSync(functionsPackagePath).mtime.toISOString() : null;
+
         return {
+            generatedAtUtc: new Date().toISOString(),
             timestamp: Date.now(),
-            dependencies: {
-                firebase: pkg.dependencies?.firebase || "unknown",
-                "firebase-admin": pkg.dependencies?.["firebase-admin"] || "unknown",
-                next: pkg.dependencies?.next || "unknown",
-                react: pkg.dependencies?.react || "unknown",
-                "@google-cloud/pubsub": pkg.dependencies?.["@google-cloud/pubsub"] || "unknown",
-                "@google-cloud/storage": pkg.dependencies?.["@google-cloud/storage"] || "unknown",
-            },
-            devDependencies: {
-                typescript: pkg.devDependencies?.typescript || "unknown",
-                eslint: pkg.devDependencies?.eslint || "unknown",
-                tailwindcss: pkg.devDependencies?.tailwindcss || "unknown",
-            },
             nodeVersion: process.version,
-            pings: {
-                firestore: firestorePing,
-            }
+            firestoreConnectivity: firestorePing,
+            lastTelemetryPingAtUtc,
+            packageSources,
+            totals: {
+                runtimeDependencies: packageSources.reduce((sum, source) => sum + source.dependencies.length, 0),
+                devDependencies: packageSources.reduce((sum, source) => sum + source.devDependencies.length, 0),
+                optionalDependencies: packageSources.reduce((sum, source) => sum + source.optionalDependencies.length, 0),
+                functionsDependencies: functionsDependencies.length,
+                overrideCount: rootOverrides.length + functionsOverrides.length,
+                unknownDisplayed: 0,
+            },
+            groups,
+            overrides: [
+                { sourcePackage: "root", count: rootOverrides.length, names: rootOverrides },
+                { sourcePackage: "functions", count: functionsOverrides.length, names: functionsOverrides },
+            ],
+            notDirectDependencies,
+            freshnessState: "fresh",
+            rootPackageUpdatedAtUtc,
+            functionsPackageUpdatedAtUtc,
         };
     } catch (e) {
         console.error("Failed to read package.json for infrastructure dependencies", e);

@@ -42,7 +42,7 @@ function lineCount(source: string) {
   return source.split(/\r?\n/u).length;
 }
 
-const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
+const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string>; dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
 const helper = readRequired("src/lib/admin-debug-control-tower.ts");
 const apiRoute = readRequired("src/app/api/admin/debug/control-tower/route.ts");
 const adminDebugRoute = readRequired("src/app/api/admin/debug/route.ts");
@@ -54,6 +54,7 @@ const adminOrchestrationRepairs = readRequired("src/lib/server/admin-orchestrati
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
 const debugTabActions = readRequired("src/app/admin/debug/components/DebugTabActions.tsx");
 const debugBugIntakePanel = readRequired("src/app/admin/debug/components/DebugBugIntakePanel.tsx");
+const debugTabInfrastructure = readRequired("src/app/admin/debug/components/DebugTabInfrastructure.tsx");
 const debugTabMonitoring = readRequired("src/app/admin/debug/components/DebugTabMonitoring.tsx");
 const debugMonitoringRoutes = readRequired("src/app/admin/debug/components/DebugMonitoringRoutes.tsx");
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
@@ -80,13 +81,35 @@ const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
 const repoMemory = readRequired("REPO_MEMORY_LEDGER.md");
 const releaseNotesScript = readRequired("scripts/release/update-public-changelog.ts");
+const dependencyTruthScript = readRequired("scripts/agent/check-dependency-truth.ts");
 const adminOverviewRoute = readRequired("src/app/api/admin/overview/route.ts");
 const adminOverviewUsers = readRequired("src/lib/server/admin-overview-users.ts");
 const adminOverviewContract = readRequired("src/lib/admin-overview.ts");
+const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
 
 if (packageJson.scripts?.["check:admin-debug-control-tower"] !== "tsx scripts/agent/validate-admin-debug-control-tower.ts") {
   fail("package.json must expose check:admin-debug-control-tower.");
+}
+if (packageJson.scripts?.["check:dependency-truth"] !== "tsx scripts/agent/check-dependency-truth.ts") {
+  fail("package.json must expose check:dependency-truth.");
+}
+if (Object.keys(packageJson.dependencies ?? {}).length === 0 || Object.keys(packageJson.devDependencies ?? {}).length === 0) {
+  fail("Root package.json must expose direct runtime and dev dependencies for the dependency inventory panel.");
+}
+if (Object.keys(functionsPackageJson.dependencies ?? {}).length === 0 || Object.keys(functionsPackageJson.devDependencies ?? {}).length === 0) {
+  fail("functions/package.json must expose direct runtime and dev dependencies for the dependency inventory panel.");
+}
+for (const expected of [
+  "verifyDirectDependencies",
+  "root runtime dependencies:",
+  "functions runtime dependencies:",
+  "Dependency truth validation passed.",
+  "@google-cloud/storage",
+  "@google-cloud/pubsub",
+  "must not be treated as not-direct",
+]) {
+  requireIncludes(dependencyTruthScript, expected, "Dependency truth validator must verify direct dependency inventory and not-direct package handling");
 }
 
 for (const expected of [
@@ -165,6 +188,30 @@ for (const expected of [
   "receiptDropRefs.length > 0 ? await adminDb.getAll(...receiptDropRefs) : []",
 ]) {
   requireIncludes(adminDebugRoute, expected, "Admin debug receipt sample model must normalize aliases and enrich user/drop context");
+}
+for (const expected of [
+  "DependencyInventory",
+  "DependencyEntry",
+  "DependencyGroup",
+  "packageSources",
+  "functions/package.json",
+  "package-lock.json",
+  "functions/package-lock.json",
+  "firestoreConnectivity",
+  "lastTelemetryPingAtUtc",
+  "runtimeDependencies",
+  "devDependencies",
+  "functionsDependencies",
+  "overrideCount",
+  "notDirectDependencies",
+  "\"@google-cloud/pubsub\"",
+  "\"@google-cloud/storage\"",
+  "transitive/not direct",
+  "absent",
+  "buildDependencyEntries",
+  "getLockfileInstalledVersion",
+]) {
+  requireIncludes(adminDebugRoute, expected, "Admin debug dependency inventory model must read full direct dependency inventory and separate not-direct packages");
 }
 for (const expected of [
   "BugIntakeTriageSummary",
@@ -782,6 +829,43 @@ if (vapidChipCount !== 1) {
 }
 
 for (const expected of [
+  "Infrastructure Health & Dependencies",
+  "Package inventory plus selected runtime connectivity checks. Package presence does not prove runtime use.",
+  "Environment & runtime checks",
+  "Inventory counts",
+  "Dependency groups",
+  "Package sources",
+  "Overrides and not-direct packages",
+  "Runtime deps",
+  "Dev deps",
+  "Functions deps",
+  "Unknown direct deps",
+  "Declared",
+  "Lockfile verified:",
+  "Not directly installed / transitive or expected but absent",
+  "data-debug-dependency-generated-at-utc",
+  "data-debug-dependency-group-count",
+  "inventory.generatedAtUtc",
+  "inventory.totals?.runtimeDependencies",
+  "inventory.totals?.devDependencies",
+  "inventory.totals?.functionsDependencies",
+  "inventory.notDirectDependencies",
+  "TRANSITIVE",
+  "ABSENT",
+]) {
+  requireIncludes(debugTabInfrastructure, expected, "Infrastructure dependency panel must show full grouped inventory and separate runtime truth from package truth");
+}
+for (const forbidden of [
+  "subtitle=\"Runtime telemetry showing actual module versions and connection state.\"",
+  "Core Dependencies",
+  "Dev Dependencies",
+  "\"@google-cloud/pubsub\": pkg.dependencies?.[\"@google-cloud/pubsub\"] || \"unknown\"",
+  "\"@google-cloud/storage\": pkg.dependencies?.[\"@google-cloud/storage\"] || \"unknown\"",
+]) {
+  requireNotIncludes(`${debugTabInfrastructure}\n${adminDebugRoute}`, forbidden, "Infrastructure dependency panel must not show selected-only unknown core dependencies");
+}
+
+for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
   "data-debug-mobile-layout=\"compact-card-stack\"",
   "data-debug-report-source",
@@ -1004,6 +1088,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugBugIntakePanel\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugTabInfrastructure\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugNowDiagnostics\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPanelStatusBySection\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabMonitoring\.tsx$/u,
@@ -1041,6 +1126,7 @@ try {
     /^scripts\/agent\/validate-creator-identity-markers\.ts$/u,
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
+    /^scripts\/agent\/check-dependency-truth\.ts$/u,
     /^scripts\/agent\/validate-admin-user-behavior-truth\.ts$/u,
     /^scripts\/agent\/validate-daily-task-lifecycle\.ts$/u,
     /^scripts\/agent\/validate-daily-task-reward-economy\.ts$/u,
@@ -1090,6 +1176,9 @@ try {
     /^EVERY_FILE_FUNCTION_CHECKLIST\.md$/u,
     /^FULL_SCALE_CODEBASE_AUDIT\.md$/u,
     /^package\.json$/u,
+    /^functions\/package\.json$/u,
+    /^package-lock\.json$/u,
+    /^functions\/package-lock\.json$/u,
   ];
   const unexpected = changedFiles.filter((filePath) => !allowedPatterns.some((pattern) => pattern.test(filePath.replace(/\\/g, "/"))));
   if (unexpected.length > 0) {

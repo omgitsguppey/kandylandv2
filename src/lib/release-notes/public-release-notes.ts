@@ -1,12 +1,46 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.50.0",
+  "currentVersion": "1.51.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T03:54:21.999Z",
-  "generatedAtUtc": "2026-05-06T03:54:21.999Z",
-  "lastCommitSha": "e1ff6cd52370d9f6cf7be29ea084b5d86722ca5a",
+  "generatedAt": "2026-05-06T04:17:27.967Z",
+  "generatedAtUtc": "2026-05-06T04:17:27.967Z",
+  "lastCommitSha": "4eb73b3eaa23a74611c19278c63de430c609f83d",
   "notes": [
+    {
+      "version": "1.51.0",
+      "previousVersion": "1.50.0",
+      "commitSha": "4eb73b3eaa23a74611c19278c63de430c609f83d",
+      "commitTitle": "fix(admin): enrich receipt sample context",
+      "committedAt": "2026-05-06T04:07:47.000Z",
+      "generatedAt": "2026-05-06T04:17:27.967Z",
+      "committedAtUtc": "2026-05-06T04:07:47.000Z",
+      "generatedAtUtc": "2026-05-06T04:17:27.967Z",
+      "diffStats": {
+        "rawAdditions": 424,
+        "rawDeletions": 100,
+        "rawChangeCount": 524,
+        "additions": 424,
+        "deletions": 100,
+        "effectiveAdditions": 340,
+        "effectiveDeletions": 18,
+        "changedFiles": 6,
+        "effectiveChangeCount": 358,
+        "excludedGeneratedChangeCount": 166
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved Beta update notes so changes are easier to match with support reports.",
+      "bullets": [
+        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
+        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.50.0",
       "previousVersion": "1.49.0",
@@ -141,39 +175,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "documentation",
         "repo-tooling",
         "telemetry"
-      ]
-    },
-    {
-      "version": "1.47.1",
-      "previousVersion": "1.47.0",
-      "commitSha": "d5a84e8f29d0992eefe53c0e64d544ecb7297d48",
-      "commitTitle": "fix(admin): clarify session config readiness",
-      "committedAt": "2026-05-06T03:02:35.000Z",
-      "generatedAt": "2026-05-06T03:02:52.202Z",
-      "committedAtUtc": "2026-05-06T03:02:35.000Z",
-      "generatedAtUtc": "2026-05-06T03:02:52.202Z",
-      "diffStats": {
-        "rawAdditions": 84,
-        "rawDeletions": 10,
-        "rawChangeCount": 94,
-        "additions": 84,
-        "deletions": 10,
-        "effectiveAdditions": 84,
-        "effectiveDeletions": 10,
-        "changedFiles": 5,
-        "effectiveChangeCount": 94,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Clarified internal admin readiness checks so config presence is not confused with live service health.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
       ]
     }
   ]

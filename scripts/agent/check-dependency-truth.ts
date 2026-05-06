@@ -1,116 +1,116 @@
-import fs from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
 
-type PackageJson = {
-    dependencies?: Record<string, string>;
-    devDependencies?: Record<string, string>;
+type PackageManifest = {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
+  overrides?: Record<string, unknown>;
 };
 
-type DependencyScope = {
-    label: string;
-    packageJsonPath: string;
-    npmPrefix?: string;
-    dependencies: string[];
+type Lockfile = {
+  packages?: Record<string, { version?: string }>;
 };
 
-async function readPackageJson(packageJsonPath: string): Promise<PackageJson> {
-    const content = await fs.readFile(packageJsonPath, "utf-8");
-    return JSON.parse(content) as PackageJson;
+const root = process.cwd();
+const failures: string[] = [];
+const warnings: string[] = [];
+
+function fail(message: string) {
+  failures.push(message);
 }
 
-function runNpmLs(dep: string, npmPrefix?: string) {
-    const prefix = npmPrefix ? `--prefix ${npmPrefix} ` : "";
-    return execSync(`npm ${prefix}ls ${dep} --json --depth=0`, { encoding: "utf-8" });
+function warn(message: string) {
+  warnings.push(message);
 }
 
-function verifyDependency(input: {
-    dep: string;
-    deps: Record<string, string>;
-    npmPrefix?: string;
-    label: string;
-}) {
-    if (!input.deps[input.dep]) {
-        console.warn(`WARNING: Critical dependency missing from ${input.label} package.json: ${input.dep}`);
-        return 1;
-    }
+function readJson<T>(relativePath: string, fallback: T): T {
+  const fullPath = path.join(root, relativePath);
+  if (!existsSync(fullPath)) {
+    fail(`Missing required file: ${relativePath}`);
+    return fallback;
+  }
 
-    try {
-        const lsOutput = runNpmLs(input.dep, input.npmPrefix);
-        const lsParsed = JSON.parse(lsOutput);
-        const installedVersion = lsParsed.dependencies?.[input.dep]?.version;
-        const expectedRange = input.deps[input.dep];
-
-        if (!installedVersion) {
-            console.warn(`WARNING: ${input.dep} is in ${input.label} package.json but not installed correctly.`);
-            return 1;
-        }
-
-        console.log(`[PASS] ${input.label}:${input.dep} expected ${expectedRange}, installed ${installedVersion}`);
-        return 0;
-    } catch {
-        console.warn(`WARNING: Error checking ${input.label}:${input.dep}. It might not be properly installed or has peer dependency issues.`);
-        return 1;
-    }
+  try {
+    return JSON.parse(readFileSync(fullPath, "utf8")) as T;
+  } catch (error) {
+    fail(`Unable to parse ${relativePath}: ${(error as Error).message}`);
+    return fallback;
+  }
 }
 
-async function main() {
-    const cwd = process.cwd();
-    const scopes: DependencyScope[] = [
-        {
-            label: "root",
-            packageJsonPath: path.join(cwd, "package.json"),
-            dependencies: [
-                "firebase",
-                "firebase-admin",
-                "@google-analytics/data",
-                "google-auth-library",
-                "@google-cloud/vertexai",
-                "next",
-                "react",
-            ],
-        },
-        {
-            label: "functions",
-            packageJsonPath: path.join(cwd, "functions", "package.json"),
-            npmPrefix: "functions",
-            dependencies: [
-                "firebase-admin",
-                "firebase-functions",
-                "@google-cloud/bigquery",
-            ],
-        },
-    ];
-
-    console.log("Dependency Truth Audit Start...");
-    let warnings = 0;
-
-    for (const scope of scopes) {
-        try {
-            const pkg = await readPackageJson(scope.packageJsonPath);
-            const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-            scope.dependencies.forEach((dep) => {
-                warnings += verifyDependency({
-                    dep,
-                    deps,
-                    npmPrefix: scope.npmPrefix,
-                    label: scope.label,
-                });
-            });
-        } catch {
-            console.warn(`WARNING: Failed to read ${scope.label} package.json for dependency truth.`);
-            warnings++;
-        }
+function verifyDirectDependencies(scope: string, pkg: PackageManifest, lockfile: Lockfile) {
+  for (const [name] of Object.entries(pkg.dependencies ?? {})) {
+    const version = lockfile.packages?.[`node_modules/${name}`]?.version;
+    if (!version) {
+      warn(`${scope} runtime dependency ${name} is declared but not lockfile-verified.`);
     }
+  }
 
-    if (warnings > 0) {
-        console.warn(`\nAudit finished with ${warnings} warnings. Check dependency truth!`);
-    } else {
-        console.log("\n[SUCCESS] Dependency truth verified. No critical mismatches.");
+  for (const [name] of Object.entries(pkg.devDependencies ?? {})) {
+    const version = lockfile.packages?.[`node_modules/${name}`]?.version;
+    if (!version) {
+      warn(`${scope} dev dependency ${name} is declared but not lockfile-verified.`);
     }
+  }
+
+  for (const [name] of Object.entries(pkg.optionalDependencies ?? {})) {
+    const version = lockfile.packages?.[`node_modules/${name}`]?.version;
+    if (!version) {
+      warn(`${scope} optional dependency ${name} is declared but not lockfile-verified.`);
+    }
+  }
 }
 
-main().catch((err) => {
-    console.error("Fatal error during dependency truth check:", err);
+function main() {
+  const rootPkg = readJson<PackageManifest>("package.json", {});
+  const rootLock = readJson<Lockfile>("package-lock.json", {});
+  const functionsPkg = readJson<PackageManifest>("functions/package.json", {});
+  const functionsLock = readJson<Lockfile>("functions/package-lock.json", {});
+
+  verifyDirectDependencies("root", rootPkg, rootLock);
+  verifyDirectDependencies("functions", functionsPkg, functionsLock);
+
+  if ((rootPkg.dependencies ?? {})["@google-cloud/storage"]) {
+    fail("@google-cloud/storage must not be treated as not-direct when it is a direct root dependency.");
+  }
+  if ((rootPkg.dependencies ?? {})["@google-cloud/pubsub"]) {
+    fail("@google-cloud/pubsub must not be treated as not-direct when it is a direct root dependency.");
+  }
+  if ((functionsPkg.dependencies ?? {})["@google-cloud/storage"]) {
+    fail("@google-cloud/storage must not be treated as not-direct when it is a direct functions dependency.");
+  }
+  if ((functionsPkg.dependencies ?? {})["@google-cloud/pubsub"]) {
+    fail("@google-cloud/pubsub must not be treated as not-direct when it is a direct functions dependency.");
+  }
+
+  const rootRuntimeCount = Object.keys(rootPkg.dependencies ?? {}).length;
+  const rootDevCount = Object.keys(rootPkg.devDependencies ?? {}).length;
+  const functionsRuntimeCount = Object.keys(functionsPkg.dependencies ?? {}).length;
+  const functionsDevCount = Object.keys(functionsPkg.devDependencies ?? {}).length;
+
+  console.log(`root runtime dependencies: ${rootRuntimeCount}`);
+  console.log(`root dev dependencies: ${rootDevCount}`);
+  console.log(`functions runtime dependencies: ${functionsRuntimeCount}`);
+  console.log(`functions dev dependencies: ${functionsDevCount}`);
+  console.log(`root overrides: ${Object.keys(rootPkg.overrides ?? {}).length}`);
+  console.log(`functions overrides: ${Object.keys(functionsPkg.overrides ?? {}).length}`);
+  if (warnings.length > 0) {
+    console.log("lockfile verification warnings:");
+    for (const warning of warnings) {
+      console.log(`- ${warning}`);
+    }
+  }
+
+  if (failures.length > 0) {
+    console.error("Dependency truth validation failed:");
+    for (const failure of failures) {
+      console.error(`- ${failure}`);
+    }
     process.exit(1);
-});
+  }
+
+  console.log("Dependency truth validation passed.");
+}
+
+main();

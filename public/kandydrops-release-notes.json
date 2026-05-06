@@ -1,10 +1,44 @@
 {
-  "currentVersion": "1.50.0",
+  "currentVersion": "1.51.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T03:54:21.999Z",
-  "generatedAtUtc": "2026-05-06T03:54:21.999Z",
-  "lastCommitSha": "e1ff6cd52370d9f6cf7be29ea084b5d86722ca5a",
+  "generatedAt": "2026-05-06T04:17:27.967Z",
+  "generatedAtUtc": "2026-05-06T04:17:27.967Z",
+  "lastCommitSha": "4eb73b3eaa23a74611c19278c63de430c609f83d",
   "notes": [
+    {
+      "version": "1.51.0",
+      "previousVersion": "1.50.0",
+      "commitSha": "4eb73b3eaa23a74611c19278c63de430c609f83d",
+      "commitTitle": "fix(admin): enrich receipt sample context",
+      "committedAt": "2026-05-06T04:07:47.000Z",
+      "generatedAt": "2026-05-06T04:17:27.967Z",
+      "committedAtUtc": "2026-05-06T04:07:47.000Z",
+      "generatedAtUtc": "2026-05-06T04:17:27.967Z",
+      "diffStats": {
+        "rawAdditions": 424,
+        "rawDeletions": 100,
+        "rawChangeCount": 524,
+        "additions": 424,
+        "deletions": 100,
+        "effectiveAdditions": 340,
+        "effectiveDeletions": 18,
+        "changedFiles": 6,
+        "effectiveChangeCount": 358,
+        "excludedGeneratedChangeCount": 166
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved Beta update notes so changes are easier to match with support reports.",
+      "bullets": [
+        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
+        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.50.0",
       "previousVersion": "1.49.0",
@@ -1607,38 +1641,6 @@
       ],
       "committedAtUtc": "2026-05-05T12:14:35.000Z",
       "generatedAtUtc": "2026-05-05T12:14:53.215Z"
-    },
-    {
-      "version": "1.16.0",
-      "previousVersion": "1.15.0",
-      "commitSha": "408fc0dcd0a7affd9243dd591c6d9b670c8e3d1f",
-      "commitTitle": "feat(experiments): add behavioral ranking holdout validation",
-      "committedAt": "2026-05-05T11:55:18.000Z",
-      "generatedAt": "2026-05-05T12:02:57.969Z",
-      "diffStats": {
-        "rawAdditions": 884,
-        "rawDeletions": 4,
-        "rawChangeCount": 888,
-        "additions": 884,
-        "deletions": 4,
-        "effectiveAdditions": 884,
-        "effectiveDeletions": 4,
-        "changedFiles": 10,
-        "effectiveChangeCount": 888,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T11:55:18.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:57.969Z"
     }
   ]
 }
