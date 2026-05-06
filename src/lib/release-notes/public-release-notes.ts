@@ -1,12 +1,81 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.33.0",
+  "currentVersion": "1.35.0",
   "channel": "beta",
-  "generatedAt": "2026-05-05T23:56:39.730Z",
-  "generatedAtUtc": "2026-05-05T23:56:39.730Z",
-  "lastCommitSha": "fa7cd3ed494b6e06dc32cfb5221f28bed48a1cb5",
+  "generatedAt": "2026-05-06T00:40:50.880Z",
+  "generatedAtUtc": "2026-05-06T00:40:50.880Z",
+  "lastCommitSha": "91ab9d6700726f95ec0dc2f0dfbaaa87c538c799",
   "notes": [
+    {
+      "version": "1.35.0",
+      "previousVersion": "1.34.0",
+      "commitSha": "91ab9d6700726f95ec0dc2f0dfbaaa87c538c799",
+      "commitTitle": "fix(creator): classify synthetic agreement evidence",
+      "committedAt": "2026-05-06T00:40:26.000Z",
+      "generatedAt": "2026-05-06T00:40:50.880Z",
+      "committedAtUtc": "2026-05-06T00:40:26.000Z",
+      "generatedAtUtc": "2026-05-06T00:40:50.880Z",
+      "diffStats": {
+        "rawAdditions": 542,
+        "rawDeletions": 35,
+        "rawChangeCount": 577,
+        "additions": 542,
+        "deletions": 35,
+        "effectiveAdditions": 540,
+        "effectiveDeletions": 33,
+        "changedFiles": 26,
+        "effectiveChangeCount": 573,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal creator classification checks.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
+    {
+      "version": "1.34.0",
+      "previousVersion": "1.33.0",
+      "commitSha": "ca194e18799da898e45e3a649f777afb10b1bdf1",
+      "commitTitle": "fix(creator): require default live creator settings",
+      "committedAt": "2026-05-06T00:04:10.000Z",
+      "generatedAt": "2026-05-06T00:40:50.502Z",
+      "committedAtUtc": "2026-05-06T00:04:10.000Z",
+      "generatedAtUtc": "2026-05-06T00:40:50.502Z",
+      "diffStats": {
+        "rawAdditions": 698,
+        "rawDeletions": 89,
+        "rawChangeCount": 787,
+        "additions": 698,
+        "deletions": 89,
+        "effectiveAdditions": 546,
+        "effectiveDeletions": 13,
+        "changedFiles": 20,
+        "effectiveChangeCount": 559,
+        "excludedGeneratedChangeCount": 228
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal creator experience defaults for beta reliability.",
+      "bullets": [
+        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
+        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.33.0",
       "previousVersion": "1.32.0",
@@ -93,72 +162,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "minor",
       "category": "Fixed",
       "userFacingTitle": "Adjusted internal creator review warnings to match admin override rules.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.30.0",
-      "previousVersion": "1.29.0",
-      "commitSha": "a0973fdb3d307dd0e79e0ec1ab9bb96f875e0e02",
-      "commitTitle": "fix(creator): annotate missing ID request history evidence",
-      "committedAt": "2026-05-05T22:05:42.000Z",
-      "generatedAt": "2026-05-05T22:05:58.505Z",
-      "committedAtUtc": "2026-05-05T22:05:42.000Z",
-      "generatedAtUtc": "2026-05-05T22:05:58.505Z",
-      "diffStats": {
-        "rawAdditions": 268,
-        "rawDeletions": 4,
-        "rawChangeCount": 272,
-        "additions": 268,
-        "deletions": 4,
-        "effectiveAdditions": 264,
-        "effectiveDeletions": 1,
-        "changedFiles": 9,
-        "effectiveChangeCount": 265,
-        "excludedGeneratedChangeCount": 7
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator review history checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.29.0",
-      "previousVersion": "1.28.0",
-      "commitSha": "0f4e79dc70b526231b4708f0bc312551b36ddfcd",
-      "commitTitle": "fix(admin): refresh creator lane parity evidence",
-      "committedAt": "2026-05-05T21:56:04.000Z",
-      "generatedAt": "2026-05-05T21:56:27.587Z",
-      "committedAtUtc": "2026-05-05T21:56:04.000Z",
-      "generatedAtUtc": "2026-05-05T21:56:27.587Z",
-      "diffStats": {
-        "rawAdditions": 643,
-        "rawDeletions": 85,
-        "rawChangeCount": 728,
-        "additions": 643,
-        "deletions": 85,
-        "effectiveAdditions": 620,
-        "effectiveDeletions": 85,
-        "changedFiles": 11,
-        "effectiveChangeCount": 705,
-        "excludedGeneratedChangeCount": 23
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator review status checks.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],
