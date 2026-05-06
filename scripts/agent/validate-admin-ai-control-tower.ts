@@ -40,6 +40,9 @@ const debugTabAi = readRequired("src/app/admin/debug/components/DebugTabAi.tsx")
 const realtimePanel = readRequired("src/app/admin/debug/components/AdminAiAssistantRealtimePanel.tsx");
 const optimizerHealth = readRequired("src/app/admin/ai/components/AdminAiOptimizerhealthSection.tsx");
 const dropCovers = readRequired("src/lib/ai-drop-covers.ts");
+const coverReferencePolicy = readRequired("src/lib/ai-cover-reference-policy.ts");
+const coverGenerateRoute = readRequired("src/app/api/admin/ai/drop-covers/generate/route.ts");
+const coverGeneratorPanel = readRequired("src/components/Admin/AiDropCoverGeneratorPanel.tsx");
 const adminDebugDoc = readRequired("docs/agent-truth/admin-debug-control-tower.md");
 const adminAiDoc = readRequired("docs/agent-truth/admin-ai-control-tower.md");
 const googleCostDoc = readRequired("docs/agent-truth/google-cost-bleed.md");
@@ -54,6 +57,8 @@ for (const expected of [
   "role: \"cover_image_generation\"",
   "alias: GEMINI_3_1_FLASH_LITE_PREVIEW_MODEL",
   "getAdminAiModelAlias(\"drop_cover_standard\")",
+  "maxReferenceInputs: 2",
+  "getAiModelReferenceLimit(",
   "must use an image-generation model.",
   "must use a text model, not an image-generation model.",
 ]) {
@@ -167,11 +172,44 @@ for (const expected of [
   "Gemini 2.5 Flash Image",
   "Gemini 3 Pro Image Preview",
   "ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL",
+  "referenceLimitApplied: z.boolean().optional()",
+  "usedReferenceCount: z.number().optional()",
+  "maxReferenceCount: z.number().optional()",
+  "droppedReferenceCount: z.number().optional()",
 ]) {
   requireIncludes(dropCovers, expected, "Drop cover model split");
 }
 requireNotIncludes(dropCovers, "ADMIN_AI_DROP_COVER_MODEL = getAdminAiModelAlias(\"drop_cover_optimizer\")", "Drop cover image generation model");
 requireIncludes(optimizerHealth, "gemini-3.1-flash-lite-preview", "Optimizer health model display");
+
+for (const expected of [
+  "export function selectAllowedCoverReferences",
+  "referenceLimitApplied",
+  "requestedReferenceCount",
+  "usedReferenceCount",
+  "maxReferenceCount",
+  "droppedReferenceCount",
+]) {
+  requireIncludes(coverReferencePolicy, expected, "Cover reference selection policy");
+}
+
+for (const expected of [
+  "referenceLimitApplied: job.referenceLimitApplied === true",
+  "requestedReferenceCount: job.referenceRequestCount || 0",
+  "usedReferenceCount: job.usedReferenceCount ?? job.referenceImageCount ?? 0",
+  "maxReferenceCount: job.maxReferenceCount ?? 0",
+  "droppedReferenceCount: job.droppedReferenceCount ?? 0",
+]) {
+  requireIncludes(coverGenerateRoute, expected, "Cover generate route reference limit response");
+}
+
+for (const expected of [
+  "This model uses up to",
+  "referenceLimitApplied",
+  "We'll use the first",
+]) {
+  requireIncludes(coverGeneratorPanel, expected, "Cover generator panel reference limit copy");
+}
 
 for (const expected of [
   "Gemini 3.1 Flash-Lite Preview",
@@ -180,6 +218,7 @@ for (const expected of [
   "inspect/apply/dismiss",
   "displayed summary freshness",
   "fallback latency vs live model latency",
+  "uses up to 2 references",
 ]) {
   requireIncludes(adminAiDoc, expected, "Admin AI control tower doctrine");
 }

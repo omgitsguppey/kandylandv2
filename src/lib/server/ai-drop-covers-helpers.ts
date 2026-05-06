@@ -486,6 +486,10 @@ export function normalizeJobRecord(id: string, raw: unknown): AdminAiDropCoverJo
             : [],
         referenceRequestCount: toNumber(data.referenceRequestCount),
         referenceTruncated: data.referenceTruncated === true,
+        referenceLimitApplied: data.referenceLimitApplied === true,
+        usedReferenceCount: toNumber(data.usedReferenceCount),
+        maxReferenceCount: toNumber(data.maxReferenceCount),
+        droppedReferenceCount: toNumber(data.droppedReferenceCount),
         overAnchoringRisk: data.overAnchoringRisk === "medium" || data.overAnchoringRisk === "high" ? data.overAnchoringRisk : "low",
         validationWarnings: Array.isArray(data.validationWarnings)
             ? data.validationWarnings.filter((warning): warning is string => typeof warning === "string" && warning.trim().length > 0)

@@ -13,6 +13,21 @@ Status: canonical admin AI routing and fallback doctrine for Phase 1 debug-first
 
 Actual image-generation routing must remain unchanged for cover generation. Do not replace image-generation lanes with Flash-Lite text models.
 
+## Cover Reference Limit
+
+- Cover image generation is model-aware, but the current supported image-generation lane uses up to 2 references per generation call.
+- The saved reference library may contain more than 2 items.
+- Generation input must cap to 2 references before the provider call.
+- If more than 2 references are eligible, keep the first 2 by explicit selection order when present; otherwise keep the first 2 from the deterministic priority order.
+- Return limit metadata and warning truth:
+  - `referenceLimitApplied`
+  - `requestedReferenceCount`
+  - `usedReferenceCount`
+  - `maxReferenceCount`
+  - `droppedReferenceCount`
+- Admin UI copy must explain:
+  - "This model uses up to 2 references. We'll use the first 2 selected."
+
 ## Page-Load Cost Guard
 
 No paid AI calls on admin page load. The admin debug assistant status route may return:

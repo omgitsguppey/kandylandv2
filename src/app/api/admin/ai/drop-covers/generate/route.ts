@@ -102,6 +102,11 @@ async function POST_handler(request: NextRequest) {
         return finalize(NextResponse.json({
             success: true,
             job,
+            referenceLimitApplied: job.referenceLimitApplied === true,
+            requestedReferenceCount: job.referenceRequestCount || 0,
+            usedReferenceCount: job.usedReferenceCount ?? job.referenceImageCount ?? 0,
+            maxReferenceCount: job.maxReferenceCount ?? 0,
+            droppedReferenceCount: job.droppedReferenceCount ?? 0,
         }, {
             status: 201,
             headers: {

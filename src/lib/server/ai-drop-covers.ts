@@ -52,6 +52,7 @@ import {
     type AdminAiDropCoverSummaryRecord,
     type AdminAiDropCoverVisualSignalSummary,
 } from "@/lib/ai-drop-covers";
+import { selectAllowedCoverReferences } from "@/lib/ai-cover-reference-policy";
 import { getFiniteDropTimestamp } from "@/lib/drop-status";
 import { FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET } from "@/lib/firebase-runtime";
 import { trackServerEvent } from "@/lib/server/analytics";
@@ -183,6 +184,10 @@ type AdminAiDropCoverReferenceContext = {
     referenceAssets: AdminAiDropCoverReferenceAsset[];
     requestedReferenceCount: number;
     referenceTruncated: boolean;
+    referenceLimitApplied: boolean;
+    usedReferenceCount: number;
+    maxReferenceCount: number;
+    droppedReferenceCount: number;
     overAnchoringRisk: "low" | "medium" | "high";
     validationWarnings: string[];
     templateReferenceUsed: boolean;
@@ -581,6 +586,10 @@ async function buildReferenceContext(
             referenceAssets: [],
             requestedReferenceCount: 0,
             referenceTruncated: false,
+            referenceLimitApplied: false,
+            usedReferenceCount: 0,
+            maxReferenceCount: maxReferenceInputs,
+            droppedReferenceCount: 0,
             overAnchoringRisk: "low",
             validationWarnings: [],
             templateReferenceUsed: false,
@@ -667,12 +676,18 @@ async function buildReferenceContext(
     const recentReferenceJobs = await listRecentAdminAiDropCoverJobs(48);
     const scoredCandidateAssets = applyReferenceUsageStats(candidateAssets, recentReferenceJobs)
         .filter((asset) => (asset.negativeReuseCount || 0) === 0 || (asset.positiveReuseCount || 0) > (asset.negativeReuseCount || 0));
-    const requestedReferenceCount = candidateAssets.length + referenceImages.length;
-    const selectedCandidateAssets = selectAdminAiDropCoverReferenceAssets(
+    const prioritizedCandidateAssets = selectAdminAiDropCoverReferenceAssets(
         scoredCandidateAssets,
         recipe,
-        Math.max(0, maxReferenceInputs - referenceImages.length),
+        scoredCandidateAssets.length,
     );
+    const availableCandidateSlots = Math.max(0, maxReferenceInputs - referenceImages.length);
+    const candidateSelection = selectAllowedCoverReferences(
+        prioritizedCandidateAssets,
+        availableCandidateSlots,
+    );
+    const selectedCandidateAssets = candidateSelection.selectedReferences;
+    const requestedReferenceCount = candidateAssets.length + referenceImages.length;
 
     for (const asset of selectedCandidateAssets) {
         if (!canAddMoreReferenceInputs()) {
@@ -728,6 +743,9 @@ async function buildReferenceContext(
     });
     const referenceTruncated = requestedReferenceCount > referenceImages.length;
     const overAnchoringRisk = assessOverAnchoringRisk(recipe, referenceAssets);
+    const referenceLimitApplied = requestedReferenceCount > maxReferenceInputs;
+    const usedReferenceCount = referenceImages.length;
+    const droppedReferenceCount = Math.max(0, requestedReferenceCount - usedReferenceCount);
 
     return {
         generationMode: "reference_guided",
@@ -736,6 +754,10 @@ async function buildReferenceContext(
         referenceAssets,
         requestedReferenceCount,
         referenceTruncated,
+        referenceLimitApplied,
+        usedReferenceCount,
+        maxReferenceCount: maxReferenceInputs,
+        droppedReferenceCount,
         overAnchoringRisk,
         validationWarnings,
         templateReferenceUsed,
@@ -2306,6 +2328,10 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             referenceAssets: referenceContext.referenceAssets,
             referenceRequestCount: referenceContext.requestedReferenceCount,
             referenceTruncated: referenceContext.referenceTruncated,
+            referenceLimitApplied: referenceContext.referenceLimitApplied,
+            usedReferenceCount: referenceContext.usedReferenceCount,
+            maxReferenceCount: referenceContext.maxReferenceCount,
+            droppedReferenceCount: referenceContext.droppedReferenceCount,
             overAnchoringRisk: referenceContext.overAnchoringRisk,
             validationWarnings: referenceContext.validationWarnings,
             manualReuseApproved: false,
@@ -2434,6 +2460,10 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
                 referenceImageCount: referenceContext.referenceImages.length,
                 referenceRequestCount: referenceContext.requestedReferenceCount,
                 referenceTruncated: referenceContext.referenceTruncated,
+                referenceLimitApplied: referenceContext.referenceLimitApplied,
+                usedReferenceCount: referenceContext.usedReferenceCount,
+                maxReferenceCount: referenceContext.maxReferenceCount,
+                droppedReferenceCount: referenceContext.droppedReferenceCount,
                 overAnchoringRisk: referenceContext.overAnchoringRisk,
                 retainedAiReferenceCount: referenceContext.retainedAiReferenceCount,
                 retainedAcceptedAiReferenceCount: referenceContext.retainedAcceptedAiReferenceCount,
@@ -2457,6 +2487,10 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             ai_reference_image_count: referenceContext.referenceImages.length,
             ai_reference_requested_count: referenceContext.requestedReferenceCount,
             ai_reference_truncated: referenceContext.referenceTruncated,
+            ai_reference_limit_applied: referenceContext.referenceLimitApplied,
+            ai_reference_used_count: referenceContext.usedReferenceCount,
+            ai_reference_max_count: referenceContext.maxReferenceCount,
+            ai_reference_dropped_count: referenceContext.droppedReferenceCount,
             ai_reference_risk: referenceContext.overAnchoringRisk,
             ai_retained_reference_count: referenceContext.retainedAiReferenceCount,
         }, input.requestedByUid);
@@ -2492,6 +2526,10 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             referenceImageCount: referenceContext.referenceImages.length,
             referenceRequestCount: referenceContext.requestedReferenceCount,
             referenceTruncated: referenceContext.referenceTruncated,
+            referenceLimitApplied: referenceContext.referenceLimitApplied,
+            usedReferenceCount: referenceContext.usedReferenceCount,
+            maxReferenceCount: referenceContext.maxReferenceCount,
+            droppedReferenceCount: referenceContext.droppedReferenceCount,
             overAnchoringRisk: referenceContext.overAnchoringRisk,
             validationWarnings: referenceContext.validationWarnings,
             templateReferenceUsed: referenceContext.templateReferenceUsed,
@@ -2564,6 +2602,10 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
                 referenceImageCount: referenceContext.referenceImages.length,
                 referenceRequestCount: referenceContext.requestedReferenceCount,
                 referenceTruncated: referenceContext.referenceTruncated,
+                referenceLimitApplied: referenceContext.referenceLimitApplied,
+                usedReferenceCount: referenceContext.usedReferenceCount,
+                maxReferenceCount: referenceContext.maxReferenceCount,
+                droppedReferenceCount: referenceContext.droppedReferenceCount,
                 overAnchoringRisk: referenceContext.overAnchoringRisk,
                 retainedAiReferenceCount: referenceContext.retainedAiReferenceCount,
             },
@@ -2587,6 +2629,10 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             ai_reference_image_count: referenceContext.referenceImages.length,
             ai_reference_requested_count: referenceContext.requestedReferenceCount,
             ai_reference_truncated: referenceContext.referenceTruncated,
+            ai_reference_limit_applied: referenceContext.referenceLimitApplied,
+            ai_reference_used_count: referenceContext.usedReferenceCount,
+            ai_reference_max_count: referenceContext.maxReferenceCount,
+            ai_reference_dropped_count: referenceContext.droppedReferenceCount,
             ai_reference_risk: referenceContext.overAnchoringRisk,
             ai_retained_reference_count: referenceContext.retainedAiReferenceCount,
         }, input.requestedByUid);

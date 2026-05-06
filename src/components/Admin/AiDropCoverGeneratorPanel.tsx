@@ -150,6 +150,7 @@ export function AiDropCoverGeneratorPanel({
     const titleReady = title.trim().length >= 3;
     const featureEnabled = dashboard?.settings.enabled === true;
     const runtimeReady = dashboard?.runtime.status === "ready";
+    const referenceGuided = dashboard?.settings.generationMode === "reference_guided";
     const modelOptions = useMemo(() => getAdminAiDropCoverSelectableModelOptions(), []);
     const visibleJobs = useMemo(
         () => jobs.filter((job) => clearedBeforeMs === null || job.requestedAtMs > clearedBeforeMs),
@@ -275,12 +276,20 @@ export function AiDropCoverGeneratorPanel({
                 error?: string;
                 errorCode?: AdminAiDropCoverErrorCode;
                 job?: AdminAiDropCoverJobRecord;
+                referenceLimitApplied?: boolean;
+                requestedReferenceCount?: number;
+                usedReferenceCount?: number;
+                maxReferenceCount?: number;
+                droppedReferenceCount?: number;
             };
             if (!response.ok || !result.job) {
                 throw new Error(getGenerationErrorMessage(result.errorCode, result.error || "Cover generation failed"));
             }
 
             setJobs((current) => [result.job!, ...current.filter((job) => job.id !== result.job!.id)].slice(0, 6));
+            if (result.referenceLimitApplied) {
+                toast.info(`This model uses up to ${result.maxReferenceCount || selectedModelOption.maxReferenceInputs} references. We'll use the first ${(result.usedReferenceCount || result.job.referenceImageCount || selectedModelOption.maxReferenceInputs)} selected.`);
+            }
             toast.success(previousJobId ? "Cover regenerated" : "Cover generated");
             void refreshDashboard();
         } catch (error) {
@@ -305,7 +314,7 @@ export function AiDropCoverGeneratorPanel({
             setGenerating(false);
             setActiveProgress(null);
         }
-    }, [creatorId, creatorName, draftSessionId, dropId, dropType, generating, refreshDashboard, selectedModel, tags, title, titleReady]);
+    }, [creatorId, creatorName, draftSessionId, dropId, dropType, generating, refreshDashboard, selectedModel, selectedModelOption.maxReferenceInputs, tags, title, titleReady]);
 
     const handleFeedback = useCallback(async (jobId: string, action: "like" | "dislike" | "accept") => {
         setFeedbackingJobId(jobId);
@@ -480,6 +489,12 @@ export function AiDropCoverGeneratorPanel({
                     <span>|</span>
                     <span>{formatAdminAiUsd(selectedModelOption.pricePerGenerationUsd)} / image</span>
                 </div>
+            ) : null}
+
+            {featureEnabled && runtimeReady && referenceGuided ? (
+                <p className="mt-2 text-[11px] text-gray-400">
+                    This model uses up to {selectedModelOption.maxReferenceInputs} references. We&apos;ll use the first {selectedModelOption.maxReferenceInputs} selected.
+                </p>
             ) : null}
 
             {loadingDashboard && !dashboard ? (

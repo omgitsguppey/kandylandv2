@@ -40,6 +40,10 @@ export interface AdminAiModelDefinition {
     supportsPromptOptimization?: boolean;
 }
 
+export type AdminAiModelReferenceRole =
+    | "cover_image_generation"
+    | "cover_prompt_refinement";
+
 export type AdminAiModelRoleDefinition = {
     role: AdminAiModelRole;
     alias: string;
@@ -60,7 +64,7 @@ const ADMIN_AI_MODEL_DEFINITIONS: readonly AdminAiModelDefinition[] = [
         priceSourceUrl: ADMIN_AI_MODEL_PRICE_SOURCE_URL,
         priceBasis: "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06",
         estimatedRunUsd: 0.0387,
-        maxReferenceInputs: 6,
+        maxReferenceInputs: 2,
         supportsReferenceLibrary: true,
         supportsPromptOptimization: true,
     },
@@ -76,7 +80,7 @@ const ADMIN_AI_MODEL_DEFINITIONS: readonly AdminAiModelDefinition[] = [
         priceSourceUrl: ADMIN_AI_MODEL_PRICE_SOURCE_URL,
         priceBasis: "vertex-ai-pricing-gemini-3-pro-image-preview-2026-04-06",
         estimatedRunUsd: 0.134,
-        maxReferenceInputs: 14,
+        maxReferenceInputs: 2,
         supportsReferenceLibrary: true,
         supportsPromptOptimization: true,
     },
@@ -314,6 +318,18 @@ export function validateAdminAiModelRoleAssignment(role: AdminAiModelRole, alias
         normalizedAlias: resolved.alias,
         reason: `${role} resolves to ${resolved.alias}.`,
     };
+}
+
+export function getAiModelReferenceLimit(
+    modelId?: string | null,
+    role: AdminAiModelReferenceRole = "cover_image_generation",
+) {
+    if (role !== "cover_image_generation") {
+        return 0;
+    }
+
+    const resolvedModelId = normalizeAdminAiModelAliasForRole(modelId, role);
+    return getAdminAiModelDefinitionByAlias(resolvedModelId)?.maxReferenceInputs ?? 0;
 }
 
 export interface AdminAiUsageMetadataLike {

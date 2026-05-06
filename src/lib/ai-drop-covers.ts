@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { ADMIN_AI_MODEL_PRICE_SOURCE_URL, getAdminAiModelAlias } from "@/lib/admin-ai-models";
+import {
+    ADMIN_AI_MODEL_PRICE_SOURCE_URL,
+    getAdminAiModelAlias,
+    getAiModelReferenceLimit,
+} from "@/lib/admin-ai-models";
 
 export const ADMIN_AI_DROP_COVER_SETTINGS_DOC = "aiDropCovers";
 export const ADMIN_AI_DROP_COVER_JOBS_COLLECTION = "admin_ai_drop_cover_jobs";
@@ -263,6 +267,10 @@ export interface AdminAiDropCoverJobRecord {
     referenceAssets?: AdminAiDropCoverReferenceAsset[];
     referenceRequestCount?: number;
     referenceTruncated?: boolean;
+    referenceLimitApplied?: boolean;
+    usedReferenceCount?: number;
+    maxReferenceCount?: number;
+    droppedReferenceCount?: number;
     overAnchoringRisk?: "low" | "medium" | "high";
     validationWarnings?: string[];
     manualReuseApproved?: boolean;
@@ -452,6 +460,10 @@ export const adminAiDropCoverJobSchema = z.object({
     referenceAssets: z.array(z.lazy(() => adminAiDropCoverReferenceAssetSchema)).optional(),
     referenceRequestCount: z.number().optional(),
     referenceTruncated: z.boolean().optional(),
+    referenceLimitApplied: z.boolean().optional(),
+    usedReferenceCount: z.number().optional(),
+    maxReferenceCount: z.number().optional(),
+    droppedReferenceCount: z.number().optional(),
     overAnchoringRisk: z.enum(["low", "medium", "high"]).optional(),
     validationWarnings: z.array(z.string()).optional(),
     manualReuseApproved: z.boolean().optional(),
@@ -1174,9 +1186,10 @@ export function getAdminAiDropCoverGenerationMode(input: Pick<AdminAiDropCoverSe
 }
 
 export function getAdminAiDropCoverMaxReferenceInputs(model = ADMIN_AI_DROP_COVER_MODEL) {
-    return getAdminAiDropCoverModelOption(model)?.maxReferenceInputs
-        ?? getAdminAiDropCoverModelOption(ADMIN_AI_DROP_COVER_MODEL)?.maxReferenceInputs
-        ?? ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT;
+    return getAiModelReferenceLimit(model, "cover_image_generation")
+        || getAdminAiDropCoverModelOption(model)?.maxReferenceInputs
+        || getAdminAiDropCoverModelOption(ADMIN_AI_DROP_COVER_MODEL)?.maxReferenceInputs
+        || ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT;
 }
 
 export function getDefaultAdminAiDropCoverSettings(): AdminAiDropCoverSettings {
