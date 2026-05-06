@@ -1,10 +1,44 @@
 {
-  "currentVersion": "1.49.0",
+  "currentVersion": "1.50.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T03:35:20.859Z",
-  "generatedAtUtc": "2026-05-06T03:35:20.859Z",
-  "lastCommitSha": "59435d8e5864bf43db5a453be94e21003fa105e3",
+  "generatedAt": "2026-05-06T03:54:21.999Z",
+  "generatedAtUtc": "2026-05-06T03:54:21.999Z",
+  "lastCommitSha": "e1ff6cd52370d9f6cf7be29ea084b5d86722ca5a",
   "notes": [
+    {
+      "version": "1.50.0",
+      "previousVersion": "1.49.0",
+      "commitSha": "e1ff6cd52370d9f6cf7be29ea084b5d86722ca5a",
+      "commitTitle": "fix(tasks): separate paid and potential rewards",
+      "committedAt": "2026-05-06T03:53:59.000Z",
+      "generatedAt": "2026-05-06T03:54:21.999Z",
+      "committedAtUtc": "2026-05-06T03:53:59.000Z",
+      "generatedAtUtc": "2026-05-06T03:54:21.999Z",
+      "diffStats": {
+        "rawAdditions": 597,
+        "rawDeletions": 34,
+        "rawChangeCount": 631,
+        "additions": 597,
+        "deletions": 34,
+        "effectiveAdditions": 597,
+        "effectiveDeletions": 34,
+        "changedFiles": 14,
+        "effectiveChangeCount": 631,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved daily task reward tracking so task totals reflect completed rewards more accurately.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.49.0",
       "previousVersion": "1.48.1",
@@ -1605,39 +1639,6 @@
       ],
       "committedAtUtc": "2026-05-05T11:55:18.000Z",
       "generatedAtUtc": "2026-05-05T12:02:57.969Z"
-    },
-    {
-      "version": "1.15.0",
-      "previousVersion": "1.14.0",
-      "commitSha": "6a7e79c065680ef4ea03cbb83651b1d781750ce4",
-      "commitTitle": "feat(recommendations): add integrity demotion layer",
-      "committedAt": "2026-05-05T11:40:11.000Z",
-      "generatedAt": "2026-05-05T12:02:57.633Z",
-      "diffStats": {
-        "rawAdditions": 626,
-        "rawDeletions": 4,
-        "rawChangeCount": 630,
-        "additions": 626,
-        "deletions": 4,
-        "effectiveAdditions": 626,
-        "effectiveDeletions": 4,
-        "changedFiles": 10,
-        "effectiveChangeCount": 630,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T11:40:11.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:57.633Z"
     }
   ]
 }

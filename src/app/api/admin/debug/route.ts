@@ -66,6 +66,7 @@ import { getDailyTaskWindow } from "@/lib/server/daily-tasks";
 import { buildAdminShellLayoutDebugMetadata } from "@/lib/admin-shell-spacing";
 import { listAdminMetricSnapshotDebugMetadata } from "@/lib/server/admin-analytics-snapshots";
 import { ADMIN_ANALYTICS_MATERIALIZER_REGISTRY } from "@/lib/server/admin-analytics-materializers";
+import { buildAdminOverviewFallbackIdentity, shortenAdminOverviewUserId, type AdminOverviewUserIdentity } from "@/lib/server/admin-overview-users";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
@@ -171,6 +172,44 @@ type QueueRuntimeOutcomeRow = {
     shortDropId: string;
 };
 
+type ReceiptSampleView = {
+    receiptId: string;
+    rawEventName: string;
+    normalizedAction: string;
+    displayLabel: string;
+    aliasCount: number;
+    actorUserId?: string;
+    actorDisplayName: string;
+    shortUserId: string;
+    userIdentityState: "resolved" | "fallback_uid" | "missing";
+    adminUserHref?: string;
+    targetDropId?: string;
+    targetDropTitle?: string;
+    shortDropId?: string;
+    dropIdentityState?: "resolved" | "fallback_id" | "missing";
+    amountDisplay?: string;
+    sourceDetail?: string;
+    dedupeKey: string;
+    dedupeKeyLabel: string;
+    sourceTruth: "canonical" | "server" | "client" | "legacy";
+    sourceState: "live" | "info" | "review" | "unknown";
+    createdAtUtc: string;
+    ageLabel: string;
+    rawDetailsCollapsed: true;
+};
+
+type ReceiptSummaryRow = {
+    groupKey: string;
+    displayLabel: string;
+    dedupeKeyLabel: string;
+    count: number;
+    aliasCount: number;
+    lastSeenAt: number;
+    lastSeenAtUtc: string;
+    sourceTruth: ReceiptSampleView["sourceTruth"];
+    sourceState: ReceiptSampleView["sourceState"];
+};
+
 function toNumber(value: unknown) {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric : 0;
@@ -194,6 +233,54 @@ function shortenDebugId(value: string) {
     const trimmed = value.trim();
     if (trimmed.length <= 12) return trimmed || "unknown";
     return `${trimmed.slice(0, 6)}...${trimmed.slice(-4)}`;
+}
+
+function normalizeSourceTruth(value: unknown): ReceiptSampleView["sourceTruth"] {
+    const truth = toStringValue(value).trim().toLowerCase();
+    if (truth === "server" || truth === "client" || truth === "legacy") {
+        return truth;
+    }
+    return "canonical";
+}
+
+function normalizeSourceState(sourceTruth: ReceiptSampleView["sourceTruth"]): ReceiptSampleView["sourceState"] {
+    if (sourceTruth === "canonical" || sourceTruth === "server") return "live";
+    if (sourceTruth === "client") return "info";
+    if (sourceTruth === "legacy") return "review";
+    return "unknown";
+}
+
+function buildReceiptAgeLabel(nowMs: number, timestamp: number) {
+    if (!timestamp) return "unknown age";
+    const deltaMs = Math.max(0, nowMs - timestamp);
+    const minutes = Math.floor(deltaMs / 60_000);
+    if (minutes < 1) return "just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+}
+
+function buildUserIdentityFromSnapshot(userId: string, raw: Record<string, unknown>): AdminOverviewUserIdentity {
+    const username = toOptionalString(raw.username);
+    const displayName = toOptionalString(raw.displayName);
+    const email = toOptionalString(raw.email);
+    const emailPrefix = email ? (email.split("@")[0] || "") : "";
+    const userDisplayName = username || displayName || emailPrefix || shortenAdminOverviewUserId(userId);
+
+    return {
+        userId,
+        userDisplayName,
+        username,
+        shortUserId: shortenAdminOverviewUserId(userId),
+        userIdentityState: username || displayName || emailPrefix ? "resolved" : "fallback_uid",
+    };
+}
+
+function parseReceiptDateKey(receiptKey: string, timestamp: number) {
+    const match = /(\d{4}-\d{2}-\d{2})/u.exec(receiptKey);
+    if (match?.[1]) return match[1];
+    return timestamp > 0 ? new Date(timestamp).toISOString().slice(0, 10) : "unknown-date";
 }
 
 function parseQueueActivationKey(value: unknown) {
@@ -1132,7 +1219,7 @@ export async function GET(request: NextRequest) {
             };
         });
 
-        const recentReceipts = receiptsSnapshot.docs.map((doc) => {
+        const rawRecentReceipts = receiptsSnapshot.docs.map((doc) => {
             const data = doc.data() as Record<string, unknown>;
             return {
                 id: doc.id,
@@ -1141,6 +1228,129 @@ export async function GET(request: NextRequest) {
                 uid: toStringValue(data.uid),
                 timestamp: toNumber(data.timestamp),
                 source: toStringValue(data.source) || "canonical",
+                params: (data.params && typeof data.params === "object" ? data.params : {}) as Record<string, unknown>,
+            };
+        });
+
+        const receiptUserIdentityMap = usersSnapshot.docs.reduce((map, doc) => {
+            const data = doc.data() as Record<string, unknown>;
+            map.set(doc.id, buildUserIdentityFromSnapshot(doc.id, data));
+            return map;
+        }, new Map<string, AdminOverviewUserIdentity>());
+
+        const receiptDropIds = Array.from(new Set(rawRecentReceipts.flatMap((receipt) => {
+            const dropId = toOptionalString(receipt.params.drop_id)
+                || (buildTelemetryEventMetadata(receipt.eventName).canonicalEventName === "unlock_drop_success"
+                    ? toOptionalString(receipt.receiptKey.split("|")[0])
+                    : undefined);
+            return dropId ? [dropId] : [];
+        })));
+        const receiptDropRefs = receiptDropIds.map((dropId) => adminDb.collection("drops").doc(dropId));
+        const receiptDropSnapshots = receiptDropRefs.length > 0 ? await adminDb.getAll(...receiptDropRefs) : [];
+        const receiptDropMap = receiptDropSnapshots.reduce((map, snapshot) => {
+            if (snapshot.exists) {
+                const raw = snapshot.data() as Record<string, unknown>;
+                map.set(snapshot.id, {
+                    title: toOptionalString(raw.title) || toOptionalString(raw.dropTitle) || `Drop ${shortenDebugId(snapshot.id)}`,
+                });
+            }
+            return map;
+        }, new Map<string, { title: string }>());
+
+        const recentReceipts: ReceiptSampleView[] = rawRecentReceipts.map((receipt) => {
+            const metadata = buildTelemetryEventMetadata(receipt.eventName);
+            const canonicalEventName = metadata.canonicalEventName;
+            const aliasCount = canonicalEventName !== receipt.eventName ? 2 : 1;
+            const identity = receipt.uid
+                ? receiptUserIdentityMap.get(receipt.uid) || buildAdminOverviewFallbackIdentity(receipt.uid)
+                : {
+                    userId: "",
+                    userDisplayName: "Unknown user",
+                    shortUserId: "unknown",
+                    userIdentityState: "missing" as const,
+                };
+            const sourceTruth = normalizeSourceTruth(receipt.params.sourceTruth ?? receipt.source);
+            const sourceState = normalizeSourceState(sourceTruth);
+            const dropId = toOptionalString(receipt.params.drop_id)
+                || (canonicalEventName === "unlock_drop_success" ? toOptionalString(receipt.receiptKey.split("|")[0]) : undefined);
+            const drop = dropId ? receiptDropMap.get(dropId) : undefined;
+            const shortDropId = dropId ? shortenDebugId(dropId) : undefined;
+            const dropIdentityState = dropId
+                ? (drop ? "resolved" as const : "fallback_id" as const)
+                : undefined;
+            const dateKey = parseReceiptDateKey(receipt.receiptKey, receipt.timestamp);
+            const orderId = toOptionalString(receipt.params.order_id) || toOptionalString(receipt.params.transaction_id) || toOptionalString(receipt.receiptKey);
+            const purchaseValue = Number(receipt.params.purchase_value);
+            const deliveredGumDrops = Number(receipt.params.package_drops);
+            const browserPushEnabled = receipt.params.browser_push_enabled === true;
+            const profileSource = toOptionalString(receipt.params.source);
+
+            let displayLabel = TELEMETRY_EVENT_LABELS[canonicalEventName] || canonicalEventName;
+            let dedupeKeyLabel = receipt.receiptKey ? shortenDebugId(receipt.receiptKey) : canonicalEventName;
+            let amountDisplay: string | undefined;
+            let sourceDetail: string | undefined;
+
+            if (canonicalEventName === "daily_checkin_claimed") {
+                displayLabel = "Daily check-in claimed";
+                dedupeKeyLabel = receipt.receiptKey.includes("|")
+                    ? `Daily check-in · ${dateKey} · legacy key`
+                    : `Daily check-in · ${dateKey}`;
+            } else if (canonicalEventName === "unlock_drop_success") {
+                displayLabel = drop?.title ? `Unlocked ${drop.title}` : `Unlocked unknown drop`;
+                dedupeKeyLabel = `Unlock · ${drop?.title || shortDropId || "unknown drop"}`;
+                const priceGd = Number(receipt.params.price_gd || receipt.params.unlock_cost);
+                if (Number.isFinite(priceGd) && priceGd > 0) {
+                    amountDisplay = `${priceGd} GD`;
+                }
+            } else if (canonicalEventName === "gumdrops_purchase_completed" || canonicalEventName === "purchase") {
+                displayLabel = "GumDrops purchased";
+                dedupeKeyLabel = `Purchase receipt · ${orderId ? shortenDebugId(orderId) : "unknown id"}`;
+                const amountParts: string[] = [];
+                if (Number.isFinite(purchaseValue) && purchaseValue > 0) {
+                    amountParts.push(`$${purchaseValue.toFixed(2)}`);
+                }
+                if (Number.isFinite(deliveredGumDrops) && deliveredGumDrops > 0) {
+                    amountParts.push(`+${deliveredGumDrops} GD`);
+                }
+                const bundleKey = toOptionalString(receipt.params.bundle_key);
+                if (bundleKey) {
+                    amountParts.push(bundleKey);
+                }
+                amountDisplay = amountParts.length > 0 ? amountParts.join(" · ") : "amount unavailable";
+            } else if (canonicalEventName === "task_notifications_enabled") {
+                displayLabel = "Task notifications enabled";
+                dedupeKeyLabel = `Push notification preference · ${profileSource === "profile_api" ? "profile API" : "browser push"}`;
+                sourceDetail = browserPushEnabled ? "browser push" : undefined;
+            }
+
+            if (canonicalEventName === "task_notifications_enabled" && profileSource === "profile_api") {
+                sourceDetail = sourceDetail ? `${sourceDetail} · profile API` : "profile API";
+            }
+
+            return {
+                receiptId: receipt.id,
+                rawEventName: receipt.eventName,
+                normalizedAction: canonicalEventName,
+                displayLabel,
+                aliasCount,
+                actorUserId: receipt.uid || undefined,
+                actorDisplayName: receipt.uid ? identity.userDisplayName : "Unknown user",
+                shortUserId: receipt.uid ? identity.shortUserId : "unknown",
+                userIdentityState: receipt.uid ? identity.userIdentityState : "missing",
+                adminUserHref: receipt.uid ? `/admin/user/${encodeURIComponent(receipt.uid)}` : undefined,
+                targetDropId: dropId,
+                targetDropTitle: drop?.title,
+                shortDropId,
+                dropIdentityState,
+                amountDisplay,
+                sourceDetail,
+                dedupeKey: receipt.receiptKey,
+                dedupeKeyLabel,
+                sourceTruth,
+                sourceState,
+                createdAtUtc: toUtcString(receipt.timestamp) || new Date(0).toISOString(),
+                ageLabel: buildReceiptAgeLabel(nowMs, receipt.timestamp),
+                rawDetailsCollapsed: true,
             };
         });
 
@@ -1222,7 +1432,7 @@ export async function GET(request: NextRequest) {
         const rewardTransactions7d = transactionEntries
             .filter((entry) => isDailyTaskRewardTransaction(entry, weekAgoMs));
         const completedEvents7d = recentTaskEvents.filter((event) => event.type === "completed" && event.timestamp >= weekAgoMs);
-        const receiptEvents7d = recentReceipts.filter((entry) => entry.timestamp >= weekAgoMs);
+        const receiptEvents7d = recentReceipts.filter((entry) => Date.parse(entry.createdAtUtc) >= weekAgoMs);
         const rewardClaimNormalizationIssues: Array<{
             kind: "reward_claim";
             taskId: string;
@@ -1263,7 +1473,7 @@ export async function GET(request: NextRequest) {
             definitions: allTaskDefinitions,
             userStates: runtimeUserStates,
             taskEvents: recentTaskEvents,
-            receipts: recentReceipts,
+            receipts: rawRecentReceipts,
             rewardClaims: rewardClaims7d,
             eventStats: eventStatsSnapshot.docs.map((doc) => {
                 const data = doc.data() as Record<string, unknown>;
@@ -1343,7 +1553,7 @@ export async function GET(request: NextRequest) {
         });
 
         receiptEvents7d.forEach((entry) => {
-            const matchedTaskIds = eventNamesToTaskIds.get(entry.eventName) ?? [];
+            const matchedTaskIds = eventNamesToTaskIds.get(entry.normalizedAction) ?? [];
             if (matchedTaskIds.length !== 1) {
                 return;
             }
@@ -1352,7 +1562,7 @@ export async function GET(request: NextRequest) {
             const matchedTask = taskDefinitionsById.get(taskId);
             const current = rewardParityByTask.get(taskId) || {
                 taskId,
-                title: matchedTask?.title || entry.eventName,
+                title: matchedTask?.title || entry.displayLabel,
                 definitionOrigin: matchedTask?.source === "built_in" ? "built_in" : matchedTask ? "custom" : "unknown",
                 completedCount: 0,
                 rewardedCount: 0,
@@ -1415,16 +1625,26 @@ export async function GET(request: NextRequest) {
             }));
 
         const receiptSummary = Array.from(receiptEvents7d.reduce((map, entry) => {
-            const current = map.get(entry.eventName) || {
-                eventName: entry.eventName,
+            const groupKey = `${entry.normalizedAction}:${entry.dedupeKeyLabel}`;
+            const current = map.get(groupKey) || {
+                groupKey,
+                displayLabel: entry.displayLabel,
+                dedupeKeyLabel: entry.dedupeKeyLabel,
                 count: 0,
+                aliasCount: 0,
                 lastSeenAt: 0,
+                lastSeenAtUtc: entry.createdAtUtc,
+                sourceTruth: entry.sourceTruth,
+                sourceState: entry.sourceState,
             };
             current.count += 1;
-            current.lastSeenAt = Math.max(current.lastSeenAt, entry.timestamp);
-            map.set(entry.eventName, current);
+            current.aliasCount = Math.max(current.aliasCount, entry.aliasCount);
+            const createdAtMs = Date.parse(entry.createdAtUtc);
+            current.lastSeenAt = Math.max(current.lastSeenAt, createdAtMs);
+            current.lastSeenAtUtc = current.lastSeenAt > 0 ? new Date(current.lastSeenAt).toISOString() : entry.createdAtUtc;
+            map.set(groupKey, current);
             return map;
-        }, new Map<string, { eventName: string; count: number; lastSeenAt: number }>()).values())
+        }, new Map<string, ReceiptSummaryRow>()).values())
             .sort((left, right) => right.count - left.count);
 
         const sampleTaskRollupMap = recentTaskEvents.reduce((map, event) => {

@@ -141,6 +141,32 @@ for (const expected of [
   requireIncludes(adminDebugRoute, expected, "Admin debug task issue attribution model");
 }
 for (const expected of [
+  "ReceiptSampleView",
+  "ReceiptSummaryRow",
+  "rawEventName",
+  "normalizedAction",
+  "displayLabel",
+  "actorDisplayName",
+  "shortUserId",
+  "targetDropTitle",
+  "amountDisplay",
+  "dedupeKeyLabel",
+  "sourceTruth",
+  "sourceState",
+  "createdAtUtc",
+  "Daily check-in claimed",
+  "GumDrops purchased",
+  "Task notifications enabled",
+  "Push notification preference",
+  "profile API",
+  "Purchase receipt ·",
+  "Unlock ·",
+  "buildUserIdentityFromSnapshot",
+  "receiptDropRefs.length > 0 ? await adminDb.getAll(...receiptDropRefs) : []",
+]) {
+  requireIncludes(adminDebugRoute, expected, "Admin debug receipt sample model must normalize aliases and enrich user/drop context");
+}
+for (const expected of [
   "BugIntakeTriageSummary",
   "BugReportTriageCard",
   "loadedCount",
@@ -686,6 +712,34 @@ for (const forbidden of [
   "<Pill label=\"Rewards\" value={day.rewardTotal}",
 ]) {
   requireNotIncludes(debugTabMonitoring, forbidden, "Recent task activity panel must not render WAIT-style loaded task fields");
+}
+
+for (const expected of [
+  "Recent receipts and dedupe sample",
+  "<Pill label=\"Receipts 7d\" value={data?.stats?.receiptsLast7d ?? 0} truthState=\"live\" badgeLabel=\"LOADED\" />",
+  "<Pill label=\"Recent\" value={(data?.recentReceipts || []).length} truthState=\"live\" badgeLabel=\"LOADED\" />",
+  "receipt.displayLabel",
+  "receipt.dedupeKeyLabel",
+  "receipt.lastSeenAtUtc",
+  "label=\"Source\" value={receipt.sourceTruth}",
+  "receipt.actorDisplayName",
+  "receipt.shortUserId",
+  "receipt.createdAtUtc",
+  "receipt.rawEventName",
+  "dedupeKey:",
+  "targetDropTitle:",
+  "Aliases\" value={`${receipt.aliasCount} aliases normalized`}",
+  "data-debug-receipt-source-state={receipt.sourceState}",
+  "data-debug-receipt-created-at-utc={receipt.createdAtUtc}",
+]) {
+  requireIncludes(debugTabMonitoring, expected, "Recent receipts panel must show readable receipt labels, timestamps, and source truth");
+}
+for (const forbidden of [
+  "{receipt.eventName}</p><p className=\"text-xs text-gray-400\">{receipt.uid || \"guest\"} | {receipt.receiptKey}</p>",
+  "<Pill label=\"Source\" value={receipt.source} />",
+  "{receipt.eventName}</p><p className=\"text-xs text-gray-400\">{formatTimestamp(receipt.lastSeenAt)}</p>",
+]) {
+  requireNotIncludes(debugTabMonitoring, forbidden, "Recent receipts panel must not render raw UID, raw dedupe key, or WAIT-style source truth");
 }
 
 for (const expected of [

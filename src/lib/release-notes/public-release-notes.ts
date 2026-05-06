@@ -1,12 +1,46 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.49.0",
+  "currentVersion": "1.50.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T03:35:20.859Z",
-  "generatedAtUtc": "2026-05-06T03:35:20.859Z",
-  "lastCommitSha": "59435d8e5864bf43db5a453be94e21003fa105e3",
+  "generatedAt": "2026-05-06T03:54:21.999Z",
+  "generatedAtUtc": "2026-05-06T03:54:21.999Z",
+  "lastCommitSha": "e1ff6cd52370d9f6cf7be29ea084b5d86722ca5a",
   "notes": [
+    {
+      "version": "1.50.0",
+      "previousVersion": "1.49.0",
+      "commitSha": "e1ff6cd52370d9f6cf7be29ea084b5d86722ca5a",
+      "commitTitle": "fix(tasks): separate paid and potential rewards",
+      "committedAt": "2026-05-06T03:53:59.000Z",
+      "generatedAt": "2026-05-06T03:54:21.999Z",
+      "committedAtUtc": "2026-05-06T03:53:59.000Z",
+      "generatedAtUtc": "2026-05-06T03:54:21.999Z",
+      "diffStats": {
+        "rawAdditions": 597,
+        "rawDeletions": 34,
+        "rawChangeCount": 631,
+        "additions": 597,
+        "deletions": 34,
+        "effectiveAdditions": 597,
+        "effectiveDeletions": 34,
+        "changedFiles": 14,
+        "effectiveChangeCount": 631,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved daily task reward tracking so task totals reflect completed rewards more accurately.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.49.0",
       "previousVersion": "1.48.1",
@@ -133,39 +167,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "patch",
       "category": "Fixed",
       "userFacingTitle": "Clarified internal admin readiness checks so config presence is not confused with live service health.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.47.0",
-      "previousVersion": "1.46.0",
-      "commitSha": "d5451d05813434695624a15b22bfff52a02dab34",
-      "commitTitle": "fix(admin): enrich queue runtime drop labels",
-      "committedAt": "2026-05-06T02:58:32.000Z",
-      "generatedAt": "2026-05-06T02:58:43.643Z",
-      "committedAtUtc": "2026-05-06T02:58:32.000Z",
-      "generatedAtUtc": "2026-05-06T02:58:43.643Z",
-      "diffStats": {
-        "rawAdditions": 306,
-        "rawDeletions": 10,
-        "rawChangeCount": 316,
-        "additions": 306,
-        "deletions": 10,
-        "effectiveAdditions": 304,
-        "effectiveDeletions": 8,
-        "changedFiles": 9,
-        "effectiveChangeCount": 312,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal queue health views so drop activation outcomes show readable drop names.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],

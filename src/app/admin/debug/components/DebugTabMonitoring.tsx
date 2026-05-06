@@ -46,6 +46,16 @@ function toneForIdentityState(state?: string) {
     if (state === "fallback_uid") return "warn" as const;
     return "neutral" as const;
 }
+function toneForReceiptSourceState(state?: string) {
+    if (state === "live") return "good" as const;
+    if (state === "review") return "warn" as const;
+    return "neutral" as const;
+}
+function truthStateForReceiptSourceState(state?: string) {
+    if (state === "live") return "live" as const;
+    if (state === "review") return "degraded" as const;
+    return "cached" as const;
+}
 type RecentEventFlowRow = {
     eventId: string;
     eventName: string;
@@ -571,14 +581,22 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 </div>
             </Section>
 
-            <Section title="Recent receipts and dedupe sample" subtitle="Recent receipts plus dedupe counters from the current sample." defaultOpen={false} summary={<><Pill label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? 0} /><Pill label="Recent" value={(data?.recentReceipts || []).length} /></>}>
+            <Section title="Recent receipts and dedupe sample" subtitle="Recent receipts plus dedupe counters from the current sample." defaultOpen={false} summary={<><Pill label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? 0} truthState="live" badgeLabel="LOADED" /><Pill label="Recent" value={(data?.recentReceipts || []).length} truthState="live" badgeLabel="LOADED" /></>}>
                 <div className="grid gap-4 lg:grid-cols-1">
                     <ScrollWrap>
                         <div className="divide-y divide-white/10">
                             {(data?.receiptSummary || []).map((receipt: any) => (
-                                <div key={receipt.eventName} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-                                    <div><p className="font-semibold text-white">{receipt.eventName}</p><p className="text-xs text-gray-400">{formatTimestamp(receipt.lastSeenAt)}</p></div>
-                                    <Pill label="Count" value={receipt.count} />
+                                <div key={receipt.groupKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                                    <div>
+                                        <p className="font-semibold text-white">{receipt.displayLabel}</p>
+                                        <p className="text-xs text-gray-400">{receipt.dedupeKeyLabel}</p>
+                                        <p className="text-xs text-gray-500">{receipt.lastSeenAtUtc || formatTimestamp(receipt.lastSeenAt)}</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        <Pill label="Count" value={receipt.count} truthState="live" badgeLabel="LOADED" />
+                                        {receipt.aliasCount > 1 ? <Pill label="Aliases" value={`${receipt.aliasCount} normalized`} truthState="cached" badgeLabel="ALIASES" /> : null}
+                                        <Pill label="Source" value={receipt.sourceTruth} tone={toneForReceiptSourceState(receipt.sourceState)} truthState={truthStateForReceiptSourceState(receipt.sourceState)} badgeLabel={receipt.sourceState === "review" ? "REVIEW" : "LIVE"} />
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -586,12 +604,41 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                     <ScrollWrap>
                         <div className="divide-y divide-white/10">
                             {(data?.recentReceipts || []).map((receipt: any) => (
-                                <div key={receipt.id} className="space-y-2 px-4 py-3">
+                                <div key={receipt.receiptId} className="space-y-2 px-4 py-3" data-debug-receipt-source-state={receipt.sourceState} data-debug-receipt-created-at-utc={receipt.createdAtUtc}>
                                     <div className="flex flex-wrap items-start justify-between gap-2">
-                                        <div><p className="font-semibold text-white">{receipt.eventName}</p><p className="text-xs text-gray-400">{receipt.uid || "guest"} | {receipt.receiptKey}</p></div>
-                                        <Pill label="Source" value={receipt.source} />
+                                        <div className="space-y-1">
+                                            <p className="font-semibold text-white">{receipt.displayLabel}</p>
+                                            {receipt.adminUserHref ? (
+                                                <p className="text-xs text-gray-300">
+                                                    <Link href={receipt.adminUserHref} className="underline decoration-white/20 underline-offset-2 hover:text-white">
+                                                        {receipt.actorDisplayName}
+                                                    </Link>
+                                                    <span className="text-gray-500"> | {receipt.shortUserId}</span>
+                                                </p>
+                                            ) : (
+                                                <p className="text-xs text-gray-300">{receipt.actorDisplayName}<span className="text-gray-500"> | {receipt.shortUserId}</span></p>
+                                            )}
+                                            <p className="text-xs text-gray-400">{receipt.dedupeKeyLabel}</p>
+                                            {receipt.amountDisplay ? <p className="text-xs text-gray-400">{receipt.amountDisplay}</p> : null}
+                                            {receipt.sourceDetail ? <p className="text-xs text-gray-500">{receipt.sourceDetail}</p> : null}
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Source" value={receipt.sourceTruth} tone={toneForReceiptSourceState(receipt.sourceState)} truthState={truthStateForReceiptSourceState(receipt.sourceState)} badgeLabel={receipt.sourceState === "review" ? "REVIEW" : "LIVE"} />
+                                            <Pill label="Identity" value={receipt.userIdentityState} tone={toneForIdentityState(receipt.userIdentityState)} truthState={receipt.userIdentityState === "resolved" ? "live" : "degraded"} badgeLabel={receipt.userIdentityState === "resolved" ? "RESOLVED" : "FALLBACK"} />
+                                            {receipt.aliasCount > 1 ? <Pill label="Aliases" value={`${receipt.aliasCount} aliases normalized`} truthState="cached" badgeLabel="ALIASES" /> : null}
+                                        </div>
                                     </div>
-                                    <p className="text-xs text-gray-400">{formatTimestamp(receipt.timestamp)}</p>
+                                    <p className="text-xs text-gray-400">{receipt.ageLabel} | {receipt.createdAtUtc}</p>
+                                    <details className="text-xs text-gray-500">
+                                        <summary className="cursor-pointer select-none">Raw details</summary>
+                                        <div className="mt-2 space-y-1">
+                                            <p>rawEventName: {receipt.rawEventName}</p>
+                                            <p>dedupeKey: {receipt.dedupeKey}</p>
+                                            <p>actorUserId: {receipt.actorUserId || "unknown"}</p>
+                                            {receipt.targetDropId ? <p>targetDropId: {receipt.targetDropId}</p> : null}
+                                            {receipt.targetDropTitle ? <p>targetDropTitle: {receipt.targetDropTitle}</p> : null}
+                                        </div>
+                                    </details>
                                 </div>
                             ))}
                         </div>
@@ -601,3 +648,4 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
         </div>
     );
 }
+

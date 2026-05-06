@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.50.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 03:53 UTC
+- Improved daily task reward tracking so task totals reflect completed rewards more accurately.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.49.0] - 2026-05-06
 
 ### Fixed
@@ -395,13 +403,5 @@ User-facing KandyDrops Beta updates, newest first.
 ### Added
 
 - Updated 2026-05-05 11:55 UTC
-- Updated KandyDrops with a small beta improvement.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.15.0] - 2026-05-05
-
-### Added
-
-- Updated 2026-05-05 11:40 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
