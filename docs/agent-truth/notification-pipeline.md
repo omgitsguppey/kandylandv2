@@ -68,6 +68,8 @@ The Admin Analytics Notification Funnel is a compact summary only. It may show p
 
 Detailed notification health lives in Admin Debug: idempotency keys, browser tags, duplicate-created prevention, duplicate-push prevention, duplicate-browser-display prevention, skipped reasons, foreground/background counts, service-worker display counts, click handler wiring, read persistence lag, and unread reconciliation.
 
+Admin Debug queue runtime rows must show human drop context before raw scheduler keys. For `drop-activation:{dropId}:{timestampMs}` outcomes, the bounded debug feed resolves drop title, creator label, scheduled UTC time, last outcome UTC, outcome/error state, and admin-only drop/creator links. Raw activation keys, drop IDs, and timestamps stay collapsed for audit. If the drop document cannot be resolved, the row shows `Unknown drop`, a short drop ID, and `drop_metadata_missing`; this is review context only and must not trigger notification resend or queue mutation by itself.
+
 ## Quality ranking and fatigue policy
 
 Unread notifications are not equally valuable. Server-created notification documents carry deterministic quality metadata, and the unread inbox ranks by predicted open, predicted return, creator affinity, urgency, novelty, monetization relevance, and fatigue penalty before falling back to recency.

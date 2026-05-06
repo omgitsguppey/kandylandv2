@@ -72,6 +72,7 @@ const componentTest = readRequired("tests/unit/admin-debug-control-tower-compone
 const controlTowerDoc = readRequired("docs/agent-truth/admin-debug-control-tower.md");
 const adminTruthDoc = readRequired("docs/agent-truth/human-readable-admin-truth.md");
 const evidenceDoc = readRequired("docs/agent-truth/debug-evidence-pipeline.md");
+const notificationPipelineDoc = readRequired("docs/agent-truth/notification-pipeline.md");
 const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
 const repoMemory = readRequired("REPO_MEMORY_LEDGER.md");
@@ -466,6 +467,62 @@ for (const forbidden of [
 ]) {
   requireNotIncludes(debugTabMonitoring, forbidden, "Recent transactions panel must not render WAIT-style loaded chips, bare amounts, or raw full UID primary text");
 }
+for (const expected of [
+  "QueueRuntimeOutcomeRow",
+  "schedulerKey",
+  "queueKind",
+  "dropTitle",
+  "dropIdentityState",
+  "creatorName",
+  "scheduledForUtc",
+  "lastOutcomeAtUtc",
+  "adminDropHref",
+  "rawKeyCollapsed",
+  "parseQueueActivationKey",
+  "buildQueueRuntimeOutcomeRows",
+  "adminDb.getAll(...dropRefs)",
+  "adminDb.getAll(...creatorRefs)",
+  "warningReasons",
+  "heartbeatState",
+  "outcomesState",
+  "No heartbeat records, but dispatch outcome records exist.",
+]) {
+  requireIncludes(adminDebugRoute, expected, "Admin debug API must enrich queue outcomes with batched drop and creator context without mutating queue records");
+}
+for (const expected of [
+  "queueLoaded",
+  "queueNeedsReview",
+  "queueStatus",
+  "data-queue-runtime-loaded",
+  "data-queue-runtime-heartbeat-count",
+  "data-queue-runtime-outcome-count",
+  "data-queue-runtime-warning-count",
+  "data-queue-runtime-drop-identity-state",
+  "data-queue-runtime-drop-id",
+  "data-queue-runtime-scheduler-key",
+  "data-queue-runtime-outcome",
+  "data-queue-runtime-scheduled-for-utc",
+  "Heartbeat lane",
+  "Outcome lane",
+  "Reason",
+  "No heartbeat records, but dispatch outcome records exist.",
+  "entry.dropTitle || \"Unknown drop\"",
+  "Scheduled ${entry.scheduledForUtc}",
+  "Last outcome ${entry.lastOutcomeAtUtc}",
+  "View drop",
+  "View creator",
+  "Raw queue details",
+  "Scheduler key:",
+  "drop_metadata_missing",
+]) {
+  requireIncludes(debugTabMonitoring, expected, "Queue runtime continuity panel must show loaded state, readable drop context, warning reasons, links, and collapsed raw scheduler keys");
+}
+for (const forbidden of [
+  "<div><p className=\"font-semibold text-white\">{entry.dropId}</p><p className=\"text-xs text-gray-400\">{entry.activationKey} | {formatRelative(entry.updatedAt)}</p></div>",
+  "<Pill label=\"Jobs\" value={queueRuntimeSummary.jobHeartbeats.total} />",
+]) {
+  requireNotIncludes(debugTabMonitoring, forbidden, "Queue runtime continuity panel must not use raw drop ids as primary text or WAIT-style loaded chips");
+}
 requireIncludes(debugTabActions, "<DebugBugIntakePanel data={data} />", "Debug actions tab must delegate loaded bug intake truth to the focused panel");
 for (const expected of [
   "Bug reports to triage",
@@ -533,6 +590,7 @@ requireIncludes(releaseNotesScript, "Improved internal bug report triage labels 
 requireIncludes(releaseNotesScript, "Improved internal route health labels so loaded runtime metrics no longer appear stuck.", "Release notes script must include route runtime health state copy");
 requireIncludes(releaseNotesScript, "Improved internal route runtime labels so unseen routes no longer appear as fake successes.", "Release notes script must include route runtime sample state copy");
 requireIncludes(releaseNotesScript, "Improved internal transaction review so admins can identify users more easily.", "Release notes script must include recent transaction identity copy");
+requireIncludes(releaseNotesScript, "Improved internal queue health views so drop activation outcomes show readable drop names.", "Release notes script must include queue runtime drop label copy");
 
 for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
@@ -646,7 +704,7 @@ for (const expected of [
   requireIncludes(componentTest, expected, "Admin debug Control Tower component tests");
 }
 
-const doctrineBundle = [controlTowerDoc, adminTruthDoc, evidenceDoc, readme, agents, repoMemory].join("\n");
+const doctrineBundle = [controlTowerDoc, adminTruthDoc, evidenceDoc, notificationPipelineDoc, readme, agents, repoMemory].join("\n");
 for (const expected of [
   "Admin Debug v2 is the mobile-first Control Tower",
   "Missing or stale data must never be shown as healthy",
@@ -820,6 +878,7 @@ try {
     /^docs\/agent-truth\/synthetic-creators-view-as\.md$/u,
     /^docs\/agent-truth\/human-readable-admin-truth\.md$/u,
     /^docs\/agent-truth\/debug-evidence-pipeline\.md$/u,
+    /^docs\/agent-truth\/notification-pipeline\.md$/u,
     /^docs\/agent-truth\/support-recovery-flows\.md$/u,
     /^docs\/agent-truth\/admin-analytics-daily-task-pipeline\.md$/u,
     /^README\.md$/u,

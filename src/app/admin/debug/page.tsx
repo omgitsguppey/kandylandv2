@@ -248,6 +248,9 @@ export default function DebugConsole() {
             warnings: { total: 0, failed: 0, degraded: 0, fallback: 0, legacyAdapterUses: 0, queueDriftWarnings: 0 },
             missingNotificationOutcomes: 0,
             recentOutcomes: 0,
+            warningReasons: [],
+            heartbeatState: "unknown",
+            outcomesState: "unknown",
         },
         [data?.queueRuntimeSummary],
     );

@@ -272,6 +272,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("enrich recent transaction identities") || normalized.includes("recent transaction identities")) {
     return "Improved internal transaction review so admins can identify users more easily.";
   }
+  if (normalized.includes("enrich queue runtime drop labels") || normalized.includes("queue runtime drop labels")) {
+    return "Improved internal queue health views so drop activation outcomes show readable drop names.";
+  }
   if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
     return "Improved internal creator review status checks.";
   }

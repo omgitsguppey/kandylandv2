@@ -142,6 +142,33 @@ type BugIntakeTriageSummary = {
     freshnessState: "live" | "stale" | "failed" | "unknown";
 };
 
+type QueueRuntimeOutcomeRow = {
+    stable_id: string;
+    schedulerKey: string;
+    activationKey: string;
+    queueKind: "drop_activation" | "notification_dispatch" | "unknown";
+    dropId?: string;
+    dropTitle: string;
+    dropIdentityState: "resolved" | "missing" | "unknown";
+    creatorId?: string;
+    creatorName?: string;
+    status?: string;
+    scheduledForUtc?: string;
+    lastOutcomeAtUtc?: string;
+    validUntilUtc?: string;
+    outcome: "sent" | "skipped" | "failed" | "pending" | "unknown";
+    error: string | null;
+    errorCode: string | null;
+    recipientCount?: number;
+    notificationCount?: number;
+    adminDropHref?: string;
+    adminCreatorHref?: string;
+    rawKeyCollapsed: boolean;
+    updatedAt: number;
+    createdAt: number;
+    shortDropId: string;
+};
+
 function toNumber(value: unknown) {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric : 0;
@@ -149,6 +176,40 @@ function toNumber(value: unknown) {
 
 function toStringValue(value: unknown) {
     return typeof value === "string" ? value : "";
+}
+
+function toOptionalString(value: unknown) {
+    const stringValue = toStringValue(value).trim();
+    return stringValue.length > 0 ? stringValue : undefined;
+}
+
+function toUtcString(value: unknown) {
+    const timestamp = toNumber(value);
+    return timestamp > 0 ? new Date(timestamp).toISOString() : undefined;
+}
+
+function shortenDebugId(value: string) {
+    const trimmed = value.trim();
+    if (trimmed.length <= 12) return trimmed || "unknown";
+    return `${trimmed.slice(0, 6)}...${trimmed.slice(-4)}`;
+}
+
+function parseQueueActivationKey(value: unknown) {
+    const activationKey = toStringValue(value);
+    const match = /^drop-activation:([^:]+):(\d+)$/u.exec(activationKey);
+    if (!match) {
+        return {
+            queueKind: activationKey ? "notification_dispatch" as const : "unknown" as const,
+            dropId: "",
+            scheduledForMs: 0,
+        };
+    }
+
+    return {
+        queueKind: "drop_activation" as const,
+        dropId: match[1] ?? "",
+        scheduledForMs: toNumber(match[2]),
+    };
 }
 
 function normalizeBugReportStatus(value: unknown): BugReportStatus {
@@ -215,6 +276,93 @@ function buildBugIntakeTriageSummary(reports: BugReportTriageCard[], nowMs: numb
         generatedAtUtc: new Date(nowMs).toISOString(),
         freshnessState: reports.length > 0 ? "live" : "unknown",
     };
+}
+
+async function buildQueueRuntimeOutcomeRows(input: {
+    outcomes: Array<Record<string, unknown>>;
+}) {
+    if (!adminDb || input.outcomes.length === 0) {
+        return [];
+    }
+
+    const parsedOutcomes = input.outcomes.map((outcome) => {
+        const parsedKey = parseQueueActivationKey(outcome.activationKey);
+        const dropId = toOptionalString(outcome.dropId) || parsedKey.dropId;
+        return { outcome, parsedKey, dropId };
+    });
+    const dropIds = Array.from(new Set(parsedOutcomes.map((entry) => entry.dropId).filter(Boolean)));
+    const dropRefs = dropIds.map((dropId) => adminDb.collection("drops").doc(dropId));
+    const dropSnapshots = dropRefs.length > 0 ? await adminDb.getAll(...dropRefs) : [];
+    const dropMap = new Map<string, Record<string, unknown>>();
+
+    dropSnapshots.forEach((snapshot) => {
+        if (snapshot.exists) {
+            dropMap.set(snapshot.id, snapshot.data() as Record<string, unknown>);
+        }
+    });
+
+    const creatorIds = Array.from(new Set(
+        Array.from(dropMap.values())
+            .flatMap((drop) => {
+                const creatorId = toOptionalString(drop.creatorId) || toOptionalString(drop.submittedByCreatorId);
+                return creatorId ? [creatorId] : [];
+            }),
+    ));
+    const creatorRefs = creatorIds.map((creatorId) => adminDb.collection("users").doc(creatorId));
+    const creatorSnapshots = creatorRefs.length > 0 ? await adminDb.getAll(...creatorRefs) : [];
+    const creatorMap = new Map<string, string>();
+
+    creatorSnapshots.forEach((snapshot) => {
+        if (!snapshot.exists) return;
+        const raw = snapshot.data() as Record<string, unknown>;
+        const username = toOptionalString(raw.username);
+        const displayName = toOptionalString(raw.displayName);
+        creatorMap.set(snapshot.id, username ? `@${username}` : displayName || shortenDebugId(snapshot.id));
+    });
+
+    return parsedOutcomes.map<QueueRuntimeOutcomeRow>(({ outcome, parsedKey, dropId }) => {
+        const drop = dropId ? dropMap.get(dropId) : undefined;
+        const creatorId = drop ? toOptionalString(drop.creatorId) || toOptionalString(drop.submittedByCreatorId) : undefined;
+        const rawStatus = toStringValue(outcome.status);
+        const normalizedOutcome: QueueRuntimeOutcomeRow["outcome"] = rawStatus === "sent"
+            ? "sent"
+            : rawStatus === "failed"
+                ? "failed"
+                : rawStatus === "skipped_existing_owner" || rawStatus === "duplicate"
+                    ? "skipped"
+                    : rawStatus === "pending"
+                        ? "pending"
+                        : "unknown";
+        const scheduledForMs = parsedKey.scheduledForMs || toNumber(drop?.validFrom);
+        const updatedAt = toNumber(outcome.updatedAt);
+
+        return {
+            stable_id: toStringValue(outcome.stable_id) || toStringValue(outcome.activationKey) || `${dropId || "unknown"}:${updatedAt}`,
+            schedulerKey: toStringValue(outcome.activationKey),
+            activationKey: toStringValue(outcome.activationKey),
+            queueKind: parsedKey.queueKind,
+            dropId,
+            dropTitle: drop ? toStringValue(drop.title) || "Untitled drop" : "Unknown drop",
+            dropIdentityState: drop ? "resolved" : dropId ? "missing" : "unknown",
+            creatorId,
+            creatorName: creatorId ? creatorMap.get(creatorId) || shortenDebugId(creatorId) : undefined,
+            status: drop ? toStringValue(drop.status) || undefined : undefined,
+            scheduledForUtc: toUtcString(scheduledForMs),
+            lastOutcomeAtUtc: toUtcString(updatedAt),
+            validUntilUtc: toUtcString(drop?.validUntil),
+            outcome: normalizedOutcome,
+            error: toOptionalString(outcome.errorCode) ?? null,
+            errorCode: toOptionalString(outcome.errorCode) ?? null,
+            recipientCount: toNumber((outcome.detail as Record<string, unknown> | undefined)?.recipientCount) || undefined,
+            notificationCount: toNumber((outcome.detail as Record<string, unknown> | undefined)?.notificationCount) || undefined,
+            adminDropHref: dropId ? `/admin/drops?dropId=${encodeURIComponent(dropId)}` : undefined,
+            adminCreatorHref: creatorId ? `/admin/user/${encodeURIComponent(creatorId)}` : undefined,
+            rawKeyCollapsed: true,
+            updatedAt,
+            createdAt: toNumber(outcome.createdAt),
+            shortDropId: dropId ? shortenDebugId(dropId) : "unknown",
+        };
+    });
 }
 
 function getLatestTaskAssignmentAt(tasks: Array<{ assignedAt?: number }>) {
@@ -776,11 +924,26 @@ export async function GET(request: NextRequest) {
             legacyAdapterUses: 0,
             queueDriftWarnings: 0,
         });
+        const queueRuntimeOutcomeRows = await buildQueueRuntimeOutcomeRows({
+            outcomes: notificationDispatchOutcomes as Array<Record<string, unknown>>,
+        });
+        const queueRuntimeWarningReasons = [
+            queueJobHeartbeatSummary.total === 0 && queueRuntimeOutcomeRows.length > 0 ? "heartbeat missing" : null,
+            runtimeWarningSummary.legacyAdapterUses > 0 ? "legacy adapter use" : null,
+            runtimeWarnings.some((entry) => toStringValue(entry.code) === QUEUE_RUNTIME_WARNING_CODES.activationMissingOutcome) ? "recipient outcome missing" : null,
+            runtimeWarnings.some((entry) => toStringValue(entry.code) === QUEUE_RUNTIME_WARNING_CODES.notificationDispatchFailed) ? "dispatch mismatch" : null,
+            queueRuntimeOutcomeRows.some((entry) => entry.dropIdentityState !== "resolved") ? "drop metadata missing" : null,
+            queueJobHeartbeatSummary.stale > 0 ? "stale heartbeat" : null,
+        ].filter(Boolean);
         const queueRuntimeSummary = {
             jobHeartbeats: queueJobHeartbeatSummary,
             warnings: runtimeWarningSummary,
             missingNotificationOutcomes: runtimeWarnings.filter((entry) => toStringValue(entry.code) === QUEUE_RUNTIME_WARNING_CODES.activationMissingOutcome).length,
-            recentOutcomes: notificationDispatchOutcomes.length,
+            recentOutcomes: queueRuntimeOutcomeRows.length,
+            warningReasons: queueRuntimeWarningReasons,
+            heartbeatState: queueJobHeartbeatSummary.total === 0 && queueRuntimeOutcomeRows.length > 0 ? "missing_heartbeat" : queueJobHeartbeatSummary.failed > 0 ? "failed" : queueJobHeartbeatSummary.stale > 0 ? "stale" : "live",
+            outcomesState: queueRuntimeOutcomeRows.some((entry) => entry.outcome === "failed") ? "failed" : queueRuntimeOutcomeRows.length > 0 ? "live" : "unknown",
+            heartbeatOutcomeExplanation: queueJobHeartbeatSummary.total === 0 && queueRuntimeOutcomeRows.length > 0 ? "No heartbeat records, but dispatch outcome records exist." : null,
         };
         const opsHealth = buildAdminOpsHealth({
             nowMs,
@@ -1525,7 +1688,7 @@ export async function GET(request: NextRequest) {
             routeRuntimeHealth,
             runtimeWarnings,
             queueJobHeartbeats,
-            notificationDispatchOutcomes,
+            notificationDispatchOutcomes: queueRuntimeOutcomeRows,
             queueRuntimeSummary,
             behavioralSnapshotStatus,
             behavioralDrops,

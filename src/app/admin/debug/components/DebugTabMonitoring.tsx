@@ -78,6 +78,13 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
     } = props;
     const routeRuntimeSummaryTruth = buildRouteRuntimeSummaryTruth(routeRuntimeHealth);
     const routeRuntimeLoaded = routeRuntimeSummaryTruth.trackedCount > 0;
+    const queueLoaded = queueJobHeartbeats.length > 0 || notificationDispatchOutcomes.length > 0 || queueRuntimeSummary.warnings.total > 0;
+    const queueNeedsReview = queueRuntimeSummary.jobHeartbeats.stale > 0
+        || queueRuntimeSummary.jobHeartbeats.failed > 0
+        || queueRuntimeSummary.missingNotificationOutcomes > 0
+        || queueRuntimeSummary.warnings.degraded > 0
+        || queueRuntimeSummary.heartbeatState === "missing_heartbeat";
+    const queueStatus = !queueLoaded ? "empty" : queueNeedsReview ? "review" : "live";
 
     return (
         <div className="space-y-4">
@@ -166,7 +173,29 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 </ScrollWrap>
             </Section>
 
-            <Section title="Queue runtime continuity" subtitle="Canonical scheduler heartbeats, runtime warnings, and notification outcomes for queue lifecycle health." defaultOpen={queueRuntimeSummary.jobHeartbeats.stale > 0 || queueRuntimeSummary.jobHeartbeats.failed > 0 || queueRuntimeSummary.missingNotificationOutcomes > 0 || queueRuntimeSummary.warnings.failed > 0} summary={<><Pill label="Jobs" value={queueRuntimeSummary.jobHeartbeats.total} /><Pill label="Stale" value={queueRuntimeSummary.jobHeartbeats.stale} tone={queueRuntimeSummary.jobHeartbeats.stale > 0 ? "warn" : "good"} /><Pill label="Failed" value={queueRuntimeSummary.jobHeartbeats.failed} tone={queueRuntimeSummary.jobHeartbeats.failed > 0 ? "bad" : "good"} /><Pill label="Legacy adapter" value={queueRuntimeSummary.warnings.legacyAdapterUses} tone={queueRuntimeSummary.warnings.legacyAdapterUses > 0 ? "bad" : "good"} /><Pill label="Missing outcomes" value={queueRuntimeSummary.missingNotificationOutcomes} tone={queueRuntimeSummary.missingNotificationOutcomes > 0 ? "bad" : "good"} /></>}>
+            <Section
+                title="Queue runtime continuity"
+                subtitle="Canonical scheduler heartbeats, runtime warnings, and notification outcomes for queue lifecycle health."
+                defaultOpen={queueNeedsReview || notificationDispatchOutcomes.length > 0}
+                summary={<><Pill label="Status" value={queueStatus} tone={queueStatus === "review" ? "warn" : queueStatus === "live" ? "good" : "neutral"} truthState={queueStatus === "review" ? "degraded" : queueStatus === "live" ? "live" : "unavailable"} badgeLabel={queueLoaded ? "LOADED" : "EMPTY"} /><Pill label="Jobs" value={queueRuntimeSummary.jobHeartbeats.total} truthState="live" badgeLabel="INFO" /><Pill label="Outcomes" value={notificationDispatchOutcomes.length} truthState="live" badgeLabel="LOADED" /><Pill label="Warnings" value={queueRuntimeSummary.warnings.total} tone={queueRuntimeSummary.warnings.total > 0 ? "warn" : "good"} /><Pill label="Needs review" value={queueRuntimeSummary.warnings.degraded} tone={queueRuntimeSummary.warnings.degraded > 0 ? "warn" : "good"} /></>}
+            >
+                <div
+                    className="grid gap-4 lg:grid-cols-1"
+                    data-queue-runtime-loaded={queueLoaded ? "true" : "false"}
+                    data-queue-runtime-heartbeat-count={queueJobHeartbeats.length}
+                    data-queue-runtime-outcome-count={notificationDispatchOutcomes.length}
+                    data-queue-runtime-warning-count={queueRuntimeSummary.warnings.total}
+                >
+                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                        <div className="flex flex-wrap gap-2">
+                            <Pill label="Heartbeat lane" value={queueRuntimeSummary.heartbeatState || "unknown"} tone={queueRuntimeSummary.heartbeatState === "missing_heartbeat" || queueRuntimeSummary.heartbeatState === "stale" ? "warn" : queueRuntimeSummary.heartbeatState === "failed" ? "bad" : "good"} />
+                            <Pill label="Outcome lane" value={queueRuntimeSummary.outcomesState || "unknown"} tone={queueRuntimeSummary.outcomesState === "failed" ? "bad" : notificationDispatchOutcomes.length > 0 ? "good" : "neutral"} />
+                            {(queueRuntimeSummary.warningReasons || []).map((reason: string) => <Pill key={reason} label="Reason" value={reason} tone="warn" />)}
+                        </div>
+                        {queueJobHeartbeats.length === 0 && notificationDispatchOutcomes.length > 0 ? (
+                            <p className="mt-3 text-sm text-amber-100">No heartbeat records, but dispatch outcome records exist. Treat heartbeat evidence as missing while outcome rows remain readable.</p>
+                        ) : null}
+                    </div>
                 <div className="grid gap-4 lg:grid-cols-1">
                     <div className="space-y-4">
                         <ScrollWrap>
@@ -181,7 +210,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                         {entry.lastErrorCode ? <p className="text-sm text-amber-100">{entry.lastErrorCode}</p> : null}
                                     </div>
                                 ))}
-                                {queueJobHeartbeats.length === 0 ? <div className="px-4 py-4 text-sm text-amber-100">No queue scheduler heartbeats have been recorded yet.</div> : null}
+                                {queueJobHeartbeats.length === 0 ? <div className="px-4 py-4 text-sm text-amber-100">{notificationDispatchOutcomes.length > 0 ? "No heartbeat records, but dispatch outcome records exist." : "No queue scheduler heartbeats have been recorded yet."}</div> : null}
                             </div>
                         </ScrollWrap>
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
@@ -207,17 +236,53 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                         <ScrollWrap>
                             <div className="divide-y divide-white/10">
                                 {notificationDispatchOutcomes.slice(0, 20).map((entry: any) => (
-                                    <div key={entry.stable_id} className="space-y-2 px-4 py-3">
+                                    <div
+                                        key={entry.stable_id}
+                                        className="space-y-2 px-4 py-3"
+                                        data-queue-runtime-drop-identity-state={entry.dropIdentityState || "unknown"}
+                                        data-queue-runtime-drop-id={entry.dropId || ""}
+                                        data-queue-runtime-scheduler-key={entry.schedulerKey || entry.activationKey || ""}
+                                        data-queue-runtime-outcome={entry.outcome || entry.status || "unknown"}
+                                        data-queue-runtime-scheduled-for-utc={entry.scheduledForUtc || ""}
+                                    >
                                         <div className="flex flex-wrap items-start justify-between gap-2">
-                                            <div><p className="font-semibold text-white">{entry.dropId}</p><p className="text-xs text-gray-400">{entry.activationKey} | {formatRelative(entry.updatedAt)}</p></div>
-                                            <div className="flex flex-wrap gap-2"><Pill label="Outcome" value={entry.status} tone={entry.status === "failed" ? "bad" : entry.status === "duplicate" ? "warn" : "good"} /><Pill label="Error" value={entry.errorCode || "none"} tone={entry.errorCode ? "warn" : "good"} /></div>
+                                            <div className="min-w-0">
+                                                <p className="font-semibold text-white">{entry.dropTitle || "Unknown drop"}</p>
+                                                <p className="text-xs text-gray-400">
+                                                    {entry.creatorName ? `Creator: ${entry.creatorName} | ` : ""}
+                                                    {entry.queueKind === "drop_activation" ? "Drop activation" : "Notification dispatch"}
+                                                    {entry.scheduledForUtc ? ` | Scheduled ${entry.scheduledForUtc}` : ""}
+                                                    {entry.lastOutcomeAtUtc ? ` | Last outcome ${entry.lastOutcomeAtUtc}` : ""}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2"><Pill label="Outcome" value={entry.outcome || entry.status || "unknown"} tone={entry.outcome === "failed" ? "bad" : entry.outcome === "skipped" ? "warn" : "good"} /><Pill label="Error" value={entry.error || entry.errorCode || "none"} tone={entry.error || entry.errorCode ? "warn" : "good"} /></div>
                                         </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Drop metadata" value={entry.dropIdentityState || "unknown"} tone={entry.dropIdentityState === "resolved" ? "good" : "warn"} />
+                                            <Pill label="Status" value={entry.status || "unknown"} />
+                                            {entry.recipientCount !== undefined ? <Pill label="Recipients" value={entry.recipientCount} /> : null}
+                                            {entry.notificationCount !== undefined ? <Pill label="Notifications" value={entry.notificationCount} /> : null}
+                                        </div>
+                                        <div className="flex flex-wrap gap-2 text-xs">
+                                            {entry.adminDropHref ? <Link href={entry.adminDropHref} className="min-h-9 rounded-full border border-white/10 px-3 py-2 text-white hover:bg-white/10">View drop</Link> : null}
+                                            {entry.adminCreatorHref ? <Link href={entry.adminCreatorHref} className="min-h-9 rounded-full border border-white/10 px-3 py-2 text-white hover:bg-white/10">View creator</Link> : null}
+                                        </div>
+                                        <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
+                                            <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Raw queue details</summary>
+                                            <p className="mt-2">Drop ID: {entry.dropId || entry.shortDropId || "unknown"}</p>
+                                            <p>Scheduler key: {entry.schedulerKey || entry.activationKey || "unknown"}</p>
+                                            <p>Scheduled UTC: {entry.scheduledForUtc || "unknown"}</p>
+                                            <p>Last outcome UTC: {entry.lastOutcomeAtUtc || formatUtc(entry.updatedAt)}</p>
+                                            <p>Raw timestamp: {entry.updatedAt || 0}</p>
+                                            {entry.dropIdentityState !== "resolved" ? <p>drop_metadata_missing</p> : null}
+                                        </details>
                                     </div>
                                 ))}
                                 {notificationDispatchOutcomes.length === 0 ? <div className="px-4 py-4 text-sm text-amber-100">No recent notification dispatch outcomes are loaded yet.</div> : null}
                             </div>
                         </ScrollWrap>
                     </div>
+                </div>
                 </div>
             </Section>
 
