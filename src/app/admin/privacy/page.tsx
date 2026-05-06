@@ -9,7 +9,7 @@ export default function AdminPrivacyPage() {
       <AdminPageHeader
         eyebrow="Admin Setup"
         title="Privacy Console"
-        subtitle="Live telemetry and consent preflight statuses."
+        subtitle="Privacy, consent, guest identity, and export evidence with source-aware truth states."
         compact
       />
       <div className="w-full">

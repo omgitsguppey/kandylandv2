@@ -96,6 +96,7 @@
         "check:event-fact-truth": "tsx scripts/agent/validate-event-fact-truth.ts",
         "score:telemetry-identified-parity": "tsx scripts/agent/score-telemetry-identified-parity.ts",
         "check:telemetry-identified-parity": "npm run score:telemetry-identified-parity && tsx scripts/agent/validate-telemetry-identified-parity.ts",
+        "check:privacy-consent-truth": "tsx scripts/agent/validate-privacy-consent-truth.ts",
         "check:identity-link-continuity": "tsx scripts/agent/validate-identity-link-continuity.ts",
         "score:tracking-surface-coverage": "tsx scripts/agent/score-tracking-surface-coverage.ts",
         "check:tracking-surface-coverage": "tsx scripts/agent/validate-tracking-surface-coverage.ts",

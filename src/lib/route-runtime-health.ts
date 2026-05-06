@@ -131,6 +131,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin moderation security alerts",
         slowThresholdMs: 1200,
     },
+    "admin/privacy/preflight:GET": {
+        routeName: "admin/privacy/preflight",
+        method: "GET",
+        title: "Admin privacy preflight",
+        slowThresholdMs: 1200,
+    },
     "admin/analytics/preferences:GET": {
         routeName: "admin/analytics/preferences",
         method: "GET",
