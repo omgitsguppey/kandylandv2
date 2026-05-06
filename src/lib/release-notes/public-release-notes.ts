@@ -1,12 +1,46 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.45.0",
+  "currentVersion": "1.46.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T02:40:47.854Z",
-  "generatedAtUtc": "2026-05-06T02:40:47.854Z",
-  "lastCommitSha": "10b564958780c50abd44a654ef2ba485cb0e6d5c",
+  "generatedAt": "2026-05-06T02:50:29.677Z",
+  "generatedAtUtc": "2026-05-06T02:50:29.677Z",
+  "lastCommitSha": "662806fb6b761735a4efaba950986ec4f02b236c",
   "notes": [
+    {
+      "version": "1.46.0",
+      "previousVersion": "1.45.0",
+      "commitSha": "662806fb6b761735a4efaba950986ec4f02b236c",
+      "commitTitle": "fix(admin): enrich recent transaction identities",
+      "committedAt": "2026-05-06T02:50:17.000Z",
+      "generatedAt": "2026-05-06T02:50:29.677Z",
+      "committedAtUtc": "2026-05-06T02:50:17.000Z",
+      "generatedAtUtc": "2026-05-06T02:50:29.677Z",
+      "diffStats": {
+        "rawAdditions": 351,
+        "rawDeletions": 25,
+        "rawChangeCount": 376,
+        "additions": 351,
+        "deletions": 25,
+        "effectiveAdditions": 351,
+        "effectiveDeletions": 25,
+        "changedFiles": 9,
+        "effectiveChangeCount": 376,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal transaction review so admins can identify users more easily.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "wallet"
+      ]
+    },
     {
       "version": "1.45.0",
       "previousVersion": "1.44.0",
@@ -130,39 +164,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "minor",
       "category": "Fixed",
       "userFacingTitle": "Improved internal repair proposal grouping so repeated debug items are easier to review.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.41.0",
-      "previousVersion": "1.40.0",
-      "commitSha": "7d56e157afa44f20236a9b2093c72f4665f0832e",
-      "commitTitle": "fix(admin): dedupe debug repair proposals",
-      "committedAt": "2026-05-06T01:56:39.000Z",
-      "generatedAt": "2026-05-06T01:56:51.549Z",
-      "committedAtUtc": "2026-05-06T01:56:39.000Z",
-      "generatedAtUtc": "2026-05-06T01:56:51.549Z",
-      "diffStats": {
-        "rawAdditions": 413,
-        "rawDeletions": 21,
-        "rawChangeCount": 434,
-        "additions": 413,
-        "deletions": 21,
-        "effectiveAdditions": 411,
-        "effectiveDeletions": 19,
-        "changedFiles": 10,
-        "effectiveChangeCount": 430,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal repair proposal grouping so duplicate debug actions are easier to review.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],

@@ -1,10 +1,44 @@
 {
-  "currentVersion": "1.45.0",
+  "currentVersion": "1.46.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T02:40:47.854Z",
-  "generatedAtUtc": "2026-05-06T02:40:47.854Z",
-  "lastCommitSha": "10b564958780c50abd44a654ef2ba485cb0e6d5c",
+  "generatedAt": "2026-05-06T02:50:29.677Z",
+  "generatedAtUtc": "2026-05-06T02:50:29.677Z",
+  "lastCommitSha": "662806fb6b761735a4efaba950986ec4f02b236c",
   "notes": [
+    {
+      "version": "1.46.0",
+      "previousVersion": "1.45.0",
+      "commitSha": "662806fb6b761735a4efaba950986ec4f02b236c",
+      "commitTitle": "fix(admin): enrich recent transaction identities",
+      "committedAt": "2026-05-06T02:50:17.000Z",
+      "generatedAt": "2026-05-06T02:50:29.677Z",
+      "committedAtUtc": "2026-05-06T02:50:17.000Z",
+      "generatedAtUtc": "2026-05-06T02:50:29.677Z",
+      "diffStats": {
+        "rawAdditions": 351,
+        "rawDeletions": 25,
+        "rawChangeCount": 376,
+        "additions": 351,
+        "deletions": 25,
+        "effectiveAdditions": 351,
+        "effectiveDeletions": 25,
+        "changedFiles": 9,
+        "effectiveChangeCount": 376,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal transaction review so admins can identify users more easily.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "wallet"
+      ]
+    },
     {
       "version": "1.45.0",
       "previousVersion": "1.44.0",
@@ -1599,39 +1633,6 @@
       ],
       "committedAtUtc": "2026-05-05T10:18:00.000Z",
       "generatedAtUtc": "2026-05-05T12:02:55.972Z"
-    },
-    {
-      "version": "1.9.0",
-      "previousVersion": "1.8.0",
-      "commitSha": "edb76d0098fe6c91c9b59c41f750f42c11ca79cf",
-      "commitTitle": "feat(recommendations): add diversity reranking rules",
-      "committedAt": "2026-05-05T09:57:10.000Z",
-      "generatedAt": "2026-05-05T12:02:55.668Z",
-      "diffStats": {
-        "rawAdditions": 596,
-        "rawDeletions": 8,
-        "rawChangeCount": 604,
-        "additions": 596,
-        "deletions": 8,
-        "effectiveAdditions": 596,
-        "effectiveDeletions": 8,
-        "changedFiles": 8,
-        "effectiveChangeCount": 604,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T09:57:10.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:55.668Z"
     }
   ]
 }
