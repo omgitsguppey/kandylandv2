@@ -212,6 +212,56 @@ type ReceiptSummaryRow = {
     sourceState: ReceiptSampleView["sourceState"];
 };
 
+type TaskReceiptPolicy = "required" | "not_required" | "legacy_optional" | "unknown";
+type TaskReceiptParityState = "live" | "review" | "error";
+
+type TaskReceiptParityRow = {
+    taskId: string;
+    taskTitle: string;
+    completedCount: number;
+    rewardedCount: number;
+    taskRewardReceiptCount: number;
+    relatedActionReceiptCount: number;
+    relatedActionReceiptLabel?: string;
+    purchaseReceiptCount: number;
+    paidRewardTotalGd: number;
+    potentialRewardTotalGd: number;
+    expectedReceiptPolicy: TaskReceiptPolicy;
+    receiptParityState: TaskReceiptParityState;
+    explanation: string;
+};
+
+type TaskGumdropGuardrailState = {
+    generatedAtUtc: string;
+    affectedUsersCount: number;
+    rewardDelta7d: number;
+    creatorSpendViolations: number;
+    overallState: "live" | "review" | "error";
+    rewardSettings: {
+        version: number;
+        multiplierPct: number;
+        builtInAverageRewardGd: number;
+        legacyCustomCount: number;
+        state: "live" | "review" | "error";
+    };
+    creatorSpend: {
+        trackedSpendCount: number;
+        purchasedSpendCount: number;
+        rewardSpendCount: number;
+        amountMismatchCount: number;
+        state: "live" | "review" | "error";
+        explanation: string;
+    };
+    receiptParity: {
+        okCount: number;
+        reviewCount: number;
+        errorCount: number;
+        state: "live" | "review" | "error";
+    };
+    taskReceiptParity: TaskReceiptParityRow[];
+    affectedUsers: TaskIssueAttribution[];
+};
+
 type DependencyPackageName = "root" | "functions" | "workspace" | "unknown";
 type DependencyType = "runtime" | "dev" | "optional";
 type DependencyCategory =
@@ -798,6 +848,75 @@ function inferTrackingSource(eventName: string) {
     }
 
     return "unsupported";
+}
+
+function readTaskCriteriaParam(params: Record<string, unknown>, key: string) {
+    return params[key]
+        ?? params[key.replace(/_([a-z])/gu, (_, char: string) => char.toUpperCase())]
+        ?? params[key.replace(/[A-Z]/gu, (char) => `_${char.toLowerCase()}`)];
+}
+
+function normalizeCriteriaStringArray(value: unknown) {
+    if (Array.isArray(value)) {
+        return value.map((entry) => toStringValue(entry).trim()).filter(Boolean);
+    }
+    const text = toStringValue(value).trim();
+    if (!text) {
+        return [];
+    }
+    return text.split(",").map((entry) => entry.trim()).filter(Boolean);
+}
+
+function receiptMatchesTaskCriteria(definition: DailyTaskDefinition, params: Record<string, unknown>) {
+    if (!definition.criteria) {
+        return true;
+    }
+
+    if (definition.criteria.paramEquals) {
+        const actual = readTaskCriteriaParam(params, definition.criteria.paramEquals.key);
+        return String(actual) === String(definition.criteria.paramEquals.value);
+    }
+
+    if (definition.criteria.minNumberParam) {
+        const actual = Number(readTaskCriteriaParam(params, definition.criteria.minNumberParam.key));
+        return Number.isFinite(actual) && actual >= definition.criteria.minNumberParam.value;
+    }
+
+    if (definition.criteria.includesAnyParam) {
+        const actualValues = normalizeCriteriaStringArray(readTaskCriteriaParam(params, definition.criteria.includesAnyParam.key));
+        return definition.criteria.includesAnyParam.values.some((value) => actualValues.includes(value));
+    }
+
+    return true;
+}
+
+function getExpectedTaskReceiptPolicy(definition: DailyTaskDefinition): TaskReceiptPolicy {
+    if (definition.group === "purchase") {
+        return "required";
+    }
+    if (definition.id === "check_in_today") {
+        return "not_required";
+    }
+    if (definition.eventName === "unlock_drop_success") {
+        return "legacy_optional";
+    }
+    if (definition.rewardSource === "daily_task") {
+        return "required";
+    }
+    return "unknown";
+}
+
+function scoreTaskCriteriaSpecificity(definition: DailyTaskDefinition) {
+    if (definition.criteria?.minNumberParam) {
+        return definition.criteria.minNumberParam.value;
+    }
+    if (definition.criteria?.includesAnyParam) {
+        return definition.criteria.includesAnyParam.values.length;
+    }
+    if (definition.criteria?.paramEquals) {
+        return 1;
+    }
+    return 0;
 }
 
 function readGeneratedAnalyticsStateFile(fileName: string): Record<string, unknown> | null {
@@ -1804,29 +1923,57 @@ export async function GET(request: NextRequest) {
         const telemetryOnlyTasks = coverage.filter((task) => task.sourceType === "telemetry");
         const legacyTasks = coverage.filter((task) => task.sourceType === "legacy");
 
+        const taskRollupParityByTaskId = taskRollupSnapshot.docs.reduce((map, doc) => {
+            const data = doc.data() as Record<string, unknown>;
+            map.set(doc.id, {
+                paidRewardTotalGd: toNumber(data.paidRewardTotalGd) || toNumber(data.rewardTotal),
+                potentialRewardTotalGd: toNumber(data.potentialRewardTotalGd),
+            });
+            return map;
+        }, new Map<string, { paidRewardTotalGd: number; potentialRewardTotalGd: number }>());
+
         const rewardParityByTask = new Map<string, {
             taskId: string;
-            title: string;
+            taskTitle: string;
             definitionOrigin: "built_in" | "custom" | "unknown";
             completedCount: number;
             rewardedCount: number;
-            rewardTotal: number;
-            receiptCount: number;
+            taskRewardReceiptCount: number;
+            relatedActionReceiptCount: number;
+            purchaseReceiptCount: number;
+            paidRewardTotalGd: number;
+            potentialRewardTotalGd: number;
+            expectedReceiptPolicy: TaskReceiptPolicy;
+            receiptParityState: TaskReceiptParityState;
+            explanation: string;
+            relatedActionReceiptLabel?: string;
         }>();
 
         completedEvents7d.forEach((event) => {
             const matchedDefinition = taskDefinitionsById.get(event.taskId);
             const current = rewardParityByTask.get(event.taskId) || {
                 taskId: event.taskId,
-                title: matchedDefinition?.title || event.title,
+                taskTitle: matchedDefinition?.title || event.title,
                 definitionOrigin: matchedDefinition?.source === "built_in" ? "built_in" : matchedDefinition ? "custom" : "unknown",
                 completedCount: 0,
                 rewardedCount: 0,
-                rewardTotal: 0,
-                receiptCount: 0,
+                taskRewardReceiptCount: 0,
+                relatedActionReceiptCount: 0,
+                purchaseReceiptCount: 0,
+                paidRewardTotalGd: taskRollupParityByTaskId.get(event.taskId)?.paidRewardTotalGd || 0,
+                potentialRewardTotalGd: taskRollupParityByTaskId.get(event.taskId)?.potentialRewardTotalGd || 0,
+                expectedReceiptPolicy: matchedDefinition ? getExpectedTaskReceiptPolicy(matchedDefinition) : "unknown",
+                receiptParityState: "live" as TaskReceiptParityState,
+                explanation: "",
             };
             current.completedCount += 1;
-            current.rewardTotal += event.creditedRewardGd || event.reward;
+            if ((event.creditedRewardGd || 0) > 0) {
+                current.rewardedCount += 1;
+            }
+            if (!taskRollupParityByTaskId.has(event.taskId)) {
+                current.paidRewardTotalGd += event.creditedRewardGd || 0;
+                current.potentialRewardTotalGd += event.potentialRewardGd || 0;
+            }
             rewardParityByTask.set(event.taskId, current);
         });
 
@@ -1839,44 +1986,130 @@ export async function GET(request: NextRequest) {
             const taskId = matchedTaskId || taskTitle || "unknown";
             const current = rewardParityByTask.get(taskId) || {
                 taskId,
-                title: taskTitle || taskId,
+                taskTitle: taskTitle || taskId,
                 definitionOrigin: matchedTask?.source === "built_in" ? "built_in" : matchedTask ? "custom" : "unknown",
                 completedCount: 0,
                 rewardedCount: 0,
-                rewardTotal: 0,
-                receiptCount: 0,
+                taskRewardReceiptCount: 0,
+                relatedActionReceiptCount: 0,
+                purchaseReceiptCount: 0,
+                paidRewardTotalGd: taskRollupParityByTaskId.get(taskId)?.paidRewardTotalGd || 0,
+                potentialRewardTotalGd: taskRollupParityByTaskId.get(taskId)?.potentialRewardTotalGd || 0,
+                expectedReceiptPolicy: matchedTask ? getExpectedTaskReceiptPolicy(matchedTask) : "unknown",
+                receiptParityState: "live" as TaskReceiptParityState,
+                explanation: "",
             };
-            current.rewardedCount += 1;
+            current.taskRewardReceiptCount += 1;
             rewardParityByTask.set(taskId, current);
         });
 
-        receiptEvents7d.forEach((entry) => {
-            const matchedTaskIds = eventNamesToTaskIds.get(entry.normalizedAction) ?? [];
-            if (matchedTaskIds.length !== 1) {
+        rawRecentReceipts
+            .filter((entry) => entry.timestamp >= weekAgoMs)
+            .forEach((receipt) => {
+            const metadata = buildTelemetryEventMetadata(receipt.eventName);
+            const canonicalEventName = metadata.canonicalEventName;
+            const candidateDefinitions = allTaskDefinitions
+                .filter((definition) => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === canonicalEventName)
+                .filter((definition) => receiptMatchesTaskCriteria(definition, receipt.params))
+                .sort((left, right) => scoreTaskCriteriaSpecificity(right) - scoreTaskCriteriaSpecificity(left));
+            const strongestSpecificity = candidateDefinitions[0] ? scoreTaskCriteriaSpecificity(candidateDefinitions[0]) : 0;
+            const candidateTaskIds = candidateDefinitions
+                .filter((definition) => scoreTaskCriteriaSpecificity(definition) === strongestSpecificity)
+                .map((definition) => definition.id);
+            if (candidateTaskIds.length !== 1) {
                 return;
             }
 
-            const taskId = matchedTaskIds[0];
+            const taskId = candidateTaskIds[0];
             const matchedTask = taskDefinitionsById.get(taskId);
             const current = rewardParityByTask.get(taskId) || {
                 taskId,
-                title: matchedTask?.title || entry.displayLabel,
+                taskTitle: matchedTask?.title || taskId,
                 definitionOrigin: matchedTask?.source === "built_in" ? "built_in" : matchedTask ? "custom" : "unknown",
                 completedCount: 0,
                 rewardedCount: 0,
-                rewardTotal: 0,
-                receiptCount: 0,
+                taskRewardReceiptCount: 0,
+                relatedActionReceiptCount: 0,
+                purchaseReceiptCount: 0,
+                paidRewardTotalGd: taskRollupParityByTaskId.get(taskId)?.paidRewardTotalGd || 0,
+                potentialRewardTotalGd: taskRollupParityByTaskId.get(taskId)?.potentialRewardTotalGd || 0,
+                expectedReceiptPolicy: matchedTask ? getExpectedTaskReceiptPolicy(matchedTask) : "unknown",
+                receiptParityState: "live" as TaskReceiptParityState,
+                explanation: "",
             };
-            current.receiptCount += 1;
+            current.relatedActionReceiptCount += 1;
+            current.relatedActionReceiptLabel = canonicalEventName === "gumdrops_purchase_completed"
+                ? "purchase receipts"
+                : canonicalEventName === "daily_checkin_claimed"
+                    ? "related daily check-in receipts"
+                    : "related action receipts";
+            if (matchedTask?.group === "purchase") {
+                current.purchaseReceiptCount += 1;
+            }
             rewardParityByTask.set(taskId, current);
         });
 
-        const taskParity = Array.from(rewardParityByTask.values())
-            .sort((left, right) => right.completedCount - left.completedCount || right.rewardTotal - left.rewardTotal);
+        const taskParity: TaskReceiptParityRow[] = Array.from(rewardParityByTask.values())
+            .map((entry) => {
+                const matchedTask = taskDefinitionsById.get(entry.taskId);
+                const expectedReceiptPolicy = matchedTask ? getExpectedTaskReceiptPolicy(matchedTask) : entry.expectedReceiptPolicy;
+                const missingRewardReceipts = entry.rewardedCount > 0 && entry.taskRewardReceiptCount === 0;
+                const rewardMismatch = entry.rewardedCount !== entry.taskRewardReceiptCount;
+                let receiptParityState: TaskReceiptParityState = "live";
+                let explanation = "Task completion, reward credit, and receipt evidence are aligned.";
+
+                if (expectedReceiptPolicy === "not_required") {
+                    receiptParityState = entry.rewardedCount > 0 ? "live" : "review";
+                    explanation = entry.relatedActionReceiptCount > 0
+                        ? `Task reward receipts are not required here. ${entry.relatedActionReceiptCount} ${entry.relatedActionReceiptLabel || "related action receipts"} were observed in the sample window.`
+                        : "Task reward receipts are not required here; completion and paid reward truth come from task events and reward credit records.";
+                } else if (expectedReceiptPolicy === "legacy_optional") {
+                    receiptParityState = missingRewardReceipts ? "review" : "live";
+                    explanation = missingRewardReceipts
+                        ? "Legacy unlock compatibility still allows reward credit without a canonical task receipt. Verify canonical drop_unlocked parity before treating this as fully clean."
+                        : "Legacy unlock compatibility is present, but task reward receipts were still found.";
+                } else if (missingRewardReceipts) {
+                    receiptParityState = "error";
+                    explanation = "Task shows rewarded completions but no task reward receipts were found.";
+                } else if (rewardMismatch) {
+                    receiptParityState = "review";
+                    explanation = `Rewarded completions (${entry.rewardedCount}) and task reward receipts (${entry.taskRewardReceiptCount}) do not match exactly.`;
+                } else if (matchedTask?.group === "purchase") {
+                    receiptParityState = entry.purchaseReceiptCount >= entry.rewardedCount ? "live" : "review";
+                    explanation = entry.purchaseReceiptCount >= entry.rewardedCount
+                        ? `Purchase receipts (${entry.purchaseReceiptCount}) and task reward receipts (${entry.taskRewardReceiptCount}) both support this purchase task.`
+                        : `Task reward receipts were found, but only ${entry.purchaseReceiptCount} purchase receipt(s) matched this task's package criteria.`;
+                } else if (entry.relatedActionReceiptCount > 0) {
+                    explanation = `${entry.relatedActionReceiptCount} ${entry.relatedActionReceiptLabel || "related action receipts"} support the task trigger path.`;
+                }
+
+                return {
+                    taskId: entry.taskId,
+                    taskTitle: entry.taskTitle,
+                    completedCount: entry.completedCount,
+                    rewardedCount: entry.rewardedCount,
+                    taskRewardReceiptCount: entry.taskRewardReceiptCount,
+                    relatedActionReceiptCount: entry.relatedActionReceiptCount,
+                    relatedActionReceiptLabel: entry.relatedActionReceiptLabel,
+                    purchaseReceiptCount: entry.purchaseReceiptCount,
+                    paidRewardTotalGd: entry.paidRewardTotalGd,
+                    potentialRewardTotalGd: entry.potentialRewardTotalGd,
+                    expectedReceiptPolicy,
+                    receiptParityState,
+                    explanation,
+                } satisfies TaskReceiptParityRow;
+            })
+            .sort((left, right) => {
+                const stateRank: Record<TaskReceiptParityState, number> = { error: 0, review: 1, live: 2 };
+                return stateRank[left.receiptParityState] - stateRank[right.receiptParityState]
+                    || right.rewardedCount - left.rewardedCount
+                    || right.completedCount - left.completedCount
+                    || right.paidRewardTotalGd - left.paidRewardTotalGd;
+            });
         const totalRewardTransactionsAmount7d = rewardTransactions7d.reduce((sum, entry) => sum + Math.abs(toNumber(entry.amount)), 0);
         const taskParitySummary = {
             completedCount7d: completedEvents7d.length,
-            receiptCount7d: receiptEvents7d.length,
+            receiptCount7d: rewardTransactions7d.length,
             rewardedCount7d: rewardTransactions7d.length,
             rewardedAmount7d: totalRewardTransactionsAmount7d,
             mismatchDelta7d: completedEvents7d.length - rewardTransactions7d.length,
@@ -2129,6 +2362,50 @@ export async function GET(request: NextRequest) {
                 description: policy.description,
             })),
         };
+        const taskGumdropGuardrails: TaskGumdropGuardrailState = {
+            generatedAtUtc: new Date(nowMs).toISOString(),
+            affectedUsersCount: assignmentIssues.length,
+            rewardDelta7d: taskParitySummary.mismatchDelta7d,
+            creatorSpendViolations: creatorSpendParity.restrictedSpendViolationCount,
+            overallState: assignmentIssues.length > 0
+                ? "review"
+                : creatorSpendParity.restrictedSpendViolationCount > 0 || taskParity.some((entry) => entry.receiptParityState === "error")
+                    ? "error"
+                    : taskParity.some((entry) => entry.receiptParityState === "review")
+                        ? "review"
+                        : "live",
+            rewardSettings: {
+                version: DAILY_TASK_REWARD_VERSION,
+                multiplierPct: Math.round(DAILY_TASK_REWARD_MULTIPLIER * 100),
+                builtInAverageRewardGd: rewardValues.length > 0
+                    ? Math.round(rewardValues.reduce((sum, reward) => sum + reward, 0) / rewardValues.length)
+                    : 0,
+                legacyCustomCount: legacyRewardVersionCount,
+                state: legacyRewardVersionCount > 0 ? "review" : "live",
+            },
+            creatorSpend: {
+                trackedSpendCount: creatorSpendParity.trackedTransactions,
+                purchasedSpendCount: creatorSpendParity.totalPurchasedSpent,
+                rewardSpendCount: creatorSpendParity.totalRewardSpent,
+                amountMismatchCount: creatorSpendParity.amountMismatchCount,
+                state: creatorSpendParity.restrictedSpendViolationCount > 0 || creatorSpendParity.amountMismatchCount > 0 ? "error" : "live",
+                explanation: `${creatorSpendParity.trackedTransactions} creator spend transaction(s) used purchased GD ${creatorSpendParity.totalPurchasedSpent}; reward GD ${creatorSpendParity.totalRewardSpent}.`,
+            },
+            receiptParity: {
+                okCount: taskParity.filter((entry) => entry.receiptParityState === "live").length,
+                reviewCount: taskParity.filter((entry) => entry.receiptParityState === "review").length,
+                errorCount: taskParity.filter((entry) => entry.receiptParityState === "error").length,
+                state: taskParity.some((entry) => entry.receiptParityState === "error")
+                    ? "error"
+                    : taskParity.some((entry) => entry.receiptParityState === "review")
+                        ? "review"
+                        : "live",
+            },
+            taskReceiptParity: taskParity,
+            affectedUsers: assignmentIssues
+                .map((entry) => entry.attribution)
+                .filter((entry): entry is TaskIssueAttribution => Boolean(entry)),
+        };
 
         const bugReports: BugReportTriageCard[] = feedbackSnapshot.docs
             .map((doc) => {
@@ -2326,6 +2603,7 @@ export async function GET(request: NextRequest) {
             assignmentIssues,
             taskParity,
             taskParitySummary,
+            taskGumdropGuardrails,
             taskAuditSample,
             recentTaskEvents: recentTaskEvents.slice(0, 80),
             recentReceipts: recentReceipts.slice(0, 80),

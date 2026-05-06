@@ -68,6 +68,7 @@ const debugTabMonitoring = readRequired("src/app/admin/debug/components/DebugTab
 const debugMonitoringRoutes = readRequired("src/app/admin/debug/components/DebugMonitoringRoutes.tsx");
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
 const debugAdvancedDataValidation = readRequired("src/app/admin/debug/components/DebugAdvancedDataValidation.tsx");
+const debugAdvancedDrift = readRequired("src/app/admin/debug/components/DebugAdvancedDrift.tsx");
 const debugAdvancedTruth = readRequired("src/app/admin/debug/components/DebugAdvancedTruth.tsx");
 const debugPanelStatus = readRequired("src/app/admin/debug/components/DebugPanelStatusBySection.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
@@ -183,6 +184,9 @@ for (const expected of [
 }
 for (const expected of [
   "TaskIssueAttribution",
+  "TaskReceiptPolicy",
+  "TaskReceiptParityRow",
+  "TaskGumdropGuardrailState",
   "expectedSource",
   "foundSource",
   "issueType",
@@ -194,6 +198,15 @@ for (const expected of [
   "onboarding_not_complete",
   "Rebuild task assignment for this user",
   "taskCoverageSummary",
+  "taskGumdropGuardrails",
+  "expectedReceiptPolicy",
+  "receiptParityState",
+  "taskRewardReceiptCount",
+  "purchaseReceiptCount",
+  "relatedActionReceiptCount",
+  "Task shows rewarded completions but no task reward receipts were found.",
+  "Task reward receipts are not required here.",
+  "Purchase receipts (",
   "readyTasks",
   "partialTasks",
   "rewardRiskTasks",
@@ -1198,6 +1211,37 @@ if (vapidChipCount !== 1) {
 }
 
 for (const expected of [
+  "Task parity and Gum Drop guardrails",
+  "Task assignment issues, reward parity, creator-spend guardrails, and receipt explanations in one view.",
+  "data-task-guardrail-reward-version",
+  "data-task-guardrail-multiplier",
+  "data-task-guardrail-built-in-avg",
+  "data-task-guardrail-creator-spend-state",
+  "data-task-receipt-policy",
+  "data-task-receipt-parity-state",
+  "data-task-paid-reward-total",
+  "data-task-potential-reward-total",
+  "data-task-affected-user-count",
+  "label=\"Task reward receipts\"",
+  "label=\"Purchase receipts\"",
+  "label=\"Paid rewards\"",
+  "label=\"Potential assigned rewards\"",
+  "label=\"Receipt policy\"",
+  "Expected source",
+  "Found source",
+]) {
+  requireIncludes(debugAdvancedDrift, expected, "Task GumDrop guardrail panel must show loaded receipt parity truth");
+}
+for (const forbidden of [
+  "label=\"Reward total\"",
+  "label=\"Receipts\" value={entry.receiptCount}",
+  "<Pill label=\"Reward version\" value={data?.taskRewardConfig?.rewardVersion ?? \"--\"} />",
+  "<Pill label=\"Tracked creator spends\" value={data?.creatorSpendParity?.trackedTransactions ?? 0} />",
+]) {
+  requireNotIncludes(debugAdvancedDrift, forbidden, "Task GumDrop guardrail panel must not leave ambiguous or unloaded labels");
+}
+
+for (const expected of [
   "Infrastructure Health & Dependencies",
   "Package inventory plus selected runtime connectivity checks. Package presence does not prove runtime use.",
   "Environment & runtime checks",
@@ -1484,6 +1528,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugTabAi\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabInfrastructure\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedDataValidation\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugAdvancedDrift\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedTruth\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugNowDiagnostics\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPanelStatusBySection\.tsx$/u,
