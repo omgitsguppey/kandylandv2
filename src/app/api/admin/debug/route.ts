@@ -344,13 +344,29 @@ type RuntimeTaskSourceParityRow = {
 
 type SharedTaskEventGroup = {
     eventName: string;
+    displayLabel: string;
     normalizedAction: string;
+    sharedByCount: number;
+    assignedCount: number;
+    receiptCount: number;
+    eventStatsCount: number;
+    receiptMeaning: string;
+    sharedTasks: Array<{
+        taskId: string;
+        title: string;
+        requiredCount: number;
+        keying: "unique_entity" | "count" | "any" | "filtered" | "unknown";
+        requiredEntity?: "drop" | "file" | "session" | "notification" | "purchase" | "feedback" | "none";
+        criteria: string[];
+        criteriaState: "complete" | "partial" | "missing" | "not_required";
+    }>;
     taskIds: string[];
     taskTitles: string[];
-    ambiguityState: "safe_with_criteria" | "needs_criteria" | "unsafe_shared_event";
+    ambiguityState: "safe_with_keying" | "safe_with_criteria" | "partial" | "unsafe_shared_event";
     requiredDisambiguators: string[];
     presentDisambiguators: string[];
     missingDisambiguators: string[];
+    missingEvidence: string[];
     severity: "info" | "review" | "error";
     explanation: string;
 };
@@ -1343,13 +1359,52 @@ function buildSharedTaskEventDisambiguators(definition: DailyTaskDefinition) {
 }
 
 function buildSharedTaskEventExplanation(group: Omit<SharedTaskEventGroup, "explanation">) {
+    if (group.ambiguityState === "safe_with_keying") {
+        return `Shared by ${group.sharedByCount} tasks. Distinct keying and count thresholds are present, so this shared event is safely disambiguated. ${group.receiptMeaning}`;
+    }
     if (group.ambiguityState === "safe_with_criteria") {
-        return "Shared event mapping is bounded by explicit criteria and distinct/count keying.";
+        return `Shared by ${group.sharedByCount} tasks. Criteria and keying are present for the current tasks. ${group.receiptMeaning}`;
     }
-    if (group.ambiguityState === "needs_criteria") {
-        return `Shared event requires additional disambiguation: missing ${group.missingDisambiguators.join(", ")}.`;
+    if (group.ambiguityState === "partial") {
+        return `Shared by ${group.sharedByCount} tasks. Some disambiguation exists, but this group still needs ${group.missingEvidence.join(", ")}. ${group.receiptMeaning}`;
     }
-    return `Shared event is unsafe for task attribution until disambiguators are added: missing ${group.missingDisambiguators.join(", ")}.`;
+    return `Shared by ${group.sharedByCount} tasks. This event is unsafe for task attribution until ${group.missingEvidence.join(", ")} is added. ${group.receiptMeaning}`;
+}
+
+function inferSharedTaskEntity(definition: DailyTaskDefinition): "drop" | "file" | "session" | "notification" | "purchase" | "feedback" | "none" {
+    if (definition.eventName === "unlock_drop_success" || definition.eventName === "drop_preview_opened" || definition.eventName === "view_drop_details" || definition.eventName === "viewer_opened") {
+        return "drop";
+    }
+    if (definition.eventName === "viewer_asset_consumed" || definition.eventName === "viewer_asset_completed" || definition.eventName === "file_viewed") {
+        return "file";
+    }
+    if (definition.eventName === "viewer_session_completed" || definition.eventName === "viewer_watch_checkpoint") {
+        return "session";
+    }
+    if (definition.eventName === "notification_opened" || definition.eventName === "notification_read") {
+        return "notification";
+    }
+    if (definition.eventName === "gumdrops_purchase_completed") {
+        return "purchase";
+    }
+    if (definition.eventName === "feedback_submitted") {
+        return "feedback";
+    }
+    return "none";
+}
+
+function inferSharedTaskKeying(definition: DailyTaskDefinition): "unique_entity" | "count" | "any" | "filtered" | "unknown" {
+    if (definition.criteria && definition.uniqueByParamKey) return "filtered";
+    if (definition.uniqueByParamKey) return "unique_entity";
+    if (definition.maxProgress > 1) return "count";
+    return "any";
+}
+
+function inferSharedTaskCriteriaState(definition: DailyTaskDefinition): "complete" | "partial" | "missing" | "not_required" {
+    if (!definition.criteria) return "not_required";
+    const parts = buildSharedTaskEventDisambiguators(definition);
+    if (parts.required.length === 0) return "not_required";
+    return parts.present.length >= parts.required.length ? "complete" : "partial";
 }
 
 function classifyTaskTelemetryEventPurpose(eventName: string): TaskTelemetryEventPurpose {
@@ -2988,6 +3043,22 @@ export async function GET(request: NextRequest) {
                 .filter((definition): definition is DailyTaskDefinition => Boolean(definition));
             const requiredDisambiguators = new Set<string>();
             const presentDisambiguators = new Set<string>();
+            const missingEvidence = new Set<string>();
+            const sharedTasks = mappedDefinitions.map((definition) => {
+                const disambiguators = buildSharedTaskEventDisambiguators(definition);
+                const keying = inferSharedTaskKeying(definition);
+                const requiredEntity = inferSharedTaskEntity(definition);
+                const criteriaState = inferSharedTaskCriteriaState(definition);
+                return {
+                    taskId: definition.id,
+                    title: definition.title,
+                    requiredCount: definition.maxProgress,
+                    keying,
+                    requiredEntity,
+                    criteria: disambiguators.present,
+                    criteriaState,
+                } satisfies SharedTaskEventGroup["sharedTasks"][number];
+            });
 
             mappedDefinitions.forEach((definition) => {
                 const disambiguators = buildSharedTaskEventDisambiguators(definition);
@@ -2996,27 +3067,58 @@ export async function GET(request: NextRequest) {
             });
 
             const missingDisambiguators = Array.from(requiredDisambiguators).filter((item) => !presentDisambiguators.has(item));
-            const hasAnyCriteria = mappedDefinitions.some((definition) => Boolean(definition.criteria));
-            const hasAnyUniqueKeying = mappedDefinitions.some((definition) => Boolean(definition.uniqueByParamKey));
-            const ambiguityState: SharedTaskEventGroup["ambiguityState"] = missingDisambiguators.length === 0
-                ? "safe_with_criteria"
-                : hasAnyCriteria || hasAnyUniqueKeying
-                    ? "needs_criteria"
+            const allHaveUniqueKeying = sharedTasks.every((task) => task.requiredCount <= 1 || task.keying === "unique_entity" || task.keying === "filtered");
+            const anyHaveCriteria = sharedTasks.some((task) => task.criteriaState === "complete" || task.criteriaState === "partial");
+            if (!allHaveUniqueKeying && mappedDefinitions.some((definition) => definition.maxProgress > 1)) {
+                missingEvidence.add("unique_entity_keying");
+            }
+            if (entry.eventName === "feedback_submitted" && !sharedTasks.every((task) => task.criteriaState === "complete")) {
+                missingEvidence.add("feedback_type_or_rating_criteria");
+            }
+            if (entry.eventName === "unlock_drop_success" && sharedTasks.some((task) => task.title.toLowerCase().includes("spicy") || task.title.toLowerCase().includes("sweet") || task.title.toLowerCase().includes("raw")) && sharedTasks.some((task) => task.criteriaState !== "complete" && (task.title.toLowerCase().includes("spicy") || task.title.toLowerCase().includes("sweet") || task.title.toLowerCase().includes("raw")))) {
+                missingEvidence.add("category_filter");
+            }
+            if (entry.eventName === "gumdrops_purchase_completed" && !sharedTasks.every((task) => task.criteriaState === "complete")) {
+                missingEvidence.add("package_amount_criteria");
+            }
+            if (entry.eventName === "viewer_watch_checkpoint" && !sharedTasks.every((task) => task.criteriaState === "complete")) {
+                missingEvidence.add("duration_threshold");
+            }
+            const uniqueMissingEvidence = Array.from(missingEvidence);
+            const ambiguityState: SharedTaskEventGroup["ambiguityState"] = uniqueMissingEvidence.length === 0
+                ? (allHaveUniqueKeying ? "safe_with_keying" : "safe_with_criteria")
+                : anyHaveCriteria || allHaveUniqueKeying
+                    ? "partial"
                     : "unsafe_shared_event";
-            const severity: SharedTaskEventGroup["severity"] = ambiguityState === "safe_with_criteria"
+            const severity: SharedTaskEventGroup["severity"] = ambiguityState === "safe_with_keying" || ambiguityState === "safe_with_criteria"
                 ? "info"
-                : ambiguityState === "needs_criteria"
+                : ambiguityState === "partial"
                     ? "review"
                     : "error";
+            const receiptMeaning = entry.eventName === "gumdrops_purchase_completed"
+                ? "Receipts here are purchase receipts, not task reward receipts."
+                : entry.eventName === "unlock_drop_success"
+                    ? "Receipts here are shared unlock receipts and do not prove task-specific reward credit."
+                    : entry.recentReceiptCount > 0
+                        ? "Receipts here are related evidence and may not be task-specific."
+                        : "No related receipt evidence was found in this sample.";
             const groupBase = {
                 eventName: entry.eventName,
+                displayLabel: entry.eventLabel,
                 normalizedAction: entry.eventName,
+                sharedByCount: entry.mappedTaskCount,
+                assignedCount: entry.runtimeAssignedCount,
+                receiptCount: entry.recentReceiptCount,
+                eventStatsCount: entry.eventStatTotalCount,
+                receiptMeaning,
+                sharedTasks,
                 taskIds: entry.taskIds,
                 taskTitles: entry.taskTitles,
                 ambiguityState,
                 requiredDisambiguators: Array.from(requiredDisambiguators),
                 presentDisambiguators: Array.from(presentDisambiguators),
                 missingDisambiguators,
+                missingEvidence: uniqueMissingEvidence,
                 severity,
             };
 
@@ -3036,7 +3138,7 @@ export async function GET(request: NextRequest) {
             const sourceParity = runtimeTaskSourceParityRows.find((row) => row.taskId === entry.taskId);
             const sharedGroup = sharedEventGroups.find((group) => group.taskIds.includes(entry.taskId));
 
-            if (sharedGroup && (sharedGroup.ambiguityState === "needs_criteria" || sharedGroup.ambiguityState === "unsafe_shared_event")) {
+            if (sharedGroup && (sharedGroup.ambiguityState === "partial" || sharedGroup.ambiguityState === "unsafe_shared_event")) {
                 alignmentWarnings.push({
                     taskId: entry.taskId,
                     taskTitle: entry.title,

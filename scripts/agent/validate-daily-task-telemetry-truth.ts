@@ -133,6 +133,14 @@ requireIncludes(adminDebugRoute, "TaskTelemetryMappingRow", "Admin debug telemet
 requireIncludes(adminDebugRoute, "TaskTelemetryEventPurpose", "Admin debug telemetry event purpose model");
 requireIncludes(adminDebugRoute, "taskTelemetryMappingSummary", "Admin debug task telemetry mapping payload");
 requireIncludes(adminDebugRoute, "mappingRows", "Admin debug task telemetry mapping rows payload");
+requireIncludes(adminDebugRoute, "sharedByCount", "Admin debug shared event diagnostic count");
+requireIncludes(adminDebugRoute, "receiptMeaning", "Admin debug shared event receipt meaning");
+requireIncludes(adminDebugRoute, "sharedTasks", "Admin debug shared task diagnostic rows");
+requireIncludes(adminDebugRoute, "requiredCount", "Admin debug shared task count threshold");
+requireIncludes(adminDebugRoute, "requiredEntity", "Admin debug shared task entity requirement");
+requireIncludes(adminDebugRoute, "criteriaState", "Admin debug shared task criteria state");
+requireIncludes(adminDebugRoute, "\"safe_with_keying\"", "Admin debug shared event safe-with-keying state");
+requireIncludes(adminDebugRoute, "\"partial\"", "Admin debug shared event partial state");
 requireIncludes(adminDebugRoute, "\"task_lifecycle\"", "Admin debug lifecycle purpose classification");
 requireIncludes(adminDebugRoute, "\"onboarding_telemetry\"", "Admin debug onboarding purpose classification");
 requireIncludes(adminDebugRoute, "\"supporting_not_task\"", "Admin debug supporting telemetry state");
@@ -158,6 +166,11 @@ requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_guidance_c
 requireIncludes(debugAdvancedTelemetry, "label=\"Task trigger events\"", "Telemetry mapping panel trigger summary");
 requireIncludes(debugAdvancedTelemetry, "label=\"Lifecycle events\"", "Telemetry mapping panel lifecycle summary");
 requireIncludes(debugAdvancedTelemetry, "label=\"Supporting telemetry\"", "Telemetry mapping panel supporting summary");
+requireIncludes(debugAdvancedTelemetry, "label=\"Shared by\"", "Telemetry mapping panel shared-by count");
+requireIncludes(debugAdvancedTelemetry, "label=\"Event stats\"", "Telemetry mapping panel event-stats count");
+requireIncludes(debugAdvancedTelemetry, "criteria state", "Telemetry mapping panel criteria state text");
+requireIncludes(debugAdvancedTelemetry, "Receipts here are purchase receipts, not task reward receipts.", "Telemetry mapping panel purchase receipt meaning");
+requireIncludes(debugAdvancedTelemetry, "Receipts here are shared unlock receipts and do not prove task-specific reward credit.", "Telemetry mapping panel unlock receipt meaning");
 requireIncludes(debugAdvancedTelemetry, "Lifecycle event, not a task trigger", "Telemetry mapping panel lifecycle explanation");
 requireIncludes(debugAdvancedTelemetry, "Supporting telemetry, not a task trigger", "Telemetry mapping panel supporting explanation");
 requireIncludes(debugAdvancedTelemetry, "Missing task mapping: expected by task catalog", "Telemetry mapping panel missing mapping explanation");

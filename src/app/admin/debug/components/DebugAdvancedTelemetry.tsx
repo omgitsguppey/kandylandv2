@@ -70,6 +70,9 @@ function labelForMappingState(mappingState?: string) {
     }
 }
 
+const PURCHASE_RECEIPT_MEANING = "Receipts here are purchase receipts, not task reward receipts.";
+const UNLOCK_RECEIPT_MEANING = "Receipts here are shared unlock receipts and do not prove task-specific reward credit.";
+
 export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
     const mappingSummary = data?.taskTelemetryMappingSummary;
     const mappingRows = mappingSummary?.mappingRows || [];
@@ -185,15 +188,33 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                     <div key={entry.eventName} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.eventName}</p>
-                                                <p className="text-xs text-gray-400">{(entry.taskTitles || []).join(", ")}</p>
+                                                <p className="font-semibold text-white">{entry.displayLabel}</p>
+                                                <p className="text-xs text-gray-400">{entry.eventName}</p>
                                             </div>
                                             <Pill label="Ambiguity" value="Shared event needs criteria" tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={entry.severity === "error" ? "ERROR" : "REVIEW"} />
                                         </div>
                                         <div className="flex flex-wrap gap-2">
+                                            <Pill label="Shared by" value={entry.sharedByCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Assigned" value={entry.assignedCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Receipts" value={entry.receiptCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Event stats" value={compactNumber(entry.eventStatsCount)} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                             <Pill label="Required" value={(entry.requiredDisambiguators || []).join(", ") || "none"} tone="neutral" truthState="live" badgeLabel="INFO" />
                                             <Pill label="Missing" value={(entry.missingDisambiguators || []).join(", ") || "none"} tone="warn" truthState="live" badgeLabel="LOADED" />
                                         </div>
+                                        <div className="space-y-1 text-xs text-gray-400">
+                                            {(entry.sharedTasks || []).map((task: any) => (
+                                                <div key={task.taskId}>
+                                                    {task.title} ({task.taskId}) | count {task.requiredCount} | keying {task.keying} | entity {task.requiredEntity || "none"} | criteria {task.criteria?.length ? task.criteria.join(", ") : "none"} | criteria state {task.criteriaState}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-xs text-gray-400">
+                                            {entry.receiptMeaning === PURCHASE_RECEIPT_MEANING
+                                                ? PURCHASE_RECEIPT_MEANING
+                                                : entry.receiptMeaning === UNLOCK_RECEIPT_MEANING
+                                                    ? UNLOCK_RECEIPT_MEANING
+                                                    : entry.receiptMeaning}
+                                        </p>
                                         <p className="text-sm text-amber-100">{entry.explanation}</p>
                                     </div>
                                 )) : (
@@ -208,11 +229,31 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                     <div key={entry.eventName} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.eventName}</p>
-                                                <p className="text-xs text-gray-400">{(entry.taskTitles || []).join(", ")}</p>
+                                                <p className="font-semibold text-white">{entry.displayLabel}</p>
+                                                <p className="text-xs text-gray-400">{entry.eventName}</p>
                                             </div>
                                             <Pill label="Ambiguity" value="Ready" tone="good" truthState="live" badgeLabel="LIVE" />
                                         </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Shared by" value={entry.sharedByCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Assigned" value={entry.assignedCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Receipts" value={entry.receiptCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Event stats" value={compactNumber(entry.eventStatsCount)} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                        </div>
+                                        <div className="space-y-1 text-xs text-gray-400">
+                                            {(entry.sharedTasks || []).map((task: any) => (
+                                                <div key={task.taskId}>
+                                                    {task.title} ({task.taskId}) | count {task.requiredCount} | keying {task.keying} | entity {task.requiredEntity || "none"} | criteria {task.criteria?.length ? task.criteria.join(", ") : "none"} | criteria state {task.criteriaState}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-xs text-gray-400">
+                                            {entry.receiptMeaning === PURCHASE_RECEIPT_MEANING
+                                                ? PURCHASE_RECEIPT_MEANING
+                                                : entry.receiptMeaning === UNLOCK_RECEIPT_MEANING
+                                                    ? UNLOCK_RECEIPT_MEANING
+                                                    : entry.receiptMeaning}
+                                        </p>
                                         <p className="text-sm text-emerald-100">{entry.explanation}</p>
                                     </div>
                                 )) : (
