@@ -46,6 +46,143 @@ function toneForIdentityState(state?: string) {
     if (state === "fallback_uid") return "warn" as const;
     return "neutral" as const;
 }
+type RecentEventFlowRow = {
+    eventId: string;
+    eventName: string;
+    displayName: string;
+    actorLabel: string;
+    actorType: "user" | "admin" | "creator" | "system" | "unknown";
+    actorId?: string;
+    surface: string;
+    source: "identified_telemetry" | "creator_relationships" | "server" | "system" | "unknown";
+    eventContext: "foreground_user" | "admin" | "background_server" | "materialized_relationship" | "system_process";
+    createdAtUtc: string;
+    ageLabel: string;
+    freshnessState: "live" | "recent" | "stale" | "unknown";
+    findingsCount: number;
+    evalEligible: boolean;
+    evalEligibilityReason: string;
+    missingInputs: string[];
+    requiredMissingInputs: string[];
+    state: "healthy" | "review" | "critical" | "info";
+    duplicateCount: number;
+    duplicateEventIds: string[];
+};
+const EVENT_FLOW_GROUP_WINDOW_MS = 15 * 60 * 1000;
+function normalizeEventFlowActorType(value?: string): RecentEventFlowRow["actorType"] {
+    if (value === "user" || value === "admin" || value === "creator" || value === "system") return value;
+    return "unknown";
+}
+function getEventFlowSource(event: any): RecentEventFlowRow["source"] {
+    if (event.sourceCollection === "creator_relationships") return "creator_relationships";
+    if (event.normalizedEventName === "identity_linked") return "server";
+    if (event.actor?.actorType === "system") return "system";
+    if (event.sourceCollection === "analytics_event_facts") return "identified_telemetry";
+    return "unknown";
+}
+function getEventFlowContext(event: any, source: RecentEventFlowRow["source"]): RecentEventFlowRow["eventContext"] {
+    if (source === "creator_relationships") return "materialized_relationship";
+    if (event.actor?.actorType === "system") return "system_process";
+    if (event.actor?.actorType === "admin") return "admin";
+    if (source === "server") return "background_server";
+    return "foreground_user";
+}
+function getEventFreshnessState(timestamp: number): RecentEventFlowRow["freshnessState"] {
+    if (!timestamp) return "unknown";
+    const ageMs = Math.max(0, Date.now() - timestamp);
+    if (ageMs <= 5 * 60 * 1000) return "live";
+    if (ageMs <= 60 * 60 * 1000) return "recent";
+    return "stale";
+}
+function filterRequiredMissingInputs(event: any, context: RecentEventFlowRow["eventContext"]) {
+    const missing = Array.isArray(event.dependencyReadiness?.missing) ? event.dependencyReadiness.missing.filter((entry: unknown): entry is string => typeof entry === "string") : [];
+    if (context === "background_server" || context === "system_process" || context === "materialized_relationship") {
+        return missing.filter((entry: string) => entry !== "route" && entry !== "session");
+    }
+    return missing;
+}
+function buildEvalEligibilityReason(event: any, context: RecentEventFlowRow["eventContext"], requiredMissingInputs: string[]) {
+    if (event.normalizedEventName === "identity_linked") return "Identity linkage event; not ranked as behavioral action.";
+    if (context === "materialized_relationship") return "Relationship materializer event; route not required.";
+    if (context === "background_server") return "Server-side event; route/session not required.";
+    if (context === "system_process" && event.normalizedEventName === "server_drop_clicked") return "Server-side drop click lacks user/session attribution and cannot be used for user behavior scoring.";
+    if (context === "system_process") return "System process event; excluded from user scoring until ownership is resolved.";
+    if (requiredMissingInputs.length > 0) return `Missing required ${requiredMissingInputs.join(", ")}.`;
+    if (event.readiness?.trainingEligible) return "Foreground event has required ownership context.";
+    const blockedReasons = Array.isArray(event.readiness?.trainingBlockedReasons) ? event.readiness.trainingBlockedReasons.filter((entry: unknown): entry is string => typeof entry === "string") : [];
+    return blockedReasons[0] || "Not eligible for evaluation in this context.";
+}
+function buildRecentEventFlowRows(events: any[]): RecentEventFlowRow[] {
+    const rows = events.map((event): RecentEventFlowRow => {
+        const timestamp = Number(event.occurredAtMs || event.observedAtMs || 0);
+        const source = getEventFlowSource(event);
+        const eventContext = getEventFlowContext(event, source);
+        const requiredMissingInputs = filterRequiredMissingInputs(event, eventContext);
+        const systemDropClick = event.normalizedEventName === "server_drop_clicked" && event.actor?.actorType === "system";
+        const identityLink = event.normalizedEventName === "identity_linked";
+        const state: RecentEventFlowRow["state"] = systemDropClick
+            ? "review"
+            : event.status === "critical" && eventContext === "foreground_user"
+                ? "critical"
+                : requiredMissingInputs.length > 0 || event.findingCount > 0
+                    ? "review"
+                    : identityLink || eventContext === "background_server" || eventContext === "materialized_relationship" || eventContext === "system_process"
+                        ? "info"
+                        : "healthy";
+        return {
+            eventId: event.id,
+            eventName: event.normalizedEventName || event.systemKey || "unknown_event",
+            displayName: event.normalizedLabel || event.normalizedEventName || "Unknown event",
+            actorLabel: event.actor?.actorLabel || event.actor?.actorType || "Unknown actor",
+            actorType: normalizeEventFlowActorType(event.actor?.actorType),
+            actorId: event.actor?.actorId || undefined,
+            surface: event.session?.sourceSurface || "background",
+            source,
+            eventContext,
+            createdAtUtc: timestamp > 0 ? new Date(timestamp).toISOString() : "unknown",
+            ageLabel: timestamp > 0 ? formatRelative(timestamp) : "unknown age",
+            freshnessState: getEventFreshnessState(timestamp),
+            findingsCount: Number(event.findingCount || 0),
+            evalEligible: event.readiness?.trainingEligible === true && !identityLink && !systemDropClick,
+            evalEligibilityReason: buildEvalEligibilityReason(event, eventContext, requiredMissingInputs),
+            missingInputs: Array.isArray(event.dependencyReadiness?.missing) ? event.dependencyReadiness.missing : [],
+            requiredMissingInputs,
+            state,
+            duplicateCount: 1,
+            duplicateEventIds: [event.id],
+        };
+    });
+    const grouped = new Map<string, RecentEventFlowRow>();
+    rows.forEach((row) => {
+        const bucket = row.createdAtUtc === "unknown" ? "unknown" : Math.floor(Date.parse(row.createdAtUtc) / EVENT_FLOW_GROUP_WINDOW_MS);
+        const findingKey = row.findingsCount > 0 ? `${row.state}:${row.requiredMissingInputs.join(",")}` : "no-findings";
+        const key = [row.eventName, row.actorId || row.actorLabel, row.surface, row.source, row.eventContext, bucket, findingKey].join("|");
+        const existing = grouped.get(key);
+        if (!existing) {
+            grouped.set(key, row);
+            return;
+        }
+        existing.duplicateCount += 1;
+        existing.duplicateEventIds.push(row.eventId);
+        if (row.createdAtUtc !== "unknown" && (existing.createdAtUtc === "unknown" || row.createdAtUtc > existing.createdAtUtc)) {
+            existing.createdAtUtc = row.createdAtUtc;
+            existing.ageLabel = row.ageLabel;
+            existing.freshnessState = row.freshnessState;
+        }
+    });
+    return Array.from(grouped.values()).sort((left, right) => Date.parse(right.createdAtUtc) - Date.parse(left.createdAtUtc));
+}
+function buildLowConfidenceCauseBreakdown(rows: RecentEventFlowRow[]) {
+    const causes = new Map<string, number>();
+    rows.forEach((row) => {
+        if (row.requiredMissingInputs.includes("actor") || row.actorType === "unknown") causes.set("missing actor/session", (causes.get("missing actor/session") || 0) + row.duplicateCount);
+        if (row.eventContext === "background_server" || row.eventContext === "system_process") causes.set("background source not score-eligible", (causes.get("background source not score-eligible") || 0) + row.duplicateCount);
+        if (row.requiredMissingInputs.includes("route")) causes.set("missing route for foreground telemetry", (causes.get("missing route for foreground telemetry") || 0) + row.duplicateCount);
+        if (row.surface === "background" || row.surface === "unknown") causes.set("unknown source surface", (causes.get("unknown source surface") || 0) + row.duplicateCount);
+        if (row.source === "unknown") causes.set("orphaned event mapping", (causes.get("orphaned event mapping") || 0) + row.duplicateCount);
+    });
+    return Array.from(causes.entries()).sort((left, right) => right[1] - left[1]).slice(0, 3);
+}
 
 /* ─── Props ─── */
 export interface DebugTabMonitoringProps extends DebugMonitoringRoutesProps {
@@ -90,6 +227,9 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
     const vapidConfigState = data?.opsHealth?.runtime?.vapidConfigured ? "configPresent" : "configMissing";
     const databaseConfigState = data?.opsHealth?.runtime?.databaseUrlConfigured ? "configPresent" : "configMissing";
     const navigationSigningConfigState = data?.opsHealth?.runtime?.navigationSessionSigningReady ? "configPresent" : "configMissing";
+    const recentEventFlowRows = buildRecentEventFlowRows(data?.orchestration?.events || []);
+    const lowConfidenceCauses = buildLowConfidenceCauseBreakdown(recentEventFlowRows);
+    const latestEventRow = recentEventFlowRows[0];
 
     return (
         <div className="space-y-4">
@@ -330,18 +470,43 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 </div>
             </Section>
 
-            <Section title="Recent event flow" subtitle="Derived recent events normalized from telemetry and backend signals." defaultOpen={!isCompactViewport} summary={<><Pill label="Events" value={data?.stats?.orchestrationEvents ?? 0} /><Pill label="Low confidence" value={data?.stats?.orchestrationLowConfidence ?? 0} tone={(data?.stats?.orchestrationLowConfidence ?? 0) ? "warn" : "good"} /></>}>
+            <Section title="Recent event flow" subtitle="Derived recent events normalized from telemetry and backend signals." defaultOpen={!isCompactViewport} summary={<><Pill label="Events" value={data?.stats?.orchestrationEvents ?? 0} truthState="live" badgeLabel="LOADED" /><Pill label="Low confidence" value={data?.stats?.orchestrationLowConfidence ?? 0} tone={(data?.stats?.orchestrationLowConfidence ?? 0) ? "warn" : "good"} badgeLabel={(data?.stats?.orchestrationLowConfidence ?? 0) ? "REVIEW" : "INFO"} /><Pill label="Unique rows" value={recentEventFlowRows.length} truthState="live" badgeLabel="GROUPED" /><Pill label="Last event age" value={latestEventRow?.ageLabel || "unknown"} truthState={latestEventRow ? "live" : "unavailable"} badgeLabel={latestEventRow?.freshnessState?.toUpperCase() || "UNKNOWN"} /></>}>
                 <ScrollWrap>
-                    <div className="divide-y divide-white/10">
-                        {(data?.orchestration?.events || []).map((event: any) => (
-                            <div key={event.id} className="space-y-2 px-4 py-3">
-                                <div className="flex flex-wrap items-start justify-between gap-2">
-                                    <div><p className="font-semibold text-white">{event.normalizedLabel}</p><p className="text-xs text-gray-400">{event.domain} | {event.systemKey}</p></div>
-                                    <Pill label="Status" value={event.status} tone={event.status === "critical" ? "bad" : event.status === "attention" ? "warn" : "good"} />
+                    <div className="divide-y divide-white/10" data-event-flow-loaded-count={data?.stats?.orchestrationEvents ?? 0} data-event-flow-low-confidence-count={data?.stats?.orchestrationLowConfidence ?? 0} data-event-flow-grouped-count={recentEventFlowRows.length}>
+                        {lowConfidenceCauses.length > 0 ? (
+                            <div className="space-y-2 px-4 py-3">
+                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Top low-confidence causes</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {lowConfidenceCauses.map(([cause, count]) => <Pill key={cause} label={cause} value={count} tone="warn" badgeLabel="CAUSE" />)}
                                 </div>
-                                <p className="text-sm text-gray-200">{event.humanSummary}</p>
-                                <div className="flex flex-wrap gap-2"><Pill label="Actor" value={event.actor.actorLabel || event.actor.actorType} /><Pill label="Surface" value={event.session.sourceSurface || "background"} /><Pill label="Findings" value={event.findingCount} tone={event.findingCount ? "warn" : "good"} /><Pill label="Eval eligible" value={event.readiness.trainingEligible ? "yes" : "no"} tone={event.readiness.trainingEligible ? "good" : "warn"} /></div>
-                                {event.dependencyReadiness.missing?.length ? (<p className="text-xs text-gray-400">Missing inputs: {event.dependencyReadiness.missing.join(", ")}</p>) : null}
+                            </div>
+                        ) : null}
+                        {recentEventFlowRows.map((event) => (
+                            <div
+                                key={event.eventId}
+                                className="space-y-2 px-4 py-3"
+                                data-event-flow-context={event.eventContext}
+                                data-event-flow-freshness={event.freshnessState}
+                                data-event-flow-eval-eligible={event.evalEligible ? "true" : "false"}
+                                data-event-flow-eval-reason={event.evalEligibilityReason}
+                                data-event-flow-duplicate-count={event.duplicateCount}
+                                data-event-flow-missing-inputs-required={event.requiredMissingInputs.join(",")}
+                            >
+                                <div className="flex flex-wrap items-start justify-between gap-2">
+                                    <div><p className="font-semibold text-white">{event.displayName}{event.duplicateCount > 1 ? ` x${event.duplicateCount}` : ""}</p><p className="text-xs text-gray-400">{event.eventName} | {event.source} | {event.createdAtUtc} | {event.ageLabel}</p></div>
+                                    <Pill label="Status" value={event.state} tone={event.state === "critical" ? "bad" : event.state === "review" ? "warn" : event.state === "healthy" ? "good" : "neutral"} truthState={event.state === "critical" ? "failed" : event.state === "review" ? "degraded" : "live"} />
+                                </div>
+                                <p className="text-sm text-gray-200">{event.eventContext === "system_process" && event.eventName === "server_drop_clicked" ? "Server drop click event lacks user/session attribution. Excluded from user scoring until ownership is resolved." : event.evalEligibilityReason}</p>
+                                <div className="flex flex-wrap gap-2"><Pill label="Actor" value={event.actorLabel} truthState="live" badgeLabel="LOADED" /><Pill label="Surface" value={event.surface} truthState="live" badgeLabel="LOADED" /><Pill label="Context" value={event.eventContext} truthState="live" badgeLabel="INFO" /><Pill label="Freshness" value={event.freshnessState} truthState={event.freshnessState === "stale" ? "stale" : event.freshnessState === "unknown" ? "unavailable" : "live"} /><Pill label="Findings" value={event.findingsCount} tone={event.findingsCount ? "warn" : "good"} truthState={event.findingsCount ? "degraded" : "live"} /><Pill label="Eval eligible" value={event.evalEligible ? "yes" : "no"} tone={event.evalEligible ? "good" : "neutral"} truthState="live" badgeLabel={event.evalEligible ? "YES" : "INFO"} /></div>
+                                {event.requiredMissingInputs.length ? (<p className="text-xs text-gray-400">Missing required inputs: {event.requiredMissingInputs.join(", ")}</p>) : null}
+                                {event.missingInputs.length > 0 && event.requiredMissingInputs.length === 0 ? (<p className="text-xs text-gray-500">Context-only missing inputs ignored for this event type: {event.missingInputs.join(", ")}</p>) : null}
+                                <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
+                                    <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Event details</summary>
+                                    <p className="mt-2">createdAtUtc: {event.createdAtUtc}</p>
+                                    <p>ageLabel: {event.ageLabel}</p>
+                                    <p>evalEligibilityReason: {event.evalEligibilityReason}</p>
+                                    <p>duplicateEventIds: {event.duplicateEventIds.join(", ")}</p>
+                                </details>
                             </div>
                         ))}
                     </div>

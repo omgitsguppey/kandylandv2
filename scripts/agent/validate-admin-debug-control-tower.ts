@@ -74,6 +74,8 @@ const adminTruthDoc = readRequired("docs/agent-truth/human-readable-admin-truth.
 const evidenceDoc = readRequired("docs/agent-truth/debug-evidence-pipeline.md");
 const notificationPipelineDoc = readRequired("docs/agent-truth/notification-pipeline.md");
 const environmentContractDoc = readRequired("docs/agent-truth/environment-contract.md");
+const telemetryIdentifiedParityDoc = readRequired("docs/agent-truth/telemetry-identified-parity.md");
+const eventFactTruthDoc = readRequired("docs/agent-truth/event-fact-truth.md");
 const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
 const repoMemory = readRequired("REPO_MEMORY_LEDGER.md");
@@ -593,6 +595,52 @@ requireIncludes(releaseNotesScript, "Improved internal route runtime labels so u
 requireIncludes(releaseNotesScript, "Improved internal transaction review so admins can identify users more easily.", "Release notes script must include recent transaction identity copy");
 requireIncludes(releaseNotesScript, "Improved internal queue health views so drop activation outcomes show readable drop names.", "Release notes script must include queue runtime drop label copy");
 requireIncludes(releaseNotesScript, "Clarified internal admin readiness checks so config presence is not confused with live service health.", "Release notes script must include admin session config readiness copy");
+requireIncludes(releaseNotesScript, "Improved internal event-flow diagnostics so background events and user actions are easier to tell apart.", "Release notes script must include recent event flow context copy");
+
+for (const expected of [
+  "RecentEventFlowRow",
+  "EVENT_FLOW_GROUP_WINDOW_MS",
+  "buildRecentEventFlowRows",
+  "buildLowConfidenceCauseBreakdown",
+  "eventContext",
+  "createdAtUtc",
+  "ageLabel",
+  "freshnessState",
+  "evalEligibilityReason",
+  "duplicateCount",
+  "Identity linkage event; not ranked as behavioral action.",
+  "Server-side event; route/session not required.",
+  "Relationship materializer event; route not required.",
+  "Server-side drop click lacks user/session attribution and cannot be used for user behavior scoring.",
+  "data-event-flow-loaded-count",
+  "data-event-flow-low-confidence-count",
+  "data-event-flow-grouped-count",
+  "data-event-flow-context",
+  "data-event-flow-freshness",
+  "data-event-flow-eval-eligible",
+  "data-event-flow-eval-reason",
+  "data-event-flow-duplicate-count",
+  "data-event-flow-missing-inputs-required",
+  "Top low-confidence causes",
+  "Unique rows",
+  "Last event age",
+  "createdAtUtc:",
+  "ageLabel:",
+  "evalEligibilityReason:",
+  "Context-only missing inputs ignored for this event type",
+  "badgeLabel=\"LOADED\"",
+]) {
+  requireIncludes(debugTabMonitoring, expected, "Recent event flow panel must classify context, freshness, grouping, eval reasons, and loaded values");
+}
+for (const forbidden of [
+  "<Pill label=\"Events\" value={data?.stats?.orchestrationEvents ?? 0} />",
+  "<Pill label=\"Actor\" value={event.actor.actorLabel || event.actor.actorType} />",
+  "<Pill label=\"Surface\" value={event.session.sourceSurface || \"background\"} />",
+  "<Pill label=\"Eval eligible\" value={event.readiness.trainingEligible ? \"yes\" : \"no\"}",
+  "Missing inputs: {event.dependencyReadiness.missing.join(\", \")}",
+]) {
+  requireNotIncludes(debugTabMonitoring, forbidden, "Recent event flow panel must not render raw WAIT-style event rows or context-free missing input warnings");
+}
 
 for (const expected of [
   "Admin session + config readiness",
@@ -745,7 +793,7 @@ for (const expected of [
   requireIncludes(componentTest, expected, "Admin debug Control Tower component tests");
 }
 
-const doctrineBundle = [controlTowerDoc, adminTruthDoc, evidenceDoc, notificationPipelineDoc, environmentContractDoc, readme, agents, repoMemory].join("\n");
+const doctrineBundle = [controlTowerDoc, adminTruthDoc, evidenceDoc, notificationPipelineDoc, environmentContractDoc, telemetryIdentifiedParityDoc, eventFactTruthDoc, readme, agents, repoMemory].join("\n");
 for (const expected of [
   "Admin Debug v2 is the mobile-first Control Tower",
   "Missing or stale data must never be shown as healthy",
@@ -920,7 +968,9 @@ try {
     /^docs\/agent-truth\/human-readable-admin-truth\.md$/u,
     /^docs\/agent-truth\/debug-evidence-pipeline\.md$/u,
     /^docs\/agent-truth\/environment-contract\.md$/u,
+    /^docs\/agent-truth\/event-fact-truth\.md$/u,
     /^docs\/agent-truth\/notification-pipeline\.md$/u,
+    /^docs\/agent-truth\/telemetry-identified-parity\.md$/u,
     /^docs\/agent-truth\/support-recovery-flows\.md$/u,
     /^docs\/agent-truth\/admin-analytics-daily-task-pipeline\.md$/u,
     /^README\.md$/u,
