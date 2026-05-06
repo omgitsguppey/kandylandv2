@@ -1,12 +1,55 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.113.2",
+  "currentVersion": "1.113.3",
   "channel": "beta",
-  "generatedAt": "2026-05-06T19:47:11.550Z",
-  "generatedAtUtc": "2026-05-06T19:47:11.550Z",
-  "lastCommitSha": "b522306e5d1e92e473ee9fed14dbd852429a96a8",
+  "generatedAt": "2026-05-06T19:57:23.156Z",
+  "generatedAtUtc": "2026-05-06T19:57:23.156Z",
+  "lastCommitSha": "6b46f9325f543c95b14a83f2661814c91847a0a1",
   "notes": [
+    {
+      "version": "1.113.3",
+      "previousVersion": "1.113.2",
+      "commitSha": "6b46f9325f543c95b14a83f2661814c91847a0a1",
+      "commitTitle": "fix(admin): close beta and task truth gaps",
+      "committedAt": "2026-05-06T19:57:06.000Z",
+      "generatedAt": "2026-05-06T19:57:23.155Z",
+      "committedAtUtc": "2026-05-06T19:57:06.000Z",
+      "generatedAtUtc": "2026-05-06T19:57:23.155Z",
+      "diffStats": {
+        "rawAdditions": 46,
+        "rawDeletions": 33,
+        "rawChangeCount": 79,
+        "additions": 46,
+        "deletions": 33,
+        "effectiveAdditions": 28,
+        "effectiveDeletions": 15,
+        "changedFiles": 7,
+        "effectiveChangeCount": 43,
+        "excludedGeneratedChangeCount": 36
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "title": "Improved Beta update notes",
+      "updatedAtUtc": "2026-05-06T19:57:23.155Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved Beta update notes",
+      "bullets": [
+        "Fixed repeated Beta note wording in the visible changelog.",
+        "Clarified task pipeline labels for reward and guidance review.",
+        "Updated unavailable analytics badges so they no longer appear as loading."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Admin metrics keep source, range, and freshness details separate from public summaries.",
+        "Release note summaries are generated separately from collapsed technical details."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.113.2",
       "previousVersion": "1.113.1",
@@ -173,47 +216,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "documentation",
         "repo-tooling",
         "telemetry"
-      ]
-    },
-    {
-      "version": "1.111.0",
-      "previousVersion": "1.110.0",
-      "commitSha": "2df00e332c340fc3b5b7cdb5c0b4dad0463341c3",
-      "commitTitle": "fix(admin): clarify library viewer drilldown truth",
-      "committedAt": "2026-05-06T16:37:58.000Z",
-      "generatedAt": "2026-05-06T17:11:11.313Z",
-      "committedAtUtc": "2026-05-06T16:37:58.000Z",
-      "generatedAtUtc": "2026-05-06T17:11:11.313Z",
-      "diffStats": {
-        "rawAdditions": 297,
-        "rawDeletions": 43,
-        "rawChangeCount": 340,
-        "additions": 297,
-        "deletions": 43,
-        "effectiveAdditions": 297,
-        "effectiveDeletions": 43,
-        "changedFiles": 9,
-        "effectiveChangeCount": 340,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "title": "Improved admin status accuracy",
-      "updatedAtUtc": "2026-05-06T17:11:11.313Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
-      "userFacingTitle": "Improved admin status accuracy",
-      "bullets": [
-        "Clarified verified and estimated viewer watch time.",
-        "Improved stale and quiet viewer activity labels.",
-        "Updated viewer rows to use readable names where available."
-      ],
-      "audience": "admins",
-      "technicalDetails": [
-        "Admin metrics keep source, range, and freshness details separate from public summaries."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
       ]
     }
   ]

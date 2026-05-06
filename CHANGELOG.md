@@ -2,6 +2,17 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.113.3] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 19:57 UTC
+- Improved Beta update notes
+- Bug fixes and quality-of-life improvements for admin review tools.
+- Fixed repeated Beta note wording in the visible changelog.
+- Clarified task pipeline labels for reward and guidance review.
+- Updated unavailable analytics badges so they no longer appear as loading.
+
 ## [1.113.2] - 2026-05-06
 
 ### Fixed
@@ -535,17 +546,6 @@ User-facing KandyDrops Beta updates, newest first.
 ### Fixed
 
 - Updated 2026-05-06 07:54 UTC
-- Improved admin health labels
-- Bug fixes and quality-of-life improvements for admin review tools.
-- Fixed an issue where unavailable health checks could appear successful.
-- Improved labels for loaded, delayed, missing, and older samples.
-- Reduced confusing status messages in admin tools.
-
-## [1.67.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 07:47 UTC
 - Improved admin health labels
 - Bug fixes and quality-of-life improvements for admin review tools.
 - Fixed an issue where unavailable health checks could appear successful.

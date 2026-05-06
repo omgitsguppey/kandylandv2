@@ -307,6 +307,7 @@ function ensureReleaseVerb(value: string) {
 
 function buildAppStoreTitle(title: string, category: PublicReleaseNoteCategory, surfaces: string[]) {
   const normalized = title.toLowerCase();
+  if (normalized.includes("task truth gaps") || normalized.includes("close beta and task truth")) return "Fixed Beta and task labels";
   if (normalized.includes("changelog modal") || normalized.includes("above page chrome")) return "Fixed Beta notes overlay";
   if (normalized.includes("badge opens latest notes") || normalized.includes("latest notes")) return "Fixed Beta badge updates";
   if (shippedBetaBadgeFeature(title) || surfaces.includes("release-notes")) return "Improved Beta update notes";
@@ -412,7 +413,13 @@ function buildAppStoreBullets(
   const normalized = title.toLowerCase();
   let bullets: string[];
   if (surfaces.includes("release-notes") || normalized.includes("release notes") || normalized.includes("beta")) {
-    if (normalized.includes("changelog modal") || normalized.includes("above page chrome")) {
+    if (normalized.includes("task truth gaps") || normalized.includes("close beta and task truth")) {
+      bullets = [
+        "Fixed repeated Beta note wording in the visible changelog.",
+        "Clarified task pipeline labels for reward and guidance review.",
+        "Updated unavailable analytics badges so they no longer appear as loading.",
+      ];
+    } else if (normalized.includes("changelog modal") || normalized.includes("above page chrome")) {
       bullets = [
         "Fixed the Beta notes panel so it stays above page controls.",
         "Improved page locking while the changelog is open.",
