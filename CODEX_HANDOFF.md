@@ -1,54 +1,70 @@
 # Codex Handoff
 
 ## Task
-Stabilize native chat mobile shell width and height.
+Fix the Beta changelog modal z-index so it renders above the rest of the app.
+
+## Scope
+Allowed files touched:
+- src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx
+- CODEX_HANDOFF.md
+
+Files intentionally not touched:
+- release note content generation
+- validators
+- navbar layout/copy
+- admin/debug/analytics/economy surfaces
 
 ## Result
-Status: completed
+Status:
+- completed
+
+Summary:
+- Moved the Beta changelog modal into a `document.body` portal so it no longer inherits the navbar stacking context.
+- Raised the modal overlay layer from `z-[200]` to `z-[300]` for clearer overlay priority.
+- Kept the existing body/document scroll lock behavior unchanged.
+
+## Commit
+Branch:
+- main
+
+Commit SHA:
+- Not committed yet
+
+Commit message:
+- Not committed because: commit/push will be done after this handoff update.
 
 ## Files Changed
-- src/components/Chat/ChatExperience.tsx: aligned mobile shell gutters with app chrome, reused existing chat viewport-shell height token, and made list/loading/empty/detail states render inside one stable frame
-- CODEX_HANDOFF.md: updated handoff for this task
-- agent/handoffs/chat-shell-width-height-stability.md: mirrored handoff for review
+- src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx: render the drawer with `createPortal`, add client-ready guard, and raise overlay z-index
+- CODEX_HANDOFF.md: recorded this task handoff
 
 ## Behavior Changed
 Before:
-- mobile chat shell used `px-0` on the outer frame, so the panel read wider than the header/bottom nav lane
-- list state could visually collapse toward content height before a thread opened
-- list/detail states did not clearly share one stable route frame
+- The Beta changelog drawer rendered inside the navbar subtree.
+- Even with a high local z-index, it could still sit below other app layers because of the navbar stacking context.
 
 After:
-- mobile chat shell uses side gutters again (`px-3` mobile, existing `sm:px-4` preserved), so the panel sits in the same app-card lane as the top/bottom chrome
-- outer chat frame now reuses the existing `USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT` token for compact viewports
-- list scroll area is a full-height flex column, and loading/empty/search-empty states fill that stable frame instead of shrink-wrapping content
-- detail state remains inside the same width/height shell instead of swapping to a visually different frame
+- The Beta changelog drawer renders at `document.body` via portal.
+- The overlay now sits in a top-level stacking context with `z-[300]`, so it should appear above the rest of the app UI.
 
 ## Validation
 Commands run:
 - npm run typecheck: pass
 
-Commands not run:
-- full npm run check: forbidden for this task
-- Playwright: forbidden for this task
-- Cypress: forbidden for this task
-- Lighthouse: forbidden for this task
+Important output:
+- `tsc --noEmit --pretty`: pass
 
-## Browser Verification Needed
-Check /dashboard/chat on:
-- list view before opening a thread
-- list -> thread detail
-- back from thread detail -> list
-- loading state
-- empty/search-empty state
-- narrow iPhone Safari/PWA width
-- compare chat shell width against top header and bottom tab nav
+Commands not run:
+- browser automation: not run for this narrow fix
+- full npm run check: unnecessary for this overlay-layer patch
 
 ## Risk Notes
-- existing mobile shell token reused: `USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT`; no new shell constant was added
-- compact viewport height is now explicitly pinned on the outer chat shell; this needs a real mobile browser check to confirm it does not feel over-constrained during Safari toolbar changes
-- loading state now renders as a full-frame placeholder in compact list mode; visual density should be checked against the rest of the app shell
+- The portal adds a client-ready guard, so the drawer will only mount after client hydration.
+- If another global overlay is using a higher body-level z-index than `300`, the conflict would still be external to the navbar stacking issue.
 
 ## Needs Uylus / ChatGPT Review
-- Recheck whether `px-3` is the right mobile gutter relative to the KandyDrops header and bottom nav, or if it should match another shared lane exactly.
-- Verify that list mode no longer appears collapsed before a thread opens on narrow iPhone Safari/PWA.
+- Tap the Beta badge and confirm the changelog now appears above the navbar, bottom nav, and any floating UI.
+- Recheck iPhone Safari/PWA specifically since that was the reported overlay failure mode.
+
+## Follow-up Suggestions
+- If any other app overlays still appear above the changelog, inventory the shared overlay z-index ladder and normalize it in one place.
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import { usePublicReleaseNotes } from "@/hooks/usePublicReleaseNotes";
@@ -36,6 +37,11 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
   const { releaseNotes, source, freshness, isLoading } = usePublicReleaseNotes(isOpen);
   const visibleNotes = getPublicReleaseNotesVisibleNotes(releaseNotes.notes);
   const openedTrackedRef = useRef(false);
+  const [portalReady, setPortalReady] = useState(false);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   useEffect(() => {
     if (!isOpen || isLoading || openedTrackedRef.current) return;
@@ -85,11 +91,11 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !portalReady || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[200] isolate overflow-hidden overscroll-none bg-black/55 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-[calc(4.5rem+env(safe-area-inset-top))] backdrop-blur-sm"
+      className="fixed inset-0 z-[300] isolate overflow-hidden overscroll-none bg-black/55 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-[calc(4.5rem+env(safe-area-inset-top))] backdrop-blur-sm"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
@@ -171,6 +177,7 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
           {source === "bundled-fallback" ? " [fallback]" : ""}
         </footer>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
