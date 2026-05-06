@@ -58,7 +58,6 @@ export function buildTelemetryIdentifiedParityReport(): TelemetryIdentifiedParit
   const contract = read("src/lib/analytics/analytics-event-contract.ts");
   const ingest = read("src/app/api/analytics/ingest-identified/route.ts");
   const telemetry = read("src/lib/telemetry.ts");
-  const authModal = read("src/components/Auth/AuthModal.tsx");
   const authContext = read("src/context/AuthContext.tsx");
   const normalizer = read("src/lib/behavioral/event-fact-normalizer.ts");
   const parity = read("src/lib/behavioral/identified-metric-parity.ts");
@@ -103,8 +102,9 @@ export function buildTelemetryIdentifiedParityReport(): TelemetryIdentifiedParit
 
   const identityChecks = [
     has(telemetry, "export function trackIdentityLinked"),
-    has(authModal, "trackIdentityLinked"),
-    has(authContext, 'method: "session_restore"'),
+    has(authContext, 'emitIdentityLinkContinuity(credential.user.uid, "login")'),
+    has(authContext, 'emitIdentityLinkContinuity(credential.user.uid, "signup")'),
+    has(authContext, 'emitIdentityLinkContinuity(currentUser.uid, "session_restore")'),
   ];
   if (identityChecks.includes(false)) {
     findings.push(makeFinding({

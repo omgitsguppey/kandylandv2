@@ -37,6 +37,7 @@ const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identif
 const adminHistoricalRoute = readRequired("src/app/api/admin/analytics/historical/route.ts");
 const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const topDropConversionHelper = readRequired("src/lib/admin-analytics-top-drop-conversion.ts");
+const deterministicTruth = readRequired("src/lib/deterministic-admin-truth.ts");
 const adminUserRoute = readRequired("src/app/api/admin/user/[userId]/route.ts");
 const adminUsersRoute = readRequired("src/app/api/admin/users/route.ts");
 
@@ -79,8 +80,10 @@ requireIncludes(adminAnalyticsCommerceTab, "drop.unwrapRateDisplay", "Admin anal
 requireExcludes(adminAnalyticsCommerceTab, "Unlocked drops with enough demand to matter.", "Admin analytics Top Drop Conversion panel");
 requireExcludes(adminAnalyticsCommerceTab, "name=\"Unlocks\"", "Admin analytics Top Drop Conversion chart");
 requireIncludes(topDropConversionHelper, "formatTopDropUnwrapRate", "Top Drop Conversion helper");
-requireIncludes(topDropConversionHelper, "\"<0.1%\"", "Top Drop Conversion helper");
+requireIncludes(topDropConversionHelper, "safeRate", "Top Drop Conversion rate guard");
 requireIncludes(topDropConversionHelper, "dropIdentityState", "Top Drop Conversion helper");
+requireIncludes(deterministicTruth, "\"<0.1%\"", "Deterministic rate precision guard");
+requireIncludes(deterministicTruth, "numerator > 0", "Deterministic rate precision guard");
 requireIncludes(adminUserRoute, 'const directUnwrapCount = analyticsFacts.filter((event) => event.eventName === "drop_unwrapped").length;', "Admin user route server unlock fact count");
 requireIncludes(adminUsersRoute, 'current.unwrapCount += eventName === "drop_unwrapped" ? 1 : 0;', "Admin users route server unlock aggregation");
 

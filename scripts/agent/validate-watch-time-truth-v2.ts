@@ -41,6 +41,7 @@ const behavioralRuntime = read("functions/src/behavioral-intelligence-runtime.ts
 const analyticsMetrics = read("src/lib/server/analytics-metrics.ts");
 const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
 const adminAnalyticsCommerceTab = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const deterministicTruth = read("src/lib/deterministic-admin-truth.ts");
 const docs = read("docs/agent-truth/watch-time-truth.md");
 
 requireIncludes(watchTruth, "IMAGE_WATCH_THRESHOLDS_MS", "watch-time truth helper", failures);
@@ -92,8 +93,18 @@ requireIncludes(adminAnalyticsCommerceTab, "watch_session_rollup", "library view
 requireIncludes(adminAnalyticsCommerceTab, "legacy_page_duration", "library viewer drilldown estimated fallback split", failures);
 requireIncludes(adminAnalyticsCommerceTab, "Monitor live - no recent viewer sessions.", "library viewer drilldown quiet live-pulse copy", failures);
 requireIncludes(adminAnalyticsCommerceTab, "unknown capture transport", "library viewer drilldown capture transport warning", failures);
+for (const expected of [
+  "resolveWatchTruth",
+  "verifiedWatchSeconds",
+  "estimatedWatchSeconds",
+  "fallbackWatchSeconds",
+  "qualityReasons",
+]) {
+  requireIncludes(deterministicTruth, expected, "deterministic watch truth helper", failures);
+}
 
 requireIncludes(docs, "diagnostics-only estimate", "watch-time doctrine doc", failures);
+requireIncludes(docs, "Admin Watch Truth Resolver", "watch-time doctrine doc", failures);
 requireIncludes(docs, "legacy_page_duration", "watch-time doctrine doc", failures);
 requireIncludes(docs, "video watch time equals actual foreground visible playback time", "watch-time doctrine doc", failures);
 requireIncludes(docs, "image watch time equals foreground visible image-in-view time", "watch-time doctrine doc", failures);

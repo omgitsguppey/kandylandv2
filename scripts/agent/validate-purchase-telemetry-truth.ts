@@ -30,6 +30,8 @@ const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identif
 const serverAnalytics = readRequired("src/lib/server/analytics.ts");
 const adminHistoricalRoute = readRequired("src/app/api/admin/analytics/historical/route.ts");
 const adminUserRoute = readRequired("src/app/api/admin/user/[userId]/route.ts");
+const commerceSnapshotHelper = readRequired("src/lib/admin-analytics-commerce-snapshot.ts");
+const deterministicTruth = readRequired("src/lib/deterministic-admin-truth.ts");
 
 if (packageJson.scripts?.["check:purchase-telemetry-truth"] !== "tsx scripts/agent/validate-purchase-telemetry-truth.ts") {
   failures.push("package.json must expose check:purchase-telemetry-truth.");
@@ -71,6 +73,9 @@ requireIncludes(adminHistoricalRoute, "const purchases = firstPartyPurchaseCount
 requireIncludes(adminUserRoute, "const directPurchaseCount = purchaseVerifiedFactCount;", "Admin user route server purchase fact count");
 requireIncludes(adminUserRoute, 'event.eventName === "server_purchase_verified" || event.eventName === "purchase_verified"', "Admin user route canonical and legacy server purchase fact count");
 requireIncludes(adminUserRoute, '{ key: "facts", label: "Server facts", count: directPurchaseCount }', "Admin user route purchase fact labeling");
+requireIncludes(commerceSnapshotHelper, "safeRate", "Commerce Snapshot conversion guard");
+requireIncludes(commerceSnapshotHelper, "commerce_checkout_bridge", "Commerce Snapshot bridge source guard");
+requireIncludes(deterministicTruth, "unavailable: mismatched source/range", "Deterministic rate guard");
 requireIncludes(readRequired("src/lib/telemetry-catalog.ts"), 'eventName: "server_purchase_verified"', "Telemetry catalog canonical server purchase event");
 requireIncludes(readRequired("src/lib/telemetry-catalog.ts"), 'aliases: ["purchase_verified", "paypal_capture_completed", "purchase_completed"]', "Telemetry catalog purchase aliases");
 requireIncludes(readRequired("src/lib/behavioral/normalize-event-fact.ts"), 'server_purchase_verified: { normalizedAction: "gumdrops_purchased"', "Event fact normalization canonical server purchase alias");

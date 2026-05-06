@@ -20,6 +20,7 @@ function main() {
   const report = readJsonFile<TelemetryIdentifiedParityReport>(REPORT_PATH);
   const analyticsHistoricalValidation = readFileSync("src/lib/server/admin-analytics-historical-validation.ts", "utf8");
   const analyticsHistoricalRoute = readFileSync("src/app/api/admin/analytics/historical/route.ts", "utf8");
+  const deterministicTruth = readFileSync("src/lib/deterministic-admin-truth.ts", "utf8");
   assert(Array.isArray(report.domainScores) && report.domainScores.length === 7, "Telemetry parity report must include seven domain scores.");
   assert(!report.missingExpectedEvents.includes("identity_linked"), "identity_linked is missing from expected event coverage.");
   assert(!report.criticalFail, "Telemetry identified parity has a critical failure.");
@@ -35,6 +36,9 @@ function main() {
   assert(analyticsHistoricalValidation.includes("required_sample_missing"), "Telemetry parity validation must block pass when authenticated events have no canonical samples.");
   assert(analyticsHistoricalRoute.includes("analytics_event_facts"), "Telemetry parity validation must read canonical samples from analytics_event_facts.");
   assert(analyticsHistoricalRoute.includes("analytics_rollups_daily.authenticatedEvents"), "Telemetry parity validation must identify the authenticated canonical event source.");
+  assert(deterministicTruth.includes("classifyEventContext"), "Telemetry parity must retain a deterministic actor/source context classifier.");
+  assert(deterministicTruth.includes("admin_internal"), "Telemetry parity classifier must separate admin/internal context.");
+  assert(deterministicTruth.includes("notification_system"), "Telemetry parity classifier must separate notification system context.");
 
   console.log(`Telemetry identified parity validated: ${report.overallScore}/100`);
 }

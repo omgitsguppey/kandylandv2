@@ -46,9 +46,12 @@ const regionDemandHelper = read("src/lib/admin-analytics-region-demand.ts");
 const contentConversionHelper = read("src/lib/admin-analytics-content-conversion.ts");
 const topDropConversionHelper = read("src/lib/admin-analytics-top-drop-conversion.ts");
 const recentCommerceFeedHelper = read("src/lib/admin-analytics-recent-commerce-feed.ts");
+const deterministicTruth = read("src/lib/deterministic-admin-truth.ts");
 const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const commerceTab = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const doc = read("docs/agent-truth/admin-analytics-overview.md");
+const analyticsDoctrine = read("docs/doctrine/surfaces/admin-analytics-doctrine.md");
+const analyticsTruthDoc = read("docs/agent-truth/admin-analytics-truth.md");
 const adminOverviewPage = read("src/app/admin/page.tsx");
 const adminStatsBar = read("src/components/Admin/AdminStatsBar.tsx");
 const adminOverviewRoute = read("src/app/api/admin/overview/route.ts");
@@ -56,6 +59,26 @@ const adminOverviewContract = read("src/lib/admin-overview.ts");
 const adminOverviewDoc = read("docs/agent-truth/admin-overview.md");
 
 assertIncludes("AdminAnalyticsPrimitives", primitives, "ANALYTICS_METRIC_BADGE_LABELS");
+for (const expected of [
+  "resolveMetricState",
+  "safeRate",
+  "getRollingWindow",
+  "calculateGumdropValueBasis",
+  "resolveWatchTruth",
+  "classifyEventContext",
+  "adjustRegionalDemand",
+  "resolvePanelPagination",
+]) {
+  assertIncludes("deterministic admin truth helper", deterministicTruth, expected);
+}
+for (const expected of [
+  "WAIT means actively loading only",
+  "A zero is valid only when the source loaded and verified zero",
+  "No rate may render without denominator, source, and range truth",
+  "Display language uses unwrap",
+]) {
+  assertIncludes("admin analytics doctrine bundle", `${analyticsDoctrine}\n${analyticsTruthDoc}`, expected);
+}
 for (const badge of EXPECTED_OPERATOR_BADGES) {
   assertIncludes("AdminAnalyticsPrimitives", primitives, badge);
 }
@@ -155,6 +178,7 @@ assertIncludes("content conversion helper", contentConversionHelper, "\"drop_met
 assertIncludes("content conversion helper", contentConversionHelper, "No preview/unwrap/drop metadata source available for this range.");
 assertIncludes("content conversion helper", contentConversionHelper, "Content conversion is using access rollup fallback because unwrap telemetry is missing.");
 assertIncludes("top drop conversion helper", topDropConversionHelper, "buildAdminAnalyticsTopDropConversionModel");
+assertIncludes("top drop conversion helper", topDropConversionHelper, "safeRate");
 assertIncludes("top drop conversion helper", topDropConversionHelper, "formatTopDropUnwrapRate");
 assertIncludes("top drop conversion helper", topDropConversionHelper, "dropIdentityState");
 assertIncludes("top drop conversion helper", topDropConversionHelper, "chartLabel");

@@ -24,6 +24,7 @@ const behavioralRuntime = read("functions/src/behavioral-intelligence-runtime.ts
 const userDetailRoute = read("src/app/api/admin/user/[userId]/route.ts");
 const userDetailPage = read("src/app/admin/user/[userId]/page.tsx");
 const doc = read("docs/agent-truth/event-fact-truth.md");
+const deterministicTruth = read("src/lib/deterministic-admin-truth.ts");
 
 const requiredActions = [
   "onboarding_completed",
@@ -97,5 +98,10 @@ assert(behavioralRuntime.includes("normalizedAction === \"gumdrops_purchased\"")
 
 assert(doc.includes("Unknown events go to diagnostics"), "Event fact doctrine does not document unknown-event diagnostics.");
 assert(doc.includes("legacy"), "Event fact doctrine does not document legacy fallback labeling.");
+assert(deterministicTruth.includes("classifyEventContext"), "Deterministic event context classifier is missing.");
+assert(deterministicTruth.includes("foreground_user"), "Deterministic event context classifier is missing foreground_user.");
+assert(deterministicTruth.includes("background_task_engine"), "Deterministic event context classifier is missing background_task_engine.");
+assert(deterministicTruth.includes("notification_system"), "Deterministic event context classifier is missing notification_system.");
+assert(doc.includes("Event Context Classifier"), "Event fact doctrine does not document the deterministic event context classifier.");
 
 console.log("Behavioral event fact truth validator passed.");

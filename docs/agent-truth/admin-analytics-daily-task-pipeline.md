@@ -59,3 +59,7 @@ Do not render zero unless the source is loaded and server-confirmed. If the payl
 Firebase Analytics events can be batched in normal use. Firestore listeners can emit cached/local-write data; expose `fromCache` and `hasPendingWrites` if Firestore becomes the source. GA4 intraday is incomplete; GA4 daily export is the stable completed-day source.
 
 Mobile density rule: use compact lifecycle tiles, a small horizontal progression, a guidance signal row, compact completion-speed timing, and inline paginated leaderboard rows. Future agents must not reintroduce the unhelpful vertical bar chart, standalone Task Completion Speed chart, giant Task Leaderboard cards, unverified reward totals, or mix guide views into lifecycle states without labeling.
+
+## Deterministic Daily Window Hardening
+
+Daily task windows use the same reset as daily check-in through `getDailyTaskWindow`. Assignment truth is exactly 3 deterministic random tasks per eligible user/window, no replacement after completion, idempotent by user/window, and incomplete tasks expire at reset rather than lazy user return.

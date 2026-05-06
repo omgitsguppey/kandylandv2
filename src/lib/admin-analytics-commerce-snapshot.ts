@@ -3,6 +3,7 @@ import {
   PLATFORM_ECONOMY_BASE_USD_PER_100_GD,
   PLATFORM_ECONOMY_WARNING_FLOOR_USD_PER_100_GD,
 } from "@/lib/platform-economy";
+import { safeRate } from "@/lib/deterministic-admin-truth";
 import type {
   CommerceMetricCard,
   CommerceSnapshotState,
@@ -317,19 +318,23 @@ export function buildAdminAnalyticsCommerceSnapshotModel(input: {
   const promoScope = revenueScope;
 
   const conversionScopeCompatible = scopeMatches(purchaseScope, checkoutScope);
+  const checkoutConversionRate = safeRate({
+    numerator: purchaseCompletionsValue,
+    denominator: checkoutStartsValue,
+    numeratorSource: conversionScopeCompatible ? "commerce_checkout_bridge" : "payment_transactions",
+    denominatorSource: conversionScopeCompatible ? "commerce_checkout_bridge" : "checkout_telemetry",
+    numeratorRange: purchaseScope,
+    denominatorRange: checkoutScope,
+    label: "Checkout conversion",
+  });
   const checkoutConversionValue =
-    conversionScopeCompatible
-    && checkoutStartsValue !== null
-    && checkoutStartsValue > 0
-    && purchaseCompletionsValue !== null
-      ? purchaseCompletionsValue / checkoutStartsValue
-      : null;
+    checkoutConversionRate.valuePct !== null ? checkoutConversionRate.valuePct / 100 : null;
   const checkoutConversionWarning =
-    !conversionScopeCompatible
+    checkoutConversionRate.state === "unavailable" && checkoutConversionRate.reason.includes("mismatched")
       ? "Checkout conversion unavailable: purchases and checkout starts use different ranges/sources."
-      : checkoutStartsValue === null || purchaseCompletionsValue === null
+      : checkoutConversionRate.state === "unavailable" && (checkoutStartsValue === null || purchaseCompletionsValue === null)
         ? "Checkout conversion unavailable: purchases or checkout starts are missing."
-        : checkoutStartsValue <= 0
+        : checkoutConversionRate.state === "unavailable" && Number(checkoutStartsValue) <= 0
           ? "Checkout conversion unavailable: checkout starts are zero."
           : null;
 

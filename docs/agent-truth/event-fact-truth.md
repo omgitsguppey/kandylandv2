@@ -68,3 +68,7 @@ Retries must not inflate global counts, per-user counts, or the admin Action Led
 - Legacy fallbacks must be labeled `legacy`.
 - No production card should derive user action truth directly from DOM event types, target ids, or random raw event names.
 - Admin Debug event-flow diagnostics can show background task engine, ledger, notification system, server/system, and materialized relationship events as context, but those rows must carry eval eligibility reasons. Missing route/session is only a production-count blocker for foreground user telemetry unless the source contract says that server event must carry user/session ownership.
+
+## Event Context Classifier
+
+Event context classification must distinguish foreground_user, identity_linkage, background_task_engine, background_ledger, notification_system, server_system, admin_internal, creator_materialized, and semantic_supporting. Background/system events are not penalized for missing route/session unless their context requires those fields.

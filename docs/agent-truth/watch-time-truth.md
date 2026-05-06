@@ -82,3 +82,7 @@ Use `npm run check:watch-time-truth-v2` plus the targeted watch scoring and watc
 Admin user surfaces also consume this doctrine through `npm run check:admin-user-behavior-truth`. If User Management or admin user detail stops using watch-session rollups first, that validator must fail.
 
 The canonical user engagement score also depends on this truth. Its watch component uses valid watch minutes from watch-session-first rollups; it must not silently swap back to page-open duration.
+
+## Admin Watch Truth Resolver
+
+Admin reporting uses `resolveWatchTruth` semantics from `src/lib/deterministic-admin-truth.ts`: verified watch, estimated watch, and fallback watch remain separate. Exact quality requires no estimated/fallback watch and no unexplained raw gaps. Final totals may include estimates only when quality is mixed/estimated/review.

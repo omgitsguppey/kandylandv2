@@ -37,3 +37,7 @@ Future purchase ledger rows should carry:
 - Paid package bonus must never classify as reward/free.
 - Reward GumDrops must never satisfy paid-only creator spend restrictions.
 - Platform Economy warnings must surface drift rather than redefining balances.
+
+## Platform Economy Guard
+
+Platform Economy is the ultimate source-of-funds review surface. Every admin economy row should resolve paidGd, paidBonusGd, rewardFreeGd, adminAdjustmentGd, pendingGd, heldGd, spentGd, expiredGd, forfeitedGd, and unknownSourceGd when the source supports those fields. Missing source splits are review, not healthy. Creator-restricted spend must warn if rewardFreeGd is used.

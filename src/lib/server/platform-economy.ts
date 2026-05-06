@@ -26,6 +26,7 @@ import {
     roundCurrency,
     toShortId,
 } from "@/lib/platform-economy";
+import { calculateGumdropValueBasis } from "@/lib/deterministic-admin-truth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { readAdminUserMetricsSnapshot } from "@/lib/server/admin-user-metrics-snapshot";
 
@@ -415,12 +416,20 @@ export async function buildPlatformEconomyTreasurySummary(input: {
             } satisfies PlatformEconomyWalletRow;
         });
 
-    const paidSourceAvgUsdPer100Gd = commerceMetrics.effectiveUsdPer100Gd > 0 ? commerceMetrics.effectiveUsdPer100Gd : null;
-    const floorState = paidSourceAvgUsdPer100Gd == null
-        ? "unknown"
-        : paidSourceAvgUsdPer100Gd < 0.5
+    const gumdropValueBasis = calculateGumdropValueBasis({
+        paidUsdCollected: normalizeMoney(commerceMetrics.grossRevenueUsd),
+        paidGdIssued: Math.max(0, normalizeCount(commerceMetrics.deliveredGumDrops) - paidBonusGd),
+        paidBonusGdIssued: paidBonusGd,
+        rewardFreeGdIssued: rewardFreeGd,
+    });
+    const paidSourceAvgUsdPer100Gd = gumdropValueBasis.averageUsdPer100PaidSourceGd;
+    const floorState = gumdropValueBasis.floorState === "error"
+        ? "critical"
+        : gumdropValueBasis.floorState === "warn"
             ? "warn"
-            : "healthy";
+            : gumdropValueBasis.floorState === "healthy"
+                ? "healthy"
+                : "unknown";
 
     return {
         generatedAtUtc,

@@ -30,6 +30,7 @@ const helper = read("src/lib/admin-analytics-commerce-snapshot.ts");
 const contentConversionHelper = read("src/lib/admin-analytics-content-conversion.ts");
 const topDropConversionHelper = read("src/lib/admin-analytics-top-drop-conversion.ts");
 const recentCommerceFeedHelper = read("src/lib/admin-analytics-recent-commerce-feed.ts");
+const deterministicTruth = read("src/lib/deterministic-admin-truth.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 const historicalRoute = read("src/app/api/admin/analytics/historical/route.ts");
 const analyticsTypes = read("src/types/admin-analytics.ts");
@@ -123,7 +124,8 @@ assertIncludes("content conversion helper", contentConversionHelper, "fakeZeroPr
 
 assertIncludes("top drop conversion helper", topDropConversionHelper, "buildAdminAnalyticsTopDropConversionModel");
 assertIncludes("top drop conversion helper", topDropConversionHelper, "formatTopDropUnwrapRate");
-assertIncludes("top drop conversion helper", topDropConversionHelper, "\"<0.1%\"");
+assertIncludes("top drop conversion helper", topDropConversionHelper, "safeRate");
+assertIncludes("deterministic top drop rate helper", deterministicTruth, "\"<0.1%\"");
 assertIncludes("top drop conversion helper", topDropConversionHelper, "dropIdentityState");
 assertIncludes("top drop conversion helper", topDropConversionHelper, "chartLabel");
 assertIncludes("top drop conversion helper", topDropConversionHelper, "Unwrap conversion uses unwraps divided by validated drop views");

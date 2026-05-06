@@ -55,6 +55,7 @@ const paymentValidator = readRequired("scripts/agent/validate-payment-unlock-sec
 const paymentDoc = readRequired("docs/agent-truth/payment-wallet-unlock-entitlement.md");
 const platformEconomyDoc = readRequired("docs/agent-truth/gumdrop-source-of-funds-truth.md");
 const recentCommerceFeedHelper = readRequired("src/lib/admin-analytics-recent-commerce-feed.ts");
+const deterministicTruth = readRequired("src/lib/deterministic-admin-truth.ts");
 const fullAudit = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
 const repoLedger = readRequired("REPO_MEMORY_LEDGER.md");
 const checklist = readRequired("EVERY_FILE_FUNCTION_CHECKLIST.md");
@@ -190,6 +191,14 @@ for (const expected of [
   "amountDisplay",
 ]) {
   requireIncludes(recentCommerceFeedHelper, expected, "Recent Commerce Feed source-of-funds display model");
+}
+for (const expected of [
+  "calculateGumdropValueBasis",
+  "paidSourceGdIssued",
+  "averageUsdPer100PaidSourceGd",
+  "floorState",
+]) {
+  requireIncludes(deterministicTruth, expected, "Deterministic GumDrops value-basis helper");
 }
 
 try {

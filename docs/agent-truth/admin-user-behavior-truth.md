@@ -52,3 +52,7 @@ Run:
 - `npm run check:admin-user-behavior-truth`
 
 This lane is deterministic and source-based. It is intended to catch admin metric drift, stats-grid regressions, watch-time detachment, truth-badge drift, and low-value behavioral spam before broader admin QA.
+
+## Behavior Leaderboard Hardening
+
+The behavior leaderboard must hydrate without a selected user and must paginate by default. Leaderboard rows use displayName/username as primary identity, with raw UIDs secondary/collapsed. Rows expose score, confidence, purchases, unwraps, watch, task completions, last meaningful action, source, and freshness. Verified zero requires a loaded source; missing behavior samples render unavailable/not_observed/no_sample.

@@ -96,6 +96,10 @@ const notificationReadStateTest = readRequired("tests/unit/notification-read-sta
 const componentTest = readRequired("tests/unit/admin-debug-control-tower-component.spec.tsx");
 const adminDataValidationTest = readRequired("tests/unit/admin-data-validation.spec.ts");
 const controlTowerDoc = readRequired("docs/agent-truth/admin-debug-control-tower.md");
+const controlTowerDoctrine = readRequired("docs/doctrine/surfaces/admin-debug-control-tower-doctrine.md");
+const analyticsDoctrine = readRequired("docs/doctrine/surfaces/admin-analytics-doctrine.md");
+const analyticsTruthDoc = readRequired("docs/agent-truth/admin-analytics-truth.md");
+const adminUsersDoctrine = readRequired("docs/doctrine/surfaces/admin-users-doctrine.md");
 const adminTruthDoc = readRequired("docs/agent-truth/human-readable-admin-truth.md");
 const evidenceDoc = readRequired("docs/agent-truth/debug-evidence-pipeline.md");
 const notificationPipelineDoc = readRequired("docs/agent-truth/notification-pipeline.md");
@@ -128,6 +132,7 @@ const regionDemandHelper = readRequired("src/lib/admin-analytics-region-demand.t
 const contentConversionHelper = readRequired("src/lib/admin-analytics-content-conversion.ts");
 const topDropConversionHelper = readRequired("src/lib/admin-analytics-top-drop-conversion.ts");
 const recentCommerceFeedHelper = readRequired("src/lib/admin-analytics-recent-commerce-feed.ts");
+const deterministicTruth = readRequired("src/lib/deterministic-admin-truth.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
@@ -1883,6 +1888,32 @@ for (const expected of [
 ]) {
   requireIncludes(doctrineBundle, expected, "Admin debug Control Tower doctrine docs");
 }
+for (const expected of [
+  "resolveMetricState",
+  "safeRate",
+  "getRollingWindow",
+  "calculateGumdropValueBasis",
+  "resolveWatchTruth",
+  "classifyEventContext",
+  "adjustRegionalDemand",
+  "resolvePanelPagination",
+  "WAIT",
+  "not_observed",
+  "unavailable: mismatched source/range",
+]) {
+  requireIncludes(deterministicTruth, expected, "Deterministic admin truth helper");
+}
+for (const expected of [
+  "WAIT means actively loading only",
+  "zero requires verified source",
+  "estimated is not verified",
+  "No rate may render without denominator, source, and range truth",
+  "Display language uses unwrap",
+  "current, recent, and sample windows",
+  "must not require a selected user",
+]) {
+  requireIncludes(`${controlTowerDoctrine}\n${analyticsDoctrine}\n${analyticsTruthDoc}\n${adminUsersDoctrine}`, expected, "Deterministic admin doctrine bundle");
+}
 
 requireRegex(controlTowerDoc, /Beta Readiness[\s\S]*Live Issues[\s\S]*Device \+ UI[\s\S]*Money \+ Cost[\s\S]*Telemetry \+ Behavior[\s\S]*Support \+ Creator Monetization/u, "Control Tower docs must describe the required information architecture");
 
@@ -2082,15 +2113,16 @@ for (const expected of [
     requireIncludes(contentConversionHelper, expected, "Content conversion truth helper");
   }
   for (const expected of [
-    "buildAdminAnalyticsTopDropConversionModel",
-    "formatTopDropUnwrapRate",
-    "\"<0.1%\"",
-    "dropIdentityState",
-    "chartLabel",
-    "Unwrap conversion uses unwraps divided by validated drop views",
-  ]) {
-    requireIncludes(topDropConversionHelper, expected, "Top Drop Conversion truth helper");
-  }
+  "buildAdminAnalyticsTopDropConversionModel",
+  "formatTopDropUnwrapRate",
+  "safeRate",
+  "dropIdentityState",
+  "chartLabel",
+  "Unwrap conversion uses unwraps divided by validated drop views",
+]) {
+  requireIncludes(topDropConversionHelper, expected, "Top Drop Conversion truth helper");
+}
+requireIncludes(deterministicTruth, "\"<0.1%\"", "Deterministic top-drop rate precision guard");
   for (const expected of [
     "buildAdminAnalyticsRecentCommerceFeedState",
     "RecentCommerceFeedState",
@@ -2317,6 +2349,10 @@ try {
     /^src\/lib\/admin-moderation\.ts$/u,
     /^src\/lib\/admin-analytics-recent-commerce-feed\.ts$/u,
     /^src\/lib\/admin-analytics-top-drop-conversion\.ts$/u,
+    /^src\/lib\/deterministic-admin-truth\.ts$/u,
+    /^src\/lib\/server\/platform-economy\.ts$/u,
+    /^src\/app\/admin\/economy\/(?:page|components\/PlatformEconomy(?:Console|Strip))\.tsx$/u,
+    /^src\/app\/api\/admin\/economy\/treasury\/route\.ts$/u,
     /^src\/lib\/telemetry-catalog\.ts$/u,
     /^src\/lib\/debug-evidence-contract\.ts$/u,
     /^src\/lib\/notification-contracts\.ts$/u,
@@ -2395,6 +2431,7 @@ try {
     /^scripts\/agent\/validate-purchase-telemetry-truth\.ts$/u,
     /^scripts\/agent\/validate-unlock-telemetry-truth\.ts$/u,
     /^scripts\/agent\/validate-gumdrop-source-of-funds-truth\.ts$/u,
+    /^scripts\/agent\/score-telemetry-identified-parity\.ts$/u,
     /^scripts\/agent\/validate-telemetry-identified-parity\.ts$/u,
     /^scripts\/agent\/validate-event-fact-truth\.ts$/u,
     /^scripts\/check-admin-analytics-overview\.ts$/u,
@@ -2462,6 +2499,14 @@ try {
     /^docs\/agent-truth\/telemetry-identified-parity\.md$/u,
     /^docs\/agent-truth\/support-recovery-flows\.md$/u,
     /^docs\/agent-truth\/admin-analytics-daily-task-pipeline\.md$/u,
+    /^docs\/agent-truth\/admin-analytics-truth\.md$/u,
+    /^docs\/agent-truth\/gumdrop-source-of-funds-truth\.md$/u,
+    /^docs\/agent-truth\/platform-economy-treasury\.md$/u,
+    /^docs\/agent-truth\/watch-time-truth\.md$/u,
+    /^docs\/doctrine\/surfaces\/admin-analytics-doctrine\.md$/u,
+    /^docs\/doctrine\/surfaces\/admin-debug-control-tower-doctrine\.md$/u,
+    /^docs\/doctrine\/surfaces\/admin-platform-economy-doctrine\.md$/u,
+    /^docs\/doctrine\/surfaces\/admin-users-doctrine\.md$/u,
     /^src\/app\/api\/admin\/content\/route\.ts$/u,
     /^src\/lib\/server\/admin-content-storage-safety\.ts$/u,
     /^src\/lib\/server\/api-cost-contract\.ts$/u,
@@ -2474,6 +2519,7 @@ try {
     /^src\/types\/admin-analytics\.ts$/u,
     /^tests\/unit\/admin-content-route\.spec\.ts$/u,
     /^scripts\/agent\/validate-admin-user-behavior-truth\.ts$/u,
+    /^scripts\/agent\/validate-platform-economy-treasury\.ts$/u,
     /^README\.md$/u,
     /^AGENTS\.md$/u,
     /^REPO_MEMORY_LEDGER\.md$/u,

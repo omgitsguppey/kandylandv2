@@ -40,3 +40,10 @@ Platform Economy is the top admin economic truth surface. Anything GumDrops touc
 - `check:platform-economy-commerce-controls`
 - `check:gumdrop-source-of-funds-truth`
 - `check:purchase-telemetry-truth`
+
+## Deterministic Hardening Addendum
+
+Platform Economy is the ultimate GumDrops Treasury and Commerce Control Center.
+Platform Economy is the ultimate economic truth for GumDrops treasury, package value basis, promo/bonus classification, and source-of-funds splits. Every GD row must split paidGd, paidBonusGd, rewardFreeGd, adminAdjustmentGd, pendingGd, heldGd, spentGd, expiredGd, forfeitedGd, and unknownSourceGd when the source supports it; missing splits are review, not healthy.
+
+Canonical deterministic helper: `src/lib/deterministic-admin-truth.ts`.

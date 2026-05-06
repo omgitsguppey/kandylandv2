@@ -24,6 +24,7 @@ const page = readRequired("src/app/admin/economy/page.tsx");
 const consoleView = readRequired("src/app/admin/economy/components/PlatformEconomyConsole.tsx");
 const strip = readRequired("src/app/admin/economy/components/PlatformEconomyStrip.tsx");
 const helper = readRequired("src/lib/server/platform-economy.ts");
+const deterministicTruth = readRequired("src/lib/deterministic-admin-truth.ts");
 const treasuryRoute = readRequired("src/app/api/admin/economy/treasury/route.ts");
 const treasuryDoc = readRequired("docs/agent-truth/platform-economy-treasury.md");
 const doctrineDoc = readRequired("docs/doctrine/surfaces/admin-platform-economy-doctrine.md");
@@ -56,6 +57,7 @@ for (const expected of [
     "freshnessState",
     "generatedAtUtc",
     "buildPlatformEconomyTreasurySummary",
+    "calculateGumdropValueBasis",
     "AggregateField.sum(\"gumDropsBalance\")",
     "AggregateField.sum(\"gumDropsPurchasedBalance\")",
     "AggregateField.sum(\"gumDropsRewardBalance\")",
@@ -73,10 +75,20 @@ for (const expected of [
 
 for (const expected of [
     "Platform Economy is the top admin economic truth surface",
+    "Platform Economy is the ultimate GumDrops Treasury and Commerce Control Center",
     "Outstanding GD",
     "Wallet drilldown",
+    "$0.50 per 100 GD",
 ]) {
     requireIncludes(`${treasuryDoc}\n${doctrineDoc}`, expected, "Treasury doctrine bundle");
+}
+for (const expected of [
+    "calculateGumdropValueBasis",
+    "paidSourceGdIssued",
+    "averageUsdPer100PaidSourceGd",
+    "floorState",
+]) {
+    requireIncludes(deterministicTruth, expected, "Deterministic GumDrops value-basis helper");
 }
 
 if (failures.length > 0) {

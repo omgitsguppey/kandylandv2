@@ -42,6 +42,7 @@ const debugTabActions = readRequired("src/app/admin/debug/components/DebugTabAct
 const debugAdvancedTelemetry = readRequired("src/app/admin/debug/components/DebugAdvancedTelemetry.tsx");
 const pipelineModule = readRequired("src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx");
 const eventFactNormalizer = readRequired("src/lib/behavioral/normalize-event-fact.ts");
+const deterministicTruth = readRequired("src/lib/deterministic-admin-truth.ts");
 const ingestTests = readRequired("tests/unit/analytics-ingest-identified-route.spec.ts");
 const eventFactTests = readRequired("tests/unit/event-fact-truth.spec.ts");
 
@@ -190,6 +191,8 @@ requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "daily_checkin_c
 requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_completed"', "Event fact normalizer day-key dedupe tasks");
 requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_guidance_completed"', "Event fact normalizer day-key dedupe guidance completion");
 requireIncludes(pipelineModule, "Task guidance telemetry is missing; guidance impact cannot be evaluated.", "Daily task pipeline module guidance telemetry gap warning");
+requireIncludes(deterministicTruth, "background_task_engine", "Deterministic task event context classifier");
+requireIncludes(deterministicTruth, "classifyEventContext", "Deterministic task event context classifier");
 
 requireIncludes(debugAdvancedTelemetry, "label=\"Task trigger events\"", "Telemetry mapping panel trigger summary");
 requireIncludes(debugAdvancedTelemetry, "Kind: receipt", "Telemetry mapping panel grouped receipt kind");

@@ -97,3 +97,7 @@ Use:
 - `npm run typecheck` if TypeScript changed
 
 Do not use Playwright, Lighthouse, Cypress, full `npm run check`, or broad UI audit lanes for this source-level admin debug refresh.
+
+## Deterministic Source-State Hardening
+
+`WAIT` is reserved for active loading. Loaded numeric, null, stale, unavailable, not-observed, or no-sample values must render explicit source states. Deterministic source-state, rate, watch-quality, event-context, regional-demand, and pagination semantics live in `src/lib/deterministic-admin-truth.ts`.

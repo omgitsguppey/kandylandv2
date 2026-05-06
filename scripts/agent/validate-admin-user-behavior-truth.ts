@@ -28,6 +28,7 @@ const historicalEngagementHelper = read("src/lib/server/admin-analytics-historic
 const returnCadenceHelper = read("src/lib/admin-analytics-return-cadence.ts");
 const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const analyticsTypes = read("src/types/admin-analytics.ts");
+const adminUsersDoctrine = read("docs/doctrine/surfaces/admin-users-doctrine.md");
 const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
 const debugTabActions = read("src/app/admin/debug/components/DebugTabActions.tsx");
 const watchTruthValidator = read("scripts/agent/validate-watch-time-rollup-truth.ts");
@@ -90,6 +91,8 @@ assert(usersPage.includes("data-admin-behavior-row-identity-state"), "Behavior l
 assert(usersPage.includes("Page ${behaviorLeaderboard.page} of ${behaviorLeaderboard.totalPages}"), "Behavior leaderboard must render pagination status.", failures);
 assert(!usersPage.includes("Open a user before loading behavior rollups."), "Behavior leaderboard empty state must not require opening a user first.", failures);
 assert(usersPage.includes("Run behavior materializer or inspect event facts."), "Behavior leaderboard empty state must point to source truth instead of selected-user detail.", failures);
+assert(adminUsersDoctrine.includes("must not require a selected user"), "Admin Users doctrine must forbid selected-user-only behavior hydration.", failures);
+assert(adminUsersDoctrine.includes("WAIT means actively loading only"), "Admin Users doctrine must inherit deterministic WAIT semantics.", failures);
 
 assert(behaviorContract.includes("confidence") && behaviorContract.includes("source") && behaviorContract.includes("issues"), "Per-user behavior rollup contract is incomplete.", failures);
 assert(behaviorHelper.includes("watch_time_missing_despite_views"), "Per-user behavior rollup helper must flag missing watch time despite views.", failures);

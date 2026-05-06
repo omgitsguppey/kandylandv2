@@ -5,6 +5,7 @@ import type {
   TopDropConversionState,
   TopDropItem,
 } from "@/types/admin-analytics";
+import { safeRate } from "@/lib/deterministic-admin-truth";
 
 export type AdminAnalyticsTopDropConversionModel = TopDropConversionState & {
   selectedRange: RangeOption;
@@ -27,11 +28,15 @@ function shortDropId(dropId: string) {
 }
 
 export function formatTopDropUnwrapRate(unwraps: number, views: number) {
-  if (views <= 0) return "Unavailable";
-  const ratePct = (unwraps / views) * 100;
-  if (unwraps > 0 && ratePct > 0 && ratePct < 0.1) return "<0.1%";
-  if (ratePct < 10) return `${ratePct.toFixed(1)}%`;
-  return `${Math.round(ratePct)}%`;
+  return safeRate({
+    numerator: unwraps,
+    denominator: views,
+    numeratorSource: "drop_metadata_plus_rollups",
+    denominatorSource: "drop_metadata_plus_rollups",
+    numeratorRange: "selected_range",
+    denominatorRange: "selected_range",
+    label: "Top drop unwrap conversion",
+  }).display;
 }
 
 function normalizeRow(drop: TopDropItem): TopDropConversionRow {
@@ -43,6 +48,15 @@ function normalizeRow(drop: TopDropItem): TopDropConversionRow {
     : "resolved";
   const views = Math.max(0, Number(drop.views) || 0);
   const unwraps = Math.max(0, Number(drop.unlocks) || 0);
+  const unwrapRate = safeRate({
+    numerator: unwraps,
+    denominator: views,
+    numeratorSource: "drop_metadata_plus_rollups",
+    denominatorSource: "drop_metadata_plus_rollups",
+    numeratorRange: "selected_range",
+    denominatorRange: "selected_range",
+    label: "Top drop unwrap conversion",
+  });
   return {
     dropId: drop.dropId,
     shortDropId: shortDropId(drop.dropId),
@@ -51,14 +65,14 @@ function normalizeRow(drop: TopDropItem): TopDropConversionRow {
     dropIdentityState,
     views,
     unwraps,
-    unwrapRatePct: views > 0 ? (unwraps / views) * 100 : null,
-    unwrapRateDisplay: formatTopDropUnwrapRate(unwraps, views),
+    unwrapRatePct: unwrapRate.valuePct,
+    unwrapRateDisplay: unwrapRate.display,
     revenueUsd: null,
     gumdropsSpent: null,
     sourceTruth: "drop_metadata_plus_rollups",
     freshnessState: "partial",
     explanation: views > 0
-      ? "Unwrap conversion uses unwraps divided by validated drop views for the selected range."
+      ? `Unwrap conversion uses unwraps divided by validated drop views for the selected range. ${unwrapRate.reason}`
       : "Unwrap conversion is unavailable because this row has no validated view denominator.",
     adminDropHref: `/admin/drops?dropId=${encodeURIComponent(drop.dropId)}`,
   };
