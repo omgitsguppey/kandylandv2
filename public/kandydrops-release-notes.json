@@ -1,10 +1,42 @@
 {
-  "currentVersion": "1.35.1",
+  "currentVersion": "1.36.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:04:37.379Z",
-  "generatedAtUtc": "2026-05-06T01:04:37.379Z",
-  "lastCommitSha": "5fb376874b728d59e981d5001d07ff16c62f30c7",
+  "generatedAt": "2026-05-06T01:12:24.522Z",
+  "generatedAtUtc": "2026-05-06T01:12:24.522Z",
+  "lastCommitSha": "57b3e05b3320996d6a60f8067ba444ca4f86050a",
   "notes": [
+    {
+      "version": "1.36.0",
+      "previousVersion": "1.35.1",
+      "commitSha": "57b3e05b3320996d6a60f8067ba444ca4f86050a",
+      "commitTitle": "fix(creator): require synthetic creator default settings",
+      "committedAt": "2026-05-06T01:12:13.000Z",
+      "generatedAt": "2026-05-06T01:12:24.521Z",
+      "committedAtUtc": "2026-05-06T01:12:13.000Z",
+      "generatedAtUtc": "2026-05-06T01:12:24.521Z",
+      "diffStats": {
+        "rawAdditions": 161,
+        "rawDeletions": 11,
+        "rawChangeCount": 172,
+        "additions": 161,
+        "deletions": 11,
+        "effectiveAdditions": 159,
+        "effectiveDeletions": 9,
+        "changedFiles": 11,
+        "effectiveChangeCount": 168,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal creator experience defaults for beta reliability.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.35.1",
       "previousVersion": "1.35.0",

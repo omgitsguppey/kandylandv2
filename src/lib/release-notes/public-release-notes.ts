@@ -1,12 +1,44 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.35.1",
+  "currentVersion": "1.36.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:04:37.379Z",
-  "generatedAtUtc": "2026-05-06T01:04:37.379Z",
-  "lastCommitSha": "5fb376874b728d59e981d5001d07ff16c62f30c7",
+  "generatedAt": "2026-05-06T01:12:24.522Z",
+  "generatedAtUtc": "2026-05-06T01:12:24.522Z",
+  "lastCommitSha": "57b3e05b3320996d6a60f8067ba444ca4f86050a",
   "notes": [
+    {
+      "version": "1.36.0",
+      "previousVersion": "1.35.1",
+      "commitSha": "57b3e05b3320996d6a60f8067ba444ca4f86050a",
+      "commitTitle": "fix(creator): require synthetic creator default settings",
+      "committedAt": "2026-05-06T01:12:13.000Z",
+      "generatedAt": "2026-05-06T01:12:24.521Z",
+      "committedAtUtc": "2026-05-06T01:12:13.000Z",
+      "generatedAtUtc": "2026-05-06T01:12:24.521Z",
+      "diffStats": {
+        "rawAdditions": 161,
+        "rawDeletions": 11,
+        "rawChangeCount": 172,
+        "additions": 161,
+        "deletions": 11,
+        "effectiveAdditions": 159,
+        "effectiveDeletions": 9,
+        "changedFiles": 11,
+        "effectiveChangeCount": 168,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal creator experience defaults for beta reliability.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.35.1",
       "previousVersion": "1.35.0",
@@ -128,37 +160,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "effectiveDeletions": 90,
         "changedFiles": 12,
         "effectiveChangeCount": 454,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Fixed a beta issue to make KandyDrops smoother to use.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "telemetry"
-      ]
-    },
-    {
-      "version": "1.32.0",
-      "previousVersion": "1.31.0",
-      "commitSha": "0a24f04764c97507d4e318e92ec8af5b5da3328a",
-      "commitTitle": "fix(drops): allow creator cover preview sharing",
-      "committedAt": "2026-05-05T22:33:59.000Z",
-      "generatedAt": "2026-05-05T23:56:39.393Z",
-      "committedAtUtc": "2026-05-05T22:33:59.000Z",
-      "generatedAtUtc": "2026-05-05T23:56:39.393Z",
-      "diffStats": {
-        "rawAdditions": 241,
-        "rawDeletions": 18,
-        "rawChangeCount": 259,
-        "additions": 241,
-        "deletions": 18,
-        "effectiveAdditions": 241,
-        "effectiveDeletions": 18,
-        "changedFiles": 7,
-        "effectiveChangeCount": 259,
         "excludedGeneratedChangeCount": 0
       },
       "bumpType": "minor",
