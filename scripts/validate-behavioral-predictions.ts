@@ -107,7 +107,7 @@ function main() {
   const watchScoring = readText("src/lib/watch-time-scoring.ts");
   const rankingFeatures = readText("src/lib/recommendations/ranking-features.ts");
 
-  const purchaseTruthPresent = ingestRoute.includes('"purchase_verified"')
+  const purchaseTruthPresent = (ingestRoute.includes('"server_purchase_verified"') || ingestRoute.includes('"purchase_verified"'))
     && ledger.includes("isCanonicalPurchaseTransaction")
     && runtime.includes("serverPurchaseCount");
   const entitlementUnlockTruthPresent = ingestRoute.includes('"entitlement_granted"')

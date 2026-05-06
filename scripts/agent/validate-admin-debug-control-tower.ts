@@ -70,6 +70,7 @@ const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNo
 const debugAdvancedDataValidation = readRequired("src/app/admin/debug/components/DebugAdvancedDataValidation.tsx");
 const debugAdvancedDrift = readRequired("src/app/admin/debug/components/DebugAdvancedDrift.tsx");
 const debugAdvancedTelemetry = readRequired("src/app/admin/debug/components/DebugAdvancedTelemetry.tsx");
+const debugAdvancedBehavior = readRequired("src/app/admin/debug/components/DebugAdvancedBehavior.tsx");
 const debugAdvancedTruth = readRequired("src/app/admin/debug/components/DebugAdvancedTruth.tsx");
 const debugPanelStatus = readRequired("src/app/admin/debug/components/DebugPanelStatusBySection.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
@@ -255,6 +256,25 @@ for (const expected of [
   "legacyTasks",
   "buildTaskCatalogCoverage(BUILT_IN_DAILY_TASKS, runtimeTaskAudit)",
   "summarizeTaskCatalogCoverage(coverage)",
+  "BehavioralIntelligencePanelState",
+  "BehavioralDropPanelRow",
+  "BehavioralConnectedModules",
+  "buildBehavioralIntelligencePanelState",
+  "behavioralIntelligencePanel",
+  "overallFreshnessExplanation",
+  "activeRankingMode",
+  "mlValidationState",
+  "connectedModules",
+  "connectedModuleCount",
+  "missingModuleCount",
+  "confidenceFormula",
+  "completionExplanation",
+  "negativeExplanation",
+  "\"not_enough_sample\"",
+  "\"under_baseline\"",
+  "\"experimental\"",
+  "\"active\"",
+  "\"deterministic\" | \"hybrid\" | \"ml_experimental\" | \"ml_active\" | \"unknown\"",
 ]) {
   requireIncludes(adminDebugRoute, expected, "Admin debug task issue attribution model");
 }
@@ -1393,6 +1413,25 @@ for (const expected of [
 }
 
 for (const expected of [
+  "Ranking mode",
+  "Rebuild freshness",
+  "Drop freshness",
+  "ML validation",
+  "Connected modules",
+  "Confidence formula:",
+  "Completion:",
+  "Negative:",
+  "Top reasons:",
+  "Missing inputs:",
+  "Suppression",
+  "Final rank",
+  "badgeLabel=\"LOADED\"",
+]) {
+  requireIncludes(debugAdvancedBehavior, expected, "Behavioral intelligence panel must expose loaded calibration truth");
+}
+requireNotIncludes(debugAdvancedBehavior, "WAIT", "Behavioral intelligence panel must not show WAIT for loaded values");
+
+for (const expected of [
   "Infrastructure Health & Dependencies",
   "Package inventory plus selected runtime connectivity checks. Package presence does not prove runtime use.",
   "Environment & runtime checks",
@@ -1679,6 +1718,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugTabAi\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabInfrastructure\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedDataValidation\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugAdvancedBehavior\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedDrift\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedTelemetry\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedTruth\.tsx$/u,
@@ -1755,6 +1795,7 @@ try {
     /^scripts\/agent\/validate-daily-task-reward-economy\.ts$/u,
     /^scripts\/agent\/validate-daily-task-telemetry-truth\.ts$/u,
     /^scripts\/agent\/validate-task-catalog-coverage\.ts$/u,
+    /^scripts\/validate-behavioral-predictions\.ts$/u,
     /^scripts\/release\/update-public-changelog\.ts$/u,
     /^CHANGELOG\.md$/u,
     /^public\/kandydrops-release-notes\.json$/u,

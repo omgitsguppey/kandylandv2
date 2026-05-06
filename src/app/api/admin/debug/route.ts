@@ -507,6 +507,88 @@ type TelemetryCoverageRow = {
     rawEventNames: string[];
 };
 
+type BehavioralIntelligenceValidationMetrics = {
+    precisionAt5?: number;
+    precisionAt10?: number;
+    purchaseHitRate7d?: number;
+    unlockHitRate24h?: number;
+    watchCompletionHitRate?: number;
+    returnHitRate7d?: number;
+    calibrationError?: number;
+    baselineComparison?: "beats_baseline" | "under_baseline" | "not_tested";
+};
+
+type BehavioralConnectedModules = {
+    purchasePrediction: boolean;
+    unlockPrediction: boolean;
+    watchPrediction: boolean;
+    returnPrediction: boolean;
+    negativeSuppression: boolean;
+    diversityReranking: boolean;
+    integrityDemotion: boolean;
+    creatorSupplyQuality: boolean;
+    explorationBudget: boolean;
+};
+
+type BehavioralDropPanelRow = {
+    dropId: string;
+    dropTitle: string;
+    creatorName?: string | null;
+    profileFreshnessState: "fresh" | "stale" | "missing" | "unknown";
+    lastUpdatedAtUtc: string | null;
+    sourceTruthScore: number;
+    confidenceScore: number;
+    confidenceFormula: string;
+    sampleSize: number;
+    previews: number;
+    viewerOpens: number;
+    unlocks: number;
+    purchases: number;
+    completionRate: number | null;
+    completionExplanation: string;
+    negativeRate: number | null;
+    negativeExplanation: string;
+    pPurchase7d?: number | null;
+    pUnlock24h?: number | null;
+    pWatchComplete?: number | null;
+    pReturn7d?: number | null;
+    suppressionScore?: number | null;
+    diversityPenalty?: number | null;
+    integrityMultiplier?: number | null;
+    creatorSupplyScore?: number | null;
+    finalRankScore?: number | null;
+    rankEligibility: "eligible" | "low_sample" | "stale" | "blocked" | "unknown";
+    topReasons: string[];
+    missingInputs: string[];
+};
+
+type BehavioralIntelligencePanelState = {
+    generatedAtUtc: string;
+    latestRebuildAtUtc: string | null;
+    sourceWindowStartUtc: string;
+    sourceWindowEndUtc: string;
+    rebuildFreshnessState: "live" | "partial" | "stale" | "failed" | "unknown";
+    dropProfileFreshnessState: "live" | "partial" | "stale" | "failed" | "unknown";
+    overallFreshnessState: "live" | "partial" | "stale" | "failed" | "unknown";
+    overallFreshnessExplanation: string;
+    userProfiles: number;
+    guestProfiles: number;
+    dropProfiles: number;
+    staleDropProfiles: number;
+    freshDropProfiles: number;
+    activeRankingMode: "deterministic" | "hybrid" | "ml_experimental" | "ml_active" | "unknown";
+    mlValidationState: "not_enough_sample" | "under_baseline" | "experimental" | "active" | "missing";
+    deterministicBaselineState: "available" | "missing";
+    modelVersion?: string;
+    sampleSize: number;
+    validationMetrics?: BehavioralIntelligenceValidationMetrics;
+    connectedModules: BehavioralConnectedModules;
+    connectedModuleCount: number;
+    missingModuleCount: number;
+    confidenceFormula: string;
+    dropRows: BehavioralDropPanelRow[];
+};
+
 const TELEMETRY_COVERAGE_LEGACY_EVENT_NAMES = new Set([
     "unlock_drop_success",
 ]);
@@ -1775,6 +1857,273 @@ function readGeneratedAnalyticsStateFile(fileName: string): Record<string, unkno
     }
 }
 
+function readRepoSourceFile(relativePath: string) {
+    const filePath = path.join(process.cwd(), relativePath);
+    if (!fs.existsSync(filePath)) {
+        return "";
+    }
+
+    try {
+        return fs.readFileSync(filePath, "utf8");
+    } catch {
+        return "";
+    }
+}
+
+function normalizeBehavioralFreshnessState(value: unknown): "fresh" | "stale" | "missing" | "unknown" {
+    if (value === "live" || value === "fresh") return "fresh";
+    if (value === "stale") return "stale";
+    if (value === "missing") return "missing";
+    return "unknown";
+}
+
+function formatUtcFromMs(value: unknown) {
+    const ms = toNumber(value);
+    return ms > 0 ? new Date(ms).toISOString() : null;
+}
+
+function buildBehavioralIntelligencePanelState(input: {
+    nowMs: number;
+    behavioralSnapshotStatus: Record<string, unknown> | null;
+    behavioralDrops: Array<Record<string, unknown>>;
+}): BehavioralIntelligencePanelState {
+    const calibrationReport = readGeneratedAnalyticsStateFile("behavioral-math-calibration.generated.json");
+    const modelValidationReport = readGeneratedAnalyticsStateFile("behavioral-model-validation.generated.json");
+    const recommendationArtifact = readGeneratedAnalyticsStateFile("recommendation-model.generated.json");
+    const behavioralRuntimeSource = readRepoSourceFile("functions/src/behavioral-intelligence-runtime.ts");
+    const rankingFeaturesSource = readRepoSourceFile("src/lib/recommendations/ranking-features.ts");
+    const serverBehaviorSource = readRepoSourceFile("src/lib/server/behavioral-intelligence.ts");
+    const deterministicRankerSource = readRepoSourceFile("src/lib/recommendations/deterministic-ranker.ts");
+    const mlRankerSource = readRepoSourceFile("src/lib/recommendations/ml-ranker.ts");
+    const negativePreferenceSource = readRepoSourceFile("src/lib/recommendations/suppression-rules.ts");
+    const diversitySource = readRepoSourceFile("src/lib/recommendations/diversity-reranker.ts");
+    const integritySource = readRepoSourceFile("src/lib/recommendations/integrity-demotions.ts");
+    const creatorSupplySource = readRepoSourceFile("src/lib/recommendations/creator-quality-adjustment.ts");
+    const explorationSource = readRepoSourceFile("src/lib/recommendations/exploration-policy.ts");
+
+    const connectedModules: BehavioralConnectedModules = {
+        purchasePrediction: rankingFeaturesSource.includes("pPurchase7d") && behavioralRuntimeSource.includes("pPurchase7d"),
+        unlockPrediction: rankingFeaturesSource.includes("pUnlock24h") && behavioralRuntimeSource.includes("pUnlock24h"),
+        watchPrediction: rankingFeaturesSource.includes("pWatchComplete") && behavioralRuntimeSource.includes("pWatchComplete"),
+        returnPrediction: rankingFeaturesSource.includes("pReturn7d") && behavioralRuntimeSource.includes("pReturn7d"),
+        negativeSuppression: negativePreferenceSource.includes("buildRecommendationSuppression") && rankingFeaturesSource.includes("suppressionScore"),
+        diversityReranking: serverBehaviorSource.includes("rerankRecommendationsForDiversity") && diversitySource.includes("rerankRecommendationsForDiversity"),
+        integrityDemotion: serverBehaviorSource.includes("applyIntegrityDemotions") && integritySource.includes("applyIntegrityDemotions"),
+        creatorSupplyQuality: serverBehaviorSource.includes("buildCreatorSupplyQualityMap") && creatorSupplySource.includes("buildCreatorSupplyQualityMap"),
+        explorationBudget: serverBehaviorSource.includes("applyExplorationBudget") && explorationSource.includes("applyExplorationBudget"),
+    };
+    const connectedModuleCount = Object.values(connectedModules).filter(Boolean).length;
+    const missingModuleCount = Object.values(connectedModules).length - connectedModuleCount;
+
+    const validationMetricsRecord = (calibrationReport?.validationMetrics && typeof calibrationReport.validationMetrics === "object")
+        ? calibrationReport.validationMetrics as Record<string, unknown>
+        : {};
+    const sampleSize = toNumber(validationMetricsRecord.sampleSize)
+        || toNumber(recommendationArtifact?.sampleCount)
+        || toNumber(modelValidationReport?.models && typeof modelValidationReport.models === "object"
+            ? (modelValidationReport.models as Record<string, unknown>).recommendationRanker && typeof (modelValidationReport.models as Record<string, unknown>).recommendationRanker === "object"
+                ? ((modelValidationReport.models as Record<string, unknown>).recommendationRanker as Record<string, unknown>).trainingSampleSize
+                : 0
+            : 0);
+
+    const activeModeRaw = toOptionalString(calibrationReport?.activeMode)
+        || toOptionalString(modelValidationReport?.overallActiveMode)
+        || (serverBehaviorSource.includes("scoreRecommendationWithArtifact") ? "hybrid" : "deterministic");
+    const activeRankingMode: BehavioralIntelligencePanelState["activeRankingMode"] = activeModeRaw === "ml_active"
+        ? "ml_active"
+        : activeModeRaw === "hybrid"
+            ? "hybrid"
+            : activeModeRaw === "ml_experimental"
+                ? "ml_experimental"
+                : activeModeRaw === "deterministic" || activeModeRaw === "deterministic-fallback"
+                    ? "deterministic"
+                    : "unknown";
+
+    const beatsBaseline = Boolean(
+        validationMetricsRecord.deterministicBaselineComparison
+        && typeof validationMetricsRecord.deterministicBaselineComparison === "object"
+        && ((validationMetricsRecord.deterministicBaselineComparison as Record<string, unknown>).beatsBaseline === true),
+    );
+    const mlValidationState: BehavioralIntelligencePanelState["mlValidationState"] = sampleSize < 50
+        ? "not_enough_sample"
+        : sampleSize < 200
+            ? "experimental"
+            : activeRankingMode === "ml_active"
+                ? "active"
+                : activeRankingMode === "hybrid"
+                    ? "experimental"
+                    : beatsBaseline
+                        ? "experimental"
+                        : "under_baseline";
+
+    const latestRebuildAtMs = toNumber(input.behavioralSnapshotStatus?.updatedAtMs);
+    const sourceWindowStartMs = toNumber(input.behavioralSnapshotStatus?.sourceWindowStartMs);
+    const rebuildFreshnessState: BehavioralIntelligencePanelState["rebuildFreshnessState"] =
+        latestRebuildAtMs <= 0
+            ? "unknown"
+            : input.nowMs - latestRebuildAtMs <= 24 * 60 * 60 * 1000
+                ? "live"
+                : "stale";
+
+    const dropRows: BehavioralDropPanelRow[] = input.behavioralDrops.map((entry) => {
+        const previewOpens = toNumber(entry.previewOpens);
+        const viewerOpens = toNumber(entry.viewerOpens);
+        const unlocks = toNumber(entry.unlocks);
+        const purchases = toNumber(entry.purchasesAfterView24h);
+        const watchSampleCount = toNumber(entry.provenance && typeof entry.provenance === "object" ? (entry.provenance as Record<string, unknown>).watchSamples : 0);
+        const feedbackCount = toNumber(entry.negativeFeedbackCount) + toNumber(entry.positiveFeedbackCount);
+        const sampleCount = Math.max(0, previewOpens + viewerOpens + unlocks + watchSampleCount);
+        const predictionOutputs = entry.predictionOutputs && typeof entry.predictionOutputs === "object"
+            ? entry.predictionOutputs as Record<string, unknown>
+            : {};
+        const profileFreshnessState = normalizeBehavioralFreshnessState(entry.freshnessLabel);
+        const completionRateValue = typeof entry.completionRate === "number" ? Number(entry.completionRate) : null;
+        const completionRate = completionRateValue !== null ? Math.max(0, Math.min(100, Math.round(completionRateValue * 100))) : null;
+        const negativeRateValue = typeof entry.negativeSignalRate === "number" && feedbackCount > 0 ? Number(entry.negativeSignalRate) : null;
+        const negativeRate = negativeRateValue !== null ? Math.max(0, Math.min(100, Math.round(negativeRateValue * 100))) : null;
+        const completionExplanation = completionRateValue === null
+            ? "Completion rate is missing because no watch completion data was materialized for this drop."
+            : completionRateValue === 0 && viewerOpens <= 0
+                ? "Completion is effectively unavailable because the drop has no viewer-open sample yet."
+                : completionRateValue === 0
+                    ? "Completion is an actual zero from current watch-session truth for the sampled viewers."
+                    : `Completion is derived from watch-session truth over ${viewerOpens} viewer opens.`;
+        const negativeExplanation = feedbackCount <= 0
+            ? "No explicit negative-feedback sample is available yet, so negative suppression remains sample-limited."
+            : `Negative rate is derived from explicit negative feedback (${toNumber(entry.negativeFeedbackCount)} of ${feedbackCount} feedback samples).`;
+        const missingInputs: string[] = [];
+        if (profileFreshnessState !== "fresh") missingInputs.push("fresh_profile_snapshot");
+        if (!predictionOutputs.pPurchase7d) missingInputs.push("purchase_prediction_signal");
+        if (!predictionOutputs.pUnlock24h) missingInputs.push("unlock_prediction_signal");
+        if (!predictionOutputs.pWatchComplete) missingInputs.push("watch_completion_signal");
+        if (!predictionOutputs.pReturn7d) missingInputs.push("return_prediction_signal");
+        if (watchSampleCount <= 0) missingInputs.push("watch_completion_sample");
+        if (feedbackCount <= 0) missingInputs.push("negative_feedback_sample");
+        const topReasons: string[] = [];
+        if (toNumber(predictionOutputs.pPurchase7d) > 0) topReasons.push(`Purchase ${Math.round(toNumber(predictionOutputs.pPurchase7d) * 100)}%`);
+        if (toNumber(predictionOutputs.pUnlock24h) > 0) topReasons.push(`Unlock ${Math.round(toNumber(predictionOutputs.pUnlock24h) * 100)}%`);
+        if (toNumber(predictionOutputs.pWatchComplete) > 0) topReasons.push(`Watch ${Math.round(toNumber(predictionOutputs.pWatchComplete) * 100)}%`);
+        if (negativeRate !== null && negativeRate > 0) topReasons.push(`Negative suppression ${negativeRate}%`);
+        if (profileFreshnessState === "stale") topReasons.push("Profile snapshot is stale");
+        const rankEligibility: BehavioralDropPanelRow["rankEligibility"] = profileFreshnessState === "stale"
+            ? "stale"
+            : sampleCount < 5
+                ? "low_sample"
+                : toOptionalString(entry.status) && toOptionalString(entry.status) !== "active"
+                    ? "blocked"
+                    : "eligible";
+
+        return {
+            dropId: toOptionalString(entry.dropId) || "unknown-drop",
+            dropTitle: toOptionalString(entry.dropTitle) || toOptionalString(entry.dropId) || "Unknown drop",
+            creatorName: toOptionalString(entry.creatorName) || toOptionalString(entry.creatorId) || null,
+            profileFreshnessState,
+            lastUpdatedAtUtc: formatUtcFromMs(entry.updatedAtMs),
+            sourceTruthScore: Math.round(toNumber(entry.truthScore) * 100),
+            confidenceScore: Math.round(toNumber(entry.confidenceScore) * 100),
+            confidenceFormula: "35% source agreement + 25% freshness + 25% sample + 15% schema - issue penalty.",
+            sampleSize,
+            previews: previewOpens,
+            viewerOpens,
+            unlocks,
+            purchases,
+            completionRate,
+            completionExplanation,
+            negativeRate,
+            negativeExplanation,
+            pPurchase7d: typeof predictionOutputs.pPurchase7d === "number" ? Math.round(Number(predictionOutputs.pPurchase7d) * 100) : null,
+            pUnlock24h: typeof predictionOutputs.pUnlock24h === "number" ? Math.round(Number(predictionOutputs.pUnlock24h) * 100) : null,
+            pWatchComplete: typeof predictionOutputs.pWatchComplete === "number" ? Math.round(Number(predictionOutputs.pWatchComplete) * 100) : null,
+            pReturn7d: typeof predictionOutputs.pReturn7d === "number" ? Math.round(Number(predictionOutputs.pReturn7d) * 100) : null,
+            suppressionScore: typeof predictionOutputs.pNegativeFeedback === "number" ? Math.round(Number(predictionOutputs.pNegativeFeedback) * 100) : null,
+            diversityPenalty: null,
+            integrityMultiplier: null,
+            creatorSupplyScore: typeof entry.creatorBaselineMomentumScore === "number" ? Math.round(Number(entry.creatorBaselineMomentumScore)) : null,
+            finalRankScore: typeof entry.dropRecommendationScore === "number" ? Math.round(Number(entry.dropRecommendationScore) * 100) / 100 : null,
+            rankEligibility,
+            topReasons: topReasons.slice(0, 3),
+            missingInputs,
+        };
+    });
+
+    const freshDropProfiles = dropRows.filter((entry) => entry.profileFreshnessState === "fresh").length;
+    const staleDropProfiles = dropRows.filter((entry) => entry.profileFreshnessState === "stale").length;
+    const dropProfileFreshnessState: BehavioralIntelligencePanelState["dropProfileFreshnessState"] =
+        dropRows.length === 0
+            ? "unknown"
+            : staleDropProfiles === 0
+                ? "live"
+                : freshDropProfiles === 0
+                    ? "stale"
+                    : "partial";
+    const overallFreshnessState: BehavioralIntelligencePanelState["overallFreshnessState"] =
+        rebuildFreshnessState === "live" && dropProfileFreshnessState === "live"
+            ? "live"
+            : rebuildFreshnessState === "live" && dropProfileFreshnessState === "stale"
+                ? "partial"
+                : rebuildFreshnessState === "live" && dropProfileFreshnessState === "partial"
+                    ? "partial"
+                    : rebuildFreshnessState === "stale" || dropProfileFreshnessState === "stale"
+                        ? "stale"
+                        : "unknown";
+    const overallFreshnessExplanation = rebuildFreshnessState === "live" && dropProfileFreshnessState === "stale"
+        ? "Profile snapshot rebuilt recently, but the visible drop profiles are stale."
+        : rebuildFreshnessState === "live" && dropProfileFreshnessState === "partial"
+            ? "Snapshot rebuild is live, but some drop profiles are still stale."
+            : rebuildFreshnessState === "stale"
+                ? "Behavioral snapshot rebuild itself is stale."
+                : "Behavioral freshness could not be proven from the current debug sample.";
+
+    return {
+        generatedAtUtc: new Date(input.nowMs).toISOString(),
+        latestRebuildAtUtc: latestRebuildAtMs > 0 ? new Date(latestRebuildAtMs).toISOString() : null,
+        sourceWindowStartUtc: sourceWindowStartMs > 0 ? new Date(sourceWindowStartMs).toISOString() : "unknown",
+        sourceWindowEndUtc: latestRebuildAtMs > 0 ? new Date(latestRebuildAtMs).toISOString() : "unknown",
+        rebuildFreshnessState,
+        dropProfileFreshnessState,
+        overallFreshnessState,
+        overallFreshnessExplanation,
+        userProfiles: toNumber(input.behavioralSnapshotStatus?.userProfileCount),
+        guestProfiles: toNumber(input.behavioralSnapshotStatus?.guestProfileCount),
+        dropProfiles: toNumber(input.behavioralSnapshotStatus?.dropProfileCount),
+        staleDropProfiles,
+        freshDropProfiles,
+        activeRankingMode,
+        mlValidationState,
+        deterministicBaselineState: deterministicRankerSource.includes("computeDropRecommendationScore") || mlRankerSource.includes("deterministicPrecisionAt5")
+            ? "available"
+            : "missing",
+        modelVersion: toOptionalString(
+            modelValidationReport?.models
+            && typeof modelValidationReport.models === "object"
+            && (modelValidationReport.models as Record<string, unknown>).recommendationRanker
+            && typeof (modelValidationReport.models as Record<string, unknown>).recommendationRanker === "object"
+                ? ((modelValidationReport.models as Record<string, unknown>).recommendationRanker as Record<string, unknown>).modelVersion
+                : recommendationArtifact?.version,
+        ),
+        sampleSize,
+        validationMetrics: {
+            precisionAt5: toNumber(validationMetricsRecord.precisionAt5),
+            precisionAt10: toNumber(validationMetricsRecord.precisionAt10),
+            purchaseHitRate7d: toNumber(validationMetricsRecord.purchaseHitRateWithin7d),
+            unlockHitRate24h: toNumber(validationMetricsRecord.unlockHitRateWithin24h),
+            watchCompletionHitRate: toNumber(validationMetricsRecord.watchCompletionHitRate),
+            returnHitRate7d: toNumber(validationMetricsRecord.returnHitRateWithin7d),
+            calibrationError: toNumber(validationMetricsRecord.calibrationError),
+            baselineComparison: sampleSize < 50
+                ? "not_tested"
+                : beatsBaseline
+                    ? "beats_baseline"
+                    : "under_baseline",
+        },
+        connectedModules,
+        connectedModuleCount,
+        missingModuleCount,
+        confidenceFormula: "35% source agreement + 25% freshness + 25% sample + 15% schema - issue penalty.",
+        dropRows,
+    };
+}
+
 function toRecordArray(value: unknown): Array<Record<string, unknown>> {
     return Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object") : [];
 }
@@ -2242,6 +2591,11 @@ export async function GET(request: NextRequest) {
             listAnalyticsTruthRepairs(20),
             listAdminMetricSnapshotDebugMetadata({ limit: 120 }),
         ]);
+        const behavioralIntelligencePanel = buildBehavioralIntelligencePanelState({
+            nowMs,
+            behavioralSnapshotStatus: behavioralSnapshotStatus as Record<string, unknown> | null,
+            behavioralDrops: behavioralDrops as Array<Record<string, unknown>>,
+        });
                 const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
         const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {
             const lastTouch = Math.max(
@@ -4051,6 +4405,7 @@ export async function GET(request: NextRequest) {
             queueRuntimeSummary,
             behavioralSnapshotStatus,
             behavioralDrops,
+            behavioralIntelligencePanel,
             analyticsTruthRecovery,
             analyticsTruthDrops,
             analyticsTruthUsers,

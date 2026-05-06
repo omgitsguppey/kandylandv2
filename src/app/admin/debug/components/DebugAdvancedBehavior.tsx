@@ -2,12 +2,10 @@
 
 import { Pill, StatCard, Section, ScrollWrap } from "./DebugPrimitives";
 
-/* ─── Props ─── */
 export interface DebugAdvancedBehaviorProps {
     data: any;
 }
 
-/* ─── Helpers (local) ─── */
 function formatRelative(timestamp?: number) {
     if (!timestamp) return "No recent activity";
     const deltaMs = Math.max(0, Date.now() - timestamp);
@@ -18,55 +16,109 @@ function formatRelative(timestamp?: number) {
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
 }
-function formatTimestamp(timestamp?: number) {
-    if (!timestamp) return "Not recorded";
-    return new Date(timestamp).toLocaleString();
-}
 
-/* ─── Component ─── */
 export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
+    const panel = data?.behavioralIntelligencePanel;
+    const dropRows = panel?.dropRows || [];
+    const rankingModeLabel = panel?.activeRankingMode === "ml_active"
+        ? "ML active"
+        : panel?.activeRankingMode === "hybrid"
+            ? "Hybrid active"
+            : panel?.activeRankingMode === "ml_experimental"
+                ? "ML experimental"
+                : panel?.activeRankingMode === "deterministic"
+                    ? "Deterministic active"
+                    : "Unknown";
+    const mlValidationLabel = panel?.mlValidationState === "not_enough_sample"
+        ? "Not enough sample"
+        : panel?.mlValidationState === "under_baseline"
+            ? "Under baseline"
+            : panel?.mlValidationState === "experimental"
+                ? "Experimental"
+                : panel?.mlValidationState === "active"
+                    ? "Active"
+                    : "Missing";
+
     return (
         <>
-            {/* ── Behavioral Intelligence ── */}
             <Section
                 title="Behavioral Intelligence"
                 subtitle="Profile snapshot coverage plus drop-level ranking inputs used before any ML dependence."
                 defaultOpen={false}
-                summary={<><Pill label="User profiles" value={data?.stats?.behavioralUserProfiles ?? 0} /><Pill label="Drop profiles" value={data?.stats?.behavioralDropProfiles ?? 0} /><Pill label="Freshness" value={data?.behavioralSnapshotStatus?.freshnessLabel || "unknown"} tone={data?.behavioralSnapshotStatus?.freshnessLabel === "live" ? "good" : "warn"} /></>}
+                summary={
+                    <>
+                        <Pill label="User profiles" value={panel?.userProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Drop profiles" value={panel?.dropProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Ranking mode" value={rankingModeLabel} tone={panel?.activeRankingMode === "unknown" ? "warn" : "good"} truthState={panel?.activeRankingMode === "unknown" ? "degraded" : "live"} badgeLabel="LOADED" />
+                        <Pill label="Freshness" value={panel?.overallFreshnessState || "unknown"} tone={panel?.overallFreshnessState === "live" ? "good" : "warn"} truthState={panel?.overallFreshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
+                    </>
+                }
             >
                 <div className="grid gap-4 lg:grid-cols-1">
                     <div className="space-y-3">
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Snapshot status</p>
                             <div className="mt-3 flex flex-wrap gap-2">
-                                <Pill label="Users" value={data?.stats?.behavioralUserProfiles ?? 0} />
-                                <Pill label="Guests" value={data?.stats?.behavioralGuestProfiles ?? 0} />
-                                <Pill label="Drops" value={data?.stats?.behavioralDropProfiles ?? 0} />
+                                <Pill label="Users" value={panel?.userProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
+                                <Pill label="Guests" value={panel?.guestProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
+                                <Pill label="Drops" value={panel?.dropProfiles ?? 0} truthState="live" badgeLabel="LOADED" />
+                                <Pill label="Rebuild freshness" value={panel?.rebuildFreshnessState || "unknown"} tone={panel?.rebuildFreshnessState === "live" ? "good" : "warn"} truthState={panel?.rebuildFreshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
+                                <Pill label="Drop freshness" value={panel?.dropProfileFreshnessState || "unknown"} tone={panel?.dropProfileFreshnessState === "live" ? "good" : "warn"} truthState={panel?.dropProfileFreshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
+                                <Pill label="ML validation" value={mlValidationLabel} tone={panel?.mlValidationState === "active" ? "good" : panel?.mlValidationState === "missing" ? "bad" : "warn"} truthState={panel?.mlValidationState === "active" ? "live" : panel?.mlValidationState === "missing" ? "failed" : "degraded"} badgeLabel="LOADED" />
+                                <Pill label="Connected modules" value={`${panel?.connectedModuleCount ?? 0}/9`} tone={(panel?.missingModuleCount ?? 0) === 0 ? "good" : "warn"} truthState={(panel?.missingModuleCount ?? 0) === 0 ? "live" : "degraded"} badgeLabel="LOADED" />
                             </div>
-                            <p className="mt-3 text-sm text-gray-300">Latest rebuild {formatRelative(data?.behavioralSnapshotStatus?.updatedAtMs)}. Source window starts {formatTimestamp(data?.behavioralSnapshotStatus?.sourceWindowStartMs)}.</p>
+                            <p className="mt-3 text-sm text-gray-300">
+                                Latest rebuild {panel?.latestRebuildAtUtc ? formatRelative(Date.parse(panel.latestRebuildAtUtc)) : "unknown"}.
+                                Source window starts {panel?.sourceWindowStartUtc || "unknown"} and ends {panel?.sourceWindowEndUtc || "unknown"}.
+                            </p>
+                            <p className="mt-2 text-sm text-gray-400">{panel?.overallFreshnessExplanation || "Behavioral freshness is not available."}</p>
+                            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+                                <StatCard label="Sample size" value={panel?.sampleSize ?? 0} meta="ML stays deterministic below 50 samples and experimental below 200." truthState="live" />
+                                <StatCard label="Precision@5" value={panel?.validationMetrics?.precisionAt5 ?? 0} meta={`Baseline ${panel?.validationMetrics?.baselineComparison || "not_tested"}`} truthState="live" />
+                                <StatCard label="Calibration error" value={panel?.validationMetrics?.calibrationError ?? 0} meta={`Confidence formula: ${panel?.confidenceFormula || "missing"}`} truthState="live" />
+                                <StatCard label="Deterministic baseline" value={panel?.deterministicBaselineState || "missing"} meta={`Model v${panel?.modelVersion || "unknown"}`} truthState={panel?.deterministicBaselineState === "available" ? "live" : "failed"} />
+                            </div>
                         </div>
                     </div>
+
                     <ScrollWrap>
                         <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
-                            {(data?.behavioralDrops || []).length ? (data?.behavioralDrops || []).map((entry: any) => (
+                            {dropRows.length ? dropRows.map((entry: any) => (
                                 <div key={entry.dropId} className="space-y-2 px-4 py-3">
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
                                             <p className="font-semibold text-white">{entry.dropTitle || entry.dropId}</p>
-                                            <p className="text-xs text-gray-400">{entry.dropId} · {entry.dropCategory || "unknown"}</p>
+                                            <p className="text-xs text-gray-400">{entry.creatorName || "Unknown creator"} · {entry.dropId}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="State" value={entry.freshnessLabel || "unknown"} tone={entry.freshnessLabel === "live" ? "good" : "warn"} />
-                                            <Pill label="Confidence" value={`${Math.round((entry.confidenceScore || 0) * 100)}%`} />
+                                            <Pill label="Freshness" value={entry.profileFreshnessState || "unknown"} tone={entry.profileFreshnessState === "fresh" ? "good" : "warn"} truthState={entry.profileFreshnessState === "fresh" ? "live" : "degraded"} badgeLabel="LOADED" />
+                                            <Pill label="Eligibility" value={entry.rankEligibility || "unknown"} tone={entry.rankEligibility === "eligible" ? "good" : "warn"} truthState={entry.rankEligibility === "eligible" ? "live" : "degraded"} badgeLabel="LOADED" />
+                                            <Pill label="Confidence" value={`${entry.confidenceScore ?? 0}%`} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Source truth" value={`${entry.sourceTruthScore ?? 0}%`} truthState="live" badgeLabel="LOADED" />
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                        <Pill label="Previews" value={entry.previewOpens ?? 0} />
-                                        <Pill label="Viewer opens" value={entry.viewerOpens ?? 0} />
-                                        <Pill label="Unlocks" value={entry.unlocks ?? 0} />
-                                        <Pill label="Completion" value={`${Math.round((entry.completionRate || 0) * 100)}%`} />
-                                        <Pill label="Negative" value={`${Math.round((entry.negativeSignalRate || 0) * 100)}%`} tone={(entry.negativeSignalRate || 0) > 0.25 ? "warn" : "good"} />
+                                        <Pill label="Sample size" value={entry.sampleSize ?? 0} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Previews" value={entry.previews ?? 0} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Viewer opens" value={entry.viewerOpens ?? 0} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Unlocks" value={entry.unlocks ?? 0} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Purchases" value={entry.purchases ?? 0} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Completion" value={entry.completionRate === null ? "missing" : `${entry.completionRate}%`} tone={entry.completionRate === null ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Negative" value={entry.negativeRate === null ? "missing" : `${entry.negativeRate}%`} tone={(entry.negativeRate ?? 0) > 25 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                                     </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        <Pill label="Purchase" value={entry.pPurchase7d === null || entry.pPurchase7d === undefined ? "n/a" : `${entry.pPurchase7d}%`} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Unlock" value={entry.pUnlock24h === null || entry.pUnlock24h === undefined ? "n/a" : `${entry.pUnlock24h}%`} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Watch" value={entry.pWatchComplete === null || entry.pWatchComplete === undefined ? "n/a" : `${entry.pWatchComplete}%`} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Return" value={entry.pReturn7d === null || entry.pReturn7d === undefined ? "n/a" : `${entry.pReturn7d}%`} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Suppression" value={entry.suppressionScore === null || entry.suppressionScore === undefined ? "n/a" : `${entry.suppressionScore}%`} tone={(entry.suppressionScore ?? 0) > 25 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Final rank" value={entry.finalRankScore === null || entry.finalRankScore === undefined ? "n/a" : entry.finalRankScore} truthState="live" badgeLabel="LOADED" />
+                                    </div>
+                                    <p className="text-xs text-gray-300">Confidence formula: {entry.confidenceFormula}</p>
+                                    <p className="text-xs text-gray-300">Completion: {entry.completionExplanation}</p>
+                                    <p className="text-xs text-gray-300">Negative: {entry.negativeExplanation}</p>
+                                    <p className="text-xs text-gray-400">Top reasons: {(entry.topReasons || []).length ? entry.topReasons.join(" · ") : "No strong ranking reason surfaced in the sampled profile."}</p>
+                                    <p className="text-xs text-gray-500">Missing inputs: {(entry.missingInputs || []).length ? entry.missingInputs.join(", ") : "none"}</p>
                                 </div>
                             )) : <div className="px-4 py-4 text-sm text-amber-100">No behavioral drop-intelligence rows are available yet. Rebuild the snapshots or wait for the scheduled pass.</div>}
                         </div>
@@ -74,7 +126,6 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                 </div>
             </Section>
 
-            {/* ── Telemetry Truth Recovery ── */}
             <Section
                 title="Telemetry Truth Recovery"
                 subtitle="Observed, checked, final, and estimated analytics layers with repair visibility."
