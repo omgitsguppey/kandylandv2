@@ -1,10 +1,51 @@
 {
-  "currentVersion": "1.113.0",
+  "currentVersion": "1.113.1",
   "channel": "beta",
-  "generatedAt": "2026-05-06T17:17:20.048Z",
-  "generatedAtUtc": "2026-05-06T17:17:20.048Z",
-  "lastCommitSha": "8b5a6256cf5b7660590df0c4e3786a1a1875ac11",
+  "generatedAt": "2026-05-06T19:33:36.600Z",
+  "generatedAtUtc": "2026-05-06T19:33:36.600Z",
+  "lastCommitSha": "04b6e80c3f6bdd7eed4d17f2b5c337815d62cb85",
   "notes": [
+    {
+      "version": "1.113.1",
+      "previousVersion": "1.113.0",
+      "commitSha": "04b6e80c3f6bdd7eed4d17f2b5c337815d62cb85",
+      "commitTitle": "fix(beta): ensure badge opens latest notes",
+      "committedAt": "2026-05-06T19:33:17.000Z",
+      "generatedAt": "2026-05-06T19:33:36.599Z",
+      "committedAtUtc": "2026-05-06T19:33:17.000Z",
+      "generatedAtUtc": "2026-05-06T19:33:36.599Z",
+      "diffStats": {
+        "rawAdditions": 9,
+        "rawDeletions": 13,
+        "rawChangeCount": 22,
+        "additions": 9,
+        "deletions": 13,
+        "effectiveAdditions": 9,
+        "effectiveDeletions": 13,
+        "changedFiles": 3,
+        "effectiveChangeCount": 22,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "title": "Improved Beta update notes",
+      "updatedAtUtc": "2026-05-06T19:33:36.599Z",
+      "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
+      "userFacingTitle": "Improved Beta update notes",
+      "bullets": [
+        "Improved Beta notes with cleaner summaries and compact bullets.",
+        "Updated timestamps so recent changes are easier to compare with reports.",
+        "Reduced technical wording in public update notes."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Release note summaries are generated separately from collapsed technical details."
+      ],
+      "affectedSurfaces": [
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.113.0",
       "previousVersion": "1.112.0",
@@ -1937,44 +1978,6 @@
       "updatedAtUtc": "2026-05-06T17:11:04.973Z",
       "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
       "userFacingTitle": "Improved admin AI status",
-      "bullets": [
-        "Improved admin reliability and status accuracy.",
-        "Clarified unavailable data without showing fake zeroes.",
-        "Updated labels for review and support follow-up."
-      ],
-      "audience": "admins",
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.65.0",
-      "previousVersion": "1.64.0",
-      "commitSha": "566d2ff7d02e6a738b1f4d2b08d6357452411392",
-      "commitTitle": "fix(tasks): validate catalog coverage end to end",
-      "committedAt": "2026-05-06T07:29:07.000Z",
-      "generatedAt": "2026-05-06T17:11:04.819Z",
-      "committedAtUtc": "2026-05-06T07:29:07.000Z",
-      "generatedAtUtc": "2026-05-06T17:11:04.819Z",
-      "diffStats": {
-        "rawAdditions": 699,
-        "rawDeletions": 28,
-        "rawChangeCount": 727,
-        "additions": 699,
-        "deletions": 28,
-        "effectiveAdditions": 699,
-        "effectiveDeletions": 28,
-        "changedFiles": 7,
-        "effectiveChangeCount": 727,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "title": "Bug fixes and quality-of-life improvements",
-      "updatedAtUtc": "2026-05-06T17:11:04.819Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
-      "userFacingTitle": "Bug fixes and quality-of-life improvements",
       "bullets": [
         "Improved admin reliability and status accuracy.",
         "Clarified unavailable data without showing fake zeroes.",

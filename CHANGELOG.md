@@ -2,6 +2,17 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.113.1] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 19:33 UTC
+- Improved Beta update notes
+- Cleaner Beta update notes with clearer summaries and timestamps.
+- Improved Beta notes with cleaner summaries and compact bullets.
+- Updated timestamps so recent changes are easier to compare with reports.
+- Reduced technical wording in public update notes.
+
 ## [1.113.0] - 2026-05-06
 
 ### Fixed
@@ -536,17 +547,6 @@ User-facing KandyDrops Beta updates, newest first.
 
 - Updated 2026-05-06 07:41 UTC
 - Improved admin AI status
-- Bug fixes and quality-of-life improvements for admin review tools.
-- Improved admin reliability and status accuracy.
-- Clarified unavailable data without showing fake zeroes.
-- Updated labels for review and support follow-up.
-
-## [1.65.0] - 2026-05-06
-
-### Fixed
-
-- Updated 2026-05-06 07:29 UTC
-- Bug fixes and quality-of-life improvements
 - Bug fixes and quality-of-life improvements for admin review tools.
 - Improved admin reliability and status accuracy.
 - Clarified unavailable data without showing fake zeroes.
