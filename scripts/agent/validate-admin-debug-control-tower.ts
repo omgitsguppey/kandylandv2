@@ -69,6 +69,7 @@ const debugMonitoringRoutes = readRequired("src/app/admin/debug/components/Debug
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
 const debugAdvancedDataValidation = readRequired("src/app/admin/debug/components/DebugAdvancedDataValidation.tsx");
 const debugAdvancedDrift = readRequired("src/app/admin/debug/components/DebugAdvancedDrift.tsx");
+const debugAdvancedTelemetry = readRequired("src/app/admin/debug/components/DebugAdvancedTelemetry.tsx");
 const debugAdvancedTruth = readRequired("src/app/admin/debug/components/DebugAdvancedTruth.tsx");
 const debugPanelStatus = readRequired("src/app/admin/debug/components/DebugPanelStatusBySection.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
@@ -203,7 +204,11 @@ for (const expected of [
   "RuntimeUnsupportedGroup",
   "RuntimeTaskSourceParityRow",
   "TaskSourceMismatchReason",
+  "TaskTelemetryMappingSummary",
+  "SharedTaskEventGroup",
+  "TaskTelemetryAlignmentWarning",
   "runtimeTaskDriftSummary",
+  "taskTelemetryMappingSummary",
   "unsupportedRuntimeGroups",
   "sourceParityRows",
   "canonicalCompletionSource",
@@ -220,6 +225,16 @@ for (const expected of [
   "buildRuntimeTaskMismatchReasons",
   "resolveRuntimeTaskSourceParityState",
   "explainRuntimeTaskSourceParity",
+  "buildSharedTaskEventDisambiguators",
+  "buildSharedTaskEventExplanation",
+  "unsafeSharedEventCount",
+  "unsupportedActiveAssignments",
+  "\"safe_with_criteria\"",
+  "\"needs_criteria\"",
+  "\"unsafe_shared_event\"",
+  "\"shared_event_missing_criteria\"",
+  "\"shared_event_missing_unique_keying\"",
+  "\"completion_source_mismatch\"",
   "\"rollup_completed_exceeds_task_completed\"",
   "\"event_stats_not_task_scoped\"",
   "\"receipts_without_task_completion\"",
@@ -1308,6 +1323,25 @@ for (const forbidden of [
 ]) {
   requireNotIncludes(debugAdvancedDrift, forbidden, "Runtime task drift panel must not flag zero custom assignments as review");
 }
+for (const expected of [
+  "Task telemetry mapping",
+  "taskTelemetryMappingSummary",
+  "label=\"Alignment warnings\"",
+  "label=\"Shared event groups\"",
+  "label=\"Unsupported runtime\"",
+  "label=\"Unsafe shared events\"",
+  "label=\"Unsupported active assignments\"",
+  "truthState=\"live\"",
+  "badgeLabel=\"LOADED\"",
+  "Shared events are only safe when criteria, distinct keying, and count thresholds keep task attribution scoped.",
+  "No unsafe shared event groups are distorting task attribution in the sampled data.",
+  "No shared event groups currently qualify as safe-with-criteria in the sampled data.",
+  "No unsupported runtime task records were detected in the sampled data.",
+  "No task telemetry alignment warnings were detected in the sampled data.",
+  "event stats are trigger evidence only",
+]) {
+  requireIncludes(debugAdvancedTelemetry, expected, "Task telemetry mapping panel must show grouped ambiguity and loaded truth");
+}
 
 for (const expected of [
   "Infrastructure Health & Dependencies",
@@ -1597,6 +1631,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugTabInfrastructure\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedDataValidation\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedDrift\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugAdvancedTelemetry\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedTruth\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugNowDiagnostics\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPanelStatusBySection\.tsx$/u,

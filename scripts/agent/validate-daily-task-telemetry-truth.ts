@@ -39,6 +39,7 @@ const checkInRoute = readRequired("src/app/api/checkin/route.ts");
 const dailyTasksServer = readRequired("src/lib/server/daily-tasks.ts");
 const adminDebugRoute = readRequired("src/app/api/admin/debug/route.ts");
 const debugTabActions = readRequired("src/app/admin/debug/components/DebugTabActions.tsx");
+const debugAdvancedTelemetry = readRequired("src/app/admin/debug/components/DebugAdvancedTelemetry.tsx");
 const eventFactNormalizer = readRequired("src/lib/behavioral/normalize-event-fact.ts");
 const ingestTests = readRequired("tests/unit/analytics-ingest-identified-route.spec.ts");
 const eventFactTests = readRequired("tests/unit/event-fact-truth.spec.ts");
@@ -125,6 +126,14 @@ requireIncludes(adminDebugRoute, "assignment_missing", "Admin debug task attribu
 requireIncludes(adminDebugRoute, "onboarding_not_complete", "Admin debug task attribution incomplete onboarding classification");
 requireIncludes(adminDebugRoute, "Rebuild task assignment for this user from canonical daily task rotation.", "Admin debug task attribution self-heal action");
 requireIncludes(adminDebugRoute, "No task assignment repair is required until onboarding is complete.", "Admin debug task attribution ineligible user action");
+requireIncludes(adminDebugRoute, "TaskTelemetryMappingSummary", "Admin debug task telemetry mapping summary model");
+requireIncludes(adminDebugRoute, "SharedTaskEventGroup", "Admin debug shared event group model");
+requireIncludes(adminDebugRoute, "TaskTelemetryAlignmentWarning", "Admin debug telemetry alignment warning model");
+requireIncludes(adminDebugRoute, "taskTelemetryMappingSummary", "Admin debug task telemetry mapping payload");
+requireIncludes(adminDebugRoute, "\"shared_event_missing_criteria\"", "Admin debug shared event missing criteria warning");
+requireIncludes(adminDebugRoute, "\"shared_event_missing_unique_keying\"", "Admin debug shared event missing unique keying warning");
+requireIncludes(adminDebugRoute, "\"event_stats_not_task_scoped\"", "Admin debug event-stats warning");
+requireIncludes(adminDebugRoute, "\"completion_source_mismatch\"", "Admin debug completion source mismatch warning");
 requireIncludes(debugTabActions, "Expected source", "Task Issues Attribution UI expected source");
 requireIncludes(debugTabActions, "Found source", "Task Issues Attribution UI found source");
 requireIncludes(debugTabActions, "Issue type", "Task Issues Attribution UI issue type");
@@ -137,6 +146,12 @@ requireIncludes(eventFactNormalizer, 'daily_task_completed: { normalizedAction: 
 requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "daily_checkin_claimed"', "Event fact normalizer day-key dedupe check-in");
 requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_completed"', "Event fact normalizer day-key dedupe tasks");
 requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_guidance_completed"', "Event fact normalizer day-key dedupe guidance completion");
+
+requireIncludes(debugAdvancedTelemetry, "label=\"Shared event groups\"", "Telemetry mapping panel shared event groups summary");
+requireIncludes(debugAdvancedTelemetry, "label=\"Unsafe shared events\"", "Telemetry mapping panel unsafe shared-event summary");
+requireIncludes(debugAdvancedTelemetry, "label=\"Unsupported active assignments\"", "Telemetry mapping panel unsupported active assignment summary");
+requireIncludes(debugAdvancedTelemetry, "event stats are trigger evidence only", "Telemetry mapping panel must not treat event stats as completions");
+requireIncludes(debugAdvancedTelemetry, "No task telemetry alignment warnings were detected in the sampled data.", "Telemetry mapping panel empty-state truth");
 
 requireIncludes(ingestTests, 'eventName: "daily_checkin_claimed"', "Ingest tests daily check-in canonicalization");
 requireIncludes(ingestTests, 'eventName: "task_completed"', "Ingest tests task completion canonicalization");

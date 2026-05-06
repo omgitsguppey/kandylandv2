@@ -342,6 +342,47 @@ type RuntimeTaskSourceParityRow = {
     explanation: string;
 };
 
+type SharedTaskEventGroup = {
+    eventName: string;
+    normalizedAction: string;
+    taskIds: string[];
+    taskTitles: string[];
+    ambiguityState: "safe_with_criteria" | "needs_criteria" | "unsafe_shared_event";
+    requiredDisambiguators: string[];
+    presentDisambiguators: string[];
+    missingDisambiguators: string[];
+    severity: "info" | "review" | "error";
+    explanation: string;
+};
+
+type TaskTelemetryAlignmentWarning = {
+    taskId: string;
+    taskTitle: string;
+    triggerEvent: string;
+    warningType:
+    | "shared_event_missing_criteria"
+    | "shared_event_missing_unique_keying"
+    | "telemetry_event_unsupported"
+    | "canonical_alias_missing"
+    | "runtime_action_missing"
+    | "event_stats_not_task_scoped"
+    | "completion_source_mismatch";
+    severity: "info" | "review" | "error";
+    suggestedAction: string;
+};
+
+type TaskTelemetryMappingSummary = {
+    generatedAtUtc: string;
+    alignmentWarningCount: number;
+    sharedEventCount: number;
+    unsupportedRuntimeCount: number;
+    unsafeSharedEventCount: number;
+    unsupportedActiveAssignments: number;
+    sharedEventGroups: SharedTaskEventGroup[];
+    unsupportedRuntimeGroups: RuntimeUnsupportedGroup[];
+    alignmentWarnings: TaskTelemetryAlignmentWarning[];
+};
+
 type DependencyPackageName = "root" | "functions" | "workspace" | "unknown";
 type DependencyType = "runtime" | "dev" | "optional";
 type DependencyCategory =
@@ -1207,6 +1248,59 @@ function explainRuntimeTaskSourceParity(row: Omit<RuntimeTaskSourceParityRow, "e
     return details.length > 0
         ? `${details.join(" ")} Canonical completion source: ${row.canonicalCompletionSource}.`
         : `Runtime task source parity is ${row.sourceParityState}; inspect the underlying sampled records.`;
+}
+
+function buildSharedTaskEventDisambiguators(definition: DailyTaskDefinition) {
+    const required = new Set<string>();
+    const present = new Set<string>();
+
+    if (definition.maxProgress > 1) {
+        required.add("count threshold");
+    }
+    if (definition.uniqueByParamKey) {
+        required.add(`distinct ${definition.uniqueByParamKey}`);
+        present.add(`distinct ${definition.uniqueByParamKey}`);
+    } else if (definition.maxProgress > 1) {
+        required.add("distinct keying");
+    }
+    if (definition.criteria?.paramEquals) {
+        required.add(`${definition.criteria.paramEquals.key} filter`);
+        present.add(`${definition.criteria.paramEquals.key} filter`);
+    }
+    if (definition.criteria?.minNumberParam) {
+        required.add(`${definition.criteria.minNumberParam.key} threshold`);
+        present.add(`${definition.criteria.minNumberParam.key} threshold`);
+    }
+    if (definition.criteria?.includesAnyParam) {
+        required.add(`${definition.criteria.includesAnyParam.key} category`);
+        present.add(`${definition.criteria.includesAnyParam.key} category`);
+    }
+
+    if (definition.eventName === "feedback_submitted") {
+        required.add("feedback category/rating criteria");
+        if (definition.criteria) {
+            present.add("feedback category/rating criteria");
+        }
+    }
+    if (definition.eventName === "unlock_drop_success" && definition.criteria) {
+        required.add("unlock category criteria");
+        present.add("unlock category criteria");
+    }
+
+    return {
+        required: Array.from(required),
+        present: Array.from(present),
+    };
+}
+
+function buildSharedTaskEventExplanation(group: Omit<SharedTaskEventGroup, "explanation">) {
+    if (group.ambiguityState === "safe_with_criteria") {
+        return "Shared event mapping is bounded by explicit criteria and distinct/count keying.";
+    }
+    if (group.ambiguityState === "needs_criteria") {
+        return `Shared event requires additional disambiguation: missing ${group.missingDisambiguators.join(", ")}.`;
+    }
+    return `Shared event is unsafe for task attribution until disambiguators are added: missing ${group.missingDisambiguators.join(", ")}.`;
 }
 
 function readGeneratedAnalyticsStateFile(fileName: string): Record<string, unknown> | null {
@@ -2799,6 +2893,139 @@ export async function GET(request: NextRequest) {
         const partialRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "partial").length;
         const mismatchRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "mismatch").length;
         const unknownRuntimeTaskCount = runtimeTaskSourceParityRows.filter((entry) => entry.sourceParityState === "unknown").length;
+        const sharedEventGroups: SharedTaskEventGroup[] = runtimeTaskAudit.ambiguousEventMappings.map((entry) => {
+            const mappedDefinitions = entry.taskIds
+                .map((taskId) => taskDefinitionsById.get(taskId))
+                .filter((definition): definition is DailyTaskDefinition => Boolean(definition));
+            const requiredDisambiguators = new Set<string>();
+            const presentDisambiguators = new Set<string>();
+
+            mappedDefinitions.forEach((definition) => {
+                const disambiguators = buildSharedTaskEventDisambiguators(definition);
+                disambiguators.required.forEach((item) => requiredDisambiguators.add(item));
+                disambiguators.present.forEach((item) => presentDisambiguators.add(item));
+            });
+
+            const missingDisambiguators = Array.from(requiredDisambiguators).filter((item) => !presentDisambiguators.has(item));
+            const hasAnyCriteria = mappedDefinitions.some((definition) => Boolean(definition.criteria));
+            const hasAnyUniqueKeying = mappedDefinitions.some((definition) => Boolean(definition.uniqueByParamKey));
+            const ambiguityState: SharedTaskEventGroup["ambiguityState"] = missingDisambiguators.length === 0
+                ? "safe_with_criteria"
+                : hasAnyCriteria || hasAnyUniqueKeying
+                    ? "needs_criteria"
+                    : "unsafe_shared_event";
+            const severity: SharedTaskEventGroup["severity"] = ambiguityState === "safe_with_criteria"
+                ? "info"
+                : ambiguityState === "needs_criteria"
+                    ? "review"
+                    : "error";
+            const groupBase = {
+                eventName: entry.eventName,
+                normalizedAction: entry.eventName,
+                taskIds: entry.taskIds,
+                taskTitles: entry.taskTitles,
+                ambiguityState,
+                requiredDisambiguators: Array.from(requiredDisambiguators),
+                presentDisambiguators: Array.from(presentDisambiguators),
+                missingDisambiguators,
+                severity,
+            };
+
+            return {
+                ...groupBase,
+                explanation: buildSharedTaskEventExplanation(groupBase),
+            } satisfies SharedTaskEventGroup;
+        }).sort((left, right) => {
+            const severityRank = { error: 0, review: 1, info: 2 };
+            return severityRank[left.severity] - severityRank[right.severity]
+                || right.taskIds.length - left.taskIds.length
+                || left.eventName.localeCompare(right.eventName);
+        });
+        const alignmentWarnings: TaskTelemetryAlignmentWarning[] = [];
+        runtimeTaskAudit.distribution.forEach((entry) => {
+            const definition = taskDefinitionsById.get(entry.taskId);
+            const sourceParity = runtimeTaskSourceParityRows.find((row) => row.taskId === entry.taskId);
+            const sharedGroup = sharedEventGroups.find((group) => group.taskIds.includes(entry.taskId));
+
+            if (sharedGroup && (sharedGroup.ambiguityState === "needs_criteria" || sharedGroup.ambiguityState === "unsafe_shared_event")) {
+                alignmentWarnings.push({
+                    taskId: entry.taskId,
+                    taskTitle: entry.title,
+                    triggerEvent: entry.eventName,
+                    warningType: "shared_event_missing_criteria",
+                    severity: sharedGroup.severity === "error" ? "error" : "review",
+                    suggestedAction: `Add task-specific criteria for shared event ${entry.eventName}.`,
+                });
+            }
+            if (sharedGroup && entry.maxProgress > 1 && !entry.uniqueByParamKey) {
+                alignmentWarnings.push({
+                    taskId: entry.taskId,
+                    taskTitle: entry.title,
+                    triggerEvent: entry.eventName,
+                    warningType: "shared_event_missing_unique_keying",
+                    severity: "error",
+                    suggestedAction: "Add distinct/count-safe keying for multi-progress shared events.",
+                });
+            }
+            if (entry.trackingSource === "unsupported") {
+                alignmentWarnings.push({
+                    taskId: entry.taskId,
+                    taskTitle: entry.title,
+                    triggerEvent: entry.eventName,
+                    warningType: "telemetry_event_unsupported",
+                    severity: "error",
+                    suggestedAction: "Map the trigger event into the telemetry catalog or replace it with a supported canonical event.",
+                });
+            }
+            if (definition && definition.eventName === "unlock_drop_success") {
+                alignmentWarnings.push({
+                    taskId: entry.taskId,
+                    taskTitle: entry.title,
+                    triggerEvent: entry.eventName,
+                    warningType: "canonical_alias_missing",
+                    severity: "review",
+                    suggestedAction: "Verify canonical drop_unlocked alias coverage before treating legacy unlock telemetry as settled.",
+                });
+            }
+            if (!entry.destinationHref) {
+                alignmentWarnings.push({
+                    taskId: entry.taskId,
+                    taskTitle: entry.title,
+                    triggerEvent: entry.eventName,
+                    warningType: "runtime_action_missing",
+                    severity: "review",
+                    suggestedAction: "Restore a reachable task action path for this runtime task.",
+                });
+            }
+            if (sourceParity?.mismatchReasons.includes("event_stats_not_task_scoped")) {
+                alignmentWarnings.push({
+                    taskId: entry.taskId,
+                    taskTitle: entry.title,
+                    triggerEvent: entry.eventName,
+                    warningType: "event_stats_not_task_scoped",
+                    severity: "review",
+                    suggestedAction: "Do not use raw event stats as completion proof without task-scoped evidence.",
+                });
+            }
+            if (sourceParity && sourceParity.sourceParityState !== "aligned" && sourceParity.mismatchReasons.some((reason) => reason !== "event_stats_not_task_scoped")) {
+                alignmentWarnings.push({
+                    taskId: entry.taskId,
+                    taskTitle: entry.title,
+                    triggerEvent: entry.eventName,
+                    warningType: "completion_source_mismatch",
+                    severity: sourceParity.sourceParityState === "mismatch" ? "error" : "review",
+                    suggestedAction: "Inspect task completion, reward receipt, and rollup parity for this task.",
+                });
+            }
+        });
+        const dedupedAlignmentWarnings = Array.from(new Map(
+            alignmentWarnings.map((warning) => [`${warning.taskId}:${warning.warningType}`, warning]),
+        ).values()).sort((left, right) => {
+            const severityRank = { error: 0, review: 1, info: 2 };
+            return severityRank[left.severity] - severityRank[right.severity]
+                || left.taskTitle.localeCompare(right.taskTitle)
+                || left.warningType.localeCompare(right.warningType);
+        });
         const runtimeTaskDriftSummary: RuntimeTaskDriftSummary = {
             generatedAtUtc: new Date(nowMs).toISOString(),
             sampledUsers: runtimeTaskAudit.summary.sampledUsers,
@@ -2818,6 +3045,19 @@ export async function GET(request: NextRequest) {
                 : partialRuntimeTaskCount > 0 || unknownRuntimeTaskCount > 0 || unsupportedRuntimeGroups.length > 0
                     ? "review"
                     : "live",
+        };
+        const taskTelemetryMappingSummary: TaskTelemetryMappingSummary = {
+            generatedAtUtc: new Date(nowMs).toISOString(),
+            alignmentWarningCount: dedupedAlignmentWarnings.length,
+            sharedEventCount: sharedEventGroups.length,
+            unsupportedRuntimeCount: unsupportedRuntimeGroups.reduce((sum, group) => sum + group.count, 0),
+            unsafeSharedEventCount: sharedEventGroups.filter((group) => group.ambiguityState !== "safe_with_criteria").length,
+            unsupportedActiveAssignments: unsupportedRuntimeGroups
+                .filter((group) => group.source === "assignment" && (group.activityScope === "active" || group.activityScope === "mixed"))
+                .reduce((sum, group) => sum + group.count, 0),
+            sharedEventGroups,
+            unsupportedRuntimeGroups,
+            alignmentWarnings: dedupedAlignmentWarnings,
         };
 
         const bugReports: BugReportTriageCard[] = feedbackSnapshot.docs
@@ -2968,8 +3208,10 @@ export async function GET(request: NextRequest) {
                 runtimeUnsupportedTaskRecords: runtimeTaskAudit.summary.unsupportedRuntimeRecords,
                 runtimeCooldownConflictUsers: runtimeTaskAudit.summary.cooldownConflictUsers,
                 runtimeCustomTaskDrift: runtimeTaskAudit.summary.customDefinitionsWithDrift,
-                runtimeSharedEventMappings: runtimeTaskAudit.summary.sharedEventMappings,
-                telemetryAlignmentWarnings: runtimeTaskAudit.summary.telemetryAlignmentWarnings,
+                runtimeSharedEventMappings: taskTelemetryMappingSummary.sharedEventCount,
+                telemetryAlignmentWarnings: taskTelemetryMappingSummary.alignmentWarningCount,
+                telemetryUnsafeSharedEventGroups: taskTelemetryMappingSummary.unsafeSharedEventCount,
+                telemetryUnsupportedActiveAssignments: taskTelemetryMappingSummary.unsupportedActiveAssignments,
                 taskEventsSamplePartial: taskAuditSample.taskEventsPartial ? 1 : 0,
                 taskReceiptsSamplePartial: taskAuditSample.receiptsPartial ? 1 : 0,
                 receiptsLast7d: receiptEvents7d.length,
@@ -3018,6 +3260,7 @@ export async function GET(request: NextRequest) {
             taskParitySummary,
             taskGumdropGuardrails,
             runtimeTaskDriftSummary,
+            taskTelemetryMappingSummary,
             taskAuditSample,
             recentTaskEvents: recentTaskEvents.slice(0, 80),
             recentReceipts: recentReceipts.slice(0, 80),
