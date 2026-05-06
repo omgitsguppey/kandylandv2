@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.40.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 01:47 UTC
+- Improved internal task assignment diagnostics.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.39.0] - 2026-05-06
 
 ### Fixed
@@ -397,11 +405,3 @@ User-facing KandyDrops Beta updates, newest first.
 - Updated 2026-05-05 07:51 UTC
 - Updated internal product guidance so future fixes stay more consistent.
 - Kept the update focused on user-visible polish and reliability.
-
-## [1.3.0] - 2026-05-05
-
-### Internal
-
-- Updated 2026-05-05 07:26 UTC
-- Updated internal product guidance so future fixes stay more consistent.
-- Improved internal beta reliability without changing your core flows.

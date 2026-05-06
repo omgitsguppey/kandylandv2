@@ -1,12 +1,46 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.39.0",
+  "currentVersion": "1.40.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:39:08.312Z",
-  "generatedAtUtc": "2026-05-06T01:39:08.312Z",
-  "lastCommitSha": "b0a9c66bd1a4845d15de04275013910999d9c2e3",
+  "generatedAt": "2026-05-06T01:48:10.316Z",
+  "generatedAtUtc": "2026-05-06T01:48:10.316Z",
+  "lastCommitSha": "69ffae9bedf9635a8924fdbc1732c95c1a83539b",
   "notes": [
+    {
+      "version": "1.40.0",
+      "previousVersion": "1.39.0",
+      "commitSha": "69ffae9bedf9635a8924fdbc1732c95c1a83539b",
+      "commitTitle": "fix(admin): clarify task issue attribution",
+      "committedAt": "2026-05-06T01:47:59.000Z",
+      "generatedAt": "2026-05-06T01:48:10.316Z",
+      "committedAtUtc": "2026-05-06T01:47:59.000Z",
+      "generatedAtUtc": "2026-05-06T01:48:10.316Z",
+      "diffStats": {
+        "rawAdditions": 243,
+        "rawDeletions": 7,
+        "rawChangeCount": 250,
+        "additions": 243,
+        "deletions": 7,
+        "effectiveAdditions": 241,
+        "effectiveDeletions": 5,
+        "changedFiles": 11,
+        "effectiveChangeCount": 246,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal task assignment diagnostics.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.39.0",
       "previousVersion": "1.38.0",
@@ -134,39 +168,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "Kept the update focused on user-visible polish and reliability."
       ],
       "affectedSurfaces": [
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.35.1",
-      "previousVersion": "1.35.0",
-      "commitSha": "5fb376874b728d59e981d5001d07ff16c62f30c7",
-      "commitTitle": "fix(creator): classify synthetic countersign evidence",
-      "committedAt": "2026-05-06T01:04:20.000Z",
-      "generatedAt": "2026-05-06T01:04:37.379Z",
-      "committedAtUtc": "2026-05-06T01:04:20.000Z",
-      "generatedAtUtc": "2026-05-06T01:04:37.379Z",
-      "diffStats": {
-        "rawAdditions": 57,
-        "rawDeletions": 12,
-        "rawChangeCount": 69,
-        "additions": 57,
-        "deletions": 12,
-        "effectiveAdditions": 55,
-        "effectiveDeletions": 10,
-        "changedFiles": 9,
-        "effectiveChangeCount": 65,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator classification checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
         "documentation",
         "repo-tooling"
       ]

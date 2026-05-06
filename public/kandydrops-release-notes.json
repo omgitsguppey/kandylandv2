@@ -1,10 +1,44 @@
 {
-  "currentVersion": "1.39.0",
+  "currentVersion": "1.40.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:39:08.312Z",
-  "generatedAtUtc": "2026-05-06T01:39:08.312Z",
-  "lastCommitSha": "b0a9c66bd1a4845d15de04275013910999d9c2e3",
+  "generatedAt": "2026-05-06T01:48:10.316Z",
+  "generatedAtUtc": "2026-05-06T01:48:10.316Z",
+  "lastCommitSha": "69ffae9bedf9635a8924fdbc1732c95c1a83539b",
   "notes": [
+    {
+      "version": "1.40.0",
+      "previousVersion": "1.39.0",
+      "commitSha": "69ffae9bedf9635a8924fdbc1732c95c1a83539b",
+      "commitTitle": "fix(admin): clarify task issue attribution",
+      "committedAt": "2026-05-06T01:47:59.000Z",
+      "generatedAt": "2026-05-06T01:48:10.316Z",
+      "committedAtUtc": "2026-05-06T01:47:59.000Z",
+      "generatedAtUtc": "2026-05-06T01:48:10.316Z",
+      "diffStats": {
+        "rawAdditions": 243,
+        "rawDeletions": 7,
+        "rawChangeCount": 250,
+        "additions": 243,
+        "deletions": 7,
+        "effectiveAdditions": 241,
+        "effectiveDeletions": 5,
+        "changedFiles": 11,
+        "effectiveChangeCount": 246,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal task assignment diagnostics.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.39.0",
       "previousVersion": "1.38.0",
@@ -1598,39 +1632,6 @@
       ],
       "committedAtUtc": "2026-05-05T07:51:59.000Z",
       "generatedAtUtc": "2026-05-05T12:02:54.007Z"
-    },
-    {
-      "version": "1.3.0",
-      "previousVersion": "1.2.0",
-      "commitSha": "126b39356ce3e0100239904c8f4777cc11dffc95",
-      "commitTitle": "docs(doctrine): split surface UI and server truth hierarchy",
-      "committedAt": "2026-05-05T07:26:45.000Z",
-      "generatedAt": "2026-05-05T12:02:53.651Z",
-      "diffStats": {
-        "rawAdditions": 1095,
-        "rawDeletions": 10,
-        "rawChangeCount": 1105,
-        "additions": 1095,
-        "deletions": 10,
-        "effectiveAdditions": 1095,
-        "effectiveDeletions": 10,
-        "changedFiles": 19,
-        "effectiveChangeCount": 1105,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Internal",
-      "userFacingTitle": "Updated internal product guidance so future fixes stay more consistent.",
-      "bullets": [
-        "Improved internal beta reliability without changing your core flows."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T07:26:45.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:53.651Z"
     }
   ]
 }
