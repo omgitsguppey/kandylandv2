@@ -36,6 +36,7 @@ const functionsTaskMaterializer = readRequired("functions/src/daily-task-materia
 const functionsIndex = readRequired("functions/src/index.ts");
 const debugRoute = readRequired("src/app/api/admin/debug/route.ts");
 const debugTabMonitoring = readRequired("src/app/admin/debug/components/DebugTabMonitoring.tsx");
+const pipelineModule = readRequired("src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx");
 const adminDebugValidator = readRequired("scripts/agent/validate-admin-debug-control-tower.ts");
 const releaseNotesScript = readRequired("scripts/release/update-public-changelog.ts");
 const taskPipelineDoc = readRequired("docs/agent-truth/admin-analytics-daily-task-pipeline.md");
@@ -136,6 +137,21 @@ requireIncludes(releaseNotesScript, "Improved daily task reset reliability so ta
 requireIncludes(taskPipelineDoc, "dailyTaskWindowId", "Daily task pipeline doctrine");
 requireIncludes(taskPipelineDoc, "daily_window_expired", "Daily task pipeline doctrine");
 requireIncludes(taskCatalog, 'DAILY_CHECKIN_PINNED_REWARD_OUTSIDE_RANDOM_POOL = true', "Task catalog must keep daily check-in outside the random three-task pool by default");
+for (const expected of [
+  "Completed / started",
+  "Completed / assigned",
+  "Failed / assigned",
+  "Fail after start",
+  "Snapshot",
+  "Task guidance telemetry is missing; guidance impact cannot be evaluated.",
+  "Active stuck assigned",
+  "Historical stuck assigned",
+  "Expired unstarted",
+  "Pipeline delta is leaderboard completed total minus pipeline completed total",
+]) {
+  requireIncludes(pipelineModule, expected, "Daily task pipeline analytics module denominator and stale-state truth");
+}
+requireNotIncludes(pipelineModule, "completion and fail rates use started tasks", "Daily task pipeline analytics module must not reuse ambiguous denominator copy");
 
 if (failures.length > 0) {
   console.error("Daily task lifecycle validation failed:");

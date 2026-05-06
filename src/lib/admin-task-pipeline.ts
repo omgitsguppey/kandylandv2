@@ -23,6 +23,9 @@ export interface AdminTaskPipelineModel {
     items: AdminTaskPipelineItemInput[];
     peakCount: number;
     selectedRange: RangeOption;
+    generatedAtUtc: string | null;
+    lastValidatedAtUtc: string | null;
+    snapshotState: "live" | "stale" | "partial" | "failed";
     pipelineMode: TaskPipelineMode;
     badgeLabel: "STATE" | "MIXED" | "RAW" | "STALE" | "WAIT";
     truthState: AdminSurfaceState;
@@ -41,11 +44,28 @@ export interface AdminTaskPipelineModel {
     guidanceMetrics: AdminTaskPipelineMetric[];
     startRate: { value: number | null; formula: "started / assigned"; denominator: "assigned" };
     completionRate: { value: number | null; formula: "completed / started"; denominator: "started" };
-    failRate: { value: number | null; formula: "failed / started"; denominator: "started" };
+    failRate: { value: number | null; formula: "failed / assigned"; denominator: "assigned" };
+    rates: {
+        startFromAssignedPct: number | null;
+        completionFromStartedPct: number | null;
+        completionFromAssignedPct: number | null;
+        failureFromAssignedPct: number | null;
+        failureAfterStartPct: number | null;
+        expirationFromAssignedPct: number | null;
+        explanations: string[];
+    };
     stuckAssignedCount: number | null;
     startedNotCompletedCount: number | null;
     orphanStartedCount: number | null;
     orphanCompletedCount: number | null;
+    stuckAssignedBreakdown: {
+        activeCurrentWindow: number | null;
+        historicalUnstarted: number | null;
+        expiredUnstarted: number | null;
+        explanation: string;
+    };
+    guidanceTelemetryState: "available" | "missing" | "partial";
+    guidanceTelemetryExplanation: string;
     assignmentStateMissingCount: number | null;
     telemetryStateMismatchCount: number | null;
     stateTelemetryMissingCount: number | null;
@@ -106,6 +126,15 @@ export interface AdminTaskPipelineModel {
         userTaskStateCount: number | null;
         telemetryCompletionCount: number | null;
         mismatchCount: number | null;
+    };
+    checks: {
+        rewardChecks: number;
+        lifecycleChecks: number;
+        timingPartial: number;
+        pipelineDelta: number | null;
+        pipelineDeltaExplanation: string;
+        rewardChecksLabel: string;
+        explanations: string[];
     };
     timingRecommendation: string;
     stale: boolean;
@@ -219,11 +248,19 @@ export function buildAdminTaskPipelineModel(input: {
     const cache = Boolean(input.response?.cacheState && input.response.cacheState !== "miss");
     const fallback = Boolean(input.error || input.response?.cacheRevalidating);
     const fakeZeroPrevented = !hasResponse;
+    const generatedAtUtc = input.response?.generatedAtMs ? new Date(input.response.generatedAtMs).toISOString() : null;
     const truthState: AdminSurfaceState = !hasResponse
         ? input.loading ? "loading" : "unavailable"
         : stale
             ? "stale"
             : input.overviewTruthState ?? "live";
+    const snapshotState: AdminTaskPipelineModel["snapshotState"] = !hasResponse
+        ? input.loading ? "failed" : "failed"
+        : stale
+            ? "stale"
+            : fallback
+                ? "partial"
+                : "live";
     const lifecycleValues = {
         assigned: fakeZeroPrevented ? null : findCount(input.items, "Assigned"),
         started: fakeZeroPrevented ? null : findCount(input.items, "Started"),
@@ -274,6 +311,14 @@ export function buildAdminTaskPipelineModel(input: {
         .some((value) => (value ?? 0) > 0);
     const hasGuidance = [lifecycleValues.guideShown, lifecycleValues.guideTap, lifecycleValues.reminded]
         .some((value) => (value ?? 0) > 0);
+    const guidanceTelemetryState: AdminTaskPipelineModel["guidanceTelemetryState"] = !hasResponse
+        ? "missing"
+        : hasGuidance
+            ? "available"
+            : "missing";
+    const guidanceTelemetryExplanation = guidanceTelemetryState === "available"
+        ? "Task guidance telemetry is present for this range."
+        : "Task guidance telemetry is missing; guidance impact cannot be evaluated.";
     const pipelineMode: TaskPipelineMode = !hasResponse
         ? "unavailable"
         : stale
@@ -323,6 +368,15 @@ export function buildAdminTaskPipelineModel(input: {
     const durationRejectedCount = speedBucketReconciliationDelta === null
         ? null
         : Math.max(0, speedBucketReconciliationDelta);
+    const completionFromAssignedPct = rate(lifecycleValues.completed, lifecycleValues.assigned);
+    const failureFromAssignedPct = rate(lifecycleValues.failed, lifecycleValues.assigned);
+    const ratesExplanations = [
+        "Start rate uses started / assigned.",
+        "Completion from started uses completed / started.",
+        "Completion from assigned uses completed / assigned.",
+        "Failure from assigned uses failed-or-expired / assigned.",
+        "Fail-after-start is unavailable because failures include unstarted expirations in this snapshot.",
+    ];
     const taskLeaderboardRows = buildTaskLeaderboardRows({
         tasks: input.taskLeaderboard,
         fakeZeroPrevented,
@@ -371,12 +425,31 @@ export function buildAdminTaskPipelineModel(input: {
                 : startedNotCompletedCount && startedNotCompletedCount > 0
                     ? "started_not_completed"
                     : null;
+    const stuckAssignedBreakdown = {
+        activeCurrentWindow: stuckAssignedCount,
+        historicalUnstarted: null,
+        expiredUnstarted: null,
+        explanation: "This snapshot exposes assigned-not-started totals, but it does not separate current-window pending assignments from historical expirations.",
+    };
+    const pipelineDeltaExplanation = leaderboardPipelineDelta === null
+        ? "Pipeline delta unavailable until lifecycle completion totals load."
+        : `Pipeline delta is leaderboard completed total minus pipeline completed total (${leaderboardCompletedTotal.toLocaleString()} - ${(lifecycleValues.completed ?? 0).toLocaleString()}).`;
+    const checksExplanations = [
+        rewardMismatchCount > 0
+            ? "Reward parity warnings remain; some leaderboard rows could not prove catalog reward reconciliation."
+            : "No reward parity warnings in the sampled leaderboard rows.",
+        guidanceTelemetryExplanation,
+        pipelineDeltaExplanation,
+    ];
 
     return {
-        hasData: input.items.some((item) => item.count > 0),
+        hasData: hasResponse && input.items.length > 0,
         items: input.items,
         peakCount: input.items.reduce((current, item) => Math.max(current, item.count), 0),
         selectedRange: input.selectedRange,
+        generatedAtUtc,
+        lastValidatedAtUtc: generatedAtUtc,
+        snapshotState,
         pipelineMode,
         badgeLabel,
         truthState,
@@ -395,11 +468,23 @@ export function buildAdminTaskPipelineModel(input: {
         guidanceMetrics,
         startRate: { value: rate(lifecycleValues.started, lifecycleValues.assigned), formula: "started / assigned", denominator: "assigned" },
         completionRate: { value: rate(lifecycleValues.completed, lifecycleValues.started), formula: "completed / started", denominator: "started" },
-        failRate: { value: rate(lifecycleValues.failed, lifecycleValues.started), formula: "failed / started", denominator: "started" },
+        failRate: { value: failureFromAssignedPct, formula: "failed / assigned", denominator: "assigned" },
+        rates: {
+            startFromAssignedPct: rate(lifecycleValues.started, lifecycleValues.assigned),
+            completionFromStartedPct: rate(lifecycleValues.completed, lifecycleValues.started),
+            completionFromAssignedPct,
+            failureFromAssignedPct,
+            failureAfterStartPct: null,
+            expirationFromAssignedPct: null,
+            explanations: ratesExplanations,
+        },
         stuckAssignedCount,
         startedNotCompletedCount,
         orphanStartedCount,
         orphanCompletedCount,
+        stuckAssignedBreakdown,
+        guidanceTelemetryState,
+        guidanceTelemetryExplanation,
         assignmentStateMissingCount: hasLifecycle ? null : fakeZeroPrevented ? null : 0,
         telemetryStateMismatchCount: (orphanStartedCount ?? 0) + (orphanCompletedCount ?? 0),
         stateTelemetryMissingCount: hasGuidance && !hasLifecycle ? (lifecycleValues.guideShown ?? 0) + (lifecycleValues.guideTap ?? 0) : null,
@@ -444,6 +529,15 @@ export function buildAdminTaskPipelineModel(input: {
             userTaskStateCount: null,
             telemetryCompletionCount: lifecycleValues.completed,
             mismatchCount: (orphanStartedCount ?? 0) + (orphanCompletedCount ?? 0) + (durationRejectedCount ?? 0),
+        },
+        checks: {
+            rewardChecks: rewardMismatchCount,
+            lifecycleChecks: lifecycleMismatchCount,
+            timingPartial: timingPartialCount,
+            pipelineDelta: leaderboardPipelineDelta,
+            pipelineDeltaExplanation,
+            rewardChecksLabel: rewardMismatchCount > 0 ? "Reward parity warnings" : "Reward parity warnings",
+            explanations: checksExplanations,
         },
         timingRecommendation: buildTimingRecommendation({
             timedCompletionCount,

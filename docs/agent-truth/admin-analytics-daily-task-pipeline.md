@@ -17,9 +17,14 @@ A strict lifecycle pipeline requires identity linkage across userId or sessionId
 Rates must expose denominators:
 - Start rate is `started / assigned`.
 - Completion rate is `completed / started`.
-- Fail rate is `failed / started`.
+- Completion from assigned is `completed / assigned`.
+- Fail rate is `failed / assigned`.
+
+Fail-after-start is unavailable unless failures can be separated from unstarted expirations. If the snapshot mixes started-task failures with unstarted expirations or window-expired assignments, the UI must not show a fail rate over 100%; it must explain that the failure total is an overall assigned-task outcome, not a started-task conversion rate.
 
 Orphan started means started count exceeds assigned count. Orphan completed means completed count exceeds started count. Stuck assigned means assigned count exceeds started count. Started open means started count exceeds completed count. These are aggregate warnings until per-user task state is joined.
+
+If guide views and guide taps both read as zero while task guidance is required in beta, show REVIEW with explicit copy: `Task guidance telemetry is missing; guidance impact cannot be evaluated.` Zero guidance counts are not a neutral success state.
 
 Task Completion Speed belongs inside Daily Task Pipeline because it depends on the same lifecycle truth. A standalone Task Completion Speed module is forbidden unless a future product decision explicitly reintroduces it with a new source contract. Completion speed requires linked start and completion timestamps for the same user/task lifecycle; raw completion events alone are not enough.
 
@@ -30,6 +35,8 @@ The compact speed view should use brand/semantic colors: brand purple for comple
 Task Leaderboard also belongs inside Daily Task Pipeline because its rows are per-task slices of the same lifecycle truth. A standalone Task Leaderboard module is forbidden unless a future product decision explicitly reintroduces it with a new source contract. The leaderboard must use compact inline rows with pagination instead of giant task cards.
 
 Leaderboard rows must declare their ranking mode. The default mode is completions. Completion rate is `completed / assigned` unless a future model explicitly exposes another denominator. Failed counts come from failed lifecycle logs; if failed exceeds started, the row must be flagged instead of displayed as normal. Mixed, stale, fallback, or telemetry-derived rows must be labeled.
+
+Leaderboard rows must show both `completed / assigned` and `completed / started` when started counts are available so low-start purchase tasks are not misread as failed after start.
 
 Reward totals are not final business truth unless they reconcile against task catalog reward definitions. Built-in task rewards can be checked against the catalog. Custom task rewards must be treated as unverified until custom catalog data is included in the analytics payload. Do not display unverified reward totals as final; put raw reward totals and reconciliation deltas in Debug.
 
@@ -44,6 +51,8 @@ Daily rows with zero completed tasks must not display paid rewards unless credit
 Daily Task Pipeline reads the Admin Analytics snapshot registry first and is the single home for lifecycle flow, completion speed, and task leaderboard. Standalone Task Completion Speed and Task Leaderboard modules remain forbidden. The compact module must keep lifecycle states separate from guidance/reminder signals, include inline leaderboard pagination, and send reward, timing, source, and pipeline parity details to Admin Debug.
 
 Leaderboard totals must reconcile with Daily Task Pipeline totals or expose `leaderboardPipelineDelta`. Leaderboard timing must reconcile with the completion-speed timing model or expose `speedTimingDelta`. Average task time requires linked durations and must expose timing coverage when only some completions have durations.
+
+`leaderboardPipelineDelta` must explain its formula directly in UI and Debug: leaderboard completed total minus lifecycle completed total. Negative deltas are review states until the sampled sources reconcile.
 
 Do not render zero unless the source is loaded and server-confirmed. If the payload is missing, show waiting or unavailable. Stale cache must be labeled stale.
 

@@ -7,6 +7,10 @@ import { SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitiv
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import type { AdminTaskPipelineModel, AdminTaskPipelineMetric } from "@/lib/admin-task-pipeline";
 
+const GUIDANCE_GAP_WARNING = "Task guidance telemetry is missing; guidance impact cannot be evaluated.";
+const REWARD_PARITY_WARNINGS_LABEL = "Reward parity warnings";
+const PIPELINE_DELTA_FORMULA_COPY = "Pipeline delta is leaderboard completed total minus pipeline completed total.";
+
 export function AdminDailyTaskPipelineModule(props: {
     renderSectionRangeControl: (sectionKey: string) => ReactNode;
     model: AdminTaskPipelineModel;
@@ -44,6 +48,11 @@ export function AdminDailyTaskPipelineModule(props: {
     const changePage = (direction: -1 | 1) => {
         setLeaderboardPage((current) => Math.min(pageCount - 1, Math.max(0, current + direction)));
     };
+    const generatedLabel = props.model.generatedAtUtc ? new Date(props.model.generatedAtUtc).toLocaleString() : "Unavailable";
+    const staleSnapshotCopy = props.model.snapshotState === "stale"
+        ? `Showing a stale validated task pipeline snapshot from ${generatedLabel}.`
+        : props.model.visibleCopy;
+    const guidanceNeedsReview = props.model.guidanceTelemetryState !== "available";
 
     return (
         <SectionCard
@@ -54,14 +63,19 @@ export function AdminDailyTaskPipelineModule(props: {
         >
             <div className="space-y-2.5">
                 <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 sm:flex-row sm:items-center sm:justify-between">
-                    <span>{props.model.recommendation}</span>
+                    <div className="min-w-0">
+                        <p>{props.model.recommendation}</p>
+                        <p className="mt-1 text-[10px] text-gray-400">
+                            Snapshot {props.model.snapshotState} · last validated {generatedLabel}
+                        </p>
+                    </div>
                     <AdminStatusBadge state={props.model.truthState} label={props.model.badgeLabel} className="max-w-[5.5rem] shrink-0 truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                     {props.model.lifecycleMetrics.map((metric) => (
                         <div key={metric.key} className="rounded-[0.9rem] border border-white/10 bg-black/25 px-3 py-2">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">{metric.label}</p>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">{metric.key === "failed" ? "Failed / expired" : metric.label}</p>
                             <p className="mt-1 text-lg font-black text-white">{formatCount(metric.value)}</p>
                             <p className="mt-0.5 truncate text-[10px] text-gray-500">{metric.source.replace("_", " ")}</p>
                         </div>
@@ -70,15 +84,17 @@ export function AdminDailyTaskPipelineModule(props: {
 
                 {props.model.hasData ? (
                     <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
-                        <div className="mb-2 grid grid-cols-3 gap-2 text-[10px] text-gray-400">
-                            <span>Start rate: <span className="text-white">{formatRate(props.model.startRate.value)}</span></span>
-                            <span>Complete: <span className="text-white">{formatRate(props.model.completionRate.value)}</span></span>
-                            <span>Fail: <span className="text-white">{formatRate(props.model.failRate.value)}</span></span>
+                        <div className="mb-2 grid gap-1.5 text-[10px] text-gray-400 sm:grid-cols-2 xl:grid-cols-5">
+                            <span>Start from assigned: <span className="text-white">{formatRate(props.model.rates.startFromAssignedPct)}</span></span>
+                            <span>Completed / started: <span className="text-white">{formatRate(props.model.rates.completionFromStartedPct)}</span></span>
+                            <span>Completed / assigned: <span className="text-white">{formatRate(props.model.rates.completionFromAssignedPct)}</span></span>
+                            <span>Failed / assigned: <span className="text-white">{formatRate(props.model.rates.failureFromAssignedPct)}</span></span>
+                            <span>Fail after start: <span className="text-white">{formatRate(props.model.rates.failureAfterStartPct)}</span></span>
                         </div>
                         <div className="space-y-1.5">
                             {props.model.lifecycleMetrics.map((metric) => (
                                 <div key={metric.key} className="grid grid-cols-[5.2rem_minmax(0,1fr)_3rem] items-center gap-2 text-[11px]">
-                                    <span className="truncate text-gray-400">{metric.label}</span>
+                                    <span className="truncate text-gray-400">{metric.key === "failed" ? "Failed / exp." : metric.label}</span>
                                     <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
                                         <div className={metric.key === "failed" ? "h-full rounded-full bg-rose-400" : metric.key === "completed" ? "h-full rounded-full bg-brand-purple" : "h-full rounded-full bg-slate-400"} style={{ width: lifecycleProgressWidth(metric) }} />
                                     </div>
@@ -103,14 +119,27 @@ export function AdminDailyTaskPipelineModule(props: {
                         ))}
                     </div>
                     <p className="leading-5 text-gray-400">
-                        {props.model.visibleCopy} Start rate uses {props.model.startRate.formula}; completion and fail rates use started tasks.
+                        {staleSnapshotCopy} {props.model.rates.explanations.join(" ")}
                     </p>
+                    {guidanceNeedsReview ? (
+                        <p className="rounded-[0.8rem] border border-amber-400/25 bg-amber-500/10 px-2.5 py-2 text-[10px] leading-5 text-amber-100">
+                            {GUIDANCE_GAP_WARNING}
+                        </p>
+                    ) : null}
                     <div className="grid grid-cols-2 gap-1.5 text-[10px] text-gray-400">
                         <span>Stuck assigned: <span className="text-white">{formatCount(props.model.stuckAssignedCount)}</span></span>
                         <span>Started open: <span className="text-white">{formatCount(props.model.startedNotCompletedCount)}</span></span>
                         <span>Orphan starts: <span className="text-white">{formatCount(props.model.orphanStartedCount)}</span></span>
                         <span>Orphan completions: <span className="text-white">{formatCount(props.model.orphanCompletedCount)}</span></span>
                     </div>
+                    <div className="grid gap-1.5 text-[10px] text-gray-400 sm:grid-cols-3">
+                        <span>Active stuck assigned: <span className="text-white">{formatCount(props.model.stuckAssignedBreakdown.activeCurrentWindow)}</span></span>
+                        <span>Historical stuck assigned: <span className="text-white">{formatCount(props.model.stuckAssignedBreakdown.historicalUnstarted)}</span></span>
+                        <span>Expired unstarted: <span className="text-white">{formatCount(props.model.stuckAssignedBreakdown.expiredUnstarted)}</span></span>
+                    </div>
+                    <p className="text-[10px] leading-5 text-gray-500">
+                        {props.model.stuckAssignedBreakdown.explanation}
+                    </p>
                 </div>
 
                 <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
@@ -183,7 +212,7 @@ function TaskLeaderboardPanel(props: {
             <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                     <p className="text-xs font-semibold text-white">Task leaderboard</p>
-                    <p className="mt-0.5 text-[11px] leading-4 text-gray-500">Ranked by completions. Rates use completed / assigned.</p>
+                    <p className="mt-0.5 text-[11px] leading-4 text-gray-500">Ranked by completions. Each row shows completed / assigned and completed / started.</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5 text-[10px] text-gray-500">
                     <span>{props.model.leaderboardMode}</span>
@@ -211,12 +240,12 @@ function TaskLeaderboardPanel(props: {
                                     <span>A {props.formatCount(task.assigned)}</span>
                                     <span>S {props.formatCount(task.started)}</span>
                                     <span className="text-brand-purple">C {props.formatCount(task.completed)}</span>
-                                    <span className="text-rose-300">F {props.formatCount(task.failed)}</span>
+                                    <span className="text-rose-300">F/E {props.formatCount(task.failed)}</span>
                                 </div>
-                                <div className="mt-1 grid grid-cols-3 gap-1 text-[9px] text-gray-500">
-                                    <span>{props.formatRate(task.completionRate)}</span>
-                                    <span>{props.formatSpeed(task.avgCompletionTime)}</span>
-                                    <span>{task.rewardDisplay}</span>
+                                <div className="mt-1 grid gap-1 text-[9px] text-gray-500">
+                                    <span>{props.formatCount(task.completed)} completed / {props.formatCount(task.assigned)} assigned = {props.formatRate(task.completionRate)}</span>
+                                    <span>{props.formatCount(task.completed)} completed / {props.formatCount(task.started)} started = {props.formatRate(task.startedCompletionRate)}</span>
+                                    <span>Avg finish {props.formatSpeed(task.avgCompletionTime)} · Paid rewards GD {task.rewardDisplay}</span>
                                 </div>
                             </div>
                             <div className="hidden text-right text-[9px] leading-4 text-gray-500 sm:block">
@@ -232,11 +261,14 @@ function TaskLeaderboardPanel(props: {
             )}
 
             <div className="mt-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-400 sm:grid-cols-4">
-                <span>Reward checks: <span className="text-white">{props.model.rewardMismatchCount}</span></span>
-                <span>Lifecycle checks: <span className="text-white">{props.model.lifecycleMismatchCount}</span></span>
-                <span>Timing partial: <span className="text-white">{props.model.timingPartialCount}</span></span>
-                <span>Pipeline delta: <span className="text-white">{props.formatCount(props.model.leaderboardPipelineDelta)}</span></span>
+                <span>{REWARD_PARITY_WARNINGS_LABEL}: <span className="text-white">{props.model.checks.rewardChecks}</span></span>
+                <span>Lifecycle checks: <span className="text-white">{props.model.checks.lifecycleChecks}</span></span>
+                <span>Timing partial: <span className="text-white">{props.model.checks.timingPartial}</span></span>
+                <span>Pipeline delta: <span className="text-white">{props.formatCount(props.model.checks.pipelineDelta)}</span></span>
             </div>
+            <p className="mt-2 text-[10px] leading-5 text-gray-500">
+                {PIPELINE_DELTA_FORMULA_COPY} {props.model.checks.pipelineDeltaExplanation}
+            </p>
         </div>
     );
 }

@@ -44,6 +44,7 @@ const dailyTasksServer = readRequired("src/lib/server/daily-tasks.ts");
 const taskAnalyticsWriter = readRequired("functions/src/analytics-task-events.ts");
 const adminDebugRoute = readRequired("src/app/api/admin/debug/route.ts");
 const debugTabMonitoring = readRequired("src/app/admin/debug/components/DebugTabMonitoring.tsx");
+const pipelineModule = readRequired("src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx");
 const telemetryValidator = readRequired("scripts/agent/validate-daily-task-telemetry-truth.ts");
 const adminTowerValidator = readRequired("scripts/agent/validate-admin-debug-control-tower.ts");
 const pipelineDoc = readRequired("docs/agent-truth/admin-analytics-daily-task-pipeline.md");
@@ -129,6 +130,8 @@ for (const expected of [
 
 requireNotIncludes(debugTabMonitoring, "Reward total", "Debug task monitoring panel");
 requireNotIncludes(debugTabMonitoring, "<Pill label=\"Rewards\" value={day.rewardTotal} />", "Debug task monitoring panel");
+requireIncludes(pipelineModule, "Reward parity warnings", "Daily task pipeline module reward check label");
+requireNotIncludes(pipelineModule, "Reward checks:", "Daily task pipeline module reward checks label must be unambiguous");
 
 for (const expected of [
   "potentialRewardGd",

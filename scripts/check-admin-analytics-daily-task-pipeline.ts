@@ -49,6 +49,15 @@ assertIncludes("AdminTaskAndNotificationModules", section, "leaderboardPipelineD
 assertIncludes("AdminTaskAndNotificationModules", section, "Start rate uses");
 assertIncludes("AdminTaskAndNotificationModules", section, "stuckAssignedCount");
 assertIncludes("AdminTaskAndNotificationModules", section, "orphanCompletedCount");
+assertIncludes("AdminTaskAndNotificationModules", section, "Completed / started");
+assertIncludes("AdminTaskAndNotificationModules", section, "Completed / assigned");
+assertIncludes("AdminTaskAndNotificationModules", section, "Failed / assigned");
+assertIncludes("AdminTaskAndNotificationModules", section, "Fail after start");
+assertIncludes("AdminTaskAndNotificationModules", section, "Reward parity warnings");
+assertIncludes("AdminTaskAndNotificationModules", section, "Task guidance telemetry is missing; guidance impact cannot be evaluated.");
+assertIncludes("AdminTaskAndNotificationModules", section, "Pipeline delta is leaderboard completed total minus pipeline completed total");
+assertNotIncludes("AdminTaskAndNotificationModules", section, "Fail: <span className=\"text-white\">");
+assertNotIncludes("AdminTaskAndNotificationModules", section, "completion and fail rates use started tasks");
 assertIncludes("AdminDailyTaskPipelineModule", pipelineComponent, "__KANDYDROPS_ADMIN_ANALYTICS_DAILY_TASK_PIPELINE_DEBUG__");
 assertNotIncludes("Daily Task Pipeline section", section, "<BarChart");
 assertNotIncludes("Daily Task Pipeline section", section, "Guides shown\" count");
@@ -86,11 +95,21 @@ for (const required of [
   "remindersCount",
   "guideShownCount",
   "guideTapCount",
+  "generatedAtUtc",
+  "lastValidatedAtUtc",
+  "snapshotState",
   "started / assigned",
   "completed / started",
-  "failed / started",
+  "failed / assigned",
+  "rates",
+  "completionFromAssignedPct",
+  "failureFromAssignedPct",
+  "failureAfterStartPct",
   "orphanStartedCount",
   "orphanCompletedCount",
+  "stuckAssignedBreakdown",
+  "guidanceTelemetryState",
+  "guidanceTelemetryExplanation",
   "assignmentStateMissingCount",
   "telemetryStateMismatchCount",
   "stateTelemetryMissingCount",
@@ -129,6 +148,7 @@ for (const required of [
   "durationRejectedCount",
   "speedBucketReconciliationDelta",
   "sourceReconciliation",
+  "checks",
   "timingRecommendation",
   "fakeZeroPrevented",
 ]) {
@@ -137,6 +157,8 @@ for (const required of [
 
 for (const required of [
   "completionRateFormula",
+  "startedCompletionRate",
+  "startedCompletionRateFormula",
   "rewardFormula",
   "rewardReconciliationDelta",
   "rewardVerified",
@@ -177,6 +199,10 @@ assertIncludes("agent truth doc", doc, "standalone Task Leaderboard module is fo
 assertIncludes("agent truth doc", doc, "Reward totals are not final business truth");
 assertIncludes("agent truth doc", doc, "inline paginated leaderboard rows");
 assertIncludes("agent truth doc", doc, "`started / assigned`");
+assertIncludes("agent truth doc", doc, "`completed / assigned`");
+assertIncludes("agent truth doc", doc, "`failed / assigned`");
+assertIncludes("agent truth doc", doc, "Fail-after-start is unavailable unless failures can be separated from unstarted expirations.");
+assertIncludes("agent truth doc", doc, "Task guidance telemetry is missing; guidance impact cannot be evaluated.");
 assertIncludes("agent truth doc", doc, "Future agents must not reintroduce the unhelpful vertical bar chart");
 
 if (process.exitCode) process.exit(process.exitCode);

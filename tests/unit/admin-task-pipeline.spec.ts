@@ -38,9 +38,17 @@ describe("buildAdminTaskPipelineModel", () => {
     expect(model.guidanceMetrics.map((metric) => metric.label)).toEqual(["Reminded", "Guides shown", "Guide taps"]);
     expect(model.startRate).toMatchObject({ value: 0.6, formula: "started / assigned", denominator: "assigned" });
     expect(model.completionRate).toMatchObject({ value: 0.75, formula: "completed / started", denominator: "started" });
-    expect(model.failRate.value).toBeCloseTo(5 / 60);
+    expect(model.failRate).toMatchObject({ value: 0.05, formula: "failed / assigned", denominator: "assigned" });
+    expect(model.rates).toMatchObject({
+      startFromAssignedPct: 0.6,
+      completionFromStartedPct: 0.75,
+      completionFromAssignedPct: 0.45,
+      failureFromAssignedPct: 0.05,
+      failureAfterStartPct: null,
+    });
     expect(model.stuckAssignedCount).toBe(40);
     expect(model.startedNotCompletedCount).toBe(15);
+    expect(model.guidanceTelemetryState).toBe("available");
     expect(model.completionSpeedConsolidated).toBe(true);
     expect(model.standaloneTaskCompletionSpeedRemoved).toBe(true);
     expect(model.totalCompletedCount).toBe(45);
@@ -95,6 +103,7 @@ describe("buildAdminTaskPipelineModel", () => {
     expect(model.taskLeaderboardRows[0]).toMatchObject({
       taskId: "task-a",
       completionRateFormula: "completed / assigned",
+      startedCompletionRateFormula: "completed / started",
       rewardFormula: "completed * catalog reward",
     });
     expect(model.taskLeaderboardRows[0].mismatches).toContain("failed_exceeds_started");
@@ -102,6 +111,7 @@ describe("buildAdminTaskPipelineModel", () => {
     expect(model.rewardMismatchCount).toBe(1);
     expect(model.lifecycleMismatchCount).toBe(1);
     expect(model.leaderboardPipelineDelta).toBe(-12);
+    expect(model.checks.pipelineDeltaExplanation).toContain("leaderboard completed total minus pipeline completed total");
     expect(model.speedBucketReconciliationDelta).toBe(5);
     expect(model.missingStartTimestampCount).toBe(5);
   });
@@ -122,6 +132,7 @@ describe("buildAdminTaskPipelineModel", () => {
     expect(model.taskLeaderboardRows).toEqual([]);
     expect(model.fakeZeroPrevented).toBe(true);
     expect(model.badgeLabel).toBe("WAIT");
+    expect(model.generatedAtUtc).toBeNull();
   });
 
   it("keeps timing partial when only some completions have linked durations", () => {
@@ -193,9 +204,35 @@ describe("buildAdminTaskPipelineModel", () => {
       rewardPerCompletion: 48,
       rewardReconciliationDelta: 0,
       timingCoveragePercent: 0.75,
+      startedCompletionRate: 0.5,
     });
     expect(model.taskLeaderboardRows[0].avgCompletionTime).toBe(30);
     expect(model.timingPartialCount).toBe(1);
     expect(model.speedTimingDelta).toBe(-1);
+  });
+
+  it("does not render a fail rate above 100 percent when failures exceed starts", () => {
+    const model = buildAdminTaskPipelineModel({
+      selectedRange: "7d",
+      response: response(),
+      loading: false,
+      overviewTruthState: "stale",
+      items: [
+        { label: "Assigned", count: 2142 },
+        { label: "Started", count: 342 },
+        { label: "Completed", count: 304 },
+        { label: "Failed", count: 634 },
+        { label: "Guides shown", count: 0 },
+        { label: "Guide taps", count: 0 },
+      ],
+      taskDurationBuckets: [],
+      taskLeaderboard: [],
+    });
+
+    expect(model.rates.failureFromAssignedPct).toBeCloseTo(634 / 2142);
+    expect(model.rates.failureAfterStartPct).toBeNull();
+    expect(model.guidanceTelemetryState).toBe("missing");
+    expect(model.guidanceTelemetryExplanation).toContain("Task guidance telemetry is missing");
+    expect(model.stuckAssignedBreakdown.explanation).toContain("does not separate");
   });
 });

@@ -20,6 +20,8 @@ export interface AdminTaskLeaderboardRow {
     failedSource: TaskMetricSource;
     completionRate: number | null;
     completionRateFormula: "completed / assigned";
+    startedCompletionRate: number | null;
+    startedCompletionRateFormula: "completed / started";
     rewardPerCompletion: number | null;
     rewardTotal: number | null;
     rewardFormula: "completed * catalog reward";
@@ -96,6 +98,8 @@ export function buildTaskLeaderboardRows(input: {
                 failedSource: "lifecycle_log",
                 completionRate: rate(task.completed, task.assigned),
                 completionRateFormula: "completed / assigned",
+                startedCompletionRate: rate(task.completed, task.started),
+                startedCompletionRateFormula: "completed / started",
                 rewardPerCompletion: rewardVerified ? catalogReward : null,
                 rewardTotal: rewardVerified ? rewardTotal : null,
                 rewardFormula: "completed * catalog reward",
