@@ -451,6 +451,49 @@ export interface PackagePerformanceItem {
   abandonmentRate: number;
 }
 
+export type PackagePerformanceRow = {
+  packageId: string;
+  packageLabel: string;
+  priceUsd: number | null;
+  basePaidGd: number | null;
+  bonusPaidGd: number;
+  totalGd: number | null;
+  effectiveUsdPer100Gd: number | null;
+  checkoutStarts: number;
+  completedPurchases: number;
+  conversionRatePct: number | null;
+  revenueUsd: number;
+  paidGdIssued: number;
+  bonusGdIssued: number;
+  promoDiscountUsd: number;
+  sourceTruth:
+    | "server_transactions"
+    | "checkout_telemetry"
+    | "commerce_rollup"
+    | "platform_economy"
+    | "mixed"
+    | "missing";
+  freshnessState: "live" | "partial" | "stale" | "unknown";
+  performanceState: "healthy" | "review" | "no_data" | "missing_package_mapping";
+  explanation: string;
+};
+
+export type PackagePerformanceState = {
+  generatedAtUtc: string;
+  range: string;
+  sourceState: "live" | "partial" | "stale" | "missing" | "unknown";
+  packageCount: number;
+  rows: PackagePerformanceRow[];
+  totals: {
+    checkoutStarts: number;
+    completedPurchases: number;
+    revenueUsd: number;
+    paidGdIssued: number;
+    bonusGdIssued: number;
+  };
+  warnings: string[];
+};
+
 export interface UnlockCategoryItem {
   label: string;
   previews: number;
@@ -854,6 +897,7 @@ export interface HistoricalAnalyticsResponse {
   topPathsPanelState?: TopPathsPanelState;
   regionDemandPanelState?: RegionDemandPanelState;
   commerceSnapshotState?: CommerceSnapshotState;
+  packagePerformanceState?: PackagePerformanceState;
   notificationFunnel?: CountBucketItem[];
   notificationActions?: Array<{ label: string; value: number }>;
   taskPipeline?: CountBucketItem[];

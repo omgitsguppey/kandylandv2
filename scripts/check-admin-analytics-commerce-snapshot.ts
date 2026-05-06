@@ -42,6 +42,11 @@ assertIncludes("AdminAnalyticsCommerceTab", component, "selectedRangeLabel");
 assertIncludes("AdminAnalyticsCommerceTab", component, "paymentFeesUsdValue");
 assertIncludes("AdminAnalyticsCommerceTab", component, "paidBaseDeliveredGdValue");
 assertIncludes("AdminAnalyticsCommerceTab", component, "promoDiscountUsdValue");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Package Performance");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Package config exists, but no package-specific checkout or purchase data was observed in this range.");
+assertIncludes("AdminAnalyticsCommerceTab", component, "No package config found. Package value basis should come from Platform Economy packages.");
+assertIncludes("AdminAnalyticsCommerceTab", component, "data-package-performance-id");
+assertIncludes("AdminAnalyticsCommerceTab", component, "data-package-performance-state");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "Checkout conversion: {commerceConversionLabel}");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, " Â· ");
 
@@ -69,13 +74,19 @@ assertIncludes("historical route", historicalRoute, "unknownSourceGdSpent");
 assertIncludes("historical route", historicalRoute, "promoDiscountUsd");
 assertIncludes("historical route", historicalRoute, "paidSourceDeliveredGd");
 assertIncludes("historical route", historicalRoute, "sourceBreakdownAvailable");
+assertIncludes("historical route", historicalRoute, "packagePerformanceState");
+assertIncludes("historical route", historicalRoute, "readPlatformEconomyPackages");
 
 assertIncludes("useAdminAnalyticsState", hook, "buildAdminAnalyticsCommerceSnapshotModel");
 assertIncludes("useAdminAnalyticsState", hook, "commerceSnapshotModel");
+assertIncludes("useAdminAnalyticsState", hook, "packagePerformancePanelState");
 
 assertIncludes("admin analytics types", analyticsTypes, "export type CommerceMetricCard");
 assertIncludes("admin analytics types", analyticsTypes, "export type CommerceSnapshotState");
+assertIncludes("admin analytics types", analyticsTypes, "export type PackagePerformanceState");
+assertIncludes("admin analytics types", analyticsTypes, "export type PackagePerformanceRow");
 assertIncludes("admin analytics types", analyticsTypes, "commerceSnapshotState?: CommerceSnapshotState");
+assertIncludes("admin analytics types", analyticsTypes, "packagePerformanceState?: PackagePerformanceState");
 assertIncludes("admin analytics types", analyticsTypes, "checkoutScope?: \"lifetime\" | \"rolling_30d\" | \"selected_range\" | \"cache_snapshot\" | \"unknown\"");
 
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsCommerceSnapshot");

@@ -2259,6 +2259,7 @@ try {
     /^src\/lib\/server\/admin-analytics-historical-validation\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-viewer\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-tasks\.ts$/u,
+    /^src\/lib\/server\/admin-analytics-historical-content\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-traffic\.ts$/u,
     /^src\/lib\/server\/admin-analytics-data\.ts$/u,
     /^src\/lib\/server\/analytics-metrics\.ts$/u,

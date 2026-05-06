@@ -31,7 +31,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
 
     // Commerce Tab
     commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, commerceSnapshotModel,
-    packagePerformanceRange, packagePerformanceItems,
+    packagePerformanceRange, packagePerformanceItems, packagePerformancePanelState,
     PIE_COLORS, contentConversionRange, contentConversionItems,
     topDropConversionRange, topDropConversionItems,
     recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
@@ -262,77 +262,105 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 icon={Wallet}
                 rightSlot={renderSectionRangeControl("packagePerformance")}
               >
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={packagePerformanceItems.slice(0, 6)}
-                      margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
-                    >
-                      <CartesianGrid
-                        stroke="rgba(255,255,255,0.06)"
-                        vertical={false}
-                      />
-                      <XAxis
-                        dataKey="label"
-                        stroke="#6b7280"
-                        fontSize={10}
-                        tickLine={false}
-                        axisLine={false}
-                        interval={0}
-                        angle={-18}
-                        textAnchor="end"
-                        height={56}
-                      />
-                      <YAxis
-                        stroke="#6b7280"
-                        fontSize={11}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <Tooltip content={<AnalyticsTooltip />} />
-                      <Bar
-                        dataKey="starts"
-                        name="Checkouts"
-                        fill="#374151"
-                        radius={[8, 8, 0, 0]}
-                      />
-                      <Bar
-                        dataKey="purchases"
-                        name="Purchases"
-                        fill="#b28cff"
-                        radius={[8, 8, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
+                <div className="mb-3 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-4">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Range</div>
+                    <div className="font-semibold text-white">{packagePerformancePanelState?.range ?? packagePerformanceRange}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Source state</div>
+                    <div className="font-semibold text-white">{packagePerformancePanelState?.sourceState ?? "unknown"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Packages</div>
+                    <div className="font-semibold text-white">{packagePerformancePanelState?.packageCount ?? packagePerformanceItems.length}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Totals</div>
+                    <div className="font-semibold text-white">
+                      {packagePerformancePanelState
+                        ? `${packagePerformancePanelState.totals.completedPurchases} purchases | ${formatMoney(packagePerformancePanelState.totals.revenueUsd)}`
+                        : `${packagePerformanceItems.length} rows`}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="mt-5 space-y-3">
-                  {packagePerformanceItems.slice(0, 5).map((item: any) => (
-                    <div
-                      key={item.label}
-                      className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
-                    >
-                      <div className="mb-2 flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-white">
-                            {item.label}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {item.starts.toLocaleString()} checkouts ·{" "}
-                            {item.purchases.toLocaleString()} purchases
-                          </p>
-                        </div>
-                        <span className="text-sm font-bold text-brand-purple">
-                          {formatPercent(item.conversionRate)}
-                        </span>
-                      </div>
-                      <p className="text-xs leading-6 text-gray-400">
-                        {formatMoney(item.revenueUsd)} revenue ·{" "}
-                        {formatPercent(item.abandonmentRate)} abandonment
-                      </p>
+                {packagePerformancePanelState?.warnings?.length ? (
+                  <div className="mb-3 rounded-[1rem] border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] leading-5 text-amber-100">
+                    {packagePerformancePanelState.warnings.join(" ")}
+                  </div>
+                ) : null}
+
+                {packagePerformancePanelState && packagePerformancePanelState.rows.length > 0 ? (
+                  <div className="space-y-2">
+                    <div className="hidden grid-cols-[minmax(0,1.8fr)_0.8fr_0.8fr_0.8fr_0.9fr_1fr_1fr_0.9fr] gap-2 px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
+                      <div>Package</div>
+                      <div>Price</div>
+                      <div>Starts</div>
+                      <div>Purch.</div>
+                      <div>Conv.</div>
+                      <div>Revenue</div>
+                      <div>GD issued</div>
+                      <div>State</div>
                     </div>
-                  ))}
-                </div>
+                    {packagePerformancePanelState.rows.map((row: any) => (
+                      <div
+                        key={row.packageId}
+                        className="rounded-[1rem] border border-white/10 bg-black/30 px-3 py-3"
+                        data-package-performance-id={row.packageId}
+                        data-package-performance-state={row.performanceState}
+                        data-package-performance-source={row.sourceTruth}
+                      >
+                        <div className="md:hidden">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-white">{row.packageLabel}</p>
+                              <p className="text-[11px] text-gray-500">{row.packageId}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-semibold text-brand-purple">
+                                {row.conversionRatePct === null ? "Partial" : `${Math.round(row.conversionRatePct)}%`}
+                              </p>
+                              <p className="text-[11px] text-gray-500">{row.performanceState}</p>
+                            </div>
+                          </div>
+                          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-300">
+                            <span>{row.priceUsd === null ? "No price" : formatMoney(row.priceUsd)}</span>
+                            <span>{row.checkoutStarts} starts</span>
+                            <span>{row.completedPurchases} purchases</span>
+                            <span>{formatMoney(row.revenueUsd)} revenue</span>
+                            <span>{row.paidGdIssued + row.bonusGdIssued} GD issued</span>
+                          </div>
+                          <p className="mt-2 text-[11px] leading-5 text-gray-400">{row.explanation}</p>
+                        </div>
+
+                        <div className="hidden md:grid md:grid-cols-[minmax(0,1.8fr)_0.8fr_0.8fr_0.8fr_0.9fr_1fr_1fr_0.9fr] md:items-start md:gap-2">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white">{row.packageLabel}</p>
+                            <p className="truncate text-[11px] text-gray-500">
+                              {row.packageId} | {row.sourceTruth} | {row.effectiveUsdPer100Gd === null ? "No effective rate" : `${formatMoney(row.effectiveUsdPer100Gd)} / 100 GD`}
+                            </p>
+                          </div>
+                          <div className="text-sm text-white">{row.priceUsd === null ? "N/A" : formatMoney(row.priceUsd)}</div>
+                          <div className="text-sm text-white">{row.checkoutStarts}</div>
+                          <div className="text-sm text-white">{row.completedPurchases}</div>
+                          <div className="text-sm text-white">
+                            {row.conversionRatePct === null ? "Unavailable" : `${Math.round(row.conversionRatePct)}%`}
+                          </div>
+                          <div className="text-sm text-white">{formatMoney(row.revenueUsd)}</div>
+                          <div className="text-sm text-white">{row.paidGdIssued + row.bonusGdIssued}</div>
+                          <div className="text-sm text-white">{row.performanceState}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-[1rem] border border-white/10 bg-black/25 px-4 py-4 text-sm text-gray-300">
+                    {packagePerformancePanelState?.sourceState === "missing"
+                      ? "No package config found. Package value basis should come from Platform Economy packages."
+                      : "Package config exists, but no package-specific checkout or purchase data was observed in this range."}
+                  </div>
+                )}
               </SectionCard>
 
               <SectionCard

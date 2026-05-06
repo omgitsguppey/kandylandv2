@@ -2350,6 +2350,7 @@ const { user } = useAuth();
       : packagePerformanceOverride.data;
   const packagePerformanceItems =
     packagePerformanceData?.packagePerformance ?? packagePerformance;
+  const packagePerformancePanelState = packagePerformanceData?.packagePerformanceState;
   const contentConversionData =
     contentConversionRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -2752,7 +2753,7 @@ const { user } = useAuth();
     audienceTotals, audienceHistorySeries, audienceSnapshotModel,
     returnCadenceRange, returnCadenceData, returnCadenceSegments, returnCadenceSummary, returnCadenceModel,
     navigationDestinationsRange, destinationMix, navigationDestinationsMix, navigationDestinationsModel, deviceMixRange, getDeviceIcon, deviceMixDevices, deviceMixTotalUsers, deviceMixModel, topPathsRange, topPathsPages, topPathsModel, regionsRange, regionsGeo, regionsModel,
-    commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, commerceSnapshotModel, packagePerformanceRange, packagePerformance, packagePerformanceItems,
+    commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, commerceSnapshotModel, packagePerformanceRange, packagePerformance, packagePerformanceItems, packagePerformancePanelState,
     PIE_COLORS, contentConversionRange, unlockCategoryMix, contentConversionItems, previewToUnlockRate, checkoutToPurchaseRate,
     topDropConversionRange, topDrops, topDropConversionItems, recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
     formatMoney, formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,

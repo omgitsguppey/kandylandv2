@@ -26,6 +26,7 @@ import { buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-h
 import { buildDataValidationPanelState } from "@/lib/server/admin-analytics-historical-validation";
 import { buildHistoricalViewerOverview } from "@/lib/server/admin-analytics-historical-viewer";
 import { buildHistoricalAnalyticsUserMap } from "@/lib/server/admin-analytics-historical-users";
+import { readPlatformEconomyPackages } from "@/lib/server/platform-economy";
 import { buildWatchCaptureHealthSummary } from "@/lib/server/admin-analytics-capture-health";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildSemanticCategorySummaries } from "@/lib/server/analytics-semantics";
@@ -490,7 +491,10 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 commerceSnapshotState: payload.commerceSnapshotState,
             });
         case "packagePerformance":
-            return withSharedFields({ packagePerformance: payload.packagePerformance });
+            return withSharedFields({
+                packagePerformance: payload.packagePerformance,
+                packagePerformanceState: payload.packagePerformanceState,
+            });
         case "contentConversion":
             return withSharedFields({ unlockCategoryMix: payload.unlockCategoryMix });
         case "topDropConversion":
@@ -1206,9 +1210,11 @@ async function GET_handler(request: NextRequest) {
                 viewerUsers,
                 securityEventDocs: securityEventsSnapshot.docs,
             });
+            const platformPackages = await readPlatformEconomyPackages();
 
             const {
                 packagePerformance,
+                packagePerformanceState,
                 unlockCategoryMix,
                 watchDepthBuckets,
                 contentJourney,
@@ -1218,6 +1224,20 @@ async function GET_handler(request: NextRequest) {
                 eventsData,
                 watchAssetDocs: watchAssetsSnapshot.docs,
                 viewerOverview: viewerOverviewCanonical,
+                normalizedTransactionsInRange,
+                packageConfigs: platformPackages.map((pkg) => ({
+                    packageId: pkg.packageId,
+                    label: pkg.label,
+                    priceUsd: pkg.priceUsd,
+                    basePaidGd: pkg.basePaidGd,
+                    bonusPaidGd: pkg.bonusPaidGd,
+                    totalGd: pkg.totalGd,
+                    effectiveUsdPer100Gd: pkg.effectiveUsdPer100Gd,
+                    sourceTruth: "platform_economy" as const,
+                })),
+                rangeLabel: period ?? "selected_range",
+                generatedAtUtc: new Date().toISOString(),
+                freshnessState: "live",
                 funnel: {
                     previewOpens: funnel.previewOpens,
                     unlocks: funnel.unlocks,
@@ -1602,6 +1622,7 @@ async function GET_handler(request: NextRequest) {
                 taskDurationBuckets,
                 reminderReasons,
                 packagePerformance,
+                packagePerformanceState,
                 unlockCategoryMix,
                 watchDepthBuckets,
                 contentJourney,
