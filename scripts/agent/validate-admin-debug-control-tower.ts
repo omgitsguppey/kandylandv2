@@ -73,6 +73,7 @@ const controlTowerDoc = readRequired("docs/agent-truth/admin-debug-control-tower
 const adminTruthDoc = readRequired("docs/agent-truth/human-readable-admin-truth.md");
 const evidenceDoc = readRequired("docs/agent-truth/debug-evidence-pipeline.md");
 const notificationPipelineDoc = readRequired("docs/agent-truth/notification-pipeline.md");
+const environmentContractDoc = readRequired("docs/agent-truth/environment-contract.md");
 const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
 const repoMemory = readRequired("REPO_MEMORY_LEDGER.md");
@@ -591,6 +592,46 @@ requireIncludes(releaseNotesScript, "Improved internal route health labels so lo
 requireIncludes(releaseNotesScript, "Improved internal route runtime labels so unseen routes no longer appear as fake successes.", "Release notes script must include route runtime sample state copy");
 requireIncludes(releaseNotesScript, "Improved internal transaction review so admins can identify users more easily.", "Release notes script must include recent transaction identity copy");
 requireIncludes(releaseNotesScript, "Improved internal queue health views so drop activation outcomes show readable drop names.", "Release notes script must include queue runtime drop label copy");
+requireIncludes(releaseNotesScript, "Clarified internal admin readiness checks so config presence is not confused with live service health.", "Release notes script must include admin session config readiness copy");
+
+for (const expected of [
+  "Admin session + config readiness",
+  "Current admin identity and required config presence for debug/admin tools. This does not prove external services are healthy.",
+  "Admin session verified",
+  "Config present",
+  "Runtime not verified here",
+  "data-admin-session-state",
+  "data-admin-config-ga-state",
+  "data-admin-config-vapid-state",
+  "data-admin-config-database-state",
+  "data-admin-config-navigation-signing-state",
+  "data-admin-prereq-runtime-verified=\"false\"",
+  "data-admin-session-sensitive-collapsed=\"true\"",
+  "These checks confirm the current admin session and config presence only.",
+  "Runtime GA delivery not verified here",
+  "Push delivery not verified here",
+  "Runtime database connectivity not verified here",
+  "Config present, signing runtime not exercised",
+  "Session details",
+  "User ID:",
+  "Email:",
+]) {
+  requireIncludes(debugTabMonitoring, expected, "Admin session config readiness card must separate config presence from runtime health and collapse sensitive identity details");
+}
+for (const forbidden of [
+  "title=\"Admin session and runtime prerequisites\"",
+  "GA property\" value={data?.opsHealth?.runtime?.gaPropertyConfigured ? \"Ready\" : \"Missing\"}",
+  "Database URL\" value={data?.opsHealth?.runtime?.databaseUrlConfigured ? \"Ready\" : \"Missing\"}",
+  "Navigation signing\" value={data?.opsHealth?.runtime?.navigationSessionSigningReady ? \"Ready\" : \"Missing\"}",
+  "<div className=\"flex justify-between gap-3 border-b border-white/10 py-2\"><span className=\"text-gray-400\">User ID</span>",
+  "<div className=\"flex justify-between gap-3 border-b border-white/10 py-2\"><span className=\"text-gray-400\">Email</span>",
+]) {
+  requireNotIncludes(debugTabMonitoring, forbidden, "Admin session config readiness card must not label config as runtime Ready or show sensitive identity as primary fields");
+}
+const vapidChipCount = (debugTabMonitoring.match(/label="VAPID"/g) ?? []).length;
+if (vapidChipCount !== 1) {
+  fail(`Admin session config readiness card must render VAPID once; found ${vapidChipCount}.`);
+}
 
 for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
@@ -704,7 +745,7 @@ for (const expected of [
   requireIncludes(componentTest, expected, "Admin debug Control Tower component tests");
 }
 
-const doctrineBundle = [controlTowerDoc, adminTruthDoc, evidenceDoc, notificationPipelineDoc, readme, agents, repoMemory].join("\n");
+const doctrineBundle = [controlTowerDoc, adminTruthDoc, evidenceDoc, notificationPipelineDoc, environmentContractDoc, readme, agents, repoMemory].join("\n");
 for (const expected of [
   "Admin Debug v2 is the mobile-first Control Tower",
   "Missing or stale data must never be shown as healthy",
@@ -878,6 +919,7 @@ try {
     /^docs\/agent-truth\/synthetic-creators-view-as\.md$/u,
     /^docs\/agent-truth\/human-readable-admin-truth\.md$/u,
     /^docs\/agent-truth\/debug-evidence-pipeline\.md$/u,
+    /^docs\/agent-truth\/environment-contract\.md$/u,
     /^docs\/agent-truth\/notification-pipeline\.md$/u,
     /^docs\/agent-truth\/support-recovery-flows\.md$/u,
     /^docs\/agent-truth\/admin-analytics-daily-task-pipeline\.md$/u,

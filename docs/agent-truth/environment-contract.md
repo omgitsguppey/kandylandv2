@@ -26,3 +26,7 @@ KandyDrops environment configuration must be explicit, scoped, and safe for cont
 - PRs that add, remove, or rename env variables must update `.env.example`, this document, and the PR template env section.
 - Payment, auth, Firebase, Google cost, Data Connect/Cloud SQL, and AI env changes require CODEOWNER approval.
 - Production values are provisioned outside Git and rotated if exposed.
+
+## Admin Debug Readiness Labels
+
+Admin Debug may show whether required configuration is present for the current admin session, but env/config presence is not runtime dependency health. GA property, VAPID, Database URL, navigation signing, and similar prerequisites must be labeled as `configPresent` or `configMissing` unless a specific runtime check has exercised the external service. Full admin UID/email should stay collapsed in session details on debug surfaces.

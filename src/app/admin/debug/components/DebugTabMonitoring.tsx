@@ -85,6 +85,11 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
         || queueRuntimeSummary.warnings.degraded > 0
         || queueRuntimeSummary.heartbeatState === "missing_heartbeat";
     const queueStatus = !queueLoaded ? "empty" : queueNeedsReview ? "review" : "live";
+    const adminDisplayName = userProfile?.username || userProfile?.displayName || user?.displayName || "Current admin";
+    const gaConfigState = data?.opsHealth?.runtime?.gaPropertyConfigured ? "configPresent" : "configMissing";
+    const vapidConfigState = data?.opsHealth?.runtime?.vapidConfigured ? "configPresent" : "configMissing";
+    const databaseConfigState = data?.opsHealth?.runtime?.databaseUrlConfigured ? "configPresent" : "configMissing";
+    const navigationSigningConfigState = data?.opsHealth?.runtime?.navigationSessionSigningReady ? "configPresent" : "configMissing";
 
     return (
         <div className="space-y-4">
@@ -286,20 +291,39 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 </div>
             </Section>
 
-            <Section title="Admin session and runtime prerequisites" subtitle="Current admin identity plus the runtime prerequisites that affect debug behavior." defaultOpen={false} summary={<><Pill label="Role" value={userProfile?.role || "user"} tone="good" /><Pill label="GA property" value={data?.opsHealth?.runtime?.gaPropertyConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.gaPropertyConfigured ? "good" : "warn"} /><Pill label="VAPID" value={data?.opsHealth?.runtime?.vapidConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.vapidConfigured ? "good" : "warn"} /></>}>
-                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                    <p className="mb-4 text-sm text-gray-300">These checks describe the current admin session and a few runtime prerequisites used by debug/admin flows. They do not prove that all runtime dependencies are healthy everywhere else.</p>
+            <Section title="Admin session + config readiness" subtitle="Current admin identity and required config presence for debug/admin tools. This does not prove external services are healthy." defaultOpen={false} summary={<><Pill label="Session" value="Admin session verified" tone={userProfile?.role === "admin" ? "good" : "warn"} truthState={userProfile?.role === "admin" ? "live" : "degraded"} badgeLabel="SESSION" /><Pill label="GA property" value={gaConfigState === "configPresent" ? "Config present" : "Config missing"} tone={gaConfigState === "configPresent" ? "neutral" : "warn"} badgeLabel={gaConfigState === "configPresent" ? "CONFIG" : "MISSING"} /><Pill label="Runtime" value="Runtime not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" /></>}>
+                <div
+                    className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4"
+                    data-admin-session-state={userProfile?.role === "admin" ? "sessionVerified" : "warning"}
+                    data-admin-config-ga-state={gaConfigState}
+                    data-admin-config-vapid-state={vapidConfigState}
+                    data-admin-config-database-state={databaseConfigState}
+                    data-admin-config-navigation-signing-state={navigationSigningConfigState}
+                    data-admin-prereq-runtime-verified="false"
+                    data-admin-session-sensitive-collapsed="true"
+                >
+                    <p className="mb-4 rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">These checks confirm the current admin session and config presence only. They do not prove GA, push, database, or all runtime dependencies are healthy. See runtime route health and writer health for live dependency behavior.</p>
                     <div className="grid gap-4 lg:grid-cols-1">
                         <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4 text-sm text-gray-300">
-                            <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">User ID</span><span className="truncate font-mono text-xs text-white">{user?.uid || "--"}</span></div>
-                            <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Email</span><span className="truncate text-white">{user?.email || "--"}</span></div>
+                            <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Admin</span><span className="truncate text-white">{adminDisplayName}</span></div>
+                            <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Role</span><span className="text-white">{userProfile?.role || "user"}</span></div>
                             <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Project</span><span className="truncate text-white">{data?.opsHealth?.runtime?.projectId || "--"}</span></div>
-                            <div className="flex justify-between gap-3 py-2"><span className="text-gray-400">Warnings</span><span className="text-white">{data?.opsHealth?.runtime?.warnings?.length || 0}</span></div>
+                            <div className="flex justify-between gap-3 py-2"><span className="text-gray-400">Warnings</span><span className="text-white">{data?.opsHealth?.runtime?.warnings?.length || 0} config warning{(data?.opsHealth?.runtime?.warnings?.length || 0) === 1 ? "" : "s"}</span></div>
+                            <details className="mt-3 rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
+                                <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Session details</summary>
+                                <p className="mt-2">User ID: {user?.uid || "--"}</p>
+                                <p>Email: {user?.email || "--"}</p>
+                            </details>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <Pill label="VAPID" value={data?.opsHealth?.runtime?.vapidConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.vapidConfigured ? "good" : "warn"} />
-                            <Pill label="Database URL" value={data?.opsHealth?.runtime?.databaseUrlConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.databaseUrlConfigured ? "good" : "warn"} />
-                            <Pill label="Navigation signing" value={data?.opsHealth?.runtime?.navigationSessionSigningReady ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.navigationSessionSigningReady ? "good" : "warn"} />
+                            <Pill label="GA property" value={gaConfigState === "configPresent" ? "Config present" : "Config missing"} tone={gaConfigState === "configPresent" ? "neutral" : "warn"} badgeLabel={gaConfigState === "configPresent" ? "CONFIG" : "MISSING"} />
+                            <Pill label="GA runtime" value="Runtime GA delivery not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" />
+                            <Pill label="VAPID" value={vapidConfigState === "configPresent" ? "Config present" : "Config missing"} tone={vapidConfigState === "configPresent" ? "neutral" : "warn"} badgeLabel={vapidConfigState === "configPresent" ? "CONFIG" : "MISSING"} />
+                            <Pill label="Push delivery" value="Push delivery not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" />
+                            <Pill label="Database URL" value={databaseConfigState === "configPresent" ? "Config present" : "Config missing"} tone={databaseConfigState === "configPresent" ? "neutral" : "warn"} badgeLabel={databaseConfigState === "configPresent" ? "CONFIG" : "MISSING"} />
+                            <Pill label="Database runtime" value="Runtime database connectivity not verified here" truthState="unavailable" badgeLabel="UNVERIFIED" />
+                            <Pill label="Navigation signing" value={navigationSigningConfigState === "configPresent" ? "Config present" : "Config missing"} tone={navigationSigningConfigState === "configPresent" ? "neutral" : "warn"} badgeLabel={navigationSigningConfigState === "configPresent" ? "CONFIG" : "MISSING"} />
+                            <Pill label="Signing runtime" value="Config present, signing runtime not exercised" truthState="unavailable" badgeLabel="UNVERIFIED" />
                             {(data?.opsHealth?.runtime?.warnings || []).map((warning: string) => <Pill key={warning} label="Warning" value={warning} tone="warn" />)}
                         </div>
                     </div>

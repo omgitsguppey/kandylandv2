@@ -275,6 +275,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("enrich queue runtime drop labels") || normalized.includes("queue runtime drop labels")) {
     return "Improved internal queue health views so drop activation outcomes show readable drop names.";
   }
+  if (normalized.includes("clarify session config readiness") || normalized.includes("session config readiness")) {
+    return "Clarified internal admin readiness checks so config presence is not confused with live service health.";
+  }
   if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
     return "Improved internal creator review status checks.";
   }
