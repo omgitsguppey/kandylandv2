@@ -115,6 +115,7 @@
         "check:admin-analytics-live-pulse": "tsx scripts/check-admin-analytics-live-pulse.ts",
         "check:admin-analytics-journey-funnel": "tsx scripts/check-admin-analytics-journey-funnel.ts",
         "check:admin-analytics-auth-outcome-split": "tsx scripts/check-admin-analytics-auth-outcome-split.ts",
+        "check:auth-outcomes-truth": "tsx scripts/agent/validate-auth-outcomes-truth.ts",
         "check:admin-analytics-onboarding-velocity": "tsx scripts/check-admin-analytics-onboarding-velocity.ts",
         "check:admin-analytics-onboarding-performance": "tsx scripts/check-admin-analytics-onboarding-performance.ts",
         "check:admin-analytics-guest-bounce-quality": "tsx scripts/check-admin-analytics-guest-bounce-quality.ts",

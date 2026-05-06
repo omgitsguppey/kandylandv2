@@ -1,28 +1,29 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
-import type { AuthBreakdownItem, HistoricalAnalyticsResponse, RangeOption } from "@/types/admin-analytics";
+import type {
+  AuthBreakdownItem,
+  AuthLifecycleOutcome,
+  AuthMethodOutcome,
+  AuthOutcomeSummary,
+  HistoricalAnalyticsResponse,
+  RangeOption,
+} from "@/types/admin-analytics";
 
 type AuthSourceMode = "first_party_telemetry" | "stale_snapshot" | "mixed_degraded" | "waiting" | "unavailable";
-type AuthMethodKey = "google_sign_in" | "email_sign_up" | "email_sign_in" | "registration_completed" | "unknown";
+type AuthMethodKey = "google_sign_in" | "email_sign_up" | "email_sign_in" | "unknown";
 
-export type AdminAnalyticsAuthMethodRow = {
+export type AdminAnalyticsAuthMethodRow = AuthMethodOutcome & {
   methodKey: AuthMethodKey;
   visibleLabel: string;
   rawEventNames: string[];
   casingDriftDetected: boolean;
-  attempts: number | null;
-  successes: number | null;
-  failures: number | null;
-  unfinished: number | null;
-  reconciliationDelta: number | null;
-  successRate: number | null;
-  avgFinishMs: number | null;
+  reconciliationDelta: number;
   timingAvailable: boolean;
   source: AuthSourceMode;
   truthState: AdminSurfaceState;
-  registeredUsersClassifiedAsMethod: boolean;
-  registeredUsersMovedToOutcome: boolean;
   fakeZeroPrevented: boolean;
 };
+
+export type AdminAnalyticsAuthLifecycleRow = AuthLifecycleOutcome;
 
 export type AdminAnalyticsAuthOutcomeModel = {
   selectedRange: RangeOption;
@@ -39,14 +40,14 @@ export type AdminAnalyticsAuthOutcomeModel = {
   failures: { value: number | null; source: AuthSourceMode };
   unfinished: { value: number | null; source: AuthSourceMode };
   successRate: { formula: "successes / attempts"; value: number | null };
-  avgFinish: { formula: "weighted successful finish duration"; value: number | null };
+  avgFinish: { formula: "completed attempts with start/end timestamps"; value: number | null };
   timingAvailable: boolean;
+  timingState: AuthOutcomeSummary["timingState"] | "unavailable";
   timingMissingReason: string | null;
-  missingStartCount: number;
-  missingFinishCount: number;
-  unfinishedTimeoutWindow: "not_available_from_current_summary";
+  lastAuthEventAtUtc: string | null;
+  generatedAtUtc: string | null;
   methodBreakdown: AdminAnalyticsAuthMethodRow[];
-  registrationOutcome: AdminAnalyticsAuthMethodRow | null;
+  lifecycleOutcomes: AdminAnalyticsAuthLifecycleRow[];
   weakestMethod: AdminAnalyticsAuthMethodRow | null;
   mostFailuresMethod: AdminAnalyticsAuthMethodRow | null;
   mostUnfinishedMethod: AdminAnalyticsAuthMethodRow | null;
@@ -57,82 +58,122 @@ export type AdminAnalyticsAuthOutcomeModel = {
   duplicateRefreshPrevented: boolean;
   badgeOverflowProtectionEnabled: true;
   sampleTooSmall: boolean;
-  modeLabel: "LIVE" | "STALE" | "RAW" | "MIXED" | "WAIT" | "ERROR";
+  modeLabel: "LIVE" | "STALE" | "PARTIAL" | "WAIT" | "ERROR";
 };
 
 const METHOD_EVENT_NAMES: Record<AuthMethodKey, string[]> = {
   google_sign_in: [
-    "auth_google_sign_in_attempted",
-    "auth_google_sign_in_success",
-    "auth_google_sign_in_failed",
+    "auth_attempt_started",
+    "auth_attempt_succeeded",
+    "auth_attempt_failed",
+    "auth_attempt_unfinished",
   ],
   email_sign_up: [
-    "auth_sign_up_attempted",
-    "auth_sign_up_success",
-    "auth_sign_up_failed",
-    "user_registered",
+    "auth_attempt_started",
+    "auth_attempt_succeeded",
+    "auth_attempt_failed",
+    "auth_registration_started",
+    "auth_registration_completed",
   ],
   email_sign_in: [
-    "auth_sign_in_attempted",
-    "auth_sign_in_success",
-    "auth_sign_in_failed",
+    "auth_attempt_started",
+    "auth_attempt_succeeded",
+    "auth_attempt_failed",
+    "auth_navigation_session_started",
+    "auth_navigation_session_completed",
+    "auth_navigation_session_failed",
   ],
-  registration_completed: ["user_registered", "auth_sign_up_success"],
   unknown: [],
 };
 
-export function normalizeAuthOutcomeMethod(method: string): { key: AuthMethodKey; label: string; isOutcome: boolean } {
-  const normalized = method.trim().replaceAll("_", " ").replaceAll("-", " ").toLowerCase();
-  if (normalized.includes("google")) return { key: "google_sign_in", label: "Google sign-in", isOutcome: false };
-  if (normalized.includes("sign up") || normalized.includes("signup")) return { key: "email_sign_up", label: "Email sign-up", isOutcome: false };
-  if (normalized.includes("registered")) return { key: "registration_completed", label: "Registration completed", isOutcome: true };
-  if (normalized.includes("email") || normalized.includes("password") || normalized.includes("sign in")) return { key: "email_sign_in", label: "Email sign-in", isOutcome: false };
-  return { key: "unknown", label: method.trim() || "Unknown method", isOutcome: false };
+export function normalizeAuthOutcomeMethod(method: string): { key: AuthMethodKey; label: string } {
+  switch (method) {
+    case "google_sign_in":
+      return { key: "google_sign_in", label: "Google sign-in" };
+    case "email_sign_up":
+      return { key: "email_sign_up", label: "Email sign-up" };
+    case "email_sign_in":
+      return { key: "email_sign_in", label: "Email sign-in" };
+    default:
+      return { key: "unknown", label: method.trim() || "Unknown method" };
+  }
 }
 
-function detectCasingDrift(method: string, label: string): boolean {
-  const readable = method.trim().replaceAll("_", " ").replaceAll("-", " ");
-  if (!readable) return false;
-  return readable !== label && readable.toLowerCase() === label.toLowerCase();
-}
+function buildLegacySummary(input: {
+  authBreakdown: AuthBreakdownItem[];
+  generatedAtUtc: string | null;
+  range: RangeOption;
+}) : AuthOutcomeSummary {
+  const methods: AuthMethodOutcome[] = input.authBreakdown.map((item) => {
+    const normalized = normalizeAuthOutcomeMethod(
+      item.method.toLowerCase().includes("google")
+        ? "google_sign_in"
+        : item.method.toLowerCase().includes("sign up")
+          ? "email_sign_up"
+          : "email_sign_in",
+    );
+    const unfinished = Math.max(0, item.attempts - item.successes - item.failures);
+    return {
+      method: normalized.key === "unknown" ? "email_sign_in" : normalized.key,
+      attempts: item.attempts,
+      successes: item.successes,
+      failures: item.failures,
+      unfinished,
+      successRatePct: item.attempts > 0 ? Math.round((item.successes / item.attempts) * 100) : 0,
+      avgFinishMs: item.avgDurationMs > 0 ? item.avgDurationMs : null,
+      weakestReason: item.successes === 0 && item.failures > 0 ? "failure_code_unavailable" : undefined,
+      failureBreakdown: item.failures > 0
+        ? [{
+          failureCode: "failure_code_unavailable",
+          count: item.failures,
+          explanation: "Legacy auth telemetry did not capture a normalized failure code for this method.",
+        }]
+        : [],
+      state: unfinished > 0 || item.avgDurationMs <= 0 ? "review" : "stale",
+    };
+  });
 
-function hasNumber(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
-}
-
-function buildRow(input: {
-  item: AuthBreakdownItem;
-  source: AuthSourceMode;
-  truthState: AdminSurfaceState;
-  fakeZeroPrevented: boolean;
-}): AdminAnalyticsAuthMethodRow {
-  const normalized = normalizeAuthOutcomeMethod(input.item.method);
-  const attempts = Math.max(0, input.item.attempts ?? 0);
-  const successes = Math.max(0, input.item.successes ?? 0);
-  const failures = Math.max(0, input.item.failures ?? 0);
-  const unfinished = Math.max(0, attempts - successes - failures);
-  const reconciliationDelta = attempts - successes - failures - unfinished;
-  const timingAvailable = hasNumber(input.item.avgDurationMs) && input.item.avgDurationMs > 0;
-
+  const attempts = methods.reduce((sum, method) => sum + method.attempts, 0);
+  const successes = methods.reduce((sum, method) => sum + method.successes, 0);
+  const failures = methods.reduce((sum, method) => sum + method.failures, 0);
+  const unfinished = methods.reduce((sum, method) => sum + method.unfinished, 0);
   return {
-    methodKey: normalized.key,
-    visibleLabel: normalized.label,
-    rawEventNames: METHOD_EVENT_NAMES[normalized.key],
-    casingDriftDetected: detectCasingDrift(input.item.method, normalized.label),
-    attempts: input.fakeZeroPrevented ? null : attempts,
-    successes: input.fakeZeroPrevented ? null : successes,
-    failures: input.fakeZeroPrevented ? null : failures,
-    unfinished: input.fakeZeroPrevented ? null : unfinished,
-    reconciliationDelta: input.fakeZeroPrevented ? null : reconciliationDelta,
-    successRate: input.fakeZeroPrevented || attempts <= 0 ? null : successes / attempts,
-    avgFinishMs: timingAvailable ? input.item.avgDurationMs : null,
-    timingAvailable,
-    source: input.source,
-    truthState: input.truthState,
-    registeredUsersClassifiedAsMethod: normalized.key === "registration_completed",
-    registeredUsersMovedToOutcome: normalized.isOutcome,
-    fakeZeroPrevented: input.fakeZeroPrevented,
+    generatedAtUtc: input.generatedAtUtc || new Date().toISOString(),
+    range: input.range,
+    attempts,
+    successes,
+    failures,
+    unfinished,
+    successRatePct: attempts > 0 ? Math.round((successes / attempts) * 100) : 0,
+    avgFinishMs: null,
+    timingState: "missing_starts",
+    lastAuthEventAtUtc: null,
+    methods,
+    lifecycleOutcomes: [],
   };
+}
+
+function buildMethodRows(
+  methods: AuthMethodOutcome[],
+  source: AuthSourceMode,
+  truthState: AdminSurfaceState,
+  fakeZeroPrevented: boolean,
+) : AdminAnalyticsAuthMethodRow[] {
+  return methods.map((method) => {
+    const normalized = normalizeAuthOutcomeMethod(method.method);
+    return {
+      ...method,
+      methodKey: normalized.key,
+      visibleLabel: normalized.label,
+      rawEventNames: METHOD_EVENT_NAMES[normalized.key],
+      casingDriftDetected: false,
+      reconciliationDelta: method.attempts - method.successes - method.failures - method.unfinished,
+      timingAvailable: typeof method.avgFinishMs === "number" && method.avgFinishMs > 0,
+      source,
+      truthState,
+      fakeZeroPrevented,
+    };
+  });
 }
 
 export function buildAdminAnalyticsAuthOutcomeModel(input: {
@@ -150,55 +191,47 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
     ? input.loading ? "waiting" : "unavailable"
     : stale
       ? "stale_snapshot"
-      : "first_party_telemetry";
+      : input.response?.authOutcomeSummary ? "first_party_telemetry" : "mixed_degraded";
   const truthState: AdminSurfaceState = !hasResponse
     ? input.loading ? "loading" : "unavailable"
     : stale
       ? "stale"
       : input.overviewTruthState ?? "live";
-  const rawRows = input.authBreakdown.map((item) =>
-    buildRow({ item, source, truthState, fakeZeroPrevented }),
-  );
-  const rows = rawRows
-    .map((row) => ({ ...row, truthState }))
-    .filter((row) => row.methodKey !== "registration_completed");
-  const registrationOutcome = rawRows
-    .map((row) => ({ ...row, truthState }))
-    .find((row) => row.methodKey === "registration_completed") ?? null;
-  const totals = rows.reduce(
-    (acc, row) => ({
-      attempts: acc.attempts + (row.attempts ?? 0),
-      successes: acc.successes + (row.successes ?? 0),
-      failures: acc.failures + (row.failures ?? 0),
-      unfinished: acc.unfinished + (row.unfinished ?? 0),
-      durationWeight: acc.durationWeight + ((row.avgFinishMs ?? 0) * (row.successes ?? 0)),
-      durationSamples: acc.durationSamples + (row.timingAvailable ? row.successes ?? 0 : 0),
-    }),
-    { attempts: 0, successes: 0, failures: 0, unfinished: 0, durationWeight: 0, durationSamples: 0 },
-  );
-  const rankedRows = rows.filter((row) => (row.attempts ?? 0) >= 3);
-  const weakestMethod = rankedRows.slice().sort((a, b) => (a.successRate ?? 1) - (b.successRate ?? 1))[0] ?? null;
-  const mostFailuresMethod = rows.slice().sort((a, b) => (b.failures ?? 0) - (a.failures ?? 0))[0] ?? null;
-  const mostUnfinishedMethod = rows.slice().sort((a, b) => (b.unfinished ?? 0) - (a.unfinished ?? 0))[0] ?? null;
-  const timingAvailable = rows.some((row) => row.timingAvailable);
-  const missingFinishCount = rows.reduce((sum, row) => sum + (row.timingAvailable ? 0 : row.successes ?? 0), 0);
-  const attemptsValue = fakeZeroPrevented ? null : totals.attempts;
-  const successesValue = fakeZeroPrevented ? null : totals.successes;
-  const failuresValue = fakeZeroPrevented ? null : totals.failures;
-  const unfinishedValue = fakeZeroPrevented ? null : totals.unfinished;
-  const successRateValue = fakeZeroPrevented || totals.attempts <= 0 ? null : totals.successes / totals.attempts;
-  const avgFinishValue = timingAvailable && totals.durationSamples > 0
-    ? totals.durationWeight / totals.durationSamples
-    : null;
+  const summary = input.response?.authOutcomeSummary ?? buildLegacySummary({
+    authBreakdown: input.authBreakdown,
+    generatedAtUtc: input.response?.generatedAtMs ? new Date(input.response.generatedAtMs).toISOString() : null,
+    range: input.selectedRange,
+  });
+  const methodBreakdown = buildMethodRows(summary.methods, source, truthState, fakeZeroPrevented);
+  const weakestMethod = methodBreakdown
+    .filter((row) => row.attempts > 0)
+    .sort((left, right) => left.successRatePct - right.successRatePct)[0] ?? null;
+  const mostFailuresMethod = methodBreakdown
+    .slice()
+    .sort((left, right) => right.failures - left.failures)[0] ?? null;
+  const mostUnfinishedMethod = methodBreakdown
+    .slice()
+    .sort((left, right) => right.unfinished - left.unfinished)[0] ?? null;
+
+  const timingState = summary.timingState ?? "unavailable";
+  const timingMissingReason = timingState === "available"
+    ? null
+    : timingState === "missing_starts"
+      ? "Finish timing unavailable because start timestamps are missing for one or more completed auth attempts."
+      : timingState === "missing_finishes"
+        ? "Finish timing unavailable because end timestamps are missing for one or more completed auth attempts."
+        : "Finish timing unavailable because completed attempts with start/end timestamps were not observed in this window.";
   const recommendation = !hasResponse
-    ? input.loading ? "Waiting for first snapshot." : "Auth outcome data is unavailable."
-    : !timingAvailable
-      ? "Finish timing unavailable; start/end timestamps are missing."
-      : weakestMethod && (weakestMethod.successRate ?? 1) < 0.5
-        ? `${weakestMethod.visibleLabel} needs attention.`
-        : mostUnfinishedMethod && (mostUnfinishedMethod.unfinished ?? 0) > 0
+    ? input.loading
+      ? "Waiting for auth outcome data."
+      : "Auth outcome data is unavailable."
+    : timingMissingReason
+      ? timingMissingReason
+      : weakestMethod && weakestMethod.successRatePct === 0 && weakestMethod.failures > 0
+        ? `${weakestMethod.visibleLabel} has 0 successes; top failure: ${weakestMethod.failureBreakdown[0]?.failureCode || "failure_code_unavailable"}.`
+        : mostUnfinishedMethod && mostUnfinishedMethod.unfinished > 0
           ? `${mostUnfinishedMethod.visibleLabel} has the most unfinished attempts.`
-          : "No auth action required for this sample.";
+          : "Auth outcomes are fully source-truthed for this sample.";
 
   return {
     selectedRange: input.selectedRange,
@@ -208,21 +241,21 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
     stale,
     cache: Boolean(input.response?.cacheState && input.response.cacheState !== "miss"),
     serverConfirmed: hasResponse && !input.error,
-    fallback: Boolean(input.error || input.response?.cacheRevalidating),
+    fallback: !input.response?.authOutcomeSummary,
     estimated: false,
-    attempts: { value: attemptsValue, source },
-    successes: { value: successesValue, source },
-    failures: { value: failuresValue, source },
-    unfinished: { value: unfinishedValue, source },
-    successRate: { formula: "successes / attempts", value: successRateValue },
-    avgFinish: { formula: "weighted successful finish duration", value: avgFinishValue },
-    timingAvailable,
-    timingMissingReason: timingAvailable ? null : "Auth start/end duration parameters are missing or zero.",
-    missingStartCount: timingAvailable ? 0 : totals.attempts,
-    missingFinishCount,
-    unfinishedTimeoutWindow: "not_available_from_current_summary",
-    methodBreakdown: rows,
-    registrationOutcome,
+    attempts: { value: fakeZeroPrevented ? null : summary.attempts, source },
+    successes: { value: fakeZeroPrevented ? null : summary.successes, source },
+    failures: { value: fakeZeroPrevented ? null : summary.failures, source },
+    unfinished: { value: fakeZeroPrevented ? null : summary.unfinished, source },
+    successRate: { formula: "successes / attempts", value: fakeZeroPrevented ? null : (summary.attempts > 0 ? summary.successes / summary.attempts : 0) },
+    avgFinish: { formula: "completed attempts with start/end timestamps", value: fakeZeroPrevented ? null : summary.avgFinishMs },
+    timingAvailable: timingState === "available",
+    timingState,
+    timingMissingReason,
+    lastAuthEventAtUtc: summary.lastAuthEventAtUtc,
+    generatedAtUtc: summary.generatedAtUtc,
+    methodBreakdown,
+    lifecycleOutcomes: summary.lifecycleOutcomes,
     weakestMethod,
     mostFailuresMethod,
     mostUnfinishedMethod,
@@ -232,7 +265,7 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
     fakeZeroPrevented,
     duplicateRefreshPrevented: Boolean(input.response?.cacheRevalidating && input.loading),
     badgeOverflowProtectionEnabled: true,
-    sampleTooSmall: totals.attempts < 10,
-    modeLabel: !hasResponse ? input.loading ? "WAIT" : "ERROR" : stale ? "STALE" : "RAW",
+    sampleTooSmall: summary.attempts < 10,
+    modeLabel: !hasResponse ? input.loading ? "WAIT" : "ERROR" : stale ? "STALE" : input.response?.authOutcomeSummary ? "LIVE" : "PARTIAL",
   };
 }

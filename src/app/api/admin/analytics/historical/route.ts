@@ -401,7 +401,10 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
         case "journeyFunnel":
             return withSharedFields({ funnel: payload.funnel });
         case "authOutcomeSplit":
-            return withSharedFields({ authBreakdown: payload.authBreakdown });
+            return withSharedFields({
+                authBreakdown: payload.authBreakdown,
+                authOutcomeSummary: payload.authOutcomeSummary,
+            });
         case "onboardingVelocity":
             return withSharedFields({
                 onboardingStats: payload.onboardingStats,
@@ -1047,6 +1050,7 @@ async function GET_handler(request: NextRequest) {
 
             const {
                 authBreakdown,
+                authOutcomeSummary,
                 onboardingDurationBuckets,
                 repeatVisitSegments,
                 destinationMix,
@@ -1059,6 +1063,8 @@ async function GET_handler(request: NextRequest) {
                 onboardingDurationMsSamples,
                 emailRegistrationCount,
                 canonicalRegistrationCount,
+                generatedAtUtc: new Date().toISOString(),
+                range: period ?? "30d",
             });
 
             const {
@@ -1357,6 +1363,7 @@ async function GET_handler(request: NextRequest) {
                 experienceContexts: contextInsights.experienceContexts,
                 securityReasons: contextInsights.securityReasons,
                 authBreakdown,
+                authOutcomeSummary,
                 onboardingDurationBuckets,
                 repeatVisitSegments,
                 destinationMix,

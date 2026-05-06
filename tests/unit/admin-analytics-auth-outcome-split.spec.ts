@@ -1,148 +1,140 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  buildAdminAnalyticsAuthOutcomeModel,
-  normalizeAuthOutcomeMethod,
-} from "@/lib/admin-analytics-auth-outcome-split";
+import { buildAdminAnalyticsAuthOutcomeModel } from "@/lib/admin-analytics-auth-outcome-split";
 import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
 
-function response(authBreakdown: HistoricalAnalyticsResponse["authBreakdown"]): HistoricalAnalyticsResponse {
+function response(summary: HistoricalAnalyticsResponse["authOutcomeSummary"]): HistoricalAnalyticsResponse {
   return {
     success: true,
     cacheState: "fresh",
-    authBreakdown,
+    authOutcomeSummary: summary,
+    authBreakdown: [],
   } as HistoricalAnalyticsResponse;
 }
 
-describe("normalizeAuthOutcomeMethod", () => {
-  it("normalizes visible auth method casing", () => {
-    expect(normalizeAuthOutcomeMethod("Google Sign IN")).toMatchObject({
-      key: "google_sign_in",
-      label: "Google sign-in",
-      isOutcome: false,
-    });
-    expect(normalizeAuthOutcomeMethod("Email Sign UP")).toMatchObject({
-      key: "email_sign_up",
-      label: "Email sign-up",
-      isOutcome: false,
-    });
-    expect(normalizeAuthOutcomeMethod("Email Sign IN")).toMatchObject({
-      key: "email_sign_in",
-      label: "Email sign-in",
-      isOutcome: false,
-    });
-    expect(normalizeAuthOutcomeMethod("Registered Users")).toMatchObject({
-      key: "registration_completed",
-      label: "Registration completed",
-      isOutcome: true,
-    });
-  });
-});
-
 describe("buildAdminAnalyticsAuthOutcomeModel", () => {
-  it("moves registered users out of method rows and prevents fake finish timing", () => {
+  it("keeps registration completed in lifecycle outcomes instead of auth methods", () => {
     const model = buildAdminAnalyticsAuthOutcomeModel({
       selectedRange: "30d",
-      response: response([
-        {
-          method: "Google Sign IN",
-          attempts: 22,
-          successes: 9,
-          failures: 4,
-          avgDurationMs: 0,
-          successRate: 9 / 22,
-        },
-        {
-          method: "Registered Users",
-          attempts: 8,
-          successes: 8,
-          failures: 0,
-          avgDurationMs: 0,
-          successRate: 1,
-        },
-      ]),
-      authBreakdown: [
-        {
-          method: "Google Sign IN",
-          attempts: 22,
-          successes: 9,
-          failures: 4,
-          avgDurationMs: 0,
-          successRate: 9 / 22,
-        },
-        {
-          method: "Registered Users",
-          attempts: 8,
-          successes: 8,
-          failures: 0,
-          avgDurationMs: 0,
-          successRate: 1,
-        },
-      ],
+      response: response({
+        generatedAtUtc: "2026-05-06T12:00:00.000Z",
+        range: "30d",
+        attempts: 4,
+        successes: 0,
+        failures: 4,
+        unfinished: 0,
+        successRatePct: 0,
+        avgFinishMs: null,
+        timingState: "missing_starts",
+        lastAuthEventAtUtc: "2026-05-06T11:58:00.000Z",
+        methods: [
+          {
+            method: "email_sign_in",
+            attempts: 4,
+            successes: 0,
+            failures: 4,
+            unfinished: 0,
+            successRatePct: 0,
+            avgFinishMs: null,
+            weakestReason: "auth/invalid-credential",
+            failureBreakdown: [{
+              failureCode: "auth/invalid-credential",
+              count: 4,
+              explanation: "Normalized safe auth failure code auth/invalid-credential.",
+            }],
+            state: "error",
+          },
+        ],
+        lifecycleOutcomes: [
+          {
+            name: "registration_completed",
+            count: 8,
+            state: "live",
+            explanation: "Registration completed is tracked as an auth lifecycle outcome, not an auth method.",
+          },
+        ],
+      }),
+      authBreakdown: [],
       loading: false,
       overviewTruthState: "live",
     });
 
-    expect(model.methodBreakdown.map((row) => row.visibleLabel)).toEqual([
-      "Google sign-in",
-    ]);
-    expect(model.registrationOutcome?.visibleLabel).toBe("Registration completed");
-    expect(model.registrationOutcome?.registeredUsersMovedToOutcome).toBe(true);
-    expect(model.avgFinish.value).toBeNull();
-    expect(model.timingAvailable).toBe(false);
-    expect(model.fakeZeroPrevented).toBe(false);
-    expect(model.recommendation).toContain("Finish timing unavailable");
+    expect(model.methodBreakdown.map((row) => row.visibleLabel)).toEqual(["Email sign-in"]);
+    expect(model.lifecycleOutcomes[0]?.name).toBe("registration_completed");
+    expect(model.timingState).toBe("missing_starts");
+    expect(model.timingMissingReason).toContain("start timestamps");
   });
 
-  it("computes action fields and exposes reconciliation details", () => {
+  it("uses canonical method summary with failure breakdown and explicit successes", () => {
     const model = buildAdminAnalyticsAuthOutcomeModel({
       selectedRange: "7d",
-      response: response([
-        {
-          method: "Email sign in",
-          attempts: 4,
-          successes: 0,
-          failures: 4,
-          avgDurationMs: 0,
-          successRate: 0,
-        },
-        {
-          method: "Google sign in",
-          attempts: 22,
-          successes: 9,
-          failures: 4,
-          avgDurationMs: 2500,
-          successRate: 9 / 22,
-        },
-      ]),
-      authBreakdown: [
-        {
-          method: "Email sign in",
-          attempts: 4,
-          successes: 0,
-          failures: 4,
-          avgDurationMs: 0,
-          successRate: 0,
-        },
-        {
-          method: "Google sign in",
-          attempts: 22,
-          successes: 9,
-          failures: 4,
-          avgDurationMs: 2500,
-          successRate: 9 / 22,
-        },
-      ],
+      response: response({
+        generatedAtUtc: "2026-05-06T12:00:00.000Z",
+        range: "7d",
+        attempts: 31,
+        successes: 15,
+        failures: 8,
+        unfinished: 8,
+        successRatePct: 48,
+        avgFinishMs: 2500,
+        timingState: "available",
+        lastAuthEventAtUtc: "2026-05-06T11:58:00.000Z",
+        methods: [
+          {
+            method: "email_sign_in",
+            attempts: 4,
+            successes: 0,
+            failures: 4,
+            unfinished: 0,
+            successRatePct: 0,
+            avgFinishMs: null,
+            weakestReason: "auth/invalid-credential",
+            failureBreakdown: [{
+              failureCode: "auth/invalid-credential",
+              count: 4,
+              explanation: "Normalized safe auth failure code auth/invalid-credential.",
+            }],
+            state: "error",
+          },
+          {
+            method: "google_sign_in",
+            attempts: 17,
+            successes: 7,
+            failures: 4,
+            unfinished: 6,
+            successRatePct: 41,
+            avgFinishMs: 2500,
+            failureBreakdown: [{
+              failureCode: "auth/popup-closed-by-user",
+              count: 4,
+              explanation: "Normalized safe auth failure code auth/popup-closed-by-user.",
+            }],
+            state: "review",
+          },
+          {
+            method: "email_sign_up",
+            attempts: 10,
+            successes: 8,
+            failures: 0,
+            unfinished: 2,
+            successRatePct: 80,
+            avgFinishMs: 1800,
+            failureBreakdown: [],
+            state: "review",
+          },
+        ],
+        lifecycleOutcomes: [],
+      }),
+      authBreakdown: [],
       loading: false,
       overviewTruthState: "live",
     });
 
     expect(model.successRate.formula).toBe("successes / attempts");
-    expect(model.weakestMethod?.visibleLabel).toBe("Email sign-in");
-    expect(model.mostFailuresMethod?.visibleLabel).toBe("Email sign-in");
-    expect(model.mostUnfinishedMethod?.visibleLabel).toBe("Google sign-in");
-    expect(model.methodBreakdown.every((row) => row.reconciliationDelta === 0)).toBe(true);
     expect(model.avgFinish.value).toBe(2500);
+    expect(model.weakestMethod?.visibleLabel).toBe("Email sign-in");
+    expect(model.mostFailuresMethod?.failureBreakdown[0]?.failureCode).toBe("auth/invalid-credential");
+    expect(model.mostUnfinishedMethod?.visibleLabel).toBe("Google sign-in");
   });
 
   it("does not render fake zeros when no validated source exists", () => {

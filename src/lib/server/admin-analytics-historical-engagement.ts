@@ -3,20 +3,21 @@ import "server-only";
 import {
   buildDurationBuckets,
   getTelemetryParamNumber,
+  getTelemetryParamString,
   TelemetryLogRecord,
   timestampToDayKey,
 } from "./admin-analytics-shared";
-import type { ReturnCadenceSegment } from "@/types/admin-analytics";
+import type {
+  AuthBreakdownItem,
+  AuthLifecycleOutcome,
+  AuthMethodOutcome,
+  AuthOutcomeSummary,
+  ReturnCadenceSegment,
+} from "@/types/admin-analytics";
 
 export interface HistoricalEngagementAnalytics {
-  authBreakdown: Array<{
-    method: string;
-    attempts: number;
-    successes: number;
-    failures: number;
-    avgDurationMs: number;
-    successRate: number;
-  }>;
+  authBreakdown: AuthBreakdownItem[];
+  authOutcomeSummary: AuthOutcomeSummary;
   onboardingDurationBuckets: Array<{ label: string; count: number }>;
   repeatVisitSegments: ReturnCadenceSegment[];
   destinationMix: Array<{ destination: string; count: number }>;
@@ -24,9 +25,28 @@ export interface HistoricalEngagementAnalytics {
   notificationActions: Array<{ label: string; value: number }>;
 }
 
+type AuthMethodKey = "email_sign_in" | "email_sign_up" | "google_sign_in";
+type AttemptOutcome = "success" | "failure" | "unfinished" | "started";
+type AttemptAggregate = {
+  authAttemptId: string;
+  method: AuthMethodKey;
+  startedAtUtc: string | null;
+  finishedAtUtc: string | null;
+  durationMs: number | null;
+  outcome: AttemptOutcome;
+  failureCode: string | null;
+  lastTimestampMs: number;
+};
+
+const AUTH_METHOD_LABELS: Record<AuthMethodKey, string> = {
+  email_sign_in: "Email sign-in",
+  email_sign_up: "Email sign-up",
+  google_sign_in: "Google sign-in",
+};
+
 function averageDuration(records: TelemetryLogRecord[]) {
   const durations = records
-    .map((record) => getTelemetryParamNumber(record, "duration_ms"))
+    .map((record) => getTelemetryParamNumber(record, "duration_ms") || getTelemetryParamNumber(record, "durationMs"))
     .filter((value) => value > 0);
 
   if (durations.length === 0) {
@@ -36,6 +56,305 @@ function averageDuration(records: TelemetryLogRecord[]) {
   return Math.round(durations.reduce((sum, value) => sum + value, 0) / durations.length);
 }
 
+function normalizeAttemptMethod(record: TelemetryLogRecord): AuthMethodKey | null {
+  const explicitMethod = getTelemetryParamString(record, "method");
+  switch (explicitMethod) {
+    case "email_sign_in":
+    case "email_sign_up":
+    case "google_sign_in":
+      return explicitMethod;
+    default:
+      return null;
+  }
+}
+
+function buildAuthOutcomeSummary(input: {
+  telemetryLogs: TelemetryLogRecord[];
+  telemetryLogsByEvent: Record<string, TelemetryLogRecord[]>;
+  eventsData: Record<string, number>;
+  generatedAtUtc: string;
+  range: string;
+  emailRegistrationCount: number;
+  canonicalRegistrationCount: number;
+}) : { authBreakdown: AuthBreakdownItem[]; authOutcomeSummary: AuthOutcomeSummary } {
+  const started = input.telemetryLogsByEvent.auth_attempt_started || [];
+  const succeeded = input.telemetryLogsByEvent.auth_attempt_succeeded || [];
+  const failed = input.telemetryLogsByEvent.auth_attempt_failed || [];
+  const unfinished = input.telemetryLogsByEvent.auth_attempt_unfinished || [];
+  const canonicalAttemptRecords = [...started, ...succeeded, ...failed, ...unfinished];
+  const hasCanonicalAttempts = canonicalAttemptRecords.length > 0;
+
+  if (!hasCanonicalAttempts) {
+    const normalizedEmailSignUpCount = input.emailRegistrationCount > 0
+      ? input.emailRegistrationCount
+      : input.eventsData.auth_sign_up_success || 0;
+    const normalizedSignupCount = input.canonicalRegistrationCount > 0
+      ? input.canonicalRegistrationCount
+      : input.eventsData.auth_sign_up_success || 0;
+
+    const authBreakdown: AuthBreakdownItem[] = [
+      {
+        method: "Email sign in",
+        attempts: input.eventsData.auth_sign_in_attempted || 0,
+        successes: input.eventsData.auth_sign_in_success || 0,
+        failures: input.eventsData.auth_sign_in_failed || 0,
+        avgDurationMs: averageDuration(input.telemetryLogsByEvent.auth_sign_in_success || []),
+        successRate: 0,
+      },
+      {
+        method: "Email sign up",
+        attempts: input.eventsData.auth_sign_up_attempted || 0,
+        successes: normalizedEmailSignUpCount,
+        failures: input.eventsData.auth_sign_up_failed || 0,
+        avgDurationMs: averageDuration(input.telemetryLogsByEvent.auth_sign_up_success || []),
+        successRate: 0,
+      },
+      {
+        method: "Google sign in",
+        attempts: input.eventsData.auth_google_sign_in_attempted || 0,
+        successes: input.eventsData.auth_google_sign_in_success || 0,
+        failures: input.eventsData.auth_google_sign_in_failed || 0,
+        avgDurationMs: averageDuration(input.telemetryLogsByEvent.auth_google_sign_in_success || []),
+        successRate: 0,
+      },
+    ].map((entry) => ({
+      ...entry,
+      successRate: entry.attempts > 0 ? entry.successes / entry.attempts : 0,
+    }));
+
+    const methods: AuthMethodOutcome[] = authBreakdown.map((entry) => {
+      const method = entry.method.toLowerCase().includes("google")
+        ? "google_sign_in"
+        : entry.method.toLowerCase().includes("sign up")
+          ? "email_sign_up"
+          : "email_sign_in";
+      const unfinishedCount = Math.max(0, entry.attempts - entry.successes - entry.failures);
+      return {
+        method,
+        attempts: entry.attempts,
+        successes: entry.successes,
+        failures: entry.failures,
+        unfinished: unfinishedCount,
+        successRatePct: entry.attempts > 0 ? Math.round((entry.successes / entry.attempts) * 100) : 0,
+        avgFinishMs: entry.avgDurationMs > 0 ? entry.avgDurationMs : null,
+        weakestReason: entry.successes === 0 && entry.failures > 0 ? "legacy_failure_breakdown_unavailable" : undefined,
+        failureBreakdown: entry.failures > 0
+          ? [{
+            failureCode: "failure_code_unavailable",
+            count: entry.failures,
+            explanation: "Legacy auth telemetry did not capture a normalized failure code for this method.",
+          }]
+          : [],
+        state: unfinishedCount > 0 || entry.avgDurationMs <= 0 ? "review" : "stale",
+      };
+    });
+
+    const successes = methods.reduce((sum, method) => sum + method.successes, 0);
+    const failures = methods.reduce((sum, method) => sum + method.failures, 0);
+    const attempts = methods.reduce((sum, method) => sum + method.attempts, 0);
+    const unfinishedCount = methods.reduce((sum, method) => sum + method.unfinished, 0);
+    const lifecycleOutcomes: AuthLifecycleOutcome[] = [
+      {
+        name: "registration_completed",
+        count: normalizedSignupCount,
+        state: normalizedSignupCount > 0 ? "live" : "review",
+        explanation: "Registration completed is tracked as an auth lifecycle outcome, not an auth method.",
+      },
+      {
+        name: "navigation_session_established",
+        count: 0,
+        state: "review",
+        explanation: "Navigation session establishment was not captured in the legacy auth telemetry window.",
+      },
+    ];
+    const lastAuthTimestamp = input.telemetryLogs
+      .filter((record) => record.eventName.startsWith("auth_") || record.eventName === "user_registered")
+      .reduce((latest, record) => Math.max(latest, record.timestamp), 0);
+
+    return {
+      authBreakdown,
+      authOutcomeSummary: {
+        generatedAtUtc: input.generatedAtUtc,
+        range: input.range,
+        attempts,
+        successes,
+        failures,
+        unfinished: unfinishedCount,
+        successRatePct: attempts > 0 ? Math.round((successes / attempts) * 100) : 0,
+        avgFinishMs: null,
+        timingState: "missing_starts",
+        lastAuthEventAtUtc: lastAuthTimestamp > 0 ? new Date(lastAuthTimestamp).toISOString() : null,
+        methods,
+        lifecycleOutcomes,
+      },
+    };
+  }
+
+  const attemptsById = new Map<string, AttemptAggregate>();
+
+  const applyAttemptRecord = (record: TelemetryLogRecord, outcome: AttemptOutcome) => {
+    const authAttemptId = getTelemetryParamString(record, "authAttemptId");
+    const method = normalizeAttemptMethod(record);
+    if (!authAttemptId || !method) {
+      return;
+    }
+
+    const existing = attemptsById.get(authAttemptId);
+    const startedAtUtc = getTelemetryParamString(record, "startedAtUtc");
+    const finishedAtUtc = getTelemetryParamString(record, "finishedAtUtc");
+    const durationMs = getTelemetryParamNumber(record, "durationMs") || getTelemetryParamNumber(record, "duration_ms");
+    const failureCode = getTelemetryParamString(record, "failureCode") || getTelemetryParamString(record, "failure_code");
+    const next: AttemptAggregate = existing ?? {
+      authAttemptId,
+      method,
+      startedAtUtc: null,
+      finishedAtUtc: null,
+      durationMs: null,
+      outcome: "started",
+      failureCode: null,
+      lastTimestampMs: record.timestamp,
+    };
+
+    if (startedAtUtc) {
+      next.startedAtUtc = startedAtUtc;
+    }
+    if (finishedAtUtc) {
+      next.finishedAtUtc = finishedAtUtc;
+    }
+    if (durationMs > 0) {
+      next.durationMs = durationMs;
+    }
+    if (failureCode) {
+      next.failureCode = failureCode;
+    }
+    if (outcome !== "started") {
+      next.outcome = outcome;
+    }
+    next.lastTimestampMs = Math.max(next.lastTimestampMs, record.timestamp);
+    attemptsById.set(authAttemptId, next);
+  };
+
+  started.forEach((record) => applyAttemptRecord(record, "started"));
+  succeeded.forEach((record) => applyAttemptRecord(record, "success"));
+  failed.forEach((record) => applyAttemptRecord(record, "failure"));
+  unfinished.forEach((record) => applyAttemptRecord(record, "unfinished"));
+
+  const aggregates = Array.from(attemptsById.values()).map((attempt) => ({
+    ...attempt,
+    outcome: attempt.outcome === "started" ? "unfinished" : attempt.outcome,
+  }));
+
+  const methods: AuthMethodOutcome[] = (["email_sign_in", "email_sign_up", "google_sign_in"] as const).map((method) => {
+    const methodAttempts = aggregates.filter((attempt) => attempt.method === method);
+    const successes = methodAttempts.filter((attempt) => attempt.outcome === "success");
+    const failures = methodAttempts.filter((attempt) => attempt.outcome === "failure");
+    const unfinishedAttempts = methodAttempts.filter((attempt) => attempt.outcome === "unfinished");
+    const timedSuccessDurations = successes
+      .map((attempt) => attempt.durationMs ?? 0)
+      .filter((value) => value > 0);
+    const failureBreakdown = Array.from(
+      failures.reduce((map, attempt) => {
+        const code = attempt.failureCode || "failure_code_unavailable";
+        map.set(code, (map.get(code) || 0) + 1);
+        return map;
+      }, new Map<string, number>()),
+    ).map(([failureCode, count]) => ({
+      failureCode,
+      count,
+      explanation: failureCode === "failure_code_unavailable"
+        ? "Failure telemetry was recorded without a normalized safe code."
+        : `Normalized safe auth failure code ${failureCode}.`,
+    }));
+    const attempts = methodAttempts.length;
+    const successesCount = successes.length;
+    const failuresCount = failures.length;
+    const unfinishedCount = unfinishedAttempts.length;
+
+    return {
+      method,
+      attempts,
+      successes: successesCount,
+      failures: failuresCount,
+      unfinished: unfinishedCount,
+      successRatePct: attempts > 0 ? Math.round((successesCount / attempts) * 100) : 0,
+      avgFinishMs: timedSuccessDurations.length > 0
+        ? Math.round(timedSuccessDurations.reduce((sum, value) => sum + value, 0) / timedSuccessDurations.length)
+        : null,
+      weakestReason: attempts > 0 && successesCount === 0
+        ? (failureBreakdown[0]?.failureCode || "failure_code_unavailable")
+        : undefined,
+      failureBreakdown,
+      state: failuresCount > 0 && successesCount === 0
+        ? "error"
+        : unfinishedCount > 0 || timedSuccessDurations.length !== successesCount
+          ? "review"
+          : "live",
+    };
+  });
+
+  const authBreakdown: AuthBreakdownItem[] = methods.map((method) => ({
+    method: AUTH_METHOD_LABELS[method.method],
+    attempts: method.attempts,
+    successes: method.successes,
+    failures: method.failures,
+    avgDurationMs: method.avgFinishMs ?? 0,
+    successRate: method.attempts > 0 ? method.successes / method.attempts : 0,
+  }));
+
+  const navigationSessionCompleted = input.telemetryLogsByEvent.auth_navigation_session_completed || [];
+  const lifecycleOutcomes: AuthLifecycleOutcome[] = [
+    {
+      name: "registration_completed",
+      count: (input.telemetryLogsByEvent.auth_registration_completed || []).length || input.canonicalRegistrationCount || input.emailRegistrationCount || 0,
+      state: "live",
+      explanation: "Registration completed is tracked as a lifecycle outcome after the registration API confirms the account bootstrap.",
+    },
+    {
+      name: "navigation_session_established",
+      count: navigationSessionCompleted.length,
+      state: navigationSessionCompleted.length > 0 ? "live" : "review",
+      explanation: navigationSessionCompleted.length > 0
+        ? "Navigation session establishment is tracked separately from Firebase auth success."
+        : "No navigation-session completion sample was observed in this window.",
+    },
+  ];
+
+  const attempts = aggregates.length;
+  const successes = aggregates.filter((attempt) => attempt.outcome === "success").length;
+  const failures = aggregates.filter((attempt) => attempt.outcome === "failure").length;
+  const unfinishedCount = aggregates.filter((attempt) => attempt.outcome === "unfinished").length;
+  const timedAttempts = aggregates.filter((attempt) => attempt.outcome !== "unfinished" && attempt.durationMs !== null && attempt.durationMs > 0);
+  const missingStarts = aggregates.filter((attempt) => attempt.outcome !== "unfinished" && !attempt.startedAtUtc).length;
+  const missingFinishes = aggregates.filter((attempt) => attempt.outcome !== "unfinished" && !attempt.finishedAtUtc && !(attempt.durationMs && attempt.durationMs > 0)).length;
+  const lastAuthTimestamp = canonicalAttemptRecords.reduce((latest, record) => Math.max(latest, record.timestamp), 0);
+
+  return {
+    authBreakdown,
+    authOutcomeSummary: {
+      generatedAtUtc: input.generatedAtUtc,
+      range: input.range,
+      attempts,
+      successes,
+      failures,
+      unfinished: unfinishedCount,
+      successRatePct: attempts > 0 ? Math.round((successes / attempts) * 100) : 0,
+      avgFinishMs: timedAttempts.length > 0
+        ? Math.round(timedAttempts.reduce((sum, attempt) => sum + (attempt.durationMs || 0), 0) / timedAttempts.length)
+        : null,
+      timingState: missingStarts > 0
+        ? "missing_starts"
+        : missingFinishes > 0
+          ? "missing_finishes"
+          : timedAttempts.length > 0
+            ? "available"
+            : "unavailable",
+      lastAuthEventAtUtc: lastAuthTimestamp > 0 ? new Date(lastAuthTimestamp).toISOString() : null,
+      methods,
+      lifecycleOutcomes,
+    },
+  };
+}
+
 export function buildHistoricalEngagementAnalytics(input: {
   telemetryLogs: TelemetryLogRecord[];
   telemetryLogsByEvent: Record<string, TelemetryLogRecord[]>;
@@ -43,47 +362,18 @@ export function buildHistoricalEngagementAnalytics(input: {
   onboardingDurationMsSamples: number[];
   emailRegistrationCount: number;
   canonicalRegistrationCount: number;
+  generatedAtUtc?: string;
+  range?: string;
 }) : HistoricalEngagementAnalytics {
-  const normalizedEmailSignUpCount = input.emailRegistrationCount > 0
-    ? input.emailRegistrationCount
-    : input.eventsData.auth_sign_up_success || 0;
-  const normalizedSignupCount = input.canonicalRegistrationCount > 0
-    ? input.canonicalRegistrationCount
-    : input.eventsData.auth_sign_up_success || 0;
-
-  const authBreakdown = [
-    {
-      method: "Email sign in",
-      attempts: input.eventsData.auth_sign_in_attempted || 0,
-      successes: input.eventsData.auth_sign_in_success || 0,
-      failures: input.eventsData.auth_sign_in_failed || 0,
-      avgDurationMs: averageDuration(input.telemetryLogsByEvent.auth_sign_in_success || []),
-    },
-    {
-      method: "Email sign up",
-      attempts: input.eventsData.auth_sign_up_attempted || 0,
-      successes: normalizedEmailSignUpCount,
-      failures: input.eventsData.auth_sign_up_failed || 0,
-      avgDurationMs: averageDuration(input.telemetryLogsByEvent.auth_sign_up_success || []),
-    },
-    {
-      method: "Google sign in",
-      attempts: input.eventsData.auth_google_sign_in_attempted || 0,
-      successes: input.eventsData.auth_google_sign_in_success || 0,
-      failures: input.eventsData.auth_google_sign_in_failed || 0,
-      avgDurationMs: averageDuration(input.telemetryLogsByEvent.auth_google_sign_in_success || []),
-    },
-    {
-      method: "Registered users",
-      attempts: normalizedSignupCount,
-      successes: normalizedSignupCount,
-      failures: 0,
-      avgDurationMs: 0,
-    },
-  ].map((entry) => ({
-    ...entry,
-    successRate: entry.attempts > 0 ? entry.successes / entry.attempts : 0,
-  }));
+  const { authBreakdown, authOutcomeSummary } = buildAuthOutcomeSummary({
+    telemetryLogs: input.telemetryLogs,
+    telemetryLogsByEvent: input.telemetryLogsByEvent,
+    eventsData: input.eventsData,
+    generatedAtUtc: input.generatedAtUtc || new Date().toISOString(),
+    range: input.range || "30d",
+    emailRegistrationCount: input.emailRegistrationCount,
+    canonicalRegistrationCount: input.canonicalRegistrationCount,
+  });
 
   const onboardingDurationsMs = [
     ...(input.onboardingDurationMsSamples.length > 0
@@ -137,6 +427,7 @@ export function buildHistoricalEngagementAnalytics(input: {
 
   return {
     authBreakdown,
+    authOutcomeSummary,
     onboardingDurationBuckets,
     repeatVisitSegments,
     destinationMix: Array.from(destinationMap.entries())

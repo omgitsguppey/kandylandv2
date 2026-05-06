@@ -34,6 +34,14 @@ import {
 } from "@/lib/creator-intake-flow";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
+import {
+    createAuthAttemptTelemetryContext,
+    emitAuthAttemptFailed,
+    emitAuthAttemptStarted,
+    emitAuthAttemptSucceeded,
+    emitAuthAttemptUnfinished,
+    emitAuthLifecycleEvent,
+} from "@/lib/auth-outcome-telemetry";
 
 import {
     CREATOR_SIGNUP_STEPS,
@@ -388,10 +396,37 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
         setAuthError(null);
+        const attempt = createAuthAttemptTelemetryContext({
+            method: "google_sign_in",
+            sourceComponent: "AuthModal",
+        });
         startTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
+        emitAuthAttemptStarted(attempt, { entry_mode: mode });
         trackEvent("auth_google_sign_in_attempted", { source_mode: mode });
         try {
-            await signInWithGoogle();
+            const result = await signInWithGoogle({
+                authAttemptId: attempt.authAttemptId,
+                method: "google_sign_in",
+                route: attempt.route,
+                sourceComponent: attempt.sourceComponent,
+                startedAtUtc: attempt.startedAtUtc,
+            });
+
+            if (result.completion === "redirect_pending") {
+                emitAuthAttemptUnfinished(attempt, {
+                    reason: "redirect_pending",
+                    entry_mode: mode,
+                });
+                return;
+            }
+
+            emitAuthAttemptSucceeded(attempt, {
+                actorUserId: result.userId,
+                sourceTruth: "server_session",
+                extraParams: {
+                    entry_mode: mode,
+                },
+            });
             const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
             trackEvent("auth_google_sign_in_success", mergedParams);
             onClose();
@@ -405,6 +440,14 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     sourceMode: mode,
                 },
                 consoleLabel: "[Auth Modal] Google sign-in failed",
+            });
+            const safeCode = (error as { code?: string }).code || "auth/google-sign-in-failed";
+            emitAuthAttemptFailed(attempt, {
+                failureCode: safeCode,
+                sourceTruth: "client_auth",
+                extraParams: {
+                    entry_mode: mode,
+                },
             });
             const { mergedParams } = consumeTimedFlow(AUTH_GOOGLE_FLOW, { source_mode: mode });
             trackEvent("auth_google_sign_in_failed", mergedParams);
@@ -458,6 +501,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         emailAuthSubmissionInFlightRef.current = true;
         setIsLoading(true);
         setAuthError(null);
+        let authAttempt: ReturnType<typeof createAuthAttemptTelemetryContext> | null = null;
 
         try {
             if (isSignupMode(mode)) {
@@ -465,7 +509,27 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     throw new Error("Username is already taken.");
                 }
 
+                authAttempt = createAuthAttemptTelemetryContext({
+                    method: "email_sign_up",
+                    sourceComponent: "AuthModal",
+                });
                 startTimedFlow(AUTH_SIGN_UP_FLOW, { entry_mode: initialMode, signup_intent: signupIntent });
+                emitAuthAttemptStarted(authAttempt, {
+                    entry_mode: initialMode,
+                    signup_intent: signupIntent,
+                });
+                emitAuthLifecycleEvent({
+                    eventName: "auth_registration_started",
+                    authAttemptId: authAttempt.authAttemptId,
+                    method: "registration",
+                    route: authAttempt.route,
+                    sourceComponent: authAttempt.sourceComponent,
+                    sourceTruth: "client_auth",
+                    startedAtUtc: authAttempt.startedAtUtc,
+                    extraParams: {
+                        signup_intent: signupIntent,
+                    },
+                });
                 trackEvent("auth_sign_up_attempted", {
                     entry_mode: initialMode,
                     signup_intent: signupIntent,
@@ -492,6 +556,34 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     creatorContentFocus: data.creatorContentFocus,
                     fansAlreadyAskForAccess: creatorIntake?.fansAlreadyAskForAccess,
                     creatorRecommendedSetup: creatorIntake?.creatorRecommendedSetup,
+                }, {
+                    authAttemptId: authAttempt.authAttemptId,
+                    method: "email_sign_up",
+                    route: authAttempt.route,
+                    sourceComponent: authAttempt.sourceComponent,
+                    startedAtUtc: authAttempt.startedAtUtc,
+                });
+                emitAuthAttemptSucceeded(authAttempt, {
+                    actorUserId: result.userId,
+                    sourceTruth: "server_session",
+                    extraParams: {
+                        entry_mode: initialMode,
+                        signup_intent: signupIntent,
+                    },
+                });
+                emitAuthLifecycleEvent({
+                    eventName: "auth_registration_completed",
+                    authAttemptId: authAttempt.authAttemptId,
+                    method: "registration",
+                    route: authAttempt.route,
+                    sourceComponent: authAttempt.sourceComponent,
+                    sourceTruth: "registration_api",
+                    actorUserId: result.userId,
+                    startedAtUtc: authAttempt.startedAtUtc,
+                    finishedAtUtc: new Date().toISOString(),
+                    extraParams: {
+                        signup_intent: signupIntent,
+                    },
                 });
                 const { mergedParams } = consumeTimedFlow(AUTH_SIGN_UP_FLOW, {
                     entry_mode: initialMode,
@@ -504,7 +596,15 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                 });
                 trackEvent("auth_sign_up_success", mergedParams);
             } else {
+                authAttempt = createAuthAttemptTelemetryContext({
+                    method: "email_sign_in",
+                    sourceComponent: "AuthModal",
+                });
                 startTimedFlow(AUTH_SIGN_IN_FLOW, {
+                    entry_mode: initialMode,
+                    manual_identifier_type: manualIdentifierType,
+                });
+                emitAuthAttemptStarted(authAttempt, {
                     entry_mode: initialMode,
                     manual_identifier_type: manualIdentifierType,
                 });
@@ -512,7 +612,21 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     entry_mode: initialMode,
                     manual_identifier_type: manualIdentifierType,
                 });
-                await signInWithEmail(data.email, data.password);
+                const result = await signInWithEmail(data.email, data.password, {
+                    authAttemptId: authAttempt.authAttemptId,
+                    method: "email_sign_in",
+                    route: authAttempt.route,
+                    sourceComponent: authAttempt.sourceComponent,
+                    startedAtUtc: authAttempt.startedAtUtc,
+                });
+                emitAuthAttemptSucceeded(authAttempt, {
+                    actorUserId: result.userId,
+                    sourceTruth: "server_session",
+                    extraParams: {
+                        entry_mode: initialMode,
+                        manual_identifier_type: manualIdentifierType,
+                    },
+                });
                 const { mergedParams } = consumeTimedFlow(AUTH_SIGN_IN_FLOW, {
                     entry_mode: initialMode,
                     manual_identifier_type: manualIdentifierType,
@@ -536,12 +650,24 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             });
             const firebaseError = error as { code?: string; message?: string };
             const flowKey = isSignupMode(mode) ? AUTH_SIGN_UP_FLOW : AUTH_SIGN_IN_FLOW;
+            const failureCode = firebaseError.code || "auth/unknown";
             const { mergedParams } = consumeTimedFlow(flowKey, {
-                error_code: firebaseError.code || "unknown",
+                error_code: failureCode,
                 entry_mode: initialMode,
                 manual_identifier_type: manualIdentifierType,
                 signup_intent: signupIntent,
             });
+            if (authAttempt) {
+                emitAuthAttemptFailed(authAttempt, {
+                    failureCode,
+                    sourceTruth: failureCode.includes("navigation-session") ? "server_session" : "client_auth",
+                    extraParams: {
+                        entry_mode: initialMode,
+                        manual_identifier_type: manualIdentifierType,
+                        signup_intent: signupIntent,
+                    },
+                });
+            }
             if (isSignupMode(mode)) {
                 trackEvent("auth_sign_up_failed", mergedParams);
             } else {

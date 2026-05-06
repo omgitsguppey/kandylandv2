@@ -564,17 +564,27 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
                 title="Auth Outcomes"
-                subtitle="Compact auth method health with source truth."
+                subtitle="Source-truthed auth attempts, lifecycle outcomes, and finish timing."
                 icon={Users}
                 rightSlot={renderSectionRangeControl("authOutcomeSplit")}
               >
                 <div className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
-                  <span>{authOutcomeModel.recommendation}</span>
-                  <AdminStatusBadge
-                    state={historicalMetricTruthState}
-                    label={authOutcomeBadgeLabel}
-                    className="max-w-[5.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
-                  />
+                  <div className="min-w-0">
+                    <p>{authOutcomeModel.recommendation}</p>
+                    <p className="mt-1 text-[10px] text-gray-400">
+                      Generated {authOutcomeModel.generatedAtUtc ?? "Unavailable"} · Last auth event {authOutcomeModel.lastAuthEventAtUtc ?? "Unavailable"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                      {authOutcomeModel.timingState === "available" ? "Timing ready" : "Timing review"}
+                    </span>
+                    <AdminStatusBadge
+                      state={historicalMetricTruthState}
+                      label={authOutcomeBadgeLabel}
+                      className="max-w-[5.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -589,10 +599,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     valueClassName="text-lg leading-6 md:text-xl"
                   />
                   <MetricCard
-                    label="Success Rate"
-                    value={authPercentLabel(authOutcomeModel.successRate.value)}
-                    hint={authOutcomeModel.successRate.formula}
-                    icon={Sparkles}
+                    label="Successes"
+                    value={authCountLabel(authOutcomeModel.successes.value)}
+                    hint="Terminal successes"
+                    icon={CheckCircle2}
                     truthState={historicalMetricTruthState}
                     statusBadgeLabel={authOutcomeBadgeLabel}
                     className="rounded-[1rem] p-2"
@@ -609,9 +619,19 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     valueClassName="text-lg leading-6 md:text-xl"
                   />
                   <MetricCard
+                    label="Success Rate"
+                    value={authPercentLabel(authOutcomeModel.successRate.value)}
+                    hint={authOutcomeModel.successRate.formula}
+                    icon={Sparkles}
+                    truthState={historicalMetricTruthState}
+                    statusBadgeLabel={authOutcomeBadgeLabel}
+                    className="rounded-[1rem] p-2"
+                    valueClassName="text-lg leading-6 md:text-xl"
+                  />
+                  <MetricCard
                     label="Avg Finish"
                     value={authFinishLabel}
-                    hint={authOutcomeModel.timingAvailable ? "Successful finishes" : "Timing unavailable"}
+                    hint={authOutcomeModel.timingAvailable ? "Completed attempts with start/end timestamps" : "Timing unavailable"}
                     icon={Clock3}
                     truthState={historicalMetricTruthState}
                     statusBadgeLabel={authOutcomeBadgeLabel}
@@ -623,17 +643,27 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <div className="mt-2 grid gap-2 md:grid-cols-3">
                   <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
                     <span className="font-semibold text-white">Weakest:</span>{" "}
-                    {authOutcomeModel.weakestMethod?.visibleLabel ?? "Unavailable"}
+                    {authOutcomeModel.weakestMethod
+                      ? `${authOutcomeModel.weakestMethod.visibleLabel}${authOutcomeModel.weakestMethod.weakestReason ? ` · ${authOutcomeModel.weakestMethod.weakestReason}` : ""}`
+                      : "Unavailable"}
                   </div>
                   <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
                     <span className="font-semibold text-white">Most failed:</span>{" "}
-                    {authOutcomeModel.mostFailuresMethod?.visibleLabel ?? "Unavailable"}
+                    {authOutcomeModel.mostFailuresMethod
+                      ? `${authOutcomeModel.mostFailuresMethod.visibleLabel} · ${authOutcomeModel.mostFailuresMethod.failureBreakdown[0]?.failureCode ?? "failure_code_unavailable"}`
+                      : "Unavailable"}
                   </div>
                   <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
                     <span className="font-semibold text-white">Most unfinished:</span>{" "}
                     {authOutcomeModel.mostUnfinishedMethod?.visibleLabel ?? "Unavailable"}
                   </div>
                 </div>
+
+                {authOutcomeModel.timingMissingReason ? (
+                  <p className="mt-2 rounded-[1rem] border border-amber-400/25 bg-amber-500/10 px-3 py-2 text-[11px] leading-5 text-amber-100">
+                    {authOutcomeModel.timingMissingReason}
+                  </p>
+                ) : null}
 
                 <div className="mt-2 rounded-[1rem] border border-white/10 bg-black/30 p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
@@ -664,17 +694,22 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                                   {item.visibleLabel}
                                 </p>
                                 <p className="mt-0.5 truncate text-[10px] text-gray-500">
-                                  {authCountLabel(item.attempts)} attempts - {authCountLabel(item.failures)} failed - {authCountLabel(item.unfinished)} unfinished
+                                  {authCountLabel(item.attempts)} attempts · {authCountLabel(item.successes)} successes · {authCountLabel(item.failures)} failures · {authCountLabel(item.unfinished)} unfinished
                                 </p>
                               </div>
                               <span className="rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 text-[10px] font-bold text-brand-purple">
-                                {authPercentLabel(item.successRate)}
+                                {formatPercent(item.successRatePct / 100)}
                               </span>
                             </div>
                             <div className="flex h-1.5 overflow-hidden rounded-full bg-white/10">
                               <div className="h-full bg-brand-purple" style={{ width: `${successShare * 100}%` }} />
                               <div className="h-full bg-rose-400" style={{ width: `${failureShare * 100}%` }} />
                               <div className="h-full bg-slate-500" style={{ width: `${unfinishedShare * 100}%` }} />
+                            </div>
+                            <div className="mt-1.5 flex flex-wrap gap-2 text-[10px] text-gray-400">
+                              <span>State: {item.state}</span>
+                              <span>Avg finish: {item.avgFinishMs ? formatDuration(item.avgFinishMs / 1000) : "Unavailable"}</span>
+                              {item.failureBreakdown[0] ? <span>Top failure: {item.failureBreakdown[0].failureCode}</span> : null}
                             </div>
                           </div>
                         );
@@ -687,11 +722,38 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   </div>
                 </div>
 
-                {authOutcomeModel.registrationOutcome ? (
-                  <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                    Registration completed: {authCountLabel(authOutcomeModel.registrationOutcome.successes)} outcomes. This is not listed as an auth method.
-                  </p>
-                ) : null}
+                <div className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                      Auth lifecycle outcomes
+                    </p>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                      {authOutcomeModel.lifecycleOutcomes.length} rows
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {authOutcomeModel.lifecycleOutcomes.length > 0 ? authOutcomeModel.lifecycleOutcomes.map((item) => (
+                      <div
+                        key={item.name}
+                        className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                      >
+                        <p className="text-xs font-semibold text-white">
+                          {item.name === "registration_completed" ? "Registration completed" : "Navigation session established"}
+                        </p>
+                        <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                          {authCountLabel(item.count)} outcomes · {item.state}
+                        </p>
+                        <p className="mt-0.5 text-[10px] leading-4 text-gray-400">
+                          {item.explanation}
+                        </p>
+                      </div>
+                    )) : (
+                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                        Lifecycle outcomes need tracked auth events.
+                      </div>
+                    )}
+                  </div>
+                </div>
               </SectionCard>
 
               <AdminOnboardingAnalyticsModules

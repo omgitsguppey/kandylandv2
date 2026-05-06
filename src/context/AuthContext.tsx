@@ -30,8 +30,13 @@ import {
 } from "@/lib/navigation-persistence";
 import { CREATOR_WAITLIST_PATH, getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import {
+    buildFirebaseLikeAuthError,
     normalizeEmailAddress,
 } from "@/lib/auth-errors";
+import {
+    emitAuthLifecycleEvent,
+    type AuthOutcomeMethod,
+} from "@/lib/auth-outcome-telemetry";
 import { syncClientSessionOwnership } from "@/lib/client-session";
 import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
 import { syncIdentifiedTelemetryOwnership, trackEvent, trackIdentityLinked } from "@/lib/telemetry";
@@ -67,9 +72,9 @@ type SignUpResult = {
 
 interface AuthIdentityContextType {
     user: User | null;
-    signInWithGoogle: () => Promise<void>;
-    signInWithEmail: (identifier: string, pass: string) => Promise<void>;
-    signUpWithEmail: (input: SignUpInput) => Promise<SignUpResult>;
+    signInWithGoogle: (telemetry?: AuthFlowTelemetryInput) => Promise<{ completion: "signed_in" | "redirect_pending"; userId?: string }>;
+    signInWithEmail: (identifier: string, pass: string, telemetry?: AuthFlowTelemetryInput) => Promise<{ userId: string }>;
+    signUpWithEmail: (input: SignUpInput, telemetry?: AuthFlowTelemetryInput) => Promise<SignUpResult & { userId: string }>;
     sendPasswordResetLink: (email: string) => Promise<void>;
     logout: () => Promise<void>;
 }
@@ -93,6 +98,14 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 let persistencePromise: Promise<void> | null = null;
 const GOOGLE_REDIRECT_PENDING_KEY = "auth_google_redirect_pending";
+
+type AuthFlowTelemetryInput = {
+    authAttemptId?: string;
+    method?: AuthOutcomeMethod;
+    route?: string;
+    sourceComponent?: string;
+    startedAtUtc?: string;
+};
 
 function ensureAuthPersistence() {
     if (!auth) {
@@ -173,6 +186,92 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             userId,
             method,
         });
+    }, []);
+
+    const ensureNavigationSessionEstablished = useCallback(async (input: {
+        userId: string;
+        method: AuthOutcomeMethod;
+        telemetry?: AuthFlowTelemetryInput;
+    }) => {
+        const startedAtUtc = new Date().toISOString();
+        emitAuthLifecycleEvent({
+            eventName: "auth_navigation_session_started",
+            authAttemptId: input.telemetry?.authAttemptId,
+            method: input.method,
+            route: input.telemetry?.route,
+            sourceComponent: input.telemetry?.sourceComponent || "AuthContext",
+            sourceTruth: "client_auth",
+            actorUserId: input.userId,
+            startedAtUtc,
+        });
+
+        let failureCode = "auth/navigation-session-failed";
+
+        try {
+            const response = await authFetch("/api/auth/navigation-session", {
+                method: "POST",
+            });
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok || result?.success !== true) {
+                failureCode = typeof result?.reason === "string" && result.reason.trim().length > 0
+                    ? result.reason.trim()
+                    : `auth/navigation-session-http-${response.status}`;
+                throw buildFirebaseLikeAuthError(
+                    failureCode,
+                    "Sign-in completed, but the app session could not finish loading. Please try again.",
+                );
+            }
+
+            const finishedAtUtc = new Date().toISOString();
+            emitAuthLifecycleEvent({
+                eventName: "auth_navigation_session_completed",
+                authAttemptId: input.telemetry?.authAttemptId,
+                method: input.method,
+                route: input.telemetry?.route,
+                sourceComponent: input.telemetry?.sourceComponent || "AuthContext",
+                sourceTruth: "server_session",
+                actorUserId: input.userId,
+                startedAtUtc,
+                finishedAtUtc,
+            });
+            emitAuthLifecycleEvent({
+                eventName: "auth_session_established",
+                authAttemptId: input.telemetry?.authAttemptId,
+                method: input.method,
+                route: input.telemetry?.route,
+                sourceComponent: input.telemetry?.sourceComponent || "AuthContext",
+                sourceTruth: "server_session",
+                actorUserId: input.userId,
+                startedAtUtc,
+                finishedAtUtc,
+            });
+        } catch (error) {
+            emitAuthLifecycleEvent({
+                eventName: "auth_navigation_session_failed",
+                authAttemptId: input.telemetry?.authAttemptId,
+                method: input.method,
+                route: input.telemetry?.route,
+                sourceComponent: input.telemetry?.sourceComponent || "AuthContext",
+                sourceTruth: "server_session",
+                actorUserId: input.userId,
+                startedAtUtc,
+                finishedAtUtc: new Date().toISOString(),
+                failureCode,
+            });
+
+            if (auth) {
+                try {
+                    await signOut(auth);
+                } catch (signOutError) {
+                    reportRealtimeIssue("auth navigation session rollback sign-out failed", signOutError, {
+                        userId: input.userId,
+                    });
+                }
+            }
+
+            throw error;
+        }
     }, []);
 
     const getPostAuthDestination = useCallback((profile?: Pick<UserProfile, "role" | "creatorApplication"> | null, ownerId?: string | null) => {
@@ -416,7 +515,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [user, userProfile]);
 
-    const signInWithGoogle = useCallback(async () => {
+    const signInWithGoogle = useCallback(async (telemetry?: AuthFlowTelemetryInput) => {
         if (!auth || !firebaseClientConfigured) {
             throw new Error("Authentication is unavailable in this environment.");
         }
@@ -429,14 +528,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (shouldPreferRedirectGoogleSignIn()) {
                 setGoogleRedirectPending(true);
                 await signInWithRedirect(auth, provider);
-                return;
+                return { completion: "redirect_pending" as const };
             }
 
-            await signInWithPopup(auth, provider);
-            if (auth.currentUser?.uid) {
-                emitIdentityLinkContinuity(auth.currentUser.uid, "login");
+            const credential = await signInWithPopup(auth, provider);
+            if (credential.user.uid) {
+                emitIdentityLinkContinuity(credential.user.uid, "login");
+                await ensureNavigationSessionEstablished({
+                    userId: credential.user.uid,
+                    method: "google_sign_in",
+                    telemetry,
+                });
             }
             toast.success("Welcome back!");
+            return {
+                completion: "signed_in" as const,
+                userId: credential.user.uid,
+            };
         } catch (error: unknown) {
             const firebaseError = error as { code?: string; message?: string };
 
@@ -445,16 +553,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 provider.setCustomParameters({ prompt: "select_account" });
                 setGoogleRedirectPending(true);
                 await signInWithRedirect(auth, provider);
-                return;
+                return { completion: "redirect_pending" as const };
             }
 
             const message = normalizeAuthErrorMessage(error);
             toast.error(message);
-            throw new Error(message);
+            throw buildFirebaseLikeAuthError(firebaseError?.code || "auth/google-sign-in-failed", message);
         }
-    }, [emitIdentityLinkContinuity]);
+    }, [emitIdentityLinkContinuity, ensureNavigationSessionEstablished]);
 
-    const signInWithEmail = useCallback(async (identifier: string, pass: string) => {
+    const signInWithEmail = useCallback(async (
+        identifier: string,
+        pass: string,
+        telemetry?: AuthFlowTelemetryInput,
+    ) => {
         if (!auth || !firebaseClientConfigured) {
             throw new Error("Authentication is unavailable in this environment.");
         }
@@ -463,10 +575,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const resolvedIdentity = await resolveManualSignInIdentity(identifier);
         const credential = await signInWithEmailAndPassword(auth, resolvedIdentity.resolvedEmail, pass);
         emitIdentityLinkContinuity(credential.user.uid, "login");
+        await ensureNavigationSessionEstablished({
+            userId: credential.user.uid,
+            method: "email_sign_in",
+            telemetry,
+        });
         toast.success("Welcome back!");
-    }, [emitIdentityLinkContinuity]);
+        return { userId: credential.user.uid };
+    }, [emitIdentityLinkContinuity, ensureNavigationSessionEstablished]);
 
-    const signUpWithEmail = useCallback(async (input: SignUpInput) => {
+    const signUpWithEmail = useCallback(async (input: SignUpInput, telemetry?: AuthFlowTelemetryInput) => {
         if (!auth || !firebaseClientConfigured) {
             throw new Error("Authentication is unavailable in this environment.");
         }
@@ -516,6 +634,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             const result = await readManualRegistrationResult(response);
             const welcomeBonus = result.welcomeBonus;
+            await ensureNavigationSessionEstablished({
+                userId: credential.user.uid,
+                method: "email_sign_up",
+                telemetry,
+            });
             if (signupIntent === "creator") {
                 toast.success("Creator intake received. Check your creator status page for next steps.");
                 router.push(CREATOR_WAITLIST_PATH);
@@ -528,6 +651,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return {
                 welcomeBonus,
                 signupIntent,
+                userId: credential.user.uid,
             };
         } catch (error: unknown) {
             if (shouldRollbackCreatedUser && createdUser && auth.currentUser?.uid === createdUser.uid) {
@@ -551,7 +675,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 manualRegistrationStateRef.current = null;
             }
         }
-    }, [getPostAuthDestination, pathname, router]);
+    }, [ensureNavigationSessionEstablished, getPostAuthDestination, pathname, router]);
 
     const sendPasswordResetLink = useCallback(async (email: string) => {
         if (!auth || !firebaseClientConfigured) {

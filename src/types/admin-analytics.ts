@@ -114,6 +114,47 @@ export interface AuthBreakdownItem {
   successRate: number;
 }
 
+export interface AuthOutcomeFailureBreakdownItem {
+  failureCode: string;
+  count: number;
+  explanation: string;
+}
+
+export interface AuthMethodOutcome {
+  method: "email_sign_in" | "email_sign_up" | "google_sign_in";
+  attempts: number;
+  successes: number;
+  failures: number;
+  unfinished: number;
+  successRatePct: number;
+  avgFinishMs: number | null;
+  weakestReason?: string;
+  failureBreakdown: AuthOutcomeFailureBreakdownItem[];
+  state: "live" | "review" | "error" | "stale";
+}
+
+export interface AuthLifecycleOutcome {
+  name: "registration_completed" | "navigation_session_established";
+  count: number;
+  state: "live" | "review" | "error";
+  explanation: string;
+}
+
+export interface AuthOutcomeSummary {
+  generatedAtUtc: string;
+  range: string;
+  attempts: number;
+  successes: number;
+  failures: number;
+  unfinished: number;
+  successRatePct: number;
+  avgFinishMs: number | null;
+  timingState: "available" | "missing_starts" | "missing_finishes" | "unavailable";
+  lastAuthEventAtUtc: string | null;
+  methods: AuthMethodOutcome[];
+  lifecycleOutcomes: AuthLifecycleOutcome[];
+}
+
 export interface CountBucketItem {
   label: string;
   count: number;
@@ -571,6 +612,7 @@ export interface HistoricalAnalyticsResponse {
   userJourneys?: UserJourneyItem[];
   experienceContexts?: ExperienceContextItem[];
   authBreakdown?: AuthBreakdownItem[];
+  authOutcomeSummary?: AuthOutcomeSummary;
   onboardingDurationBuckets?: CountBucketItem[];
   repeatVisitSegments?: ReturnCadenceSegment[];
   destinationMix?: DestinationMixItem[];
