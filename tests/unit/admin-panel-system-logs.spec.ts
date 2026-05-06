@@ -129,9 +129,11 @@ describe("buildAdminPanelSystemLogs", () => {
 
         expect(orchestrationLog).toMatchObject({
             status: "fail",
-            signalCount: 85,
+            signalCount: 78,
             signalKeys: ["orchestration.openFindings", "orchestration.lowConfidenceEvents"],
         });
+        expect(orchestrationLog?.totalSignalCount).toBe(85);
+        expect(orchestrationLog?.reviewableSignalCount).toBe(78);
         expect(orchestrationLog?.action).toContain("create repair proposals");
         expect(orchestrationLog?.action).not.toContain("queued repairs");
     });
@@ -199,6 +201,80 @@ describe("buildAdminPanelSystemLogs", () => {
             status: "healthy",
             signalCount: 0,
             signalKeys: [],
+        });
+    });
+
+    it("classifies bug intake counts as info instead of review", () => {
+        const logs = buildAdminPanelSystemLogs({
+            nowMs: NOW_MS,
+            recentTransactionsCount: 20,
+            unsupportedTasks: 0,
+            telemetryValidatedTasks: 12,
+            usersWithTaskIssues: 0,
+            completedEventsLast7d: 5,
+            receiptsLast7d: 5,
+            rewardEventDeltaLast7d: 0,
+            legacyRewardVersionCount: 0,
+            trackedTelemetryEvents: 40,
+            orphanedTelemetryEvents: 0,
+            bugReportsLast7d: 1,
+            rolloutCount: 2,
+            releaseEntryCount: 3,
+            creatorSpendViolationsLast7d: 0,
+            opsHealth: healthyOpsHealth,
+            orchestration: healthyOrchestration,
+            routeRuntimeHealth: [],
+        });
+
+        const bugLog = logs.find((entry) => entry.id === "reports.bug_intake");
+        expect(bugLog).toMatchObject({
+            status: "healthy",
+            signalCount: 0,
+            reviewableSignalCount: 0,
+            totalSignalCount: 1,
+        });
+        expect(bugLog?.signals?.[0]).toMatchObject({
+            signalType: "bug_intake",
+            reviewable: false,
+            severity: "info",
+        });
+        expect(bugLog?.sectionStatus?.status).toBe("info");
+        expect(bugLog?.summary).toBe("1 bug report landed in the last seven days.");
+    });
+
+    it("classifies rollout and release counts as inventory info", () => {
+        const logs = buildAdminPanelSystemLogs({
+            nowMs: NOW_MS,
+            recentTransactionsCount: 20,
+            unsupportedTasks: 0,
+            telemetryValidatedTasks: 12,
+            usersWithTaskIssues: 0,
+            completedEventsLast7d: 5,
+            receiptsLast7d: 5,
+            rewardEventDeltaLast7d: 0,
+            legacyRewardVersionCount: 0,
+            trackedTelemetryEvents: 40,
+            orphanedTelemetryEvents: 0,
+            bugReportsLast7d: 0,
+            rolloutCount: 4,
+            releaseEntryCount: 3,
+            creatorSpendViolationsLast7d: 0,
+            opsHealth: healthyOpsHealth,
+            orchestration: healthyOrchestration,
+            routeRuntimeHealth: [],
+        });
+
+        const rolloutLog = logs.find((entry) => entry.id === "reports.rollout_registry");
+        expect(rolloutLog).toMatchObject({
+            status: "healthy",
+            signalCount: 0,
+            reviewableSignalCount: 0,
+            totalSignalCount: 7,
+        });
+        expect(rolloutLog?.signals?.map((entry) => entry.signalType)).toEqual(["inventory", "inventory"]);
+        expect(rolloutLog?.sectionStatus?.inventoryCounts).toMatchObject({
+            "reports.rollouts": 4,
+            "reports.releaseEntries": 3,
         });
     });
 

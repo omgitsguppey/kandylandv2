@@ -1,6 +1,7 @@
 "use client";
 
 import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
+import { DebugPanelStatusBySection } from "./DebugPanelStatusBySection";
 import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
 
 /* ─── Helpers ─── */
@@ -261,39 +262,7 @@ export function DebugNowDiagnostics({
                 </div>
             </Section>
 
-            <Section
-                title="Panel status by section"
-                subtitle="Saved panel summaries with concrete next actions."
-                defaultOpen={(panelLogWarnCount + panelLogFailCount) > 0}
-                summary={<><Pill label="Panels" value={(data?.panelSystemLogs || []).length} /><Pill label="Warn" value={panelLogWarnCount} tone={panelLogWarnCount > 0 ? "warn" : "good"} /><Pill label="Fail" value={panelLogFailCount} tone={panelLogFailCount > 0 ? "bad" : "good"} /></>}
-            >
-                <ScrollWrap>
-                    <div className="divide-y divide-white/10">
-                        {(data?.panelSystemLogs || []).map((entry: any) => (
-                            <div key={entry.id} className="space-y-2 px-4 py-3">
-                                <div className="flex flex-wrap items-start justify-between gap-2">
-                                    <div>
-                                        <p className="font-semibold text-white">{entry.panelTitle}</p>
-                                        <p className="text-xs text-gray-400">{entry.tab} | {formatRelative(entry.updatedAtMs)}</p>
-                                    </div>
-                                    <Pill label="Status" value={labelForPanelStatus(entry.status)} tone={toneForPanelStatus(entry.status)} truthState={truthStateForPanelStatus(entry.status)} />
-                                </div>
-                                <p className="text-sm text-gray-200">{entry.summary}</p>
-                                <p className="text-xs text-gray-400">{entry.action}</p>
-                                <div className="flex flex-wrap gap-2">
-                                    <Pill label="Signals" value={entry.signalCount ?? 0} tone={(entry.signalCount ?? 0) > 0 ? (entry.status === "fail" ? "bad" : "warn") : "good"} />
-                                    {(entry.signalCount ?? 0) > 0 ? (entry.signalKeys || []).slice(0, 3).map((signalKey: string) => (
-                                        <Pill key={`${entry.id}:${signalKey}`} label="Signal" value={signalKey} tone={toneForPanelStatus(entry.status)} />
-                                    )) : null}
-                                </div>
-                            </div>
-                        ))}
-                        {(data?.panelSystemLogs || []).length === 0 ? (
-                            <div className="px-4 py-4 text-sm text-gray-300">No persisted panel logs are loaded yet.</div>
-                        ) : null}
-                    </div>
-                </ScrollWrap>
-            </Section>
+            <DebugPanelStatusBySection data={data} panelLogWarnCount={panelLogWarnCount} panelLogFailCount={panelLogFailCount} />
         </>
     );
 }

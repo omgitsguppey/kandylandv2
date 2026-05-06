@@ -248,6 +248,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("clarify downstream writer freshness") || normalized.includes("downstream writer freshness")) {
     return "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.";
   }
+  if (normalized.includes("classify debug signals by severity") || normalized.includes("debug signals by severity")) {
+    return "Improved internal debug status labels so inventory counts do not look like system failures.";
+  }
   if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
     return "Improved internal creator review status checks.";
   }

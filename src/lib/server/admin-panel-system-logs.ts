@@ -10,12 +10,17 @@ import {
 } from "@/lib/route-runtime-health";
 import {
     ADMIN_PANEL_SYSTEM_LOG_COLLECTION,
+    type AdminPanelSignal,
     type AdminPanelSystemLog,
     type AdminPanelSystemLogStatus,
+    type DebugSectionSeverity,
+    type DebugSectionStatus,
+    type DebugSignalType,
 } from "@/lib/admin-panel-system-logs";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const PANEL_LOG_WRITE_THROTTLE_MS = 30 * 60 * 1000;
+const LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD = 10;
 
 type OrchestrationSummaryInput = {
     score: number;
@@ -31,9 +36,100 @@ type PersistedAdminPanelSystemLog = Partial<AdminPanelSystemLog> & {
     changedAtMs?: number;
 };
 
-function buildLog(input: Omit<AdminPanelSystemLog, "updatedAtMs">): AdminPanelSystemLog {
+function signal(
+    key: string,
+    signalType: DebugSignalType,
+    count: number,
+    reviewable: boolean,
+    severity: DebugSectionSeverity = reviewable ? "warn" : "info",
+    label?: string,
+): AdminPanelSignal | null {
+    if (count <= 0) return null;
+    return { key, signalType, count, reviewable, severity, label };
+}
+
+function buildSectionStatus(input: {
+    status: AdminPanelSystemLogStatus;
+    signals: AdminPanelSignal[];
+    explanation: string;
+    freshnessState?: DebugSectionStatus["freshnessState"];
+    currentCounts?: Partial<DebugSectionStatus["currentCounts"]>;
+    historicalCounts?: Record<string, number>;
+}) : DebugSectionStatus {
+    const reviewableSignals = input.signals.filter((entry) => entry.reviewable);
+    const inventoryCounts = input.signals
+        .filter((entry) => entry.signalType === "inventory" || entry.signalType === "bug_intake")
+        .reduce<Record<string, number>>((counts, entry) => {
+            counts[entry.key] = entry.count;
+            return counts;
+        }, {});
+    const highestSeverity = reviewableSignals.some((entry) => entry.severity === "critical")
+        ? "critical"
+        : input.status === "fail" || reviewableSignals.some((entry) => entry.severity === "error")
+            ? "error"
+            : reviewableSignals.length > 0
+                ? "warn"
+                : input.signals.length > 0
+                    ? "info"
+                    : "none";
+    const status: DebugSectionStatus["status"] = input.status === "fail"
+        ? "error"
+        : reviewableSignals.some((entry) => entry.signalType === "freshness" || entry.signalType === "runtime_sample")
+            ? "stale"
+            : reviewableSignals.length > 0
+                ? "review"
+                : input.signals.some((entry) => entry.signalType === "inventory" || entry.signalType === "bug_intake")
+                    ? "info"
+                    : "live";
+
+    return {
+        status,
+        severity: highestSeverity,
+        reasonCodes: reviewableSignals.map((entry) => entry.key),
+        currentCounts: {
+            activeErrors: input.currentCounts?.activeErrors ?? 0,
+            activeWarnings: input.currentCounts?.activeWarnings ?? 0,
+            activeFindings: input.currentCounts?.activeFindings ?? 0,
+            actionableRepairs: input.currentCounts?.actionableRepairs ?? 0,
+        },
+        inventoryCounts,
+        historicalCounts: input.historicalCounts ?? {},
+        freshnessState: input.freshnessState ?? (status === "stale" ? "stale" : "fresh"),
+        explanation: input.explanation,
+    };
+}
+
+function buildLog(input: Omit<AdminPanelSystemLog, "updatedAtMs" | "reviewableSignalCount" | "totalSignalCount" | "sectionStatus"> & {
+    signals?: AdminPanelSignal[];
+    sectionStatus?: DebugSectionStatus;
+    sectionExplanation?: string;
+    currentCounts?: Partial<DebugSectionStatus["currentCounts"]>;
+    historicalCounts?: Record<string, number>;
+    freshnessState?: DebugSectionStatus["freshnessState"];
+}): AdminPanelSystemLog {
+    const signals = input.signals ?? input.signalKeys.map((key) => ({
+        key,
+        signalType: "finding" as const,
+        count: input.signalCount,
+        reviewable: input.status !== "healthy",
+        severity: input.status === "fail" ? "error" as const : input.status === "warn" ? "warn" as const : "info" as const,
+    }));
+    const reviewableSignalCount = signals.filter((entry) => entry.reviewable).reduce((sum, entry) => sum + entry.count, 0);
+    const totalSignalCount = signals.reduce((sum, entry) => sum + entry.count, 0);
     return {
         ...input,
+        signalCount: reviewableSignalCount,
+        signals,
+        reviewableSignalCount,
+        totalSignalCount,
+        sectionStatus: input.sectionStatus ?? buildSectionStatus({
+            status: input.status,
+            signals,
+            explanation: input.sectionExplanation ?? input.summary,
+            currentCounts: input.currentCounts,
+            historicalCounts: input.historicalCounts,
+            freshnessState: input.freshnessState,
+        }),
         updatedAtMs: input.observedAtMs,
     };
 }
@@ -113,6 +209,15 @@ function buildRouteRuntimeClusterLog(input: {
         action,
         signalCount: failCount + warnCount + staleCount + unseenCount,
         signalKeys: input.items.map((item) => `route_runtime_health.${item.key}`),
+        signals: [
+            signal("route_runtime_health.fail", "runtime_sample", failCount, failCount > 0, "error", "fail"),
+            signal("route_runtime_health.warn", "runtime_sample", warnCount, warnCount > 0, "warn", "warn"),
+            signal("route_runtime_health.stale", "freshness", staleCount, staleCount > 0, "warn", "stale"),
+            signal("route_runtime_health.unseen", "runtime_sample", unseenCount, unseenCount > 0, "warn", "neverObserved"),
+        ].filter((entry): entry is AdminPanelSignal => entry !== null),
+        currentCounts: { activeErrors: failCount, activeWarnings: warnCount },
+        historicalCounts: { staleRoutes: staleCount, neverObservedRoutes: unseenCount },
+        freshnessState: staleCount > 0 ? "stale" : "fresh",
         observedAtMs: input.nowMs,
     });
 }
@@ -151,7 +256,7 @@ export function buildAdminPanelSystemLogs(input: {
     const behaviorOrchestrationStatus: AdminPanelSystemLogStatus =
         input.orchestration.openFindings > 0 || input.orchestration.actionableProposals > 0
             ? input.orchestration.score >= 80 ? "warn" : "fail"
-            : input.orchestration.lowConfidenceEvents > 0
+            : input.orchestration.lowConfidenceEvents >= LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD
                 ? "warn"
                 : "healthy";
 
@@ -178,6 +283,11 @@ export function buildAdminPanelSystemLogs(input: {
         input.orchestration.actionableProposals > 0 ? "orchestration.actionableProposals" : null,
         input.orchestration.lowConfidenceEvents > 0 ? "orchestration.lowConfidenceEvents" : null,
     ].filter((value): value is string => Boolean(value));
+    const orchestrationSignals = [
+        signal("orchestration.openFindings", "finding", input.orchestration.openFindings, input.orchestration.openFindings > 0, behaviorOrchestrationStatus === "fail" ? "error" : "warn", "openFindings"),
+        signal("orchestration.actionableProposals", "actionable_repair", input.orchestration.actionableProposals, input.orchestration.actionableProposals > 0, "warn", "actionableProposals"),
+        signal("orchestration.lowConfidenceEvents", "low_confidence_event", input.orchestration.lowConfidenceEvents, input.orchestration.lowConfidenceEvents >= LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD, input.orchestration.lowConfidenceEvents >= LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD ? "warn" : "info", "lowConfidenceEvents"),
+    ].filter((entry): entry is AdminPanelSignal => entry !== null);
     const orchestrationAction = input.orchestration.actionableProposals > 0
         ? "Review the open orchestration findings and confirm or dismiss the queued repairs."
         : input.orchestration.openFindings > 0
@@ -239,6 +349,15 @@ export function buildAdminPanelSystemLogs(input: {
                 : "No action required.",
         signalCount: routeFailCount + routeObservedWarnCount + routeStaleCount + routeUnobservedCount,
         signalKeys: routeRuntimeHealth.map((item) => `route_runtime_health.${item.key}`),
+        signals: [
+            signal("route_runtime_health.fail", "runtime_sample", routeFailCount, routeFailCount > 0, "error", "failedRoutes"),
+            signal("route_runtime_health.warn", "runtime_sample", routeObservedWarnCount, routeObservedWarnCount > 0, "warn", "warnRoutes"),
+            signal("route_runtime_health.stale", "freshness", routeStaleCount, routeStaleCount > 0, "warn", "staleRoutes"),
+            signal("route_runtime_health.neverObserved", "runtime_sample", routeUnobservedCount, routeUnobservedCount > 0, "warn", "neverObservedRoutes"),
+        ].filter((entry): entry is AdminPanelSignal => entry !== null),
+        currentCounts: { activeErrors: routeFailCount, activeWarnings: routeObservedWarnCount },
+        historicalCounts: { staleRoutes: routeStaleCount, neverObservedRoutes: routeUnobservedCount },
+        freshnessState: routeStaleCount > 0 ? "stale" : "fresh",
         observedAtMs: nowMs,
     });
 
@@ -257,6 +376,14 @@ export function buildAdminPanelSystemLogs(input: {
             action: orchestrationAction,
             signalCount: input.orchestration.openFindings + input.orchestration.actionableProposals + input.orchestration.lowConfidenceEvents,
             signalKeys: orchestrationSignalKeys,
+            signals: orchestrationSignals,
+            sectionExplanation: input.orchestration.lowConfidenceEvents >= LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD
+                ? `${input.orchestration.lowConfidenceEvents} events exceed the review threshold of ${LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD}.`
+                : "Open findings and actionable repairs determine orchestration severity.",
+            currentCounts: {
+                activeFindings: input.orchestration.openFindings,
+                actionableRepairs: input.orchestration.actionableProposals,
+            },
             observedAtMs: nowMs,
         }),
         buildLog({
@@ -374,6 +501,10 @@ export function buildAdminPanelSystemLogs(input: {
                 : "No action required.",
             signalCount: input.orphanedTelemetryEvents,
             signalKeys: ["telemetry.orphanedEvents", "telemetry.trackedEvents"],
+            signals: [
+                signal("telemetry.orphanedEvents", "finding", input.orphanedTelemetryEvents, input.orphanedTelemetryEvents > 0, "warn", "orphanedEvents"),
+                signal("telemetry.trackedEvents", "inventory", input.trackedTelemetryEvents, false, "info", "trackedEvents"),
+            ].filter((entry): entry is AdminPanelSignal => entry !== null),
             observedAtMs: nowMs,
         }),
         buildLog({
@@ -381,15 +512,28 @@ export function buildAdminPanelSystemLogs(input: {
             panelKey: "telemetry.normalized_orchestration_stream",
             tab: "telemetry",
             panelTitle: "Normalized orchestration stream",
-            status: input.orchestration.lowConfidenceEvents > 0 ? "warn" : "healthy",
+            status: input.orchestration.lowConfidenceEvents >= LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD ? "warn" : "healthy",
             summary: input.orchestration.lowConfidenceEvents > 0
-                ? `${input.orchestration.lowConfidenceEvents} normalized orchestration events still have low-confidence ownership.`
+                ? `${input.orchestration.lowConfidenceEvents} normalized orchestration events still have low-confidence ownership. Review threshold is ${LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD}.`
                 : "Normalized orchestration events are translating cleanly from the current source systems.",
             action: input.orchestration.lowConfidenceEvents > 0
                 ? "Review actor/session ownership on the low-confidence orchestration samples."
                 : "No action required.",
             signalCount: input.orchestration.lowConfidenceEvents,
             signalKeys: ["orchestration.lowConfidenceEvents"],
+            signals: [
+                signal(
+                    "orchestration.lowConfidenceEvents",
+                    "low_confidence_event",
+                    input.orchestration.lowConfidenceEvents,
+                    input.orchestration.lowConfidenceEvents >= LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD,
+                    input.orchestration.lowConfidenceEvents >= LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD ? "warn" : "info",
+                    "lowConfidenceEvents",
+                ),
+            ].filter((entry): entry is AdminPanelSignal => entry !== null),
+            sectionExplanation: input.orchestration.lowConfidenceEvents >= LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD
+                ? `${input.orchestration.lowConfidenceEvents} events exceed the review threshold of ${LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD}.`
+                : "Low-confidence orchestration events are below review threshold.",
             observedAtMs: nowMs,
         }),
         buildLog({
@@ -430,12 +574,16 @@ export function buildAdminPanelSystemLogs(input: {
             tab: "reports",
             panelTitle: "Bug intake",
             status: "healthy",
-            summary: `${input.bugReportsLast7d} bug reports landed in the last seven days.`,
+            summary: `${input.bugReportsLast7d} bug report${input.bugReportsLast7d === 1 ? "" : "s"} landed in the last seven days.`,
             action: input.bugReportsLast7d > 0
-                ? "Review incoming bug reports and convert recurring issues into tracked fixes."
+                ? "Review when triaging support, not a system-health failure."
                 : "No action required.",
             signalCount: input.bugReportsLast7d,
             signalKeys: ["reports.bugReportsLast7d"],
+            signals: [
+                signal("reports.bugReportsLast7d", "bug_intake", input.bugReportsLast7d, false, "info", "bugReportsLast7d"),
+            ].filter((entry): entry is AdminPanelSignal => entry !== null),
+            sectionExplanation: "Bug report count is intake activity unless recurring, untriaged, or critical clusters breach thresholds.",
             observedAtMs: nowMs,
         }),
         buildLog({
@@ -450,6 +598,11 @@ export function buildAdminPanelSystemLogs(input: {
                 : "Restore rollout or release tracking visibility before relying on experiment observability.",
             signalCount: input.rolloutCount + input.releaseEntryCount,
             signalKeys: ["reports.rollouts", "reports.releaseEntries"],
+            signals: [
+                signal("reports.rollouts", "inventory", input.rolloutCount, false, "info", "rollouts"),
+                signal("reports.releaseEntries", "inventory", input.releaseEntryCount, false, "info", "releaseEntries"),
+            ].filter((entry): entry is AdminPanelSignal => entry !== null),
+            sectionExplanation: "Rollout and release entries are inventory counts, not system-health failures.",
             observedAtMs: nowMs,
         }),
         buildLog({
@@ -480,7 +633,9 @@ export function buildAdminPanelSystemLogs(input: {
                     ? `${input.opsHealth.pipeline.failureCount} older pipeline failures remain in the loaded sample, but no current pipeline incident is active.`
                     : "Pipeline health is clean in the current debug window.",
             action: pipelineStatus !== "healthy"
-                ? "Inspect the failing routes and clear backend pipeline errors before trusting admin snapshots as live truth."
+                ? input.opsHealth.pipeline.activeFailureCount > 0
+                    ? "Inspect the failing routes and clear backend pipeline errors before trusting admin snapshots as live truth."
+                    : "Review historical sample and verify current pipeline before treating the loaded backlog as resolved."
                 : input.opsHealth.pipeline.failureCount > 0
                     ? "No immediate action is required, but the older pipeline backlog remains available for historical review."
                     : "No action required.",
@@ -490,6 +645,16 @@ export function buildAdminPanelSystemLogs(input: {
                     ? 1
                     : 0,
             signalKeys: ["ops.pipeline.failureCount", "ops.pipeline.lastFailureAt", "ops.pipeline.status"],
+            signals: [
+                signal("ops.pipeline.activeFailureCount", "active_diagnostic", input.opsHealth.pipeline.activeFailureCount, input.opsHealth.pipeline.activeFailureCount > 0, "error", "activeFailureCount"),
+                signal("ops.pipeline.recentFailureCount", "recent_history", Math.max(0, input.opsHealth.pipeline.recentFailureCount - input.opsHealth.pipeline.activeFailureCount), input.opsHealth.pipeline.recentFailureCount > input.opsHealth.pipeline.activeFailureCount, "warn", "recentFailureCount"),
+                signal("ops.pipeline.sampleFailureCount", "recent_history", Math.max(0, input.opsHealth.pipeline.sampleFailureCount - input.opsHealth.pipeline.recentFailureCount), false, "info", "sampleFailureCount"),
+            ].filter((entry): entry is AdminPanelSignal => entry !== null),
+            currentCounts: { activeErrors: input.opsHealth.pipeline.activeFailureCount },
+            historicalCounts: {
+                recentFailures: Math.max(0, input.opsHealth.pipeline.recentFailureCount - input.opsHealth.pipeline.activeFailureCount),
+                sampleFailures: Math.max(0, input.opsHealth.pipeline.sampleFailureCount - input.opsHealth.pipeline.recentFailureCount),
+            },
             observedAtMs: nowMs,
         }),
         buildLog({
@@ -518,6 +683,24 @@ export function buildAdminPanelSystemLogs(input: {
                 + materializerFailures
                 + materializerWarnings,
             signalKeys: ["ops.diagnostics", "ops.materializers", "ops.diagnostics.activeWindowMs"],
+            signals: [
+                signal("ops.diagnostics.activeErrors", "active_diagnostic", activeDiagnosticErrorCount, activeDiagnosticErrorCount > 0, "error", "activeErrors"),
+                signal("ops.diagnostics.activeWarnings", "active_diagnostic", activeDiagnosticWarnCount, activeDiagnosticWarnCount > 0, "warn", "activeWarnings"),
+                signal("ops.diagnostics.recentNonActiveErrors", "recent_history", Math.max(0, recentDiagnosticErrorCount - activeDiagnosticErrorCount), recentDiagnosticErrorCount > activeDiagnosticErrorCount, "warn", "recentNonActiveErrors"),
+                signal("ops.diagnostics.recentNonActiveWarnings", "recent_history", Math.max(0, recentDiagnosticWarnCount - activeDiagnosticWarnCount), recentDiagnosticWarnCount > activeDiagnosticWarnCount, "warn", "recentNonActiveWarnings"),
+                signal("ops.materializers.fail", "materializer_status", materializerFailures, materializerFailures > 0, "error", "materializerFailures"),
+                signal("ops.materializers.warn", "materializer_status", materializerWarnings, materializerWarnings > 0, "warn", "materializerWarnings"),
+            ].filter((entry): entry is AdminPanelSignal => entry !== null),
+            currentCounts: {
+                activeErrors: activeDiagnosticErrorCount,
+                activeWarnings: activeDiagnosticWarnCount,
+            },
+            historicalCounts: {
+                recentNonActiveErrors: Math.max(0, recentDiagnosticErrorCount - activeDiagnosticErrorCount),
+                recentNonActiveWarnings: Math.max(0, recentDiagnosticWarnCount - activeDiagnosticWarnCount),
+                staleDiagnosticErrors: staleDiagnosticErrorCount,
+                staleDiagnosticWarnings: staleDiagnosticWarnCount,
+            },
             observedAtMs: nowMs,
         }),
         routeHealthLog,

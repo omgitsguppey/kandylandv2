@@ -29,6 +29,8 @@ Badges must stay short: LIVE, UPDATED, REFRESHING, DELAYED, EST, PARTIAL, WAIT, 
 
 Waiting is allowed only when no verified snapshot exists. Showing last verified data is the correct copy when a verified snapshot is available but live updates, refresh, or source parity is delayed.
 
+Panel status by section must separate inventory from reviewable risk. Bug report counts, rollout counts, release-entry counts, and tracked-event inventory are INFO unless they breach a documented threshold. Show total signals separately from needs-review signals so operators can distinguish activity from system-health findings.
+
 ## Debug-Only Language
 
 The following terms are banned from primary admin UI and may appear only in Debug technical evidence with an operator summary:

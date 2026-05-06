@@ -53,6 +53,8 @@ Shows support admin thread/message access, support route failures, creator booki
 - Diagnostic channel rows expose `data-debug-diagnostics-channel`, `data-debug-current-window-state`, `data-debug-recent-window-state`, `data-debug-sample-history-state`, `data-debug-channel-freshness`, `data-debug-channel-overall-state`, and `data-debug-last-seen-at-utc`.
 - Writer rows expose `data-debug-writer-id`, `data-debug-writer-tracked`, `data-debug-writer-freshness`, `data-debug-writer-error-state`, `data-debug-writer-display-state`, and `data-debug-writer-expected-activity`.
 - Diagnostic cluster rows expose `data-debug-diagnostic-cluster-key` and `data-debug-diagnostic-cluster-count`.
+- Panel status by section uses `DebugSectionStatus` and typed signals. Inventory and activity counts such as bug intake, rollout entries, release entries, and tracked telemetry render as INFO unless a risk threshold is breached. Signal totals are shown separately from needs-review counts.
+- ERROR is reserved for active errors, active critical findings, source failures, required missing reports, and high-risk stale runtime lanes. REVIEW is used for active warnings, actionable repairs, orphaned telemetry, stale runtime samples, and recent non-active errors that need inspection.
 - Raw generated evidence must stay capped and collapsed. The overview must not render giant JSON dumps.
 
 ## Critical Reports

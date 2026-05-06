@@ -50,6 +50,7 @@ const adminOpsHealth = readRequired("src/lib/server/admin-ops-health.ts");
 const adminOpsHealthContract = readRequired("src/lib/admin-ops-health.ts");
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
+const debugPanelStatus = readRequired("src/app/admin/debug/components/DebugPanelStatusBySection.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
 const debugPrimitives = readRequired("src/app/admin/debug/components/DebugPrimitives.tsx");
 const debugPage = readRequired("src/app/admin/debug/page.tsx");
@@ -58,6 +59,7 @@ const controlTowerCards = readRequired("src/app/admin/debug/components/DebugCont
 const modelTest = readRequired("tests/unit/admin-debug-control-tower.spec.ts");
 const summaryCardTest = readRequired("tests/unit/admin-debug-summary-cards.spec.ts");
 const adminOpsHealthTest = readRequired("tests/unit/admin-ops-health.spec.ts");
+const adminPanelSystemLogsTest = readRequired("tests/unit/admin-panel-system-logs.spec.ts");
 const componentTest = readRequired("tests/unit/admin-debug-control-tower-component.spec.tsx");
 const controlTowerDoc = readRequired("docs/agent-truth/admin-debug-control-tower.md");
 const adminTruthDoc = readRequired("docs/agent-truth/human-readable-admin-truth.md");
@@ -156,8 +158,16 @@ for (const expected of [
   "firstSeenAtUtc",
   "lastSeenAtUtc",
   "Check admin/debug/assistant response parsing or fallback JSON handling.",
+  "DebugSectionStatus",
+  "AdminPanelSignal",
+  "signalType",
+  "reviewableSignalCount",
+  "totalSignalCount",
+  "bug_intake",
+  "inventory",
+  "LOW_CONFIDENCE_EVENT_REVIEW_THRESHOLD",
 ]) {
-  requireIncludes(adminOpsHealth + adminOpsHealthContract, expected, "Admin ops health must expose score penalties and diagnostic clusters");
+  requireIncludes(adminOpsHealth + adminOpsHealthContract + readRequired("src/lib/admin-panel-system-logs.ts") + readRequired("src/lib/server/admin-panel-system-logs.ts"), expected, "Admin debug truth models must expose diagnostics, writers, and section signals");
 }
 
 for (const expected of [
@@ -189,6 +199,20 @@ for (const expected of [
   requireIncludes(debugNowDiagnostics, expected, "Recent diagnostics panel must label current/recent/sample/freshness windows");
 }
 requireIncludes(debugPrimitives, "badgeLabel", "Debug primitive pills must allow quiet writer badges without WAIT labels");
+for (const expected of [
+  "Signals total",
+  "Needs review",
+  "data-debug-section-status",
+  "data-debug-section-severity",
+  "data-debug-signal-type",
+  "data-debug-current-counts",
+  "data-debug-historical-counts",
+  "data-debug-inventory-counts",
+  "data-debug-reviewable-signal-count",
+  "data-debug-total-signal-count",
+]) {
+  requireIncludes(debugPanelStatus, expected, "Panel status by section must separate total and reviewable signals");
+}
 
 for (const forbidden of [
   "label=\"Current\"",
@@ -200,6 +224,7 @@ for (const forbidden of [
 requireIncludes(debugPage, "canonicalState?.status === \"Live\"", "Debug page must treat the canonical Live state as healthy");
 requireIncludes(releaseNotesScript, "Improved internal health reporting so beta issues show fresher, clearer status.", "Release notes script must include the System Health truth copy");
 requireIncludes(releaseNotesScript, "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.", "Release notes script must include downstream writer freshness copy");
+requireIncludes(releaseNotesScript, "Improved internal debug status labels so inventory counts do not look like system failures.", "Release notes script must include debug signal severity copy");
 
 for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
@@ -278,6 +303,15 @@ for (const expected of [
   "clusters repeated AI assistant SyntaxError fallback warnings",
 ]) {
   requireIncludes(adminOpsHealthTest, expected, "Admin ops health diagnostics truth tests");
+}
+
+for (const expected of [
+  "classifies bug intake counts as info instead of review",
+  "classifies rollout and release counts as inventory info",
+  "reviewableSignalCount",
+  "totalSignalCount",
+]) {
+  requireIncludes(adminPanelSystemLogsTest, expected, "Admin panel system log signal classification tests");
 }
 
 for (const expected of [
@@ -386,7 +420,9 @@ try {
   const allowedPatterns = [
     /^src\/lib\/admin-debug-control-tower\.ts$/u,
     /^src\/lib\/admin-debug-summary-cards\.ts$/u,
+    /^src\/lib\/admin-panel-system-logs\.ts$/u,
     /^src\/lib\/admin-ops-health\.ts$/u,
+    /^src\/lib\/server\/admin-panel-system-logs\.ts$/u,
     /^src\/lib\/server\/admin-ops-health\.ts$/u,
     /^src\/lib\/route-runtime-health\.ts$/u,
     /^src\/app\/api\/admin\/debug\/control-tower\/route\.ts$/u,
@@ -394,6 +430,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugNowDiagnostics\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugPanelStatusBySection\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPrimitives\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/lib\/creator-experiences\.ts$/u,
@@ -423,6 +460,7 @@ try {
     /^src\/lib\/release-notes\/public-release-notes\.ts$/u,
     /^tests\/unit\/admin-debug-control-tower(?:-component)?\.spec\.tsx?$/u,
     /^tests\/unit\/admin-debug-summary-cards\.spec\.ts$/u,
+    /^tests\/unit\/admin-panel-system-logs\.spec\.ts$/u,
     /^tests\/unit\/admin-ops-health\.spec\.ts$/u,
     /^tests\/unit\/ai-debug-assistant\.spec\.ts$/u,
     /^tests\/unit\/creator-experiences\.spec\.ts$/u,
