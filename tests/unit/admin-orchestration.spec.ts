@@ -157,4 +157,117 @@ describe("buildAdminOrchestrationSnapshot repair proposals", () => {
             "createdAt",
         ]));
     });
+
+    it("treats background ledger route gaps as exempt and foreground route gaps as required", () => {
+        const snapshot = buildAdminOrchestrationSnapshot({
+            eventDocs: [
+                doc("event-ledger", {
+                    sourceCollection: "transactions",
+                    domain: "commerce",
+                    normalizedEventName: "gumdrops_purchased",
+                    actor: { actorType: "user", actorId: "user-1", actorLabel: "User 1" },
+                    session: { sourceSurface: "background", routePath: "" },
+                    dependencyReadiness: { ready: ["actor"], missing: ["route"] },
+                    readiness: { trainingEligible: false, recommendationReady: true, lowConfidence: false, incomplete: false },
+                }),
+                doc("event-foreground", {
+                    sourceCollection: "analytics_event_facts",
+                    domain: "telemetry",
+                    normalizedEventName: "dashboard_viewed",
+                    actor: { actorType: "user", actorId: "user-2", actorLabel: "User 2" },
+                    session: { sourceSurface: "dashboard", routePath: "" },
+                    dependencyReadiness: { ready: ["actor"], missing: ["route", "session"] },
+                    readiness: { trainingEligible: true, recommendationReady: true, lowConfidence: true, incomplete: false },
+                }),
+            ],
+            findingDocs: [],
+            proposalDocs: [],
+            actorSummaryDocs: [],
+            repairActionDocs: [],
+        });
+
+        expect(snapshot.dependencyReadiness.routeMissing.requiredMissing).toBe(1);
+        expect(snapshot.dependencyReadiness.routeMissing.backgroundExempt).toBe(1);
+        expect(snapshot.dependencyReadiness.sessionMissing.requiredMissing).toBe(1);
+        expect(snapshot.summary.lowConfidenceRequiredEvents).toBe(1);
+    });
+
+    it("collapses duplicate inspect-only notification findings in domain summary", () => {
+        const snapshot = buildAdminOrchestrationSnapshot({
+            eventDocs: [
+                doc("event-notification", {
+                    sourceCollection: "notifications",
+                    domain: "notifications",
+                    normalizedEventName: "notification_opened",
+                    actor: { actorType: "system", actorId: "", actorLabel: "System process" },
+                    session: { sourceSurface: "background", routePath: "" },
+                    dependencyReadiness: { ready: [], missing: ["route", "session"] },
+                    readiness: { trainingEligible: false, recommendationReady: false, lowConfidence: false, incomplete: false },
+                    findingCount: 6,
+                }),
+            ],
+            findingDocs: [
+                doc("finding-notification-1", {
+                    findingKey: "missing_route_context",
+                    sourceDocumentPath: "notifications/notification-1",
+                    sourceCollection: "notifications",
+                    sourceDocumentId: "notification-1",
+                    domain: "notifications",
+                    severity: "warn",
+                    status: "open",
+                    eventRecordId: "event-notification",
+                }),
+                doc("finding-notification-2", {
+                    findingKey: "missing_route_context",
+                    sourceDocumentPath: "notifications/notification-1",
+                    sourceCollection: "notifications",
+                    sourceDocumentId: "notification-1",
+                    domain: "notifications",
+                    severity: "warn",
+                    status: "open",
+                    eventRecordId: "event-notification",
+                }),
+            ],
+            proposalDocs: [
+                doc("proposal-notification-1", {
+                    sourceCollection: "notifications",
+                    sourceDocumentId: "notification-1",
+                    sourceDocumentPath: "notifications/notification-1",
+                    findingKey: "notification_missing_target_user",
+                    status: "open",
+                    actionType: "inspect_source_record",
+                    label: "Inspect canonical source",
+                    detail: "Inspect the underlying canonical record because required source context is missing.",
+                    detectedAtMs: Date.UTC(2026, 4, 6, 1, 0, 0),
+                    updatedAtMs: Date.UTC(2026, 4, 6, 1, 5, 0),
+                }),
+                doc("proposal-notification-2", {
+                    sourceCollection: "notifications",
+                    sourceDocumentId: "notification-2",
+                    sourceDocumentPath: "notifications/notification-2",
+                    findingKey: "notification_missing_target_user",
+                    status: "open",
+                    actionType: "inspect_source_record",
+                    label: "Inspect canonical source",
+                    detail: "Inspect the underlying canonical record because required source context is missing.",
+                    detectedAtMs: Date.UTC(2026, 4, 6, 1, 1, 0),
+                    updatedAtMs: Date.UTC(2026, 4, 6, 1, 6, 0),
+                }),
+            ],
+            actorSummaryDocs: [],
+            repairActionDocs: [],
+        });
+
+        const notificationsDomain = snapshot.domainSummary.find((entry) => entry.key === "notifications");
+        expect(snapshot.summary.uniqueOpenFindings).toBe(1);
+        expect(snapshot.summary.duplicateFindings).toBeGreaterThan(0);
+        expect(snapshot.summary.inspectOnlyFindings).toBe(1);
+        expect(notificationsDomain).toMatchObject({
+            eventCount: 1,
+            uniqueOpenFindings: 1,
+            inspectOnlyFindings: 1,
+            state: "review",
+        });
+        expect(notificationsDomain?.explanation).toContain("duplicate inspect-only");
+    });
 });

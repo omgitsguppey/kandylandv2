@@ -59,6 +59,7 @@ const debugTabMonitoring = readRequired("src/app/admin/debug/components/DebugTab
 const debugMonitoringRoutes = readRequired("src/app/admin/debug/components/DebugMonitoringRoutes.tsx");
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
 const debugAdvancedDataValidation = readRequired("src/app/admin/debug/components/DebugAdvancedDataValidation.tsx");
+const debugAdvancedTruth = readRequired("src/app/admin/debug/components/DebugAdvancedTruth.tsx");
 const debugPanelStatus = readRequired("src/app/admin/debug/components/DebugPanelStatusBySection.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
 const debugPrimitives = readRequired("src/app/admin/debug/components/DebugPrimitives.tsx");
@@ -236,6 +237,29 @@ for (const expected of [
   requireIncludes(analyticsValidationHelper, expected, "Data validation helper must expose explicit loading truth states");
 }
 for (const expected of [
+  "BehaviorEventContext",
+  "BehaviorCoverageDomain",
+  "actorMissing: createGapCount()",
+  "routeMissing: createGapCount()",
+  "requiredMissing",
+  "optionalMissing",
+  "backgroundExempt",
+  "uniqueOpenFindingCount",
+  "duplicateFindingCount",
+  "inspectOnlyFindingCount",
+  "evalEligibleByContext",
+  "lowConfidenceRequired",
+  "required_missing_actor",
+  "required_missing_session",
+  "required_missing_route",
+  "duplicate_findings_capped",
+  "inspect_only_findings_capped",
+  "evalEligibleExplanation",
+  "Most findings are duplicate inspect-only source-context items.",
+]) {
+  requireIncludes(adminOrchestration, expected, "Admin orchestration snapshot must classify behavior gaps by context");
+}
+for (const expected of [
   "attachDataValidationState",
   "dataValidation: payload.dataValidation",
   "dataValidation: buildDataValidationPanelState",
@@ -303,6 +327,30 @@ for (const expected of [
   "label=\"Expected events\"",
 ]) {
   requireIncludes(debugAdvancedDataValidation, expected, "Data Validation debug panel must render explicit loaded/not_validated/failed truth");
+}
+for (const expected of [
+  "data-behavior-health-score",
+  "data-behavior-unique-open-findings",
+  "data-behavior-duplicate-findings",
+  "data-behavior-inspect-only-findings",
+  "data-behavior-required-missing-route",
+  "data-behavior-optional-missing-route",
+  "data-behavior-background-exempt-route",
+  "data-behavior-domain",
+  "data-behavior-domain-event-count",
+  "data-behavior-domain-open-unique",
+  "data-behavior-domain-duplicates",
+  "data-behavior-domain-state",
+  "Unique open findings",
+  "Duplicate findings",
+  "Inspect-only findings",
+  "Low confidence required events",
+  "Background exempt",
+  "Eval eligibility excludes background, system, and identity-linkage events.",
+  "label=\"Events\" value={entry.eventCount} tone=\"neutral\" truthState=\"live\" badgeLabel=\"LOADED\"",
+  "Most findings are duplicate inspect-only source-context items.",
+]) {
+  requireIncludes(debugAdvancedTruth, expected, "Behavior normalization internals panel must render loaded context-aware gap truth");
 }
 for (const forbidden of [
   "validations.length || (isLoading ? \"Loading\" : 0)",
@@ -1264,6 +1312,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugTabAi\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabInfrastructure\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedDataValidation\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugAdvancedTruth\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugNowDiagnostics\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPanelStatusBySection\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabMonitoring\.tsx$/u,

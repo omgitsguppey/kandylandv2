@@ -12,8 +12,25 @@ function compactNumber(value?: number) {
     return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value || 0);
 }
 
+function toneForHealth(score?: number) {
+    if ((score ?? 0) >= 90) return "good" as const;
+    if ((score ?? 0) >= 70) return "warn" as const;
+    return "bad" as const;
+}
+
+function toneForDomainState(state?: string) {
+    if (state === "error") return "bad" as const;
+    if (state === "review") return "warn" as const;
+    if (state === "live") return "good" as const;
+    return "neutral" as const;
+}
+
+const DUPLICATE_INSPECT_EXPLANATION = "Most findings are duplicate inspect-only source-context items.";
+
 /* ─── Component ─── */
 export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
+    const behaviorSummary = data?.orchestration?.summary;
+    const dependencyReadiness = data?.orchestration?.dependencyReadiness;
     return (
         <>
             {/* ── Behavior normalization internals ── */}
@@ -21,33 +38,87 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                 title="Behavior normalization internals"
                 subtitle="Derived coordination state covering events, open findings, and domain coverage."
                 defaultOpen={false}
-                summary={<><Pill label="Health" value={`${data?.orchestration?.summary?.score ?? 0}%`} tone={(data?.orchestration?.summary?.score ?? 0) >= 90 ? "good" : (data?.orchestration?.summary?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Open findings" value={data?.orchestration?.summary?.openFindings ?? 0} tone={(data?.orchestration?.summary?.openFindings ?? 0) ? "warn" : "good"} /><Pill label="Actionable repairs" value={data?.orchestration?.summary?.actionableProposals ?? 0} tone={(data?.orchestration?.summary?.actionableProposals ?? 0) ? "warn" : "good"} /><Pill label="Low confidence" value={data?.orchestration?.summary?.lowConfidenceEvents ?? 0} tone={(data?.orchestration?.summary?.lowConfidenceEvents ?? 0) ? "warn" : "good"} /></>}
+                summary={<>
+                    <Pill label="Health" value={`${behaviorSummary?.score ?? 0}%`} tone={toneForHealth(behaviorSummary?.score)} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Unique open findings" value={behaviorSummary?.uniqueOpenFindings ?? 0} tone={(behaviorSummary?.uniqueOpenFindings ?? 0) ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Duplicate findings" value={behaviorSummary?.duplicateFindings ?? 0} tone={(behaviorSummary?.duplicateFindings ?? 0) ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Inspect-only findings" value={behaviorSummary?.inspectOnlyFindings ?? 0} tone={(behaviorSummary?.inspectOnlyFindings ?? 0) ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Actionable repairs" value={behaviorSummary?.actionableProposals ?? 0} tone={(behaviorSummary?.actionableProposals ?? 0) ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Low confidence required events" value={behaviorSummary?.lowConfidenceRequiredEvents ?? 0} tone={(behaviorSummary?.lowConfidenceRequiredEvents ?? 0) ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                </>}
             >
-                <div className="grid gap-4 lg:grid-cols-1">
+                <div
+                    className="grid gap-4 lg:grid-cols-1"
+                    data-behavior-health-score={behaviorSummary?.score ?? 0}
+                    data-behavior-unique-open-findings={behaviorSummary?.uniqueOpenFindings ?? 0}
+                    data-behavior-duplicate-findings={behaviorSummary?.duplicateFindings ?? 0}
+                    data-behavior-inspect-only-findings={behaviorSummary?.inspectOnlyFindings ?? 0}
+                    data-behavior-required-missing-route={dependencyReadiness?.routeMissing?.requiredMissing ?? 0}
+                    data-behavior-optional-missing-route={dependencyReadiness?.routeMissing?.optionalMissing ?? 0}
+                    data-behavior-background-exempt-route={dependencyReadiness?.routeMissing?.backgroundExempt ?? 0}
+                >
                     <div className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
                             <StatCard label="Normalized events" value={data?.orchestration?.summary?.eventCount ?? 0} meta="Recent derived event sample" truthState={data?.orchestration ? "live" : "unavailable"} />
-                            <StatCard label="Eval eligible" value={data?.orchestration?.summary?.trainingEligible ?? 0} meta={`${data?.orchestration?.summary?.lowConfidenceEvents ?? 0} low-confidence events`} truthState={(data?.orchestration?.summary?.lowConfidenceEvents ?? 0) > 0 ? "degraded" : data?.orchestration ? "live" : "unavailable"} />
+                            <StatCard label="Eval eligible" value={data?.orchestration?.summary?.trainingEligible ?? 0} meta={`${data?.orchestration?.summary?.trainingEligible ?? 0} / ${data?.orchestration?.summary?.evalEligibleDenominator ?? 0} recent sample · ${(data?.orchestration?.summary?.lowConfidenceRequiredEvents ?? 0)} low-confidence required events`} truthState={(data?.orchestration?.summary?.lowConfidenceRequiredEvents ?? 0) > 0 ? "degraded" : data?.orchestration ? "live" : "unavailable"} />
                         </div>
+                        <p className="text-xs text-gray-400">{data?.orchestration?.summary?.evalEligibleExplanation || "Eval eligibility excludes background, system, and identity-linkage events."}</p>
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Dependency gaps</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                <Pill label="Missing actor" value={data?.orchestration?.dependencyReadiness?.actorMissingCount ?? 0} tone={(data?.orchestration?.dependencyReadiness?.actorMissingCount ?? 0) ? "warn" : "good"} />
-                                <Pill label="Missing session" value={data?.orchestration?.dependencyReadiness?.sessionMissingCount ?? 0} tone={(data?.orchestration?.dependencyReadiness?.sessionMissingCount ?? 0) ? "warn" : "good"} />
-                                <Pill label="Missing route" value={data?.orchestration?.dependencyReadiness?.routeMissingCount ?? 0} tone={(data?.orchestration?.dependencyReadiness?.routeMissingCount ?? 0) ? "warn" : "good"} />
-                                <Pill label="Missing creator" value={data?.orchestration?.dependencyReadiness?.creatorContextMissingCount ?? 0} tone={(data?.orchestration?.dependencyReadiness?.creatorContextMissingCount ?? 0) ? "warn" : "good"} />
+                            <div className="mt-3 grid gap-2">
+                                <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                    <p className="text-sm font-semibold text-white">Missing actor</p>
+                                    <p className="text-xs text-gray-400">Required {dependencyReadiness?.actorMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.actorMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.actorMissing?.backgroundExempt ?? 0}</p>
+                                </div>
+                                <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                    <p className="text-sm font-semibold text-white">Missing session</p>
+                                    <p className="text-xs text-gray-400">Required {dependencyReadiness?.sessionMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.sessionMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.sessionMissing?.backgroundExempt ?? 0}</p>
+                                </div>
+                                <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                    <p className="text-sm font-semibold text-white">Missing route</p>
+                                    <p className="text-xs text-gray-400">Required {dependencyReadiness?.routeMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.routeMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.routeMissing?.backgroundExempt ?? 0}</p>
+                                </div>
+                                <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                    <p className="text-sm font-semibold text-white">Missing creator</p>
+                                    <p className="text-xs text-gray-400">Required {dependencyReadiness?.creatorContextMissing?.requiredMissing ?? 0} · Optional {dependencyReadiness?.creatorContextMissing?.optionalMissing ?? 0} · Background exempt {dependencyReadiness?.creatorContextMissing?.backgroundExempt ?? 0}</p>
+                                </div>
                             </div>
                         </div>
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Coverage by domain</p>
                             <div className="mt-3 space-y-2">
                                 {(data?.orchestration?.domainSummary || []).slice(0, 6).map((entry: any) => (
-                                    <div key={entry.key} className="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-300">
-                                        <span className="font-semibold text-white">{entry.key}</span>
-                                        <div className="flex flex-wrap gap-2">
-                                            <Pill label="Events" value={entry.eventCount} />
-                                            <Pill label="Open" value={entry.openFindingCount} tone={entry.openFindingCount ? "warn" : "good"} />
+                                    <div
+                                        key={entry.key}
+                                        className="space-y-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-gray-300"
+                                        data-behavior-domain={entry.domain || entry.key}
+                                        data-behavior-domain-event-count={entry.eventCount ?? 0}
+                                        data-behavior-domain-open-unique={entry.uniqueOpenFindings ?? entry.openFindingCount ?? 0}
+                                        data-behavior-domain-duplicates={entry.duplicateFindings ?? 0}
+                                        data-behavior-domain-state={entry.state || "info"}
+                                    >
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <span className="font-semibold text-white">{entry.key}</span>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Events" value={entry.eventCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Open" value={entry.uniqueOpenFindings ?? entry.openFindingCount ?? 0} tone={entry.openFindingCount ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Duplicates" value={entry.duplicateFindings ?? 0} tone={(entry.duplicateFindings ?? 0) > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Inspect only" value={entry.inspectOnlyFindings ?? 0} tone={(entry.inspectOnlyFindings ?? 0) > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="State" value={entry.state || "info"} tone={toneForDomainState(entry.state)} truthState="live" badgeLabel={entry.state === "error" ? "ERROR" : entry.state === "review" ? "REVIEW" : entry.state === "live" ? "LIVE" : "INFO"} />
+                                            </div>
                                         </div>
+                                        <p className="text-xs text-gray-400">{entry.explanation || DUPLICATE_INSPECT_EXPLANATION}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Health math</p>
+                            <div className="mt-3 space-y-2">
+                                {(behaviorSummary?.penalties || []).map((penalty: any) => (
+                                    <div key={penalty.reasonCode} className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-300">
+                                        <span className="font-semibold text-white">{penalty.reasonCode}</span>
+                                        <span>{penalty.count} × {penalty.weight} = {penalty.appliedPenalty}</span>
                                     </div>
                                 ))}
                             </div>
