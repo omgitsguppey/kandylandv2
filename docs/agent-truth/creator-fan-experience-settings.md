@@ -7,7 +7,7 @@ Last updated: 2026-05-02
 
 Admin Roster can edit creator fan experience settings, but it must not create a second settings model. The source shape is `CreatorSettings` and `CreatorRestrictions` from `src/lib/creator-experiences.ts`, which is also the shape read by `CreatorExperiencesPanel`.
 
-Approved/live creators must always have a normalized `CreatorSettings` record. If a creator becomes live through role, approval, approved queue bucket, or creator experience activity before manually configuring settings, the canonical fallback is `buildDefaultCreatorFanExperienceSettings(userId, actor)`.
+Approved/live creators must always have a normalized `CreatorSettings` record. If a creator becomes live through role, approval, approved queue bucket, or creator experience activity before manually configuring settings, the canonical fallback is `buildDefaultCreatorFanExperienceSettings(userId, actor)`. This requirement applies to human, synthetic, AI, demo, and internal creators; synthetic classification only changes legal/agreement evidence handling.
 
 Default settings must be safe, not promotional:
 
@@ -16,6 +16,7 @@ Default settings must be safe, not promotional:
 - Empty availability records mean `creator_availability_not_configured`, not hidden open booking hours.
 - Defaults include `schemaVersion`, `normalizedBy`, timestamps, and provenance.
 - Debug self-heal uses `normalizedBy: "admin_debug_self_heal"` and never overwrites existing creator settings.
+- Debug self-heal records `syntheticCreator: true/false` when known, writes `creator_default_settings_created`, and does not change approval, role, legal, ID, signature, payout, or ledger state.
 
 The selected creator record shows `Fan experience settings` collapsed by default. Admins can update Fan Pass, private chat, custom requests, live time, broadcasts, pricing, request menu, availability, and restrictions from that section.
 

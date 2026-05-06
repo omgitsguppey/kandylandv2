@@ -313,6 +313,7 @@ export type CreatorDefaultSettingsRepairResult = {
     userRole: UserProfile["role"] | "unknown";
     queueBucket: string | null;
     creatorExperienceActivityCount: number;
+    syntheticCreator: boolean;
     repairedAtUtc: string;
     doesNotChangeApproval: true;
     doesNotOverwriteExistingSettings: true;
@@ -380,6 +381,9 @@ export async function repairMissingLiveCreatorSettings(input: {
             || approvalStatus === "creator_approved"
             || queueBucket === "approved"
             || creatorExperienceActivityCount > 0;
+        const syntheticCreator = userData.isSyntheticCreator === true
+            || canonical?.isSyntheticCreator === true
+            || queueData.isSyntheticCreator === true;
 
         if (!userSnap.exists) {
             throw new Error("Creator user profile is missing; default settings repair requires user source evidence.");
@@ -412,6 +416,7 @@ export async function repairMissingLiveCreatorSettings(input: {
             userRole,
             queueBucket,
             creatorExperienceActivityCount,
+            syntheticCreator,
             repairedAtUtc,
             doesNotChangeApproval: true,
             doesNotOverwriteExistingSettings: true,
@@ -431,6 +436,7 @@ export async function repairMissingLiveCreatorSettings(input: {
             normalizedBy: "admin_debug_self_heal",
             schemaVersion: defaultSettings.schemaVersion,
             defaultSettingsRepair: true,
+            syntheticCreator,
             repairedAtUtc,
             doesNotChangeApproval: true,
         };
@@ -470,6 +476,7 @@ export async function repairMissingLiveCreatorSettings(input: {
                     userRole,
                     queueBucket,
                     creatorExperienceActivityCount,
+                    syntheticCreator,
                     repairedAtUtc,
                     doesNotChangeApproval: true,
                     doesNotOverwriteExistingSettings: true,

@@ -259,6 +259,7 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
     normalized.includes("require default live creator settings")
     || normalized.includes("default live creator settings")
     || normalized.includes("creator experience defaults")
+    || normalized.includes("synthetic creator default settings")
   ) {
     return "Improved internal creator experience defaults for beta reliability.";
   }

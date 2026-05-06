@@ -305,14 +305,64 @@ describe("creator onboarding diagnostics", () => {
             severity: "critical",
             status: "critical",
             rosterWarning: "Settings missing",
-            message: "Live creator settings are missing",
-            detail: "Approved/live creators require normalized default fan experience settings.",
+            message: "Approved/live creators require normalized default fan experience settings.",
             recommendedFix: "Create normalized default fan experience settings from canonical defaults.",
             canSelfHeal: true,
         });
+        expect(result.summary.settingsIssueCount).toBe(1);
         expect(result.creatorLaneDebug.report.mismatches.find((entry) => entry.surface === "settings")).toMatchObject({
             severity: "critical",
             creatorId: "missing_settings",
+        });
+    });
+
+    it("treats approved synthetic creator missing settings as critical and self-healable", () => {
+        const syntheticFields = {
+            isSyntheticCreator: true,
+            syntheticCreatorType: "ai_creator",
+            syntheticCreatedByUid: "owner_1",
+            syntheticCreatedAt: BASE_TIME,
+            syntheticReason: "Internal synthetic creator",
+            syntheticLegalEvidenceMode: "internal_synthetic_no_external_agreement",
+            humanOperatorRequired: true,
+        };
+        const result = buildCreatorOnboardingDiagnostics({
+            users: [{ uid: "synthetic_missing_settings", raw: { role: "creator", ...syntheticFields } }],
+            onboardingRecords: [
+                canonical({
+                    userId: "synthetic_missing_settings",
+                    creatorDisplayName: "Synthetic Missing Settings",
+                    role: "creator",
+                    approvalStatus: "creator_approved",
+                    ...syntheticFields,
+                }),
+            ],
+            queueRecords: [queue({
+                userId: "synthetic_missing_settings",
+                creatorDisplayName: "Synthetic Missing Settings",
+                role: "creator",
+                approvalStatus: "creator_approved",
+                queueBucket: "approved",
+                ...syntheticFields,
+            })],
+        });
+        const issue = result.issues.find((entry) => entry.key === "creator_settings_missing");
+
+        expect(issue).toMatchObject({
+            severity: "critical",
+            status: "critical",
+            rosterWarning: "Settings missing",
+            message: "Approved/live creators require normalized default fan experience settings.",
+            recommendedFix: "Create normalized default fan experience settings from canonical defaults.",
+            canSelfHeal: true,
+            sourceSnapshots: expect.objectContaining({
+                isSyntheticCreator: true,
+                settingsPresent: false,
+            }),
+        });
+        expect(result.creatorLaneDebug.report.mismatches.find((entry) => entry.surface === "settings")).toMatchObject({
+            severity: "critical",
+            creatorId: "synthetic_missing_settings",
         });
     });
 

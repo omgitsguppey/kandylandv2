@@ -178,6 +178,7 @@ for (const repairNeedle of [
     "doesNotOverwriteExistingSettings: true",
     "bookingUnavailableReason",
     "creator_availability_not_configured",
+    "syntheticCreator",
     "Default fan experience settings created",
     "canonical.idVerificationStatus !== \"id_requested\"",
 ]) {
@@ -322,6 +323,8 @@ for (const docNeedle of [
     "No action required unless you want additional audit context.",
     "required sensitive lifecycle history event is missing",
     "approved/live creator missing settings is critical",
+    "Approved/live creators require normalized default fan experience settings.",
+    "Synthetic/internal creator classification only changes legal/agreement evidence handling.",
     "Create normalized default fan experience settings from canonical defaults.",
     "creator_availability_not_configured",
     "recommended fix",

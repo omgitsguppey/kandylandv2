@@ -119,6 +119,7 @@ const checklist = read("EVERY_FILE_FUNCTION_CHECKLIST.md");
   "normalizedBy",
   "defaultSettingsProvenance",
   "provenance",
+  "availabilityConfigured: false",
   "creator_availability_not_configured",
   "doesNotChangeApproval: true",
 ].forEach((needle) => requireIncludes(creatorExperiences, needle, "creator default fan experience settings builder"));

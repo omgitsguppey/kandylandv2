@@ -35,7 +35,7 @@ Admin Debug owns the full technical evidence for these checks:
 - Synthetic/internal creator + signed signatures + missing agreementHash is a Synthetic legal evidence note.
 - Synthetic creator marker is incomplete. Required internal-only fields such as `syntheticCreatorType`, `syntheticReason`, `syntheticCreatedByUid`, `syntheticCreatedAt`, and `syntheticLegalEvidenceMode` must be present.
 - ID verified or submitted without durable document metadata
-- live or approved creator missing CreatorSettings
+- live or approved creator missing CreatorSettings. Approved/live creators require normalized default fan experience settings.
 - CreatorSettings enabled lane conflicts with CreatorRestrictions pause
 - required sensitive lifecycle history event is missing
 
@@ -64,7 +64,7 @@ Admin Roster is the decision queue. It must show only short operator warnings:
 
 Synthetic/internal creator records must carry `isSyntheticCreator: true` and `syntheticLegalEvidenceMode: "internal_synthetic_no_external_agreement"`. That mode means external `agreementHash` is optional for the synthetic creator classification only, for both creator signature evidence and admin countersign evidence. The recommended fix is "No action required unless stronger internal audit evidence is desired." Human creators still require `agreementHash` whenever creator/admin signatures are marked signed.
 
-An approved/live creator missing settings is critical. "Live" means any of: `users/{uid}.role === "creator"`, canonical `approvalStatus === "creator_approved"`, review queue bucket `approved`, or creator experience activity exists. Missing settings must not be downgraded because legal, ID, or signature states are still pending once any live signal exists.
+An approved/live creator missing settings is critical. "Live" means any of: `users/{uid}.role === "creator"`, canonical `approvalStatus === "creator_approved"`, review queue bucket `approved`, or creator experience activity exists. Missing settings must not be downgraded because legal, ID, or signature states are still pending once any live signal exists. Synthetic/internal creator classification only changes legal/agreement evidence handling. It never downgrades required fan experience settings.
 
 Do not show raw collection paths, raw enum blobs, queue deltas, signature hashes, or storage details in the main roster row. Those details belong in Admin Debug.
 
@@ -110,7 +110,7 @@ Self-healing is allowed for deterministic projection repairs:
 - sync user creatorApplication projection from canonical onboarding
 - normalize missing creator settings from the existing settings model
 
-For live creators, the recommended fix is: "Create normalized default fan experience settings from canonical defaults." The self-heal path must create a `CreatorSettings` record with `schemaVersion`, `normalizedBy: "admin_debug_self_heal"`, provenance metadata, and a history entry `creator_default_settings_created`. It must not overwrite existing settings and must not change approval, role, legal, ID, signature, queue, payout, or ledger state. Booking defaults must be safe: bookings remain unavailable until availability is configured, with `creator_availability_not_configured` recorded as the reason.
+For live creators, the recommended fix is: "Create normalized default fan experience settings from canonical defaults." The self-heal path must create a `CreatorSettings` record with `schemaVersion`, `normalizedBy: "admin_debug_self_heal"`, provenance metadata, and a history entry `creator_default_settings_created`. It must include `syntheticCreator: true/false` when known, must not overwrite existing settings, and must not change approval, role, legal, ID, signature, queue, payout, or ledger state. Booking defaults must be safe: bookings remain unavailable until availability is configured, with `creator_availability_not_configured` recorded as the reason.
 
 Human review is required for evidence-sensitive issues:
 

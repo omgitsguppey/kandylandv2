@@ -297,6 +297,7 @@ describe("ensureCreatorOnboardingSubmission", () => {
             historyWritten: true,
             doesNotChangeApproval: true,
             doesNotOverwriteExistingSettings: true,
+            syntheticCreator: false,
             bookingUnavailableReason: "creator_availability_not_configured",
         });
         expect(mockState.documents.get("users/live_creator")).toMatchObject({
@@ -315,6 +316,7 @@ describe("ensureCreatorOnboardingSubmission", () => {
             }),
             creatorFanExperienceSettingsDebug: expect.objectContaining({
                 defaultSettingsRepair: true,
+                syntheticCreator: false,
                 doesNotChangeApproval: true,
             }),
         });
@@ -323,6 +325,7 @@ describe("ensureCreatorOnboardingSubmission", () => {
             actorId: "system_debug_repair",
             metadata: expect.objectContaining({
                 repairReason: "missing_live_creator_settings",
+                syntheticCreator: false,
                 doesNotChangeApproval: true,
                 doesNotOverwriteExistingSettings: true,
             }),
@@ -338,6 +341,89 @@ describe("ensureCreatorOnboardingSubmission", () => {
             settingsWritten: false,
             alreadyPresent: true,
             historyWritten: false,
+        });
+    });
+
+    it("self-heals synthetic live creator settings with synthetic provenance without changing creator state", async () => {
+        mockState.documents.set("users/synthetic_live_creator", {
+            uid: "synthetic_live_creator",
+            role: "creator",
+            displayName: "Synthetic Live Creator",
+            isSyntheticCreator: true,
+            syntheticCreatorType: "ai_creator",
+        });
+        mockState.documents.set("creator_onboarding/synthetic_live_creator", {
+            userId: "synthetic_live_creator",
+            email: "synthetic@example.com",
+            role: "creator",
+            sourceVersion: 1,
+            signupType: "creator",
+            submissionStatus: "awaiting_manual_review",
+            approvalStatus: "creator_approved",
+            queuePosition: 1,
+            onboardingStartedAt: 1_710_000_000_000,
+            submittedAt: 1_710_000_000_000,
+            onboardingSubmittedAt: 1_710_000_000_000,
+            awaitingManualReviewAt: 1_710_000_000_000,
+            updatedAt: 1_710_000_000_000,
+            creatorDisplayName: "Synthetic Live Creator",
+            legalStatus: "legal_pending",
+            contractDocumentStatus: "contract_sent",
+            creatorSignatureStatus: "signature_pending",
+            adminSignatureStatus: "signature_pending",
+            idVerificationStatus: "id_requested",
+            segmentationStatus: "segment_assigned",
+            creatorReviewQueueVisible: true,
+            blockingReasons: [],
+            isSyntheticCreator: true,
+            syntheticCreatorType: "ai_creator",
+        });
+        mockState.documents.set("creator_review_queue/synthetic_live_creator", {
+            userId: "synthetic_live_creator",
+            queueBucket: "approved",
+            isSyntheticCreator: true,
+        });
+
+        const result = await repairMissingLiveCreatorSettings({
+            userId: "synthetic_live_creator",
+            dryRun: false,
+            nowMs: 1_710_000_004_000,
+        });
+
+        expect(result).toMatchObject({
+            settingsWritten: true,
+            alreadyPresent: false,
+            historyWritten: true,
+            syntheticCreator: true,
+            doesNotChangeApproval: true,
+            doesNotOverwriteExistingSettings: true,
+        });
+        expect(mockState.documents.get("users/synthetic_live_creator")).toMatchObject({
+            role: "creator",
+            isSyntheticCreator: true,
+            creatorSettings: expect.objectContaining({
+                bookingsEnabled: false,
+                availabilityWindows: [],
+                normalizedBy: "admin_debug_self_heal",
+                bookingUnavailableReason: "creator_availability_not_configured",
+            }),
+            creatorFanExperienceSettingsDebug: expect.objectContaining({
+                defaultSettingsRepair: true,
+                syntheticCreator: true,
+                doesNotChangeApproval: true,
+            }),
+        });
+        expect(mockState.documents.get("creator_onboarding/synthetic_live_creator")).toMatchObject({
+            approvalStatus: "creator_approved",
+            isSyntheticCreator: true,
+        });
+        expect(mockState.documents.get("creator_onboarding/synthetic_live_creator/history/debug_parity_default_settings_created")).toMatchObject({
+            eventType: "creator_default_settings_created",
+            metadata: expect.objectContaining({
+                repairReason: "missing_live_creator_settings",
+                syntheticCreator: true,
+                doesNotChangeApproval: true,
+            }),
         });
     });
 });
