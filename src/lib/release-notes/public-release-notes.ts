@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.40.0",
+  "currentVersion": "1.41.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:48:10.316Z",
-  "generatedAtUtc": "2026-05-06T01:48:10.316Z",
-  "lastCommitSha": "69ffae9bedf9635a8924fdbc1732c95c1a83539b",
+  "generatedAt": "2026-05-06T01:56:51.549Z",
+  "generatedAtUtc": "2026-05-06T01:56:51.549Z",
+  "lastCommitSha": "7d56e157afa44f20236a9b2093c72f4665f0832e",
   "notes": [
+    {
+      "version": "1.41.0",
+      "previousVersion": "1.40.0",
+      "commitSha": "7d56e157afa44f20236a9b2093c72f4665f0832e",
+      "commitTitle": "fix(admin): dedupe debug repair proposals",
+      "committedAt": "2026-05-06T01:56:39.000Z",
+      "generatedAt": "2026-05-06T01:56:51.549Z",
+      "committedAtUtc": "2026-05-06T01:56:39.000Z",
+      "generatedAtUtc": "2026-05-06T01:56:51.549Z",
+      "diffStats": {
+        "rawAdditions": 413,
+        "rawDeletions": 21,
+        "rawChangeCount": 434,
+        "additions": 413,
+        "deletions": 21,
+        "effectiveAdditions": 411,
+        "effectiveDeletions": 19,
+        "changedFiles": 10,
+        "effectiveChangeCount": 430,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal repair proposal grouping so duplicate debug actions are easier to review.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.40.0",
       "previousVersion": "1.39.0",
@@ -136,38 +169,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "affectedSurfaces": [
         "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.36.0",
-      "previousVersion": "1.35.1",
-      "commitSha": "57b3e05b3320996d6a60f8067ba444ca4f86050a",
-      "commitTitle": "fix(creator): require synthetic creator default settings",
-      "committedAt": "2026-05-06T01:12:13.000Z",
-      "generatedAt": "2026-05-06T01:12:24.521Z",
-      "committedAtUtc": "2026-05-06T01:12:13.000Z",
-      "generatedAtUtc": "2026-05-06T01:12:24.521Z",
-      "diffStats": {
-        "rawAdditions": 161,
-        "rawDeletions": 11,
-        "rawChangeCount": 172,
-        "additions": 161,
-        "deletions": 11,
-        "effectiveAdditions": 159,
-        "effectiveDeletions": 9,
-        "changedFiles": 11,
-        "effectiveChangeCount": 168,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator experience defaults for beta reliability.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
         "documentation",
         "repo-tooling"
       ]

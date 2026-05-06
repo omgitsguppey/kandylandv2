@@ -1,10 +1,43 @@
 {
-  "currentVersion": "1.40.0",
+  "currentVersion": "1.41.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:48:10.316Z",
-  "generatedAtUtc": "2026-05-06T01:48:10.316Z",
-  "lastCommitSha": "69ffae9bedf9635a8924fdbc1732c95c1a83539b",
+  "generatedAt": "2026-05-06T01:56:51.549Z",
+  "generatedAtUtc": "2026-05-06T01:56:51.549Z",
+  "lastCommitSha": "7d56e157afa44f20236a9b2093c72f4665f0832e",
   "notes": [
+    {
+      "version": "1.41.0",
+      "previousVersion": "1.40.0",
+      "commitSha": "7d56e157afa44f20236a9b2093c72f4665f0832e",
+      "commitTitle": "fix(admin): dedupe debug repair proposals",
+      "committedAt": "2026-05-06T01:56:39.000Z",
+      "generatedAt": "2026-05-06T01:56:51.549Z",
+      "committedAtUtc": "2026-05-06T01:56:39.000Z",
+      "generatedAtUtc": "2026-05-06T01:56:51.549Z",
+      "diffStats": {
+        "rawAdditions": 413,
+        "rawDeletions": 21,
+        "rawChangeCount": 434,
+        "additions": 413,
+        "deletions": 21,
+        "effectiveAdditions": 411,
+        "effectiveDeletions": 19,
+        "changedFiles": 10,
+        "effectiveChangeCount": 430,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal repair proposal grouping so duplicate debug actions are easier to review.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.40.0",
       "previousVersion": "1.39.0",
@@ -1600,38 +1633,6 @@
       ],
       "committedAtUtc": "2026-05-05T08:15:29.000Z",
       "generatedAtUtc": "2026-05-05T12:02:54.377Z"
-    },
-    {
-      "version": "1.4.0",
-      "previousVersion": "1.3.0",
-      "commitSha": "b5e3656bcfb1f99402cee8b3fa3cc3b83fd47ec3",
-      "commitTitle": "feat(agent): optimize doctrine retrieval context",
-      "committedAt": "2026-05-05T07:51:59.000Z",
-      "generatedAt": "2026-05-05T12:02:54.007Z",
-      "diffStats": {
-        "rawAdditions": 1919,
-        "rawDeletions": 17,
-        "rawChangeCount": 1936,
-        "additions": 1919,
-        "deletions": 17,
-        "effectiveAdditions": 1646,
-        "effectiveDeletions": 17,
-        "changedFiles": 20,
-        "effectiveChangeCount": 1663,
-        "excludedGeneratedChangeCount": 273
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated internal product guidance so future fixes stay more consistent.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T07:51:59.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:54.007Z"
     }
   ]
 }

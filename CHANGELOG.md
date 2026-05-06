@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.41.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 01:56 UTC
+- Improved internal repair proposal grouping so duplicate debug actions are easier to review.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.40.0] - 2026-05-06
 
 ### Fixed
@@ -396,12 +404,4 @@ User-facing KandyDrops Beta updates, newest first.
 
 - Updated 2026-05-05 08:15 UTC
 - Updated KandyDrops with a small beta improvement.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.4.0] - 2026-05-05
-
-### Added
-
-- Updated 2026-05-05 07:51 UTC
-- Updated internal product guidance so future fixes stay more consistent.
 - Kept the update focused on user-visible polish and reliability.
