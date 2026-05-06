@@ -761,6 +761,26 @@ export type AdminUsersKpiCard = {
   formula?: string;
 };
 
+export type AnalyticsOverviewCard = {
+  id: "active_users" | "mobile_share" | "revenue" | "purchases";
+  label: string;
+  primaryValue: string | number | null;
+  state: "live" | "snap" | "partial" | "waiting" | "stale" | "unavailable" | "error";
+  sourceTruth:
+    | "realtime_snapshot"
+    | "last_verified_snapshot"
+    | "server_transactions"
+    | "commerce_rollup"
+    | "telemetry_sample"
+    | "device_sample"
+    | "missing";
+  freshnessState: "live" | "recent" | "stale" | "not_observed" | "unknown";
+  windowLabel: string;
+  generatedAtUtc: string | null;
+  explanation: string;
+  warnings: string[];
+};
+
 export type AdminBehaviorLeaderboardFilter =
   | "all"
   | "returned_7d"

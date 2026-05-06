@@ -49,7 +49,7 @@ const AdminTaskAndNotificationModules = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, liveGuestActiveCount, historicalTruthState, historicalSourceLabel, historicalOverviewSourceLabel, revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, overviewCheckoutStarts = 0 } = state;
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, liveGuestActiveCount, historicalTruthState, historicalSourceLabel, liveActiveDisplay, liveActiveTruthState, analyticsOverviewCards } = state;
   useEffect(() => {
     (window as typeof window & {
       __KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__?: unknown;
@@ -119,26 +119,29 @@ export default function AdminAnalyticsPage() {
         />
         <MetricCard
           label="Mobile Share"
-          value={mobileShareDisplay}
-          hint={historicalOverviewTruthState !== "unavailable" ? `${mobileUsers.toLocaleString()} mobile users in range` : historicalOverviewSourceLabel}
+          value={analyticsOverviewCards.mobileShare.displayValue}
+          hint={analyticsOverviewCards.mobileShare.hint}
           icon={Smartphone}
-          truthState={historicalOverviewTruthState}
+          truthState={analyticsOverviewCards.mobileShare.truthState}
+          statusBadgeLabel={analyticsOverviewCards.mobileShare.statusBadgeLabel}
           dictionaryTooltip="Percentage of visitors in this time range who are on mobile devices. Essential for guiding responsive design priority."
         />
         <MetricCard
           label="Revenue"
-          value={revenueDisplay}
-          hint={historicalOverviewSourceLabel}
+          value={analyticsOverviewCards.revenue.displayValue}
+          hint={analyticsOverviewCards.revenue.hint}
           icon={DollarSign}
-          truthState={historicalOverviewTruthState}
+          truthState={analyticsOverviewCards.revenue.truthState}
+          statusBadgeLabel={analyticsOverviewCards.revenue.statusBadgeLabel}
           dictionaryTooltip="Total top-line revenue measured in USD across all confirmed transactions within the range. Does not subtract platform fees."
         />
         <MetricCard
           label="Purchases"
-          value={purchasesDisplay}
-          hint={historicalOverviewTruthState !== "unavailable" ? `${overviewCheckoutStarts.toLocaleString()} checkout starts · ${historicalOverviewSourceLabel}` : historicalOverviewSourceLabel}
+          value={analyticsOverviewCards.purchases.displayValue}
+          hint={analyticsOverviewCards.purchases.hint}
           icon={ShoppingBag}
-          truthState={historicalOverviewTruthState}
+          truthState={analyticsOverviewCards.purchases.truthState}
+          statusBadgeLabel={analyticsOverviewCards.purchases.statusBadgeLabel}
           dictionaryTooltip="Number of distinct successful purchases completed. Compare to checkout starts to monitor conversion dropout."
         />
       </div>

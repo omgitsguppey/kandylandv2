@@ -59,7 +59,15 @@ assertIncludes("AdminStatusBadge", statusBadge, "label?: string");
 
 assertIncludes("AdminAnalyticsPage", page, "visibleDegradedCopy");
 assertIncludes("AdminAnalyticsPage", page, "title={backgroundAnalyticsIssues.join(\" | \")}");
+assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewCards.mobileShare.displayValue");
+assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewCards.revenue.displayValue");
+assertIncludes("AdminAnalyticsPage", page, "analyticsOverviewCards.purchases.displayValue");
+assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewCards.mobileShare.statusBadgeLabel}");
+assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewCards.revenue.statusBadgeLabel}");
+assertIncludes("AdminAnalyticsPage", page, "statusBadgeLabel={analyticsOverviewCards.purchases.statusBadgeLabel}");
 assertNotIncludes("AdminAnalyticsPage", page, "backgroundAnalyticsIssues.join(\" · \")");
+assertNotIncludes("AdminAnalyticsPage", page, "mobile users in range");
+assertNotIncludes("AdminAnalyticsPage", page, "checkout starts ·");
 for (const phrase of BANNED_VISIBLE_COPY) {
   assertNotIncludes("AdminAnalyticsPage", page.toLowerCase(), phrase);
 }
@@ -89,6 +97,17 @@ assertIncludes("useAdminAnalyticsState", hook, "usedFallbackSnapshot");
 assertIncludes("useAdminAnalyticsState", hook, "visibleDegradedCopy");
 assertIncludes("useAdminAnalyticsState", hook, "fullDegradedReasons");
 assertIncludes("useAdminAnalyticsState", hook, "realtimeLaneFailures");
+assertIncludes("useAdminAnalyticsState", hook, "analyticsOverviewCards");
+assertIncludes("useAdminAnalyticsState", hook, "No device sample");
+assertIncludes("useAdminAnalyticsState", hook, "Checkout starts unavailable");
+assertIncludes("useAdminAnalyticsState", hook, "Fallback source: server-confirmed transactions");
+assertIncludes("useAdminAnalyticsState", hook, "Fallback source: completed transactions");
+assertIncludes("useAdminAnalyticsState", hook, "sourceTruth");
+assertIncludes("useAdminAnalyticsState", hook, "freshnessState");
+assertIncludes("useAdminAnalyticsState", hook, "\"server_transactions\"");
+assertIncludes("useAdminAnalyticsState", hook, "\"device_sample\"");
+assertIncludes("useAdminAnalyticsState", hook, "\"missing\"");
+assertIncludes("useAdminAnalyticsState", hook, "/api/admin/overview");
 assertNotIncludes("useAdminAnalyticsState", hook, "isFakeZero");
 
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsOverview");
@@ -101,6 +120,7 @@ assertIncludes("admin analytics types", analyticsTypes, "export interface Analyt
 assertIncludes("admin analytics types", analyticsTypes, "missingDays");
 assertIncludes("admin analytics types", analyticsTypes, "recentGapDays");
 assertIncludes("admin analytics types", analyticsTypes, "chartReadiness");
+assertIncludes("admin analytics types", analyticsTypes, "export type AnalyticsOverviewCard");
 
 assertIncludes("agent truth doc", doc, "Badge Containment Rule");
 assertIncludes("agent truth doc", doc, "Analytics Hydration Rule");
