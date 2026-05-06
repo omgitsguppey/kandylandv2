@@ -12,6 +12,8 @@ import type {
   AuthLifecycleOutcome,
   AuthMethodOutcome,
   AuthOutcomeSummary,
+  NavigationDestinationsState,
+  NavigationDestinationRow,
   ReturnCadenceSegment,
   ReturnCadenceState,
 } from "@/types/admin-analytics";
@@ -23,6 +25,7 @@ export interface HistoricalEngagementAnalytics {
   onboardingDurationBuckets: Array<{ label: string; count: number }>;
   repeatVisitSegments: ReturnCadenceSegment[];
   returnCadenceState: ReturnCadenceState;
+  navigationDestinationsState: NavigationDestinationsState;
   destinationMix: Array<{ destination: string; count: number }>;
   notificationFunnel: Array<{ label: string; count: number }>;
   notificationActions: Array<{ label: string; value: number }>;
@@ -49,6 +52,442 @@ const AUTH_METHOD_LABELS: Record<AuthMethodKey, string> = {
 
 const RETURN_CADENCE_DENOMINATOR_EXPLANATION =
   "Tracked authenticated users are users with at least one qualifying authenticated activity day in the selected range. Unique returners are users active on 2+ distinct days. Conversion = unique returners / tracked authenticated users.";
+
+type NavigationSourceTruth = NavigationDestinationRow["sourceTruth"];
+type DestinationAccumulator = {
+  destinationPath: string;
+  destinationLabel: string;
+  count: number;
+  uniqueActors: Set<string>;
+  topSourceEvents: Map<string, number>;
+  sourceTruthCounts: Record<NavigationSourceTruth, number>;
+  lastSeenAtMs: number;
+};
+
+const EXPLICIT_NAV_EVENT_SOURCES: Array<{
+  eventName: string;
+  sourceTruth: NavigationSourceTruth;
+}> = [
+  { eventName: "navigation_click", sourceTruth: "explicit_tap" },
+  { eventName: "semantic_target_clicked", sourceTruth: "semantic_target" },
+  { eventName: "notification_action_clicked", sourceTruth: "notification_action" },
+  { eventName: "notification_opened", sourceTruth: "notification_action" },
+  { eventName: "viewer_related_drop_clicked", sourceTruth: "viewer_related" },
+];
+
+const FALLBACK_DESTINATION_EVENT_MAP: Record<string, { path: string; label: string }> = {
+  dashboard_viewed: { path: "/dashboard", label: "Dashboard" },
+  drops_page_viewed: { path: "/drops", label: "Drops" },
+  experience_hub_viewed: { path: "/experiences", label: "Experiences" },
+  library_viewed: { path: "/dashboard/library", label: "Library" },
+  wallet_opened: { path: "/experiences#gumdrops-wallet", label: "Wallet" },
+};
+
+function normalizeDestinationPath(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  if (/^(javascript|data|blob|file):/iu.test(trimmed)) {
+    return "";
+  }
+
+  if (/^https?:\/\//iu.test(trimmed)) {
+    try {
+      const parsed = new URL(trimmed);
+      return parsed.pathname + parsed.search + parsed.hash;
+    } catch {
+      return "";
+    }
+  }
+
+  if (trimmed.startsWith("#")) {
+    return trimmed;
+  }
+
+  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+}
+
+function readDestinationValue(record: TelemetryLogRecord) {
+  const candidates = [
+    "destinationPath",
+    "destination_path",
+    "destination",
+    "path",
+    "href",
+    "targetPath",
+    "target_path",
+    "targetHref",
+    "target_href",
+    "route",
+    "page_path",
+    "pagePath",
+  ];
+  for (const key of candidates) {
+    const value = getTelemetryParamString(record, key);
+    const normalized = normalizeDestinationPath(value);
+    if (normalized) {
+      return normalized;
+    }
+  }
+  return "";
+}
+
+function readDestinationLabel(record: TelemetryLogRecord, fallbackPath: string) {
+  const candidates = [
+    "destinationLabel",
+    "destination_label",
+    "label",
+    "title",
+    "targetText",
+    "target_text",
+  ];
+  for (const key of candidates) {
+    const value = getTelemetryParamString(record, key).trim();
+    if (value) {
+      return value;
+    }
+  }
+
+  if (fallbackPath === "/dashboard") return "Dashboard";
+  if (fallbackPath === "/drops") return "Drops";
+  if (fallbackPath === "/experiences") return "Experiences";
+  if (fallbackPath === "/dashboard/library") return "Library";
+  if (fallbackPath === "/experiences#gumdrops-wallet") return "Wallet";
+  if (fallbackPath.includes("/viewer")) return "Viewer";
+  if (fallbackPath.includes("/drops/")) return "Drop details";
+  if (fallbackPath.includes("/preview")) return "Drop preview";
+  return fallbackPath || "Unknown destination";
+}
+
+function readActorKey(record: TelemetryLogRecord) {
+  return record.userId
+    || getTelemetryParamString(record, "user_id")
+    || getTelemetryParamString(record, "userId")
+    || getTelemetryParamString(record, "session_id")
+    || getTelemetryParamString(record, "sessionId");
+}
+
+function addDestinationObservation(
+  destinationMap: Map<string, DestinationAccumulator>,
+  input: {
+    destinationPath: string;
+    destinationLabel: string;
+    sourceTruth: NavigationSourceTruth;
+    eventName: string;
+    actorKey?: string;
+    timestampMs: number;
+  },
+) {
+  if (!input.destinationPath) {
+    return;
+  }
+
+  const existing = destinationMap.get(input.destinationPath) ?? {
+    destinationPath: input.destinationPath,
+    destinationLabel: input.destinationLabel || input.destinationPath,
+    count: 0,
+    uniqueActors: new Set<string>(),
+    topSourceEvents: new Map<string, number>(),
+    sourceTruthCounts: {
+      explicit_tap: 0,
+      semantic_target: 0,
+      notification_action: 0,
+      viewer_related: 0,
+      page_view_fallback: 0,
+    },
+    lastSeenAtMs: 0,
+  };
+
+  existing.count += 1;
+  if (input.actorKey) {
+    existing.uniqueActors.add(input.actorKey);
+  }
+  existing.topSourceEvents.set(
+    input.eventName,
+    (existing.topSourceEvents.get(input.eventName) ?? 0) + 1,
+  );
+  existing.sourceTruthCounts[input.sourceTruth] += 1;
+  existing.lastSeenAtMs = Math.max(existing.lastSeenAtMs, input.timestampMs);
+  if (!existing.destinationLabel || existing.destinationLabel === existing.destinationPath) {
+    existing.destinationLabel = input.destinationLabel || input.destinationPath;
+  }
+
+  destinationMap.set(input.destinationPath, existing);
+}
+
+function resolveFallbackDestinationFromRecord(record: TelemetryLogRecord) {
+  const mapped = FALLBACK_DESTINATION_EVENT_MAP[record.eventName];
+  if (mapped) {
+    return mapped;
+  }
+
+  if (record.eventName === "view_drop_details") {
+    const dropId = getTelemetryParamString(record, "drop_id") || getTelemetryParamString(record, "dropId");
+    return {
+      path: dropId ? `/drops/${dropId}` : "/drops/[dropId]",
+      label: "Drop details",
+    };
+  }
+
+  if (record.eventName === "drop_preview_opened") {
+    const dropId = getTelemetryParamString(record, "drop_id") || getTelemetryParamString(record, "dropId");
+    return {
+      path: dropId ? `/drops/${dropId}/preview` : "/drops/preview",
+      label: "Drop preview",
+    };
+  }
+
+  if (record.eventName === "viewer_opened") {
+    const route =
+      normalizeDestinationPath(getTelemetryParamString(record, "route"))
+      || normalizeDestinationPath(getTelemetryParamString(record, "page_path"))
+      || normalizeDestinationPath(getTelemetryParamString(record, "pagePath"));
+    return {
+      path: route || "/dashboard/viewer",
+      label: "Viewer",
+    };
+  }
+
+  return null;
+}
+
+function resolveFallbackDestinationFromFact(fact: Record<string, unknown>) {
+  const eventName = toStringValue(fact.eventName).trim();
+  const mapped = FALLBACK_DESTINATION_EVENT_MAP[eventName];
+  if (mapped) {
+    return mapped;
+  }
+
+  const route =
+    normalizeDestinationPath(toStringValue(fact.route))
+    || normalizeDestinationPath(toStringValue(fact.pagePath))
+    || normalizeDestinationPath(toStringValue(fact.page_path));
+
+  if (eventName === "view_drop_details") {
+    const dropId = toStringValue(fact.dropId) || toStringValue(fact.drop_id);
+    return {
+      path: dropId ? `/drops/${dropId}` : route || "/drops/[dropId]",
+      label: "Drop details",
+    };
+  }
+
+  if (eventName === "drop_preview_opened") {
+    const dropId = toStringValue(fact.dropId) || toStringValue(fact.drop_id);
+    return {
+      path: dropId ? `/drops/${dropId}/preview` : route || "/drops/preview",
+      label: "Drop preview",
+    };
+  }
+
+  if (eventName === "viewer_opened") {
+    return {
+      path: route || "/dashboard/viewer",
+      label: "Viewer",
+    };
+  }
+
+  return null;
+}
+
+function mapNavigationFreshnessState(lastSeenAtMs: number, generatedAtUtc: string): NavigationDestinationRow["freshnessState"] {
+  const generatedAtMs = Date.parse(generatedAtUtc);
+  if (!lastSeenAtMs || !Number.isFinite(generatedAtMs)) {
+    return "unknown";
+  }
+
+  const ageMs = Math.max(0, generatedAtMs - lastSeenAtMs);
+  if (ageMs <= 5 * 60 * 1000) {
+    return "live";
+  }
+  if (ageMs <= 15 * 60 * 1000) {
+    return "recent";
+  }
+  return "stale";
+}
+
+function buildNavigationExplanation(input: {
+  sourceTruth: NavigationSourceTruth;
+  usedFallback: boolean;
+  destinationPath: string;
+  topSourceEvents: string[];
+}) {
+  if (input.sourceTruth === "page_view_fallback") {
+    return `Showing destination visits for ${input.destinationPath} from page and surface view telemetry because explicit navigation taps were not observed in this range.`;
+  }
+
+  if (input.usedFallback) {
+    return `Explicit navigation events lead for ${input.destinationPath}, with additional destination-view fallback activity also observed from ${input.topSourceEvents.join(", ")}.`;
+  }
+
+  if (input.sourceTruth === "semantic_target") {
+    return `Destination is proven by semantic_target_clicked payload context for ${input.destinationPath}.`;
+  }
+  if (input.sourceTruth === "notification_action") {
+    return `Destination is proven by notification action telemetry for ${input.destinationPath}.`;
+  }
+  if (input.sourceTruth === "viewer_related") {
+    return `Destination is proven by viewer-related navigation telemetry for ${input.destinationPath}.`;
+  }
+
+  return `Destination is proven by explicit navigation tap telemetry for ${input.destinationPath}.`;
+}
+
+function buildNavigationDestinationsState(input: {
+  telemetryLogsByEvent: Record<string, TelemetryLogRecord[]>;
+  analyticsEventFacts?: Array<Record<string, unknown>>;
+  generatedAtUtc: string;
+  range: string;
+}) {
+  const destinationMap = new Map<string, DestinationAccumulator>();
+  let explicitTapCount = 0;
+  let fallbackViewCount = 0;
+
+  EXPLICIT_NAV_EVENT_SOURCES.forEach(({ eventName, sourceTruth }) => {
+    (input.telemetryLogsByEvent[eventName] ?? []).forEach((record) => {
+      const directDestination = readDestinationValue(record);
+      const fallbackMapping = sourceTruth === "viewer_related"
+        ? (() => {
+          const dropId = getTelemetryParamString(record, "drop_id") || getTelemetryParamString(record, "dropId");
+          return {
+            path: dropId ? `/drops/${dropId}` : "/drops/[dropId]",
+            label: "Related drop",
+          };
+        })()
+        : null;
+      const destinationPath = directDestination || fallbackMapping?.path || "";
+      if (!destinationPath) {
+        return;
+      }
+
+      addDestinationObservation(destinationMap, {
+        destinationPath,
+        destinationLabel: readDestinationLabel(record, destinationPath) || fallbackMapping?.label || destinationPath,
+        sourceTruth,
+        eventName,
+        actorKey: readActorKey(record),
+        timestampMs: record.timestamp,
+      });
+      explicitTapCount += 1;
+    });
+  });
+
+  Object.keys(FALLBACK_DESTINATION_EVENT_MAP)
+    .concat(["view_drop_details", "drop_preview_opened", "viewer_opened"])
+    .forEach((eventName) => {
+      (input.telemetryLogsByEvent[eventName] ?? []).forEach((record) => {
+        const mapped = resolveFallbackDestinationFromRecord(record);
+        if (!mapped) {
+          return;
+        }
+        addDestinationObservation(destinationMap, {
+          destinationPath: mapped.path,
+          destinationLabel: mapped.label,
+          sourceTruth: "page_view_fallback",
+          eventName,
+          actorKey: readActorKey(record),
+          timestampMs: record.timestamp,
+        });
+        fallbackViewCount += 1;
+      });
+    });
+
+  if (fallbackViewCount === 0) {
+    (input.analyticsEventFacts ?? []).forEach((fact) => {
+      const eventName = toStringValue(fact.eventName).trim();
+      if (
+        !eventName
+        || !(eventName in FALLBACK_DESTINATION_EVENT_MAP)
+        && eventName !== "view_drop_details"
+        && eventName !== "drop_preview_opened"
+        && eventName !== "viewer_opened"
+      ) {
+        return;
+      }
+
+      const mapped = resolveFallbackDestinationFromFact(fact);
+      const timestampMs = toNumber(fact.timestamp);
+      if (!mapped || timestampMs <= 0) {
+        return;
+      }
+
+      addDestinationObservation(destinationMap, {
+        destinationPath: mapped.path,
+        destinationLabel: mapped.label,
+        sourceTruth: "page_view_fallback",
+        eventName,
+        actorKey: toStringValue(fact.userId).trim() || toStringValue(fact.actorUserId).trim(),
+        timestampMs,
+      });
+      fallbackViewCount += 1;
+    });
+  }
+
+  const sourceMode: NavigationDestinationsState["sourceMode"] =
+    explicitTapCount > 0 && fallbackViewCount > 0
+      ? "mixed_fallback"
+      : explicitTapCount > 0
+        ? "tap_events"
+        : fallbackViewCount > 0
+          ? "destination_views_only"
+          : "unavailable";
+
+  const warnings: string[] = [];
+  let missingReason: string | undefined;
+  if (sourceMode === "mixed_fallback") {
+    warnings.push("Explicit navigation taps are present, but some destinations are hydrated from fallback destination-view telemetry.");
+  }
+  if (sourceMode === "destination_views_only") {
+    warnings.push("No explicit nav taps found. Showing destination visits from page-view fallback.");
+  }
+  if (sourceMode === "unavailable") {
+    missingReason = "Navigation tap tracking is not instrumented for this range. Expected events: navigation_click, semantic_target_clicked with destination, notification_action_clicked.";
+  }
+
+  const destinations = Array.from(destinationMap.values())
+    .map<NavigationDestinationRow>((entry) => {
+      const sourceTruth = (Object.entries(entry.sourceTruthCounts)
+        .sort((left, right) => right[1] - left[1])[0]?.[0] ?? "page_view_fallback") as NavigationSourceTruth;
+      const topSourceEvents = Array.from(entry.topSourceEvents.entries())
+        .sort((left, right) => right[1] - left[1])
+        .map(([eventName]) => eventName)
+        .slice(0, 3);
+      const usedFallback =
+        entry.sourceTruthCounts.page_view_fallback > 0
+        && sourceTruth !== "page_view_fallback";
+      return {
+        destinationPath: entry.destinationPath,
+        destinationLabel: entry.destinationLabel,
+        count: entry.count,
+        uniqueActors: entry.uniqueActors.size > 0 ? entry.uniqueActors.size : null,
+        sourceTruth,
+        lastSeenAtUtc: entry.lastSeenAtMs > 0 ? new Date(entry.lastSeenAtMs).toISOString() : null,
+        freshnessState: mapNavigationFreshnessState(entry.lastSeenAtMs, input.generatedAtUtc),
+        topSourceEvents,
+        explanation: buildNavigationExplanation({
+          sourceTruth,
+          usedFallback,
+          destinationPath: entry.destinationPath,
+          topSourceEvents,
+        }),
+      };
+    })
+    .sort((left, right) => right.count - left.count)
+    .slice(0, 10);
+
+  return {
+    generatedAtUtc: input.generatedAtUtc,
+    range: input.range,
+    sourceMode,
+    totalNavigationEvents: explicitTapCount + fallbackViewCount,
+    explicitTapCount,
+    fallbackViewCount,
+    destinations,
+    missingReason,
+    warnings,
+  } satisfies NavigationDestinationsState;
+}
 
 function resolveReturnCadenceSourceTruth(input: {
   eventFactUsers: number;
@@ -616,11 +1055,11 @@ export function buildHistoricalEngagementAnalytics(input: {
     generatedAtUtc,
     range: input.range || "30d",
   });
-
-  const destinationMap = new Map<string, number>();
-  (input.telemetryLogsByEvent.navigation_click || []).forEach((record) => {
-    const destination = (record.params.destination as string) || "/";
-    destinationMap.set(destination, (destinationMap.get(destination) || 0) + 1);
+  const navigationDestinationsState = buildNavigationDestinationsState({
+    telemetryLogsByEvent: input.telemetryLogsByEvent,
+    analyticsEventFacts: input.analyticsEventFacts,
+    generatedAtUtc,
+    range: input.range || "30d",
   });
 
   return {
@@ -629,10 +1068,11 @@ export function buildHistoricalEngagementAnalytics(input: {
     onboardingDurationBuckets,
     repeatVisitSegments,
     returnCadenceState,
-    destinationMix: Array.from(destinationMap.entries())
-      .map(([destination, count]) => ({ destination, count }))
-      .sort((left, right) => right.count - left.count)
-      .slice(0, 10),
+    navigationDestinationsState,
+    destinationMix: navigationDestinationsState.destinations.map((item) => ({
+      destination: item.destinationLabel,
+      count: item.count,
+    })),
     notificationFunnel: [
       { label: "Prompt views", count: input.eventsData.notification_prompt_banner_viewed || 0 },
       { label: "Prompt dismissals", count: input.eventsData.notification_prompt_banner_dismissed || 0 },

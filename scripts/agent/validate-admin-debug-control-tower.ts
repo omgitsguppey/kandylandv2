@@ -121,7 +121,9 @@ const guestQualityHelper = readRequired("src/lib/admin-analytics-guest-bounce-qu
 const eventMixHelper = readRequired("src/lib/admin-analytics-event-mix.ts");
 const liveInteractionStreamHelper = readRequired("src/lib/admin-analytics-live-interaction-stream.ts");
 const returnCadenceHelper = readRequired("src/lib/admin-analytics-return-cadence.ts");
+const navigationDestinationsHelper = readRequired("src/lib/admin-analytics-navigation-destinations.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
 
@@ -2024,6 +2026,27 @@ for (const expected of [
   requireIncludes(returnCadenceHelper, expected, "Return cadence truth helper");
 }
 for (const expected of [
+  "buildAdminAnalyticsNavigationDestinationsModel",
+  "No explicit navigation tap events found. Showing destination visits from page-view fallback.",
+  "Expected events: navigation_click, semantic_target_clicked with destination, notification_action_clicked.",
+  "\"tap_events\"",
+  "\"mixed_fallback\"",
+  "\"destination_views_only\"",
+]) {
+  requireIncludes(navigationDestinationsHelper, expected, "Navigation destinations truth helper");
+}
+for (const expected of [
+  "Source mode:",
+  "Explicit taps:",
+  "Fallback views:",
+  "Top source events:",
+  "No navigation tap or destination-view events found in this range.",
+  "Source: {item.sourceTruth}",
+]) {
+  requireIncludes(adminAnalyticsAudienceTab, expected, "Navigation destinations audience panel");
+}
+requireNotIncludes(adminAnalyticsAudienceTab, "Destination drill-down will fill in once more navigation taps are tracked.", "Navigation destinations audience panel");
+for (const expected of [
   "Mode:",
   "Source:",
   "Last event:",
@@ -2067,6 +2090,7 @@ try {
       /^src\/lib\/admin-analytics-event-mix\.ts$/u,
       /^src\/lib\/admin-analytics-audience-snapshot\.ts$/u,
       /^src\/lib\/admin-analytics-return-cadence\.ts$/u,
+      /^src\/lib\/admin-analytics-navigation-destinations\.ts$/u,
       /^src\/lib\/admin-analytics-journey-funnel\.ts$/u,
       /^src\/lib\/admin-analytics-auth-outcome-split\.ts$/u,
       /^src\/lib\/auth-outcome-telemetry\.ts$/u,
@@ -2187,6 +2211,7 @@ try {
     /^src\/types\/admin-analytics\.ts$/u,
     /^tests\/unit\/admin-analytics-event-mix\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-live-interaction-stream\.spec\.ts$/u,
+    /^tests\/unit\/admin-analytics-navigation-destinations\.spec\.ts$/u,
     /^tests\/unit\/admin-notification-funnel\.spec\.ts$/u,
     /^tests\/unit\/admin-task-pipeline\.spec\.ts$/u,
     /^scripts\/check-admin-analytics-overview\.ts$/u,

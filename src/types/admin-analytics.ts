@@ -250,6 +250,35 @@ export interface DestinationMixItem {
   count: number;
 }
 
+export type NavigationDestinationRow = {
+  destinationPath: string;
+  destinationLabel: string;
+  count: number;
+  uniqueActors?: number | null;
+  sourceTruth:
+    | "explicit_tap"
+    | "semantic_target"
+    | "notification_action"
+    | "viewer_related"
+    | "page_view_fallback";
+  lastSeenAtUtc: string | null;
+  freshnessState: "live" | "recent" | "stale" | "unknown";
+  topSourceEvents: string[];
+  explanation: string;
+};
+
+export type NavigationDestinationsState = {
+  generatedAtUtc: string;
+  range: string;
+  sourceMode: "tap_events" | "mixed_fallback" | "destination_views_only" | "unavailable";
+  totalNavigationEvents: number;
+  explicitTapCount: number;
+  fallbackViewCount: number;
+  destinations: NavigationDestinationRow[];
+  missingReason?: string;
+  warnings: string[];
+};
+
 export interface TaskLeaderboardItem {
   taskId: string;
   title: string;
@@ -657,6 +686,7 @@ export interface HistoricalAnalyticsResponse {
   repeatVisitSegments?: ReturnCadenceSegment[];
   returnCadenceState?: ReturnCadenceState;
   destinationMix?: DestinationMixItem[];
+  navigationDestinationsState?: NavigationDestinationsState;
   notificationFunnel?: CountBucketItem[];
   notificationActions?: Array<{ label: string; value: number }>;
   taskPipeline?: CountBucketItem[];

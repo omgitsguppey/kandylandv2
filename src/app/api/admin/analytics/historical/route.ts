@@ -459,7 +459,10 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 returnCadenceState: payload.returnCadenceState,
             });
         case "navigationDestinations":
-            return withSharedFields({ destinationMix: payload.destinationMix });
+            return withSharedFields({
+                destinationMix: payload.destinationMix,
+                navigationDestinationsState: payload.navigationDestinationsState,
+            });
         case "deviceMix":
             return withSharedFields({ devices: payload.devices });
         case "topPaths":
@@ -1060,6 +1063,7 @@ async function GET_handler(request: NextRequest) {
                 onboardingDurationBuckets,
                 repeatVisitSegments,
                 returnCadenceState,
+                navigationDestinationsState,
                 destinationMix,
                 notificationFunnel,
                 notificationActions,
@@ -1472,6 +1476,7 @@ async function GET_handler(request: NextRequest) {
                 onboardingDurationBuckets,
                 repeatVisitSegments,
                 returnCadenceState,
+                navigationDestinationsState,
                 destinationMix,
                 notificationFunnel,
                 notificationActions,

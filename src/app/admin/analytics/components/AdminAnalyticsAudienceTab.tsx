@@ -19,11 +19,11 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     
     // Audience Tab
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate, historicalOverviewTruthState,
-    navigationDestinationsRange, destinationMix,
+    navigationDestinationsRange,
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,
     regionsRange, geo,
-    audienceHistorySeries, audienceSnapshotModel, returnCadenceModel, navigationDestinationsMix, deviceMixDevices, deviceMixTotalUsers, topPathsPages, regionsGeo,
+    audienceHistorySeries, audienceSnapshotModel, returnCadenceModel, navigationDestinationsModel, deviceMixDevices, deviceMixTotalUsers, topPathsPages, regionsGeo,
 
     // Commerce Tab
     commerceSnapshotRange, commerce,
@@ -445,20 +445,45 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 
               <SectionCard
                 title="Navigation Destinations"
-                subtitle="Top in-app destinations reached from tracked taps."
+                subtitle="Top in-app destinations reached from intentional navigation telemetry."
                 icon={Route}
                 rightSlot={renderSectionRangeControl("navigationDestinations")}
               >
+                <div
+                  className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                  data-navigation-source-mode={navigationDestinationsModel.sourceMode}
+                  data-navigation-total-events={String(navigationDestinationsModel.totalNavigationEvents)}
+                  data-navigation-explicit-taps={String(navigationDestinationsModel.explicitTapCount)}
+                  data-navigation-fallback-views={String(navigationDestinationsModel.fallbackViewCount)}
+                  data-navigation-generated-at-utc={navigationDestinationsModel.generatedAtUtc}
+                >
+                  {navigationDestinationsModel.visibleCopy.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                  <p className="text-gray-500">
+                    Source mode: {navigationDestinationsModel.sourceModeLabel}
+                    {" | "}Total: {navigationDestinationsModel.totalNavigationEvents.toLocaleString()}
+                    {" | "}Explicit taps: {navigationDestinationsModel.explicitTapCount.toLocaleString()}
+                    {" | "}Fallback views: {navigationDestinationsModel.fallbackViewCount.toLocaleString()}
+                  </p>
+                  <p className="text-gray-500">
+                    Range: {navigationDestinationsModel.range}
+                    {" | "}Last updated: {navigationDestinationsModel.generatedAtUtc === new Date(0).toISOString()
+                      ? "Unavailable"
+                      : formatRelativeTime(Date.parse(navigationDestinationsModel.generatedAtUtc), nowMs)}
+                    {" | "}Missing sources: {navigationDestinationsModel.missingSourceCount}
+                  </p>
+                </div>
                 <div className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr]">
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={navigationDestinationsMix
+                          data={navigationDestinationsModel.chartRows
                             .slice(0, 6)
-                            .map((item: any) => ({
-                              name: item.destination,
-                              value: item.count,
+                            .map((item) => ({
+                              name: item.label,
+                              value: item.value,
                             }))}
                           dataKey="value"
                           nameKey="name"
@@ -466,11 +491,11 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                           outerRadius={84}
                           paddingAngle={3}
                         >
-                          {navigationDestinationsMix
+                          {navigationDestinationsModel.chartRows
                             .slice(0, 6)
-                            .map((item: any, index: any) => (
+                            .map((item, index) => (
                               <Cell
-                                key={item.destination}
+                                key={item.key}
                                 fill={PIE_COLORS[index % PIE_COLORS.length]}
                               />
                             ))}
@@ -481,12 +506,12 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   </div>
 
                   <div className="space-y-3">
-                    {navigationDestinationsMix.length > 0 ? (
-                      navigationDestinationsMix
+                    {navigationDestinationsModel.destinations.length > 0 ? (
+                      navigationDestinationsModel.destinations
                         .slice(0, 6)
-                        .map((item: any, index: any) => (
+                        .map((item, index) => (
                           <div
-                            key={item.destination}
+                            key={item.destinationPath}
                             className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
                           >
                             <div className="mb-2 flex items-center justify-between gap-3">
@@ -499,18 +524,34 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                                   }}
                                 />
                                 <p className="text-sm font-semibold text-white">
-                                  {item.destination}
+                                  {item.destinationLabel}
                                 </p>
                               </div>
                               <span className="text-sm font-bold text-brand-purple">
                                 {item.count.toLocaleString()}
                               </span>
                             </div>
+                            <p className="mb-1 text-[11px] text-gray-400">
+                              {item.destinationPath}
+                            </p>
+                            <p className="mb-2 text-[11px] text-gray-500">
+                              Source: {item.sourceTruth}
+                              {" | "}Freshness: {item.freshnessState}
+                              {" | "}Last seen: {item.lastSeenAtUtc
+                                ? formatRelativeTime(Date.parse(item.lastSeenAtUtc), nowMs)
+                                : "Unavailable"}
+                            </p>
+                            <p className="mb-2 text-[11px] text-gray-500">
+                              Top source events: {item.topSourceEvents.join(", ")}
+                            </p>
+                            <p className="mb-3 text-[11px] text-gray-400">
+                              {item.explanation}
+                            </p>
                             <div className="h-2 overflow-hidden rounded-full bg-white/10">
                               <div
                                 className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
                                 style={{
-                                  width: `${Math.max(8, (item.count / Math.max(1, navigationDestinationsMix[0]?.count || 1)) * 100)}%`,
+                                  width: `${Math.max(8, (item.count / Math.max(1, navigationDestinationsModel.destinations[0]?.count || 1)) * 100)}%`,
                                 }}
                               />
                             </div>
@@ -518,8 +559,11 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                         ))
                     ) : (
                       <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                        Destination drill-down will fill in once more navigation
-                        taps are tracked.
+                        {navigationDestinationsModel.missingReason
+                          ?? "No navigation tap or destination-view events found in this range."}
+                        <p className="mt-2 text-xs text-gray-600">
+                          {navigationDestinationsModel.expectedEventsLabel}
+                        </p>
                       </div>
                     )}
                   </div>
