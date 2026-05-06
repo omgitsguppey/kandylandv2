@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.43.0",
+  "currentVersion": "1.44.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T02:19:29.663Z",
-  "generatedAtUtc": "2026-05-06T02:19:29.663Z",
-  "lastCommitSha": "0ad07275579c41228c0b793f181d7f722e36918e",
+  "generatedAt": "2026-05-06T02:30:41.584Z",
+  "generatedAtUtc": "2026-05-06T02:30:41.584Z",
+  "lastCommitSha": "45435fb9926905f18e4ae6d32dfc76b264573c38",
   "notes": [
+    {
+      "version": "1.44.0",
+      "previousVersion": "1.43.0",
+      "commitSha": "45435fb9926905f18e4ae6d32dfc76b264573c38",
+      "commitTitle": "fix(admin): clarify route runtime health states",
+      "committedAt": "2026-05-06T02:30:27.000Z",
+      "generatedAt": "2026-05-06T02:30:41.583Z",
+      "committedAtUtc": "2026-05-06T02:30:27.000Z",
+      "generatedAtUtc": "2026-05-06T02:30:41.583Z",
+      "diffStats": {
+        "rawAdditions": 314,
+        "rawDeletions": 23,
+        "rawChangeCount": 337,
+        "additions": 314,
+        "deletions": 23,
+        "effectiveAdditions": 312,
+        "effectiveDeletions": 21,
+        "changedFiles": 9,
+        "effectiveChangeCount": 333,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal route health labels so loaded runtime metrics no longer appear stuck.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.43.0",
       "previousVersion": "1.42.0",
@@ -138,39 +171,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "documentation",
         "repo-tooling",
         "telemetry"
-      ]
-    },
-    {
-      "version": "1.39.0",
-      "previousVersion": "1.38.0",
-      "commitSha": "b0a9c66bd1a4845d15de04275013910999d9c2e3",
-      "commitTitle": "fix(admin): classify debug signals by severity",
-      "committedAt": "2026-05-06T01:38:46.000Z",
-      "generatedAt": "2026-05-06T01:39:08.312Z",
-      "committedAtUtc": "2026-05-06T01:38:46.000Z",
-      "generatedAtUtc": "2026-05-06T01:39:08.312Z",
-      "diffStats": {
-        "rawAdditions": 451,
-        "rawDeletions": 44,
-        "rawChangeCount": 495,
-        "additions": 451,
-        "deletions": 44,
-        "effectiveAdditions": 449,
-        "effectiveDeletions": 42,
-        "changedFiles": 11,
-        "effectiveChangeCount": 491,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal debug status labels so inventory counts do not look like system failures.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
       ]
     }
   ]
