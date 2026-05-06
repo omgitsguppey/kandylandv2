@@ -395,6 +395,7 @@ export function buildAdminDebugAiAssistantCard(input: {
     enabled?: boolean;
     runtimeReady?: boolean;
     fallbackUsed?: boolean;
+    responseState?: "live" | "saved" | "fallback" | null;
     configuredModel?: string | null;
     feedStatus?: AdminDebugAiFeedStatus | string | null;
     latencyMs?: number | null;
@@ -445,7 +446,11 @@ export function buildAdminDebugAiAssistantCard(input: {
     }
 
     const runtimeLabel = input.runtimeReady ? "runtime ready" : "runtime unavailable";
-    const sourceLabel = input.fallbackUsed ? "deterministic fallback output" : "live model output";
+    const sourceLabel = input.responseState === "saved"
+        ? "saved live guidance"
+        : input.fallbackUsed
+            ? "deterministic fallback output"
+            : "live model output";
 
     if (input.enabled === false) {
         const technicalEvidence = `${configuredModel} configured | ${runtimeLabel} | ${sourceLabel} | ${latency}`;
@@ -488,18 +493,38 @@ export function buildAdminDebugAiAssistantCard(input: {
     if (input.fallbackUsed) {
         const technicalEvidence = `${configuredModel} configured | ${feedStatus === "failed" ? "preflight observers failed" : `${feedStatus} preflight lane`} | ${runtimeLabel} | deterministic fallback output | ${latency}`;
         return {
-            value: "Saved summary",
-            meta: "Live AI summary is delayed. Showing saved guidance.",
+            value: "Fallback",
+            meta: "Live AI summary delayed. Showing deterministic fallback.",
             truthState: "fallback" as AdminSurfaceState,
             technicalEvidence,
             copy: createAdminDebugCardCopy({
-                operatorSummary: "Live AI summary is delayed. Showing saved guidance.",
-                whyItMatters: "Operators can still read guidance, but it is not generated from a live model call.",
+                operatorSummary: "Live AI summary delayed. Showing deterministic fallback.",
+                whyItMatters: "Operators can still read bounded guidance, but it is not generated from a live model call.",
                 recommendedNextCheck: "Check assistant preflight and model runtime if this persists.",
                 technicalEvidence,
                 sourceDetails: baseSourceDetails,
                 technicalState: "ai_assistant_fallback_output",
                 sourceMode: "fallback",
+                routeName: "/api/admin/debug/assistant",
+            }),
+        };
+    }
+
+    if (input.responseState === "saved") {
+        const technicalEvidence = `${configuredModel} configured | ${feedStatus} status lane | ${runtimeLabel} | saved guidance | ${latency}`;
+        return {
+            value: "Saved summary",
+            meta: "Showing the latest saved live guidance.",
+            truthState: "degraded" as AdminSurfaceState,
+            technicalEvidence,
+            copy: createAdminDebugCardCopy({
+                operatorSummary: "Showing the latest saved live guidance.",
+                whyItMatters: "No paid model call was made on page load. Refresh live guidance explicitly when needed.",
+                recommendedNextCheck: "Run a live summary explicitly if the current saved guidance is stale.",
+                technicalEvidence,
+                sourceDetails: baseSourceDetails,
+                technicalState: "ai_assistant_saved_guidance",
+                sourceMode: "snapshot",
                 routeName: "/api/admin/debug/assistant",
             }),
         };

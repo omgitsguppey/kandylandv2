@@ -94,6 +94,7 @@ export default function DebugConsole() {
     const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
     const [aiAssistantModel, setAiAssistantModel] = useState(AI_DEBUG_ASSISTANT_MODEL);
     const [savingAiAssistantSettings, setSavingAiAssistantSettings] = useState(false);
+    const [runningAiAssistantLiveCall, setRunningAiAssistantLiveCall] = useState(false);
     const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
     const debugPreferencesHydratedRef = useRef(false);
 
@@ -340,9 +341,11 @@ export default function DebugConsole() {
                 ? "Disabled"
                 : aiDebugData.runtime_ready === false
                     ? "Unavailable"
-                    : aiDebugData.fallback_used
-                ? "Saved summary"
-                : "Live";
+                    : aiDebugData.response_state === "live"
+                        ? "Live"
+                        : aiDebugData.response_state === "saved"
+                            ? "Saved summary"
+                            : "Fallback";
     const aiStatusTone: "neutral" | "good" | "warn" | "bad" = aiDebugError
         ? "bad"
         : !aiDebugData
@@ -351,9 +354,9 @@ export default function DebugConsole() {
                 ? "warn"
                 : aiDebugData.runtime_ready === false
                     ? "bad"
-                    : aiDebugData.fallback_used
-                ? "warn"
-                : "good";
+                    : aiDebugData.response_state === "live"
+                        ? "good"
+                        : "warn";
     const aiAssistantCard = useMemo(
         () => buildAdminDebugAiAssistantCard({
             hasSummary: Boolean(aiDebugData),
@@ -361,6 +364,7 @@ export default function DebugConsole() {
             enabled: aiDebugData?.enabled,
             runtimeReady: aiDebugData?.runtime_ready,
             fallbackUsed: aiDebugData?.fallback_used,
+            responseState: aiDebugData?.response_state,
             configuredModel: aiDebugData?.configured_model,
             feedStatus: aiAssistantRealtime.feedStatus,
             latencyMs: aiDebugData?.latency_ms,
@@ -556,6 +560,37 @@ export default function DebugConsole() {
         }
     };
 
+    const handleRunAiAssistantLiveCall = async () => {
+        setRunningAiAssistantLiveCall(true);
+        try {
+            const response = await authFetch("/api/admin/debug/assistant", {
+                method: "POST",
+                body: JSON.stringify({ action: "generate_live_summary" }),
+            });
+            const result = await response.json() as { error?: string };
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to generate live AI guidance.");
+            }
+
+            toast.success("Live AI guidance refreshed");
+            await mutateAiDebug();
+            await mutate();
+        } catch (issue) {
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin debug AI live guidance generation failed",
+                error: issue,
+                detail: {
+                    action: "generate_live_summary",
+                },
+                consoleLabel: "[Admin Debug] AI live guidance generation failed",
+            });
+            toast.error(issue instanceof Error ? issue.message : "Failed to generate live AI guidance.");
+        } finally {
+            setRunningAiAssistantLiveCall(false);
+        }
+    };
+
     const renderTabControls = () => {
         return (
             <div className="flex w-full items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -672,9 +707,11 @@ export default function DebugConsole() {
                     aiAssistantModel={aiAssistantModel}
                     aiAssistantRealtime={aiAssistantRealtime}
                     savingAiAssistantSettings={savingAiAssistantSettings}
+                    runningAiAssistantLiveCall={runningAiAssistantLiveCall}
                     onAiAssistantEnabledChange={setAiAssistantEnabled}
                     onAiAssistantModelChange={setAiAssistantModel}
                     onSaveAiAssistantSettings={handleSaveAiAssistantSettings}
+                    onRunAiAssistantLiveCall={handleRunAiAssistantLiveCall}
                 />
             ) : activeTab === "advanced" ? (
                 <DebugTabAdvanced data={data} />

@@ -53,7 +53,7 @@ export function AdminAiOptimizerhealthSection({ state }: { state: AdminAiState }
                                 <MetricCard label="Optimizer status" value={data?.promptPolicy.optimizerStatus || "idle"} meta={data?.promptPolicy.optimizerNote || "No optimizer note"} tone={data?.promptPolicy.optimizerStatus === "ready" ? "good" : "warn"} />
                                 <MetricCard label="Reuse win rate" value={`${referenceReuseRate}%`} meta="Positive retained output reuse" />
                                 <MetricCard label="Current version jobs" value={currentVersionJobs.length} meta={`${currentVersionAcceptanceRate}% accepted`} />
-                                <MetricCard label="Last run" value={formatCompactTimestamp(data?.promptPolicy.lastOptimizerRunAtMs)} meta={data?.settings.optimizerModel || "gemini-2.5-flash-lite"} />
+                                <MetricCard label="Last run" value={formatCompactTimestamp(data?.promptPolicy.lastOptimizerRunAtMs)} meta={data?.settings.optimizerModel || "gemini-3.1-flash-lite-preview"} />
                             </div>
 
                             <div className="mt-3 min-w-0 rounded-[1rem] border border-white/10 bg-black/25 p-3">

@@ -1,24 +1,45 @@
 import { z } from "zod";
-import { getAdminAiModelAlias } from "@/lib/admin-ai-models";
+import { getAdminAiModelAliasForRole } from "@/lib/admin-ai-models";
 
-export const AI_DEBUG_ASSISTANT_MODEL = getAdminAiModelAlias("debug_assistant");
-export const AI_DEBUG_ASSISTANT_PROMPT_VERSION = "debug-assistant-v1";
+export const AI_DEBUG_ASSISTANT_MODEL = getAdminAiModelAliasForRole("admin_debug_assistant");
+export const AI_DEBUG_FIX_PLANNER_MODEL = getAdminAiModelAliasForRole("admin_debug_fix_planner");
+export const AI_DEBUG_ASSISTANT_PROMPT_VERSION = "debug-assistant-v2";
 export const AI_DEBUG_ASSISTANT_FLAG = "AI_DEBUG_ASSISTANT_ENABLED";
 
-const aiDebugListSchema = z.array(z.string().trim().min(1)).max(6);
+const aiDebugListSchema = z.array(z.string().trim().min(1)).max(8);
+const aiDebugConfidenceSchema = z.enum(["low", "medium", "high"]);
+const aiDebugApplyStateSchema = z.enum(["inspect_only", "applyable", "manual_review"]);
 
 export const adminAiDebugModelOutputSchema = z.object({
     summary: z.string().trim().min(1).max(1200),
+    issue_summary: z.string().trim().min(1).max(500),
+    source_evidence: aiDebugListSchema,
+    likely_cause: z.string().trim().min(1).max(400),
     likely_root_causes: aiDebugListSchema,
     affected_systems: aiDebugListSchema,
+    safe_fix_plan: aiDebugListSchema,
+    files_to_inspect: aiDebugListSchema,
+    validators_to_run: aiDebugListSchema,
+    apply_eligibility: z.object({
+        state: aiDebugApplyStateSchema,
+        reason: z.string().trim().min(1).max(240),
+        allowed_fix_types: aiDebugListSchema.optional(),
+    }),
+    rollback_note: z.string().trim().min(1).max(240),
+    confidence: aiDebugConfidenceSchema,
     confidence_notes: aiDebugListSchema,
     suggested_next_checks: aiDebugListSchema,
 });
 
 export const adminAiDebugSummarySchema = adminAiDebugModelOutputSchema.extend({
     fallback_used: z.boolean(),
+    response_state: z.enum(["live", "saved", "fallback"]),
     enabled: z.boolean(),
     runtime_ready: z.boolean(),
+    live_call_eligible: z.boolean(),
+    cost_guard_state: z.enum(["admin_gated", "blocked", "disabled"]),
+    provider: z.literal("vertex_ai"),
+    model_role: z.literal("admin_debug_assistant"),
     configured_model: z.string().trim().min(1),
     runtime_project: z.string().trim().min(1).optional(),
     runtime_location: z.string().trim().min(1).optional(),
@@ -27,6 +48,8 @@ export const adminAiDebugSummarySchema = adminAiDebugModelOutputSchema.extend({
     generated_at: z.string().trim().min(1),
     latency_ms: z.number().int().nonnegative(),
     availability_note: z.string().trim().min(1).max(400).optional(),
+    fallback_reason: z.string().trim().min(1).max(240).optional(),
+    last_live_call_at: z.string().trim().min(1).optional(),
 });
 
 export type AdminAiDebugSummary = z.infer<typeof adminAiDebugSummarySchema>;

@@ -51,6 +51,7 @@ Every `src/app/api/**/route.ts` must match a contract or the score report flags 
 - POST, PUT, PATCH, and DELETE routes must use `guardApiRequest` with `requireTrustedOrigin: true` unless their contract explicitly exempts them.
 - Payment and admin mutations without trusted-origin protection are critical findings.
 - AI/Vertex routes are admin-only by default, must use feature toggles, model allowlists, bounded inputs/outputs, deterministic cost estimates or token counts, and budget/rate guards.
+- `admin/debug/assistant` must not trigger paid AI calls on page load. Saved guidance and deterministic fallback are allowed on page load; live model generation is explicit admin action only.
 - Google Analytics Data API routes must prefer hot-cache/snapshot layers, request quota data where supported, and record quota/debug evidence.
 - Firestore collection reads must be bounded by pagination, limit, or materialized snapshot ownership.
 - Public cheap GET routes using Firestore-backed rate limiting are reported because the limiter itself can create write cost.

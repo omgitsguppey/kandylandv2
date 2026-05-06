@@ -49,6 +49,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin debug assistant summary",
         slowThresholdMs: 5000,
     },
+    "admin/debug/assistant:POST": {
+        routeName: "admin/debug/assistant",
+        method: "POST",
+        title: "Admin debug assistant live generation",
+        slowThresholdMs: 8000,
+    },
     "admin/debug/assistant/fix:POST": {
         routeName: "admin/debug/assistant/fix",
         method: "POST",

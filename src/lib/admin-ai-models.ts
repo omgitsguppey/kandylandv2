@@ -1,4 +1,5 @@
 export const ADMIN_AI_MODEL_PRICE_SOURCE_URL = "https://cloud.google.com/vertex-ai/generative-ai/pricing";
+export const GEMINI_3_1_FLASH_LITE_PREVIEW_MODEL = "gemini-3.1-flash-lite-preview";
 
 export type AdminAiModelKey =
     | "drop_cover_standard"
@@ -7,6 +8,15 @@ export type AdminAiModelKey =
     | "drop_description_generation"
     | "drop_description_optimizer"
     | "debug_assistant";
+
+export type AdminAiModelRole =
+    | "admin_debug_assistant"
+    | "admin_debug_fix_planner"
+    | "cover_prompt_refinement"
+    | "cover_image_generation"
+    | "drop_description_generation"
+    | "behavioral_summary"
+    | "fallback_deterministic";
 
 export type AdminAiModelModality = "image" | "text";
 export type AdminAiModelLaunchStage = "ga" | "preview";
@@ -29,6 +39,13 @@ export interface AdminAiModelDefinition {
     supportsReferenceLibrary?: boolean;
     supportsPromptOptimization?: boolean;
 }
+
+export type AdminAiModelRoleDefinition = {
+    role: AdminAiModelRole;
+    alias: string;
+    modality: AdminAiModelModality | "none";
+    provider: "vertex_ai" | "deterministic";
+};
 
 const ADMIN_AI_MODEL_DEFINITIONS: readonly AdminAiModelDefinition[] = [
     {
@@ -65,17 +82,15 @@ const ADMIN_AI_MODEL_DEFINITIONS: readonly AdminAiModelDefinition[] = [
     },
     {
         key: "drop_cover_optimizer",
-        alias: "gemini-2.5-flash-lite",
-        label: "Gemini 2.5 Flash-Lite",
-        shortLabel: "Flash-Lite",
+        alias: GEMINI_3_1_FLASH_LITE_PREVIEW_MODEL,
+        label: "Gemini 3.1 Flash-Lite Preview",
+        shortLabel: "3.1 Flash-Lite Preview",
         modality: "text",
-        launchStage: "ga",
-        stableAliasSafe: true,
+        launchStage: "preview",
+        stableAliasSafe: false,
         location: "global",
         priceSourceUrl: ADMIN_AI_MODEL_PRICE_SOURCE_URL,
-        priceBasis: "vertex-ai-pricing-gemini-2.5-flash-lite-2026-04-11",
-        inputUsdPerMillion: 0.1,
-        outputUsdPerMillion: 0.4,
+        priceBasis: "vertex-ai-pricing-gemini-3.1-flash-lite-preview-source-unverified-2026-05-05",
         supportsPromptOptimization: true,
     },
     {
@@ -110,18 +125,61 @@ const ADMIN_AI_MODEL_DEFINITIONS: readonly AdminAiModelDefinition[] = [
     },
     {
         key: "debug_assistant",
-        alias: "gemini-2.5-flash-lite",
-        label: "Gemini 2.5 Flash-Lite",
-        shortLabel: "Flash-Lite",
+        alias: GEMINI_3_1_FLASH_LITE_PREVIEW_MODEL,
+        label: "Gemini 3.1 Flash-Lite Preview",
+        shortLabel: "3.1 Flash-Lite Preview",
         modality: "text",
-        launchStage: "ga",
-        stableAliasSafe: true,
+        launchStage: "preview",
+        stableAliasSafe: false,
         location: "global",
         priceSourceUrl: ADMIN_AI_MODEL_PRICE_SOURCE_URL,
-        priceBasis: "vertex-ai-pricing-gemini-2.5-flash-lite-2026-04-11",
-        inputUsdPerMillion: 0.1,
-        outputUsdPerMillion: 0.4,
+        priceBasis: "vertex-ai-pricing-gemini-3.1-flash-lite-preview-source-unverified-2026-05-05",
         supportsPromptOptimization: false,
+    },
+] as const;
+
+const ADMIN_AI_MODEL_ROLE_DEFINITIONS: readonly AdminAiModelRoleDefinition[] = [
+    {
+        role: "admin_debug_assistant",
+        alias: GEMINI_3_1_FLASH_LITE_PREVIEW_MODEL,
+        modality: "text",
+        provider: "vertex_ai",
+    },
+    {
+        role: "admin_debug_fix_planner",
+        alias: GEMINI_3_1_FLASH_LITE_PREVIEW_MODEL,
+        modality: "text",
+        provider: "vertex_ai",
+    },
+    {
+        role: "cover_prompt_refinement",
+        alias: GEMINI_3_1_FLASH_LITE_PREVIEW_MODEL,
+        modality: "text",
+        provider: "vertex_ai",
+    },
+    {
+        role: "cover_image_generation",
+        alias: getAdminAiModelAlias("drop_cover_standard"),
+        modality: "image",
+        provider: "vertex_ai",
+    },
+    {
+        role: "drop_description_generation",
+        alias: getAdminAiModelAlias("drop_description_generation"),
+        modality: "text",
+        provider: "vertex_ai",
+    },
+    {
+        role: "behavioral_summary",
+        alias: getAdminAiModelAlias("drop_description_generation"),
+        modality: "text",
+        provider: "vertex_ai",
+    },
+    {
+        role: "fallback_deterministic",
+        alias: "",
+        modality: "none",
+        provider: "deterministic",
     },
 ] as const;
 
@@ -144,6 +202,22 @@ export function getAdminAiModelAlias(key: AdminAiModelKey) {
     return getAdminAiModelDefinitionByKey(key)?.alias || "";
 }
 
+export function getAdminAiModelRoleDefinition(role: AdminAiModelRole) {
+    return ADMIN_AI_MODEL_ROLE_DEFINITIONS.find((entry) => entry.role === role) || null;
+}
+
+export function getAdminAiModelAliasForRole(role: AdminAiModelRole) {
+    return getAdminAiModelRoleDefinition(role)?.alias || "";
+}
+
+export function isAdminAiImageModelAlias(alias?: string | null) {
+    return getAdminAiModelDefinitionByAlias(alias)?.modality === "image";
+}
+
+export function isAdminAiTextModelAlias(alias?: string | null) {
+    return getAdminAiModelDefinitionByAlias(alias)?.modality === "text";
+}
+
 export function normalizeAdminAiModelAlias(alias: string | null | undefined, fallbackKey: AdminAiModelKey) {
     const trimmedAlias = alias?.trim() || "";
     if (!trimmedAlias) {
@@ -151,6 +225,88 @@ export function normalizeAdminAiModelAlias(alias: string | null | undefined, fal
     }
 
     return getAdminAiModelDefinitionByAlias(trimmedAlias)?.alias || getAdminAiModelAlias(fallbackKey);
+}
+
+export function normalizeAdminAiModelAliasForRole(alias: string | null | undefined, role: AdminAiModelRole) {
+    const roleDefinition = getAdminAiModelRoleDefinition(role);
+    if (!roleDefinition || roleDefinition.provider === "deterministic") {
+        return "";
+    }
+
+    const trimmedAlias = alias?.trim() || "";
+    if (!trimmedAlias) {
+        return roleDefinition.alias;
+    }
+
+    const resolved = getAdminAiModelDefinitionByAlias(trimmedAlias);
+    if (!resolved) {
+        return roleDefinition.alias;
+    }
+
+    if (roleDefinition.modality !== resolved.modality) {
+        return roleDefinition.alias;
+    }
+
+    return resolved.alias;
+}
+
+export function validateAdminAiModelRoleAssignment(role: AdminAiModelRole, alias?: string | null) {
+    const roleDefinition = getAdminAiModelRoleDefinition(role);
+    if (!roleDefinition) {
+        return {
+            ok: false,
+            normalizedAlias: "",
+            reason: `Unknown admin AI model role: ${role}.`,
+        };
+    }
+
+    if (roleDefinition.provider === "deterministic") {
+        return {
+            ok: true,
+            normalizedAlias: "",
+            reason: "Deterministic fallback does not use a paid model.",
+        };
+    }
+
+    const trimmedAlias = alias?.trim() || "";
+    if (!trimmedAlias) {
+        return {
+            ok: true,
+            normalizedAlias: roleDefinition.alias,
+            reason: `${role} defaults to ${roleDefinition.alias}.`,
+        };
+    }
+
+    const resolved = getAdminAiModelDefinitionByAlias(trimmedAlias);
+    if (!resolved) {
+        return {
+            ok: false,
+            normalizedAlias: trimmedAlias,
+            reason: `Configured alias ${trimmedAlias || "(empty)"} is not present in the admin AI model registry.`,
+        };
+    }
+
+    if (roleDefinition.modality === "image" && resolved.modality !== "image") {
+        return {
+            ok: false,
+            normalizedAlias: resolved.alias,
+            reason: `${role} must use an image-generation model.`,
+        };
+    }
+
+    if (roleDefinition.modality === "text" && resolved.modality !== "text") {
+        return {
+            ok: false,
+            normalizedAlias: resolved.alias,
+            reason: `${role} must use a text model, not an image-generation model.`,
+        };
+    }
+
+    return {
+        ok: true,
+        normalizedAlias: resolved.alias,
+        reason: `${role} resolves to ${resolved.alias}.`,
+    };
 }
 
 export interface AdminAiUsageMetadataLike {

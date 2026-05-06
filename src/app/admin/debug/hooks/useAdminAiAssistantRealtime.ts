@@ -189,11 +189,46 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
             },
         ));
 
+        const generateRouteControl = createAutoHealingObserver(() => onSnapshot(
+            doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.generate),
+            (snapshot) => {
+                if (cancelled) return;
+                setRouteHealthByKey((current) => ({
+                    ...current,
+                    [ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.generate]: snapshot.exists()
+                        ? snapshot.data() as RouteRuntimeHealthItem
+                        : null,
+                }));
+                setListenerState((current) => ({
+                    ...current,
+                    routesLoaded: true,
+                }));
+                setListenerErrors((current) => ({ ...current, routesFailed: false }));
+            },
+            (error) => {
+                if (cancelled) return;
+                setListenerErrors((current) => ({ ...current, routesFailed: true }));
+                reportClientIssue({
+                    channel: "firebase",
+                    severity: "warn",
+                    message: "Admin AI assistant live-generation route realtime listener failed",
+                    error,
+                    detail: buildFirestoreClientIssueDetail(error, {
+                        listener: "admin_ai_debug_route_generate",
+                        scope: "admin debug assistant",
+                    }),
+                    consoleLabel: "[Admin AI Debug] generate-route listener failed",
+                });
+                generateRouteControl.triggerReconnect(error);
+            },
+        ));
+
         return () => {
             cancelled = true;
             settingsControl.cleanup();
             diagnosticsControl.cleanup();
             readRouteControl.cleanup();
+            generateRouteControl.cleanup();
             writeRouteControl.cleanup();
         };
     }, [summary?.configured_model, summary?.enabled]);

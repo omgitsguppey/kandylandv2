@@ -4,13 +4,19 @@ import { SchemaType, VertexAI, type ResponseSchema } from "@google-cloud/vertexa
 
 import {
     AI_DEBUG_ASSISTANT_MODEL,
+    AI_DEBUG_FIX_PLANNER_MODEL,
     AI_DEBUG_ASSISTANT_PROMPT_VERSION,
     adminAiDebugModelOutputSchema,
     adminAiDebugSummarySchema,
     type AdminAiDebugSignalInput,
     type AdminAiDebugSummary,
 } from "@/lib/ai-debug-assistant";
-import { getAdminAiModelDefinitionByAlias } from "@/lib/admin-ai-models";
+import {
+    getAdminAiModelAliasForRole,
+    getAdminAiModelDefinitionByAlias,
+    normalizeAdminAiModelAliasForRole,
+    validateAdminAiModelRoleAssignment,
+} from "@/lib/admin-ai-models";
 import type { AdminOpsHealth } from "@/lib/admin-ops-health";
 import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
 import {
@@ -27,6 +33,12 @@ const ADMIN_AI_DEBUG_RESPONSE_SCHEMA: ResponseSchema = {
     type: SchemaType.OBJECT,
     properties: {
         summary: { type: SchemaType.STRING },
+        issue_summary: { type: SchemaType.STRING },
+        source_evidence: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
+        },
+        likely_cause: { type: SchemaType.STRING },
         likely_root_causes: {
             type: SchemaType.ARRAY,
             items: { type: SchemaType.STRING },
@@ -35,6 +47,32 @@ const ADMIN_AI_DEBUG_RESPONSE_SCHEMA: ResponseSchema = {
             type: SchemaType.ARRAY,
             items: { type: SchemaType.STRING },
         },
+        safe_fix_plan: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
+        },
+        files_to_inspect: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
+        },
+        validators_to_run: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
+        },
+        apply_eligibility: {
+            type: SchemaType.OBJECT,
+            properties: {
+                state: { type: SchemaType.STRING },
+                reason: { type: SchemaType.STRING },
+                allowed_fix_types: {
+                    type: SchemaType.ARRAY,
+                    items: { type: SchemaType.STRING },
+                },
+            },
+            required: ["state", "reason"],
+        },
+        rollback_note: { type: SchemaType.STRING },
+        confidence: { type: SchemaType.STRING },
         confidence_notes: {
             type: SchemaType.ARRAY,
             items: { type: SchemaType.STRING },
@@ -46,8 +84,17 @@ const ADMIN_AI_DEBUG_RESPONSE_SCHEMA: ResponseSchema = {
     },
     required: [
         "summary",
+        "issue_summary",
+        "source_evidence",
+        "likely_cause",
         "likely_root_causes",
         "affected_systems",
+        "safe_fix_plan",
+        "files_to_inspect",
+        "validators_to_run",
+        "apply_eligibility",
+        "rollback_note",
+        "confidence",
         "confidence_notes",
         "suggested_next_checks",
     ],
@@ -65,6 +112,8 @@ type GenerateTextInput = {
 
 export type AdminAiDebugTextRunner = (input: GenerateTextInput) => Promise<string>;
 
+export type AdminAiDebugFixPlannerAction = "inspect" | "apply" | "dismiss";
+
 function trimList(values: string[], limit = 4) {
     return values
         .map((value) => value.trim())
@@ -75,6 +124,10 @@ function trimList(values: string[], limit = 4) {
 function summarizeAvailabilityIssue(error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     const normalized = message.toLowerCase();
+
+    if (error instanceof SyntaxError || normalized.includes("json")) {
+        return "Live AI response could not be parsed into the required debug schema. Showing deterministic fallback.";
+    }
 
     if (
         normalized.includes("application default credentials")
@@ -94,6 +147,40 @@ function summarizeAvailabilityIssue(error: unknown) {
     }
 
     return "Vertex AI summary is unavailable right now. Canonical diagnostics remain the source of truth.";
+}
+
+function buildLiveCallEligibility(settings: AdminAiDebugAssistantSettings, runtimeProject: string) {
+    if (!settings.enabled) {
+        return {
+            liveCallEligible: false,
+            costGuardState: "disabled" as const,
+        };
+    }
+
+    if (!runtimeProject.trim()) {
+        return {
+            liveCallEligible: false,
+            costGuardState: "blocked" as const,
+        };
+    }
+
+    return {
+        liveCallEligible: true,
+        costGuardState: "admin_gated" as const,
+    };
+}
+
+function buildAdminAiDebugResponseState(input: {
+    fallbackUsed: boolean;
+    savedSummary?: boolean;
+}) {
+    if (input.fallbackUsed) {
+        return "fallback" as const;
+    }
+    if (input.savedSummary) {
+        return "saved" as const;
+    }
+    return "live" as const;
 }
 
 function extractJsonBlock(raw: string) {
@@ -156,7 +243,7 @@ export function isAdminAiDebugAssistantEnabled(settings?: Pick<AdminAiDebugAssis
 }
 
 export function resolveAdminAiDebugVertexRuntime(configuredModel?: string) {
-    const model = configuredModel?.trim() || AI_DEBUG_ASSISTANT_MODEL;
+    const model = normalizeAdminAiModelAliasForRole(configuredModel, "admin_debug_assistant") || AI_DEBUG_ASSISTANT_MODEL;
     const modelDefinition = getAdminAiModelDefinitionByAlias(model);
     const project = (
         process.env.GOOGLE_CLOUD_PROJECT
@@ -178,6 +265,29 @@ export function resolveAdminAiDebugVertexRuntime(configuredModel?: string) {
         project,
         location: location || DEFAULT_VERTEX_LOCATION,
         model,
+    };
+}
+
+export function resolveAdminAiDebugFixPlannerRuntime(configuredModel?: string) {
+    const normalized = normalizeAdminAiModelAliasForRole(configuredModel, "admin_debug_fix_planner") || AI_DEBUG_FIX_PLANNER_MODEL;
+    const modelDefinition = getAdminAiModelDefinitionByAlias(normalized);
+    return {
+        project: (
+            process.env.GOOGLE_CLOUD_PROJECT
+            || process.env.GCLOUD_PROJECT
+            || process.env.PROJECT_ID
+            || FIREBASE_PROJECT_ID
+            || process.env.FIREBASE_PROJECT_ID
+            || ""
+        ).trim(),
+        location: (
+            process.env.VERTEX_AI_LOCATION
+            || process.env.GOOGLE_CLOUD_LOCATION
+            || process.env.GCLOUD_LOCATION
+            || modelDefinition?.location
+            || DEFAULT_VERTEX_LOCATION
+        ).trim() || DEFAULT_VERTEX_LOCATION,
+        model: normalized,
     };
 }
 
@@ -262,12 +372,21 @@ export function buildAdminAiDebugSignalInput(input: {
 export function buildAdminAiDebugPrompt(signal: AdminAiDebugSignalInput) {
     return [
         "You are KandyDrops' internal debug assistant.",
-        "You are advisory only. You do not mutate state and you do not invent certainty.",
+        "Behave like a senior debug guide producing Jules-level implementation guidance.",
+        "You are advisory only. You do not mutate state, you do not invent certainty, and you do not claim a fix is safe unless the evidence supports that.",
         "Use only the bounded operational summaries provided below.",
-        "Return JSON only with these exact keys: summary, likely_root_causes, affected_systems, confidence_notes, suggested_next_checks.",
+        "Return JSON only with these exact keys: summary, issue_summary, source_evidence, likely_cause, likely_root_causes, affected_systems, safe_fix_plan, files_to_inspect, validators_to_run, apply_eligibility, rollback_note, confidence, confidence_notes, suggested_next_checks.",
         "Rules:",
-        "- Keep each array at 1 to 6 short items.",
-        "- Keep the summary concise and operationally useful.",
+        "- Keep each array at 1 to 8 short items.",
+        "- Keep the summary concise and operationally useful for an admin/operator.",
+        "- issue_summary must be a single issue-style sentence.",
+        "- source_evidence must point to concrete facts from the bounded input, not guesses.",
+        "- safe_fix_plan must be ordered and conservative.",
+        "- files_to_inspect must be repo paths or route names when they are inferable from the bounded signals.",
+        "- validators_to_run must be explicit npm commands when inferable from the evidence.",
+        "- apply_eligibility.state must be one of inspect_only, applyable, manual_review.",
+        "- If you do not have enough evidence for a safe auto-apply, use inspect_only or manual_review.",
+        "- confidence must be low, medium, or high.",
         "- Do not mention data you were not given.",
         "- Distinguish probable causes from confidence limitations.",
         "- Prefer naming concrete systems or surfaces over generic wording.",
@@ -277,14 +396,41 @@ export function buildAdminAiDebugPrompt(signal: AdminAiDebugSignalInput) {
     ].join("\n");
 }
 
+export function buildAdminAiDebugFixPlannerPrompt(input: {
+    diagnosticMessage: string;
+    diagnosticDetail?: string | null;
+    action: AdminAiDebugFixPlannerAction;
+    fixType?: string | null;
+}) {
+    return [
+        "You are KandyDrops' internal debug fix planner.",
+        "You are planning, not auto-editing code.",
+        "Return JSON only with these exact keys: issue_summary, source_evidence, likely_cause, safe_fix_plan, files_to_inspect, validators_to_run, apply_eligibility, rollback_note, confidence.",
+        "Rules:",
+        "- Never emit a patch or arbitrary file edits.",
+        "- apply_eligibility.state must be inspect_only or manual_review unless the requested fixType is obviously safe and bounded.",
+        "- If the request is unsupported, mark apply_eligibility.state as manual_review.",
+        `Requested action: ${input.action}`,
+        `Requested fix type: ${input.fixType || "unknown"}`,
+        "",
+        "Diagnostic message:",
+        input.diagnosticMessage || "None",
+        "",
+        "Diagnostic detail:",
+        input.diagnosticDetail?.trim() || "None",
+    ].join("\n");
+}
+
 export function buildAdminAiDebugFallback(input: {
     signal: AdminAiDebugSignalInput;
     settings: AdminAiDebugAssistantSettings;
     runtime: ReturnType<typeof resolveAdminAiDebugVertexRuntime>;
     availabilityNote: string;
     latencyMs?: number;
+    fallbackReason?: string;
 }) : AdminAiDebugSummary {
     const signal = input.signal;
+    const eligibility = buildLiveCallEligibility(input.settings, input.runtime.project);
     const likelyRootCauses = trimList([
         signal.ops.pipelineFailureCount > 0 ? "Recent route or pipeline failures are already present in canonical admin ops health." : "",
         signal.orchestration.openFindings > 0 ? "Open orchestration findings indicate unresolved cross-system parity or projection issues." : "",
@@ -314,8 +460,39 @@ export function buildAdminAiDebugFallback(input: {
             signal.orchestration.openFindings > 0 ? `${signal.orchestration.openFindings} orchestration findings remain open.` : "No open orchestration findings were present in the bounded sample.",
             signal.creatorOnboarding.totalIssues > 0 ? `${signal.creatorOnboarding.totalIssues} creator onboarding issues are still visible.` : "Creator onboarding diagnostics did not report an issue cluster in the bounded sample.",
         ].join(" "),
+        issue_summary: "Live AI guidance is unavailable, so deterministic fallback is summarizing the current bounded evidence.",
+        source_evidence: trimList([
+            signal.ops.recentDiagnostics[0] ? `${signal.ops.recentDiagnostics[0].channel}: ${signal.ops.recentDiagnostics[0].message}` : "",
+            signal.ops.topRoutes[0] ? `${signal.ops.topRoutes[0].route} has ${signal.ops.topRoutes[0].count} recent failures.` : "",
+            signal.orchestration.findings[0] ? `${signal.orchestration.findings[0].title}: ${signal.orchestration.findings[0].summary}` : "",
+            signal.creatorOnboarding.sampleIssues[0] ? `${signal.creatorOnboarding.sampleIssues[0].message}: ${signal.creatorOnboarding.sampleIssues[0].detail}` : "",
+        ]),
+        likely_cause: likelyRootCauses[0] || "The assistant could not verify a live model response, so canonical diagnostics remain the primary source of truth.",
         likely_root_causes: likelyRootCauses,
         affected_systems: affectedSystems.length ? affectedSystems : ["canonical diagnostics"],
+        safe_fix_plan: trimList([
+            "Inspect the current canonical diagnostics before making changes.",
+            suggestedNextChecks[0] || "",
+            suggestedNextChecks[1] || "",
+            "Run the listed validators after any bounded change.",
+        ]),
+        files_to_inspect: trimList([
+            "src/lib/server/ai-debug-assistant.ts",
+            "src/app/api/admin/debug/assistant/route.ts",
+            signal.ops.topRoutes[0] ? `route:${signal.ops.topRoutes[0].route}` : "",
+        ]),
+        validators_to_run: trimList([
+            "npm run check:admin-ai-control-tower",
+            "npm run check:admin-debug-control-tower",
+            input.runtime.project ? "npm run check:google-cost" : "",
+        ]),
+        apply_eligibility: {
+            state: "inspect_only",
+            reason: "Fallback output is advisory only. No safe auto-apply path is implied without a verified live plan.",
+            allowed_fix_types: ["inspect"],
+        },
+        rollback_note: "No server or product state was mutated by fallback generation.",
+        confidence: "medium",
         confidence_notes: trimList([
             "Fallback summary only; no live Gemini response was used.",
             "This summary is bounded to current admin ops, orchestration, and creator onboarding signals.",
@@ -323,8 +500,13 @@ export function buildAdminAiDebugFallback(input: {
         ]),
         suggested_next_checks: suggestedNextChecks.length ? suggestedNextChecks : ["Inspect canonical diagnostics and route health directly in Admin Debug."],
         fallback_used: true,
+        response_state: buildAdminAiDebugResponseState({ fallbackUsed: true }),
         enabled: input.settings.enabled,
         runtime_ready: Boolean(input.runtime.project) && input.settings.enabled,
+        live_call_eligible: eligibility.liveCallEligible,
+        cost_guard_state: eligibility.costGuardState,
+        provider: "vertex_ai",
+        model_role: "admin_debug_assistant",
         configured_model: input.settings.model,
         runtime_project: input.runtime.project || undefined,
         runtime_location: input.runtime.location,
@@ -333,6 +515,35 @@ export function buildAdminAiDebugFallback(input: {
         generated_at: signal.generatedAt,
         latency_ms: Math.max(0, Math.round(input.latencyMs || 0)),
         availability_note: input.availabilityNote,
+        fallback_reason: input.fallbackReason || "live_ai_unavailable",
+        last_live_call_at: input.settings.lastLiveCallAtMs ? new Date(input.settings.lastLiveCallAtMs).toISOString() : undefined,
+    });
+}
+
+export function buildAdminAiDebugSavedSummary(input: {
+    signal: AdminAiDebugSignalInput;
+    settings: AdminAiDebugAssistantSettings;
+    runtime: ReturnType<typeof resolveAdminAiDebugVertexRuntime>;
+    savedSummary: AdminAiDebugSummary;
+}) {
+    const eligibility = buildLiveCallEligibility(input.settings, input.runtime.project);
+    return adminAiDebugSummarySchema.parse({
+        ...input.savedSummary,
+        response_state: buildAdminAiDebugResponseState({ fallbackUsed: false, savedSummary: true }),
+        fallback_used: false,
+        enabled: input.settings.enabled,
+        runtime_ready: Boolean(input.runtime.project) && input.settings.enabled,
+        live_call_eligible: eligibility.liveCallEligible,
+        cost_guard_state: eligibility.costGuardState,
+        provider: "vertex_ai",
+        model_role: "admin_debug_assistant",
+        configured_model: input.settings.model,
+        runtime_project: input.runtime.project || input.savedSummary.runtime_project,
+        runtime_location: input.runtime.location || input.savedSummary.runtime_location,
+        model: input.savedSummary.model || input.runtime.model,
+        availability_note: "Live AI summary is delayed. Showing the latest saved guidance.",
+        fallback_reason: undefined,
+        last_live_call_at: input.settings.lastLiveCallAtMs ? new Date(input.settings.lastLiveCallAtMs).toISOString() : input.savedSummary.last_live_call_at,
     });
 }
 
@@ -364,6 +575,77 @@ export async function generateVertexAiDebugText(input: GenerateTextInput) {
     return text;
 }
 
+export async function planAdminAiDebugFix(input: {
+    action: AdminAiDebugFixPlannerAction;
+    diagnosticMessage: string;
+    diagnosticDetail?: string | null;
+    fixType?: string | null;
+    settings: AdminAiDebugAssistantSettings;
+}) {
+    const runtime = resolveAdminAiDebugFixPlannerRuntime(input.settings.model);
+    const roleValidation = validateAdminAiModelRoleAssignment("admin_debug_fix_planner", runtime.model);
+
+    if (!input.settings.enabled) {
+        return {
+            status: "fix_requires_manual_review" as const,
+            actionability: "manual_review" as const,
+            reason: "AI debug assistant is disabled in admin settings.",
+        };
+    }
+
+    if (!runtime.project || !roleValidation.ok) {
+        return {
+            status: "fix_requires_manual_review" as const,
+            actionability: "manual_review" as const,
+            reason: !runtime.project
+                ? "Vertex AI project configuration is missing."
+                : roleValidation.reason,
+        };
+    }
+
+    if (input.action === "dismiss") {
+        return {
+            status: "fix_dismissed" as const,
+            actionability: "inspect_only" as const,
+            reason: "Diagnostic was explicitly dismissed by an admin action.",
+        };
+    }
+
+    if (input.action === "apply") {
+        return {
+            status: "fix_requires_manual_review" as const,
+            actionability: "manual_review" as const,
+            reason: "Auto-apply is not enabled for this debug assistant fix type. Use inspect or a bounded repair proposal.",
+        };
+    }
+
+    const rawText = await generateVertexAiDebugText({
+        prompt: buildAdminAiDebugFixPlannerPrompt(input),
+        project: runtime.project,
+        location: runtime.location,
+        model: runtime.model,
+        timeoutMs: DEFAULT_TIMEOUT_MS,
+    });
+    const parsed = adminAiDebugModelOutputSchema.pick({
+        issue_summary: true,
+        source_evidence: true,
+        likely_cause: true,
+        safe_fix_plan: true,
+        files_to_inspect: true,
+        validators_to_run: true,
+        apply_eligibility: true,
+        rollback_note: true,
+        confidence: true,
+    }).parse(JSON.parse(extractJsonBlock(rawText)));
+
+    return {
+        status: "fix_requires_manual_review" as const,
+        actionability: parsed.apply_eligibility.state,
+        plan: parsed,
+        reason: parsed.apply_eligibility.reason,
+    };
+}
+
 export async function generateAdminAiDebugSummary(
     signal: AdminAiDebugSignalInput,
     options?: {
@@ -377,6 +659,7 @@ export async function generateAdminAiDebugSummary(
     const startedAt = Date.now();
     const settings = options?.settings ?? await getAdminAiDebugAssistantSettings();
     const enabled = isAdminAiDebugAssistantEnabled(settings);
+    const roleValidation = validateAdminAiModelRoleAssignment("admin_debug_assistant", settings.model);
 
     if (!enabled) {
         return buildAdminAiDebugFallback({
@@ -385,12 +668,25 @@ export async function generateAdminAiDebugSummary(
             runtime: resolveAdminAiDebugVertexRuntime(settings.model),
             availabilityNote: "AI debug assistant is disabled in admin settings.",
             latencyMs: Date.now() - startedAt,
+            fallbackReason: "assistant_disabled",
+        });
+    }
+
+    if (!roleValidation.ok) {
+        return buildAdminAiDebugFallback({
+            signal,
+            settings,
+            runtime: resolveAdminAiDebugVertexRuntime(settings.model),
+            availabilityNote: roleValidation.reason,
+            latencyMs: Date.now() - startedAt,
+            fallbackReason: "invalid_model_assignment",
         });
     }
 
     const runtime = resolveAdminAiDebugVertexRuntime(settings.model);
     const project = options?.project ?? runtime.project;
     const location = options?.location ?? runtime.location;
+    const eligibility = buildLiveCallEligibility(settings, project);
 
     if (!project) {
         return buildAdminAiDebugFallback({
@@ -399,6 +695,7 @@ export async function generateAdminAiDebugSummary(
             runtime,
             availabilityNote: "Vertex AI project configuration is missing. Set GOOGLE_CLOUD_PROJECT or FIREBASE_PROJECT_ID before enabling live summaries.",
             latencyMs: Date.now() - startedAt,
+            fallbackReason: "missing_vertex_project",
         });
     }
 
@@ -423,18 +720,26 @@ export async function generateAdminAiDebugSummary(
             message: "Admin AI debug summary generated",
             detail: {
                 model: runtime.model,
+                modelRole: "admin_debug_assistant",
                 promptVersion: AI_DEBUG_ASSISTANT_PROMPT_VERSION,
                 location,
                 latencyMs,
                 fallbackUsed: false,
+                liveCallEligible: eligibility.liveCallEligible,
+                costGuardState: eligibility.costGuardState,
             },
         });
 
         return adminAiDebugSummarySchema.parse({
             ...parsed,
             fallback_used: false,
+            response_state: buildAdminAiDebugResponseState({ fallbackUsed: false }),
             enabled: settings.enabled,
             runtime_ready: true,
+            live_call_eligible: eligibility.liveCallEligible,
+            cost_guard_state: eligibility.costGuardState,
+            provider: "vertex_ai",
+            model_role: "admin_debug_assistant",
             configured_model: settings.model,
             runtime_project: project,
             runtime_location: location,
@@ -442,6 +747,7 @@ export async function generateAdminAiDebugSummary(
             prompt_version: AI_DEBUG_ASSISTANT_PROMPT_VERSION,
             generated_at: signal.generatedAt,
             latency_ms: latencyMs,
+            last_live_call_at: new Date().toISOString(),
         });
     } catch (error) {
         const latencyMs = Date.now() - startedAt;
@@ -455,10 +761,13 @@ export async function generateAdminAiDebugSummary(
                 channel: "admin",
                 detail: {
                     model: runtime.model,
+                    modelRole: "admin_debug_assistant",
                     promptVersion: AI_DEBUG_ASSISTANT_PROMPT_VERSION,
                     location,
                     latencyMs,
                     fallbackUsed: true,
+                    liveCallEligible: eligibility.liveCallEligible,
+                    costGuardState: eligibility.costGuardState,
                 },
             },
         );
@@ -469,6 +778,7 @@ export async function generateAdminAiDebugSummary(
             runtime,
             availabilityNote,
             latencyMs,
+            fallbackReason: error instanceof SyntaxError ? "response_parse_failed" : "live_call_failed",
         });
     }
 }

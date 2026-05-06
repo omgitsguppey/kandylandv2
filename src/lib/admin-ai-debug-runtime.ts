@@ -11,6 +11,7 @@ export const ADMIN_AI_DEBUG_SERVER_DIAGNOSTICS_COLLECTION = "server_diagnostics"
 export const ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION = "route_runtime_health";
 export const ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS = {
     read: "admin/debug/assistant:GET",
+    generate: "admin/debug/assistant:POST",
     write: "admin/debug/assistant:PUT",
     fix: "admin/debug/assistant/fix:POST",
 } as const;
@@ -54,6 +55,7 @@ export interface AdminAiDebugRealtimeSignals {
     diagnostics: AdminAiDebugRealtimeDiagnostic[];
     routeHealth: {
         read: RouteRuntimeHealthItem | null;
+        generate: RouteRuntimeHealthItem | null;
         write: RouteRuntimeHealthItem | null;
         fix: RouteRuntimeHealthItem | null;
     };
@@ -149,6 +151,7 @@ export function buildAdminAiDebugRealtimeSignals(input: {
         .sort((left, right) => right.createdAtMs - left.createdAtMs)
         .slice(0, 12);
     const readRoute = input.routeHealth?.[ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.read] ?? null;
+    const generateRoute = input.routeHealth?.[ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.generate] ?? null;
     const writeRoute = input.routeHealth?.[ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.write] ?? null;
     const fixRoute = input.routeHealth?.[ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.fix] ?? null;
     const listenerState: ListenerState = {
@@ -169,6 +172,7 @@ export function buildAdminAiDebugRealtimeSignals(input: {
         settings.updatedAtMs,
         ...diagnostics.map((entry) => entry.createdAtMs),
         typeof readRoute?.updatedAtMs === "number" ? readRoute.updatedAtMs : 0,
+        typeof generateRoute?.updatedAtMs === "number" ? generateRoute.updatedAtMs : 0,
         typeof writeRoute?.updatedAtMs === "number" ? writeRoute.updatedAtMs : 0,
         typeof fixRoute?.updatedAtMs === "number" ? fixRoute.updatedAtMs : 0,
         summary?.generated_at ? Date.parse(summary.generated_at) : 0,
@@ -193,6 +197,7 @@ export function buildAdminAiDebugRealtimeSignals(input: {
         feedDetail = "Observers failed";
     }
 
+    const generateRouteStatus = generateRoute ? getRouteRuntimeHealthStatus(generateRoute, nowMs) : "stale";
     const readRouteStatus = readRoute ? getRouteRuntimeHealthStatus(readRoute, nowMs) : "stale";
     const writeRouteStatus = writeRoute ? getRouteRuntimeHealthStatus(writeRoute, nowMs) : "stale";
     const fixRouteStatus = fixRoute ? getRouteRuntimeHealthStatus(fixRoute, nowMs) : "stale";
@@ -235,12 +240,22 @@ export function buildAdminAiDebugRealtimeSignals(input: {
             sourceLabel: "polled",
         },
         {
+            key: "assistant_live_generation_route",
+            label: "Assistant live generation route",
+            status: mapRouteStatusToPreflight(generateRouteStatus),
+            detail: generateRoute
+                ? `Explicit live-summary route health is ${generateRouteStatus}. Last result: ${generateRoute.lastResult.replace("_", " ")} at ${new Date(generateRoute.updatedAtMs).toLocaleString()}.`
+                : "No canonical route runtime sample has been observed yet for explicit live summary generation.",
+            updatedAtMs: typeof generateRoute?.updatedAtMs === "number" ? generateRoute.updatedAtMs : null,
+            sourceLabel: listenerState.routesLoaded ? "realtime" : "polled",
+        },
+        {
             key: "assistant_read_route",
             label: "Assistant read route",
             status: mapRouteStatusToPreflight(readRouteStatus),
             detail: readRoute
-                ? `Route health is ${readRouteStatus}. Last result: ${readRoute.lastResult.replace("_", " ")} at ${new Date(readRoute.updatedAtMs).toLocaleString()}.`
-                : "No canonical route runtime sample has been observed yet for the assistant read route.",
+                ? `Status route health is ${readRouteStatus}. Last result: ${readRoute.lastResult.replace("_", " ")} at ${new Date(readRoute.updatedAtMs).toLocaleString()}.`
+                : "No canonical route runtime sample has been observed yet for the assistant status route.",
             updatedAtMs: typeof readRoute?.updatedAtMs === "number" ? readRoute.updatedAtMs : null,
             sourceLabel: listenerState.routesLoaded ? "realtime" : "polled",
         },
@@ -286,6 +301,7 @@ export function buildAdminAiDebugRealtimeSignals(input: {
         diagnostics,
         routeHealth: {
             read: readRoute,
+            generate: generateRoute,
             write: writeRoute,
             fix: fixRoute,
         },

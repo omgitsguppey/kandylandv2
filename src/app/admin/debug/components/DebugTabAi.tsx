@@ -33,9 +33,11 @@ export interface DebugTabAiProps {
     aiAssistantModel: string;
     aiAssistantRealtime: any;
     savingAiAssistantSettings: boolean;
+    runningAiAssistantLiveCall: boolean;
     onAiAssistantEnabledChange: (enabled: boolean) => void;
     onAiAssistantModelChange: (model: string) => void;
     onSaveAiAssistantSettings: () => void;
+    onRunAiAssistantLiveCall: () => void;
 }
 
 /* ─── Component ─── */
@@ -48,17 +50,27 @@ export function DebugTabAi({
     aiAssistantModel,
     aiAssistantRealtime,
     savingAiAssistantSettings,
+    runningAiAssistantLiveCall,
     onAiAssistantEnabledChange,
     onAiAssistantModelChange,
     onSaveAiAssistantSettings,
+    onRunAiAssistantLiveCall,
 }: DebugTabAiProps) {
+    const responseStateLabel = aiDebugData?.response_state === "live"
+        ? "Live"
+        : aiDebugData?.response_state === "saved"
+            ? "Saved"
+            : aiDebugData?.response_state === "fallback"
+                ? "Fallback"
+                : "Unknown";
+
     return (
         <div className="space-y-4">
             <Section
                 title="AI debug assistant"
-                subtitle="Plain-English guidance over the current Debug evidence."
+                subtitle="Explicit live guidance over current debug evidence. Page load reads saved status only and does not trigger paid AI calls."
                 defaultOpen
-                summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-3.1-flash-lite-preview"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Update source" value={aiAssistantRealtime.feedStatus === "realtime" ? "Live" : aiAssistantRealtime.feedStatus === "failed" ? "Delayed" : "Saved"} tone={aiAssistantRealtime.feedStatus === "realtime" ? "good" : aiAssistantRealtime.feedStatus === "failed" ? "bad" : "warn"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
+                summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Response" value={responseStateLabel} tone={aiDebugData?.response_state === "live" ? "good" : aiDebugData?.response_state === "saved" ? "warn" : "warn"} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-3.1-flash-lite-preview"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Live call" value={aiDebugData?.live_call_eligible ? "Eligible" : "Blocked"} tone={aiDebugData?.live_call_eligible ? "good" : "warn"} /><Pill label="Cost guard" value={aiDebugData?.cost_guard_state || "unknown"} tone={aiDebugData?.cost_guard_state === "admin_gated" ? "good" : "warn"} /><Pill label="Update source" value={aiAssistantRealtime.feedStatus === "realtime" ? "Live" : aiAssistantRealtime.feedStatus === "failed" ? "Delayed" : "Saved"} tone={aiAssistantRealtime.feedStatus === "realtime" ? "good" : aiAssistantRealtime.feedStatus === "failed" ? "bad" : "warn"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
             >
                 {aiDebugError ? (
                     <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">
@@ -110,10 +122,16 @@ export function DebugTabAi({
                                 <input type="text" value={aiAssistantModel} onChange={(event) => onAiAssistantModelChange(event.target.value)} className="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-brand-purple/40" spellCheck={false} />
                                 <span className="mt-2 block text-xs text-gray-400">Default stays on the flash-lite alias unless you deliberately override it.</span>
                             </label>
-                            <Button variant="glass" onClick={onSaveAiAssistantSettings} disabled={savingAiAssistantSettings}>
-                                {savingAiAssistantSettings ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                                Save assistant settings
-                            </Button>
+                            <div className="flex flex-wrap gap-2">
+                                <Button variant="glass" onClick={onSaveAiAssistantSettings} disabled={savingAiAssistantSettings}>
+                                    {savingAiAssistantSettings ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                    Save assistant settings
+                                </Button>
+                                <Button variant="outline" onClick={onRunAiAssistantLiveCall} disabled={runningAiAssistantLiveCall || aiDebugData?.live_call_eligible === false}>
+                                    {runningAiAssistantLiveCall ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                    Generate live guidance
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -127,7 +145,9 @@ export function DebugTabAi({
                                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">What it found</p>
                                 <p className="mt-3 text-sm leading-6 text-gray-200">{aiDebugData.summary}</p>
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    <Pill label="Source" value={aiDebugData.fallback_used ? "Saved guidance" : "Live model"} tone={aiDebugData.fallback_used ? "warn" : "good"} />
+                                    <Pill label="Source" value={aiDebugData.response_state === "live" ? "Live model" : aiDebugData.response_state === "saved" ? "Saved guidance" : "Deterministic fallback"} tone={aiDebugData.response_state === "live" ? "good" : "warn"} />
+                                    <Pill label="Provider" value={aiDebugData.provider} />
+                                    <Pill label="Role" value={aiDebugData.model_role} />
                                     <Pill label="Prompt" value={aiDebugData.prompt_version} />
                                     <Pill label="Generated" value={formatTimestamp(Date.parse(aiDebugData.generated_at))} />
                                     <Pill label="Runtime" value={aiDebugData.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData.runtime_ready ? "good" : "bad"} />
@@ -139,6 +159,20 @@ export function DebugTabAi({
                                 <ul className="mt-3 space-y-2 text-sm text-gray-200">
                                     {(aiDebugData.suggested_next_checks || []).map((entry) => <li key={entry}>- {entry}</li>)}
                                 </ul>
+                            </div>
+                        </div>
+                        <div className="grid gap-4 lg:grid-cols-2">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Issue summary</p>
+                                <p className="mt-3 text-sm text-gray-200">{aiDebugData.issue_summary}</p>
+                                <p className="mt-3 text-xs text-gray-400">Likely cause: {aiDebugData.likely_cause}</p>
+                                <p className="mt-2 text-xs text-gray-400">Confidence: {aiDebugData.confidence}</p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Apply eligibility</p>
+                                <p className="mt-3 text-sm text-gray-200">{aiDebugData.apply_eligibility.state}</p>
+                                <p className="mt-2 text-xs text-gray-400">{aiDebugData.apply_eligibility.reason}</p>
+                                <p className="mt-2 text-xs text-gray-400">Rollback: {aiDebugData.rollback_note}</p>
                             </div>
                         </div>
                         <details className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
@@ -155,6 +189,21 @@ export function DebugTabAi({
                                 <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Confidence notes</p>
                                     <ul className="mt-3 space-y-2 text-sm text-gray-200">{(aiDebugData.confidence_notes || []).map((entry) => <li key={entry}>- {entry}</li>)}</ul>
+                                </div>
+                                <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Source evidence</p>
+                                    <ul className="mt-3 space-y-2 text-sm text-gray-200">{(aiDebugData.source_evidence || []).map((entry) => <li key={entry}>- {entry}</li>)}</ul>
+                                </div>
+                                <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Safe fix plan</p>
+                                    <ul className="mt-3 space-y-2 text-sm text-gray-200">{(aiDebugData.safe_fix_plan || []).map((entry) => <li key={entry}>- {entry}</li>)}</ul>
+                                </div>
+                                <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Files and validators</p>
+                                    <ul className="mt-3 space-y-2 text-sm text-gray-200">
+                                        {(aiDebugData.files_to_inspect || []).map((entry) => <li key={entry}>- {entry}</li>)}
+                                        {(aiDebugData.validators_to_run || []).map((entry) => <li key={entry}>- {entry}</li>)}
+                                    </ul>
                                 </div>
                             </div>
                         </details>

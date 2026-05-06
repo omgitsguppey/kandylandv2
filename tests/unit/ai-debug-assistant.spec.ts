@@ -48,9 +48,9 @@ function createSignal(overrides?: Partial<AdminAiDebugSignalInput>) : AdminAiDeb
             totalIssues: 1,
             missingQueueCount: 1,
             missingSourceCount: 0,
-      projectionWithoutSourceCount: 0,
-      queueParityMismatchCount: 0,
-      missingIdMetadataCount: 0,
+            projectionWithoutSourceCount: 0,
+            queueParityMismatchCount: 0,
+            missingIdMetadataCount: 0,
             stuckAwaitingReviewCount: 0,
             roleMismatchCount: 0,
             sampleIssues: [{ severity: "warn", message: "Queue record missing", detail: "Manual review queue has no canonical source." }],
@@ -69,6 +69,7 @@ describe("admin AI debug assistant", () => {
         const prompt = buildAdminAiDebugPrompt(createSignal());
 
         expect(prompt).toContain("Return JSON only with these exact keys");
+        expect(prompt).toContain("Jules-level implementation guidance");
         expect(prompt).toContain("\"pipelineFailureCount\":3");
         expect(prompt).toContain("\"title\":\"Projection drift\"");
         expect(prompt).toContain("\"message\":\"Queue record missing\"");
@@ -87,6 +88,7 @@ describe("admin AI debug assistant", () => {
         });
 
         expect(result.fallback_used).toBe(true);
+        expect(result.response_state).toBe("fallback");
         expect(result.model).toBe(AI_DEBUG_ASSISTANT_MODEL);
         expect(result.prompt_version).toBe(AI_DEBUG_ASSISTANT_PROMPT_VERSION);
         expect(result.availability_note).toContain("disabled in admin settings");
@@ -107,15 +109,28 @@ describe("admin AI debug assistant", () => {
     it("returns a live structured summary when the model responds with valid JSON", async () => {
         const runner = vi.fn().mockResolvedValue(JSON.stringify({
             summary: "Analytics ingest is failing and creator onboarding parity also needs review.",
+            issue_summary: "Analytics ingest failures and onboarding parity drift need bounded investigation.",
+            source_evidence: ["analytics_ingest has recent failures", "creator onboarding still shows queue mismatches"],
+            likely_cause: "The ingest path is failing while onboarding parity still has unresolved repair debt.",
             likely_root_causes: ["analytics ingest route failures", "stale drop projection rebuild backlog"],
             affected_systems: ["analytics pipeline", "behavior orchestration"],
+            safe_fix_plan: ["Inspect analytics ingest route diagnostics", "Review onboarding queue parity materializer"],
+            files_to_inspect: ["src/app/api/admin/debug/assistant/route.ts", "src/lib/server/ai-debug-assistant.ts"],
+            validators_to_run: ["npm run check:admin-ai-control-tower", "npm run check:admin-debug-control-tower"],
+            apply_eligibility: {
+                state: "inspect_only",
+                reason: "The bounded evidence supports inspection, not direct mutation.",
+                allowed_fix_types: ["inspect"],
+            },
+            rollback_note: "No code or runtime state should be changed without a bounded follow-up patch.",
+            confidence: "medium",
             confidence_notes: ["bounded operational sample only"],
             suggested_next_checks: ["inspect analytics_ingest failures", "review projection drift finding"],
         }));
         const result = await generateAdminAiDebugSummary(createSignal(), {
             settings: {
                 enabled: true,
-                model: "gemini-custom-debug-model",
+                model: AI_DEBUG_ASSISTANT_MODEL,
                 updatedAtMs: 0,
                 updatedByUid: "",
                 updatedByEmail: null,
@@ -126,13 +141,15 @@ describe("admin AI debug assistant", () => {
         });
 
         expect(result.fallback_used).toBe(false);
+        expect(result.response_state).toBe("live");
         expect(result.summary).toContain("Analytics ingest is failing");
-        expect(result.model).toBe("gemini-custom-debug-model");
-        expect(result.configured_model).toBe("gemini-custom-debug-model");
+        expect(result.issue_summary).toContain("bounded investigation");
+        expect(result.model).toBe(AI_DEBUG_ASSISTANT_MODEL);
+        expect(result.configured_model).toBe(AI_DEBUG_ASSISTANT_MODEL);
         expect(result.prompt_version).toBe(AI_DEBUG_ASSISTANT_PROMPT_VERSION);
         expect(result.generated_at).toBe("2026-04-03T16:45:00.000Z");
         expect(runner).toHaveBeenCalledWith(expect.objectContaining({
-            model: "gemini-custom-debug-model",
+            model: AI_DEBUG_ASSISTANT_MODEL,
         }));
     });
 
@@ -168,6 +185,7 @@ describe("admin AI debug assistant", () => {
         });
 
         expect(result.fallback_used).toBe(true);
+        expect(result.fallback_reason).toBe("response_parse_failed");
         expect(result.summary).toContain("fallback");
     });
 
@@ -370,6 +388,7 @@ describe("admin AI debug assistant", () => {
 
         expect(fallback).toMatchObject({
             fallback_used: true,
+            response_state: "fallback",
             model: AI_DEBUG_ASSISTANT_MODEL,
             prompt_version: AI_DEBUG_ASSISTANT_PROMPT_VERSION,
             latency_ms: 42,
