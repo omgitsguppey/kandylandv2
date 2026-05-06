@@ -77,6 +77,9 @@ import {
     USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
 } from "@/lib/user-mobile-shell";
 
+const CHAT_COMPOSER_DEFAULT_HEIGHT_PX = 104;
+const CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME = "max-h-[min(28vh,10rem)] overflow-y-auto overscroll-y-contain";
+
 type ThreadListResponse = {
     threads?: ChatThreadRecord[];
     selectedThreadId?: string | null;
@@ -665,6 +668,7 @@ export function ChatExperience() {
     const selectedDetailThreadRef = useRef<ChatThreadRecord | null>(selectedDetail?.thread ?? null);
     const threadDetailRequestIdRef = useRef(0);
     const threadsLoadRequestIdRef = useRef(0);
+    const [chatComposerHeightPx, setChatComposerHeightPx] = useState(CHAT_COMPOSER_DEFAULT_HEIGHT_PX);
     const profileRouteTelemetryKeyRef = useRef<string | null>(null);
 
     const visibleThreads = useMemo(
@@ -747,6 +751,14 @@ export function ChatExperience() {
     const chatThreadComposerStyle = useMemo(() => ({
         paddingBottom: isCompactViewport ? CHAT_THREAD_COMPOSER_PADDING_BOTTOM : undefined,
     }) satisfies CSSProperties, [isCompactViewport]);
+    const chatThreadSectionStyle = useMemo(() => ({
+        ["--chat-composer-height" as "--chat-composer-height"]: `${chatComposerHeightPx}px`,
+        ["--chat-safe-bottom" as "--chat-safe-bottom"]: isCompactViewport ? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET : "0px",
+    }) as CSSProperties, [chatComposerHeightPx, isCompactViewport]);
+    const chatTranscriptStyle = useMemo(() => ({
+        paddingBottom: "calc(var(--chat-composer-height, 104px) + var(--chat-safe-bottom, 0px))",
+        scrollPaddingBottom: "calc(var(--chat-composer-height, 104px) + var(--chat-safe-bottom, 0px))",
+    }) satisfies CSSProperties, []);
     const selectedThreadIdSet = useMemo(() => new Set(selectedThreadIds), [selectedThreadIds]);
     const liveViewerRole = useMemo(() => resolveChatViewerRole({
         viewerUid: user?.uid || "",
@@ -954,6 +966,36 @@ export function ChatExperience() {
 
         return cancelDiagnostics;
     }, [filteredThreads.length, showCompactThreadListOnly, threadSelectionMode, threadsLoading]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const composer = chatThreadComposerRef.current;
+        if (!composer) {
+            setChatComposerHeightPx(CHAT_COMPOSER_DEFAULT_HEIGHT_PX);
+            return;
+        }
+
+        const syncComposerHeight = () => {
+            const nextHeight = Math.max(CHAT_COMPOSER_DEFAULT_HEIGHT_PX, Math.ceil(composer.getBoundingClientRect().height));
+            setChatComposerHeightPx((current) => (Math.abs(current - nextHeight) > 1 ? nextHeight : current));
+        };
+
+        syncComposerHeight();
+
+        if (typeof window.ResizeObserver === "function") {
+            const resizeObserver = new window.ResizeObserver(() => syncComposerHeight());
+            resizeObserver.observe(composer);
+            return () => resizeObserver.disconnect();
+        }
+
+        window.addEventListener("resize", syncComposerHeight);
+        return () => {
+            window.removeEventListener("resize", syncComposerHeight);
+        };
+    }, [composerFile, insufficientFunds, isCompactViewport, selectedThreadId, sendErrorMessage, sendWarningMessage]);
 
     useEffect(() => {
         if (
@@ -2527,7 +2569,7 @@ export function ChatExperience() {
                     ) : null}
 
                     {!showCompactThreadListOnly ? (
-                        <section className="flex h-full min-h-0 flex-col bg-[#000000]">
+                        <section className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#000000]" style={chatThreadSectionStyle}>
                         {selectedThread ? (
                             <>
                                 <div className="border-b border-white/10 px-4 pb-3 pt-4 sm:px-6">
@@ -2587,7 +2629,8 @@ export function ChatExperience() {
                                 <div
                                     ref={messageListRef}
                                     onScroll={handleMessageListScroll}
-                                    className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-black px-4 pb-4 pt-4 sm:px-6"
+                                    className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-black px-4 pt-4 sm:px-6"
+                                    style={chatTranscriptStyle}
                                 >
                                     {threadLoading && !selectedDetail ? (
                                         <div className="text-sm text-[#b6b6bc]">Loading thread...</div>
@@ -2669,78 +2712,82 @@ export function ChatExperience() {
 
                                 <div
                                     ref={chatThreadComposerRef}
-                                    className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-2 pt-1.5 sm:px-6 sm:pb-4"
+                                    className="shrink-0 min-w-0 border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-2 pt-1.5 sm:px-6 sm:pb-4"
                                     style={chatThreadComposerStyle}
                                     data-chat-composer-above-bottom-nav="true"
                                     data-chat-density="public-beta-compact"
                                     data-chat-composer-chin="compact"
                                 >
-                                    {sendErrorMessage ? (
-                                        <div className="rounded-[1.2rem] border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div>
-                                                    <p className="font-semibold text-white">Message failed</p>
-                                                    <p className="mt-1 leading-6 text-rose-100">{sendErrorMessage}</p>
+                                    {(sendErrorMessage || sendWarningMessage || insufficientFunds || composerFile || composerSummary) ? (
+                                        <div className={cn("mb-2.5 space-y-2", CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME)}>
+                                            {sendErrorMessage ? (
+                                                <div className="rounded-[1.2rem] border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <p className="font-semibold text-white">Message failed</p>
+                                                            <p className="mt-1 leading-6 text-rose-100">{sendErrorMessage}</p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setSendErrorMessage(null)}
+                                                            className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-200"
+                                                        >
+                                                            Close
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setSendErrorMessage(null)}
-                                                    className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-200"
-                                                >
-                                                    Close
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ) : null}
-                                    {sendWarningMessage ? (
-                                        <div className="mt-3 rounded-[1.2rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div>
-                                                    <p className="font-semibold text-white">Message sent with warning</p>
-                                                    <p className="mt-1 leading-6 text-amber-100">{sendWarningMessage}</p>
+                                            ) : null}
+                                            {sendWarningMessage ? (
+                                                <div className="rounded-[1.2rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <p className="font-semibold text-white">Message sent with warning</p>
+                                                            <p className="mt-1 leading-6 text-amber-100">{sendWarningMessage}</p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setSendWarningMessage(null)}
+                                                            className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200"
+                                                        >
+                                                            Close
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setSendWarningMessage(null)}
-                                                    className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200"
-                                                >
-                                                    Close
-                                                </button>
-                                            </div>
+                                            ) : null}
+                                            {insufficientFunds ? (
+                                                <InsufficientFundsCard
+                                                    payload={insufficientFunds}
+                                                    onClose={() => setInsufficientFunds(null)}
+                                                    onPurchase={() => openPurchaseModal(insufficientFunds?.paidGdShortfall)}
+                                                />
+                                            ) : null}
+                                            {composerFile ? (
+                                                <div className="flex items-center justify-between rounded-[1.1rem] bg-[#121214] px-4 py-3 text-sm text-white ring-1 ring-white/8">
+                                                    <div className="min-w-0">
+                                                        <p className="truncate font-medium">{composerFile.name}</p>
+                                                        <p className="truncate text-xs text-[#8f9097]">
+                                                            {composerFile.type.startsWith("video/") ? "Video attachment" : "Image attachment"}
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setComposerFile(null);
+                                                            setComposerKind("text");
+                                                        }}
+                                                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 text-[#b6b6bc] transition hover:bg-white/10 hover:text-white"
+                                                        aria-label="Remove attachment"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            ) : null}
+                                            {composerSummary ? (
+                                                <div className="truncate text-[13px] leading-[18px] text-[#7f8087]">{composerSummary}</div>
+                                            ) : null}
                                         </div>
                                     ) : null}
-                                    <div className={cn(sendErrorMessage || sendWarningMessage ? "mt-3" : "")}>
-                                        <InsufficientFundsCard
-                                            payload={insufficientFunds}
-                                            onClose={() => setInsufficientFunds(null)}
-                                            onPurchase={() => openPurchaseModal(insufficientFunds?.paidGdShortfall)}
-                                        />
-                                    </div>
-                                    {composerFile ? (
-                                        <div className="mt-3 flex items-center justify-between rounded-[1.1rem] bg-[#121214] px-4 py-3 text-sm text-white ring-1 ring-white/8">
-                                            <div className="min-w-0">
-                                                <p className="truncate font-medium">{composerFile.name}</p>
-                                                <p className="truncate text-xs text-[#8f9097]">
-                                                    {composerFile.type.startsWith("video/") ? "Video attachment" : "Image attachment"}
-                                                </p>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setComposerFile(null);
-                                                    setComposerKind("text");
-                                                }}
-                                                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 text-[#b6b6bc] transition hover:bg-white/10 hover:text-white"
-                                                aria-label="Remove attachment"
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    ) : null}
-                                    {composerSummary ? (
-                                        <div className="mt-1.5 max-h-[18px] truncate text-[13px] leading-[18px] text-[#7f8087]">{composerSummary}</div>
-                                    ) : null}
-                                    <div ref={chatThreadComposerControlRef} className="mt-1.5 flex max-h-12 items-center gap-2">
+                                    <div ref={chatThreadComposerControlRef} className="flex h-12 max-h-12 min-w-0 items-center gap-2">
                                         <div ref={attachmentMenuRef} className="relative shrink-0">
                                             <button
                                                 type="button"
@@ -2803,7 +2850,7 @@ export function ChatExperience() {
                                                 }}
                                             />
                                         </div>
-                                        <div className="flex h-12 max-h-12 flex-1 items-center gap-2 rounded-[1.65rem] bg-[#121214] py-1 pl-4 pr-1 ring-1 ring-white/8">
+                                        <div className="flex h-12 max-h-12 min-w-0 flex-1 items-center gap-2 rounded-[1.65rem] bg-[#121214] py-1 pl-4 pr-1 ring-1 ring-white/8">
                                             <textarea
                                                 value={composerText}
                                                 onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
