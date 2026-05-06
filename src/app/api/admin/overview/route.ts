@@ -4,15 +4,19 @@ export const revalidate = 0;
 
 import { NextRequest, NextResponse } from "next/server";
 
-import type { AdminOverviewActivityItem, AdminOverviewDayPoint } from "@/lib/admin-overview";
+import type { AdminOverviewActivityItem, AdminOverviewDayPoint, RecentTransactionAdminRow } from "@/lib/admin-overview";
 import { calculateOverviewMetricDelta } from "@/lib/admin-overview";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
-import { getTransactionDisplayLabel, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import { getTransactionBadgeLabel, getTransactionDisplayLabel, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { handleApiError } from "@/lib/server/auth";
 import { fetchTelemetryLogs } from "@/lib/server/admin-analytics-shared";
-import { buildAdminOverviewUserNameMap } from "@/lib/server/admin-overview-users";
+import {
+    buildAdminOverviewFallbackIdentity,
+    buildAdminOverviewUserIdentityMap,
+    type AdminOverviewUserIdentity,
+} from "@/lib/server/admin-overview-users";
 import { readAdminUserMetricsSnapshot } from "@/lib/server/admin-user-metrics-snapshot";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import {
@@ -91,13 +95,83 @@ function buildWindowChart(endDayKey: string) {
     return days;
 }
 
-function serializeRecentTransaction(raw: ReturnType<typeof normalizeTransactionRecord>, username?: string) {
+function getRecentTransactionDirection(raw: ReturnType<typeof normalizeTransactionRecord>): RecentTransactionAdminRow["direction"] {
+    if (raw.amount === 0) {
+        return "neutral";
+    }
+    if (
+        raw.type === "unlock_content"
+        || raw.type.startsWith("creator_")
+        || raw.amount < 0
+    ) {
+        return "debit";
+    }
+    return "credit";
+}
+
+function getRecentTransactionSourceOfFunds(raw: ReturnType<typeof normalizeTransactionRecord>): RecentTransactionAdminRow["sourceOfFunds"] {
+    if (raw.type === "admin_adjustment") return "admin_adjustment";
+    if (raw.type === "purchase_currency") return raw.bonusGumDrops && raw.bonusGumDrops > 0 ? "paid_bonus" : "paid";
+    if (raw.type === "daily_reward" || raw.type === "referral_bonus" || raw.type === "onboarding_reward") return "reward";
+    if (raw.ledgerSource === "purchased") return "paid";
+    if (raw.ledgerSource === "reward") return "reward";
+    return "unknown";
+}
+
+function formatRecentTransactionAmount(raw: ReturnType<typeof normalizeTransactionRecord>) {
+    const direction = getRecentTransactionDirection(raw);
+    const prefix = direction === "credit" ? "+" : direction === "debit" ? "-" : "";
+    const absoluteAmount = Math.abs(raw.amount);
+    return `${prefix}${absoluteAmount} GD`;
+}
+
+function getRecentTransactionTypeLabel(raw: ReturnType<typeof normalizeTransactionRecord>) {
+    const badge = getTransactionBadgeLabel(raw);
+    if (raw.type === "daily_reward" && raw.rewardSource === "check_in") return "Reward / Check-in";
+    if (raw.type === "daily_reward" && raw.rewardSource === "task") return "Reward / Task";
+    if (raw.type === "onboarding_reward") return "Reward / Onboarding";
+    if (raw.type === "referral_bonus") return "Reward / Referral";
+    return badge;
+}
+
+function serializeRecentTransaction(
+    raw: ReturnType<typeof normalizeTransactionRecord>,
+    identity?: AdminOverviewUserIdentity,
+): RecentTransactionAdminRow {
+    const timestamp = typeof raw.timestamp === "number" ? raw.timestamp : toTimestampNumber(raw.timestamp);
+    const resolvedIdentity = identity ?? buildAdminOverviewFallbackIdentity(raw.userId);
+
     return {
         ...raw,
-        username,
-        timestamp: typeof raw.timestamp === "number" ? raw.timestamp : toTimestampNumber(raw.timestamp),
+        transactionId: raw.id,
+        timestamp,
+        createdAtUtc: timestamp > 0 ? new Date(timestamp).toISOString() : "",
+        typeLabel: getRecentTransactionTypeLabel(raw),
+        amountDisplay: formatRecentTransactionAmount(raw),
+        unit: "GD",
+        direction: getRecentTransactionDirection(raw),
+        username: resolvedIdentity.username,
+        userDisplayName: resolvedIdentity.userDisplayName,
+        shortUserId: resolvedIdentity.shortUserId,
+        userIdentityState: resolvedIdentity.userIdentityState,
+        adminUserHref: `/admin/user/${encodeURIComponent(raw.userId)}`,
+        sourceOfFunds: getRecentTransactionSourceOfFunds(raw),
         sourceScope: "overview_snapshot" as const,
     };
+}
+
+function addRecentTransactionContinuityLabels(rows: RecentTransactionAdminRow[]) {
+    return rows.map((row, index) => {
+        const next = rows[index + 1];
+        if (!next || next.userId !== row.userId || Math.abs(row.timestamp - next.timestamp) > 60_000) {
+            return row;
+        }
+
+        return {
+            ...row,
+            continuityLabel: `Same user sequence: ${row.typeLabel} -> ${next.typeLabel}`,
+        };
+    });
 }
 
 function buildActorLabel(input: {
@@ -327,13 +401,20 @@ async function GET_handler(request: NextRequest) {
             });
         });
 
-        const userNameMap = await buildAdminOverviewUserNameMap({
+        const userIdentityMap = await buildAdminOverviewUserIdentityMap({
             usersCollection: adminDb.collection("users"),
             userIds: overviewUserIds,
         });
+        const userNameMap = new Map(
+            [...userIdentityMap.entries()]
+                .filter(([, identity]) => identity.userIdentityState === "resolved")
+                .map(([userId, identity]) => [userId, identity.userDisplayName]),
+        );
 
-        const recentTransactions = recentTransactionsSource.map((transaction) =>
-            serializeRecentTransaction(transaction, userNameMap.get(transaction.userId)),
+        const recentTransactions = addRecentTransactionContinuityLabels(
+            recentTransactionsSource.map((transaction) =>
+                serializeRecentTransaction(transaction, userIdentityMap.get(transaction.userId)),
+            ),
         );
 
         const adminAdjustmentItems: AdminOverviewActivityItem[] = adminAdjustmentSource.map((transaction) => {

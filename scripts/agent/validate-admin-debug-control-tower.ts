@@ -76,6 +76,9 @@ const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
 const repoMemory = readRequired("REPO_MEMORY_LEDGER.md");
 const releaseNotesScript = readRequired("scripts/release/update-public-changelog.ts");
+const adminOverviewRoute = readRequired("src/app/api/admin/overview/route.ts");
+const adminOverviewUsers = readRequired("src/lib/server/admin-overview-users.ts");
+const adminOverviewContract = readRequired("src/lib/admin-overview.ts");
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
 
 if (packageJson.scripts?.["check:admin-debug-control-tower"] !== "tsx scripts/agent/validate-admin-debug-control-tower.ts") {
@@ -393,6 +396,76 @@ for (const forbidden of [
 ]) {
   requireNotIncludes(`${debugTabMonitoring}\n${debugMonitoringRoutes}`, forbidden, "Tracked route runtime panel must not render unlabeled triples or WAIT-style numeric metric chips");
 }
+for (const expected of [
+  "RecentTransactionAdminRow",
+  "transactionId",
+  "createdAtUtc",
+  "typeLabel",
+  "amountDisplay",
+  "unit: \"GD\" | \"USD\" | \"unknown\"",
+  "direction: \"credit\" | \"debit\" | \"neutral\"",
+  "userDisplayName",
+  "shortUserId",
+  "userIdentityState",
+  "adminUserHref",
+  "sourceOfFunds",
+]) {
+  requireIncludes(adminOverviewContract, expected, "Recent transaction admin row contract must include identity, unit, source, and timestamp truth");
+}
+for (const expected of [
+  "AdminOverviewUserIdentity",
+  "shortenAdminOverviewUserId",
+  "buildAdminOverviewUserIdentityMap",
+  "buildAdminOverviewFallbackIdentity",
+  "userIdentityState: \"resolved\"",
+  "userIdentityState: userId.trim().length > 0 ? \"fallback_uid\" : \"missing\"",
+  "where(\"__name__\", \"in\", chunk).get()",
+]) {
+  requireIncludes(adminOverviewUsers, expected, "Admin overview user identity enrichment must batch resolve bounded user ids and expose fallback identity truth");
+}
+for (const expected of [
+  "buildAdminOverviewUserIdentityMap",
+  "getRecentTransactionTypeLabel",
+  "formatRecentTransactionAmount",
+  "getRecentTransactionSourceOfFunds",
+  "addRecentTransactionContinuityLabels",
+  "createdAtUtc: timestamp > 0 ? new Date(timestamp).toISOString() : \"\"",
+  "adminUserHref: `/admin/user/${encodeURIComponent(raw.userId)}`",
+  "sourceOfFunds: getRecentTransactionSourceOfFunds(raw)",
+  "Same user sequence:",
+]) {
+  requireIncludes(adminOverviewRoute, expected, "Admin overview route must serialize recent transactions with safe identity, unit, source, UTC, link, and continuity truth");
+}
+for (const expected of [
+  "title=\"Recent transactions\"",
+  "value={recentTransactions.length > 0 ? \"loaded\" : \"empty\"}",
+  "badgeLabel={recentTransactions.length > 0 ? \"LOADED\" : \"EMPTY\"}",
+  "Feed window",
+  "Latest loaded entries",
+  "data-recent-transactions-loaded-count",
+  "data-transaction-created-at-utc",
+  "data-transaction-user-identity-state",
+  "entry.amountDisplay || `${entry.amount} GD`",
+  "entry.typeLabel || entry.type",
+  "entry.adminUserHref || `/admin/user/${entry.userId}`",
+  "entry.userDisplayName || entry.username || entry.shortUserId",
+  "entry.shortUserId || entry.userId",
+  "identity_missing",
+  "User profile could not be resolved from loaded admin sample.",
+  "UTC: {entry.createdAtUtc || formatUtc(entry.timestamp)}",
+  "Full UID: {entry.userId}",
+  "entry.continuityLabel",
+]) {
+  requireIncludes(debugTabMonitoring, expected, "Recent transactions panel must show loaded state, enriched identity, units, admin links, UTC, and continuity details");
+}
+for (const forbidden of [
+  "<Pill label=\"Loaded\" value={recentTransactions.length} />",
+  "<Pill label=\"Feed window\" value=\"Latest loaded entries\" />",
+  "<td className=\"px-3 py-3 text-white\">{entry.amount}</td>",
+  "<td className=\"px-3 py-3 text-gray-300\">{entry.username ? `@${entry.username}` : entry.userId}</td>",
+]) {
+  requireNotIncludes(debugTabMonitoring, forbidden, "Recent transactions panel must not render WAIT-style loaded chips, bare amounts, or raw full UID primary text");
+}
 requireIncludes(debugTabActions, "<DebugBugIntakePanel data={data} />", "Debug actions tab must delegate loaded bug intake truth to the focused panel");
 for (const expected of [
   "Bug reports to triage",
@@ -459,6 +532,7 @@ requireIncludes(releaseNotesScript, "Improved internal repair proposal grouping 
 requireIncludes(releaseNotesScript, "Improved internal bug report triage labels so loaded reports no longer appear stuck.", "Release notes script must include bug intake triage copy");
 requireIncludes(releaseNotesScript, "Improved internal route health labels so loaded runtime metrics no longer appear stuck.", "Release notes script must include route runtime health state copy");
 requireIncludes(releaseNotesScript, "Improved internal route runtime labels so unseen routes no longer appear as fake successes.", "Release notes script must include route runtime sample state copy");
+requireIncludes(releaseNotesScript, "Improved internal transaction review so admins can identify users more easily.", "Release notes script must include recent transaction identity copy");
 
 for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
@@ -675,8 +749,10 @@ try {
     /^src\/lib\/server\/route-runtime-health\.ts$/u,
     /^src\/lib\/route-runtime-health\.ts$/u,
     /^src\/lib\/admin-debug-route-runtime\.ts$/u,
+    /^src\/lib\/admin-overview\.ts$/u,
     /^src\/app\/api\/admin\/debug\/control-tower\/route\.ts$/u,
     /^src\/app\/api\/admin\/debug\/route\.ts$/u,
+    /^src\/app\/api\/admin\/overview\/route\.ts$/u,
     /^src\/app\/admin\/debug\/page\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugBugIntakePanel\.tsx$/u,
@@ -695,6 +771,7 @@ try {
     /^src\/lib\/telemetry-catalog\.ts$/u,
     /^src\/lib\/user-utils\.ts$/u,
     /^src\/lib\/server\/creator-admin-action-contract\.ts$/u,
+    /^src\/lib\/server\/admin-overview-users\.ts$/u,
     /^src\/lib\/server\/creator-onboarding\.ts$/u,
     /^src\/lib\/server\/creator-onboarding-diagnostics\.ts$/u,
     /^src\/lib\/server\/creator-review-queue\.ts$/u,
@@ -732,6 +809,7 @@ try {
     /^agent\/state\/google-cost-bleed\.generated\.json$/u,
     /^agent\/state\/creator-lane-debug-parity\.generated\.json$/u,
     /^docs\/agent-truth\/admin-debug-control-tower\.md$/u,
+    /^docs\/agent-truth\/payment-wallet-unlock-entitlement\.md$/u,
     /^docs\/agent-truth\/admin-user-behavior-truth\.md$/u,
     /^docs\/agent-truth\/admin-creator-account-controls\.md$/u,
     /^docs\/agent-truth\/creator-admin-action-route\.md$/u,

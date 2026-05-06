@@ -68,6 +68,21 @@ export type AdminOverviewTransactionRecord = Transaction & {
     sourceScope: "overview_snapshot" | "realtime_firestore";
 };
 
+export type RecentTransactionAdminRow = AdminOverviewTransactionRecord & {
+    transactionId: string;
+    createdAtUtc: string;
+    typeLabel: string;
+    amountDisplay: string;
+    unit: "GD" | "USD" | "unknown";
+    direction: "credit" | "debit" | "neutral";
+    userDisplayName: string;
+    shortUserId: string;
+    userIdentityState: "resolved" | "fallback_uid" | "missing";
+    adminUserHref: string;
+    sourceOfFunds?: "reward" | "paid" | "paid_bonus" | "admin_adjustment" | "unknown";
+    continuityLabel?: string;
+};
+
 export type AdminOverviewActivityItem = {
     id: string;
     domain: "admin";

@@ -47,6 +47,8 @@ Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hi
 
 Debug may show exact transaction ids, PayPal capture ids, route names, and source split fields. Main UI must not imply that bonus/admin grant Gum Drops are paid revenue.
 
+Admin debug transaction review may enrich recent ledger rows with safe user identity labels and continuity links, but it must not change ledger amounts, balances, source-of-funds, rewards, revenue, or entitlement behavior. Recent transaction rows must display GD/USD units and source classification so reward entries, purchases, unlock/spend rows, and admin adjustments are readable without reinterpreting the ledger.
+
 Required evidence fields:
 
 - `paymentId`

@@ -179,6 +179,7 @@ export default function DebugConsole() {
     const recentTransactions = useMemo(() => (
         (overviewData?.recentTransactions || []).map((entry: any) => ({
             ...entry,
+            createdAtUtc: entry.createdAtUtc || (typeof entry.timestamp === "number" && entry.timestamp > 0 ? new Date(entry.timestamp).toISOString() : ""),
             timestampLabel: typeof entry.timestamp === "number" && entry.timestamp > 0
                 ? new Date(entry.timestamp).toLocaleString()
                 : "Pending",

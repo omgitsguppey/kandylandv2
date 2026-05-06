@@ -269,6 +269,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("correct route runtime sample states") || normalized.includes("route runtime sample states")) {
     return "Improved internal route runtime labels so unseen routes no longer appear as fake successes.";
   }
+  if (normalized.includes("enrich recent transaction identities") || normalized.includes("recent transaction identities")) {
+    return "Improved internal transaction review so admins can identify users more easily.";
+  }
   if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
     return "Improved internal creator review status checks.";
   }

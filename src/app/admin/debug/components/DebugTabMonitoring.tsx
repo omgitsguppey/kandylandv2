@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
 import { DebugMonitoringRoutes, type DebugMonitoringRoutesProps } from "./DebugMonitoringRoutes";
 import { buildRouteRuntimeSummaryTruth } from "@/lib/route-runtime-health";
@@ -8,6 +9,10 @@ import { buildRouteRuntimeSummaryTruth } from "@/lib/route-runtime-health";
 function formatTimestamp(timestamp?: number) {
     if (!timestamp) return "Not recorded";
     return new Date(timestamp).toLocaleString();
+}
+function formatUtc(timestamp?: number) {
+    if (!timestamp) return "unknown";
+    return new Date(timestamp).toISOString();
 }
 function formatRelative(timestamp?: number) {
     if (!timestamp) return "No recent activity";
@@ -30,6 +35,16 @@ function formatRuntimeStatus(status?: string) {
     if (status === "running") return "Running";
     if (status === "warn") return "Needs review";
     return status || "Unknown";
+}
+function toneForTransactionDirection(direction?: string) {
+    if (direction === "debit") return "warn" as const;
+    if (direction === "credit") return "good" as const;
+    return "neutral" as const;
+}
+function toneForIdentityState(state?: string) {
+    if (state === "resolved") return "good" as const;
+    if (state === "fallback_uid") return "warn" as const;
+    return "neutral" as const;
 }
 
 /* ─── Props ─── */
@@ -85,24 +100,69 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 />
             </Section>
 
-            <Section title="Recent transactions" subtitle="Latest loaded commerce entries from the current bounded feed." defaultOpen summary={<><Pill label="Loaded" value={recentTransactions.length} /><Pill label="Feed window" value="Latest loaded entries" /></>}>
+            <Section title="Recent transactions" subtitle="Latest loaded commerce entries from the current bounded feed." defaultOpen summary={<><Pill label="Status" value={recentTransactions.length > 0 ? "loaded" : "empty"} truthState={recentTransactions.length > 0 ? "live" : "unavailable"} badgeLabel={recentTransactions.length > 0 ? "LOADED" : "EMPTY"} /><Pill label="Loaded" value={recentTransactions.length} truthState="live" badgeLabel="INFO" /><Pill label="Feed window" value="Latest loaded entries" truthState="live" badgeLabel="INFO" /></>}>
                 <ScrollWrap>
-                    <table className="w-full text-left text-sm">
+                    <div className="space-y-3 p-3 md:hidden" data-recent-transactions-loaded-count={recentTransactions.length}>
+                        {recentTransactions.map((entry: any) => (
+                            <article
+                                key={entry.id}
+                                className="space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-3"
+                                data-transaction-created-at-utc={entry.createdAtUtc || formatUtc(entry.timestamp)}
+                                data-transaction-user-identity-state={entry.userIdentityState || "fallback_uid"}
+                            >
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <Link href={entry.adminUserHref || `/admin/user/${entry.userId}`} className="font-semibold text-white underline-offset-4 hover:underline">
+                                            {entry.userDisplayName || entry.username || entry.shortUserId}
+                                        </Link>
+                                        <p className="mt-0.5 font-mono text-[11px] text-gray-500" title={entry.userId}>{entry.shortUserId || entry.userId}</p>
+                                    </div>
+                                    <Pill label="Amount" value={entry.amountDisplay || `${entry.amount} GD`} tone={toneForTransactionDirection(entry.direction)} truthState="live" badgeLabel={entry.unit || "GD"} />
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <Pill label="Type" value={entry.typeLabel || entry.type} truthState="live" badgeLabel="INFO" />
+                                    <Pill label="Source" value={entry.sourceOfFunds || "unknown"} tone={entry.sourceOfFunds === "unknown" ? "warn" : "neutral"} truthState={entry.sourceOfFunds === "unknown" ? "degraded" : "live"} />
+                                    <Pill label="Identity" value={entry.userIdentityState || "fallback_uid"} tone={toneForIdentityState(entry.userIdentityState)} />
+                                </div>
+                                <p className="text-sm text-gray-300">{entry.description}</p>
+                                {entry.continuityLabel ? <p className="text-xs text-gray-400">{entry.continuityLabel}</p> : null}
+                                <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
+                                    <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Transaction details</summary>
+                                    <p className="mt-2">Local time: {entry.timestampLabel}</p>
+                                    <p>UTC: {entry.createdAtUtc || formatUtc(entry.timestamp)}</p>
+                                    <p>Full UID: {entry.userId}</p>
+                                    {entry.userIdentityState !== "resolved" ? <p>User profile could not be resolved from loaded admin sample.</p> : null}
+                                </details>
+                            </article>
+                        ))}
+                    </div>
+                    <table className="hidden w-full text-left text-sm md:table" data-recent-transactions-loaded-count={recentTransactions.length}>
                         <thead className="sticky top-0 bg-black/80 text-[11px] uppercase tracking-[0.16em] text-gray-400">
-                            <tr><th className="px-3 py-3">Time</th><th className="px-3 py-3">Type</th><th className="px-3 py-3">Amount</th><th className="px-3 py-3">User</th><th className="px-3 py-3">Description</th></tr>
+                            <tr><th className="px-3 py-3">Time</th><th className="px-3 py-3">Type</th><th className="px-3 py-3">Amount</th><th className="px-3 py-3">User</th><th className="px-3 py-3">Source</th><th className="px-3 py-3">Description</th></tr>
                         </thead>
                         <tbody className="divide-y divide-white/10">
                             {recentTransactions.map((entry: any) => (
-                                <tr key={entry.id}>
-                                    <td className="px-3 py-3 text-gray-400">{entry.timestampLabel}</td>
-                                    <td className="px-3 py-3 text-brand-purple">{entry.type}</td>
-                                    <td className="px-3 py-3 text-white">{entry.amount}</td>
-                                    <td className="px-3 py-3 text-gray-300">{entry.username ? `@${entry.username}` : entry.userId}</td>
-                                    <td className="px-3 py-3 text-gray-400">{entry.description}</td>
+                                <tr key={entry.id} data-transaction-created-at-utc={entry.createdAtUtc || formatUtc(entry.timestamp)} data-transaction-user-identity-state={entry.userIdentityState || "fallback_uid"}>
+                                    <td className="px-3 py-3 text-gray-400" title={entry.createdAtUtc || formatUtc(entry.timestamp)}>{entry.timestampLabel}</td>
+                                    <td className="px-3 py-3 text-brand-purple">{entry.typeLabel || entry.type}</td>
+                                    <td className="px-3 py-3 text-white">{entry.amountDisplay || `${entry.amount} GD`}</td>
+                                    <td className="px-3 py-3 text-gray-300">
+                                        <Link href={entry.adminUserHref || `/admin/user/${entry.userId}`} className="font-semibold text-white underline-offset-4 hover:underline">
+                                            {entry.userDisplayName || entry.username || entry.shortUserId}
+                                        </Link>
+                                        <p className="font-mono text-[11px] text-gray-500" title={entry.userId}>{entry.shortUserId || entry.userId}</p>
+                                        {entry.userIdentityState !== "resolved" ? <p className="text-[11px] text-amber-200">identity_missing</p> : null}
+                                    </td>
+                                    <td className="px-3 py-3 text-gray-300">{entry.sourceOfFunds || "unknown"}</td>
+                                    <td className="px-3 py-3 text-gray-400">
+                                        <p>{entry.description}</p>
+                                        {entry.continuityLabel ? <p className="mt-1 text-xs text-gray-500">{entry.continuityLabel}</p> : null}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    {recentTransactions.length === 0 ? <div className="px-4 py-4 text-sm text-amber-100">No recent transactions are loaded in the bounded feed.</div> : null}
                 </ScrollWrap>
             </Section>
 
