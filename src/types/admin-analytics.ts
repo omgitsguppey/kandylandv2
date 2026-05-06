@@ -761,6 +761,48 @@ export type AdminUsersKpiCard = {
   formula?: string;
 };
 
+export type AdminBehaviorLeaderboardFilter =
+  | "all"
+  | "returned_7d"
+  | "purchasers"
+  | "unwrappers"
+  | "low_confidence";
+
+export type AdminBehaviorLeaderboardRow = {
+  userId: string;
+  displayName: string;
+  username?: string;
+  shortUserId: string;
+  userIdentityState: "resolved" | "fallback_uid" | "missing";
+  engagementScore: number;
+  valueScore?: number | null;
+  behaviorConfidence: number;
+  returnedInLast7d: boolean;
+  lastSeenAtUtc: string | null;
+  lastMeaningfulActionAtUtc: string | null;
+  unlockCount: number;
+  purchaseCount: number;
+  watchSeconds: number;
+  taskCompletions: number;
+  notificationReads?: number;
+  sourceTruth: "materialized_behavior" | "event_facts" | "rollup_fallback" | "partial";
+  freshnessState: "live" | "review" | "stale" | "unknown";
+  warnings: string[];
+};
+
+export type AdminBehaviorLeaderboardPanel = {
+  generatedAtUtc: string;
+  sourceFreshness: "live" | "review" | "stale" | "unknown";
+  sourceTruth: "materialized_behavior" | "event_facts" | "rollup_fallback" | "partial";
+  totalEligibleUsers: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  filter: AdminBehaviorLeaderboardFilter;
+  rows: AdminBehaviorLeaderboardRow[];
+  warnings: string[];
+};
+
 export type DropReference = {
   id: string;
   title: string;
@@ -774,6 +816,7 @@ export type AdminUsersResponse = {
   analyticsByUser: Record<string, UserAnalytics>;
   dropReferences: Record<string, DropReference>;
   summary: UsersSummary;
+  behaviorLeaderboard?: AdminBehaviorLeaderboardPanel;
   creatorOpsByUser?: Record<string, any>;
   verification?: any;
   error?: string;

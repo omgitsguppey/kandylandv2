@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { UserProfile } from "@/types/db";
-import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3, Activity } from "lucide-react";
+import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3, Activity, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
@@ -36,6 +36,8 @@ import {
 import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
 import type { 
+    AdminBehaviorLeaderboardFilter,
+    AdminBehaviorLeaderboardPanel,
     AdminUsersKpiCard,
     UserAnalytics, 
     UsersSummary, 
@@ -75,6 +77,10 @@ export default function UserManagementPage() {
     const [summary, setSummary] = useState<UsersSummary | null>(null);
     const [loading, setLoading] = useState(true);
     const [summaryLoading, setSummaryLoading] = useState(true);
+    const [behaviorLeaderboard, setBehaviorLeaderboard] = useState<AdminBehaviorLeaderboardPanel | null>(null);
+    const [behaviorLeaderboardLoading, setBehaviorLeaderboardLoading] = useState(true);
+    const [behaviorLeaderboardPage, setBehaviorLeaderboardPage] = useState(1);
+    const [behaviorLeaderboardFilter, setBehaviorLeaderboardFilter] = useState<AdminBehaviorLeaderboardFilter>("all");
     const [selectedUserDetailLoading, setSelectedUserDetailLoading] = useState<string | null>(null);
     const [realtimeState, setRealtimeState] = useState<AdminSurfaceState>("loading");
     const [searchQuery, setSearchQuery] = useState("");
@@ -238,6 +244,56 @@ export default function UserManagementPage() {
         }
     }, []);
 
+    const fetchBehaviorLeaderboard = useCallback(async (
+        options: {
+            silent?: boolean;
+            page?: number;
+            filter?: AdminBehaviorLeaderboardFilter;
+            reason?: string;
+        } = {},
+    ) => {
+        const page = options.page ?? behaviorLeaderboardPage;
+        const filter = options.filter ?? behaviorLeaderboardFilter;
+        if (!options.silent) {
+            setBehaviorLeaderboardLoading(true);
+        }
+        try {
+            const response = await authFetch(`/api/admin/users?mode=behavior_leaderboard&page=${page}&pageSize=10&filter=${filter}`);
+            const result = await response.json() as AdminUsersLaneResponse;
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || "Failed to load behavior leaderboard");
+            }
+
+            setBehaviorLeaderboard(result.behaviorLeaderboard || null);
+            if (options.reason) {
+                setRealtimeState("live");
+            }
+        } catch (error) {
+            if (options.silent) {
+                setRealtimeState("degraded");
+            }
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin users behavior leaderboard fetch failed",
+                error,
+                detail: {
+                    adminView: "users",
+                    action: "fetch_behavior_leaderboard",
+                    page,
+                    filter,
+                },
+                consoleLabel: "[Admin Users] fetch behavior leaderboard failed",
+            });
+            if (!options.silent) {
+                toast.error(error instanceof Error ? error.message : "Failed to load behavior leaderboard");
+            }
+        } finally {
+            if (!options.silent) {
+                setBehaviorLeaderboardLoading(false);
+            }
+        }
+    }, [behaviorLeaderboardFilter, behaviorLeaderboardPage]);
+
     useEffect(() => {
         fetchSummary();
         fetchUsers();
@@ -256,6 +312,7 @@ export default function UserManagementPage() {
             refreshDebounceRef.current = setTimeout(() => {
                 fetchSummary({ silent: true, reason });
                 fetchUsers({ silent: true, reason });
+                fetchBehaviorLeaderboard({ silent: true, reason });
             }, 450);
         };
 
@@ -343,7 +400,11 @@ export default function UserManagementPage() {
                 clearTimeout(reconnectTimer);
             }
         };
-    }, [fetchSummary, fetchUsers]);
+    }, [fetchSummary, fetchUsers, fetchBehaviorLeaderboard]);
+
+    useEffect(() => {
+        void fetchBehaviorLeaderboard({ page: behaviorLeaderboardPage, filter: behaviorLeaderboardFilter });
+    }, [behaviorLeaderboardFilter, behaviorLeaderboardPage, fetchBehaviorLeaderboard]);
 
     const fetchFeedback = async () => {
         setLoadingFeedback(true);
@@ -502,17 +563,26 @@ export default function UserManagementPage() {
         timestamp && timestamp > 0 ? `Seen ${format(new Date(timestamp), 'MMM d, h:mm a')}` : "No tracked activity";
     const formatLastPurchase = (timestamp?: number) =>
         timestamp && timestamp > 0 ? `Paid ${format(new Date(timestamp), 'MMM d, h:mm a')}` : "No purchases yet";
+    const formatUtcLabel = (value?: string | null) =>
+        value ? format(new Date(value), "MMM d, h:mm a") : "No recent activity";
+    const formatWatchSecondsCompact = (seconds?: number) => {
+        const safeSeconds = Math.max(0, Math.round(seconds || 0));
+        const hours = Math.floor(safeSeconds / 3600);
+        const minutes = Math.floor((safeSeconds % 3600) / 60);
+        if (hours > 0) {
+            return `${hours}h ${minutes}m`;
+        }
+        if (minutes > 0) {
+            return `${minutes}m`;
+        }
+        return `${safeSeconds}s`;
+    };
     const selectedSecurityDescriptor = securityDetailsUser
         ? describeSecurityEvent(securityDetailsUser.securityFlags?.lastViolationReason)
         : null;
-
-    const topTrackedUsers = filteredUsers
-        .filter((user) => Boolean(userAnalytics[user.uid]))
-        .sort((left, right) => (
-            (getUserAnalytics(right.uid)?.engagement?.score ?? getUserAnalytics(right.uid)?.engagementScore ?? 0)
-            - (getUserAnalytics(left.uid)?.engagement?.score ?? getUserAnalytics(left.uid)?.engagementScore ?? 0)
-        ))
-        .slice(0, 3);
+    const leaderboardRows = behaviorLeaderboard?.rows ?? [];
+    const leaderboardPageNumber = behaviorLeaderboard?.page ?? behaviorLeaderboardPage;
+    const leaderboardPageSize = behaviorLeaderboard?.pageSize ?? 10;
 
     const handleUpdateStatus = async () => {
         if (!actionUser || !actionType) return;
@@ -773,64 +843,143 @@ export default function UserManagementPage() {
 
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
                             <div className="flex items-center justify-between gap-3">
-                                <div className="flex items-center gap-2 text-sm font-bold text-white">
-                                    <TrendingUp className="w-4 h-4 text-brand-purple" />
-                                    Behavior detail lane
+                                <div>
+                                    <div className="flex items-center gap-2 text-sm font-bold text-white">
+                                        <TrendingUp className="w-4 h-4 text-brand-purple" />
+                                        Top behavior users
+                                    </div>
+                                    <p className="mt-1 text-[11px] text-gray-400">
+                                        Ranked by engagement, value, recency, and confidence.
+                                    </p>
                                 </div>
                                 <AdminTruthBadge
                                     state={resolveAdminTruthState({
-                                        hasUsableValue: topTrackedUsers.length > 0,
+                                        hasUsableValue: leaderboardRows.length > 0,
                                         sourceConfigured: true,
-                                        transportState: realtimeState,
+                                        transportState: behaviorLeaderboard?.sourceFreshness === "live"
+                                            ? "live"
+                                            : behaviorLeaderboard?.sourceFreshness === "stale"
+                                                ? "stale"
+                                                : behaviorLeaderboard?.sourceFreshness === "review"
+                                                    ? "review"
+                                                    : realtimeState,
                                     })}
-                                    pendingInitialLoad={loading && topTrackedUsers.length === 0}
-                                    hasUsableValue={topTrackedUsers.length > 0}
+                                    pendingInitialLoad={behaviorLeaderboardLoading && leaderboardRows.length === 0}
+                                    hasUsableValue={leaderboardRows.length > 0}
                                 />
                             </div>
+                            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex flex-wrap gap-2">
+                                    {(["all", "returned_7d", "purchasers", "unwrappers", "low_confidence"] as AdminBehaviorLeaderboardFilter[]).map((filter) => (
+                                        <button
+                                            key={filter}
+                                            type="button"
+                                            onClick={() => {
+                                                setBehaviorLeaderboardPage(1);
+                                                setBehaviorLeaderboardFilter(filter);
+                                            }}
+                                            className={cn(
+                                                "rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em]",
+                                                behaviorLeaderboardFilter === filter
+                                                    ? "border-brand-purple/50 bg-brand-purple/15 text-white"
+                                                    : "border-white/10 bg-white/5 text-gray-400 hover:text-white",
+                                            )}
+                                        >
+                                            {filter.replace(/_/g, " ")}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="text-[10px] text-gray-500">
+                                    {behaviorLeaderboard
+                                        ? `${behaviorLeaderboard.totalEligibleUsers} eligible · page size ${behaviorLeaderboard.pageSize}`
+                                        : "Loading behavior source"}
+                                </div>
+                            </div>
                             <div className="mt-3 grid gap-2">
-                                {topTrackedUsers.length === 0 ? (
-                                    <p className="text-sm text-gray-400">Open a user before loading behavior rollups.</p>
-                                ) : topTrackedUsers.map((user) => {
-                                    const analytics = getUserAnalytics(user.uid);
-                                    const behaviorRollup = getBehaviorRollup(user.uid);
-                                    const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
-                                    const value = analytics?.value ?? behaviorRollup?.value;
-                                    const truthState = getBehaviorTruthState(behaviorRollup);
-                                    const engagementExplanation = buildEngagementBehavioralExplanation({ engagement, behaviorRollup, truthState });
-                                    const valueExplanation = buildValueBehavioralExplanation({ value, behaviorRollup, truthState });
-                                    const reviewDecision = buildBehaviorRollupReviewBadge({
-                                        behaviorRollup,
-                                        truthState,
-                                        personalizedOutputShown: true,
-                                    });
-                                    return (
-                                    <div
-                                        key={user.uid}
-                                        className="rounded-2xl border border-white/10 bg-black/25 px-3 py-3"
-                                        data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
-                                        data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
-                                        data-user-behavior-math-mode={behaviorRollup?.mathCalibration?.activeMode ?? "deterministic"}
-                                        data-user-behavior-truth-score={behaviorRollup?.truthScore ?? 0}
+                                {!behaviorLeaderboard && behaviorLeaderboardLoading ? (
+                                    <p className="text-sm text-gray-400">Loading behavior leaderboard…</p>
+                                ) : leaderboardRows.length === 0 ? (
+                                    <p
+                                        className="text-sm text-gray-400"
+                                        data-admin-users-behavior-empty-state="materializer"
                                     >
-                                        <div className="flex items-center justify-between gap-3">
+                                        {behaviorLeaderboard?.warnings[0] || "No behavior rollups available yet. Run behavior materializer or inspect event facts."}
+                                    </p>
+                                ) : leaderboardRows.map((row, index) => (
+                                    <Link
+                                        key={row.userId}
+                                        href={`/admin/user/${row.userId}`}
+                                        className="rounded-2xl border border-white/10 bg-black/25 px-3 py-3 transition-colors hover:border-brand-purple/35 hover:bg-black/35"
+                                        data-admin-behavior-row-user-id={row.userId}
+                                        data-admin-behavior-row-source={row.sourceTruth}
+                                        data-admin-behavior-row-freshness={row.freshnessState}
+                                        data-admin-behavior-row-identity-state={row.userIdentityState}
+                                    >
+                                        <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-bold text-white">{user.username ? `@${user.username}` : user.displayName || user.email || user.uid}</p>
-                                                <div className="mt-1 flex flex-wrap items-center gap-2">
-                                                    <p className="text-xs text-gray-500">
-                                                        {engagementExplanation.verdict} &middot; Value {valueExplanation.verdict} &middot; {engagementExplanation.confidenceLabel} truth &middot; {behaviorRollup?.mathCalibration?.verdict ?? "unvalidated"}
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-black text-brand-purple">#{((leaderboardPageNumber - 1) * leaderboardPageSize) + index + 1}</span>
+                                                    <p className="truncate text-sm font-bold text-white">
+                                                        {row.username ? `@${row.username}` : row.displayName}
                                                     </p>
-                                                    <AdminReviewBadge decision={reviewDecision} className="px-1.5 py-0 text-[8px] tracking-[0.08em]" />
                                                 </div>
+                                                <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-gray-500">
+                                                    {row.userIdentityState === "resolved" ? row.shortUserId : `UID ${row.shortUserId}`}
+                                                </p>
                                                 <p className="mt-1 text-[11px] text-gray-400">
-                                                    {valueExplanation.summary || engagementExplanation.summary || "No recent verified value signal."}
+                                                    Last meaningful action {formatUtcLabel(row.lastMeaningfulActionAtUtc)}
                                                 </p>
                                             </div>
-                                            <Link href={`/admin/user/${user.uid}`} className="text-xs font-bold text-brand-purple hover:underline">
-                                                Open
-                                            </Link>
+                                            <div className="text-right">
+                                                <p className="text-sm font-black text-white">{row.engagementScore}</p>
+                                                <p className="text-[10px] text-gray-500">engagement</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                )})}
+                                        <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-gray-300">
+                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">value {row.valueScore ?? "—"}</span>
+                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">confidence {row.behaviorConfidence}%</span>
+                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{row.purchaseCount} purchases</span>
+                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{row.unlockCount} unwraps</span>
+                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{formatWatchSecondsCompact(row.watchSeconds)} watch</span>
+                                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">{row.taskCompletions} tasks</span>
+                                        </div>
+                                        <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.08em] text-gray-500">
+                                            <span>{row.sourceTruth.replace(/_/g, " ")}</span>
+                                            <span>{row.freshnessState}</span>
+                                            {row.returnedInLast7d ? <span>returned 7d</span> : null}
+                                        </div>
+                                        {row.warnings.length > 0 ? (
+                                            <p className="mt-2 text-[11px] text-amber-200">{row.warnings[0]}</p>
+                                        ) : null}
+                                    </Link>
+                                ))}
+                            </div>
+                            <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+                                <div className="text-[10px] text-gray-500">
+                                    {behaviorLeaderboard
+                                        ? `Page ${behaviorLeaderboard.page} of ${behaviorLeaderboard.totalPages} · generated ${formatUtcLabel(behaviorLeaderboard.generatedAtUtc)}`
+                                        : "Page 1"}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setBehaviorLeaderboardPage((current) => Math.max(1, current - 1))}
+                                        disabled={!behaviorLeaderboard || behaviorLeaderboard.page <= 1}
+                                        className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-bold text-gray-300 disabled:opacity-40"
+                                    >
+                                        <ChevronLeft className="h-3.5 w-3.5" />
+                                        Previous
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setBehaviorLeaderboardPage((current) => behaviorLeaderboard ? Math.min(behaviorLeaderboard.totalPages, current + 1) : current + 1)}
+                                        disabled={!behaviorLeaderboard || behaviorLeaderboard.page >= behaviorLeaderboard.totalPages}
+                                        className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-bold text-gray-300 disabled:opacity-40"
+                                    >
+                                        Next
+                                        <ChevronRight className="h-3.5 w-3.5" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import type {
+  AdminBehaviorLeaderboardFilter,
+  AdminBehaviorLeaderboardPanel,
+  AdminBehaviorLeaderboardRow,
   AdminUsersKpiCard,
   AdminUsersResponse,
   UsersSummary,
@@ -97,6 +100,10 @@ function toUtcIsoString(timestampMs: number) {
   return timestampMs > 0 ? new Date(timestampMs).toISOString() : new Date().toISOString();
 }
 
+function toUtcIsoStringOrNull(timestampMs: number) {
+  return timestampMs > 0 ? new Date(timestampMs).toISOString() : null;
+}
+
 function formatCount(value: number) {
   return value.toLocaleString();
 }
@@ -149,6 +156,73 @@ function mapCommerceTruthToKpiState(
     return options?.delayedExpected ? "delayed" : "stale";
   }
 
+  return "unknown";
+}
+
+function shortId(value: string) {
+  if (value.length <= 8) {
+    return value;
+  }
+
+  return `${value.slice(0, 4)}...${value.slice(-4)}`;
+}
+
+function clampPageSize(value: number) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return 10;
+  }
+
+  return Math.min(20, Math.max(5, Math.round(value)));
+}
+
+function clampPositiveInteger(value: number) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return 1;
+  }
+
+  return Math.round(value);
+}
+
+function computeBehaviorLeaderboardFallbackScore(input: {
+  purchaseCount: number;
+  unlockCount: number;
+  watchSeconds: number;
+  returnedInLast7d: boolean;
+  meaningfulActions: number;
+  freeIntent: number;
+}) {
+  const normalize = (value: number, max: number) => Math.max(0, Math.min(1, value / max));
+  const purchaseSignal = normalize(input.purchaseCount, 5);
+  const unlockSignal = normalize(input.unlockCount, 12);
+  const watchSignal = normalize(input.watchSeconds, 10_800);
+  const returnSignal = input.returnedInLast7d ? 1 : 0;
+  const actionSignal = normalize(input.meaningfulActions, 25);
+  const freeIntentSignal = normalize(input.freeIntent, 250);
+
+  return Math.round(100 * (
+    (0.24 * purchaseSignal) +
+    (0.23 * unlockSignal) +
+    (0.23 * watchSignal) +
+    (0.13 * returnSignal) +
+    (0.10 * actionSignal) +
+    (0.07 * freeIntentSignal)
+  ));
+}
+
+function mapBehaviorLeaderboardSourceTruth(source?: string): AdminBehaviorLeaderboardRow["sourceTruth"] {
+  if (source === "materialized_rollup") return "materialized_behavior";
+  if (source === "event_facts") return "event_facts";
+  if (source === "live_fallback" || source === "legacy_fallback" || source === "user_profile_fields") {
+    return "rollup_fallback";
+  }
+
+  return "partial";
+}
+
+function mapBehaviorLeaderboardFreshnessState(freshnessState?: string): AdminBehaviorLeaderboardRow["freshnessState"] {
+  if (freshnessState === "live") return "live";
+  if (freshnessState === "stale") return "stale";
+  if (freshnessState === "degraded") return "review";
   return "unknown";
 }
 
@@ -379,6 +453,188 @@ function buildAdminUsersKpiCards(input: {
       sourceLabel: snapshot?.source ?? "onboarding_facts",
     },
   ];
+}
+
+function isBehaviorLeaderboardEligibleUser(user: ReturnType<typeof serializeUserDoc>) {
+  const username = (user.username ?? "").toLowerCase();
+  const email = (user.email ?? "").toLowerCase();
+  const displayName = (user.displayName ?? "").toLowerCase();
+  const uid = (user.uid ?? "").toLowerCase();
+
+  if (user.role !== "user") {
+    return false;
+  }
+
+  if (uid.startsWith("system_")) {
+    return false;
+  }
+
+  if (username.includes("system") || username.includes("bot")) {
+    return false;
+  }
+
+  if (email.includes("example.com") || email.includes("system") || email.includes("bot")) {
+    return false;
+  }
+
+  if (displayName.includes("system") || displayName.includes("bot")) {
+    return false;
+  }
+
+  return true;
+}
+
+function matchesBehaviorLeaderboardFilter(
+  row: AdminBehaviorLeaderboardRow,
+  filter: AdminBehaviorLeaderboardFilter,
+) {
+  if (filter === "returned_7d") {
+    return row.returnedInLast7d;
+  }
+
+  if (filter === "purchasers") {
+    return row.purchaseCount > 0;
+  }
+
+  if (filter === "unwrappers") {
+    return row.unlockCount > 0;
+  }
+
+  if (filter === "low_confidence") {
+    return row.behaviorConfidence < 60 || row.sourceTruth === "partial";
+  }
+
+  return true;
+}
+
+function buildBehaviorLeaderboardPanel(input: {
+  users: Array<ReturnType<typeof serializeUserDoc>>;
+  analyticsByUser: Record<string, {
+    eventCount?: number;
+    unwrapCount?: number;
+    purchaseCount?: number;
+    watchSecondsTotal?: number;
+    lastSeenAt?: number;
+    lastPurchaseAt?: number;
+    rewardGdEarned?: number;
+    authSuccessCount?: number;
+    engagementScore?: number;
+    valueScore?: number;
+    behaviorRollup?: {
+      engagement: { score: number };
+      value: { valueScore: number };
+      confidenceScore: number;
+      source: string;
+      freshnessState: string;
+      issues: Array<{ message: string }>;
+    };
+  }>;
+  page: number;
+  pageSize: number;
+  filter: AdminBehaviorLeaderboardFilter;
+  generatedAtMs: number;
+}): AdminBehaviorLeaderboardPanel {
+  const eligibleRows = input.users
+    .filter(isBehaviorLeaderboardEligibleUser)
+    .map((user) => {
+      const analytics = input.analyticsByUser[user.uid];
+      const behaviorRollup = analytics?.behaviorRollup;
+      const fallbackScore = computeBehaviorLeaderboardFallbackScore({
+        purchaseCount: analytics?.purchaseCount ?? 0,
+        unlockCount: analytics?.unwrapCount ?? 0,
+        watchSeconds: analytics?.watchSecondsTotal ?? 0,
+        returnedInLast7d: (analytics?.lastSeenAt ?? 0) > (input.generatedAtMs - (7 * 24 * 60 * 60 * 1000)),
+        meaningfulActions: analytics?.eventCount ?? 0,
+        freeIntent: user.gumDropsRewardBalance ?? 0,
+      });
+      const engagementScore = analytics?.engagementScore
+        ?? behaviorRollup?.engagement.score
+        ?? fallbackScore;
+      const sourceTruth = behaviorRollup
+        ? mapBehaviorLeaderboardSourceTruth(behaviorRollup.source)
+        : "partial";
+      const freshnessState = behaviorRollup
+        ? mapBehaviorLeaderboardFreshnessState(behaviorRollup.freshnessState)
+        : "review";
+      const lastMeaningfulActionAt = Math.max(
+        analytics?.lastPurchaseAt ?? 0,
+        analytics?.lastSeenAt ?? 0,
+        user.lastCheckIn ?? 0,
+      );
+
+      return {
+        userId: user.uid,
+        displayName: user.displayName || user.username || "Unknown user",
+        username: user.username || undefined,
+        shortUserId: shortId(user.uid),
+        userIdentityState: user.displayName || user.username
+          ? "resolved"
+          : user.uid
+            ? "fallback_uid"
+            : "missing",
+        engagementScore,
+        valueScore: analytics?.valueScore ?? behaviorRollup?.value.valueScore ?? null,
+        behaviorConfidence: behaviorRollup?.confidenceScore ?? 45,
+        returnedInLast7d: (analytics?.lastSeenAt ?? 0) > (input.generatedAtMs - (7 * 24 * 60 * 60 * 1000)),
+        lastSeenAtUtc: toUtcIsoStringOrNull(analytics?.lastSeenAt ?? 0),
+        lastMeaningfulActionAtUtc: toUtcIsoStringOrNull(lastMeaningfulActionAt),
+        unlockCount: analytics?.unwrapCount ?? 0,
+        purchaseCount: analytics?.purchaseCount ?? 0,
+        watchSeconds: analytics?.watchSecondsTotal ?? 0,
+        taskCompletions: Object.keys(user.dailyTasksState?.completedTaskHistory ?? {}).length,
+        sourceTruth,
+        freshnessState,
+        warnings: [
+          ...(behaviorRollup?.issues.map((issue) => issue.message) ?? []),
+          ...(analytics?.engagementScore == null && !behaviorRollup ? ["Engagement score is using deterministic fallback inputs."] : []),
+        ],
+      } satisfies AdminBehaviorLeaderboardRow;
+    })
+    .filter((row) => matchesBehaviorLeaderboardFilter(row, input.filter))
+    .sort((left, right) => (
+      (right.engagementScore - left.engagementScore)
+      || ((right.valueScore ?? 0) - (left.valueScore ?? 0))
+      || ((Date.parse(right.lastMeaningfulActionAtUtc ?? "") || 0) - (Date.parse(left.lastMeaningfulActionAtUtc ?? "") || 0))
+      || (right.purchaseCount - left.purchaseCount)
+      || (right.unlockCount - left.unlockCount)
+    ));
+
+  const totalEligibleUsers = eligibleRows.length;
+  const totalPages = Math.max(1, Math.ceil(totalEligibleUsers / input.pageSize));
+  const safePage = Math.min(totalPages, Math.max(1, input.page));
+  const pageStart = (safePage - 1) * input.pageSize;
+  const rows = eligibleRows.slice(pageStart, pageStart + input.pageSize);
+  const sourceFreshness = rows.some((row) => row.freshnessState === "review")
+    ? "review"
+    : rows.some((row) => row.freshnessState === "stale")
+      ? "stale"
+      : rows.length > 0
+        ? "live"
+        : "unknown";
+  const sourceTruth = rows.some((row) => row.sourceTruth === "partial")
+    ? "partial"
+    : rows.some((row) => row.sourceTruth === "rollup_fallback")
+      ? "rollup_fallback"
+      : rows.some((row) => row.sourceTruth === "event_facts")
+        ? "event_facts"
+        : rows.length > 0
+          ? "materialized_behavior"
+          : "partial";
+
+  return {
+    generatedAtUtc: toUtcIsoString(input.generatedAtMs),
+    sourceFreshness,
+    sourceTruth,
+    totalEligibleUsers,
+    page: safePage,
+    pageSize: input.pageSize,
+    totalPages,
+    filter: input.filter,
+    rows,
+    warnings: rows.length === 0
+      ? ["No behavior rollups available yet. Run behavior materializer or inspect event facts."]
+      : [],
+  };
 }
 
 function buildUserEngagementDay(raw: Record<string, unknown>): UserEngagementActivityDay {
@@ -1044,6 +1300,21 @@ async function GET_handler(request: NextRequest) {
     });
 
     const mode = request.nextUrl.searchParams.get("mode") ?? "full";
+    const leaderboardPage = clampPositiveInteger(Number(request.nextUrl.searchParams.get("page") ?? "1"));
+    const leaderboardPageSize = clampPageSize(Number(request.nextUrl.searchParams.get("pageSize") ?? "10"));
+    const leaderboardFilter = (() => {
+      const rawFilter = request.nextUrl.searchParams.get("filter");
+      if (
+        rawFilter === "returned_7d"
+        || rawFilter === "purchasers"
+        || rawFilter === "unwrappers"
+        || rawFilter === "low_confidence"
+      ) {
+        return rawFilter;
+      }
+
+      return "all";
+    })() satisfies AdminBehaviorLeaderboardFilter;
 
     if (mode === "summary") {
       const metricsSnapshotMeta = await readAdminUsersFastSummarySnapshot();
@@ -2052,6 +2323,42 @@ async function GET_handler(request: NextRequest) {
       },
     };
 
+    const behaviorLeaderboard = buildBehaviorLeaderboardPanel({
+      users,
+      analyticsByUser,
+      page: leaderboardPage,
+      pageSize: leaderboardPageSize,
+      filter: leaderboardFilter,
+      generatedAtMs: nowMs,
+    });
+
+    if (mode === "behavior_leaderboard") {
+      return NextResponse.json({
+        success: true,
+        loadingLane: "behavioralDetail",
+        behaviorLeaderboard,
+        verification: buildServerAdminModuleVerification({
+          module: "admin_users_behavior_leaderboard",
+          canonicalSource: "users+analytics_users_rollup+analytics_user_daily+analytics_watch_sessions",
+          fallbackSource: behaviorLeaderboard.sourceTruth === "partial" ? "live_fallback" : null,
+          freshnessTimestamp: nowMs,
+          degradedReason: behaviorLeaderboard.sourceFreshness !== "live"
+            ? behaviorLeaderboard.warnings[0] ?? "Behavior leaderboard is using partial or stale behavior truth."
+            : null,
+          status: behaviorLeaderboard.sourceFreshness === "live"
+            ? "live"
+            : behaviorLeaderboard.sourceFreshness === "stale"
+              ? "stale"
+              : "degraded",
+          countComposition: {
+            totalUsers: users.length,
+            eligibleUsers: behaviorLeaderboard.totalEligibleUsers,
+            returnedRows: behaviorLeaderboard.rows.length,
+          },
+        }),
+      });
+    }
+
     const responseData: AdminUsersResponse = {
       success: true,
       users,
@@ -2059,6 +2366,7 @@ async function GET_handler(request: NextRequest) {
       creatorOpsByUser: Object.fromEntries(creatorOpsByUser),
       dropReferences,
       summary,
+      behaviorLeaderboard,
       verification: buildServerAdminModuleVerification({
         module: "admin_users",
         canonicalSource: "users+analytics_users_rollup+analytics_user_daily",

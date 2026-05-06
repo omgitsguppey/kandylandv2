@@ -76,6 +76,16 @@ assert(usersPage.includes("data-admin-users-kpi-reason"), "User Management KPI c
 assert(usersPage.includes("data-admin-users-kpi-generated-at-utc"), "User Management KPI cards must expose data-admin-users-kpi-generated-at-utc.", failures);
 assert(usersPage.includes("(summary?.kpiCards ?? []).map"), "User Management must render KPI cards from the canonical summary contract.", failures);
 assert(!usersPage.includes("tracked purchases"), "User Management must not show purchase counts inside the Unwraps card.", failures);
+assert(usersPage.includes("Top behavior users"), "User Management must render the behavior leaderboard title.", failures);
+assert(usersPage.includes("Ranked by engagement, value, recency, and confidence."), "User Management must explain leaderboard ranking semantics.", failures);
+assert(usersPage.includes("setBehaviorLeaderboardPage"), "User Management behavior leaderboard must support pagination.", failures);
+assert(usersPage.includes("setBehaviorLeaderboardFilter"), "User Management behavior leaderboard must support filters.", failures);
+assert(usersPage.includes("mode=behavior_leaderboard"), "User Management must fetch a dedicated behavior leaderboard lane.", failures);
+assert(usersPage.includes("data-admin-behavior-row-user-id"), "Behavior leaderboard rows must expose row identity markers.", failures);
+assert(usersPage.includes("data-admin-behavior-row-identity-state"), "Behavior leaderboard rows must expose identity fallback state.", failures);
+assert(usersPage.includes("Page ${behaviorLeaderboard.page} of ${behaviorLeaderboard.totalPages}"), "Behavior leaderboard must render pagination status.", failures);
+assert(!usersPage.includes("Open a user before loading behavior rollups."), "Behavior leaderboard empty state must not require opening a user first.", failures);
+assert(usersPage.includes("Run behavior materializer or inspect event facts."), "Behavior leaderboard empty state must point to source truth instead of selected-user detail.", failures);
 
 assert(behaviorContract.includes("confidence") && behaviorContract.includes("source") && behaviorContract.includes("issues"), "Per-user behavior rollup contract is incomplete.", failures);
 assert(behaviorHelper.includes("watch_time_missing_despite_views"), "Per-user behavior rollup helper must flag missing watch time despite views.", failures);
@@ -100,6 +110,14 @@ assert(snapshotHelper.includes("watchTimeSource: watchRollup.source"), "Admin us
 assert(snapshotHelper.includes("watchTimeDiagnosticEstimate: watchRollup.diagnosticEstimate"), "Admin user metrics snapshot must persist watch diagnostic estimates.", failures);
 assert(usersRoute.includes("buildAdminUsersKpiCards"), "User Management route must build explicit KPI cards.", failures);
 assert(usersRoute.includes("kpiCards: buildAdminUsersKpiCards"), "User Management summary must return KPI cards.", failures);
+assert(usersRoute.includes("buildBehaviorLeaderboardPanel"), "User Management route must build a dedicated behavior leaderboard.", failures);
+assert(usersRoute.includes('mode === "behavior_leaderboard"'), "User Management route must expose a behavior_leaderboard mode.", failures);
+assert(usersRoute.includes("pageSize: leaderboardPageSize"), "Behavior leaderboard route must page rows on the server.", failures);
+assert(usersRoute.includes("filter: leaderboardFilter"), "Behavior leaderboard route must filter rows on the server.", failures);
+assert(usersRoute.includes("user.role !== \"user\""), "Behavior leaderboard must exclude admin and creator accounts from user ranking.", failures);
+assert(usersRoute.includes("computeBehaviorLeaderboardFallbackScore"), "Behavior leaderboard must provide deterministic fallback scoring when engagement scores are missing.", failures);
+assert(usersRoute.includes("sourceTruth"), "Behavior leaderboard rows must expose source truth.", failures);
+assert(usersRoute.includes("freshnessState"), "Behavior leaderboard rows must expose freshness state.", failures);
 assert(usersRoute.includes('label: "Purchases"'), "User Management summary must expose a dedicated Purchases KPI.", failures);
 assert(usersRoute.includes('label: "Paying users"'), "User Management summary must name the paying-users KPI explicitly.", failures);
 assert(usersRoute.includes("status-active accounts"), "User Management total-users KPI must distinguish account status from active-now presence.", failures);
