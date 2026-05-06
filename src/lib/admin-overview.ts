@@ -12,6 +12,49 @@ export type AdminOverviewMetricDelta = {
     scopeLabel: string;
 };
 
+export type RollingWindow = {
+    nowUtc: string;
+    currentStartUtc: string;
+    currentEndUtc: string;
+    priorStartUtc: string;
+    priorEndUtc: string;
+    label: "rolling_30d";
+};
+
+export type PlatformPulseMetric = {
+    id: "accounts" | "purchases30d" | "revenue" | "unwraps" | "drops";
+    label: string;
+    primaryValue: string | number;
+    primaryScope: "lifetime" | "rolling_30d";
+    current30dValue?: number;
+    prior30dValue?: number;
+    lifetimeValue?: number;
+    lifetimeLabel?: string;
+    deltaPct?: number | null;
+    deltaLabel: string;
+    subtext: string;
+    sourceTruth: "server_transaction" | "user_doc" | "entitlement_rollup" | "materialized_snapshot" | "telemetry" | "legacy" | "mixed";
+    freshnessState: "live" | "review" | "stale" | "unknown";
+    confidence: number | null;
+    warnings: string[];
+};
+
+export type AdminOverviewIssueDetail = {
+    source:
+        | "users"
+        | "commerce"
+        | "drops"
+        | "revenue"
+        | "unwraps"
+        | "transactions"
+        | "analytics_cache"
+        | "admin_activity"
+        | "unknown";
+    summary: string;
+    sourceTruth: "server_transaction" | "user_doc" | "entitlement_rollup" | "materialized_snapshot" | "telemetry" | "legacy" | "mixed" | "unknown";
+    freshnessState: "live" | "review" | "stale" | "unknown";
+};
+
 export type AdminOverviewDayPoint = {
     key: string;
     date: string;
@@ -114,7 +157,9 @@ export type AdminOverviewTruthNotes = {
 export interface AdminOverviewResponse {
     success: boolean;
     issues?: string[];
+    overviewIssues?: AdminOverviewIssueDetail[];
     generatedAt: number;
+    rollingWindow?: RollingWindow;
     freshness: {
         lastTransactionAt: number;
         lastAdminActivityAt: number;
@@ -131,6 +176,7 @@ export interface AdminOverviewResponse {
     topDrops: Drop[];
     chartData: AdminOverviewDayPoint[];
     trendSummary: AdminOverviewWindowSummary;
+    platformPulse?: PlatformPulseMetric[];
     truthNotes: AdminOverviewTruthNotes;
     verification?: AdminModuleVerification;
     /** Debug metadata surfaced from the realtime layer for admin debug panel visibility.
@@ -184,6 +230,23 @@ export function calculateOverviewMetricDelta(
         percentChange,
         direction: percentChange > 0 ? "up" : "down",
         scopeLabel,
+    };
+}
+
+export function buildRolling30dWindow(nowMs = Date.now()): RollingWindow {
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    const currentEndMs = nowMs;
+    const currentStartMs = currentEndMs - THIRTY_DAYS_MS;
+    const priorEndMs = currentStartMs;
+    const priorStartMs = priorEndMs - THIRTY_DAYS_MS;
+
+    return {
+        nowUtc: new Date(currentEndMs).toISOString(),
+        currentStartUtc: new Date(currentStartMs).toISOString(),
+        currentEndUtc: new Date(currentEndMs).toISOString(),
+        priorStartUtc: new Date(priorStartMs).toISOString(),
+        priorEndUtc: new Date(priorEndMs).toISOString(),
+        label: "rolling_30d",
     };
 }
 

@@ -11,6 +11,7 @@ import { db } from "@/lib/firebase-data";
 import { createAutoHealingObserver } from "@/lib/self-healing";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { AdminOverviewResponse, AdminOverviewTransactionRecord, AdminOverviewActivityItem, AdminOverviewRealtimeDebugMeta } from "@/lib/admin-overview";
+import { buildRolling30dWindow } from "@/lib/admin-overview";
 import { normalizeTransactionRecord, getTransactionDisplayLabel } from "@/lib/transaction-normalizers";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 
@@ -122,7 +123,14 @@ function buildRealtimeOnlyOverview(
     return {
         success: false,
         issues,
+        overviewIssues: issues.map((issue) => ({
+            source: issue.toLowerCase().includes("drop") ? "drops" : issue.toLowerCase().includes("commerce") ? "commerce" : issue.toLowerCase().includes("transaction") ? "transactions" : "admin_activity",
+            summary: issue,
+            sourceTruth: issue.toLowerCase().includes("commerce") || issue.toLowerCase().includes("transaction") ? "server_transaction" : issue.toLowerCase().includes("drop") ? "entitlement_rollup" : "telemetry",
+            freshnessState: "review",
+        })),
         generatedAt,
+        rollingWindow: buildRolling30dWindow(generatedAt),
         freshness: {
             lastTransactionAt: realtimeData.recentTransactions?.[0]?.timestamp ?? 0,
             lastAdminActivityAt: realtimeData.adminActivity?.[0]?.timestamp ?? 0,
@@ -147,6 +155,7 @@ function buildRealtimeOnlyOverview(
         adminActivity: realtimeData.adminActivity ?? [],
         topDrops: realtimeData.topDrops ?? [],
         chartData: [],
+        platformPulse: [],
         trendSummary: {
             windowDays: 30,
             currentStartDayKey: "",
@@ -526,6 +535,33 @@ export function useAdminOverviewRealtime() {
                 ...(listenerState.summaryFailed ? ["Commerce live updates are delayed."] : []),
                 ...(listenerState.transactionsFailed ? ["Transaction live updates are delayed."] : []),
                 ...(listenerState.adminActivityFailed ? ["Admin activity live updates are delayed."] : []),
+            ],
+            overviewIssues: [
+                ...(serverData.overviewIssues ?? []),
+                ...(listenerState.dropsFailed ? [{
+                    source: "drops" as const,
+                    summary: "Drop activity live updates are delayed.",
+                    sourceTruth: "entitlement_rollup" as const,
+                    freshnessState: "review" as const,
+                }] : []),
+                ...(listenerState.summaryFailed ? [{
+                    source: "commerce" as const,
+                    summary: "Commerce live updates are delayed.",
+                    sourceTruth: "server_transaction" as const,
+                    freshnessState: "review" as const,
+                }] : []),
+                ...(listenerState.transactionsFailed ? [{
+                    source: "transactions" as const,
+                    summary: "Transaction live updates are delayed.",
+                    sourceTruth: "server_transaction" as const,
+                    freshnessState: "review" as const,
+                }] : []),
+                ...(listenerState.adminActivityFailed ? [{
+                    source: "admin_activity" as const,
+                    summary: "Admin activity live updates are delayed.",
+                    sourceTruth: "telemetry" as const,
+                    freshnessState: "review" as const,
+                }] : []),
             ],
             truthNotes: {
                 ...serverData.truthNotes,

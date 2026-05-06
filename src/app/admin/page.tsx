@@ -15,7 +15,7 @@ import { resolveTruthChipVariant } from "@/hooks/useAdminOverviewRealtime";
 
 export default function AdminDashboardPage() {
     const { data, error, isLoading } = useAdminOverview();
-    const issueCount = data?.issues?.length ?? 0;
+    const issueCount = data?.overviewIssues?.length ?? data?.issues?.length ?? 0;
     const overviewLoadState = error ? "failed" : isLoading ? "loading" : "unavailable";
     const overviewFallbackClassName = overviewLoadState === "failed"
         ? "rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100"
@@ -62,9 +62,8 @@ export default function AdminDashboardPage() {
                     <AdminDashboardModule title="Platform pulse" defaultOpen={true}>
                         {data ? (
                             <AdminStatsBar
-                                stats={data.stats}
-                                deltas={data.deltas}
-                                issueCount={issueCount}
+                                platformPulse={data.platformPulse}
+                                overviewIssues={data.overviewIssues}
                                 truthState={truthVariant}
                             />
                         ) : (

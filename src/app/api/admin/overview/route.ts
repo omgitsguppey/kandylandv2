@@ -4,8 +4,8 @@ export const revalidate = 0;
 
 import { NextRequest, NextResponse } from "next/server";
 
-import type { AdminOverviewActivityItem, AdminOverviewDayPoint, RecentTransactionAdminRow } from "@/lib/admin-overview";
-import { calculateOverviewMetricDelta } from "@/lib/admin-overview";
+import type { AdminOverviewActivityItem, AdminOverviewDayPoint, AdminOverviewIssueDetail, PlatformPulseMetric, RecentTransactionAdminRow } from "@/lib/admin-overview";
+import { buildRolling30dWindow, calculateOverviewMetricDelta } from "@/lib/admin-overview";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
@@ -76,6 +76,38 @@ function formatChartDayLabel(dayKey: string) {
     }
 
     return dayKey;
+}
+
+function formatUsdFromCents(cents: number) {
+    return `$${(Math.max(0, cents) / 100).toFixed(2)}`;
+}
+
+function resolveDeltaLabel(current: number, previous: number, noun: string) {
+    if (previous === 0) {
+        return current > 0 ? `New activity: ${current.toLocaleString()} ${noun}` : `No ${noun} in either 30d window`;
+    }
+
+    return `${current.toLocaleString()} vs ${previous.toLocaleString()} ${noun} in prior 30d`;
+}
+
+function summarizeOverviewIssueSource(label: string): AdminOverviewIssueDetail["source"] {
+    const normalized = label.toLowerCase();
+    if (normalized.includes("user")) return "users";
+    if (normalized.includes("commerce summary") || normalized.includes("commerce daily")) return "commerce";
+    if (normalized.includes("drop daily")) return "unwraps";
+    if (normalized.includes("drop")) return "drops";
+    if (normalized.includes("transaction")) return "transactions";
+    if (normalized.includes("admin activity") || normalized.includes("admin adjustment")) return "admin_activity";
+    return "unknown";
+}
+
+function buildIssueDetail(input: {
+    source: AdminOverviewIssueDetail["source"];
+    summary: string;
+    sourceTruth: AdminOverviewIssueDetail["sourceTruth"];
+    freshnessState: AdminOverviewIssueDetail["freshnessState"];
+}) {
+    return input;
 }
 
 function buildWindowChart(endDayKey: string) {
@@ -253,19 +285,22 @@ async function GET_handler(request: NextRequest) {
         }
 
         const now = Date.now();
+        const rollingWindow = buildRolling30dWindow(now);
+        const currentRollingStartMs = Date.parse(rollingWindow.currentStartUtc);
+        const priorRollingStartMs = Date.parse(rollingWindow.priorStartUtc);
+        const priorRollingEndMs = Date.parse(rollingWindow.priorEndUtc);
         const currentEndDayKey = getCSTDateKey(now);
         const currentStartDayKey = shiftCSTDateKey(currentEndDayKey, -(OVERVIEW_WINDOW_DAYS - 1));
         const previousEndDayKey = shiftCSTDateKey(currentStartDayKey, -1);
         const previousStartDayKey = shiftCSTDateKey(currentStartDayKey, -OVERVIEW_WINDOW_DAYS);
-        const currentStartMs = fromCSTInput(`${currentStartDayKey}T00:00`);
-        const previousStartMs = fromCSTInput(`${previousStartDayKey}T00:00`);
         const adminActivityStartMs = fromCSTInput(`${shiftCSTDateKey(currentEndDayKey, -13)}T00:00`);
         const issues: string[] = [];
 
         const [
-            recentUsersSnapshot,
+            allUsersSnapshot,
             dropsSnapshot,
             recentTransactionsSnapshot,
+            rollingTransactionsSnapshot,
             adminAdjustmentsSnapshot,
             commerceSummarySnapshot,
             commerceDailySnapshot,
@@ -275,11 +310,9 @@ async function GET_handler(request: NextRequest) {
             safeQueryWithDiagnostics({
                 routeName: "admin/overview",
                 channel: "admin",
-                label: "recent users",
+                label: "users",
                 issues,
-                reader: () => adminDb.collection("users")
-                    .where("createdAt", ">=", previousStartMs)
-                    .get(),
+                reader: () => adminDb.collection("users").get(),
             }),
             safeQueryWithDiagnostics({
                 routeName: "admin/overview",
@@ -296,6 +329,15 @@ async function GET_handler(request: NextRequest) {
                 reader: () => adminDb.collection("transactions")
                     .orderBy("timestamp", "desc")
                     .limit(RECENT_TRANSACTION_LIMIT)
+                    .get(),
+            }),
+            safeQueryWithDiagnostics({
+                routeName: "admin/overview",
+                channel: "commerce",
+                label: "rolling transactions",
+                issues,
+                reader: () => adminDb.collection("transactions")
+                    .where("timestamp", ">=", priorRollingStartMs)
                     .get(),
             }),
             safeQueryWithDiagnostics({
@@ -496,17 +538,49 @@ async function GET_handler(request: NextRequest) {
 
         let currentNewUsers = 0;
         let previousNewUsers = 0;
-        recentUsersSnapshot.docs.forEach((doc) => {
+        let usersMissingCreatedAtCount = 0;
+        allUsersSnapshot.docs.forEach((doc) => {
             const raw = doc.data() as Record<string, unknown>;
             const createdAt = toTimestampNumber(raw.createdAt);
             if (!createdAt) {
+                usersMissingCreatedAtCount += 1;
                 return;
             }
 
-            if (createdAt >= currentStartMs) {
+            if (createdAt >= currentRollingStartMs && createdAt < now) {
                 currentNewUsers += 1;
-            } else if (createdAt >= previousStartMs) {
+            } else if (createdAt >= priorRollingStartMs && createdAt < priorRollingEndMs) {
                 previousNewUsers += 1;
+            }
+        });
+
+        let rollingPurchaseCount = 0;
+        let priorRollingPurchaseCount = 0;
+        let rollingRevenueCents = 0;
+        let priorRollingRevenueCents = 0;
+        rollingTransactionsSnapshot.docs.forEach((doc) => {
+            try {
+                const normalized = normalizeTransactionRecord(doc.data(), doc.id);
+                const timestamp = typeof normalized.timestamp === "number"
+                    ? normalized.timestamp
+                    : toTimestampNumber(normalized.timestamp);
+                if (normalized.type !== "purchase_currency" || normalized.status !== "completed" || timestamp <= 0) {
+                    return;
+                }
+
+                const revenueCents = typeof normalized.grossRevenueCents === "number" && Number.isFinite(normalized.grossRevenueCents)
+                    ? Math.max(0, Math.round(normalized.grossRevenueCents))
+                    : 0;
+
+                if (timestamp >= currentRollingStartMs && timestamp < now) {
+                    rollingPurchaseCount += 1;
+                    rollingRevenueCents += revenueCents;
+                } else if (timestamp >= priorRollingStartMs && timestamp < priorRollingEndMs) {
+                    priorRollingPurchaseCount += 1;
+                    priorRollingRevenueCents += revenueCents;
+                }
+            } catch {
+                return;
             }
         });
 
@@ -541,6 +615,99 @@ async function GET_handler(request: NextRequest) {
         );
         const totalUnwraps = Math.max(userMetricsSnapshot.trackedUnwraps, dropUnlockTotals);
 
+        const overviewIssues: AdminOverviewIssueDetail[] = issues.map((issue) =>
+            buildIssueDetail({
+                source: summarizeOverviewIssueSource(issue),
+                summary: issue,
+                sourceTruth: issue.toLowerCase().includes("user")
+                    ? "user_doc"
+                    : issue.toLowerCase().includes("transaction") || issue.toLowerCase().includes("commerce")
+                        ? "server_transaction"
+                        : issue.toLowerCase().includes("drop")
+                            ? "entitlement_rollup"
+                            : "mixed",
+                freshnessState: "review",
+            }),
+        );
+
+        if (usersMissingCreatedAtCount > 0) {
+            overviewIssues.push(buildIssueDetail({
+                source: "users",
+                summary: `${usersMissingCreatedAtCount.toLocaleString()} user docs are missing createdAt, so new-account growth is incomplete.`,
+                sourceTruth: "user_doc",
+                freshnessState: "review",
+            }));
+        }
+
+        const platformPulse: PlatformPulseMetric[] = [
+            {
+                id: "accounts",
+                label: "Accounts",
+                primaryValue: userMetricsSnapshot.totalUsers,
+                primaryScope: "lifetime",
+                current30dValue: currentNewUsers,
+                prior30dValue: previousNewUsers,
+                deltaPct: calculateOverviewMetricDelta(currentNewUsers, previousNewUsers).percentChange,
+                deltaLabel: resolveDeltaLabel(currentNewUsers, previousNewUsers, "new accounts"),
+                subtext: usersMissingCreatedAtCount > 0
+                    ? "New account source incomplete"
+                    : `${currentNewUsers.toLocaleString()} new in last 30d`,
+                sourceTruth: "user_doc",
+                freshnessState: usersMissingCreatedAtCount > 0 ? "review" : "live",
+                confidence: usersMissingCreatedAtCount > 0 ? 0.6 : 0.98,
+                warnings: usersMissingCreatedAtCount > 0 ? ["new_account_source_incomplete"] : [],
+            },
+            {
+                id: "purchases30d",
+                label: "Purchases (30D)",
+                primaryValue: rollingPurchaseCount,
+                primaryScope: "rolling_30d",
+                current30dValue: rollingPurchaseCount,
+                prior30dValue: priorRollingPurchaseCount,
+                deltaPct: calculateOverviewMetricDelta(rollingPurchaseCount, priorRollingPurchaseCount).percentChange,
+                deltaLabel: resolveDeltaLabel(rollingPurchaseCount, priorRollingPurchaseCount, "purchases"),
+                subtext: `${rollingPurchaseCount.toLocaleString()} purchases in last 30d`,
+                sourceTruth: "server_transaction",
+                freshnessState: "live",
+                confidence: 0.98,
+                warnings: [],
+            },
+            {
+                id: "revenue",
+                label: "Revenue (30D)",
+                primaryValue: formatUsdFromCents(rollingRevenueCents),
+                primaryScope: "rolling_30d",
+                current30dValue: rollingRevenueCents,
+                prior30dValue: priorRollingRevenueCents,
+                lifetimeValue: grossRevenueCents,
+                lifetimeLabel: `Lifetime revenue ${formatUsdFromCents(grossRevenueCents)}`,
+                deltaPct: calculateOverviewMetricDelta(rollingRevenueCents, priorRollingRevenueCents).percentChange,
+                deltaLabel: `${formatUsdFromCents(rollingRevenueCents)} vs ${formatUsdFromCents(priorRollingRevenueCents)} in prior 30d`,
+                subtext: `Lifetime revenue ${formatUsdFromCents(grossRevenueCents)}`,
+                sourceTruth: "server_transaction",
+                freshnessState: "live",
+                confidence: 0.97,
+                warnings: [],
+            },
+            {
+                id: "unwraps",
+                label: "Unwraps (30D)",
+                primaryValue: currentUnwraps,
+                primaryScope: "rolling_30d",
+                current30dValue: currentUnwraps,
+                prior30dValue: previousUnwraps,
+                lifetimeValue: totalUnwraps,
+                lifetimeLabel: `Lifetime unwraps ${totalUnwraps.toLocaleString()}`,
+                deltaPct: calculateOverviewMetricDelta(currentUnwraps, previousUnwraps).percentChange,
+                deltaLabel: resolveDeltaLabel(currentUnwraps, previousUnwraps, "unwraps"),
+                subtext: `Lifetime unwraps ${totalUnwraps.toLocaleString()}`,
+                sourceTruth: "entitlement_rollup",
+                freshnessState: "live",
+                confidence: 0.94,
+                warnings: [],
+            },
+        ];
+
         const lastTransactionAt = recentTransactions.reduce(
             (latest, transaction) => Math.max(latest, typeof transaction.timestamp === "number" ? transaction.timestamp : 0),
             toTimestampNumber(commerceSummary?.lastTransactionAt),
@@ -551,9 +718,9 @@ async function GET_handler(request: NextRequest) {
             overview: issues.length > 0
                 ? `Server snapshot via API poll (${Math.round(60)}s interval) — ${issues.length} read fallback${issues.length === 1 ? "" : "s"} active`
                 : "Server snapshot via API poll (60s interval) — all reads successful",
-            platformPulse: commerceSummary
-                ? "Lifetime revenue and unwrap totals merge analytics rollup history with live drop-record fallbacks where needed. Deltas compare the last 30 days to the previous 30 days."
-                : "Lifetime revenue and unwrap totals are scoped to currently available overview reads because the lifetime commerce summary was unavailable.",
+            platformPulse: usersMissingCreatedAtCount > 0
+                ? "Platform Pulse uses one rolling 30-day window, but account growth is under review because some user docs are missing createdAt."
+                : "Platform Pulse uses one rolling 30-day window. Purchases and revenue come from completed transactions, while lifetime totals remain secondary context.",
             drops: "Firestore drop collection with current lifecycle status applied.",
             revenue: "30-day chart built from analytics_commerce_daily, compared against prior 30-day window. Polled via server API, not realtime.",
             topDrops: "Ranked from current drop records by total unwrap count.",
@@ -564,7 +731,9 @@ async function GET_handler(request: NextRequest) {
         return finalize(NextResponse.json({
             success: true,
             issues,
+            overviewIssues,
             generatedAt: now,
+            rollingWindow,
             freshness: {
                 lastTransactionAt,
                 lastAdminActivityAt,
@@ -575,20 +744,21 @@ async function GET_handler(request: NextRequest) {
                 totalDrops: drops.length,
                 grossRevenueCents,
                 totalUnwraps,
-                currentWindowPurchases: currentPurchases,
+                currentWindowPurchases: rollingPurchaseCount,
                 currentWindowNewUsers: currentNewUsers,
                 userMetricsSnapshot,
             },
             deltas: {
                 accounts: calculateOverviewMetricDelta(currentNewUsers, previousNewUsers),
-                purchases: calculateOverviewMetricDelta(currentPurchases, previousPurchases),
-                revenue: calculateOverviewMetricDelta(currentRevenueCents, previousRevenueCents),
+                purchases: calculateOverviewMetricDelta(rollingPurchaseCount, priorRollingPurchaseCount),
+                revenue: calculateOverviewMetricDelta(rollingRevenueCents, priorRollingRevenueCents),
                 unwraps: calculateOverviewMetricDelta(currentUnwraps, previousUnwraps),
             },
             recentTransactions,
             adminActivity,
             topDrops,
             chartData: chartSeed,
+            platformPulse,
             trendSummary: {
                 windowDays: OVERVIEW_WINDOW_DAYS,
                 currentStartDayKey,

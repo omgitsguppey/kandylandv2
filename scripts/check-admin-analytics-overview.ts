@@ -40,6 +40,11 @@ const debugRoute = read("src/app/api/admin/debug/route.ts");
 const historicalRoute = read("src/app/api/admin/analytics/historical/route.ts");
 const analyticsTypes = read("src/types/admin-analytics.ts");
 const doc = read("docs/agent-truth/admin-analytics-overview.md");
+const adminOverviewPage = read("src/app/admin/page.tsx");
+const adminStatsBar = read("src/components/Admin/AdminStatsBar.tsx");
+const adminOverviewRoute = read("src/app/api/admin/overview/route.ts");
+const adminOverviewContract = read("src/lib/admin-overview.ts");
+const adminOverviewDoc = read("docs/agent-truth/admin-overview.md");
 
 assertIncludes("AdminAnalyticsPrimitives", primitives, "ANALYTICS_METRIC_BADGE_LABELS");
 for (const badge of EXPECTED_OPERATOR_BADGES) {
@@ -101,6 +106,28 @@ assertIncludes("agent truth doc", doc, "Badge Containment Rule");
 assertIncludes("agent truth doc", doc, "Analytics Hydration Rule");
 assertIncludes("agent truth doc", doc, "Degraded Copy Rule");
 assertIncludes("agent truth doc", doc, "Fake zeros are forbidden");
+
+assertIncludes("admin overview contract", adminOverviewContract, "RollingWindow");
+assertIncludes("admin overview contract", adminOverviewContract, "PlatformPulseMetric");
+assertIncludes("admin overview contract", adminOverviewContract, "overviewIssues");
+assertIncludes("admin overview contract", adminOverviewContract, "rollingWindow");
+assertIncludes("admin overview contract", adminOverviewContract, "platformPulse");
+assertIncludes("admin overview route", adminOverviewRoute, "buildRolling30dWindow");
+assertIncludes("admin overview route", adminOverviewRoute, "overviewIssues");
+assertIncludes("admin overview route", adminOverviewRoute, "platformPulse");
+assertIncludes("admin overview route", adminOverviewRoute, "rolling transactions");
+assertIncludes("admin overview route", adminOverviewRoute, "New account source incomplete");
+assertIncludes("admin overview route", adminOverviewRoute, "Purchases and revenue come from completed transactions");
+assertIncludes("admin overview page", adminOverviewPage, "platformPulse={data.platformPulse}");
+assertIncludes("admin overview page", adminOverviewPage, "overviewIssues={data.overviewIssues}");
+assertIncludes("AdminStatsBar", adminStatsBar, "data-admin-metric-source");
+assertIncludes("AdminStatsBar", adminStatsBar, "data-admin-metric-freshness");
+assertIncludes("AdminStatsBar", adminStatsBar, "data-admin-metric-confidence");
+assertIncludes("AdminStatsBar", adminStatsBar, "lifetimeLabel");
+assertNotIncludes("AdminStatsBar", adminStatsBar, "live of {stats.totalDrops} drops");
+assertNotIncludes("AdminStatsBar", adminStatsBar, "vs. prior 30d");
+assertNotIncludes("AdminStatsBar", adminStatsBar, "stats.currentWindowNewUsers");
+assertIncludes("Admin overview doctrine", adminOverviewDoc, "Admin Overview");
 
 if (process.exitCode) {
   process.exit(process.exitCode);
