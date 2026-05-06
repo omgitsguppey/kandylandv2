@@ -92,8 +92,18 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                                 </div>
 
                                                 <div className="grid grid-cols-2 gap-2">
-                                                    <MetricCard label="Refs used" value={formatAdminAiNullableNumber(job.referenceImageCount)} meta={`${formatAdminAiNullableNumber(job.referenceRequestCount)} req`} truthState={jobTruthState} />
-                                                    <MetricCard label="Risk" value={job.overAnchoringRisk || "[unavailable]"} meta={job.referenceTruncated ? "Cap hit" : "Within cap"} truthState={job.overAnchoringRisk ? jobTruthState : "unavailable"} />
+                                                    <MetricCard
+                                                        label="Queued refs"
+                                                        value={formatAdminAiNullableNumber(job.usedReferenceCount ?? job.referenceImageCount)}
+                                                        meta={`Pool ${formatAdminAiNullableNumber(job.referenceRequestCount)} • Max ${formatAdminAiNullableNumber(job.maxReferenceCount)}${(job.droppedReferenceCount || 0) > 0 ? ` • Dropped ${formatAdminAiNullableNumber(job.droppedReferenceCount)}` : ""}`}
+                                                        truthState={jobTruthState}
+                                                    />
+                                                    <MetricCard
+                                                        label="Risk"
+                                                        value={job.overAnchoringRisk || "[unavailable]"}
+                                                        meta={job.referenceTruncated ? "Reference cap applied" : "Within cap"}
+                                                        truthState={job.overAnchoringRisk ? jobTruthState : "unavailable"}
+                                                    />
                                                 </div>
 
                                                 {job.validationWarnings && job.validationWarnings.length > 0 ? (

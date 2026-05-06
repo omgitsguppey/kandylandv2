@@ -40,6 +40,7 @@ const debugTabAi = readRequired("src/app/admin/debug/components/DebugTabAi.tsx")
 const realtimePanel = readRequired("src/app/admin/debug/components/AdminAiAssistantRealtimePanel.tsx");
 const optimizerHealth = readRequired("src/app/admin/ai/components/AdminAiOptimizerhealthSection.tsx");
 const dropCovers = readRequired("src/lib/ai-drop-covers.ts");
+const recentGenerationsPanel = readRequired("src/app/admin/ai/components/AdminAiRecentgenerationsSection.tsx");
 const coverReferencePolicy = readRequired("src/lib/ai-cover-reference-policy.ts");
 const coverGenerateRoute = readRequired("src/app/api/admin/ai/drop-covers/generate/route.ts");
 const coverGeneratorPanel = readRequired("src/components/Admin/AiDropCoverGeneratorPanel.tsx");
@@ -209,6 +210,17 @@ for (const expected of [
   "We'll use the first",
 ]) {
   requireIncludes(coverGeneratorPanel, expected, "Cover generator panel reference limit copy");
+}
+
+for (const expected of [
+  "label=\"Queued refs\"",
+  "job.usedReferenceCount ?? job.referenceImageCount",
+  "Pool ${formatAdminAiNullableNumber(job.referenceRequestCount)}",
+  "Max ${formatAdminAiNullableNumber(job.maxReferenceCount)}",
+  "Dropped ${formatAdminAiNullableNumber(job.droppedReferenceCount)}",
+  "Reference cap applied",
+]) {
+  requireIncludes(recentGenerationsPanel, expected, "Recent generations reference limit reporting");
 }
 
 for (const expected of [
