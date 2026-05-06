@@ -27,6 +27,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 const component = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const helper = read("src/lib/admin-analytics-audience-snapshot.ts");
 const deviceMixHelper = read("src/lib/admin-analytics-device-mix.ts");
+const topPathsHelper = read("src/lib/admin-analytics-top-paths.ts");
 const returnCadenceHelper = read("src/lib/admin-analytics-return-cadence.ts");
 const route = read("src/app/api/admin/analytics/historical/route.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
@@ -38,14 +39,18 @@ assertIncludes("audience types", types, "sourceState: \"verified\" | \"mixed\" |
 assertIncludes("audience types", types, "export type AudienceSnapshotDiagnostics");
 assertIncludes("audience types", types, "export type ReturnCadenceState");
 assertIncludes("audience types", types, "export type DeviceMixPanelState");
+assertIncludes("audience types", types, "export type TopPathsPanelState");
 assertIncludes("audience types", types, "engagementDefinition: string");
 assertIncludes("audience types", types, "unknownSessions: number");
+assertIncludes("audience types", types, "routeGroup:");
+assertIncludes("audience types", types, "pageSize: number");
 
 assertIncludes("historical route", route, "audienceSnapshotDiagnostics");
 assertIncludes("historical route", route, "recoveredByGaDayKeys");
 assertIncludes("historical route", route, "firstPartyPresentDayKeys");
 assertIncludes("historical route", route, "guestEstimatedOnlyDayKeys");
 assertIncludes("historical route", route, "deviceMixPanelState");
+assertIncludes("historical route", route, "topPathsPanelState");
 assertIncludes("historical route", route, "analyticsSourceHealth");
 
 assertIncludes("audience helper", helper, "continuitySummary");
@@ -60,6 +65,14 @@ assertIncludes("device mix helper", deviceMixHelper, "GA engaged sessions / GA s
 assertIncludes("device mix helper", deviceMixHelper, "Device mix is GA session-based, not authenticated-user based.");
 assertIncludes("device mix helper", deviceMixHelper, "Mobile is dominant; prioritize mobile layout, thumb-reach CTAs, and image payload limits.");
 assertIncludes("device mix helper", deviceMixHelper, "Unknown device sessions need classification review");
+assertIncludes("top paths helper", topPathsHelper, "buildAdminAnalyticsTopPathsModel");
+assertIncludes("top paths helper", topPathsHelper, "\"high_volume_low_engagement\"");
+assertIncludes("top paths helper", topPathsHelper, "\"zero_time\"");
+assertIncludes("top paths helper", topPathsHelper, "Top 25 snapshot only. This panel paginates the available snapshot, not every path in GA.");
+assertIncludes("top paths helper", topPathsHelper, "\"creator\"");
+assertIncludes("top paths helper", topPathsHelper, "\"legal\"");
+assertIncludes("top paths helper", topPathsHelper, "\"dashboard\"");
+assertIncludes("top paths helper", topPathsHelper, "0s avg time on a legal/static path can reflect quick policy reads or immediate exits; verify timing source before treating it as zero engagement.");
 
 assertIncludes("audience component", component, "data-audience-source-state");
 assertIncludes("audience component", component, "data-audience-ga-freshness");
@@ -88,6 +101,15 @@ assertIncludes("audience component", component, "data-device-mix-unknown-session
 assertIncludes("audience component", component, "Total sessions:");
 assertIncludes("audience component", component, "Engagement: {deviceMixModel.engagementDefinition}");
 assertIncludes("audience component", component, "Purchase rate, unwrap rate, bounce rate, average session length, and watch time by device are unavailable");
+assertIncludes("audience component", component, "data-top-paths-source-truth");
+assertIncludes("audience component", component, "data-top-paths-total-count");
+assertIncludes("audience component", component, "data-top-paths-page-size");
+assertIncludes("audience component", component, "Search path");
+assertIncludes("audience component", component, "Filter");
+assertIncludes("audience component", component, "Page size");
+assertIncludes("audience component", component, "Percent column: Engagement");
+assertIncludes("audience component", component, "Top 25 snapshot only");
+assertIncludes("audience component", component, "No paths match the current search/filter selection.");
 assertNotIncludes("audience component", component, "label=\"Active Users\"");
 
 assertIncludes("debug route", debugRoute, "adminAnalyticsAudienceSnapshot");

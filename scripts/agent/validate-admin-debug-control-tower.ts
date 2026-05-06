@@ -123,6 +123,7 @@ const liveInteractionStreamHelper = readRequired("src/lib/admin-analytics-live-i
 const returnCadenceHelper = readRequired("src/lib/admin-analytics-return-cadence.ts");
 const navigationDestinationsHelper = readRequired("src/lib/admin-analytics-navigation-destinations.ts");
 const deviceMixHelper = readRequired("src/lib/admin-analytics-device-mix.ts");
+const topPathsHelper = readRequired("src/lib/admin-analytics-top-paths.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
@@ -2046,6 +2047,18 @@ for (const expected of [
   requireIncludes(deviceMixHelper, expected, "Device mix truth helper");
 }
 for (const expected of [
+  "buildAdminAnalyticsTopPathsModel",
+  "\"high_volume_low_engagement\"",
+  "\"zero_time\"",
+  "\"creator\"",
+  "\"legal\"",
+  "\"dashboard\"",
+  "Top 25 snapshot only. This panel paginates the available snapshot, not every path in GA.",
+  "0s avg time suggests timing is unavailable for this path or users are exiting immediately after arrival.",
+]) {
+  requireIncludes(topPathsHelper, expected, "Top paths truth helper");
+}
+for (const expected of [
   "Source mode:",
   "Explicit taps:",
   "Fallback views:",
@@ -2066,6 +2079,22 @@ for (const expected of [
   "Purchase rate, unwrap rate, bounce rate, average session length, and watch time by device are unavailable",
 ]) {
   requireIncludes(adminAnalyticsAudienceTab, expected, "Device mix audience panel");
+}
+for (const expected of [
+  "data-top-paths-source-truth",
+  "data-top-paths-range",
+  "data-top-paths-total-count",
+  "data-top-paths-page-size",
+  "data-top-paths-route-group",
+  "data-top-paths-issue-state",
+  "Search path",
+  "Page size",
+  "Prev",
+  "Next",
+  "Percent column: Engagement",
+  "Top 25 snapshot only",
+]) {
+  requireIncludes(adminAnalyticsAudienceTab, expected, "Top paths audience panel");
 }
 for (const expected of [
   "Mode:",
@@ -2113,6 +2142,7 @@ try {
       /^src\/lib\/admin-analytics-return-cadence\.ts$/u,
       /^src\/lib\/admin-analytics-navigation-destinations\.ts$/u,
       /^src\/lib\/admin-analytics-device-mix\.ts$/u,
+      /^src\/lib\/admin-analytics-top-paths\.ts$/u,
       /^src\/lib\/admin-analytics-journey-funnel\.ts$/u,
       /^src\/lib\/admin-analytics-auth-outcome-split\.ts$/u,
       /^src\/lib\/auth-outcome-telemetry\.ts$/u,
@@ -2234,6 +2264,7 @@ try {
     /^tests\/unit\/admin-analytics-event-mix\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-live-interaction-stream\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-device-mix\.spec\.ts$/u,
+    /^tests\/unit\/admin-analytics-top-paths\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-navigation-destinations\.spec\.ts$/u,
     /^tests\/unit\/admin-notification-funnel\.spec\.ts$/u,
     /^tests\/unit\/admin-task-pipeline\.spec\.ts$/u,

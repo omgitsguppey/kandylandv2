@@ -23,7 +23,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,
     regionsRange, geo,
-    audienceHistorySeries, audienceSnapshotModel, returnCadenceModel, navigationDestinationsModel, deviceMixDevices, deviceMixTotalUsers, deviceMixModel, topPathsPages, regionsGeo,
+    audienceHistorySeries, audienceSnapshotModel, returnCadenceModel, navigationDestinationsModel, deviceMixDevices, deviceMixTotalUsers, deviceMixModel, topPathsPages, topPathsModel, regionsGeo,
 
     // Commerce Tab
     commerceSnapshotRange, commerce,
@@ -58,6 +58,61 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     : audienceSnapshotModel.continuity.gapSeverity === "review"
       ? "Continuity needs review"
       : "Continuity verified";
+  const [topPathsSearch, setTopPathsSearch] = React.useState("");
+  const [topPathsFilter, setTopPathsFilter] = React.useState<
+    | "all"
+    | "high_volume_low_engagement"
+    | "zero_time"
+    | "creator"
+    | "legal_static"
+    | "dashboard_authenticated"
+  >("all");
+  const [topPathsPage, setTopPathsPage] = React.useState(1);
+  const [topPathsPageSize, setTopPathsPageSize] = React.useState(10);
+  const filteredTopPathRows = React.useMemo(() => {
+    const search = topPathsSearch.trim().toLowerCase();
+    return topPathsModel.rows.filter((row) => {
+      const matchesSearch =
+        search.length === 0
+          || row.path.toLowerCase().includes(search)
+          || row.label.toLowerCase().includes(search);
+      if (!matchesSearch) {
+        return false;
+      }
+
+      switch (topPathsFilter) {
+        case "high_volume_low_engagement":
+          return row.issueState === "warning";
+        case "zero_time":
+          return (row.avgTimeSeconds ?? 0) <= 1;
+        case "creator":
+          return row.routeGroup === "creator";
+        case "legal_static":
+          return row.routeGroup === "legal" || row.routeGroup === "support";
+        case "dashboard_authenticated":
+          return row.routeGroup === "dashboard" || row.routeGroup === "auth";
+        default:
+          return true;
+      }
+    });
+  }, [topPathsFilter, topPathsModel.rows, topPathsSearch]);
+  const pagedTopPathRows = React.useMemo(() => {
+    const startIndex = (topPathsPage - 1) * topPathsPageSize;
+    return filteredTopPathRows.slice(startIndex, startIndex + topPathsPageSize);
+  }, [filteredTopPathRows, topPathsPage, topPathsPageSize]);
+  const topPathsTotalPages = Math.max(
+    1,
+    Math.ceil(filteredTopPathRows.length / Math.max(1, topPathsPageSize)),
+  );
+  const topPathsHasNextPage = topPathsPage < topPathsTotalPages;
+  React.useEffect(() => {
+    setTopPathsPage(1);
+  }, [topPathsFilter, topPathsPageSize, topPathsSearch, topPathsRange]);
+  React.useEffect(() => {
+    if (topPathsPage > topPathsTotalPages) {
+      setTopPathsPage(topPathsTotalPages);
+    }
+  }, [topPathsPage, topPathsTotalPages]);
 
   return (
     <>
@@ -706,38 +761,183 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 
               <SectionCard
                 title="Top Paths"
-                subtitle="Where people are actually spending time."
+                subtitle="Paginated path analytics with source truth and engagement context."
                 icon={FileText}
                 rightSlot={renderSectionRangeControl("topPaths")}
               >
-                <div className="space-y-3">
-                  {topPathsPages.length > 0 ? (
-                    topPathsPages.slice(0, 8).map((page: any) => (
+                <div
+                  className="mb-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                  data-top-paths-source-truth={topPathsModel.sourceTruth}
+                  data-top-paths-range={topPathsModel.range}
+                  data-top-paths-total-count={String(topPathsModel.totalPathCount)}
+                  data-top-paths-page={String(topPathsPage)}
+                  data-top-paths-page-size={String(topPathsPageSize)}
+                >
+                  {topPathsModel.visibleCopy.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                  <p className="text-gray-500">
+                    Range: {topPathsModel.range}
+                    {" | "}Source: {topPathsModel.sourceLabel}
+                    {" | "}Freshness: {topPathsModel.freshnessLabel}
+                  </p>
+                  <p className="text-gray-500">
+                    Total views: {topPathsModel.totalViews.toLocaleString()}
+                    {" | "}Paths in snapshot: {topPathsModel.totalPathCount.toLocaleString()}
+                    {" | "}Page {topPathsPage} of {topPathsTotalPages}
+                  </p>
+                  <p className="text-gray-500">
+                    Generated: {topPathsModel.generatedAtUtc === new Date(0).toISOString()
+                      ? "Unavailable"
+                      : formatRelativeTime(Date.parse(topPathsModel.generatedAtUtc), nowMs)}
+                    {" | "}Percent column: Engagement
+                  </p>
+                </div>
+                <div className="mb-3 grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
+                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
+                    <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                      Search path
+                    </span>
+                    <input
+                      value={topPathsSearch}
+                      onChange={(event) => setTopPathsSearch(event.target.value)}
+                      placeholder="/drops"
+                      className="w-full bg-transparent text-sm text-white outline-none placeholder:text-gray-600"
+                    />
+                  </label>
+                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
+                    <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                      Filter
+                    </span>
+                    <select
+                      value={topPathsFilter}
+                      onChange={(event) => setTopPathsFilter(event.target.value as typeof topPathsFilter)}
+                      className="bg-transparent text-sm text-white outline-none"
+                    >
+                      {topPathsModel.availableFilterKeys.map((item) => (
+                        <option key={item.value} value={item.value} className="bg-slate-900">
+                          {item.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
+                    <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                      Page size
+                    </span>
+                    <select
+                      value={topPathsPageSize}
+                      onChange={(event) => setTopPathsPageSize(Number(event.target.value))}
+                      className="bg-transparent text-sm text-white outline-none"
+                    >
+                      {[10, 25, 50].map((size) => (
+                        <option key={size} value={size} className="bg-slate-900">
+                          {size}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
+                    <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                      Snapshot scope
+                    </span>
+                    <p className="text-sm text-white">
+                      {topPathsModel.snapshotLimited
+                        ? "Top 25 snapshot only"
+                        : "All available rows in snapshot"}
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="hidden grid-cols-[minmax(0,2.2fr)_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr] gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
+                    <span>Path / label</span>
+                    <span>Group</span>
+                    <span>Views</span>
+                    <span>Share</span>
+                    <span>Avg time</span>
+                    <span>Engagement</span>
+                  </div>
+                  {pagedTopPathRows.length > 0 ? (
+                    pagedTopPathRows.map((row) => (
                       <div
-                        key={page.path}
+                        key={row.path}
                         className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
+                        data-top-paths-path={row.path}
+                        data-top-paths-route-group={row.routeGroup}
+                        data-top-paths-views={String(row.views)}
+                        data-top-paths-avg-time={row.avgTimeDisplay}
+                        data-top-paths-engagement-rate={row.engagementRatePct === null ? "unavailable" : String(row.engagementRatePct)}
+                        data-top-paths-issue-state={row.issueState}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-white">
-                              {page.path || "/"}
+                              {row.path}
                             </p>
                             <p className="mt-1 text-xs text-gray-500">
-                              {page.views.toLocaleString()} views ·{" "}
-                              {formatDuration(page.avgTime)} avg time
+                              {row.label}
+                              {" | "}Source: {row.sourceTruth}
+                              {" | "}Confidence: {row.confidenceState}
                             </p>
                           </div>
-                          <span className="shrink-0 rounded-full bg-white/5 px-2.5 py-1 text-xs font-semibold text-brand-purple">
-                            {formatPercent(page.engagementRate)}
+                          <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${
+                            row.issueState === "warning"
+                              ? "bg-amber-500/15 text-amber-200"
+                              : row.issueState === "review"
+                                ? "bg-white/10 text-gray-200"
+                                : "bg-emerald-500/15 text-emerald-200"
+                          }`}>
+                            {row.issueState}
                           </span>
                         </div>
+                        <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-gray-300 md:grid-cols-[minmax(0,2.2fr)_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr]">
+                          <div className="md:hidden" />
+                          <p><span className="text-gray-500">Group:</span> {row.routeGroup}</p>
+                          <p><span className="text-gray-500">Views:</span> {row.views.toLocaleString()}</p>
+                          <p><span className="text-gray-500">Share:</span> {formatPercent(row.viewSharePct)}</p>
+                          <p><span className="text-gray-500">Avg time:</span> {row.avgTimeDisplay}</p>
+                          <p><span className="text-gray-500">Engagement:</span> {row.engagementRatePct === null ? "Unavailable" : formatPercent(row.engagementRatePct)}</p>
+                        </div>
+                        <p className="mt-2 text-[11px] text-gray-500">
+                          {row.explanation}
+                        </p>
                       </div>
                     ))
                   ) : (
                     <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                      No page-path data available yet.
+                      {topPathsModel.rows.length > 0
+                        ? "No paths match the current search/filter selection."
+                        : "No page-path data available for this range."}
                     </div>
                   )}
+                </div>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300">
+                  <p>
+                    Showing {pagedTopPathRows.length === 0 ? 0 : ((topPathsPage - 1) * topPathsPageSize) + 1}
+                    {pagedTopPathRows.length === 0 ? "" : `-${((topPathsPage - 1) * topPathsPageSize) + pagedTopPathRows.length}`}
+                    {" of "}{filteredTopPathRows.length.toLocaleString()} filtered paths
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setTopPathsPage((current) => Math.max(1, current - 1))}
+                      disabled={topPathsPage <= 1}
+                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white disabled:opacity-40"
+                    >
+                      Prev
+                    </button>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                      Page {topPathsPage}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setTopPathsPage((current) => Math.min(topPathsTotalPages, current + 1))}
+                      disabled={!topPathsHasNextPage}
+                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white disabled:opacity-40"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               </SectionCard>
             </div>

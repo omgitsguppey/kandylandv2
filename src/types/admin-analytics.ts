@@ -91,6 +91,47 @@ export interface PageItem {
   engagementRate: number;
 }
 
+export type TopPathRow = {
+  path: string;
+  label: string;
+  routeGroup:
+    | "home"
+    | "drops"
+    | "dashboard"
+    | "creator"
+    | "legal"
+    | "support"
+    | "admin"
+    | "auth"
+    | "unknown";
+  views: number;
+  viewSharePct: number;
+  avgTimeSeconds: number | null;
+  avgTimeDisplay: string;
+  engagementRatePct: number | null;
+  bounceRatePct?: number | null;
+  uniqueUsers?: number | null;
+  sessions?: number | null;
+  sourceTruth: string;
+  confidenceState: "verified" | "partial" | "estimated" | "unknown";
+  issueState: "healthy" | "review" | "warning" | "unknown";
+  explanation: string;
+};
+
+export type TopPathsPanelState = {
+  generatedAtUtc: string;
+  range: string;
+  sourceTruth: "ga4" | "first_party" | "mixed" | "fallback" | "unknown";
+  freshnessState: "live" | "recent" | "stale" | "partial" | "unknown";
+  totalPathCount: number;
+  totalViews: number;
+  page: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  rows: TopPathRow[];
+  warnings: string[];
+};
+
 export interface TopDropItem {
   dropId: string;
   views: number;
@@ -720,6 +761,7 @@ export interface HistoricalAnalyticsResponse {
   destinationMix?: DestinationMixItem[];
   navigationDestinationsState?: NavigationDestinationsState;
   deviceMixPanelState?: DeviceMixPanelState;
+  topPathsPanelState?: TopPathsPanelState;
   notificationFunnel?: CountBucketItem[];
   notificationActions?: Array<{ label: string; value: number }>;
   taskPipeline?: CountBucketItem[];

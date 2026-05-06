@@ -471,7 +471,12 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 deviceMixPanelState: payload.deviceMixPanelState,
             });
         case "topPaths":
-            return withSharedFields({ pages: payload.pages });
+            return withSharedFields({
+                pages: payload.pages,
+                totals: payload.totals,
+                analyticsSourceHealth: payload.analyticsSourceHealth,
+                topPathsPanelState: payload.topPathsPanelState,
+            });
         case "regions":
             return withSharedFields({ geo: payload.geo });
         case "commerceSnapshot":
