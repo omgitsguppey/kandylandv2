@@ -30,9 +30,48 @@ function build(overrides: Partial<Parameters<typeof buildHistoricalValidationSum
     selectedRange: "30d",
     lastValidatedAt: 1_700_000_000_000,
     propertyId: "properties/123",
+    generatedAtMs: 1_700_000_000_000,
     gaEventCounts: {},
     telemetryEventCounts: {},
     canonicalEventCounts: {},
+    gaPresentDayKeys: [
+      "2026-05-01",
+      "2026-05-02",
+      "2026-05-03",
+      "2026-05-04",
+      "2026-05-05",
+    ],
+    snapshotPresentDayKeys: [
+      "2026-05-01",
+      "2026-05-02",
+      "2026-05-03",
+      "2026-05-04",
+      "2026-05-05",
+    ],
+    legacyPresentDayKeys: [
+      "2026-05-01",
+      "2026-05-02",
+      "2026-05-03",
+      "2026-05-04",
+      "2026-05-05",
+    ],
+    expectedDayKeys: [
+      "2026-05-01",
+      "2026-05-02",
+      "2026-05-03",
+      "2026-05-04",
+      "2026-05-05",
+    ],
+    recentWindowDayKeys: [
+      "2026-05-01",
+      "2026-05-02",
+      "2026-05-03",
+      "2026-05-04",
+      "2026-05-05",
+    ],
+    gaLastSeenAtMs: 1_700_000_000_000,
+    snapshotLastSeenAtMs: 1_700_000_000_000,
+    legacyLastSeenAtMs: 1_700_000_000_000,
     taskPipeline: [],
     normalizedTaskEventCount: 10,
     firstPartyTaskLifecycleEvents: 10,
@@ -111,6 +150,48 @@ describe("buildHistoricalValidationSummary", () => {
       sampleCount: 0,
       passAllowed: false,
     });
+  });
+
+  it("marks recent continuity gaps as failures even when availability is sampled", () => {
+    const summary = build({
+      gaPresentDayKeys: ["2026-05-01"],
+      snapshotPresentDayKeys: ["2026-05-01"],
+      legacyPresentDayKeys: ["2026-05-01"],
+      expectedDayKeys: [
+        "2026-05-01",
+        "2026-05-02",
+        "2026-05-03",
+        "2026-05-04",
+        "2026-05-05",
+        "2026-05-06",
+      ],
+      recentWindowDayKeys: [
+        "2026-05-01",
+        "2026-05-02",
+        "2026-05-03",
+        "2026-05-04",
+        "2026-05-05",
+        "2026-05-06",
+      ],
+    });
+
+    expect(summary.analyticsSourceHealth.continuity.recentGapDays).toEqual([
+      "2026-05-02",
+      "2026-05-03",
+      "2026-05-04",
+      "2026-05-05",
+      "2026-05-06",
+    ]);
+    expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("gap_detected");
+    expect(summary.validations.find((check) => check.checkKey === "recent_6_day_coverage")?.status).toBe("fail");
+  });
+
+  it("does not mark complete continuity as a gap", () => {
+    const summary = build();
+
+    expect(summary.analyticsSourceHealth.continuity.missingDays).toEqual([]);
+    expect(summary.analyticsSourceHealth.chartReadiness.state).toBe("ready");
+    expect(summary.validations.find((check) => check.checkKey === "daily_continuity_coverage")?.status).toBe("pass");
   });
 
   it("returns not_validated when no validation rows are available", () => {

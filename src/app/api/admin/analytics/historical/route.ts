@@ -36,10 +36,13 @@ import {
     AUTHENTICATED_PAGE_VIEW_EVENT_NAMES,
     RegistrationFactRecord,
     TaskLifecycleLog,
+    buildTimelineKeys,
     buildMergedCountMap,
     getRangeWindow,
+    rawDateToDayKey,
     safeParams,
     sumSnapshotField,
+    timestampToDayKey,
     toNumber,
     toStringValue,
 } from "@/lib/server/admin-analytics-shared";
@@ -90,6 +93,59 @@ function readLatestSnapshotTimestamp(
         const timestamp = keys.reduce((current, key) => current || toTimestampNumber(data[key]), 0);
         return Math.max(latest, timestamp);
     }, 0);
+}
+
+const DAY_KEY_PREFIX_PATTERN = /^(\d{4}-\d{2}-\d{2})/u;
+
+function collectDocDayKeys(
+    docs: FirebaseFirestore.QueryDocumentSnapshot[],
+    options: {
+        explicitKeys?: string[];
+        fallbackTimestampKeys?: string[];
+        fallbackDayKey?: string;
+        readFromIdPrefix?: boolean;
+    } = {},
+) {
+    const dayKeys = new Set<string>();
+    docs.forEach((doc) => {
+        const data = doc.data() as Record<string, unknown>;
+        const explicitDayKey = (options.explicitKeys ?? ["dayKey"]).map((key) => toStringValue(data[key])).find(Boolean);
+        if (explicitDayKey) {
+            dayKeys.add(explicitDayKey);
+            return;
+        }
+
+        if (options.readFromIdPrefix) {
+            const idMatch = DAY_KEY_PREFIX_PATTERN.exec(doc.id);
+            if (idMatch?.[1]) {
+                dayKeys.add(idMatch[1]);
+                return;
+            }
+        }
+
+        const timestamp = (options.fallbackTimestampKeys ?? []).reduce((current, key) => current || toTimestampNumber(data[key]), 0);
+        if (timestamp > 0) {
+            dayKeys.add(timestampToDayKey(timestamp));
+            return;
+        }
+
+        if (options.fallbackDayKey) {
+            dayKeys.add(options.fallbackDayKey);
+        }
+    });
+    return [...dayKeys].sort();
+}
+
+function collectGaDayKeys(rows: Array<{ dimensionValues?: Array<{ value?: string | null }> }>) {
+    const dayKeys = new Set<string>();
+    rows.forEach((row) => {
+        const rawDate = row.dimensionValues?.[0]?.value || "";
+        const dayKey = rawDateToDayKey(rawDate);
+        if (DAY_KEY_PREFIX_PATTERN.test(dayKey)) {
+            dayKeys.add(dayKey);
+        }
+    });
+    return [...dayKeys].sort();
 }
 
 function buildHistoricalResponseCacheKey(input: {
@@ -248,6 +304,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
             return withSharedFields({
                 validations: payload.validations,
                 dataValidation: payload.dataValidation,
+                analyticsSourceHealth: payload.analyticsSourceHealth,
                 watchCaptureHealth: payload.watchCaptureHealth,
             });
         case "audienceSnapshot":
@@ -440,6 +497,67 @@ async function GET_handler(request: NextRequest) {
                 authenticatedPageViewEventNames: AUTHENTICATED_PAGE_VIEW_EVENT_NAMES,
             });
             const filteredDailyRollups = dailyRollupsSnapshot.docs.filter((doc) => doc.id >= startDayKey);
+            const expectedDayKeys = timelineBucket === "day"
+                ? buildTimelineKeys({
+                    startMs,
+                    endMs,
+                    startDayKey,
+                    endDayKey,
+                    timelineBucket,
+                })
+                : [];
+            const recentWindowDayKeys = expectedDayKeys.length > 1
+                ? expectedDayKeys.slice(0, -1).slice(-6)
+                : expectedDayKeys.slice(-6);
+            const gaPresentDayKeys = timelineBucket === "day"
+                ? collectGaDayKeys(response.rows || [])
+                : [];
+            const snapshotPresentDayKeys = timelineBucket === "day"
+                ? Array.from(new Set([
+                    ...collectDocDayKeys(filteredDailyRollups, {
+                        explicitKeys: ["dayKey"],
+                        fallbackDayKey: startDayKey,
+                        readFromIdPrefix: true,
+                    }),
+                    ...collectDocDayKeys(pageRollupsSnapshot.docs, {
+                        explicitKeys: ["dayKey"],
+                        fallbackDayKey: startDayKey,
+                        readFromIdPrefix: true,
+                    }),
+                    ...collectDocDayKeys(dropDailySnapshot.docs, {
+                        explicitKeys: ["dayKey"],
+                        fallbackTimestampKeys: ["updatedAt", "lastEventAt"],
+                    }),
+                    ...collectDocDayKeys(taskDailySnapshot.docs, {
+                        explicitKeys: ["dayKey"],
+                        fallbackTimestampKeys: ["updatedAt", "lastEventAt"],
+                    }),
+                    ...collectDocDayKeys(commerceDailySnapshot.docs, {
+                        explicitKeys: ["dayKey"],
+                        fallbackTimestampKeys: ["updatedAt", "lastTransactionAt"],
+                    }),
+                ])).sort()
+                : [];
+            const legacySupportDayKeys = timelineBucket === "day"
+                ? Array.from(new Set([
+                    ...collectDocDayKeys(analyticsEventFactsSnapshot.docs, {
+                        explicitKeys: ["dayKey"],
+                        fallbackTimestampKeys: ["timestamp"],
+                    }),
+                    ...collectDocDayKeys(sessionFactsSnapshot.docs, {
+                        explicitKeys: ["dayKey"],
+                        fallbackTimestampKeys: ["firstEventAtMs", "lastEventAtMs", "firstEventAt", "lastEventAt"],
+                    }),
+                    ...collectDocDayKeys(guestBatchesSnapshot.docs, {
+                        explicitKeys: ["dayKey"],
+                        fallbackTimestampKeys: ["receivedAtMs", "updatedAt"],
+                    }),
+                    ...collectDocDayKeys(guestSessionsSnapshot.docs, {
+                        explicitKeys: ["dayKey"],
+                        fallbackTimestampKeys: ["lastReceivedAtMs", "firstEventAtMs", "lastEventAt", "updatedAt"],
+                    }),
+                ])).sort()
+                : [];
 
             const dropsData = period === "all"
                 ? (dropsSnapshot?.docs || [])
@@ -966,13 +1084,34 @@ async function GET_handler(request: NextRequest) {
                 unhealthyModules,
                 parityScore,
                 validations,
+                analyticsSourceHealth,
             } = buildHistoricalValidationSummary({
                 selectedRange: period,
                 lastValidatedAt: Date.now(),
+                generatedAtMs: Date.now(),
                 propertyId,
                 gaEventCounts,
                 telemetryEventCounts,
                 canonicalEventCounts,
+                gaPresentDayKeys,
+                snapshotPresentDayKeys,
+                legacyPresentDayKeys: legacySupportDayKeys,
+                expectedDayKeys,
+                recentWindowDayKeys,
+                gaLastSeenAtMs: response.rows?.length ? endMs : 0,
+                snapshotLastSeenAtMs: Math.max(
+                    readLatestSnapshotTimestamp(filteredDailyRollups, ["lastEventAt", "updatedAt"]),
+                    readLatestSnapshotTimestamp(pageRollupsSnapshot.docs, ["lastEventAt", "updatedAt"]),
+                    readLatestSnapshotTimestamp(dropDailySnapshot.docs, ["updatedAt", "lastEventAt"]),
+                    readLatestSnapshotTimestamp(taskDailySnapshot.docs, ["updatedAt", "lastEventAt"]),
+                    readLatestSnapshotTimestamp(commerceDailySnapshot.docs, ["updatedAt", "lastTransactionAt"]),
+                ),
+                legacyLastSeenAtMs: Math.max(
+                    readLatestSnapshotTimestamp(analyticsEventFactsSnapshot.docs, ["timestamp"]),
+                    readLatestSnapshotTimestamp(sessionFactsSnapshot.docs, ["lastEventAtMs", "lastEventAt", "updatedAt"]),
+                    readLatestSnapshotTimestamp(guestBatchesSnapshot.docs, ["receivedAtMs", "updatedAt"]),
+                    readLatestSnapshotTimestamp(guestSessionsSnapshot.docs, ["lastReceivedAtMs", "lastEventAt", "updatedAt"]),
+                ),
                 taskPipeline,
                 normalizedTaskEventCount: normalizedTaskEvents.length,
                 firstPartyTaskLifecycleEvents,
@@ -1088,6 +1227,7 @@ async function GET_handler(request: NextRequest) {
                 parityScore,
                 truthState: analyticsTruth,
                 validations,
+                analyticsSourceHealth,
                 opsHealth,
             };
 

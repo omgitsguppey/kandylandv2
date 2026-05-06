@@ -37,6 +37,8 @@ const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const primitives = read("src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx");
 const statusBadge = read("src/components/Admin/AdminStatusBadge.tsx");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
+const historicalRoute = read("src/app/api/admin/analytics/historical/route.ts");
+const analyticsTypes = read("src/types/admin-analytics.ts");
 const doc = read("docs/agent-truth/admin-analytics-overview.md");
 
 assertIncludes("AdminAnalyticsPrimitives", primitives, "ANALYTICS_METRIC_BADGE_LABELS");
@@ -87,6 +89,13 @@ assertNotIncludes("useAdminAnalyticsState", hook, "isFakeZero");
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsOverview");
 assertIncludes("AdminDebugRoute", debugRoute, "hydrationBudgetMs: 3000");
 assertIncludes("AdminDebugRoute", debugRoute, "fullDegradedReasonsSource");
+assertIncludes("Historical analytics route", historicalRoute, "analyticsSourceHealth");
+assertIncludes("Historical analytics route", historicalRoute, "recentWindowDayKeys");
+assertIncludes("Historical analytics route", historicalRoute, "expectedDayKeys");
+assertIncludes("admin analytics types", analyticsTypes, "export interface AnalyticsSourceHealth");
+assertIncludes("admin analytics types", analyticsTypes, "missingDays");
+assertIncludes("admin analytics types", analyticsTypes, "recentGapDays");
+assertIncludes("admin analytics types", analyticsTypes, "chartReadiness");
 
 assertIncludes("agent truth doc", doc, "Badge Containment Rule");
 assertIncludes("agent truth doc", doc, "Analytics Hydration Rule");

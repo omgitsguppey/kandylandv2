@@ -170,7 +170,16 @@ for (const expected of [
 for (const expected of [
   "buildDataValidationPanelState",
   "DataValidationPanelState",
+  "AnalyticsSourceHealth",
+  "SourceCheck",
   "\"loading\" | \"loaded\" | \"not_validated\" | \"stale\" | \"failed\" | \"unavailable\"",
+  "daily_continuity_coverage",
+  "recent_6_day_coverage",
+  "source_agreement_chart_readiness",
+  "Recent analytics continuity gap detected",
+  "Chart readiness is",
+  "missingDays",
+  "recentGapDays",
   "status: \"not_validated\"",
   "status: \"failed\"",
   "Validation has not run for this range yet.",
@@ -182,12 +191,24 @@ for (const expected of [
   "attachDataValidationState",
   "dataValidation: payload.dataValidation",
   "dataValidation: buildDataValidationPanelState",
+  "analyticsSourceHealth: payload.analyticsSourceHealth",
   "section !== \"dataValidation\"",
 ]) {
   requireIncludes(analyticsHistoricalRoute, expected, "Historical analytics route must return explicit dataValidation state");
 }
 for (const expected of [
   "data?.dataValidation ?? buildFallbackPanelState(data)",
+  "analyticsSourceHealth?.continuity.missingDays.length",
+  "data-analytics-availability-state",
+  "data-analytics-continuity-state",
+  "data-analytics-missing-day-count",
+  "data-analytics-recent-gap-count",
+  "data-analytics-last-complete-day-utc",
+  "data-analytics-source-agreement-state",
+  "data-analytics-chart-readiness-state",
+  "Missing days:",
+  "Recent gaps:",
+  "Chart readiness",
   "Loading validation checks...",
   "Validation has not run for this range yet.",
   "Validation failed. Retry the validation route or inspect admin analytics historical route errors.",
@@ -208,6 +229,7 @@ for (const forbidden of [
   "tone={summary.failCount > 0 ? \"bad\" : \"good\"}",
   "value={data?.cacheState || \"unknown\"}",
   "value={formatTimestamp(data?.generatedAtMs)}",
+  "Recent analytics continuity gap detected\" && \"pass\"",
 ]) {
   requireNotIncludes(debugAdvancedDataValidation, forbidden, "Data Validation debug panel must not show fake zero/live loading placeholders");
 }
@@ -1197,6 +1219,7 @@ try {
     /^scripts\/agent\/validate-creator-identity-markers\.ts$/u,
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
+    /^scripts\/check-admin-analytics-overview\.ts$/u,
     /^scripts\/check-admin-data-validation-relocation\.ts$/u,
     /^scripts\/agent\/validate-admin-ai-control-tower\.ts$/u,
     /^scripts\/agent\/check-dependency-truth\.ts$/u,
@@ -1246,6 +1269,7 @@ try {
     /^docs\/agent-truth\/event-fact-truth\.md$/u,
     /^docs\/agent-truth\/google-cost-bleed\.md$/u,
     /^docs\/agent-truth\/notification-pipeline\.md$/u,
+    /^docs\/agent-truth\/analytics-actor-taxonomy\.md$/u,
     /^docs\/agent-truth\/telemetry-identified-parity\.md$/u,
     /^docs\/agent-truth\/support-recovery-flows\.md$/u,
     /^docs\/agent-truth\/admin-analytics-daily-task-pipeline\.md$/u,

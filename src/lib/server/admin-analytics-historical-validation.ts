@@ -19,10 +19,50 @@ export interface HistoricalValidationSummary {
   parityScore: number;
   truthState: AnalyticsTruthSummary;
   validations: DataValidationCheck[];
+  analyticsSourceHealth: AnalyticsSourceHealth;
 }
 
 type DataValidationStatus = "pass" | "warn" | "fail" | "unavailable" | "stale" | "unknown";
 type DataValidationCacheState = "hit" | "miss" | "stale" | "unknown" | "not_loaded";
+
+export interface SourceCheck {
+  status: "pass" | "review" | "fail" | "unknown";
+  freshnessState: "fresh" | "stale" | "missing" | "unknown";
+  confidence: number | null;
+  sampleCount: number | null;
+  lastSeenAtUtc: string | null;
+  passAllowed: boolean;
+  reason: string;
+}
+
+export interface AnalyticsSourceHealth {
+  range: "7d" | "30d" | "90d" | string;
+  generatedAtUtc: string;
+  availability: {
+    ga4: SourceCheck;
+    historicalSnapshot: SourceCheck;
+    legacySupport: SourceCheck;
+  };
+  continuity: {
+    expectedDays: number;
+    presentDays: number;
+    missingDays: string[];
+    recentGapDays: string[];
+    lastCompleteDayUtc: string | null;
+    gapSeverity: "none" | "info" | "review" | "error";
+    gapReason: string;
+  };
+  sourceAgreement: {
+    comparedSources: string[];
+    disagreementCount: number;
+    maxDeltaPct: number | null;
+    state: "pass" | "review" | "failed" | "not_enough_sources";
+  };
+  chartReadiness: {
+    state: "ready" | "partial" | "gap_detected" | "unavailable";
+    reason: string;
+  };
+}
 
 export interface DataValidationPanelState {
   status: "loading" | "loaded" | "not_validated" | "stale" | "failed" | "unavailable";
@@ -82,6 +122,212 @@ function normalizeCacheState(cacheState?: "miss" | "fresh" | "stale" | null): Da
   if (cacheState === "miss") return "miss";
   if (cacheState === "stale") return "stale";
   return "unknown";
+}
+
+function dayKeyToUtcIso(dayKey: string) {
+  return new Date(`${dayKey}T00:00:00.000Z`).toISOString();
+}
+
+function summarizeContinuityStatus(
+  continuity: AnalyticsSourceHealth["continuity"],
+  chartReadiness: AnalyticsSourceHealth["chartReadiness"],
+) {
+  if (chartReadiness.state === "unavailable") return "fail" as const;
+  if (continuity.gapSeverity === "error" || chartReadiness.state === "gap_detected") return "fail" as const;
+  if (continuity.gapSeverity === "review" || continuity.gapSeverity === "info" || chartReadiness.state === "partial") return "warn" as const;
+  return "pass" as const;
+}
+
+function summarizeSourceAgreementStatus(sourceAgreement: AnalyticsSourceHealth["sourceAgreement"]) {
+  if (sourceAgreement.state === "failed") return "fail" as const;
+  if (sourceAgreement.state === "review" || sourceAgreement.state === "not_enough_sources") return "warn" as const;
+  return "pass" as const;
+}
+
+function summarizeRecentWindowStatus(continuity: AnalyticsSourceHealth["continuity"]) {
+  if (continuity.recentGapDays.length >= 2) return "fail" as const;
+  if (continuity.recentGapDays.length === 1) return "warn" as const;
+  return "pass" as const;
+}
+
+function buildAnalyticsSourceHealth(input: {
+  selectedRange: string;
+  generatedAtMs: number;
+  gaAvailable: boolean;
+  gaConfidence: number | null;
+  gaPresentDayKeys: string[];
+  gaLastSeenAtMs: number;
+  snapshotPresentDayKeys: string[];
+  snapshotLastSeenAtMs: number;
+  legacyPresentDayKeys: string[];
+  legacyLastSeenAtMs: number;
+  expectedDayKeys: string[];
+  recentWindowDayKeys: string[];
+  truthState: AnalyticsTruthSummary;
+}) {
+  const gaPresentDays = new Set(input.gaPresentDayKeys);
+  const snapshotPresentDays = new Set(input.snapshotPresentDayKeys);
+  const legacyPresentDays = new Set(input.legacyPresentDayKeys);
+  const expectedDays = input.expectedDayKeys.filter(Boolean);
+  const expectedDaySet = new Set(expectedDays);
+  const unionPresentDays = new Set<string>([
+    ...input.gaPresentDayKeys,
+    ...input.snapshotPresentDayKeys,
+    ...input.legacyPresentDayKeys,
+  ].filter((dayKey) => expectedDaySet.has(dayKey)));
+
+  const missingDays = expectedDays.filter((dayKey) => !unionPresentDays.has(dayKey));
+  const recentGapDays = input.recentWindowDayKeys.filter((dayKey) => !unionPresentDays.has(dayKey));
+  const lastCompleteDay = [...expectedDays].reverse().find((dayKey) => unionPresentDays.has(dayKey)) ?? null;
+  let recentGapStreak = 0;
+  let currentRecentGapStreak = 0;
+  input.recentWindowDayKeys.forEach((dayKey) => {
+    if (unionPresentDays.has(dayKey)) {
+      currentRecentGapStreak = 0;
+      return;
+    }
+    currentRecentGapStreak += 1;
+    recentGapStreak = Math.max(recentGapStreak, currentRecentGapStreak);
+  });
+  const gapSeverity: AnalyticsSourceHealth["continuity"]["gapSeverity"] =
+    recentGapDays.length >= 2 || recentGapStreak >= 2
+      ? "error"
+      : recentGapDays.length === 1 || missingDays.length > 0
+        ? "review"
+        : "none";
+  const gapReason = recentGapDays.length > 0
+    ? `Recent analytics continuity gap detected: missing daily buckets for ${recentGapDays[0]} through ${recentGapDays[recentGapDays.length - 1]}.`
+    : missingDays.length > 0
+      ? `Historical analytics continuity gap detected: ${missingDays.length} expected daily bucket(s) are missing in ${input.selectedRange}.`
+      : "Expected daily buckets are present or backed by explicit source evidence.";
+
+  const comparedSources = ["ga4", "historical_snapshot", "legacy_support"];
+  const coverageBySource = [
+    { key: "ga4", days: gaPresentDays.size },
+    { key: "historical_snapshot", days: snapshotPresentDays.size },
+    { key: "legacy_support", days: legacyPresentDays.size },
+  ];
+  const activeCoverage = coverageBySource.filter((entry) => entry.days > 0);
+  const disagreementCount = expectedDays.filter((dayKey) => {
+    const coverageValues = [gaPresentDays.has(dayKey), snapshotPresentDays.has(dayKey), legacyPresentDays.has(dayKey)];
+    return coverageValues.some(Boolean) && !coverageValues.every(Boolean);
+  }).length;
+  const maxCoverage = activeCoverage.length > 0 ? Math.max(...activeCoverage.map((entry) => entry.days)) : 0;
+  const minCoverage = activeCoverage.length > 0 ? Math.min(...activeCoverage.map((entry) => entry.days)) : 0;
+  const maxDeltaPct = activeCoverage.length > 1 && maxCoverage > 0
+    ? Math.round(((maxCoverage - minCoverage) / maxCoverage) * 100)
+    : null;
+  const sourceAgreementState: AnalyticsSourceHealth["sourceAgreement"]["state"] =
+    activeCoverage.length < 2
+      ? "not_enough_sources"
+      : recentGapDays.length > 0 || disagreementCount > 1 || (maxDeltaPct ?? 0) > 25
+        ? "failed"
+        : disagreementCount > 0 || (maxDeltaPct ?? 0) > 10
+          ? "review"
+          : "pass";
+  const chartReadinessState: AnalyticsSourceHealth["chartReadiness"]["state"] =
+    expectedDays.length === 0
+      ? "unavailable"
+      : recentGapDays.length > 0
+        ? "gap_detected"
+        : missingDays.length > 0 || sourceAgreementState === "review" || sourceAgreementState === "not_enough_sources"
+          ? "partial"
+          : "ready";
+  const chartReadinessReason =
+    chartReadinessState === "gap_detected"
+      ? gapReason
+      : chartReadinessState === "partial"
+        ? "Historical snapshot is fresh enough to load, but chart continuity or source agreement still needs review."
+        : chartReadinessState === "unavailable"
+          ? "No day-bucket evidence was available for the selected range."
+          : "Availability and continuity checks both passed for the selected chart range.";
+
+  const ga4: SourceCheck = {
+    status: input.gaAvailable ? "pass" : "fail",
+    freshnessState: input.gaAvailable ? "fresh" : "missing",
+    confidence: input.gaConfidence,
+    sampleCount: gaPresentDays.size,
+    lastSeenAtUtc: toUtcString(input.gaLastSeenAtMs),
+    passAllowed: Boolean(input.gaAvailable),
+    reason: input.gaAvailable
+      ? `${gaPresentDays.size} GA day bucket(s) responded for ${input.selectedRange}.`
+      : "GA property is missing or did not return data for the selected range.",
+  };
+  const historicalSnapshot: SourceCheck = {
+    status: input.truthState.fail > 0
+      ? "fail"
+      : input.truthState.warn > 0 || snapshotPresentDays.size === 0
+        ? "review"
+        : "pass",
+    freshnessState: input.truthState.fail > 0
+      ? "missing"
+      : input.truthState.warn > 0
+        ? "stale"
+        : snapshotPresentDays.size > 0
+          ? "fresh"
+          : "missing",
+    confidence: input.truthState.score,
+    sampleCount: snapshotPresentDays.size,
+    lastSeenAtUtc: toUtcString(input.snapshotLastSeenAtMs),
+    passAllowed: input.truthState.fail === 0 && snapshotPresentDays.size > 0,
+    reason: input.truthState.fail > 0
+      ? "Required historical snapshot sources failed freshness or are missing."
+      : input.truthState.warn > 0
+        ? "Historical snapshot sources are available, but some are stale or partial."
+        : snapshotPresentDays.size > 0
+          ? `${snapshotPresentDays.size} snapshot-backed day bucket(s) are present for ${input.selectedRange}.`
+          : "Historical snapshot exists, but no day buckets were observed for this range.",
+  };
+  const legacySupport: SourceCheck = {
+    status: input.truthState.legacyCoverageWarnings > 0
+      ? "review"
+      : legacyPresentDays.size > 0
+        ? "pass"
+        : "unknown",
+    freshnessState: input.truthState.legacyCoverageWarnings > 0
+      ? "stale"
+      : legacyPresentDays.size > 0
+        ? "fresh"
+        : "unknown",
+    confidence: input.truthState.legacyCoverageWarnings > 0 ? 60 : legacyPresentDays.size > 0 ? 100 : null,
+    sampleCount: legacyPresentDays.size,
+    lastSeenAtUtc: toUtcString(input.legacyLastSeenAtMs),
+    passAllowed: input.truthState.legacyCoverageWarnings === 0,
+    reason: input.truthState.legacyCoverageWarnings > 0
+      ? `${input.truthState.legacyCoverageWarnings} legacy support source(s) are stale or missing.`
+      : legacyPresentDays.size > 0
+        ? `${legacyPresentDays.size} legacy-support day bucket(s) are available for cross-checking.`
+        : "Legacy support did not contribute enough day-bucket evidence in this range.",
+  };
+
+  return {
+    range: input.selectedRange,
+    generatedAtUtc: toUtcString(input.generatedAtMs) ?? new Date(input.generatedAtMs).toISOString(),
+    availability: {
+      ga4,
+      historicalSnapshot,
+      legacySupport,
+    },
+    continuity: {
+      expectedDays: expectedDays.length,
+      presentDays: unionPresentDays.size,
+      missingDays,
+      recentGapDays,
+      lastCompleteDayUtc: lastCompleteDay ? dayKeyToUtcIso(lastCompleteDay) : null,
+      gapSeverity,
+      gapReason,
+    },
+    sourceAgreement: {
+      comparedSources,
+      disagreementCount,
+      maxDeltaPct,
+      state: sourceAgreementState,
+    },
+    chartReadiness: {
+      state: chartReadinessState,
+      reason: chartReadinessReason,
+    },
+  } satisfies AnalyticsSourceHealth;
 }
 
 export function buildDataValidationPanelState(input: {
@@ -376,9 +622,18 @@ export function buildHistoricalValidationSummary(input: {
   selectedRange?: string | null;
   lastValidatedAt?: number;
   propertyId: string;
+  generatedAtMs?: number;
   gaEventCounts: Record<string, number>;
   telemetryEventCounts: Record<string, number>;
   canonicalEventCounts: Record<string, number>;
+  gaPresentDayKeys: string[];
+  snapshotPresentDayKeys: string[];
+  legacyPresentDayKeys: string[];
+  expectedDayKeys: string[];
+  recentWindowDayKeys: string[];
+  gaLastSeenAtMs: number;
+  snapshotLastSeenAtMs: number;
+  legacyLastSeenAtMs: number;
   taskPipeline: Array<{ label: string; count: number }>;
   normalizedTaskEventCount: number;
   firstPartyTaskLifecycleEvents: number;
@@ -490,6 +745,21 @@ export function buildHistoricalValidationSummary(input: {
     : (input.creatorSpendParityMismatchCount > 0 || input.creatorRestrictedSpendViolationCount > 0)
       ? 20
       : 100;
+  const analyticsSourceHealth = buildAnalyticsSourceHealth({
+    selectedRange,
+    generatedAtMs: input.generatedAtMs ?? lastValidatedAt,
+    gaAvailable: Boolean(input.propertyId),
+    gaConfidence: input.propertyId ? 100 : null,
+    gaPresentDayKeys: input.gaPresentDayKeys,
+    gaLastSeenAtMs: input.gaLastSeenAtMs,
+    snapshotPresentDayKeys: input.snapshotPresentDayKeys,
+    snapshotLastSeenAtMs: input.snapshotLastSeenAtMs,
+    legacyPresentDayKeys: input.legacyPresentDayKeys,
+    legacyLastSeenAtMs: input.legacyLastSeenAtMs,
+    expectedDayKeys: input.expectedDayKeys,
+    recentWindowDayKeys: input.recentWindowDayKeys,
+    truthState: input.truthState,
+  });
   const parityScore = Math.round((
     purchaseParity.score
     + unlockParity.score
@@ -502,7 +772,7 @@ export function buildHistoricalValidationSummary(input: {
   const validations = [
     buildValidationCheck({
       checkKey: "ga_property",
-      title: "GA property",
+      title: "Google Analytics setup",
       status: input.propertyId ? "pass" : "fail",
       detail: input.propertyId ? "Google Analytics 4 reports loaded." : "GA property is missing.",
       source: "GA4 configuration",
@@ -634,8 +904,8 @@ export function buildHistoricalValidationSummary(input: {
       action: input.creatorSpendTransactionCount > 0 ? "No action required." : "Use a range with creator spend records before treating creator spend parity as sampled.",
     }),
     buildValidationCheck({
-      checkKey: "historical_freshness",
-      title: "Historical freshness",
+      checkKey: "historical_snapshot_availability",
+      title: "Historical snapshot",
       status: input.truthState.fail > 0
         ? "fail"
         : input.truthState.warn > 0
@@ -653,8 +923,8 @@ export function buildHistoricalValidationSummary(input: {
       action: input.truthState.fail > 0 || input.truthState.warn > 0 ? "Refresh or repair stale analytics truth sources." : "No action required.",
     }),
     buildValidationCheck({
-      checkKey: "legacy_history_coverage",
-      title: "Legacy history coverage",
+      checkKey: "legacy_support_availability",
+      title: "History support",
       status: input.truthState.legacyCoverageWarnings > 0 ? "warn" : "pass",
       detail: input.truthState.legacyCoverageWarnings > 0
         ? `${input.truthState.legacyCoverageWarnings.toLocaleString()} legacy-history support source(s) are stale or missing, so older trend history may be incomplete until those rollups are refreshed.`
@@ -665,6 +935,82 @@ export function buildHistoricalValidationSummary(input: {
       sampleRequired: false,
       sampleCount: input.truthState.sources.length,
       action: input.truthState.legacyCoverageWarnings > 0 ? "Refresh legacy-history support rollups before trusting older trend history." : "No action required.",
+    }),
+    buildValidationCheck({
+      checkKey: "daily_continuity_coverage",
+      title: "Daily continuity coverage",
+      status: summarizeContinuityStatus(analyticsSourceHealth.continuity, analyticsSourceHealth.chartReadiness),
+      detail: analyticsSourceHealth.continuity.gapSeverity === "none"
+        ? `${analyticsSourceHealth.continuity.presentDays.toLocaleString()} of ${analyticsSourceHealth.continuity.expectedDays.toLocaleString()} expected day buckets are backed by source evidence.`
+        : `${analyticsSourceHealth.continuity.presentDays.toLocaleString()} of ${analyticsSourceHealth.continuity.expectedDays.toLocaleString()} expected day buckets are backed by source evidence. Missing days: ${analyticsSourceHealth.continuity.missingDays.join(", ")}.`,
+      source: "GA4 + historical snapshot + legacy support day coverage",
+      selectedRange,
+      lastValidatedAt,
+      confidence: analyticsSourceHealth.continuity.expectedDays > 0
+        ? Math.round((analyticsSourceHealth.continuity.presentDays / analyticsSourceHealth.continuity.expectedDays) * 100)
+        : null,
+      requiredSourcesPresent: analyticsSourceHealth.continuity.missingDays.length === 0,
+      sampleRequired: true,
+      sampleCount: analyticsSourceHealth.continuity.presentDays,
+      action: analyticsSourceHealth.continuity.gapSeverity === "none"
+        ? "No action required."
+        : "Inspect missing daily buckets before treating analytics charts as continuous.",
+      operatorSummary: analyticsSourceHealth.continuity.gapSeverity === "none"
+        ? "Daily continuity coverage is complete."
+        : "Daily continuity coverage has missing buckets.",
+      technicalEvidence: analyticsSourceHealth.continuity.gapReason,
+    }),
+    buildValidationCheck({
+      checkKey: "recent_6_day_coverage",
+      title: "Recent 6-day coverage",
+      status: summarizeRecentWindowStatus(analyticsSourceHealth.continuity),
+      detail: analyticsSourceHealth.continuity.recentGapDays.length === 0
+        ? "The last six completed days have source-backed analytics buckets."
+        : `Recent analytics continuity gap detected: missing daily buckets for ${analyticsSourceHealth.continuity.recentGapDays.join(", ")}.`,
+      source: "recent day-bucket continuity",
+      selectedRange,
+      lastValidatedAt,
+      confidence: analyticsSourceHealth.continuity.recentGapDays.length === 0 ? 100 : 25,
+      requiredSourcesPresent: analyticsSourceHealth.continuity.recentGapDays.length === 0,
+      sampleRequired: true,
+      sampleCount: analyticsSourceHealth.continuity.recentGapDays.length === 0 ? input.recentWindowDayKeys.length : input.recentWindowDayKeys.length - analyticsSourceHealth.continuity.recentGapDays.length,
+      action: analyticsSourceHealth.continuity.recentGapDays.length === 0
+        ? "No action required."
+        : "Review recent-day continuity before trusting the current trend line.",
+      operatorSummary: analyticsSourceHealth.continuity.recentGapDays.length === 0
+        ? "Recent coverage is complete."
+        : "Recent coverage gap needs review.",
+      technicalEvidence: analyticsSourceHealth.continuity.gapReason,
+    }),
+    buildValidationCheck({
+      checkKey: "source_agreement_chart_readiness",
+      title: "Source agreement / chart readiness",
+      status: summarizeSourceAgreementStatus(analyticsSourceHealth.sourceAgreement) === "fail"
+        ? "fail"
+        : summarizeSourceAgreementStatus(analyticsSourceHealth.sourceAgreement) === "warn"
+          ? "warn"
+          : analyticsSourceHealth.chartReadiness.state === "ready"
+            ? "pass"
+            : analyticsSourceHealth.chartReadiness.state === "unavailable"
+              ? "unavailable"
+              : "warn",
+      detail: `Chart readiness is ${analyticsSourceHealth.chartReadiness.state}. Source disagreement count ${analyticsSourceHealth.sourceAgreement.disagreementCount.toLocaleString()} across ${analyticsSourceHealth.sourceAgreement.comparedSources.join(", ")}.${analyticsSourceHealth.sourceAgreement.maxDeltaPct !== null ? ` Max day-coverage delta ${analyticsSourceHealth.sourceAgreement.maxDeltaPct}%.` : ""} ${analyticsSourceHealth.chartReadiness.reason}`,
+      source: "source agreement + chart continuity",
+      selectedRange,
+      lastValidatedAt,
+      confidence: analyticsSourceHealth.sourceAgreement.maxDeltaPct === null ? null : Math.max(0, 100 - analyticsSourceHealth.sourceAgreement.maxDeltaPct),
+      requiredSourcesPresent: analyticsSourceHealth.chartReadiness.state === "ready",
+      sampleRequired: true,
+      sampleCount: analyticsSourceHealth.continuity.presentDays,
+      action: analyticsSourceHealth.chartReadiness.state === "ready"
+        ? "No action required."
+        : "Review source agreement and missing buckets before trusting the chart as ready.",
+      operatorSummary: analyticsSourceHealth.chartReadiness.state === "ready"
+        ? "Chart readiness passed."
+        : analyticsSourceHealth.chartReadiness.state === "gap_detected"
+          ? "Chart readiness blocked by continuity gaps."
+          : "Chart readiness needs review.",
+      technicalEvidence: analyticsSourceHealth.chartReadiness.reason,
     }),
     buildValidationCheck({
       checkKey: "module_coverage",
@@ -724,5 +1070,6 @@ export function buildHistoricalValidationSummary(input: {
     parityScore,
     truthState: input.truthState,
     validations,
+    analyticsSourceHealth,
   };
 }

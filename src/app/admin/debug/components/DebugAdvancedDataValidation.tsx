@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
-import type { DataValidationPanelState, ValidationItem } from "@/types/admin-analytics";
+import type { AnalyticsSourceHealth, DataValidationPanelState, ValidationItem } from "@/types/admin-analytics";
 
 import { Pill, ScrollWrap, Section, type PillTone } from "./DebugPrimitives";
 
@@ -14,6 +14,7 @@ type ValidationResponse = {
     cacheRevalidating?: boolean;
     validations?: ValidationItem[];
     dataValidation?: DataValidationPanelState;
+    analyticsSourceHealth?: AnalyticsSourceHealth;
 };
 
 const DEBUG_VALIDATION_PATH = "/admin/debug?tab=advanced#data-validation";
@@ -33,7 +34,7 @@ function toneForPanelState(status: DataValidationPanelState["status"]): PillTone
 
 function groupForCheck(check: ValidationItem) {
     const key = check.checkKey || check.label.toLowerCase().replaceAll(" ", "_");
-    if (key.includes("ga") || key.includes("freshness") || key.includes("legacy")) return "Analytics source health";
+    if (key.includes("ga") || key.includes("freshness") || key.includes("legacy") || key.includes("continuity") || key.includes("recent_6_day") || key.includes("source_agreement_chart_readiness") || key.includes("historical_snapshot")) return "Analytics source health";
     if (key.includes("purchase") || key.includes("creator")) return "Commerce parity";
     if (key.includes("unlock") || key.includes("watch") || key.includes("viewer")) return "Unlock/watch parity";
     if (key.includes("onboarding") || key.includes("task")) return "Onboarding/task parity";
@@ -53,6 +54,16 @@ function formatUtcTimestamp(value?: string | null) {
 
 function countDisplay(value: number | null) {
     return value === null ? "--" : value;
+}
+
+function toneForContinuity(status?: AnalyticsSourceHealth["continuity"]["gapSeverity"] | AnalyticsSourceHealth["chartReadiness"]["state"]) {
+    if (status === "error" || status === "gap_detected") return "bad" as const;
+    if (status === "review" || status === "info" || status === "partial") return "warn" as const;
+    return "neutral" as const;
+}
+
+function formatDayList(days: string[]) {
+    return days.length > 0 ? days.join(", ") : "None";
 }
 
 function buildFallbackPanelState(response?: ValidationResponse): DataValidationPanelState {
@@ -113,6 +124,7 @@ export function DebugAdvancedDataValidation() {
     );
 
     const validations = useMemo(() => data?.validations ?? [], [data?.validations]);
+    const analyticsSourceHealth = data?.analyticsSourceHealth;
     const panelState = useMemo<DataValidationPanelState>(() => {
         if (error) {
             return {
@@ -228,11 +240,59 @@ export function DebugAdvancedDataValidation() {
                 </div>
                 <p className="text-xs text-gray-400">{panelState.nextAction}</p>
                 {panelState.checkCount !== null ? Object.entries(summary.grouped).map(([group, checks]) => (
-                    <div key={group} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-3">
+                    <div
+                        key={group}
+                        className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-3"
+                        data-analytics-availability-state={group === "Analytics source health" ? (
+                            analyticsSourceHealth
+                                ? [analyticsSourceHealth.availability.ga4.status, analyticsSourceHealth.availability.historicalSnapshot.status, analyticsSourceHealth.availability.legacySupport.status].includes("fail")
+                                    ? "fail"
+                                    : [analyticsSourceHealth.availability.ga4.status, analyticsSourceHealth.availability.historicalSnapshot.status, analyticsSourceHealth.availability.legacySupport.status].includes("review")
+                                        ? "review"
+                                        : "pass"
+                                : "unknown"
+                        ) : undefined}
+                        data-analytics-continuity-state={group === "Analytics source health" ? analyticsSourceHealth?.continuity.gapSeverity : undefined}
+                        data-analytics-missing-day-count={group === "Analytics source health" ? analyticsSourceHealth?.continuity.missingDays.length : undefined}
+                        data-analytics-recent-gap-count={group === "Analytics source health" ? analyticsSourceHealth?.continuity.recentGapDays.length : undefined}
+                        data-analytics-last-complete-day-utc={group === "Analytics source health" ? analyticsSourceHealth?.continuity.lastCompleteDayUtc : undefined}
+                        data-analytics-source-agreement-state={group === "Analytics source health" ? analyticsSourceHealth?.sourceAgreement.state : undefined}
+                        data-analytics-chart-readiness-state={group === "Analytics source health" ? analyticsSourceHealth?.chartReadiness.state : undefined}
+                    >
                         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                             <h3 className="text-sm font-semibold text-white">{group}</h3>
                             <Pill label="Rows" value={checks.length} />
                         </div>
+                        {group === "Analytics source health" && analyticsSourceHealth ? (
+                            <div className="mb-3 space-y-2 rounded-[0.9rem] border border-white/10 bg-black/20 p-3">
+                                <div className="flex flex-wrap gap-2">
+                                    <Pill
+                                        label="Availability"
+                                        value={[analyticsSourceHealth.availability.ga4.status, analyticsSourceHealth.availability.historicalSnapshot.status, analyticsSourceHealth.availability.legacySupport.status].includes("fail")
+                                            ? "fail"
+                                            : [analyticsSourceHealth.availability.ga4.status, analyticsSourceHealth.availability.historicalSnapshot.status, analyticsSourceHealth.availability.legacySupport.status].includes("review")
+                                                ? "review"
+                                                : "pass"}
+                                        tone={([analyticsSourceHealth.availability.ga4.status, analyticsSourceHealth.availability.historicalSnapshot.status, analyticsSourceHealth.availability.legacySupport.status].includes("fail")
+                                            ? "bad"
+                                            : [analyticsSourceHealth.availability.ga4.status, analyticsSourceHealth.availability.historicalSnapshot.status, analyticsSourceHealth.availability.legacySupport.status].includes("review")
+                                                ? "warn"
+                                                : "good")}
+                                    />
+                                    <Pill label="Continuity" value={analyticsSourceHealth.continuity.gapSeverity} tone={toneForContinuity(analyticsSourceHealth.continuity.gapSeverity)} />
+                                    <Pill label="Recent gaps" value={analyticsSourceHealth.continuity.recentGapDays.length} tone={analyticsSourceHealth.continuity.recentGapDays.length > 0 ? "bad" : "neutral"} />
+                                    <Pill label="Last complete day" value={formatUtcTimestamp(analyticsSourceHealth.continuity.lastCompleteDayUtc)} tone={analyticsSourceHealth.continuity.lastCompleteDayUtc ? "neutral" : "warn"} />
+                                    <Pill label="Range" value={analyticsSourceHealth.range} tone="neutral" />
+                                    <Pill label="Chart readiness" value={analyticsSourceHealth.chartReadiness.state} tone={toneForContinuity(analyticsSourceHealth.chartReadiness.state)} />
+                                </div>
+                                <div className="grid gap-2 text-xs text-gray-300 md:grid-cols-2">
+                                    <p><span className="font-semibold text-white">Missing days:</span> {formatDayList(analyticsSourceHealth.continuity.missingDays)}</p>
+                                    <p><span className="font-semibold text-white">Recent gaps:</span> {formatDayList(analyticsSourceHealth.continuity.recentGapDays)}</p>
+                                    <p><span className="font-semibold text-white">Source agreement:</span> {analyticsSourceHealth.sourceAgreement.state} across {analyticsSourceHealth.sourceAgreement.comparedSources.join(", ")}</p>
+                                    <p><span className="font-semibold text-white">Chart readiness:</span> {analyticsSourceHealth.chartReadiness.reason}</p>
+                                </div>
+                            </div>
+                        ) : null}
                         <ScrollWrap>
                             <div className="divide-y divide-white/10">
                                 {checks.map((check) => (

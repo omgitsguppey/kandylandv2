@@ -340,6 +340,45 @@ export interface DataValidationPanelState {
   nextAction: string;
 }
 
+export interface AnalyticsSourceHealthSourceCheck {
+  status: "pass" | "review" | "fail" | "unknown";
+  freshnessState: "fresh" | "stale" | "missing" | "unknown";
+  confidence: number | null;
+  sampleCount: number | null;
+  lastSeenAtUtc: string | null;
+  passAllowed: boolean;
+  reason: string;
+}
+
+export interface AnalyticsSourceHealth {
+  range: "7d" | "30d" | "90d" | string;
+  generatedAtUtc: string;
+  availability: {
+    ga4: AnalyticsSourceHealthSourceCheck;
+    historicalSnapshot: AnalyticsSourceHealthSourceCheck;
+    legacySupport: AnalyticsSourceHealthSourceCheck;
+  };
+  continuity: {
+    expectedDays: number;
+    presentDays: number;
+    missingDays: string[];
+    recentGapDays: string[];
+    lastCompleteDayUtc: string | null;
+    gapSeverity: "none" | "info" | "review" | "error";
+    gapReason: string;
+  };
+  sourceAgreement: {
+    comparedSources: string[];
+    disagreementCount: number;
+    maxDeltaPct: number | null;
+    state: "pass" | "review" | "failed" | "not_enough_sources";
+  };
+  chartReadiness: {
+    state: "ready" | "partial" | "gap_detected" | "unavailable";
+    reason: string;
+  };
+}
+
 export interface ComponentContextItem {
   key: string;
   label: string;
@@ -485,6 +524,7 @@ export interface HistoricalAnalyticsResponse {
   truthSources?: AnalyticsTruthSourceSummary[];
   validations?: ValidationItem[];
   dataValidation?: DataValidationPanelState;
+  analyticsSourceHealth?: AnalyticsSourceHealth;
 }
 
 export interface RealtimeAnalyticsResponse {

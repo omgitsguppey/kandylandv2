@@ -42,6 +42,8 @@ A creator is an account operating creator-facing tools, drops, experiences, mess
 
 An admin is an operator using Admin Console, Debug, moderation, content, queue, economy, AI, support, or analytics surfaces. Admin activity must be excluded from user/guest analytics by default. If included for operational diagnostics, it must be labeled admin.
 
+Admin activity is excluded from user/guest analytics by default.
+
 ### Owner Admin
 
 An owner admin is the primary owner or owner-level operator performing an owner-only action such as onboarding override, direct creator activation, or emergency creator account administration. Owner-admin activity is an admin lane, not fan behavior, and must be excluded from user/guest analytics unless a module is explicitly measuring admin operations.
