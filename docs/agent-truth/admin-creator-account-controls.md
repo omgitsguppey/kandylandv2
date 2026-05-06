@@ -50,7 +50,7 @@ Creator onboarding history records `admin_account_updated`. Role activation stil
 
 Admin and owner override reasons are optional. Missing `ownerOverrideReason` may be shown as an optional audit note but is not an error, parity failure, or launch blocker unless a specific high-risk action explicitly requires a reason. Required audit evidence still includes actor id, action type, override active flag, target user/creator id, timestamp, source surface, and owner/admin actor marker.
 
-Synthetic/internal creator classification is an admin-only control path. The action label is "Mark as internal synthetic creator" and it requires a synthetic creator type, internal reason, target creator id, actor marker, timestamp, and `syntheticLegalEvidenceMode: internal_synthetic_no_external_agreement`. It must not change approval, role, payout, ledger, or public profile copy.
+Synthetic/internal creator classification is an admin-only control path. The action label is "Mark as internal synthetic creator" and it requires a synthetic creator type, internal reason, target creator id, actor marker, timestamp, and `syntheticLegalEvidenceMode: internal_synthetic_no_external_agreement`. It must not change approval, role, payout, ledger, legal status, creator/admin signature statuses, or public profile copy. Synthetic creator legal evidence mode makes missing external `agreementHash` a non-blocking internal evidence note for both creator signature and admin countersign evidence; human creators remain strict.
 
 ## Debug Fields
 

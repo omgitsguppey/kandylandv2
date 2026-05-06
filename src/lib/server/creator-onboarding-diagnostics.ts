@@ -52,6 +52,7 @@ export type CreatorOnboardingDiagnosticIssueKey =
     | "creator_signature_missing_evidence"
     | "admin_signature_missing_evidence"
     | "synthetic_agreement_hash_optional"
+    | "admin_synthetic_agreement_hash_optional"
     | "synthetic_creator_marker_incomplete"
     | "creator_settings_missing"
     | "creator_restrictions_conflict"
@@ -195,6 +196,8 @@ function countIdDocuments(record: Partial<CreatorOnboardingCanonicalRecord> | Re
 function hasAgreementEvidence(record: Partial<CreatorOnboardingCanonicalRecord>) {
     return Boolean(record.contractVersion && record.agreementHash);
 }
+
+const SYNTHETIC_CREATOR_AGREEMENT_HASH_RECOMMENDED_FIX = "No action required unless stronger internal audit evidence is desired.";
 
 function buildSyntheticMarkerSource(input: {
     canonical?: Partial<CreatorOnboardingCanonicalRecord>;
@@ -797,7 +800,7 @@ export function buildCreatorOnboardingDiagnostics(input: {
                     detail: "Synthetic/internal creator signature is marked signed without an external agreementHash because the creator uses internal synthetic legal evidence mode.",
                     link: `/admin/user/${userId}`,
                     rosterWarning: "Synthetic legal evidence note",
-                    recommendedFix: "No agreement hash repair is required unless this creator is reclassified as a normal human creator.",
+                    recommendedFix: SYNTHETIC_CREATOR_AGREEMENT_HASH_RECOMMENDED_FIX,
                     canSelfHeal: false,
                     sourceSnapshots: sourceSnapshot,
                     missingEvidenceFields: ["agreementHash"],
@@ -815,13 +818,19 @@ export function buildCreatorOnboardingDiagnostics(input: {
                 ? missingEvidenceFields.filter((field) => field !== "agreementHash")
                 : missingEvidenceFields;
             if (blockingMissingFields.length > 0) {
+                const onlyAgreementHashMissing = blockingMissingFields.length === 1
+                    && blockingMissingFields[0] === "agreementHash";
                 pushIssue({
                     key: "admin_signature_missing_evidence",
                     severity: "error",
                     userId,
                     creatorDisplayName: canonical.creatorDisplayName,
-                    message: "Admin countersign evidence is incomplete",
-                    detail: `Admin countersign is marked signed, but ${blockingMissingFields.join(", ")} is missing.`,
+                    message: onlyAgreementHashMissing
+                        ? "Human creator admin countersign is marked signed, but agreementHash is missing."
+                        : "Admin countersign evidence is incomplete",
+                    detail: onlyAgreementHashMissing
+                        ? "Human creator admin countersign is marked signed, but agreementHash is missing."
+                        : `Human creator admin countersign is marked signed, but ${blockingMissingFields.join(", ")} is missing.`,
                     link: `/admin/user/${userId}`,
                     rosterWarning: "Agreement evidence missing",
                     recommendedFix: "Countersign again against the same agreement version and hash, or repair the evidence in Debug.",
@@ -832,15 +841,15 @@ export function buildCreatorOnboardingDiagnostics(input: {
             }
             if (syntheticCreator && missingEvidenceFields.includes("agreementHash")) {
                 pushIssue({
-                    key: "synthetic_agreement_hash_optional",
+                    key: "admin_synthetic_agreement_hash_optional",
                     severity: "warn",
                     userId,
                     creatorDisplayName: canonical.creatorDisplayName,
-                    message: "Synthetic/internal creator uses internal legal evidence mode; agreementHash is optional.",
+                    message: "Synthetic/internal creator uses internal legal evidence mode; admin countersign agreementHash is optional.",
                     detail: "Synthetic/internal creator countersign is marked signed without an external agreementHash because the creator uses internal synthetic legal evidence mode.",
                     link: `/admin/user/${userId}`,
                     rosterWarning: "Synthetic legal evidence note",
-                    recommendedFix: "No agreement hash repair is required unless this creator is reclassified as a normal human creator.",
+                    recommendedFix: SYNTHETIC_CREATOR_AGREEMENT_HASH_RECOMMENDED_FIX,
                     canSelfHeal: false,
                     sourceSnapshots: sourceSnapshot,
                     missingEvidenceFields: ["agreementHash"],

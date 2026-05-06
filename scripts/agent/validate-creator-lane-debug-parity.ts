@@ -75,6 +75,7 @@ for (const issueKey of [
     "creator_signature_missing_evidence",
     "admin_signature_missing_evidence",
     "synthetic_agreement_hash_optional",
+    "admin_synthetic_agreement_hash_optional",
     "synthetic_creator_marker_incomplete",
     "id_verified_missing_metadata",
     "creator_settings_missing",
@@ -206,8 +207,12 @@ for (const optionalOverrideNeedle of [
 for (const syntheticNeedle of [
     "getSyntheticCreatorMarkerMissingFields",
     "synthetic_agreement_hash_optional",
+    "admin_synthetic_agreement_hash_optional",
     "synthetic_creator_marker_incomplete",
     "Synthetic/internal creator uses internal legal evidence mode; agreementHash is optional.",
+    "Synthetic/internal creator uses internal legal evidence mode; admin countersign agreementHash is optional.",
+    "No action required unless stronger internal audit evidence is desired.",
+    "Human creator admin countersign is marked signed, but agreementHash is missing.",
     "Synthetic creator marker is incomplete.",
     "Synthetic legal evidence note",
     "syntheticLegalEvidenceMode",
@@ -217,6 +222,7 @@ for (const syntheticNeedle of [
 
 for (const syntheticNeedle of [
     "synthetic_agreement_hash_optional",
+    "admin_synthetic_agreement_hash_optional",
     "synthetic_creator_marker_incomplete",
 ]) {
     requireIncludes(creatorLaneHelper, syntheticNeedle, "Creator Lane synthetic agreement surface mapping");

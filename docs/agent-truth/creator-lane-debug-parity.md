@@ -27,6 +27,10 @@ Admin Debug owns the full technical evidence for these checks:
 - legal signed without matching creator/admin signature state
 - creator signature missing agreement version, hash, or signature timestamp
 - admin countersign missing agreement version, hash, or signature timestamp
+- Human creator + creator signature signed + missing agreementHash stays an error.
+- Human creator + admin countersign signed + missing agreementHash stays an error with message: "Human creator admin countersign is marked signed, but agreementHash is missing."
+- Synthetic/internal creator + creator signature signed + missing agreementHash is a Synthetic legal evidence note.
+- Synthetic/internal creator + admin countersign signed + missing agreementHash is a Synthetic legal evidence note with message: "Synthetic/internal creator uses internal legal evidence mode; admin countersign agreementHash is optional."
 - Human creator + signed signatures + missing agreementHash stays an error.
 - Synthetic/internal creator + signed signatures + missing agreementHash is a Synthetic legal evidence note.
 - Synthetic creator marker is incomplete. Required internal-only fields such as `syntheticCreatorType`, `syntheticReason`, `syntheticCreatedByUid`, `syntheticCreatedAt`, and `syntheticLegalEvidenceMode` must be present.
@@ -58,7 +62,7 @@ Admin Roster is the decision queue. It must show only short operator warnings:
 - Settings missing
 - Synthetic legal evidence note
 
-Synthetic/internal creator records must carry `isSyntheticCreator: true` and `syntheticLegalEvidenceMode: "internal_synthetic_no_external_agreement"`. That mode means external `agreementHash` is optional for the synthetic creator classification only. Human creators still require `agreementHash` whenever creator/admin signatures are marked signed.
+Synthetic/internal creator records must carry `isSyntheticCreator: true` and `syntheticLegalEvidenceMode: "internal_synthetic_no_external_agreement"`. That mode means external `agreementHash` is optional for the synthetic creator classification only, for both creator signature evidence and admin countersign evidence. The recommended fix is "No action required unless stronger internal audit evidence is desired." Human creators still require `agreementHash` whenever creator/admin signatures are marked signed.
 
 An approved/live creator missing settings is critical. "Live" means any of: `users/{uid}.role === "creator"`, canonical `approvalStatus === "creator_approved"`, review queue bucket `approved`, or creator experience activity exists. Missing settings must not be downgraded because legal, ID, or signature states are still pending once any live signal exists.
 

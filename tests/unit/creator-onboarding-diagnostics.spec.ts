@@ -164,6 +164,12 @@ describe("creator onboarding diagnostics", () => {
             rosterWarning: "Agreement evidence missing",
             missingEvidenceFields: ["agreementHash"],
         });
+        expect(result.issues.find((issue) => issue.key === "admin_signature_missing_evidence")).toMatchObject({
+            severity: "error",
+            message: "Human creator admin countersign is marked signed, but agreementHash is missing.",
+            rosterWarning: "Agreement evidence missing",
+            missingEvidenceFields: ["agreementHash"],
+        });
     });
 
     it("downgrades synthetic signed agreement missing hash to a legal evidence note", () => {
@@ -209,7 +215,24 @@ describe("creator onboarding diagnostics", () => {
 
         expect(issueKeys(result)).not.toContain("creator_signature_missing_evidence");
         expect(issueKeys(result)).not.toContain("admin_signature_missing_evidence");
-        expect(result.issues.find((issue) => issue.key === "synthetic_agreement_hash_optional")).toMatchObject({
+        const syntheticHashNotes = result.issues.filter((issue) => (
+            issue.key === "synthetic_agreement_hash_optional"
+            || issue.key === "admin_synthetic_agreement_hash_optional"
+        ));
+        expect(syntheticHashNotes).toHaveLength(2);
+        expect(syntheticHashNotes).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                key: "synthetic_agreement_hash_optional",
+                message: "Synthetic/internal creator uses internal legal evidence mode; agreementHash is optional.",
+                recommendedFix: "No action required unless stronger internal audit evidence is desired.",
+            }),
+            expect.objectContaining({
+                key: "admin_synthetic_agreement_hash_optional",
+                message: "Synthetic/internal creator uses internal legal evidence mode; admin countersign agreementHash is optional.",
+                recommendedFix: "No action required unless stronger internal audit evidence is desired.",
+            }),
+        ]));
+        expect(syntheticHashNotes[0]).toMatchObject({
             severity: "warn",
             rosterWarning: "Synthetic legal evidence note",
             canSelfHeal: false,

@@ -264,8 +264,10 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   }
   if (
     normalized.includes("classify synthetic agreement evidence")
+    || normalized.includes("classify synthetic countersign evidence")
     || normalized.includes("internal creator classification")
     || normalized.includes("synthetic agreement evidence")
+    || normalized.includes("synthetic countersign evidence")
   ) {
     return "Improved internal creator classification checks.";
   }

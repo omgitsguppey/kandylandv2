@@ -86,6 +86,7 @@ const SURFACE_BY_ISSUE_KEY: Record<string, CreatorLaneMismatchSurface> = {
   creator_signature_missing_evidence: "agreement",
   admin_signature_missing_evidence: "agreement",
   synthetic_agreement_hash_optional: "agreement",
+  admin_synthetic_agreement_hash_optional: "agreement",
   synthetic_creator_marker_incomplete: "agreement",
   id_missing_metadata: "id",
   id_verified_missing_metadata: "id",
