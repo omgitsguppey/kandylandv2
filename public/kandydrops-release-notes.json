@@ -1,10 +1,43 @@
 {
-  "currentVersion": "1.36.0",
+  "currentVersion": "1.37.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:12:24.522Z",
-  "generatedAtUtc": "2026-05-06T01:12:24.522Z",
-  "lastCommitSha": "57b3e05b3320996d6a60f8067ba444ca4f86050a",
+  "generatedAt": "2026-05-06T01:20:04.721Z",
+  "generatedAtUtc": "2026-05-06T01:20:04.721Z",
+  "lastCommitSha": "38cbbf4ae10c432322454efaab57ed5348a33535",
   "notes": [
+    {
+      "version": "1.37.0",
+      "previousVersion": "1.36.0",
+      "commitSha": "38cbbf4ae10c432322454efaab57ed5348a33535",
+      "commitTitle": "fix(admin): separate diagnostics sample freshness",
+      "committedAt": "2026-05-06T01:19:52.000Z",
+      "generatedAt": "2026-05-06T01:20:04.721Z",
+      "committedAtUtc": "2026-05-06T01:19:52.000Z",
+      "generatedAtUtc": "2026-05-06T01:20:04.721Z",
+      "diffStats": {
+        "rawAdditions": 441,
+        "rawDeletions": 18,
+        "rawChangeCount": 459,
+        "additions": 441,
+        "deletions": 18,
+        "effectiveAdditions": 439,
+        "effectiveDeletions": 16,
+        "changedFiles": 11,
+        "effectiveChangeCount": 455,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal diagnostics timing so health panels separate current issues from older samples.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.36.0",
       "previousVersion": "1.35.1",
@@ -1601,42 +1634,6 @@
       ],
       "committedAtUtc": "2026-05-05T07:02:41.000Z",
       "generatedAtUtc": "2026-05-05T07:03:00.935Z"
-    },
-    {
-      "version": "1.0.0",
-      "previousVersion": "1.0.0",
-      "commitSha": "b944cbd4a76840bc8a4efded2ada8d4c66c0204d",
-      "commitTitle": "docs(doctrine): consolidate hierarchy and agent context",
-      "committedAt": "2026-05-05T06:25:37.000Z",
-      "generatedAt": "2026-05-05T06:55:57.092Z",
-      "diffStats": {
-        "rawAdditions": 1715,
-        "rawDeletions": 101,
-        "rawChangeCount": 1816,
-        "additions": 1715,
-        "deletions": 101,
-        "effectiveAdditions": 1714,
-        "effectiveDeletions": 101,
-        "changedFiles": 33,
-        "effectiveChangeCount": 1815,
-        "excludedGeneratedChangeCount": 1
-      },
-      "bumpType": "minor",
-      "category": "Internal",
-      "userFacingTitle": "Updated internal product guidance so future fixes stay more consistent.",
-      "bullets": [
-        "Improved internal beta reliability without changing your core flows."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "security",
-        "telemetry",
-        "wallet"
-      ],
-      "committedAtUtc": "2026-05-05T06:25:37.000Z",
-      "generatedAtUtc": "2026-05-05T06:55:57.092Z"
     }
   ]
 }

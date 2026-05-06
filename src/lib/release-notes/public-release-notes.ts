@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.36.0",
+  "currentVersion": "1.37.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:12:24.522Z",
-  "generatedAtUtc": "2026-05-06T01:12:24.522Z",
-  "lastCommitSha": "57b3e05b3320996d6a60f8067ba444ca4f86050a",
+  "generatedAt": "2026-05-06T01:20:04.721Z",
+  "generatedAtUtc": "2026-05-06T01:20:04.721Z",
+  "lastCommitSha": "38cbbf4ae10c432322454efaab57ed5348a33535",
   "notes": [
+    {
+      "version": "1.37.0",
+      "previousVersion": "1.36.0",
+      "commitSha": "38cbbf4ae10c432322454efaab57ed5348a33535",
+      "commitTitle": "fix(admin): separate diagnostics sample freshness",
+      "committedAt": "2026-05-06T01:19:52.000Z",
+      "generatedAt": "2026-05-06T01:20:04.721Z",
+      "committedAtUtc": "2026-05-06T01:19:52.000Z",
+      "generatedAtUtc": "2026-05-06T01:20:04.721Z",
+      "diffStats": {
+        "rawAdditions": 441,
+        "rawDeletions": 18,
+        "rawChangeCount": 459,
+        "additions": 441,
+        "deletions": 18,
+        "effectiveAdditions": 439,
+        "effectiveDeletions": 16,
+        "changedFiles": 11,
+        "effectiveChangeCount": 455,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal diagnostics timing so health panels separate current issues from older samples.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.36.0",
       "previousVersion": "1.35.1",
@@ -139,37 +172,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "documentation",
         "release-notes",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.33.0",
-      "previousVersion": "1.32.0",
-      "commitSha": "fa7cd3ed494b6e06dc32cfb5221f28bed48a1cb5",
-      "commitTitle": "fix(drops): clarify preview cover entitlement states",
-      "committedAt": "2026-05-05T22:44:37.000Z",
-      "generatedAt": "2026-05-05T23:56:39.730Z",
-      "committedAtUtc": "2026-05-05T22:44:37.000Z",
-      "generatedAtUtc": "2026-05-05T23:56:39.730Z",
-      "diffStats": {
-        "rawAdditions": 364,
-        "rawDeletions": 90,
-        "rawChangeCount": 454,
-        "additions": 364,
-        "deletions": 90,
-        "effectiveAdditions": 364,
-        "effectiveDeletions": 90,
-        "changedFiles": 12,
-        "effectiveChangeCount": 454,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Fixed a beta issue to make KandyDrops smoother to use.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "telemetry"
       ]
     }
   ]
