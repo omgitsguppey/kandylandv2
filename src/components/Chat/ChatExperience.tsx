@@ -75,6 +75,7 @@ import {
     USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
     USER_MOBILE_CHAT_CONTROL_BOTTOM_OFFSET,
     USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
+    USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT,
 } from "@/lib/user-mobile-shell";
 
 const CHAT_COMPOSER_DEFAULT_HEIGHT_PX = 104;
@@ -98,7 +99,7 @@ type FollowedCreatorEntry = {
 };
 
 export const CHAT_VIEWPORT_SHELL_CLASSNAME =
-    "mx-auto box-border flex h-full max-h-full min-h-0 w-full max-w-6xl flex-1 overflow-hidden px-0 sm:px-4";
+    "mx-auto box-border flex h-full max-h-full min-h-0 w-full max-w-6xl flex-1 overflow-hidden px-3 sm:px-4";
 export const CHAT_COMPACT_THREAD_LIST_PANEL_CLASSNAME =
     "flex h-full max-h-full min-h-0 flex-col overflow-hidden";
 export const CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME =
@@ -748,6 +749,9 @@ export function ChatExperience() {
     const composerPaddingMode = hasFullComposerTray ? "tray" : hasSummaryOnlyComposerTray ? "summary" : "clean";
     const chatViewportShellStyle = useMemo(() => ({
         paddingBottom: isCompactViewport ? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET : undefined,
+        minHeight: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
+        height: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
+        maxHeight: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
     }) satisfies CSSProperties, [isCompactViewport]);
     const compactThreadListScrollStyle = useMemo(() => ({
         paddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
@@ -2276,8 +2280,8 @@ export function ChatExperience() {
             data-chat-diagnostics-deferred="true"
             data-chat-tap-path="nonblocking"
         >
-            <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
-                <div className="grid h-full min-h-0 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
+                <div className="grid h-full min-h-0 flex-1 grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)]">
                     {(!isCompactViewport || !selectedThreadId) ? (
                         <aside ref={compactThreadListPanelRef} className={cn(
                             "min-h-0 bg-[#050505]",
@@ -2341,11 +2345,21 @@ export function ChatExperience() {
 
                                     <div
                                         ref={compactThreadListScrollRef}
-                                        className={CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME}
+                                        className={cn(CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME, "flex min-h-0 flex-1 flex-col")}
                                         style={compactThreadListScrollStyle}
                                     >
-                                        {filteredThreads.length > 0 ? (
-                                            <div className="space-y-1">
+                                        {threadsLoading && visibleThreads.length === 0 ? (
+                                            <div className="flex min-h-full flex-1 flex-col items-center justify-center text-center">
+                                                <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
+                                                    <MessageSquare className="h-8 w-8" />
+                                                </div>
+                                                <p className="mt-5 text-2xl font-black text-white">Loading conversations</p>
+                                                <p className="mt-2 max-w-sm text-sm leading-6 text-[#8f9097]">
+                                                    Pulling your creator threads into the chat shell.
+                                                </p>
+                                            </div>
+                                        ) : filteredThreads.length > 0 ? (
+                                            <div className="min-h-full space-y-1">
                                                 {filteredThreads.map((thread) => (
                                                     <button
                                                         key={thread.id}
@@ -2394,14 +2408,14 @@ export function ChatExperience() {
                                                 ))}
                                             </div>
                                         ) : visibleThreads.length > 0 ? (
-                                            <div className="flex min-h-[44vh] flex-col items-center justify-center text-center">
+                                            <div className="flex min-h-full flex-1 flex-col items-center justify-center text-center">
                                                 <p className="text-lg font-semibold text-white">No conversations match that search.</p>
                                                 <p className="mt-2 max-w-sm text-sm leading-6 text-[#8f9097]">
                                                     Try a different name or clear the search field to see your full thread list.
                                                 </p>
                                             </div>
                                         ) : canComposeFromFollowedCreators ? (
-                                            <div className="flex min-h-[44vh] flex-col items-center justify-center text-center">
+                                            <div className="flex min-h-full flex-1 flex-col items-center justify-center text-center">
                                                 <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
                                                     <MessageSquare className="h-8 w-8" />
                                                 </div>
@@ -2418,7 +2432,7 @@ export function ChatExperience() {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <div className="flex min-h-[44vh] flex-col items-center justify-center text-center">
+                                            <div className="flex min-h-full flex-1 flex-col items-center justify-center text-center">
                                                 <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
                                                     <MessageSquare className="h-8 w-8" />
                                                 </div>
