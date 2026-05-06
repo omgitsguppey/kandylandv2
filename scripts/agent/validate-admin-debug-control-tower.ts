@@ -1503,6 +1503,22 @@ for (const expected of [
   "data-drop-recovery-duplicate-rate",
   "data-drop-recovery-repaired-pct",
   "data-drop-recovery-formula-state",
+  "data-user-watch-user-id",
+  "data-user-watch-identity-state",
+  "data-user-watch-total-seconds",
+  "data-user-watch-verified-seconds",
+  "data-user-watch-estimated-seconds",
+  "data-user-watch-fallback-seconds",
+  "data-user-watch-quality",
+  "data-user-watch-confidence",
+  "data-user-watch-raw-gaps",
+  "data-user-watch-quality-reason",
+  "User watch math details",
+  "Fallback watch",
+  "UID ",
+  "Full UID:",
+  "raw_gaps_present",
+  "exact_invalid_due_to_raw_gaps",
 ]) {
   requireIncludes(debugAdvancedBehavior, expected, "Telemetry truth recovery panel must expose freshness, formulas, and repair grouping");
 }

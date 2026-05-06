@@ -17,6 +17,29 @@ function formatRelative(timestamp?: number) {
     return `${Math.floor(hours / 24)}d ago`;
 }
 
+function formatSecondsLabel(seconds?: number) {
+    const totalSeconds = Math.max(0, Math.round(seconds ?? 0));
+    const minutes = Math.floor(totalSeconds / 60);
+    const remainingSeconds = totalSeconds % 60;
+    if (minutes <= 0) return `${remainingSeconds}s`;
+    return `${minutes}m ${remainingSeconds}s`;
+}
+
+function formatUserWatchQualityReason(reason?: string) {
+    switch (reason) {
+        case "raw_gaps_present":
+            return "raw_gaps_present: raw watch evidence gaps were found in this user sample.";
+        case "exact_invalid_due_to_raw_gaps":
+            return "exact_invalid_due_to_raw_gaps: raw gaps prevent this row from staying exact quality.";
+        case "confidence_formula_missing":
+            return "confidence_formula_missing: confidence could not be fully justified from the current evidence pack.";
+        case "exact_quality_downgraded":
+            return "exact_quality_downgraded: estimated or fallback watch forced this row out of exact quality.";
+        default:
+            return reason || "unknown";
+    }
+}
+
 export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
     const panel = data?.behavioralIntelligencePanel;
     const recoveryPanel = data?.telemetryTruthRecoveryPanel;
@@ -348,24 +371,65 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
 
                         <ScrollWrap>
                             <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
-                                {(data?.analyticsTruthUsers || []).length ? (data?.analyticsTruthUsers || []).map((entry: any) => (
-                                    <div key={entry.userId} className="space-y-2 px-4 py-3">
+                                {(recoveryPanel?.userRows || []).length ? (recoveryPanel?.userRows || []).map((entry: any) => (
+                                    <div
+                                        key={entry.userId || entry.shortUserId}
+                                        className="space-y-2 px-4 py-3"
+                                        data-user-watch-user-id={entry.userId || "missing"}
+                                        data-user-watch-identity-state={entry.userIdentityState || "missing"}
+                                        data-user-watch-total-seconds={entry.totalWatchSeconds ?? 0}
+                                        data-user-watch-verified-seconds={entry.verifiedWatchSeconds ?? 0}
+                                        data-user-watch-estimated-seconds={entry.estimatedWatchSeconds ?? 0}
+                                        data-user-watch-fallback-seconds={entry.fallbackWatchSeconds ?? 0}
+                                        data-user-watch-quality={entry.quality || "unknown"}
+                                        data-user-watch-confidence={entry.confidencePct ?? 0}
+                                        data-user-watch-raw-gaps={entry.rawGapCount ?? 0}
+                                        data-user-watch-quality-reason={(entry.qualityReasons || []).join(" | ") || "none"}
+                                    >
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.userId}</p>
-                                                <p className="text-xs text-gray-400">Watch {Math.round(((entry.truthLayers?.finalized?.finalized_watch_time_ms ?? 0) as number) / 1000)}s - unique viewers {entry.truthLayers?.finalized?.finalized_unique_viewers ?? 0}</p>
+                                                <p className="font-semibold text-white">{entry.userDisplayName || "Unknown user"}</p>
+                                                <p className="text-xs text-gray-400">
+                                                    {entry.username ? `@${entry.username} · ` : ""}UID {entry.shortUserId || "unknown"} · Watch {entry.watchDurationDisplay || formatSecondsLabel(entry.totalWatchSeconds)} · unique viewers {entry.uniqueViewerCount ?? 0}
+                                                </p>
                                             </div>
                                             <div className="flex flex-wrap gap-2">
-                                                <Pill label="Quality" value={entry.qualityLabel || "unknown"} tone={entry.qualityLabel === "exact" ? "good" : entry.qualityLabel === "estimated" ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                                                <Pill label="Confidence" value={`${Math.round(((entry.confidenceScore || 0) as number) * 100)}%`} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Quality" value={entry.quality || "unknown"} tone={entry.quality === "exact" ? "good" : entry.quality === "estimated" || entry.quality === "fallback" || entry.quality === "mixed" ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Confidence" value={`${entry.confidencePct ?? 0}%`} tone={(entry.confidencePct ?? 0) >= 85 ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Sessions" value={entry.truthLayers?.validated?.total_drop_view_sessions ?? 0} truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Unlocks" value={entry.truthLayers?.finalized?.unlock_count ?? 0} truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Estimated watch" value={`${Math.round(((entry.truthLayers?.estimated?.estimated_watch_time_ms ?? 0) as number) / 1000)}s`} truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Raw gaps" value={entry.truthLayers?.estimated?.raw_coverage_gap_count ?? 0} tone={(entry.truthLayers?.estimated?.raw_coverage_gap_count ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Sessions" value={entry.sessionCount ?? 0} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Unlocks" value={entry.unlockCount ?? 0} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Verified watch" value={formatSecondsLabel(entry.verifiedWatchSeconds)} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Estimated watch" value={formatSecondsLabel(entry.estimatedWatchSeconds)} tone={(entry.estimatedWatchSeconds ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Fallback watch" value={formatSecondsLabel(entry.fallbackWatchSeconds)} tone={(entry.fallbackWatchSeconds ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Raw gaps" value={entry.rawGapCount ?? 0} tone={(entry.rawGapCount ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                                         </div>
+                                        <p className="text-xs text-gray-300">{entry.mathExplanation?.totalWatch}</p>
+                                        <p className="text-xs text-gray-300">{entry.mathExplanation?.rawGaps}</p>
+                                        <p className="text-xs text-gray-300">{entry.mathExplanation?.confidence}</p>
+                                        {(entry.qualityReasons || []).length ? (
+                                            <div className="flex flex-wrap gap-2">
+                                                {(entry.qualityReasons || []).map((reason: string) => (
+                                                    <Pill key={`${entry.userId}-${reason}`} label="Reason" value={formatUserWatchQualityReason(reason)} tone="warn" truthState="live" badgeLabel="LOADED" />
+                                                ))}
+                                            </div>
+                                        ) : null}
+                                        <details className="rounded-xl border border-white/10 bg-black/10 p-3">
+                                            <summary className="cursor-pointer text-sm text-gray-200">User watch math details</summary>
+                                            <div className="mt-3 space-y-2 text-xs text-gray-400">
+                                                <p>Verified watch: {formatSecondsLabel(entry.verifiedWatchSeconds)} ({entry.verifiedWatchSeconds ?? 0}s)</p>
+                                                <p>Estimated watch: {formatSecondsLabel(entry.estimatedWatchSeconds)} ({entry.estimatedWatchSeconds ?? 0}s)</p>
+                                                <p>Fallback watch: {formatSecondsLabel(entry.fallbackWatchSeconds)} ({entry.fallbackWatchSeconds ?? 0}s)</p>
+                                                <p>Raw gaps: {entry.rawGapCount ?? 0}</p>
+                                                <p>{entry.mathExplanation?.verifiedWatch}</p>
+                                                <p>{entry.mathExplanation?.estimatedWatch}</p>
+                                                <p>{entry.mathExplanation?.fallbackWatch}</p>
+                                                <p>Admin user: {entry.adminUserHref || "none"}</p>
+                                                <p>Full UID: {entry.userId || "missing"}</p>
+                                            </div>
+                                        </details>
                                     </div>
                                 )) : <div className="px-4 py-4 text-sm text-amber-100">No per-user analytics truth rows are available yet.</div>}
                             </div>

@@ -69,7 +69,7 @@ import { getDailyTaskWindow } from "@/lib/server/daily-tasks";
 import { buildAdminShellLayoutDebugMetadata } from "@/lib/admin-shell-spacing";
 import { listAdminMetricSnapshotDebugMetadata } from "@/lib/server/admin-analytics-snapshots";
 import { ADMIN_ANALYTICS_MATERIALIZER_REGISTRY } from "@/lib/server/admin-analytics-materializers";
-import { buildAdminOverviewFallbackIdentity, shortenAdminOverviewUserId, type AdminOverviewUserIdentity } from "@/lib/server/admin-overview-users";
+import { buildAdminOverviewFallbackIdentity, buildAdminOverviewUserIdentityMap, shortenAdminOverviewUserId, type AdminOverviewUserIdentity } from "@/lib/server/admin-overview-users";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
@@ -678,6 +678,36 @@ type DropTelemetryRecoveryRow = {
     warnings: string[];
 };
 
+type UserWatchRecoveryRow = {
+    userId: string;
+    shortUserId: string;
+    userDisplayName: string;
+    username?: string;
+    userIdentityState: "resolved" | "fallback_uid" | "missing";
+    adminUserHref?: string;
+    totalWatchSeconds: number;
+    verifiedWatchSeconds: number;
+    estimatedWatchSeconds: number;
+    fallbackWatchSeconds: number;
+    watchDurationDisplay: string;
+    uniqueViewerCount: number;
+    sessionCount: number;
+    unlockCount: number;
+    rawGapCount: number;
+    quality: "exact" | "mixed" | "estimated" | "fallback" | "degraded" | "unknown";
+    confidencePct: number;
+    qualityReasons: string[];
+    mathExplanation: {
+        totalWatch: string;
+        verifiedWatch: string;
+        estimatedWatch: string;
+        fallbackWatch: string;
+        rawGaps: string;
+        confidence: string;
+    };
+    state: "live" | "review" | "error";
+};
+
 type TelemetryTruthRecoveryState = {
     generatedAtUtc: string;
     lastRebuildAtUtc: string | null;
@@ -711,6 +741,7 @@ type TelemetryTruthRecoveryState = {
     repairGroups: TelemetryTruthRecoveryRepairGroup[];
     estimatedWatchRecoveryGroups: EstimatedWatchRecoveryGroup[];
     dropRows: DropTelemetryRecoveryRow[];
+    userRows: UserWatchRecoveryRow[];
     warnings: string[];
 };
 
@@ -2167,6 +2198,7 @@ function buildTelemetryTruthRecoveryState(input: {
     analyticsTruthUsers: Array<Record<string, unknown>>;
     analyticsTruthRepairs: Array<Record<string, unknown>>;
     dropLookup: Map<string, { title: string; creatorId?: string; creatorName?: string }>;
+    userIdentityLookup: Map<string, AdminOverviewUserIdentity>;
 }): TelemetryTruthRecoveryState {
     const globalRecord = input.analyticsTruthRecovery?.global && typeof input.analyticsTruthRecovery.global === "object"
         ? input.analyticsTruthRecovery.global as Record<string, unknown>
@@ -2342,6 +2374,120 @@ function buildTelemetryTruthRecoveryState(input: {
             ],
         };
     });
+    const userRows: UserWatchRecoveryRow[] = input.analyticsTruthUsers.map((entry) => {
+        const userId = toOptionalString(entry.userId) || "";
+        const identity = userId
+            ? input.userIdentityLookup.get(userId) || buildAdminOverviewFallbackIdentity(userId)
+            : {
+                userId: "",
+                userDisplayName: "Unknown user",
+                shortUserId: "unknown",
+                userIdentityState: "missing" as const,
+            };
+        const truthLayers = entry.truthLayers && typeof entry.truthLayers === "object"
+            ? entry.truthLayers as Record<string, unknown>
+            : {};
+        const validatedLayer = truthLayers.validated && typeof truthLayers.validated === "object"
+            ? truthLayers.validated as Record<string, unknown>
+            : {};
+        const finalizedLayer = truthLayers.finalized && typeof truthLayers.finalized === "object"
+            ? truthLayers.finalized as Record<string, unknown>
+            : {};
+        const estimatedLayer = truthLayers.estimated && typeof truthLayers.estimated === "object"
+            ? truthLayers.estimated as Record<string, unknown>
+            : {};
+        const totalWatchSeconds = Math.max(0, Math.round(toNumber(finalizedLayer.finalized_watch_time_ms) / 1000));
+        const estimatedWatchSeconds = Math.max(0, Math.round(toNumber(estimatedLayer.estimated_watch_time_ms) / 1000));
+        const rawGapCount = toNumber(estimatedLayer.raw_coverage_gap_count);
+        const qualityRaw = toOptionalString(entry.qualityLabel)?.toLowerCase() || "unknown";
+        const fallbackWatchSeconds = qualityRaw === "fallback"
+            ? Math.max(0, totalWatchSeconds - estimatedWatchSeconds)
+            : 0;
+        const verifiedWatchSeconds = Math.max(0, totalWatchSeconds - estimatedWatchSeconds - fallbackWatchSeconds);
+        const confidencePct = Math.max(0, Math.round(toNumber(entry.confidenceScore) * 100));
+        const qualityReasons: string[] = [];
+        let quality: UserWatchRecoveryRow["quality"] = qualityRaw === "exact" ? "exact"
+            : qualityRaw === "estimated" ? "estimated"
+                : qualityRaw === "fallback" ? "fallback"
+                    : qualityRaw === "mixed" ? "mixed"
+                        : qualityRaw === "degraded" ? "degraded"
+                            : "unknown";
+
+        if (estimatedWatchSeconds > 0) {
+            qualityReasons.push(`estimated share ${(totalWatchSeconds > 0 ? Math.round((estimatedWatchSeconds / totalWatchSeconds) * 100) : 0)}% of total watch`);
+        }
+        if (fallbackWatchSeconds > 0) {
+            qualityReasons.push(`fallback share ${(totalWatchSeconds > 0 ? Math.round((fallbackWatchSeconds / totalWatchSeconds) * 100) : 0)}% of total watch`);
+        }
+        if (rawGapCount > 0) {
+            qualityReasons.push("raw_gaps_present");
+        }
+        if (confidencePct <= 0) {
+            qualityReasons.push("confidence_formula_missing");
+        }
+        if (quality === "exact" && (estimatedWatchSeconds > 0 || fallbackWatchSeconds > 0)) {
+            quality = estimatedWatchSeconds > 0 && fallbackWatchSeconds > 0 ? "mixed" : estimatedWatchSeconds > 0 ? "estimated" : "fallback";
+            qualityReasons.push("exact_quality_downgraded");
+        }
+        if (quality === "exact" && rawGapCount > 0) {
+            quality = "mixed";
+            qualityReasons.push("exact_invalid_due_to_raw_gaps");
+        }
+        if (quality === "unknown" && estimatedWatchSeconds > 0) {
+            quality = "estimated";
+        } else if (quality === "unknown" && fallbackWatchSeconds > 0) {
+            quality = "fallback";
+        } else if (quality === "unknown" && rawGapCount > 0) {
+            quality = "degraded";
+        } else if (quality === "unknown" && totalWatchSeconds > 0) {
+            quality = "exact";
+        }
+
+        const mathExplanation = {
+            totalWatch: "Total watch is finalized watch time in the bounded user recovery row, after any estimated or fallback contributions already included in reporting.",
+            verifiedWatch: "Verified watch excludes estimated and fallback watch contributions.",
+            estimatedWatch: estimatedWatchSeconds > 0
+                ? "Estimated watch is diagnostics-only recovery time and does not count as verified watch."
+                : "No estimated watch was added for this user in the current sample.",
+            fallbackWatch: fallbackWatchSeconds > 0
+                ? "Fallback watch represents non-verified fallback contribution that kept this row out of exact quality."
+                : "No fallback watch contributed to this row.",
+            rawGaps: rawGapCount > 0
+                ? "Raw gaps count missing raw watch evidence such as start/end events, asset events, route/session context, or close signals."
+                : "No raw watch evidence gaps were recorded in this bounded sample.",
+            confidence: "Confidence reflects verified session share, raw-gap burden, estimated or fallback share, close/end-signal availability, and sample completeness.",
+        };
+
+        const state: UserWatchRecoveryRow["state"] =
+            identity.userIdentityState === "missing"
+                ? "error"
+                : quality === "exact" && rawGapCount === 0 && estimatedWatchSeconds === 0 && fallbackWatchSeconds === 0
+                    ? "live"
+                    : "review";
+
+        return {
+            userId,
+            shortUserId: identity.shortUserId,
+            userDisplayName: identity.userIdentityState === "resolved" ? identity.userDisplayName : identity.userIdentityState === "fallback_uid" ? identity.shortUserId : "Unknown user",
+            username: identity.username,
+            userIdentityState: identity.userIdentityState,
+            adminUserHref: userId ? `/admin/user/${encodeURIComponent(userId)}` : undefined,
+            totalWatchSeconds,
+            verifiedWatchSeconds,
+            estimatedWatchSeconds,
+            fallbackWatchSeconds,
+            watchDurationDisplay: formatDurationCompactFromSeconds(totalWatchSeconds),
+            uniqueViewerCount: toNumber(finalizedLayer.finalized_unique_viewers),
+            sessionCount: toNumber(validatedLayer.total_drop_view_sessions),
+            unlockCount: toNumber(finalizedLayer.unlock_count),
+            rawGapCount,
+            quality,
+            confidencePct,
+            qualityReasons,
+            mathExplanation,
+            state,
+        };
+    });
     const actionableRepairCount = repairGroups
         .filter((group) => group.actionability === "actionable")
         .reduce((sum, group) => sum + group.count, 0);
@@ -2450,6 +2596,7 @@ function buildTelemetryTruthRecoveryState(input: {
         repairGroups,
         estimatedWatchRecoveryGroups,
         dropRows,
+        userRows,
         warnings,
     };
 }
@@ -3200,6 +3347,15 @@ export async function GET(request: NextRequest) {
                 });
             }
         });
+        const analyticsTruthUserIds = Array.from(new Set(
+            (analyticsTruthUsers as Array<Record<string, unknown>>)
+                .map((entry) => toOptionalString(entry.userId))
+                .filter((value): value is string => Boolean(value)),
+        ));
+        const analyticsTruthUserIdentityLookup = await buildAdminOverviewUserIdentityMap({
+            usersCollection: adminDb.collection("users"),
+            userIds: analyticsTruthUserIds,
+        });
         const behavioralIntelligencePanel = buildBehavioralIntelligencePanelState({
             nowMs,
             behavioralSnapshotStatus: behavioralSnapshotStatus as Record<string, unknown> | null,
@@ -3212,6 +3368,7 @@ export async function GET(request: NextRequest) {
             analyticsTruthUsers: analyticsTruthUsers as Array<Record<string, unknown>>,
             analyticsTruthRepairs: analyticsTruthRepairs as Array<Record<string, unknown>>,
             dropLookup: analyticsTruthDropLookup,
+            userIdentityLookup: analyticsTruthUserIdentityLookup,
         });
                 const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
         const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {
