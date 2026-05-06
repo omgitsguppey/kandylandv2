@@ -54,21 +54,40 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     formatter: (next: number) => string,
     waitingLabel = "No verified snapshot yet",
   ) => (typeof value === "number" && Number.isFinite(value) ? formatter(value) : waitingLabel);
-  const commerceBadgeLabel = commerceSnapshotModel.stale
-    ? "DELAYED"
-    : commerceSnapshotModel.cache
-      ? "SNAP"
-      : commerceSnapshotModel.serverConfirmed
-        ? "LIVE"
-        : commerceSnapshotModel.refreshStatus === "running"
-          ? "WAIT"
-          : "ERROR";
+  const commerceBadgeLabel = commerceSnapshotModel.cacheState === "live"
+    ? "LIVE"
+    : commerceSnapshotModel.cacheState === "delayed"
+      ? "DELAYED"
+      : commerceSnapshotModel.cacheState === "partial"
+        ? "REVIEW"
+        : commerceSnapshotModel.cacheState === "stale"
+          ? "DELAYED"
+          : commerceSnapshotModel.refreshStatus === "running" && !commerceSnapshotModel.serverConfirmed
+            ? "WAIT"
+            : "ERROR";
   const compactMetricClass = "rounded-[1rem] p-2";
   const compactMetricValueClass = "text-lg leading-6 md:text-xl";
   const commerceConversionLabel =
     commerceSnapshotModel.checkoutConversionValue !== null
       ? formatPercent(commerceSnapshotModel.checkoutConversionValue)
       : "Unavailable";
+  const commerceCardMap = new Map(
+    commerceSnapshotModel.commerceSnapshotState.cards.map((card) => [card.id, card]),
+  );
+  const revenueCard = commerceCardMap.get("revenue");
+  const purchasesCard = commerceCardMap.get("completed_purchases");
+  const checkoutCard = commerceCardMap.get("checkout_starts");
+  const gdSpentCard = commerceCardMap.get("gd_spent");
+  const adjustedProfitCard = commerceCardMap.get("adjusted_profit");
+  const yieldCard = commerceCardMap.get("yield_per_100_gd");
+  const walletCard = commerceCardMap.get("wallet_opens");
+  const promoCard = commerceCardMap.get("promo_impact");
+  const commerceGeneratedAtLabel = commerceSnapshotModel.generatedAtUtc
+    ? formatAbsoluteDateTime(Date.parse(commerceSnapshotModel.generatedAtUtc))
+    : "Unknown";
+  const commerceConversionFooter = commerceSnapshotModel.checkoutConversionWarning
+    ? commerceSnapshotModel.checkoutConversionWarning
+    : `Checkout conversion: completed purchases / checkout starts = ${commerceConversionLabel}`;
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -95,110 +114,142 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 ))}
               </div>
 
+              <div className="mb-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-2 xl:grid-cols-4">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Range</div>
+                  <div className="font-semibold text-white">{commerceSnapshotModel.selectedRangeLabel}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Cache freshness</div>
+                  <div className="font-semibold text-white">{commerceBadgeLabel}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Last verified</div>
+                  <div className="font-semibold text-white">{commerceGeneratedAtLabel}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Treasury</div>
+                  <div className="font-semibold text-white">Platform Economy</div>
+                  <div className="text-gray-400">Treasury truth lives in Platform Economy.</div>
+                </div>
+              </div>
+
+              {commerceSnapshotModel.commerceSnapshotState.rangeConsistency.warning ? (
+                <div className="mb-2 rounded-[1rem] border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] leading-5 text-amber-100">
+                  {commerceSnapshotModel.commerceSnapshotState.rangeConsistency.warning}
+                </div>
+              ) : null}
+
+              {commerceSnapshotModel.commerceSnapshotState.treasuryWarnings.length > 0 ? (
+                <div className="mb-2 rounded-[1rem] border border-brand-pink/20 bg-brand-pink/10 px-3 py-2 text-[11px] leading-5 text-brand-pink">
+                  {commerceSnapshotModel.commerceSnapshotState.treasuryWarnings.join(" ")}
+                </div>
+              ) : null}
+
               <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                 <MetricCard
-                  label="Revenue"
+                  label={revenueCard?.label ?? "Revenue"}
                   value={formatCommerceValue(commerceSnapshotModel.revenueValue, formatMoney)}
-                  hint="Completed payments"
+                  hint={`${revenueCard?.scope ?? "unknown"} | ${revenueCard?.sourceTruth ?? "unknown"}`}
                   icon={DollarSign}
                   truthState={commerceSnapshotModel.metrics.revenue.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip="Completed real-money purchases from internal payment records. Promo and bonus value are excluded."
+                  dictionaryTooltip={revenueCard?.explanation ?? "Completed real-money purchases from internal payment records. Promo and bonus value are excluded."}
                 />
                 <MetricCard
-                  label="Purchases"
+                  label={purchasesCard?.label ?? "Purchases"}
                   value={formatCommerceValue(commerceSnapshotModel.purchaseCompletionsValue, formatCompactNumber)}
-                  hint="Completed only"
+                  hint={`${purchasesCard?.scope ?? "unknown"} | ${purchasesCard?.sourceTruth ?? "unknown"}`}
                   icon={CheckCircle2}
                   truthState={commerceSnapshotModel.metrics.purchases.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip="Server-confirmed completed purchases, not checkout starts."
+                  dictionaryTooltip={purchasesCard?.explanation ?? "Server-confirmed completed purchases, not checkout starts."}
                 />
                 <MetricCard
-                  label="Checkout Starts"
+                  label={checkoutCard?.label ?? "Checkout Starts"}
                   value={formatCommerceValue(commerceSnapshotModel.checkoutStartsValue, formatCompactNumber)}
-                  hint={`${commerceConversionLabel} conversion`}
+                  hint={`${checkoutCard?.scope ?? "unknown"} | ${checkoutCard?.sourceTruth ?? "unknown"}`}
                   icon={Funnel}
                   truthState={commerceSnapshotModel.metrics.checkoutStarts.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip="Checkout start telemetry. It is separate from completed purchases."
+                  dictionaryTooltip={checkoutCard?.explanation ?? "Checkout start telemetry. It is separate from completed purchases."}
                 />
                 <MetricCard
-                  label="GD Spent"
+                  label={gdSpentCard?.label ?? "GD Spent"}
                   value={formatCommerceValue(commerceSnapshotModel.gdSpentValue, formatCompactNumber)}
-                  hint="Unlock ledger"
+                  hint={`${gdSpentCard?.scope ?? "unknown"} | ${gdSpentCard?.sourceTruth ?? "unknown"}`}
                   icon={ShoppingBag}
                   truthState={commerceSnapshotModel.metrics.gdSpent.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip="GumDrops spent through internal unlock records. Paid, bonus, and promo breakdowns stay in debug when available."
+                  dictionaryTooltip={`${gdSpentCard?.explanation ?? "GumDrops spent through internal unlock records."} Paid ${formatCommerceValue(commerceSnapshotModel.paidGdSpentValue, formatCompactNumber, "Unavailable")} | Reward ${formatCommerceValue(commerceSnapshotModel.rewardFreeGdSpentValue, formatCompactNumber, "Unavailable")} | Unknown ${formatCommerceValue(commerceSnapshotModel.unknownSourceGdSpentValue, formatCompactNumber, "Unavailable")}`}
                 />
               </div>
 
               <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">
                 <MetricCard
-                  label="Adj. Profit"
+                  label={adjustedProfitCard?.label ?? "Adj. Profit"}
                   value={formatCommerceValue(commerceSnapshotModel.adjustedProfitValue, formatMoney)}
-                  hint={`${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "No promo value")} promo impact`}
+                  hint={`${adjustedProfitCard?.scope ?? "unknown"} | ${adjustedProfitCard?.sourceTruth ?? "unknown"}`}
                   icon={Wallet}
                   truthState={commerceSnapshotModel.metrics.adjustedProfit.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip={commerceSnapshotModel.adjustedProfitFormula}
+                  dictionaryTooltip={`${commerceSnapshotModel.adjustedProfitFormula}. Gross ${formatCommerceValue(commerceSnapshotModel.revenueValue, formatMoney, "Unavailable")} | Fees ${formatCommerceValue(commerceSnapshotModel.paymentFeesUsdValue, formatMoney, "Unavailable")} | Promo/bonus value basis ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}.`}
                 />
                 <MetricCard
-                  label="Yield / 100 GD"
+                  label={yieldCard?.label ?? "Yield / 100 GD"}
                   value={formatCommerceValue(commerceSnapshotModel.yieldPer100GdValue, formatMoney)}
-                  hint="Revenue / delivered GD"
+                  hint={`${yieldCard?.scope ?? "unknown"} | ${yieldCard?.sourceTruth ?? "unknown"}`}
                   icon={Sparkles}
                   truthState={commerceSnapshotModel.metrics.yieldPer100Gd.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip={commerceSnapshotModel.yieldPer100GdFormula}
+                  dictionaryTooltip={`${commerceSnapshotModel.yieldPer100GdFormula}. Delivered GD = paid base ${formatCommerceValue(commerceSnapshotModel.paidBaseDeliveredGdValue, formatCompactNumber, "Unavailable")} + paid bonus ${formatCommerceValue(commerceSnapshotModel.paidBonusDeliveredGdValue, formatCompactNumber, "Unavailable")}.`}
                 />
                 <MetricCard
-                  label="Wallet Opens"
+                  label={walletCard?.label ?? "Wallet Opens"}
                   value={formatCommerceValue(commerceSnapshotModel.walletOpensValue, formatCompactNumber)}
-                  hint="Wallet intent"
+                  hint={`${walletCard?.scope ?? "unknown"} | ${walletCard?.sourceTruth ?? "unknown"}`}
                   icon={Wallet}
                   truthState={commerceSnapshotModel.metrics.walletOpens.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip="Wallet open telemetry for the selected range."
+                  dictionaryTooltip={walletCard?.explanation ?? "Wallet open telemetry for the selected range."}
                 />
                 <MetricCard
-                  label="Promo Impact"
+                  label={promoCard?.label ?? "Promo Impact"}
                   value={formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}
-                  hint={`${formatCommerceValue(commerceSnapshotModel.bonusGdGranted, formatCompactNumber, "No")} bonus GD`}
+                  hint={`${promoCard?.scope ?? "unknown"} | ${promoCard?.sourceTruth ?? "unknown"}`}
                   icon={Candy}
                   truthState={commerceSnapshotModel.metrics.promoImpact.truthState}
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip="Package-rate promo or bonus value. It is never counted as revenue."
+                  dictionaryTooltip={`Bonus GD ${formatCommerceValue(commerceSnapshotModel.bonusGdGranted, formatCompactNumber, "Unavailable")} | Promo discount ${formatCommerceValue(commerceSnapshotModel.promoDiscountUsdValue, formatMoney, "Unavailable")} | Value basis ${formatCommerceValue(commerceSnapshotModel.promoValueGranted, formatMoney, "Unavailable")}.`}
                 />
               </div>
 
               <div className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex md:items-center md:justify-between md:gap-3">
                 <div className="font-semibold text-white">
-                  Checkout conversion: {commerceConversionLabel}
+                  {commerceConversionFooter}
                 </div>
                 <div className="text-gray-400">
-                  Revenue source: completed internal payment records.
+                  Revenue source: completed internal payment records. Treasury truth lives in Platform Economy.
                 </div>
                 <div className="text-brand-purple">
                   {commerceSnapshotModel.needsAttention.length > 0
-                    ? commerceSnapshotModel.needsAttention.slice(0, 2).join(" · ")
+                    ? commerceSnapshotModel.needsAttention.slice(0, 2).join(" | ")
                     : "No commerce action required."}
                 </div>
               </div>
@@ -857,7 +908,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                     style={{
                                       width: `${Math.max(
                                         6,
-                                        ((item.value ?? 0) /
+                                        ((item.value | 0) /
                                           Math.max(
                                             1,
                                             liveWatchCaptureHealth

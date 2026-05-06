@@ -487,6 +487,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
             return withSharedFields({
                 commerce: payload.commerce,
                 funnel: payload.funnel,
+                commerceSnapshotState: payload.commerceSnapshotState,
             });
         case "packagePerformance":
             return withSharedFields({ packagePerformance: payload.packagePerformance });
@@ -967,6 +968,56 @@ async function GET_handler(request: NextRequest) {
                     gdSpent: Math.max(toNumber(commerceSummaryData.spendGdTotal), derivedCommerceTotals.gdSpent),
                 }
                 : derivedCommerceTotals;
+            const paymentFeesUsd = completedPurchaseTransactions.reduce((sum, transaction) => {
+                const explicitFee = toNumber(transaction.paypalFeeUsd);
+                if (explicitFee > 0) {
+                    return sum + explicitFee;
+                }
+                const grossRevenueUsd = toNumber(transaction.grossRevenueUsd ?? transaction.cost);
+                const netRevenueUsd = toNumber(transaction.netRevenueUsd);
+                if (grossRevenueUsd > 0 && netRevenueUsd > 0 && grossRevenueUsd >= netRevenueUsd) {
+                    return sum + (grossRevenueUsd - netRevenueUsd);
+                }
+                return sum;
+            }, 0);
+            const promoDiscountUsd = completedPurchaseTransactions.reduce(
+                (sum, transaction) => sum + toNumber(transaction.discountUsd),
+                0,
+            );
+            const paidBaseDeliveredGd = completedPurchaseTransactions.reduce(
+                (sum, transaction) => sum + toNumber(transaction.paidGumDrops),
+                0,
+            );
+            const paidBonusDeliveredGd = completedPurchaseTransactions.reduce(
+                (sum, transaction) => sum + toNumber(transaction.bonusGumDrops),
+                0,
+            );
+            const paidSourceDeliveredGd = paidBaseDeliveredGd + paidBonusDeliveredGd;
+            const rewardDeliveredGd = Math.max(
+                0,
+                commerceTotals.deliveredGumDrops - paidSourceDeliveredGd,
+            );
+            const spendSourceBreakdown = unlockTransactions.reduce((acc, transaction) => {
+                const totalSpent = Math.max(0, Math.abs(toNumber(transaction.amount)));
+                const paidSpent = Math.max(0, toNumber(transaction.purchasedAmountSpent));
+                const rewardSpent = Math.max(0, toNumber(transaction.rewardAmountSpent));
+                const knownSpent = Math.min(totalSpent, paidSpent + rewardSpent);
+                acc.paidGdSpent += paidSpent;
+                acc.rewardFreeGdSpent += rewardSpent;
+                acc.unknownSourceGdSpent += Math.max(0, totalSpent - knownSpent);
+                acc.knownBreakdownCount += transaction.ledgerSource || paidSpent > 0 || rewardSpent > 0 ? 1 : 0;
+                return acc;
+            }, {
+                paidGdSpent: 0,
+                rewardFreeGdSpent: 0,
+                unknownSourceGdSpent: 0,
+                knownBreakdownCount: 0,
+            });
+            const commerceScope = period === "all"
+                ? "lifetime"
+                : period === "30d"
+                    ? "rolling_30d"
+                    : "selected_range";
             const commerce = {
                 revenueUsd: commerceTotals.revenueUsd,
                 adjustedProfitUsd: commerceTotals.adjustedProfitUsd,
@@ -975,6 +1026,23 @@ async function GET_handler(request: NextRequest) {
                 bonusGumDrops: commerceTotals.bonusGumDrops,
                 effectiveUsdPer100Gd: commerceTotals.deliveredGumDrops > 0 ? commerceTotals.revenueUsd / (commerceTotals.deliveredGumDrops / 100) : 0,
                 gdSpent: commerceTotals.gdSpent,
+                checkoutRangeStartUtc: new Date(startMs).toISOString(),
+                checkoutRangeEndUtc: new Date(endMs).toISOString(),
+                checkoutScope: commerceScope,
+                grossRevenueUsd: commerceTotals.revenueUsd,
+                paymentFeesUsd,
+                paidGdSpent: spendSourceBreakdown.paidGdSpent,
+                paidBonusGdSpent: null,
+                rewardFreeGdSpent: spendSourceBreakdown.rewardFreeGdSpent,
+                unknownSourceGdSpent: spendSourceBreakdown.unknownSourceGdSpent,
+                promoDiscountUsd,
+                paidSourceDeliveredGd,
+                paidBaseDeliveredGd,
+                paidBonusDeliveredGd,
+                rewardDeliveredGd,
+                sourceBreakdownAvailable: unlockTransactions.length > 0
+                    ? spendSourceBreakdown.knownBreakdownCount === unlockTransactions.length
+                    : true,
                 feed: mappedCommerceFeed,
             };
             const semanticCategories = buildSemanticCategorySummaries({

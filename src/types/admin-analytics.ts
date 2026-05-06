@@ -179,6 +179,52 @@ export interface CommerceFeedItem {
   userPhoto?: string;
 }
 
+export type CommerceMetricCard = {
+  id:
+    | "revenue"
+    | "completed_purchases"
+    | "checkout_starts"
+    | "gd_spent"
+    | "adjusted_profit"
+    | "yield_per_100_gd"
+    | "wallet_opens"
+    | "promo_impact";
+  label: string;
+  value: string | number;
+  scope: "lifetime" | "rolling_30d" | "selected_range" | "cache_snapshot" | "unknown";
+  rangeStartUtc?: string | null;
+  rangeEndUtc?: string | null;
+  sourceTruth:
+    | "payment_transactions"
+    | "commerce_rollup"
+    | "checkout_telemetry"
+    | "unlock_ledger"
+    | "gumdrop_ledger"
+    | "wallet_telemetry"
+    | "platform_economy"
+    | "mixed"
+    | "unknown";
+  freshnessState: "live" | "delayed" | "stale" | "partial" | "unknown";
+  formula?: string;
+  numerator?: number | null;
+  denominator?: number | null;
+  warnings: string[];
+  explanation: string;
+};
+
+export type CommerceSnapshotState = {
+  generatedAtUtc: string;
+  selectedRange: string;
+  cacheState: "live" | "delayed" | "stale" | "partial" | "unknown";
+  cards: CommerceMetricCard[];
+  rangeConsistency: {
+    allSameRange: boolean;
+    mismatchedCards: string[];
+    warning: string | null;
+  };
+  treasuryWarnings: string[];
+};
+
 export interface SecurityItem {
   uid: string;
   username: string;
@@ -766,6 +812,21 @@ export interface HistoricalAnalyticsResponse {
     bonusGumDrops?: number;
     effectiveUsdPer100Gd?: number;
     gdSpent: number;
+    checkoutRangeStartUtc?: string | null;
+    checkoutRangeEndUtc?: string | null;
+    checkoutScope?: "lifetime" | "rolling_30d" | "selected_range" | "cache_snapshot" | "unknown";
+    grossRevenueUsd?: number;
+    paymentFeesUsd?: number;
+    paidGdSpent?: number;
+    paidBonusGdSpent?: number | null;
+    rewardFreeGdSpent?: number;
+    unknownSourceGdSpent?: number;
+    promoDiscountUsd?: number;
+    paidSourceDeliveredGd?: number;
+    paidBaseDeliveredGd?: number;
+    paidBonusDeliveredGd?: number;
+    rewardDeliveredGd?: number;
+    sourceBreakdownAvailable?: boolean;
     feed?: CommerceFeedItem[];
   };
   security?: SecurityItem[];
@@ -792,6 +853,7 @@ export interface HistoricalAnalyticsResponse {
   deviceMixPanelState?: DeviceMixPanelState;
   topPathsPanelState?: TopPathsPanelState;
   regionDemandPanelState?: RegionDemandPanelState;
+  commerceSnapshotState?: CommerceSnapshotState;
   notificationFunnel?: CountBucketItem[];
   notificationActions?: Array<{ label: string; value: number }>;
   taskPipeline?: CountBucketItem[];
