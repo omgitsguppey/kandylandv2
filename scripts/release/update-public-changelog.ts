@@ -245,6 +245,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("separate diagnostics sample freshness") || normalized.includes("diagnostics sample freshness")) {
     return "Improved internal diagnostics timing so health panels separate current issues from older samples.";
   }
+  if (normalized.includes("clarify downstream writer freshness") || normalized.includes("downstream writer freshness")) {
+    return "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.";
+  }
   if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
     return "Improved internal creator review status checks.";
   }

@@ -18,7 +18,7 @@ function stateFromTone(tone: PillTone): AdminSurfaceState {
 }
 
 /* ─── Pill ─── */
-export function Pill({ label, value, tone = "neutral", truthState }: { label: string; value: string | number; tone?: PillTone; truthState?: AdminSurfaceState }) {
+export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }: { label: string; value: string | number; tone?: PillTone; truthState?: AdminSurfaceState; badgeLabel?: string }) {
     const toneClassName = tone === "good"
         ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
         : tone === "warn"
@@ -29,7 +29,7 @@ export function Pill({ label, value, tone = "neutral", truthState }: { label: st
 
     return (
         <div className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs", toneClassName)}>
-            <AdminStatusBadge state={truthState ?? stateFromTone(tone)} className="py-0 text-[8px]" />
+            <AdminStatusBadge state={truthState ?? stateFromTone(tone)} label={badgeLabel} className="py-0 text-[8px]" />
             <span className="text-gray-400">{label}</span>
             <span className="font-semibold text-white">{value}</span>
         </div>

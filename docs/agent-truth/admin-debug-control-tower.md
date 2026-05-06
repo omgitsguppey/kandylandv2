@@ -47,8 +47,12 @@ Shows support admin thread/message access, support route failures, creator booki
 - Loaded sample errors and warnings are historical sample context. They must be labeled as "Loaded sample history" and may move a channel to review, but they must not mark the current window as ERROR.
 - Stale channel sources must show stale or expired freshness even when current counts are clean. Commerce diagnostics that were last seen days ago must not render as fully live unless a documented no-traffic rule is also shown.
 - Known loaded sample counts must render as a count, not WAIT.
+- Downstream writers must expose `DownstreamWriterTruth`: tracked/configured state, expected activity, freshness, error state, display state, and explanation. Traffic-dependent writers with no activity and no failures render as QUIET, not LIVE or WAIT. Stale writer freshness must not render as LIVE.
+- Repeated diagnostics cluster by channel, message, route context, and error name. The default panel row shows cluster count, first/last seen UTC, route context, error name, severity, and suggested action; individual events stay collapsed.
 - Every score card exposes `data-truth-state`, `data-debug-report-source`, and `data-debug-report-freshness`.
 - Diagnostic channel rows expose `data-debug-diagnostics-channel`, `data-debug-current-window-state`, `data-debug-recent-window-state`, `data-debug-sample-history-state`, `data-debug-channel-freshness`, `data-debug-channel-overall-state`, and `data-debug-last-seen-at-utc`.
+- Writer rows expose `data-debug-writer-id`, `data-debug-writer-tracked`, `data-debug-writer-freshness`, `data-debug-writer-error-state`, `data-debug-writer-display-state`, and `data-debug-writer-expected-activity`.
+- Diagnostic cluster rows expose `data-debug-diagnostic-cluster-key` and `data-debug-diagnostic-cluster-count`.
 - Raw generated evidence must stay capped and collapsed. The overview must not render giant JSON dumps.
 
 ## Critical Reports

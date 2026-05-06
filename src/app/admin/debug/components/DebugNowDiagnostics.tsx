@@ -4,10 +4,6 @@ import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfac
 import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
 
 /* ─── Helpers ─── */
-function formatTimestamp(timestamp?: number) {
-    if (!timestamp) return "Not recorded";
-    return new Date(timestamp).toLocaleString();
-}
 function formatRelative(timestamp?: number) {
     if (!timestamp) return "No recent activity";
     const deltaMs = Math.max(0, Date.now() - timestamp);
@@ -24,8 +20,7 @@ function formatWindowHours(windowMs?: number) {
 }
 function formatUtc(timestamp?: number | null) {
     return timestamp ? new Date(timestamp).toISOString() : "unavailable";
-}
-function toneForChannelState(state?: string) {
+} function toneForChannelState(state?: string) {
     if (state === "error" || state === "expired") return "bad" as const;
     if (state === "review" || state === "stale" || state === "sample_error_history" || state === "sample_has_history") return "warn" as const;
     if (state === "live" || state === "clean_sample") return "good" as const;
@@ -37,6 +32,39 @@ function truthStateForChannelState(state?: string): AdminSurfaceState {
     if (state === "review" || state === "sample_error_history" || state === "sample_has_history") return "degraded";
     if (state === "unknown" || state === "empty_sample") return "unavailable";
     return "live";
+}
+function toneForWriterState(state?: string) {
+    if (state === "error") return "bad" as const;
+    if (state === "review" || state === "stale") return "warn" as const;
+    if (state === "live") return "good" as const;
+    return "neutral" as const;
+}
+function truthStateForWriterState(state?: string): AdminSurfaceState {
+    if (state === "error") return "failed";
+    if (state === "stale") return "stale";
+    if (state === "review") return "degraded";
+    if (state === "quiet" || state === "unknown") return "unavailable";
+    return "live";
+}
+function badgeLabelForWriterState(state?: string) {
+    if (state === "quiet") return "QUIET";
+    if (state === "unknown") return "UNKNOWN";
+    return undefined;
+} function writerTruth(materializer: any) {
+    if (materializer?.truth) return materializer.truth;
+    return {
+        id: materializer?.key ?? "unknown",
+        label: materializer?.label ?? "Unknown",
+        lane: materializer?.engine === "functions" ? "functions" : "route",
+        tracked: true,
+        count: materializer?.count ?? 0,
+        lastSeenAtUtc: materializer?.lastSeenAt ? new Date(materializer.lastSeenAt).toISOString() : null,
+        expectedActivity: "scheduled",
+        freshnessState: materializer?.lastSeenAt ? "unknown" : "unknown",
+        errorState: materializer?.status === "fail" ? "error" : materializer?.status === "warn" ? "warn" : "healthy",
+        displayState: materializer?.status === "fail" ? "error" : materializer?.status === "warn" ? "review" : "unknown",
+        explanation: materializer?.detail ?? "Writer truth unavailable.",
+    };
 }
 function channelTruth(channel: any, activeWindowMs?: number, recentWindowMs?: number) {
     if (channel?.truth) return channel.truth;
@@ -170,36 +198,64 @@ export function DebugNowDiagnostics({
                     </ScrollWrap>
                     <ScrollWrap>
                         <div className="divide-y divide-white/10">
-                            {(data?.opsHealth?.diagnostics?.recent || []).map((entry: any) => (
-                                <div key={entry.id} className="space-y-2 px-4 py-3">
+                            {(data?.opsHealth?.diagnostics?.recentClusters || []).map((cluster: any) => (
+                                <div
+                                    key={cluster.fingerprint}
+                                    className="space-y-2 px-4 py-3"
+                                    data-debug-diagnostic-cluster-key={cluster.fingerprint}
+                                    data-debug-diagnostic-cluster-count={cluster.count}
+                                >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
-                                            <p className="font-semibold text-white">{entry.channel}</p>
-                                            <p className="text-xs text-gray-400">{formatTimestamp(entry.timestamp)}</p>
+                                            <p className="font-semibold text-white">{cluster.message}</p>
+                                            <p className="text-xs text-gray-400">{cluster.source} | firstSeenAtUtc {cluster.firstSeenAtUtc ?? "unavailable"} | lastSeenAtUtc {cluster.lastSeenAtUtc ?? "unavailable"}</p>
                                         </div>
-                                        <Pill label="Severity" value={entry.severity} tone={entry.severity === "error" ? "bad" : entry.severity === "warn" ? "warn" : "neutral"} />
+                                        <Pill label="Cluster" value={cluster.count} tone={cluster.severity === "error" ? "bad" : cluster.severity === "warn" ? "warn" : "neutral"} />
                                     </div>
-                                    <p className="text-sm text-gray-200">{entry.message}</p>
-                                    {entry.detailPreview ? <p className="text-xs text-gray-400">{entry.detailPreview}</p> : null}
+                                    <div className="flex flex-wrap gap-2">
+                                        <Pill label="Severity" value={cluster.severity} tone={cluster.severity === "error" ? "bad" : cluster.severity === "warn" ? "warn" : "neutral"} truthState={cluster.severity === "error" ? "failed" : cluster.severity === "warn" ? "degraded" : "live"} />
+                                        <Pill label="Route context" value={cluster.routeContext ?? cluster.sourceRouteOrComponent ?? "unknown"} />
+                                        <Pill label="Error name" value={cluster.errorName ?? "none"} tone={cluster.errorName ? "warn" : "neutral"} />
+                                    </div>
+                                    <p className="text-sm text-gray-300">{cluster.suggestedAction ?? "Review the clustered diagnostic source."}</p>
+                                    <details className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                        <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.16em] text-gray-300">Individual events</summary>
+                                        <p className="mt-2 text-xs text-gray-400">{(cluster.eventIds || []).join(", ")}</p>
+                                    </details>
                                 </div>
                             ))}
-                            {(data?.opsHealth?.materializers || []).map((materializer: any) => (
-                                <div key={materializer.key} className="space-y-2 px-4 py-3">
+                            {!(data?.opsHealth?.diagnostics?.recentClusters || []).length ? (
+                                <div className="px-4 py-4 text-sm text-gray-300">No recent diagnostic clusters are loaded.</div>
+                            ) : null}
+                            {(data?.opsHealth?.materializers || []).map((materializer: any) => {
+                                const truth = writerTruth(materializer);
+                                return (
+                                <div
+                                    key={materializer.key}
+                                    className="space-y-2 px-4 py-3"
+                                    data-debug-writer-id={truth.id}
+                                    data-debug-writer-tracked={truth.tracked ? "true" : "false"}
+                                    data-debug-writer-freshness={truth.freshnessState}
+                                    data-debug-writer-error-state={truth.errorState}
+                                    data-debug-writer-display-state={truth.displayState}
+                                    data-debug-writer-expected-activity={truth.expectedActivity}
+                                >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
                                             <p className="font-semibold text-white">{materializer.label}</p>
-                                            <p className="text-xs text-gray-400">{materializer.engine}</p>
+                                            <p className="text-xs text-gray-400">{truth.lane} | {truth.expectedActivity}</p>
                                         </div>
-                                        <Pill label="Status" value={labelForPanelStatus(materializer.status)} tone={toneForPanelStatus(materializer.status)} truthState={truthStateForPanelStatus(materializer.status)} />
+                                        <Pill label="Status" value={String(truth.displayState).toUpperCase()} tone={toneForWriterState(truth.displayState)} truthState={truthStateForWriterState(truth.displayState)} badgeLabel={badgeLabelForWriterState(truth.displayState)} />
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                        <Pill label="Count" value={materializer.count} />
-                                        <Pill label="Last seen" value={formatRelative(materializer.lastSeenAt)} />
-                                        <Pill label="Last seen UTC" value={formatUtc(materializer.lastSeenAt)} />
+                                        <Pill label="Count" value={truth.count} tone="neutral" truthState={truth.tracked ? "live" : "unavailable"} />
+                                        <Pill label="Last seen" value={formatRelative(materializer.lastSeenAt)} tone={toneForWriterState(truth.freshnessState)} truthState={truthStateForWriterState(truth.freshnessState)} badgeLabel={badgeLabelForWriterState(truth.freshnessState)} />
+                                        <Pill label="Last seen UTC" value={truth.lastSeenAtUtc ?? formatUtc(materializer.lastSeenAt)} />
+                                        <Pill label="Errors" value={truth.errorState} tone={toneForWriterState(truth.errorState)} truthState={truthStateForWriterState(truth.errorState)} />
                                     </div>
-                                    <p className="text-sm text-gray-300">{materializer.detail}</p>
+                                    <p className="text-sm text-gray-300">{truth.explanation}</p>
                                 </div>
-                            ))}
+                            );})}
                         </div>
                     </ScrollWrap>
                 </div>

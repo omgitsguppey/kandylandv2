@@ -7,6 +7,7 @@ import {
   type AdminOpsHealthMaterializerItem,
   type AdminOpsHealthStatus,
   type DiagnosticChannelTruth,
+  type DownstreamWriterTruth,
 } from "@/lib/admin-ops-health";
 import {
   buildFirebaseClientRuntimeSnapshot,
@@ -22,6 +23,8 @@ const ACTIVE_PIPELINE_WINDOW_MS = 1000 * 60 * 60;
 const RECENT_PIPELINE_WINDOW_MS = 1000 * 60 * 60 * 4;
 const CHANNEL_FRESH_MS = 15 * 60 * 1000;
 const CHANNEL_EXPIRED_MS = 24 * 60 * 60 * 1000;
+const WRITER_REVIEW_MS = 2 * 60 * 60 * 1000;
+const WRITER_EXPIRED_MS = 24 * 60 * 60 * 1000;
 
 function toTimestampNumber(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -79,6 +82,98 @@ function getMaterializerStatus(nowMs: number, count: number, lastSeenAt: number)
   return "healthy";
 }
 
+function buildDownstreamWriterTruth(input: {
+  id: string;
+  label: string;
+  lane: DownstreamWriterTruth["lane"];
+  expectedActivity: DownstreamWriterTruth["expectedActivity"];
+  status: AdminOpsHealthStatus;
+  count: number;
+  lastSeenAt: number;
+  nowMs: number;
+  detail: string;
+}): DownstreamWriterTruth {
+  const ageMs = input.lastSeenAt > 0 ? Math.max(0, input.nowMs - input.lastSeenAt) : null;
+  const tracked = true;
+  const errorState: DownstreamWriterTruth["errorState"] = input.status === "fail"
+    ? "error"
+    : input.status === "warn"
+      ? "warn"
+      : "healthy";
+  const continuousFreshness = ageMs === null
+    ? "unknown"
+    : ageMs <= CHANNEL_FRESH_MS
+      ? "live"
+      : ageMs <= WRITER_REVIEW_MS
+        ? "stale"
+        : ageMs <= WRITER_EXPIRED_MS
+          ? "stale"
+          : "expired";
+  const trafficFreshness: DownstreamWriterTruth["freshnessState"] = ageMs === null
+    ? "quiet"
+    : ageMs <= CHANNEL_FRESH_MS
+      ? "live"
+      : input.count === 0 || errorState === "healthy"
+        ? "quiet"
+        : ageMs > WRITER_EXPIRED_MS
+          ? "expired"
+          : "stale";
+  const scheduledFreshness: DownstreamWriterTruth["freshnessState"] = ageMs === null
+    ? "unknown"
+    : ageMs <= WRITER_REVIEW_MS
+      ? "live"
+      : ageMs > WRITER_EXPIRED_MS
+        ? "expired"
+        : "stale";
+  const freshnessState = input.expectedActivity === "traffic_dependent"
+    ? trafficFreshness
+    : input.expectedActivity === "optional"
+      ? (ageMs === null ? "quiet" : trafficFreshness)
+      : input.expectedActivity === "continuous"
+        ? continuousFreshness
+        : scheduledFreshness;
+  const displayState: DownstreamWriterTruth["displayState"] = errorState === "error"
+    ? "error"
+    : errorState === "warn"
+      ? "review"
+      : input.expectedActivity === "continuous" && ageMs !== null && ageMs > CHANNEL_FRESH_MS && ageMs <= WRITER_REVIEW_MS
+        ? "review"
+      : freshnessState === "live"
+        ? "live"
+        : freshnessState === "quiet"
+          ? "quiet"
+          : freshnessState === "stale" || freshnessState === "expired"
+            ? "stale"
+            : "unknown";
+  const explanation = input.lane === "warehouse" && freshnessState === "live"
+    ? "Warehouse heartbeat updated recently."
+    : input.expectedActivity === "traffic_dependent" && freshnessState === "quiet" && input.count === 0
+      ? "No recent anonymous traffic in this window; ingest has no recorded failures."
+      : input.expectedActivity === "traffic_dependent" && freshnessState === "quiet"
+        ? `No recent ${input.label.toLowerCase()} recorded in the current window. This is traffic-dependent.`
+        : displayState === "stale"
+          ? `${input.label} has not updated recently enough for its expected activity.`
+          : displayState === "review"
+            ? `${input.label} has writer warnings that need review.`
+            : displayState === "error"
+              ? `${input.label} has writer failures in the loaded sample.`
+              : input.detail;
+
+  return {
+    id: input.id,
+    label: input.label,
+    lane: input.lane,
+    tracked,
+    count: input.count,
+    lastSeenAtUtc: input.lastSeenAt > 0 ? new Date(input.lastSeenAt).toISOString() : null,
+    expectedActivity: input.expectedActivity,
+    freshnessState,
+    errorState,
+    displayState,
+    explanation,
+  };
+}
+
 function buildMaterializer(input: {
   nowMs: number;
   key: string;
@@ -87,17 +182,32 @@ function buildMaterializer(input: {
   count: number;
   lastSeenAt: number;
   detail: string;
+  expectedActivity?: DownstreamWriterTruth["expectedActivity"];
+  lane?: DownstreamWriterTruth["lane"];
+  status?: AdminOpsHealthStatus;
 }): AdminOpsHealthMaterializerItem {
   const ageMs = input.lastSeenAt > 0 ? Math.max(0, input.nowMs - input.lastSeenAt) : null;
+  const status = input.status ?? getMaterializerStatus(input.nowMs, input.count, input.lastSeenAt);
   return {
     key: input.key,
     label: input.label,
     engine: input.engine,
-    status: getMaterializerStatus(input.nowMs, input.count, input.lastSeenAt),
+    status,
     count: input.count,
     lastSeenAt: input.lastSeenAt,
     ageMs,
     detail: input.detail,
+    truth: buildDownstreamWriterTruth({
+      id: input.key,
+      label: input.label,
+      lane: input.lane ?? (input.engine === "functions" ? "functions" : "route"),
+      expectedActivity: input.expectedActivity ?? "scheduled",
+      status,
+      count: input.count,
+      lastSeenAt: input.lastSeenAt,
+      nowMs: input.nowMs,
+      detail: input.detail,
+    }),
   };
 }
 
@@ -316,6 +426,17 @@ function getDiagnosticSuggestedValidator(channel: string, message: string) {
   return "npm run check:admin-debug-control-tower";
 }
 
+function getDiagnosticSuggestedAction(channel: string, message: string, errorName = "") {
+  const normalized = `${channel} ${message} ${errorName}`.toLowerCase();
+  if (normalized.includes("admin ai debug assistant fallback used") && normalized.includes("syntaxerror")) {
+    return "Check admin/debug/assistant response parsing or fallback JSON handling.";
+  }
+  if (normalized.includes("syntaxerror")) {
+    return "Review response parsing and fallback JSON handling for this diagnostic source.";
+  }
+  return "Review the clustered diagnostic source and run the suggested validator.";
+}
+
 function buildRouteLabel(routeKey: string) {
   return routeKey
     .replaceAll("_", " ")
@@ -355,12 +476,18 @@ function buildDiagnosticIssueClustersWithinWindow(
   const clusters = diagnostics
     .filter((entry) => entry.timestamp >= nowMs - windowMs)
     .reduce((map, entry) => {
-      const fingerprint = `${entry.channel}|${entry.severity}|${entry.message}`;
+      const routeContext = entry.routeContext || entry.route || entry.component || "";
+      const errorName = entry.errorName || "";
+      const fingerprint = `${entry.channel}|${entry.severity}|${entry.message}|${routeContext}|${errorName}`;
       const existing = map.get(fingerprint);
       const sourceRouteOrComponent = entry.route || entry.component || entry.channel || "unknown";
       if (existing) {
         existing.count += 1;
+        existing.firstSeenAt = Math.min(existing.firstSeenAt, entry.timestamp);
         existing.lastSeenAt = Math.max(existing.lastSeenAt, entry.timestamp);
+        existing.firstSeenAtUtc = new Date(existing.firstSeenAt).toISOString();
+        existing.lastSeenAtUtc = new Date(existing.lastSeenAt).toISOString();
+        existing.eventIds.push(entry.id);
         if (existing.sourceRouteOrComponent === "unknown" && sourceRouteOrComponent !== "unknown") {
           existing.sourceRouteOrComponent = sourceRouteOrComponent;
         }
@@ -372,11 +499,18 @@ function buildDiagnosticIssueClustersWithinWindow(
         fingerprint,
         severity: entry.severity,
         count: 1,
+        firstSeenAt: entry.timestamp,
         lastSeenAt: entry.timestamp,
+        firstSeenAtUtc: new Date(entry.timestamp).toISOString(),
+        lastSeenAtUtc: new Date(entry.timestamp).toISOString(),
         source: entry.channel,
         sourceRouteOrComponent,
+        routeContext: routeContext || undefined,
+        errorName: errorName || undefined,
         message: entry.message,
         suggestedValidator: getDiagnosticSuggestedValidator(entry.channel, entry.message),
+        suggestedAction: getDiagnosticSuggestedAction(entry.channel, entry.message, errorName),
+        eventIds: [entry.id],
       });
       return map;
     }, new Map<string, AdminOpsHealthDiagnosticCluster>());
@@ -449,6 +583,8 @@ export function buildAdminOpsHealth(input: {
       detailPreview: buildDiagnosticPreview(detail),
       route: toStringValue(data.route ?? data.routeName ?? data.path ?? detail.route ?? detail.routeName ?? detail.path),
       component: toStringValue(data.component ?? detail.component),
+      routeContext: toStringValue(data.routeContext ?? detail.routeContext),
+      errorName: toStringValue(data.errorName ?? detail.errorName),
     };
   }).sort((left, right) => right.timestamp - left.timestamp);
 
@@ -592,6 +728,8 @@ export function buildAdminOpsHealth(input: {
       count: input.eventStatsDocs.length,
       lastSeenAt: readLatestTimestamp(input.eventStatsDocs, ["lastSeenAt", "updatedAt"]),
       detail: "Functions keep catalog event counters and last-seen timestamps current.",
+      expectedActivity: "scheduled",
+      lane: "functions",
     }),
     buildMaterializer({
       nowMs,
@@ -601,6 +739,8 @@ export function buildAdminOpsHealth(input: {
       count: input.taskRollupDocs.length,
       lastSeenAt: readLatestTimestamp(input.taskRollupDocs, ["lastEventAt", "updatedAt"]),
       detail: "Task lifecycle materializers summarize assignment, progress, and reward outcomes.",
+      expectedActivity: "scheduled",
+      lane: "functions",
     }),
     buildMaterializer({
       nowMs,
@@ -610,6 +750,8 @@ export function buildAdminOpsHealth(input: {
       count: commerceCount,
       lastSeenAt: commerceLastSeenAt,
       detail: "Commerce rollups mirror completed transactions into revenue, unlock, and bundle summaries.",
+      expectedActivity: "scheduled",
+      lane: "functions",
     }),
     buildMaterializer({
       nowMs,
@@ -619,6 +761,8 @@ export function buildAdminOpsHealth(input: {
       count: watchSessionCount,
       lastSeenAt: watchSessionLastSeenAt,
       detail: "Canonical viewer watch sessions capture per-session watch accuracy for unwrapped drops.",
+      expectedActivity: "traffic_dependent",
+      lane: "route",
     }),
     buildMaterializer({
       nowMs,
@@ -628,8 +772,11 @@ export function buildAdminOpsHealth(input: {
       count: watchAssetCount,
       lastSeenAt: watchAssetLastSeenAt,
       detail: "Per-asset watch snapshots back session-level viewer analytics with asset completion and load details.",
+      expectedActivity: "traffic_dependent",
+      lane: "route",
     }),
-    {
+    buildMaterializer({
+      nowMs,
       key: "analytics_guest_batches",
       label: "Guest Batches",
       engine: "route",
@@ -637,7 +784,9 @@ export function buildAdminOpsHealth(input: {
       count: guestBatchCount,
       lastSeenAt: guestBatchLastSeenAt,
       detail: guestBatchesDetail,
-    },
+      expectedActivity: "traffic_dependent",
+      lane: "route",
+    }),
     buildMaterializer({
       nowMs,
       key: "security_events",
@@ -646,6 +795,8 @@ export function buildAdminOpsHealth(input: {
       count: input.securityEventDocs.length,
       lastSeenAt: readLatestTimestamp(input.securityEventDocs, ["timestamp", "updatedAt"]),
       detail: "Security attempts feed admin alerting, user violation history, and analytics parity checks.",
+      expectedActivity: "traffic_dependent",
+      lane: "route",
     }),
     buildMaterializer({
       nowMs,
@@ -655,6 +806,8 @@ export function buildAdminOpsHealth(input: {
       count: input.diagnosticsDocs.length,
       lastSeenAt: readLatestTimestamp(input.diagnosticsDocs, ["createdAtMs", "createdAt"]),
       detail: "Route-level diagnostics surface ingest, auth, runtime, and middleware failures for debugging.",
+      expectedActivity: "continuous",
+      lane: "route",
     }),
     buildMaterializer({
       nowMs,
@@ -664,17 +817,21 @@ export function buildAdminOpsHealth(input: {
       count: pipelineFailureCount,
       lastSeenAt: lastPipelineEntry?.lastFailureAtMs || 0,
       detail: "Pipeline health captures route failures that would otherwise disappear behind soft analytics responses.",
+      expectedActivity: "continuous",
+      lane: "route",
     }),
-    {
+    buildMaterializer({
+      nowMs,
       key: "analytics_bigquery_raw_events",
       label: "BigQuery Raw Events",
       engine: "functions",
       status: bigQueryExportStatus,
       count: toNumber(bigQueryExportData.successCount),
       lastSeenAt: bigQueryLastExportedAt,
-      ageMs: bigQueryLastExportedAt > 0 ? Math.max(0, nowMs - bigQueryLastExportedAt) : null,
       detail: bigQueryExportDetail,
-    },
+      expectedActivity: Object.keys(bigQueryExportData).length === 0 ? "optional" : "scheduled",
+      lane: "warehouse",
+    }),
   ];
 
   const diagnosticsErrorCount = diagnostics.filter((entry) => entry.severity === "error").length;
@@ -686,6 +843,7 @@ export function buildAdminOpsHealth(input: {
   const activeDiagnosticIssueClusterCount = countDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, ACTIVE_DIAGNOSTIC_WINDOW_MS);
   const recentDiagnosticIssueClusterCount = countDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, RECENT_DIAGNOSTIC_WINDOW_MS);
   const activeDiagnosticIssueClusters = buildDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, ACTIVE_DIAGNOSTIC_WINDOW_MS);
+  const recentDiagnosticIssueClusters = buildDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, RECENT_DIAGNOSTIC_WINDOW_MS);
   const pipelineStatus = getPipelineStatus(nowMs, lastPipelineEntry?.lastFailureAtMs || 0);
   const materializerSummary = {
     total: materializers.length,
@@ -870,6 +1028,7 @@ export function buildAdminOpsHealth(input: {
       )),
       recent: diagnostics.slice(0, 10),
       activeIssueClusters: activeDiagnosticIssueClusters,
+      recentClusters: recentDiagnosticIssueClusters,
     },
     pipeline: {
       status: pipelineStatus,

@@ -51,6 +51,7 @@ const adminOpsHealthContract = readRequired("src/lib/admin-ops-health.ts");
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
+const debugPrimitives = readRequired("src/app/admin/debug/components/DebugPrimitives.tsx");
 const debugPage = readRequired("src/app/admin/debug/page.tsx");
 const controlTower = readRequired("src/app/admin/debug/components/DebugControlTower.tsx");
 const controlTowerCards = readRequired("src/app/admin/debug/components/DebugControlTowerCards.tsx");
@@ -143,6 +144,18 @@ for (const expected of [
   "sample_error_history",
   "Current window is clean",
   "source is stale",
+  "DownstreamWriterTruth",
+  "expectedActivity",
+  "freshnessState",
+  "displayState",
+  "traffic_dependent",
+  "Warehouse heartbeat updated recently.",
+  "getDiagnosticSuggestedAction",
+  "routeContext",
+  "errorName",
+  "firstSeenAtUtc",
+  "lastSeenAtUtc",
+  "Check admin/debug/assistant response parsing or fallback JSON handling.",
 ]) {
   requireIncludes(adminOpsHealth + adminOpsHealthContract, expected, "Admin ops health must expose score penalties and diagnostic clusters");
 }
@@ -161,9 +174,21 @@ for (const expected of [
   "data-debug-channel-freshness",
   "data-debug-channel-overall-state",
   "data-debug-last-seen-at-utc",
+  "data-debug-writer-id",
+  "data-debug-writer-tracked",
+  "data-debug-writer-freshness",
+  "data-debug-writer-error-state",
+  "data-debug-writer-display-state",
+  "data-debug-writer-expected-activity",
+  "data-debug-diagnostic-cluster-key",
+  "data-debug-diagnostic-cluster-count",
+  "recentClusters",
+  "Individual events",
+  "badgeLabelForWriterState",
 ]) {
   requireIncludes(debugNowDiagnostics, expected, "Recent diagnostics panel must label current/recent/sample/freshness windows");
 }
+requireIncludes(debugPrimitives, "badgeLabel", "Debug primitive pills must allow quiet writer badges without WAIT labels");
 
 for (const forbidden of [
   "label=\"Current\"",
@@ -174,6 +199,7 @@ for (const forbidden of [
 
 requireIncludes(debugPage, "canonicalState?.status === \"Live\"", "Debug page must treat the canonical Live state as healthy");
 requireIncludes(releaseNotesScript, "Improved internal health reporting so beta issues show fresher, clearer status.", "Release notes script must include the System Health truth copy");
+requireIncludes(releaseNotesScript, "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.", "Release notes script must include downstream writer freshness copy");
 
 for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
@@ -247,6 +273,9 @@ for (const expected of [
 for (const expected of [
   "separates current diagnostics from loaded sample error history",
   "marks stale channels stale instead of live when current counts are empty",
+  "labels traffic-dependent writer inactivity as quiet instead of live",
+  "labels recent warehouse heartbeats as live",
+  "clusters repeated AI assistant SyntaxError fallback warnings",
 ]) {
   requireIncludes(adminOpsHealthTest, expected, "Admin ops health diagnostics truth tests");
 }
@@ -365,6 +394,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugNowDiagnostics\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugPrimitives\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/lib\/creator-experiences\.ts$/u,
     /^src\/lib\/creator-lane-debug-parity\.ts$/u,

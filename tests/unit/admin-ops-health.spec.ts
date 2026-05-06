@@ -364,4 +364,108 @@ describe("buildAdminOpsHealth", () => {
         expect(commerceChannel?.truth.overallState).toBe("stale");
         expect(commerceChannel?.truth.explanation).toContain("source is stale");
     });
+
+    it("labels traffic-dependent writer inactivity as quiet instead of live", () => {
+        const nowMs = Date.UTC(2026, 3, 6, 12, 0, 0);
+        const oneDayAgo = nowMs - (24 * 60 * 60 * 1000);
+
+        const result = buildAdminOpsHealth({
+            nowMs,
+            diagnosticsDocs: [],
+            pipelineDocs: [],
+            eventStatsDocs: [],
+            taskRollupDocs: [],
+            guestBatchDocs: [],
+            securityEventDocs: [],
+            watchSessionDocs: [mockDoc("watch_session_old", { lastSeenAtMs: oneDayAgo })],
+            watchAssetDocs: [mockDoc("watch_asset_old", { lastSeenAtMs: oneDayAgo })],
+            commerceSummaryDoc: null,
+        });
+
+        expect(result.materializers.find((item) => item.key === "analytics_guest_batches")?.truth).toMatchObject({
+            count: 0,
+            expectedActivity: "traffic_dependent",
+            freshnessState: "quiet",
+            displayState: "quiet",
+        });
+        expect(result.materializers.find((item) => item.key === "analytics_watch_sessions")?.truth).toMatchObject({
+            expectedActivity: "traffic_dependent",
+            displayState: "quiet",
+        });
+        expect(result.materializers.find((item) => item.key === "analytics_watch_assets")?.truth).toMatchObject({
+            expectedActivity: "traffic_dependent",
+            displayState: "quiet",
+        });
+    });
+
+    it("labels recent warehouse heartbeats as live", () => {
+        const nowMs = Date.UTC(2026, 3, 6, 12, 0, 0);
+        const twoMinutesAgo = nowMs - (2 * 60 * 1000);
+
+        const result = buildAdminOpsHealth({
+            nowMs,
+            diagnosticsDocs: [],
+            pipelineDocs: [],
+            eventStatsDocs: [],
+            taskRollupDocs: [],
+            guestBatchDocs: [],
+            securityEventDocs: [],
+            watchSessionDocs: [],
+            watchAssetDocs: [],
+            exportStatusDocs: [mockDoc("bigquery_raw_events", {
+                writer: "functions/onAnalyticsEventFactBigQueryExport",
+                status: "healthy",
+                successCount: 12,
+                lastExportedAtMs: twoMinutesAgo,
+            })],
+            commerceSummaryDoc: null,
+        });
+
+        expect(result.materializers.find((item) => item.key === "analytics_bigquery_raw_events")?.truth).toMatchObject({
+            lane: "warehouse",
+            freshnessState: "live",
+            displayState: "live",
+            explanation: "Warehouse heartbeat updated recently.",
+        });
+    });
+
+    it("clusters repeated AI assistant SyntaxError fallback warnings", () => {
+        const nowMs = Date.UTC(2026, 3, 6, 12, 0, 0);
+        const twoMinutesAgo = nowMs - (2 * 60 * 1000);
+
+        const result = buildAdminOpsHealth({
+            nowMs,
+            diagnosticsDocs: Array.from({ length: 8 }, (_, index) => mockDoc(`ai_fallback_${index}`, {
+                channel: "admin",
+                severity: "warn",
+                message: "Admin AI debug assistant fallback used",
+                createdAtMs: twoMinutesAgo + index,
+                detail: {
+                    routeContext: "admin/debug/assistant",
+                    errorName: "SyntaxError",
+                },
+            })),
+            pipelineDocs: [],
+            eventStatsDocs: [],
+            taskRollupDocs: [],
+            guestBatchDocs: [],
+            securityEventDocs: [],
+            watchSessionDocs: [],
+            watchAssetDocs: [],
+            commerceSummaryDoc: null,
+        });
+
+        const cluster = result.diagnostics.recentClusters?.find((entry) => entry.message === "Admin AI debug assistant fallback used");
+
+        expect(cluster).toMatchObject({
+            count: 8,
+            routeContext: "admin/debug/assistant",
+            errorName: "SyntaxError",
+            severity: "warn",
+            suggestedAction: "Check admin/debug/assistant response parsing or fallback JSON handling.",
+        });
+        expect(cluster?.firstSeenAtUtc).toBeTruthy();
+        expect(cluster?.lastSeenAtUtc).toBeTruthy();
+        expect(cluster?.eventIds).toHaveLength(8);
+    });
 });

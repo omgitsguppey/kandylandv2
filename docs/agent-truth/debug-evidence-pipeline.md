@@ -48,6 +48,8 @@ Missing generated evidence renders as missing or unavailable. Stale generated ev
 
 The Recent diagnostics and downstream writers panel uses a separate diagnostics truth model per channel. `currentWindow` covers the active window only, `recentWindow` covers the longer recent window, `loadedSample` is historical sample context, and `freshnessState` comes from `lastSeenAtUtc`. Historical sample errors remain visible, but they do not turn a clean current window into ERROR. Stale channels show stale or expired source freshness even when the current window is clean.
 
+Downstream writer evidence uses writer-specific freshness instead of a broad materializer status. Continuous, scheduled, traffic-dependent, optional, and warehouse lanes can render LIVE, QUIET, REVIEW, STALE, ERROR, or UNKNOWN based on last seen time, expected activity, count, and failures. Repeated diagnostic evidence is clustered by channel, message, route context, and error name so repeated admin AI fallback SyntaxError warnings stay visible as one REVIEW cluster with count and first/last seen timestamps instead of crowding the panel with duplicate rows.
+
 ## Pre-Catcher
 
 `npm run precheck:runtime-issues` reads the redacted evidence index and writes `agent/state/precatch-runtime-issues.generated.json`.

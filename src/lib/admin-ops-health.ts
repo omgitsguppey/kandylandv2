@@ -19,6 +19,8 @@ export interface AdminOpsHealthDiagnosticItem {
   detailPreview: string;
   route?: string;
   component?: string;
+  routeContext?: string;
+  errorName?: string;
 }
 
 export interface AdminOpsHealthDiagnosticCluster {
@@ -26,11 +28,18 @@ export interface AdminOpsHealthDiagnosticCluster {
   fingerprint: string;
   severity: AdminOpsHealthSeverity;
   count: number;
+  firstSeenAt: number;
   lastSeenAt: number;
+  firstSeenAtUtc: string | null;
+  lastSeenAtUtc: string | null;
   source: string;
   sourceRouteOrComponent: string;
+  routeContext?: string;
+  errorName?: string;
   message: string;
   suggestedValidator: string;
+  suggestedAction: string;
+  eventIds: string[];
 }
 
 export interface AdminOpsHealthChannelItem {
@@ -96,6 +105,7 @@ export interface AdminOpsHealthDiagnostics {
   channels: AdminOpsHealthChannelItem[];
   recent: AdminOpsHealthDiagnosticItem[];
   activeIssueClusters?: AdminOpsHealthDiagnosticCluster[];
+  recentClusters?: AdminOpsHealthDiagnosticCluster[];
 }
 
 export interface AdminOpsHealthPipelineRoute {
@@ -127,7 +137,22 @@ export interface AdminOpsHealthMaterializerItem {
   lastSeenAt: number;
   ageMs?: number | null;
   detail: string;
+  truth: DownstreamWriterTruth;
 }
+
+export type DownstreamWriterTruth = {
+  id: string;
+  label: string;
+  lane: "functions" | "route" | "warehouse" | "system";
+  tracked: boolean;
+  count: number;
+  lastSeenAtUtc: string | null;
+  expectedActivity: "continuous" | "traffic_dependent" | "scheduled" | "optional";
+  freshnessState: "live" | "quiet" | "stale" | "expired" | "unknown";
+  errorState: "healthy" | "warn" | "error";
+  displayState: "live" | "quiet" | "review" | "stale" | "error" | "unknown";
+  explanation: string;
+};
 
 export interface AdminOpsHealthMaterializerSummary {
   total: number;
