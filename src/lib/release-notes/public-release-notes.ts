@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.38.0",
+  "currentVersion": "1.39.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:29:49.268Z",
-  "generatedAtUtc": "2026-05-06T01:29:49.268Z",
-  "lastCommitSha": "7762d379fe865b5845609e5ada26ebd304b8dcf8",
+  "generatedAt": "2026-05-06T01:39:08.312Z",
+  "generatedAtUtc": "2026-05-06T01:39:08.312Z",
+  "lastCommitSha": "b0a9c66bd1a4845d15de04275013910999d9c2e3",
   "notes": [
+    {
+      "version": "1.39.0",
+      "previousVersion": "1.38.0",
+      "commitSha": "b0a9c66bd1a4845d15de04275013910999d9c2e3",
+      "commitTitle": "fix(admin): classify debug signals by severity",
+      "committedAt": "2026-05-06T01:38:46.000Z",
+      "generatedAt": "2026-05-06T01:39:08.312Z",
+      "committedAtUtc": "2026-05-06T01:38:46.000Z",
+      "generatedAtUtc": "2026-05-06T01:39:08.312Z",
+      "diffStats": {
+        "rawAdditions": 451,
+        "rawDeletions": 44,
+        "rawChangeCount": 495,
+        "additions": 451,
+        "deletions": 44,
+        "effectiveAdditions": 449,
+        "effectiveDeletions": 42,
+        "changedFiles": 11,
+        "effectiveChangeCount": 491,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal debug status labels so inventory counts do not look like system failures.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.38.0",
       "previousVersion": "1.37.0",
@@ -136,40 +169,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "admin",
         "documentation",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.35.0",
-      "previousVersion": "1.34.0",
-      "commitSha": "91ab9d6700726f95ec0dc2f0dfbaaa87c538c799",
-      "commitTitle": "fix(creator): classify synthetic agreement evidence",
-      "committedAt": "2026-05-06T00:40:26.000Z",
-      "generatedAt": "2026-05-06T00:40:50.880Z",
-      "committedAtUtc": "2026-05-06T00:40:26.000Z",
-      "generatedAtUtc": "2026-05-06T00:40:50.880Z",
-      "diffStats": {
-        "rawAdditions": 542,
-        "rawDeletions": 35,
-        "rawChangeCount": 577,
-        "additions": 542,
-        "deletions": 35,
-        "effectiveAdditions": 540,
-        "effectiveDeletions": 33,
-        "changedFiles": 26,
-        "effectiveChangeCount": 573,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator classification checks.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "telemetry"
       ]
     }
   ]

@@ -1,10 +1,43 @@
 {
-  "currentVersion": "1.38.0",
+  "currentVersion": "1.39.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:29:49.268Z",
-  "generatedAtUtc": "2026-05-06T01:29:49.268Z",
-  "lastCommitSha": "7762d379fe865b5845609e5ada26ebd304b8dcf8",
+  "generatedAt": "2026-05-06T01:39:08.312Z",
+  "generatedAtUtc": "2026-05-06T01:39:08.312Z",
+  "lastCommitSha": "b0a9c66bd1a4845d15de04275013910999d9c2e3",
   "notes": [
+    {
+      "version": "1.39.0",
+      "previousVersion": "1.38.0",
+      "commitSha": "b0a9c66bd1a4845d15de04275013910999d9c2e3",
+      "commitTitle": "fix(admin): classify debug signals by severity",
+      "committedAt": "2026-05-06T01:38:46.000Z",
+      "generatedAt": "2026-05-06T01:39:08.312Z",
+      "committedAtUtc": "2026-05-06T01:38:46.000Z",
+      "generatedAtUtc": "2026-05-06T01:39:08.312Z",
+      "diffStats": {
+        "rawAdditions": 451,
+        "rawDeletions": 44,
+        "rawChangeCount": 495,
+        "additions": 451,
+        "deletions": 44,
+        "effectiveAdditions": 449,
+        "effectiveDeletions": 42,
+        "changedFiles": 11,
+        "effectiveChangeCount": 491,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal debug status labels so inventory counts do not look like system failures.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.38.0",
       "previousVersion": "1.37.0",
@@ -1598,39 +1631,6 @@
       ],
       "committedAtUtc": "2026-05-05T07:26:45.000Z",
       "generatedAtUtc": "2026-05-05T12:02:53.651Z"
-    },
-    {
-      "version": "1.2.0",
-      "previousVersion": "1.1.0",
-      "commitSha": "a30bea630ee0fdc8768333e8a03a9ab4b1bb44bd",
-      "commitTitle": "fix(release): exclude generated files from version bumps",
-      "committedAt": "2026-05-05T07:10:24.000Z",
-      "generatedAt": "2026-05-05T07:10:40.358Z",
-      "diffStats": {
-        "rawAdditions": 175,
-        "rawDeletions": 35,
-        "rawChangeCount": 210,
-        "additions": 175,
-        "deletions": 35,
-        "effectiveAdditions": 151,
-        "effectiveDeletions": 31,
-        "changedFiles": 8,
-        "effectiveChangeCount": 182,
-        "excludedGeneratedChangeCount": 28
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved Beta version numbering so generated files do not overstate app updates.",
-      "bullets": [
-        "Generated release-note files no longer inflate public beta version bumps.",
-        "Raw change counts are still kept behind the scenes for debugging."
-      ],
-      "affectedSurfaces": [
-        "release-notes",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T07:10:24.000Z",
-      "generatedAtUtc": "2026-05-05T07:10:40.358Z"
     }
   ]
 }

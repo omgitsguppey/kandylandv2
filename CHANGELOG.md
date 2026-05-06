@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.39.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 01:38 UTC
+- Improved internal debug status labels so inventory counts do not look like system failures.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.38.0] - 2026-05-06
 
 ### Fixed
@@ -397,12 +405,3 @@ User-facing KandyDrops Beta updates, newest first.
 - Updated 2026-05-05 07:26 UTC
 - Updated internal product guidance so future fixes stay more consistent.
 - Improved internal beta reliability without changing your core flows.
-
-## [1.2.0] - 2026-05-05
-
-### Fixed
-
-- Updated 2026-05-05 07:10 UTC
-- Improved Beta version numbering so generated files do not overstate app updates.
-- Generated release-note files no longer inflate public beta version bumps.
-- Raw change counts are still kept behind the scenes for debugging.
