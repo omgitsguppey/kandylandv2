@@ -1,10 +1,43 @@
 {
-  "currentVersion": "1.46.0",
+  "currentVersion": "1.47.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T02:50:29.677Z",
-  "generatedAtUtc": "2026-05-06T02:50:29.677Z",
-  "lastCommitSha": "662806fb6b761735a4efaba950986ec4f02b236c",
+  "generatedAt": "2026-05-06T02:58:43.643Z",
+  "generatedAtUtc": "2026-05-06T02:58:43.643Z",
+  "lastCommitSha": "d5451d05813434695624a15b22bfff52a02dab34",
   "notes": [
+    {
+      "version": "1.47.0",
+      "previousVersion": "1.46.0",
+      "commitSha": "d5451d05813434695624a15b22bfff52a02dab34",
+      "commitTitle": "fix(admin): enrich queue runtime drop labels",
+      "committedAt": "2026-05-06T02:58:32.000Z",
+      "generatedAt": "2026-05-06T02:58:43.643Z",
+      "committedAtUtc": "2026-05-06T02:58:32.000Z",
+      "generatedAtUtc": "2026-05-06T02:58:43.643Z",
+      "diffStats": {
+        "rawAdditions": 306,
+        "rawDeletions": 10,
+        "rawChangeCount": 316,
+        "additions": 306,
+        "deletions": 10,
+        "effectiveAdditions": 304,
+        "effectiveDeletions": 8,
+        "changedFiles": 9,
+        "effectiveChangeCount": 312,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal queue health views so drop activation outcomes show readable drop names.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.46.0",
       "previousVersion": "1.45.0",
@@ -1600,39 +1633,6 @@
       ],
       "committedAtUtc": "2026-05-05T10:35:51.000Z",
       "generatedAtUtc": "2026-05-05T12:02:56.284Z"
-    },
-    {
-      "version": "1.10.0",
-      "previousVersion": "1.9.0",
-      "commitSha": "9af46b5e1a013b06f04628804a69952006234322",
-      "commitTitle": "feat(analytics): add drop momentum scoring",
-      "committedAt": "2026-05-05T10:18:00.000Z",
-      "generatedAt": "2026-05-05T12:02:55.972Z",
-      "diffStats": {
-        "rawAdditions": 770,
-        "rawDeletions": 8,
-        "rawChangeCount": 778,
-        "additions": 770,
-        "deletions": 8,
-        "effectiveAdditions": 770,
-        "effectiveDeletions": 8,
-        "changedFiles": 16,
-        "effectiveChangeCount": 778,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T10:18:00.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:55.972Z"
     }
   ]
 }

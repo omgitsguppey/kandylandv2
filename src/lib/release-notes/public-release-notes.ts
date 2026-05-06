@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.46.0",
+  "currentVersion": "1.47.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T02:50:29.677Z",
-  "generatedAtUtc": "2026-05-06T02:50:29.677Z",
-  "lastCommitSha": "662806fb6b761735a4efaba950986ec4f02b236c",
+  "generatedAt": "2026-05-06T02:58:43.643Z",
+  "generatedAtUtc": "2026-05-06T02:58:43.643Z",
+  "lastCommitSha": "d5451d05813434695624a15b22bfff52a02dab34",
   "notes": [
+    {
+      "version": "1.47.0",
+      "previousVersion": "1.46.0",
+      "commitSha": "d5451d05813434695624a15b22bfff52a02dab34",
+      "commitTitle": "fix(admin): enrich queue runtime drop labels",
+      "committedAt": "2026-05-06T02:58:32.000Z",
+      "generatedAt": "2026-05-06T02:58:43.643Z",
+      "committedAtUtc": "2026-05-06T02:58:32.000Z",
+      "generatedAtUtc": "2026-05-06T02:58:43.643Z",
+      "diffStats": {
+        "rawAdditions": 306,
+        "rawDeletions": 10,
+        "rawChangeCount": 316,
+        "additions": 306,
+        "deletions": 10,
+        "effectiveAdditions": 304,
+        "effectiveDeletions": 8,
+        "changedFiles": 9,
+        "effectiveChangeCount": 312,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal queue health views so drop activation outcomes show readable drop names.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.46.0",
       "previousVersion": "1.45.0",
@@ -131,39 +164,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "minor",
       "category": "Fixed",
       "userFacingTitle": "Improved internal bug report triage labels so loaded reports no longer appear stuck.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.42.0",
-      "previousVersion": "1.41.0",
-      "commitSha": "488a5750056f3b31076940183e006b43af7f6e45",
-      "commitTitle": "fix(admin): group inspect-only repair proposals",
-      "committedAt": "2026-05-06T02:05:25.000Z",
-      "generatedAt": "2026-05-06T02:05:40.352Z",
-      "committedAtUtc": "2026-05-06T02:05:25.000Z",
-      "generatedAtUtc": "2026-05-06T02:05:40.352Z",
-      "diffStats": {
-        "rawAdditions": 418,
-        "rawDeletions": 217,
-        "rawChangeCount": 635,
-        "additions": 418,
-        "deletions": 217,
-        "effectiveAdditions": 416,
-        "effectiveDeletions": 215,
-        "changedFiles": 11,
-        "effectiveChangeCount": 631,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal repair proposal grouping so repeated debug items are easier to review.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],

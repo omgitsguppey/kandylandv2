@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.47.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 02:58 UTC
+- Improved internal queue health views so drop activation outcomes show readable drop names.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.46.0] - 2026-05-06
 
 ### Fixed
@@ -395,13 +403,5 @@ User-facing KandyDrops Beta updates, newest first.
 ### Added
 
 - Updated 2026-05-05 10:35 UTC
-- Updated KandyDrops with a small beta improvement.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.10.0] - 2026-05-05
-
-### Added
-
-- Updated 2026-05-05 10:18 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
