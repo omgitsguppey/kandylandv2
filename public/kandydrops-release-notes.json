@@ -1,10 +1,51 @@
 {
-  "currentVersion": "1.113.1",
+  "currentVersion": "1.113.2",
   "channel": "beta",
-  "generatedAt": "2026-05-06T19:33:36.600Z",
-  "generatedAtUtc": "2026-05-06T19:33:36.600Z",
-  "lastCommitSha": "04b6e80c3f6bdd7eed4d17f2b5c337815d62cb85",
+  "generatedAt": "2026-05-06T19:47:11.550Z",
+  "generatedAtUtc": "2026-05-06T19:47:11.550Z",
+  "lastCommitSha": "b522306e5d1e92e473ee9fed14dbd852429a96a8",
   "notes": [
+    {
+      "version": "1.113.2",
+      "previousVersion": "1.113.1",
+      "commitSha": "b522306e5d1e92e473ee9fed14dbd852429a96a8",
+      "commitTitle": "fix(beta): keep changelog modal above page chrome",
+      "committedAt": "2026-05-06T19:46:54.000Z",
+      "generatedAt": "2026-05-06T19:47:11.549Z",
+      "committedAtUtc": "2026-05-06T19:46:54.000Z",
+      "generatedAtUtc": "2026-05-06T19:47:11.549Z",
+      "diffStats": {
+        "rawAdditions": 29,
+        "rawDeletions": 2,
+        "rawChangeCount": 31,
+        "additions": 29,
+        "deletions": 2,
+        "effectiveAdditions": 29,
+        "effectiveDeletions": 2,
+        "changedFiles": 2,
+        "effectiveChangeCount": 31,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "title": "Improved Beta update notes",
+      "updatedAtUtc": "2026-05-06T19:47:11.549Z",
+      "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
+      "userFacingTitle": "Improved Beta update notes",
+      "bullets": [
+        "Improved Beta notes with cleaner summaries and compact bullets.",
+        "Updated timestamps so recent changes are easier to compare with reports.",
+        "Reduced technical wording in public update notes."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Release note summaries are generated separately from collapsed technical details."
+      ],
+      "affectedSurfaces": [
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.113.1",
       "previousVersion": "1.113.0",
@@ -1946,44 +1987,6 @@
         "Route health labels now distinguish unseen, stale, and loaded states.",
         "Runtime rows no longer show fake success states."
       ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.66.0",
-      "previousVersion": "1.65.0",
-      "commitSha": "eb5639952847b4b849116cb23b234b6c6d24258b",
-      "commitTitle": "fix(tasks): clarify GumDrop guardrail parity",
-      "committedAt": "2026-05-06T07:41:28.000Z",
-      "generatedAt": "2026-05-06T17:11:04.973Z",
-      "committedAtUtc": "2026-05-06T07:41:28.000Z",
-      "generatedAtUtc": "2026-05-06T17:11:04.973Z",
-      "diffStats": {
-        "rawAdditions": 576,
-        "rawDeletions": 84,
-        "rawChangeCount": 660,
-        "additions": 576,
-        "deletions": 84,
-        "effectiveAdditions": 576,
-        "effectiveDeletions": 84,
-        "changedFiles": 3,
-        "effectiveChangeCount": 660,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "title": "Improved admin AI status",
-      "updatedAtUtc": "2026-05-06T17:11:04.973Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
-      "userFacingTitle": "Improved admin AI status",
-      "bullets": [
-        "Improved admin reliability and status accuracy.",
-        "Clarified unavailable data without showing fake zeroes.",
-        "Updated labels for review and support follow-up."
-      ],
-      "audience": "admins",
       "affectedSurfaces": [
         "admin",
         "repo-tooling"

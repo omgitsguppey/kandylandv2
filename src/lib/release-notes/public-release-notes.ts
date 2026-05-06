@@ -1,12 +1,53 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.113.1",
+  "currentVersion": "1.113.2",
   "channel": "beta",
-  "generatedAt": "2026-05-06T19:33:36.600Z",
-  "generatedAtUtc": "2026-05-06T19:33:36.600Z",
-  "lastCommitSha": "04b6e80c3f6bdd7eed4d17f2b5c337815d62cb85",
+  "generatedAt": "2026-05-06T19:47:11.550Z",
+  "generatedAtUtc": "2026-05-06T19:47:11.550Z",
+  "lastCommitSha": "b522306e5d1e92e473ee9fed14dbd852429a96a8",
   "notes": [
+    {
+      "version": "1.113.2",
+      "previousVersion": "1.113.1",
+      "commitSha": "b522306e5d1e92e473ee9fed14dbd852429a96a8",
+      "commitTitle": "fix(beta): keep changelog modal above page chrome",
+      "committedAt": "2026-05-06T19:46:54.000Z",
+      "generatedAt": "2026-05-06T19:47:11.549Z",
+      "committedAtUtc": "2026-05-06T19:46:54.000Z",
+      "generatedAtUtc": "2026-05-06T19:47:11.549Z",
+      "diffStats": {
+        "rawAdditions": 29,
+        "rawDeletions": 2,
+        "rawChangeCount": 31,
+        "additions": 29,
+        "deletions": 2,
+        "effectiveAdditions": 29,
+        "effectiveDeletions": 2,
+        "changedFiles": 2,
+        "effectiveChangeCount": 31,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "title": "Improved Beta update notes",
+      "updatedAtUtc": "2026-05-06T19:47:11.549Z",
+      "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
+      "userFacingTitle": "Improved Beta update notes",
+      "bullets": [
+        "Improved Beta notes with cleaner summaries and compact bullets.",
+        "Updated timestamps so recent changes are easier to compare with reports.",
+        "Reduced technical wording in public update notes."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Release note summaries are generated separately from collapsed technical details."
+      ],
+      "affectedSurfaces": [
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.113.1",
       "previousVersion": "1.113.0",
@@ -170,44 +211,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "technicalDetails": [
         "Admin metrics keep source, range, and freshness details separate from public summaries."
       ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.110.0",
-      "previousVersion": "1.109.0",
-      "commitSha": "0f5c808375eb600082da4b19f178a08386119f38",
-      "commitTitle": "fix(admin): tighten commerce feed mobile cards",
-      "committedAt": "2026-05-06T16:22:45.000Z",
-      "generatedAt": "2026-05-06T17:11:11.166Z",
-      "committedAtUtc": "2026-05-06T16:22:45.000Z",
-      "generatedAtUtc": "2026-05-06T17:11:11.166Z",
-      "diffStats": {
-        "rawAdditions": 364,
-        "rawDeletions": 29,
-        "rawChangeCount": 393,
-        "additions": 364,
-        "deletions": 29,
-        "effectiveAdditions": 364,
-        "effectiveDeletions": 29,
-        "changedFiles": 8,
-        "effectiveChangeCount": 393,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "title": "Improved transaction review",
-      "updatedAtUtc": "2026-05-06T17:11:11.166Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
-      "userFacingTitle": "Improved transaction review",
-      "bullets": [
-        "Added clearer names to recent transaction rows.",
-        "Improved GumDrops transaction labels and timestamps for admin review.",
-        "Clarified unavailable commerce details instead of showing waiting states."
-      ],
-      "audience": "admins",
       "affectedSurfaces": [
         "admin",
         "repo-tooling"
