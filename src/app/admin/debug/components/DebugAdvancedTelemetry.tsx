@@ -51,6 +51,35 @@ function titleForPurpose(purpose?: string) {
     }
 }
 
+function titleForCoveragePurpose(purpose?: string) {
+    switch (purpose) {
+        case "task_trigger":
+            return "Task triggers";
+        case "task_lifecycle":
+            return "Task lifecycle";
+        case "onboarding":
+            return "Onboarding";
+        case "identity":
+            return "Identity";
+        case "viewer_support":
+            return "Viewer support";
+        case "viewer_task_trigger":
+            return "Viewer task triggers";
+        case "notification":
+            return "Notifications";
+        case "semantic_ux":
+            return "Semantic UX";
+        case "commerce":
+            return "Commerce";
+        case "security":
+            return "Security";
+        case "supporting_telemetry":
+            return "Supporting telemetry";
+        default:
+            return "Unsupported or unknown";
+    }
+}
+
 function labelForMappingState(mappingState?: string) {
     switch (mappingState) {
         case "lifecycle_not_task":
@@ -70,6 +99,42 @@ function labelForMappingState(mappingState?: string) {
     }
 }
 
+function labelForCoverageState(coverageState?: string) {
+    switch (coverageState) {
+        case "ready":
+            return "Ready";
+        case "supporting":
+            return "Supporting event, not a task gap";
+        case "alias_needed":
+            return "Alias needs canonical mapping";
+        case "task_mapping_missing":
+            return "Missing task mapping";
+        case "unsupported":
+            return "Unsupported or unknown";
+        case "review":
+            return "Review";
+        default:
+            return "Unknown";
+    }
+}
+
+function toneForCoverageState(coverageState?: string) {
+    switch (coverageState) {
+        case "ready":
+            return "good" as const;
+        case "supporting":
+            return "neutral" as const;
+        case "alias_needed":
+        case "review":
+        case "task_mapping_missing":
+            return "warn" as const;
+        case "unsupported":
+            return "bad" as const;
+        default:
+            return "neutral" as const;
+    }
+}
+
 const PURCHASE_RECEIPT_MEANING = "Receipts here are purchase receipts, not task reward receipts.";
 const UNLOCK_RECEIPT_MEANING = "Receipts here are shared unlock receipts and do not prove task-specific reward credit.";
 
@@ -80,6 +145,7 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
     const receiptMappingGroups = mappingSummary?.receiptMappingGroups || [];
     const unsupportedRuntimeGroups = mappingSummary?.unsupportedRuntimeGroups || [];
     const alignmentWarnings = mappingSummary?.alignmentWarnings || [];
+    const telemetryCoverageRows = data?.telemetryCoverageRows || data?.eventStats || [];
 
     const purposeOrder = [
         "task_trigger",
@@ -102,6 +168,33 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
 
     const unsafeSharedEventGroups = sharedEventGroups.filter((entry: any) => entry.ambiguityState !== "safe_with_criteria");
     const safeSharedEventGroups = sharedEventGroups.filter((entry: any) => entry.ambiguityState === "safe_with_criteria");
+    const coveragePurposeOrder = [
+        "task_trigger",
+        "task_lifecycle",
+        "onboarding",
+        "identity",
+        "viewer_task_trigger",
+        "viewer_support",
+        "notification",
+        "semantic_ux",
+        "commerce",
+        "supporting_telemetry",
+        "security",
+        "unknown",
+    ];
+    const coverageRowsByPurpose = coveragePurposeOrder
+        .map((purpose) => ({
+            purpose,
+            rows: telemetryCoverageRows.filter((row: any) => row.eventPurpose === purpose),
+        }))
+        .filter((group) => group.rows.length > 0);
+    const telemetryCoverageSummary = {
+        trackedEvents: telemetryCoverageRows.length,
+        taskTriggers: telemetryCoverageRows.filter((row: any) => row.eventPurpose === "task_trigger" || row.eventPurpose === "viewer_task_trigger").length,
+        supporting: telemetryCoverageRows.filter((row: any) => row.coverageState === "supporting").length,
+        aliasNeeded: telemetryCoverageRows.filter((row: any) => row.coverageState === "alias_needed").length,
+        unsupported: telemetryCoverageRows.filter((row: any) => row.coverageState === "unsupported").length,
+    };
 
     return (
         <>
@@ -323,25 +416,46 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                 title="Telemetry coverage sample"
                 subtitle="Tracked events, task mappings, and last-seen visibility in one bounded sample."
                 defaultOpen={false}
-                summary={<><Pill label="Tracked events" value={data?.stats?.trackedTelemetryEvents ?? 0} truthState="live" badgeLabel="LOADED" /><Pill label="Orphaned" value={data?.stats?.orphanedTelemetryEvents ?? 0} tone={data?.stats?.orphanedTelemetryEvents ? "warn" : "good"} truthState="live" badgeLabel="LOADED" /></>}
+                summary={
+                    <>
+                        <Pill label="Tracked events" value={telemetryCoverageSummary.trackedEvents} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Task triggers" value={telemetryCoverageSummary.taskTriggers} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Supporting/lifecycle" value={telemetryCoverageSummary.supporting} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Alias needed" value={telemetryCoverageSummary.aliasNeeded} tone={telemetryCoverageSummary.aliasNeeded ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="True unsupported/orphaned" value={telemetryCoverageSummary.unsupported} tone={telemetryCoverageSummary.unsupported ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                    </>
+                }
             >
                 <ScrollWrap>
-                    <div className="divide-y divide-white/10">
-                        {(data?.eventStats || []).map((event: any) => (
-                            <div key={event.eventName} className="space-y-2 px-4 py-3">
-                                <div className="flex flex-wrap items-start justify-between gap-2">
-                                    <div>
-                                        <p className="font-semibold text-white">{event.label}</p>
-                                        <p className="text-xs text-gray-400">{event.eventName}</p>
-                                    </div>
-                                    <Pill label="Total" value={compactNumber(event.totalCount)} truthState="live" badgeLabel="LOADED" />
+                    <div className="space-y-4">
+                        {coverageRowsByPurpose.map((group: any) => (
+                            <div key={group.purpose} className="rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                                <div className="border-b border-white/10 px-4 py-3">
+                                    <p className="font-semibold text-white">{titleForCoveragePurpose(group.purpose)}</p>
                                 </div>
-                                <div className="flex flex-wrap gap-2">
-                                    <Pill label="Tasks" value={event.mappedTaskCount} tone={event.mappedTaskCount ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Last seen" value={formatRelative(event.lastSeenAt)} truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Source" value={event.trackingSource} truthState="live" badgeLabel="LOADED" />
+                                <div className="divide-y divide-white/10">
+                                    {group.rows.map((event: any) => (
+                                        <div key={`${event.normalizedAction}-${event.eventName}`} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{event.displayLabel}</p>
+                                                    <p className="text-xs text-gray-400">{event.eventName}</p>
+                                                </div>
+                                                <Pill label="Coverage" value={labelForCoverageState(event.coverageState)} tone={toneForCoverageState(event.coverageState)} truthState="live" badgeLabel="LOADED" />
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Purpose" value={event.eventPurpose} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Total" value={compactNumber(event.totalCount)} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Tasks" value={event.mappedTaskCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Last seen" value={event.lastSeenAtUtc ? formatRelative(Date.parse(event.lastSeenAtUtc)) : "No recent activity"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Source" value={event.sourceState} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                            </div>
+                                            {event.mappedTaskTitles?.length ? <p className="text-xs text-gray-400">{event.mappedTaskTitles.join(", ")}</p> : null}
+                                            {event.rawEventNames?.length > 1 ? <p className="text-xs text-gray-400">Aliases seen: {event.rawEventNames.join(", ")}</p> : null}
+                                            <p className="text-sm text-amber-100">{event.explanation}</p>
+                                        </div>
+                                    ))}
                                 </div>
-                                {event.mappedTaskTitles?.length ? <p className="text-xs text-gray-400">{event.mappedTaskTitles.join(", ")}</p> : null}
                             </div>
                         ))}
                     </div>

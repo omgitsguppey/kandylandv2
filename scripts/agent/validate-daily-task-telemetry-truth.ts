@@ -131,6 +131,22 @@ requireIncludes(adminDebugRoute, "SharedTaskEventGroup", "Admin debug shared eve
 requireIncludes(adminDebugRoute, "TaskTelemetryAlignmentWarning", "Admin debug telemetry alignment warning model");
 requireIncludes(adminDebugRoute, "TaskTelemetryMappingRow", "Admin debug telemetry mapping row model");
 requireIncludes(adminDebugRoute, "TaskTelemetryEventPurpose", "Admin debug telemetry event purpose model");
+requireIncludes(adminDebugRoute, "TelemetryCoverageRow", "Admin debug telemetry coverage row model");
+requireIncludes(adminDebugRoute, "TelemetryCoverageEventPurpose", "Admin debug telemetry coverage purpose model");
+requireIncludes(adminDebugRoute, "telemetryCoverageRows", "Admin debug telemetry coverage row payload");
+requireIncludes(adminDebugRoute, "classifyTelemetryCoveragePurpose", "Admin debug telemetry coverage purpose classifier");
+requireIncludes(adminDebugRoute, "inferTelemetryCoverageSourceState", "Admin debug telemetry coverage source classifier");
+requireIncludes(adminDebugRoute, "buildTelemetryCoverageExplanation", "Admin debug telemetry coverage explanation builder");
+requireIncludes(adminDebugRoute, "\"daily_check_in_claim\"", "Admin debug telemetry coverage daily-check-in alias input");
+requireIncludes(adminDebugRoute, "\"notification_marked_read\"", "Admin debug telemetry coverage notification-read alias input");
+requireIncludes(adminDebugRoute, "\"viewer_asset_changed\"", "Admin debug telemetry coverage viewer alias input");
+requireIncludes(adminDebugRoute, "\"identity\"", "Admin debug telemetry coverage identity purpose");
+requireIncludes(adminDebugRoute, "\"viewer_support\"", "Admin debug telemetry coverage viewer-support purpose");
+requireIncludes(adminDebugRoute, "\"viewer_task_trigger\"", "Admin debug telemetry coverage viewer-trigger purpose");
+requireIncludes(adminDebugRoute, "\"semantic_ux\"", "Admin debug telemetry coverage semantic purpose");
+requireIncludes(adminDebugRoute, "\"task_mapping_missing\"", "Admin debug telemetry coverage missing-task state");
+requireIncludes(adminDebugRoute, "\"supporting\"", "Admin debug telemetry coverage supporting state");
+requireIncludes(adminDebugRoute, "\"unsupported\"", "Admin debug telemetry coverage unsupported state");
 requireIncludes(adminDebugRoute, "taskTelemetryMappingSummary", "Admin debug task telemetry mapping payload");
 requireIncludes(adminDebugRoute, "mappingRows", "Admin debug task telemetry mapping rows payload");
 requireIncludes(adminDebugRoute, "TaskReceiptMappingGroup", "Admin debug receipt mapping group model");
@@ -186,6 +202,15 @@ requireIncludes(debugAdvancedTelemetry, "Lifecycle event, not a task trigger", "
 requireIncludes(debugAdvancedTelemetry, "Supporting telemetry, not a task trigger", "Telemetry mapping panel supporting explanation");
 requireIncludes(debugAdvancedTelemetry, "Missing task mapping: expected by task catalog", "Telemetry mapping panel missing mapping explanation");
 requireIncludes(debugAdvancedTelemetry, "Event stats are raw trigger evidence.", "Telemetry mapping panel must not treat event stats as completions");
+requireIncludes(debugAdvancedTelemetry, "titleForCoveragePurpose", "Telemetry coverage sample purpose grouping");
+requireIncludes(debugAdvancedTelemetry, "labelForCoverageState", "Telemetry coverage sample state labels");
+requireIncludes(debugAdvancedTelemetry, "toneForCoverageState", "Telemetry coverage sample state tones");
+requireIncludes(debugAdvancedTelemetry, "label=\"Tracked events\"", "Telemetry coverage sample tracked count");
+requireIncludes(debugAdvancedTelemetry, "label=\"Task triggers\"", "Telemetry coverage sample task-trigger count");
+requireIncludes(debugAdvancedTelemetry, "label=\"Supporting/lifecycle\"", "Telemetry coverage sample supporting count");
+requireIncludes(debugAdvancedTelemetry, "label=\"Alias needed\"", "Telemetry coverage sample alias-needed count");
+requireIncludes(debugAdvancedTelemetry, "label=\"True unsupported/orphaned\"", "Telemetry coverage sample unsupported count");
+requireIncludes(debugAdvancedTelemetry, "Aliases seen:", "Telemetry coverage sample alias detail");
 
 requireIncludes(ingestTests, 'eventName: "daily_checkin_claimed"', "Ingest tests daily check-in canonicalization");
 requireIncludes(ingestTests, 'eventName: "task_completed"', "Ingest tests task completion canonicalization");

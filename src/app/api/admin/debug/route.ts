@@ -478,6 +478,47 @@ type TaskTelemetryMappingRow = {
     }>;
 };
 
+type TelemetryCoverageEventPurpose =
+    | "task_trigger"
+    | "task_lifecycle"
+    | "onboarding"
+    | "identity"
+    | "viewer_support"
+    | "viewer_task_trigger"
+    | "notification"
+    | "semantic_ux"
+    | "commerce"
+    | "security"
+    | "supporting_telemetry"
+    | "unknown";
+
+type TelemetryCoverageRow = {
+    eventName: string;
+    normalizedAction: string;
+    displayLabel: string;
+    eventPurpose: TelemetryCoverageEventPurpose;
+    totalCount: number;
+    mappedTaskCount: number;
+    mappedTaskTitles: string[];
+    lastSeenAtUtc: string | null;
+    sourceState: "canonical" | "telemetry" | "alias_mapped" | "unsupported" | "legacy" | "unknown";
+    coverageState: "ready" | "supporting" | "alias_needed" | "task_mapping_missing" | "unsupported" | "review";
+    explanation: string;
+    rawEventNames: string[];
+};
+
+const TELEMETRY_COVERAGE_LEGACY_EVENT_NAMES = new Set([
+    "unlock_drop_success",
+]);
+
+const TELEMETRY_COVERAGE_ALIAS_EVENT_NAMES = [
+    "daily_check_in_claim",
+    "notification_marked_read",
+    "viewer_asset_changed",
+    "viewer_asset_started",
+    "daily_task_completed",
+] as const;
+
 type DependencyPackageName = "root" | "functions" | "workspace" | "unknown";
 type DependencyType = "runtime" | "dev" | "optional";
 type DependencyCategory =
@@ -1466,6 +1507,172 @@ function classifyTaskTelemetryEventPurpose(eventName: string): TaskTelemetryEven
         return "task_trigger";
     }
     return "unmapped_unknown";
+}
+
+function classifyTelemetryCoveragePurpose(
+    eventName: string,
+    mappedTaskCount: number,
+): TelemetryCoverageEventPurpose {
+    if (
+        eventName === "daily_task_assigned"
+        || eventName === "daily_task_started"
+        || eventName === "task_completed"
+        || eventName === "daily_task_failed"
+        || eventName === "daily_task_deadline_reminder_sent"
+    ) {
+        return "task_lifecycle";
+    }
+    if (eventName.startsWith("guided_onboarding_") || eventName.startsWith("onboarding_")) {
+        return "onboarding";
+    }
+    if (eventName === "identity_linked") {
+        return "identity";
+    }
+    if (
+        eventName === "viewer_asset_changed"
+        || eventName === "viewer_asset_started"
+        || eventName === "viewer_content_loaded"
+        || eventName === "file_viewed"
+    ) {
+        return mappedTaskCount > 0 ? "viewer_task_trigger" : "viewer_support";
+    }
+    if (
+        eventName === "viewer_opened"
+        || eventName === "viewer_session_completed"
+        || eventName === "viewer_asset_consumed"
+        || eventName === "viewer_asset_completed"
+        || eventName === "viewer_watch_checkpoint"
+    ) {
+        return "viewer_task_trigger";
+    }
+    if (
+        eventName === "notification_read"
+        || eventName === "notification_marked_read"
+        || eventName === "notification_opened"
+        || eventName === "notifications_dropdown_opened"
+        || eventName === "notification_clicked"
+        || eventName === "notification_action_clicked"
+    ) {
+        return "notification";
+    }
+    if (eventName.startsWith("semantic_")) {
+        return "semantic_ux";
+    }
+    if (
+        eventName === "begin_checkout"
+        || eventName === "gumdrops_purchase_completed"
+        || eventName === "server_purchase_verified"
+        || eventName === "unlock_drop_success"
+        || eventName === "wallet_opened"
+    ) {
+        return "commerce";
+    }
+    if (eventName.startsWith("security_") || eventName.startsWith("confirmed_") || eventName.startsWith("heuristic_")) {
+        return "security";
+    }
+    if (
+        eventName === "dashboard_viewed"
+        || eventName === "drops_page_viewed"
+        || eventName === "drop_preview_opened"
+        || eventName === "view_drop_details"
+        || eventName === "experience_hub_viewed"
+        || eventName === "library_viewed"
+        || eventName === "daily_checkin_claimed"
+    ) {
+        return "task_trigger";
+    }
+    if (mappedTaskCount > 0) {
+        return "task_trigger";
+    }
+    if (
+        eventName === "drop_card_impression"
+        || eventName === "page_viewed"
+        || eventName.endsWith("_viewed")
+        || eventName.endsWith("_clicked")
+    ) {
+        return "supporting_telemetry";
+    }
+    return "unknown";
+}
+
+function inferTelemetryCoverageSourceState(
+    rawEventName: string,
+    canonicalEventName: string,
+): TelemetryCoverageRow["sourceState"] {
+    const { option } = getTelemetryEventOption(rawEventName);
+    const knownAliasInput = TELEMETRY_COVERAGE_ALIAS_EVENT_NAMES.includes(rawEventName as (typeof TELEMETRY_COVERAGE_ALIAS_EVENT_NAMES)[number]);
+    if (!option) {
+        return "unsupported";
+    }
+    if (rawEventName !== canonicalEventName || knownAliasInput) {
+        return "alias_mapped";
+    }
+    if (TELEMETRY_COVERAGE_LEGACY_EVENT_NAMES.has(canonicalEventName)) {
+        return "legacy";
+    }
+    if (CANONICAL_TASK_EVENT_NAMES.has(canonicalEventName) || option.sources?.includes("canonical")) {
+        return "canonical";
+    }
+    return "telemetry";
+}
+
+function buildTelemetryCoverageExplanation(input: {
+    eventName: string;
+    purpose: TelemetryCoverageEventPurpose;
+    mappedTaskCount: number;
+    mappedTaskTitles: string[];
+    sourceState: TelemetryCoverageRow["sourceState"];
+    coverageState: TelemetryCoverageRow["coverageState"];
+}) {
+    if (input.eventName === "daily_checkin_claimed") {
+        return input.mappedTaskCount > 0
+            ? "Alias-mapped to Daily check-in claimed and used by Claim today's reward / the check-in lane."
+            : "Alias-mapped to Daily check-in claimed and classified as the canonical daily check-in reward lane.";
+    }
+    if (input.eventName === "notification_read") {
+        return input.mappedTaskCount > 0
+            ? "Alias-mapped to Notification read. Used by Clear one alert where that task is configured."
+            : "Alias-mapped to Notification read. This is a foreground notification event and should map to a task only if the catalog expects it.";
+    }
+    if (input.eventName === "task_completed") {
+        return "Task lifecycle event. Not expected to map to a user-facing task.";
+    }
+    if (input.eventName === "file_viewed") {
+        return input.mappedTaskCount > 0
+            ? "Viewer/file task trigger with mapped task coverage."
+            : "Used for viewer analytics, not daily task completion. File and viewer completion tasks rely on task-scoped viewer events.";
+    }
+    if (input.eventName === "identity_linked") {
+        return "Identity linkage telemetry. Not a daily task trigger.";
+    }
+    if (input.purpose === "task_lifecycle") {
+        return "Task lifecycle event. Not expected to map to a user-facing task.";
+    }
+    if (input.purpose === "onboarding") {
+        return "Supporting onboarding telemetry. Tracked for onboarding visibility, not daily task completion.";
+    }
+    if (input.purpose === "semantic_ux") {
+        return "Supporting UX telemetry, not a daily task trigger.";
+    }
+    if (input.purpose === "viewer_support") {
+        return "Viewer support telemetry, not a direct daily task trigger.";
+    }
+    if (input.purpose === "supporting_telemetry") {
+        return "Supporting telemetry, not a direct daily task trigger.";
+    }
+    if (input.coverageState === "task_mapping_missing") {
+        return `Expected task trigger is tracked, but no task mapping was found for ${input.eventName}.`;
+    }
+    if (input.coverageState === "unsupported") {
+        return "Tracked event is still unsupported or lacks a canonical alias/purpose classification.";
+    }
+    if (input.sourceState === "legacy") {
+        return "Legacy canonical task trigger. Mapping exists, but legacy compatibility still needs careful validation.";
+    }
+    if (input.mappedTaskCount > 0) {
+        return `Mapped to ${input.mappedTaskCount} task${input.mappedTaskCount === 1 ? "" : "s"}: ${input.mappedTaskTitles.join(", ")}.`;
+    }
+    return "Tracked event is known and classified, but it is not expected to map to a daily task.";
 }
 
 function resolveTaskTelemetryTrackingSource(entries: Array<{ trackingSource?: string }>): TaskTelemetryMappingRow["trackingSource"] {
@@ -2755,35 +2962,115 @@ export async function GET(request: NextRequest) {
             receiptsPartial: receiptsSnapshot.size >= TASK_AUDIT_SAMPLE_LIMIT,
         };
 
-        const eventStats = eventStatsSnapshot.docs.map((doc) => {
+        const telemetryCoverageRowsMap = eventStatsSnapshot.docs.reduce((map, doc) => {
             const data = doc.data() as Record<string, unknown>;
-            const taskMatches = allTaskDefinitions.filter((task) => task.eventName === doc.id);
-            return {
-                eventName: doc.id,
-                label: TELEMETRY_EVENT_LABELS[doc.id] || doc.id,
-                totalCount: toNumber(data.totalCount),
-                lastSeenAt: toNumber(data.lastSeenAt),
-                mappedTaskCount: taskMatches.length,
-                mappedTaskTitles: taskMatches.map((task) => task.title),
-                trackingSource: inferTrackingSource(doc.id),
-            };
-        }).sort((left, right) => right.totalCount - left.totalCount);
+            const rawEventName = doc.id;
+            const { canonicalEventName, option } = getTelemetryEventOption(rawEventName);
+            const mappedDefinitions = allTaskDefinitions.filter((definition) => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === canonicalEventName);
+            const mappedTaskTitles = mappedDefinitions.map((definition) => definition.title);
+            const purpose = classifyTelemetryCoveragePurpose(canonicalEventName, mappedDefinitions.length);
+            const sourceState = inferTelemetryCoverageSourceState(rawEventName, canonicalEventName);
+            const expectedTaskMapping = (
+                purpose === "task_trigger"
+                || purpose === "viewer_task_trigger"
+                || (purpose === "notification" && canonicalEventName === "notification_read")
+            );
+            let coverageState: TelemetryCoverageRow["coverageState"] = "ready";
+            if (sourceState === "unsupported" || purpose === "unknown") {
+                coverageState = "unsupported";
+            } else if (sourceState === "alias_mapped" && !option) {
+                coverageState = "alias_needed";
+            } else if (expectedTaskMapping && mappedDefinitions.length === 0) {
+                coverageState = "task_mapping_missing";
+            } else if (
+                purpose === "task_lifecycle"
+                || purpose === "onboarding"
+                || purpose === "identity"
+                || purpose === "viewer_support"
+                || purpose === "semantic_ux"
+                || purpose === "supporting_telemetry"
+            ) {
+                coverageState = "supporting";
+            } else if (sourceState === "legacy") {
+                coverageState = "review";
+            } else {
+                coverageState = "ready";
+            }
 
-        const orphanedEventStats = runtimeTaskAudit.telemetryAlignment
-            .filter((entry) => (
-                entry.driftReasons.includes("tracked_without_task_mapping")
-                && (entry.eventCategory === "tasks" || entry.eventModules.includes("tasks") || entry.eventModules.includes("task_guidance"))
-            ))
-            .slice(0, 20)
-            .map((entry) => ({
-                eventName: entry.eventName,
-                label: entry.eventLabel,
-                totalCount: entry.eventStatTotalCount,
-                lastSeenAt: entry.lastSeenAt,
-                mappedTaskCount: entry.mappedTaskCount,
-                mappedTaskTitles: [] as string[],
-                trackingSource: entry.trackingSource,
-            }));
+            const current = map.get(canonicalEventName) || {
+                eventName: rawEventName,
+                normalizedAction: canonicalEventName,
+                displayLabel: option?.label || TELEMETRY_EVENT_LABELS[canonicalEventName] || canonicalEventName,
+                eventPurpose: purpose,
+                totalCount: 0,
+                mappedTaskCount: mappedDefinitions.length,
+                mappedTaskTitles,
+                lastSeenAtUtc: null as string | null,
+                sourceState,
+                coverageState,
+                explanation: "",
+                rawEventNames: [] as string[],
+            } satisfies TelemetryCoverageRow;
+
+            current.totalCount += toNumber(data.totalCount);
+            const lastSeenAt = toNumber(data.lastSeenAt);
+            const lastSeenAtUtc = lastSeenAt > 0 ? new Date(lastSeenAt).toISOString() : null;
+            if (lastSeenAtUtc && (!current.lastSeenAtUtc || lastSeenAtUtc > current.lastSeenAtUtc)) {
+                current.lastSeenAtUtc = lastSeenAtUtc;
+            }
+            if (!current.rawEventNames.includes(rawEventName)) {
+                current.rawEventNames.push(rawEventName);
+            }
+            current.mappedTaskCount = Math.max(current.mappedTaskCount, mappedDefinitions.length);
+            current.mappedTaskTitles = Array.from(new Set([...current.mappedTaskTitles, ...mappedTaskTitles]));
+            current.sourceState = current.sourceState === "unsupported" || sourceState === "unsupported"
+                ? "unsupported"
+                : current.sourceState === "alias_mapped" || sourceState === "alias_mapped"
+                    ? "alias_mapped"
+                    : current.sourceState === "legacy" || sourceState === "legacy"
+                        ? "legacy"
+                        : current.sourceState === "canonical" || sourceState === "canonical"
+                            ? "canonical"
+                            : "telemetry";
+            current.coverageState = current.coverageState === "unsupported" || coverageState === "unsupported"
+                ? "unsupported"
+                : current.coverageState === "task_mapping_missing" || coverageState === "task_mapping_missing"
+                    ? "task_mapping_missing"
+                    : current.coverageState === "review" || coverageState === "review"
+                        ? "review"
+                        : current.coverageState === "supporting" || coverageState === "supporting"
+                            ? "supporting"
+                            : current.coverageState === "alias_needed" || coverageState === "alias_needed"
+                                ? "alias_needed"
+                                : "ready";
+            current.explanation = buildTelemetryCoverageExplanation({
+                eventName: canonicalEventName,
+                purpose: current.eventPurpose,
+                mappedTaskCount: current.mappedTaskCount,
+                mappedTaskTitles: current.mappedTaskTitles,
+                sourceState: current.sourceState,
+                coverageState: current.coverageState,
+            });
+            map.set(canonicalEventName, current);
+            return map;
+        }, new Map<string, TelemetryCoverageRow>());
+        const telemetryCoverageRows = Array.from(telemetryCoverageRowsMap.values()).sort((left, right) => {
+            const stateRank = {
+                unsupported: 0,
+                task_mapping_missing: 1,
+                review: 2,
+                alias_needed: 3,
+                ready: 4,
+                supporting: 5,
+            } satisfies Record<TelemetryCoverageRow["coverageState"], number>;
+            return stateRank[left.coverageState] - stateRank[right.coverageState]
+                || right.totalCount - left.totalCount
+                || left.displayLabel.localeCompare(right.displayLabel);
+        });
+
+        const orphanedEventStats = telemetryCoverageRows
+            .filter((entry) => entry.coverageState === "unsupported")
+            .slice(0, 20);
 
         const receiptSummary = Array.from(receiptEvents7d.reduce((map, entry) => {
             const groupKey = `${entry.normalizedAction}:${entry.dedupeKeyLabel}`;
@@ -3617,7 +3904,7 @@ export async function GET(request: NextRequest) {
             receiptsLast7d: receiptEvents7d.length,
             rewardEventDeltaLast7d: completedEvents7d.length - rewardTransactions7d.length,
             legacyRewardVersionCount: legacyRewardVersionCount,
-            trackedTelemetryEvents: eventStats.length,
+            trackedTelemetryEvents: telemetryCoverageRows.length,
             orphanedTelemetryEvents: orphanedEventStats.length,
             bugReportsLast7d: bugIntakeTriage.last7dCount,
             rolloutCount: rollouts.length,
@@ -3670,7 +3957,7 @@ export async function GET(request: NextRequest) {
                 rewardEventDeltaLast7d: taskParitySummary.mismatchDelta7d,
                 legacyTaskRewardVersions: legacyRewardVersionCount,
                 creatorSpendViolationsLast7d: creatorSpendParity.restrictedSpendViolationCount,
-                trackedTelemetryEvents: eventStats.length,
+                trackedTelemetryEvents: telemetryCoverageRows.length,
                 orphanedTelemetryEvents: orphanedEventStats.length,
                 bugReportsLast7d: bugIntakeTriage.last7dCount,
                 creatorOnboardingIssues: creatorOnboardingDiagnostics.summary.totalIssues,
@@ -3715,7 +4002,8 @@ export async function GET(request: NextRequest) {
             recentTaskEvents: recentTaskEvents.slice(0, 80),
             recentReceipts: recentReceipts.slice(0, 80),
             receiptSummary,
-            eventStats: eventStats.slice(0, 40),
+            telemetryCoverageRows: telemetryCoverageRows.slice(0, 76),
+            eventStats: telemetryCoverageRows.slice(0, 76),
             orphanedEventStats,
             runtimeTaskAudit,
             taskRollups: taskRollups.slice(0, 30),

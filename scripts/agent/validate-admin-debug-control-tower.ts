@@ -607,6 +607,20 @@ for (const expected of [
   "Unlock ·",
   "buildUserIdentityFromSnapshot",
   "receiptDropRefs.length > 0 ? await adminDb.getAll(...receiptDropRefs) : []",
+  "TelemetryCoverageRow",
+  "TelemetryCoverageEventPurpose",
+  "classifyTelemetryCoveragePurpose",
+  "inferTelemetryCoverageSourceState",
+  "buildTelemetryCoverageExplanation",
+  "telemetryCoverageRows",
+  "\"daily_check_in_claim\"",
+  "\"notification_marked_read\"",
+  "\"viewer_asset_changed\"",
+  "\"identity\"",
+  "\"viewer_support\"",
+  "\"semantic_ux\"",
+  "\"task_mapping_missing\"",
+  "\"supporting\"",
 ]) {
   requireIncludes(adminDebugRoute, expected, "Admin debug receipt sample model must normalize aliases and enrich user/drop context");
 }
@@ -1359,6 +1373,21 @@ for (const expected of [
   "No shared event groups currently qualify as safe-with-criteria in the sampled data.",
   "No unsupported runtime task records were detected in the sampled data.",
   "Event stats are raw trigger evidence.",
+  "Telemetry coverage sample",
+  "titleForCoveragePurpose",
+  "labelForCoverageState",
+  "toneForCoverageState",
+  "label=\"Tracked events\"",
+  "label=\"Task triggers\"",
+  "label=\"Supporting/lifecycle\"",
+  "label=\"Alias needed\"",
+  "label=\"True unsupported/orphaned\"",
+  "Aliases seen:",
+  "Supporting event, not a task gap",
+  "Missing task mapping",
+  "Task lifecycle",
+  "Viewer support",
+  "Semantic UX",
 ]) {
   requireIncludes(debugAdvancedTelemetry, expected, "Task telemetry mapping panel must show grouped ambiguity and loaded truth");
 }
