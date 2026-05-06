@@ -46,6 +46,8 @@ Each domain gets at most 10 records sorted by severity, occurrence count, and re
 
 Missing generated evidence renders as missing or unavailable. Stale generated evidence renders as stale. The Control Tower must never convert absent runtime evidence into a healthy state.
 
+The Recent diagnostics and downstream writers panel uses a separate diagnostics truth model per channel. `currentWindow` covers the active window only, `recentWindow` covers the longer recent window, `loadedSample` is historical sample context, and `freshnessState` comes from `lastSeenAtUtc`. Historical sample errors remain visible, but they do not turn a clean current window into ERROR. Stale channels show stale or expired source freshness even when the current window is clean.
+
 ## Pre-Catcher
 
 `npm run precheck:runtime-issues` reads the redacted evidence index and writes `agent/state/precatch-runtime-issues.generated.json`.

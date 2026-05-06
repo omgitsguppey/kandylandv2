@@ -22,6 +22,53 @@ function formatWindowHours(windowMs?: number) {
     if (!windowMs) return "current";
     return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
 }
+function formatUtc(timestamp?: number | null) {
+    return timestamp ? new Date(timestamp).toISOString() : "unavailable";
+}
+function toneForChannelState(state?: string) {
+    if (state === "error" || state === "expired") return "bad" as const;
+    if (state === "review" || state === "stale" || state === "sample_error_history" || state === "sample_has_history") return "warn" as const;
+    if (state === "live" || state === "clean_sample") return "good" as const;
+    return "neutral" as const;
+}
+function truthStateForChannelState(state?: string): AdminSurfaceState {
+    if (state === "error" || state === "expired") return "failed";
+    if (state === "stale") return "stale";
+    if (state === "review" || state === "sample_error_history" || state === "sample_has_history") return "degraded";
+    if (state === "unknown" || state === "empty_sample") return "unavailable";
+    return "live";
+}
+function channelTruth(channel: any, activeWindowMs?: number, recentWindowMs?: number) {
+    if (channel?.truth) return channel.truth;
+    return {
+        channel: channel?.key ?? "unknown",
+        lastSeenAtUtc: channel?.lastSeenAt ? new Date(channel.lastSeenAt).toISOString() : null,
+        freshnessState: channel?.lastSeenAt ? "unknown" : "unknown",
+        currentWindow: {
+            windowMs: activeWindowMs ?? 0,
+            errors: channel?.activeErrorCount ?? 0,
+            warns: channel?.activeWarnCount ?? 0,
+            info: channel?.activeInfoCount ?? 0,
+            state: (channel?.activeErrorCount ?? 0) > 0 ? "error" : (channel?.activeWarnCount ?? 0) > 0 ? "review" : "empty",
+        },
+        recentWindow: {
+            windowMs: recentWindowMs ?? 0,
+            errors: channel?.recentErrorCount ?? 0,
+            warns: channel?.recentWarnCount ?? 0,
+            info: channel?.recentInfoCount ?? 0,
+            state: (channel?.recentErrorCount ?? 0) > 0 ? "error" : (channel?.recentWarnCount ?? 0) > 0 ? "review" : "empty",
+        },
+        loadedSample: {
+            sampleSize: channel?.count ?? 0,
+            errors: channel?.errorCount ?? 0,
+            warns: channel?.warnCount ?? 0,
+            info: channel?.infoCount ?? 0,
+            state: (channel?.errorCount ?? 0) > 0 ? "sample_error_history" : (channel?.count ?? 0) > 0 ? "sample_has_history" : "empty_sample",
+        },
+        overallState: (channel?.activeErrorCount ?? 0) > 0 ? "error" : (channel?.errorCount ?? 0) > 0 ? "review" : "live",
+        explanation: "Current, recent, and loaded sample windows are separated.",
+    };
+}
 function toneForPanelStatus(status?: string) {
     if (status === "healthy") return "good" as const;
     if (status === "warn") return "warn" as const;
@@ -56,38 +103,60 @@ export function DebugNowDiagnostics({
         <>
             <Section
                 title="Recent diagnostics and downstream writers"
-                subtitle="Recent diagnostics, route failures, and materializer freshness from the loaded sample."
+                subtitle="Current window, recent window, loaded sample history, and writer freshness from the loaded sample."
                 defaultOpen={!isCompactViewport && ((data?.opsHealth?.diagnostics?.errorCount ?? 0) > 0 || (data?.opsHealth?.pipeline?.failureCount ?? 0) > 0)}
                 summary={<><Pill label="Channels" value={(data?.opsHealth?.diagnostics?.channels || []).length} /><Pill label="Recent diagnostics" value={(data?.opsHealth?.diagnostics?.recent || []).length} /><Pill label="Routes" value={(data?.opsHealth?.pipeline?.routes || []).length} /></>}
             >
                 <div className="grid gap-4 lg:grid-cols-1">
                     <ScrollWrap>
                         <div className="divide-y divide-white/10">
-                            {(data?.opsHealth?.diagnostics?.channels || []).map((channel: any) => (
-                                <div key={channel.key} className="space-y-2 px-4 py-3">
+                            {(data?.opsHealth?.diagnostics?.channels || []).map((channel: any) => {
+                                const truth = channelTruth(channel, data?.opsHealth?.diagnostics?.activeWindowMs, data?.opsHealth?.diagnostics?.recentWindowMs);
+                                return (
+                                <div
+                                    key={channel.key}
+                                    className="space-y-2 px-4 py-3"
+                                    data-debug-diagnostics-channel={truth.channel}
+                                    data-debug-current-window-state={truth.currentWindow.state}
+                                    data-debug-recent-window-state={truth.recentWindow.state}
+                                    data-debug-sample-history-state={truth.loadedSample.state}
+                                    data-debug-channel-freshness={truth.freshnessState}
+                                    data-debug-channel-overall-state={truth.overallState}
+                                    data-debug-last-seen-at-utc={truth.lastSeenAtUtc ?? "unavailable"}
+                                >
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
                                             <p className="font-semibold text-white">{channel.label}</p>
                                             <p className="text-xs text-gray-400">
-                                                {formatRelative(channel.lastSeenAt)} | active {channel.activeErrorCount ?? 0} errors / {channel.activeWarnCount ?? 0} warns in {formatWindowHours(data?.opsHealth?.diagnostics?.activeWindowMs)}
+                                                Last seen {formatRelative(channel.lastSeenAt)} | {truth.lastSeenAtUtc ?? "unavailable"}
                                             </p>
                                         </div>
                                         <Pill
-                                            label="Current"
-                                            value={`${channel.activeErrorCount ?? 0}/${channel.activeWarnCount ?? 0}`}
-                                            tone={(channel.activeErrorCount ?? 0) > 0 ? "bad" : (channel.activeWarnCount ?? 0) > 0 ? "warn" : "good"}
+                                            label="Overall"
+                                            value={truth.overallState}
+                                            tone={toneForChannelState(truth.overallState)}
+                                            truthState={truthStateForChannelState(truth.overallState)}
                                         />
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                        <Pill label="Recent errors" value={channel.recentErrorCount ?? 0} tone={(channel.recentErrorCount ?? 0) > 0 ? "bad" : "good"} />
-                                        <Pill label="Recent warns" value={channel.recentWarnCount ?? 0} tone={(channel.recentWarnCount ?? 0) > 0 ? "warn" : "good"} />
-                                        <Pill label="Sample errors" value={channel.errorCount} tone={channel.errorCount ? "bad" : "good"} />
-                                        <Pill label="Sample warns" value={channel.warnCount} tone={channel.warnCount ? "warn" : "good"} />
-                                        <Pill label="Info" value={channel.infoCount} />
-                                        <Pill label="Sample count" value={channel.count} />
+                                        <Pill label={`Current ${formatWindowHours(truth.currentWindow.windowMs)}`} value={`${truth.currentWindow.errors} err / ${truth.currentWindow.warns} warn`} tone={toneForChannelState(truth.currentWindow.state)} truthState={truthStateForChannelState(truth.currentWindow.state)} />
+                                        <Pill label="Recent window" value={`${truth.recentWindow.errors} err / ${truth.recentWindow.warns} warn`} tone={toneForChannelState(truth.recentWindow.state)} truthState={truthStateForChannelState(truth.recentWindow.state)} />
+                                        <Pill label="Loaded sample history" value={`${truth.loadedSample.errors} err / ${truth.loadedSample.warns} warn`} tone={toneForChannelState(truth.loadedSample.state)} truthState={truthStateForChannelState(truth.loadedSample.state)} />
+                                        <Pill label="Sample size" value={truth.loadedSample.sampleSize} tone={truth.loadedSample.sampleSize > 0 ? "good" : "warn"} truthState={truth.loadedSample.sampleSize > 0 ? "live" : "unavailable"} />
+                                        <Pill label="Last seen" value={formatRelative(channel.lastSeenAt)} tone={toneForChannelState(truth.freshnessState)} truthState={truthStateForChannelState(truth.freshnessState)} />
                                     </div>
+                                    <details className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                        <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.16em] text-gray-300">Window details</summary>
+                                        <div className="mt-2 grid gap-2 text-xs text-gray-300 md:grid-cols-3">
+                                            <p>Current window: {formatWindowHours(truth.currentWindow.windowMs)} | {truth.currentWindow.errors} errors | {truth.currentWindow.warns} warns | {truth.currentWindow.info} info | {truth.currentWindow.state}</p>
+                                            <p>Recent window: {formatWindowHours(truth.recentWindow.windowMs)} | {truth.recentWindow.errors} errors | {truth.recentWindow.warns} warns | {truth.recentWindow.info} info | {truth.recentWindow.state}</p>
+                                            <p>Loaded sample history: {truth.loadedSample.sampleSize} records | {truth.loadedSample.errors} errors | {truth.loadedSample.warns} warns | {truth.loadedSample.info} info | {truth.loadedSample.state}</p>
+                                        </div>
+                                        <p className="mt-2 text-xs text-gray-400">Freshness {truth.freshnessState} | lastSeenAtUtc {truth.lastSeenAtUtc ?? "unavailable"}</p>
+                                    </details>
+                                    <p className="text-sm text-gray-300">{truth.explanation}</p>
                                 </div>
-                            ))}
+                            );})}
                             {(data?.opsHealth?.pipeline?.routes || []).map((route: any) => (
                                 <div key={route.routeKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
                                     <div>
@@ -126,6 +195,7 @@ export function DebugNowDiagnostics({
                                     <div className="flex flex-wrap gap-2">
                                         <Pill label="Count" value={materializer.count} />
                                         <Pill label="Last seen" value={formatRelative(materializer.lastSeenAt)} />
+                                        <Pill label="Last seen UTC" value={formatUtc(materializer.lastSeenAt)} />
                                     </div>
                                     <p className="text-sm text-gray-300">{materializer.detail}</p>
                                 </div>

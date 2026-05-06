@@ -6,6 +6,7 @@ import {
   type AdminOpsHealthDiagnosticItem,
   type AdminOpsHealthMaterializerItem,
   type AdminOpsHealthStatus,
+  type DiagnosticChannelTruth,
 } from "@/lib/admin-ops-health";
 import {
   buildFirebaseClientRuntimeSnapshot,
@@ -19,6 +20,8 @@ const ACTIVE_DIAGNOSTIC_WINDOW_MS = 1000 * 60 * 60;
 const RECENT_DIAGNOSTIC_WINDOW_MS = 1000 * 60 * 60 * 4;
 const ACTIVE_PIPELINE_WINDOW_MS = 1000 * 60 * 60;
 const RECENT_PIPELINE_WINDOW_MS = 1000 * 60 * 60 * 4;
+const CHANNEL_FRESH_MS = 15 * 60 * 1000;
+const CHANNEL_EXPIRED_MS = 24 * 60 * 60 * 1000;
 
 function toTimestampNumber(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -152,6 +155,148 @@ function buildDiagnosticPreview(detail: Record<string, unknown>) {
   return entries
     .map(([key, value]) => `${key}: ${String(value)}`)
     .join(" | ");
+}
+
+function getWindowState(errors: number, warns: number, info: number): DiagnosticChannelTruth["currentWindow"]["state"] {
+  if (errors > 0) return "error";
+  if (warns > 0) return "review";
+  if (info > 0) return "live";
+  return "empty";
+}
+
+function getSampleState(input: {
+  sampleSize: number;
+  errors: number;
+  warns: number;
+  info: number;
+}): DiagnosticChannelTruth["loadedSample"]["state"] {
+  if (input.sampleSize <= 0) return "empty_sample";
+  if (input.errors > 0) return "sample_error_history";
+  if (input.warns > 0 || input.info > 0) return "sample_has_history";
+  return "clean_sample";
+}
+
+function getChannelFreshnessState(nowMs: number, lastSeenAt: number): DiagnosticChannelTruth["freshnessState"] {
+  if (lastSeenAt <= 0) return "unknown";
+  const ageMs = Math.max(0, nowMs - lastSeenAt);
+  if (ageMs <= CHANNEL_FRESH_MS) return "live";
+  if (ageMs > CHANNEL_EXPIRED_MS) return "expired";
+  return "stale";
+}
+
+function buildDiagnosticChannelExplanation(input: {
+  label: string;
+  currentWindow: DiagnosticChannelTruth["currentWindow"];
+  recentWindow: DiagnosticChannelTruth["recentWindow"];
+  loadedSample: DiagnosticChannelTruth["loadedSample"];
+  freshnessState: DiagnosticChannelTruth["freshnessState"];
+  ageLabel: string;
+}) {
+  const currentClean = input.currentWindow.errors === 0 && input.currentWindow.warns === 0;
+  const sampleHasErrors = input.loadedSample.errors > 0;
+  const sampleHasWarns = input.loadedSample.warns > 0;
+  const recentHasErrors = input.recentWindow.errors > 0;
+
+  if (input.freshnessState === "expired" || input.freshnessState === "stale") {
+    return `No recent ${input.label.toLowerCase()} diagnostics in ${input.ageLabel}. This may be normal if the channel had no traffic, but source is stale.`;
+  }
+  if (currentClean && sampleHasErrors) {
+    return `Current window is clean. Loaded sample still contains ${input.loadedSample.errors} older ${input.label.toLowerCase()} errors.`;
+  }
+  if (currentClean && sampleHasWarns) {
+    return `Current window is clean. Loaded sample still contains ${input.loadedSample.warns} older ${input.label.toLowerCase()} warnings.`;
+  }
+  if (recentHasErrors && input.currentWindow.errors === 0) {
+    return `Current window has no errors. Recent window still contains ${input.recentWindow.errors} ${input.label.toLowerCase()} errors.`;
+  }
+  if (input.currentWindow.errors > 0) {
+    return `Current window has ${input.currentWindow.errors} ${input.label.toLowerCase()} errors.`;
+  }
+  if (input.currentWindow.warns > 0) {
+    return `Current window has ${input.currentWindow.warns} ${input.label.toLowerCase()} warnings.`;
+  }
+  return "Current window is clean and no older sample errors are loaded.";
+}
+
+function formatChannelAge(nowMs: number, lastSeenAt: number) {
+  if (lastSeenAt <= 0) return "unknown";
+  const ageMs = Math.max(0, nowMs - lastSeenAt);
+  const minutes = Math.floor(ageMs / 60_000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  return `${Math.floor(hours / 24)}d`;
+}
+
+function buildDiagnosticChannelTruth(input: {
+  key: string;
+  label: string;
+  nowMs: number;
+  lastSeenAt: number;
+  count: number;
+  errorCount: number;
+  warnCount: number;
+  infoCount: number;
+  activeErrorCount: number;
+  activeWarnCount: number;
+  activeInfoCount: number;
+  recentErrorCount: number;
+  recentWarnCount: number;
+  recentInfoCount: number;
+}): DiagnosticChannelTruth {
+  const currentWindow = {
+    windowMs: ACTIVE_DIAGNOSTIC_WINDOW_MS,
+    errors: input.activeErrorCount,
+    warns: input.activeWarnCount,
+    info: input.activeInfoCount,
+    state: getWindowState(input.activeErrorCount, input.activeWarnCount, input.activeInfoCount),
+  };
+  const recentWindow = {
+    windowMs: RECENT_DIAGNOSTIC_WINDOW_MS,
+    errors: input.recentErrorCount,
+    warns: input.recentWarnCount,
+    info: input.recentInfoCount,
+    state: getWindowState(input.recentErrorCount, input.recentWarnCount, input.recentInfoCount),
+  };
+  const loadedSample = {
+    sampleSize: input.count,
+    errors: input.errorCount,
+    warns: input.warnCount,
+    info: input.infoCount,
+    state: getSampleState({
+      sampleSize: input.count,
+      errors: input.errorCount,
+      warns: input.warnCount,
+      info: input.infoCount,
+    }),
+  };
+  const freshnessState = getChannelFreshnessState(input.nowMs, input.lastSeenAt);
+  const overallState: DiagnosticChannelTruth["overallState"] = currentWindow.errors > 0
+    ? "error"
+    : freshnessState === "stale" || freshnessState === "expired" || freshnessState === "unknown"
+      ? "stale"
+      : currentWindow.warns > 0 || recentWindow.errors > 0 || loadedSample.errors > 0 || loadedSample.warns > 0
+        ? "review"
+        : "live";
+
+  return {
+    channel: input.key,
+    lastSeenAtUtc: input.lastSeenAt > 0 ? new Date(input.lastSeenAt).toISOString() : null,
+    freshnessState,
+    currentWindow,
+    recentWindow,
+    loadedSample,
+    overallState,
+    explanation: buildDiagnosticChannelExplanation({
+      label: input.label,
+      currentWindow,
+      recentWindow,
+      loadedSample,
+      freshnessState,
+      ageLabel: formatChannelAge(input.nowMs, input.lastSeenAt),
+    }),
+  };
 }
 
 function getDiagnosticSuggestedValidator(channel: string, message: string) {
@@ -317,8 +462,10 @@ export function buildAdminOpsHealth(input: {
       infoCount: 0,
       activeErrorCount: 0,
       activeWarnCount: 0,
+      activeInfoCount: 0,
       recentErrorCount: 0,
       recentWarnCount: 0,
+      recentInfoCount: 0,
       lastSeenAt: 0,
     };
     current.count += 1;
@@ -329,10 +476,12 @@ export function buildAdminOpsHealth(input: {
     if (entry.timestamp >= nowMs - ACTIVE_DIAGNOSTIC_WINDOW_MS) {
       if (entry.severity === "error") current.activeErrorCount += 1;
       if (entry.severity === "warn") current.activeWarnCount += 1;
+      if (entry.severity === "info") current.activeInfoCount += 1;
     }
     if (entry.timestamp >= nowMs - RECENT_DIAGNOSTIC_WINDOW_MS) {
       if (entry.severity === "error") current.recentErrorCount += 1;
       if (entry.severity === "warn") current.recentWarnCount += 1;
+      if (entry.severity === "info") current.recentInfoCount += 1;
     }
     map.set(entry.channel, current);
     return map;
@@ -345,8 +494,10 @@ export function buildAdminOpsHealth(input: {
     infoCount: number;
     activeErrorCount: number;
     activeWarnCount: number;
+    activeInfoCount: number;
     recentErrorCount: number;
     recentWarnCount: number;
+    recentInfoCount: number;
     lastSeenAt: number;
   }>());
 
@@ -694,7 +845,25 @@ export function buildAdminOpsHealth(input: {
       activeWindowMs: ACTIVE_DIAGNOSTIC_WINDOW_MS,
       recentWindowMs: RECENT_DIAGNOSTIC_WINDOW_MS,
       lastDiagnosticAt: diagnostics[0]?.timestamp || 0,
-      channels: Array.from(diagnosticsByChannel.values()).sort((left, right) => (
+      channels: Array.from(diagnosticsByChannel.values()).map((channel) => ({
+        ...channel,
+        truth: buildDiagnosticChannelTruth({
+          key: channel.key,
+          label: channel.label,
+          nowMs,
+          lastSeenAt: channel.lastSeenAt,
+          count: channel.count,
+          errorCount: channel.errorCount,
+          warnCount: channel.warnCount,
+          infoCount: channel.infoCount,
+          activeErrorCount: channel.activeErrorCount,
+          activeWarnCount: channel.activeWarnCount,
+          activeInfoCount: channel.activeInfoCount,
+          recentErrorCount: channel.recentErrorCount,
+          recentWarnCount: channel.recentWarnCount,
+          recentInfoCount: channel.recentInfoCount,
+        }),
+      })).sort((left, right) => (
         (right.activeErrorCount + right.activeWarnCount) - (left.activeErrorCount + left.activeWarnCount)
         || (right.recentErrorCount + right.recentWarnCount) - (left.recentErrorCount + left.recentWarnCount)
         || right.count - left.count

@@ -42,10 +42,42 @@ export interface AdminOpsHealthChannelItem {
   infoCount: number;
   activeErrorCount: number;
   activeWarnCount: number;
+  activeInfoCount: number;
   recentErrorCount: number;
   recentWarnCount: number;
+  recentInfoCount: number;
   lastSeenAt: number;
+  truth: DiagnosticChannelTruth;
 }
+
+export type DiagnosticChannelTruth = {
+  channel: string;
+  lastSeenAtUtc: string | null;
+  freshnessState: "live" | "stale" | "expired" | "unknown";
+  currentWindow: {
+    windowMs: number;
+    errors: number;
+    warns: number;
+    info: number;
+    state: "live" | "review" | "error" | "empty";
+  };
+  recentWindow: {
+    windowMs: number;
+    errors: number;
+    warns: number;
+    info: number;
+    state: "live" | "review" | "error" | "empty";
+  };
+  loadedSample: {
+    sampleSize: number;
+    errors: number;
+    warns: number;
+    info: number;
+    state: "clean_sample" | "sample_has_history" | "sample_error_history" | "empty_sample";
+  };
+  overallState: "live" | "review" | "stale" | "error";
+  explanation: string;
+};
 
 export interface AdminOpsHealthDiagnostics {
   total: number;

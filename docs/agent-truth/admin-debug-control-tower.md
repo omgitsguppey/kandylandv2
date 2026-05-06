@@ -43,7 +43,12 @@ Shows support admin thread/message access, support route failures, creator booki
 - Beta-critical reports older than 72 hours create a major next action.
 - Required beta-critical reports that are missing create critical findings.
 - Missing, stale, failed, unavailable, and unknown states must never render as healthy/live.
+- Recent diagnostics and downstream writers must separate `currentWindow`, `recentWindow`, `loadedSample`, and `freshnessState`. Current 0 errors / 0 warnings cannot render as ERROR unless the source itself failed.
+- Loaded sample errors and warnings are historical sample context. They must be labeled as "Loaded sample history" and may move a channel to review, but they must not mark the current window as ERROR.
+- Stale channel sources must show stale or expired freshness even when current counts are clean. Commerce diagnostics that were last seen days ago must not render as fully live unless a documented no-traffic rule is also shown.
+- Known loaded sample counts must render as a count, not WAIT.
 - Every score card exposes `data-truth-state`, `data-debug-report-source`, and `data-debug-report-freshness`.
+- Diagnostic channel rows expose `data-debug-diagnostics-channel`, `data-debug-current-window-state`, `data-debug-recent-window-state`, `data-debug-sample-history-state`, `data-debug-channel-freshness`, `data-debug-channel-overall-state`, and `data-debug-last-seen-at-utc`.
 - Raw generated evidence must stay capped and collapsed. The overview must not render giant JSON dumps.
 
 ## Critical Reports

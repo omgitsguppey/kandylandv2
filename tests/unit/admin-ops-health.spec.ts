@@ -279,4 +279,89 @@ describe("buildAdminOpsHealth", () => {
             errorCount: 0,
         });
     });
+
+    it("separates current diagnostics from loaded sample error history", () => {
+        const nowMs = Date.UTC(2026, 3, 6, 12, 0, 0);
+        const justNow = nowMs - (5 * 60 * 1000);
+        const twoHoursAgo = nowMs - (2 * 60 * 60 * 1000);
+
+        const result = buildAdminOpsHealth({
+            nowMs,
+            diagnosticsDocs: [
+                mockDoc("analytics_current_info", {
+                    channel: "analytics",
+                    severity: "info",
+                    message: "Analytics heartbeat",
+                    createdAtMs: justNow,
+                }),
+                mockDoc("analytics_old_error", {
+                    channel: "analytics",
+                    severity: "error",
+                    message: "Older ingest error",
+                    createdAtMs: twoHoursAgo,
+                }),
+            ],
+            pipelineDocs: [],
+            eventStatsDocs: [],
+            taskRollupDocs: [],
+            guestBatchDocs: [],
+            securityEventDocs: [],
+            watchSessionDocs: [],
+            watchAssetDocs: [],
+            commerceSummaryDoc: null,
+        });
+
+        const analyticsChannel = result.diagnostics.channels.find((channel) => channel.key === "analytics");
+
+        expect(analyticsChannel?.truth.currentWindow).toMatchObject({
+            errors: 0,
+            warns: 0,
+            info: 1,
+            state: "live",
+        });
+        expect(analyticsChannel?.truth.loadedSample).toMatchObject({
+            sampleSize: 2,
+            errors: 1,
+            state: "sample_error_history",
+        });
+        expect(analyticsChannel?.truth.overallState).toBe("review");
+        expect(analyticsChannel?.truth.explanation).toContain("Current window is clean");
+        expect(analyticsChannel?.truth.explanation).toContain("older analytics errors");
+    });
+
+    it("marks stale channels stale instead of live when current counts are empty", () => {
+        const nowMs = Date.UTC(2026, 3, 6, 12, 0, 0);
+        const twoDaysAgo = nowMs - (2 * 24 * 60 * 60 * 1000);
+
+        const result = buildAdminOpsHealth({
+            nowMs,
+            diagnosticsDocs: [
+                mockDoc("commerce_old_error", {
+                    channel: "commerce",
+                    severity: "error",
+                    message: "Older commerce route issue",
+                    createdAtMs: twoDaysAgo,
+                }),
+            ],
+            pipelineDocs: [],
+            eventStatsDocs: [],
+            taskRollupDocs: [],
+            guestBatchDocs: [],
+            securityEventDocs: [],
+            watchSessionDocs: [],
+            watchAssetDocs: [],
+            commerceSummaryDoc: null,
+        });
+
+        const commerceChannel = result.diagnostics.channels.find((channel) => channel.key === "commerce");
+
+        expect(commerceChannel?.truth.currentWindow).toMatchObject({
+            errors: 0,
+            warns: 0,
+            state: "empty",
+        });
+        expect(commerceChannel?.truth.freshnessState).toBe("expired");
+        expect(commerceChannel?.truth.overallState).toBe("stale");
+        expect(commerceChannel?.truth.explanation).toContain("source is stale");
+    });
 });

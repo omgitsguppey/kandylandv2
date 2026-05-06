@@ -49,12 +49,14 @@ const runtimeHealth = readRequired("src/lib/route-runtime-health.ts");
 const adminOpsHealth = readRequired("src/lib/server/admin-ops-health.ts");
 const adminOpsHealthContract = readRequired("src/lib/admin-ops-health.ts");
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
+const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
 const debugPage = readRequired("src/app/admin/debug/page.tsx");
 const controlTower = readRequired("src/app/admin/debug/components/DebugControlTower.tsx");
 const controlTowerCards = readRequired("src/app/admin/debug/components/DebugControlTowerCards.tsx");
 const modelTest = readRequired("tests/unit/admin-debug-control-tower.spec.ts");
 const summaryCardTest = readRequired("tests/unit/admin-debug-summary-cards.spec.ts");
+const adminOpsHealthTest = readRequired("tests/unit/admin-ops-health.spec.ts");
 const componentTest = readRequired("tests/unit/admin-debug-control-tower-component.spec.tsx");
 const controlTowerDoc = readRequired("docs/agent-truth/admin-debug-control-tower.md");
 const adminTruthDoc = readRequired("docs/agent-truth/human-readable-admin-truth.md");
@@ -63,7 +65,7 @@ const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
 const repoMemory = readRequired("REPO_MEMORY_LEDGER.md");
 const releaseNotesScript = readRequired("scripts/release/update-public-changelog.ts");
-const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}`;
+const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
 
 if (packageJson.scripts?.["check:admin-debug-control-tower"] !== "tsx scripts/agent/validate-admin-debug-control-tower.ts") {
   fail("package.json must expose check:admin-debug-control-tower.");
@@ -133,8 +135,41 @@ for (const expected of [
   "scorePenalties",
   "activeIssueClusters",
   "getDiagnosticSuggestedValidator",
+  "DiagnosticChannelTruth",
+  "currentWindow",
+  "recentWindow",
+  "loadedSample",
+  "freshnessState",
+  "sample_error_history",
+  "Current window is clean",
+  "source is stale",
 ]) {
   requireIncludes(adminOpsHealth + adminOpsHealthContract, expected, "Admin ops health must expose score penalties and diagnostic clusters");
+}
+
+for (const expected of [
+  "Current window, recent window, loaded sample history",
+  "Current ${formatWindowHours",
+  "Recent window",
+  "Loaded sample history",
+  "Sample size",
+  "Window details",
+  "data-debug-diagnostics-channel",
+  "data-debug-current-window-state",
+  "data-debug-recent-window-state",
+  "data-debug-sample-history-state",
+  "data-debug-channel-freshness",
+  "data-debug-channel-overall-state",
+  "data-debug-last-seen-at-utc",
+]) {
+  requireIncludes(debugNowDiagnostics, expected, "Recent diagnostics panel must label current/recent/sample/freshness windows");
+}
+
+for (const forbidden of [
+  "label=\"Current\"",
+  "Sample count",
+]) {
+  requireNotIncludes(debugNowDiagnostics, forbidden, "Recent diagnostics panel must not render ambiguous diagnostics chips");
 }
 
 requireIncludes(debugPage, "canonicalState?.status === \"Live\"", "Debug page must treat the canonical Live state as healthy");
@@ -207,6 +242,13 @@ for (const expected of [
   "surfaces active diagnostic clusters with validator context",
 ]) {
   requireIncludes(summaryCardTest, expected, "Admin debug summary card tests");
+}
+
+for (const expected of [
+  "separates current diagnostics from loaded sample error history",
+  "marks stale channels stale instead of live when current counts are empty",
+]) {
+  requireIncludes(adminOpsHealthTest, expected, "Admin ops health diagnostics truth tests");
 }
 
 for (const expected of [
@@ -322,6 +364,7 @@ try {
     /^src\/app\/admin\/debug\/page\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugControlTower(?:Cards)?\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugNowDiagnostics\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/lib\/creator-experiences\.ts$/u,
     /^src\/lib\/creator-lane-debug-parity\.ts$/u,
@@ -350,6 +393,8 @@ try {
     /^src\/lib\/release-notes\/public-release-notes\.ts$/u,
     /^tests\/unit\/admin-debug-control-tower(?:-component)?\.spec\.tsx?$/u,
     /^tests\/unit\/admin-debug-summary-cards\.spec\.ts$/u,
+    /^tests\/unit\/admin-ops-health\.spec\.ts$/u,
+    /^tests\/unit\/ai-debug-assistant\.spec\.ts$/u,
     /^tests\/unit\/creator-experiences\.spec\.ts$/u,
     /^tests\/unit\/creator-onboarding-diagnostics\.spec\.ts$/u,
     /^tests\/unit\/creator-onboarding-server\.spec\.ts$/u,
