@@ -1,10 +1,43 @@
 {
-  "currentVersion": "1.42.0",
+  "currentVersion": "1.43.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T02:05:40.352Z",
-  "generatedAtUtc": "2026-05-06T02:05:40.352Z",
-  "lastCommitSha": "488a5750056f3b31076940183e006b43af7f6e45",
+  "generatedAt": "2026-05-06T02:19:29.663Z",
+  "generatedAtUtc": "2026-05-06T02:19:29.663Z",
+  "lastCommitSha": "0ad07275579c41228c0b793f181d7f722e36918e",
   "notes": [
+    {
+      "version": "1.43.0",
+      "previousVersion": "1.42.0",
+      "commitSha": "0ad07275579c41228c0b793f181d7f722e36918e",
+      "commitTitle": "fix(admin): clarify bug intake triage states",
+      "committedAt": "2026-05-06T02:19:16.000Z",
+      "generatedAt": "2026-05-06T02:19:29.663Z",
+      "committedAtUtc": "2026-05-06T02:19:16.000Z",
+      "generatedAtUtc": "2026-05-06T02:19:29.663Z",
+      "diffStats": {
+        "rawAdditions": 352,
+        "rawDeletions": 54,
+        "rawChangeCount": 406,
+        "additions": 352,
+        "deletions": 54,
+        "effectiveAdditions": 350,
+        "effectiveDeletions": 52,
+        "changedFiles": 10,
+        "effectiveChangeCount": 402,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal bug report triage labels so loaded reports no longer appear stuck.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.42.0",
       "previousVersion": "1.41.0",
@@ -1601,39 +1634,6 @@
       ],
       "committedAtUtc": "2026-05-05T09:23:16.000Z",
       "generatedAtUtc": "2026-05-05T12:02:55.070Z"
-    },
-    {
-      "version": "1.6.0",
-      "previousVersion": "1.5.0",
-      "commitSha": "d3fb8d344ddd848da19d9276370375171a5d86b5",
-      "commitTitle": "feat(analytics): calibrate behavioral math to product goals",
-      "committedAt": "2026-05-05T08:48:49.000Z",
-      "generatedAt": "2026-05-05T12:02:54.757Z",
-      "diffStats": {
-        "rawAdditions": 1487,
-        "rawDeletions": 126,
-        "rawChangeCount": 1613,
-        "additions": 1487,
-        "deletions": 126,
-        "effectiveAdditions": 1434,
-        "effectiveDeletions": 126,
-        "changedFiles": 27,
-        "effectiveChangeCount": 1560,
-        "excludedGeneratedChangeCount": 53
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T08:48:49.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:54.757Z"
     }
   ]
 }

@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.43.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 02:19 UTC
+- Improved internal bug report triage labels so loaded reports no longer appear stuck.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.42.0] - 2026-05-06
 
 ### Fixed
@@ -395,13 +403,5 @@ User-facing KandyDrops Beta updates, newest first.
 ### Added
 
 - Updated 2026-05-05 09:23 UTC
-- Updated KandyDrops with a small beta improvement.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.6.0] - 2026-05-05
-
-### Added
-
-- Updated 2026-05-05 08:48 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.

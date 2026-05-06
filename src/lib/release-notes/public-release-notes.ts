@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.42.0",
+  "currentVersion": "1.43.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T02:05:40.352Z",
-  "generatedAtUtc": "2026-05-06T02:05:40.352Z",
-  "lastCommitSha": "488a5750056f3b31076940183e006b43af7f6e45",
+  "generatedAt": "2026-05-06T02:19:29.663Z",
+  "generatedAtUtc": "2026-05-06T02:19:29.663Z",
+  "lastCommitSha": "0ad07275579c41228c0b793f181d7f722e36918e",
   "notes": [
+    {
+      "version": "1.43.0",
+      "previousVersion": "1.42.0",
+      "commitSha": "0ad07275579c41228c0b793f181d7f722e36918e",
+      "commitTitle": "fix(admin): clarify bug intake triage states",
+      "committedAt": "2026-05-06T02:19:16.000Z",
+      "generatedAt": "2026-05-06T02:19:29.663Z",
+      "committedAtUtc": "2026-05-06T02:19:16.000Z",
+      "generatedAtUtc": "2026-05-06T02:19:29.663Z",
+      "diffStats": {
+        "rawAdditions": 352,
+        "rawDeletions": 54,
+        "rawChangeCount": 406,
+        "additions": 352,
+        "deletions": 54,
+        "effectiveAdditions": 350,
+        "effectiveDeletions": 52,
+        "changedFiles": 10,
+        "effectiveChangeCount": 402,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal bug report triage labels so loaded reports no longer appear stuck.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.42.0",
       "previousVersion": "1.41.0",
@@ -131,39 +164,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "minor",
       "category": "Fixed",
       "userFacingTitle": "Improved internal debug status labels so inventory counts do not look like system failures.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.38.0",
-      "previousVersion": "1.37.0",
-      "commitSha": "7762d379fe865b5845609e5ada26ebd304b8dcf8",
-      "commitTitle": "fix(admin): clarify downstream writer freshness",
-      "committedAt": "2026-05-06T01:29:36.000Z",
-      "generatedAt": "2026-05-06T01:29:49.267Z",
-      "committedAtUtc": "2026-05-06T01:29:36.000Z",
-      "generatedAtUtc": "2026-05-06T01:29:49.267Z",
-      "diffStats": {
-        "rawAdditions": 438,
-        "rawDeletions": 34,
-        "rawChangeCount": 472,
-        "additions": 438,
-        "deletions": 34,
-        "effectiveAdditions": 436,
-        "effectiveDeletions": 32,
-        "changedFiles": 12,
-        "effectiveChangeCount": 468,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],
