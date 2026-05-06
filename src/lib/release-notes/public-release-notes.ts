@@ -1,12 +1,53 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.113.3",
+  "currentVersion": "1.113.4",
   "channel": "beta",
-  "generatedAt": "2026-05-06T19:57:23.156Z",
-  "generatedAtUtc": "2026-05-06T19:57:23.156Z",
-  "lastCommitSha": "6b46f9325f543c95b14a83f2661814c91847a0a1",
+  "generatedAt": "2026-05-06T19:58:40.374Z",
+  "generatedAtUtc": "2026-05-06T19:58:40.374Z",
+  "lastCommitSha": "b43f8f272fe4071e4731d9d4e24d60f416b7a902",
   "notes": [
+    {
+      "version": "1.113.4",
+      "previousVersion": "1.113.3",
+      "commitSha": "b43f8f272fe4071e4731d9d4e24d60f416b7a902",
+      "commitTitle": "fix(beta): avoid repeated audit release notes",
+      "committedAt": "2026-05-06T19:58:25.000Z",
+      "generatedAt": "2026-05-06T19:58:40.373Z",
+      "committedAtUtc": "2026-05-06T19:58:25.000Z",
+      "generatedAtUtc": "2026-05-06T19:58:40.373Z",
+      "diffStats": {
+        "rawAdditions": 113,
+        "rawDeletions": 103,
+        "rawChangeCount": 216,
+        "additions": 113,
+        "deletions": 103,
+        "effectiveAdditions": 8,
+        "effectiveDeletions": 1,
+        "changedFiles": 4,
+        "effectiveChangeCount": 9,
+        "excludedGeneratedChangeCount": 207
+      },
+      "bumpType": "patch",
+      "category": "Fixed",
+      "title": "Improved Beta update notes",
+      "updatedAtUtc": "2026-05-06T19:58:40.373Z",
+      "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
+      "userFacingTitle": "Improved Beta update notes",
+      "bullets": [
+        "Improved Beta notes with cleaner summaries and compact bullets.",
+        "Updated timestamps so recent changes are easier to compare with reports.",
+        "Reduced technical wording in public update notes."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Release note summaries are generated separately from collapsed technical details."
+      ],
+      "affectedSurfaces": [
+        "release-notes",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.113.3",
       "previousVersion": "1.113.2",
@@ -173,49 +214,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "admin",
         "release-notes",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.112.0",
-      "previousVersion": "1.111.0",
-      "commitSha": "6b88d0fd95672cbf18e4cbcb91a4996037520dd7",
-      "commitTitle": "fix(system): harden deterministic admin truth surfaces",
-      "committedAt": "2026-05-06T17:01:38.000Z",
-      "generatedAt": "2026-05-06T17:11:11.469Z",
-      "committedAtUtc": "2026-05-06T17:01:38.000Z",
-      "generatedAtUtc": "2026-05-06T17:11:11.469Z",
-      "diffStats": {
-        "rawAdditions": 605,
-        "rawDeletions": 36,
-        "rawChangeCount": 641,
-        "additions": 605,
-        "deletions": 36,
-        "effectiveAdditions": 605,
-        "effectiveDeletions": 36,
-        "changedFiles": 29,
-        "effectiveChangeCount": 641,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "title": "Improved admin status accuracy",
-      "updatedAtUtc": "2026-05-06T17:11:11.469Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
-      "userFacingTitle": "Improved admin status accuracy",
-      "bullets": [
-        "Fixed admin labels that could appear stuck after data loaded.",
-        "Improved how hidden, delayed, or unavailable data is labeled.",
-        "Reduced confusing status messages in Beta admin tools."
-      ],
-      "audience": "admins",
-      "technicalDetails": [
-        "Admin metrics keep source, range, and freshness details separate from public summaries."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "telemetry"
       ]
     }
   ]
