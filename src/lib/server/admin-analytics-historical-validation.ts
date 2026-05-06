@@ -167,6 +167,41 @@ export interface CommerceParityCheck {
   };
 }
 
+export interface UnlockWatchParity {
+  range: string;
+  generatedAtUtc: string;
+  unlockAccessTruth: {
+    unlockTransactions: number;
+    canonicalUnlockRollups: number;
+    delta: number;
+    state: "pass" | "review" | "fail";
+  };
+  unlockFunnelTelemetry: {
+    unlockTelemetryEvents: number;
+    expectedUnlockEvents: number;
+    missingUnlockTelemetryCount: number;
+    coveragePct: number;
+    state: "pass" | "review" | "fail";
+    passAllowed: boolean;
+    blockedReason?: "required_sample_missing" | "unlock_telemetry_undercount";
+  };
+  viewerActivityTruth: {
+    watchSessions: number;
+    watchAssets: number;
+    sessionFacts: number;
+    rawSessionStartEvents: number;
+    rawStartRequired: boolean;
+    state: "pass" | "review" | "fail";
+  };
+  watchCaptureQuality: {
+    fullCaptures: number;
+    degradedCaptures: number;
+    replayRecoveredSessions: number;
+    closeMissingSessions: number;
+    state: "pass" | "review" | "fail";
+  };
+}
+
 function toUtcString(timestamp?: number | null) {
   return timestamp && Number.isFinite(timestamp) && timestamp > 0
     ? new Date(timestamp).toISOString()
@@ -524,13 +559,21 @@ const VALIDATION_OPERATOR_COPY: Record<string, {
     whyItMatters: "Revenue may be correct while conversion analytics, attribution, and value scoring undercount paid behavior.",
     action: "Check canonical server purchase telemetry after PayPal capture confirmation.",
   },
-  unlock_parity: {
-    pass: "Unlock tracking matches for this range.",
-    warn: "Unlock tracking needs review.",
-    fail: "Unlock tracking needs review.",
-    source: "Unlock records",
-    whyItMatters: "Unlock totals may be correct while unlock funnel analytics can undercount.",
-    action: "Check unlock event emission after access is granted.",
+  unlock_access_truth: {
+    pass: "Unlock access truth matches for this range.",
+    warn: "Unlock access truth needs review.",
+    fail: "Unlock access truth is mismatched.",
+    source: "Unlock access truth",
+    whyItMatters: "Unlock transactions and canonical unlock rollups must agree before access reporting is treated as settled truth.",
+    action: "Compare unlock transactions against canonical unlock rollups and show the delta explicitly.",
+  },
+  unlock_funnel_telemetry: {
+    pass: "Unlock funnel telemetry matches successful unlock access for this range.",
+    warn: "Unlock funnel telemetry needs review.",
+    fail: "Unlock funnel telemetry is missing or undercounting successful unlock access.",
+    source: "Unlock funnel telemetry",
+    whyItMatters: "Access can succeed while funnel analytics, attribution, and behavioral scoring still miss the unlock step.",
+    action: "Verify the drops/unlock server event emission path and canonical unlock normalization.",
   },
   onboarding_coverage: {
     pass: "Onboarding activity is verified for this range.",
@@ -580,21 +623,21 @@ const VALIDATION_OPERATOR_COPY: Record<string, {
     whyItMatters: "Module coverage explains whether every analytics section has enough evidence.",
     action: "Review partial or empty modules in Debug.",
   },
-  viewer_drilldown: {
-    pass: "Viewer activity samples are available.",
-    warn: "Viewer activity is waiting for verified samples.",
-    fail: "Viewer activity samples are unavailable.",
-    source: "Viewer activity",
-    whyItMatters: "Viewer samples support watch-time and content-engagement details.",
-    action: "Confirm viewer activity is expected for this range.",
+  viewer_activity_truth: {
+    pass: "Viewer activity truth is available.",
+    warn: "Viewer activity truth needs review.",
+    fail: "Viewer activity truth is incomplete.",
+    source: "Viewer activity truth",
+    whyItMatters: "Canonical watch sessions can exist while raw viewer-start funnel context is still missing.",
+    action: "Confirm raw viewer start telemetry policy and restore start-event visibility if it is required.",
   },
-  watch_capture_health: {
+  watch_capture_quality: {
     pass: "Watch capture quality is verified.",
     warn: "Watch capture quality needs review.",
     fail: "Watch capture quality needs review.",
-    source: "Watch capture records",
-    whyItMatters: "Capture quality affects watch-time and viewer drilldown accuracy.",
-    action: "Investigate watch sessions with missing close signals.",
+    source: "Watch capture quality",
+    whyItMatters: "Canonical watch truth can still degrade if replay recovery or degraded capture becomes the dominant path.",
+    action: "Investigate degraded or replay-recovered watch capture before trusting viewer funnel detail.",
   },
 };
 
@@ -852,11 +895,78 @@ export function buildHistoricalValidationSummary(input: {
           : "review",
     },
   };
-  const unlockParity = buildParityInsight([
-    { key: "transactions", label: "Transactions", count: input.unlockTransactionsCount },
-    { key: "rollups", label: "Canonical rollups", count: input.firstPartyUnlockCount },
-    { key: "telemetry", label: "Telemetry", count: input.telemetryUnlockCount },
-  ]);
+  const unlockDelta = Math.abs(input.unlockTransactionsCount - input.firstPartyUnlockCount);
+  const unlockAccessState: UnlockWatchParity["unlockAccessTruth"]["state"] =
+    unlockDelta === 0
+      ? "pass"
+      : unlockDelta <= 2
+        ? "review"
+        : "fail";
+  const missingUnlockTelemetryCount = Math.max(input.unlockTransactionsCount - input.telemetryUnlockCount, 0);
+  const unlockTelemetryCoveragePct = input.unlockTransactionsCount > 0
+    ? Number(((input.telemetryUnlockCount / input.unlockTransactionsCount) * 100).toFixed(2))
+    : 100;
+  const unlockFunnelState: UnlockWatchParity["unlockFunnelTelemetry"]["state"] =
+    input.unlockTransactionsCount <= 0
+      ? "review"
+      : input.telemetryUnlockCount <= 0
+        ? "fail"
+        : missingUnlockTelemetryCount > 0
+          ? "review"
+          : "pass";
+  const rawViewerStartRequired = true;
+  const viewerActivityState: UnlockWatchParity["viewerActivityTruth"]["state"] =
+    input.watchSessionCount <= 0 && input.filteredSessionFactsLength <= 0
+      ? "review"
+      : rawViewerStartRequired && input.viewerSessionStartedLogsLength <= 0
+        ? "fail"
+        : "pass";
+  const watchCaptureState: UnlockWatchParity["watchCaptureQuality"]["state"] =
+    input.watchSessionCount <= 0
+      ? "review"
+      : input.watchCaptureCloseMissingCount > 0
+        ? "fail"
+        : input.watchCaptureDegradedCount > 0 || input.watchCaptureReplayRecoveredCount > 0
+          ? "review"
+          : "pass";
+  const unlockWatchParity: UnlockWatchParity = {
+    range: selectedRange,
+    generatedAtUtc: toUtcString(input.generatedAtMs ?? lastValidatedAt) ?? new Date(input.generatedAtMs ?? lastValidatedAt).toISOString(),
+    unlockAccessTruth: {
+      unlockTransactions: input.unlockTransactionsCount,
+      canonicalUnlockRollups: input.firstPartyUnlockCount,
+      delta: unlockDelta,
+      state: unlockAccessState,
+    },
+    unlockFunnelTelemetry: {
+      unlockTelemetryEvents: input.telemetryUnlockCount,
+      expectedUnlockEvents: input.unlockTransactionsCount,
+      missingUnlockTelemetryCount,
+      coveragePct: unlockTelemetryCoveragePct,
+      state: unlockFunnelState,
+      passAllowed: missingUnlockTelemetryCount === 0 && input.telemetryUnlockCount > 0,
+      blockedReason: input.unlockTransactionsCount > 0 && input.telemetryUnlockCount === 0
+        ? "required_sample_missing"
+        : missingUnlockTelemetryCount > 0
+          ? "unlock_telemetry_undercount"
+          : undefined,
+    },
+    viewerActivityTruth: {
+      watchSessions: input.watchSessionCount,
+      watchAssets: input.watchAssetCount,
+      sessionFacts: input.filteredSessionFactsLength,
+      rawSessionStartEvents: input.viewerSessionStartedLogsLength,
+      rawStartRequired: rawViewerStartRequired,
+      state: viewerActivityState,
+    },
+    watchCaptureQuality: {
+      fullCaptures: input.watchCaptureFullCount,
+      degradedCaptures: input.watchCaptureDegradedCount,
+      replayRecoveredSessions: input.watchCaptureReplayRecoveredCount,
+      closeMissingSessions: input.watchCaptureCloseMissingCount,
+      state: watchCaptureState,
+    },
+  };
   const onboardingParity = buildParityInsight([
     { key: "ga4", label: "GA4", count: input.guidedOnboardingCompletionCount + input.legacyOnboardingCompletionCount },
     { key: "facts", label: "Onboarding facts", count: input.normalizedOnboardingCompletions },
@@ -890,7 +1000,7 @@ export function buildHistoricalValidationSummary(input: {
   const parityScore = Math.round((
     purchaseRevenueParity.score
     + Math.max(0, Math.min(100, Math.round(commerceParityCheck.funnelTelemetryTruth.coveragePct)))
-    + unlockParity.score
+    + Math.round((Math.max(0, 100 - (unlockWatchParity.unlockAccessTruth.delta * 10)) + unlockWatchParity.unlockFunnelTelemetry.coveragePct) / 2)
     + onboardingParity.score
     + taskGuidanceParity.score
     + creatorSpendParityScore
@@ -1051,17 +1161,54 @@ export function buildHistoricalValidationSummary(input: {
         : "Check PayPal capture telemetry emission and canonical purchase fact normalization before trusting funnel analytics.",
     }),
     buildValidationCheck({
-      checkKey: "unlock_parity",
-      title: "Unlock parity",
-      status: unlockParity.status,
-      detail: `${input.unlockTransactionsCount.toLocaleString()} unlock transactions vs ${input.firstPartyUnlockCount.toLocaleString()} canonical unlock rollups. Telemetry captured ${input.telemetryUnlockCount.toLocaleString()} unlock events in the same range. Confidence ${unlockParity.score}%.`,
-      source: "unlock transactions + commerce rollups + telemetry unlock events",
+      checkKey: "unlock_access_truth",
+      title: "Unlock access truth",
+      status: unlockWatchParity.unlockAccessTruth.state === "pass"
+        ? "pass"
+        : unlockWatchParity.unlockAccessTruth.state === "review"
+          ? "warn"
+          : "fail",
+      detail: `${input.unlockTransactionsCount.toLocaleString()} unlock transactions vs ${input.firstPartyUnlockCount.toLocaleString()} canonical unlock rollups. Delta ${unlockWatchParity.unlockAccessTruth.delta.toLocaleString()}.`,
+      source: "unlock transactions + canonical unlock rollups",
       selectedRange,
       lastValidatedAt,
-      confidence: unlockParity.score,
+      confidence: input.unlockTransactionsCount > 0 || input.firstPartyUnlockCount > 0
+        ? Math.max(0, 100 - (unlockWatchParity.unlockAccessTruth.delta * 10))
+        : null,
       sampleRequired: true,
-      sampleCount: Math.min(input.unlockTransactionsCount, input.firstPartyUnlockCount, input.telemetryUnlockCount),
-      action: unlockParity.status === "pass" ? "No action required." : "Compare unlock transactions, rollups, and telemetry unlock events.",
+      sampleCount: Math.max(input.unlockTransactionsCount, input.firstPartyUnlockCount),
+      technicalEvidence: unlockWatchParity.unlockAccessTruth.delta > 0
+        ? `${input.unlockTransactionsCount.toLocaleString()} unlock transactions and ${input.firstPartyUnlockCount.toLocaleString()} canonical unlock rollups differ by ${unlockWatchParity.unlockAccessTruth.delta.toLocaleString()}.`
+        : `${input.unlockTransactionsCount.toLocaleString()} unlock transactions matched ${input.firstPartyUnlockCount.toLocaleString()} canonical unlock rollups in range.`,
+      action: unlockWatchParity.unlockAccessTruth.state === "pass"
+        ? "No action required."
+        : "Review unlock transactions vs canonical unlock rollups before treating access counts as aligned.",
+    }),
+    buildValidationCheck({
+      checkKey: "unlock_funnel_telemetry",
+      title: "Unlock funnel telemetry",
+      status: unlockWatchParity.unlockFunnelTelemetry.state === "pass"
+        ? "pass"
+        : unlockWatchParity.unlockFunnelTelemetry.state === "review"
+          ? "warn"
+          : "fail",
+      detail: `${input.telemetryUnlockCount.toLocaleString()} unlock telemetry event(s) vs ${input.unlockTransactionsCount.toLocaleString()} expected successful unlocks. Missing telemetry ${unlockWatchParity.unlockFunnelTelemetry.missingUnlockTelemetryCount.toLocaleString()}. Coverage ${unlockWatchParity.unlockFunnelTelemetry.coveragePct}%.`,
+      source: "canonical server unlock telemetry",
+      selectedRange,
+      lastValidatedAt,
+      confidence: input.unlockTransactionsCount > 0
+        ? Math.max(0, Math.min(100, Math.round(unlockWatchParity.unlockFunnelTelemetry.coveragePct)))
+        : null,
+      sampleRequired: true,
+      sampleCount: input.telemetryUnlockCount,
+      passAllowed: unlockWatchParity.unlockFunnelTelemetry.passAllowed,
+      blockedReason: unlockWatchParity.unlockFunnelTelemetry.blockedReason ?? null,
+      technicalEvidence: input.unlockTransactionsCount > 0 && input.telemetryUnlockCount === 0
+        ? `${input.unlockTransactionsCount.toLocaleString()} unlock transactions were recorded, but canonical unlock telemetry captured 0 unlock events in range.`
+        : `${input.telemetryUnlockCount.toLocaleString()} canonical unlock telemetry event(s) were found for ${input.unlockTransactionsCount.toLocaleString()} successful unlock transactions in range.`,
+      action: unlockWatchParity.unlockFunnelTelemetry.passAllowed
+        ? "No action required."
+        : "Verify drops/unlock server event emission and canonical unlock normalization before trusting unlock funnel analytics.",
     }),
     buildValidationCheck({
       checkKey: "onboarding_coverage",
@@ -1269,29 +1416,34 @@ export function buildHistoricalValidationSummary(input: {
       action: unhealthyModules.length === 0 ? "No action required." : "Review partial or empty analytics modules in Debug before treating coverage as complete.",
     }),
     buildValidationCheck({
-      checkKey: "viewer_drilldown",
-      title: "Viewer drilldown",
-      status: (input.watchSessionCount > 0 || input.filteredSessionFactsLength > 0 || input.viewerSessionStartedLogsLength > 0) ? "pass" : "warn",
-      detail: (input.watchSessionCount > 0 || input.filteredSessionFactsLength > 0 || input.viewerSessionStartedLogsLength > 0)
-        ? `${input.watchSessionCount.toLocaleString()} canonical watch sessions, ${input.watchAssetCount.toLocaleString()} watch assets, ${input.filteredSessionFactsLength.toLocaleString()} session facts, and ${input.viewerSessionStartedLogsLength.toLocaleString()} raw session-start events matched the selected range.`
-        : "No viewer sessions matched the selected range and filter.",
+      checkKey: "viewer_activity_truth",
+      title: "Viewer activity truth",
+      status: unlockWatchParity.viewerActivityTruth.state === "pass"
+        ? "pass"
+        : unlockWatchParity.viewerActivityTruth.state === "review"
+          ? "warn"
+          : "fail",
+      detail: `${input.watchSessionCount.toLocaleString()} canonical watch sessions, ${input.watchAssetCount.toLocaleString()} watch assets, ${input.filteredSessionFactsLength.toLocaleString()} session facts, and ${input.viewerSessionStartedLogsLength.toLocaleString()} raw session-start events matched the selected range. Raw starts required: ${unlockWatchParity.viewerActivityTruth.rawStartRequired ? "yes" : "no"}.`,
       source: "watch sessions + session facts + raw viewer events",
       selectedRange,
       lastValidatedAt,
       sampleRequired: true,
       sampleCount: input.watchSessionCount + input.filteredSessionFactsLength + input.viewerSessionStartedLogsLength,
-      action: input.watchSessionCount > 0 || input.filteredSessionFactsLength > 0 || input.viewerSessionStartedLogsLength > 0 ? "No action required." : "Confirm viewer watch events are landing for this range.",
+      technicalEvidence: input.watchSessionCount > 0 && input.viewerSessionStartedLogsLength === 0
+        ? `${input.watchSessionCount.toLocaleString()} canonical watch sessions and ${input.filteredSessionFactsLength.toLocaleString()} session facts were present, but raw viewer start events were 0 in range.`
+        : `${input.viewerSessionStartedLogsLength.toLocaleString()} raw viewer start event(s) supported ${input.watchSessionCount.toLocaleString()} canonical watch session(s) in range.`,
+      action: unlockWatchParity.viewerActivityTruth.state === "pass"
+        ? "No action required."
+        : "Restore viewer_session_started/watch_session_started visibility or mark raw starts optional only if canonical watch sessions are the explicit sole source of funnel truth.",
     }),
     buildValidationCheck({
-      checkKey: "watch_capture_health",
-      title: "Watch capture health",
-      status: input.watchSessionCount === 0
-        ? "warn"
-        : input.watchCaptureCloseMissingCount > 0
-          ? "fail"
-          : input.watchCaptureDegradedCount > 0
-            ? "warn"
-            : "pass",
+      checkKey: "watch_capture_quality",
+      title: "Watch capture quality",
+      status: unlockWatchParity.watchCaptureQuality.state === "pass"
+        ? "pass"
+        : unlockWatchParity.watchCaptureQuality.state === "review"
+          ? "warn"
+          : "fail",
       detail: input.watchSessionCount === 0
         ? "No canonical watch sessions matched the selected range, so capture quality could not be evaluated."
         : `${input.watchCaptureFullCount.toLocaleString()} full captures, ${input.watchCaptureDegradedCount.toLocaleString()} degraded captures, ${input.watchCaptureReplayRecoveredCount.toLocaleString()} replay-recovered sessions, and ${input.watchCaptureCloseMissingCount.toLocaleString()} close-missing sessions were recorded in the selected range.`,
@@ -1300,7 +1452,16 @@ export function buildHistoricalValidationSummary(input: {
       lastValidatedAt,
       sampleRequired: true,
       sampleCount: input.watchSessionCount,
-      action: input.watchSessionCount === 0 ? "Confirm watch session capture is expected for this range." : input.watchCaptureCloseMissingCount > 0 ? "Investigate close-missing watch sessions." : "No action required.",
+      technicalEvidence: input.watchSessionCount === 0
+        ? "No canonical watch sessions matched the selected range."
+        : `${input.watchCaptureReplayRecoveredCount.toLocaleString()} replay-recovered sessions were recorded. Replay recovery can be useful, but a high recovery count means capture is not clean enough to treat as invisible.`,
+      action: input.watchSessionCount === 0
+        ? "Confirm watch session capture is expected for this range."
+        : input.watchCaptureCloseMissingCount > 0
+          ? "Investigate close-missing watch sessions."
+          : input.watchCaptureDegradedCount > 0 || input.watchCaptureReplayRecoveredCount > 0
+            ? "Review degraded and replay-recovered watch capture before trusting viewer funnel detail."
+            : "No action required.",
     }),
   ];
 

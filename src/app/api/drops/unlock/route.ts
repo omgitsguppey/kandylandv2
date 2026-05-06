@@ -172,6 +172,8 @@ async function POST_handler(request: NextRequest) {
         entitlementId,
         transactionId,
         priceGd: unlockCost,
+        paidGdUsed: spend.purchasedSpent,
+        rewardGdUsed: spend.rewardSpent,
       };
     });
 
@@ -185,12 +187,38 @@ async function POST_handler(request: NextRequest) {
         drop_tags: Array.isArray(result.tags) ? result.tags.join("|") : "",
         unlock_cost: result.cost ?? 0,
         price_gd: result.priceGd ?? result.cost ?? 0,
+        gumdrops_spent: result.cost ?? 0,
+        paid_gd_used: result.paidGdUsed ?? 0,
+        reward_gd_used: result.rewardGdUsed ?? 0,
         creator_id: result.creatorId ?? "",
         unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
         transaction_id: result.transactionId,
         entitlement_id: result.entitlementId,
+        idempotency_key: `drop_unlocked:${userId}:${dropId}:${result.transactionId || result.entitlementId}`,
         sourceTruth: "server",
       });
+      await trackServerEvent("drop_unlocked", {
+        drop_id: dropId,
+        drop_title: result.title ?? "Drop",
+        drop_tags: Array.isArray(result.tags) ? result.tags.join("|") : "",
+        creator_id: result.creatorId ?? "",
+        target_creator_id: result.creatorId ?? "",
+        target_user_id: userId,
+        unlock_cost: result.cost ?? 0,
+        gumdrops_spent: result.cost ?? 0,
+        price_gd: result.priceGd ?? result.cost ?? 0,
+        paid_gd_used: result.paidGdUsed ?? 0,
+        reward_gd_used: result.rewardGdUsed ?? 0,
+        unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
+        entitlement_id: result.entitlementId,
+        transaction_id: result.transactionId,
+        idempotency_key: `drop_unlocked:${userId}:${dropId}:${result.transactionId || result.entitlementId}`,
+        sourceTruth: "server",
+        source_component: "drops_unlock_route",
+        route: "/api/drops/unlock",
+        page_path: `/drops/${dropId}/preview`,
+        metricEligible: true,
+      }, userId).catch(() => null);
       await trackServerEvent("drop_unwrapped", {
         drop_id: dropId,
         drop_title: result.title ?? "Drop",
@@ -199,10 +227,16 @@ async function POST_handler(request: NextRequest) {
         target_creator_id: result.creatorId ?? "",
         unlock_cost: result.cost ?? 0,
         price_gd: result.priceGd ?? result.cost ?? 0,
+        gumdrops_spent: result.cost ?? 0,
+        paid_gd_used: result.paidGdUsed ?? 0,
+        reward_gd_used: result.rewardGdUsed ?? 0,
         unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
         entitlement_id: result.entitlementId,
         transaction_id: result.transactionId,
+        idempotency_key: `drop_unlocked:${userId}:${dropId}:${result.transactionId || result.entitlementId}`,
         sourceTruth: "server",
+        source_component: "drops_unlock_route",
+        route: "/api/drops/unlock",
         page_path: `/drops/${dropId}/preview`,
       }, userId).catch(() => null);
       await trackServerEvent("entitlement_granted", {
@@ -216,7 +250,12 @@ async function POST_handler(request: NextRequest) {
         transaction_id: result.transactionId,
         unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
         price_gd: result.priceGd ?? result.cost ?? 0,
+        paid_gd_used: result.paidGdUsed ?? 0,
+        reward_gd_used: result.rewardGdUsed ?? 0,
+        idempotency_key: `drop_unlocked:${userId}:${dropId}:${result.transactionId || result.entitlementId}`,
         sourceTruth: "server",
+        source_component: "drops_unlock_route",
+        route: "/api/drops/unlock",
         page_path: `/drops/${dropId}/preview`,
       }, userId).catch(() => null);
       if (result.creatorId) {

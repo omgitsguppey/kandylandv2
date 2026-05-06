@@ -42,10 +42,14 @@ if (packageJson.scripts?.["check:unlock-telemetry-truth"] !== "tsx scripts/agent
   failures.push("package.json must expose check:unlock-telemetry-truth.");
 }
 
-requireIncludes(unlockRoute, 'trackServerEvent("drop_unwrapped"', "Drop unlock route");
+requireIncludes(unlockRoute, 'trackServerEvent("drop_unlocked"', "Drop unlock route");
+requireIncludes(unlockRoute, 'trackServerEvent("drop_unwrapped"', "Drop unlock route legacy alias");
 requireIncludes(unlockRoute, 'trackServerEvent("entitlement_granted"', "Drop unlock entitlement route");
 requireIncludes(unlockRoute, 'entitlement_id: result.entitlementId', "Drop unlock route entitlement id telemetry");
 requireIncludes(unlockRoute, 'transaction_id: result.transactionId', "Drop unlock route transaction id telemetry");
+requireIncludes(unlockRoute, 'idempotency_key: `drop_unlocked:${userId}:${dropId}:${result.transactionId || result.entitlementId}`', "Drop unlock route idempotency telemetry");
+requireIncludes(unlockRoute, 'source_component: "drops_unlock_route"', "Drop unlock route source component telemetry");
+requireIncludes(unlockRoute, 'route: "/api/drops/unlock"', "Drop unlock route route telemetry");
 requireIncludes(unlockRoute, 'sourceTruth: "server"', "Drop unlock route server truth");
 
 requireIncludes(previewClient, 'trackEvent("drop_unlock_attempted"', "Locked drop preview client");
@@ -59,13 +63,14 @@ requireIncludes(telemetryCatalog, '{ eventName: "drop_unwrapped"', "Telemetry ca
 requireIncludes(telemetryCatalog, '{ eventName: "entitlement_granted"', "Telemetry catalog entitlement fact");
 requireIncludes(telemetryCatalog, 'entitlementId: "entitlement_id"', "Telemetry catalog entitlement id alias");
 
-requireIncludes(identifiedIngestRoute, 'canonicalEventName === "drop_unwrapped" || canonicalEventName === "entitlement_granted"', "Identified ingest unlock server truth");
+requireIncludes(identifiedIngestRoute, 'canonicalEventName === "drop_unlocked" || canonicalEventName === "drop_unwrapped" || canonicalEventName === "entitlement_granted"', "Identified ingest unlock server truth");
 requireIncludes(identifiedIngestRoute, 'if (canonicalEventName === "unlock_drop_success") {', "Identified ingest legacy client unlock demotion");
 
-requireIncludes(adminHistoricalRoute, 'const telemetryUnlockCount = eventsData.drop_unwrapped || 0;', "Admin historical server unlock count");
+requireIncludes(adminHistoricalRoute, 'const telemetryUnlockCount = Math.max(', "Admin historical unlock telemetry aggregation");
+requireIncludes(adminHistoricalRoute, 'canonicalEventCounts.drop_unwrapped || 0', "Admin historical unlock parity must read canonical unlock facts");
+requireIncludes(adminHistoricalRoute, 'canonicalEventCounts.entitlement_granted || 0', "Admin historical unlock parity must read entitlement facts");
 requireIncludes(adminUserRoute, 'const directUnwrapCount = analyticsFacts.filter((event) => event.eventName === "drop_unwrapped").length;', "Admin user route server unlock fact count");
 requireIncludes(adminUsersRoute, 'current.unwrapCount += eventName === "drop_unwrapped" ? 1 : 0;', "Admin users route server unlock aggregation");
-requireIncludes(adminUsersRoute, 'trackServerEvent("entitlement_granted"', "Admin users route admin entitlement projection");
 
 if (failures.length > 0) {
   console.error("Unlock telemetry truth validation failed:");

@@ -147,8 +147,44 @@ describe("buildHistoricalValidationSummary", () => {
       passAllowed: false,
       passBlockedReason: "purchase_telemetry_undercount",
     });
-    expect(summary.validations.find((check) => check.checkKey === "unlock_parity")?.status).toBe("fail");
+    expect(summary.validations.find((check) => check.checkKey === "unlock_access_truth")?.status).toBe("warn");
+    expect(summary.validations.find((check) => check.checkKey === "unlock_funnel_telemetry")).toMatchObject({
+      status: "warn",
+      passAllowed: false,
+      passBlockedReason: "unlock_telemetry_undercount",
+    });
     expect(summary.validations.find((check) => check.checkKey === "pipeline_health")?.status).toBe("fail");
+  });
+
+  it("fails unlock funnel telemetry when successful unlocks have zero telemetry", () => {
+    const summary = build({
+      unlockTransactionsCount: 102,
+      firstPartyUnlockCount: 105,
+      telemetryUnlockCount: 0,
+    });
+
+    expect(summary.validations.find((check) => check.checkKey === "unlock_access_truth")?.status).toBe("fail");
+    expect(summary.validations.find((check) => check.checkKey === "unlock_funnel_telemetry")).toMatchObject({
+      status: "fail",
+      sampleCount: 0,
+      passAllowed: false,
+      passBlockedReason: "required_sample_missing",
+    });
+  });
+
+  it("fails viewer activity truth when raw starts are required but missing", () => {
+    const summary = build({
+      watchSessionCount: 434,
+      watchAssetCount: 628,
+      filteredSessionFactsLength: 376,
+      viewerSessionStartedLogsLength: 0,
+    });
+
+    expect(summary.validations.find((check) => check.checkKey === "viewer_activity_truth")).toMatchObject({
+      status: "fail",
+      sampleCount: 810,
+    });
+    expect(summary.validations.find((check) => check.checkKey === "watch_capture_quality")?.status).toBe("pass");
   });
 
   it("does not pass empty task guidance samples", () => {
@@ -156,7 +192,7 @@ describe("buildHistoricalValidationSummary", () => {
     const taskGuidance = summary.validations.find((check) => check.checkKey === "task_guidance_parity");
 
     expect(taskGuidance).toMatchObject({
-      status: "warn",
+      status: "fail",
       sampleRequired: true,
       sampleCount: 0,
       passAllowed: false,

@@ -487,7 +487,10 @@ export function buildHistoricalViewerOverview(input: {
     .filter((record) => matchesResolvedViewerIdentity(record.userId, record.username, input.viewerUser));
 
   const viewerOpenLogs = (input.telemetryLogsByEvent.viewer_opened || []).filter((record) => matchesViewerFilter(record, input.viewerUser));
-  const viewerSessionStartedLogs = (input.telemetryLogsByEvent.viewer_session_started || []).filter((record) => matchesViewerFilter(record, input.viewerUser));
+  const viewerSessionStartedLogs = [
+    ...(input.telemetryLogsByEvent.viewer_session_started || []),
+    ...(input.telemetryLogsByEvent.watch_session_started || []),
+  ].filter((record) => matchesViewerFilter(record, input.viewerUser));
   const viewerSessionCompletedLogs = (input.telemetryLogsByEvent.viewer_session_completed || []).filter((record) => matchesViewerFilter(record, input.viewerUser));
   const viewerAssetStartedLogs = [
     ...(input.telemetryLogsByEvent.file_viewed || []),

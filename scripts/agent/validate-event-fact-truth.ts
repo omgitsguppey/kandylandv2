@@ -36,7 +36,7 @@ const requiredActions = [
   "task_help_opened",
   "drop_viewed",
   "drop_preview_opened",
-  "drop_unwrapped",
+  "drop_unlocked",
   "file_viewed",
   "watch_session_completed",
   "gumdrops_purchased",
@@ -55,7 +55,7 @@ assert(contract.includes("dedupeKey"), "Behavioral event fact contract is missin
 assert(contract.includes("onboarding_completed: 24 * 60 * 60 * 1000"), "Onboarding dedupe window is wrong.");
 assert(contract.includes("daily_checkin_claimed: 20 * 60 * 60 * 1000"), "Daily check-in dedupe window is wrong.");
 assert(contract.includes("task_guidance_completed: 20 * 60 * 60 * 1000"), "Task guidance completion dedupe window is wrong.");
-assert(contract.includes('drop_unwrapped: "permanent"'), "Drop unwrap dedupe must be permanent.");
+assert(contract.includes('drop_unlocked: "permanent"'), "Drop unlock dedupe must be permanent.");
 assert(contract.includes('gumdrops_purchased: "event_id"'), "GumDrops purchase dedupe must be event-id based.");
 assert(contract.includes('chat_message_sent: "event_id"'), "Chat message dedupe must be event-id based.");
 
@@ -66,6 +66,9 @@ assert(normalizer.includes('task_guidance_banner_viewed: { normalizedAction: "ta
 assert(normalizer.includes('task_guidance_cta_clicked: { normalizedAction: "task_guidance_tapped"'), "Task guidance tapped alias is missing from event fact normalization.");
 assert(normalizer.includes('task_guidance_banner_dismissed: { normalizedAction: "task_guidance_dismissed"'), "Task guidance dismissed alias is missing from event fact normalization.");
 assert(normalizer.includes('task_help_opened: { normalizedAction: "task_help_opened"'), "Task help event is missing from event fact normalization.");
+assert(normalizer.includes('unlock_drop_success: { normalizedAction: "drop_unlocked"'), "Legacy unlock success alias is missing from event fact normalization.");
+assert(normalizer.includes('drop_unwrapped: { normalizedAction: "drop_unlocked"'), "Canonical unlock alias is missing from event fact normalization.");
+assert(normalizer.includes('entitlement_granted: { normalizedAction: "drop_unlocked"'), "Entitlement granted unlock alias is missing from event fact normalization.");
 assert(normalizer.includes('server_purchase_verified: { normalizedAction: "gumdrops_purchased"'), "Canonical server purchase alias is missing from event fact normalization.");
 assert(normalizer.includes('purchase_verified: { normalizedAction: "gumdrops_purchased"'), "Legacy purchase alias is missing from event fact normalization.");
 assert(normalizer.includes('paypal_capture_completed: { normalizedAction: "gumdrops_purchased"'), "PayPal capture alias is missing from event fact normalization.");

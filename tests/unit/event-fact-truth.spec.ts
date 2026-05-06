@@ -20,7 +20,7 @@ describe("behavioral event facts", () => {
         "creator_spotlight_viewed",
         "drop_card_viewed",
         "drop_preview_opened",
-        "drop_unwrapped",
+        "drop_unlocked",
         "file_viewed",
         "watch_session_started",
         "watch_session_completed",
@@ -88,6 +88,30 @@ describe("behavioral event facts", () => {
       expect(result.diagnostic).toBeNull();
       expect(result.fact?.normalizedAction).toBe("gumdrops_purchased");
       expect(result.fact?.entityId).toBe("txn-1");
+    }
+  });
+
+  it("normalizes unlock success aliases into the canonical drop_unlocked action", () => {
+    for (const eventName of ["unlock_drop_success", "drop_unwrapped", "drop_unlocked", "entitlement_granted"]) {
+      const result = normalizeBehavioralEventFactWithDiagnostics({
+        eventId: `${eventName}-1`,
+        eventName,
+        params: {
+          source_component: "drops_unlock_route",
+          route: "/api/drops/unlock",
+          drop_id: "drop-1",
+          transaction_id: "unlock-txn-1",
+          entitlement_id: "drop-entitlement:user-1:drop-1",
+        },
+        timestamp: 1000,
+        userId: "user-1",
+        sessionId: "session-1",
+        source: "server",
+      });
+
+      expect(result.diagnostic).toBeNull();
+      expect(result.fact?.normalizedAction).toBe("drop_unlocked");
+      expect(result.fact?.entityId).toBe("drop-1");
     }
   });
 

@@ -772,6 +772,7 @@ function isServerPurchaseFact(eventName: string, record: Record<string, unknown>
 function isServerUnlockFact(eventName: string, record: Record<string, unknown>) {
   const sourceTruth = readSourceTruth(record)
   return eventName === "drop_unwrapped"
+    || eventName === "drop_unlocked"
     || eventName === "entitlement_granted"
     || sourceTruth === "server"
     || sourceTruth === "canonical"
@@ -990,8 +991,9 @@ function readNormalizedAction(record: Record<string, unknown>) {
     return "recommendation_dismissed"
   case "unlock_drop_success":
   case "drop_unwrapped":
+  case "drop_unlocked":
   case "entitlement_granted":
-    return "drop_unwrapped"
+    return "drop_unlocked"
   case "viewer_asset_started":
   case "viewer_asset_changed":
   case "file_viewed":
@@ -1179,7 +1181,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
           dropAggregate.viewerOpens24h += 1
         }
       }
-      if (normalizedAction === "drop_unwrapped" && isServerUnlockFact(eventName, event)) {
+      if (normalizedAction === "drop_unlocked" && isServerUnlockFact(eventName, event)) {
         dropAggregate.unlocks += 1
         if (isWithinDropLaunchHours(dropAggregate, timestamp, 6)) {
           dropAggregate.unlocks6h += 1
@@ -1254,7 +1256,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       if (eventName === "wallet_opened" && existingSession.walletAtMs === 0) {
         existingSession.walletAtMs = timestamp
       }
-      if ((eventName === "drop_unwrapped" || eventName === "entitlement_granted") && existingSession.unlockAtMs === 0) {
+      if ((eventName === "drop_unwrapped" || eventName === "drop_unlocked" || eventName === "entitlement_granted") && existingSession.unlockAtMs === 0) {
         existingSession.unlockAtMs = timestamp
       }
       sessionAggregates.set(sessionId, existingSession)
@@ -1277,7 +1279,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     if (eventName === "viewer_opened" || eventName === "viewer_session_started") {
       aggregate.viewerOpenCount += 1
     }
-    if (normalizedAction === "drop_unwrapped" && isServerUnlockFact(eventName, event)) {
+    if (normalizedAction === "drop_unlocked" && isServerUnlockFact(eventName, event)) {
       aggregate.unlockCount += 1
       aggregate.serverUnlockCount += 1
       aggregate.sourceTimestamps.serverUnlocks.push(timestamp)
@@ -1329,14 +1331,14 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       aggregate.uniqueCreatorIds.add(creatorId)
       pushLimited(aggregate.recentCreatorIds, creatorId)
       if (!isNegativePreferenceAction && !isNegativeSatisfactionAction) {
-        scoreMapIncrement(aggregate.topCreatorScores, creatorId, normalizedAction === "drop_unwrapped" ? 2.5 : normalizedAction === "creator_followed" ? 4 : 0.35)
+        scoreMapIncrement(aggregate.topCreatorScores, creatorId, normalizedAction === "drop_unlocked" ? 2.5 : normalizedAction === "creator_followed" ? 4 : 0.35)
       }
     }
     if (category && !isNegativePreferenceAction && !isNegativeSatisfactionAction) {
-      scoreMapIncrement(aggregate.topCategoryScores, category, normalizedAction === "drop_unwrapped" ? 2 : 0.25)
+      scoreMapIncrement(aggregate.topCategoryScores, category, normalizedAction === "drop_unlocked" ? 2 : 0.25)
     }
     if (!isNegativePreferenceAction && !isNegativeSatisfactionAction) {
-      tags.forEach((tag) => scoreMapIncrement(aggregate.topThemeScores, tag, normalizedAction === "drop_unwrapped" ? 1.2 : 0.18))
+      tags.forEach((tag) => scoreMapIncrement(aggregate.topThemeScores, tag, normalizedAction === "drop_unlocked" ? 1.2 : 0.18))
     }
     if (!isNegativePreferenceAction && !isNegativeSatisfactionAction) {
       scoreMapIncrement(

@@ -101,7 +101,7 @@ function resolveIdentifiedSourceTruth(
         return "canonical" as const;
     }
 
-    if (canonicalEventName === "drop_unwrapped" || canonicalEventName === "entitlement_granted") {
+    if (canonicalEventName === "drop_unlocked" || canonicalEventName === "drop_unwrapped" || canonicalEventName === "entitlement_granted") {
         return "server" as const;
     }
 

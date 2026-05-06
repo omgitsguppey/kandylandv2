@@ -983,7 +983,14 @@ async function GET_handler(request: NextRequest) {
             const purchases = firstPartyPurchaseCount > 0
                 ? firstPartyPurchaseCount
                 : telemetryPurchaseCount;
-            const telemetryUnlockCount = eventsData.drop_unwrapped || 0;
+            const telemetryUnlockCount = Math.max(
+                eventsData.drop_unlocked || 0,
+                eventsData.drop_unwrapped || 0,
+                eventsData.entitlement_granted || 0,
+                canonicalEventCounts.drop_unlocked || 0,
+                canonicalEventCounts.drop_unwrapped || 0,
+                canonicalEventCounts.entitlement_granted || 0,
+            );
             const canonicalUnlockCount = firstPartyUnlockCount > 0
                 ? firstPartyUnlockCount
                 : telemetryUnlockCount;
