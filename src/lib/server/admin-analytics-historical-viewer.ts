@@ -62,6 +62,7 @@ type WatchSessionRecord = {
   loadMsTotal: number;
   loadSampleCount: number;
   averageLoadMs: number;
+  lastSeenAtMs: number;
 };
 
 type WatchAssetRecord = {
@@ -142,6 +143,14 @@ function parseWatchSessionDoc(doc: FirebaseFirestore.QueryDocumentSnapshot): Wat
     loadMsTotal: toNumber(data.loadMsTotal),
     loadSampleCount: toNumber(data.loadSampleCount),
     averageLoadMs: toNumber(data.averageLoadMs),
+    lastSeenAtMs: Math.max(
+      toNumber(data.lastSeenAtMs),
+      toNumber(data.updatedAtMs),
+      toNumber(data.createdAtMs),
+      toNumber((data.lastSeenAt as { toMillis?: () => number } | undefined)?.toMillis?.()),
+      toNumber((data.updatedAt as { toMillis?: () => number } | undefined)?.toMillis?.()),
+      toNumber((data.createdAt as { toMillis?: () => number } | undefined)?.toMillis?.()),
+    ),
   };
 }
 
@@ -439,10 +448,12 @@ function buildWatchViewerUsers(watchSessions: WatchSessionRecord[]): ViewerUserO
       viewCount: 0,
       sessionCount: 0,
       totalWatchSeconds: 0,
+      lastSeenAtMs: 0,
     };
     existing.viewCount += 1;
     existing.sessionCount += 1;
     existing.totalWatchSeconds += record.totalWatchSeconds;
+    existing.lastSeenAtMs = Math.max(existing.lastSeenAtMs || 0, record.lastSeenAtMs || 0);
     if (!existing.username && record.username) {
       existing.username = record.username;
     }
@@ -936,6 +947,7 @@ export function buildHistoricalViewerOverview(input: {
       viewCount: 0,
       sessionCount: 0,
       totalWatchSeconds: 0,
+      lastSeenAtMs: 0,
     };
     viewerUserMap.set(uid, created);
     return created;
@@ -945,18 +957,21 @@ export function buildHistoricalViewerOverview(input: {
     const entry = ensureViewerUser(record);
     if (entry) {
       entry.viewCount += 1;
+      entry.lastSeenAtMs = Math.max(entry.lastSeenAtMs || 0, record.timestamp || 0);
     }
   });
   (input.telemetryLogsByEvent.viewer_session_started || []).forEach((record) => {
     const entry = ensureViewerUser(record);
     if (entry) {
       entry.sessionCount += 1;
+      entry.lastSeenAtMs = Math.max(entry.lastSeenAtMs || 0, record.timestamp || 0);
     }
   });
   (input.telemetryLogsByEvent.viewer_session_completed || []).forEach((record) => {
     const entry = ensureViewerUser(record);
     if (entry) {
       entry.totalWatchSeconds += getTelemetryParamNumber(record, "session_watch_seconds");
+      entry.lastSeenAtMs = Math.max(entry.lastSeenAtMs || 0, record.timestamp || 0);
     }
   });
 

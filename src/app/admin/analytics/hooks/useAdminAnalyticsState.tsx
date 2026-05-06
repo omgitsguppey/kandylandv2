@@ -2430,6 +2430,8 @@ const { user } = useAuth();
     viewerDrilldownData?.watchCaptureHealth ?? watchCaptureHealth;
   const viewerDrilldownFilter =
     viewerDrilldownData?.viewerFilter ?? activeViewerFilter;
+  const viewerDrilldownGeneratedAtMs =
+    viewerDrilldownData?.generatedAtMs ?? historicalResponse?.generatedAtMs ?? 0;
   const viewerDrilldownJourneys = (
     viewerDrilldownData?.userJourneys ?? userJourneys
   ).slice(0, 6);
@@ -2815,7 +2817,7 @@ const { user } = useAuth();
       revenue: revenueCard,
       purchases: purchasesCard,
     },
-    viewerDrilldownFilter, viewerDrilldownOverview, applyViewerFilter, viewerDrilldownUsers, viewerDrilldownCaptureHealth, liveWatchCaptureHealth, viewerDrilldownJourneys, viewerDrilldownInsights, viewerDropChartData, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand,
+    viewerDrilldownRange, viewerDrilldownGeneratedAtMs, viewerDrilldownFilter, viewerDrilldownOverview, applyViewerFilter, viewerDrilldownUsers, viewerDrilldownCaptureHealth, liveWatchCaptureHealth, viewerDrilldownJourneys, viewerDrilldownInsights, viewerDropChartData, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand,
     getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, topComponentContexts, eventMixTopEvents, eventMixTopComponentContexts, eventMixModel,
     dailyTaskPipelineModel, notificationFunnelModel
   };

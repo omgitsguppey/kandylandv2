@@ -629,6 +629,8 @@ export interface ViewerOverviewItem {
   repeatSessionCount: number;
   returnSessionCount: number;
   totalWatchSeconds: number;
+  watchScoreSource?: string;
+  watchScoreConfidence?: string;
   avgSessionSeconds: number;
   avgWatchSeconds: number;
   avgLoadMs: number;
@@ -654,6 +656,8 @@ export interface ViewerDropInsightItem {
   repeatSessionCount: number;
   returnSessionCount: number;
   totalWatchSeconds: number;
+  watchScoreSource?: string;
+  watchScoreConfidence?: string;
   avgSessionSeconds: number;
   avgWatchSeconds: number;
   assetStarts: number;
@@ -677,6 +681,7 @@ export interface ViewerUserOptionItem {
   viewCount: number;
   sessionCount: number;
   totalWatchSeconds: number;
+  lastSeenAtMs?: number;
 }
 
 export interface WatchCaptureTransportCountItem {

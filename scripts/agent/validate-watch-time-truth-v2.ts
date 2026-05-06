@@ -40,6 +40,7 @@ const adminUserRoute = read("src/app/api/admin/user/[userId]/route.ts");
 const behavioralRuntime = read("functions/src/behavioral-intelligence-runtime.ts");
 const analyticsMetrics = read("src/lib/server/analytics-metrics.ts");
 const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
+const adminAnalyticsCommerceTab = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const docs = read("docs/agent-truth/watch-time-truth.md");
 
 requireIncludes(watchTruth, "IMAGE_WATCH_THRESHOLDS_MS", "watch-time truth helper", failures);
@@ -83,6 +84,14 @@ requireIncludes(adminDebugRoute, "EstimatedWatchRecoveryGroup", "admin debug tel
 requireIncludes(adminDebugRoute, "countsTowardVerifiedWatch: false", "admin debug telemetry truth route", failures);
 requireIncludes(adminDebugRoute, "countsTowardEstimatedWatch: true", "admin debug telemetry truth route", failures);
 requireIncludes(adminDebugRoute, "stale-open timeout fallback = min(15s, max(3s, round((totalVisibleSeconds - totalWatchSeconds) * 250ms))).", "admin debug telemetry truth route", failures);
+
+requireIncludes(adminAnalyticsCommerceTab, "label=\"Total Watch\"", "library viewer drilldown watch card", failures);
+requireIncludes(adminAnalyticsCommerceTab, "Verified ${formatDuration(verifiedWatchSeconds)}; estimated ${formatDuration(estimatedWatchSeconds)}", "library viewer drilldown watch card", failures);
+requireIncludes(adminAnalyticsCommerceTab, "data-library-viewer-source-truth", "library viewer drilldown source attrs", failures);
+requireIncludes(adminAnalyticsCommerceTab, "watch_session_rollup", "library viewer drilldown verified source split", failures);
+requireIncludes(adminAnalyticsCommerceTab, "legacy_page_duration", "library viewer drilldown estimated fallback split", failures);
+requireIncludes(adminAnalyticsCommerceTab, "Monitor live - no recent viewer sessions.", "library viewer drilldown quiet live-pulse copy", failures);
+requireIncludes(adminAnalyticsCommerceTab, "unknown capture transport", "library viewer drilldown capture transport warning", failures);
 
 requireIncludes(docs, "diagnostics-only estimate", "watch-time doctrine doc", failures);
 requireIncludes(docs, "legacy_page_duration", "watch-time doctrine doc", failures);

@@ -39,6 +39,9 @@ const telemetrySafety = readRequired("src/lib/telemetry-safety.ts");
 const routeTests = readRequired("tests/unit/viewer-watch-session-route.spec.ts");
 const viewerTests = readRequired("tests/unit/viewer-file-tracking.spec.ts");
 const telemetryContracts = readRequired("tests/contracts/telemetry-contracts.spec.ts");
+const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const adminAnalyticsHistoricalViewer = readRequired("src/lib/server/admin-analytics-historical-viewer.ts");
+const adminAnalyticsShared = readRequired("src/lib/server/admin-analytics-shared.ts");
 
 if (packageJson.scripts?.["check:viewer-file-tracking"] !== "tsx scripts/agent/validate-viewer-file-tracking.ts") {
   failures.push("package.json must expose check:viewer-file-tracking.");
@@ -80,6 +83,15 @@ requireIncludes(telemetrySafety, '"file_id"', "Telemetry safety file id priority
 requireIncludes(routeTests, 'fileId: "drop_1:file:1"', "Viewer watch route tests");
 requireIncludes(viewerTests, "VIEWER_FILE_VIEW_DEDUPE_WINDOW_MS", "Viewer file tracking tests");
 requireIncludes(telemetryContracts, 'normalizeTelemetryEventName("viewer_asset_started")).toBe("file_viewed")', "Telemetry contracts alias test");
+
+requireIncludes(adminAnalyticsShared, "lastSeenAtMs?: number", "Admin viewer user option source timestamp");
+requireIncludes(adminAnalyticsHistoricalViewer, "lastSeenAtMs: Math.max(", "Historical viewer source timestamp hydration");
+requireIncludes(adminAnalyticsCommerceTab, "data-library-viewer-user-session-count", "Library Viewer username/session separator");
+requireIncludes(adminAnalyticsCommerceTab, "{item.sessionCount.toLocaleString()} sessions", "Library Viewer username/session label");
+requireIncludes(adminAnalyticsCommerceTab, "Last viewer session unavailable", "Library Viewer journey timestamp fallback");
+requireIncludes(adminAnalyticsCommerceTab, "openedWithoutDepthCount", "Library Viewer opened-no-depth source");
+requireIncludes(adminAnalyticsCommerceTab, "earlyExitFormula", "Library Viewer early-exit formula");
+requireIncludes(adminAnalyticsCommerceTab, "Viewer opened but did not reach 10s watch", "Library Viewer no-depth definition");
 
 if (failures.length > 0) {
   console.error("Viewer file tracking validation failed:");

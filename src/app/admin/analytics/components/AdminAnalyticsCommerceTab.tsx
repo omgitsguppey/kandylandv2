@@ -38,7 +38,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     recentCommerceFeedModel, describeEvent, formatAbsoluteDateTime,
     
     // Viewer drilldown
-    viewerDrilldownFilter, viewerDrilldownOverview, viewerUserDraft, setViewerUserDraft, applyViewerFilter,
+    viewerDrilldownRange, viewerDrilldownGeneratedAtMs, viewerDrilldownFilter, viewerDrilldownOverview, viewerUserDraft, setViewerUserDraft, applyViewerFilter,
     clearViewerFilter, viewerDrilldownUsers, setViewerUserFilter, viewerDrilldownCaptureHealth,
     liveWatchCaptureHealth, viewerDrilldownJourneys,
     
@@ -92,6 +92,111 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const [contentConversionGrouping, setContentConversionGrouping] = React.useState<"contentType" | "flavor" | "creator" | "priceBand">("contentType");
   const contentConversionRows = contentConversionModel.rowsByDimension[contentConversionGrouping] ?? [];
   const contentConversionVisibleRows = contentConversionRows.slice(0, 8);
+  const [viewerDropPage, setViewerDropPage] = React.useState(1);
+  const viewerDropPageSize = 5;
+  const viewerDropTotalRows = viewerDrilldownInsights.length;
+  const viewerDropPageCount = Math.max(1, Math.ceil(viewerDropTotalRows / viewerDropPageSize));
+  const boundedViewerDropPage = Math.min(viewerDropPage, viewerDropPageCount);
+  const viewerDropVisibleRows = viewerDrilldownInsights.slice(
+    (boundedViewerDropPage - 1) * viewerDropPageSize,
+    boundedViewerDropPage * viewerDropPageSize,
+  );
+  const viewerDropVisibleChartData = viewerDropVisibleRows.map((item: any) => ({
+    ...item,
+    shortLabel:
+      item.dropTitle && item.dropTitle.length > 16
+        ? `${item.dropTitle.slice(0, 16)}...`
+        : item.dropTitle || "Unknown drop",
+  }));
+  const viewerDrilldownGeneratedAtLabel = viewerDrilldownGeneratedAtMs
+    ? formatAbsoluteDateTime(viewerDrilldownGeneratedAtMs)
+    : "Unknown";
+  const viewerLastSessionLabel = viewerDrilldownCaptureHealth.lastSeenAtMs
+    ? formatRelativeTime(viewerDrilldownCaptureHealth.lastSeenAtMs, nowMs)
+    : "No viewer session timestamp";
+  const viewerSourceTruth =
+    viewerDrilldownOverview.watchScoreSource === "watch_session_rollup"
+      ? "watch_sessions"
+      : viewerDrilldownOverview.watchScoreSource === "legacy_page_duration"
+        ? "estimated"
+        : viewerDrilldownOverview.watchScoreSource || "mixed";
+  const viewerFreshnessState =
+    viewerDrilldownCaptureHealth.lastSeenAtMs <= 0
+      ? "unknown"
+      : nowMs - viewerDrilldownCaptureHealth.lastSeenAtMs > 24 * 60 * 60 * 1000
+        ? "stale"
+        : nowMs - viewerDrilldownCaptureHealth.lastSeenAtMs > 15 * 60 * 1000
+          ? "recent"
+          : "live";
+  const verifiedWatchSeconds =
+    viewerDrilldownOverview.watchScoreSource === "watch_session_rollup"
+      ? viewerDrilldownOverview.totalWatchSeconds
+      : 0;
+  const estimatedWatchSeconds =
+    viewerDrilldownOverview.watchScoreSource === "watch_session_rollup"
+      ? 0
+      : viewerDrilldownOverview.totalWatchSeconds;
+  const totalViewerWatchSeconds = verifiedWatchSeconds + estimatedWatchSeconds;
+  const avgWatchDenominator = viewerDrilldownOverview.sessionCount > 0
+    ? `${formatDuration(Math.round(totalViewerWatchSeconds / viewerDrilldownOverview.sessionCount))} avg / session`
+    : "Avg unavailable: no viewer sessions";
+  const shallowBounceCount = Math.max(
+    0,
+    viewerDrilldownOverview.bounceSessionCount -
+      viewerDrilldownOverview.abandonedSessionCount -
+      viewerDrilldownOverview.stalledSessionCount,
+  );
+  const earlyExitFormula = `${viewerDrilldownOverview.abandonedSessionCount.toLocaleString()} abandoned + ${viewerDrilldownOverview.stalledSessionCount.toLocaleString()} stalled + ${shallowBounceCount.toLocaleString()} shallow bounces`;
+  const captureUnknownTransportCount =
+    viewerDrilldownCaptureHealth.transportBreakdown.find((item: any) => item.transport === "unknown")?.count ?? 0;
+  const captureUnknownTransportWarning =
+    captureUnknownTransportCount > 0
+      ? `REVIEW: ${captureUnknownTransportCount.toLocaleString()} watch sessions have unknown capture transport.`
+      : null;
+  const captureHealthExplanation = `Full capture means the session closed or recovered cleanly. Replay recovery can still count as full when replay repaired missing capture segments. Avg gap is the mean max capture gap across sessions.`;
+  const livePulseState =
+    liveWatchCaptureHealth.sessionCount <= 0
+      ? "quiet"
+      : liveWatchCaptureHealth.lastSeenAtMs > 0 && nowMs - liveWatchCaptureHealth.lastSeenAtMs > 15 * 60 * 1000
+        ? "stale"
+        : "live";
+  const livePulseBadgeLabel =
+    livePulseState === "quiet"
+      ? "QUIET"
+      : livePulseState === "stale"
+        ? "STALE"
+        : "LIVE";
+  const livePulseExplanation =
+    livePulseState === "quiet"
+      ? "Monitor live - no recent viewer sessions."
+      : livePulseState === "stale"
+        ? "Viewer capture sample is stale; newest recent session is outside the live window."
+        : "Viewer capture sample has recent sessions inside the live window.";
+  const viewerUserJourneyRows = viewerDrilldownUsers.slice(0, 6).map((item: any) => {
+    const username = item.username ? (item.username.startsWith("@") ? item.username : `@${item.username}`) : `uid:${String(item.uid || "unknown").slice(0, 8)}`;
+    return {
+      ...item,
+      displayName: username,
+      lastSeenAtMs: item.lastSeenAtMs || 0,
+      freshnessState:
+        item.lastSeenAtMs && nowMs - item.lastSeenAtMs <= 15 * 60 * 1000
+          ? "live"
+          : item.lastSeenAtMs && nowMs - item.lastSeenAtMs <= 24 * 60 * 60 * 1000
+            ? "recent"
+            : item.lastSeenAtMs
+              ? "stale"
+              : "unknown",
+    };
+  });
+  const viewerPanelWarnings = [
+    viewerSourceTruth === "estimated"
+      ? "Watch time is estimated from fallback page/session duration and is not verified watch-session truth."
+      : null,
+    viewerDrilldownOverview.openedWithoutDepthCount > viewerDrilldownOverview.meaningfulSessionCount
+      ? "Opened-no-depth is high: many viewer opens did not reach meaningful consumption."
+      : null,
+    captureUnknownTransportWarning,
+  ].filter(Boolean) as string[];
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -884,14 +989,46 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                     ? item.username
                                     : `@${item.username}`}
                                 </span>
-                                <span className="ml-2 text-gray-500">
-                                  {item.sessionCount} sessions
+                                <span className="mx-1 text-gray-600">·</span>
+                                <span className="text-gray-500">
+                                  {item.sessionCount.toLocaleString()} sessions
                                 </span>
                               </button>
                             ))}
                           </div>
                         ) : null}
                       </div>
+
+                      <div
+                        className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-4"
+                        data-library-viewer-source-truth={viewerSourceTruth}
+                        data-library-viewer-freshness={viewerFreshnessState}
+                        data-library-viewer-generated-at-utc={viewerDrilldownGeneratedAtMs ? new Date(viewerDrilldownGeneratedAtMs).toISOString() : ""}
+                        data-library-viewer-last-session-at-utc={viewerDrilldownCaptureHealth.lastSeenAtMs ? new Date(viewerDrilldownCaptureHealth.lastSeenAtMs).toISOString() : ""}
+                      >
+                        <div>
+                          <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Range</div>
+                          <div className="font-semibold text-white">{String(viewerDrilldownRange).toUpperCase()}</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Source truth</div>
+                          <div className="font-semibold text-white">{viewerSourceTruth.replace(/_/g, " ")}</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Last viewer session</div>
+                          <div className="font-semibold text-white">{viewerLastSessionLabel}</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Generated</div>
+                          <div className="font-semibold text-white">{viewerDrilldownGeneratedAtLabel}</div>
+                        </div>
+                      </div>
+
+                      {viewerPanelWarnings.length > 0 ? (
+                        <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-[11px] leading-5 text-amber-100">
+                          {viewerPanelWarnings.join(" ")}
+                        </div>
+                      ) : null}
 
                       <div className="grid grid-cols-2 gap-3 xl:grid-cols-8">
                         <MetricCard
@@ -907,7 +1044,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           value={formatCompactNumber(
                             viewerDrilldownOverview.sessionCount,
                           )}
-                          hint={`${viewerDrilldownOverview.repeatSessionCount.toLocaleString()} repeat / ${viewerDrilldownOverview.returnSessionCount.toLocaleString()} returns`}
+                          hint={`${viewerDrilldownOverview.repeatSessionCount.toLocaleString()} repeat sessions; ${viewerDrilldownOverview.returnSessionCount.toLocaleString()} same-viewer repeat drop sessions`}
                           icon={PlayCircle}
                         />
                         <MetricCard
@@ -919,11 +1056,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           icon={Users}
                         />
                         <MetricCard
-                          label="Watch Time"
-                          value={formatDuration(
-                            viewerDrilldownOverview.totalWatchSeconds,
-                          )}
-                          hint={`${formatDuration(viewerDrilldownOverview.avgWatchSeconds)} avg watch`}
+                          label="Total Watch"
+                          value={formatDuration(totalViewerWatchSeconds)}
+                          hint={`Verified ${formatDuration(verifiedWatchSeconds)}; estimated ${formatDuration(estimatedWatchSeconds)}; ${avgWatchDenominator}`}
                           icon={Clock3}
                         />
                         <MetricCard
@@ -931,7 +1066,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           value={formatCompactNumber(
                             viewerDrilldownOverview.meaningfulSessionCount,
                           )}
-                          hint={`${viewerDrilldownOverview.convertedSessionCount.toLocaleString()} converted / ${viewerDrilldownOverview.completedSessionCount.toLocaleString()} completed`}
+                          hint={`${viewerDrilldownOverview.convertedSessionCount.toLocaleString()} unwrap/asset-consumed conversions / ${viewerDrilldownOverview.completedSessionCount.toLocaleString()} completed assets`}
                           icon={CheckCircle2}
                         />
                         <MetricCard
@@ -939,7 +1074,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           value={formatPercent(
                             viewerOverview.assetCompletionRate,
                           )}
-                          hint={`${viewerOverview.downloads.toLocaleString()} downloads · ${viewerOverview.relatedClicks.toLocaleString()} next clicks`}
+                          hint={`${viewerOverview.downloads.toLocaleString()} downloads; ${viewerOverview.relatedClicks.toLocaleString()} next clicks`}
                           icon={CheckCircle2}
                         />
                         <MetricCard
@@ -947,7 +1082,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           value={formatCompactNumber(
                             viewerOverview.openedWithoutDepthCount,
                           )}
-                          hint="Opened without meaningful consumption"
+                          hint="Viewer opened but did not reach 10s watch, asset consumed, or completion"
                           icon={Funnel}
                         />
                         <MetricCard
@@ -955,7 +1090,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           value={formatCompactNumber(
                             viewerOverview.bounceSessionCount,
                           )}
-                          hint={`${viewerOverview.abandonedSessionCount.toLocaleString()} abandoned / ${viewerOverview.stalledSessionCount.toLocaleString()} stalled`}
+                          hint={earlyExitFormula}
                           icon={AlertTriangle}
                         />
                       </div>
@@ -1066,6 +1201,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                             ) : null}
                           </div>
 
+                          <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs leading-5 text-gray-300">
+                            {captureHealthExplanation} Transport counts use watch-session captureTransport; unknown transport is a source quality issue, not zero traffic.
+                          </div>
+
                           {viewerDrilldownCaptureHealth.warnings.length > 0 ? (
                             <div className="mt-4 space-y-2">
                               {viewerDrilldownCaptureHealth.warnings.map(
@@ -1094,15 +1233,33 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               </p>
                             </div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <AdminStatusBadge state={liveCaptureTruthState} />
+                              <span
+                                className={cn(
+                                  "rounded-full border px-3 py-1 text-[11px] font-semibold",
+                                  livePulseState === "live"
+                                    ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-100"
+                                    : livePulseState === "stale"
+                                      ? "border-amber-400/25 bg-amber-500/10 text-amber-100"
+                                      : "border-cyan-400/25 bg-cyan-500/10 text-cyan-100",
+                                )}
+                                data-library-viewer-live-pulse-state={livePulseState}
+                              >
+                                {livePulseBadgeLabel}
+                              </span>
                               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                                {liveCaptureTruthState === "unavailable" ? "No sample" : liveWatchCaptureHealth.sessionCount.toLocaleString()}{" "}
+                                {liveWatchCaptureHealth.sessionCount <= 0 ? "0" : liveWatchCaptureHealth.sessionCount.toLocaleString()}{" "}
                                 recent
                               </span>
                             </div>
                           </div>
 
                           <div className="space-y-3">
+                            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs leading-5 text-gray-300">
+                              {livePulseExplanation}
+                              {liveWatchCaptureHealth.lastSeenAtMs > 0
+                                ? ` Last recent viewer session: ${formatRelativeTime(liveWatchCaptureHealth.lastSeenAtMs, nowMs)}.`
+                                : " Last recent viewer session: none."}
+                            </div>
                             {[
                               {
                                 label: "Full capture",
@@ -1168,54 +1325,52 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               </p>
                             </div>
                             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                              {viewerDrilldownJourneys.length} tracked
+                              {viewerUserJourneyRows.length} tracked
                             </span>
                           </div>
                           <div className="space-y-3">
-                            {viewerDrilldownJourneys.length > 0 ? (
-                              viewerDrilldownJourneys.map((item: any) => (
+                            {viewerUserJourneyRows.length > 0 ? (
+                              viewerUserJourneyRows.map((item: any) => (
                                 <div
                                   key={item.uid}
                                   className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
+                                  data-library-viewer-user-session-count={item.sessionCount}
+                                  data-library-viewer-user-last-session-at-utc={item.lastSeenAtMs ? new Date(item.lastSeenAtMs).toISOString() : ""}
                                 >
                                   <div className="mb-2 flex items-center justify-between gap-3">
                                     <div className="min-w-0">
                                       <p className="truncate text-sm font-semibold text-white">
-                                        {item.username}
+                                        {item.displayName}
                                       </p>
                                       <p className="mt-1 text-[11px] text-gray-500">
-                                        {item.primaryPath}
+                                        /dashboard/viewer; {item.sessionCount.toLocaleString()} sessions
                                       </p>
                                     </div>
                                     <span className="text-sm font-bold text-brand-purple">
-                                      {item.eventCount.toLocaleString()}
+                                      {formatDuration(item.totalWatchSeconds)}
                                     </span>
                                   </div>
                                   <div className="flex flex-wrap gap-2 text-[11px] text-gray-400">
                                     <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-300">
-                                      {item.actorType === "guest"
-                                        ? "Guest"
-                                        : "Member"}
+                                      Member
                                     </span>
                                     <span
                                       className={cn(
                                         "rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
                                         getJourneyStateClasses(
-                                          item.journeyState,
+                                          item.totalWatchSeconds >= 10 ? "engaged" : "bounced",
                                         ),
                                       )}
                                     >
-                                      {getJourneyStateLabel(item.journeyState)}
+                                      {item.totalWatchSeconds >= 10 ? "Engaged" : "Shallow"}
                                     </span>
                                     <span>
-                                      {formatDuration(item.watchSeconds)} watch
+                                      {formatDuration(item.totalWatchSeconds)} verified watch
                                     </span>
                                     <span>
-                                      {formatRelativeTime(
-                                        item.lastSeenAt,
-                                        nowMs,
-                                      )}
+                                      {item.lastSeenAtMs ? formatRelativeTime(item.lastSeenAtMs, nowMs) : "Last viewer session unavailable"}
                                     </span>
+                                    <span>{item.freshnessState}</span>
                                   </div>
                                 </div>
                               ))
@@ -1237,7 +1392,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               </p>
                               <p className="mt-1 text-sm text-gray-400">
                                 Drops and experience surfaces ranked by combined
-                                activity, watch depth, and conversion pressure.
+                                activity, watch depth, and unwrap/asset signals.
                               </p>
                             </div>
                             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
@@ -1261,14 +1416,16 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                   </div>
                                   <div className="flex flex-wrap gap-2 text-[11px] text-gray-400">
                                     <span>
-                                      {item.eventCount.toLocaleString()} signals
+                                      {item.eventCount.toLocaleString()} telemetry signals
                                     </span>
                                     <span>
                                       {item.uniqueUsers.toLocaleString()} users
                                     </span>
                                     <span>
-                                      {item.conversionCount.toLocaleString()}{" "}
-                                      conversions
+                                      {item.conversionCount.toLocaleString()} unwrap/asset-consumed signals
+                                    </span>
+                                    <span>
+                                      Source: event facts plus viewer/drop context; not a purchase-only unwrap total
                                     </span>
                                   </div>
                                 </div>
@@ -1286,14 +1443,39 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
 
                       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
                         <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                            Top viewed drops by watch time
-                          </p>
-                          {viewerDropChartData.length > 0 ? (
+                          <div className="mb-4 flex items-center justify-between gap-3">
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                Top viewed drops by watch time
+                              </p>
+                              <p className="mt-1 text-xs text-gray-500">
+                                Page {boundedViewerDropPage} of {viewerDropPageCount}; source {viewerSourceTruth.replace(/_/g, " ")}
+                              </p>
+                            </div>
+                            <div className="flex shrink-0 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setViewerDropPage((page) => Math.max(1, page - 1))}
+                                disabled={boundedViewerDropPage <= 1}
+                                className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                Prev
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setViewerDropPage((page) => Math.min(viewerDropPageCount, page + 1))}
+                                disabled={boundedViewerDropPage >= viewerDropPageCount}
+                                className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                Next
+                              </button>
+                            </div>
+                          </div>
+                          {viewerDropVisibleChartData.length > 0 ? (
                             <div className="h-72 w-full">
                               <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
-                                  data={viewerDropChartData}
+                                  data={viewerDropVisibleChartData}
                                   margin={{
                                     top: 8,
                                     right: 6,
@@ -1361,10 +1543,12 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                         </div>
 
                         <div className="space-y-3">
-                          {viewerDrilldownInsights.slice(0, 5).map((item: any) => (
+                          {viewerDropVisibleRows.map((item: any) => (
                             <div
                               key={item.dropId}
                               className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
+                              data-library-viewer-drop-source-truth={viewerSourceTruth}
+                              data-library-viewer-drop-freshness={viewerFreshnessState}
                             >
                               <div className="mb-3 flex items-start justify-between gap-3">
                                 <div className="min-w-0">
@@ -1385,21 +1569,25 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">
                                   Meaningful
+                                  <span className="block text-[10px] text-gray-500">&gt;=10s watch or asset consumed</span>
                                   <br />
                                   {item.meaningfulSessionCount}
                                 </div>
                                 <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">
                                   Opened no depth
+                                  <span className="block text-[10px] text-gray-500">open without meaningful depth</span>
                                   <br />
                                   {item.openedWithoutDepthCount}
                                 </div>
                                 <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-gray-300">
                                   Returns
+                                  <span className="block text-[10px] text-gray-500">same viewer repeat sessions</span>
                                   <br />
                                   {item.returnSessionCount}
                                 </div>
                                 <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-brand-purple">
                                   Avg load
+                                  <span className="block text-[10px] text-brand-purple/70">watch-session load samples</span>
                                   <br />
                                   {item.avgLoadMs > 0
                                     ? `${item.avgLoadMs}ms`
@@ -1513,7 +1701,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               key={item.tag}
                               className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-white"
                             >
-                              {item.tag} · {item.count}
+                              {item.tag}; {item.count}
                             </span>
                           ))
                         ) : (

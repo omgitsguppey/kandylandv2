@@ -100,6 +100,7 @@ export type ViewerUserOption = {
   viewCount: number;
   sessionCount: number;
   totalWatchSeconds: number;
+  lastSeenAtMs?: number;
 };
 
 export type SessionFactRecord = {

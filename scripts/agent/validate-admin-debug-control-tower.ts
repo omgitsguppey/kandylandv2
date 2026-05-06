@@ -2122,6 +2122,17 @@ for (const expected of [
     "w-full max-w-full space-y-3 overflow-x-hidden",
     "grid-cols-[auto_minmax(0,1fr)_auto]",
     "item.amountDisplay",
+    "data-library-viewer-source-truth",
+    "data-library-viewer-live-pulse-state",
+    "label=\"Total Watch\"",
+    "Verified ${formatDuration(verifiedWatchSeconds)}; estimated ${formatDuration(estimatedWatchSeconds)}",
+    "Monitor live - no recent viewer sessions.",
+    "data-library-viewer-user-session-count",
+    "Last viewer session unavailable",
+    "earlyExitFormula",
+    "Transport counts use watch-session captureTransport",
+    "unwrap/asset-consumed signals",
+    "Page {boundedViewerDropPage} of {viewerDropPageCount}",
   ]) {
     requireIncludes(adminAnalyticsCommerceTab, expected, "Commerce analytics conversion panels");
   }
@@ -2325,6 +2336,7 @@ try {
     /^src\/lib\/server\/daily-tasks\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-validation\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-viewer\.ts$/u,
+    /^src\/lib\/server\/admin-analytics-shared\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-tasks\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-content\.ts$/u,
     /^src\/lib\/server\/drop-references\.ts$/u,
@@ -2395,6 +2407,7 @@ try {
     /^scripts\/agent\/validate-daily-task-reward-economy\.ts$/u,
     /^scripts\/agent\/validate-daily-task-telemetry-truth\.ts$/u,
     /^scripts\/agent\/validate-task-catalog-coverage\.ts$/u,
+    /^scripts\/agent\/validate-viewer-file-tracking\.ts$/u,
     /^scripts\/agent\/validate-watch-time-truth-v2\.ts$/u,
     /^scripts\/validate-behavioral-predictions\.ts$/u,
     /^scripts\/release\/update-public-changelog\.ts$/u,
