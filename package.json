@@ -193,6 +193,8 @@
         "check:support-recovery-flows": "tsx scripts/agent/validate-support-recovery-flows.ts",
         "check:legal-payment-copy": "tsx scripts/agent/validate-legal-payment-copy.ts",
         "check:gumdrop-source-of-funds-truth": "tsx scripts/agent/validate-gumdrop-source-of-funds-truth.ts",
+        "check:platform-economy-treasury": "tsx scripts/agent/validate-platform-economy-treasury.ts",
+        "check:platform-economy-commerce-controls": "tsx scripts/agent/validate-platform-economy-commerce-controls.ts",
         "check:wallet-density": "tsx scripts/agent/validate-wallet-density.ts",
         "check:wallet-single-paypal-button": "tsx scripts/agent/validate-wallet-single-paypal-button.ts",
         "check:test-fixtures-demo": "tsx scripts/agent/validate-test-fixtures-demo.ts",

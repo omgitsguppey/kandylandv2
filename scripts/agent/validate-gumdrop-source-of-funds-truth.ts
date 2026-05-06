@@ -53,6 +53,7 @@ const paypalTest = readRequired("tests/unit/paypal-capture-route.spec.ts");
 const purchaseModalStaticTest = readRequired("tests/unit/purchase-modal-source-of-funds-static.spec.ts");
 const paymentValidator = readRequired("scripts/agent/validate-payment-unlock-security.ts");
 const paymentDoc = readRequired("docs/agent-truth/payment-wallet-unlock-entitlement.md");
+const platformEconomyDoc = readRequired("docs/agent-truth/gumdrop-source-of-funds-truth.md");
 const fullAudit = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
 const repoLedger = readRequired("REPO_MEMORY_LEDGER.md");
 const checklist = readRequired("EVERY_FILE_FUNCTION_CHECKLIST.md");
@@ -79,6 +80,10 @@ for (const expected of [
   "purchasedBalanceCreditGumDrops",
   "rewardBalanceCreditGumDrops",
   "purchaseSourceClassification",
+  "packageId",
+  "sourceOfFundsBreakdown",
+  "idempotencyKey",
+  "orderId",
 ]) {
   requireIncludes(paypalCapture, expected, "PayPal capture purchase source credit");
 }
@@ -166,6 +171,7 @@ for (const [label, source] of [
   ["README user manual", readme],
   ["AGENTS AI context", agents],
   ["payment wallet source truth doc", paymentDoc],
+  ["platform economy source truth doc", platformEconomyDoc],
   ["repo memory ledger", repoLedger],
   ["file/function checklist", checklist],
   ["full audit ledger", fullAudit],

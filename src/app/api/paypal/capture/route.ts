@@ -12,6 +12,7 @@ import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { resolveExpectedGumdropPrice } from "@/lib/gumdrops-packages";
+import { buildPurchaseSourceOfFundsBreakdown } from "@/lib/platform-economy";
 import type { UserProfile } from "@/types/db";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { capturePayPalOrder } from "@/lib/server/paypal";
@@ -226,6 +227,11 @@ async function POST_handler(request: NextRequest) {
           : caller?.email || userId;
 
       const purchaseTransactionRef = adminDb.collection("transactions").doc();
+      const sourceOfFundsBreakdown = buildPurchaseSourceOfFundsBreakdown({
+        paidBaseGd: economics.paidGumDrops,
+        paidBonusGd: economics.bonusGumDrops,
+        rewardPromoGd: 0,
+      });
 
       transaction.update(userRef, buildSourceAwareBalancePatch(nextSourceAwareBalance));
       transaction.set(purchaseTransactionRef, buildCompletedGumdropTransaction({
@@ -264,6 +270,15 @@ async function POST_handler(request: NextRequest) {
           bundleLabel: bundlePresentation.bundleLabel,
           bundleKey: bundlePresentation.bundleKey,
           bundleTier: bundlePresentation.bundleTier,
+          packageId: bundlePresentation.bundleKey,
+          promoId: null,
+          offerId: null,
+          priceUsdBeforeDiscount: economics.retailValueUsd,
+          priceUsdPaid: economics.grossRevenueUsd,
+          rewardPromoGd: 0,
+          sourceOfFundsBreakdown,
+          idempotencyKey: orderId,
+          orderId,
           currency: "USD",
           paymentId: orderId,
           paypalCaptureId: capture.id,

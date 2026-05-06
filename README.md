@@ -30,6 +30,10 @@ KandyDrops doctrine retrieval is an optimization problem. Agents should generate
 - Level 6: Generated reports as snapshots, not doctrine.
 - Level 7: Legacy docs with superseded-by and phase-out metadata.
 
+## Economy Truth Note
+
+Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments.
+
 ## Surface Doctrine Gateway
 
 Use [agent/context/surface-doctrine-map.json](./agent/context/surface-doctrine-map.json) before editing UI, copy, telemetry, state, admin truth, or server truth. It routes files to User UI, Creator UI, Admin UI, Server Truth, Shared Brand Primitives, or Cross-Surface Contracts so surface-specific doctrine wins over generic layout assumptions.

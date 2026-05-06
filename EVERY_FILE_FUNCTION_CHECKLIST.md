@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-06 Platform Economy Commerce Control Center Coverage
+
+- [x] `src/lib/platform-economy.ts`, `src/lib/server/platform-economy.ts`, and `src/lib/server/platform-economy-mutations.ts` now own the canonical admin GumDrops package, promo, offer, redemption, warning, drift, treasury, and source-of-funds control contract.
+- [x] `src/app/api/admin/economy/treasury/route.ts`, `packages/route.ts`, `promos/route.ts`, `offers/route.ts`, `redemptions/route.ts`, and `drift/route.ts` provide guarded admin-only economy truth slices and versioned trusted-origin mutations.
+- [x] `src/app/admin/economy/page.tsx`, `src/app/admin/economy/components/PlatformEconomyConsole.tsx`, `PlatformEconomyStrip.tsx`, and local types replace the old placeholder with a compact mobile-first commerce control center.
+- [x] `src/app/api/paypal/capture/route.ts`, doctrine/docs, `scripts/agent/validate-platform-economy-treasury.ts`, `scripts/agent/validate-platform-economy-commerce-controls.ts`, and package scripts now enforce forward-looking package/source-of-funds metadata, treasury/package control checks, and anti-drift doctrine.
+
 ## 2026-05-05 Codex Native Auth Readiness Coverage
 
 - [x] `src/lib/devops/auth-surface-contract.ts` owns the auth surface status contract, readiness report shape, blocked mutation commands, KandyDrops project/repo constants, and Workload Identity Federation bootstrap command plan.

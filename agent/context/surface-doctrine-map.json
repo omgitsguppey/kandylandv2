@@ -217,6 +217,28 @@
       "why": "Notification components are user-facing engagement surfaces with behavioral fact constraints."
     },
     {
+      "pattern": "src/app/admin/economy/**",
+      "primarySurface": "admin",
+      "featureSurfaces": [
+        "admin-platform-economy",
+        "wallet",
+        "telemetry"
+      ],
+      "doctrine": "docs/doctrine/surfaces/admin-platform-economy-doctrine.md",
+      "why": "Platform Economy is the canonical admin GumDrops treasury and commerce control center."
+    },
+    {
+      "pattern": "src/app/api/admin/economy/**",
+      "primarySurface": "server",
+      "featureSurfaces": [
+        "admin-platform-economy",
+        "security/cost",
+        "telemetry"
+      ],
+      "doctrine": "docs/doctrine/surfaces/server-truth-doctrine.md",
+      "why": "Admin economy routes own server-side package, promo, offer, redemption, and treasury truth."
+    },
+    {
       "pattern": "src/app/admin/**",
       "primarySurface": "admin",
       "featureSurfaces": [

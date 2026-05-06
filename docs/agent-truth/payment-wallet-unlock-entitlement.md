@@ -12,6 +12,8 @@ Money and access flows are server-truth only. The browser may request a purchase
 
 Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
 
+Platform Economy is the top admin economic truth surface above wallet display, admin overview, and debug summaries. Any GumDrops balance, package, promo, discount, bonus, reward, spend, creator payout, expiration, forfeit, refund, or adjustment must resolve to the canonical ledger/source-of-funds model. Admin UI may summarize, but it cannot redefine economy math.
+
 The wallet modal uses compact public-beta density. Package cards show total delivered GumDrops, package label, price, and purple bonus chip only. The visible paid/bonus explanatory subcopy is removed to reduce vertical sprawl. The balance chip shows source-aware free GD and paid GD. Backend source-of-funds accounting and telemetry remain unchanged.
 
 Wallet v1 renders one PayPal checkout button on-page. KandyDrops does not CSS-hide PayPal iframes or buttons. Funding-source visibility is controlled through PayPal SDK configuration or PayPalButtons fundingSource. PayPal may still offer eligible funding methods after buyer enters PayPal; KandyDrops only controls the on-page button stack.

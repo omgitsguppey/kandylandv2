@@ -1,5 +1,28 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-06 #170] PRE: Platform Economy Commerce Control Center
+
+Scope started:
+- Replacing the `/admin/economy` placeholder with the canonical GumDrops treasury and commerce control surface.
+- Required outputs include a shared Platform Economy contract, admin treasury/package/promo/offer/redemption/drift routes, compact mobile-first admin UI, ledger metadata alignment, doctrine/docs, and targeted validators.
+- This pass must not mutate live balances or historical ledger rows, change live package prices, activate promos by default, loosen creator spend restrictions, run broad audits, or deploy.
+
+Evidence:
+- Control Tower start path, optimized doctrine context, surface doctrine map, admin/server/wallet doctrine, existing GumDrop ledger helpers, PayPal create/capture routes, admin user metrics snapshot helpers, admin overview truth, and source-of-funds validator contracts were inspected before implementation.
+
+Scope completed:
+- Added `src/lib/platform-economy.ts`, `src/lib/server/platform-economy.ts`, and `src/lib/server/platform-economy-mutations.ts` as the canonical Platform Economy contract for package math, floor warnings, promo normalization, treasury aggregation, redemptions, drift checks, and safe versioned admin mutations.
+- Added guarded admin routes under `src/app/api/admin/economy/*` for treasury, packages, promos, offers, redemptions, and drift, and replaced `src/app/admin/economy/page.tsx` with a compact GumDrops Commerce Control Center.
+- Extended future PayPal purchase ledger metadata with `packageId`, `promoId`, `offerId`, `priceUsdBeforeDiscount`, `priceUsdPaid`, `sourceOfFundsBreakdown`, `idempotencyKey`, and `orderId` without changing capture pricing or balance behavior.
+- Added economy doctrine/docs plus `check:platform-economy-treasury` and `check:platform-economy-commerce-controls`.
+
+Verification:
+- `npm run typecheck` passed.
+- `npm run check:platform-economy-treasury` passed.
+- `npm run check:platform-economy-commerce-controls` passed.
+- `npm run check:gumdrop-source-of-funds-truth` passed.
+- `npm run check:purchase-telemetry-truth` passed.
+
 ## [2026-05-05 #169] PRE: Codex Native Auth Readiness
 
 Scope started:
