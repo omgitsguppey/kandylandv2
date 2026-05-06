@@ -774,25 +774,38 @@ type RolloutRegistryPanelState = {
         staleRollouts: number;
     };
     rollouts: RolloutRegistryItem[];
-    sampleActors: Array<{
-        key: string;
-        label: string;
-        path: string;
-        role: string;
-        activeAssignments: Array<{
-            id: string;
-            name: string;
-            effectiveState: RolloutRegistryItem["effectiveState"];
-            variant: string;
-            reason: string;
-        }>;
-    }>;
+    actorEvaluation: RolloutActorEvaluationPanel;
     alphaBaselineChangelog: Array<{
         id: string;
         date: string;
         title: string;
         summary: string;
         areas: string[];
+    }>;
+};
+
+type RolloutActorEvaluationPanel = {
+    generatedAtUtc: string;
+    mode: "dry_run_representative" | "live_sample" | "mixed" | "unknown";
+    actorCount: number;
+    actorRows: RolloutActorEvaluationRow[];
+    explanation: string;
+};
+
+type RolloutActorEvaluationRow = {
+    label: string;
+    route: string;
+    role: "guest" | "user" | "creator" | "admin";
+    actorSource: "representative_fixture" | "live_user" | "current_admin_session" | "unknown";
+    actorId?: string | null;
+    isSimulated: boolean;
+    evaluations: Array<{
+        rolloutId: string;
+        rolloutName: string;
+        variant: string;
+        reason: "assigned" | "ineligible" | "disabled" | "excluded" | "defaulted" | "unknown";
+        reasonDetail: string;
+        state: "assigned" | "ineligible" | "info" | "review";
     }>;
 };
 
@@ -2395,29 +2408,70 @@ function buildRolloutRegistryPanelState(input: {
         };
     });
 
-    const sampleActors = input.rolloutSamples.map((sample) => {
+    const actorRows: RolloutActorEvaluationRow[] = input.rolloutSamples.map((sample) => {
         const assignments = Array.isArray(sample.assignments) ? sample.assignments as Array<Record<string, unknown>> : [];
-        const activeAssignments = assignments
-            .filter((assignment) => Boolean(assignment.active))
-            .map((assignment) => {
+        const roleRaw = toOptionalString(sample.role);
+        const role: RolloutActorEvaluationRow["role"] =
+            roleRaw === "user" || roleRaw === "creator" || roleRaw === "admin"
+                ? roleRaw
+                : "guest";
+        const actorSource: RolloutActorEvaluationRow["actorSource"] = "representative_fixture";
+        const actorId = null;
+        const evaluations = assignments.map((assignment) => {
                 const match = rolloutItems.find((item) => item.id === toOptionalString(assignment.id));
+                const reasonRaw = toOptionalString(assignment.reason);
+                const assignedVariant = toOptionalString(assignment.variant) || "unknown";
+                const defaultVariant = toOptionalString(assignment.defaultVariant) || match?.defaultVariant || "unknown";
+                const reason: RolloutActorEvaluationRow["evaluations"][number]["reason"] =
+                    reasonRaw === "assigned" || reasonRaw === "ineligible" || reasonRaw === "disabled"
+                        ? reasonRaw
+                        : reasonRaw === "holdout"
+                            ? "defaulted"
+                            : "unknown";
+                const reasonDetail =
+                    reason === "assigned"
+                        ? `${match?.name || toOptionalString(assignment.id) || "Rollout"} assigned ${assignedVariant} variant.`
+                        : reason === "ineligible"
+                            ? `${match?.name || toOptionalString(assignment.id) || "Rollout"} is ineligible for this ${role} context. Fallback: ${defaultVariant}.`
+                            : reason === "disabled"
+                                ? `${match?.name || toOptionalString(assignment.id) || "Rollout"} is disabled. Fallback: ${defaultVariant}.`
+                                : `${match?.name || toOptionalString(assignment.id) || "Rollout"} defaulted to ${defaultVariant} because no active assignment was given.`;
+                const state: RolloutActorEvaluationRow["evaluations"][number]["state"] =
+                    reason === "assigned"
+                        ? "assigned"
+                        : reason === "ineligible"
+                            ? "ineligible"
+                            : reason === "disabled"
+                                ? "review"
+                                : "info";
                 return {
-                    id: toOptionalString(assignment.id) || "unknown",
-                    name: match?.name || toOptionalString(assignment.id) || "unknown",
-                    effectiveState: match?.effectiveState || "disabled",
-                    variant: toOptionalString(assignment.variant) || "unknown",
-                    reason: toOptionalString(assignment.reason) || "unknown",
+                    rolloutId: toOptionalString(assignment.id) || "unknown",
+                    rolloutName: match?.name || toOptionalString(assignment.id) || "unknown",
+                    variant: reason === "assigned" ? assignedVariant : `Fallback: ${defaultVariant}`,
+                    reason,
+                    reasonDetail,
+                    state,
                 };
             });
 
         return {
-            key: toOptionalString(sample.key) || "unknown",
             label: toOptionalString(sample.label) || "Unknown actor",
-            path: toOptionalString(sample.path) || "unknown",
-            role: toOptionalString(sample.role) || "guest",
-            activeAssignments,
+            route: toOptionalString(sample.path) || "unknown",
+            role,
+            actorSource,
+            actorId,
+            isSimulated: true,
+            evaluations,
         };
     });
+
+    const actorEvaluation: RolloutActorEvaluationPanel = {
+        generatedAtUtc: new Date(input.nowMs).toISOString(),
+        mode: "dry_run_representative",
+        actorCount: actorRows.length,
+        actorRows,
+        explanation: "These are fixture contexts used to verify registry rules. They are not live user assignments.",
+    };
 
     return {
         generatedAtUtc: new Date(input.nowMs).toISOString(),
@@ -2443,7 +2497,7 @@ function buildRolloutRegistryPanelState(input: {
         },
         summary: {
             configuredRollouts: rolloutItems.length,
-            sampleActors: sampleActors.length,
+            sampleActors: actorRows.length,
             activeExperiments: rolloutItems.filter((item) => item.effectiveState === "active_experiment").length,
             fullyRolledOutFeatures: rolloutItems.filter((item) => item.effectiveState === "fully_rolled_out" || item.effectiveState === "baseline").length,
             internalFeatures: rolloutItems.filter((item) => item.effectiveState === "internal_feature").length,
@@ -2451,7 +2505,7 @@ function buildRolloutRegistryPanelState(input: {
             staleRollouts: rolloutItems.filter((item) => item.stage === "alpha" && currentTrainFreshnessState === "historical").length,
         },
         rollouts: rolloutItems,
-        sampleActors,
+        actorEvaluation,
         alphaBaselineChangelog: input.changeLog.map((entry) => ({
             id: toOptionalString(entry.id) || "unknown",
             date: toOptionalString(entry.date) || "unknown",
@@ -5288,6 +5342,7 @@ export async function GET(request: NextRequest) {
                 variant: assignment.variant,
                 reason: assignment.reason,
                 active: assignment.active,
+                defaultVariant: assignment.defaultVariant,
             })),
         }));
         const rolloutSampleSnapshot = {
