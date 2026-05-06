@@ -69,6 +69,7 @@ const debugMonitoringRoutes = readRequired("src/app/admin/debug/components/Debug
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
 const debugAdvancedDataValidation = readRequired("src/app/admin/debug/components/DebugAdvancedDataValidation.tsx");
 const debugAdvancedDrift = readRequired("src/app/admin/debug/components/DebugAdvancedDrift.tsx");
+const debugAdvancedExperiments = readRequired("src/app/admin/debug/components/DebugAdvancedExperiments.tsx");
 const debugAdvancedTelemetry = readRequired("src/app/admin/debug/components/DebugAdvancedTelemetry.tsx");
 const debugAdvancedBehavior = readRequired("src/app/admin/debug/components/DebugAdvancedBehavior.tsx");
 const debugAdvancedTruth = readRequired("src/app/admin/debug/components/DebugAdvancedTruth.tsx");
@@ -1525,6 +1526,32 @@ for (const expected of [
 requireNotIncludes(debugAdvancedBehavior, "WAIT", "Behavioral intelligence panel must not show WAIT for loaded values");
 
 for (const expected of [
+  "Human-readable rollout state, current beta relation, and sample actor resolution.",
+  "Configured",
+  "Active experiments",
+  "Fully rolled out",
+  "Train freshness",
+  "Historical alpha changelog",
+  "Current Beta",
+  "Kill switch configured",
+  "Rollback tested: not proven here.",
+  "Fully rolled out; no active holdout detected.",
+  "Fully rolled out baseline feature. Not currently an A/B test.",
+  "Alpha baseline preserved for history; current Beta release notes are tracked separately",
+  "data-rollout-configured-count",
+  "data-rollout-active-experiment-count",
+  "data-rollout-fully-rolled-out-count",
+  "data-rollout-effective-state",
+  "data-rollout-kill-switch-configured",
+  "data-rollout-train-freshness",
+  "data-rollout-stage",
+  "data-rollout-audience",
+]) {
+  requireIncludes(`${debugAdvancedExperiments}\n${adminDebugRoute}`, expected, "Rollout registry panel must show readable rollout state and beta relation");
+}
+requireNotIncludes(debugAdvancedExperiments, "WAIT", "Rollout registry panel must not show WAIT for loaded values");
+
+for (const expected of [
   "Infrastructure Health & Dependencies",
   "Package inventory plus selected runtime connectivity checks. Package presence does not prove runtime use.",
   "Environment & runtime checks",
@@ -1813,6 +1840,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugAdvancedDataValidation\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedBehavior\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedDrift\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugAdvancedExperiments\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedTelemetry\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugAdvancedTruth\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugNowDiagnostics\.tsx$/u,

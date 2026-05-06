@@ -40,6 +40,7 @@ import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildAdminOrchestrationSnapshot } from "@/lib/server/admin-orchestration";
 import { getConfiguredRollouts, getRolloutEvaluationSamples } from "@/lib/rollouts";
 import { getChangelogEntries, getCurrentRelease } from "@/lib/release-tracking";
+import { PUBLIC_RELEASE_NOTES_FALLBACK } from "@/lib/release-notes/public-release-notes";
 import { getCSTDateKey } from "@/lib/timezone";
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
@@ -743,6 +744,82 @@ type TelemetryTruthRecoveryState = {
     dropRows: DropTelemetryRecoveryRow[];
     userRows: UserWatchRecoveryRow[];
     warnings: string[];
+};
+
+type RolloutRegistryPanelState = {
+    generatedAtUtc: string;
+    currentTrain: {
+        label: string;
+        id: string;
+        channel: "alpha" | "beta" | "stable" | "internal";
+        declaredAtUtc: string;
+        freshnessState: "current" | "stale" | "historical" | "unknown";
+        relationToCurrentBeta: string;
+        notesCount: number;
+        changelogEntryCount: number;
+    };
+    currentBetaNotes: {
+        channel: string;
+        currentVersion: string;
+        latestEntryAtUtc: string | null;
+        entryCount: number;
+    };
+    summary: {
+        configuredRollouts: number;
+        sampleActors: number;
+        activeExperiments: number;
+        fullyRolledOutFeatures: number;
+        internalFeatures: number;
+        killSwitchReady: number;
+        staleRollouts: number;
+    };
+    rollouts: RolloutRegistryItem[];
+    sampleActors: Array<{
+        key: string;
+        label: string;
+        path: string;
+        role: string;
+        activeAssignments: Array<{
+            id: string;
+            name: string;
+            effectiveState: RolloutRegistryItem["effectiveState"];
+            variant: string;
+            reason: string;
+        }>;
+    }>;
+    alphaBaselineChangelog: Array<{
+        id: string;
+        date: string;
+        title: string;
+        summary: string;
+        areas: string[];
+    }>;
+};
+
+type RolloutRegistryItem = {
+    id: string;
+    name: string;
+    humanSummary: string;
+    kind: "experiment" | "feature" | "baseline" | "holdout" | "unknown";
+    stage: "alpha" | "beta" | "stable" | "internal";
+    owner: "product" | "platform" | "growth" | "admin" | "unknown";
+    audience: string;
+    rolloutPct: number;
+    defaultVariant: string;
+    activeVariants: string[];
+    hasHoldout: boolean;
+    effectiveState:
+    | "active_experiment"
+    | "fully_rolled_out"
+    | "baseline"
+    | "internal_feature"
+    | "stale_alpha"
+    | "disabled";
+    killSwitchReady: boolean;
+    requirements: string[];
+    exclusions: string[];
+    lastUpdatedAtUtc?: string | null;
+    explanation: string;
 };
 
 const TELEMETRY_COVERAGE_LEGACY_EVENT_NAMES = new Set([
@@ -2189,6 +2266,200 @@ function formatDurationCompactFromSeconds(seconds: number) {
         return `${remainingSeconds}s`;
     }
     return `${minutes}m ${remainingSeconds}s`;
+}
+
+function normalizeRolloutStage(stage: unknown): RolloutRegistryItem["stage"] {
+    const raw = toOptionalString(stage)?.toLowerCase();
+    if (raw === "alpha" || raw === "beta") return raw;
+    if (raw === "ga" || raw === "stable") return "stable";
+    if (raw === "internal") return "internal";
+    return "internal";
+}
+
+function buildRolloutRegistryPanelState(input: {
+    nowMs: number;
+    rollouts: Array<Record<string, unknown>>;
+    rolloutSamples: Array<Record<string, unknown>>;
+    release: Record<string, unknown> | null;
+    changeLog: Array<Record<string, unknown>>;
+}): RolloutRegistryPanelState {
+    const latestBetaEntryAtUtc = PUBLIC_RELEASE_NOTES_FALLBACK.notes[0]?.generatedAtUtc
+        ?? PUBLIC_RELEASE_NOTES_FALLBACK.notes[0]?.committedAtUtc
+        ?? null;
+    const releaseChannel = toOptionalString(input.release?.channel)?.toLowerCase();
+    const declaredAtUtc = (() => {
+        const declaredAt = toOptionalString(input.release?.declaredAt);
+        if (!declaredAt) return "unknown";
+        const parsed = Date.parse(declaredAt);
+        return Number.isFinite(parsed) ? new Date(parsed).toISOString() : declaredAt;
+    })();
+    const currentTrainFreshnessState: RolloutRegistryPanelState["currentTrain"]["freshnessState"] =
+        releaseChannel === "alpha" && PUBLIC_RELEASE_NOTES_FALLBACK.channel === "beta"
+            ? "historical"
+            : releaseChannel === PUBLIC_RELEASE_NOTES_FALLBACK.channel
+                ? "current"
+                : "unknown";
+    const relationToCurrentBeta = currentTrainFreshnessState === "historical"
+        ? `Alpha baseline preserved for history; current Beta release notes are tracked separately in ${PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion} (${latestBetaEntryAtUtc ?? "unknown update time"}).`
+        : currentTrainFreshnessState === "current"
+            ? `This train matches the current ${PUBLIC_RELEASE_NOTES_FALLBACK.channel} release notes context.`
+            : "Current beta relationship is not documented in the loaded rollout registry.";
+
+    const rolloutItems: RolloutRegistryItem[] = input.rollouts.map((rollout) => {
+        const kindRaw = toOptionalString(rollout.kind)?.toLowerCase();
+        const baseKind: RolloutRegistryItem["kind"] =
+            kindRaw === "experiment" || kindRaw === "feature"
+                ? kindRaw
+                : "unknown";
+        const ownerRaw = toOptionalString(rollout.owner)?.toLowerCase();
+        const owner: RolloutRegistryItem["owner"] =
+            ownerRaw === "product" || ownerRaw === "platform" || ownerRaw === "growth" || ownerRaw === "admin"
+                ? ownerRaw
+                : "unknown";
+        const enabled = Boolean(rollout.enabled);
+        const rolloutPct = toNumber(rollout.rolloutPercent);
+        const activeVariants = Array.isArray(rollout.variants)
+            ? Array.from(new Set(
+                (rollout.variants as Array<Record<string, unknown>>)
+                    .map((variant) => toOptionalString(variant.key))
+                    .filter((value): value is string => Boolean(value)),
+            ))
+            : [];
+        const sampleAssignments = input.rolloutSamples.flatMap((sample) => {
+            const assignments = Array.isArray(sample.assignments) ? sample.assignments as Array<Record<string, unknown>> : [];
+            return assignments.filter((assignment) => toOptionalString(assignment.id) === toOptionalString(rollout.id));
+        });
+        const hasHoldout = rolloutPct < 100 || sampleAssignments.some((assignment) => toOptionalString(assignment.reason) === "holdout");
+        const stage = owner === "admin" || toOptionalString(rollout.audience) === "admin" ? "internal" : normalizeRolloutStage(rollout.stage);
+        let effectiveState: RolloutRegistryItem["effectiveState"] = "disabled";
+        let kind: RolloutRegistryItem["kind"] = baseKind;
+
+        if (!enabled) {
+            effectiveState = "disabled";
+        } else if (owner === "admin" || toOptionalString(rollout.audience) === "admin") {
+            effectiveState = "internal_feature";
+        } else if (baseKind === "experiment" && (hasHoldout || activeVariants.length > 1)) {
+            effectiveState = "active_experiment";
+            kind = hasHoldout ? "holdout" : "experiment";
+        } else if (baseKind === "experiment" && rolloutPct === 100) {
+            effectiveState = "fully_rolled_out";
+        } else if (baseKind === "feature" && rolloutPct === 100 && activeVariants.length <= 1) {
+            effectiveState = "baseline";
+            kind = "baseline";
+        } else if (baseKind === "feature") {
+            effectiveState = "fully_rolled_out";
+        }
+
+        const requirements = Array.isArray(rollout.requiredSegments) ? (rollout.requiredSegments as string[]) : [];
+        const exclusions = Array.isArray(rollout.excludedSegments) ? (rollout.excludedSegments as string[]) : [];
+        const killSwitchReady = rollout.killSwitchable !== false;
+        const name = toOptionalString(rollout.label) || "Unnamed rollout";
+        const audience = toOptionalString(rollout.audience) || "unknown";
+        const humanSummary = effectiveState === "internal_feature"
+            ? `${name} is an internal admin feature for ${audience} operators.`
+            : effectiveState === "baseline"
+                ? `${name} is fully rolled out baseline behavior for ${audience} users.`
+                : effectiveState === "fully_rolled_out"
+                    ? `${name} is fully rolled out for ${audience} users.`
+                    : `${name} is still operating as a live rollout with variant logic for ${audience} users.`;
+        const explanation = effectiveState === "active_experiment"
+            ? hasHoldout
+                ? `Active experiment with holdout coverage. ${activeVariants.length} configured variant${activeVariants.length === 1 ? "" : "s"} remain available for comparison.`
+                : `All eligible users are inside the experiment, but ${activeVariants.length} configured variant${activeVariants.length === 1 ? "" : "s"} still make this a live comparison rather than a baseline feature.`
+            : effectiveState === "fully_rolled_out"
+                ? "Fully rolled out; no active holdout detected."
+                : effectiveState === "baseline"
+                    ? "Fully rolled out baseline feature. Not currently an A/B test."
+                    : effectiveState === "internal_feature"
+                        ? "Internal admin feature. Kill switch configured only means a config toggle exists; rollback test evidence is not attached here."
+                        : "Rollout is disabled in the current registry snapshot.";
+
+        return {
+            id: toOptionalString(rollout.id) || "unknown",
+            name,
+            humanSummary,
+            kind,
+            stage,
+            owner,
+            audience,
+            rolloutPct,
+            defaultVariant: toOptionalString(rollout.defaultVariant) || "unknown",
+            activeVariants,
+            hasHoldout,
+            effectiveState,
+            killSwitchReady,
+            requirements,
+            exclusions,
+            lastUpdatedAtUtc: declaredAtUtc === "unknown" ? null : declaredAtUtc,
+            explanation,
+        };
+    });
+
+    const sampleActors = input.rolloutSamples.map((sample) => {
+        const assignments = Array.isArray(sample.assignments) ? sample.assignments as Array<Record<string, unknown>> : [];
+        const activeAssignments = assignments
+            .filter((assignment) => Boolean(assignment.active))
+            .map((assignment) => {
+                const match = rolloutItems.find((item) => item.id === toOptionalString(assignment.id));
+                return {
+                    id: toOptionalString(assignment.id) || "unknown",
+                    name: match?.name || toOptionalString(assignment.id) || "unknown",
+                    effectiveState: match?.effectiveState || "disabled",
+                    variant: toOptionalString(assignment.variant) || "unknown",
+                    reason: toOptionalString(assignment.reason) || "unknown",
+                };
+            });
+
+        return {
+            key: toOptionalString(sample.key) || "unknown",
+            label: toOptionalString(sample.label) || "Unknown actor",
+            path: toOptionalString(sample.path) || "unknown",
+            role: toOptionalString(sample.role) || "guest",
+            activeAssignments,
+        };
+    });
+
+    return {
+        generatedAtUtc: new Date(input.nowMs).toISOString(),
+        currentTrain: {
+            label: toOptionalString(input.release?.label) || "Unknown train",
+            id: toOptionalString(input.release?.id) || "unknown-train",
+            channel: releaseChannel === "alpha" || releaseChannel === "beta"
+                ? releaseChannel
+                : releaseChannel === "ga"
+                    ? "stable"
+                    : "internal",
+            declaredAtUtc,
+            freshnessState: currentTrainFreshnessState,
+            relationToCurrentBeta,
+            notesCount: Array.isArray(input.release?.releaseNotes) ? input.release.releaseNotes.length : 0,
+            changelogEntryCount: input.changeLog.length,
+        },
+        currentBetaNotes: {
+            channel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,
+            currentVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,
+            latestEntryAtUtc: latestBetaEntryAtUtc,
+            entryCount: PUBLIC_RELEASE_NOTES_FALLBACK.notes.length,
+        },
+        summary: {
+            configuredRollouts: rolloutItems.length,
+            sampleActors: sampleActors.length,
+            activeExperiments: rolloutItems.filter((item) => item.effectiveState === "active_experiment").length,
+            fullyRolledOutFeatures: rolloutItems.filter((item) => item.effectiveState === "fully_rolled_out" || item.effectiveState === "baseline").length,
+            internalFeatures: rolloutItems.filter((item) => item.effectiveState === "internal_feature").length,
+            killSwitchReady: rolloutItems.filter((item) => item.killSwitchReady).length,
+            staleRollouts: rolloutItems.filter((item) => item.stage === "alpha" && currentTrainFreshnessState === "historical").length,
+        },
+        rollouts: rolloutItems,
+        sampleActors,
+        alphaBaselineChangelog: input.changeLog.map((entry) => ({
+            id: toOptionalString(entry.id) || "unknown",
+            date: toOptionalString(entry.date) || "unknown",
+            title: toOptionalString(entry.title) || "Untitled changelog entry",
+            summary: toOptionalString(entry.summary) || "No summary recorded.",
+            areas: Array.isArray(entry.areas) ? entry.areas.map((area) => String(area)) : [],
+        })),
+    };
 }
 
 function buildTelemetryTruthRecoveryState(input: {
@@ -5026,6 +5297,13 @@ export async function GET(request: NextRequest) {
         };
         const release = getCurrentRelease();
         const changeLog = getChangelogEntries(8);
+        const rolloutRegistryPanel = buildRolloutRegistryPanelState({
+            nowMs,
+            rollouts: rollouts as Array<Record<string, unknown>>,
+            rolloutSamples: rolloutSamples as Array<Record<string, unknown>>,
+            release: release as unknown as Record<string, unknown>,
+            changeLog: changeLog as unknown as Array<Record<string, unknown>>,
+        });
 
         const orchestration = buildAdminOrchestrationSnapshot({
             eventDocs: orchestrationEventsSnapshot.docs,
@@ -5167,6 +5445,7 @@ export async function GET(request: NextRequest) {
             rollouts,
             rolloutSamples,
             rolloutSampleSnapshot,
+            rolloutRegistryPanel,
             release,
             changeLog,
             opsHealth,
