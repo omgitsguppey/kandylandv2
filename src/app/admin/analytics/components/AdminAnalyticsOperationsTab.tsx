@@ -176,6 +176,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   }, [eventMixModel]);
   const streamCountLabel = (value: number | null) =>
     value === null ? firstSnapshotLabel : formatCompactNumber(value);
+  const formatLiveStreamRelativeUtc = (timestamp: number | null) =>
+    timestamp ? formatRelativeTime(timestamp, nowMs) : "unknown";
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -1013,69 +1015,95 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   </div>
                 </SectionCard>
 
-              <SectionCard
-                title="Live Interaction Stream"
-                subtitle="Recent telemetry events and guest interaction buckets from the live site."
-                icon={Clock3}
-                rightSlot={renderSectionRangeControl("liveInteractionStream")}
-              >
-                <div className="grid gap-2.5">
-                  <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 sm:flex-row sm:items-center sm:justify-between">
-                    <span className="min-w-0">{liveInteractionStreamModel.recommendation}</span>
-                    <AdminStatusBadge
-                      state={liveInteractionStreamModel.truthState}
-                      label={liveInteractionStreamModel.badgeLabel}
-                      className="max-w-[5.5rem] shrink-0 truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
-                    />
+            <SectionCard
+              title="Live Interaction Stream"
+              subtitle="Recent telemetry snapshot with freshness, actor, and task-failure truth."
+              icon={Clock3}
+              rightSlot={renderSectionRangeControl("liveInteractionStream")}
+            >
+              <div className="grid gap-2.5">
+                <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p>{liveInteractionStreamModel.recommendation}</p>
+                    <p className="mt-1 text-[10px] text-gray-400">{liveInteractionStreamModel.visibleCopy}</p>
                   </div>
+                  <AdminStatusBadge
+                    state={liveInteractionStreamModel.truthState}
+                    label={liveInteractionStreamModel.badgeLabel}
+                    className="max-w-[5.5rem] shrink-0 truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                  />
+                </div>
 
-                  <div className="grid grid-cols-2 gap-1.5 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300 sm:grid-cols-4">
-                    <span className="min-w-0 truncate"><span className="font-semibold text-white">Shown:</span> {streamCountLabel(liveInteractionStreamModel.visibleEventCount)}</span>
-                    <span className="min-w-0 truncate"><span className="font-semibold text-white">Actors:</span> {streamCountLabel(liveInteractionStreamModel.uniqueActorCount)}</span>
-                    <span className="min-w-0 truncate"><span className="font-semibold text-white">Failures:</span> {streamCountLabel(liveInteractionStreamModel.failureCount)}</span>
-                    <span className="min-w-0 truncate"><span className="font-semibold text-white">Admin excl.:</span> {liveInteractionStreamModel.adminExcludedCount}</span>
+                <div className="grid grid-cols-2 gap-1.5 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300 sm:grid-cols-4">
+                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Shown:</span> {streamCountLabel(liveInteractionStreamModel.visibleEventCount)}</span>
+                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Actors:</span> {streamCountLabel(liveInteractionStreamModel.uniqueActorCount)}</span>
+                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Failures:</span> {streamCountLabel(liveInteractionStreamModel.failureCount)}</span>
+                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Admin excl.:</span> {liveInteractionStreamModel.adminExcludedCount}</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-1.5 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300 sm:grid-cols-4">
+                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Mode:</span> {liveInteractionStreamModel.streamSourceMode.replaceAll("_", " ")}</span>
+                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Source:</span> {liveInteractionStreamModel.sourceTruth}</span>
+                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Last event:</span> {formatLiveStreamRelativeUtc(liveInteractionStreamModel.lastEventAt)}</span>
+                  <span className="min-w-0 truncate"><span className="font-semibold text-white">Generated:</span> {liveInteractionStreamModel.generatedAtUtc ? formatRelativeTime(new Date(liveInteractionStreamModel.generatedAtUtc).getTime(), nowMs) : "unknown"}</span>
+                </div>
+
+                {liveInteractionStreamModel.warnings.length > 0 ? (
+                  <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300">
+                    {liveInteractionStreamModel.warnings.map((warning) => (
+                      <p key={warning}>{warning}</p>
+                    ))}
                   </div>
+                ) : null}
 
-                  <div className="space-y-1.5">
-                    {liveInteractionStreamModel.eventRows.length > 0 ? (
-                      liveInteractionStreamModel.eventRows.map((event) => (
+                <div className="space-y-1.5">
+                  {liveInteractionStreamModel.eventRows.length > 0 ? (
+                    liveInteractionStreamModel.eventRows.map((event) => (
                         <div
                           key={`${event.timestamp}-${event.duplicateGroupKey}`}
                           className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
                         >
                           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
-                            <div className="min-w-0">
-                              <p className="truncate text-xs font-semibold text-white">
-                                {event.displayLabel}
-                                {event.duplicateCount > 1 ? (
-                                  <span className="ml-1 text-[10px] text-brand-purple">
-                                    x{event.duplicateCount}
-                                  </span>
+                              <div className="min-w-0">
+                                <p className="truncate text-xs font-semibold text-white">
+                                  {event.displayLabel}
+                                  {event.duplicateCount > 1 ? (
+                                    <span className="ml-1 text-[10px] text-brand-purple">
+                                      x{event.duplicateCount}
+                                    </span>
+                                  ) : null}
+                                </p>
+                                <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                                  {event.actorDisplayLabel} / {event.surface} / {formatRelativeTime(event.timestamp, nowMs)}
+                                </p>
+                                <p className="mt-1 text-[10px] text-gray-500">
+                                  {event.sourceTruth} · {event.surfaceState === "verified" ? "surface verified" : event.surfaceState === "inferred" ? "surface inferred" : "surface missing"} · {event.explanation}
+                                </p>
+                                {event.eventType === "task_failed" && event.failureReason ? (
+                                  <p className="mt-1 text-[10px] text-rose-200">
+                                    Failure: {event.failureReason}
+                                  </p>
                                 ) : null}
-                              </p>
-                              <p className="mt-0.5 truncate text-[10px] text-gray-500">
-                                {event.actorDisplayLabel} / {event.surface || "unknown surface"} / {formatRelativeTime(event.timestamp, nowMs)}
-                              </p>
-                            </div>
-                            <span
-                              className={cn(
-                                "max-w-[5.5rem] truncate rounded-full border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.08em]",
-                                /fail/i.test(event.eventKey)
-                                  ? "border-rose-400/25 bg-rose-500/10 text-rose-200"
-                                  : "border-brand-purple/25 bg-brand-purple/10 text-brand-purple",
-                              )}
-                              title={event.eventKey}
-                            >
+                              </div>
+                              <span
+                                className={cn(
+                                  "max-w-[5.5rem] truncate rounded-full border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.08em]",
+                                  event.eventType === "task_failed"
+                                    ? "border-rose-400/25 bg-rose-500/10 text-rose-200"
+                                    : "border-brand-purple/25 bg-brand-purple/10 text-brand-purple",
+                                )}
+                                title={event.eventKey}
+                              >
                               {event.compactTypeLabel}
                             </span>
                           </div>
                         </div>
                       ))
-                    ) : (
-                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                        No user interactions available for this range.
-                      </div>
-                    )}
+                      ) : (
+                        <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                          No user interactions available for this range.
+                        </div>
+                      )}
                   </div>
                 </div>
               </SectionCard>

@@ -80,8 +80,8 @@ describe("buildAdminAnalyticsLiveInteractionStreamModel", () => {
       selectedRange: "24h",
       response: response(),
       rawEvents: [
-        event({ type: "TASK_FAILED", detail: "Top up your Gum Drops", timestamp: 120_000 }),
-        event({ type: "TASK_FAILED", detail: "Top up your Gum Drops", timestamp: 130_000 }),
+        event({ type: "TASK_FAILED", detail: "Top up your Gum Drops failed due to inactivity reset", timestamp: 120_000 }),
+        event({ type: "TASK_FAILED", detail: "Top up your Gum Drops failed due to inactivity reset", timestamp: 130_000 }),
         event({ type: "TASK_ASSIGNED", detail: "Start a Gum Drop checkout", timestamp: 240_000 }),
       ],
       describeEvent,
@@ -96,6 +96,36 @@ describe("buildAdminAnalyticsLiveInteractionStreamModel", () => {
     expect(failedRow).toMatchObject({
       compactTypeLabel: "Task failed",
       duplicateCount: 2,
+      failureReason: "Failed due to previous reset or inactivity policy",
+    });
+  });
+
+  it("marks a 22 minute old newest event as stale snapshot instead of live", () => {
+    const generatedAtMs = 22 * 60_000 + 10_000;
+    const model = buildAdminAnalyticsLiveInteractionStreamModel({
+      selectedRange: "24h",
+      response: {
+        ...response(),
+        generatedAtMs,
+      },
+      rawEvents: [
+        event({ type: "CREATOR_MESSAGE_SENT", detail: "Creator text message", timestamp: 10_000 }),
+        event({ type: "CREATOR_MESSAGE_SENT", detail: "Creator text message", timestamp: 20_000 }),
+        event({ type: "CREATOR_MESSAGE_SENT", detail: "Creator text message", timestamp: 30_000 }),
+      ],
+      describeEvent,
+      loading: false,
+      overviewTruthState: "live",
+    });
+
+    expect(model.streamSourceMode).toBe("stale_snapshot");
+    expect(model.freshnessState).toBe("stale");
+    expect(model.badgeLabel).toBe("STALE");
+    expect(model.visibleCopy).toContain("stale recent-event snapshot");
+    expect(model.eventRows[0]).toMatchObject({
+      eventType: "message",
+      duplicateCount: 3,
+      sourceTruth: "message",
     });
   });
 

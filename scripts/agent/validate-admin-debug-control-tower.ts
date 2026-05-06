@@ -119,6 +119,7 @@ const adminModerationThreadDetailRoute = readRequired("src/app/api/admin/moderat
 const adminModerationSecurityAlertsRoute = readRequired("src/app/api/admin/moderation/security-alerts/route.ts");
 const guestQualityHelper = readRequired("src/lib/admin-analytics-guest-bounce-quality.ts");
 const eventMixHelper = readRequired("src/lib/admin-analytics-event-mix.ts");
+const liveInteractionStreamHelper = readRequired("src/lib/admin-analytics-live-interaction-stream.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
@@ -1999,6 +2000,30 @@ for (const expected of [
 ]) {
   requireIncludes(adminAnalyticsOperationsTab, expected, "Event mix analytics panel");
 }
+for (const expected of [
+  "generatedAtUtc",
+  "freshnessState",
+  "sourceTruth",
+  "eventType",
+  "failureReason",
+  "duplicateCount",
+  "Failed due to previous reset or inactivity policy",
+  "stale recent-event snapshot",
+]) {
+  requireIncludes(liveInteractionStreamHelper, expected, "Live interaction stream truth helper");
+}
+for (const expected of [
+  "Mode:",
+  "Source:",
+  "Last event:",
+  "Generated:",
+  "Failure:",
+  "surface verified",
+  "surface inferred",
+  "surface missing",
+]) {
+  requireIncludes(adminAnalyticsOperationsTab, expected, "Live interaction stream analytics panel");
+}
 
 try {
   const changedFiles = execSync("git diff --name-only", { cwd: root, encoding: "utf8" })
@@ -2023,6 +2048,7 @@ try {
     /^src\/lib\/admin-debug-route-runtime\.ts$/u,
       /^src\/lib\/admin-overview\.ts$/u,
       /^src\/lib\/admin-analytics-live-pulse\.ts$/u,
+      /^src\/lib\/admin-analytics-live-interaction-stream\.ts$/u,
       /^src\/lib\/admin-analytics-guest-bounce-quality\.ts$/u,
       /^src\/lib\/admin-analytics-event-mix\.ts$/u,
       /^src\/lib\/admin-analytics-journey-funnel\.ts$/u,
@@ -2139,6 +2165,7 @@ try {
     /^src\/types\/db\.ts$/u,
     /^src\/types\/admin-analytics\.ts$/u,
     /^tests\/unit\/admin-analytics-event-mix\.spec\.ts$/u,
+    /^tests\/unit\/admin-analytics-live-interaction-stream\.spec\.ts$/u,
     /^scripts\/check-admin-analytics-overview\.ts$/u,
     /^scripts\/check-admin-analytics-live-pulse\.ts$/u,
     /^scripts\/check-admin-analytics-journey-funnel\.ts$/u,
