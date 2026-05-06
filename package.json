@@ -129,6 +129,7 @@
         "check:purchase-telemetry-truth": "tsx scripts/agent/validate-purchase-telemetry-truth.ts",
         "check:unlock-telemetry-truth": "tsx scripts/agent/validate-unlock-telemetry-truth.ts",
         "check:notification-read-truth": "tsx scripts/agent/validate-notification-read-truth.ts",
+        "check:daily-task-lifecycle": "tsx scripts/agent/validate-daily-task-lifecycle.ts",
         "check:daily-task-telemetry-truth": "tsx scripts/agent/validate-daily-task-telemetry-truth.ts",
         "check:viewer-file-tracking": "tsx scripts/agent/validate-viewer-file-tracking.ts",
         "check:support-tracking-truth": "tsx scripts/agent/validate-support-tracking-truth.ts",

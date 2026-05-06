@@ -1,6 +1,6 @@
 import "server-only";
 
-import { FieldValue, type Transaction } from "firebase-admin/firestore";
+import { FieldPath, FieldValue, type Transaction } from "firebase-admin/firestore";
 
 import { normalizeNotificationDoc } from "@/lib/notification-contracts";
 import { randomBytes } from "node:crypto";
@@ -41,16 +41,43 @@ const TASK_DEFINITION_COLLECTION = "daily_task_definitions";
 const TASK_EVENT_COLLECTION = "daily_task_events";
 const EVENT_STATS_COLLECTION = "analytics_event_stats";
 const TASK_RECEIPT_COLLECTION = "daily_task_event_receipts";
+const TASK_MATERIALIZER_RUN_COLLECTION = "daily_task_materializer_runs";
+const TASK_MATERIALIZER_HEARTBEAT_COLLECTION = "_system";
+const DAILY_TASK_STATE_SCHEMA_VERSION = 2;
+const DAILY_TASK_MATERIALIZER_MAX_USERS = 200;
+const DAILY_TASK_MATERIALIZER_MAX_RUNTIME_MS = 45_000;
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
 type EventParams = Record<string, string | number | boolean> | undefined;
-type RotationReason = "initial" | "cycle_complete" | "missed_progress";
+type DailyTaskAssignmentSource = "daily_task_materializer" | "on_demand_backfill" | "debug_repair";
+type DailyTaskReasonCode =
+  | "daily_window_started"
+  | "daily_window_expired"
+  | "on_demand_backfill"
+  | "user_ineligible"
+  | "catalog_unavailable"
+  | "materializer_retry"
+  | "debug_repair"
+  | "inactivity_policy";
+type RotationReason = "initial" | "cycle_complete" | "window_expired";
+
+export type DailyTaskWindow = {
+  dailyTaskWindowId: string;
+  windowStartAtUtc: string;
+  windowEndAtUtc: string;
+  resetAtUtc: string;
+  windowStartMs: number;
+  windowEndMs: number;
+};
 
 interface TaskStateBuildResult {
   state: DailyTasksState;
   rotated: boolean;
   rotationReason: RotationReason | null;
+  reasonCode: DailyTaskReasonCode | null;
+  source: DailyTaskAssignmentSource;
+  dailyTaskWindow: DailyTaskWindow;
   assignedTasks: DailyTaskAssignment[];
   failedTasks: DailyTaskAssignment[];
 }
@@ -77,6 +104,32 @@ interface TaskEligibilityContext {
   hasRelatedUnlockedDrops: boolean;
   hasDownloadableUnlockedContent: boolean;
   hasShareableLiveDrop: boolean;
+}
+
+export function getDailyTaskWindow(
+  nowMs: number = Date.now(),
+  timezonePolicy: "app_checkin_central" = "app_checkin_central",
+): DailyTaskWindow {
+  void timezonePolicy;
+  const { startOfDay, endOfDay } = getCSTDayBoundaries(nowMs);
+  return {
+    dailyTaskWindowId: getCSTDateKey(nowMs),
+    windowStartAtUtc: new Date(startOfDay).toISOString(),
+    windowEndAtUtc: new Date(endOfDay).toISOString(),
+    resetAtUtc: new Date(startOfDay).toISOString(),
+    windowStartMs: startOfDay,
+    windowEndMs: endOfDay,
+  };
+}
+
+function buildDailyTaskIdempotencyKey(userId: string, dailyTaskWindowId: string) {
+  return `daily_tasks:${userId}:${dailyTaskWindowId}`;
+}
+
+function getAssignmentReasonCode(source: DailyTaskAssignmentSource): DailyTaskReasonCode {
+  if (source === "daily_task_materializer") return "daily_window_started";
+  if (source === "debug_repair") return "debug_repair";
+  return "on_demand_backfill";
 }
 
 async function readQuerySnapshot(
@@ -163,6 +216,11 @@ function normalizeTaskAssignment(raw: unknown): Partial<DailyTaskAssignment> | n
     assignedAt: Number.isFinite(source.assignedAt) ? Number(source.assignedAt) : 0,
     startedAt: Number.isFinite(source.startedAt) ? Number(source.startedAt) : undefined,
     claimedAt: Number.isFinite(source.claimedAt) ? Number(source.claimedAt) : undefined,
+    dailyTaskWindowId: typeof source.dailyTaskWindowId === "string" ? source.dailyTaskWindowId : undefined,
+    expiresAtUtc: typeof source.expiresAtUtc === "string" ? source.expiresAtUtc : undefined,
+    status: typeof source.status === "string" ? source.status as DailyTaskAssignment["status"] : undefined,
+    reasonCode: typeof source.reasonCode === "string" ? source.reasonCode as DailyTaskAssignment["reasonCode"] : undefined,
+    assignmentSource: typeof source.assignmentSource === "string" ? source.assignmentSource as DailyTaskAssignment["assignmentSource"] : undefined,
     progressKeys: normalizeStringArray(source.progressKeys),
     uniqueByParamKey: typeof source.uniqueByParamKey === "string" ? source.uniqueByParamKey : undefined,
     cooldownDays: Number.isFinite(source.cooldownDays) ? Number(source.cooldownDays) : undefined,
@@ -171,13 +229,24 @@ function normalizeTaskAssignment(raw: unknown): Partial<DailyTaskAssignment> | n
   };
 }
 
-function hydrateAssignment(definition: DailyTaskDefinition, nowMs: number): DailyTaskAssignment {
+function hydrateAssignment(
+  definition: DailyTaskDefinition,
+  nowMs: number,
+  window: DailyTaskWindow,
+  source: DailyTaskAssignmentSource,
+  reasonCode: DailyTaskReasonCode,
+): DailyTaskAssignment {
   return {
     ...definition,
     progress: 0,
     claimed: false,
     progressKeys: [],
     assignedAt: nowMs,
+    dailyTaskWindowId: window.dailyTaskWindowId,
+    expiresAtUtc: window.windowEndAtUtc,
+    status: source === "on_demand_backfill" ? "backfilled" : "assigned",
+    reasonCode,
+    assignmentSource: source,
   };
 }
 
@@ -206,6 +275,11 @@ function upgradeAssignment(
     claimed: partial.claimed ?? false,
     progressKeys: partial.progressKeys ?? [],
     assignedAt,
+    dailyTaskWindowId: partial.dailyTaskWindowId,
+    expiresAtUtc: partial.expiresAtUtc,
+    status: partial.status,
+    reasonCode: partial.reasonCode,
+    assignmentSource: partial.assignmentSource,
     ...(typeof startedAt === "number" ? { startedAt } : {}),
     ...(typeof claimedAt === "number" ? { claimedAt } : {}),
   };
@@ -569,6 +643,15 @@ function normalizeTaskState(
     lastResetMs: readTaskTimestampMs(currentState?.lastResetMs),
     nextRefreshMs: readTaskTimestampMs(currentState?.nextRefreshMs),
     tasks,
+    dailyTaskWindowId: typeof currentState?.dailyTaskWindowId === "string" ? currentState.dailyTaskWindowId : undefined,
+    windowStartAtUtc: typeof currentState?.windowStartAtUtc === "string" ? currentState.windowStartAtUtc : undefined,
+    windowEndAtUtc: typeof currentState?.windowEndAtUtc === "string" ? currentState.windowEndAtUtc : undefined,
+    resetAtUtc: typeof currentState?.resetAtUtc === "string" ? currentState.resetAtUtc : undefined,
+    assignedAtUtc: typeof currentState?.assignedAtUtc === "string" ? currentState.assignedAtUtc : undefined,
+    expiresAtUtc: typeof currentState?.expiresAtUtc === "string" ? currentState.expiresAtUtc : undefined,
+    source: typeof currentState?.source === "string" ? currentState.source as DailyTasksState["source"] : undefined,
+    schemaVersion: Number.isFinite(currentState?.schemaVersion) ? Number(currentState?.schemaVersion) : undefined,
+    idempotencyKey: typeof currentState?.idempotencyKey === "string" ? currentState.idempotencyKey : undefined,
     retiredTaskIds: normalizeStringArray(currentState?.retiredTaskIds),
     completedTaskHistory: normalizeHistory(currentState?.completedTaskHistory),
     lastProgressAt: readTaskTimestampMs(currentState?.lastProgressAt),
@@ -606,15 +689,18 @@ function shouldRotateCompletedCycle(state: DailyTasksState, nowMs: number): bool
 }
 
 function buildRotatedState(
+  uid: string,
   normalizedState: DailyTasksState,
   definitions: DailyTaskDefinition[],
   nowMs: number,
   rotationReason: RotationReason,
+  source: DailyTaskAssignmentSource,
+  reasonCode: DailyTaskReasonCode,
   failedTasks: DailyTaskAssignment[],
   userData: UserProfile,
   eligibility: TaskEligibilityContext,
 ): TaskStateBuildResult {
-  const { endOfDay } = getCSTDayBoundaries(nowMs);
+  const window = getDailyTaskWindow(nowMs);
   const selectedDefinitions = pickTasksForCycle(
     definitions,
     normalizedState.completedTaskHistory ?? {},
@@ -623,17 +709,33 @@ function buildRotatedState(
     normalizedState.retiredTaskIds ?? [],
     eligibility,
   );
-  const tasks = selectedDefinitions.map((task) => hydrateAssignment(task, nowMs));
+  const tasks = selectedDefinitions.map((task) => hydrateAssignment(task, nowMs, window, source, reasonCode));
 
   return {
     rotated: true,
     rotationReason,
+    reasonCode,
+    source,
+    dailyTaskWindow: window,
     assignedTasks: tasks,
-    failedTasks,
+    failedTasks: failedTasks.map((task) => ({
+      ...task,
+      status: "expired",
+      reasonCode: "daily_window_expired",
+    })),
     state: {
       lastResetMs: nowMs,
-      nextRefreshMs: endOfDay,
+      nextRefreshMs: window.windowEndMs,
       tasks,
+      dailyTaskWindowId: window.dailyTaskWindowId,
+      windowStartAtUtc: window.windowStartAtUtc,
+      windowEndAtUtc: window.windowEndAtUtc,
+      resetAtUtc: window.resetAtUtc,
+      assignedAtUtc: new Date(nowMs).toISOString(),
+      expiresAtUtc: window.windowEndAtUtc,
+      source,
+      schemaVersion: DAILY_TASK_STATE_SCHEMA_VERSION,
+      idempotencyKey: buildDailyTaskIdempotencyKey(uid, window.dailyTaskWindowId),
       retiredTaskIds: normalizedState.retiredTaskIds ?? [],
       completedTaskHistory: normalizedState.completedTaskHistory ?? {},
       lastProgressAt: nowMs,
@@ -761,23 +863,75 @@ export async function buildFreshTaskStateForUser(
   definitions: DailyTaskDefinition[],
   nowMs: number,
   transaction?: Transaction,
+  source: DailyTaskAssignmentSource = "on_demand_backfill",
 ): Promise<TaskStateBuildResult> {
   const definitionMap = createDefinitionMap(definitions);
   const normalizedState = normalizeTaskState(userData, definitionMap, nowMs);
-  const { endOfDay } = getCSTDayBoundaries(nowMs);
+  const window = getDailyTaskWindow(nowMs);
+  const windowIdempotencyKey = buildDailyTaskIdempotencyKey(uid, window.dailyTaskWindowId);
+  const normalizedStateWindowId = normalizedState.dailyTaskWindowId
+    || (normalizedState.lastResetMs >= window.windowStartMs && normalizedState.lastResetMs < window.windowEndMs
+      ? window.dailyTaskWindowId
+      : "");
+
+  if (normalizedStateWindowId === window.dailyTaskWindowId && normalizedState.tasks.length === DAILY_TASK_LIMIT) {
+    return {
+      rotated: false,
+      rotationReason: null,
+      reasonCode: null,
+      source,
+      dailyTaskWindow: window,
+      assignedTasks: [],
+      failedTasks: [],
+      state: {
+        ...normalizedState,
+        nextRefreshMs: window.windowEndMs,
+        dailyTaskWindowId: window.dailyTaskWindowId,
+        windowStartAtUtc: normalizedState.windowStartAtUtc || window.windowStartAtUtc,
+        windowEndAtUtc: window.windowEndAtUtc,
+        resetAtUtc: normalizedState.resetAtUtc || window.resetAtUtc,
+        source: normalizedState.source || source,
+        schemaVersion: normalizedState.schemaVersion || DAILY_TASK_STATE_SCHEMA_VERSION,
+        idempotencyKey: normalizedState.idempotencyKey || windowIdempotencyKey,
+        expiresAtUtc: window.windowEndAtUtc,
+        tasks: normalizedState.tasks.map((task) => ({
+          ...task,
+          dailyTaskWindowId: task.dailyTaskWindowId || window.dailyTaskWindowId,
+          expiresAtUtc: task.expiresAtUtc || window.windowEndAtUtc,
+          status: task.status || (task.claimed ? "completed" : task.progress > 0 ? "in_progress" : "assigned"),
+          assignmentSource: task.assignmentSource || source,
+          reasonCode: task.reasonCode || getAssignmentReasonCode(source),
+        })),
+      },
+    };
+  }
 
   if (normalizedState.tasks.length === 0 || normalizedState.tasks.length !== DAILY_TASK_LIMIT) {
     const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs, transaction);
-    return buildRotatedState(normalizedState, definitions, nowMs, "initial", [], userData, eligibility);
+    return buildRotatedState(
+      uid,
+      normalizedState,
+      definitions,
+      nowMs,
+      "initial",
+      source,
+      getAssignmentReasonCode(source),
+      [],
+      userData,
+      eligibility,
+    );
   }
 
   if (shouldRotateIncompleteCycle(normalizedState, nowMs)) {
     const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs, transaction);
     return buildRotatedState(
+      uid,
       normalizedState,
       definitions,
       nowMs,
-      "missed_progress",
+      "window_expired",
+      source,
+      "daily_window_expired",
       normalizedState.tasks.filter((task) => !task.claimed),
       userData,
       eligibility,
@@ -786,17 +940,27 @@ export async function buildFreshTaskStateForUser(
 
   if (shouldRotateCompletedCycle(normalizedState, nowMs)) {
     const eligibility = await resolveTaskEligibilityContext(uid, userData, nowMs, transaction);
-    return buildRotatedState(normalizedState, definitions, nowMs, "cycle_complete", [], userData, eligibility);
+    return buildRotatedState(uid, normalizedState, definitions, nowMs, "cycle_complete", source, "daily_window_started", [], userData, eligibility);
   }
 
   return {
     rotated: false,
     rotationReason: null,
+    reasonCode: null,
+    source,
+    dailyTaskWindow: window,
     assignedTasks: [],
     failedTasks: [],
     state: {
       ...normalizedState,
-      nextRefreshMs: endOfDay,
+      nextRefreshMs: window.windowEndMs,
+      dailyTaskWindowId: normalizedState.dailyTaskWindowId || window.dailyTaskWindowId,
+      windowStartAtUtc: normalizedState.windowStartAtUtc || window.windowStartAtUtc,
+      windowEndAtUtc: window.windowEndAtUtc,
+      resetAtUtc: normalizedState.resetAtUtc || window.resetAtUtc,
+      expiresAtUtc: window.windowEndAtUtc,
+      schemaVersion: normalizedState.schemaVersion || DAILY_TASK_STATE_SCHEMA_VERSION,
+      idempotencyKey: normalizedState.idempotencyKey || windowIdempotencyKey,
     },
   };
 }
@@ -832,6 +996,12 @@ function writeTaskLifecycleEvent(
     assignedAt?: number;
     startedAt?: number;
     durationMs?: number;
+    dailyTaskWindowId?: string;
+    source?: DailyTaskAssignmentSource | "user_action";
+    reasonCode?: DailyTaskReasonCode | "task_progress_started" | "task_completed";
+    assignedAtUtc?: string;
+    updatedAtUtc?: string;
+    expiresAtUtc?: string;
   },
 ) {
   const eventRef = adminDb.collection(TASK_EVENT_COLLECTION).doc();
@@ -916,12 +1086,21 @@ function applyRotationSideEffects({
       progress: 0,
       maxProgress: task.maxProgress,
       timestamp: nowMs,
+      dailyTaskWindowId: result.dailyTaskWindow.dailyTaskWindowId,
+      source: result.source,
+      reasonCode: result.reasonCode ?? getAssignmentReasonCode(result.source),
       assignedAt: nowMs,
+      assignedAtUtc: new Date(nowMs).toISOString(),
+      updatedAtUtc: new Date(nowMs).toISOString(),
+      expiresAtUtc: result.dailyTaskWindow.windowEndAtUtc,
     });
     incrementEventStat(transaction, "daily_task_assigned", nowMs, {
       task_id: task.id,
       reward: task.reward,
       reason: result.rotationReason ?? "initial",
+      reason_code: result.reasonCode ?? getAssignmentReasonCode(result.source),
+      source: result.source,
+      daily_task_window_id: result.dailyTaskWindow.dailyTaskWindowId,
     });
   });
 
@@ -931,15 +1110,21 @@ function applyRotationSideEffects({
         type: "failed",
         taskId: task.id,
         title: task.title,
-        triggerEvent: "daily_task_reset_due_inactivity",
+        triggerEvent: "daily_window_expired",
         userId: uid,
         username,
         reward: task.reward,
         progress: task.progress,
         maxProgress: task.maxProgress,
         timestamp: nowMs,
-        reason: "missed_daily_progress",
+        reason: "daily_window_expired",
+        dailyTaskWindowId: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+        source: result.source,
+        reasonCode: "daily_window_expired",
         assignedAt: task.assignedAt,
+        assignedAtUtc: task.assignedAt ? new Date(task.assignedAt).toISOString() : undefined,
+        updatedAtUtc: new Date(nowMs).toISOString(),
+        expiresAtUtc: result.dailyTaskWindow.windowEndAtUtc,
         startedAt: task.startedAt,
         durationMs: task.startedAt ? Math.max(0, nowMs - task.startedAt) : undefined,
       });
@@ -947,6 +1132,8 @@ function applyRotationSideEffects({
         task_id: task.id,
         progress: task.progress,
         duration_ms: task.startedAt ? Math.max(0, nowMs - task.startedAt) : 0,
+        reason: "daily_window_expired",
+        daily_task_window_id: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
       });
     });
 
@@ -982,6 +1169,13 @@ export async function rotateUserTasks(uid: string) {
     runtimeNowMs = nowMs;
     const result = await buildFreshTaskStateForUser(uid, userData, definitions, nowMs, transaction);
     responseResult = result;
+    if (result.rotated && result.source === "on_demand_backfill") {
+      incrementEventStat(transaction, "daily_task_assignment_backfilled_on_open", nowMs, {
+        daily_task_window_id: result.dailyTaskWindow.dailyTaskWindowId,
+        reason_code: result.reasonCode ?? "on_demand_backfill",
+        idempotency_key: result.state.idempotencyKey ?? buildDailyTaskIdempotencyKey(uid, result.dailyTaskWindow.dailyTaskWindowId),
+      });
+    }
 
     transaction.update(userRef, {
       dailyTasksState: stripUndefinedDeep(result.state),
@@ -1018,6 +1212,140 @@ export async function rotateUserTasks(uid: string) {
     rotated: finalResult.rotated,
     rotationReason: finalResult.rotationReason,
   };
+}
+
+export async function materializeDailyTaskResetWindows(options?: {
+  nowMs?: number;
+  maxUsers?: number;
+  cursorUserId?: string;
+  maxRuntimeMs?: number;
+  source?: "daily_task_materializer" | "debug_repair";
+}) {
+  const nowMs = options?.nowMs ?? Date.now();
+  const source = options?.source ?? "daily_task_materializer";
+  const dailyTaskWindow = getDailyTaskWindow(nowMs);
+  const maxUsers = Math.max(1, Math.min(options?.maxUsers ?? DAILY_TASK_MATERIALIZER_MAX_USERS, DAILY_TASK_MATERIALIZER_MAX_USERS));
+  const maxRuntimeMs = Math.max(1_000, Math.min(options?.maxRuntimeMs ?? DAILY_TASK_MATERIALIZER_MAX_RUNTIME_MS, DAILY_TASK_MATERIALIZER_MAX_RUNTIME_MS));
+  const startedAtMs = Date.now();
+  const runRef = adminDb.collection(TASK_MATERIALIZER_RUN_COLLECTION).doc();
+  let query: FirebaseFirestore.Query = adminDb.collection("users")
+    .orderBy(FieldPath.documentId())
+    .limit(maxUsers);
+
+  if (options?.cursorUserId) {
+    query = query.startAfter(options.cursorUserId);
+  }
+
+  const snapshot = await query.get();
+  let processedUsers = 0;
+  let assignedUsers = 0;
+  let skippedCurrentWindow = 0;
+  let failedUsers = 0;
+  let nextCursorUserId: string | null = null;
+
+  for (const userDoc of snapshot.docs) {
+    if (Date.now() - startedAtMs >= maxRuntimeMs) {
+      nextCursorUserId = userDoc.id;
+      break;
+    }
+
+    processedUsers += 1;
+    nextCursorUserId = userDoc.id;
+
+    try {
+      const definitions = await resolveTaskDefinitionsForUser(userDoc.id);
+      let rotated = false;
+      let runtimeNowMs = nowMs;
+      let notificationChanged = false;
+
+      await adminDb.runTransaction(async (transaction) => {
+        const userRef = adminDb.collection("users").doc(userDoc.id);
+        const snapshotInTransaction = await transaction.get(userRef);
+        if (!snapshotInTransaction.exists) {
+          return;
+        }
+
+        const userData = snapshotInTransaction.data() as UserProfile;
+        runtimeNowMs = Date.now();
+        const result = await buildFreshTaskStateForUser(userDoc.id, userData, definitions, runtimeNowMs, transaction, source);
+        rotated = result.rotated;
+        if (!result.rotated) {
+          const currentState = userData.dailyTasksState as DailyTasksState | undefined;
+          if (currentState?.idempotencyKey !== result.state.idempotencyKey || currentState?.dailyTaskWindowId !== result.state.dailyTaskWindowId) {
+            transaction.update(userRef, {
+              dailyTasksState: stripUndefinedDeep(result.state),
+            });
+          }
+          skippedCurrentWindow += 1;
+          return;
+        }
+
+        transaction.update(userRef, {
+          dailyTasksState: stripUndefinedDeep(result.state),
+        });
+
+        const sideEffects = applyRotationSideEffects({
+          transaction,
+          uid: userDoc.id,
+          username: getUserDisplayName(userData),
+          notificationSettings: userData.notificationSettings,
+          result,
+          nowMs: runtimeNowMs,
+        });
+        notificationChanged = sideEffects.notificationQueued;
+      });
+
+      if (rotated) {
+        assignedUsers += 1;
+        await touchUserRuntime(userDoc.id, {
+          tasks: true,
+          ...(notificationChanged ? { notifications: true } : {}),
+        }, runtimeNowMs);
+      }
+    } catch (error) {
+      failedUsers += 1;
+      await runRef.collection("errors").doc(userDoc.id).set({
+        userId: userDoc.id,
+        message: error instanceof Error ? error.message : String(error),
+        dailyTaskWindowId: dailyTaskWindow.dailyTaskWindowId,
+        reasonCode: "materializer_retry",
+        createdAt: FieldValue.serverTimestamp(),
+        createdAtMs: Date.now(),
+      }, { merge: true });
+    }
+  }
+
+  const result = {
+    dailyTaskWindowId: dailyTaskWindow.dailyTaskWindowId,
+    windowStartAtUtc: dailyTaskWindow.windowStartAtUtc,
+    windowEndAtUtc: dailyTaskWindow.windowEndAtUtc,
+    resetAtUtc: dailyTaskWindow.resetAtUtc,
+    source,
+    maxUsers,
+    maxRuntimeMs,
+    processedUsers,
+    assignedUsers,
+    skippedCurrentWindow,
+    failedUsers,
+    cursorUserId: options?.cursorUserId ?? null,
+    nextCursorUserId,
+    completed: !nextCursorUserId || processedUsers < maxUsers,
+    idempotencyScope: `daily_tasks:*:${dailyTaskWindow.dailyTaskWindowId}`,
+    generatedAtUtc: new Date().toISOString(),
+  };
+
+  await runRef.set({
+    ...result,
+    createdAt: FieldValue.serverTimestamp(),
+    createdAtMs: Date.now(),
+  });
+  await adminDb.collection(TASK_MATERIALIZER_HEARTBEAT_COLLECTION).doc("daily_task_materializer").set({
+    ...result,
+    updatedAt: FieldValue.serverTimestamp(),
+    updatedAtMs: Date.now(),
+  }, { merge: true });
+
+  return result;
 }
 
 export async function recordTelemetryEventStat(eventName: string, eventParams: EventParams) {
@@ -1155,6 +1483,7 @@ export async function recordDailyTaskProgressFromEvent(
         startedAt: justStarted ? nowMs : task.startedAt,
         claimed: justCompleted ? true : task.claimed,
         claimedAt: justCompleted ? nowMs : task.claimedAt,
+        status: justCompleted ? "completed" : "in_progress",
       };
       stateChanged = true;
 
@@ -1170,7 +1499,13 @@ export async function recordDailyTaskProgressFromEvent(
           progress: nextProgress,
           maxProgress: task.maxProgress,
           timestamp: nowMs,
+          dailyTaskWindowId: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+          source: "user_action",
+          reasonCode: "task_progress_started",
           assignedAt: task.assignedAt,
+          assignedAtUtc: task.assignedAt ? new Date(task.assignedAt).toISOString() : undefined,
+          updatedAtUtc: new Date(nowMs).toISOString(),
+          expiresAtUtc: task.expiresAtUtc || result.dailyTaskWindow.windowEndAtUtc,
           startedAt: nowMs,
         });
         incrementEventStat(transaction, "daily_task_started", nowMs, {
@@ -1200,7 +1535,13 @@ export async function recordDailyTaskProgressFromEvent(
           progress: nextProgress,
           maxProgress: task.maxProgress,
           timestamp: nowMs,
+          dailyTaskWindowId: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
+          source: "user_action",
+          reasonCode: "task_completed",
           assignedAt: task.assignedAt,
+          assignedAtUtc: task.assignedAt ? new Date(task.assignedAt).toISOString() : undefined,
+          updatedAtUtc: new Date(nowMs).toISOString(),
+          expiresAtUtc: task.expiresAtUtc || result.dailyTaskWindow.windowEndAtUtc,
           startedAt: updatedTasks[index].startedAt,
           durationMs,
         });
@@ -1210,6 +1551,7 @@ export async function recordDailyTaskProgressFromEvent(
           reward_gd: task.reward,
           reward: task.reward,
           day_key: getCSTDateKey(nowMs),
+          daily_task_window_id: task.dailyTaskWindowId || result.dailyTaskWindow.dailyTaskWindowId,
           sourceTruth: "canonical",
           duration_ms: durationMs,
         });

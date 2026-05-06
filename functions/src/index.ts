@@ -15,6 +15,7 @@ export {
 export {onAnalyticsEventFactTimeline} from "./analytics-timeline.js"
 export {buildMLFeatureProfiles} from "./profile-builder.js"
 export {reconcileAnalyticsTruthLayers} from "./analytics-truth-schedule.js"
+export {materializeDailyTaskResetWindows} from "./daily-task-materializer.js"
 export {refreshAdminAnalyticsRealtimeSummary} from "./analytics-realtime-summary.js"
 export {onAnalyticsEventFactBigQueryExport} from "./analytics-bigquery-export.js"
 export {

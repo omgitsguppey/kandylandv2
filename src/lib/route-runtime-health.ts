@@ -757,6 +757,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
                 title: "Tasks Rotate runtime",
                 slowThresholdMs: 1200,
             },
+    "tasks/materialize:POST": {
+                routeName: "tasks/materialize",
+                method: "POST",
+                title: "Tasks Materialize runtime",
+                slowThresholdMs: 5000,
+            },
     "user/check-username:GET": {
                 routeName: "user/check-username",
                 method: "GET",

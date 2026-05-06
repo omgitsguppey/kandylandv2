@@ -597,6 +597,7 @@ requireIncludes(releaseNotesScript, "Improved internal queue health views so dro
 requireIncludes(releaseNotesScript, "Clarified internal admin readiness checks so config presence is not confused with live service health.", "Release notes script must include admin session config readiness copy");
 requireIncludes(releaseNotesScript, "Improved internal event-flow diagnostics so background events and user actions are easier to tell apart.", "Release notes script must include recent event flow context copy");
 requireIncludes(releaseNotesScript, "Improved internal event-flow diagnostics so background system events are not confused with user actions.", "Release notes script must include normalized recent event flow context copy");
+requireIncludes(releaseNotesScript, "Improved daily task reset reliability so tasks are prepared on the daily schedule.", "Release notes script must include daily task lifecycle copy");
 
 for (const expected of [
   "RecentEventFlowRow",
@@ -652,6 +653,30 @@ for (const forbidden of [
   "Missing inputs: {event.dependencyReadiness.missing.join(\", \")}",
 ]) {
   requireNotIncludes(debugTabMonitoring, forbidden, "Recent event flow panel must not render raw WAIT-style event rows or context-free missing input warnings");
+}
+
+for (const expected of [
+  "data-daily-task-activity-loaded-count",
+  "data-daily-task-window-id",
+  "data-daily-task-reason-code",
+  "data-daily-task-source",
+  "Task event timing",
+  "assignedAtUtc:",
+  "updatedAtUtc:",
+  "expiresAtUtc:",
+  "badgeLabel=\"LOADED\"",
+]) {
+  requireIncludes(debugTabMonitoring, expected, "Recent task activity panel must label loaded task fields and expose window/source/reason truth");
+}
+for (const forbidden of [
+  "<Pill label=\"Recent events\" value={(data?.recentTaskEvents || []).length} />",
+  "<Pill label=\"Rollups\" value={(data?.taskRollups || []).length} />",
+  "<Pill label=\"Daily points\" value={(data?.dailyTaskSeries || []).length} />",
+  "<Pill label=\"User\" value={event.username} />",
+  "<Pill label=\"Reward\" value={event.reward} />",
+  "<Pill label=\"Progress\" value={`${event.progress}/${event.maxProgress}`} />",
+]) {
+  requireNotIncludes(debugTabMonitoring, forbidden, "Recent task activity panel must not render WAIT-style loaded task fields");
 }
 
 for (const expected of [
@@ -929,6 +954,9 @@ try {
     /^src\/lib\/admin\/synthetic-creators-view-as\.ts$/u,
     /^src\/lib\/telemetry-catalog\.ts$/u,
     /^src\/lib\/user-utils\.ts$/u,
+    /^src\/lib\/route-runtime-health\.ts$/u,
+    /^src\/lib\/tasks\/task-catalog\.ts$/u,
+    /^src\/lib\/server\/daily-tasks\.ts$/u,
     /^src\/lib\/server\/creator-admin-action-contract\.ts$/u,
     /^src\/lib\/server\/admin-overview-users\.ts$/u,
     /^src\/lib\/server\/creator-onboarding\.ts$/u,
@@ -936,6 +964,9 @@ try {
     /^src\/lib\/server\/creator-review-queue\.ts$/u,
     /^src\/app\/admin\/roster\/page\.tsx$/u,
     /^src\/app\/api\/admin\/roster\/route\.ts$/u,
+    /^src\/app\/api\/tasks\/materialize\/route\.ts$/u,
+    /^functions\/src\/daily-task-materializer\.ts$/u,
+    /^functions\/src\/index\.ts$/u,
     /^src\/types\/db\.ts$/u,
     /^scripts\/agent\/repair-creator-lifecycle-history-gap\.ts$/u,
     /^scripts\/agent\/score-creator-lane-debug-parity\.ts$/u,
@@ -946,6 +977,7 @@ try {
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
     /^scripts\/agent\/validate-admin-user-behavior-truth\.ts$/u,
+    /^scripts\/agent\/validate-daily-task-lifecycle\.ts$/u,
     /^scripts\/agent\/validate-daily-task-telemetry-truth\.ts$/u,
     /^scripts\/release\/update-public-changelog\.ts$/u,
     /^CHANGELOG\.md$/u,

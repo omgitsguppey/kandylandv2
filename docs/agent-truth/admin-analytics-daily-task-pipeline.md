@@ -2,6 +2,10 @@
 
 Daily Task Pipeline shows task lifecycle health, not generic task guidance volume.
 
+Daily task assignment is canonical daily-window truth. The app reset window matches the check-in reset policy and is exposed as `dailyTaskWindowId`, `windowStartAtUtc`, `windowEndAtUtc`, and `resetAtUtc`. Eligible users should have one idempotent assignment envelope per user/window with `idempotencyKey` shaped like `daily_tasks:{userId}:{dailyTaskWindowId}`, `schemaVersion`, `assignedAtUtc`, `expiresAtUtc`, and source `daily_task_materializer`, `on_demand_backfill`, or `debug_repair`. The scheduled/materialized path is primary; dashboard open may backfill only as a labeled fallback and must emit `daily_task_assignment_backfilled_on_open`.
+
+Incomplete prior-window tasks expire with reason `daily_window_expired`. `daily_task_reset_due_inactivity` is not the primary reset mechanism and must not be used for normal daily rollover. Same-task failed/assigned pairs are acceptable only across different daily windows, with reason/source/window evidence visible in Admin Debug.
+
 Lifecycle states are assigned, started, completed, failed, and reminded. Guidance signals such as guide views, guide taps, and guide wins must be shown separately unless they are explicitly mapped to a task lifecycle state.
 
 Canonical source hierarchy is user task state first, lifecycle logs second, first-party telemetry third, GA/Firebase analytics fourth, and stale backend snapshot last. The current analytics payload uses lifecycle logs plus guidance telemetry, so the UI must label the mode as mixed or raw event counts instead of claiming a strict state pipeline.

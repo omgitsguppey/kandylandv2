@@ -525,17 +525,23 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 </ScrollWrap>
             </Section>
 
-            <Section title="Recent task activity sample" subtitle="Recent task events and longer-tail rollups from the activity sample." defaultOpen={false} summary={<><Pill label="Recent events" value={(data?.recentTaskEvents || []).length} /><Pill label="Rollups" value={(data?.taskRollups || []).length} /><Pill label="Daily points" value={(data?.dailyTaskSeries || []).length} /></>}>
+            <Section title="Recent task activity sample" subtitle="Recent task events and longer-tail rollups from the activity sample." defaultOpen={false} summary={<><Pill label="Recent events" value={(data?.recentTaskEvents || []).length} truthState="live" badgeLabel="LOADED" /><Pill label="Rollups" value={(data?.taskRollups || []).length} truthState="live" badgeLabel="LOADED" /><Pill label="Daily points" value={(data?.dailyTaskSeries || []).length} truthState="live" badgeLabel="LOADED" /></>}>
                 <div className="grid gap-4 lg:grid-cols-1">
                     <ScrollWrap>
-                        <div className="divide-y divide-white/10">
+                        <div className="divide-y divide-white/10" data-daily-task-activity-loaded-count={(data?.recentTaskEvents || []).length}>
                             {(data?.recentTaskEvents || []).map((event: any) => (
-                                <div key={event.id} className="space-y-2 px-4 py-3">
+                                <div key={event.id} className="space-y-2 px-4 py-3" data-daily-task-window-id={event.dailyTaskWindowId || "unknown"} data-daily-task-reason-code={event.reasonCode || event.reason || "unknown"} data-daily-task-source={event.source || "unknown"}>
                                     <div className="flex flex-wrap items-start justify-between gap-2">
-                                        <div><p className="font-semibold text-white">{event.title}</p><p className="text-xs text-gray-400">{event.triggerEvent}</p></div>
-                                        <Pill label={event.type} value={formatRelative(event.timestamp)} />
+                                        <div><p className="font-semibold text-white">{event.title || event.taskId}</p><p className="text-xs text-gray-400">{event.triggerEvent} | {event.updatedAtUtc || formatUtc(event.timestamp)}</p></div>
+                                        <Pill label="Status" value={event.type || "unknown"} tone={event.type === "failed" ? "warn" : event.type === "completed" ? "good" : "neutral"} truthState={event.type === "failed" ? "degraded" : "live"} badgeLabel={(event.type || "loaded").toUpperCase()} />
                                     </div>
-                                    <div className="flex flex-wrap gap-2"><Pill label="User" value={event.username} /><Pill label="Reward" value={event.reward} /><Pill label="Progress" value={`${event.progress}/${event.maxProgress}`} /></div>
+                                    <div className="flex flex-wrap gap-2"><Pill label="User" value={event.username || event.userId || "unknown"} truthState="live" badgeLabel="LOADED" /><Pill label="Reward" value={`${event.reward} GD`} truthState="live" badgeLabel="LOADED" /><Pill label="Progress" value={`${event.progress}/${event.maxProgress}`} truthState="live" badgeLabel="LOADED" /><Pill label="Window" value={event.dailyTaskWindowId || "unknown"} truthState={event.dailyTaskWindowId ? "live" : "unavailable"} badgeLabel={event.dailyTaskWindowId ? "WINDOW" : "MISSING"} /><Pill label="Reason" value={event.reasonCode || event.reason || "unknown"} tone={(event.reasonCode || event.reason) === "daily_window_expired" ? "warn" : "neutral"} /><Pill label="Source" value={event.source || "unknown"} truthState={event.source ? "live" : "unavailable"} badgeLabel="SOURCE" /></div>
+                                    <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
+                                        <summary className="min-h-9 cursor-pointer pt-2 text-gray-100">Task event timing</summary>
+                                        <p className="mt-2">assignedAtUtc: {event.assignedAtUtc || formatUtc(event.assignedAt)}</p>
+                                        <p>updatedAtUtc: {event.updatedAtUtc || formatUtc(event.timestamp)}</p>
+                                        <p>expiresAtUtc: {event.expiresAtUtc || "unknown"}</p>
+                                    </details>
                                 </div>
                             ))}
                         </div>

@@ -88,12 +88,26 @@ export interface DailyTaskAssignment extends DailyTaskDefinition {
   assignedAt: number;
   startedAt?: number;
   claimedAt?: number;
+  dailyTaskWindowId?: string;
+  expiresAtUtc?: string;
+  status?: "assigned" | "in_progress" | "completed" | "expired" | "failed" | "skipped" | "backfilled";
+  reasonCode?: "daily_window_started" | "daily_window_expired" | "on_demand_backfill" | "user_ineligible" | "catalog_unavailable" | "materializer_retry" | "debug_repair" | "inactivity_policy";
+  assignmentSource?: "daily_task_materializer" | "on_demand_backfill" | "debug_repair";
 }
 
 export interface DailyTasksState {
   lastResetMs: number;
   nextRefreshMs: number;
   tasks: DailyTaskAssignment[];
+  dailyTaskWindowId?: string;
+  windowStartAtUtc?: string;
+  windowEndAtUtc?: string;
+  resetAtUtc?: string;
+  assignedAtUtc?: string;
+  expiresAtUtc?: string;
+  source?: "daily_task_materializer" | "on_demand_backfill" | "debug_repair";
+  schemaVersion?: number;
+  idempotencyKey?: string;
   completedTaskHistory?: Record<string, number>;
   retiredTaskIds?: string[];
   lastProgressAt?: number;

@@ -72,6 +72,10 @@ requireIncludes(checkInRoute, 'sourceTruth: "canonical"', "Check-in route source
 requireIncludes(dailyTasksServer, 'incrementEventStat(transaction, "task_completed"', "Daily tasks server task completion stats");
 requireIncludes(dailyTasksServer, 'sourceTruth: "canonical"', "Daily tasks server source truth");
 requireIncludes(dailyTasksServer, 'day_key: getCSTDateKey(nowMs)', "Daily tasks server day-key tracking");
+requireIncludes(dailyTasksServer, "getDailyTaskWindow", "Daily tasks server window truth");
+requireIncludes(dailyTasksServer, "daily_task_assignment_backfilled_on_open", "Daily tasks on-demand backfill diagnostic");
+requireIncludes(dailyTasksServer, "daily_window_expired", "Daily tasks server daily-window expiration reason");
+requireExcludes(dailyTasksServer, "daily_task_reset_due_inactivity", "Daily tasks server should not use inactivity reset as primary reason");
 requireIncludes(adminDebugRoute, "TaskIssueAttribution", "Admin debug task attribution model");
 requireIncludes(adminDebugRoute, "expectedSource", "Admin debug task attribution expected source");
 requireIncludes(adminDebugRoute, "foundSource", "Admin debug task attribution found source");

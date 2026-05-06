@@ -61,6 +61,7 @@ import { getAnalyticsTruthRecoverySummary, listAnalyticsTruthDrops, listAnalytic
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { getDailyTaskRefreshMetadataIssue } from "@/lib/tasks/task-timestamps";
+import { getDailyTaskWindow } from "@/lib/server/daily-tasks";
 import { buildAdminShellLayoutDebugMetadata } from "@/lib/admin-shell-spacing";
 import { listAdminMetricSnapshotDebugMetadata } from "@/lib/server/admin-analytics-snapshots";
 import { ADMIN_ANALYTICS_MATERIALIZER_REGISTRY } from "@/lib/server/admin-analytics-materializers";
@@ -610,6 +611,10 @@ function normalizeTaskIds(rawTasks: unknown) {
             claimed: task.claimed === true,
             claimedAt: toNumber(task.claimedAt),
             assignedAt: toNumber(task.assignedAt),
+            dailyTaskWindowId: toStringValue(task.dailyTaskWindowId),
+            status: toStringValue(task.status),
+            reasonCode: toStringValue(task.reasonCode),
+            source: toStringValue(task.assignmentSource),
         }))
         .filter((task) => task.id.length > 0 && !isRetiredLegacyDailyTaskId(task.id));
 }
@@ -1014,12 +1019,15 @@ export async function GET(request: NextRequest) {
             const data = doc.data() as Record<string, unknown>;
             return Math.max(latest, toNumber(data.lastEventAt) || toNumber(data.updatedAt) || toTimestampNumber(data.updatedAt));
         }, 0) || null;
+        const currentDailyTaskWindow = getDailyTaskWindow(nowMs);
 
         const assignmentIssues = usersSnapshot.docs.flatMap((doc) => {
             const data = doc.data() as Record<string, unknown>;
             const username = toStringValue(data.username) || toStringValue(data.displayName) || doc.id;
             const dailyTasksState = data.dailyTasksState as Record<string, unknown> | undefined;
             const tasks = normalizeTaskIds(dailyTasksState?.tasks);
+            const currentWindowTasks = tasks.filter((task) => task.dailyTaskWindowId === currentDailyTaskWindow.dailyTaskWindowId
+                || (task.assignedAt >= currentDailyTaskWindow.windowStartMs && task.assignedAt < currentDailyTaskWindow.windowEndMs));
             const refreshMetadataIssue = tasks.length > 0
                 ? getDailyTaskRefreshMetadataIssue(dailyTasksState, nowMs)
                 : null;
@@ -1027,8 +1035,12 @@ export async function GET(request: NextRequest) {
             const ids = tasks.map((task) => task.id);
             const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
 
-            if (tasks.length !== DAILY_TASK_LIMIT) {
-                issues.push(`Expected ${DAILY_TASK_LIMIT} tasks, found ${tasks.length}`);
+            if (toStringValue(dailyTasksState?.dailyTaskWindowId) !== currentDailyTaskWindow.dailyTaskWindowId
+                && !(toNumber(dailyTasksState?.lastResetMs) >= currentDailyTaskWindow.windowStartMs && toNumber(dailyTasksState?.lastResetMs) < currentDailyTaskWindow.windowEndMs)) {
+                issues.push(`Current daily task window missing: ${currentDailyTaskWindow.dailyTaskWindowId}`);
+            }
+            if (tasks.length !== DAILY_TASK_LIMIT || currentWindowTasks.length !== DAILY_TASK_LIMIT) {
+                issues.push(`Expected ${DAILY_TASK_LIMIT} current-window tasks, found ${currentWindowTasks.length}`);
             }
             if (duplicateIds.length > 0) {
                 issues.push(`Duplicate tasks: ${Array.from(new Set(duplicateIds)).join(", ")}`);
@@ -1054,7 +1066,7 @@ export async function GET(request: NextRequest) {
                 userId: doc.id,
                 displayName: username,
                 userData: data,
-                tasks,
+                tasks: currentWindowTasks,
                 taskEvents: taskEventsForAttribution,
                 materializedAt: materializedTaskRollupAt,
                 sampleWindowMs: ONE_WEEK_MS,
@@ -1086,6 +1098,13 @@ export async function GET(request: NextRequest) {
                 timestamp: toNumber(data.timestamp),
                 durationMs: toNumber(data.durationMs),
                 reason: toStringValue(data.reason),
+                reasonCode: toStringValue(data.reasonCode) || toStringValue(data.reason),
+                dailyTaskWindowId: toStringValue(data.dailyTaskWindowId),
+                source: toStringValue(data.source) || "unknown",
+                assignedAt: toNumber(data.assignedAt),
+                assignedAtUtc: toStringValue(data.assignedAtUtc),
+                updatedAtUtc: toStringValue(data.updatedAtUtc) || toUtcString(data.timestamp),
+                expiresAtUtc: toStringValue(data.expiresAtUtc),
             };
         });
 
