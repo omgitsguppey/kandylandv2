@@ -177,6 +177,9 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                 Last rebuild {recoveryPanel?.lastRebuildAtUtc ? formatRelative(Date.parse(recoveryPanel.lastRebuildAtUtc)) : "unknown"}.
                                 Observed, checked, final, and estimated layers stay separate and explicitly labeled.
                             </p>
+                            <p className="mt-2 text-sm text-gray-400">
+                                Verified watch excludes estimated timeout recovery. Final reporting may still include estimated watch when quality is mixed or estimated.
+                            </p>
                             <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
                                 {(recoveryPanel?.sourceLayers || []).map((layer: any) => (
                                     <StatCard
@@ -196,6 +199,64 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                 </div>
                             )}
                         </div>
+
+                        <ScrollWrap>
+                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                                {(recoveryPanel?.estimatedWatchRecoveryGroups || []).length ? (recoveryPanel?.estimatedWatchRecoveryGroups || []).map((entry: any) => (
+                                    <div key={`${entry.recoveryKind}:${entry.provenance}:${entry.recoveredWatchSecondsPerSession?.mode ?? 0}`} className="space-y-3 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">Estimated session ends - {entry.provenance}</p>
+                                                <p className="text-xs text-gray-400">{entry.explanation}</p>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Layer" value={entry.layer || "estimated"} tone="warn" truthState="degraded" badgeLabel="LOADED" />
+                                                <Pill label="Count" value={entry.count ?? 0} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="State" value={entry.state || "review"} tone={entry.state === "error" ? "bad" : "warn"} truthState={entry.state === "error" ? "failed" : "degraded"} badgeLabel="LOADED" />
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Confidence range" value={`${entry.confidenceMin ?? 0}% - ${entry.confidenceMax ?? 0}%`} tone="warn" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Confidence avg" value={`${entry.confidenceAvg ?? 0}%`} tone="warn" truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Recovered watch total" value={`${entry.recoveredWatchSecondsTotal ?? 0}s`} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Per session mode" value={`${entry.recoveredWatchSecondsPerSession?.mode ?? 0}s`} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Completion repairs" value={entry.completionRepairCount ?? 0} truthState="live" badgeLabel="LOADED" />
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Pill label="Verified watch" value={entry.countsTowardVerifiedWatch ? "yes" : "no"} tone={entry.countsTowardVerifiedWatch ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Estimated watch" value={entry.countsTowardEstimatedWatch ? "yes" : "no"} tone={entry.countsTowardEstimatedWatch ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="First seen" value={entry.firstSeenAtUtc ? formatRelative(Date.parse(entry.firstSeenAtUtc)) : "unknown"} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Last seen" value={entry.lastSeenAtUtc ? formatRelative(Date.parse(entry.lastSeenAtUtc)) : "unknown"} truthState="live" badgeLabel="LOADED" />
+                                        </div>
+                                        <p className="text-xs text-gray-300">Estimation formula: {entry.estimationFormula}</p>
+                                        <p className="text-xs text-gray-300">Confidence factors: {entry.confidenceFactors}</p>
+                                        <p className="text-xs text-gray-300">
+                                            {entry.completionRepairCount > 0
+                                                ? `Completion repairs changed ${entry.completionRepairCount} state(s).`
+                                                : "No completion state changed. This recovery estimated session end time only; it did not mark content complete."}
+                                        </p>
+                                        <details className="rounded-xl border border-white/10 bg-black/10 p-3">
+                                            <summary className="cursor-pointer text-sm text-gray-200">Affected sessions (first 5)</summary>
+                                            <div className="mt-3 space-y-2">
+                                                {(entry.affectedSessionSample || []).map((sample: any) => (
+                                                    <div key={sample.sessionId} className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+                                                        <div className="flex flex-wrap gap-2">
+                                                            <Pill label="Session" value={sample.shortSessionId || "unknown"} truthState="live" badgeLabel="LOADED" />
+                                                            <Pill label="Confidence" value={`${sample.confidence ?? 0}%`} tone="warn" truthState="live" badgeLabel="LOADED" />
+                                                            <Pill label="Recovered watch" value={`${sample.recoveredWatchSeconds ?? 0}s`} truthState="live" badgeLabel="LOADED" />
+                                                            <Pill label="Provenance" value={sample.provenance || "unknown"} truthState="live" badgeLabel="LOADED" />
+                                                        </div>
+                                                        <p className="mt-2 text-xs text-gray-400">
+                                                            {(sample.dropTitle || sample.dropId || "Unknown drop")} · {(sample.actorDisplayName || sample.userId || "Unknown user")} · {sample.createdAtUtc || "Unknown repair time"}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </details>
+                                    </div>
+                                )) : <div className="px-4 py-4 text-sm text-emerald-100">No estimated session-end recovery groups are present in the current truth window.</div>}
+                            </div>
+                        </ScrollWrap>
 
                         <ScrollWrap>
                             <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">

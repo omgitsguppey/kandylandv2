@@ -609,6 +609,46 @@ type TelemetryTruthRecoveryRepairGroup = {
     latestAtUtc: string | null;
 };
 
+type EstimatedWatchRecoveryRow = {
+    sessionId: string;
+    shortSessionId: string;
+    dropId?: string;
+    dropTitle?: string;
+    userId?: string;
+    actorDisplayName?: string;
+    confidence: number;
+    recoveredWatchSeconds: number;
+    completionRepairCount: number;
+    provenance: string;
+    createdAtUtc?: string;
+};
+
+type EstimatedWatchRecoveryGroup = {
+    recoveryKind: "estimated_drop_session_end";
+    provenance: "stale_open_session_timeout" | string;
+    layer: "estimated";
+    count: number;
+    confidenceMin: number;
+    confidenceMax: number;
+    confidenceAvg: number;
+    recoveredWatchSecondsTotal: number;
+    recoveredWatchSecondsPerSession: {
+        min: number;
+        max: number;
+        mode: number;
+    };
+    completionRepairCount: number;
+    firstSeenAtUtc: string | null;
+    lastSeenAtUtc: string | null;
+    affectedSessionSample: EstimatedWatchRecoveryRow[];
+    estimationFormula: string;
+    confidenceFactors: string;
+    countsTowardVerifiedWatch: false;
+    countsTowardEstimatedWatch: true;
+    state: "review" | "info" | "error";
+    explanation: string;
+};
+
 type TelemetryTruthRecoveryState = {
     generatedAtUtc: string;
     lastRebuildAtUtc: string | null;
@@ -640,6 +680,7 @@ type TelemetryTruthRecoveryState = {
     };
     sourceLayers: TelemetryTruthRecoverySourceLayer[];
     repairGroups: TelemetryTruthRecoveryRepairGroup[];
+    estimatedWatchRecoveryGroups: EstimatedWatchRecoveryGroup[];
     warnings: string[];
 };
 
@@ -1967,6 +2008,118 @@ function isTelemetryTruthRepairActionable(repairType: TelemetryTruthRecoveryRepa
     return repairType === "stale metric rebuild";
 }
 
+function buildEstimatedWatchRecoveryGroups(repairs: Array<Record<string, unknown>>): EstimatedWatchRecoveryGroup[] {
+    const estimatedRows = repairs
+        .map((entry) => {
+            const repairType = toOptionalString(entry.repairType);
+            const sourceLayer = toOptionalString(entry.sourceLayer) || toOptionalString(entry.truthLabel);
+            if (repairType !== "estimated_drop_session_end" || sourceLayer !== "estimated") {
+                return null;
+            }
+
+            const sessionId = toOptionalString(entry.scopeKey) || toOptionalString(entry.sessionId) || toOptionalString(entry.repairId) || "unknown-session";
+            const confidence = Math.max(0, Math.round(toNumber(entry.confidenceScore) * 100));
+            const recoveredWatchSeconds = Math.max(0, Math.round(toNumber(entry.recoveredWatchTimeMs) / 1000));
+
+            return {
+                recoveryKind: "estimated_drop_session_end" as const,
+                provenance: toOptionalString(entry.provenance) || "unknown",
+                layer: "estimated" as const,
+                recoveredWatchSeconds,
+                row: {
+                    sessionId,
+                    shortSessionId: shortenDebugId(sessionId),
+                    dropId: toOptionalString(entry.dropId) || undefined,
+                    dropTitle: toOptionalString(entry.dropTitle) || undefined,
+                    userId: toOptionalString(entry.userId) || undefined,
+                    actorDisplayName: toOptionalString(entry.actorDisplayName) || (toOptionalString(entry.userId) ? shortenDebugId(toOptionalString(entry.userId) || "") : undefined),
+                    confidence,
+                    recoveredWatchSeconds,
+                    completionRepairCount: toNumber(entry.repairedCompletionCount),
+                    provenance: toOptionalString(entry.provenance) || "unknown",
+                    createdAtUtc: formatUtcFromMs(entry.repairedAtMs) || undefined,
+                } satisfies EstimatedWatchRecoveryRow,
+            };
+        })
+        .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+
+    const grouped = new Map<string, {
+        recoveryKind: "estimated_drop_session_end";
+        provenance: string;
+        layer: "estimated";
+        rows: EstimatedWatchRecoveryRow[];
+    }>();
+
+    for (const entry of estimatedRows) {
+        const key = `${entry.recoveryKind}:${entry.provenance}:${entry.recoveredWatchSeconds}:${entry.layer}`;
+        const existing = grouped.get(key);
+        if (existing) {
+            existing.rows.push(entry.row);
+            continue;
+        }
+        grouped.set(key, {
+            recoveryKind: entry.recoveryKind,
+            provenance: entry.provenance,
+            layer: entry.layer,
+            rows: [entry.row],
+        });
+    }
+
+    return Array.from(grouped.values()).map((group) => {
+        const confidenceValues = group.rows.map((row) => row.confidence);
+        const recoveredValues = group.rows.map((row) => row.recoveredWatchSeconds);
+        const recoveredMode = recoveredValues.reduce<Record<number, number>>((accumulator, value) => {
+            accumulator[value] = (accumulator[value] || 0) + 1;
+            return accumulator;
+        }, {});
+        const modeSeconds = Object.entries(recoveredMode).sort((left, right) => {
+            if (right[1] !== left[1]) return right[1] - left[1];
+            return Number(left[0]) - Number(right[0]);
+        })[0];
+        const firstSeenAtUtc = group.rows
+            .map((row) => row.createdAtUtc)
+            .filter((value): value is string => Boolean(value))
+            .sort()[0] || null;
+        const lastSeenAtUtc = group.rows
+            .map((row) => row.createdAtUtc)
+            .filter((value): value is string => Boolean(value))
+            .sort()
+            .slice(-1)[0] || null;
+        const completionRepairCount = group.rows.reduce((sum, row) => sum + row.completionRepairCount, 0);
+        const confidenceAvg = confidenceValues.length > 0
+            ? Math.round((confidenceValues.reduce((sum, value) => sum + value, 0) / confidenceValues.length) * 10) / 10
+            : 0;
+
+        return {
+            recoveryKind: group.recoveryKind,
+            provenance: group.provenance,
+            layer: group.layer,
+            count: group.rows.length,
+            confidenceMin: confidenceValues.length > 0 ? Math.min(...confidenceValues) : 0,
+            confidenceMax: confidenceValues.length > 0 ? Math.max(...confidenceValues) : 0,
+            confidenceAvg,
+            recoveredWatchSecondsTotal: recoveredValues.reduce((sum, value) => sum + value, 0),
+            recoveredWatchSecondsPerSession: {
+                min: recoveredValues.length > 0 ? Math.min(...recoveredValues) : 0,
+                max: recoveredValues.length > 0 ? Math.max(...recoveredValues) : 0,
+                mode: modeSeconds ? Number(modeSeconds[0]) : 0,
+            },
+            completionRepairCount,
+            firstSeenAtUtc,
+            lastSeenAtUtc,
+            affectedSessionSample: group.rows.slice(0, 5),
+            estimationFormula: "stale-open timeout fallback = min(15s, max(3s, round((totalVisibleSeconds - totalWatchSeconds) * 250ms))).",
+            confidenceFactors: "Confidence starts at 100%, then subtracts 25% for stale-open timeout, 25% when no raw watch observations exist, and 20% when capture was degraded.",
+            countsTowardVerifiedWatch: false as const,
+            countsTowardEstimatedWatch: true as const,
+            state: "review" as const,
+            explanation: completionRepairCount > 0
+                ? "Estimated session end contributes only to estimated watch recovery and may include completion repair side effects."
+                : "Estimated session end contributes only to estimated watch recovery. No completion state changed.",
+        } satisfies EstimatedWatchRecoveryGroup;
+    }).sort((left, right) => right.count - left.count);
+}
+
 function buildTelemetryTruthRecoveryState(input: {
     nowMs: number;
     analyticsTruthRecovery: Record<string, unknown> | null;
@@ -2016,7 +2169,7 @@ function buildTelemetryTruthRecoveryState(input: {
     const formulas = {
         observedViews: "Raw viewer-open and session-start events from the observed analytics layer.",
         checkedViews: "Deduped eligible view candidates after duplicate/page-load collapse in the checked layer.",
-        finalViews: "Reporting value after checked views plus recovered or estimated adjustments from the finalized layer.",
+        finalViews: "Reporting value after checked views plus recovered or estimated adjustments from the finalized layer. Estimated watch remains non-verified even when final reporting includes it.",
         estimatedRatio: "estimatedViews / finalViews from the estimated layer.",
         duplicateRate: "duplicateCandidates / rawCandidates in the checked layer.",
         confidence: "Weighted source truth, rebuild freshness, sample quality, and repair burden.",
@@ -2055,6 +2208,7 @@ function buildTelemetryTruthRecoveryState(input: {
         });
     }
     const repairGroups = Array.from(repairGroupMap.values()).sort((left, right) => right.count - left.count);
+    const estimatedWatchRecoveryGroups = buildEstimatedWatchRecoveryGroups(input.analyticsTruthRepairs);
     const actionableRepairCount = repairGroups
         .filter((group) => group.actionability === "actionable")
         .reduce((sum, group) => sum + group.count, 0);
@@ -2107,6 +2261,9 @@ function buildTelemetryTruthRecoveryState(input: {
     if (qualityState === "estimated") {
         warnings.push("Quality is estimated, so recovered and inferred layers must stay visible before trusting the final reporting value.");
     }
+    if (estimatedWatchRecoveryGroups.length > 0) {
+        warnings.push("Estimated watch recovery is displayed separately from verified watch. These timeout repairs count toward estimated/final reporting only, not verified watch time.");
+    }
     if (input.analyticsTruthRepairs.length > 0) {
         warnings.push(`${input.analyticsTruthRepairs.length} open repairs remain in the truth window. Review grouped repair types before treating these metrics as verified.`);
     }
@@ -2158,6 +2315,7 @@ function buildTelemetryTruthRecoveryState(input: {
         formulas,
         sourceLayers,
         repairGroups,
+        estimatedWatchRecoveryGroups,
         warnings,
     };
 }

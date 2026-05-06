@@ -34,10 +34,12 @@ const watchHook = read("src/hooks/useViewerWatchSession.ts");
 const viewerTelemetryAdapter = read("src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts");
 const watchRollupContract = read("src/lib/watch-time-rollup-contract.ts");
 const watchRollup = read("src/lib/server/watch-time-rollup.ts");
+const analyticsTruthRuntime = read("functions/src/analytics-truth-runtime.ts");
 const adminUsersRoute = read("src/app/api/admin/users/route.ts");
 const adminUserRoute = read("src/app/api/admin/user/[userId]/route.ts");
 const behavioralRuntime = read("functions/src/behavioral-intelligence-runtime.ts");
 const analyticsMetrics = read("src/lib/server/analytics-metrics.ts");
+const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
 const docs = read("docs/agent-truth/watch-time-truth.md");
 
 requireIncludes(watchTruth, "IMAGE_WATCH_THRESHOLDS_MS", "watch-time truth helper", failures);
@@ -66,6 +68,10 @@ requireIncludes(watchRollupContract, "legacyPageDurationMs", "watch rollup contr
 requireIncludes(watchRollup, "estimateMissingWatchTime", "watch rollup helper", failures);
 requireIncludes(watchRollup, "watch_time_missing_despite_views", "watch rollup helper", failures);
 requireIncludes(watchRollup, "diagnosticEstimate", "watch rollup helper", failures);
+requireIncludes(analyticsTruthRuntime, "estimated_drop_session_end", "analytics truth runtime", failures);
+requireIncludes(analyticsTruthRuntime, "stale_open_session_timeout", "analytics truth runtime", failures);
+requireIncludes(analyticsTruthRuntime, "Math.min(15000, Math.max(3000", "analytics truth runtime", failures);
+requireIncludes(analyticsTruthRuntime, "const confidenceScore = clamp01(1 - capturePenalty - rawCoveragePenalty - (staleOpen ? 0.25 : 0))", "analytics truth runtime", failures);
 
 requireIncludes(adminUsersRoute, "watchTimeDiagnosticEstimate", "admin users route", failures);
 requireIncludes(adminUserRoute, "watchTimeDiagnosticEstimate", "admin user detail route", failures);
@@ -73,6 +79,10 @@ requireIncludes(behavioralRuntime, "watch_session_rollup", "behavioral intellige
 requireIncludes(behavioralRuntime, "\"legacy_page_duration\"", "behavioral intelligence runtime", failures);
 requireIncludes(analyticsMetrics, "watchScoreSource === \"watch_session_rollup\"", "analytics metrics", failures);
 requireIncludes(analyticsMetrics, "\"legacy_page_duration\"", "analytics metrics", failures);
+requireIncludes(adminDebugRoute, "EstimatedWatchRecoveryGroup", "admin debug telemetry truth route", failures);
+requireIncludes(adminDebugRoute, "countsTowardVerifiedWatch: false", "admin debug telemetry truth route", failures);
+requireIncludes(adminDebugRoute, "countsTowardEstimatedWatch: true", "admin debug telemetry truth route", failures);
+requireIncludes(adminDebugRoute, "stale-open timeout fallback = min(15s, max(3s, round((totalVisibleSeconds - totalWatchSeconds) * 250ms))).", "admin debug telemetry truth route", failures);
 
 requireIncludes(docs, "diagnostics-only estimate", "watch-time doctrine doc", failures);
 requireIncludes(docs, "legacy_page_duration", "watch-time doctrine doc", failures);
