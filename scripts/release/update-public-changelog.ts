@@ -278,6 +278,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("clarify session config readiness") || normalized.includes("session config readiness")) {
     return "Clarified internal admin readiness checks so config presence is not confused with live service health.";
   }
+  if (normalized.includes("normalize recent event flow context")) {
+    return "Improved internal event-flow diagnostics so background system events are not confused with user actions.";
+  }
   if (normalized.includes("clarify recent event flow context") || normalized.includes("recent event flow context")) {
     return "Improved internal event-flow diagnostics so background events and user actions are easier to tell apart.";
   }

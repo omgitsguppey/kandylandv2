@@ -596,6 +596,7 @@ requireIncludes(releaseNotesScript, "Improved internal transaction review so adm
 requireIncludes(releaseNotesScript, "Improved internal queue health views so drop activation outcomes show readable drop names.", "Release notes script must include queue runtime drop label copy");
 requireIncludes(releaseNotesScript, "Clarified internal admin readiness checks so config presence is not confused with live service health.", "Release notes script must include admin session config readiness copy");
 requireIncludes(releaseNotesScript, "Improved internal event-flow diagnostics so background events and user actions are easier to tell apart.", "Release notes script must include recent event flow context copy");
+requireIncludes(releaseNotesScript, "Improved internal event-flow diagnostics so background system events are not confused with user actions.", "Release notes script must include normalized recent event flow context copy");
 
 for (const expected of [
   "RecentEventFlowRow",
@@ -608,10 +609,21 @@ for (const expected of [
   "freshnessState",
   "evalEligibilityReason",
   "duplicateCount",
-  "Identity linkage event; not ranked as behavioral action.",
-  "Server-side event; route/session not required.",
+  "\"identity_linkage\"",
+  "\"background_task_engine\"",
+  "\"background_ledger\"",
+  "\"notification_system\"",
+  "\"server_system\"",
+  "Identity linkage event; not scored as behavior.",
+  "Task engine event; route not required.",
+  "Ledger reward event; route not required.",
+  "Notification system event; behavioral scoring uses notification_read/open actions.",
   "Relationship materializer event; route not required.",
-  "Server-side drop click lacks user/session attribution and cannot be used for user behavior scoring.",
+  "Server/system click lacks user ownership; excluded from user scoring.",
+  "system event missing ownership",
+  "foreground telemetry",
+  "background event excluded from scoring",
+  "orphaned notification context",
   "data-event-flow-loaded-count",
   "data-event-flow-low-confidence-count",
   "data-event-flow-grouped-count",

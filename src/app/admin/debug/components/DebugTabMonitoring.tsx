@@ -54,8 +54,8 @@ type RecentEventFlowRow = {
     actorType: "user" | "admin" | "creator" | "system" | "unknown";
     actorId?: string;
     surface: string;
-    source: "identified_telemetry" | "creator_relationships" | "server" | "system" | "unknown";
-    eventContext: "foreground_user" | "admin" | "background_server" | "materialized_relationship" | "system_process";
+    source: "identified_telemetry" | "creator_relationships" | "task_engine" | "gumdrop_ledger" | "notification_inbox" | "server" | "system" | "unknown";
+    eventContext: "foreground_user" | "identity_linkage" | "background_task_engine" | "background_ledger" | "notification_system" | "server_system" | "admin" | "materialized_relationship";
     createdAtUtc: string;
     ageLabel: string;
     freshnessState: "live" | "recent" | "stale" | "unknown";
@@ -75,16 +75,23 @@ function normalizeEventFlowActorType(value?: string): RecentEventFlowRow["actorT
 }
 function getEventFlowSource(event: any): RecentEventFlowRow["source"] {
     if (event.sourceCollection === "creator_relationships") return "creator_relationships";
+    if (event.sourceCollection === "task_engine" || event.domain === "task_engine" || String(event.systemKey || "").includes("task")) return "task_engine";
+    if (event.sourceCollection === "gumdrop_ledger" || event.domain === "gumdrop_ledger" || String(event.systemKey || "").includes("reward")) return "gumdrop_ledger";
+    if (event.sourceCollection === "notification_inbox" || event.domain === "notifications" || String(event.systemKey || "").includes("notification")) return "notification_inbox";
     if (event.normalizedEventName === "identity_linked") return "server";
     if (event.actor?.actorType === "system") return "system";
     if (event.sourceCollection === "analytics_event_facts") return "identified_telemetry";
     return "unknown";
 }
 function getEventFlowContext(event: any, source: RecentEventFlowRow["source"]): RecentEventFlowRow["eventContext"] {
+    if (event.normalizedEventName === "identity_linked") return "identity_linkage";
+    if (source === "task_engine") return "background_task_engine";
+    if (source === "gumdrop_ledger") return "background_ledger";
+    if (source === "notification_inbox" && event.actor?.actorType === "system") return "notification_system";
     if (source === "creator_relationships") return "materialized_relationship";
-    if (event.actor?.actorType === "system") return "system_process";
+    if (event.actor?.actorType === "system") return "server_system";
     if (event.actor?.actorType === "admin") return "admin";
-    if (source === "server") return "background_server";
+    if (source === "server") return "server_system";
     return "foreground_user";
 }
 function getEventFreshnessState(timestamp: number): RecentEventFlowRow["freshnessState"] {
@@ -96,17 +103,19 @@ function getEventFreshnessState(timestamp: number): RecentEventFlowRow["freshnes
 }
 function filterRequiredMissingInputs(event: any, context: RecentEventFlowRow["eventContext"]) {
     const missing = Array.isArray(event.dependencyReadiness?.missing) ? event.dependencyReadiness.missing.filter((entry: unknown): entry is string => typeof entry === "string") : [];
-    if (context === "background_server" || context === "system_process" || context === "materialized_relationship") {
+    if (context === "identity_linkage" || context === "background_task_engine" || context === "background_ledger" || context === "notification_system" || context === "server_system" || context === "materialized_relationship") {
         return missing.filter((entry: string) => entry !== "route" && entry !== "session");
     }
     return missing;
 }
 function buildEvalEligibilityReason(event: any, context: RecentEventFlowRow["eventContext"], requiredMissingInputs: string[]) {
-    if (event.normalizedEventName === "identity_linked") return "Identity linkage event; not ranked as behavioral action.";
+    if (context === "identity_linkage") return "Identity linkage event; not scored as behavior.";
+    if (context === "background_task_engine") return requiredMissingInputs.length ? "Task engine event needs user/task ownership before task behavior scoring." : "Task engine event; route not required.";
+    if (context === "background_ledger") return requiredMissingInputs.length ? "Ledger event needs user/ledger ownership before reward rollup scoring." : "Ledger reward event; route not required.";
+    if (context === "notification_system") return "Notification system event; behavioral scoring uses notification_read/open actions.";
     if (context === "materialized_relationship") return "Relationship materializer event; route not required.";
-    if (context === "background_server") return "Server-side event; route/session not required.";
-    if (context === "system_process" && event.normalizedEventName === "server_drop_clicked") return "Server-side drop click lacks user/session attribution and cannot be used for user behavior scoring.";
-    if (context === "system_process") return "System process event; excluded from user scoring until ownership is resolved.";
+    if (context === "server_system" && event.normalizedEventName === "server_drop_clicked") return "Server/system click lacks user ownership; excluded from user scoring.";
+    if (context === "server_system") return "System process event; excluded from user scoring until ownership is resolved.";
     if (requiredMissingInputs.length > 0) return `Missing required ${requiredMissingInputs.join(", ")}.`;
     if (event.readiness?.trainingEligible) return "Foreground event has required ownership context.";
     const blockedReasons = Array.isArray(event.readiness?.trainingBlockedReasons) ? event.readiness.trainingBlockedReasons.filter((entry: unknown): entry is string => typeof entry === "string") : [];
@@ -118,15 +127,16 @@ function buildRecentEventFlowRows(events: any[]): RecentEventFlowRow[] {
         const source = getEventFlowSource(event);
         const eventContext = getEventFlowContext(event, source);
         const requiredMissingInputs = filterRequiredMissingInputs(event, eventContext);
-        const systemDropClick = event.normalizedEventName === "server_drop_clicked" && event.actor?.actorType === "system";
-        const identityLink = event.normalizedEventName === "identity_linked";
-        const state: RecentEventFlowRow["state"] = systemDropClick
+        const systemDropClick = event.normalizedEventName === "server_drop_clicked" && eventContext === "server_system";
+        const identityLink = eventContext === "identity_linkage";
+        const notificationSystemReview = eventContext === "notification_system" && event.findingCount > 0;
+        const state: RecentEventFlowRow["state"] = systemDropClick || notificationSystemReview
             ? "review"
             : event.status === "critical" && eventContext === "foreground_user"
                 ? "critical"
                 : requiredMissingInputs.length > 0 || event.findingCount > 0
                     ? "review"
-                    : identityLink || eventContext === "background_server" || eventContext === "materialized_relationship" || eventContext === "system_process"
+                    : identityLink || eventContext === "background_task_engine" || eventContext === "background_ledger" || eventContext === "notification_system" || eventContext === "materialized_relationship" || eventContext === "server_system"
                         ? "info"
                         : "healthy";
         return {
@@ -143,7 +153,7 @@ function buildRecentEventFlowRows(events: any[]): RecentEventFlowRow[] {
             ageLabel: timestamp > 0 ? formatRelative(timestamp) : "unknown age",
             freshnessState: getEventFreshnessState(timestamp),
             findingsCount: Number(event.findingCount || 0),
-            evalEligible: event.readiness?.trainingEligible === true && !identityLink && !systemDropClick,
+            evalEligible: event.readiness?.trainingEligible === true && !identityLink && !systemDropClick && eventContext !== "notification_system" && eventContext !== "server_system",
             evalEligibilityReason: buildEvalEligibilityReason(event, eventContext, requiredMissingInputs),
             missingInputs: Array.isArray(event.dependencyReadiness?.missing) ? event.dependencyReadiness.missing : [],
             requiredMissingInputs,
@@ -156,7 +166,8 @@ function buildRecentEventFlowRows(events: any[]): RecentEventFlowRow[] {
     rows.forEach((row) => {
         const bucket = row.createdAtUtc === "unknown" ? "unknown" : Math.floor(Date.parse(row.createdAtUtc) / EVENT_FLOW_GROUP_WINDOW_MS);
         const findingKey = row.findingsCount > 0 ? `${row.state}:${row.requiredMissingInputs.join(",")}` : "no-findings";
-        const key = [row.eventName, row.actorId || row.actorLabel, row.surface, row.source, row.eventContext, bucket, findingKey].join("|");
+        const groupSurface = row.eventContext === "identity_linkage" ? "identity" : row.surface;
+        const key = [row.eventName, row.actorId || row.actorLabel, groupSurface, row.source, row.eventContext, bucket, findingKey].join("|");
         const existing = grouped.get(key);
         if (!existing) {
             grouped.set(key, row);
@@ -175,9 +186,10 @@ function buildRecentEventFlowRows(events: any[]): RecentEventFlowRow[] {
 function buildLowConfidenceCauseBreakdown(rows: RecentEventFlowRow[]) {
     const causes = new Map<string, number>();
     rows.forEach((row) => {
-        if (row.requiredMissingInputs.includes("actor") || row.actorType === "unknown") causes.set("missing actor/session", (causes.get("missing actor/session") || 0) + row.duplicateCount);
-        if (row.eventContext === "background_server" || row.eventContext === "system_process") causes.set("background source not score-eligible", (causes.get("background source not score-eligible") || 0) + row.duplicateCount);
+        if (row.requiredMissingInputs.includes("actor") || row.actorType === "unknown") causes.set("system event missing ownership", (causes.get("system event missing ownership") || 0) + row.duplicateCount);
+        if (row.eventContext === "background_task_engine" || row.eventContext === "background_ledger" || row.eventContext === "notification_system" || row.eventContext === "server_system") causes.set("background event excluded from scoring", (causes.get("background event excluded from scoring") || 0) + row.duplicateCount);
         if (row.requiredMissingInputs.includes("route")) causes.set("missing route for foreground telemetry", (causes.get("missing route for foreground telemetry") || 0) + row.duplicateCount);
+        if (row.eventContext === "notification_system" && row.state === "review") causes.set("orphaned notification context", (causes.get("orphaned notification context") || 0) + row.duplicateCount);
         if (row.surface === "background" || row.surface === "unknown") causes.set("unknown source surface", (causes.get("unknown source surface") || 0) + row.duplicateCount);
         if (row.source === "unknown") causes.set("orphaned event mapping", (causes.get("orphaned event mapping") || 0) + row.duplicateCount);
     });
@@ -496,7 +508,7 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                                     <div><p className="font-semibold text-white">{event.displayName}{event.duplicateCount > 1 ? ` x${event.duplicateCount}` : ""}</p><p className="text-xs text-gray-400">{event.eventName} | {event.source} | {event.createdAtUtc} | {event.ageLabel}</p></div>
                                     <Pill label="Status" value={event.state} tone={event.state === "critical" ? "bad" : event.state === "review" ? "warn" : event.state === "healthy" ? "good" : "neutral"} truthState={event.state === "critical" ? "failed" : event.state === "review" ? "degraded" : "live"} />
                                 </div>
-                                <p className="text-sm text-gray-200">{event.eventContext === "system_process" && event.eventName === "server_drop_clicked" ? "Server drop click event lacks user/session attribution. Excluded from user scoring until ownership is resolved." : event.evalEligibilityReason}</p>
+                                <p className="text-sm text-gray-200">{event.eventContext === "server_system" && event.eventName === "server_drop_clicked" ? "Server/system click lacks user ownership; excluded from user scoring." : event.evalEligibilityReason}</p>
                                 <div className="flex flex-wrap gap-2"><Pill label="Actor" value={event.actorLabel} truthState="live" badgeLabel="LOADED" /><Pill label="Surface" value={event.surface} truthState="live" badgeLabel="LOADED" /><Pill label="Context" value={event.eventContext} truthState="live" badgeLabel="INFO" /><Pill label="Freshness" value={event.freshnessState} truthState={event.freshnessState === "stale" ? "stale" : event.freshnessState === "unknown" ? "unavailable" : "live"} /><Pill label="Findings" value={event.findingsCount} tone={event.findingsCount ? "warn" : "good"} truthState={event.findingsCount ? "degraded" : "live"} /><Pill label="Eval eligible" value={event.evalEligible ? "yes" : "no"} tone={event.evalEligible ? "good" : "neutral"} truthState="live" badgeLabel={event.evalEligible ? "YES" : "INFO"} /></div>
                                 {event.requiredMissingInputs.length ? (<p className="text-xs text-gray-400">Missing required inputs: {event.requiredMissingInputs.join(", ")}</p>) : null}
                                 {event.missingInputs.length > 0 && event.requiredMissingInputs.length === 0 ? (<p className="text-xs text-gray-500">Context-only missing inputs ignored for this event type: {event.missingInputs.join(", ")}</p>) : null}

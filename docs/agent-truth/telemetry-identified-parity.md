@@ -14,7 +14,7 @@ KandyDrops identified analytics must derive one canonical parity layer before ad
 - Daily check-in aliases normalize to `daily_checkin_claimed`.
 - `identity_linked` must be emitted on signup, login, and session restore.
 - Privacy-limited identified telemetry is not a broken source. It is an excluded source with a reason.
-- Server/system events may be excluded from user behavior scoring when they carry an explicit reason. Foreground user telemetry still requires actor, route, and session context. Server/system `server_drop_clicked` records without user/session attribution are review/excluded until ownership is resolved; they must not be silently counted as user behavior.
+- Server/system events may be excluded from user behavior scoring when they carry an explicit reason. Foreground user telemetry still requires actor, route, and session context. `background_task_engine`, `background_ledger`, `notification_system`, and `server_system` diagnostics do not inherit foreground route/session requirements. Server/system `server_drop_clicked` records without user/session attribution are review/excluded until ownership is resolved; they must not be silently counted as user behavior.
 
 ## Active User Split
 
