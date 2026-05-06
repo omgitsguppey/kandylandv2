@@ -70,7 +70,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const compactLiveMetricClass = "rounded-[1rem] p-2";
   const compactLiveMetricValueClass = "text-lg leading-6 md:text-xl";
   const livePulseBadgeLabel =
-    livePulseModel.presenceSourceStatus === "failed"
+    livePulseModel.mode === "delayed_snapshot"
+      ? "SNAP"
+      : livePulseModel.presenceSourceStatus === "failed"
       ? "ERROR"
       : livePulseModel.presenceSourceStatus === "fallback"
         ? "SNAP"
@@ -84,10 +86,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const activeNowValue = livePulseModel.activeCount.value === null
     ? liveLoading ? firstSnapshotLabel : noSnapshotLabel
     : formatCompactNumber(livePulseModel.activeCount.value);
-  const guestAuthMixValue =
-    livePulseModel.guestCount.value === null || livePulseModel.authenticatedCount.value === null
-      ? liveLoading ? firstSnapshotLabel : noSnapshotLabel
-      : `${formatCompactNumber(livePulseModel.guestCount.value)} / ${formatCompactNumber(livePulseModel.authenticatedCount.value)}`;
+  const guestAuthMixValue = livePulseModel.guestMixLabel;
   const topSurfaceValue = livePulseModel.topSurface.value ?? (liveLoading ? firstSnapshotLabel : noSnapshotLabel);
   const lastUpdateValue = liveResponse?.generatedAtMs
     ? formatRelativeTime(liveResponse.generatedAtMs, nowMs)
@@ -194,12 +193,22 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               rightSlot={renderSectionRangeControl("livePulse")}
             >
               <div className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
-                <span>{livePulseModel.visibleCopy}</span>
-                <AdminStatusBadge
-                  state={livePulseTruthState}
-                  label={livePulseBadgeLabel}
-                  className="max-w-[5.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
-                />
+                <div className="min-w-0">
+                  <p>{livePulseModel.topWarning}</p>
+                  {livePulseModel.topWarningDetail ? (
+                    <p className="mt-1 text-[10px] text-gray-400">{livePulseModel.topWarningDetail}</p>
+                  ) : null}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                    {livePulseModel.refreshState === "refreshing" ? "Refreshing" : "Ready"}
+                  </span>
+                  <AdminStatusBadge
+                    state={livePulseTruthState}
+                    label={livePulseBadgeLabel}
+                    className="max-w-[5.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -216,10 +225,16 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label="Guest / Auth"
                   value={guestAuthMixValue}
-                  hint="Presence mix"
+                  hint={livePulseModel.guestEstimateState === "estimated"
+                    ? `Estimated from ${livePulseModel.guestEstimateSourceLabel ?? "event facts"}`
+                    : livePulseModel.guestEstimateState === "not_observed"
+                      ? "Guest not observed in this window"
+                      : livePulseModel.adminCount.value !== null && livePulseModel.adminCount.value > 0
+                        ? `Admin included in auth count (${livePulseModel.adminCount.value})`
+                        : "Presence mix"}
                   icon={Sparkles}
                   truthState={activeUsersTruthState}
-                  statusBadgeLabel={livePulseBadgeLabel}
+                  statusBadgeLabel={livePulseModel.guestEstimateState === "estimated" ? "REVIEW" : livePulseBadgeLabel}
                   className={compactLiveMetricClass}
                   valueClassName={compactLiveMetricValueClass}
                 />
@@ -236,7 +251,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label="Last Update"
                   value={lastUpdateValue}
-                  hint={livePulseModel.graphSourceMismatch ? "Graph source mismatch" : livePulseModel.graphSource}
+                  hint={livePulseModel.graphSourceMismatch ? "Graph source mismatch" : livePulseModel.graphSourceLabel}
                   icon={Clock3}
                   truthState={livePulseTruthState}
                   statusBadgeLabel={livePulseBadgeLabel}
@@ -246,6 +261,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               </div>
 
               <div className={cn("relative mt-2 w-full", livePulseModel.compactChartHeightClass)}>
+                <div className="mb-1 flex items-center justify-between gap-2 px-1 text-[10px] text-gray-400">
+                  <span>{livePulseModel.graphSourceLabel}</span>
+                  <span>{livePulseModel.graphLegendLabel}</span>
+                </div>
                 {livePulseModel.graphHydrated ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
@@ -297,12 +316,19 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
                         >
                           <div className="mb-1.5 flex items-center justify-between gap-3">
-                            <p className="truncate text-xs font-semibold text-white">
+                          <p className="truncate text-xs font-semibold text-white">
                               {item.label}
                             </p>
-                            <span className="text-xs font-bold text-brand-purple">
-                              {item.activeUsers}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-brand-purple">
+                                {item.activeUsers}
+                              </span>
+                              <AdminStatusBadge
+                                state={item.freshness}
+                                label={item.freshness === "live" ? "LIVE" : item.freshness === "degraded" ? "DELAYED" : "STALE"}
+                                className="max-w-[4.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                              />
+                            </div>
                           </div>
                           <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
                             <div
@@ -313,7 +339,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             />
                           </div>
                           <p className="mt-1.5 text-[10px] text-gray-500">
-                            Seen {formatRelativeTime(item.lastSeenAt, nowMs)}
+                            Seen {formatRelativeTime(item.lastSeenAt, nowMs)} · {item.source}
                           </p>
                         </div>
                       ))
@@ -351,9 +377,15 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               <span className="shrink-0 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-bold text-gray-300">
                                 {item.actorBadgeLabel}
                               </span>
+                              <span className="shrink-0 rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] font-bold text-gray-300">
+                                {item.purposeLabel}
+                              </span>
                             </div>
                             <p className="mt-1 truncate text-[10px] text-gray-500">
-                              {item.routeLabel} - {item.actionLabel}
+                              {item.routeLabel} · {item.actionLabel}
+                            </p>
+                            <p className="mt-1 truncate text-[10px] text-gray-500">
+                              {item.shortUserId} · {item.sourceTruth}
                             </p>
                           </div>
                           <div className="flex items-center gap-1.5">

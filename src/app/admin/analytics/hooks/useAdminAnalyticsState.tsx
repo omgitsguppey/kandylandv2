@@ -1483,6 +1483,7 @@ const { user } = useAuth();
       ? "polled"
       : liveRealtime.feedStatus;
   const livePulseTruthStateForModel = mapDisplayStateToAdminSurfaceState(livePulseDisplayState);
+  const livePulseGuestTraffic = historicalResponse?.guestTraffic;
   const livePulseModel = buildAdminAnalyticsLivePulseModel({
     activeUsers: liveActiveUsers,
     surfaceMix: liveSurfaceMix,
@@ -1501,6 +1502,23 @@ const { user } = useAuth();
     latestVerifiedSnapshotAgeMs: readDisplaySnapshotAgeMs(livePulseLatestVerifiedSnapshot, nowMs),
     refreshStatus: livePulseSnapshotModule.refreshStatus,
     laneFailures: liveRealtime.issues,
+    guestEstimateState: livePulseGuestTraffic?.truthLabel === "estimated"
+      ? "estimated"
+      : livePulseGuestTraffic?.truthLabel === "exact"
+        ? "observed"
+        : livePulseGuestTraffic?.truthLabel === "unknown"
+          ? "unknown"
+          : liveActiveUsers.some((item) => item.actorType === "guest")
+            ? "observed"
+            : "not_observed",
+    guestEstimateConfidence: livePulseGuestTraffic?.truthLabel === "estimated"
+      ? livePulseGuestTraffic.qualityAvailable
+        ? 0.8
+        : 0.55
+      : livePulseGuestTraffic?.truthLabel === "exact"
+        ? 1
+        : null,
+    guestEstimateSourceLabel: livePulseGuestTraffic?.sourceLabel ?? null,
   });
   const historicalOverviewTruthState: AdminSurfaceState | undefined =
     resolvedHistoricalOverviewTruthState;
@@ -1803,7 +1821,7 @@ const { user } = useAuth();
     (item) => item.key === "admin",
   );
   const dropSemantics = semanticCategories.find((item) => item.key === "drop");
-  const guestTraffic = historicalResponse?.guestTraffic;
+  const guestTraffic = livePulseGuestTraffic;
   const guestViewsDisplayCount =
     guestTraffic?.truthLabel === "estimated"
       ? guestTraffic.estimatedGuestViews

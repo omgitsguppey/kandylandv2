@@ -133,6 +133,8 @@ export interface SurfaceMixItem {
 export interface RealtimeActiveUserItem {
   uid: string;
   username: string;
+  displayName?: string;
+  userIdentityState?: "resolved" | "fallback_uid" | "missing" | "guest";
   lastSeenAt: number;
   lastEventName: string;
   lastPagePath: string;
@@ -144,6 +146,8 @@ export interface RealtimeActiveUserItem {
   sourceLabel?: string;
   truthLabel?: "live" | "fallback";
   sessionKey?: string;
+  lastActionPurpose?: "identity_linkage" | "meaningful_activity" | "viewer_activity" | "admin_activity" | "unknown";
+  sourceTruth?: "presence" | "event_fact" | "snapshot" | "estimated";
 }
 
 export interface OnboardingStepStatItem {

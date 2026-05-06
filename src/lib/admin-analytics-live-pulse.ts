@@ -27,20 +27,29 @@ type LivePulseSource =
 
 export type AdminAnalyticsLivePulseIdentity = {
   rawId: string;
+  shortUserId: string;
   displayLabel: string;
+  username?: string;
+  identityState: "resolved" | "fallback_uid" | "guest" | "missing" | "unknown";
   actorType: "guest" | "user" | "admin" | "creator";
   routeLabel: string;
   actionLabel: string;
+  purposeLabel: string;
+  lastActionPurpose: "identity_linkage" | "meaningful_activity" | "viewer_activity" | "admin_activity" | "unknown";
   lastSeenAt: number;
   lastSeenLabel: string;
   truthState: AdminSurfaceState;
   statusLabel: "LIVE" | "DELAYED" | "SNAP" | "WAIT" | "ERROR";
   actorBadgeLabel: "GUEST" | "AUTH";
   source: LivePulseSource;
+  sourceTruth: "presence" | "event_fact" | "snapshot" | "estimated";
   fullDebugId: string;
 };
 
 export type AdminAnalyticsLivePulseModel = {
+  generatedAtUtc: string;
+  mode: "live" | "snapshot" | "delayed_snapshot" | "estimated" | "unavailable";
+  refreshState: "ready" | "refreshing" | "failed" | "stale";
   livePulseEnabled: boolean;
   selectedWindow: "30m";
   canonicalPresenceSource: LivePulseSource;
@@ -48,6 +57,12 @@ export type AdminAnalyticsLivePulseModel = {
   guestCount: { value: number | null; source: LivePulseSource };
   authenticatedCount: { value: number | null; source: LivePulseSource };
   adminCount: { value: number | null; source: LivePulseSource };
+  guestEstimateState: "observed" | "estimated" | "not_observed" | "unknown";
+  guestEstimateConfidence: number | null;
+  guestEstimateSourceLabel: string | null;
+  guestMixLabel: string;
+  topWarning: string;
+  topWarningDetail: string | null;
   topSurface: { value: string | null; source: LivePulseSource };
   surfaces: Array<SurfaceMixItem & { source: LivePulseSource; freshness: AdminSurfaceState }>;
   activeIdentities: AdminAnalyticsLivePulseIdentity[];
@@ -62,6 +77,8 @@ export type AdminAnalyticsLivePulseModel = {
   gaIntradayStatus: "not_primary_for_presence";
   graphSource: LivePulseSource;
   graphPoints: Array<RealtimePoint & { label: string }>;
+  graphSourceLabel: string;
+  graphLegendLabel: string;
   graphPointCount: number;
   graphHydrated: boolean;
   graphHydratedMs: number | null;
@@ -90,7 +107,8 @@ export type AdminAnalyticsLivePulseModel = {
 };
 
 const GRAPH_HYDRATION_BUDGET_MS = 3_000;
-const STALE_PRESENCE_MS = 10 * 60 * 1000;
+const LIVE_PRESENCE_MS = 5 * 60 * 1000;
+const DELAYED_PRESENCE_MS = 15 * 60 * 1000;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
@@ -100,6 +118,19 @@ function shortId(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return "unknown";
   return trimmed.length <= 6 ? trimmed : trimmed.slice(-6);
+}
+
+function resolveFreshnessState(nowMs: number, timestampMs: number) {
+  const ageMs = nowMs - timestampMs;
+  if (!isFiniteNumber(timestampMs) || timestampMs <= 0) return "stale" as const;
+  if (ageMs <= LIVE_PRESENCE_MS) return "live" as const;
+  if (ageMs <= DELAYED_PRESENCE_MS) return "delayed" as const;
+  return "stale" as const;
+}
+
+function resolveStatusLabel(freshnessState: "live" | "delayed" | "stale") {
+  if (freshnessState === "live") return "LIVE" as const;
+  return "DELAYED" as const;
 }
 
 function readableRoute(path: string) {
@@ -123,6 +154,23 @@ function readableAction(eventName: string) {
   return action ? action.replace(/\b\w/g, (char) => char.toUpperCase()) : "Live activity";
 }
 
+function readablePurposeLabel(
+  purpose: "identity_linkage" | "meaningful_activity" | "viewer_activity" | "admin_activity" | "unknown",
+) {
+  switch (purpose) {
+    case "identity_linkage":
+      return "Identity linked";
+    case "meaningful_activity":
+      return "Meaningful activity";
+    case "viewer_activity":
+      return "Viewer activity";
+    case "admin_activity":
+      return "Admin activity";
+    default:
+      return "Signal";
+  }
+}
+
 function resolveActorType(item: RealtimeActiveUserItem): AdminAnalyticsLivePulseIdentity["actorType"] {
   if (item.actorType === "guest") return "guest";
   if (item.lastPagePath?.startsWith("/admin")) return "admin";
@@ -131,18 +179,23 @@ function resolveActorType(item: RealtimeActiveUserItem): AdminAnalyticsLivePulse
 }
 
 function resolveDisplayLabel(item: RealtimeActiveUserItem, actorType: AdminAnalyticsLivePulseIdentity["actorType"]) {
+  const displayName = item.displayName?.trim();
   const username = item.username?.trim();
   const rawId = item.uid || item.sessionKey || "";
   if (actorType === "guest") {
-    return `Guest session • ${shortId(item.sessionKey || rawId)}`;
+    return "Guest session";
+  }
+
+  if (displayName && displayName !== rawId && !displayName.startsWith("guest:")) {
+    return displayName;
   }
 
   if (username && username !== rawId && !username.startsWith("guest:")) {
-    if (username.includes("@")) return username.split("@")[0] || `User • ${shortId(rawId)}`;
+    if (username.includes("@")) return username.split("@")[0] || "User";
     return username;
   }
 
-  return `User • ${shortId(rawId)}`;
+  return shortId(rawId);
 }
 
 function relativeTime(timestampMs: number, nowMs: number) {
@@ -206,6 +259,9 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   latestVerifiedSnapshotAgeMs?: number | null;
   refreshStatus?: string | null;
   laneFailures?: string[];
+  guestEstimateState?: "observed" | "estimated" | "not_observed" | "unknown";
+  guestEstimateConfidence?: number | null;
+  guestEstimateSourceLabel?: string | null;
 }): AdminAnalyticsLivePulseModel {
   const firestoreFromCache = resolveFirestoreFromCache(input.listenerDebugMeta);
   const hasPresenceRows = input.activeUsers.length > 0;
@@ -239,29 +295,42 @@ export function buildAdminAnalyticsLivePulseModel(input: {
         ? "waiting"
         : "unavailable";
   const stalePresenceRows = input.activeUsers.filter(
-    (item) => input.nowMs - item.lastSeenAt > STALE_PRESENCE_MS,
+    (item) => resolveFreshnessState(input.nowMs, item.lastSeenAt) === "stale",
   ).length;
   const identities = input.activeUsers.slice(0, 8).map((item) => {
     const actorType = resolveActorType(item);
-    const stale = input.nowMs - item.lastSeenAt > STALE_PRESENCE_MS;
+    const freshnessState = resolveFreshnessState(input.nowMs, item.lastSeenAt);
     return {
       rawId: item.uid,
+      shortUserId: shortId(item.uid || item.sessionKey || ""),
       displayLabel: resolveDisplayLabel(item, actorType),
+      username: item.username?.trim() || undefined,
+      identityState: actorType === "guest"
+        ? "guest"
+        : item.userIdentityState === "resolved" || item.userIdentityState === "fallback_uid" || item.userIdentityState === "missing"
+          ? item.userIdentityState
+          : "unknown",
       actorType,
       routeLabel: readableRoute(item.lastPagePath),
       actionLabel: readableAction(item.lastEventName),
+      purposeLabel: readablePurposeLabel(item.lastActionPurpose ?? "unknown"),
+      lastActionPurpose: item.lastActionPurpose ?? "unknown",
       lastSeenAt: item.lastSeenAt,
       lastSeenLabel: relativeTime(item.lastSeenAt, input.nowMs),
-      truthState: stale ? "stale" : input.activeUsersTruthState,
-      statusLabel: stale ? "DELAYED" : input.activeUsersTruthState === "failed" ? "ERROR" : "LIVE",
+      truthState: freshnessState === "stale" ? "stale" : freshnessState === "delayed" ? "degraded" : input.activeUsersTruthState,
+      statusLabel: input.activeUsersTruthState === "failed" ? "ERROR" : resolveStatusLabel(freshnessState),
       actorBadgeLabel: actorType === "guest" ? "GUEST" : "AUTH",
       source: item.sourceLabel?.includes("fallback") ? "backend_snapshot" : canonicalPresenceSource,
+      sourceTruth: item.sourceTruth ?? (item.sourceLabel?.includes("fallback") ? "snapshot" : "presence"),
       fullDebugId: item.uid,
     } satisfies AdminAnalyticsLivePulseIdentity;
   });
   const guestCount = input.activeUsers.filter((item) => item.actorType === "guest").length;
   const authCount = input.activeUsers.length - guestCount;
   const adminCount = identities.filter((item) => item.actorType === "admin").length;
+  const guestEstimateState = input.guestEstimateState ?? "unknown";
+  const guestEstimateConfidence = input.guestEstimateConfidence ?? null;
+  const guestEstimateSourceLabel = input.guestEstimateSourceLabel ?? null;
   const graphHydrated = graphPointCount > 0;
   const hasServerConfirmation = Object.values(input.listenerDebugMeta?.listeners ?? {}).some(
     (entry) => entry.lastServerConfirmedAtMs !== null,
@@ -276,8 +345,57 @@ export function buildAdminAnalyticsLivePulseModel(input: {
           ? "Identified activity only. Guest presence is unavailable."
           : "Showing first-party live presence.");
   const laneFailures = input.laneFailures ?? [];
+  const graphSourceLabel = graphSource === "presence_derived"
+    ? "Derived presence timeline"
+    : graphSource === "backend_snapshot"
+      ? "Snapshot timeline"
+      : graphSource === "firestore_realtime" || graphSource === "firestore_realtime_cache"
+        ? "Live presence timeline"
+        : graphSource === "waiting"
+          ? "Waiting for graph source"
+          : "Graph unavailable";
+  const graphLegendLabel = graphSource === "backend_snapshot"
+    ? "Last verified snapshots"
+    : graphSource === "presence_derived"
+      ? "Derived from last-seen presence rows"
+      : "Live or verified counts";
+  const mode: AdminAnalyticsLivePulseModel["mode"] =
+    input.feedStatus === "failed" && !snapshotDisplayActive
+      ? "unavailable"
+      : snapshotDisplayActive && (input.displayState?.sourceMode === "stale_cache" || input.feedStatus === "polled")
+        ? "delayed_snapshot"
+        : snapshotDisplayActive
+          ? "snapshot"
+          : guestEstimateState === "estimated"
+            ? "estimated"
+            : "live";
+  const refreshState: AdminAnalyticsLivePulseModel["refreshState"] =
+    input.refreshStatus === "refreshing" || input.liveLoading
+      ? "refreshing"
+      : input.feedStatus === "failed"
+        ? "failed"
+        : mode === "delayed_snapshot"
+          ? "stale"
+          : "ready";
+  const topWarning = mode === "delayed_snapshot"
+    ? "Live updates are delayed. Showing last verified snapshot."
+    : visibleCopy;
+  const topWarningDetail = guestEstimateState === "estimated"
+    ? `Guest traffic is estimated from ${guestEstimateSourceLabel ?? "event facts"}${guestEstimateConfidence !== null ? ` (${Math.round(guestEstimateConfidence * 100)}% confidence)` : ""}.`
+    : adminCount > 0
+      ? `Admin activity is labeled separately and included in auth count (${adminCount}).`
+      : null;
+  const guestMixLabel =
+    guestEstimateState === "estimated"
+      ? `Auth ${authCount} · Guest estimate ${guestCount}`
+      : guestEstimateState === "not_observed"
+        ? `Auth ${authCount} · Guest not observed`
+        : `Auth ${authCount} · Guest ${guestCount}`;
 
   return {
+    generatedAtUtc: new Date(input.nowMs).toISOString(),
+    mode,
+    refreshState,
     livePulseEnabled: input.feedStatus !== "failed" || snapshotDisplayActive,
     selectedWindow: "30m",
     canonicalPresenceSource,
@@ -297,6 +415,12 @@ export function buildAdminAnalyticsLivePulseModel(input: {
       value: hasPresenceRows || hasServerConfirmation ? adminCount : null,
       source: canonicalPresenceSource,
     },
+    guestEstimateState,
+    guestEstimateConfidence,
+    guestEstimateSourceLabel,
+    guestMixLabel,
+    topWarning,
+    topWarningDetail,
     topSurface: {
       value: input.surfaceMix[0]?.label ?? null,
       source: canonicalPresenceSource,
@@ -304,7 +428,11 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     surfaces: input.surfaceMix.slice(0, 6).map((surface) => ({
       ...surface,
       source: canonicalPresenceSource,
-      freshness: input.nowMs - surface.lastSeenAt > STALE_PRESENCE_MS ? "stale" : input.truthState,
+      freshness: resolveFreshnessState(input.nowMs, surface.lastSeenAt) === "stale"
+        ? "stale"
+        : resolveFreshnessState(input.nowMs, surface.lastSeenAt) === "delayed"
+          ? "degraded"
+          : input.truthState,
     })),
     activeIdentities: identities,
     rawIdentityIds: input.activeUsers.map((item) => item.uid),
@@ -329,6 +457,8 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     gaIntradayStatus: "not_primary_for_presence",
     graphSource,
     graphPoints,
+    graphSourceLabel,
+    graphLegendLabel,
     graphPointCount,
     graphHydrated,
     graphHydratedMs: graphHydrated ? 0 : null,

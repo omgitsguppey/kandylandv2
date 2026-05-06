@@ -20,6 +20,7 @@ import { buildRealtimeSurfaceMix } from "@/lib/server/admin-analytics-context";
 import { buildWatchCaptureHealthSummary } from "@/lib/server/admin-analytics-capture-health";
 import { createAdminAnalyticsDataClient, getAdminAnalyticsPropertyId } from "@/lib/server/admin-analytics-data";
 import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-historical-onboarding";
+import { buildAdminOverviewUserIdentityMap } from "@/lib/server/admin-overview-users";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { safeQueryWithDiagnostics } from "@/lib/server/diagnostic-read-fallbacks";
@@ -48,6 +49,8 @@ type LiveBucket = {
 type RealtimeIdentity = {
   uid: string;
   username: string;
+  displayName?: string;
+  userIdentityState?: "resolved" | "fallback_uid" | "missing" | "guest";
   lastSeenAt: number;
   lastEventName: string;
   lastPagePath: string;
@@ -55,6 +58,8 @@ type RealtimeIdentity = {
   lastSemanticScopeLabel: string;
   lastComponentName: string;
   lastEventModules: string;
+  lastActionPurpose?: "identity_linkage" | "meaningful_activity" | "viewer_activity" | "admin_activity" | "unknown";
+  sourceTruth?: "presence" | "event_fact" | "snapshot" | "estimated";
 };
 
 function buildEmptyLiveBuckets() {
@@ -130,6 +135,31 @@ function readEventModules(value: unknown) {
   return toStringValue(value);
 }
 
+function classifyLastActionPurpose(input: {
+  eventName: string;
+  pagePath: string;
+  semanticScopeLabel: string;
+}) {
+  const eventName = input.eventName.toLowerCase();
+  const pagePath = input.pagePath.toLowerCase();
+  const semanticScopeLabel = input.semanticScopeLabel.toLowerCase();
+
+  if (pagePath.startsWith("/admin")) {
+    return "admin_activity" as const;
+  }
+  if (eventName.includes("identity_link")) {
+    return "identity_linkage" as const;
+  }
+  if (eventName.includes("viewer") || semanticScopeLabel.includes("viewer")) {
+    return "viewer_activity" as const;
+  }
+  if (eventName.endsWith("_viewed") || eventName.endsWith("_opened") || eventName.includes("unlock") || eventName.includes("purchase")) {
+    return "meaningful_activity" as const;
+  }
+
+  return "unknown" as const;
+}
+
 function buildFirstPartyLiveData(input: {
   nowMs: number;
   activeUserDocs: FirebaseFirestore.QueryDocumentSnapshot[];
@@ -193,6 +223,8 @@ function buildFallbackActiveUsers(input: {
     upsertRealtimeIdentity(identities, {
       uid: doc.id,
       username: toStringValue(data.username) || doc.id,
+      displayName: toStringValue(data.displayName) || toStringValue(data.username) || doc.id,
+      userIdentityState: toStringValue(data.username) || toStringValue(data.displayName) ? "resolved" : "fallback_uid",
       lastSeenAt: toNumber(data.lastSeenAt),
       lastEventName: toStringValue(data.lastEventName),
       lastPagePath: toStringValue(data.lastPagePath),
@@ -200,6 +232,12 @@ function buildFallbackActiveUsers(input: {
       lastSemanticScopeLabel: toStringValue(data.lastSemanticScopeLabel),
       lastComponentName: toStringValue(data.lastComponentName),
       lastEventModules: toStringValue(data.lastEventModules),
+      lastActionPurpose: classifyLastActionPurpose({
+        eventName: toStringValue(data.lastEventName),
+        pagePath: toStringValue(data.lastPagePath),
+        semanticScopeLabel: toStringValue(data.lastSemanticScopeLabel),
+      }),
+      sourceTruth: "presence",
     });
   });
 
@@ -214,6 +252,8 @@ function buildFallbackActiveUsers(input: {
     upsertRealtimeIdentity(identities, {
       uid: userId,
       username: toStringValue(data.username) || userId,
+      displayName: toStringValue(data.displayName) || toStringValue(data.username) || userId,
+      userIdentityState: toStringValue(data.username) || toStringValue(data.displayName) ? "resolved" : "fallback_uid",
       lastSeenAt: toNumber(data.timestamp),
       lastEventName: toStringValue(data.eventName),
       lastPagePath: toStringValue(data.pagePath) || toStringValue(params.page_path),
@@ -221,6 +261,12 @@ function buildFallbackActiveUsers(input: {
       lastSemanticScopeLabel: toStringValue(params.semantic_scope_label),
       lastComponentName: toStringValue(params.component_name),
       lastEventModules: readEventModules(params.event_modules),
+      lastActionPurpose: classifyLastActionPurpose({
+        eventName: toStringValue(data.eventName),
+        pagePath: toStringValue(data.pagePath) || toStringValue(params.page_path),
+        semanticScopeLabel: toStringValue(params.semantic_scope_label),
+      }),
+      sourceTruth: "event_fact",
     });
   });
 
@@ -234,6 +280,8 @@ function buildFallbackActiveUsers(input: {
     upsertRealtimeIdentity(identities, {
       uid: userId,
       username: toStringValue(data.username) || userId,
+      displayName: toStringValue(data.displayName) || toStringValue(data.username) || userId,
+      userIdentityState: toStringValue(data.username) || toStringValue(data.displayName) ? "resolved" : "fallback_uid",
       lastSeenAt: toNumber(data.lastSeenAtMs),
       lastEventName: data.isClosed === true ? "viewer_session_closed" : "viewer_session_active",
       lastPagePath: toStringValue(data.pagePath),
@@ -241,6 +289,8 @@ function buildFallbackActiveUsers(input: {
       lastSemanticScopeLabel: "Viewer",
       lastComponentName: "",
       lastEventModules: "viewer",
+      lastActionPurpose: "viewer_activity",
+      sourceTruth: "event_fact",
     });
   });
 
@@ -482,7 +532,23 @@ async function GET_handler(request: NextRequest) {
           eventFactDocs: recentEventFactsSnapshot.docs,
           watchSessionDocs: watchSessionsSnapshot.docs,
         });
-        const activeUsers = fallbackActiveUsers;
+        const activeUserIdentityMap = await buildAdminOverviewUserIdentityMap({
+          usersCollection: adminDb.collection("users"),
+          userIds: fallbackActiveUsers.map((item) => item.uid),
+        });
+        const activeUsers = fallbackActiveUsers.map((item) => {
+          const identity = activeUserIdentityMap.get(item.uid);
+          if (!identity) {
+            return item;
+          }
+
+          return {
+            ...item,
+            displayName: identity.userDisplayName,
+            username: identity.username ?? item.username,
+            userIdentityState: identity.userIdentityState,
+          };
+        });
         if (sessionsQuery.size === 0 && activeUsers.length > 0) {
           issues.push("Live identity lane fell back from analytics_active_users to recent event facts and watch sessions.");
         }
