@@ -21,10 +21,12 @@ import {
     type DailyTaskDefinition,
 } from "@/lib/tasks/task-catalog";
 import {
+    buildTaskCatalogCoverage,
     buildDailyTaskInventory,
     buildDailyTaskRuntimeAudit,
     CANONICAL_TASK_EVENT_NAMES,
     summarizeDailyTaskInventory,
+    summarizeTaskCatalogCoverage,
 } from "@/lib/tasks/task-observability";
 import {
     buildTelemetryEventMetadata,
@@ -1398,12 +1400,8 @@ export async function GET(request: NextRequest) {
             ],
         });
 
-        const coverage = buildDailyTaskInventory();
-        const taskInventorySummary = summarizeDailyTaskInventory(coverage);
-
-        const unsupportedTasks = coverage.filter((task) => task.trackingSource === "unsupported");
-        const telemetryOnlyTasks = coverage.filter((task) => task.trackingSource === "telemetry");
-        const canonicalTasks = coverage.filter((task) => task.trackingSource === "canonical");
+        const taskInventory = buildDailyTaskInventory();
+        const taskInventorySummary = summarizeDailyTaskInventory(taskInventory);
 
         const taskEventsForAttribution = taskEventsSnapshot.docs.map((doc) => {
             const data = doc.data() as Record<string, unknown>;
@@ -1799,6 +1797,12 @@ export async function GET(request: NextRequest) {
         });
         runtimeTaskAudit.unsupportedRuntimeRecords.push(...customTaskDefinitionIssues, ...rewardClaimNormalizationIssues);
         runtimeTaskAudit.summary.unsupportedRuntimeRecords = runtimeTaskAudit.unsupportedRuntimeRecords.length;
+        const coverage = buildTaskCatalogCoverage(BUILT_IN_DAILY_TASKS, runtimeTaskAudit);
+        const taskCoverageSummary = summarizeTaskCatalogCoverage(coverage);
+        const unsupportedTasks = coverage.filter((task) => task.coverageState === "unsupported");
+        const canonicalTasks = coverage.filter((task) => task.sourceType === "canonical");
+        const telemetryOnlyTasks = coverage.filter((task) => task.sourceType === "telemetry");
+        const legacyTasks = coverage.filter((task) => task.sourceType === "legacy");
 
         const rewardParityByTask = new Map<string, {
             taskId: string;
@@ -2248,12 +2252,19 @@ export async function GET(request: NextRequest) {
         return finalize(NextResponse.json({
             success: true,
             stats: {
-                builtInTasks: BUILT_IN_DAILY_TASKS.length,
-                validatedTasks: canonicalTasks.length + telemetryOnlyTasks.length,
+                builtInTasks: taskCoverageSummary.builtIn,
+                validatedTasks: taskCoverageSummary.ready,
+                readyTasks: taskCoverageSummary.ready,
+                partialTasks: taskCoverageSummary.partial,
                 canonicalTasks: canonicalTasks.length,
                 telemetryValidatedTasks: telemetryOnlyTasks.length,
                 telemetryOnlyTasks: telemetryOnlyTasks.length,
+                legacyTasks: legacyTasks.length,
                 unsupportedTasks: unsupportedTasks.length,
+                rewardRiskTasks: taskCoverageSummary.rewardRisk,
+                assignmentGapTasks: taskCoverageSummary.assignmentGap,
+                trackingGapTasks: taskCoverageSummary.trackingGap,
+                completionGapTasks: taskCoverageSummary.completionGap,
                 runtimeTaskActions: taskInventorySummary.runtimeActions,
                 navigationTaskActions: taskInventorySummary.navigationActions,
                 criteriaTasks: taskInventorySummary.criteriaTasks,
@@ -2307,6 +2318,7 @@ export async function GET(request: NextRequest) {
                 analyticsTruthUserMetrics: analyticsTruthUsers.length,
                 analyticsTruthRepairs: analyticsTruthRepairs.length,
             },
+            taskCoverageSummary,
             coverage,
             taskInventorySummary,
             unsupportedTasks,

@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { BUILT_IN_DAILY_TASKS } from "@/lib/tasks/task-catalog";
 import {
+  buildTaskCatalogCoverage,
   buildDailyTaskInventory,
   buildDailyTaskRuntimeAudit,
   CANONICAL_TASK_EVENT_NAMES,
   summarizeDailyTaskInventory,
+  summarizeTaskCatalogCoverage,
 } from "@/lib/tasks/task-observability";
 
 describe("daily task observability inventory", () => {
@@ -160,16 +162,16 @@ describe("daily task observability inventory", () => {
     expect(customEntry?.claimedAssignments).toBe(1);
     expect(customEntry?.recentCompletedCount).toBe(1);
     expect(customEntry?.recentRewardClaimCount).toBe(1);
-    expect(customEntry?.recentReceiptCount).toBe(1);
+    expect(customEntry?.recentReceiptCount).toBe(0);
     expect(customEntry?.cooldownConflictUsers).toBe(1);
     expect(customEntry?.usersWithRefreshIssues).toBe(1);
     expect(customEntry?.driftReasons).toContain("cooldown_reassignment_detected");
 
-    const feedbackAlignment = report.telemetryAlignment.find((entry) => entry.eventName === "feedback_submitted");
-    expect(feedbackAlignment?.mappedTaskCount).toBe(1);
-    expect(feedbackAlignment?.customTaskCount).toBe(1);
-    expect(feedbackAlignment?.recentReceiptCount).toBe(1);
-    expect(feedbackAlignment?.eventStatTotalCount).toBe(5);
+    const feedbackAlignmentRows = report.telemetryAlignment.filter((entry) => entry.eventName === "bug_report_submitted");
+    expect(feedbackAlignmentRows.some((entry) => entry.mappedTaskCount === 1)).toBe(true);
+    expect(feedbackAlignmentRows.some((entry) => entry.customTaskCount === 1)).toBe(true);
+    expect(feedbackAlignmentRows.some((entry) => entry.recentReceiptCount === 1)).toBe(true);
+    expect(feedbackAlignmentRows.some((entry) => entry.eventStatTotalCount === 5)).toBe(true);
 
     expect(report.unsupportedRuntimeRecords.some((entry) => entry.kind === "assignment" && entry.taskId === "unknown_task")).toBe(true);
     expect(report.unsupportedRuntimeRecords.some((entry) => entry.kind === "receipt" && entry.eventName === "unknown_event")).toBe(true);
@@ -234,5 +236,42 @@ describe("daily task observability inventory", () => {
     expect(assignedAlignment?.driftReasons).not.toContain("tracked_without_task_mapping");
     expect(completedAlignment?.mappedTaskCount).toBe(0);
     expect(completedAlignment?.driftReasons).not.toContain("tracked_without_task_mapping");
+  });
+
+  it("builds stricter task catalog coverage than raw trigger support", () => {
+    const runtimeAudit = buildDailyTaskRuntimeAudit({
+      definitions: BUILT_IN_DAILY_TASKS,
+      userStates: [],
+      taskEvents: [],
+      receipts: [
+        { eventName: "unlock_drop_success", uid: "user_1", timestamp: 2000, source: "canonical" },
+      ],
+      eventStats: [
+        { eventName: "unlock_drop_success", totalCount: 8, lastSeenAt: 2500 },
+        { eventName: "feedback_submitted", totalCount: 6, lastSeenAt: 2600 },
+      ],
+    });
+    const coverage = buildTaskCatalogCoverage(BUILT_IN_DAILY_TASKS, runtimeAudit);
+    const summary = summarizeTaskCatalogCoverage(coverage);
+    const genericFeedback = coverage.find((entry) => entry.taskId === "submit_feedback");
+    const unlockTask = coverage.find((entry) => entry.taskId === "unwrap_one_drop");
+    const previewTask = coverage.find((entry) => entry.taskId === "preview_three_drops");
+
+    expect(summary.builtIn).toBe(BUILT_IN_DAILY_TASKS.length);
+    expect(summary.ready).toBeLessThan(summary.builtIn);
+    expect(genericFeedback).toMatchObject({
+      coverageState: "completion_gap",
+      completable: false,
+    });
+    expect(genericFeedback?.missingEvidence).toContain("Shared trigger requires criteria to avoid ambiguous completion.");
+    expect(unlockTask).toMatchObject({
+      sourceType: "legacy",
+      coverageState: "tracking_gap",
+    });
+    expect(unlockTask?.missingEvidence).toContain("Legacy unlock trigger relies on canonical drop_unlocked alias proof.");
+    expect(previewTask).toMatchObject({
+      keying: "unique",
+      dedupeSafe: true,
+    });
   });
 });

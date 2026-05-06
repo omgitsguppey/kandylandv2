@@ -29,6 +29,15 @@ const GENERIC_TASK_LIFECYCLE_EVENT_NAMES = new Set([
 ]);
 
 export type DailyTaskTrackingSource = "canonical" | "telemetry" | "unsupported";
+export type TaskCatalogCoverageSourceType = "canonical" | "telemetry" | "legacy" | "unsupported";
+export type TaskCatalogCoverageState =
+  | "ready"
+  | "partial"
+  | "tracking_gap"
+  | "assignment_gap"
+  | "completion_gap"
+  | "reward_risk"
+  | "unsupported";
 
 export interface DailyTaskInventoryEntry {
   taskId: string;
@@ -53,6 +62,56 @@ export interface DailyTaskInventoryEntry {
   uniqueByParamKey: string | null;
   scope: DailyTaskDefinition["source"];
   instruction: string;
+}
+
+export interface TaskCatalogCoverageItem {
+  taskId: string;
+  title: string;
+  triggerEvent: string;
+  sourceType: TaskCatalogCoverageSourceType;
+  group: string;
+  actionPath: string;
+  actionType: "route" | "runtime" | "background" | "external";
+  rewardGd: number;
+  maxRequired: number;
+  mode: "one-time" | "daily" | "repeatable" | "filtered";
+  keying?: "unique" | "count" | "any" | "filtered";
+  criteria?: string[];
+  assignable: boolean;
+  trackable: boolean;
+  completable: boolean;
+  rewardSafe: boolean;
+  dedupeSafe: boolean;
+  actionReachable: boolean;
+  coverageState: TaskCatalogCoverageState;
+  missingEvidence: string[];
+  requiredValidators: string[];
+  sourceMixLabel: string;
+  canonicalEventName: string;
+  rawTriggerDetails: {
+    eventLabel: string;
+    trackingSources: string[];
+    eventModules: string[];
+    destinationHref: string;
+    instruction: string;
+  };
+}
+
+export interface TaskCatalogCoverageSummary {
+  builtIn: number;
+  ready: number;
+  partial: number;
+  unsupported: number;
+  rewardRisk: number;
+  assignmentGap: number;
+  trackingGap: number;
+  completionGap: number;
+  sourceMix: {
+    canonical: number;
+    telemetry: number;
+    legacy: number;
+    unsupported: number;
+  };
 }
 
 export interface DailyTaskInventorySummary {
@@ -230,6 +289,294 @@ export interface DailyTaskRuntimeAuditReport {
   unsupportedRuntimeRecords: DailyTaskRuntimeDriftRecord[];
   telemetryAlignment: DailyTaskTelemetryAlignmentEntry[];
   ambiguousEventMappings: DailyTaskAmbiguousEventMappingEntry[];
+}
+
+type TaskCoverageRuntimeEvidence = Pick<
+  DailyTaskRuntimeAuditReport,
+  "distribution" | "telemetryAlignment" | "ambiguousEventMappings"
+>;
+
+const LEGACY_TASK_TRIGGER_EVENTS = new Set([
+  "unlock_drop_success",
+]);
+
+const COUNT_KEYED_EVENT_NAMES = new Set([
+  "drops_page_viewed",
+  "experience_hub_viewed",
+  "library_viewed",
+]);
+
+const FEEDBACK_SHARED_TRIGGER_EVENT = "feedback_submitted";
+const PURCHASE_SHARED_TRIGGER_EVENT = "gumdrops_purchase_completed";
+
+function describeCriteria(definition: DailyTaskDefinition): string[] {
+  const criteria = definition.criteria;
+  if (!criteria) {
+    return [];
+  }
+
+  if (criteria.paramEquals) {
+    return [`${criteria.paramEquals.key} = ${String(criteria.paramEquals.value)}`];
+  }
+
+  if (criteria.minNumberParam) {
+    return [`${criteria.minNumberParam.key} >= ${criteria.minNumberParam.value}`];
+  }
+
+  if (criteria.includesAnyParam) {
+    return [`${criteria.includesAnyParam.key} includes ${criteria.includesAnyParam.values.join(", ")}`];
+  }
+
+  return [];
+}
+
+function resolveCoverageSourceType(entry: DailyTaskInventoryEntry): TaskCatalogCoverageSourceType {
+  if (entry.trackingSource === "unsupported") {
+    return "unsupported";
+  }
+
+  if (LEGACY_TASK_TRIGGER_EVENTS.has(entry.eventName)) {
+    return "legacy";
+  }
+
+  return entry.trackingSource;
+}
+
+function resolveCoverageMode(definition: DailyTaskDefinition): TaskCatalogCoverageItem["mode"] {
+  if (definition.criteria) {
+    return "filtered";
+  }
+
+  if (definition.oneTime) {
+    return "one-time";
+  }
+
+  if (definition.maxProgress > 1) {
+    return "repeatable";
+  }
+
+  return "daily";
+}
+
+function resolveCoverageKeying(definition: DailyTaskDefinition): TaskCatalogCoverageItem["keying"] {
+  if (definition.criteria) {
+    return definition.uniqueByParamKey ? "filtered" : "filtered";
+  }
+
+  if (definition.uniqueByParamKey) {
+    return "unique";
+  }
+
+  if (definition.maxProgress > 1 && COUNT_KEYED_EVENT_NAMES.has(definition.eventName)) {
+    return "count";
+  }
+
+  return "any";
+}
+
+function requiresCriteriaForSharedTrigger(definition: DailyTaskDefinition, sharedTriggerCount: number) {
+  if (sharedTriggerCount <= 1) {
+    return false;
+  }
+
+  if (definition.eventName === FEEDBACK_SHARED_TRIGGER_EVENT) {
+    return true;
+  }
+
+  if (definition.eventName === PURCHASE_SHARED_TRIGGER_EVENT) {
+    return true;
+  }
+
+  return false;
+}
+
+function buildTaskCatalogCoverageValidators(item: {
+  rewardSafe: boolean;
+  trackable: boolean;
+  assignable: boolean;
+}): string[] {
+  const validators = ["check:task-catalog-coverage"];
+  if (!item.assignable) {
+    validators.push("check:daily-task-lifecycle");
+  }
+  if (!item.trackable) {
+    validators.push("check:daily-task-telemetry-truth");
+  }
+  if (!item.rewardSafe) {
+    validators.push("check:daily-task-reward-economy");
+  }
+  return validators;
+}
+
+export function buildTaskCatalogCoverage(
+  definitions: DailyTaskDefinition[] = BUILT_IN_DAILY_TASKS,
+  runtimeEvidence?: TaskCoverageRuntimeEvidence,
+): TaskCatalogCoverageItem[] {
+  const inventory = buildDailyTaskInventory(definitions);
+  const inventoryById = new Map(inventory.map((entry) => [entry.taskId, entry]));
+  const eventNameCounts = definitions.reduce((map, definition) => {
+    map.set(definition.eventName, (map.get(definition.eventName) ?? 0) + 1);
+    return map;
+  }, new Map<string, number>());
+  const distributionByTaskId = new Map((runtimeEvidence?.distribution ?? []).map((entry) => [entry.taskId, entry]));
+  const alignmentByEventName = new Map((runtimeEvidence?.telemetryAlignment ?? []).map((entry) => [entry.eventName, entry]));
+  const ambiguousEvents = new Set((runtimeEvidence?.ambiguousEventMappings ?? []).map((entry) => entry.eventName));
+
+  return definitions.map((definition) => {
+    const inventoryEntry = inventoryById.get(definition.id);
+    const distributionEntry = distributionByTaskId.get(definition.id);
+    const telemetryAlignment = alignmentByEventName.get(definition.eventName);
+    const sourceType = inventoryEntry ? resolveCoverageSourceType(inventoryEntry) : "unsupported";
+    const mode = resolveCoverageMode(definition);
+    const keying = resolveCoverageKeying(definition);
+    const criteria = describeCriteria(definition);
+    const rewardSafe = definition.reward >= 10 && definition.reward <= 1000;
+    const assignable = definition.source === "built_in" || definition.active !== false;
+    const actionReachable = Boolean(inventoryEntry?.destinationHref && inventoryEntry.destinationHref.startsWith("/"));
+    const sharedTriggerCount = eventNameCounts.get(definition.eventName) ?? 1;
+    const criteriaRequired = requiresCriteriaForSharedTrigger(definition, sharedTriggerCount);
+    const hasLegacyAliasProof = LEGACY_TASK_TRIGGER_EVENTS.has(definition.eventName);
+    const staticTrackable = sourceType !== "unsupported" && (sourceType !== "legacy" || hasLegacyAliasProof);
+    const runtimeUnsupported = distributionEntry?.driftReasons.includes("unsupported_event_name")
+      || telemetryAlignment?.driftReasons.includes("task_mapping_uses_unsupported_event");
+    const runtimeSharedReceiptAmbiguity = ambiguousEvents.has(definition.eventName)
+      && telemetryAlignment
+      && telemetryAlignment.recentReceiptCount > 0
+      && !definition.criteria
+      && !definition.uniqueByParamKey;
+    const trackable = staticTrackable && !runtimeUnsupported;
+    const dedupeSafe = definition.maxProgress <= 1
+      || Boolean(definition.uniqueByParamKey)
+      || COUNT_KEYED_EVENT_NAMES.has(definition.eventName);
+    const completable = trackable
+      && (!criteriaRequired || criteria.length > 0)
+      && !runtimeSharedReceiptAmbiguity;
+
+    const missingEvidence: string[] = [];
+    if (!assignable) {
+      missingEvidence.push("Task is not assignable through the active daily assignment catalog.");
+    }
+    if (!trackable) {
+      missingEvidence.push(sourceType === "unsupported"
+        ? "Trigger event is not supported by the telemetry/canonical catalog."
+        : "Trigger event is not proven trackable end to end.");
+    }
+    if (sourceType === "legacy") {
+      missingEvidence.push("Legacy unlock trigger relies on canonical drop_unlocked alias proof.");
+    }
+    if (criteriaRequired && criteria.length === 0) {
+      missingEvidence.push("Shared trigger requires criteria to avoid ambiguous completion.");
+    }
+    if (!dedupeSafe) {
+      missingEvidence.push("Max > 1 task lacks distinct or count-safe keying.");
+    }
+    if (!actionReachable) {
+      missingEvidence.push("Action path is missing or no longer reachable from the task CTA.");
+    }
+    if (!rewardSafe) {
+      missingEvidence.push("Reward is outside the 10-1000 GD safety bounds.");
+    }
+    if (runtimeSharedReceiptAmbiguity) {
+      missingEvidence.push("Shared receipt telemetry can complete this task ambiguously without criteria.");
+    }
+
+    let coverageState: TaskCatalogCoverageState = "ready";
+    if (!rewardSafe) {
+      coverageState = "reward_risk";
+    } else if (!assignable) {
+      coverageState = "assignment_gap";
+    } else if (!trackable || sourceType === "legacy") {
+      coverageState = "tracking_gap";
+    } else if (!completable) {
+      coverageState = "completion_gap";
+    } else if (!dedupeSafe || !actionReachable) {
+      coverageState = "partial";
+    }
+    if (sourceType === "unsupported") {
+      coverageState = "unsupported";
+    }
+
+    const requiredValidators = buildTaskCatalogCoverageValidators({
+      rewardSafe,
+      trackable,
+      assignable,
+    });
+
+    return {
+      taskId: definition.id,
+      title: definition.title,
+      triggerEvent: definition.eventName,
+      sourceType,
+      group: definition.group,
+      actionPath: `${inventoryEntry?.actionLabel ?? definition.ctaLabel} -> ${inventoryEntry?.destinationHref ?? ""}`,
+      actionType: inventoryEntry?.actionMode === "runtime" ? "runtime" : "route",
+      rewardGd: definition.reward,
+      maxRequired: definition.maxProgress,
+      mode,
+      keying,
+      criteria,
+      assignable,
+      trackable,
+      completable,
+      rewardSafe,
+      dedupeSafe,
+      actionReachable,
+      coverageState,
+      missingEvidence,
+      requiredValidators,
+      sourceMixLabel: sourceType,
+      canonicalEventName: inventoryEntry?.eventName ?? definition.eventName,
+      rawTriggerDetails: {
+        eventLabel: inventoryEntry?.eventLabel ?? definition.eventName,
+        trackingSources: inventoryEntry?.trackingSources ?? [],
+        eventModules: inventoryEntry?.eventModules ?? [],
+        destinationHref: inventoryEntry?.destinationHref ?? "",
+        instruction: inventoryEntry?.instruction ?? "",
+      },
+    } satisfies TaskCatalogCoverageItem;
+  }).sort((left, right) => {
+    const stateRank: Record<TaskCatalogCoverageState, number> = {
+      reward_risk: 0,
+      assignment_gap: 1,
+      tracking_gap: 2,
+      completion_gap: 3,
+      unsupported: 4,
+      partial: 5,
+      ready: 6,
+    };
+    return stateRank[left.coverageState] - stateRank[right.coverageState]
+      || left.title.localeCompare(right.title);
+  });
+}
+
+export function summarizeTaskCatalogCoverage(entries: TaskCatalogCoverageItem[]): TaskCatalogCoverageSummary {
+  return entries.reduce<TaskCatalogCoverageSummary>((summary, entry) => {
+    summary.builtIn += 1;
+    summary.sourceMix[entry.sourceType] += 1;
+    if (entry.coverageState === "ready") summary.ready += 1;
+    if (entry.coverageState === "partial") summary.partial += 1;
+    if (entry.coverageState === "unsupported") summary.unsupported += 1;
+    if (entry.coverageState === "reward_risk") summary.rewardRisk += 1;
+    if (entry.coverageState === "assignment_gap") summary.assignmentGap += 1;
+    if (entry.coverageState === "tracking_gap") summary.trackingGap += 1;
+    if (entry.coverageState === "completion_gap") summary.completionGap += 1;
+    return summary;
+  }, {
+    builtIn: 0,
+    ready: 0,
+    partial: 0,
+    unsupported: 0,
+    rewardRisk: 0,
+    assignmentGap: 0,
+    trackingGap: 0,
+    completionGap: 0,
+    sourceMix: {
+      canonical: 0,
+      telemetry: 0,
+      legacy: 0,
+      unsupported: 0,
+    },
+  });
 }
 
 function toTaskAssignment(definition: DailyTaskDefinition): DailyTaskAssignment {

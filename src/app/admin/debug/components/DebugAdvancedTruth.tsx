@@ -37,6 +37,14 @@ function toneForActorRiskSeverity(severity?: string) {
     return "neutral" as const;
 }
 
+function toneForTaskCoverageState(state?: string) {
+    if (state === "reward_risk") return "bad" as const;
+    if (state === "assignment_gap" || state === "tracking_gap" || state === "completion_gap") return "bad" as const;
+    if (state === "partial" || state === "unsupported") return "warn" as const;
+    if (state === "ready") return "good" as const;
+    return "neutral" as const;
+}
+
 const DUPLICATE_INSPECT_EXPLANATION = "Most findings are duplicate inspect-only source-context items.";
 
 /* ─── Component ─── */
@@ -223,33 +231,69 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
             {/* ── Task catalog coverage ── */}
             <Section
                 title="Task catalog coverage"
-                subtitle="Built-in task definitions, trigger source, and action path."
+                subtitle="Built-in task definitions scored for end-to-end readiness, not just trigger-source existence."
                 defaultOpen={false}
-                summary={<><Pill label="Built-in" value={data?.stats?.builtInTasks ?? 0} /><Pill label="Canonical" value={data?.stats?.canonicalTasks ?? 0} tone="good" /><Pill label="Telemetry" value={data?.stats?.telemetryValidatedTasks ?? 0} tone="good" /><Pill label="Unsupported" value={data?.stats?.unsupportedTasks ?? 0} tone={data?.stats?.unsupportedTasks ? "warn" : "good"} /></>}
+                summary={<>
+                    <Pill label="Built-in" value={data?.taskCoverageSummary?.builtIn ?? data?.stats?.builtInTasks ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Ready" value={data?.taskCoverageSummary?.ready ?? data?.stats?.readyTasks ?? 0} tone={(data?.taskCoverageSummary?.ready ?? data?.stats?.readyTasks ?? 0) > 0 ? "good" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Partial" value={data?.taskCoverageSummary?.partial ?? data?.stats?.partialTasks ?? 0} tone={(data?.taskCoverageSummary?.partial ?? data?.stats?.partialTasks ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Unsupported" value={data?.taskCoverageSummary?.unsupported ?? data?.stats?.unsupportedTasks ?? 0} tone={(data?.taskCoverageSummary?.unsupported ?? data?.stats?.unsupportedTasks ?? 0) > 0 ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Reward risk" value={data?.taskCoverageSummary?.rewardRisk ?? data?.stats?.rewardRiskTasks ?? 0} tone={(data?.taskCoverageSummary?.rewardRisk ?? data?.stats?.rewardRiskTasks ?? 0) > 0 ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Tracking gap" value={data?.taskCoverageSummary?.trackingGap ?? data?.stats?.trackingGapTasks ?? 0} tone={(data?.taskCoverageSummary?.trackingGap ?? data?.stats?.trackingGapTasks ?? 0) > 0 ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Completion gap" value={data?.taskCoverageSummary?.completionGap ?? data?.stats?.completionGapTasks ?? 0} tone={(data?.taskCoverageSummary?.completionGap ?? data?.stats?.completionGapTasks ?? 0) > 0 ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
+                </>}
             >
                 <ScrollWrap>
                     <div className="divide-y divide-white/10">
+                        <div className="px-4 py-3 text-xs text-gray-400">
+                            Source mix: {data?.taskCoverageSummary?.sourceMix?.canonical ?? data?.stats?.canonicalTasks ?? 0} canonical / {data?.taskCoverageSummary?.sourceMix?.telemetry ?? data?.stats?.telemetryValidatedTasks ?? 0} telemetry / {data?.taskCoverageSummary?.sourceMix?.legacy ?? data?.stats?.legacyTasks ?? 0} legacy
+                        </div>
                         {(data?.coverage || []).map((task: any) => (
                             <div key={task.taskId} className="space-y-2 px-4 py-3">
                                 <div className="flex flex-wrap items-start justify-between gap-2">
                                     <div>
                                         <p className="font-semibold text-white">{task.title}</p>
-                                        <p className="text-xs text-gray-400">{task.taskId} | {task.eventLabel}</p>
+                                        <p className="text-xs text-gray-400">{task.taskId} | {task.rawTriggerDetails?.eventLabel || task.canonicalEventName || task.triggerEvent}</p>
                                     </div>
-                                    <Pill label="Source" value={task.trackingSource} tone={task.trackingSource === "unsupported" ? "bad" : "good"} />
+                                    <div className="flex flex-wrap gap-2">
+                                        <Pill label="Readiness" value={task.coverageState} tone={toneForTaskCoverageState(task.coverageState)} truthState="live" badgeLabel={task.coverageState === "ready" ? "READY" : task.coverageState === "partial" ? "PARTIAL" : task.coverageState === "reward_risk" ? "RISK" : "GAP"} />
+                                        <Pill label="Source" value={task.sourceType} tone={task.sourceType === "unsupported" ? "bad" : task.sourceType === "legacy" ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                    </div>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                    <Pill label="Reward" value={task.reward} />
-                                    <Pill label="Max" value={task.maxProgress} />
-                                    <Pill label="Group" value={task.group} />
-                                    <Pill label="Action" value={task.actionMode === "runtime" ? `${task.actionType} (runtime)` : `${task.actionType} (route)`} />
-                                    {task.oneTime ? <Pill label="Mode" value="one-time" /> : null}
-                                    {task.hasUniqueKey ? <Pill label="Keying" value="unique" /> : null}
-                                    {task.hasCriteria ? <Pill label="Criteria" value="filtered" /> : null}
+                                    <Pill label="Reward" value={`${task.rewardGd} GD`} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Max" value={task.maxRequired} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Group" value={task.group} tone="neutral" truthState="live" badgeLabel="INFO" />
+                                    <Pill label="Action" value={`${task.actionType}`} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Mode" value={task.mode} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Keying" value={task.keying || "any"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Criteria" value={(task.criteria || []).length > 0 ? "filtered" : "none"} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                 </div>
-                                <p className="text-xs leading-6 text-gray-400">
-                                    {task.actionLabel} {"->"} {task.destinationHref}
-                                </p>
+                                <p className="text-xs leading-6 text-gray-400">{task.actionPath}</p>
+                                {task.missingEvidence?.length ? (
+                                    <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing evidence</p>
+                                        <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-gray-300">
+                                            {task.missingEvidence.map((entry: string) => <li key={`${task.taskId}-${entry}`}>{entry}</li>)}
+                                        </ul>
+                                    </div>
+                                ) : null}
+                                <div className="flex flex-wrap gap-2">
+                                    {task.requiredValidators?.map((validator: string) => (
+                                        <Pill key={`${task.taskId}-${validator}`} label="Validator" value={validator} tone="neutral" truthState="live" badgeLabel="INFO" />
+                                    ))}
+                                </div>
+                                <details className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                                    <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.16em] text-gray-300">Raw trigger details</summary>
+                                    <div className="mt-2 space-y-1 text-xs text-gray-400">
+                                        <p>Canonical event: {task.canonicalEventName}</p>
+                                        <p>Trigger event: {task.triggerEvent}</p>
+                                        <p>Tracking sources: {(task.rawTriggerDetails?.trackingSources || []).join(", ") || "none"}</p>
+                                        <p>Modules: {(task.rawTriggerDetails?.eventModules || []).join(", ") || "none"}</p>
+                                        <p>Destination: {task.rawTriggerDetails?.destinationHref || "unavailable"}</p>
+                                        <p>Instruction: {task.rawTriggerDetails?.instruction || "unavailable"}</p>
+                                    </div>
+                                </details>
                             </div>
                         ))}
                     </div>

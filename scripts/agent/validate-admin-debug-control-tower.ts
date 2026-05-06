@@ -52,6 +52,7 @@ const adminOpsHealthContract = readRequired("src/lib/admin-ops-health.ts");
 const adminOrchestration = readRequired("src/lib/server/admin-orchestration.ts");
 const adminOrchestrationRepairs = readRequired("src/lib/server/admin-orchestration-repairs.ts");
 const notificationContracts = readRequired("src/lib/notification-contracts.ts");
+const taskObservability = readRequired("src/lib/tasks/task-observability.ts");
 const notificationsRoute = readRequired("src/app/api/notifications/route.ts");
 const notificationsHook = readRequired("src/hooks/useNotifications.ts");
 const notificationBell = readRequired("src/components/Navigation/NotificationBell.tsx");
@@ -108,6 +109,9 @@ if (packageJson.scripts?.["check:admin-debug-control-tower"] !== "tsx scripts/ag
 if (packageJson.scripts?.["check:dependency-truth"] !== "tsx scripts/agent/check-dependency-truth.ts") {
   fail("package.json must expose check:dependency-truth.");
 }
+if (packageJson.scripts?.["check:task-catalog-coverage"] !== "tsx scripts/agent/validate-task-catalog-coverage.ts") {
+  fail("package.json must expose check:task-catalog-coverage.");
+}
 if (Object.keys(packageJson.dependencies ?? {}).length === 0 || Object.keys(packageJson.devDependencies ?? {}).length === 0) {
   fail("Root package.json must expose direct runtime and dev dependencies for the dependency inventory panel.");
 }
@@ -163,6 +167,21 @@ for (const expected of [
   requireIncludes(apiRoute, expected, "Admin debug control tower API route");
 }
 for (const expected of [
+  "TaskCatalogCoverageItem",
+  "TaskCatalogCoverageSummary",
+  "buildTaskCatalogCoverage",
+  "summarizeTaskCatalogCoverage",
+  "\"tracking_gap\"",
+  "\"assignment_gap\"",
+  "\"completion_gap\"",
+  "\"reward_risk\"",
+  "Shared trigger requires criteria to avoid ambiguous completion.",
+  "Legacy unlock trigger relies on canonical drop_unlocked alias proof.",
+  "Max > 1 task lacks distinct or count-safe keying.",
+]) {
+  requireIncludes(taskObservability, expected, "Task observability must expose end-to-end task coverage");
+}
+for (const expected of [
   "TaskIssueAttribution",
   "expectedSource",
   "foundSource",
@@ -174,6 +193,16 @@ for (const expected of [
   "assignment_missing",
   "onboarding_not_complete",
   "Rebuild task assignment for this user",
+  "taskCoverageSummary",
+  "readyTasks",
+  "partialTasks",
+  "rewardRiskTasks",
+  "assignmentGapTasks",
+  "trackingGapTasks",
+  "completionGapTasks",
+  "legacyTasks",
+  "buildTaskCatalogCoverage(BUILT_IN_DAILY_TASKS, runtimeTaskAudit)",
+  "summarizeTaskCatalogCoverage(coverage)",
 ]) {
   requireIncludes(adminDebugRoute, expected, "Admin debug task issue attribution model");
 }
@@ -463,8 +492,36 @@ for (const expected of [
   "Risk reasons",
   "Reason\" value={reason.reasonCode || \"unknown\"}",
   "Risk count exists but no source reason was attached; inspect normalization evidence.",
+  "title=\"Task catalog coverage\"",
+  "Built-in\" value={data?.taskCoverageSummary?.builtIn",
+  "Ready\" value={data?.taskCoverageSummary?.ready",
+  "Partial\" value={data?.taskCoverageSummary?.partial",
+  "Unsupported\" value={data?.taskCoverageSummary?.unsupported",
+  "Reward risk\" value={data?.taskCoverageSummary?.rewardRisk",
+  "Tracking gap\" value={data?.taskCoverageSummary?.trackingGap",
+  "Completion gap\" value={data?.taskCoverageSummary?.completionGap",
+  "Source mix:",
+  "Readiness\" value={task.coverageState}",
+  "label=\"Reward\" value={`${task.rewardGd} GD`}",
+  "label=\"Max\" value={task.maxRequired}",
+  "label=\"Action\" value={`${task.actionType}`}",
+  "label=\"Mode\" value={task.mode}",
+  "label=\"Keying\" value={task.keying || \"any\"}",
+  "label=\"Criteria\" value={(task.criteria || []).length > 0 ? \"filtered\" : \"none\"}",
+  "Missing evidence",
+  "Raw trigger details",
 ]) {
   requireIncludes(debugAdvancedTruth, expected, "Behavior normalization internals panel must render loaded context-aware gap truth");
+}
+for (const forbidden of [
+  "subtitle=\"Built-in task definitions, trigger source, and action path.\"",
+  "<Pill label=\"Canonical\" value={data?.stats?.canonicalTasks ?? 0} tone=\"good\" />",
+  "<Pill label=\"Telemetry\" value={data?.stats?.telemetryValidatedTasks ?? 0} tone=\"good\" />",
+  "<Pill label=\"Reward\" value={task.reward} />",
+  "<Pill label=\"Max\" value={task.maxProgress} />",
+  "<Pill label=\"Action\" value={task.actionMode === \"runtime\" ? `${task.actionType} (runtime)` : `${task.actionType} (route)`} />",
+]) {
+  requireNotIncludes(debugAdvancedTruth, forbidden, "Task coverage panel must not use shallow trigger-only or WAIT-style field truth");
 }
 for (const forbidden of [
   "validations.length || (isLoading ? \"Loading\" : 0)",
@@ -1500,6 +1557,7 @@ try {
     /^scripts\/agent\/validate-daily-task-lifecycle\.ts$/u,
     /^scripts\/agent\/validate-daily-task-reward-economy\.ts$/u,
     /^scripts\/agent\/validate-daily-task-telemetry-truth\.ts$/u,
+    /^scripts\/agent\/validate-task-catalog-coverage\.ts$/u,
     /^scripts\/release\/update-public-changelog\.ts$/u,
     /^CHANGELOG\.md$/u,
     /^public\/kandydrops-release-notes\.json$/u,
