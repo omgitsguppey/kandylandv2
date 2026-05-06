@@ -616,13 +616,13 @@ export function buildHistoricalContentAnalytics(input: {
 
   const contentConversionWarnings: string[] = [];
   if (usingUnlockRollupFallback) {
-    contentConversionWarnings.push("Unlock funnel telemetry missing; using unlock/access rollups.");
+    contentConversionWarnings.push("Unwrap funnel telemetry missing; using unwrap/access rollups.");
   }
   if (previewMissingDropIdCount > 0) {
     contentConversionWarnings.push("Some preview events are missing dropId and are grouped under Unknown mapping.");
   }
   if (unlockMissingDropIdCount > 0) {
-    contentConversionWarnings.push("Some unlock events are missing dropId and are grouped under Unknown mapping.");
+    contentConversionWarnings.push("Some unwrap events are missing dropId and are grouped under Unknown mapping.");
   }
   if (viewerMissingDropIdCount > 0) {
     contentConversionWarnings.push("Some viewer-open events are missing dropId and cannot be joined to content metadata.");
@@ -642,21 +642,21 @@ export function buildHistoricalContentAnalytics(input: {
         ? (group.unlockCount / group.previewCount) * 100
         : null;
       let conversionState: ContentConversionState["rows"][number]["conversionState"] = "healthy";
-      let explanation = "Preview, unlock, and optional viewer/watch signals are grouped by drop metadata for this content cohort.";
+      let explanation = "Preview, unwrap, and optional viewer/watch signals are grouped by drop metadata for this content cohort.";
       if (!hasAnyActivity) {
         conversionState = "no_data";
-        explanation = "Drop metadata exists for this cohort, but no preview, unlock, or viewer activity was observed in the selected range.";
+        explanation = "Drop metadata exists for this cohort, but no preview, unwrap, or viewer activity was observed in the selected range.";
       } else if (group.missingMetadata) {
         conversionState = "missing_metadata";
         explanation = "Some drops in this cohort are missing content metadata, so they remain grouped under an Unknown bucket.";
       } else if (!hasValidPreviewDenominator && group.unlockCount > 0) {
         conversionState = "review";
-        explanation = "Unlocks exist without preview source for this group.";
+        explanation = "Unwraps exist without preview source for this group.";
       } else if (usingUnlockRollupFallback || previewMissingDropIdCount > 0 || unlockMissingDropIdCount > 0) {
         conversionState = "review";
         explanation = usingUnlockRollupFallback
-          ? "Unlock counts are using drop rollup fallback because unlock telemetry is missing for this range."
-          : "Some preview or unlock records could not be mapped cleanly, so this cohort is partially hydrated.";
+          ? "Unwrap counts are using drop rollup fallback because unwrap telemetry is missing for this range."
+          : "Some preview or unwrap records could not be mapped cleanly, so this cohort is partially hydrated.";
       }
 
       const sourceTruth = group.hasPreviewSource && group.hasUnlockSource
@@ -797,8 +797,8 @@ export function buildHistoricalContentAnalytics(input: {
 
   const contentJourney = [
     { label: "Previews", count: input.funnel.previewOpens },
-    { label: "Unlock attempts", count: input.eventsData.drop_unlock_attempted || 0 },
-    { label: "Unlocks", count: input.funnel.unlocks },
+    { label: "Unwrap attempts", count: input.eventsData.drop_unlock_attempted || 0 },
+    { label: "Unwraps", count: input.funnel.unlocks },
     { label: "Viewer opens", count: Math.max(input.funnel.viewerOpens, input.viewerOverview.viewCount) },
     { label: "Meaningful watch", count: input.viewerOverview.meaningfulSessionCount },
     { label: "Opened, no depth", count: input.viewerOverview.openedWithoutDepthCount },

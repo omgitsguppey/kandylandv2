@@ -126,6 +126,7 @@ const deviceMixHelper = readRequired("src/lib/admin-analytics-device-mix.ts");
 const topPathsHelper = readRequired("src/lib/admin-analytics-top-paths.ts");
 const regionDemandHelper = readRequired("src/lib/admin-analytics-region-demand.ts");
 const contentConversionHelper = readRequired("src/lib/admin-analytics-content-conversion.ts");
+const topDropConversionHelper = readRequired("src/lib/admin-analytics-top-drop-conversion.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
@@ -2070,24 +2071,43 @@ for (const expected of [
   requireIncludes(regionDemandHelper, expected, "Region demand truth helper");
 }
 for (const expected of [
-  "buildAdminAnalyticsContentConversionModel",
-  "\"drop_metadata_plus_unlock_rollups\"",
-  "No preview/unlock/drop metadata source available for this range.",
-  "Content conversion is using rollup fallback because unlock telemetry is missing.",
-  "rowsByDimension",
-  "overallUnlockRatePct",
-]) {
-  requireIncludes(contentConversionHelper, expected, "Content conversion truth helper");
-}
-for (const expected of [
-  "Content Conversion",
-  "data-content-conversion-source-truth",
-  "data-content-conversion-generated-at-utc",
-  "data-content-conversion-grouping",
-  "No preview/unlock/drop metadata source available for this range.",
-]) {
-  requireIncludes(adminAnalyticsCommerceTab, expected, "Content conversion analytics panel");
-}
+    "buildAdminAnalyticsContentConversionModel",
+    "\"drop_metadata_plus_unlock_rollups\"",
+    "No preview/unwrap/drop metadata source available for this range.",
+    "Content conversion is using access rollup fallback because unwrap telemetry is missing.",
+    "rowsByDimension",
+    "overallUnlockRatePct",
+  ]) {
+    requireIncludes(contentConversionHelper, expected, "Content conversion truth helper");
+  }
+  for (const expected of [
+    "buildAdminAnalyticsTopDropConversionModel",
+    "formatTopDropUnwrapRate",
+    "\"<0.1%\"",
+    "dropIdentityState",
+    "chartLabel",
+    "Unwrap conversion uses unwraps divided by validated drop views",
+  ]) {
+    requireIncludes(topDropConversionHelper, expected, "Top Drop Conversion truth helper");
+  }
+  for (const expected of [
+    "Content Conversion",
+    "data-content-conversion-source-truth",
+    "data-content-conversion-generated-at-utc",
+    "data-content-conversion-grouping",
+    "No preview/unwrap/drop metadata source available for this range.",
+    "Top Drop Conversion",
+    "Drops with enough views to evaluate unwrap conversion.",
+    "data-top-drop-conversion-source-truth",
+    "data-top-drop-conversion-identity-state",
+    "data-top-drop-conversion-unwraps",
+    "drop.unwrapRateDisplay",
+  ]) {
+    requireIncludes(adminAnalyticsCommerceTab, expected, "Commerce analytics conversion panels");
+  }
+  requireNotIncludes(adminAnalyticsCommerceTab, "Unlocked drops with enough demand to matter.", "Top Drop Conversion must use unwrap product language");
+  requireNotIncludes(adminAnalyticsCommerceTab, "name=\"Unlocks\"", "Top Drop Conversion chart must not display backend unlock wording");
+  requireNotIncludes(adminAnalyticsCommerceTab, "dataKey=\"dropId\"", "Top Drop Conversion chart axis must use readable title labels");
 for (const expected of [
   "Source mode:",
   "Explicit taps:",
@@ -2261,6 +2281,7 @@ try {
     /^src\/lib\/creator-onboarding\.ts$/u,
     /^src\/lib\/admin\/synthetic-creators-view-as\.ts$/u,
     /^src\/lib\/admin-moderation\.ts$/u,
+    /^src\/lib\/admin-analytics-top-drop-conversion\.ts$/u,
     /^src\/lib\/telemetry-catalog\.ts$/u,
     /^src\/lib\/debug-evidence-contract\.ts$/u,
     /^src\/lib\/notification-contracts\.ts$/u,
@@ -2282,6 +2303,7 @@ try {
     /^src\/lib\/server\/admin-analytics-historical-viewer\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-tasks\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-content\.ts$/u,
+    /^src\/lib\/server\/drop-references\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-traffic\.ts$/u,
     /^src\/lib\/server\/admin-analytics-data\.ts$/u,
     /^src\/lib\/server\/analytics-metrics\.ts$/u,

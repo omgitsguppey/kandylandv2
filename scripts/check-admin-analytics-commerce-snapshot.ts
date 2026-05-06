@@ -28,6 +28,7 @@ const component = read("src/app/admin/analytics/components/AdminAnalyticsCommerc
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const helper = read("src/lib/admin-analytics-commerce-snapshot.ts");
 const contentConversionHelper = read("src/lib/admin-analytics-content-conversion.ts");
+const topDropConversionHelper = read("src/lib/admin-analytics-top-drop-conversion.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 const historicalRoute = read("src/app/api/admin/analytics/historical/route.ts");
 const analyticsTypes = read("src/types/admin-analytics.ts");
@@ -47,13 +48,23 @@ assertIncludes("AdminAnalyticsCommerceTab", component, "Package Performance");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Package config exists, but no package-specific checkout or purchase data was observed in this range.");
 assertIncludes("AdminAnalyticsCommerceTab", component, "No package config found. Package value basis should come from Platform Economy packages.");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Content Conversion");
-assertIncludes("AdminAnalyticsCommerceTab", component, "No preview/unlock/drop metadata source available for this range.");
-assertIncludes("AdminAnalyticsCommerceTab", component, "Content conversion is using rollup fallback because unlock telemetry is missing.");
+assertIncludes("AdminAnalyticsCommerceTab", component, "No preview/unwrap/drop metadata source available for this range.");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Content conversion is using access rollup fallback because unwrap telemetry is missing.");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-content-conversion-source-truth");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-content-conversion-grouping");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Top Drop Conversion");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Drops with enough views to evaluate unwrap conversion.");
+assertIncludes("AdminAnalyticsCommerceTab", component, "data-top-drop-conversion-source-truth");
+assertIncludes("AdminAnalyticsCommerceTab", component, "data-top-drop-conversion-identity-state");
+assertIncludes("AdminAnalyticsCommerceTab", component, "data-top-drop-conversion-unwraps");
+assertIncludes("AdminAnalyticsCommerceTab", component, "drop.unwrapRateDisplay");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Raw identity and source details");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-package-performance-id");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-package-performance-state");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "Checkout conversion: {commerceConversionLabel}");
+assertNotIncludes("AdminAnalyticsCommerceTab", component, "Unlocked drops with enough demand to matter.");
+assertNotIncludes("AdminAnalyticsCommerceTab", component, "name=\"Unlocks\"");
+assertNotIncludes("AdminAnalyticsCommerceTab", component, "dataKey=\"dropId\"");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, " Â· ");
 
 assertIncludes("commerce snapshot helper", helper, "CommerceSnapshotState");
@@ -95,7 +106,16 @@ assertIncludes("useAdminAnalyticsState", hook, "contentConversionModel");
 assertIncludes("content conversion helper", contentConversionHelper, "rowsByDimension");
 assertIncludes("content conversion helper", contentConversionHelper, "overallUnlockRatePct");
 assertIncludes("content conversion helper", contentConversionHelper, "\"drop_metadata_plus_unlock_rollups\"");
+assertIncludes("content conversion helper", contentConversionHelper, "No preview/unwrap/drop metadata source available for this range.");
+assertIncludes("content conversion helper", contentConversionHelper, "Content conversion is using access rollup fallback because unwrap telemetry is missing.");
 assertIncludes("content conversion helper", contentConversionHelper, "fakeZeroPrevented");
+
+assertIncludes("top drop conversion helper", topDropConversionHelper, "buildAdminAnalyticsTopDropConversionModel");
+assertIncludes("top drop conversion helper", topDropConversionHelper, "formatTopDropUnwrapRate");
+assertIncludes("top drop conversion helper", topDropConversionHelper, "\"<0.1%\"");
+assertIncludes("top drop conversion helper", topDropConversionHelper, "dropIdentityState");
+assertIncludes("top drop conversion helper", topDropConversionHelper, "chartLabel");
+assertIncludes("top drop conversion helper", topDropConversionHelper, "Unwrap conversion uses unwraps divided by validated drop views");
 
 assertIncludes("admin analytics types", analyticsTypes, "export type CommerceMetricCard");
 assertIncludes("admin analytics types", analyticsTypes, "export type CommerceSnapshotState");
@@ -103,9 +123,12 @@ assertIncludes("admin analytics types", analyticsTypes, "export type PackagePerf
 assertIncludes("admin analytics types", analyticsTypes, "export type PackagePerformanceRow");
 assertIncludes("admin analytics types", analyticsTypes, "export type ContentConversionState");
 assertIncludes("admin analytics types", analyticsTypes, "export type ContentConversionRow");
+assertIncludes("admin analytics types", analyticsTypes, "export type TopDropConversionState");
+assertIncludes("admin analytics types", analyticsTypes, "export type TopDropConversionRow");
 assertIncludes("admin analytics types", analyticsTypes, "commerceSnapshotState?: CommerceSnapshotState");
 assertIncludes("admin analytics types", analyticsTypes, "packagePerformanceState?: PackagePerformanceState");
 assertIncludes("admin analytics types", analyticsTypes, "contentConversionState?: ContentConversionState");
+assertIncludes("admin analytics types", analyticsTypes, "topDropConversionState?: TopDropConversionState");
 assertIncludes("admin analytics types", analyticsTypes, "checkoutScope?: \"lifetime\" | \"rolling_30d\" | \"selected_range\" | \"cache_snapshot\" | \"unknown\"");
 
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsCommerceSnapshot");

@@ -54,6 +54,7 @@ import { buildAdminAnalyticsNavigationDestinationsModel } from "@/lib/admin-anal
 import { buildAdminAnalyticsDeviceMixModel } from "@/lib/admin-analytics-device-mix";
 import { buildAdminAnalyticsTopPathsModel } from "@/lib/admin-analytics-top-paths";
 import { buildAdminAnalyticsRegionDemandModel } from "@/lib/admin-analytics-region-demand";
+import { buildAdminAnalyticsTopDropConversionModel } from "@/lib/admin-analytics-top-drop-conversion";
 import { summarizeAdminIssueForOperator } from "@/lib/admin-copy/admin-truth-copy";
 
 
@@ -442,6 +443,8 @@ export function useAdminAnalyticsState() {
     }));
 const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
+  const [topDropConversionPage, setTopDropConversionPage] = useState(1);
+  const [topDropConversionPageSize, setTopDropConversionPageSize] = useState(10);
   const range: RangeOption = ADMIN_ANALYTICS_DEFAULT_RANGE;
   const nowMs = useNow({ intervalMs: 60_000, initialNowMs: 0 });
   const [viewerUserDraft, setViewerUserDraft] = useState("");
@@ -2378,6 +2381,20 @@ const { user } = useAuth();
       ? historicalResponse
       : topDropConversionOverride.data;
   const topDropConversionItems = topDropConversionData?.topDrops ?? topDrops;
+  const topDropConversionModel = useMemo(
+    () => buildAdminAnalyticsTopDropConversionModel({
+      response: topDropConversionData,
+      selectedRange: topDropConversionRange,
+      page: topDropConversionPage,
+      pageSize: topDropConversionPageSize,
+    }),
+    [
+      topDropConversionData,
+      topDropConversionRange,
+      topDropConversionPage,
+      topDropConversionPageSize,
+    ],
+  );
   const recentCommerceFeedData =
     recentCommerceFeedRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -2771,7 +2788,7 @@ const { user } = useAuth();
     navigationDestinationsRange, destinationMix, navigationDestinationsMix, navigationDestinationsModel, deviceMixRange, getDeviceIcon, deviceMixDevices, deviceMixTotalUsers, deviceMixModel, topPathsRange, topPathsPages, topPathsModel, regionsRange, regionsGeo, regionsModel,
     commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, commerceSnapshotModel, packagePerformanceRange, packagePerformance, packagePerformanceItems, packagePerformancePanelState,
     PIE_COLORS, contentConversionRange, unlockCategoryMix, contentConversionItems, contentConversionModel, previewToUnlockRate, checkoutToPurchaseRate,
-    topDropConversionRange, topDrops, topDropConversionItems, recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
+    topDropConversionRange, topDrops, topDropConversionItems, topDropConversionModel, topDropConversionPage, setTopDropConversionPage, topDropConversionPageSize, setTopDropConversionPageSize, recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
     formatMoney, formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
     liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, livePulseModel, journeyFunnelMetrics, journeyFunnelModel,
     liveFeedStatus: liveRealtime.feedStatus, liveFeedDetail: liveRealtime.feedDetail, liveGuestActiveCount: liveRealtime.guestActive

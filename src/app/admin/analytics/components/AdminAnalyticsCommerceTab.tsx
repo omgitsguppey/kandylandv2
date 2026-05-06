@@ -34,7 +34,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     packagePerformanceRange, packagePerformanceItems, packagePerformancePanelState,
     contentConversionModel,
     contentConversionRange,
-    topDropConversionRange, topDropConversionItems,
+    topDropConversionRange, topDropConversionModel, topDropConversionPage, setTopDropConversionPage, topDropConversionPageSize, setTopDropConversionPageSize,
     recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
     
     // Viewer drilldown
@@ -193,7 +193,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   statusBadgeLabel={commerceBadgeLabel}
                   className={compactMetricClass}
                   valueClassName={compactMetricValueClass}
-                  dictionaryTooltip={`${gdSpentCard?.explanation ?? "GumDrops spent through internal unlock records."} Paid ${formatCommerceValue(commerceSnapshotModel.paidGdSpentValue, formatCompactNumber, "Unavailable")} | Reward ${formatCommerceValue(commerceSnapshotModel.rewardFreeGdSpentValue, formatCompactNumber, "Unavailable")} | Unknown ${formatCommerceValue(commerceSnapshotModel.unknownSourceGdSpentValue, formatCompactNumber, "Unavailable")}`}
+                  dictionaryTooltip={`${gdSpentCard?.explanation ?? "GumDrops spent through internal unwrap/access records."} Paid ${formatCommerceValue(commerceSnapshotModel.paidGdSpentValue, formatCompactNumber, "Unavailable")} | Reward ${formatCommerceValue(commerceSnapshotModel.rewardFreeGdSpentValue, formatCompactNumber, "Unavailable")} | Unknown ${formatCommerceValue(commerceSnapshotModel.unknownSourceGdSpentValue, formatCompactNumber, "Unavailable")}`}
                 />
               </div>
 
@@ -393,11 +393,11 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                       <div className="font-semibold text-white">{contentConversionModel.totalPreviews.toLocaleString()}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Unlocks</div>
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Unwraps</div>
                       <div className="font-semibold text-white">{contentConversionModel.totalUnlocks.toLocaleString()}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Unlock rate</div>
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Unwrap rate</div>
                       <div className="font-semibold text-white">
                         {contentConversionModel.overallUnlockRatePct !== null
                           ? formatPercent(contentConversionModel.overallUnlockRatePct / 100)
@@ -444,7 +444,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                         <div>Group</div>
                         <div>Drops</div>
                         <div>Previews</div>
-                        <div>Unlocks</div>
+                        <div>Unwraps</div>
                         <div>Rate</div>
                         <div>Viewer</div>
                         <div>Watch</div>
@@ -462,7 +462,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <p className="truncate text-sm font-semibold text-white">{row.groupLabel}</p>
-                                <p className="mt-1 text-[11px] text-gray-500">{`${row.dropCount} drops | ${row.previewCount.toLocaleString()} previews | ${row.unlockCount.toLocaleString()} unlocks`}</p>
+                                <p className="mt-1 text-[11px] text-gray-500">{`${row.dropCount} drops | ${row.previewCount.toLocaleString()} previews | ${row.unlockCount.toLocaleString()} ${row.unlockCount === 1 ? "unwrap" : "unwraps"}`}</p>
                               </div>
                               <AdminStatusBadge state={coerceAdminSurfaceState(row.conversionState === "healthy" ? "live" : row.conversionState === "no_data" ? "unavailable" : "degraded")} />
                             </div>
@@ -507,10 +507,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   ) : (
                     <div className="rounded-[1rem] border border-dashed border-white/10 bg-black/20 px-4 py-5 text-sm text-gray-500">
                       {contentConversionModel.sourceTruth === "missing"
-                        ? "No preview/unlock/drop metadata source available for this range."
+                        ? "No preview/unwrap/drop metadata source available for this range."
                         : contentConversionModel.sourceTruth === "drop_metadata_plus_unlock_rollups"
-                          ? "Content conversion is using rollup fallback because unlock telemetry is missing."
-                          : "No preview/unlock events in selected range."}
+                          ? "Content conversion is using access rollup fallback because unwrap telemetry is missing."
+                          : "No preview/unwrap events in selected range."}
                     </div>
                   )}
                 </div>
@@ -520,95 +520,185 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
             <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
               <SectionCard
                 title="Top Drop Conversion"
-                subtitle="Unlocked drops with enough demand to matter."
+                subtitle="Drops with enough views to evaluate unwrap conversion."
                 icon={ShoppingBag}
                 rightSlot={renderSectionRangeControl("topDropConversion")}
               >
-                <div className="h-64 w-full md:h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={topDropConversionItems.slice(0, 8)}
-                      margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
-                    >
-                      <CartesianGrid
-                        stroke="rgba(255,255,255,0.06)"
-                        vertical={false}
-                      />
-                      <XAxis
-                        dataKey="dropId"
-                        stroke="#6b7280"
-                        fontSize={10}
-                        tickLine={false}
-                        axisLine={false}
-                        interval={0}
-                        angle={-18}
-                        textAnchor="end"
-                        height={56}
-                      />
-                      <YAxis
-                        stroke="#6b7280"
-                        fontSize={11}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <Tooltip
-                        content={
-                          <AnalyticsTooltip
-                            valueFormatter={(value, name) =>
-                              name === "Unlocks" || name === "Views"
-                                ? Number(value).toLocaleString()
-                                : String(value)
-                            }
-                          />
-                        }
-                      />
-                      <Bar
-                        dataKey="views"
-                        name="Views"
-                        fill="#374151"
-                        radius={[8, 8, 0, 0]}
-                      />
-                      <Bar
-                        dataKey="unlocks"
-                        name="Unlocks"
-                        fill="#b28cff"
-                        radius={[8, 8, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                <div
+                  className="space-y-3"
+                  data-top-drop-conversion-source-truth={topDropConversionModel.sourceTruth}
+                  data-top-drop-conversion-freshness={topDropConversionModel.freshnessState}
+                  data-top-drop-conversion-generated-at-utc={topDropConversionModel.generatedAtUtc}
+                  data-top-drop-conversion-denominator={topDropConversionModel.denominatorLabel}
+                  data-top-drop-conversion-page={topDropConversionModel.page}
+                  data-top-drop-conversion-page-size={topDropConversionModel.pageSize}
+                >
+                  <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-4">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Range</div>
+                      <div className="font-semibold text-white">{topDropConversionModel.range}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Source</div>
+                      <div className="font-semibold text-white">{topDropConversionModel.sourceTruth}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Denominator</div>
+                      <div className="font-semibold text-white">{topDropConversionModel.denominatorLabel}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Last updated</div>
+                      <div className="font-semibold text-white">{formatAbsoluteDateTime(topDropConversionModel.generatedAtUtc)}</div>
+                    </div>
+                  </div>
 
-                <div className="mt-5 space-y-3">
-                  {topDropConversionItems.slice(0, 6).map((drop: any) => {
-                    const rate = drop.views > 0 ? drop.unlocks / drop.views : 0;
-                    return (
-                      <div
-                        key={drop.dropId}
-                        className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
-                      >
-                        <div className="mb-2 flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">
-                              {drop.dropId}
-                            </p>
-                            <p className="mt-1 text-xs text-gray-500">
-                              {drop.views.toLocaleString()} views ·{" "}
-                              {drop.unlocks.toLocaleString()} unlocks
-                            </p>
-                          </div>
-                          <span className="shrink-0 text-sm font-bold text-brand-purple">
-                            {formatPercent(rate)}
-                          </span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
-                            style={{ width: `${Math.max(6, rate * 100)}%` }}
-                          />
-                        </div>
+                  <div className="rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300">
+                    <p>{topDropConversionModel.sourceCopy}</p>
+                    <p>{topDropConversionModel.denominatorCopy}</p>
+                    {topDropConversionModel.warnings.map((warning) => (
+                      <p key={warning}>{warning}</p>
+                    ))}
+                  </div>
+
+                  {topDropConversionModel.chartRows.length > 0 ? (
+                    <details className="rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2">
+                      <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
+                        Chart
+                      </summary>
+                      <div className="mt-3 h-56 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={topDropConversionModel.chartRows} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                            <XAxis dataKey="chartLabel" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
+                            <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                            <Tooltip
+                              content={
+                                <AnalyticsTooltip
+                                  valueFormatter={(value, name) =>
+                                    name === "Unwraps" || name === "Validated views"
+                                      ? Number(value).toLocaleString()
+                                      : String(value)
+                                  }
+                                />
+                              }
+                            />
+                            <Bar dataKey="views" name="Validated views" fill="#374151" radius={[8, 8, 0, 0]} />
+                            <Bar dataKey="unwraps" name="Unwraps" fill="#b28cff" radius={[8, 8, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
                       </div>
-                    );
-                  })}
+                    </details>
+                  ) : null}
+
+                  <div className="space-y-2">
+                    <div className="hidden grid-cols-[minmax(0,1.7fr)_0.8fr_0.8fr_0.8fr_0.8fr] gap-2 px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500 md:grid">
+                      <div>Drop</div>
+                      <div>Views</div>
+                      <div>Unwraps</div>
+                      <div>Rate</div>
+                      <div>State</div>
+                    </div>
+                    {topDropConversionModel.visibleRows.length > 0 ? (
+                      topDropConversionModel.visibleRows.map((drop) => (
+                        <div
+                          key={drop.dropId}
+                          className="rounded-[1rem] border border-white/10 bg-black/30 px-3 py-3"
+                          data-top-drop-conversion-drop-id={drop.dropId}
+                          data-top-drop-conversion-identity-state={drop.dropIdentityState}
+                          data-top-drop-conversion-views={drop.views}
+                          data-top-drop-conversion-unwraps={drop.unwraps}
+                          data-top-drop-conversion-rate={drop.unwrapRateDisplay}
+                        >
+                          <div className="md:hidden">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-semibold text-white">{drop.dropTitle}</p>
+                                <p className="mt-1 text-[11px] text-gray-500">
+                                  {drop.creatorName ? `${drop.creatorName} | ` : ""}{drop.shortDropId}
+                                </p>
+                              </div>
+                              <span className="shrink-0 text-sm font-bold text-brand-purple">{drop.unwrapRateDisplay}</span>
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                              <span>{drop.views.toLocaleString()} {topDropConversionModel.denominatorLabel}</span>
+                              <span>{drop.unwraps.toLocaleString()} {drop.unwraps === 1 ? "unwrap" : "unwraps"}</span>
+                              <span>{drop.sourceTruth}</span>
+                            </div>
+                            <p className="mt-2 text-[11px] leading-5 text-gray-400">{drop.explanation}</p>
+                          </div>
+
+                          <div className="hidden items-start gap-2 md:grid md:grid-cols-[minmax(0,1.7fr)_0.8fr_0.8fr_0.8fr_0.8fr]">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-white">{drop.dropTitle}</p>
+                              <p className="mt-1 text-[11px] text-gray-500">
+                                {drop.creatorName ? `${drop.creatorName} | ` : ""}{drop.shortDropId}
+                              </p>
+                              <details className="mt-1 text-[11px] text-gray-500">
+                                <summary className="cursor-pointer">Raw identity and source details</summary>
+                                <p>Drop ID: {drop.dropId}</p>
+                                <p>Source: {drop.sourceTruth}</p>
+                                <p>Freshness: {drop.freshnessState}</p>
+                              </details>
+                            </div>
+                            <div className="text-sm font-semibold text-white">{drop.views.toLocaleString()}</div>
+                            <div className="text-sm font-semibold text-white">{drop.unwraps.toLocaleString()}</div>
+                            <div className="text-sm font-semibold text-brand-purple">{drop.unwrapRateDisplay}</div>
+                            <div>
+                              <AdminStatusBadge state={coerceAdminSurfaceState(drop.dropIdentityState === "resolved" ? "cached" : "degraded")} />
+                            </div>
+                          </div>
+                          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+                              style={{ width: `${Math.min(100, Math.max(4, drop.unwrapRatePct ?? 0))}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-[1rem] border border-dashed border-white/10 bg-black/20 px-4 py-5 text-sm text-gray-500">
+                        No drop conversion rows were available for this range.
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-[1rem] border border-white/10 bg-black/20 px-3 py-2 text-[11px] text-gray-300">
+                    <div>
+                      Showing {topDropConversionModel.visibleRows.length > 0 ? topDropConversionModel.visibleStart + 1 : 0}-{topDropConversionModel.visibleEnd} of {topDropConversionModel.totalRows} rows
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={topDropConversionPageSize}
+                        onChange={(event) => {
+                          setTopDropConversionPageSize(Number(event.target.value));
+                          setTopDropConversionPage(1);
+                        }}
+                        className="rounded-xl border border-white/10 bg-black/40 px-2 py-1 text-white"
+                        aria-label="Top drop conversion page size"
+                      >
+                        {[10, 25, 50].map((size) => (
+                          <option key={size} value={size}>{size}</option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        disabled={!topDropConversionModel.hasPreviousPage}
+                        onClick={() => setTopDropConversionPage(Math.max(1, topDropConversionPage - 1))}
+                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-1 font-semibold text-gray-200 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        Prev
+                      </button>
+                      <span>Page {topDropConversionModel.page} / {topDropConversionModel.pageCount}</span>
+                      <button
+                        type="button"
+                        disabled={!topDropConversionModel.hasNextPage}
+                        onClick={() => setTopDropConversionPage(topDropConversionPage + 1)}
+                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-1 font-semibold text-gray-200 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </SectionCard>
 

@@ -163,9 +163,43 @@ export type TopPathsPanelState = {
 
 export interface TopDropItem {
   dropId: string;
+  dropTitle?: string;
+  creatorName?: string;
   views: number;
   unlocks: number;
 }
+
+export type TopDropConversionRow = {
+  dropId: string;
+  shortDropId: string;
+  dropTitle: string;
+  creatorName?: string;
+  dropIdentityState: "resolved" | "fallback_id" | "missing";
+  views: number;
+  unwraps: number;
+  unwrapRatePct: number | null;
+  unwrapRateDisplay: string;
+  revenueUsd?: number | null;
+  gumdropsSpent?: number | null;
+  sourceTruth: string;
+  freshnessState: "live" | "recent" | "stale" | "partial" | "unknown";
+  explanation: string;
+  adminDropHref?: string;
+};
+
+export type TopDropConversionState = {
+  generatedAtUtc: string;
+  range: string;
+  sourceTruth: "drop_metadata_plus_rollups" | "telemetry" | "mixed" | "fallback" | "unknown";
+  freshnessState: "live" | "recent" | "stale" | "partial" | "unknown";
+  denominatorLabel: "views" | "previews" | "validated views" | "drop detail views";
+  numeratorLabel: "unwraps";
+  page: number;
+  pageSize: number;
+  totalRows: number;
+  rows: TopDropConversionRow[];
+  warnings: string[];
+};
 
 export interface CommerceFeedItem {
   id: string;
@@ -884,6 +918,7 @@ export interface HistoricalAnalyticsResponse {
   geo?: GeoItem[];
   pages?: PageItem[];
   topDrops?: TopDropItem[];
+  topDropConversionState?: TopDropConversionState;
   commerce?: {
     revenueUsd: number;
     adjustedProfitUsd?: number;

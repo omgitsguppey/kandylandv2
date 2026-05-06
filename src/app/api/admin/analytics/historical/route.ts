@@ -164,6 +164,18 @@ function toUtcIsoOrNull(timestamp: number) {
     return timestamp > 0 ? new Date(timestamp).toISOString() : null;
 }
 
+function shortDropId(dropId: string) {
+    return dropId.length > 8 ? `${dropId.slice(0, 4)}...${dropId.slice(-4)}` : dropId || "missing";
+}
+
+function formatTopDropUnwrapRate(unwraps: number, views: number) {
+    if (views <= 0) return "Unavailable";
+    const ratePct = (unwraps / views) * 100;
+    if (unwraps > 0 && ratePct > 0 && ratePct < 0.1) return "<0.1%";
+    if (ratePct < 10) return `${ratePct.toFixed(1)}%`;
+    return `${Math.round(ratePct)}%`;
+}
+
 function isCanonicalAuthenticatedEventSample(data: Record<string, unknown>) {
     const actorType = toStringValue(data.actorType).toLowerCase();
     const userId = toStringValue(data.userId) || toStringValue(data.actorUserId);
@@ -501,7 +513,10 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 unlockCategoryMix: payload.unlockCategoryMix,
             });
         case "topDropConversion":
-            return withSharedFields({ topDrops: payload.topDrops });
+            return withSharedFields({
+                topDrops: payload.topDrops,
+                topDropConversionState: payload.topDropConversionState,
+            });
         case "recentCommerceFeed":
             return withSharedFields({ commerce: payload.commerce });
         case "viewerDrilldown":
@@ -731,6 +746,7 @@ async function GET_handler(request: NextRequest) {
                     }),
                 ])).sort()
                 : [];
+            const responseGeneratedAtMs = Date.now();
 
             const dropsData = period === "all"
                 ? (dropsSnapshot?.docs || [])
@@ -739,6 +755,7 @@ async function GET_handler(request: NextRequest) {
                         return {
                             dropId: doc.id,
                             dropTitle: resolveDropTitle(dropReferences, doc.id),
+                            creatorName: dropReferences[doc.id]?.creatorName,
                             views: getDropViewCount(data),
                             unlocks: toNumber(data.totalUnlocks),
                         };
@@ -765,12 +782,56 @@ async function GET_handler(request: NextRequest) {
                         .map(([id, stats]) => ({
                             dropId: id,
                             dropTitle: resolveDropTitle(dropReferences, id),
+                            creatorName: dropReferences[id]?.creatorName,
                             views: stats.views,
                             unlocks: stats.unlocks,
                         }))
                         .sort((a, b) => b.views - a.views || b.unlocks - a.unlocks)
                         .slice(0, 15);
                 })();
+            const topDropConversionRows = dropsData.map((drop) => {
+                const titleResolved = Boolean(drop.dropTitle && drop.dropTitle !== drop.dropId);
+                const views = Math.max(0, toNumber(drop.views));
+                const unwraps = Math.max(0, toNumber(drop.unlocks));
+                return {
+                    dropId: drop.dropId,
+                    shortDropId: shortDropId(drop.dropId),
+                    dropTitle: titleResolved ? drop.dropTitle : "Unknown drop",
+                    creatorName: drop.creatorName,
+                    dropIdentityState: titleResolved ? "resolved" as const : "fallback_id" as const,
+                    views,
+                    unwraps,
+                    unwrapRatePct: views > 0 ? (unwraps / views) * 100 : null,
+                    unwrapRateDisplay: formatTopDropUnwrapRate(unwraps, views),
+                    revenueUsd: null,
+                    gumdropsSpent: null,
+                    sourceTruth: period === "all" ? "drop_metadata_plus_counters" : "drop_metadata_plus_rollups",
+                    freshnessState: "partial" as const,
+                    explanation: views > 0
+                        ? "Unwrap conversion uses unwraps divided by validated drop views for the selected range."
+                        : "Unwrap conversion is unavailable because this row has no validated view denominator.",
+                    adminDropHref: `/admin/drops?dropId=${encodeURIComponent(drop.dropId)}`,
+                };
+            });
+            const topDropConversionState = {
+                generatedAtUtc: toUtcIsoOrNull(responseGeneratedAtMs) ?? new Date(0).toISOString(),
+                range: period ?? "30d",
+                sourceTruth: "drop_metadata_plus_rollups" as const,
+                freshnessState: topDropConversionRows.some((row) => row.dropIdentityState !== "resolved") ? "partial" as const : "recent" as const,
+                denominatorLabel: "validated views" as const,
+                numeratorLabel: "unwraps" as const,
+                page: 1,
+                pageSize: 10,
+                totalRows: topDropConversionRows.length,
+                rows: topDropConversionRows,
+                warnings: [
+                    "Display language uses unwrap; backend entitlement fields may still use unlock.",
+                    "Top N snapshot only. Expand source rollups to inspect beyond available rows.",
+                    ...(topDropConversionRows.some((row) => row.dropIdentityState !== "resolved")
+                        ? ["Some drop titles are missing and fall back to short drop IDs."]
+                        : []),
+                ],
+            };
 
             const normalizedTransactionsInRange = transactionsInRangeSnapshot.docs.flatMap((doc) => {
                 try {
@@ -1257,7 +1318,6 @@ async function GET_handler(request: NextRequest) {
                 return total + toNumber(data.eventCount);
             }, 0);
             const legacyGuestLaneIdle = guestSessionsSnapshot.docs.length === 0;
-            const responseGeneratedAtMs = Date.now();
             const guestBatchLastSeenAtMs = readLatestSnapshotTimestamp(guestBatchesSnapshot.docs, ["receivedAtMs", "createdAt", "updatedAt"]);
             const consentedGuestBatchCount = guestBatchesSnapshot.docs.length;
             const guestEstimateFormula = guestTraffic.truthLabel === "estimated"
@@ -1594,6 +1654,7 @@ async function GET_handler(request: NextRequest) {
                 geo: geoData,
                 pages: pagesData,
                 topDrops: dropsData,
+                topDropConversionState,
                 commerce,
                 security: securityLogs,
                 onboardingStats: {

@@ -35,6 +35,8 @@ const previewModal = readRequired("src/components/DropPreviewModal.tsx");
 const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
 const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identified/route.ts");
 const adminHistoricalRoute = readRequired("src/app/api/admin/analytics/historical/route.ts");
+const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const topDropConversionHelper = readRequired("src/lib/admin-analytics-top-drop-conversion.ts");
 const adminUserRoute = readRequired("src/app/api/admin/user/[userId]/route.ts");
 const adminUsersRoute = readRequired("src/app/api/admin/users/route.ts");
 
@@ -69,6 +71,16 @@ requireIncludes(identifiedIngestRoute, 'if (canonicalEventName === "unlock_drop_
 requireIncludes(adminHistoricalRoute, 'const telemetryUnlockCount = Math.max(', "Admin historical unlock telemetry aggregation");
 requireIncludes(adminHistoricalRoute, 'canonicalEventCounts.drop_unwrapped || 0', "Admin historical unlock parity must read canonical unlock facts");
 requireIncludes(adminHistoricalRoute, 'canonicalEventCounts.entitlement_granted || 0', "Admin historical unlock parity must read entitlement facts");
+requireIncludes(adminHistoricalRoute, "topDropConversionState", "Admin historical Top Drop Conversion source state");
+requireIncludes(adminHistoricalRoute, 'numeratorLabel: "unwraps"', "Admin historical Top Drop Conversion display numerator");
+requireIncludes(adminAnalyticsCommerceTab, "Drops with enough views to evaluate unwrap conversion.", "Admin analytics Top Drop Conversion panel");
+requireIncludes(adminAnalyticsCommerceTab, "data-top-drop-conversion-identity-state", "Admin analytics Top Drop Conversion identity truth");
+requireIncludes(adminAnalyticsCommerceTab, "drop.unwrapRateDisplay", "Admin analytics Top Drop Conversion precision display");
+requireExcludes(adminAnalyticsCommerceTab, "Unlocked drops with enough demand to matter.", "Admin analytics Top Drop Conversion panel");
+requireExcludes(adminAnalyticsCommerceTab, "name=\"Unlocks\"", "Admin analytics Top Drop Conversion chart");
+requireIncludes(topDropConversionHelper, "formatTopDropUnwrapRate", "Top Drop Conversion helper");
+requireIncludes(topDropConversionHelper, "\"<0.1%\"", "Top Drop Conversion helper");
+requireIncludes(topDropConversionHelper, "dropIdentityState", "Top Drop Conversion helper");
 requireIncludes(adminUserRoute, 'const directUnwrapCount = analyticsFacts.filter((event) => event.eventName === "drop_unwrapped").length;', "Admin user route server unlock fact count");
 requireIncludes(adminUsersRoute, 'current.unwrapCount += eventName === "drop_unwrapped" ? 1 : 0;', "Admin users route server unlock aggregation");
 

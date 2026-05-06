@@ -37,7 +37,7 @@ const EMPTY_STATE: ContentConversionState = {
   totalViewerOpens: 0,
   totalWatchSeconds: 0,
   rows: [],
-  warnings: ["No preview/unlock/drop metadata source available for this range."],
+  warnings: ["No preview/unwrap/drop metadata source available for this range."],
 };
 
 function mapTruthState(input: {
@@ -55,13 +55,13 @@ function mapTruthState(input: {
 function formatSourceLabel(sourceTruth: ContentConversionState["sourceTruth"]) {
   switch (sourceTruth) {
     case "drop_metadata_plus_telemetry":
-      return "Drop metadata + preview/unlock telemetry";
+      return "Drop metadata + preview/unwrap telemetry";
     case "drop_metadata_plus_unlock_rollups":
-      return "Drop metadata + unlock rollups";
+      return "Drop metadata + unwrap/access rollups";
     case "telemetry_only":
       return "Telemetry only";
     case "rollup_only":
-      return "Unlock rollups only";
+      return "Unwrap/access rollups only";
     default:
       return "Missing";
   }
@@ -100,8 +100,8 @@ export function buildAdminAnalyticsContentConversionModel(input: {
     : null;
   const visibleCopy = [
     state.sourceTruth === "drop_metadata_plus_unlock_rollups"
-      ? "Content conversion is using rollup fallback because unlock telemetry is missing."
-      : "Content conversion joins drop metadata with preview, unlock, and optional viewer/watch sources.",
+      ? "Content conversion is using access rollup fallback because unwrap telemetry is missing."
+      : "Content conversion joins drop metadata with preview, unwrap, and optional viewer/watch sources.",
     ...state.warnings,
   ];
 

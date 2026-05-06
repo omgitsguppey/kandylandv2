@@ -5,6 +5,7 @@ export type DropReference = {
   title: string;
   status: string;
   imageUrl?: string;
+  creatorName?: string;
 };
 
 type DropReferenceDocSnapshot = {
@@ -19,11 +20,21 @@ type DropReferenceCollection = {
 };
 
 function normalizeDropReference(id: string, raw: Record<string, unknown>): DropReference {
+  const creatorName = [
+    raw.creatorDisplayName,
+    raw.creatorName,
+    raw.creatorUsername,
+    raw.submittedByCreatorName,
+    raw.submittedByCreatorUsername,
+    raw.creatorId,
+    raw.submittedByCreatorId,
+  ].find((value): value is string => typeof value === "string" && value.trim().length > 0);
   return {
     id,
     title: typeof raw.title === "string" && raw.title.trim().length > 0 ? raw.title.trim() : id,
     status: typeof raw.status === "string" ? raw.status : "unknown",
     imageUrl: typeof raw.imageUrl === "string" ? raw.imageUrl : undefined,
+    creatorName: creatorName?.trim(),
   };
 }
 
