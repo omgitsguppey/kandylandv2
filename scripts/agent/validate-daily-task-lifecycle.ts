@@ -53,6 +53,7 @@ for (const expected of [
   "assignmentSource",
   "daily_window_started",
   "daily_window_expired",
+  "catalog_insufficient_eligible_tasks",
   "on_demand_backfill",
   "daily_task_materializer",
 ]) {
@@ -65,6 +66,9 @@ for (const expected of [
   "materializeDailyTaskResetWindows",
   "DAILY_TASK_MATERIALIZER_MAX_USERS",
   "DAILY_TASK_MATERIALIZER_MAX_RUNTIME_MS",
+  "DAILY_CHECKIN_PINNED_REWARD_OUTSIDE_RANDOM_POOL",
+  "buildDeterministicTaskTieBreaker",
+  "daily_task_assignment_v1",
   "cursorUserId",
   "nextCursorUserId",
   "TASK_MATERIALIZER_RUN_COLLECTION",
@@ -78,6 +82,8 @@ for (const expected of [
 }
 
 requireNotIncludes(dailyTasksServer, "daily_task_reset_due_inactivity", "Daily task server lifecycle");
+requireNotIncludes(dailyTasksServer, "randomBytes(", "Daily task server lifecycle must not use non-deterministic assignment shuffling");
+requireNotIncludes(dailyTasksServer, "Math.random(", "Daily task server lifecycle must not use render/runtime random assignment");
 requireIncludes(taskMaterializeRoute, "materializeDailyTaskResetWindows", "Task materializer route");
 requireIncludes(taskMaterializeRoute, "auth: \"admin\"", "Task materializer route must be admin-only");
 requireIncludes(taskMaterializeRoute, "TASK_MATERIALIZER_TOKEN", "Task materializer route must allow scheduler token auth");
@@ -129,6 +135,7 @@ requireIncludes(adminDebugValidator, "data-daily-task-activity-loaded-count", "A
 requireIncludes(releaseNotesScript, "Improved daily task reset reliability so tasks are prepared on the daily schedule.", "Release notes script must include daily task lifecycle copy");
 requireIncludes(taskPipelineDoc, "dailyTaskWindowId", "Daily task pipeline doctrine");
 requireIncludes(taskPipelineDoc, "daily_window_expired", "Daily task pipeline doctrine");
+requireIncludes(taskCatalog, 'DAILY_CHECKIN_PINNED_REWARD_OUTSIDE_RANDOM_POOL = true', "Task catalog must keep daily check-in outside the random three-task pool by default");
 
 if (failures.length > 0) {
   console.error("Daily task lifecycle validation failed:");

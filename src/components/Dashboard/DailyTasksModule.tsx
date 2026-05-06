@@ -129,9 +129,20 @@ export function DailyTasksModule() {
     () => (nowMs > 0 ? getCSTDayBoundaries(nowMs).endOfDay : 0),
     [nowMs],
   );
+  const currentDailyTaskWindowId = useMemo(
+    () => (nowMs > 0 ? getCSTDateKey(nowMs) : null),
+    [nowMs],
+  );
   const nextRefreshMs = dailyTaskState?.nextRefreshMs || fallbackNextRefreshMs;
   const waitLabel = nowMs > 0 && nextRefreshMs > 0 ? formatCountdown(nextRefreshMs, nowMs) : "--:--:--";
-  const isCompleteForToday = completedCount >= DAILY_TASK_LIMIT;
+  const hasCatalogInsufficientAssignment = useMemo(
+    () => activeTasks.length > 0 && activeTasks.every((task) => task.reasonCode === "catalog_insufficient_eligible_tasks"),
+    [activeTasks],
+  );
+  const expectedTaskCount = hasCatalogInsufficientAssignment && activeTasks.length > 0
+    ? activeTasks.length
+    : DAILY_TASK_LIMIT;
+  const isCompleteForToday = expectedTaskCount > 0 && completedCount >= expectedTaskCount;
   const headerCountdownLabel = isCompleteForToday ? "Next batch in" : "Deadline in";
 
   useEffect(() => {
@@ -191,10 +202,18 @@ export function DailyTasksModule() {
     if (!userProfile?.uid) {
       return;
     }
+    const nowForCheck = nowMs > 0 ? nowMs : Date.now();
+    const hasCurrentWindowAssignment = Boolean(
+      dailyTaskState
+      && dailyTaskState.dailyTaskWindowId
+      && currentDailyTaskWindowId
+      && dailyTaskState.dailyTaskWindowId === currentDailyTaskWindowId
+      && (dailyTaskState.tasks.length === DAILY_TASK_LIMIT || hasCatalogInsufficientAssignment),
+    );
     const shouldRotateImmediately = !dailyTaskState
-      || dailyTaskState.tasks.length !== DAILY_TASK_LIMIT
+      || !hasCurrentWindowAssignment
       || !Number.isFinite(dailyTaskState.nextRefreshMs)
-      || dailyTaskState.nextRefreshMs <= (nowMs > 0 ? nowMs : Date.now());
+      || dailyTaskState.nextRefreshMs <= nowForCheck;
 
     if (!shouldRotateImmediately) {
       return;
@@ -227,7 +246,7 @@ export function DailyTasksModule() {
     return () => {
       cancelled = true;
     };
-  }, [dailyTaskState, nowMs, rotateTasks, userProfile?.uid]);
+  }, [currentDailyTaskWindowId, dailyTaskState, hasCatalogInsufficientAssignment, nowMs, rotateTasks, userProfile?.uid]);
 
   useEffect(() => {
     if (!userProfile?.uid || nowMs <= 0 || nowMs < nextRefreshMs || rotating || lastSuccessfulRefreshRef.current === nextRefreshMs) {
@@ -578,7 +597,7 @@ export function DailyTasksModule() {
           <div className="grid grid-cols-2 gap-2 sm:min-w-[14rem]">
             <div className="rounded-[1.4rem] border border-white/10 bg-black/30 px-3 py-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Completed</p>
-              <p className="mt-1 text-2xl font-black text-white">{completedCount}/{DAILY_TASK_LIMIT}</p>
+              <p className="mt-1 text-2xl font-black text-white">{completedCount}/{expectedTaskCount}</p>
             </div>
             <div className="rounded-[1.4rem] border border-white/10 bg-black/30 px-3 py-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">{headerCountdownLabel}</p>
@@ -592,7 +611,7 @@ export function DailyTasksModule() {
       {rotating && activeTasks.length === 0 ? (
         <div className="glass-panel rounded-[2rem] border border-white/10 p-6 text-center">
           <Loader2 className="mx-auto h-7 w-7 animate-spin text-brand-purple" />
-          <p className="mt-3 text-sm text-gray-400">Loading today&apos;s tasks...</p>
+          <p className="mt-3 text-sm text-gray-400">Preparing today&apos;s tasks...</p>
         </div>
       ) : null}
 
@@ -639,7 +658,7 @@ export function DailyTasksModule() {
           <div className="rounded-[1.7rem] border border-brand-purple/25 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.22),rgba(18,18,24,0.94)_72%)] p-5 text-center">
             <CheckCircle2 className="mx-auto h-10 w-10 text-brand-purple" />
             <h3 className="mt-3 text-xl font-bold text-white">Today&apos;s tasks are complete</h3>
-            <p className="mt-2 text-sm leading-6 text-gray-300">You finished all {DAILY_TASK_LIMIT} tasks, and the next batch unlocks at reset.</p>
+            <p className="mt-2 text-sm leading-6 text-gray-300">You finished all {expectedTaskCount} tasks, and the next batch unlocks at reset.</p>
             <div className="mt-4 inline-flex items-center rounded-full border border-brand-purple/30 bg-brand-purple/15 px-4 py-2 text-sm font-bold text-white">
               Next batch in {waitLabel}
             </div>

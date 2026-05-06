@@ -1482,6 +1482,9 @@ function classifyTaskTelemetryEventPurpose(eventName: string): TaskTelemetryEven
     if (eventName === "daily_task_assigned" || eventName === "daily_task_started" || eventName === "task_completed" || eventName === "daily_task_failed" || eventName === "daily_task_deadline_reminder_sent") {
         return "task_lifecycle";
     }
+    if (eventName === "daily_tasks_viewed") {
+        return "supporting_telemetry";
+    }
     if (eventName.startsWith("task_guidance_") || eventName === "task_card_expanded" || eventName === "task_help_opened") {
         return "task_guidance";
     }
@@ -1513,6 +1516,9 @@ function classifyTelemetryCoveragePurpose(
     eventName: string,
     mappedTaskCount: number,
 ): TelemetryCoverageEventPurpose {
+    if (eventName === "daily_tasks_viewed") {
+        return "supporting_telemetry";
+    }
     if (
         eventName === "daily_task_assigned"
         || eventName === "daily_task_started"
@@ -1626,8 +1632,11 @@ function buildTelemetryCoverageExplanation(input: {
 }) {
     if (input.eventName === "daily_checkin_claimed") {
         return input.mappedTaskCount > 0
-            ? "Alias-mapped to Daily check-in claimed and used by Claim today's reward / the check-in lane."
-            : "Alias-mapped to Daily check-in claimed and classified as the canonical daily check-in reward lane.";
+            ? "Alias-mapped to Daily check-in claimed and used by Claim today's reward / the separate pinned daily check-in lane."
+            : "Alias-mapped to Daily check-in claimed and classified as the canonical separate pinned daily check-in reward lane.";
+    }
+    if (input.eventName === "daily_tasks_viewed") {
+        return "Daily tasks surface telemetry. It measures task-module visibility and is not a task completion trigger.";
     }
     if (input.eventName === "notification_read") {
         return input.mappedTaskCount > 0
@@ -3654,6 +3663,9 @@ export async function GET(request: NextRequest) {
             } else if (purpose === "task_guidance") {
                 mappingState = "supporting_not_task";
                 explanation = "Task guidance telemetry supports prompt effectiveness and should not be treated as a task trigger.";
+            } else if (entry.eventName === "daily_tasks_viewed") {
+                mappingState = "supporting_not_task";
+                explanation = "Daily tasks surface telemetry. It tracks task-module visibility and does not map to a specific task completion.";
             } else if (purpose === "viewer_event" && entry.eventName === "file_viewed" && affectedDefinitions.length === 0) {
                 mappingState = "supporting_not_task";
                 explanation = "Used for viewer analytics, not daily task completion. Task completion uses viewer_asset_consumed or viewer_asset_completed.";
@@ -3676,7 +3688,7 @@ export async function GET(request: NextRequest) {
             }
             if (entry.eventName === "daily_checkin_claimed" && affectedDefinitions.length > 0) {
                 mappingState = "ready";
-                explanation = "Daily check-in claim is the task trigger for Claim today's reward. Event stats and receipts are separate evidence lanes.";
+                explanation = "Daily check-in claim is the separate pinned daily reward lane. Event stats and receipts are separate evidence lanes from the random three-task pool.";
                 missingMappingReason = undefined;
             }
             if (entry.eventName === "notification_read" && affectedDefinitions.length > 0) {

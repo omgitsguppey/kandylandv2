@@ -140,6 +140,7 @@ requireIncludes(adminDebugRoute, "buildTelemetryCoverageExplanation", "Admin deb
 requireIncludes(adminDebugRoute, "\"daily_check_in_claim\"", "Admin debug telemetry coverage daily-check-in alias input");
 requireIncludes(adminDebugRoute, "\"notification_marked_read\"", "Admin debug telemetry coverage notification-read alias input");
 requireIncludes(adminDebugRoute, "\"viewer_asset_changed\"", "Admin debug telemetry coverage viewer alias input");
+requireIncludes(adminDebugRoute, "\"daily_tasks_viewed\"", "Admin debug telemetry coverage daily-tasks surface input");
 requireIncludes(adminDebugRoute, "\"identity\"", "Admin debug telemetry coverage identity purpose");
 requireIncludes(adminDebugRoute, "\"viewer_support\"", "Admin debug telemetry coverage viewer-support purpose");
 requireIncludes(adminDebugRoute, "\"viewer_task_trigger\"", "Admin debug telemetry coverage viewer-trigger purpose");
@@ -154,6 +155,8 @@ requireIncludes(adminDebugRoute, "receiptMappingGroups", "Admin debug receipt ma
 requireIncludes(adminDebugRoute, "\"daily_checkin_reward\"", "Admin debug daily check-in receipt lane");
 requireIncludes(adminDebugRoute, "\"alias_mapped\"", "Admin debug alias-mapped receipt state");
 requireIncludes(adminDebugRoute, "daily_checkin_claimed and classified as the daily check-in reward lane", "Admin debug daily check-in receipt explanation");
+requireIncludes(adminDebugRoute, "separate pinned daily check-in reward lane", "Admin debug daily check-in coverage explanation");
+requireIncludes(adminDebugRoute, "Daily tasks surface telemetry. It measures task-module visibility and is not a task completion trigger.", "Admin debug daily-tasks-viewed explanation");
 requireIncludes(adminDebugRoute, "\"feedback_reward\"", "Admin debug feedback receipt lane");
 requireIncludes(adminDebugRoute, "Feedback receipt lane is shared across feedback tasks", "Admin debug feedback receipt explanation");
 requireIncludes(adminDebugRoute, "sharedByCount", "Admin debug shared event diagnostic count");

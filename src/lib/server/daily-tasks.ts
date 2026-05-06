@@ -4,12 +4,13 @@ import { FieldPath, FieldValue, type Transaction } from "firebase-admin/firestor
 
 import { normalizeNotificationDoc } from "@/lib/notification-contracts";
 import { buildNotificationRecord } from "@/lib/notification-contracts";
-import { randomBytes } from "node:crypto";
+import { createHash } from "node:crypto";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { hasUnreadNotificationsForUser, isUnreadNotificationForUser } from "@/lib/server/notification-inbox";
 import { getDropAssetCount } from "@/lib/drop-presentation";
 import {
   BUILT_IN_DAILY_TASKS,
+  DAILY_CHECKIN_PINNED_REWARD_OUTSIDE_RANDOM_POOL,
   DAILY_TASK_COOLDOWN_DAYS,
   DAILY_TASK_LIMIT,
   DAILY_TASK_REWARD_VERSION,
@@ -59,6 +60,7 @@ type DailyTaskReasonCode =
   | "on_demand_backfill"
   | "user_ineligible"
   | "catalog_unavailable"
+  | "catalog_insufficient_eligible_tasks"
   | "materializer_retry"
   | "debug_repair"
   | "inactivity_policy";
@@ -118,7 +120,7 @@ export function getDailyTaskWindow(
     dailyTaskWindowId: getCSTDateKey(nowMs),
     windowStartAtUtc: new Date(startOfDay).toISOString(),
     windowEndAtUtc: new Date(endOfDay).toISOString(),
-    resetAtUtc: new Date(startOfDay).toISOString(),
+    resetAtUtc: new Date(endOfDay).toISOString(),
     windowStartMs: startOfDay,
     windowEndMs: endOfDay,
   };
@@ -371,26 +373,32 @@ function computeTaskPriorityScore(
   );
 }
 
+function buildDeterministicTaskTieBreaker(
+  uid: string,
+  dailyTaskWindowId: string,
+  taskId: string,
+) {
+  const digest = createHash("sha256")
+    .update(`${uid}:${dailyTaskWindowId}:daily_task_assignment_v1:${taskId}`)
+    .digest("hex");
+  const seedFragment = digest.slice(0, 8);
+  const parsed = Number.parseInt(seedFragment, 16);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 function rankTasksForCycle(
   tasks: DailyTaskDefinition[],
   history: Record<string, number>,
   nowMs: number,
+  uid: string,
+  dailyTaskWindowId: string,
 ) {
   return tasks
-    .map((task) => {
-      let tieBreaker = 0;
-      try {
-        tieBreaker = randomBytes(4).readUInt32BE(0) / 0xffffffff;
-      } catch {
-        throw new Error("Cryptographically secure random number generation is not available in this environment.");
-      }
-
-      return {
-        task,
-        score: computeTaskPriorityScore(task, history, nowMs),
-        tieBreaker,
-      };
-    })
+    .map((task) => ({
+      task,
+      score: computeTaskPriorityScore(task, history, nowMs),
+      tieBreaker: buildDeterministicTaskTieBreaker(uid, dailyTaskWindowId, task.id),
+    }))
     .sort((left, right) => right.score - left.score || right.tieBreaker - left.tieBreaker)
     .map((entry) => entry.task);
 }
@@ -399,6 +407,8 @@ function pickTasksForCycle(
   definitions: DailyTaskDefinition[],
   history: Record<string, number>,
   nowMs: number,
+  uid: string,
+  dailyTaskWindowId: string,
   userData: UserProfile,
   retiredTaskIds: string[],
   eligibility: TaskEligibilityContext,
@@ -413,6 +423,10 @@ function pickTasksForCycle(
     }
 
     if (task.actionType === "enable_notifications" && userData.notificationSettings?.browserPushEnabled === true) {
+      return false;
+    }
+
+    if (DAILY_CHECKIN_PINNED_REWARD_OUTSIDE_RANDOM_POOL && task.id === "check_in_today") {
       return false;
     }
 
@@ -473,7 +487,7 @@ function pickTasksForCycle(
   });
 
   const pool = eligible.length >= DAILY_TASK_LIMIT ? eligible : basePool;
-  const rankedPool = rankTasksForCycle(pool, history, nowMs);
+  const rankedPool = rankTasksForCycle(pool, history, nowMs, uid, dailyTaskWindowId);
   const selected: DailyTaskDefinition[] = [];
   const usedGroups = new Set<string>();
 
@@ -503,7 +517,7 @@ function pickTasksForCycle(
   }
 
   if (selected.length < DAILY_TASK_LIMIT) {
-    rankTasksForCycle(basePool, history, nowMs).forEach((task) => {
+    rankTasksForCycle(basePool, history, nowMs, uid, dailyTaskWindowId).forEach((task) => {
       if (selected.length < DAILY_TASK_LIMIT && !selected.some((entry) => entry.id === task.id)) {
         selected.push(task);
       }
@@ -726,16 +740,21 @@ function buildRotatedState(
     definitions,
     normalizedState.completedTaskHistory ?? {},
     nowMs,
+    uid,
+    window.dailyTaskWindowId,
     userData,
     normalizedState.retiredTaskIds ?? [],
     eligibility,
   );
-  const tasks = selectedDefinitions.map((task) => hydrateAssignment(task, nowMs, window, source, reasonCode));
+  const resolvedReasonCode = selectedDefinitions.length < DAILY_TASK_LIMIT
+    ? "catalog_insufficient_eligible_tasks"
+    : reasonCode;
+  const tasks = selectedDefinitions.map((task) => hydrateAssignment(task, nowMs, window, source, resolvedReasonCode));
 
   return {
     rotated: true,
     rotationReason,
-    reasonCode,
+    reasonCode: resolvedReasonCode,
     source,
     dailyTaskWindow: window,
     assignedTasks: tasks,
@@ -894,8 +913,13 @@ export async function buildFreshTaskStateForUser(
     || (normalizedState.lastResetMs >= window.windowStartMs && normalizedState.lastResetMs < window.windowEndMs
       ? window.dailyTaskWindowId
       : "");
+  const isCatalogInsufficientAssignment = normalizedState.tasks.length > 0
+    && normalizedState.tasks.every((task) => task.reasonCode === "catalog_insufficient_eligible_tasks");
 
-  if (normalizedStateWindowId === window.dailyTaskWindowId && normalizedState.tasks.length === DAILY_TASK_LIMIT) {
+  if (
+    normalizedStateWindowId === window.dailyTaskWindowId
+    && (normalizedState.tasks.length === DAILY_TASK_LIMIT || isCatalogInsufficientAssignment)
+  ) {
     return {
       rotated: false,
       rotationReason: null,

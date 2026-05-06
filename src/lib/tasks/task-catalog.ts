@@ -1,4 +1,5 @@
 export const DAILY_TASK_LIMIT = 3;
+export const DAILY_CHECKIN_PINNED_REWARD_OUTSIDE_RANDOM_POOL = true;
 export const DAILY_TASK_COOLDOWN_DAYS = 7;
 export const DAILY_TASK_GLOBAL_MIN_REWARD_GD = 10;
 export const DAILY_TASK_GLOBAL_MAX_REWARD_GD = 1000;
@@ -129,7 +130,7 @@ export interface DailyTaskAssignment extends DailyTaskDefinition {
   dailyTaskWindowId?: string;
   expiresAtUtc?: string;
   status?: "assigned" | "in_progress" | "completed" | "expired" | "failed" | "skipped" | "backfilled";
-  reasonCode?: "daily_window_started" | "daily_window_expired" | "on_demand_backfill" | "user_ineligible" | "catalog_unavailable" | "materializer_retry" | "debug_repair" | "inactivity_policy";
+  reasonCode?: "daily_window_started" | "daily_window_expired" | "on_demand_backfill" | "user_ineligible" | "catalog_unavailable" | "materializer_retry" | "debug_repair" | "inactivity_policy" | "catalog_insufficient_eligible_tasks";
   assignmentSource?: "daily_task_materializer" | "on_demand_backfill" | "debug_repair";
 }
 
