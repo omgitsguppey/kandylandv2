@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.41.0",
+  "currentVersion": "1.42.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:56:51.549Z",
-  "generatedAtUtc": "2026-05-06T01:56:51.549Z",
-  "lastCommitSha": "7d56e157afa44f20236a9b2093c72f4665f0832e",
+  "generatedAt": "2026-05-06T02:05:40.352Z",
+  "generatedAtUtc": "2026-05-06T02:05:40.352Z",
+  "lastCommitSha": "488a5750056f3b31076940183e006b43af7f6e45",
   "notes": [
+    {
+      "version": "1.42.0",
+      "previousVersion": "1.41.0",
+      "commitSha": "488a5750056f3b31076940183e006b43af7f6e45",
+      "commitTitle": "fix(admin): group inspect-only repair proposals",
+      "committedAt": "2026-05-06T02:05:25.000Z",
+      "generatedAt": "2026-05-06T02:05:40.352Z",
+      "committedAtUtc": "2026-05-06T02:05:25.000Z",
+      "generatedAtUtc": "2026-05-06T02:05:40.352Z",
+      "diffStats": {
+        "rawAdditions": 418,
+        "rawDeletions": 217,
+        "rawChangeCount": 635,
+        "additions": 418,
+        "deletions": 217,
+        "effectiveAdditions": 416,
+        "effectiveDeletions": 215,
+        "changedFiles": 11,
+        "effectiveChangeCount": 631,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal repair proposal grouping so repeated debug items are easier to review.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.41.0",
       "previousVersion": "1.40.0",
@@ -131,39 +164,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "bumpType": "minor",
       "category": "Fixed",
       "userFacingTitle": "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.37.0",
-      "previousVersion": "1.36.0",
-      "commitSha": "38cbbf4ae10c432322454efaab57ed5348a33535",
-      "commitTitle": "fix(admin): separate diagnostics sample freshness",
-      "committedAt": "2026-05-06T01:19:52.000Z",
-      "generatedAt": "2026-05-06T01:20:04.721Z",
-      "committedAtUtc": "2026-05-06T01:19:52.000Z",
-      "generatedAtUtc": "2026-05-06T01:20:04.721Z",
-      "diffStats": {
-        "rawAdditions": 441,
-        "rawDeletions": 18,
-        "rawChangeCount": 459,
-        "additions": 441,
-        "deletions": 18,
-        "effectiveAdditions": 439,
-        "effectiveDeletions": 16,
-        "changedFiles": 11,
-        "effectiveChangeCount": 455,
-        "excludedGeneratedChangeCount": 4
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal diagnostics timing so health panels separate current issues from older samples.",
       "bullets": [
         "Kept the update focused on user-visible polish and reliability."
       ],

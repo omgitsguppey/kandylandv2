@@ -1,10 +1,43 @@
 {
-  "currentVersion": "1.41.0",
+  "currentVersion": "1.42.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:56:51.549Z",
-  "generatedAtUtc": "2026-05-06T01:56:51.549Z",
-  "lastCommitSha": "7d56e157afa44f20236a9b2093c72f4665f0832e",
+  "generatedAt": "2026-05-06T02:05:40.352Z",
+  "generatedAtUtc": "2026-05-06T02:05:40.352Z",
+  "lastCommitSha": "488a5750056f3b31076940183e006b43af7f6e45",
   "notes": [
+    {
+      "version": "1.42.0",
+      "previousVersion": "1.41.0",
+      "commitSha": "488a5750056f3b31076940183e006b43af7f6e45",
+      "commitTitle": "fix(admin): group inspect-only repair proposals",
+      "committedAt": "2026-05-06T02:05:25.000Z",
+      "generatedAt": "2026-05-06T02:05:40.352Z",
+      "committedAtUtc": "2026-05-06T02:05:25.000Z",
+      "generatedAtUtc": "2026-05-06T02:05:40.352Z",
+      "diffStats": {
+        "rawAdditions": 418,
+        "rawDeletions": 217,
+        "rawChangeCount": 635,
+        "additions": 418,
+        "deletions": 217,
+        "effectiveAdditions": 416,
+        "effectiveDeletions": 215,
+        "changedFiles": 11,
+        "effectiveChangeCount": 631,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal repair proposal grouping so repeated debug items are easier to review.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.41.0",
       "previousVersion": "1.40.0",
@@ -1601,38 +1634,6 @@
       ],
       "committedAtUtc": "2026-05-05T08:48:49.000Z",
       "generatedAtUtc": "2026-05-05T12:02:54.757Z"
-    },
-    {
-      "version": "1.5.0",
-      "previousVersion": "1.4.0",
-      "commitSha": "96aaa606bb6d732651f64ad69a0efc9318b0bb70",
-      "commitTitle": "feat(cost): add global cost surface guardrails",
-      "committedAt": "2026-05-05T08:15:29.000Z",
-      "generatedAt": "2026-05-05T12:02:54.377Z",
-      "diffStats": {
-        "rawAdditions": 3377,
-        "rawDeletions": 11,
-        "rawChangeCount": 3388,
-        "additions": 3377,
-        "deletions": 11,
-        "effectiveAdditions": 1759,
-        "effectiveDeletions": 11,
-        "changedFiles": 17,
-        "effectiveChangeCount": 1770,
-        "excludedGeneratedChangeCount": 1618
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T08:15:29.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:54.377Z"
     }
   ]
 }
