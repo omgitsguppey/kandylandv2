@@ -118,6 +118,7 @@ const adminModerationThreadsRoute = readRequired("src/app/api/admin/moderation/t
 const adminModerationThreadDetailRoute = readRequired("src/app/api/admin/moderation/threads/[threadId]/route.ts");
 const adminModerationSecurityAlertsRoute = readRequired("src/app/api/admin/moderation/security-alerts/route.ts");
 const guestQualityHelper = readRequired("src/lib/admin-analytics-guest-bounce-quality.ts");
+const eventMixHelper = readRequired("src/lib/admin-analytics-event-mix.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
@@ -1976,6 +1977,28 @@ for (const expected of [
   requireIncludes(adminAnalyticsOperationsTab, expected, "Guest quality analytics panel");
 }
 requireNotIncludes(adminAnalyticsOperationsTab, "Series: collapsed", "Guest quality analytics panel");
+for (const expected of [
+  "catalogCategoryState",
+  "actualSurfaceState",
+  "eventsNeedingCatalogMapping",
+  "eventsMissingSurfaceContext",
+  'pattern: /dashboard/i',
+  "Catalog-inferred categories must not be shown as verified route or surface context.",
+]) {
+  requireIncludes(eventMixHelper, expected, "Event mix truth helper");
+}
+for (const expected of [
+  "Categories are inferred from the event catalog; verified route and surface context is missing for this range.",
+  "Verified surface context:",
+  "Catalog inference:",
+  "Category:",
+  "(catalog-inferred)",
+  "Surface: missing",
+  "Route: missing",
+  "missing verified surface context",
+]) {
+  requireIncludes(adminAnalyticsOperationsTab, expected, "Event mix analytics panel");
+}
 
 try {
   const changedFiles = execSync("git diff --name-only", { cwd: root, encoding: "utf8" })
@@ -2001,6 +2024,7 @@ try {
       /^src\/lib\/admin-overview\.ts$/u,
       /^src\/lib\/admin-analytics-live-pulse\.ts$/u,
       /^src\/lib\/admin-analytics-guest-bounce-quality\.ts$/u,
+      /^src\/lib\/admin-analytics-event-mix\.ts$/u,
       /^src\/lib\/admin-analytics-journey-funnel\.ts$/u,
       /^src\/lib\/admin-analytics-auth-outcome-split\.ts$/u,
       /^src\/lib\/auth-outcome-telemetry\.ts$/u,
@@ -2114,6 +2138,7 @@ try {
     /^functions\/src\/index\.ts$/u,
     /^src\/types\/db\.ts$/u,
     /^src\/types\/admin-analytics\.ts$/u,
+    /^tests\/unit\/admin-analytics-event-mix\.spec\.ts$/u,
     /^scripts\/check-admin-analytics-overview\.ts$/u,
     /^scripts\/check-admin-analytics-live-pulse\.ts$/u,
     /^scripts\/check-admin-analytics-journey-funnel\.ts$/u,

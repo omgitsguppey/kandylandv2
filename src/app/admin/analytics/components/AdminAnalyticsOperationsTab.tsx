@@ -161,6 +161,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     value === null ? firstSnapshotLabel : formatCompactNumber(value);
   const eventMixShareLabel = (value: number | null) =>
     value === null ? "Share unavailable" : formatPercent(value);
+  const eventMixMissingSurfaceLabel = "Surface: missing";
+  const eventMixMissingRouteLabel = "Route: missing";
+  const eventMixInferenceCopy = "Categories are inferred from the event catalog; verified route and surface context is missing for this range.";
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -881,15 +884,15 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-              <SectionCard
-                title="Event Mix"
-                subtitle="Top event activity with source and surface context."
-                icon={Sparkles}
-                rightSlot={renderSectionRangeControl("eventMix")}
-              >
-                <div className="grid gap-2.5">
-                  <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
-                    <span>{eventMixModel.visibleCopy}</span>
+            <SectionCard
+              title="Event Mix"
+              subtitle="Top event activity with catalog inference and verified surface-context truth."
+              icon={Sparkles}
+              rightSlot={renderSectionRangeControl("eventMix")}
+            >
+              <div className="grid gap-2.5">
+                <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
+                      <span>{eventMixModel.visibleCopy || eventMixInferenceCopy}</span>
                     <AdminStatusBadge
                       state={eventMixModel.truthState}
                       label={eventMixModel.badgeLabel}
@@ -897,25 +900,40 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     />
                   </div>
 
-                  <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-3">
-                    <span>
-                      <span className="font-semibold text-white">Total:</span>{" "}
-                      {eventMixCountLabel(eventMixModel.totalEventsInRange)} tracked events
-                    </span>
+                    <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-3">
+                      <span>
+                        <span className="font-semibold text-white">Total:</span>{" "}
+                        {eventMixCountLabel(eventMixModel.totalEventsInRange)} tracked events
+                      </span>
                     <span>
                       <span className="font-semibold text-white">Top:</span>{" "}
                       {eventMixModel.topEvent?.displayLabel ?? "No verified event yet"}
                     </span>
-                    <span>
-                      <span className="font-semibold text-white">Surfaces:</span>{" "}
-                      {eventMixModel.mappedSurfaceCount === null ? "context unavailable" : eventMixModel.mappedSurfaceCount}
-                    </span>
-                  </div>
+                      <span>
+                        <span className="font-semibold text-white">Verified surface context:</span>{" "}
+                        {eventMixModel.actualSurfaceContextState}
+                      </span>
+                    </div>
 
-                  <div className="rounded-[1rem] border border-white/10 bg-black/30 p-3">
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                        Ranked event activity
+                    <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-3">
+                      <span>
+                        <span className="font-semibold text-white">Catalog inference:</span>{" "}
+                        {eventMixModel.catalogInferenceState}
+                      </span>
+                      <span>
+                        <span className="font-semibold text-white">Missing surface context:</span>{" "}
+                        {eventMixModel.eventsMissingSurfaceContext ?? "unknown"}
+                      </span>
+                      <span>
+                        <span className="font-semibold text-white">Unmapped catalog events:</span>{" "}
+                        {eventMixModel.eventsNeedingCatalogMapping ?? "unknown"}
+                      </span>
+                    </div>
+
+                    <div className="rounded-[1rem] border border-white/10 bg-black/30 p-3">
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                          Ranked event activity
                       </p>
                       <span className="text-[10px] text-gray-500">
                         event count / total counted events
@@ -932,18 +950,29 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                               <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[10px] font-semibold text-gray-300">
                                 {item.rank}
                               </span>
-                              <div className="min-w-0">
-                                <p className="truncate text-xs font-semibold text-white">
-                                  {item.displayLabel}
-                                </p>
-                                <p className="mt-0.5 truncate text-[10px] text-gray-500">
-                                  {item.mappedSurface ?? "Surface context is unavailable"} / {item.mappingSource === "component_context" ? "mapped" : item.mappingSource === "fallback_event_catalog" ? "catalog" : "unmapped"}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-xs font-bold text-brand-purple">
-                                  {eventMixCountLabel(item.rawCount)}
-                                </p>
+                                <div className="min-w-0">
+                                  <p className="truncate text-xs font-semibold text-white">
+                                    {item.displayLabel}
+                                  </p>
+                                  <div className="mt-1 flex flex-wrap gap-1">
+                                    <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] text-gray-300">
+                                      Category: {item.catalogCategory ?? "missing"} {item.catalogCategoryState === "inferred" ? "(catalog-inferred)" : item.catalogCategoryState === "verified" ? "(verified)" : ""}
+                                    </span>
+                                    <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] text-gray-300">
+                                      {item.actualSurface ? `Surface: ${item.actualSurface}` : eventMixMissingSurfaceLabel}
+                                    </span>
+                                    <span className="rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] text-gray-300">
+                                      {item.route ? `Route: ${item.route}` : eventMixMissingRouteLabel}
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 text-[10px] text-gray-500">
+                                    {item.explanation}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-xs font-bold text-brand-purple">
+                                    {eventMixCountLabel(item.rawCount)}
+                                  </p>
                                 <p className="text-[10px] text-gray-500">
                                   {eventMixShareLabel(item.share)}
                                 </p>
@@ -967,15 +996,22 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     </div>
                   </div>
 
-                  <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                    <span className="font-semibold text-white">Context:</span>{" "}
-                    {eventMixModel.componentContextStatus === "available"
-                      ? `${eventMixModel.mappedSurfaceCount ?? 0} mapped surfaces`
-                      : "Surface context unavailable for this range."}
-                    {eventMixModel.unmappedEventCount ? ` ${eventMixModel.unmappedEventCount} events need mapping.` : ""}
+                    <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+                      <span className="font-semibold text-white">Context:</span>{" "}
+                      {eventMixModel.actualSurfaceContextState === "available"
+                        ? "Verified route and surface context available."
+                        : "Verified route and surface context are unavailable for this range."}
+                      {" "}
+                      {eventMixModel.eventsNeedingCatalogMapping === null
+                        ? ""
+                        : `${eventMixModel.eventsNeedingCatalogMapping} event${eventMixModel.eventsNeedingCatalogMapping === 1 ? "" : "s"} need${eventMixModel.eventsNeedingCatalogMapping === 1 ? "s" : ""} catalog mapping.`}
+                      {" "}
+                      {eventMixModel.eventsMissingSurfaceContext === null
+                        ? ""
+                        : `${eventMixModel.eventsMissingSurfaceContext} top event${eventMixModel.eventsMissingSurfaceContext === 1 ? "" : "s"} are missing verified surface context.`}
+                    </div>
                   </div>
-                </div>
-              </SectionCard>
+                </SectionCard>
 
               <SectionCard
                 title="Live Interaction Stream"

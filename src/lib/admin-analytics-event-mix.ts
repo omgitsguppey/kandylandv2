@@ -2,6 +2,21 @@ import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { ComponentContextItem, EventBreakdownItem, HistoricalAnalyticsResponse, RangeOption } from "@/types/admin-analytics";
 
 type EventMixSourceMode = "first_party" | "ga_daily" | "ga_intraday" | "backend_snapshot" | "stale_cache" | "mixed" | "waiting" | "error";
+type EventPurpose =
+  | "onboarding"
+  | "drops"
+  | "dashboard"
+  | "task_lifecycle"
+  | "commerce"
+  | "watch"
+  | "notification"
+  | "semantic_ux"
+  | "unknown";
+
+type CatalogInference = {
+  purpose: EventPurpose;
+  category: string | null;
+};
 
 export type AdminAnalyticsEventMixRow = {
   rank: number;
@@ -24,6 +39,15 @@ export type AdminAnalyticsEventMixRow = {
   mappingSource: "component_context" | "fallback_event_catalog" | "missing";
   mappedByFallbackCatalog: boolean;
   fakeZeroPrevented: boolean;
+  eventPurpose: EventPurpose;
+  catalogCategory: string | null;
+  catalogCategoryState: "inferred" | "verified" | "missing";
+  actualSurface: string | null;
+  actualSurfaceState: "verified" | "missing" | "partial" | "not_required";
+  route: string | null;
+  routeState: "verified" | "missing" | "not_required";
+  mappingState: "mapped" | "inferred_only" | "unmapped" | "needs_surface_context";
+  explanation: string;
 };
 
 export type AdminAnalyticsEventMixModel = {
@@ -49,22 +73,62 @@ export type AdminAnalyticsEventMixModel = {
   visibleCopy: string;
   recommendation: string;
   fullTechnicalReason: string;
+  generatedAtUtc: string | null;
+  actualSurfaceContextState: "available" | "partial" | "unavailable" | "unknown";
+  catalogInferenceState: "available" | "partial" | "unavailable";
+  eventsNeedingCatalogMapping: number | null;
+  eventsMissingSurfaceContext: number | null;
 };
 
-const EVENT_SURFACE_FALLBACKS: Array<{ pattern: RegExp; surface: string; component: string }> = [
-  { pattern: /onboarding/i, surface: "Onboarding", component: "Guided onboarding" },
-  { pattern: /drop|viewer|unlock/i, surface: "Drops", component: "Drop interaction" },
-  { pattern: /semantic/i, surface: "Semantic tracking", component: "Semantic target" },
-  { pattern: /auth|sign|registered/i, surface: "Auth", component: "Auth flow" },
-  { pattern: /checkout|purchase|wallet/i, surface: "Commerce", component: "Checkout flow" },
+const EVENT_CATALOG_INFERENCE: Array<{ pattern: RegExp; purpose: EventPurpose; category: string }> = [
+  { pattern: /guided_onboarding|onboarding/i, purpose: "onboarding", category: "Onboarding" },
+  { pattern: /drop|viewer|unlock/i, purpose: "drops", category: "Drops" },
+  { pattern: /dashboard/i, purpose: "dashboard", category: "Dashboard" },
+  { pattern: /task/i, purpose: "task_lifecycle", category: "Tasks" },
+  { pattern: /checkout|purchase|wallet|gumdrops/i, purpose: "commerce", category: "Commerce" },
+  { pattern: /watch|video|file_viewed/i, purpose: "watch", category: "Watch" },
+  { pattern: /notification/i, purpose: "notification", category: "Notifications" },
+  { pattern: /semantic|hover|click|impression/i, purpose: "semantic_ux", category: "Semantic UX" },
 ];
 
-function fallbackMapping(eventName: string) {
-  return EVENT_SURFACE_FALLBACKS.find((entry) => entry.pattern.test(eventName)) ?? null;
+function inferCatalog(eventName: string): CatalogInference {
+  const match = EVENT_CATALOG_INFERENCE.find((entry) => entry.pattern.test(eventName));
+  if (!match) {
+    return {
+      purpose: "unknown",
+      category: null,
+    };
+  }
+
+  return {
+    purpose: match.purpose,
+    category: match.category,
+  };
 }
 
 function normalizeLabel(eventName: string, labels: Record<string, string>) {
   return labels[eventName] || eventName.replaceAll("_", " ").replace(/\b\w/g, (match) => match.toUpperCase());
+}
+
+function buildRowExplanation(input: {
+  category: string | null;
+  hasComponentContext: boolean;
+  actualSurfaceState: AdminAnalyticsEventMixRow["actualSurfaceState"];
+  routeState: AdminAnalyticsEventMixRow["routeState"];
+}) {
+  if (!input.category) {
+    return "No catalog category mapping is available for this event, and verified route or surface context is missing.";
+  }
+
+  if (!input.hasComponentContext) {
+    return `Category inferred from the event catalog as ${input.category}. Verified route and surface context are missing for this range.`;
+  }
+
+  if (input.actualSurfaceState !== "verified" || input.routeState !== "verified") {
+    return `Category inferred from the event catalog as ${input.category}. Aggregated context exists in the snapshot, but verified per-event route or surface context is not available here.`;
+  }
+
+  return `Category and verified route or surface context are both available for ${input.category}.`;
 }
 
 export function buildAdminAnalyticsEventMixModel(input: {
@@ -77,9 +141,10 @@ export function buildAdminAnalyticsEventMixModel(input: {
   error?: Error;
   overviewTruthState?: AdminSurfaceState;
 }): AdminAnalyticsEventMixModel {
+  const inferredCategoryGuardrail = "Catalog-inferred categories must not be shown as verified route or surface context.";
   const hasResponse = Boolean(input.response);
   const stale = Boolean(input.response && (input.error || input.response.cacheState === "stale"));
-  const cache = Boolean(input.response?.cacheState && input.response.cacheState !== "miss");
+  const cache = Boolean(input.response?.cacheState && input.response?.cacheState !== "miss");
   const truthState: AdminSurfaceState = !hasResponse
     ? input.loading ? "loading" : "unavailable"
     : stale
@@ -96,15 +161,22 @@ export function buildAdminAnalyticsEventMixModel(input: {
     : input.eventBreakdown.reduce((sum, event) => sum + Math.max(0, event.count), 0);
   const denominatorAvailable = totalEvents !== null && totalEvents > 0;
   const contextByEvent = new Map(input.componentContexts.map((context) => [context.exampleEvent, context]));
-  const rows = input.eventBreakdown
+
+  const eventRows = input.eventBreakdown
     .slice()
     .sort((left, right) => right.count - left.count)
     .slice(0, 5)
     .map<AdminAnalyticsEventMixRow>((event, index) => {
       const context = contextByEvent.get(event.eventName);
-      const fallback = fallbackMapping(event.eventName);
-      const mappedSurface = context?.label ?? fallback?.surface ?? null;
-      const mappedComponent = context?.label ?? fallback?.component ?? null;
+      const catalog = inferCatalog(event.eventName);
+      const catalogCategoryState: AdminAnalyticsEventMixRow["catalogCategoryState"] = catalog.category ? "inferred" : "missing";
+      const actualSurfaceState: AdminAnalyticsEventMixRow["actualSurfaceState"] = "missing";
+      const routeState: AdminAnalyticsEventMixRow["routeState"] = "missing";
+      const mappingState: AdminAnalyticsEventMixRow["mappingState"] = !catalog.category
+        ? "unmapped"
+        : context
+          ? "needs_surface_context"
+          : "inferred_only";
       return {
         rank: index + 1,
         eventKey: event.eventName,
@@ -121,27 +193,55 @@ export function buildAdminAnalyticsEventMixModel(input: {
         serverConfirmed: hasResponse && !input.error,
         fallback: Boolean(input.error || input.response?.cacheRevalidating),
         estimated: false,
-        mappedSurface,
-        mappedComponent,
-        mappingSource: context ? "component_context" : fallback ? "fallback_event_catalog" : "missing",
-        mappedByFallbackCatalog: !context && Boolean(fallback),
+        mappedSurface: catalog.category,
+        mappedComponent: context?.label ?? null,
+        mappingSource: context ? "component_context" : catalog.category ? "fallback_event_catalog" : "missing",
+        mappedByFallbackCatalog: !context && Boolean(catalog.category),
         fakeZeroPrevented,
+        eventPurpose: catalog.purpose,
+        catalogCategory: catalog.category,
+        catalogCategoryState,
+        actualSurface: null,
+        actualSurfaceState,
+        route: null,
+        routeState,
+        mappingState,
+        explanation: buildRowExplanation({
+          category: catalog.category,
+          hasComponentContext: Boolean(context),
+          actualSurfaceState,
+          routeState,
+        }),
       };
     });
-  const missingSurfaceMappings = rows
-    .filter((row) => row.mappingSource === "missing")
-    .map((row) => row.eventKey);
-  const mappedSurfaceCount = !hasResponse
+
+  const eventsNeedingCatalogMapping = fakeZeroPrevented
     ? null
-    : input.componentContexts.length > 0
-      ? new Set(input.componentContexts.map((context) => context.key)).size
-      : null;
+    : eventRows.filter((row) => row.catalogCategoryState === "missing").length;
+  const eventsMissingSurfaceContext = fakeZeroPrevented
+    ? null
+    : eventRows.filter((row) => row.actualSurfaceState !== "verified").length;
+  const missingSurfaceMappings = eventRows
+    .filter((row) => row.catalogCategoryState === "missing")
+    .map((row) => row.eventKey);
+  const catalogInferenceState: AdminAnalyticsEventMixModel["catalogInferenceState"] = !hasResponse || input.loading
+    ? "unavailable"
+    : eventsNeedingCatalogMapping === 0
+      ? "available"
+      : eventRows.some((row) => row.catalogCategoryState === "inferred")
+        ? "partial"
+        : "unavailable";
+  const actualSurfaceContextState: AdminAnalyticsEventMixModel["actualSurfaceContextState"] = !hasResponse || input.loading
+    ? "unknown"
+    : eventsMissingSurfaceContext === 0
+      ? "available"
+      : "unavailable";
   const componentContextStatus = !hasResponse || input.loading
     ? "waiting"
     : input.componentContexts.length > 0
       ? "available"
       : "unavailable";
-  const topEvent = rows[0] ?? null;
+  const topEvent = eventRows[0] ?? null;
   const badgeLabel =
     sourceMode === "waiting"
       ? "WAIT"
@@ -149,7 +249,7 @@ export function buildAdminAnalyticsEventMixModel(input: {
         ? "ERROR"
         : stale
           ? "DELAYED"
-        : rows.some((row) => row.mappedByFallbackCatalog || row.mappingSource === "missing")
+          : actualSurfaceContextState !== "available" || (eventsNeedingCatalogMapping ?? 0) > 0
             ? "PARTIAL"
             : "UPDATED";
 
@@ -162,10 +262,10 @@ export function buildAdminAnalyticsEventMixModel(input: {
     denominatorAvailable,
     topEvent,
     topEventShare: topEvent?.share ?? null,
-    eventRows: rows,
+    eventRows,
     componentContextStatus,
-    mappedSurfaceCount,
-    unmappedEventCount: fakeZeroPrevented ? null : missingSurfaceMappings.length,
+    mappedSurfaceCount: actualSurfaceContextState === "available" ? eventRows.length : null,
+    unmappedEventCount: eventsNeedingCatalogMapping,
     missingSurfaceMappings,
     contextHydrationStatus: componentContextStatus === "available" ? "hydrated" : componentContextStatus,
     contextHydrationMs: null,
@@ -173,16 +273,21 @@ export function buildAdminAnalyticsEventMixModel(input: {
     staleSnapshotUsed: stale,
     fakeZeroPrevented,
     duplicateRefreshPrevented: Boolean(input.response?.cacheRevalidating && input.loading),
-    visibleCopy: componentContextStatus === "available"
-      ? "Showing event activity with mapped surface context."
-      : "Showing event activity. Surface context is unavailable for this range.",
+    visibleCopy: actualSurfaceContextState === "available"
+      ? "Showing event activity with verified route and surface context."
+      : "Showing event activity. Categories are inferred from the event catalog; verified route and surface context is missing for this range.",
     recommendation: topEvent
-      ? `${topEvent.displayLabel} is driving ${topEvent.share === null ? "the most" : `${Math.round(topEvent.share * 100)}% of`} counted events.`
+      ? `${topEvent.displayLabel} is the top tracked event for this range.`
       : input.loading
         ? "Waiting for first snapshot."
         : "Event mix unavailable for this range.",
-    fullTechnicalReason: componentContextStatus === "available"
-      ? "Event counts are backend snapshot raw counts with component context rows joined by example event where available."
-      : "Component context did not hydrate for the selected range; event counts remain raw and surface mapping uses fallback catalog only when safe.",
+    fullTechnicalReason: actualSurfaceContextState === "available"
+      ? "Event counts are backend snapshot raw counts with verified route and surface context."
+      : `Event counts are backend snapshot raw counts. ${inferredCategoryGuardrail} Category labels come from the event catalog, while verified per-event route and surface context are not available in this range.`,
+    generatedAtUtc: input.response?.generatedAtMs ? new Date(input.response.generatedAtMs).toISOString() : null,
+    actualSurfaceContextState,
+    catalogInferenceState,
+    eventsNeedingCatalogMapping,
+    eventsMissingSurfaceContext,
   };
 }

@@ -44,14 +44,20 @@ describe("buildAdminAnalyticsEventMixModel", () => {
     expect(model.eventRows[0]).toMatchObject({
       rank: 1,
       rawCount: 2780,
-      mappedSurface: "Guided onboarding",
+      catalogCategory: "Onboarding",
+      catalogCategoryState: "inferred",
+      actualSurface: null,
+      actualSurfaceState: "missing",
       mappingSource: "component_context",
       shareFormula: "event count / total counted events in selected range",
     });
     expect(model.eventRows[1]).toMatchObject({
-      mappedSurface: "Drops",
+      catalogCategory: "Drops",
       mappedByFallbackCatalog: true,
+      mappingState: "inferred_only",
     });
+    expect(model.actualSurfaceContextState).toBe("unavailable");
+    expect(model.catalogInferenceState).toBe("available");
   });
 
   it("does not report zero surfaces when context is unavailable", () => {
@@ -69,8 +75,10 @@ describe("buildAdminAnalyticsEventMixModel", () => {
 
     expect(model.componentContextStatus).toBe("unavailable");
     expect(model.mappedSurfaceCount).toBeNull();
-    expect(model.visibleCopy).toContain("Surface context is unavailable");
+    expect(model.visibleCopy).toContain("Categories are inferred from the event catalog");
     expect(model.missingSurfaceMappings).toEqual(["unknown_custom_event"]);
+    expect(model.eventsNeedingCatalogMapping).toBe(1);
+    expect(model.eventsMissingSurfaceContext).toBe(1);
   });
 
   it("prevents fake zeros while event data is waiting", () => {
