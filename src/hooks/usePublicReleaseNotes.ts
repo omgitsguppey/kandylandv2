@@ -80,7 +80,9 @@ export function usePublicReleaseNotes(enabled: boolean) {
     const controller = new AbortController();
     setState((current) => ({ ...current, isLoading: true }));
 
-    fetch("/kandydrops-release-notes.json", {
+    const releaseNotesUrl = `/kandydrops-release-notes.json?v=${encodeURIComponent(PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion)}`;
+
+    fetch(releaseNotesUrl, {
       cache: "no-store",
       signal: controller.signal,
     })

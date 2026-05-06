@@ -1,15 +1,10 @@
 "use client";
 
-import { Suspense, lazy, startTransition, useState } from "react";
+import { startTransition, useState } from "react";
 
+import { BetaReleaseNotesDrawer } from "@/components/ReleaseNotes/BetaReleaseNotesDrawer";
 import { PUBLIC_RELEASE_NOTES_VERSION_CONTEXT } from "@/lib/release-notes/public-release-notes";
 import { trackEvent } from "@/lib/telemetry";
-
-const BetaReleaseNotesDrawer = lazy(() =>
-  import("@/components/ReleaseNotes/BetaReleaseNotesDrawer").then((module) => ({
-    default: module.BetaReleaseNotesDrawer,
-  })),
-);
 
 export function BetaBadge() {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,9 +43,7 @@ export function BetaBadge() {
       </button>
 
       {isOpen ? (
-        <Suspense fallback={null}>
-          <BetaReleaseNotesDrawer isOpen={isOpen} onClose={closeReleaseNotes} />
-        </Suspense>
+        <BetaReleaseNotesDrawer isOpen={isOpen} onClose={closeReleaseNotes} />
       ) : null}
     </>
   );

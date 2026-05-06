@@ -159,7 +159,7 @@ validateDocument(document);
 for (const expected of [
   "data-beta-badge=\"public-release-notes\"",
   "data-beta-version",
-  "lazy(() =>",
+  "BetaReleaseNotesDrawer",
   "beta_badge_clicked",
   "beta_changelog_closed",
 ]) {
@@ -194,7 +194,8 @@ for (const expected of [
 }
 
 for (const expected of [
-  "fetch(\"/kandydrops-release-notes.json\"",
+  "kandydrops-release-notes.json?v=",
+  "cache: \"no-store\"",
   "PUBLIC_RELEASE_NOTES_FALLBACK",
   "bundled-fallback",
 ]) {
