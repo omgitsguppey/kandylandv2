@@ -124,6 +124,7 @@ const returnCadenceHelper = readRequired("src/lib/admin-analytics-return-cadence
 const navigationDestinationsHelper = readRequired("src/lib/admin-analytics-navigation-destinations.ts");
 const deviceMixHelper = readRequired("src/lib/admin-analytics-device-mix.ts");
 const topPathsHelper = readRequired("src/lib/admin-analytics-top-paths.ts");
+const regionDemandHelper = readRequired("src/lib/admin-analytics-region-demand.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
@@ -2059,6 +2060,14 @@ for (const expected of [
   requireIncludes(topPathsHelper, expected, "Top paths truth helper");
 }
 for (const expected of [
+  "buildAdminAnalyticsRegionDemandModel",
+  "Raw geography with internal/admin traffic separated from external demand.",
+  "Adjusted demand excludes proven admin-surface traffic only.",
+  "Unknown city/country is a data-quality bucket",
+]) {
+  requireIncludes(regionDemandHelper, expected, "Region demand truth helper");
+}
+for (const expected of [
   "Source mode:",
   "Explicit taps:",
   "Fallback views:",
@@ -2095,6 +2104,19 @@ for (const expected of [
   "Top 25 snapshot only",
 ]) {
   requireIncludes(adminAnalyticsAudienceTab, expected, "Top paths audience panel");
+}
+for (const expected of [
+  "data-regions-source-truth",
+  "data-regions-filter-mode",
+  "data-regions-count-unit",
+  "Raw geography with internal/admin traffic separated from external demand.",
+  "Raw traffic",
+  "External demand",
+  "Admin/internal excluded",
+  "Adjusted external",
+  "Unknown location",
+]) {
+  requireIncludes(adminAnalyticsAudienceTab, expected, "Regions audience panel");
 }
 for (const expected of [
   "Mode:",
@@ -2143,6 +2165,7 @@ try {
       /^src\/lib\/admin-analytics-navigation-destinations\.ts$/u,
       /^src\/lib\/admin-analytics-device-mix\.ts$/u,
       /^src\/lib\/admin-analytics-top-paths\.ts$/u,
+      /^src\/lib\/admin-analytics-region-demand\.ts$/u,
       /^src\/lib\/admin-analytics-journey-funnel\.ts$/u,
       /^src\/lib\/admin-analytics-auth-outcome-split\.ts$/u,
       /^src\/lib\/auth-outcome-telemetry\.ts$/u,
@@ -2234,6 +2257,8 @@ try {
     /^src\/lib\/server\/admin-analytics-historical-validation\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-viewer\.ts$/u,
     /^src\/lib\/server\/admin-analytics-historical-tasks\.ts$/u,
+    /^src\/lib\/server\/admin-analytics-historical-traffic\.ts$/u,
+    /^src\/lib\/server\/admin-analytics-data\.ts$/u,
     /^src\/lib\/server\/analytics-metrics\.ts$/u,
     /^src\/lib\/server\/creator-admin-action-contract\.ts$/u,
     /^src\/lib\/server\/admin-overview-users\.ts$/u,
@@ -2266,6 +2291,7 @@ try {
     /^tests\/unit\/admin-analytics-device-mix\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-top-paths\.spec\.ts$/u,
     /^tests\/unit\/admin-analytics-navigation-destinations\.spec\.ts$/u,
+    /^tests\/unit\/admin-analytics-historical-traffic\.spec\.ts$/u,
     /^tests\/unit\/admin-notification-funnel\.spec\.ts$/u,
     /^tests\/unit\/admin-task-pipeline\.spec\.ts$/u,
     /^scripts\/check-admin-analytics-overview\.ts$/u,

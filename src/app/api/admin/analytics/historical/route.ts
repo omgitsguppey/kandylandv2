@@ -478,7 +478,11 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 topPathsPanelState: payload.topPathsPanelState,
             });
         case "regions":
-            return withSharedFields({ geo: payload.geo });
+            return withSharedFields({
+                geo: payload.geo,
+                regionDemandPanelState: payload.regionDemandPanelState,
+                analyticsSourceHealth: payload.analyticsSourceHealth,
+            });
         case "commerceSnapshot":
             return withSharedFields({
                 commerce: payload.commerce,
@@ -587,6 +591,7 @@ async function GET_handler(request: NextRequest) {
                 response,
                 eventsResponse,
                 geoResponse,
+                geoPathResponse,
                 pagesResponse,
                 devicesResponse,
                 onboardingResponse,
@@ -629,6 +634,10 @@ async function GET_handler(request: NextRequest) {
                 guestTraffic,
                 gaEventCounts,
                 geoData,
+                regionDemandRows,
+                regionDemandRawTotal,
+                regionDemandAdjustedTotal,
+                regionDemandUsedGeoPathFallback,
                 devices,
                 pagesData,
                 pageRollupMap,
@@ -636,6 +645,7 @@ async function GET_handler(request: NextRequest) {
                 responseRows: response.rows || [],
                 eventRows: eventsResponse.rows || [],
                 geoRows: geoResponse.rows || [],
+                geoPathRows: geoPathResponse.rows || [],
                 deviceRows: devicesResponse.rows || [],
                 pageRows: pagesResponse.rows || [],
                 dailyRollups: dailyRollupsSnapshot.docs,
@@ -1354,6 +1364,29 @@ async function GET_handler(request: NextRequest) {
                 )),
                 guestBatchLastSeenAtUtc: toUtcIsoOrNull(guestBatchLastSeenAtMs),
             } as const;
+            const regionDemandFreshnessState = regionDemandUsedGeoPathFallback
+                ? "partial" as const
+                : "live" as const;
+            const regionDemandCountUnit = regionDemandUsedGeoPathFallback ? "users" as const : "views" as const;
+            const regionDemandWarnings = [
+                `Counts are GA4 ${regionDemandCountUnit}, not authenticated account totals.`,
+                regionDemandUsedGeoPathFallback
+                    ? "Route-scoped geography is unavailable for this range, so the panel cannot separate admin/internal traffic from raw GA counts yet."
+                    : "Adjusted demand excludes proven admin-surface traffic only. Operator/public-surface traffic can remain in the adjusted remainder when actor geography is unavailable.",
+            ];
+            const regionDemandPanelState = {
+                generatedAtUtc: toUtcIsoOrNull(responseGeneratedAtMs) ?? new Date(0).toISOString(),
+                range: period ?? "30d",
+                sourceTruth: regionDemandUsedGeoPathFallback ? "ga4" : "mixed",
+                freshnessState: regionDemandFreshnessState,
+                filterMode: "comparison" as const,
+                countUnit: regionDemandCountUnit,
+                rawTotal: regionDemandRawTotal,
+                adjustedTotal: regionDemandAdjustedTotal,
+                internalExcludedCount: Math.max(0, regionDemandRawTotal - regionDemandAdjustedTotal),
+                rows: regionDemandRows,
+                warnings: regionDemandWarnings,
+            };
             const dropRollupActivityCount = dropDailySnapshot.docs.reduce((total, doc) => {
                 const data = doc.data() as Record<string, unknown>;
                 return total + toNumber(data.eventCount) + toNumber(data.unwrapCount);
@@ -1488,6 +1521,7 @@ async function GET_handler(request: NextRequest) {
                 returnCadenceState,
                 navigationDestinationsState,
                 destinationMix,
+                regionDemandPanelState,
                 notificationFunnel,
                 notificationActions,
                 taskGuidance: {

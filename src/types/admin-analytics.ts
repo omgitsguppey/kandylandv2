@@ -84,6 +84,35 @@ export interface GeoItem {
   users: number;
 }
 
+export type RegionDemandRow = {
+  city: string | null;
+  region?: string | null;
+  country: string | null;
+  rawCount: number;
+  adjustedCount: number;
+  adminInternalCount: number;
+  unknownIdentityCount: number;
+  externalUserCount: number;
+  sharePct: number;
+  adjustedSharePct: number;
+  demandState: "verified_external" | "mixed_with_internal" | "mostly_internal" | "unknown_location" | "review";
+  explanation: string;
+};
+
+export type RegionDemandPanelState = {
+  generatedAtUtc: string;
+  range: string;
+  sourceTruth: "ga4" | "first_party" | "mixed" | "unknown";
+  freshnessState: "live" | "recent" | "stale" | "partial" | "unknown";
+  filterMode: "raw" | "external_only" | "admin_excluded" | "comparison";
+  countUnit: "views" | "sessions" | "users" | "events" | "mixed";
+  rawTotal: number;
+  adjustedTotal: number;
+  internalExcludedCount: number;
+  rows: RegionDemandRow[];
+  warnings: string[];
+};
+
 export interface PageItem {
   path: string;
   views: number;
@@ -762,6 +791,7 @@ export interface HistoricalAnalyticsResponse {
   navigationDestinationsState?: NavigationDestinationsState;
   deviceMixPanelState?: DeviceMixPanelState;
   topPathsPanelState?: TopPathsPanelState;
+  regionDemandPanelState?: RegionDemandPanelState;
   notificationFunnel?: CountBucketItem[];
   notificationActions?: Array<{ label: string; value: number }>;
   taskPipeline?: CountBucketItem[];

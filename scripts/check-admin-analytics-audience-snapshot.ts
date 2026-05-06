@@ -28,6 +28,7 @@ const component = read("src/app/admin/analytics/components/AdminAnalyticsAudienc
 const helper = read("src/lib/admin-analytics-audience-snapshot.ts");
 const deviceMixHelper = read("src/lib/admin-analytics-device-mix.ts");
 const topPathsHelper = read("src/lib/admin-analytics-top-paths.ts");
+const regionDemandHelper = read("src/lib/admin-analytics-region-demand.ts");
 const returnCadenceHelper = read("src/lib/admin-analytics-return-cadence.ts");
 const route = read("src/app/api/admin/analytics/historical/route.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
@@ -40,10 +41,13 @@ assertIncludes("audience types", types, "export type AudienceSnapshotDiagnostics
 assertIncludes("audience types", types, "export type ReturnCadenceState");
 assertIncludes("audience types", types, "export type DeviceMixPanelState");
 assertIncludes("audience types", types, "export type TopPathsPanelState");
+assertIncludes("audience types", types, "export type RegionDemandPanelState");
+assertIncludes("audience types", types, "export type RegionDemandRow");
 assertIncludes("audience types", types, "engagementDefinition: string");
 assertIncludes("audience types", types, "unknownSessions: number");
 assertIncludes("audience types", types, "routeGroup:");
 assertIncludes("audience types", types, "pageSize: number");
+assertIncludes("audience types", types, "countUnit: \"views\" | \"sessions\" | \"users\" | \"events\" | \"mixed\"");
 
 assertIncludes("historical route", route, "audienceSnapshotDiagnostics");
 assertIncludes("historical route", route, "recoveredByGaDayKeys");
@@ -51,6 +55,7 @@ assertIncludes("historical route", route, "firstPartyPresentDayKeys");
 assertIncludes("historical route", route, "guestEstimatedOnlyDayKeys");
 assertIncludes("historical route", route, "deviceMixPanelState");
 assertIncludes("historical route", route, "topPathsPanelState");
+assertIncludes("historical route", route, "regionDemandPanelState");
 assertIncludes("historical route", route, "analyticsSourceHealth");
 
 assertIncludes("audience helper", helper, "continuitySummary");
@@ -73,6 +78,11 @@ assertIncludes("top paths helper", topPathsHelper, "\"creator\"");
 assertIncludes("top paths helper", topPathsHelper, "\"legal\"");
 assertIncludes("top paths helper", topPathsHelper, "\"dashboard\"");
 assertIncludes("top paths helper", topPathsHelper, "0s avg time on a legal/static path can reflect quick policy reads or immediate exits; verify timing source before treating it as zero engagement.");
+assertIncludes("region demand helper", regionDemandHelper, "buildAdminAnalyticsRegionDemandModel");
+assertIncludes("region demand helper", regionDemandHelper, "Raw geography with internal/admin traffic separated from external demand.");
+assertIncludes("region demand helper", regionDemandHelper, "Adjusted demand excludes proven admin-surface traffic only.");
+assertIncludes("region demand helper", regionDemandHelper, "route-level admin exclusion did not hydrate");
+assertIncludes("region demand helper", regionDemandHelper, "Unknown city/country is a data-quality bucket");
 
 assertIncludes("audience component", component, "data-audience-source-state");
 assertIncludes("audience component", component, "data-audience-ga-freshness");
@@ -110,6 +120,15 @@ assertIncludes("audience component", component, "Page size");
 assertIncludes("audience component", component, "Percent column: Engagement");
 assertIncludes("audience component", component, "Top 25 snapshot only");
 assertIncludes("audience component", component, "No paths match the current search/filter selection.");
+assertIncludes("audience component", component, "data-regions-source-truth");
+assertIncludes("audience component", component, "data-regions-filter-mode");
+assertIncludes("audience component", component, "data-regions-count-unit");
+assertIncludes("audience component", component, "Raw geography with internal/admin traffic separated from external demand.");
+assertIncludes("audience component", component, "External demand");
+assertIncludes("audience component", component, "Admin/internal excluded");
+assertIncludes("audience component", component, "Unknown location");
+assertIncludes("audience component", component, "Internal/admin:");
+assertIncludes("audience component", component, "Adjusted external");
 assertNotIncludes("audience component", component, "label=\"Active Users\"");
 
 assertIncludes("debug route", debugRoute, "adminAnalyticsAudienceSnapshot");

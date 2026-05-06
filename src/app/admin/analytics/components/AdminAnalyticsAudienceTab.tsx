@@ -24,6 +24,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     topPathsRange, pages,
     regionsRange, geo,
     audienceHistorySeries, audienceSnapshotModel, returnCadenceModel, navigationDestinationsModel, deviceMixDevices, deviceMixTotalUsers, deviceMixModel, topPathsPages, topPathsModel, regionsGeo,
+    regionsModel,
 
     // Commerce Tab
     commerceSnapshotRange, commerce,
@@ -113,6 +114,52 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
       setTopPathsPage(topPathsTotalPages);
     }
   }, [topPathsPage, topPathsTotalPages]);
+  const [regionsFilterMode, setRegionsFilterMode] = React.useState<
+    "raw" | "external_only" | "admin_excluded" | "comparison"
+  >(regionsModel.filterMode);
+  React.useEffect(() => {
+    setRegionsFilterMode(regionsModel.filterMode);
+  }, [regionsModel.filterMode, regionsRange]);
+  const filteredRegionRows = React.useMemo(() => {
+    switch (regionsFilterMode) {
+      case "external_only":
+        return regionsModel.rows.filter((row) => row.adjustedCount > 0);
+      case "admin_excluded":
+        return regionsModel.rows.filter((row) => row.adminInternalCount > 0 || row.adjustedCount > 0);
+      default:
+        return regionsModel.rows;
+    }
+  }, [regionsFilterMode, regionsModel.rows]);
+  const regionRowsForDisplay = React.useMemo(() => {
+    const rows = filteredRegionRows.slice();
+    rows.sort((left, right) => {
+      const leftCount = regionsFilterMode === "raw" ? left.rawCount : left.adjustedCount;
+      const rightCount = regionsFilterMode === "raw" ? right.rawCount : right.adjustedCount;
+      return rightCount - leftCount;
+    });
+    return rows.slice(0, 10);
+  }, [filteredRegionRows, regionsFilterMode]);
+  const formatRegionLabel = (item: typeof regionsModel.rows[number]) => {
+    if (!item.city && !item.country) {
+      return "Unknown location";
+    }
+    if (!item.city && item.country) {
+      return `Unknown city, ${item.country}`;
+    }
+    if (item.city && !item.country) {
+      return `${item.city}, Unknown country`;
+    }
+    return `${item.city}, ${item.country}`;
+  };
+  const formatRegionCount = (count: number) => {
+    const unitLabel = count === 1
+      ? regionsModel.countUnit.replace(/s$/u, "")
+      : regionsModel.countUnit;
+    return `${count.toLocaleString()} ${unitLabel}`;
+  };
+  const regionPrimaryMetricLabel = regionsFilterMode === "raw"
+    ? "Raw traffic"
+    : "Adjusted external";
 
   return (
     <>
@@ -944,43 +991,119 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 
             <SectionCard
               title="Regions"
-              subtitle="Geographic demand in a compact mobile-first list."
+              subtitle="Raw geography with internal/admin traffic separated from external demand."
               icon={MapPin}
               rightSlot={renderSectionRangeControl("regions")}
             >
-              <div className="space-y-3">
-                {regionsGeo.length > 0 ? (
-                  regionsGeo.slice(0, 10).map((item: any) => (
-                    <div
-                      key={`${item.country}-${item.city}`}
-                      className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
+              <div
+                className="space-y-3"
+                data-regions-source-truth={regionsModel.sourceTruth}
+                data-regions-freshness={regionsModel.freshnessState}
+                data-regions-filter-mode={regionsFilterMode}
+                data-regions-count-unit={regionsModel.countUnit}
+                data-regions-generated-at-utc={regionsModel.generatedAtUtc}
+              >
+                <div className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300">
+                  {regionsModel.visibleCopy.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                  <p className="text-gray-500">
+                    Range: {regionsModel.range}
+                    {" | "}Source: {regionsModel.sourceLabel}
+                    {" | "}Freshness: {regionsModel.freshnessLabel}
+                  </p>
+                  <p className="text-gray-500">
+                    Unit: {regionsModel.countUnit}
+                    {" | "}Raw total: {formatRegionCount(regionsModel.rawTotal)}
+                    {" | "}Adjusted total: {formatRegionCount(regionsModel.adjustedTotal)}
+                  </p>
+                  <p className="text-gray-500">
+                    Internal/admin excluded: {formatRegionCount(regionsModel.internalExcludedCount)}
+                    {" | "}Generated: {regionsModel.generatedAtUtc === new Date(0).toISOString()
+                      ? "Unavailable"
+                      : formatRelativeTime(Date.parse(regionsModel.generatedAtUtc), nowMs)}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { value: "comparison", label: "Compare raw vs adjusted" },
+                    { value: "raw", label: "Raw traffic" },
+                    { value: "external_only", label: "External demand" },
+                    { value: "admin_excluded", label: "Admin/internal excluded" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setRegionsFilterMode(option.value as typeof regionsFilterMode)}
+                      className={`rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${
+                        regionsFilterMode === option.value
+                          ? "border-brand-purple/60 bg-brand-purple/15 text-white"
+                          : "border-white/10 bg-white/5 text-gray-300"
+                      }`}
                     >
-                      <div className="mb-2 flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-white">
-                            {item.city}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {item.country}
-                          </p>
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+                {regionRowsForDisplay.length > 0 ? (
+                  regionRowsForDisplay.map((item) => {
+                    const primaryCount = regionsFilterMode === "raw" ? item.rawCount : item.adjustedCount;
+                    const barRatio = regionsFilterMode === "raw"
+                      ? item.sharePct
+                      : item.adjustedSharePct;
+                    return (
+                      <div
+                        key={`${item.country ?? "unknown-country"}-${item.city ?? "unknown-city"}`}
+                        className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
+                        data-regions-row-state={item.demandState}
+                      >
+                        <div className="mb-2 flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white">
+                              {formatRegionLabel(item)}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {regionPrimaryMetricLabel}: {formatRegionCount(primaryCount)}
+                              {" | "}Raw: {formatRegionCount(item.rawCount)}
+                            </p>
+                          </div>
+                          <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${
+                            item.demandState === "mostly_internal"
+                              ? "bg-amber-500/15 text-amber-200"
+                              : item.demandState === "mixed_with_internal" || item.demandState === "review"
+                                ? "bg-white/10 text-gray-200"
+                                : item.demandState === "unknown_location"
+                                  ? "bg-slate-500/20 text-slate-200"
+                                  : "bg-emerald-500/15 text-emerald-200"
+                          }`}>
+                            {item.demandState.replace(/_/gu, " ")}
+                          </span>
                         </div>
-                        <p className="text-lg font-black text-white">
-                          {item.users.toLocaleString()}
+                        <div className="grid grid-cols-2 gap-2 text-[11px] text-gray-300 md:grid-cols-4">
+                          <p><span className="text-gray-500">Adjusted:</span> {formatRegionCount(item.adjustedCount)}</p>
+                          <p><span className="text-gray-500">Internal/admin:</span> {formatRegionCount(item.adminInternalCount)}</p>
+                          <p><span className="text-gray-500">Raw share:</span> {formatPercent(item.sharePct)}</p>
+                          <p><span className="text-gray-500">Adjusted share:</span> {formatPercent(item.adjustedSharePct)}</p>
+                        </div>
+                        <p className="mt-2 text-[11px] text-gray-500">
+                          {item.explanation}
                         </p>
+                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                          <div
+                            className="h-full rounded-full bg-brand-purple"
+                            style={{
+                              width: `${Math.max(8, barRatio * 100)}%`,
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                        <div
-                          className="h-full rounded-full bg-brand-purple"
-                          style={{
-                            width: `${Math.max(8, (item.users / Math.max(1, regionsGeo[0]?.users || 1)) * 100)}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                    Not enough location data yet for this range.
+                    {regionsModel.rows.length > 0
+                      ? "No region rows match the current filter."
+                      : "No region geography source is available for this range."}
                   </div>
                 )}
               </div>

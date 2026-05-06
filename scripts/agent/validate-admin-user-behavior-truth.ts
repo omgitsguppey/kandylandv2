@@ -183,6 +183,13 @@ assert(audienceTab.includes("Tracked Auth Users"), "Return cadence panel must re
 assert(audienceTab.includes("No verified zero should be displayed"), "Return cadence panel must prevent false zero copy.", failures);
 assert(audienceTab.includes("Users active on 2+ distinct days"), "Return cadence panel must explain unique returners with a 2+ day denominator.", failures);
 assert(!audienceTab.includes("0 tracked users"), "Return cadence panel must not hard-code fake zero tracked users.", failures);
+assert(analyticsTypes.includes("export type RegionDemandPanelState"), "Admin analytics types must expose the canonical region demand panel state.", failures);
+assert(analyticsTypes.includes("adminInternalCount"), "Region demand state must separate internal/admin counts from raw counts.", failures);
+assert(audienceTab.includes("data-regions-source-truth"), "Regions panel must expose source-truth debug attrs.", failures);
+assert(audienceTab.includes("data-regions-filter-mode"), "Regions panel must expose filter-mode debug attrs.", failures);
+assert(audienceTab.includes("Raw geography with internal/admin traffic separated from external demand."), "Regions panel must not label raw geography as pure demand.", failures);
+assert(audienceTab.includes("Internal/admin:"), "Regions panel must render internal/admin excluded counts.", failures);
+assert(audienceTab.includes("Unknown location"), "Regions panel must bucket unknown geography as data quality, not demand.", failures);
 
 if (failures.length > 0) {
   console.error("Admin user behavior truth validation failed:");

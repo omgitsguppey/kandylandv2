@@ -14,6 +14,7 @@ import {
   toNumber,
   toStringValue,
 } from "./admin-analytics-shared";
+import type { RegionDemandPanelState, RegionDemandRow } from "@/types/admin-analytics";
 
 const DAY_KEY_PREFIX_PATTERN = /^(\d{4}-\d{2}-\d{2})/u;
 
@@ -40,6 +41,7 @@ export function buildHistoricalTrafficOverview(input: {
   responseRows: AnalyticsReportRow[];
   eventRows: AnalyticsReportRow[];
   geoRows: AnalyticsReportRow[];
+  geoPathRows: AnalyticsReportRow[];
   deviceRows: AnalyticsReportRow[];
   pageRows: AnalyticsReportRow[];
   dailyRollups: FirebaseFirestore.QueryDocumentSnapshot[];
@@ -59,6 +61,7 @@ export function buildHistoricalTrafficOverview(input: {
     responseRows,
     eventRows,
     geoRows,
+    geoPathRows,
     deviceRows,
     pageRows,
     dailyRollups,
@@ -364,6 +367,111 @@ export function buildHistoricalTrafficOverview(input: {
     users: parseInt(row.metricValues?.[0]?.value || "0", 10),
   }));
 
+  const normalizeRegionDimension = (value: string | null | undefined) => {
+    const normalized = (value || "").trim();
+    if (!normalized || normalized.toLowerCase() === "(not set)" || normalized.toLowerCase() === "unknown") {
+      return null;
+    }
+    return normalized;
+  };
+
+  const geoPathAggregate = new Map<string, {
+    city: string | null;
+    country: string | null;
+    rawCount: number;
+    adminInternalCount: number;
+  }>();
+  geoPathRows.forEach((row) => {
+    const country = normalizeRegionDimension(row.dimensionValues?.[0]?.value || null);
+    const city = normalizeRegionDimension(row.dimensionValues?.[1]?.value || null);
+    const pagePath = toStringValue(row.dimensionValues?.[2]?.value) || "/";
+    const views = parseInt(row.metricValues?.[0]?.value || "0", 10);
+    if (views <= 0) {
+      return;
+    }
+    const key = `${country ?? "__unknown_country__"}::${city ?? "__unknown_city__"}`;
+    const entry = geoPathAggregate.get(key) || {
+      city,
+      country,
+      rawCount: 0,
+      adminInternalCount: 0,
+    };
+    entry.rawCount += views;
+    if (pagePath === "/admin" || pagePath.startsWith("/admin/")) {
+      entry.adminInternalCount += views;
+    }
+    geoPathAggregate.set(key, entry);
+  });
+
+  const fallbackRegionRows = geoData.map((row) => {
+    const city = normalizeRegionDimension(row.city);
+    const country = normalizeRegionDimension(row.country);
+    return {
+      city,
+      country,
+      rawCount: Math.max(0, row.users),
+      adminInternalCount: 0,
+    };
+  });
+
+  const regionDemandRowsBase = (
+    geoPathAggregate.size > 0
+      ? [...geoPathAggregate.values()]
+      : fallbackRegionRows
+  )
+    .map((row) => {
+      const rawCount = Math.max(0, row.rawCount);
+      const adminInternalCount = Math.min(rawCount, Math.max(0, row.adminInternalCount));
+      const adjustedCount = Math.max(0, rawCount - adminInternalCount);
+      const unknownLocation = !row.city || !row.country;
+      const internalShare = rawCount > 0 ? adminInternalCount / rawCount : 0;
+      let demandState: RegionDemandRow["demandState"] = "review";
+      if (unknownLocation) {
+        demandState = "unknown_location";
+      } else if (internalShare >= 0.6 && adminInternalCount > 0) {
+        demandState = "mostly_internal";
+      } else if (adminInternalCount > 0) {
+        demandState = "mixed_with_internal";
+      } else if (geoPathAggregate.size > 0) {
+        demandState = "verified_external";
+      }
+
+      let explanation = "Raw geography is shown without a verified internal split for this row.";
+      if (unknownLocation) {
+        explanation = "Unknown city/country is a data-quality bucket, not a reliable market-demand signal.";
+      } else if (adminInternalCount > 0) {
+        explanation = "Raw geography includes proven admin-surface traffic. Adjusted demand excludes those admin/internal views only.";
+      } else if (geoPathAggregate.size > 0) {
+        explanation = "No admin-surface views were observed for this row in the selected range. Remaining demand is external-facing GA traffic, not actor-verified users.";
+      } else {
+        explanation = "GA route-level geography is unavailable for this range, so the panel cannot separate admin/internal traffic from raw city counts.";
+      }
+
+      return {
+        city: row.city,
+        region: null,
+        country: row.country,
+        rawCount,
+        adjustedCount,
+        adminInternalCount,
+        unknownIdentityCount: adjustedCount,
+        externalUserCount: adjustedCount,
+        sharePct: 0,
+        adjustedSharePct: 0,
+        demandState,
+        explanation,
+      } satisfies RegionDemandRow;
+    })
+    .sort((left, right) => right.rawCount - left.rawCount);
+
+  const regionDemandRawTotal = regionDemandRowsBase.reduce((sum, row) => sum + row.rawCount, 0);
+  const regionDemandAdjustedTotal = regionDemandRowsBase.reduce((sum, row) => sum + row.adjustedCount, 0);
+  const regionDemandRows = regionDemandRowsBase.map((row) => ({
+    ...row,
+    sharePct: regionDemandRawTotal > 0 ? row.rawCount / regionDemandRawTotal : 0,
+    adjustedSharePct: regionDemandAdjustedTotal > 0 ? row.adjustedCount / regionDemandAdjustedTotal : 0,
+  }));
+
   const devices = deviceRows.map((row) => ({
     device: row.dimensionValues?.[0]?.value || "unknown",
     users: parseInt(row.metricValues?.[0]?.value || "0", 10),
@@ -416,6 +524,10 @@ export function buildHistoricalTrafficOverview(input: {
     guestTraffic,
     gaEventCounts,
     geoData,
+    regionDemandRows,
+    regionDemandRawTotal,
+    regionDemandAdjustedTotal,
+    regionDemandUsedGeoPathFallback: geoPathAggregate.size === 0,
     devices,
     pagesData,
     pageRollupMap,
