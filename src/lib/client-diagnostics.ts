@@ -9,6 +9,22 @@ const ERROR_STORAGE_KEY = "kandydrops.clientErrors";
 const MAX_DIAGNOSTIC_ENTRIES = 120;
 const MAX_BREADCRUMB_ENTRIES = 60;
 const MAX_ERROR_ENTRIES = 24;
+const CLIENT_DIAGNOSTIC_DEDUPE_WINDOW_MS = 60_000;
+
+const BROWSER_SECURITY_BOUNDARY_PATTERNS = [
+  /blocked a frame with origin/i,
+  /cross-origin frame/i,
+  /failed to read a named property/i,
+  /permission denied to access property/i,
+  /protocols?, domains?, and ports must match/i,
+];
+
+const THIRD_PARTY_IFRAME_PATTERNS = [
+  /paypal/i,
+  /postrobot/i,
+  /xcomponent/i,
+  /zoid/i,
+];
 
 export type ClientDiagnosticChannel =
   | "telemetry"
@@ -36,6 +52,22 @@ export interface ClientDiagnosticEntry {
   message: string;
   timestamp: number;
   detail?: string;
+}
+
+export interface BrowserSecurityBoundaryClassification {
+  errorName: string;
+  rawMessage: string;
+  humanMessage: string;
+  severity: ClientDiagnosticSeverity;
+  browserSecurityBlocked: true;
+  actionable: boolean;
+  nonActionableThirdParty: boolean;
+  route: string;
+  sourceSurface: "admin" | "user" | "creator" | "unknown";
+  browserFrameOwner?: string;
+  stackFingerprint: string;
+  fingerprint: string;
+  detail: Record<string, unknown>;
 }
 
 export interface ClientBreadcrumbEntry {
@@ -95,6 +127,7 @@ declare global {
 }
 
 let diagnosticsBridgeInstalled = false;
+const recentDiagnosticFingerprints = new Map<string, number>();
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -110,6 +143,141 @@ function safeStringify(value: unknown) {
   } catch {
     return String(value).slice(0, 800);
   }
+}
+
+function stableHash(input: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function normalizeClientErrorName(error: unknown) {
+  if (error instanceof Error && error.name.trim().length > 0) {
+    return error.name.trim();
+  }
+  return "UnknownError";
+}
+
+function normalizeClientErrorMessage(error: unknown, fallback = "Unknown client error") {
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message.trim();
+  }
+  if (typeof error === "string" && error.trim().length > 0) {
+    return error.trim();
+  }
+  return fallback;
+}
+
+function toSourceSurface(route: string): BrowserSecurityBoundaryClassification["sourceSurface"] {
+  if (route.startsWith("/admin")) return "admin";
+  if (route.startsWith("/creators")) return "creator";
+  if (route.startsWith("/")) return "user";
+  return "unknown";
+}
+
+function inferBrowserFrameOwner(signature: string) {
+  if (!signature) {
+    return undefined;
+  }
+  if (THIRD_PARTY_IFRAME_PATTERNS.some((pattern) => pattern.test(signature))) {
+    if (/paypal/i.test(signature)) return "paypal";
+    if (/postrobot|zoid|xcomponent/i.test(signature)) return "paypal_sdk";
+    return "third_party_iframe";
+  }
+  return undefined;
+}
+
+export function shouldRecordClientDiagnosticFingerprint(
+  fingerprint: string,
+  dedupeWindowMs = CLIENT_DIAGNOSTIC_DEDUPE_WINDOW_MS,
+) {
+  const now = Date.now();
+  for (const [existingFingerprint, timestamp] of recentDiagnosticFingerprints.entries()) {
+    if (now - timestamp > dedupeWindowMs) {
+      recentDiagnosticFingerprints.delete(existingFingerprint);
+    }
+  }
+
+  const previous = recentDiagnosticFingerprints.get(fingerprint);
+  if (typeof previous === "number" && now - previous < dedupeWindowMs) {
+    return false;
+  }
+
+  recentDiagnosticFingerprints.set(fingerprint, now);
+  return true;
+}
+
+export function classifyBrowserSecurityBoundaryError(input: {
+  error?: unknown;
+  message?: string;
+  detail?: Record<string, unknown>;
+  route?: string;
+}) : BrowserSecurityBoundaryClassification | null {
+  const errorName = normalizeClientErrorName(input.error);
+  const rawMessage = (
+    input.message
+    || normalizeClientErrorMessage(input.error, "")
+    || (typeof input.detail?.errorMessage === "string" ? input.detail.errorMessage : "")
+  ).trim();
+  const stack = typeof input.detail?.stack === "string" ? input.detail.stack : "";
+  const filename = typeof input.detail?.filename === "string" ? input.detail.filename : "";
+  const signature = `${errorName} ${rawMessage} ${stack} ${filename}`.trim();
+  const matchedBoundary =
+    BROWSER_SECURITY_BOUNDARY_PATTERNS.some((pattern) => pattern.test(signature))
+    || ((errorName === "SecurityError" || errorName === "DOMException") && /frame|cross-origin/i.test(signature));
+
+  if (!matchedBoundary) {
+    return null;
+  }
+
+  const route = input.route
+    || (typeof window !== "undefined" ? window.location.pathname : "")
+    || "/";
+  const browserFrameOwner = inferBrowserFrameOwner(signature);
+  const nonActionableThirdParty = Boolean(browserFrameOwner);
+  const actionable = !nonActionableThirdParty;
+  const flowFailed = input.detail?.flowFailed === true || input.detail?.userFlowFailed === true;
+  const stackFingerprint = `stack_${stableHash(stack.slice(0, 600) || rawMessage.toLowerCase())}`;
+  const fingerprint = `browser_boundary_${stableHash([
+    route,
+    rawMessage.toLowerCase(),
+    stackFingerprint,
+  ].join("|"))}`;
+  const humanMessage = nonActionableThirdParty
+    ? "Browser blocked cross-origin frame access. This is expected when third-party iframes are protected. App code should not inspect cross-origin frames."
+    : "Browser blocked cross-origin frame access. Review app frame logic and avoid reading cross-origin frame internals.";
+  const severity: ClientDiagnosticSeverity = flowFailed && actionable ? "error" : "warn";
+
+  return {
+    errorName,
+    rawMessage,
+    humanMessage,
+    severity,
+    browserSecurityBlocked: true,
+    actionable,
+    nonActionableThirdParty,
+    route,
+    sourceSurface: toSourceSurface(route),
+    ...(browserFrameOwner ? { browserFrameOwner } : {}),
+    stackFingerprint,
+    fingerprint,
+    detail: {
+      ...input.detail,
+      errorName,
+      errorMessage: rawMessage,
+      category: "browser_security_boundary",
+      browserSecurityBlocked: true,
+      actionable,
+      nonActionableThirdParty,
+      sourceSurface: toSourceSurface(route),
+      route,
+      stackFingerprint,
+      ...(browserFrameOwner ? { browserFrameOwner } : {}),
+    },
+  };
 }
 
 function readEntries<T>(storageKey: string): T[] {
@@ -324,6 +492,30 @@ function installGlobalErrorListeners() {
   }
 
   window.addEventListener("error", (event) => {
+    const browserSecurityBoundary = classifyBrowserSecurityBoundaryError({
+      error: event.error,
+      message: event.message,
+      route: window.location.pathname,
+      detail: {
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        stack: event.error instanceof Error ? event.error.stack : undefined,
+      },
+    });
+    if (browserSecurityBoundary) {
+      if (!shouldRecordClientDiagnosticFingerprint(browserSecurityBoundary.fingerprint)) {
+        return;
+      }
+      recordClientDiagnostic("ui", browserSecurityBoundary.humanMessage, browserSecurityBoundary.detail, browserSecurityBoundary.severity);
+      recordClientBreadcrumb("error", browserSecurityBoundary.humanMessage, {
+        category: "browser_security_boundary",
+        route: browserSecurityBoundary.route,
+        actionable: browserSecurityBoundary.actionable,
+      });
+      return;
+    }
+
     if (!event.error) {
       recordClientDiagnostic("error", event.message || "Unhandled window error", {
         filename: event.filename,
@@ -337,6 +529,26 @@ function installGlobalErrorListeners() {
   });
 
   window.addEventListener("unhandledrejection", (event) => {
+    const browserSecurityBoundary = classifyBrowserSecurityBoundaryError({
+      error: event.reason,
+      route: window.location.pathname,
+      detail: {
+        stack: event.reason instanceof Error ? event.reason.stack : undefined,
+      },
+    });
+    if (browserSecurityBoundary) {
+      if (!shouldRecordClientDiagnosticFingerprint(browserSecurityBoundary.fingerprint)) {
+        return;
+      }
+      recordClientDiagnostic("ui", browserSecurityBoundary.humanMessage, browserSecurityBoundary.detail, browserSecurityBoundary.severity);
+      recordClientBreadcrumb("error", browserSecurityBoundary.humanMessage, {
+        category: "browser_security_boundary",
+        route: browserSecurityBoundary.route,
+        actionable: browserSecurityBoundary.actionable,
+      });
+      return;
+    }
+
     recordClientError(event.reason, { source: "unhandledrejection" });
   });
 }
@@ -399,4 +611,9 @@ export function installClientDiagnosticsBridge() {
     clearDiagnostics: () => clearClientDiagnostics(),
     getSnapshot: (component, rolloutAssignments) => getClientDebugSnapshot(component, rolloutAssignments),
   };
+}
+
+export function resetClientDiagnosticsBridgeForTest() {
+  diagnosticsBridgeInstalled = false;
+  recentDiagnosticFingerprints.clear();
 }

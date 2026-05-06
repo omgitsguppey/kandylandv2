@@ -46,6 +46,12 @@ const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Reco
 const helper = readRequired("src/lib/admin-debug-control-tower.ts");
 const apiRoute = readRequired("src/app/api/admin/debug/control-tower/route.ts");
 const adminDebugRoute = readRequired("src/app/api/admin/debug/route.ts");
+const analyticsIngestIdentifiedRoute = readRequired("src/app/api/analytics/ingest-identified/route.ts");
+const debugEvidenceContract = readRequired("src/lib/debug-evidence-contract.ts");
+const debugEvidenceRoute = readRequired("src/app/api/debug/evidence/route.ts");
+const clientDiagnostics = readRequired("src/lib/client-diagnostics.ts");
+const clientErrorReporting = readRequired("src/lib/client-error-reporting.ts");
+const adminErrorCatcher = readRequired("src/components/AdminErrorCatcher.tsx");
 const runtimeHealth = readRequired("src/lib/route-runtime-health.ts");
 const adminOpsHealth = readRequired("src/lib/server/admin-ops-health.ts");
 const adminOpsHealthContract = readRequired("src/lib/admin-ops-health.ts");
@@ -135,6 +141,11 @@ for (const expected of [
 }
 
 for (const expected of [
+  "browserSecurityBlocked?: boolean",
+  "actionable?: boolean",
+  "nonActionableThirdParty?: boolean",
+  "sourceSurface?: string",
+  "browserFrameOwner?: string",
   "ADMIN_DEBUG_CONTROL_TOWER_REPORTS",
   "public-beta-score.generated.json",
   "speed-security-hardening.generated.json",
@@ -156,6 +167,55 @@ for (const expected of [
   "slice(0, 10)",
 ]) {
   requireIncludes(helper, expected, "Admin debug control tower model helper");
+}
+for (const expected of [
+  "\"browser_security_boundary\"",
+  "technicalSummary?:",
+  "browserSecurityBlocked?: boolean",
+  "nonActionableThirdParty?: boolean",
+  "buildDebugEvidenceTechnicalSummary",
+]) {
+  requireIncludes(debugEvidenceContract, expected, "Debug evidence contract must classify browser security boundaries explicitly");
+}
+for (const expected of [
+  "\"browser_security_boundary\"",
+]) {
+  requireIncludes(debugEvidenceRoute, expected, "Debug evidence API route must accept browser security boundary diagnostics");
+}
+for (const expected of [
+  "classifyBrowserSecurityBoundaryError",
+  "shouldRecordClientDiagnosticFingerprint",
+  "BROWSER_SECURITY_BOUNDARY_PATTERNS",
+  "\"Browser blocked cross-origin frame access. This is expected when third-party iframes are protected. App code should not inspect cross-origin frames.\"",
+  "recordClientDiagnostic(\"ui\"",
+]) {
+  requireIncludes(clientDiagnostics, expected, "Client diagnostics bridge must classify browser security boundary warnings safely");
+}
+for (const expected of [
+  "classifyBrowserSecurityBoundaryError",
+  "shouldRecordClientDiagnosticFingerprint",
+  "evidenceCategory?: DebugEvidenceCategory",
+  "evidenceCategory = \"browser_security_boundary\"",
+  "fingerprint = browserSecurityBoundary.fingerprint",
+]) {
+  requireIncludes(clientErrorReporting, expected, "Client error reporting must route browser security boundaries into debug evidence instead of generic runtime failures");
+}
+for (const expected of [
+  "classifyBrowserSecurityBoundaryError",
+  "reportClientIssue({",
+  "evidenceCategory: \"browser_security_boundary\"",
+  "consoleLabel: \"[AdminErrorCatcher] Browser security boundary\"",
+]) {
+  requireIncludes(adminErrorCatcher, expected, "AdminErrorCatcher must classify cross-origin frame security blocks before legacy admin UI error ingestion");
+}
+for (const expected of [
+  "recordDebugEvidence",
+  "classifyBrowserSecurityBoundaryFromAdminUiError",
+  "category: \"browser_security_boundary\"",
+  "sourceSurface: \"admin\"",
+  "return;",
+]) {
+  requireIncludes(analyticsIngestIdentifiedRoute, expected, "Analytics ingest identified route must keep browser security boundary errors out of server diagnostics");
 }
 
 for (const expected of [
@@ -1839,6 +1899,7 @@ try {
     /^src\/app\/api\/drops\/unlock\/route\.ts$/u,
     /^src\/app\/api\/paypal\/capture\/route\.ts$/u,
     /^src\/app\/api\/admin\/overview\/route\.ts$/u,
+    /^src\/app\/api\/debug\/evidence\/route\.ts$/u,
     /^src\/app\/admin\/page\.tsx$/u,
     /^src\/app\/admin\/ai\/components\/AdminAiOptimizerhealthSection\.tsx$/u,
     /^src\/app\/admin\/debug\/page\.tsx$/u,
@@ -1863,15 +1924,19 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabActions\.tsx$/u,
     /^src\/components\/Dashboard\/DailyTasksModule\.tsx$/u,
+    /^src\/components\/AdminErrorCatcher\.tsx$/u,
     /^src\/components\/Admin\/AdminStatsBar\.tsx$/u,
     /^src\/components\/Navigation\/NotificationBell\.tsx$/u,
     /^src\/components\/Notifications\/NotificationRuntimeBridge\.tsx$/u,
     /^src\/components\/Dashboard\/TaskGuidanceBanner\.tsx$/u,
     /^src\/lib\/creator-experiences\.ts$/u,
+    /^src\/lib\/client-diagnostics\.ts$/u,
+    /^src\/lib\/client-error-reporting\.ts$/u,
     /^src\/lib\/creator-lane-debug-parity\.ts$/u,
     /^src\/lib\/creator-onboarding\.ts$/u,
     /^src\/lib\/admin\/synthetic-creators-view-as\.ts$/u,
     /^src\/lib\/telemetry-catalog\.ts$/u,
+    /^src\/lib\/debug-evidence-contract\.ts$/u,
     /^src\/lib\/notification-contracts\.ts$/u,
     /^src\/lib\/notifications\.ts$/u,
     /^src\/lib\/behavioral\/tracking-surface-map\.ts$/u,
@@ -1943,6 +2008,7 @@ try {
     /^tests\/unit\/admin-orchestration\.spec\.ts$/u,
     /^tests\/unit\/notification-read-state\.spec\.tsx$/u,
     /^tests\/unit\/admin-ops-health\.spec\.ts$/u,
+    /^tests\/unit\/client-diagnostics\.spec\.ts$/u,
     /^tests\/unit\/event-fact-truth\.spec\.ts$/u,
     /^functions\/src\/behavioral-intelligence-runtime\.ts$/u,
     /^tests\/unit\/paypal-capture-route\.spec\.ts$/u,

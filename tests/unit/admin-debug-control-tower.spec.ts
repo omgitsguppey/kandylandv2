@@ -132,4 +132,39 @@ describe("admin debug control tower model", () => {
         expect(model.liveIssues[0]?.fingerprint).toBe("chat_focus_shift");
         expect(JSON.stringify(model)).not.toContain("secret support body");
     });
+
+    it("keeps browser security boundary issues in the client evidence lane instead of backend failure copy", () => {
+        const model = buildAdminDebugControlTowerModel({
+            rootDir: createTempRoot(),
+            nowMs: Date.UTC(2026, 4, 4),
+            debugEvidenceSource: "firestore",
+            debugEvidence: [{
+                id: "browser-boundary",
+                fingerprint: "browser_boundary_admin_debug",
+                source: "client",
+                severity: "warn",
+                category: "browser_security_boundary",
+                route: "/admin/debug",
+                component: "AdminErrorCatcher",
+                message: 'Blocked a frame with origin "https://kandydrops.com" from accessing a cross-origin frame.',
+                humanMessage: "Browser blocked cross-origin frame access. This is expected when third-party iframes are protected. App code should not inspect cross-origin frames.",
+                occurrenceCount: 4,
+                firstSeenAt: Date.UTC(2026, 4, 3),
+                lastSeenAt: Date.UTC(2026, 4, 4),
+                technicalSummary: {
+                    browserSecurityBlocked: true,
+                    actionable: false,
+                    nonActionableThirdParty: true,
+                    sourceSurface: "admin",
+                    browserFrameOwner: "paypal",
+                },
+            }],
+        });
+
+        expect(model.liveIssues[0]?.category).toBe("browser_security_boundary");
+        expect(model.liveIssues[0]?.severity).toBe("warn");
+        expect(model.liveIssues[0]?.truthState).toBe("live");
+        expect(model.liveIssues[0]?.nonActionableThirdParty).toBe(true);
+        expect(model.liveIssues[0]?.sourceSurface).toBe("admin");
+    });
 });

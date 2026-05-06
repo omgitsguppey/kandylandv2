@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import {
+  classifyBrowserSecurityBoundaryError,
   readClientDiagnostics,
   readClientBreadcrumbs,
   readClientErrors,
@@ -9,6 +10,7 @@ import {
   clearClientDiagnostics,
   getClientDebugSnapshot,
   installClientDiagnosticsBridge,
+  resetClientDiagnosticsBridgeForTest,
 } from "@/lib/client-diagnostics";
 
 const DIAGNOSTIC_STORAGE_KEY = "kandydrops.clientDiagnostics";
@@ -19,6 +21,7 @@ describe("client-diagnostics", () => {
   let localStorageData: Record<string, string> = {};
 
   beforeEach(() => {
+    resetClientDiagnosticsBridgeForTest();
     localStorageData = {};
     const getItem = vi.fn((key: string) => localStorageData[key] || null);
     const setItem = vi.fn((key: string, value: string) => {
@@ -86,7 +89,7 @@ describe("client-diagnostics", () => {
       expect(diagnostics[0].message.length).toBe(240);
     });
 
-    it("limits the number of stored diagnostics", () => {
+  it("limits the number of stored diagnostics", () => {
       for (let i = 0; i < 150; i++) {
         recordClientDiagnostic("telemetry", `Message ${i}`);
       }
@@ -95,6 +98,27 @@ describe("client-diagnostics", () => {
       expect(diagnostics).toHaveLength(120);
       expect(diagnostics[0].message).toBe("Message 30"); // 150 - 120
       expect(diagnostics[119].message).toBe("Message 149");
+    });
+
+    it("classifies browser security boundary errors separately from route failures", () => {
+      const classification = classifyBrowserSecurityBoundaryError({
+        error: Object.assign(new Error('Blocked a frame with origin "https://kandydrops.com" from accessing a cross-origin frame.'), {
+          name: "SecurityError",
+        }),
+        route: "/admin/debug",
+        detail: {
+          stack: "SecurityError: Blocked a frame with origin https://kandydrops.com postrobot paypal",
+        },
+      });
+
+      expect(classification).toMatchObject({
+        browserSecurityBlocked: true,
+        nonActionableThirdParty: true,
+        actionable: false,
+        route: "/admin/debug",
+        sourceSurface: "admin",
+      });
+      expect(classification?.humanMessage).toContain("third-party iframes are protected");
     });
   });
 
@@ -286,6 +310,32 @@ it("extracts renderer from WebGL context", () => {
 
       installClientDiagnosticsBridge();
       expect(vi.mocked(window.addEventListener).mock.calls.length).toBe(callsCount);
+    });
+
+    it("records browser security boundary warnings without promoting them to client errors", () => {
+      installClientDiagnosticsBridge();
+
+      const errorHandler = vi.mocked(window.addEventListener).mock.calls.find(([name]) => name === "error")?.[1] as ((event: ErrorEvent) => void) | undefined;
+      expect(errorHandler).toBeTypeOf("function");
+
+      errorHandler?.({
+        message: 'Blocked a frame with origin "https://kandydrops.com" from accessing a cross-origin frame.',
+        filename: "https://www.paypal.com/sdk/js",
+        lineno: 10,
+        colno: 2,
+        error: Object.assign(new Error('Blocked a frame with origin "https://kandydrops.com" from accessing a cross-origin frame.'), {
+          name: "SecurityError",
+          stack: "SecurityError: Blocked a frame with origin https://kandydrops.com postrobot paypal",
+        }),
+      } as ErrorEvent);
+
+      const diagnostics = readClientDiagnostics();
+      expect(diagnostics[0]).toMatchObject({
+        channel: "ui",
+        severity: "warn",
+      });
+      expect(diagnostics[0]?.message).toContain("Browser blocked cross-origin frame access");
+      expect(readClientErrors()).toHaveLength(0);
     });
   });
 });

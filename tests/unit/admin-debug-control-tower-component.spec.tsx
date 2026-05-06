@@ -101,6 +101,7 @@ const mockState = vi.hoisted(() => ({
             severity: "critical",
             category: "support",
             route: "/api/admin/support/threads/thread-1",
+            component: "SupportThreadDetail",
             fingerprint: "support_admin_403",
             message: "Support message detail route returned forbidden.",
             humanMessage: "Support message detail route returned forbidden.",
@@ -166,5 +167,38 @@ describe("DebugControlTower", () => {
         expect(container.textContent).toContain("Support message detail route returned forbidden.");
         expect(container.textContent).toContain("Recommended Next Actions");
         expect(container.textContent).not.toContain("secret support body");
+    });
+
+    it("renders browser security boundary live issues as review/info copy instead of backend failure copy", async () => {
+        mockState.payload.liveIssues = [{
+            id: "browser-boundary",
+            source: "client",
+            severity: "warn",
+            category: "browser_security_boundary",
+            route: "/admin/debug",
+            component: "AdminErrorCatcher",
+            fingerprint: "browser_boundary_admin_debug",
+            message: 'Blocked a frame with origin "https://kandydrops.com" from accessing a cross-origin frame.',
+            humanMessage: "Browser blocked cross-origin frame access. This is expected when third-party iframes are protected. App code should not inspect cross-origin frames.",
+            occurrenceCount: 4,
+            lastSeenAt: Date.UTC(2026, 4, 4),
+            truthState: "live",
+            browserSecurityBlocked: true,
+            actionable: false,
+            nonActionableThirdParty: true,
+            sourceSurface: "admin",
+            browserFrameOwner: "paypal",
+        }] as any;
+
+        await act(async () => {
+            root.render(<DebugControlTower />);
+        });
+
+        await act(async () => {
+            await Promise.resolve();
+        });
+
+        expect(container.textContent).toContain("browser security boundary");
+        expect(container.textContent).toContain("Expected third-party iframe boundary. This is not a backend failure.");
     });
 });

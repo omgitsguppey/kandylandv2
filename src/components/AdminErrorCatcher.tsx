@@ -2,6 +2,10 @@
 
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import {
+    classifyBrowserSecurityBoundaryError,
+} from "@/lib/client-diagnostics";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { authFetch } from "@/lib/authFetch";
 
 function reportAdminUiError(errorInfo: Record<string, unknown>) {
@@ -40,7 +44,36 @@ export function AdminErrorCatcher() {
                 lineno: event.lineno,
                 colno: event.colno,
                 stack: event.error?.stack || "",
+                route: window.location.pathname,
+                sourceSurface: "admin",
+                component: "AdminErrorCatcher",
             };
+
+            const browserSecurityBoundary = classifyBrowserSecurityBoundaryError({
+                error: event.error,
+                message: event.message,
+                route: window.location.pathname,
+                detail: errorInfo,
+            });
+
+            if (browserSecurityBoundary) {
+                reportClientIssue({
+                    channel: "ui",
+                    severity: browserSecurityBoundary.severity,
+                    message: browserSecurityBoundary.humanMessage,
+                    humanMessage: browserSecurityBoundary.humanMessage,
+                    evidenceCategory: "browser_security_boundary",
+                    fingerprint: browserSecurityBoundary.fingerprint,
+                    error: event.error,
+                    detail: {
+                        ...browserSecurityBoundary.detail,
+                        component: "AdminErrorCatcher",
+                        userFlowFailed: false,
+                    },
+                    consoleLabel: "[AdminErrorCatcher] Browser security boundary",
+                });
+                return;
+            }
 
             reportAdminUiError(errorInfo);
         };
@@ -49,7 +82,35 @@ export function AdminErrorCatcher() {
             const errorInfo = {
                 message: event.reason?.message || String(event.reason),
                 stack: event.reason?.stack || "",
+                route: window.location.pathname,
+                sourceSurface: "admin",
+                component: "AdminErrorCatcher",
             };
+
+            const browserSecurityBoundary = classifyBrowserSecurityBoundaryError({
+                error: event.reason,
+                route: window.location.pathname,
+                detail: errorInfo,
+            });
+
+            if (browserSecurityBoundary) {
+                reportClientIssue({
+                    channel: "ui",
+                    severity: browserSecurityBoundary.severity,
+                    message: browserSecurityBoundary.humanMessage,
+                    humanMessage: browserSecurityBoundary.humanMessage,
+                    evidenceCategory: "browser_security_boundary",
+                    fingerprint: browserSecurityBoundary.fingerprint,
+                    error: event.reason,
+                    detail: {
+                        ...browserSecurityBoundary.detail,
+                        component: "AdminErrorCatcher",
+                        userFlowFailed: false,
+                    },
+                    consoleLabel: "[AdminErrorCatcher] Browser security boundary",
+                });
+                return;
+            }
 
             reportAdminUiError(errorInfo);
         };

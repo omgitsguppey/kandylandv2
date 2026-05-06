@@ -4,6 +4,7 @@ import { z } from "zod";
 import { handleApiError, AuthError } from "@/lib/server/auth";
 import { ANALYTICS_WRITE, RateLimitError } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { recordDebugEvidence } from "@/lib/server/debug-evidence-store";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
@@ -18,6 +19,13 @@ import { isSearchIntentEventName, sanitizeSearchIntentParams } from "@/lib/behav
 export const dynamic = "force-dynamic";
 
 const MAX_ANALYTICS_BODY_BYTES = 128 * 1024; // 128KB max payload
+const CROSS_ORIGIN_FRAME_PATTERNS = [
+    /blocked a frame with origin/i,
+    /cross-origin frame/i,
+    /failed to read a named property/i,
+    /permission denied to access property/i,
+    /protocols?, domains?, and ports must match/i,
+];
 
 const IdentifiedEventSchema = z.object({
     eventId: z.string().min(1).max(200),
@@ -56,6 +64,46 @@ function readEventModules(params: Record<string, unknown>) {
     }
 
     return typeof value === "string" ? value.trim() : "";
+}
+
+function stableHash(input: string) {
+    let hash = 2166136261;
+    for (let index = 0; index < input.length; index += 1) {
+        hash ^= input.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(36);
+}
+
+function classifyBrowserSecurityBoundaryFromAdminUiError(params: Record<string, unknown>) {
+    const message = String(params.message || "").trim();
+    const stack = typeof params.stack === "string" ? params.stack : "";
+    const filename = typeof params.filename === "string" ? params.filename : "";
+    const route = typeof params.route === "string" && params.route.trim().length > 0 ? params.route.trim() : "/admin";
+    const signature = `${message} ${stack} ${filename}`.trim();
+    const matched = CROSS_ORIGIN_FRAME_PATTERNS.some((pattern) => pattern.test(signature));
+    if (!matched) {
+        return null;
+    }
+
+    const browserFrameOwner = /paypal|postrobot|xcomponent|zoid/i.test(signature)
+        ? (/paypal/i.test(signature) ? "paypal" : "paypal_sdk")
+        : undefined;
+    const nonActionableThirdParty = Boolean(browserFrameOwner);
+    const stackFingerprint = `stack_${stableHash(stack.slice(0, 600) || message.toLowerCase())}`;
+    const fingerprint = `browser_boundary_${stableHash([route, message.toLowerCase(), stackFingerprint].join("|"))}`;
+
+    return {
+        route,
+        fingerprint,
+        stackFingerprint,
+        browserFrameOwner,
+        nonActionableThirdParty,
+        actionable: !nonActionableThirdParty,
+        humanMessage: nonActionableThirdParty
+            ? "Browser blocked cross-origin frame access. This is expected when third-party iframes are protected. App code should not inspect cross-origin frames."
+            : "Browser blocked cross-origin frame access. Review app frame logic and avoid reading cross-origin frame internals.",
+    };
 }
 
 function resolveIdentifiedSourceTruth(
@@ -151,6 +199,38 @@ async function recordLegacyClientDiagnostic(
 
     const errorMsg = String(params.message || "Unknown client error");
     const stackTrace = typeof params.stack === "string" ? params.stack : "";
+    const browserSecurityBoundary = classifyBrowserSecurityBoundaryFromAdminUiError(params);
+
+    if (browserSecurityBoundary) {
+        await recordDebugEvidence({
+            source: "client",
+            severity: params.userFlowFailed === true && browserSecurityBoundary.actionable ? "error" : "warn",
+            category: "browser_security_boundary",
+            route: browserSecurityBoundary.route,
+            component: typeof params.component === "string" ? params.component : "AdminErrorCatcher",
+            userId,
+            message: errorMsg.slice(0, 240),
+            humanMessage: browserSecurityBoundary.humanMessage,
+            fingerprint: typeof params.fingerprint === "string" && params.fingerprint.trim().length > 0
+                ? params.fingerprint.trim()
+                : browserSecurityBoundary.fingerprint,
+            technicalDetail: {
+                filename: params.filename,
+                lineno: params.lineno,
+                colno: params.colno,
+                stack: stackTrace,
+                route: browserSecurityBoundary.route,
+                sourceSurface: "admin",
+                category: "browser_security_boundary",
+                browserSecurityBlocked: true,
+                actionable: browserSecurityBoundary.actionable,
+                nonActionableThirdParty: browserSecurityBoundary.nonActionableThirdParty,
+                stackFingerprint: browserSecurityBoundary.stackFingerprint,
+                ...(browserSecurityBoundary.browserFrameOwner ? { browserFrameOwner: browserSecurityBoundary.browserFrameOwner } : {}),
+            },
+        });
+        return;
+    }
 
     await recordServerDiagnostic({
         channel: "ai",

@@ -39,6 +39,7 @@ const categorySchema = z.enum([
   "performance",
   "runtime",
   "network",
+  "browser_security_boundary",
   "firestore_rules",
   "api_route",
 ]);

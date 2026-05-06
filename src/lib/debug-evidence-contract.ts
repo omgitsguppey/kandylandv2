@@ -30,6 +30,7 @@ export type DebugEvidenceCategory =
   | "performance"
   | "runtime"
   | "network"
+  | "browser_security_boundary"
   | "firestore_rules"
   | "api_route";
 
@@ -101,6 +102,13 @@ export type DebugEvidenceAuditSummary = {
   firstSeenAt: number;
   lastSeenAt: number;
   linkedSupportThreadId?: string | null;
+  technicalSummary?: {
+    browserSecurityBlocked?: boolean;
+    actionable?: boolean;
+    nonActionableThirdParty?: boolean;
+    sourceSurface?: string;
+    browserFrameOwner?: string;
+  };
 };
 
 export type DebugEvidenceIndexArtifact = {
@@ -190,6 +198,48 @@ export function sanitizeDebugTechnicalDetail(detail: Record<string, unknown> | u
   return Object.fromEntries(entries);
 }
 
+function toOptionalBoolean(value: unknown) {
+  return typeof value === "boolean" ? value : undefined;
+}
+
+function toOptionalSummaryString(value: unknown, maxLength = 80) {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const normalized = clampString(value, maxLength);
+  return normalized.length > 0 ? normalized : undefined;
+}
+
+function buildDebugEvidenceTechnicalSummary(detail: Record<string, unknown> | undefined) {
+  if (!detail) {
+    return undefined;
+  }
+
+  const browserSecurityBlocked = toOptionalBoolean(detail.browserSecurityBlocked);
+  const actionable = toOptionalBoolean(detail.actionable);
+  const nonActionableThirdParty = toOptionalBoolean(detail.nonActionableThirdParty);
+  const sourceSurface = toOptionalSummaryString(detail.sourceSurface);
+  const browserFrameOwner = toOptionalSummaryString(detail.browserFrameOwner);
+
+  if (
+    typeof browserSecurityBlocked === "undefined"
+    && typeof actionable === "undefined"
+    && typeof nonActionableThirdParty === "undefined"
+    && typeof sourceSurface === "undefined"
+    && typeof browserFrameOwner === "undefined"
+  ) {
+    return undefined;
+  }
+
+  return {
+    ...(typeof browserSecurityBlocked === "undefined" ? {} : { browserSecurityBlocked }),
+    ...(typeof actionable === "undefined" ? {} : { actionable }),
+    ...(typeof nonActionableThirdParty === "undefined" ? {} : { nonActionableThirdParty }),
+    ...(typeof sourceSurface === "undefined" ? {} : { sourceSurface }),
+    ...(typeof browserFrameOwner === "undefined" ? {} : { browserFrameOwner }),
+  };
+}
+
 export function buildDebugEvidenceFingerprint(input: Pick<DebugEvidenceInput, "source" | "category" | "route" | "component" | "entityType" | "entityId" | "message">) {
   const signature = [
     input.source,
@@ -257,6 +307,8 @@ export function mapDebugCategoryToAuditDomains(category: DebugEvidenceCategory) 
     case "api_route":
     case "firestore_rules":
       return ["support", "telemetry"];
+    case "browser_security_boundary":
+      return ["telemetry"];
     case "hydration":
     case "runtime":
     case "network":
@@ -281,6 +333,11 @@ export function redactDebugEvidenceForAudit(record: DebugEvidenceRecord | DebugE
     firstSeenAt: Number(record.firstSeenAt) || Number(record.lastSeenAt) || Date.now(),
     lastSeenAt: Number(record.lastSeenAt) || Date.now(),
     linkedSupportThreadId: record.linkedSupportThreadId ?? null,
+    technicalSummary: buildDebugEvidenceTechnicalSummary(
+      "technicalDetail" in record && record.technicalDetail && typeof record.technicalDetail === "object"
+        ? record.technicalDetail as Record<string, unknown>
+        : undefined,
+    ),
   };
 }
 

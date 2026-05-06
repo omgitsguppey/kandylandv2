@@ -62,6 +62,11 @@ export type AdminDebugLiveIssueCard = {
     occurrenceCount: number;
     lastSeenAt: number;
     truthState: AdminDebugTruthState;
+    browserSecurityBlocked?: boolean;
+    actionable?: boolean;
+    nonActionableThirdParty?: boolean;
+    sourceSurface?: string;
+    browserFrameOwner?: string;
 };
 
 export type AdminDebugNextAction = {
@@ -381,6 +386,11 @@ function normalizeLiveIssue(input: DebugEvidenceAuditSummary): AdminDebugLiveIss
         occurrenceCount: input.occurrenceCount,
         lastSeenAt: input.lastSeenAt,
         truthState: input.severity === "critical" ? "failed" : input.severity === "error" ? "stale" : "live",
+        browserSecurityBlocked: input.technicalSummary?.browserSecurityBlocked,
+        actionable: input.technicalSummary?.actionable,
+        nonActionableThirdParty: input.technicalSummary?.nonActionableThirdParty,
+        sourceSurface: input.technicalSummary?.sourceSurface,
+        browserFrameOwner: input.technicalSummary?.browserFrameOwner,
     };
 }
 

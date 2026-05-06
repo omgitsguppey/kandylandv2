@@ -1,11 +1,14 @@
 "use client";
 
 import {
+  classifyBrowserSecurityBoundaryError,
   recordClientDiagnostic,
+  shouldRecordClientDiagnosticFingerprint,
   type ClientDiagnosticChannel,
   type ClientDiagnosticSeverity,
 } from "@/lib/client-diagnostics";
 import { getAnonymousVisitorId, getClientSessionId } from "@/lib/client-session";
+import type { DebugEvidenceCategory } from "@/lib/debug-evidence-contract";
 import { analyzeFirestoreClientIssue, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 export { buildFirestoreClientIssueDetail };
 
@@ -32,7 +35,14 @@ function buildDetail(
   };
 }
 
-function mapClientChannelToEvidenceCategory(channel: ClientDiagnosticChannel) {
+function mapClientChannelToEvidenceCategory(
+  channel: ClientDiagnosticChannel,
+  detail?: Record<string, unknown>,
+) {
+  if (detail?.category === "browser_security_boundary" || detail?.browserSecurityBlocked === true) {
+    return "browser_security_boundary";
+  }
+
   switch (channel) {
     case "ui":
       return "layout";
@@ -60,8 +70,11 @@ function mapClientChannelToEvidenceCategory(channel: ClientDiagnosticChannel) {
 function queueDebugEvidenceWrite(input: {
   channel: ClientDiagnosticChannel;
   message: string;
+  humanMessage?: string;
   severity: ClientDiagnosticSeverity;
+  category?: DebugEvidenceCategory;
   detail: Record<string, unknown>;
+  fingerprint?: string;
 }) {
   if (typeof window === "undefined") {
     return;
@@ -70,14 +83,15 @@ function queueDebugEvidenceWrite(input: {
   const payload = {
     source: input.channel === "telemetry" ? "telemetry" : "client",
     severity: input.severity === "error" ? "error" : input.severity,
-    category: mapClientChannelToEvidenceCategory(input.channel),
+    category: input.category ?? mapClientChannelToEvidenceCategory(input.channel, input.detail),
     route: window.location.pathname,
     component: typeof input.detail.component === "string" ? input.detail.component : undefined,
     sessionId: getClientSessionId(),
     anonymousVisitorId: getAnonymousVisitorId("unknown"),
     message: input.message,
-    humanMessage: input.message,
+    humanMessage: input.humanMessage ?? input.message,
     technicalDetail: input.detail,
+    fingerprint: input.fingerprint,
   };
 
   const send = () => {
@@ -94,7 +108,12 @@ function queueDebugEvidenceWrite(input: {
     return;
   }
 
-  window.setTimeout(send, 0);
+  if (typeof window.setTimeout === "function") {
+    window.setTimeout(send, 0);
+    return;
+  }
+
+  send();
 }
 
 export function reportClientIssue(input: {
@@ -104,9 +123,31 @@ export function reportClientIssue(input: {
   detail?: Record<string, unknown>;
   severity?: ClientDiagnosticSeverity;
   consoleLabel?: string;
+  humanMessage?: string;
+  evidenceCategory?: DebugEvidenceCategory;
+  fingerprint?: string;
 }) {
-  const severity = input.severity ?? "error";
-  const normalizedDetail = buildDetail(input.error, input.detail);
+  let severity = input.severity ?? "error";
+  let message = input.message;
+  let humanMessage = input.humanMessage ?? input.message;
+  let evidenceCategory = input.evidenceCategory;
+  let fingerprint = input.fingerprint;
+  let normalizedDetail: Record<string, unknown> & { errorName: string; errorMessage: string } = buildDetail(input.error, input.detail);
+  const browserSecurityBoundary = classifyBrowserSecurityBoundaryError({
+    error: input.error,
+    message: input.message,
+    detail: normalizedDetail,
+    route: typeof window !== "undefined" ? window.location.pathname : input.detail?.route as string | undefined,
+  });
+
+  if (browserSecurityBoundary) {
+    severity = browserSecurityBoundary.severity;
+    message = browserSecurityBoundary.humanMessage;
+    humanMessage = browserSecurityBoundary.humanMessage;
+    evidenceCategory = "browser_security_boundary";
+    fingerprint = browserSecurityBoundary.fingerprint;
+    normalizedDetail = browserSecurityBoundary.detail as typeof normalizedDetail;
+  }
 
   if (severity === "warn") {
     console.warn(input.consoleLabel ?? input.message, input.error ?? normalizedDetail);
@@ -114,12 +155,19 @@ export function reportClientIssue(input: {
     console.error(input.consoleLabel ?? input.message, input.error ?? normalizedDetail);
   }
 
-  recordClientDiagnostic(input.channel, input.message, normalizedDetail, severity);
+  if (fingerprint && !shouldRecordClientDiagnosticFingerprint(fingerprint)) {
+    return;
+  }
+
+  recordClientDiagnostic(input.channel, message, normalizedDetail, severity);
   queueDebugEvidenceWrite({
     channel: input.channel,
-    message: input.message,
+    message,
+    humanMessage,
     severity,
+    category: evidenceCategory,
     detail: normalizedDetail,
+    fingerprint,
   });
 }
 

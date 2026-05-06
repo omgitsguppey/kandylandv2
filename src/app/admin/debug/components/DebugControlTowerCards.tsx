@@ -101,6 +101,13 @@ export function toneClassForSeverity(severity: AdminDebugSeverity | string) {
     return "border-white/10 bg-white/5 text-gray-200";
 }
 
+function formatLiveIssueCategory(category: string) {
+    if (category === "browser_security_boundary") {
+        return "browser security boundary";
+    }
+    return category.replaceAll("_", " ");
+}
+
 export function FindingCard({ finding, compact = false }: { finding: AdminDebugFindingCard; compact?: boolean }) {
     return (
         <article
@@ -188,6 +195,19 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
 }
 
 export function LiveIssueCard({ issue }: { issue: AdminDebugLiveIssueCard }) {
+    const metaParts = [
+        formatLiveIssueCategory(issue.category),
+        issue.route ?? issue.component ?? issue.source,
+        issue.sourceSurface ? `${issue.sourceSurface} surface` : null,
+    ].filter(Boolean);
+    const note = issue.browserSecurityBlocked
+        ? issue.nonActionableThirdParty
+            ? "Expected third-party iframe boundary. This is not a backend failure."
+            : issue.actionable
+                ? "App code attempted a browser-blocked frame access path."
+                : "Browser blocked cross-origin frame access."
+        : null;
+
     return (
         <article
             className={cn(
@@ -203,10 +223,13 @@ export function LiveIssueCard({ issue }: { issue: AdminDebugLiveIssueCard }) {
             <div className="flex items-start justify-between gap-3">
                 <div>
                     <p className="text-sm font-bold text-white">{issue.humanMessage}</p>
-                    <p className="mt-1 text-[11px] text-gray-400">{issue.category} | {issue.route ?? issue.component ?? issue.source}</p>
+                    <p className="mt-1 text-[11px] text-gray-400">{metaParts.join(" | ")}</p>
                 </div>
                 <span className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[10px] font-bold uppercase text-white">{issue.severity}</span>
             </div>
+            {note ? (
+                <p className="mt-2 text-xs text-gray-200">{note}</p>
+            ) : null}
             <p className="mt-2 text-xs text-gray-300">Fingerprint {issue.fingerprint} | {issue.occurrenceCount}x | {formatRelative(issue.lastSeenAt)}</p>
         </article>
     );
