@@ -125,8 +125,10 @@ const navigationDestinationsHelper = readRequired("src/lib/admin-analytics-navig
 const deviceMixHelper = readRequired("src/lib/admin-analytics-device-mix.ts");
 const topPathsHelper = readRequired("src/lib/admin-analytics-top-paths.ts");
 const regionDemandHelper = readRequired("src/lib/admin-analytics-region-demand.ts");
+const contentConversionHelper = readRequired("src/lib/admin-analytics-content-conversion.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
+const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
 
@@ -2068,6 +2070,25 @@ for (const expected of [
   requireIncludes(regionDemandHelper, expected, "Region demand truth helper");
 }
 for (const expected of [
+  "buildAdminAnalyticsContentConversionModel",
+  "\"drop_metadata_plus_unlock_rollups\"",
+  "No preview/unlock/drop metadata source available for this range.",
+  "Content conversion is using rollup fallback because unlock telemetry is missing.",
+  "rowsByDimension",
+  "overallUnlockRatePct",
+]) {
+  requireIncludes(contentConversionHelper, expected, "Content conversion truth helper");
+}
+for (const expected of [
+  "Content Conversion",
+  "data-content-conversion-source-truth",
+  "data-content-conversion-generated-at-utc",
+  "data-content-conversion-grouping",
+  "No preview/unlock/drop metadata source available for this range.",
+]) {
+  requireIncludes(adminAnalyticsCommerceTab, expected, "Content conversion analytics panel");
+}
+for (const expected of [
   "Source mode:",
   "Explicit taps:",
   "Fallback views:",
@@ -2166,6 +2187,7 @@ try {
       /^src\/lib\/admin-analytics-device-mix\.ts$/u,
       /^src\/lib\/admin-analytics-top-paths\.ts$/u,
       /^src\/lib\/admin-analytics-region-demand\.ts$/u,
+      /^src\/lib\/admin-analytics-content-conversion\.ts$/u,
       /^src\/lib\/admin-analytics-commerce-snapshot\.ts$/u,
       /^src\/lib\/admin-analytics-journey-funnel\.ts$/u,
       /^src\/lib\/admin-analytics-auth-outcome-split\.ts$/u,

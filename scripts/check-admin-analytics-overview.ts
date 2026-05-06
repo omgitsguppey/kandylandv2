@@ -43,6 +43,7 @@ const navigationDestinationsHelper = read("src/lib/admin-analytics-navigation-de
 const deviceMixHelper = read("src/lib/admin-analytics-device-mix.ts");
 const topPathsHelper = read("src/lib/admin-analytics-top-paths.ts");
 const regionDemandHelper = read("src/lib/admin-analytics-region-demand.ts");
+const contentConversionHelper = read("src/lib/admin-analytics-content-conversion.ts");
 const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const doc = read("docs/agent-truth/admin-analytics-overview.md");
 const adminOverviewPage = read("src/app/admin/page.tsx");
@@ -146,6 +147,10 @@ assertIncludes("top paths helper", topPathsHelper, "High view volume with low en
 assertIncludes("region demand helper", regionDemandHelper, "buildAdminAnalyticsRegionDemandModel");
 assertIncludes("region demand helper", regionDemandHelper, "Adjusted demand excludes proven admin-surface traffic only.");
 assertIncludes("region demand helper", regionDemandHelper, "Counts are GA4");
+assertIncludes("content conversion helper", contentConversionHelper, "buildAdminAnalyticsContentConversionModel");
+assertIncludes("content conversion helper", contentConversionHelper, "\"drop_metadata_plus_unlock_rollups\"");
+assertIncludes("content conversion helper", contentConversionHelper, "No preview/unlock/drop metadata source available for this range.");
+assertIncludes("content conversion helper", contentConversionHelper, "Content conversion is using rollup fallback because unlock telemetry is missing.");
 assertIncludes("audience tab", audienceTab, "Source mode:");
 assertIncludes("audience tab", audienceTab, "Explicit taps:");
 assertIncludes("audience tab", audienceTab, "Fallback views:");

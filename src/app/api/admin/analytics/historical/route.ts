@@ -496,7 +496,10 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 packagePerformanceState: payload.packagePerformanceState,
             });
         case "contentConversion":
-            return withSharedFields({ unlockCategoryMix: payload.unlockCategoryMix });
+            return withSharedFields({
+                contentConversionState: payload.contentConversionState,
+                unlockCategoryMix: payload.unlockCategoryMix,
+            });
         case "topDropConversion":
             return withSharedFields({ topDrops: payload.topDrops });
         case "recentCommerceFeed":
@@ -1215,6 +1218,7 @@ async function GET_handler(request: NextRequest) {
             const {
                 packagePerformance,
                 packagePerformanceState,
+                contentConversionState,
                 unlockCategoryMix,
                 watchDepthBuckets,
                 contentJourney,
@@ -1223,6 +1227,9 @@ async function GET_handler(request: NextRequest) {
                 telemetryLogsByEvent,
                 eventsData,
                 watchAssetDocs: watchAssetsSnapshot.docs,
+                dropDocs: dropsSnapshot?.docs ?? [],
+                dropDailyDocs: dropDailySnapshot.docs,
+                viewerDropInsights,
                 viewerOverview: viewerOverviewCanonical,
                 normalizedTransactionsInRange,
                 packageConfigs: platformPackages.map((pkg) => ({
@@ -1623,6 +1630,7 @@ async function GET_handler(request: NextRequest) {
                 reminderReasons,
                 packagePerformance,
                 packagePerformanceState,
+                contentConversionState,
                 unlockCategoryMix,
                 watchDepthBuckets,
                 contentJourney,

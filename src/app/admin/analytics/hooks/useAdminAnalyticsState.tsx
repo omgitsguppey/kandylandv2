@@ -43,6 +43,7 @@ import {
 } from "@/lib/admin-analytics-return-cadence";
 import { buildAdminAnalyticsAudienceSnapshotModel } from "@/lib/admin-analytics-audience-snapshot";
 import { buildAdminAnalyticsCommerceSnapshotModel } from "@/lib/admin-analytics-commerce-snapshot";
+import { buildAdminAnalyticsContentConversionModel } from "@/lib/admin-analytics-content-conversion";
 import { buildAdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pulse";
 import { buildAdminAnalyticsJourneyFunnelModel } from "@/lib/admin-analytics-journey-funnel";
 import { buildAdminAnalyticsAuthOutcomeModel } from "@/lib/admin-analytics-auth-outcome-split";
@@ -2357,6 +2358,21 @@ const { user } = useAuth();
       : contentConversionOverride.data;
   const contentConversionItems =
     contentConversionData?.unlockCategoryMix ?? unlockCategoryMix;
+  const contentConversionModel = useMemo(
+    () => buildAdminAnalyticsContentConversionModel({
+      response: contentConversionData,
+      selectedRange: contentConversionRange,
+      loading: contentConversionRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalLoading
+        : contentConversionOverride.isLoading,
+    }),
+    [
+      contentConversionData,
+      contentConversionRange,
+      historicalLoading,
+      contentConversionOverride.isLoading,
+    ],
+  );
   const topDropConversionData =
     topDropConversionRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -2754,7 +2770,7 @@ const { user } = useAuth();
     returnCadenceRange, returnCadenceData, returnCadenceSegments, returnCadenceSummary, returnCadenceModel,
     navigationDestinationsRange, destinationMix, navigationDestinationsMix, navigationDestinationsModel, deviceMixRange, getDeviceIcon, deviceMixDevices, deviceMixTotalUsers, deviceMixModel, topPathsRange, topPathsPages, topPathsModel, regionsRange, regionsGeo, regionsModel,
     commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, commerceSnapshotModel, packagePerformanceRange, packagePerformance, packagePerformanceItems, packagePerformancePanelState,
-    PIE_COLORS, contentConversionRange, unlockCategoryMix, contentConversionItems, previewToUnlockRate, checkoutToPurchaseRate,
+    PIE_COLORS, contentConversionRange, unlockCategoryMix, contentConversionItems, contentConversionModel, previewToUnlockRate, checkoutToPurchaseRate,
     topDropConversionRange, topDrops, topDropConversionItems, recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
     formatMoney, formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
     liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, livePulseModel, journeyFunnelMetrics, journeyFunnelModel,

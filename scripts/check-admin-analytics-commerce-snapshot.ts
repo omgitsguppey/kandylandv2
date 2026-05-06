@@ -27,6 +27,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 const component = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const helper = read("src/lib/admin-analytics-commerce-snapshot.ts");
+const contentConversionHelper = read("src/lib/admin-analytics-content-conversion.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 const historicalRoute = read("src/app/api/admin/analytics/historical/route.ts");
 const analyticsTypes = read("src/types/admin-analytics.ts");
@@ -45,6 +46,11 @@ assertIncludes("AdminAnalyticsCommerceTab", component, "promoDiscountUsdValue");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Package Performance");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Package config exists, but no package-specific checkout or purchase data was observed in this range.");
 assertIncludes("AdminAnalyticsCommerceTab", component, "No package config found. Package value basis should come from Platform Economy packages.");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Content Conversion");
+assertIncludes("AdminAnalyticsCommerceTab", component, "No preview/unlock/drop metadata source available for this range.");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Content conversion is using rollup fallback because unlock telemetry is missing.");
+assertIncludes("AdminAnalyticsCommerceTab", component, "data-content-conversion-source-truth");
+assertIncludes("AdminAnalyticsCommerceTab", component, "data-content-conversion-grouping");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-package-performance-id");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-package-performance-state");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "Checkout conversion: {commerceConversionLabel}");
@@ -75,18 +81,31 @@ assertIncludes("historical route", historicalRoute, "promoDiscountUsd");
 assertIncludes("historical route", historicalRoute, "paidSourceDeliveredGd");
 assertIncludes("historical route", historicalRoute, "sourceBreakdownAvailable");
 assertIncludes("historical route", historicalRoute, "packagePerformanceState");
+assertIncludes("historical route", historicalRoute, "contentConversionState");
+assertIncludes("historical route", historicalRoute, "dropDailyDocs");
+assertIncludes("historical route", historicalRoute, "viewerDropInsights");
 assertIncludes("historical route", historicalRoute, "readPlatformEconomyPackages");
 
 assertIncludes("useAdminAnalyticsState", hook, "buildAdminAnalyticsCommerceSnapshotModel");
 assertIncludes("useAdminAnalyticsState", hook, "commerceSnapshotModel");
 assertIncludes("useAdminAnalyticsState", hook, "packagePerformancePanelState");
+assertIncludes("useAdminAnalyticsState", hook, "buildAdminAnalyticsContentConversionModel");
+assertIncludes("useAdminAnalyticsState", hook, "contentConversionModel");
+
+assertIncludes("content conversion helper", contentConversionHelper, "rowsByDimension");
+assertIncludes("content conversion helper", contentConversionHelper, "overallUnlockRatePct");
+assertIncludes("content conversion helper", contentConversionHelper, "\"drop_metadata_plus_unlock_rollups\"");
+assertIncludes("content conversion helper", contentConversionHelper, "fakeZeroPrevented");
 
 assertIncludes("admin analytics types", analyticsTypes, "export type CommerceMetricCard");
 assertIncludes("admin analytics types", analyticsTypes, "export type CommerceSnapshotState");
 assertIncludes("admin analytics types", analyticsTypes, "export type PackagePerformanceState");
 assertIncludes("admin analytics types", analyticsTypes, "export type PackagePerformanceRow");
+assertIncludes("admin analytics types", analyticsTypes, "export type ContentConversionState");
+assertIncludes("admin analytics types", analyticsTypes, "export type ContentConversionRow");
 assertIncludes("admin analytics types", analyticsTypes, "commerceSnapshotState?: CommerceSnapshotState");
 assertIncludes("admin analytics types", analyticsTypes, "packagePerformanceState?: PackagePerformanceState");
+assertIncludes("admin analytics types", analyticsTypes, "contentConversionState?: ContentConversionState");
 assertIncludes("admin analytics types", analyticsTypes, "checkoutScope?: \"lifetime\" | \"rolling_30d\" | \"selected_range\" | \"cache_snapshot\" | \"unknown\"");
 
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsCommerceSnapshot");

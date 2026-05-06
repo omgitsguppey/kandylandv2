@@ -494,6 +494,43 @@ export type PackagePerformanceState = {
   warnings: string[];
 };
 
+export type ContentConversionRow = {
+  groupKey: string;
+  groupLabel: string;
+  groupingDimension: "contentType" | "flavor" | "creator" | "priceBand" | "unknown";
+  dropCount: number;
+  previewCount: number;
+  unlockCount: number;
+  unlockRatePct: number | null;
+  viewerOpenCount?: number | null;
+  watchSeconds?: number | null;
+  completionRatePct?: number | null;
+  revenueUsd?: number | null;
+  gumdropsSpent?: number | null;
+  sourceTruth: string;
+  freshnessState: "live" | "partial" | "stale" | "unknown";
+  conversionState: "healthy" | "review" | "no_data" | "missing_metadata";
+  explanation: string;
+};
+
+export type ContentConversionState = {
+  generatedAtUtc: string;
+  range: string;
+  sourceState: "live" | "partial" | "stale" | "missing" | "unknown";
+  sourceTruth:
+    | "drop_metadata_plus_telemetry"
+    | "drop_metadata_plus_unlock_rollups"
+    | "telemetry_only"
+    | "rollup_only"
+    | "missing";
+  totalPreviews: number;
+  totalUnlocks: number;
+  totalViewerOpens?: number;
+  totalWatchSeconds?: number;
+  rows: ContentConversionRow[];
+  warnings: string[];
+};
+
 export interface UnlockCategoryItem {
   label: string;
   previews: number;
@@ -905,6 +942,7 @@ export interface HistoricalAnalyticsResponse {
   taskDurationBuckets?: CountBucketItem[];
   reminderReasons?: CountBucketItem[];
   packagePerformance?: PackagePerformanceItem[];
+  contentConversionState?: ContentConversionState;
   unlockCategoryMix?: UnlockCategoryItem[];
   watchDepthBuckets?: CountBucketItem[];
   contentJourney?: CountBucketItem[];
