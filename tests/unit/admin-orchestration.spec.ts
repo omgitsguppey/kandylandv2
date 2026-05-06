@@ -67,7 +67,15 @@ describe("buildAdminOrchestrationSnapshot repair proposals", () => {
             duplicateCount: 2,
             duplicateProposalIds: ["proposal-a", "proposal-b"],
         });
-        expect(snapshot.proposals[0]?.missingContextFields).toContain("userId");
+        expect(snapshot.proposals[0]?.dedupeKey).toBe("analytics_event_facts:analytics_event_facts/srv_server_drop_clicked_mot4jcvf_1ccaa4127dbb410d:inspect_canonical_source:missing_actor_context");
+        expect(snapshot.proposals[0]?.missingContextFields).toContain("actorUserId or analyticsUserId");
+        expect(snapshot.proposalGroups).toHaveLength(1);
+        expect(snapshot.proposalGroups[0]).toMatchObject({
+            title: "Drop click canonical source context missing",
+            affectedRecordCount: 1,
+            hiddenRecordCount: 0,
+            actionability: "inspect_only",
+        });
     });
 
     it("keeps rebuild projection proposals actionable after dedupe", () => {
@@ -99,5 +107,54 @@ describe("buildAdminOrchestrationSnapshot repair proposals", () => {
             repairKind: "repair_missing_source_context",
             duplicateCount: 1,
         });
+    });
+
+    it("groups repeated notification source context records and shows only the first five", () => {
+        const proposalDocs = Array.from({ length: 6 }, (_, index) => {
+            const sourceDocumentId = `notification-${index + 1}`;
+            return doc(`proposal-notification-${index + 1}`, {
+                sourceCollection: "notifications",
+                sourceDocumentId,
+                sourceDocumentPath: `notifications/${sourceDocumentId}`,
+                findingKey: "notification_missing_target_user",
+                status: "open",
+                actionType: "inspect_source_record",
+                label: "Inspect canonical source",
+                detail: "Inspect the underlying canonical record because required source context is missing.",
+                detectedAtMs: Date.UTC(2026, 4, 6, 1, index, 0),
+                updatedAtMs: Date.UTC(2026, 4, 6, 1, index + 10, 0),
+            });
+        });
+
+        const snapshot = buildAdminOrchestrationSnapshot({
+            eventDocs: [],
+            findingDocs: [],
+            proposalDocs,
+            actorSummaryDocs: [],
+            repairActionDocs: [],
+        });
+
+        expect(snapshot.summary.actionableProposals).toBe(0);
+        expect(snapshot.summary.inspectOnlyProposals).toBe(1);
+        expect(snapshot.summary.groupedProposalCards).toBe(1);
+        expect(snapshot.summary.groupedSourceRecordsCollapsed).toBe(5);
+        expect(snapshot.proposalGroups).toHaveLength(1);
+        expect(snapshot.proposalGroups[0]).toMatchObject({
+            title: "Notification source context missing",
+            sourceCollection: "notifications",
+            affectedRecordCount: 6,
+            hiddenRecordCount: 1,
+            actionability: "inspect_only",
+            sourceContextState: "missing_required_context",
+        });
+        expect(snapshot.proposalGroups[0]?.visibleRecords).toHaveLength(5);
+        expect(snapshot.proposalGroups[0]?.missingContextFields).toEqual(expect.arrayContaining([
+            "userId",
+            "notificationType",
+            "sourceEventId",
+            "targetEntityId",
+            "route/sourceComponent",
+            "createdAt",
+        ]));
     });
 });

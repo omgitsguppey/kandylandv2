@@ -257,6 +257,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("dedupe debug repair proposals") || normalized.includes("debug repair proposals")) {
     return "Improved internal repair proposal grouping so duplicate debug actions are easier to review.";
   }
+  if (normalized.includes("group inspect-only repair proposals") || normalized.includes("inspect-only repair proposals")) {
+    return "Improved internal repair proposal grouping so repeated debug items are easier to review.";
+  }
   if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
     return "Improved internal creator review status checks.";
   }

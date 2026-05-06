@@ -50,6 +50,7 @@ const runtimeHealth = readRequired("src/lib/route-runtime-health.ts");
 const adminOpsHealth = readRequired("src/lib/server/admin-ops-health.ts");
 const adminOpsHealthContract = readRequired("src/lib/admin-ops-health.ts");
 const adminOrchestration = readRequired("src/lib/server/admin-orchestration.ts");
+const adminOrchestrationRepairs = readRequired("src/lib/server/admin-orchestration-repairs.ts");
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
 const debugTabActions = readRequired("src/app/admin/debug/components/DebugTabActions.tsx");
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
@@ -220,19 +221,28 @@ for (const expected of [
 requireIncludes(debugPrimitives, "badgeLabel", "Debug primitive pills must allow quiet writer badges without WAIT labels");
 for (const expected of [
   "DebugRepairProposal",
+  "DebugRepairProposalGroup",
   "canonicalSourcePath",
   "repairKind",
   "actionability",
   "sourceContextState",
   "duplicateCount",
   "duplicateProposalIds",
+  "sourceCollection",
   "firstSeenAtUtc",
   "lastSeenAtUtc",
   "dedupeKey",
+  "buildDebugRepairProposalDedupeKey",
+  "Notification source context missing",
+  "Drop click canonical source context missing",
+  "visibleRecords",
+  "hiddenRecordCount",
   "inspectOnlyProposals",
   "duplicateProposalsCollapsed",
+  "groupedProposalCards",
+  "groupedSourceRecordsCollapsed",
 ]) {
-  requireIncludes(adminOrchestration, expected, "Debug repair proposals must be deduped with source context truth");
+  requireIncludes(`${adminOrchestration}\n${adminOrchestrationRepairs}`, expected, "Debug repair proposals must be deduped and grouped with source context truth");
 }
 for (const expected of [
   "Expected source",
@@ -253,6 +263,14 @@ for (const expected of [
   "data-debug-repair-actionability",
   "data-debug-repair-source-context-state",
   "data-debug-repair-duplicate-count",
+  "data-debug-repair-source-collection",
+  "data-debug-repair-visible-count",
+  "data-debug-repair-actionable-count",
+  "data-debug-repair-inspect-only-count",
+  "Source collection",
+  "Affected records",
+  "Show source records",
+  "Show more",
   "proposal.actionability === \"actionable\"",
   "Apply",
   "Inspect",
@@ -288,6 +306,7 @@ requireIncludes(releaseNotesScript, "Improved internal health panels so writer f
 requireIncludes(releaseNotesScript, "Improved internal debug status labels so inventory counts do not look like system failures.", "Release notes script must include debug signal severity copy");
 requireIncludes(releaseNotesScript, "Improved internal task assignment diagnostics.", "Release notes script must include task issue attribution copy");
 requireIncludes(releaseNotesScript, "Improved internal repair proposal grouping so duplicate debug actions are easier to review.", "Release notes script must include repair proposal dedupe copy");
+requireIncludes(releaseNotesScript, "Improved internal repair proposal grouping so repeated debug items are easier to review.", "Release notes script must include inspect-only repair proposal grouping copy");
 
 for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
@@ -379,8 +398,12 @@ for (const expected of [
 for (const expected of [
   "dedupes inspect-only repair proposals and excludes them from actionable count",
   "keeps rebuild projection proposals actionable after dedupe",
+  "groups repeated notification source context records and shows only the first five",
+  "Notification source context missing",
+  "Drop click canonical source context missing",
   "duplicateProposalsCollapsed",
   "inspectOnlyProposals",
+  "groupedProposalCards",
 ]) {
   requireIncludes(adminOrchestrationTest, expected, "Admin orchestration repair proposal dedupe tests");
 }
@@ -496,6 +519,7 @@ try {
     /^src\/lib\/server\/admin-panel-system-logs\.ts$/u,
     /^src\/lib\/server\/admin-ops-health\.ts$/u,
     /^src\/lib\/server\/admin-orchestration\.ts$/u,
+    /^src\/lib\/server\/admin-orchestration-repairs\.ts$/u,
     /^src\/lib\/route-runtime-health\.ts$/u,
     /^src\/app\/api\/admin\/debug\/control-tower\/route\.ts$/u,
     /^src\/app\/api\/admin\/debug\/route\.ts$/u,

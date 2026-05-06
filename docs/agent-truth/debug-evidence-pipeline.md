@@ -50,7 +50,7 @@ The Recent diagnostics and downstream writers panel uses a separate diagnostics 
 
 Downstream writer evidence uses writer-specific freshness instead of a broad materializer status. Continuous, scheduled, traffic-dependent, optional, and warehouse lanes can render LIVE, QUIET, REVIEW, STALE, ERROR, or UNKNOWN based on last seen time, expected activity, count, and failures. Repeated diagnostic evidence is clustered by channel, message, route context, and error name so repeated admin AI fallback SyntaxError warnings stay visible as one REVIEW cluster with count and first/last seen timestamps instead of crowding the panel with duplicate rows.
 
-Repair proposal evidence must be deduped before display. The Admin Debug action lane groups proposals by canonical source path, repair kind, and missing-context reason. Header counts separate actionable repairs from inspect-only/manual-review rows, and duplicate source proposals stay visible through duplicate count and collapsed ids instead of repeated Apply/Dismiss cards.
+Repair proposal evidence must be deduped before display. The Admin Debug action lane groups exact proposals by source collection, canonical source path, repair kind, and missing-context reason, then groups repeated inspect-only notification and server drop-click source-context records into compact review cards. Header counts separate actionable repairs from inspect-only/manual-review rows, and duplicate source proposals stay visible through duplicate count, affected record count, and collapsed ids instead of repeated Apply/Dismiss cards.
 
 ## Pre-Catcher
 

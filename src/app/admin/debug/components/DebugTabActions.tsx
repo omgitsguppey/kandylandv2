@@ -48,6 +48,8 @@ export function DebugTabActions({
     onRepairProposal,
     onManualBalanceAdjustment,
 }: DebugTabActionsProps) {
+    const repairGroups = data?.orchestration?.proposalGroups || data?.orchestration?.proposals || [];
+
     return (
         <div className="space-y-4">
                     <Section
@@ -105,41 +107,61 @@ export function DebugTabActions({
                         summary={<><Pill label="Actionable repairs" value={data?.orchestration?.summary?.actionableProposals ?? 0} tone={(data?.orchestration?.summary?.actionableProposals ?? 0) ? "warn" : "good"} /><Pill label="Inspect-only" value={data?.orchestration?.summary?.inspectOnlyProposals ?? 0} tone={(data?.orchestration?.summary?.inspectOnlyProposals ?? 0) ? "warn" : "good"} /><Pill label="Duplicates collapsed" value={data?.orchestration?.summary?.duplicateProposalsCollapsed ?? 0} tone={(data?.orchestration?.summary?.duplicateProposalsCollapsed ?? 0) ? "warn" : "good"} /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} /></>}
                     >
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10">
-                                {(data?.orchestration?.proposals || []).length ? (data?.orchestration?.proposals || []).map((proposal: any) => (
+                            <div
+                                className="divide-y divide-white/10"
+                                data-debug-repair-visible-count={repairGroups.length}
+                                data-debug-repair-actionable-count={data?.orchestration?.summary?.actionableProposals ?? 0}
+                                data-debug-repair-inspect-only-count={data?.orchestration?.summary?.inspectOnlyProposals ?? 0}
+                            >
+                                {repairGroups.length ? repairGroups.map((proposal: any) => (
                                     <div
-                                        key={proposal.dedupeKey ?? proposal.proposalId}
+                                        key={proposal.groupId ?? proposal.dedupeKey ?? proposal.proposalId}
                                         className="space-y-2 px-4 py-3"
-                                        data-debug-repair-proposal-id={proposal.proposalId}
+                                        data-debug-repair-proposal-id={proposal.representativeProposalId ?? proposal.proposalId}
                                         data-debug-repair-dedupe-key={proposal.dedupeKey}
-                                        data-debug-repair-canonical-source-path={proposal.canonicalSourcePath}
+                                        data-debug-repair-canonical-source-path={proposal.canonicalSourcePath ?? proposal.canonicalSourcePaths?.[0] ?? "grouped"}
                                         data-debug-repair-actionability={proposal.actionability}
                                         data-debug-repair-source-context-state={proposal.sourceContextState}
                                         data-debug-repair-duplicate-count={proposal.duplicateCount}
+                                        data-debug-repair-source-collection={proposal.sourceCollection ?? proposal.sourceType}
                                     >
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{proposal.label}</p>
-                                                <p className="text-xs text-gray-400">{proposal.canonicalSourcePath ?? proposal.sourceDocumentPath}</p>
+                                                <p className="font-semibold text-white">{proposal.title ?? proposal.label}</p>
+                                                <p className="text-xs text-gray-400">{proposal.canonicalSourcePath ?? `${proposal.affectedRecordCount ?? 1} affected ${proposal.sourceCollection ?? proposal.sourceType} records`}</p>
                                             </div>
                                             <Pill label="Actionability" value={proposal.actionability ?? "unknown"} tone={toneForRepairActionability(proposal.actionability)} />
                                         </div>
-                                        <p className="text-sm text-gray-200">{proposal.detail}</p>
+                                        <p className="text-sm text-gray-200">{proposal.detail ?? proposal.suggestedAction}</p>
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Status" value={proposal.status} tone={proposal.status === "open" ? "warn" : proposal.status === "applied" ? "good" : "neutral"} />
-                                            <Pill label="Source type" value={proposal.sourceType ?? "unknown"} />
+                                            <Pill label="Source collection" value={proposal.sourceCollection ?? proposal.sourceType ?? "unknown"} />
+                                            <Pill label="Repair kind" value={proposal.repairKind ?? "unknown"} />
+                                            <Pill label="Reason" value={proposal.missingContextReason ?? "missing_context"} />
                                             <Pill label="Context" value={proposal.sourceContextState ?? "unknown"} tone={proposal.sourceContextState === "complete" ? "good" : "warn"} />
-                                            <Pill label="Duplicates" value={`${proposal.duplicateCount ?? 1}x`} tone={(proposal.duplicateCount ?? 1) > 1 ? "warn" : "neutral"} />
+                                            <Pill label="Affected records" value={proposal.affectedRecordCount ?? 1} tone={(proposal.affectedRecordCount ?? 1) > 1 ? "warn" : "neutral"} />
+                                            <Pill label="Duplicates" value={`${proposal.duplicateCount ?? 0} hidden`} tone={(proposal.duplicateCount ?? 0) > 0 ? "warn" : "neutral"} />
                                             <Pill label="First seen UTC" value={proposal.firstSeenAtUtc ?? "unknown"} />
                                             <Pill label="Last seen UTC" value={proposal.lastSeenAtUtc ?? "unknown"} />
                                         </div>
                                         <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
                                             <p>{proposal.suggestedAction}</p>
                                             <p className="mt-1 text-gray-500">Missing context: {(proposal.missingContextFields || []).join(", ") || proposal.missingContextReason || "unknown"}</p>
-                                            {(proposal.duplicateCount ?? 1) > 1 ? (
+                                            {(proposal.visibleRecords || []).length > 0 ? (
                                                 <details className="mt-2">
-                                                    <summary className="cursor-pointer text-gray-200">Duplicated {(proposal.duplicateCount ?? 1)}x</summary>
-                                                    <p className="mt-1 break-all text-gray-500">{(proposal.duplicateProposalIds || []).join(", ")}</p>
+                                                    <summary className="cursor-pointer text-gray-200">Show source records</summary>
+                                                    <div className="mt-2 space-y-1">
+                                                        {(proposal.visibleRecords || []).slice(0, 5).map((record: any) => (
+                                                            <p key={record.dedupeKey} className="break-all text-gray-500">{record.canonicalSourcePath} ({record.duplicateCount} proposal{record.duplicateCount === 1 ? "" : "s"})</p>
+                                                        ))}
+                                                    </div>
+                                                    {(proposal.hiddenRecordCount ?? 0) > 0 ? <p className="mt-1 text-gray-500">Show more: {proposal.hiddenRecordCount} additional record{proposal.hiddenRecordCount === 1 ? "" : "s"} collapsed.</p> : null}
+                                                </details>
+                                            ) : null}
+                                            {(proposal.affectedProposalIds || proposal.duplicateProposalIds || []).length > 0 ? (
+                                                <details className="mt-2">
+                                                    <summary className="cursor-pointer text-gray-200">Affected proposal ids</summary>
+                                                    <p className="mt-1 break-all text-gray-500">{(proposal.affectedProposalIds || proposal.duplicateProposalIds || []).join(", ")}</p>
                                                 </details>
                                             ) : null}
                                         </div>
@@ -148,10 +170,10 @@ export function DebugTabActions({
                                                 <Button
                                                     variant="glass"
                                                     size="sm"
-                                                    disabled={repairingId === proposal.proposalId || proposal.status !== "open" || (proposal.duplicateCount ?? 1) > 1}
-                                                    onClick={() => onRepairProposal(proposal.proposalId, "apply")}
+                                                    disabled={repairingId === (proposal.representativeProposalId ?? proposal.proposalId) || proposal.status !== "open" || (proposal.affectedProposalIds || []).length > 1}
+                                                    onClick={() => onRepairProposal(proposal.representativeProposalId ?? proposal.proposalId, "apply")}
                                                 >
-                                                    {repairingId === proposal.proposalId ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                                    {repairingId === (proposal.representativeProposalId ?? proposal.proposalId) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                                                     Apply
                                                 </Button>
                                             ) : (
@@ -162,8 +184,8 @@ export function DebugTabActions({
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                disabled={repairingId === proposal.proposalId || proposal.status !== "open" || (proposal.duplicateCount ?? 1) > 1}
-                                                onClick={() => onRepairProposal(proposal.proposalId, "dismiss")}
+                                                disabled={repairingId === (proposal.representativeProposalId ?? proposal.proposalId) || proposal.status !== "open" || (proposal.affectedProposalIds || []).length > 1}
+                                                onClick={() => onRepairProposal(proposal.representativeProposalId ?? proposal.proposalId, "dismiss")}
                                             >
                                                 Dismiss
                                             </Button>
