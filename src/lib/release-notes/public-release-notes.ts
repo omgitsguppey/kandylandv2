@@ -1,12 +1,46 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.48.1",
+  "currentVersion": "1.49.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T03:16:50.927Z",
-  "generatedAtUtc": "2026-05-06T03:16:50.927Z",
-  "lastCommitSha": "0dd9d1e33525a45e777f6e1a01ecbe36e653ac36",
+  "generatedAt": "2026-05-06T03:35:20.859Z",
+  "generatedAtUtc": "2026-05-06T03:35:20.859Z",
+  "lastCommitSha": "59435d8e5864bf43db5a453be94e21003fa105e3",
   "notes": [
+    {
+      "version": "1.49.0",
+      "previousVersion": "1.48.1",
+      "commitSha": "59435d8e5864bf43db5a453be94e21003fa105e3",
+      "commitTitle": "fix(tasks): materialize daily task reset windows",
+      "committedAt": "2026-05-06T03:34:58.000Z",
+      "generatedAt": "2026-05-06T03:35:20.858Z",
+      "committedAtUtc": "2026-05-06T03:34:58.000Z",
+      "generatedAtUtc": "2026-05-06T03:35:20.858Z",
+      "diffStats": {
+        "rawAdditions": 691,
+        "rawDeletions": 23,
+        "rawChangeCount": 714,
+        "additions": 691,
+        "deletions": 23,
+        "effectiveAdditions": 691,
+        "effectiveDeletions": 23,
+        "changedFiles": 15,
+        "effectiveChangeCount": 714,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved daily task reset reliability so tasks are prepared on the daily schedule.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.48.1",
       "previousVersion": "1.48.0",
@@ -139,40 +173,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "admin",
         "documentation",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.46.0",
-      "previousVersion": "1.45.0",
-      "commitSha": "662806fb6b761735a4efaba950986ec4f02b236c",
-      "commitTitle": "fix(admin): enrich recent transaction identities",
-      "committedAt": "2026-05-06T02:50:17.000Z",
-      "generatedAt": "2026-05-06T02:50:29.677Z",
-      "committedAtUtc": "2026-05-06T02:50:17.000Z",
-      "generatedAtUtc": "2026-05-06T02:50:29.677Z",
-      "diffStats": {
-        "rawAdditions": 351,
-        "rawDeletions": 25,
-        "rawChangeCount": 376,
-        "additions": 351,
-        "deletions": 25,
-        "effectiveAdditions": 351,
-        "effectiveDeletions": 25,
-        "changedFiles": 9,
-        "effectiveChangeCount": 376,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal transaction review so admins can identify users more easily.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling",
-        "wallet"
       ]
     }
   ]

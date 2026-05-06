@@ -1,10 +1,44 @@
 {
-  "currentVersion": "1.48.1",
+  "currentVersion": "1.49.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T03:16:50.927Z",
-  "generatedAtUtc": "2026-05-06T03:16:50.927Z",
-  "lastCommitSha": "0dd9d1e33525a45e777f6e1a01ecbe36e653ac36",
+  "generatedAt": "2026-05-06T03:35:20.859Z",
+  "generatedAtUtc": "2026-05-06T03:35:20.859Z",
+  "lastCommitSha": "59435d8e5864bf43db5a453be94e21003fa105e3",
   "notes": [
+    {
+      "version": "1.49.0",
+      "previousVersion": "1.48.1",
+      "commitSha": "59435d8e5864bf43db5a453be94e21003fa105e3",
+      "commitTitle": "fix(tasks): materialize daily task reset windows",
+      "committedAt": "2026-05-06T03:34:58.000Z",
+      "generatedAt": "2026-05-06T03:35:20.858Z",
+      "committedAtUtc": "2026-05-06T03:34:58.000Z",
+      "generatedAtUtc": "2026-05-06T03:35:20.858Z",
+      "diffStats": {
+        "rawAdditions": 691,
+        "rawDeletions": 23,
+        "rawChangeCount": 714,
+        "additions": 691,
+        "deletions": 23,
+        "effectiveAdditions": 691,
+        "effectiveDeletions": 23,
+        "changedFiles": 15,
+        "effectiveChangeCount": 714,
+        "excludedGeneratedChangeCount": 0
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved daily task reset reliability so tasks are prepared on the daily schedule.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling",
+        "telemetry"
+      ]
+    },
     {
       "version": "1.48.1",
       "previousVersion": "1.48.0",
@@ -1604,39 +1638,6 @@
       ],
       "committedAtUtc": "2026-05-05T11:40:11.000Z",
       "generatedAtUtc": "2026-05-05T12:02:57.633Z"
-    },
-    {
-      "version": "1.14.0",
-      "previousVersion": "1.13.0",
-      "commitSha": "f7258668a3b29e5b29f970664f2df5bd8db43463",
-      "commitTitle": "feat(creator): add creator supply quality score",
-      "committedAt": "2026-05-05T11:33:36.000Z",
-      "generatedAt": "2026-05-05T12:02:57.294Z",
-      "diffStats": {
-        "rawAdditions": 724,
-        "rawDeletions": 3,
-        "rawChangeCount": 727,
-        "additions": 724,
-        "deletions": 3,
-        "effectiveAdditions": 724,
-        "effectiveDeletions": 3,
-        "changedFiles": 15,
-        "effectiveChangeCount": 727,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Updated KandyDrops with a small beta improvement.",
-      "bullets": [
-        "Kept the update focused on user-visible polish and reliability."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "repo-tooling"
-      ],
-      "committedAtUtc": "2026-05-05T11:33:36.000Z",
-      "generatedAtUtc": "2026-05-05T12:02:57.294Z"
     }
   ]
 }

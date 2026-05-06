@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.49.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 03:34 UTC
+- Improved daily task reset reliability so tasks are prepared on the daily schedule.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.48.1] - 2026-05-06
 
 ### Fixed
@@ -395,13 +403,5 @@ User-facing KandyDrops Beta updates, newest first.
 ### Added
 
 - Updated 2026-05-05 11:40 UTC
-- Updated KandyDrops with a small beta improvement.
-- Kept the update focused on user-visible polish and reliability.
-
-## [1.14.0] - 2026-05-05
-
-### Added
-
-- Updated 2026-05-05 11:33 UTC
 - Updated KandyDrops with a small beta improvement.
 - Kept the update focused on user-visible polish and reliability.
