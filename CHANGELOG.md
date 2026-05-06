@@ -2,6 +2,14 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
+## [1.38.0] - 2026-05-06
+
+### Fixed
+
+- Updated 2026-05-06 01:29 UTC
+- Improved internal health panels so writer freshness and repeated diagnostics are easier to read.
+- Kept the update focused on user-visible polish and reliability.
+
 ## [1.37.0] - 2026-05-06
 
 ### Fixed
@@ -398,12 +406,3 @@ User-facing KandyDrops Beta updates, newest first.
 - Improved Beta version numbering so generated files do not overstate app updates.
 - Generated release-note files no longer inflate public beta version bumps.
 - Raw change counts are still kept behind the scenes for debugging.
-
-## [1.1.0] - 2026-05-05
-
-### Added
-
-- Updated 2026-05-05 07:02 UTC
-- Added a Beta badge with app update notes in the top navigation.
-- Tap Beta beside KandyDrops to see the latest app-style updates.
-- The current beta version now stays tied to the public changelog.

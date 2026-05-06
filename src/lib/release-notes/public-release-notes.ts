@@ -1,12 +1,45 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.37.0",
+  "currentVersion": "1.38.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:20:04.721Z",
-  "generatedAtUtc": "2026-05-06T01:20:04.721Z",
-  "lastCommitSha": "38cbbf4ae10c432322454efaab57ed5348a33535",
+  "generatedAt": "2026-05-06T01:29:49.268Z",
+  "generatedAtUtc": "2026-05-06T01:29:49.268Z",
+  "lastCommitSha": "7762d379fe865b5845609e5ada26ebd304b8dcf8",
   "notes": [
+    {
+      "version": "1.38.0",
+      "previousVersion": "1.37.0",
+      "commitSha": "7762d379fe865b5845609e5ada26ebd304b8dcf8",
+      "commitTitle": "fix(admin): clarify downstream writer freshness",
+      "committedAt": "2026-05-06T01:29:36.000Z",
+      "generatedAt": "2026-05-06T01:29:49.267Z",
+      "committedAtUtc": "2026-05-06T01:29:36.000Z",
+      "generatedAtUtc": "2026-05-06T01:29:49.267Z",
+      "diffStats": {
+        "rawAdditions": 438,
+        "rawDeletions": 34,
+        "rawChangeCount": 472,
+        "additions": 438,
+        "deletions": 34,
+        "effectiveAdditions": 436,
+        "effectiveDeletions": 32,
+        "changedFiles": 12,
+        "effectiveChangeCount": 468,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.37.0",
       "previousVersion": "1.36.0",
@@ -137,41 +170,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "documentation",
         "repo-tooling",
         "telemetry"
-      ]
-    },
-    {
-      "version": "1.34.0",
-      "previousVersion": "1.33.0",
-      "commitSha": "ca194e18799da898e45e3a649f777afb10b1bdf1",
-      "commitTitle": "fix(creator): require default live creator settings",
-      "committedAt": "2026-05-06T00:04:10.000Z",
-      "generatedAt": "2026-05-06T00:40:50.502Z",
-      "committedAtUtc": "2026-05-06T00:04:10.000Z",
-      "generatedAtUtc": "2026-05-06T00:40:50.502Z",
-      "diffStats": {
-        "rawAdditions": 698,
-        "rawDeletions": 89,
-        "rawChangeCount": 787,
-        "additions": 698,
-        "deletions": 89,
-        "effectiveAdditions": 546,
-        "effectiveDeletions": 13,
-        "changedFiles": 20,
-        "effectiveChangeCount": 559,
-        "excludedGeneratedChangeCount": 228
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "userFacingTitle": "Improved internal creator experience defaults for beta reliability.",
-      "bullets": [
-        "Beta notes stay user-safe while preserving enough detail for support follow-up.",
-        "UTC timestamps make updates easier to compare with screenshots, reports, and incidents."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "documentation",
-        "release-notes",
-        "repo-tooling"
       ]
     }
   ]

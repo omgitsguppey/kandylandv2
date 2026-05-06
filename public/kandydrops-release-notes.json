@@ -1,10 +1,43 @@
 {
-  "currentVersion": "1.37.0",
+  "currentVersion": "1.38.0",
   "channel": "beta",
-  "generatedAt": "2026-05-06T01:20:04.721Z",
-  "generatedAtUtc": "2026-05-06T01:20:04.721Z",
-  "lastCommitSha": "38cbbf4ae10c432322454efaab57ed5348a33535",
+  "generatedAt": "2026-05-06T01:29:49.268Z",
+  "generatedAtUtc": "2026-05-06T01:29:49.268Z",
+  "lastCommitSha": "7762d379fe865b5845609e5ada26ebd304b8dcf8",
   "notes": [
+    {
+      "version": "1.38.0",
+      "previousVersion": "1.37.0",
+      "commitSha": "7762d379fe865b5845609e5ada26ebd304b8dcf8",
+      "commitTitle": "fix(admin): clarify downstream writer freshness",
+      "committedAt": "2026-05-06T01:29:36.000Z",
+      "generatedAt": "2026-05-06T01:29:49.267Z",
+      "committedAtUtc": "2026-05-06T01:29:36.000Z",
+      "generatedAtUtc": "2026-05-06T01:29:49.267Z",
+      "diffStats": {
+        "rawAdditions": 438,
+        "rawDeletions": 34,
+        "rawChangeCount": 472,
+        "additions": 438,
+        "deletions": 34,
+        "effectiveAdditions": 436,
+        "effectiveDeletions": 32,
+        "changedFiles": 12,
+        "effectiveChangeCount": 468,
+        "excludedGeneratedChangeCount": 4
+      },
+      "bumpType": "minor",
+      "category": "Fixed",
+      "userFacingTitle": "Improved internal health panels so writer freshness and repeated diagnostics are easier to read.",
+      "bullets": [
+        "Kept the update focused on user-visible polish and reliability."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "documentation",
+        "repo-tooling"
+      ]
+    },
     {
       "version": "1.37.0",
       "previousVersion": "1.36.0",
@@ -1598,42 +1631,6 @@
       ],
       "committedAtUtc": "2026-05-05T07:10:24.000Z",
       "generatedAtUtc": "2026-05-05T07:10:40.358Z"
-    },
-    {
-      "version": "1.1.0",
-      "previousVersion": "1.0.0",
-      "commitSha": "c5b3501b12e69b442fcac74a4ee018a4f6fc70de",
-      "commitTitle": "feat(app): add beta release notes badge",
-      "committedAt": "2026-05-05T07:02:41.000Z",
-      "generatedAt": "2026-05-05T07:03:00.935Z",
-      "diffStats": {
-        "rawAdditions": 1284,
-        "rawDeletions": 10,
-        "rawChangeCount": 1294,
-        "additions": 1284,
-        "deletions": 10,
-        "effectiveAdditions": 1193,
-        "effectiveDeletions": 10,
-        "changedFiles": 22,
-        "effectiveChangeCount": 1203,
-        "excludedGeneratedChangeCount": 91
-      },
-      "bumpType": "minor",
-      "category": "Added",
-      "userFacingTitle": "Added a Beta badge with app update notes in the top navigation.",
-      "bullets": [
-        "Tap Beta beside KandyDrops to see the latest app-style updates.",
-        "The current beta version now stays tied to the public changelog."
-      ],
-      "affectedSurfaces": [
-        "documentation",
-        "navigation",
-        "release-notes",
-        "repo-tooling",
-        "telemetry"
-      ],
-      "committedAtUtc": "2026-05-05T07:02:41.000Z",
-      "generatedAtUtc": "2026-05-05T07:03:00.935Z"
     }
   ]
 }
