@@ -54,6 +54,8 @@ const adminOrchestrationRepairs = readRequired("src/lib/server/admin-orchestrati
 const debugTabNow = readRequired("src/app/admin/debug/components/DebugTabNow.tsx");
 const debugTabActions = readRequired("src/app/admin/debug/components/DebugTabActions.tsx");
 const debugBugIntakePanel = readRequired("src/app/admin/debug/components/DebugBugIntakePanel.tsx");
+const debugTabMonitoring = readRequired("src/app/admin/debug/components/DebugTabMonitoring.tsx");
+const debugMonitoringRoutes = readRequired("src/app/admin/debug/components/DebugMonitoringRoutes.tsx");
 const debugNowDiagnostics = readRequired("src/app/admin/debug/components/DebugNowDiagnostics.tsx");
 const debugPanelStatus = readRequired("src/app/admin/debug/components/DebugPanelStatusBySection.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
@@ -149,6 +151,16 @@ for (const expected of [
   requireIncludes(adminDebugRoute, expected, "Admin debug bug intake triage truth model");
 }
 requireIncludes(runtimeHealth, "admin/debug/control-tower:GET", "Route runtime health targets");
+for (const expected of [
+  "RouteRuntimeSummaryTruth",
+  "RouteRuntimeRecordTruth",
+  "buildRouteRuntimeSummaryTruth",
+  "buildRouteRuntimeRecordTruth",
+  "latencyState",
+  "Historical latency contains slow samples; current health can still be healthy.",
+]) {
+  requireIncludes(runtimeHealth, expected, "Route runtime health truth model");
+}
 
 for (const expected of [
   "import { DebugControlTower }",
@@ -296,6 +308,65 @@ for (const expected of [
   requireIncludes(debugTabActions, expected, "Repairs panel must separate actionable, inspect-only, and deduped proposals");
 }
 requireNotIncludes(debugTabActions, "proposal.actionType !== \"rebuild_projection\"", "Repairs panel must not decide actionability from raw actionType in the UI");
+for (const expected of [
+  "routeRuntimeSummaryTruth",
+  "buildRouteRuntimeSummaryTruth",
+  "Status",
+  "Tracked",
+  "Filter",
+  "Unseen",
+  "Stale",
+  "Warn",
+  "Fail",
+  "Slow samples",
+  "Native chat fail",
+  "Native chat stale",
+  "Native chat unseen",
+  "Compat chat fail",
+  "Compat chat stale",
+  "Compat chat unseen",
+  "truthState={routeRuntimeLoaded ? \"live\" : \"unavailable\"}",
+  "badgeLabel={routeRuntimeLoaded ? \"LOADED\" : \"UNKNOWN\"}",
+]) {
+  requireIncludes(debugTabMonitoring, expected, "Tracked route runtime summary must separate loaded inventory, review signals, and labeled chat triples");
+}
+for (const expected of [
+  "buildRouteRuntimeRecordTruth",
+  "formatChatTriple(\"Native chat\"",
+  "formatChatTriple(\"Compat chat\"",
+  "data-route-runtime-loaded",
+  "data-route-runtime-tracked-count",
+  "data-route-runtime-observed-count",
+  "data-route-runtime-unseen-count",
+  "data-route-runtime-stale-count",
+  "data-route-runtime-warn-count",
+  "data-route-runtime-fail-count",
+  "data-route-runtime-slow-count",
+  "data-route-runtime-health-state",
+  "data-route-runtime-latency-state",
+  "data-route-runtime-summary-reason",
+  "Native chat observed",
+  "Native chat samples",
+  "Compat observed",
+  "Compat samples",
+  "badgeLabel=\"LOADED\"",
+  "badgeLabel=\"INFO\"",
+  "badgeLabel={truth.latency.maxMs !== null && truth.latency.maxMs >= truth.latency.slowThresholdMs ? \"SLOW\" : undefined}",
+  "healthy with latency review",
+  "Current result is healthy, but historical slow samples need latency review.",
+]) {
+  requireIncludes(debugMonitoringRoutes, expected, "Tracked route runtime rows must label loaded counts, chat triples, and latency review states");
+}
+for (const forbidden of [
+  "value={`${nativeChatRouteRuntimeSummary.fail}/${nativeChatRouteRuntimeSummary.warn}/${nativeChatRouteRuntimeSummary.stale}`}",
+  "value={`${compatibilityChatRouteRuntimeSummary.fail}/${compatibilityChatRouteRuntimeSummary.warn}/${compatibilityChatRouteRuntimeSummary.stale}`}",
+  "<Pill label=\"Avg latency\" value={`${entry.averageLatencyMs ?? 0}ms`} />",
+  "<Pill label=\"Max latency\" value={`${entry.maxLatencyMs ?? 0}ms`} />",
+  "<Pill label=\"Observed\" value={nativeChatRouteRuntimeHealth.length - nativeChatRouteRuntimeRates.unseenCount} />",
+  "<Pill label=\"Samples\" value={nativeChatRouteRuntimeRates.totalSamples} />",
+]) {
+  requireNotIncludes(`${debugTabMonitoring}\n${debugMonitoringRoutes}`, forbidden, "Tracked route runtime panel must not render unlabeled triples or WAIT-style numeric metric chips");
+}
 requireIncludes(debugTabActions, "<DebugBugIntakePanel data={data} />", "Debug actions tab must delegate loaded bug intake truth to the focused panel");
 for (const expected of [
   "Bug reports to triage",
@@ -360,6 +431,7 @@ requireIncludes(releaseNotesScript, "Improved internal task assignment diagnosti
 requireIncludes(releaseNotesScript, "Improved internal repair proposal grouping so duplicate debug actions are easier to review.", "Release notes script must include repair proposal dedupe copy");
 requireIncludes(releaseNotesScript, "Improved internal repair proposal grouping so repeated debug items are easier to review.", "Release notes script must include inspect-only repair proposal grouping copy");
 requireIncludes(releaseNotesScript, "Improved internal bug report triage labels so loaded reports no longer appear stuck.", "Release notes script must include bug intake triage copy");
+requireIncludes(releaseNotesScript, "Improved internal route health labels so loaded runtime metrics no longer appear stuck.", "Release notes script must include route runtime health state copy");
 
 for (const expected of [
   "data-admin-debug-v2=\"control-tower\"",
@@ -574,6 +646,7 @@ try {
     /^src\/lib\/server\/admin-orchestration\.ts$/u,
     /^src\/lib\/server\/admin-orchestration-repairs\.ts$/u,
     /^src\/lib\/route-runtime-health\.ts$/u,
+    /^src\/lib\/admin-debug-route-runtime\.ts$/u,
     /^src\/app\/api\/admin\/debug\/control-tower\/route\.ts$/u,
     /^src\/app\/api\/admin\/debug\/route\.ts$/u,
     /^src\/app\/admin\/debug\/page\.tsx$/u,
@@ -582,6 +655,8 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugCreatorLane\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugNowDiagnostics\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPanelStatusBySection\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugTabMonitoring\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugMonitoringRoutes\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPrimitives\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabActions\.tsx$/u,

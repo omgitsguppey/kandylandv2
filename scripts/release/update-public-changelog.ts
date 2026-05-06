@@ -263,6 +263,9 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   if (normalized.includes("clarify bug intake triage states") || normalized.includes("bug intake triage")) {
     return "Improved internal bug report triage labels so loaded reports no longer appear stuck.";
   }
+  if (normalized.includes("clarify route runtime health states") || normalized.includes("route runtime health states")) {
+    return "Improved internal route health labels so loaded runtime metrics no longer appear stuck.";
+  }
   if (normalized.includes("refresh creator lane parity evidence") || normalized.includes("creator review status")) {
     return "Improved internal creator review status checks.";
   }

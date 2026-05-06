@@ -2,6 +2,7 @@
 
 import { Pill, Section, ScrollWrap } from "./DebugPrimitives";
 import { DebugMonitoringRoutes, type DebugMonitoringRoutesProps } from "./DebugMonitoringRoutes";
+import { buildRouteRuntimeSummaryTruth } from "@/lib/route-runtime-health";
 
 /* ─── Helpers ─── */
 function formatTimestamp(timestamp?: number) {
@@ -60,6 +61,8 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
         compatibilityChatRouteRuntimeHealth, compatibilityChatRouteRuntimeRates,
         onRouteRuntimeFilterChange,
     } = props;
+    const routeRuntimeSummaryTruth = buildRouteRuntimeSummaryTruth(routeRuntimeHealth);
+    const routeRuntimeLoaded = routeRuntimeSummaryTruth.trackedCount > 0;
 
     return (
         <div className="space-y-4">
@@ -67,9 +70,10 @@ export function DebugTabMonitoring(props: DebugTabMonitoringProps) {
                 title="Tracked route runtime"
                 subtitle="Canonical route rollups for debug, overview, support, chat, creator relationships, and AI flows."
                 defaultOpen={routeRuntimeHealthSummary.fail > 0 || routeRuntimeHealthSummary.warn > 0 || routeRuntimeHealthSummary.stale > 0}
-                summary={<><Pill label="Tracked" value={routeRuntimeHealthSummary.total} /><Pill label="Filter" value={routeRuntimeFilter.replace("_", " ")} tone={routeRuntimeFilter === "all" ? "neutral" : "warn"} /><Pill label="Unseen" value={routeRuntimeHealthSummary.unobserved} tone={routeRuntimeHealthSummary.unobserved > 0 ? "warn" : "good"} /><Pill label="Stale" value={routeRuntimeHealthSummary.stale} tone={routeRuntimeHealthSummary.stale > 0 ? "warn" : "good"} /><Pill label="Warn" value={routeRuntimeHealthSummary.warn} tone={routeRuntimeHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={routeRuntimeHealthSummary.fail} tone={routeRuntimeHealthSummary.fail > 0 ? "bad" : "good"} /><Pill label="Slow samples" value={routeRuntimeHealthSummary.slow} tone={routeRuntimeHealthSummary.slow > 0 ? "warn" : "good"} /><Pill label="Native chat" value={`${nativeChatRouteRuntimeSummary.fail}/${nativeChatRouteRuntimeSummary.warn}/${nativeChatRouteRuntimeSummary.stale}`} tone={nativeChatRouteRuntimeSummary.fail > 0 ? "bad" : nativeChatRouteRuntimeSummary.warn > 0 || nativeChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /><Pill label="Compat chat" value={`${compatibilityChatRouteRuntimeSummary.fail}/${compatibilityChatRouteRuntimeSummary.warn}/${compatibilityChatRouteRuntimeSummary.stale}`} tone={compatibilityChatRouteRuntimeSummary.fail > 0 ? "bad" : compatibilityChatRouteRuntimeSummary.warn > 0 || compatibilityChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /></>}
+                summary={<><Pill label="Status" value={routeRuntimeSummaryTruth.healthState} tone={routeRuntimeSummaryTruth.healthState === "error" ? "bad" : routeRuntimeSummaryTruth.healthState === "review" ? "warn" : "good"} truthState={routeRuntimeSummaryTruth.healthState === "error" ? "failed" : routeRuntimeSummaryTruth.healthState === "review" ? "degraded" : "live"} /><Pill label="Tracked" value={routeRuntimeSummaryTruth.trackedCount} truthState={routeRuntimeLoaded ? "live" : "unavailable"} badgeLabel={routeRuntimeLoaded ? "LOADED" : "UNKNOWN"} /><Pill label="Filter" value={routeRuntimeFilter.replace("_", " ")} truthState="live" badgeLabel="INFO" /><Pill label="Unseen" value={routeRuntimeSummaryTruth.unseenCount} tone={routeRuntimeSummaryTruth.unseenCount > 0 ? "warn" : "good"} /><Pill label="Stale" value={routeRuntimeSummaryTruth.staleCount} tone={routeRuntimeSummaryTruth.staleCount > 0 ? "warn" : "good"} /><Pill label="Warn" value={routeRuntimeSummaryTruth.warnCount} tone={routeRuntimeSummaryTruth.warnCount > 0 ? "warn" : "good"} /><Pill label="Fail" value={routeRuntimeSummaryTruth.failCount} tone={routeRuntimeSummaryTruth.failCount > 0 ? "bad" : "good"} /><Pill label="Slow samples" value={routeRuntimeSummaryTruth.slowSampleCount} tone={routeRuntimeSummaryTruth.slowSampleCount > 0 ? "warn" : "good"} /><Pill label="Native chat fail" value={nativeChatRouteRuntimeSummary.fail} tone={nativeChatRouteRuntimeSummary.fail > 0 ? "bad" : "good"} /><Pill label="Native chat stale" value={nativeChatRouteRuntimeSummary.stale} tone={nativeChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /><Pill label="Native chat unseen" value={nativeChatRouteRuntimeSummary.unobserved} tone={nativeChatRouteRuntimeSummary.unobserved > 0 ? "warn" : "good"} /><Pill label="Compat chat fail" value={compatibilityChatRouteRuntimeSummary.fail} tone={compatibilityChatRouteRuntimeSummary.fail > 0 ? "bad" : "good"} /><Pill label="Compat chat stale" value={compatibilityChatRouteRuntimeSummary.stale} tone={compatibilityChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /><Pill label="Compat chat unseen" value={compatibilityChatRouteRuntimeSummary.unobserved} tone={compatibilityChatRouteRuntimeSummary.unobserved > 0 ? "warn" : "good"} /></>}
             >
                 <DebugMonitoringRoutes
+                    routeRuntimeSummaryTruth={routeRuntimeSummaryTruth}
                     routeRuntimeFilter={routeRuntimeFilter}
                     routeRuntimeHealth={routeRuntimeHealth}
                     filteredRouteRuntimeHealth={filteredRouteRuntimeHealth}

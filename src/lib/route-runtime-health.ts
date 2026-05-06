@@ -1034,6 +1034,48 @@ export type RouteRuntimeHealthCoverageState = "observed" | "unseen";
 export type RouteRuntimeHealthFreshness = "fresh" | "stale" | "unseen";
 export type RouteRuntimeHealthCluster = "native_chat" | "compatibility_chat" | "other";
 
+export type RouteRuntimeSummaryTruth = {
+    trackedCount: number;
+    observedCount: number;
+    unseenCount: number;
+    staleCount: number;
+    warnCount: number;
+    failCount: number;
+    slowSampleCount: number;
+    sampleCount: number;
+    freshnessState: "fresh" | "partial" | "stale" | "unknown";
+    coverageState: "observed" | "partial" | "unseen" | "unknown";
+    healthState: "healthy" | "review" | "error";
+    explanation: string;
+};
+
+export type RouteRuntimeRecordTruth = {
+    routeKey: string;
+    method: string;
+    label: string;
+    lastSeenAtUtc: string | null;
+    status: "healthy" | "review" | "error" | "unseen" | "stale";
+    coverage: "observed" | "unseen";
+    freshness: "fresh" | "stale" | "expired" | "unknown";
+    cluster: string;
+    lastResult: "success" | "client_error" | "server_error" | "unknown";
+    latency: {
+        lastMs: number | null;
+        avgMs: number | null;
+        maxMs: number | null;
+        slowCount: number;
+        slowThresholdMs: number;
+        latencyState: "healthy" | "review" | "slow" | "unknown";
+    };
+    counts: {
+        success: number;
+        clientErrors: number;
+        serverErrors: number;
+        samples: number;
+    };
+    stateReasons: string[];
+};
+
 export type RouteRuntimeHealthItem = {
     key: RouteRuntimeHealthKey;
     routeName: string;
@@ -1059,6 +1101,10 @@ export type RouteRuntimeHealthItem = {
 
 function toNumber(value: unknown) {
     return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function getRouteRuntimeTotalSamples(item: Pick<RouteRuntimeHealthItem, "successCount" | "clientErrorCount" | "serverErrorCount">) {
+    return Math.max(0, toNumber(item.successCount)) + Math.max(0, toNumber(item.clientErrorCount)) + Math.max(0, toNumber(item.serverErrorCount));
 }
 
 export function getRouteRuntimeHealthCoverageState(item: Pick<RouteRuntimeHealthItem, "updatedAtMs">): RouteRuntimeHealthCoverageState {
@@ -1138,5 +1184,103 @@ export function summarizeRouteRuntimeHealth(items: readonly RouteRuntimeHealthIt
         slow: items.filter(isCurrentSlow).length,
         serverErrors: items.filter((item) => item.lastResult === "server_error").length,
         clientErrors: items.filter((item) => item.lastResult === "client_error").length,
+    };
+}
+
+export function buildRouteRuntimeRecordTruth(item: RouteRuntimeHealthItem, nowMs = Date.now()): RouteRuntimeRecordTruth {
+    const coverage = getRouteRuntimeHealthCoverageState(item);
+    const rawFreshness = getRouteRuntimeHealthFreshness(item, nowMs);
+    const status = getRouteRuntimeHealthStatus(item, nowMs);
+    const threshold = Math.max(0, toNumber(item.slowThresholdMs));
+    const lastLatency = coverage === "observed" ? Math.max(0, toNumber(item.lastLatencyMs)) : null;
+    const avgLatency = coverage === "observed" ? Math.max(0, toNumber(item.averageLatencyMs)) : null;
+    const maxLatency = coverage === "observed" ? Math.max(0, toNumber(item.maxLatencyMs)) : null;
+    const slowCount = Math.max(0, toNumber(item.slowCount));
+    const latencyState: RouteRuntimeRecordTruth["latency"]["latencyState"] = coverage === "unseen"
+        ? "unknown"
+        : threshold > 0 && lastLatency !== null && lastLatency >= threshold
+            ? "slow"
+            : (threshold > 0 && maxLatency !== null && maxLatency >= threshold) || slowCount > 0
+                ? "review"
+                : "healthy";
+    const stateReasons: string[] = [];
+    if (coverage === "unseen") stateReasons.push("No runtime sample has been recorded yet.");
+    if (rawFreshness === "stale") stateReasons.push("Last runtime sample is outside the freshness window.");
+    if (status === "fail") stateReasons.push("Current route result has an active server failure.");
+    if (item.lastResult === "client_error") stateReasons.push("Latest route result was a client error.");
+    if (latencyState === "slow") stateReasons.push("Latest latency is above the route slow threshold.");
+    if (latencyState === "review") stateReasons.push("Historical latency contains slow samples; current health can still be healthy.");
+
+    return {
+        routeKey: item.key,
+        method: item.method,
+        label: item.title,
+        lastSeenAtUtc: toNumber(item.updatedAtMs) > 0 ? new Date(item.updatedAtMs).toISOString() : null,
+        status: coverage === "unseen" ? "unseen" : status === "fail" ? "error" : status === "stale" ? "stale" : status === "warn" ? "review" : "healthy",
+        coverage,
+        freshness: rawFreshness === "fresh" ? "fresh" : rawFreshness === "stale" ? "stale" : "unknown",
+        cluster: getRouteRuntimeHealthCluster(item.key),
+        lastResult: coverage === "observed" ? item.lastResult : "unknown",
+        latency: {
+            lastMs: lastLatency,
+            avgMs: avgLatency,
+            maxMs: maxLatency,
+            slowCount,
+            slowThresholdMs: threshold,
+            latencyState,
+        },
+        counts: {
+            success: Math.max(0, toNumber(item.successCount)),
+            clientErrors: Math.max(0, toNumber(item.clientErrorCount)),
+            serverErrors: Math.max(0, toNumber(item.serverErrorCount)),
+            samples: getRouteRuntimeTotalSamples(item),
+        },
+        stateReasons,
+    };
+}
+
+export function buildRouteRuntimeSummaryTruth(items: readonly RouteRuntimeHealthItem[], nowMs = Date.now()): RouteRuntimeSummaryTruth {
+    const records = items.map((item) => buildRouteRuntimeRecordTruth(item, nowMs));
+    const trackedCount = records.length;
+    const observedCount = records.filter((record) => record.coverage === "observed").length;
+    const unseenCount = trackedCount - observedCount;
+    const staleCount = records.filter((record) => record.status === "stale").length;
+    const warnCount = records.filter((record) => record.status === "review" || record.status === "unseen").length;
+    const failCount = records.filter((record) => record.status === "error").length;
+    const slowSampleCount = records.reduce((sum, record) => sum + record.latency.slowCount, 0);
+    const sampleCount = records.reduce((sum, record) => sum + record.counts.samples, 0);
+    const freshnessState: RouteRuntimeSummaryTruth["freshnessState"] = trackedCount === 0
+        ? "unknown"
+        : staleCount > 0
+            ? "stale"
+            : observedCount < trackedCount
+                ? "partial"
+                : "fresh";
+    const coverageState: RouteRuntimeSummaryTruth["coverageState"] = trackedCount === 0
+        ? "unknown"
+        : observedCount === 0
+            ? "unseen"
+            : observedCount < trackedCount
+                ? "partial"
+                : "observed";
+    const healthState: RouteRuntimeSummaryTruth["healthState"] = failCount > 0
+        ? "error"
+        : staleCount > 0 || warnCount > 0 || slowSampleCount > 0
+            ? "review"
+            : "healthy";
+
+    return {
+        trackedCount,
+        observedCount,
+        unseenCount,
+        staleCount,
+        warnCount,
+        failCount,
+        slowSampleCount,
+        sampleCount,
+        freshnessState,
+        coverageState,
+        healthState,
+        explanation: `${trackedCount} tracked routes. ${observedCount} observed, ${unseenCount} unseen, ${staleCount} stale. Fail ${failCount}, warn ${warnCount}, slow samples ${slowSampleCount}.`,
     };
 }

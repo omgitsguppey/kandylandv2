@@ -54,6 +54,8 @@ Repair proposal evidence must be deduped before display. The Admin Debug action 
 
 Bug report evidence from `platform_feedback` is a loaded sample plus recent intake summary. Admin Debug must show total loaded reports, last-seven-day reports, older backlog, and needs-triage count separately. Numeric breadcrumb, diagnostic, and rollout context counts are evidence inventory and render as LOADED/INFO when known; WAIT is reserved for loading only.
 
+Tracked route runtime evidence is a route rollup truth model, not a single health badge. Summary rows show tracked, observed, unseen, stale, warn, fail, slow, and sample counts with explicit loaded/review labels. Route rows separate coverage and freshness from latency history so max latency and slow-count history can create a latency review without making a currently successful route look failed or stuck loading.
+
 ## Pre-Catcher
 
 `npm run precheck:runtime-issues` reads the redacted evidence index and writes `agent/state/precatch-runtime-issues.generated.json`.
