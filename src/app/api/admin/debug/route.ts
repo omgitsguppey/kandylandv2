@@ -378,9 +378,58 @@ type TaskTelemetryMappingSummary = {
     unsupportedRuntimeCount: number;
     unsafeSharedEventCount: number;
     unsupportedActiveAssignments: number;
+    taskTriggerReadyCount: number;
+    taskTriggerPartialCount: number;
+    taskTriggerMissingCount: number;
+    lifecycleExpectedCount: number;
+    supportingTelemetryCount: number;
     sharedEventGroups: SharedTaskEventGroup[];
     unsupportedRuntimeGroups: RuntimeUnsupportedGroup[];
     alignmentWarnings: TaskTelemetryAlignmentWarning[];
+    mappingRows: TaskTelemetryMappingRow[];
+};
+
+type TaskTelemetryEventPurpose =
+    | "task_trigger"
+    | "task_lifecycle"
+    | "task_guidance"
+    | "supporting_telemetry"
+    | "onboarding_telemetry"
+    | "reward_receipt"
+    | "commerce_event"
+    | "viewer_event"
+    | "notification_event"
+    | "unmapped_unknown";
+
+type TaskTelemetryMappingRow = {
+    displayLabel: string;
+    eventName: string;
+    normalizedAction: string;
+    eventPurpose: TaskTelemetryEventPurpose;
+    mappedTaskCount: number;
+    mappedBuiltInCount: number;
+    mappedCustomCount: number;
+    assignedCount: number;
+    eventStatsCount: number;
+    receiptCount: number;
+    trackingSource: "canonical" | "telemetry" | "legacy" | "mixed";
+    mappingState:
+    | "ready"
+    | "supporting_not_task"
+    | "lifecycle_not_task"
+    | "needs_task_mapping"
+    | "needs_criteria"
+    | "shared_receipts"
+    | "unsupported";
+    explanation: string;
+    expectedMapping: boolean;
+    missingMappingReason?: string;
+    affectedTasks: Array<{
+        taskId: string;
+        title: string;
+        criteria?: string[];
+        keying?: string;
+    }>;
 };
 
 type DependencyPackageName = "root" | "functions" | "workspace" | "unknown";
@@ -1301,6 +1350,46 @@ function buildSharedTaskEventExplanation(group: Omit<SharedTaskEventGroup, "expl
         return `Shared event requires additional disambiguation: missing ${group.missingDisambiguators.join(", ")}.`;
     }
     return `Shared event is unsafe for task attribution until disambiguators are added: missing ${group.missingDisambiguators.join(", ")}.`;
+}
+
+function classifyTaskTelemetryEventPurpose(eventName: string): TaskTelemetryEventPurpose {
+    if (eventName === "daily_task_assigned" || eventName === "daily_task_started" || eventName === "task_completed" || eventName === "daily_task_failed" || eventName === "daily_task_deadline_reminder_sent") {
+        return "task_lifecycle";
+    }
+    if (eventName.startsWith("task_guidance_") || eventName === "task_card_expanded" || eventName === "task_help_opened") {
+        return "task_guidance";
+    }
+    if (eventName.startsWith("guided_onboarding_")) {
+        return "onboarding_telemetry";
+    }
+    if (eventName === "notification_opened" || eventName === "notification_read" || eventName === "notifications_dropdown_opened") {
+        return "notification_event";
+    }
+    if (eventName === "viewer_opened" || eventName === "viewer_session_completed" || eventName === "viewer_asset_consumed" || eventName === "viewer_asset_completed" || eventName === "viewer_watch_checkpoint" || eventName === "file_viewed") {
+        return "viewer_event";
+    }
+    if (eventName === "begin_checkout" || eventName === "gumdrops_purchase_completed" || eventName === "unlock_drop_success") {
+        return "commerce_event";
+    }
+    if (eventName === "daily_checkin_claimed") {
+        return "task_trigger";
+    }
+    if (eventName.includes("receipt")) {
+        return "reward_receipt";
+    }
+    if (eventName === "dashboard_viewed" || eventName === "drops_page_viewed" || eventName === "wallet_opened" || eventName === "drop_preview_opened" || eventName === "view_drop_details" || eventName === "experience_hub_viewed" || eventName === "library_viewed") {
+        return "task_trigger";
+    }
+    return "unmapped_unknown";
+}
+
+function resolveTaskTelemetryTrackingSource(entries: Array<{ trackingSource?: string }>): TaskTelemetryMappingRow["trackingSource"] {
+    const values = Array.from(new Set(entries.map((entry) => entry.trackingSource).filter(Boolean)));
+    if (values.length === 0) return "telemetry";
+    if (values.length > 1) return "mixed";
+    const only = values[0];
+    if (only === "canonical" || only === "telemetry" || only === "legacy") return only;
+    return "mixed";
 }
 
 function readGeneratedAnalyticsStateFile(fileName: string): Record<string, unknown> | null {
@@ -3026,6 +3115,124 @@ export async function GET(request: NextRequest) {
                 || left.taskTitle.localeCompare(right.taskTitle)
                 || left.warningType.localeCompare(right.warningType);
         });
+        const telemetryAlignmentByCanonicalEvent = runtimeTaskAudit.telemetryAlignment.reduce((map, entry) => {
+            const current = map.get(entry.eventName) || {
+                eventName: entry.eventName,
+                eventLabel: entry.eventLabel,
+                trackingEntries: [] as typeof runtimeTaskAudit.telemetryAlignment,
+                eventStatsCount: 0,
+                receiptCount: 0,
+                assignedCount: 0,
+            };
+            current.trackingEntries.push(entry);
+            current.eventStatsCount += entry.eventStatTotalCount;
+            current.receiptCount += entry.recentReceiptCount;
+            current.assignedCount = Math.max(current.assignedCount, entry.runtimeAssignedCount);
+            map.set(entry.eventName, current);
+            return map;
+        }, new Map<string, {
+            eventName: string;
+            eventLabel: string;
+            trackingEntries: typeof runtimeTaskAudit.telemetryAlignment;
+            eventStatsCount: number;
+            receiptCount: number;
+            assignedCount: number;
+        }>());
+        const taskTelemetryMappingRows: TaskTelemetryMappingRow[] = Array.from(telemetryAlignmentByCanonicalEvent.values()).map((entry) => {
+            const affectedDefinitions = allTaskDefinitions.filter((definition) => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === entry.eventName);
+            const sharedGroup = sharedEventGroups.find((group) => group.eventName === entry.eventName);
+            const purpose = classifyTaskTelemetryEventPurpose(entry.eventName);
+            const expectedMapping = purpose === "task_trigger"
+                || (purpose === "notification_event" && (entry.eventName === "notification_read" || entry.eventName === "notification_opened"))
+                || (purpose === "viewer_event" && entry.eventName === "file_viewed");
+            const affectedTasks = affectedDefinitions.map((definition) => ({
+                taskId: definition.id,
+                title: definition.title,
+                criteria: definition.criteria ? buildSharedTaskEventDisambiguators(definition).present : [],
+                keying: definition.uniqueByParamKey || undefined,
+            }));
+            const trackingSource = resolveTaskTelemetryTrackingSource(entry.trackingEntries);
+            let mappingState: TaskTelemetryMappingRow["mappingState"] = "ready";
+            let explanation = "Mapped task trigger telemetry is aligned.";
+            let missingMappingReason: string | undefined;
+
+            if (trackingSource === "legacy" || entry.eventName === "unlock_drop_success") {
+                mappingState = "shared_receipts";
+                explanation = "Receipt counts are shared across unlock tasks and cannot be treated as task-specific reward receipts without taskId linkage.";
+            }
+            if (purpose === "task_lifecycle") {
+                mappingState = "lifecycle_not_task";
+                explanation = "Lifecycle event, not a task trigger. This is infrastructure telemetry and does not need a task mapping.";
+            } else if (purpose === "onboarding_telemetry") {
+                mappingState = "supporting_not_task";
+                explanation = "Supporting onboarding telemetry. It is tracked for onboarding flow visibility, not daily task completion.";
+            } else if (purpose === "task_guidance") {
+                mappingState = "supporting_not_task";
+                explanation = "Task guidance telemetry supports prompt effectiveness and should not be treated as a task trigger.";
+            } else if (purpose === "viewer_event" && entry.eventName === "file_viewed" && affectedDefinitions.length === 0) {
+                mappingState = "supporting_not_task";
+                explanation = "Used for viewer analytics, not daily task completion. Task completion uses viewer_asset_consumed or viewer_asset_completed.";
+            } else if (expectedMapping && affectedDefinitions.length === 0) {
+                mappingState = "needs_task_mapping";
+                missingMappingReason = "expected by task catalog";
+                explanation = "Missing task mapping: expected by task catalog.";
+            } else if (sharedGroup && sharedGroup.ambiguityState !== "safe_with_criteria") {
+                mappingState = "needs_criteria";
+                explanation = "Shared event needs criteria or distinct keying before task attribution is trustworthy.";
+            } else if (purpose === "commerce_event" && entry.eventName === "unlock_drop_success" && sharedGroup) {
+                mappingState = "shared_receipts";
+                explanation = "Receipt pool shared across tasks. Unlock telemetry maps to multiple unwrap tasks and needs task-specific reward linkage.";
+            } else if (trackingSource === "telemetry" && expectedMapping) {
+                mappingState = "ready";
+                explanation = "Task trigger telemetry maps to active tasks. Event stats remain trigger evidence, not completion proof.";
+            } else if (!expectedMapping) {
+                mappingState = "supporting_not_task";
+                explanation = "Supporting telemetry, not a direct daily task trigger.";
+            }
+            if (entry.eventName === "daily_checkin_claimed" && affectedDefinitions.length > 0) {
+                mappingState = "ready";
+                explanation = "Daily check-in claim is the task trigger for Claim today's reward. Event stats and receipts are separate evidence lanes.";
+                missingMappingReason = undefined;
+            }
+            if (entry.eventName === "notification_read" && affectedDefinitions.length > 0) {
+                mappingState = sharedGroup && sharedGroup.ambiguityState !== "safe_with_criteria" ? "needs_criteria" : "ready";
+                explanation = sharedGroup && sharedGroup.ambiguityState !== "safe_with_criteria"
+                    ? "Notification read maps to a task, but shared event criteria or keying still need tightening."
+                    : "Notification read is the task trigger for Clear one alert.";
+                missingMappingReason = undefined;
+            }
+
+            return {
+                displayLabel: entry.eventLabel,
+                eventName: entry.eventName,
+                normalizedAction: entry.eventName,
+                eventPurpose: purpose,
+                mappedTaskCount: affectedDefinitions.length,
+                mappedBuiltInCount: affectedDefinitions.filter((definition) => definition.source === "built_in").length,
+                mappedCustomCount: affectedDefinitions.filter((definition) => definition.source !== "built_in").length,
+                assignedCount: entry.assignedCount,
+                eventStatsCount: entry.eventStatsCount,
+                receiptCount: entry.receiptCount,
+                trackingSource,
+                mappingState,
+                explanation,
+                expectedMapping,
+                missingMappingReason,
+                affectedTasks,
+            } satisfies TaskTelemetryMappingRow;
+        }).sort((left, right) => {
+            const stateRank = {
+                needs_task_mapping: 0,
+                needs_criteria: 1,
+                shared_receipts: 2,
+                unsupported: 3,
+                ready: 4,
+                lifecycle_not_task: 5,
+                supporting_not_task: 6,
+            } as Record<TaskTelemetryMappingRow["mappingState"], number>;
+            return stateRank[left.mappingState] - stateRank[right.mappingState]
+                || left.displayLabel.localeCompare(right.displayLabel);
+        });
         const runtimeTaskDriftSummary: RuntimeTaskDriftSummary = {
             generatedAtUtc: new Date(nowMs).toISOString(),
             sampledUsers: runtimeTaskAudit.summary.sampledUsers,
@@ -3055,9 +3262,15 @@ export async function GET(request: NextRequest) {
             unsupportedActiveAssignments: unsupportedRuntimeGroups
                 .filter((group) => group.source === "assignment" && (group.activityScope === "active" || group.activityScope === "mixed"))
                 .reduce((sum, group) => sum + group.count, 0),
+            taskTriggerReadyCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "ready").length,
+            taskTriggerPartialCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && (row.mappingState === "needs_criteria" || row.mappingState === "shared_receipts")).length,
+            taskTriggerMissingCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "needs_task_mapping").length,
+            lifecycleExpectedCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_lifecycle").length,
+            supportingTelemetryCount: taskTelemetryMappingRows.filter((row) => row.mappingState === "supporting_not_task").length,
             sharedEventGroups,
             unsupportedRuntimeGroups,
             alignmentWarnings: dedupedAlignmentWarnings,
+            mappingRows: taskTelemetryMappingRows,
         };
 
         const bugReports: BugReportTriageCard[] = feedbackSnapshot.docs

@@ -129,7 +129,15 @@ requireIncludes(adminDebugRoute, "No task assignment repair is required until on
 requireIncludes(adminDebugRoute, "TaskTelemetryMappingSummary", "Admin debug task telemetry mapping summary model");
 requireIncludes(adminDebugRoute, "SharedTaskEventGroup", "Admin debug shared event group model");
 requireIncludes(adminDebugRoute, "TaskTelemetryAlignmentWarning", "Admin debug telemetry alignment warning model");
+requireIncludes(adminDebugRoute, "TaskTelemetryMappingRow", "Admin debug telemetry mapping row model");
+requireIncludes(adminDebugRoute, "TaskTelemetryEventPurpose", "Admin debug telemetry event purpose model");
 requireIncludes(adminDebugRoute, "taskTelemetryMappingSummary", "Admin debug task telemetry mapping payload");
+requireIncludes(adminDebugRoute, "mappingRows", "Admin debug task telemetry mapping rows payload");
+requireIncludes(adminDebugRoute, "\"task_lifecycle\"", "Admin debug lifecycle purpose classification");
+requireIncludes(adminDebugRoute, "\"onboarding_telemetry\"", "Admin debug onboarding purpose classification");
+requireIncludes(adminDebugRoute, "\"supporting_not_task\"", "Admin debug supporting telemetry state");
+requireIncludes(adminDebugRoute, "\"needs_task_mapping\"", "Admin debug expected mapping state");
+requireIncludes(adminDebugRoute, "\"shared_receipts\"", "Admin debug shared receipts state");
 requireIncludes(adminDebugRoute, "\"shared_event_missing_criteria\"", "Admin debug shared event missing criteria warning");
 requireIncludes(adminDebugRoute, "\"shared_event_missing_unique_keying\"", "Admin debug shared event missing unique keying warning");
 requireIncludes(adminDebugRoute, "\"event_stats_not_task_scoped\"", "Admin debug event-stats warning");
@@ -147,11 +155,13 @@ requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "daily_checkin_c
 requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_completed"', "Event fact normalizer day-key dedupe tasks");
 requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_guidance_completed"', "Event fact normalizer day-key dedupe guidance completion");
 
-requireIncludes(debugAdvancedTelemetry, "label=\"Shared event groups\"", "Telemetry mapping panel shared event groups summary");
-requireIncludes(debugAdvancedTelemetry, "label=\"Unsafe shared events\"", "Telemetry mapping panel unsafe shared-event summary");
-requireIncludes(debugAdvancedTelemetry, "label=\"Unsupported active assignments\"", "Telemetry mapping panel unsupported active assignment summary");
-requireIncludes(debugAdvancedTelemetry, "event stats are trigger evidence only", "Telemetry mapping panel must not treat event stats as completions");
-requireIncludes(debugAdvancedTelemetry, "No task telemetry alignment warnings were detected in the sampled data.", "Telemetry mapping panel empty-state truth");
+requireIncludes(debugAdvancedTelemetry, "label=\"Task trigger events\"", "Telemetry mapping panel trigger summary");
+requireIncludes(debugAdvancedTelemetry, "label=\"Lifecycle events\"", "Telemetry mapping panel lifecycle summary");
+requireIncludes(debugAdvancedTelemetry, "label=\"Supporting telemetry\"", "Telemetry mapping panel supporting summary");
+requireIncludes(debugAdvancedTelemetry, "Lifecycle event, not a task trigger", "Telemetry mapping panel lifecycle explanation");
+requireIncludes(debugAdvancedTelemetry, "Supporting telemetry, not a task trigger", "Telemetry mapping panel supporting explanation");
+requireIncludes(debugAdvancedTelemetry, "Missing task mapping: expected by task catalog", "Telemetry mapping panel missing mapping explanation");
+requireIncludes(debugAdvancedTelemetry, "Event stats are raw trigger evidence.", "Telemetry mapping panel must not treat event stats as completions");
 
 requireIncludes(ingestTests, 'eventName: "daily_checkin_claimed"', "Ingest tests daily check-in canonicalization");
 requireIncludes(ingestTests, 'eventName: "task_completed"', "Ingest tests task completion canonicalization");
