@@ -7,6 +7,23 @@ export const SYNTHETIC_CREATOR_TYPES = [
 
 export type SyntheticCreatorType = (typeof SYNTHETIC_CREATOR_TYPES)[number];
 
+export const SYNTHETIC_LEGAL_EVIDENCE_MODES = [
+  "internal_synthetic_no_external_agreement",
+] as const;
+
+export type SyntheticLegalEvidenceMode = (typeof SYNTHETIC_LEGAL_EVIDENCE_MODES)[number];
+
+export const INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE: SyntheticLegalEvidenceMode = "internal_synthetic_no_external_agreement";
+
+export const REQUIRED_SYNTHETIC_CREATOR_MARKER_FIELDS = [
+  "isSyntheticCreator",
+  "syntheticCreatorType",
+  "syntheticCreatedByUid",
+  "syntheticCreatedAt",
+  "syntheticReason",
+  "syntheticLegalEvidenceMode",
+] as const;
+
 export const SYNTHETIC_CREATOR_TYPE_LABELS: Record<SyntheticCreatorType, string> = {
   internal_character: "Internal character",
   test_creator: "Test creator",
@@ -22,6 +39,7 @@ export type SyntheticCreatorMarker = {
   syntheticReason: string;
   humanOperatorRequired: boolean;
   publicDisclosureMode?: string;
+  syntheticLegalEvidenceMode: SyntheticLegalEvidenceMode;
 };
 
 export type AdminViewAsRole = "creator";
@@ -68,8 +86,46 @@ export function normalizeSyntheticCreatorType(value: unknown): SyntheticCreatorT
     : "test_creator";
 }
 
+export function normalizeSyntheticLegalEvidenceMode(value: unknown): SyntheticLegalEvidenceMode {
+  return SYNTHETIC_LEGAL_EVIDENCE_MODES.includes(value as SyntheticLegalEvidenceMode)
+    ? value as SyntheticLegalEvidenceMode
+    : INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE;
+}
+
 export function sanitizeSyntheticReason(value: unknown) {
   return readString(value).slice(0, 500);
+}
+
+function readTimestamp(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? Math.trunc(value)
+    : 0;
+}
+
+export function getSyntheticCreatorMarkerMissingFields(value: unknown): string[] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return [...REQUIRED_SYNTHETIC_CREATOR_MARKER_FIELDS];
+  }
+
+  const source = value as Record<string, unknown>;
+  if (source.isSyntheticCreator !== true) {
+    return [];
+  }
+
+  return [
+    source.isSyntheticCreator === true ? "" : "isSyntheticCreator",
+    SYNTHETIC_CREATOR_TYPES.includes(source.syntheticCreatorType as SyntheticCreatorType) ? "" : "syntheticCreatorType",
+    readString(source.syntheticCreatedByUid) ? "" : "syntheticCreatedByUid",
+    readTimestamp(source.syntheticCreatedAt) ? "" : "syntheticCreatedAt",
+    readString(source.syntheticReason) ? "" : "syntheticReason",
+    SYNTHETIC_LEGAL_EVIDENCE_MODES.includes(source.syntheticLegalEvidenceMode as SyntheticLegalEvidenceMode)
+      ? ""
+      : "syntheticLegalEvidenceMode",
+  ].filter(Boolean);
+}
+
+export function hasCompleteSyntheticCreatorMarker(value: unknown) {
+  return getSyntheticCreatorMarkerMissingFields(value).length === 0;
 }
 
 export function buildSyntheticCreatorMarker(input: {
@@ -93,6 +149,7 @@ export function buildSyntheticCreatorMarker(input: {
     syntheticReason,
     humanOperatorRequired: input.humanOperatorRequired !== false,
     publicDisclosureMode: readString(input.publicDisclosureMode) || undefined,
+    syntheticLegalEvidenceMode: INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE,
   };
 }
 

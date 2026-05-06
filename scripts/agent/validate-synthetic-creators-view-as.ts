@@ -41,14 +41,18 @@ const packageJson = read("package.json");
   "syntheticCreatedByUid",
   "syntheticCreatedAt",
   "syntheticReason",
+  "syntheticLegalEvidenceMode",
   "humanOperatorRequired",
   "buildSyntheticCreatorMarker",
+  "INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE",
+  "getSyntheticCreatorMarkerMissingFields",
 ].forEach((needle) => requireIncludes(helper + rosterRoute, needle, "synthetic creator marker"));
 
 [
   "Only the primary owner can create synthetic creators.",
   "Enter an internal reason before creating a synthetic creator.",
   "admin_synthetic_creator_created",
+  "synthetic_legal_evidence_mode",
   "synthetic_creator_created",
 ].forEach((needle) => requireIncludes(rosterRoute, needle, "admin roster synthetic creation route"));
 
@@ -106,6 +110,7 @@ requireIncludes(helper, "\"x-admin-view-as-user-id\"", "view-as helper headers")
 [
   "safe simulation mode",
   "does not replace Firebase auth identity",
+  "internal_synthetic_no_external_agreement",
   "Return to admin",
 ].forEach((needle) => requireIncludes(docs, needle, "synthetic creator docs"));
 

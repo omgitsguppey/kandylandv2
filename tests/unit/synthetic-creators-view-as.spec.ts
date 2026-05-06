@@ -4,6 +4,8 @@ import {
   buildAdminViewAsHeaders,
   buildAdminViewAsTelemetryPayload,
   buildSyntheticCreatorMarker,
+  getSyntheticCreatorMarkerMissingFields,
+  INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE,
   isAdminViewAsBlockedRequest,
   normalizeSyntheticCreatorType,
   parseAdminViewAsState,
@@ -24,7 +26,29 @@ describe("synthetic creators and admin view-as helpers", () => {
       syntheticCreatedAt: 1_714_600_000_000,
       syntheticReason: "Zaylani launch QA persona",
       humanOperatorRequired: true,
+      syntheticLegalEvidenceMode: INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE,
     });
+  });
+
+  it("requires internal synthetic legal evidence metadata", () => {
+    expect(getSyntheticCreatorMarkerMissingFields({
+      isSyntheticCreator: true,
+      syntheticCreatorType: "ai_creator",
+      syntheticCreatedByUid: "owner_1",
+      syntheticCreatedAt: 1_714_600_000_000,
+      syntheticReason: "Internal AI creator QA",
+      syntheticLegalEvidenceMode: INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE,
+    })).toEqual([]);
+
+    expect(getSyntheticCreatorMarkerMissingFields({
+      isSyntheticCreator: true,
+      syntheticCreatorType: "ai_creator",
+      syntheticReason: "Internal AI creator QA",
+    })).toEqual(expect.arrayContaining([
+      "syntheticCreatedByUid",
+      "syntheticCreatedAt",
+      "syntheticLegalEvidenceMode",
+    ]));
   });
 
   it("rejects missing synthetic reasons", () => {

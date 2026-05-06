@@ -243,6 +243,7 @@ describe("creator onboarding contract", () => {
             "creator_experience_settings_updated",
             "admin_account_updated",
             "synthetic_creator_created",
+            "synthetic_creator_marked",
             "admin_view_as_started",
             "admin_view_as_ended",
         ]));

@@ -7,7 +7,7 @@ import type {
     CreatorOnboardingSubmissionStatus,
     CreatorOnboardingAgreementBasis,
 } from "@/lib/creator-onboarding";
-import type { SyntheticCreatorType } from "@/lib/admin/synthetic-creators-view-as";
+import type { SyntheticCreatorType, SyntheticLegalEvidenceMode } from "@/lib/admin/synthetic-creators-view-as";
 import type {
     CreatorFansAlreadyAskForAccess,
     CreatorFollowerRange,
@@ -322,6 +322,7 @@ export type CreatorApplication = {
     syntheticReason?: string;
     humanOperatorRequired?: boolean;
     publicDisclosureMode?: string;
+    syntheticLegalEvidenceMode?: SyntheticLegalEvidenceMode;
     rejectedAt?: number;
     reapplyAvailableAt?: number;
     reviewedBy?: string;
@@ -348,6 +349,7 @@ export interface UserProfile {
     syntheticReason?: string;
     humanOperatorRequired?: boolean;
     publicDisclosureMode?: string;
+    syntheticLegalEvidenceMode?: SyntheticLegalEvidenceMode;
 
     isVerified?: boolean; // Verified Creator badge
     gumDropsBalance: number;

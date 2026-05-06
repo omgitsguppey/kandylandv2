@@ -708,6 +708,15 @@ export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
         }
     }
 
+    if (!input.before.isSyntheticCreator && input.after.isSyntheticCreator) {
+        addEntry("synthetic_creator_marked", "Synthetic creator marked", input.after.syntheticReason, {
+            syntheticCreatorType: input.after.syntheticCreatorType,
+            syntheticLegalEvidenceMode: input.after.syntheticLegalEvidenceMode,
+            humanOperatorRequired: input.after.humanOperatorRequired,
+            doesNotChangeApproval: true,
+        });
+    }
+
     if (!input.before.legallyClearedAt && input.after.legallyClearedAt) {
         addEntry("creator_legally_cleared", "Creator marked legally cleared by owner", input.after.agreementBasis || "Manual override");
     }

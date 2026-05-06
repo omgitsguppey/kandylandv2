@@ -4,6 +4,7 @@ import { BUILT_IN_DAILY_TASK_MAP, type DailyTaskAssignment } from "@/lib/tasks/t
 import { readTaskTimestampMs } from "@/lib/tasks/task-timestamps";
 import { normalizeCreatorRestrictions, normalizeCreatorSettings } from "@/lib/creator-experiences";
 import { normalizeCreatorApplication } from "@/lib/creator-application";
+import { normalizeSyntheticLegalEvidenceMode } from "@/lib/admin/synthetic-creators-view-as";
 
 /**
  * Normalizes a username by trimming, lowercasing, and allowing only alphanumerics, hyphens, and underscores.
@@ -123,6 +124,9 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         syntheticReason: typeof source.syntheticReason === "string" ? source.syntheticReason : undefined,
         humanOperatorRequired: source.isSyntheticCreator === true ? source.humanOperatorRequired !== false : undefined,
         publicDisclosureMode: typeof source.publicDisclosureMode === "string" ? source.publicDisclosureMode : undefined,
+        syntheticLegalEvidenceMode: source.isSyntheticCreator === true
+            ? normalizeSyntheticLegalEvidenceMode(source.syntheticLegalEvidenceMode)
+            : undefined,
 
 
         isVerified: source.isVerified === true,

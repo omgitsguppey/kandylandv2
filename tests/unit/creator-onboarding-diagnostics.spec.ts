@@ -134,6 +134,128 @@ describe("creator onboarding diagnostics", () => {
         expect(result.issues.some((issue) => issue.rosterWarning === "Agreement evidence missing")).toBe(true);
     });
 
+    it("keeps human signed agreement missing hash as an error", () => {
+        const result = buildCreatorOnboardingDiagnostics({
+            users: [{ uid: "human_hash_gap", raw: { role: "user" } }],
+            onboardingRecords: [
+                canonical({
+                    userId: "human_hash_gap",
+                    creatorDisplayName: "Human Hash Gap",
+                    legalStatus: "legal_signed",
+                    creatorSignatureStatus: "signature_signed",
+                    adminSignatureStatus: "signature_signed",
+                    creatorContractSignedAt: BASE_TIME,
+                    adminContractSignedAt: BASE_TIME,
+                    agreementHash: "",
+                }),
+            ],
+            queueRecords: [queue({
+                userId: "human_hash_gap",
+                creatorDisplayName: "Human Hash Gap",
+                legalStatus: "legal_signed",
+                creatorSignatureStatus: "signature_signed",
+                adminSignatureStatus: "signature_signed",
+                agreementHash: "",
+            })],
+        });
+
+        expect(result.issues.find((issue) => issue.key === "creator_signature_missing_evidence")).toMatchObject({
+            severity: "error",
+            rosterWarning: "Agreement evidence missing",
+            missingEvidenceFields: ["agreementHash"],
+        });
+    });
+
+    it("downgrades synthetic signed agreement missing hash to a legal evidence note", () => {
+        const syntheticFields = {
+            isSyntheticCreator: true,
+            syntheticCreatorType: "ai_creator",
+            syntheticCreatedByUid: "owner_1",
+            syntheticCreatedAt: BASE_TIME,
+            syntheticReason: "Internal AI creator QA",
+            syntheticLegalEvidenceMode: "internal_synthetic_no_external_agreement",
+            humanOperatorRequired: true,
+        };
+        const result = buildCreatorOnboardingDiagnostics({
+            users: [{ uid: "zaylani", raw: { role: "creator", ...syntheticFields, creatorSettings: {} } }],
+            onboardingRecords: [
+                canonical({
+                    userId: "zaylani",
+                    creatorDisplayName: "Zaylani Moore",
+                    role: "creator",
+                    approvalStatus: "creator_approved",
+                    legalStatus: "legal_signed",
+                    creatorSignatureStatus: "signature_signed",
+                    adminSignatureStatus: "signature_signed",
+                    creatorContractSignedAt: BASE_TIME,
+                    adminContractSignedAt: BASE_TIME,
+                    agreementHash: "",
+                    ...syntheticFields,
+                }),
+            ],
+            queueRecords: [queue({
+                userId: "zaylani",
+                creatorDisplayName: "Zaylani Moore",
+                role: "creator",
+                approvalStatus: "creator_approved",
+                legalStatus: "legal_signed",
+                creatorSignatureStatus: "signature_signed",
+                adminSignatureStatus: "signature_signed",
+                agreementHash: "",
+                queueBucket: "approved",
+                ...syntheticFields,
+            })],
+        });
+
+        expect(issueKeys(result)).not.toContain("creator_signature_missing_evidence");
+        expect(issueKeys(result)).not.toContain("admin_signature_missing_evidence");
+        expect(result.issues.find((issue) => issue.key === "synthetic_agreement_hash_optional")).toMatchObject({
+            severity: "warn",
+            rosterWarning: "Synthetic legal evidence note",
+            canSelfHeal: false,
+            missingEvidenceFields: ["agreementHash"],
+        });
+    });
+
+    it("flags incomplete synthetic creator markers without making agreementHash the primary error", () => {
+        const result = buildCreatorOnboardingDiagnostics({
+            users: [{ uid: "synthetic_incomplete", raw: { role: "creator", isSyntheticCreator: true, creatorSettings: {} } }],
+            onboardingRecords: [
+                canonical({
+                    userId: "synthetic_incomplete",
+                    creatorDisplayName: "Synthetic Incomplete",
+                    role: "creator",
+                    approvalStatus: "creator_approved",
+                    legalStatus: "legal_signed",
+                    creatorSignatureStatus: "signature_signed",
+                    adminSignatureStatus: "signature_signed",
+                    creatorContractSignedAt: BASE_TIME,
+                    adminContractSignedAt: BASE_TIME,
+                    agreementHash: "",
+                    isSyntheticCreator: true,
+                }),
+            ],
+            queueRecords: [queue({
+                userId: "synthetic_incomplete",
+                creatorDisplayName: "Synthetic Incomplete",
+                role: "creator",
+                approvalStatus: "creator_approved",
+                legalStatus: "legal_signed",
+                creatorSignatureStatus: "signature_signed",
+                adminSignatureStatus: "signature_signed",
+                agreementHash: "",
+                queueBucket: "approved",
+                isSyntheticCreator: true,
+            })],
+        });
+
+        expect(result.issues.find((issue) => issue.key === "synthetic_creator_marker_incomplete")).toMatchObject({
+            severity: "warn",
+            rosterWarning: "Synthetic legal evidence note",
+            message: "Synthetic creator marker is incomplete.",
+        });
+    });
+
     it("treats approved live creator missing settings as critical and self-healable", () => {
         const result = buildCreatorOnboardingDiagnostics({
             users: [{ uid: "missing_settings", raw: { role: "creator" } }],

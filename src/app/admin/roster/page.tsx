@@ -38,7 +38,7 @@ import {
     CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS,
 } from "@/lib/creator-contract";
 import type { CreatorFanExperienceSettingsCommand } from "@/lib/admin/creator-fan-experience-settings";
-import type { SyntheticCreatorType } from "@/lib/admin/synthetic-creators-view-as";
+import type { SyntheticCreatorType, SyntheticLegalEvidenceMode } from "@/lib/admin/synthetic-creators-view-as";
 import type { CreatorRestrictions, CreatorSettings } from "@/lib/creator-experiences";
 import {
     describeCreatorOnboardingBlockingReason,
@@ -90,7 +90,8 @@ type CreatorAdminRosterAction =
     | "apply_owner_override"
     | "clear_owner_override"
     | "activate_creator_role"
-    | "update_admin_notes";
+    | "update_admin_notes"
+    | "mark_synthetic_creator";
 
 type CreatorReviewQueueEntry = {
     uid: string;
@@ -119,6 +120,7 @@ type CreatorReviewQueueEntry = {
     syntheticReason?: string;
     humanOperatorRequired?: boolean;
     publicDisclosureMode?: string;
+    syntheticLegalEvidenceMode?: SyntheticLegalEvidenceMode;
     introAcknowledgedAt?: number;
     submittedAt: number;
     updatedAt: number;
@@ -157,6 +159,7 @@ type RosterUser = {
     isSyntheticCreator?: boolean;
     syntheticCreatorType?: SyntheticCreatorType;
     humanOperatorRequired?: boolean;
+    syntheticLegalEvidenceMode?: SyntheticLegalEvidenceMode;
     isVerified: boolean;
 };
 
@@ -187,6 +190,7 @@ type CreatorDetailResponse = {
         isSyntheticCreator?: boolean;
         syntheticCreatorType?: SyntheticCreatorType;
         humanOperatorRequired?: boolean;
+        syntheticLegalEvidenceMode?: SyntheticLegalEvidenceMode;
         notificationSettings?: {
             inAppEnabled?: boolean;
             browserPushEnabled?: boolean;

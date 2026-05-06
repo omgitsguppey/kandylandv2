@@ -1,5 +1,10 @@
 import "server-only";
 
+import {
+  INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE,
+  normalizeSyntheticCreatorType,
+  sanitizeSyntheticReason,
+} from "@/lib/admin/synthetic-creators-view-as";
 import { buildCreatorOnboardingUserProjection, type CreatorOnboardingCanonicalRecord } from "@/lib/creator-onboarding";
 import { AuthError } from "@/lib/server/auth";
 import { shouldActivateCreatorRole, type CreatorOnboardingActor } from "@/lib/server/creator-onboarding";
@@ -19,6 +24,7 @@ export const CREATOR_ADMIN_ACTIONS = [
   "clear_owner_override",
   "activate_creator_role",
   "update_admin_notes",
+  "mark_synthetic_creator",
 ] as const;
 
 export type CreatorAdminAction = (typeof CREATOR_ADMIN_ACTIONS)[number];
@@ -244,6 +250,24 @@ export function buildCreatorAdminLifecycleSource(input: {
       source.adminNotes = readCreatorAdminActionString(input.payload.notes).slice(0, 2_000);
       return source;
     }
+    case "mark_synthetic_creator": {
+      const reason = sanitizeSyntheticReason(input.payload.reason);
+      if (reason.length < 8) {
+        throw new AuthError("Internal synthetic creator reason is required.", 400);
+      }
+
+      source.isSyntheticCreator = true;
+      source.syntheticCreatorType = normalizeSyntheticCreatorType(input.payload.syntheticCreatorType);
+      source.syntheticCreatedByUid = input.before.syntheticCreatedByUid || input.actor.id;
+      source.syntheticCreatedAt = input.before.syntheticCreatedAt || input.nowMs;
+      source.syntheticReason = input.before.syntheticReason || reason;
+      source.humanOperatorRequired = input.payload.humanOperatorRequired !== false;
+      source.publicDisclosureMode = readCreatorAdminActionString(input.payload.publicDisclosureMode)
+        || input.before.publicDisclosureMode
+        || undefined;
+      source.syntheticLegalEvidenceMode = INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE;
+      return source;
+    }
     default:
       throw new AuthError("Unsupported lifecycle action.", 400);
   }
@@ -294,6 +318,10 @@ export function buildCreatorAdminLifecycleEvents(input: {
 
   if (input.action === "update_admin_notes" && input.before.adminNotes !== input.after.adminNotes) {
     events.push("admin_creator_notes_updated");
+  }
+
+  if (!input.before.isSyntheticCreator && input.after.isSyntheticCreator) {
+    events.push("admin_synthetic_creator_marked");
   }
 
   return Array.from(new Set(events));

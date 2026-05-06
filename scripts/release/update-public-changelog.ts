@@ -262,6 +262,13 @@ function buildUserFacingTitle(title: string, category: PublicReleaseNoteCategory
   ) {
     return "Improved internal creator experience defaults for beta reliability.";
   }
+  if (
+    normalized.includes("classify synthetic agreement evidence")
+    || normalized.includes("internal creator classification")
+    || normalized.includes("synthetic agreement evidence")
+  ) {
+    return "Improved internal creator classification checks.";
+  }
   if (isInternalBetaStabilizationChange(title, surfaces)) {
     return "Improved internal beta reliability and support traceability.";
   }

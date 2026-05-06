@@ -18,6 +18,12 @@ import {
     type CreatorOnboardingHistoryEventType,
     type CreatorReviewQueueEntry,
 } from "@/lib/creator-onboarding";
+import {
+    getSyntheticCreatorMarkerMissingFields,
+    normalizeSyntheticLegalEvidenceMode,
+    type SyntheticCreatorType,
+    type SyntheticLegalEvidenceMode,
+} from "@/lib/admin/synthetic-creators-view-as";
 import { compareCreatorOnboardingToQueueRecords } from "@/lib/server/creator-review-queue";
 
 export const CREATOR_LANE_ROSTER_WARNINGS = [
@@ -27,6 +33,7 @@ export const CREATOR_LANE_ROSTER_WARNINGS = [
     "ID record needs review",
     "Settings missing",
     "Settings need review",
+    "Synthetic legal evidence note",
 ] as const;
 
 export type CreatorLaneRosterWarning = (typeof CREATOR_LANE_ROSTER_WARNINGS)[number];
@@ -44,6 +51,8 @@ export type CreatorOnboardingDiagnosticIssueKey =
     | "legal_signed_without_matching_signatures"
     | "creator_signature_missing_evidence"
     | "admin_signature_missing_evidence"
+    | "synthetic_agreement_hash_optional"
+    | "synthetic_creator_marker_incomplete"
     | "creator_settings_missing"
     | "creator_restrictions_conflict"
     | "sensitive_history_missing";
@@ -61,6 +70,10 @@ export type CreatorLaneSourceSnapshot = {
     settingsPresent: boolean;
     restrictionsPresent: boolean;
     creatorExperienceActivityCount: number;
+    isSyntheticCreator?: boolean;
+    syntheticCreatorType?: SyntheticCreatorType;
+    syntheticLegalEvidenceMode?: SyntheticLegalEvidenceMode;
+    syntheticMarkerComplete?: boolean;
     queueBucket?: string;
     queueMaterializedAt?: number;
     sourceOnboardingUpdatedAt?: number;
@@ -183,6 +196,51 @@ function hasAgreementEvidence(record: Partial<CreatorOnboardingCanonicalRecord>)
     return Boolean(record.contractVersion && record.agreementHash);
 }
 
+function buildSyntheticMarkerSource(input: {
+    canonical?: Partial<CreatorOnboardingCanonicalRecord>;
+    queue?: Record<string, unknown>;
+    userRaw?: Record<string, unknown>;
+}) {
+    const canonical = input.canonical ?? {};
+    const queue = input.queue ?? {};
+    const userRaw = input.userRaw ?? {};
+    const isSyntheticCreator = canonical.isSyntheticCreator === true
+        || queue.isSyntheticCreator === true
+        || userRaw.isSyntheticCreator === true;
+
+    return {
+        isSyntheticCreator,
+        syntheticCreatorType: canonical.syntheticCreatorType ?? queue.syntheticCreatorType ?? userRaw.syntheticCreatorType,
+        syntheticCreatedByUid: canonical.syntheticCreatedByUid ?? queue.syntheticCreatedByUid ?? userRaw.syntheticCreatedByUid,
+        syntheticCreatedAt: canonical.syntheticCreatedAt ?? queue.syntheticCreatedAt ?? userRaw.syntheticCreatedAt,
+        syntheticReason: canonical.syntheticReason ?? queue.syntheticReason ?? userRaw.syntheticReason,
+        humanOperatorRequired: canonical.humanOperatorRequired ?? queue.humanOperatorRequired ?? userRaw.humanOperatorRequired,
+        publicDisclosureMode: canonical.publicDisclosureMode ?? queue.publicDisclosureMode ?? userRaw.publicDisclosureMode,
+        syntheticLegalEvidenceMode: canonical.syntheticLegalEvidenceMode
+            ?? queue.syntheticLegalEvidenceMode
+            ?? userRaw.syntheticLegalEvidenceMode,
+    };
+}
+
+function getSyntheticMarkerMissingFields(input: {
+    canonical?: Partial<CreatorOnboardingCanonicalRecord>;
+    queue?: Record<string, unknown>;
+    userRaw?: Record<string, unknown>;
+}) {
+    const source = buildSyntheticMarkerSource(input);
+    return source.isSyntheticCreator
+        ? getSyntheticCreatorMarkerMissingFields(source)
+        : [];
+}
+
+function isSyntheticCreator(input: {
+    canonical?: Partial<CreatorOnboardingCanonicalRecord>;
+    queue?: Record<string, unknown>;
+    userRaw?: Record<string, unknown>;
+}) {
+    return buildSyntheticMarkerSource(input).isSyntheticCreator;
+}
+
 function getCreatorExperienceActivityCount(records: CreatorExperienceRecordInput[] | undefined, userId: string) {
     if (!records?.length) {
         return 0;
@@ -219,6 +277,8 @@ function buildSourceSnapshot(input: {
     creatorExperienceActivityCount?: number;
 }): CreatorLaneSourceSnapshot {
     const rawRole = readString(input.userRaw?.role);
+    const syntheticSource = buildSyntheticMarkerSource(input);
+    const syntheticMarkerMissingFields = getSyntheticMarkerMissingFields(input);
     return {
         onboardingExists: Boolean(input.canonical),
         reviewQueueExists: Boolean(input.queue),
@@ -232,6 +292,14 @@ function buildSourceSnapshot(input: {
         settingsPresent: hasRecord(input.userRaw?.creatorSettings),
         restrictionsPresent: hasRecord(input.userRaw?.creatorRestrictions),
         creatorExperienceActivityCount: input.creatorExperienceActivityCount ?? 0,
+        isSyntheticCreator: syntheticSource.isSyntheticCreator,
+        syntheticCreatorType: syntheticSource.isSyntheticCreator
+            ? syntheticSource.syntheticCreatorType as SyntheticCreatorType | undefined
+            : undefined,
+        syntheticLegalEvidenceMode: syntheticSource.isSyntheticCreator
+            ? normalizeSyntheticLegalEvidenceMode(syntheticSource.syntheticLegalEvidenceMode)
+            : undefined,
+        syntheticMarkerComplete: syntheticSource.isSyntheticCreator ? syntheticMarkerMissingFields.length === 0 : undefined,
         queueBucket: readString(input.queue?.queueBucket) || undefined,
         queueMaterializedAt: readNumber(input.queue?.queueMaterializedAt) || undefined,
         sourceOnboardingUpdatedAt: readNumber(input.queue?.sourceOnboardingUpdatedAt) || input.canonical?.updatedAt || undefined,
@@ -372,6 +440,10 @@ export function buildCreatorLaneRosterWarnings(input: {
     const creatorSignatureStatus = readString(input.entry.creatorSignatureStatus);
     const adminSignatureStatus = readString(input.entry.adminSignatureStatus);
     const queueParityDelta = Array.isArray(input.entry.queueParityDelta) ? input.entry.queueParityDelta : [];
+    const synthetic = isSyntheticCreator({
+        queue: input.entry,
+        userRaw: input.userRaw,
+    });
 
     if (input.entry.queueParityOk === false || queueParityDelta.length > 0) {
         addWarning(warnings, "Review queue out of sync");
@@ -392,7 +464,7 @@ export function buildCreatorLaneRosterWarnings(input: {
         (creatorSignatureStatus === "signature_signed" || adminSignatureStatus === "signature_signed")
         && (!readString(input.entry.contractVersion) || !readString(input.entry.agreementHash))
     ) {
-        addWarning(warnings, "Agreement evidence missing");
+        addWarning(warnings, synthetic ? "Synthetic legal evidence note" : "Agreement evidence missing");
     }
     if ((idStatus === "id_submitted" || idStatus === "id_verified") && countIdDocuments(input.entry) === 0) {
         addWarning(warnings, "ID record needs review");
@@ -508,6 +580,29 @@ export function buildCreatorOnboardingDiagnostics(input: {
             userRaw,
             creatorExperienceActivityCount: getCreatorExperienceActivityCount(input.creatorExperienceRecords, userId),
         });
+        const syntheticMarkerMissingFields = getSyntheticMarkerMissingFields({
+            canonical,
+            queue: queueEntry as unknown as Record<string, unknown> | undefined,
+            userRaw,
+        });
+        const syntheticCreator = sourceSnapshot.isSyntheticCreator === true;
+
+        if (syntheticCreator && syntheticMarkerMissingFields.length > 0) {
+            pushIssue({
+                key: "synthetic_creator_marker_incomplete",
+                severity: "warn",
+                userId,
+                creatorDisplayName: canonical.creatorDisplayName,
+                message: "Synthetic creator marker is incomplete.",
+                detail: `Synthetic/internal creator marker is missing ${syntheticMarkerMissingFields.join(", ")}.`,
+                link: `/admin/user/${userId}`,
+                rosterWarning: "Synthetic legal evidence note",
+                recommendedFix: "Mark as internal synthetic creator from admin controls with the required metadata.",
+                canSelfHeal: false,
+                sourceSnapshots: sourceSnapshot,
+                missingEvidenceFields: syntheticMarkerMissingFields,
+            });
+        }
 
         if (canonical.creatorReviewQueueVisible && !queueByUser.has(userId)) {
             pushIssue({
@@ -672,20 +767,42 @@ export function buildCreatorOnboardingDiagnostics(input: {
                 !canonical.agreementHash ? "agreementHash" : "",
                 !canonical.creatorContractSignedAt ? "creatorContractSignedAt" : "",
             ].filter(Boolean);
-            pushIssue({
-                key: "creator_signature_missing_evidence",
-                severity: "error",
-                userId,
-                creatorDisplayName: canonical.creatorDisplayName,
-                message: "Creator signature evidence is incomplete",
-                detail: `Creator signature is marked signed, but ${missingEvidenceFields.join(", ")} is missing.`,
-                link: `/admin/user/${userId}`,
-                rosterWarning: "Agreement evidence missing",
-                recommendedFix: "Send an updated agreement or repair the signature evidence before approval.",
-                canSelfHeal: false,
-                sourceSnapshots: sourceSnapshot,
-                missingEvidenceFields,
-            });
+            const blockingMissingFields = syntheticCreator
+                ? missingEvidenceFields.filter((field) => field !== "agreementHash")
+                : missingEvidenceFields;
+            if (blockingMissingFields.length > 0) {
+                const signatureSubject = syntheticCreator ? "Synthetic/internal creator" : "Human creator";
+                pushIssue({
+                    key: "creator_signature_missing_evidence",
+                    severity: "error",
+                    userId,
+                    creatorDisplayName: canonical.creatorDisplayName,
+                    message: "Creator signature evidence is incomplete",
+                    detail: `${signatureSubject} signature is marked signed, but ${blockingMissingFields.join(", ")} is missing.`,
+                    link: `/admin/user/${userId}`,
+                    rosterWarning: "Agreement evidence missing",
+                    recommendedFix: "Send an updated agreement or repair the signature evidence before approval.",
+                    canSelfHeal: false,
+                    sourceSnapshots: sourceSnapshot,
+                    missingEvidenceFields: blockingMissingFields,
+                });
+            }
+            if (syntheticCreator && missingEvidenceFields.includes("agreementHash")) {
+                pushIssue({
+                    key: "synthetic_agreement_hash_optional",
+                    severity: "warn",
+                    userId,
+                    creatorDisplayName: canonical.creatorDisplayName,
+                    message: "Synthetic/internal creator uses internal legal evidence mode; agreementHash is optional.",
+                    detail: "Synthetic/internal creator signature is marked signed without an external agreementHash because the creator uses internal synthetic legal evidence mode.",
+                    link: `/admin/user/${userId}`,
+                    rosterWarning: "Synthetic legal evidence note",
+                    recommendedFix: "No agreement hash repair is required unless this creator is reclassified as a normal human creator.",
+                    canSelfHeal: false,
+                    sourceSnapshots: sourceSnapshot,
+                    missingEvidenceFields: ["agreementHash"],
+                });
+            }
         }
 
         if (canonical.adminSignatureStatus === "signature_signed" && (!hasAgreementEvidence(canonical) || !canonical.adminContractSignedAt)) {
@@ -694,20 +811,41 @@ export function buildCreatorOnboardingDiagnostics(input: {
                 !canonical.agreementHash ? "agreementHash" : "",
                 !canonical.adminContractSignedAt ? "adminContractSignedAt" : "",
             ].filter(Boolean);
-            pushIssue({
-                key: "admin_signature_missing_evidence",
-                severity: "error",
-                userId,
-                creatorDisplayName: canonical.creatorDisplayName,
-                message: "Admin countersign evidence is incomplete",
-                detail: `Admin countersign is marked signed, but ${missingEvidenceFields.join(", ")} is missing.`,
-                link: `/admin/user/${userId}`,
-                rosterWarning: "Agreement evidence missing",
-                recommendedFix: "Countersign again against the same agreement version and hash, or repair the evidence in Debug.",
-                canSelfHeal: false,
-                sourceSnapshots: sourceSnapshot,
-                missingEvidenceFields,
-            });
+            const blockingMissingFields = syntheticCreator
+                ? missingEvidenceFields.filter((field) => field !== "agreementHash")
+                : missingEvidenceFields;
+            if (blockingMissingFields.length > 0) {
+                pushIssue({
+                    key: "admin_signature_missing_evidence",
+                    severity: "error",
+                    userId,
+                    creatorDisplayName: canonical.creatorDisplayName,
+                    message: "Admin countersign evidence is incomplete",
+                    detail: `Admin countersign is marked signed, but ${blockingMissingFields.join(", ")} is missing.`,
+                    link: `/admin/user/${userId}`,
+                    rosterWarning: "Agreement evidence missing",
+                    recommendedFix: "Countersign again against the same agreement version and hash, or repair the evidence in Debug.",
+                    canSelfHeal: false,
+                    sourceSnapshots: sourceSnapshot,
+                    missingEvidenceFields: blockingMissingFields,
+                });
+            }
+            if (syntheticCreator && missingEvidenceFields.includes("agreementHash")) {
+                pushIssue({
+                    key: "synthetic_agreement_hash_optional",
+                    severity: "warn",
+                    userId,
+                    creatorDisplayName: canonical.creatorDisplayName,
+                    message: "Synthetic/internal creator uses internal legal evidence mode; agreementHash is optional.",
+                    detail: "Synthetic/internal creator countersign is marked signed without an external agreementHash because the creator uses internal synthetic legal evidence mode.",
+                    link: `/admin/user/${userId}`,
+                    rosterWarning: "Synthetic legal evidence note",
+                    recommendedFix: "No agreement hash repair is required unless this creator is reclassified as a normal human creator.",
+                    canSelfHeal: false,
+                    sourceSnapshots: sourceSnapshot,
+                    missingEvidenceFields: ["agreementHash"],
+                });
+            }
         }
 
         if (canonical.ownerOverrideActive && !canonical.ownerOverrideReason) {

@@ -19,9 +19,12 @@ Synthetic creator creation stores:
 - `syntheticCreatedAt`
 - `syntheticReason`
 - `humanOperatorRequired`
+- `syntheticLegalEvidenceMode: internal_synthetic_no_external_agreement`
 - `publicDisclosureMode` only when a public profile doctrine supports it
 
 The Admin Roster create flow shows the synthetic creator control only to the owner. A reason is required. Creation writes top-level user fields, creator onboarding projection fields, queue fields, `synthetic_creator_created` history, and `admin_synthetic_creator_created` telemetry.
+
+Synthetic/internal creators use internal legal evidence mode instead of an external human creator agreement hash. Missing `agreementHash` is an admin warning/info note for synthetic creators, not a human agreement evidence error, as long as the synthetic marker is complete and internal-only.
 
 ## View-As Simulation
 

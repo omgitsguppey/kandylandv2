@@ -56,7 +56,12 @@ import {
     type CreatorRecommendedSetup,
 } from "@/lib/creator-intake-flow";
 import type { CreatorAgreementDispatchStatus, CreatorAgreementSource } from "@/lib/creator-agreement-documents";
-import type { SyntheticCreatorType } from "@/lib/admin/synthetic-creators-view-as";
+import {
+    INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE,
+    normalizeSyntheticLegalEvidenceMode,
+    type SyntheticCreatorType,
+    type SyntheticLegalEvidenceMode,
+} from "@/lib/admin/synthetic-creators-view-as";
 import type { ActorMarker } from "@/lib/identity/actor-markers";
 
 export const CREATOR_ONBOARDING_SUBMISSION_STATUSES = [
@@ -160,6 +165,7 @@ const HISTORY_EVENT_TYPE_SET = new Set<CreatorOnboardingHistoryEventType>([
     "agreement_template_activated",
     "agreement_update_sent",
     "synthetic_creator_created",
+    "synthetic_creator_marked",
     "admin_view_as_started",
     "admin_view_as_ended",
     "admin_view_as_action_blocked",
@@ -279,6 +285,7 @@ export type CreatorOnboardingProjectionState = {
     syntheticReason?: string;
     humanOperatorRequired?: boolean;
     publicDisclosureMode?: string;
+    syntheticLegalEvidenceMode?: SyntheticLegalEvidenceMode;
     rejectedAt?: number;
     reapplyAvailableAt?: number;
     reviewedBy?: string;
@@ -357,6 +364,7 @@ export type CreatorReviewQueueEntry = {
     syntheticReason?: string;
     humanOperatorRequired?: boolean;
     publicDisclosureMode?: string;
+    syntheticLegalEvidenceMode?: SyntheticLegalEvidenceMode;
     readyForApproval: boolean;
     creatorReviewQueueVisible: boolean;
     blockingReasons: CreatorOnboardingBlockingReason[];
@@ -412,6 +420,7 @@ export type CreatorOnboardingHistoryEventType =
     | "agreement_template_activated"
     | "agreement_update_sent"
     | "synthetic_creator_created"
+    | "synthetic_creator_marked"
     | "admin_view_as_started"
     | "admin_view_as_ended"
     | "admin_view_as_action_blocked";
@@ -459,6 +468,7 @@ export const CREATOR_ONBOARDING_REQUIRED_HISTORY_EVENT_TYPES = [
     "creator_default_settings_created",
     "admin_account_updated",
     "synthetic_creator_created",
+    "synthetic_creator_marked",
     "admin_view_as_started",
     "admin_view_as_ended",
 ] as const satisfies readonly CreatorOnboardingHistoryEventType[];
@@ -497,6 +507,7 @@ export const CREATOR_ONBOARDING_HISTORY_EVENT_LABELS: Record<CreatorOnboardingHi
     agreement_template_activated: "Agreement template activated",
     agreement_update_sent: "Updated agreement sent",
     synthetic_creator_created: "Synthetic creator created",
+    synthetic_creator_marked: "Synthetic creator marked",
     admin_view_as_started: "Admin view-as started",
     admin_view_as_ended: "Admin view-as ended",
     admin_view_as_action_blocked: "View-as action blocked",
@@ -1573,6 +1584,9 @@ export function buildCreatorOnboardingProjectionState(input: {
             ? sourceRecord?.["humanOperatorRequired"] !== false
             : undefined,
         publicDisclosureMode: readString(sourceRecord?.["publicDisclosureMode"]) || undefined,
+        syntheticLegalEvidenceMode: sourceRecord?.["isSyntheticCreator"] === true
+            ? normalizeSyntheticLegalEvidenceMode(sourceRecord?.["syntheticLegalEvidenceMode"] ?? INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE)
+            : undefined,
         rejectedAt: readOptionalTimestamp(sourceRecord?.["rejectedAt"]),
         reapplyAvailableAt: readOptionalTimestamp(sourceRecord?.["reapplyAvailableAt"]),
         reviewedBy: readString(sourceRecord?.["reviewedBy"]) || undefined,
@@ -1686,6 +1700,7 @@ export function buildCreatorOnboardingUserProjection(
         syntheticReason: canonical.syntheticReason,
         humanOperatorRequired: canonical.humanOperatorRequired,
         publicDisclosureMode: canonical.publicDisclosureMode,
+        syntheticLegalEvidenceMode: canonical.syntheticLegalEvidenceMode,
         rejectedAt: canonical.rejectedAt,
         reapplyAvailableAt: canonical.reapplyAvailableAt,
         reviewedBy: canonical.reviewedBy,
@@ -1907,6 +1922,7 @@ export function buildCreatorReviewQueueEntry(input: {
         syntheticReason: canonical.syntheticReason,
         humanOperatorRequired: canonical.humanOperatorRequired,
         publicDisclosureMode: canonical.publicDisclosureMode,
+        syntheticLegalEvidenceMode: canonical.syntheticLegalEvidenceMode,
         readyForApproval: canonical.readyForApproval,
         creatorReviewQueueVisible: canonical.creatorReviewQueueVisible,
         blockingReasons: canonical.blockingReasons,

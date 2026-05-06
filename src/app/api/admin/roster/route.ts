@@ -45,8 +45,10 @@ import {
 } from "@/lib/identity/actor-markers";
 import {
     buildSyntheticCreatorMarker,
+    normalizeSyntheticLegalEvidenceMode,
     normalizeSyntheticCreatorType,
     sanitizeSyntheticReason,
+    type SyntheticLegalEvidenceMode,
     type SyntheticCreatorType,
 } from "@/lib/admin/synthetic-creators-view-as";
 import { deriveCreatorVisibleStatus } from "@/lib/creator-onboarding-projection";
@@ -76,6 +78,7 @@ type RosterEntry = {
     syntheticReason?: string;
     humanOperatorRequired?: boolean;
     publicDisclosureMode?: string;
+    syntheticLegalEvidenceMode?: SyntheticLegalEvidenceMode;
     isVerified: boolean;
     createdAt: number;
 };
@@ -104,6 +107,7 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
     syntheticReason?: string;
     humanOperatorRequired?: boolean;
     publicDisclosureMode?: string;
+    syntheticLegalEvidenceMode?: SyntheticLegalEvidenceMode;
     readyForApproval: boolean;
     creatorReviewQueueVisible: boolean;
     submittedAt: number;
@@ -224,6 +228,9 @@ function serializeRosterEntry(id: string, raw: Record<string, unknown>): RosterE
         syntheticReason: readString(raw.syntheticReason) || undefined,
         humanOperatorRequired: raw.isSyntheticCreator === true ? raw.humanOperatorRequired !== false : undefined,
         publicDisclosureMode: readString(raw.publicDisclosureMode) || undefined,
+        syntheticLegalEvidenceMode: raw.isSyntheticCreator === true
+            ? normalizeSyntheticLegalEvidenceMode(raw.syntheticLegalEvidenceMode)
+            : undefined,
         isVerified: raw.isVerified === true,
         createdAt: toTimestampNumber(raw.createdAt),
     };
@@ -303,6 +310,9 @@ function serializeQueueEntry(
         ownerOverrideReason: readString(raw.ownerOverrideReason) || undefined,
         humanOperatorRequired: raw.humanOperatorRequired === false ? false : raw.isSyntheticCreator === true ? true : user?.humanOperatorRequired,
         publicDisclosureMode: readString(raw.publicDisclosureMode) || user?.publicDisclosureMode,
+        syntheticLegalEvidenceMode: raw.isSyntheticCreator === true || user?.isSyntheticCreator === true
+            ? normalizeSyntheticLegalEvidenceMode(raw.syntheticLegalEvidenceMode || user?.syntheticLegalEvidenceMode)
+            : undefined,
         readyForApproval: readBoolean(raw.readyForApproval),
         creatorReviewQueueVisible: raw.creatorReviewQueueVisible !== false,
         submittedAt: toTimestampNumber(raw.submittedAt),
@@ -999,6 +1009,7 @@ async function POST_handler(request: NextRequest) {
                     detail: syntheticReason,
                     metadata: {
                         syntheticCreatorType: syntheticMarker.syntheticCreatorType,
+                        syntheticLegalEvidenceMode: syntheticMarker.syntheticLegalEvidenceMode,
                         humanOperatorRequired: syntheticMarker.humanOperatorRequired,
                     },
                     targetUserId: authUser.uid,
@@ -1031,6 +1042,7 @@ async function POST_handler(request: NextRequest) {
                 page_path: "/admin/roster",
                 syntheticCreatorType: syntheticMarker.syntheticCreatorType,
                 synthetic_creator_type: syntheticMarker.syntheticCreatorType,
+                synthetic_legal_evidence_mode: syntheticMarker.syntheticLegalEvidenceMode,
                 humanOperatorRequired: syntheticMarker.humanOperatorRequired,
                 reason: syntheticReason,
                 ...actorMarkerToTelemetryPayload(directCreateMarker),

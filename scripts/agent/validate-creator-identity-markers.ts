@@ -26,9 +26,11 @@ function requireNotIncludes(source: string, needle: string, label: string) {
 }
 
 const helper = read("src/lib/identity/actor-markers.ts");
+const syntheticHelper = read("src/lib/admin/synthetic-creators-view-as.ts");
 const analyticsContract = read("src/lib/analytics/analytics-event-contract.ts");
 const serverAnalytics = read("src/lib/server/analytics.ts");
 const creatorOnboardingServer = read("src/lib/server/creator-onboarding.ts");
+const creatorOnboarding = read("src/lib/creator-onboarding.ts");
 const userRegisterRoute = read("src/app/api/user/register/route.ts");
 const adminRosterRoute = read("src/app/api/admin/roster/route.ts");
 const adminUsersRoute = read("src/app/api/admin/users/route.ts");
@@ -74,6 +76,18 @@ const fileChecklist = read("EVERY_FILE_FUNCTION_CHECKLIST.md");
   "unknownActorBlocked",
 ].forEach((needle) => requireIncludes(helper, needle, "actor marker helper"));
 
+[
+  "INTERNAL_SYNTHETIC_LEGAL_EVIDENCE_MODE",
+  "syntheticLegalEvidenceMode",
+  "getSyntheticCreatorMarkerMissingFields",
+  "REQUIRED_SYNTHETIC_CREATOR_MARKER_FIELDS",
+].forEach((needle) => requireIncludes(syntheticHelper, needle, "synthetic creator marker helper"));
+
+[
+  "synthetic_creator_marked",
+  "syntheticLegalEvidenceMode",
+].forEach((needle) => requireIncludes(creatorOnboarding, needle, "creator onboarding synthetic marker contract"));
+
 requireIncludes(helper, "UnknownActorMarkerError", "actor marker helper");
 requireIncludes(helper, "Admin-on-behalf actor markers require targetUserId", "actor marker helper");
 requireIncludes(analyticsContract, "\"owner_admin\"", "analytics event contract actor types");
@@ -98,6 +112,7 @@ requireIncludes(serverAnalytics, "userId && inclusion.includeInUserBehavior", "s
   [adminRosterPage, "actorType", "admin roster page telemetry marker"],
   [adminRosterPage, "performedAs", "admin roster page telemetry marker"],
   [adminRosterPage, "targetUserId", "admin roster page telemetry marker"],
+  [adminRosterPage, "SyntheticCreatorCreateFields", "admin roster synthetic creator controls"],
   [creatorIntroRoute, "actorMarkerToTelemetryPayload", "creator intro telemetry marker"],
   [creatorApplicationRoute, "creator_application_updated", "creator application telemetry marker"],
   [creatorContractRoute, "agreement_version", "creator contract marker metadata"],
@@ -120,6 +135,8 @@ requireNotIncludes(creatorFacingWaitlist, "actorClassificationReason", "creator-
 requireIncludes(packageJson, "check:creator-identity-markers", "package scripts");
 requireIncludes(creatorIdentityDoc, "actorMarkerPresent", "creator identity marker doctrine");
 requireIncludes(creatorIdentityDoc, "unknownActorBlocked", "creator identity marker doctrine");
+requireIncludes(creatorIdentityDoc, "syntheticLegalEvidenceMode", "creator identity marker doctrine");
+requireIncludes(creatorIdentityDoc, "Mark as internal synthetic creator", "creator identity marker doctrine");
 requireIncludes(actorTaxonomyDoc, "owner_admin", "analytics actor taxonomy");
 requireIncludes(repoLedger, "Creator identity markers are canonical", "repo memory ledger");
 requireIncludes(fullAudit, "Creator Identity Marker Hardening", "full audit ledger");

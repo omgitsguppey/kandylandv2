@@ -74,6 +74,8 @@ for (const issueKey of [
     "legal_signed_without_matching_signatures",
     "creator_signature_missing_evidence",
     "admin_signature_missing_evidence",
+    "synthetic_agreement_hash_optional",
+    "synthetic_creator_marker_incomplete",
     "id_verified_missing_metadata",
     "creator_settings_missing",
     "creator_restrictions_conflict",
@@ -90,6 +92,7 @@ for (const warning of [
     "ID record needs review",
     "Settings missing",
     "Settings need review",
+    "Synthetic legal evidence note",
 ]) {
     requireIncludes(diagnostics, warning, "Shared roster warning vocabulary");
     requireIncludes(rosterPage, "creatorLaneWarnings", "Roster short warning rendering");
@@ -200,6 +203,25 @@ for (const optionalOverrideNeedle of [
     requireIncludes(creatorLaneHelper, optionalOverrideNeedle, "Creator Lane optional audit note type");
 }
 
+for (const syntheticNeedle of [
+    "getSyntheticCreatorMarkerMissingFields",
+    "synthetic_agreement_hash_optional",
+    "synthetic_creator_marker_incomplete",
+    "Synthetic/internal creator uses internal legal evidence mode; agreementHash is optional.",
+    "Synthetic creator marker is incomplete.",
+    "Synthetic legal evidence note",
+    "syntheticLegalEvidenceMode",
+]) {
+    requireIncludes(diagnostics, syntheticNeedle, "Creator Lane synthetic legal evidence handling");
+}
+
+for (const syntheticNeedle of [
+    "synthetic_agreement_hash_optional",
+    "synthetic_creator_marker_incomplete",
+]) {
+    requireIncludes(creatorLaneHelper, syntheticNeedle, "Creator Lane synthetic agreement surface mapping");
+}
+
 requireIncludes(creatorAdminActionContract, "source.ownerOverrideReason = reason || undefined", "Owner override reason must be optional in lifecycle action contract");
 requireNotIncludes(creatorAdminActionContract, "Owner override requires a clear reason.", "Owner override lifecycle action contract");
 
@@ -301,6 +323,10 @@ for (const docNeedle of [
     "Materializer has no recorded completion timestamp",
     "repair:creator-lifecycle-history",
     "ID request history restored from source state",
+    "Human creator + signed signatures + missing agreementHash stays an error.",
+    "Synthetic/internal creator + signed signatures + missing agreementHash is a Synthetic legal evidence note.",
+    "Synthetic creator marker is incomplete.",
+    "syntheticLegalEvidenceMode",
 ]) {
     requireIncludes(doc, docNeedle, "Creator lane debug parity doc");
 }
