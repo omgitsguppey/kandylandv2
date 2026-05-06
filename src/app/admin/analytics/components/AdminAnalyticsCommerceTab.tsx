@@ -35,7 +35,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     contentConversionModel,
     contentConversionRange,
     topDropConversionRange, topDropConversionModel, topDropConversionPage, setTopDropConversionPage, topDropConversionPageSize, setTopDropConversionPageSize,
-    recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
+    recentCommerceFeedModel, describeEvent, formatAbsoluteDateTime,
     
     // Viewer drilldown
     viewerDrilldownFilter, viewerDrilldownOverview, viewerUserDraft, setViewerUserDraft, applyViewerFilter,
@@ -708,14 +708,40 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 icon={Wallet}
                 rightSlot={renderSectionRangeControl("recentCommerceFeed")}
               >
-                <div className="space-y-3">
-                  {recentCommerceFeedItems.length > 0 ? (
-                    recentCommerceFeedItems.slice(0, 10).map((item: any) => (
+                <div
+                  className="w-full max-w-full space-y-3 overflow-x-hidden"
+                  data-recent-commerce-feed-source-truth={recentCommerceFeedModel.sourceTruth}
+                  data-recent-commerce-feed-freshness={recentCommerceFeedModel.freshnessState}
+                  data-recent-commerce-feed-generated-at-utc={recentCommerceFeedModel.generatedAtUtc}
+                  data-recent-commerce-feed-last-transaction-at-utc={recentCommerceFeedModel.lastTransactionAtUtc ?? "none"}
+                >
+                  <div className="grid max-w-full gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 sm:grid-cols-3">
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Source</div>
+                      <div className="truncate font-semibold text-white">{recentCommerceFeedModel.sourceTruth}</div>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Freshness</div>
+                      <div className="truncate font-semibold text-white">{recentCommerceFeedModel.freshnessState}</div>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Last transaction</div>
+                      <div className="truncate font-semibold text-white">{recentCommerceFeedModel.rows[0]?.ageLabel ?? "Unavailable"}</div>
+                    </div>
+                  </div>
+
+                  {recentCommerceFeedModel.rows.length > 0 ? (
+                    recentCommerceFeedModel.rows.map((item) => (
                       <div
-                        key={item.id}
-                        className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
+                        key={item.transactionId}
+                        className="box-border w-full max-w-full overflow-hidden rounded-[1rem] border border-white/10 bg-black/30 px-3 py-3"
+                        data-recent-commerce-feed-row
+                        data-recent-commerce-feed-created-at-utc={item.createdAtUtc}
+                        data-recent-commerce-feed-source-truth={item.sourceTruth}
+                        data-recent-commerce-feed-direction={item.direction}
+                        data-recent-commerce-feed-source-of-funds={item.sourceOfFunds}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="grid w-full max-w-full grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 overflow-hidden">
                           <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5">
                             {item.userPhoto ? (
                               <Image
@@ -729,37 +755,40 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               <Wallet className="h-4 w-4 text-brand-purple" />
                             )}
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-semibold text-white">
-                              {item.description || item.type || "Transaction"}
+                          <div className="min-w-0 overflow-hidden">
+                            <p className="line-clamp-2 break-words text-sm font-semibold leading-5 text-white">
+                              {item.displayTitle}
                             </p>
-                            <p className="mt-1 text-xs text-gray-500">
-                              {item.username
-                                ? `@${item.username}`
-                                : "[unavailable] user identity"}{" "}
-                              ·{" "}
-                              {item.timestamp
-                                ? formatRelativeTime(item.timestamp, nowMs)
-                                : "Just now"}
+                            <p className="mt-1 truncate text-xs text-gray-500">
+                              {item.actorDisplayName} | {item.ageLabel} | {item.status}
                             </p>
+                            <div className="mt-2 flex max-w-full flex-wrap gap-1.5 overflow-hidden text-[10px] font-semibold uppercase tracking-[0.12em]">
+                              <span className="max-w-full truncate rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-gray-300">
+                                {item.sourceLabel}
+                              </span>
+                              <span className="max-w-full truncate rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-gray-400">
+                                {item.sourceTruth}
+                              </span>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-sm font-bold text-brand-purple">
-                              {typeof item.cost === "number" && item.cost > 0
-                                ? formatMoney(item.cost)
-                                : typeof item.amount === "number"
-                                  ? item.amount.toLocaleString()
-                                  : "0"}
+                          <div className="max-w-[6.75rem] shrink-0 text-right">
+                            <p
+                              className={cn(
+                                "truncate text-sm font-bold",
+                                item.direction === "debit" ? "text-rose-300" : item.direction === "credit" ? "text-emerald-300" : "text-gray-300",
+                              )}
+                            >
+                              {item.amountDisplay}
                             </p>
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-gray-500">
-                              {item.status || "logged"}
+                            <p className="mt-1 truncate text-[10px] uppercase tracking-[0.14em] text-gray-500">
+                              {item.status}
                             </p>
                           </div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                    <div className="w-full max-w-full overflow-hidden rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
                       No recent commerce feed entries yet.
                     </div>
                   )}

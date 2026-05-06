@@ -206,12 +206,57 @@ export interface CommerceFeedItem {
   type?: string;
   status?: string;
   amount?: number;
+  deliveredGumDrops?: number;
+  paidGumDrops?: number;
+  bonusGumDrops?: number;
+  rewardSource?: string;
+  ledgerSource?: string;
+  sourceTruth?: string;
   cost?: number;
   description?: string;
   timestamp?: number;
+  timestampMs?: number;
+  userId?: string;
   username?: string;
   userPhoto?: string;
 }
+
+export type RecentCommerceFeedRow = {
+  transactionId: string;
+  displayTitle: string;
+  actorDisplayName: string;
+  username?: string;
+  shortUserId: string;
+  amountGd: number;
+  amountDisplay: string;
+  direction: "credit" | "debit" | "neutral";
+  sourceOfFunds:
+    | "reward_free"
+    | "paid"
+    | "paid_bonus"
+    | "creator_spend"
+    | "drop_unwrap"
+    | "admin_adjustment"
+    | "unknown";
+  sourceLabel: string;
+  status: "completed" | "pending" | "failed" | "reversed";
+  createdAtUtc: string;
+  ageLabel: string;
+  sourceTruth: string;
+  userPhoto?: string;
+  explanation: string;
+};
+
+export type RecentCommerceFeedState = {
+  generatedAtUtc: string;
+  range: string;
+  sourceTruth: "server_transactions" | "commerce_snapshot" | "mixed" | "unknown";
+  freshnessState: "live" | "recent" | "stale" | "unknown";
+  rowCount: number;
+  lastTransactionAtUtc: string | null;
+  rows: RecentCommerceFeedRow[];
+  warnings: string[];
+};
 
 export type CommerceMetricCard = {
   id:

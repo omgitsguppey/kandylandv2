@@ -29,6 +29,7 @@ const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const helper = read("src/lib/admin-analytics-commerce-snapshot.ts");
 const contentConversionHelper = read("src/lib/admin-analytics-content-conversion.ts");
 const topDropConversionHelper = read("src/lib/admin-analytics-top-drop-conversion.ts");
+const recentCommerceFeedHelper = read("src/lib/admin-analytics-recent-commerce-feed.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 const historicalRoute = read("src/app/api/admin/analytics/historical/route.ts");
 const analyticsTypes = read("src/types/admin-analytics.ts");
@@ -61,10 +62,20 @@ assertIncludes("AdminAnalyticsCommerceTab", component, "drop.unwrapRateDisplay")
 assertIncludes("AdminAnalyticsCommerceTab", component, "Raw identity and source details");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-package-performance-id");
 assertIncludes("AdminAnalyticsCommerceTab", component, "data-package-performance-state");
+assertIncludes("AdminAnalyticsCommerceTab", component, "Recent Commerce Feed");
+assertIncludes("AdminAnalyticsCommerceTab", component, "data-recent-commerce-feed-source-truth");
+assertIncludes("AdminAnalyticsCommerceTab", component, "data-recent-commerce-feed-direction");
+assertIncludes("AdminAnalyticsCommerceTab", component, "data-recent-commerce-feed-created-at-utc");
+assertIncludes("AdminAnalyticsCommerceTab", component, "w-full max-w-full space-y-3 overflow-x-hidden");
+assertIncludes("AdminAnalyticsCommerceTab", component, "grid-cols-[auto_minmax(0,1fr)_auto]");
+assertIncludes("AdminAnalyticsCommerceTab", component, "item.amountDisplay");
+assertIncludes("AdminAnalyticsCommerceTab", component, "item.sourceLabel");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "Checkout conversion: {commerceConversionLabel}");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "Unlocked drops with enough demand to matter.");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "name=\"Unlocks\"");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "dataKey=\"dropId\"");
+assertNotIncludes("AdminAnalyticsCommerceTab", component, "item.amount.toLocaleString()");
+assertNotIncludes("AdminAnalyticsCommerceTab", component, "Unlocked:");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, " Â· ");
 
 assertIncludes("commerce snapshot helper", helper, "CommerceSnapshotState");
@@ -117,6 +128,14 @@ assertIncludes("top drop conversion helper", topDropConversionHelper, "dropIdent
 assertIncludes("top drop conversion helper", topDropConversionHelper, "chartLabel");
 assertIncludes("top drop conversion helper", topDropConversionHelper, "Unwrap conversion uses unwraps divided by validated drop views");
 
+assertIncludes("recent commerce feed helper", recentCommerceFeedHelper, "RecentCommerceFeedState");
+assertIncludes("recent commerce feed helper", recentCommerceFeedHelper, "amountDisplay");
+assertIncludes("recent commerce feed helper", recentCommerceFeedHelper, "direction");
+assertIncludes("recent commerce feed helper", recentCommerceFeedHelper, "sourceOfFunds");
+assertIncludes("recent commerce feed helper", recentCommerceFeedHelper, "\"drop_unwrap\"");
+assertIncludes("recent commerce feed helper", recentCommerceFeedHelper, "\"Creator spend\"");
+assertIncludes("recent commerce feed helper", recentCommerceFeedHelper, ".replace(/^Unlocked:/iu, \"Unwrapped:\")");
+
 assertIncludes("admin analytics types", analyticsTypes, "export type CommerceMetricCard");
 assertIncludes("admin analytics types", analyticsTypes, "export type CommerceSnapshotState");
 assertIncludes("admin analytics types", analyticsTypes, "export type PackagePerformanceState");
@@ -125,6 +144,8 @@ assertIncludes("admin analytics types", analyticsTypes, "export type ContentConv
 assertIncludes("admin analytics types", analyticsTypes, "export type ContentConversionRow");
 assertIncludes("admin analytics types", analyticsTypes, "export type TopDropConversionState");
 assertIncludes("admin analytics types", analyticsTypes, "export type TopDropConversionRow");
+assertIncludes("admin analytics types", analyticsTypes, "export type RecentCommerceFeedState");
+assertIncludes("admin analytics types", analyticsTypes, "export type RecentCommerceFeedRow");
 assertIncludes("admin analytics types", analyticsTypes, "commerceSnapshotState?: CommerceSnapshotState");
 assertIncludes("admin analytics types", analyticsTypes, "packagePerformanceState?: PackagePerformanceState");
 assertIncludes("admin analytics types", analyticsTypes, "contentConversionState?: ContentConversionState");

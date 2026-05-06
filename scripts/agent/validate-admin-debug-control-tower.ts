@@ -127,6 +127,7 @@ const topPathsHelper = readRequired("src/lib/admin-analytics-top-paths.ts");
 const regionDemandHelper = readRequired("src/lib/admin-analytics-region-demand.ts");
 const contentConversionHelper = readRequired("src/lib/admin-analytics-content-conversion.ts");
 const topDropConversionHelper = readRequired("src/lib/admin-analytics-top-drop-conversion.ts");
+const recentCommerceFeedHelper = readRequired("src/lib/admin-analytics-recent-commerce-feed.ts");
 const adminAnalyticsOperationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const adminAnalyticsAudienceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
 const adminAnalyticsCommerceTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
@@ -2091,6 +2092,18 @@ for (const expected of [
     requireIncludes(topDropConversionHelper, expected, "Top Drop Conversion truth helper");
   }
   for (const expected of [
+    "buildAdminAnalyticsRecentCommerceFeedState",
+    "RecentCommerceFeedState",
+    "amountDisplay",
+    "direction",
+    "sourceOfFunds",
+    "\"drop_unwrap\"",
+    "\"Creator spend\"",
+    ".replace(/^Unlocked:/iu, \"Unwrapped:\")",
+  ]) {
+    requireIncludes(recentCommerceFeedHelper, expected, "Recent Commerce Feed truth helper");
+  }
+  for (const expected of [
     "Content Conversion",
     "data-content-conversion-source-truth",
     "data-content-conversion-generated-at-utc",
@@ -2102,12 +2115,21 @@ for (const expected of [
     "data-top-drop-conversion-identity-state",
     "data-top-drop-conversion-unwraps",
     "drop.unwrapRateDisplay",
+    "Recent Commerce Feed",
+    "data-recent-commerce-feed-source-truth",
+    "data-recent-commerce-feed-created-at-utc",
+    "data-recent-commerce-feed-direction",
+    "w-full max-w-full space-y-3 overflow-x-hidden",
+    "grid-cols-[auto_minmax(0,1fr)_auto]",
+    "item.amountDisplay",
   ]) {
     requireIncludes(adminAnalyticsCommerceTab, expected, "Commerce analytics conversion panels");
   }
   requireNotIncludes(adminAnalyticsCommerceTab, "Unlocked drops with enough demand to matter.", "Top Drop Conversion must use unwrap product language");
   requireNotIncludes(adminAnalyticsCommerceTab, "name=\"Unlocks\"", "Top Drop Conversion chart must not display backend unlock wording");
   requireNotIncludes(adminAnalyticsCommerceTab, "dataKey=\"dropId\"", "Top Drop Conversion chart axis must use readable title labels");
+  requireNotIncludes(adminAnalyticsCommerceTab, "Unlocked:", "Recent Commerce Feed must use unwrap product language");
+  requireNotIncludes(adminAnalyticsCommerceTab, "item.amount.toLocaleString()", "Recent Commerce Feed must show GD units through amountDisplay");
 for (const expected of [
   "Source mode:",
   "Explicit taps:",
@@ -2208,6 +2230,7 @@ try {
       /^src\/lib\/admin-analytics-top-paths\.ts$/u,
       /^src\/lib\/admin-analytics-region-demand\.ts$/u,
       /^src\/lib\/admin-analytics-content-conversion\.ts$/u,
+      /^src\/lib\/admin-analytics-recent-commerce-feed\.ts$/u,
       /^src\/lib\/admin-analytics-commerce-snapshot\.ts$/u,
       /^src\/lib\/admin-analytics-journey-funnel\.ts$/u,
       /^src\/lib\/admin-analytics-auth-outcome-split\.ts$/u,
@@ -2281,6 +2304,7 @@ try {
     /^src\/lib\/creator-onboarding\.ts$/u,
     /^src\/lib\/admin\/synthetic-creators-view-as\.ts$/u,
     /^src\/lib\/admin-moderation\.ts$/u,
+    /^src\/lib\/admin-analytics-recent-commerce-feed\.ts$/u,
     /^src\/lib\/admin-analytics-top-drop-conversion\.ts$/u,
     /^src\/lib\/telemetry-catalog\.ts$/u,
     /^src\/lib\/debug-evidence-contract\.ts$/u,
@@ -2358,6 +2382,7 @@ try {
     /^scripts\/agent\/validate-notification-read-truth\.ts$/u,
     /^scripts\/agent\/validate-purchase-telemetry-truth\.ts$/u,
     /^scripts\/agent\/validate-unlock-telemetry-truth\.ts$/u,
+    /^scripts\/agent\/validate-gumdrop-source-of-funds-truth\.ts$/u,
     /^scripts\/agent\/validate-telemetry-identified-parity\.ts$/u,
     /^scripts\/agent\/validate-event-fact-truth\.ts$/u,
     /^scripts\/check-admin-analytics-overview\.ts$/u,

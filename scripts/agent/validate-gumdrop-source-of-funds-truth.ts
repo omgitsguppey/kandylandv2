@@ -54,6 +54,7 @@ const purchaseModalStaticTest = readRequired("tests/unit/purchase-modal-source-o
 const paymentValidator = readRequired("scripts/agent/validate-payment-unlock-security.ts");
 const paymentDoc = readRequired("docs/agent-truth/payment-wallet-unlock-entitlement.md");
 const platformEconomyDoc = readRequired("docs/agent-truth/gumdrop-source-of-funds-truth.md");
+const recentCommerceFeedHelper = readRequired("src/lib/admin-analytics-recent-commerce-feed.ts");
 const fullAudit = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
 const repoLedger = readRequired("REPO_MEMORY_LEDGER.md");
 const checklist = readRequired("EVERY_FILE_FUNCTION_CHECKLIST.md");
@@ -179,6 +180,17 @@ for (const [label, source] of [
   requireIncludes(source, doctrineNote, label);
 }
 requireIncludes(packageJson, "\"check:gumdrop-source-of-funds-truth\"", "package scripts");
+for (const expected of [
+  "\"reward_free\"",
+  "\"paid\"",
+  "\"paid_bonus\"",
+  "\"creator_spend\"",
+  "\"drop_unwrap\"",
+  "sourceOfFunds",
+  "amountDisplay",
+]) {
+  requireIncludes(recentCommerceFeedHelper, expected, "Recent Commerce Feed source-of-funds display model");
+}
 
 try {
   const walletDiff = execSync(
