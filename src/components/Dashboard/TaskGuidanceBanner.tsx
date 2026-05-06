@@ -17,6 +17,7 @@ import {
   isSamePageTaskViewEvent,
   isTaskGuidanceActionType,
   TASK_GUIDANCE_ACTION_EVENT,
+  TASK_GUIDANCE_EVENT_NAMES,
   TASK_GUIDANCE_STORAGE_KEY,
   type TaskGuidancePendingAction,
   type TaskGuidanceState,
@@ -32,6 +33,10 @@ type GuidanceSetter = Dispatch<SetStateAction<TaskGuidanceState | null>>;
 const TASK_GUIDANCE_EVENT = "kandydrops:task-guidance";
 const COMPLETED_GUIDANCE_DESTINATION = "/experiences#daily-tasks";
 const SWIPE_DISMISS_DISTANCE = -44;
+const TASK_GUIDANCE_VIEWED_EVENT = TASK_GUIDANCE_EVENT_NAMES[0];
+const TASK_GUIDANCE_TAPPED_EVENT = TASK_GUIDANCE_EVENT_NAMES[1];
+const TASK_GUIDANCE_DISMISSED_EVENT = TASK_GUIDANCE_EVENT_NAMES[2];
+const TASK_GUIDANCE_COMPLETED_EVENT = TASK_GUIDANCE_EVENT_NAMES[3];
 
 function readStoredGuidance() {
   if (typeof window === "undefined") {
@@ -303,11 +308,15 @@ function useTaskGuidanceBannerController() {
       completedAt: Date.now(),
     };
     commitStoredGuidance(setGuidance, nextGuidance);
-    trackEvent("task_guidance_completed", {
+    trackEvent(TASK_GUIDANCE_COMPLETED_EVENT, {
       task_id: guidance.taskId,
       task_title: guidance.title,
       reward: guidance.reward,
       destination: guidance.destinationHref,
+      source_component: "task_guidance_banner",
+      guidance_type: "onboarding_handoff",
+      daily_task_window_id: guidance.dailyTaskWindowId,
+      assignment_source: guidance.assignmentSource,
     });
 
     launchRewardConfetti();
@@ -330,11 +339,15 @@ function useTaskGuidanceBannerController() {
       return;
     }
 
-    trackEvent("task_guidance_banner_viewed", {
+    trackEvent(TASK_GUIDANCE_VIEWED_EVENT, {
       task_id: guidance.taskId,
       task_title: guidance.title,
       reward: guidance.reward,
       destination: guidance.destinationHref,
+      source_component: "task_guidance_banner",
+      guidance_type: "hint",
+      daily_task_window_id: guidance.dailyTaskWindowId,
+      assignment_source: guidance.assignmentSource,
     });
   }, [guidance]);
 
@@ -343,10 +356,14 @@ function useTaskGuidanceBannerController() {
       return;
     }
 
-    trackEvent("task_guidance_banner_dismissed", {
+    trackEvent(TASK_GUIDANCE_DISMISSED_EVENT, {
       task_id: activeGuidance.taskId,
       task_title: activeGuidance.title,
       completed: Boolean(activeGuidance.completedAt),
+      source_component: "task_guidance_banner",
+      guidance_type: activeGuidance.completedAt ? "onboarding_handoff" : "hint",
+      daily_task_window_id: activeGuidance.dailyTaskWindowId,
+      assignment_source: activeGuidance.assignmentSource,
     });
 
     commitStoredGuidance(setGuidance, {
@@ -392,11 +409,15 @@ function useTaskGuidanceBannerController() {
       return;
     }
 
-    trackEvent("task_guidance_cta_clicked", {
+    trackEvent(TASK_GUIDANCE_TAPPED_EVENT, {
       task_id: activeGuidance.taskId,
       task_title: activeGuidance.title,
       completed: Boolean(activeGuidance.completedAt),
       destination: activeGuidance.completedAt ? COMPLETED_GUIDANCE_DESTINATION : activeGuidance.destinationHref,
+      source_component: "task_guidance_banner",
+      guidance_type: activeGuidance.completedAt ? "onboarding_handoff" : "cta",
+      daily_task_window_id: activeGuidance.dailyTaskWindowId,
+      assignment_source: activeGuidance.assignmentSource,
     });
 
     if (activeGuidance.completedAt) {

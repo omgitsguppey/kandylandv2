@@ -28,6 +28,12 @@ const doc = read("docs/agent-truth/event-fact-truth.md");
 const requiredActions = [
   "onboarding_completed",
   "daily_checkin_claimed",
+  "task_guidance_viewed",
+  "task_guidance_tapped",
+  "task_guidance_dismissed",
+  "task_guidance_completed",
+  "task_card_expanded",
+  "task_help_opened",
   "drop_viewed",
   "drop_preview_opened",
   "drop_unwrapped",
@@ -48,6 +54,7 @@ assert(contract.includes("BehavioralEventFact"), "Behavioral event fact contract
 assert(contract.includes("dedupeKey"), "Behavioral event fact contract is missing dedupeKey.");
 assert(contract.includes("onboarding_completed: 24 * 60 * 60 * 1000"), "Onboarding dedupe window is wrong.");
 assert(contract.includes("daily_checkin_claimed: 20 * 60 * 60 * 1000"), "Daily check-in dedupe window is wrong.");
+assert(contract.includes("task_guidance_completed: 20 * 60 * 60 * 1000"), "Task guidance completion dedupe window is wrong.");
 assert(contract.includes('drop_unwrapped: "permanent"'), "Drop unwrap dedupe must be permanent.");
 assert(contract.includes('gumdrops_purchased: "event_id"'), "GumDrops purchase dedupe must be event-id based.");
 assert(contract.includes('chat_message_sent: "event_id"'), "Chat message dedupe must be event-id based.");
@@ -55,10 +62,17 @@ assert(contract.includes('chat_message_sent: "event_id"'), "Chat message dedupe 
 assert(normalizer.includes("normalizeBehavioralEventFactWithDiagnostics"), "Behavioral event fact normalizer is missing diagnostics support.");
 assert(normalizer.includes("unknown_event_name"), "Unknown events are not routed to diagnostics.");
 assert(normalizer.includes("normalizeTelemetryEventName"), "Behavioral event facts do not canonicalize telemetry aliases.");
+assert(normalizer.includes('task_guidance_banner_viewed: { normalizedAction: "task_guidance_viewed"'), "Task guidance viewed alias is missing from event fact normalization.");
+assert(normalizer.includes('task_guidance_cta_clicked: { normalizedAction: "task_guidance_tapped"'), "Task guidance tapped alias is missing from event fact normalization.");
+assert(normalizer.includes('task_guidance_banner_dismissed: { normalizedAction: "task_guidance_dismissed"'), "Task guidance dismissed alias is missing from event fact normalization.");
+assert(normalizer.includes('task_help_opened: { normalizedAction: "task_help_opened"'), "Task help event is missing from event fact normalization.");
 assert(rollup.includes("unknownEvents"), "Event fact rollup does not surface unknown events.");
 
 assert(taxonomy.includes("BEHAVIORAL_NORMALIZED_ACTIONS"), "Legacy action taxonomy does not reuse canonical event facts.");
-assert(identifiedIngest.includes("normalizeBehavioralEventFact"), "Identified ingest does not use behavioral event facts.");
+assert(
+  identifiedIngest.includes("normalizeIdentifiedMetricEventFact") || identifiedIngest.includes("normalizeBehavioralEventFact"),
+  "Identified ingest does not use behavioral event facts.",
+);
 assert(identifiedIngest.includes("behavioralEventFactVersion"), "Identified ingest does not persist behavioral event fact metadata.");
 assert(anonymousIngest.includes("buildBehavioralEventFactRollup"), "Anonymous ingest does not build behavioral event facts.");
 assert(anonymousIngest.includes("unknownBehavioralEvents"), "Anonymous ingest does not persist unknown event diagnostics.");

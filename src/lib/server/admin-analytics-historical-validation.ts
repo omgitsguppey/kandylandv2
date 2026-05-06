@@ -2,6 +2,11 @@ import "server-only";
 
 import { TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
+import {
+  TASK_GUIDANCE_EVENT_NAMES,
+  TASK_GUIDANCE_IMPLEMENTED,
+  TASK_GUIDANCE_REQUIRED_IN_BETA,
+} from "@/lib/task-guidance";
 
 import { buildModuleCoverageReport, buildParityInsight, sumCountBuckets } from "./analytics-parity";
 import { sumEventCounts } from "./admin-analytics-shared";
@@ -108,6 +113,9 @@ export interface DataValidationCheck {
   sampleSource?: string;
   blockedReason?: string;
   failureClusters?: FailureCluster[];
+  implemented?: boolean;
+  required?: boolean;
+  eventNames?: string[];
 }
 
 export interface FailureCluster {
@@ -605,6 +613,9 @@ function buildValidationCheck(input: {
   blockedReason?: string | null;
   failureClusters?: FailureCluster[];
   passAllowed?: boolean;
+  implemented?: boolean;
+  required?: boolean;
+  eventNames?: string[];
 }) {
   const requiredSourcesPresent = input.requiredSourcesPresent ?? true;
   const sampleRequired = input.sampleRequired ?? false;
@@ -653,6 +664,9 @@ function buildValidationCheck(input: {
     sampleSource: input.sampleSource,
     blockedReason: passBlockedReason ?? undefined,
     failureClusters: input.failureClusters,
+    implemented: input.implemented,
+    required: input.required,
+    eventNames: input.eventNames,
   } satisfies DataValidationCheck;
 }
 
@@ -964,17 +978,44 @@ export function buildHistoricalValidationSummary(input: {
     buildValidationCheck({
       checkKey: "task_guidance_parity",
       title: "Task guidance parity",
-      status: input.taskGuidance.viewed === 0 && input.taskGuidance.tapped === 0 && input.taskGuidance.completed === 0
-        ? "warn"
-        : input.taskGuidance.completed <= input.taskGuidance.tapped && input.taskGuidance.tapped <= input.taskGuidance.viewed ? taskGuidanceParity.status : "warn",
-      detail: `${input.taskGuidance.viewed.toLocaleString()} guide views, ${input.taskGuidance.dismissed.toLocaleString()} dismissals, ${input.taskGuidance.tapped.toLocaleString()} guide taps, and ${input.taskGuidance.completed.toLocaleString()} guided completions were collected in range. Confidence ${taskGuidanceParity.score}%.`,
+      status: TASK_GUIDANCE_IMPLEMENTED
+        ? input.taskGuidance.viewed === 0
+          && input.taskGuidance.dismissed === 0
+          && input.taskGuidance.tapped === 0
+          && input.taskGuidance.completed === 0
+          ? TASK_GUIDANCE_REQUIRED_IN_BETA ? "fail" : "unavailable"
+          : input.taskGuidance.completed <= input.taskGuidance.tapped && input.taskGuidance.tapped <= input.taskGuidance.viewed
+            ? taskGuidanceParity.status
+            : "warn"
+        : "unavailable",
+      detail: TASK_GUIDANCE_IMPLEMENTED
+        ? `${input.taskGuidance.viewed.toLocaleString()} guide views, ${input.taskGuidance.dismissed.toLocaleString()} dismissals, ${input.taskGuidance.tapped.toLocaleString()} guide taps, and ${input.taskGuidance.completed.toLocaleString()} guided completions were collected in range.`
+        : "Guidance UI is not implemented for this range, so task guidance parity is unavailable.",
       source: "task guidance telemetry",
       selectedRange,
       lastValidatedAt,
-      confidence: taskGuidanceParity.score,
-      sampleRequired: true,
-      sampleCount: input.taskGuidance.viewed + input.taskGuidance.tapped + input.taskGuidance.completed,
-      action: input.taskGuidance.viewed + input.taskGuidance.tapped + input.taskGuidance.completed > 0 ? "No action required." : "Confirm task guidance telemetry is expected for this range before treating parity as sampled.",
+      confidence: input.taskGuidance.viewed + input.taskGuidance.dismissed + input.taskGuidance.tapped + input.taskGuidance.completed > 0
+        ? taskGuidanceParity.score
+        : null,
+      sampleRequired: TASK_GUIDANCE_IMPLEMENTED && TASK_GUIDANCE_REQUIRED_IN_BETA,
+      sampleCount: input.taskGuidance.viewed + input.taskGuidance.dismissed + input.taskGuidance.tapped + input.taskGuidance.completed,
+      passAllowed: !TASK_GUIDANCE_REQUIRED_IN_BETA || (input.taskGuidance.viewed + input.taskGuidance.dismissed + input.taskGuidance.tapped + input.taskGuidance.completed > 0),
+      blockedReason: !TASK_GUIDANCE_IMPLEMENTED
+        ? "not_implemented"
+        : input.taskGuidance.viewed + input.taskGuidance.dismissed + input.taskGuidance.tapped + input.taskGuidance.completed <= 0
+          ? "required_sample_missing"
+          : null,
+      implemented: TASK_GUIDANCE_IMPLEMENTED,
+      required: TASK_GUIDANCE_REQUIRED_IN_BETA,
+      eventNames: [...TASK_GUIDANCE_EVENT_NAMES],
+      technicalEvidence: TASK_GUIDANCE_IMPLEMENTED
+        ? `${input.taskGuidance.viewed.toLocaleString()} guide views, ${input.taskGuidance.dismissed.toLocaleString()} dismissals, ${input.taskGuidance.tapped.toLocaleString()} guide taps, and ${input.taskGuidance.completed.toLocaleString()} guided completions were collected in range. Expected events: ${TASK_GUIDANCE_EVENT_NAMES.join(", ")}.`
+        : `Task guidance UI is not implemented. Expected events are ${TASK_GUIDANCE_EVENT_NAMES.join(", ")} when the feature ships.`,
+      action: !TASK_GUIDANCE_IMPLEMENTED
+        ? "Guidance UI is not implemented. Mark this lane unavailable until the prompt surface ships."
+        : input.taskGuidance.viewed + input.taskGuidance.dismissed + input.taskGuidance.tapped + input.taskGuidance.completed > 0
+          ? "No action required."
+          : "Emit canonical task guidance events from the task banner/module and confirm they reach analytics_event_facts for this range.",
     }),
     buildValidationCheck({
       checkKey: "creator_spend_parity",

@@ -30,7 +30,9 @@ const packageJson = JSON.parse(readRequired("package.json") || "{}") as {
 };
 const dailyCheckIn = readRequired("src/components/Dashboard/DailyCheckIn.tsx");
 const dailyTasksModule = readRequired("src/components/Dashboard/DailyTasksModule.tsx");
+const taskGuidanceBanner = readRequired("src/components/Dashboard/TaskGuidanceBanner.tsx");
 const taskCatalog = readRequired("src/lib/tasks/task-catalog.ts");
+const taskGuidance = readRequired("src/lib/task-guidance.ts");
 const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
 const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identified/route.ts");
 const checkInRoute = readRequired("src/app/api/checkin/route.ts");
@@ -53,15 +55,45 @@ requireIncludes(dailyCheckIn, "day_key: getCSTDateKey(claimedAt)", "DailyCheckIn
 requireExcludes(dailyCheckIn, 'trackEvent("daily_check_in_claim"', "DailyCheckIn");
 
 requireIncludes(dailyTasksModule, 'trackEvent("daily_task_action_clicked"', "DailyTasksModule");
+requireIncludes(dailyTasksModule, "TASK_GUIDANCE_EVENT_NAMES", "DailyTasksModule guidance telemetry contract");
+requireIncludes(dailyTasksModule, 'trackEvent(TASK_CARD_EXPANDED_EVENT', "DailyTasksModule task-card expansion telemetry");
+requireIncludes(dailyTasksModule, 'trackEvent(TASK_HELP_OPENED_EVENT', "DailyTasksModule task-help telemetry");
+requireIncludes(dailyTasksModule, "daily_task_window_id: taskWindowId", "DailyTasksModule guidance telemetry daily window");
+requireIncludes(dailyTasksModule, 'source_component: "daily_tasks_module"', "DailyTasksModule guidance telemetry source component");
 requireIncludes(dailyTasksModule, "reward_gd: task.reward", "DailyTasksModule");
 requireIncludes(dailyTasksModule, "day_key: dailyTaskState?.lastResetMs ? getCSTDateKey(dailyTaskState.lastResetMs) : getCSTDateKey(Date.now())", "DailyTasksModule");
 requireIncludes(dailyTasksModule, 'sourceTruth: "client_supporting"', "DailyTasksModule");
+
+requireIncludes(taskGuidanceBanner, "TASK_GUIDANCE_EVENT_NAMES", "TaskGuidanceBanner guidance telemetry contract");
+requireIncludes(taskGuidanceBanner, "trackEvent(TASK_GUIDANCE_VIEWED_EVENT", "TaskGuidanceBanner viewed telemetry");
+requireIncludes(taskGuidanceBanner, "trackEvent(TASK_GUIDANCE_TAPPED_EVENT", "TaskGuidanceBanner tapped telemetry");
+requireIncludes(taskGuidanceBanner, "trackEvent(TASK_GUIDANCE_DISMISSED_EVENT", "TaskGuidanceBanner dismissed telemetry");
+requireIncludes(taskGuidanceBanner, "trackEvent(TASK_GUIDANCE_COMPLETED_EVENT", "TaskGuidanceBanner completed telemetry");
+requireIncludes(taskGuidanceBanner, 'source_component: "task_guidance_banner"', "TaskGuidanceBanner source component");
+requireIncludes(taskGuidanceBanner, "daily_task_window_id: guidance.dailyTaskWindowId", "TaskGuidanceBanner daily window context");
+
+requireIncludes(taskGuidance, "TASK_GUIDANCE_IMPLEMENTED = true", "Task guidance doctrine truth");
+requireIncludes(taskGuidance, "TASK_GUIDANCE_REQUIRED_IN_BETA = true", "Task guidance beta requirement");
+requireIncludes(taskGuidance, '"task_guidance_viewed"', "Task guidance canonical viewed event");
+requireIncludes(taskGuidance, '"task_guidance_tapped"', "Task guidance canonical tapped event");
+requireIncludes(taskGuidance, '"task_guidance_dismissed"', "Task guidance canonical dismissed event");
+requireIncludes(taskGuidance, '"task_guidance_completed"', "Task guidance canonical completed event");
+requireIncludes(taskGuidance, '"task_card_expanded"', "Task guidance canonical task-card event");
+requireIncludes(taskGuidance, '"task_help_opened"', "Task guidance canonical task-help event");
 
 requireIncludes(taskCatalog, 'eventName: "daily_checkin_claimed"', "Task catalog daily check-in");
 requireIncludes(telemetryCatalog, '{ eventName: "daily_checkin_claimed"', "Telemetry catalog daily check-in");
 requireIncludes(telemetryCatalog, 'aliases: ["daily_check_in_claim", "daily_reward_claimed"]', "Telemetry catalog daily check-in aliases");
 requireIncludes(telemetryCatalog, '{ eventName: "task_completed"', "Telemetry catalog task completed");
 requireIncludes(telemetryCatalog, 'aliases: ["daily_task_completed"]', "Telemetry catalog task completed aliases");
+requireIncludes(telemetryCatalog, '{ eventName: "task_guidance_viewed"', "Telemetry catalog task guidance viewed");
+requireIncludes(telemetryCatalog, 'aliases: ["task_guidance_banner_viewed"]', "Telemetry catalog task guidance viewed alias");
+requireIncludes(telemetryCatalog, '{ eventName: "task_guidance_tapped"', "Telemetry catalog task guidance tapped");
+requireIncludes(telemetryCatalog, 'aliases: ["task_guidance_cta_clicked"]', "Telemetry catalog task guidance tapped alias");
+requireIncludes(telemetryCatalog, '{ eventName: "task_guidance_dismissed"', "Telemetry catalog task guidance dismissed");
+requireIncludes(telemetryCatalog, 'aliases: ["task_guidance_banner_dismissed"]', "Telemetry catalog task guidance dismissed alias");
+requireIncludes(telemetryCatalog, '{ eventName: "task_card_expanded"', "Telemetry catalog task-card expansion");
+requireIncludes(telemetryCatalog, '{ eventName: "task_help_opened"', "Telemetry catalog task-help event");
 requireIncludes(telemetryCatalog, 'rewardGd: "reward_gd"', "Telemetry catalog reward alias");
 requireIncludes(telemetryCatalog, 'sourceTruth: "source_truth"', "Telemetry catalog sourceTruth alias");
 
@@ -102,7 +134,9 @@ requireIncludes(debugTabActions, "canSelfHeal", "Task Issues Attribution UI self
 
 requireIncludes(eventFactNormalizer, 'daily_reward_claimed: { normalizedAction: "daily_checkin_claimed"', "Event fact normalizer daily check-in alias");
 requireIncludes(eventFactNormalizer, 'daily_task_completed: { normalizedAction: "task_completed"', "Event fact normalizer task alias");
-requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "daily_checkin_claimed" || fact.normalizedAction === "task_completed"', "Event fact normalizer day-key dedupe");
+requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "daily_checkin_claimed"', "Event fact normalizer day-key dedupe check-in");
+requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_completed"', "Event fact normalizer day-key dedupe tasks");
+requireIncludes(eventFactNormalizer, 'fact.normalizedAction === "task_guidance_completed"', "Event fact normalizer day-key dedupe guidance completion");
 
 requireIncludes(ingestTests, 'eventName: "daily_checkin_claimed"', "Ingest tests daily check-in canonicalization");
 requireIncludes(ingestTests, 'eventName: "task_completed"', "Ingest tests task completion canonicalization");

@@ -641,12 +641,21 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
       ANALYTICS_SOCIAL_METRICS_BY_KEY.task_guidance_completion_rate,
       percent(
         toNumber(eventCounts.task_guidance_completed),
-        toNumber(eventCounts.task_guidance_banner_viewed),
+        toNumber(eventCounts.task_guidance_viewed)
+          + toNumber(eventCounts.task_guidance_banner_viewed)
+          + toNumber(eventCounts.task_help_opened)
+          + toNumber(eventCounts.task_card_expanded),
       ),
-      toNumber(eventCounts.task_guidance_banner_viewed),
+      toNumber(eventCounts.task_guidance_viewed)
+        + toNumber(eventCounts.task_guidance_banner_viewed)
+        + toNumber(eventCounts.task_help_opened)
+        + toNumber(eventCounts.task_card_expanded),
       {
         taskGuidanceCompleted: toNumber(eventCounts.task_guidance_completed),
-        taskGuidanceViewed: toNumber(eventCounts.task_guidance_banner_viewed),
+        taskGuidanceViewed: toNumber(eventCounts.task_guidance_viewed)
+          + toNumber(eventCounts.task_guidance_banner_viewed)
+          + toNumber(eventCounts.task_help_opened)
+          + toNumber(eventCounts.task_card_expanded),
       },
     ),
     signup_to_onboarding_start_rate: createResult(

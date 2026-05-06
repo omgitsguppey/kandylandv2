@@ -34,11 +34,15 @@ export function buildHistoricalTaskAnalytics(input: {
   eventsData: Record<string, number>;
   normalizedTaskEvents: TaskLifecycleLog[];
 }): HistoricalTaskAnalytics {
+  const countTaskGuidanceEvents = (...eventNames: string[]) => (
+    eventNames.reduce((total, eventName) => total + (input.eventsData[eventName] || 0), 0)
+  );
+
   const taskGuidance = {
-    viewed: input.eventsData.task_guidance_banner_viewed || 0,
-    dismissed: input.eventsData.task_guidance_banner_dismissed || 0,
-    tapped: input.eventsData.task_guidance_cta_clicked || 0,
-    completed: input.eventsData.task_guidance_completed || 0,
+    viewed: countTaskGuidanceEvents("task_guidance_viewed", "task_guidance_banner_viewed", "task_help_opened", "task_card_expanded"),
+    dismissed: countTaskGuidanceEvents("task_guidance_dismissed", "task_guidance_banner_dismissed"),
+    tapped: countTaskGuidanceEvents("task_guidance_tapped", "task_guidance_cta_clicked"),
+    completed: countTaskGuidanceEvents("task_guidance_completed"),
   };
 
   const taskPipeline = [

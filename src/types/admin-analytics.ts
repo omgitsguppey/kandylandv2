@@ -325,6 +325,9 @@ export interface ValidationItem {
   eventSource?: string;
   sampleSource?: string;
   blockedReason?: string;
+  implemented?: boolean;
+  required?: boolean;
+  eventNames?: string[];
   failureClusters?: Array<{
     source: string;
     reasonCode: string;

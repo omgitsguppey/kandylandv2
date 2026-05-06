@@ -31,6 +31,15 @@ const ACTION_ALIASES: Record<string, ActionAliasConfig> = {
   daily_check_in_claim: { normalizedAction: "daily_checkin_claimed", entityType: "task", entityKeys: ["task_id", "taskId", "user_id", "userId"] },
   daily_reward_claimed: { normalizedAction: "daily_checkin_claimed", entityType: "task", entityKeys: ["task_id", "taskId", "user_id", "userId"] },
   daily_tasks_viewed: { normalizedAction: "task_ready", entityType: "task", entityKeys: ["task_id", "taskId", "task_key", "taskKey", "route", "page_path", "pagePath"] },
+  task_guidance_viewed: { normalizedAction: "task_guidance_viewed", entityType: "task", entityKeys: ["task_id", "taskId", "daily_task_window_id", "dailyTaskWindowId"] },
+  task_guidance_banner_viewed: { normalizedAction: "task_guidance_viewed", entityType: "task", entityKeys: ["task_id", "taskId", "daily_task_window_id", "dailyTaskWindowId"] },
+  task_guidance_tapped: { normalizedAction: "task_guidance_tapped", entityType: "task", entityKeys: ["task_id", "taskId", "daily_task_window_id", "dailyTaskWindowId"] },
+  task_guidance_cta_clicked: { normalizedAction: "task_guidance_tapped", entityType: "task", entityKeys: ["task_id", "taskId", "daily_task_window_id", "dailyTaskWindowId"] },
+  task_guidance_dismissed: { normalizedAction: "task_guidance_dismissed", entityType: "task", entityKeys: ["task_id", "taskId", "daily_task_window_id", "dailyTaskWindowId"] },
+  task_guidance_banner_dismissed: { normalizedAction: "task_guidance_dismissed", entityType: "task", entityKeys: ["task_id", "taskId", "daily_task_window_id", "dailyTaskWindowId"] },
+  task_guidance_completed: { normalizedAction: "task_guidance_completed", entityType: "task", entityKeys: ["task_id", "taskId", "daily_task_window_id", "dailyTaskWindowId"] },
+  task_card_expanded: { normalizedAction: "task_card_expanded", entityType: "task", entityKeys: ["task_id", "taskId", "daily_task_window_id", "dailyTaskWindowId"] },
+  task_help_opened: { normalizedAction: "task_help_opened", entityType: "task", entityKeys: ["task_id", "taskId", "daily_task_window_id", "dailyTaskWindowId"] },
   task_completed: { normalizedAction: "task_completed", entityType: "task", entityKeys: ["task_id", "taskId", "task_key", "taskKey"] },
   daily_task_completed: { normalizedAction: "task_completed", entityType: "task", entityKeys: ["task_id", "taskId", "task_key", "taskKey"] },
   creator_rail_impression: { normalizedAction: "creator_spotlight_viewed", entityType: "creator", entityKeys: ["creator_id", "creatorId", "target_creator_id", "targetCreatorId", "surface"] },
@@ -193,7 +202,11 @@ function buildDedupeKey(fact: Omit<BehavioralEventFact, "dedupeKey">) {
   const eventKey = sanitizeFragment(fact.eventId);
   const dayKey = sanitizeFragment(fact.dayKey || "none");
 
-  if ((fact.normalizedAction === "daily_checkin_claimed" || fact.normalizedAction === "task_completed") && fact.taskId && fact.dayKey) {
+  if ((
+    fact.normalizedAction === "daily_checkin_claimed"
+    || fact.normalizedAction === "task_completed"
+    || fact.normalizedAction === "task_guidance_completed"
+  ) && fact.taskId && fact.dayKey) {
     return [actorKey, fact.normalizedAction, sanitizeFragment(fact.taskId), dayKey].join(":");
   }
 

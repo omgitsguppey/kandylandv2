@@ -3,6 +3,17 @@ import { type DailyTaskActionType, type DailyTaskAssignment } from "@/lib/tasks/
 export const TASK_GUIDANCE_STORAGE_KEY = "kandydrops:active-task-guidance";
 export const TASK_GUIDANCE_ACTION_STORAGE_KEY = "kandydrops:active-task-guidance-action";
 export const TASK_GUIDANCE_ACTION_EVENT = "kandydrops:task-guidance-action";
+export const TASK_GUIDANCE_IMPLEMENTED = true;
+export const TASK_GUIDANCE_REQUIRED_IN_BETA = true;
+export const TASK_GUIDANCE_EVENT_NAMES = [
+  "task_guidance_viewed",
+  "task_guidance_tapped",
+  "task_guidance_dismissed",
+  "task_guidance_completed",
+  "task_card_expanded",
+  "task_help_opened",
+] as const;
+export type TaskGuidanceEventName = (typeof TASK_GUIDANCE_EVENT_NAMES)[number];
 
 export const TASK_GUIDANCE_ACTION_TYPES = [
   "open_notifications",
@@ -25,6 +36,8 @@ export interface TaskGuidanceState {
   eventName: string;
   actionType: DailyTaskAssignment["actionType"];
   assignedAt: number;
+  dailyTaskWindowId?: string;
+  assignmentSource?: DailyTaskAssignment["assignmentSource"];
   activatedAt: number;
   completedAt?: number;
   dismissedAt?: number;
@@ -474,6 +487,8 @@ export function createTaskGuidanceState(task: DailyTaskAssignment): TaskGuidance
     eventName: task.eventName,
     actionType: task.actionType,
     assignedAt: task.assignedAt,
+    dailyTaskWindowId: task.dailyTaskWindowId,
+    assignmentSource: task.assignmentSource,
     activatedAt: Date.now(),
   };
 }

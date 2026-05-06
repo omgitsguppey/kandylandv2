@@ -36,6 +36,7 @@ import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
 import { trackEvent } from "@/lib/telemetry";
 import {
   TASK_GUIDANCE_ACTION_EVENT,
+  TASK_GUIDANCE_EVENT_NAMES,
   createTaskGuidanceState,
   findCurrentTaskGuidanceTask,
   focusTaskDestinationAnchor,
@@ -73,6 +74,8 @@ const FEEDBACK_CATEGORY_OPTIONS: Array<{ value: FeedbackCategory; label: string 
   { value: "bug_report", label: "Bug report" },
   { value: "creator_request", label: "Creator feedback" },
 ];
+const TASK_CARD_EXPANDED_EVENT = TASK_GUIDANCE_EVENT_NAMES[4];
+const TASK_HELP_OPENED_EVENT = TASK_GUIDANCE_EVENT_NAMES[5];
 
 function formatCountdown(targetMs: number, nowMs: number) {
   const remainingMs = Math.max(0, targetMs - nowMs);
@@ -263,11 +266,27 @@ export function DailyTasksModule() {
     };
   }, [nextRefreshMs, nowMs, rotateTasks, rotating, userProfile?.uid]);
 
-  const toggleTaskExpanded = (taskId: string) => {
+  const toggleTaskExpanded = (task: DailyTaskAssignment) => {
+    const isExpanded = expandedTaskIds.includes(task.id);
+    if (!isExpanded) {
+      const taskWindowId = task.dailyTaskWindowId ?? dailyTaskState?.dailyTaskWindowId;
+      const telemetryPayload = {
+        task_id: task.id,
+        task_title: task.title,
+        action_type: task.actionType,
+        guidance_type: "explanation",
+        source_component: "daily_tasks_module",
+        daily_task_window_id: taskWindowId,
+        assignment_source: task.assignmentSource ?? dailyTaskState?.source,
+      } as const;
+      trackEvent(TASK_CARD_EXPANDED_EVENT, telemetryPayload);
+      trackEvent(TASK_HELP_OPENED_EVENT, telemetryPayload);
+    }
+
     setExpandedTaskIds((current) => (
-      current.includes(taskId)
-        ? current.filter((entry) => entry !== taskId)
-        : [...current, taskId]
+      current.includes(task.id)
+        ? current.filter((entry) => entry !== task.id)
+        : [...current, task.id]
     ));
   };
 
@@ -687,7 +706,7 @@ export function DailyTasksModule() {
               >
                 <button
                   type="button"
-                  onClick={() => toggleTaskExpanded(task.id)}
+                  onClick={() => toggleTaskExpanded(task)}
                   className="w-full text-left"
                   aria-expanded={isExpanded}
                 >

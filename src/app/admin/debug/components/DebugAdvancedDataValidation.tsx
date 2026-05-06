@@ -323,6 +323,13 @@ export function DebugAdvancedDataValidation() {
                                             <Pill label="Pass allowed" value={check.passAllowed === false ? "no" : "yes"} tone={check.passAllowed === false ? "warn" : "good"} />
                                             {check.passBlockedReason ? <Pill label="Blocked" value={check.passBlockedReason} tone="warn" /> : null}
                                         </div>
+                                        {check.checkKey === "task_guidance_parity" ? (
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Implemented" value={check.implemented === false ? "no" : "yes"} tone={check.implemented === false ? "neutral" : "good"} truthState={check.implemented === false ? "unavailable" : "live"} badgeLabel={check.implemented === false ? "UNAVAILABLE" : "LOADED"} />
+                                                <Pill label="Required" value={check.required === false ? "no" : "yes"} tone={check.required === false ? "neutral" : "warn"} truthState="live" badgeLabel="INFO" />
+                                                {check.eventNames && check.eventNames.length > 0 ? <Pill label="Expected events" value={check.eventNames.join(", ")} truthState="live" badgeLabel="INFO" /> : null}
+                                            </div>
+                                        ) : null}
                                         <p className="text-xs text-gray-400">{check.recommendedNextCheck || check.action || "No action needed."}</p>
                                         {check.failureClusters && check.failureClusters.length > 0 ? (
                                             <div className="rounded-lg border border-white/10 bg-black/20 p-2 text-xs text-gray-300">
