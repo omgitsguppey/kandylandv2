@@ -14,6 +14,8 @@ The UI may call the section a Journey Funnel only when ordered transition counts
 
 The current compact Event Chain uses prior-step event ratios. The base row is the first step in the displayed chain and its denominator is itself.
 
+Repeated event ratios are event-volume ratios, not user conversion. Operator copy must say "event volume" or "activity volume" unless ordered actor/session proof exists.
+
 If a later step exceeds a prior step, the mode must not be ordered. This is allowed for repeated event counts, but the UI must say that some steps need review and Debug must list `nonSequentialSteps`.
 
 Purchases can exceed checkout starts when purchase records come from a different source, repeated purchases are included, checkout starts are missing, or ranges/sources disagree. That must be exposed as `sourceMismatchSteps`.
@@ -25,6 +27,12 @@ Journey Funnel auth/signup counts may differ from onboarding velocity or step-fl
 ## UI Rule
 
 The section must be compact on mobile: small summary tiles, short step rows, short mode/status labels, and thin progress bars. Do not render huge repeated degraded badges on every row when one section-level status already explains the mode.
+
+Approved operator copy:
+- "Repeated event-volume chain. Not a unique-user funnel."
+- "This is event volume, not a sequential conversion funnel. Counts can exceed earlier steps when users repeat actions."
+- "Largest event-volume decrease"
+- "True user funnel unavailable until unique actor/session chain is computed."
 
 Approved visible labels: LIVE, UPDATED, REFRESHING, DELAYED, EST, PARTIAL, WAIT, REVIEW, ERROR, SNAP.
 

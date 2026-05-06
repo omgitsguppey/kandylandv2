@@ -7,6 +7,7 @@ const BANNED_VISIBLE_COPY = [
   "failed closed",
   "realtime lane",
   "ordered conversion",
+  "Biggest Drop",
 ];
 
 function read(relativePath: string) {
@@ -43,10 +44,14 @@ const section = component.slice(
 
 assertIncludes("AdminAnalyticsOperationsTab", component, "journeyFunnelModel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_JOURNEY_FUNNEL_DEBUG__");
-assertIncludes("AdminAnalyticsOperationsTab", component, "Event chain with source and denominator truth.");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Repeated event-volume chain. Not a unique-user funnel.");
 assertIncludes("AdminAnalyticsOperationsTab", component, "formatJourneyDenominatorMode");
 assertIncludes("AdminAnalyticsOperationsTab", component, "nonSequentialSteps");
 assertIncludes("AdminAnalyticsOperationsTab", component, "sourceMismatchSteps");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Largest Event-Volume Decrease");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Supporting Events");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Separate from the chain");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Event ratio");
 assertIncludes("AdminAnalyticsOperationsTab", component, "rounded-[0.9rem]");
 assertIncludes("AdminAnalyticsOperationsTab", component, "statusBadgeLabel={journeyFunnelBadgeLabel}");
 assertNotIncludes("Journey Funnel section", section, "rounded-[1.6rem]");
@@ -59,6 +64,14 @@ for (const phrase of BANNED_VISIBLE_COPY) {
 
 assertIncludes("journey funnel helper", helper, "funnelMode");
 assertIncludes("journey funnel helper", helper, "denominatorMode");
+assertIncludes("journey funnel helper", helper, "generatedAtUtc");
+assertIncludes("journey funnel helper", helper, "warningCount");
+assertIncludes("journey funnel helper", helper, "warnings");
+assertIncludes("journey funnel helper", helper, "sequential: false");
+assertIncludes("journey funnel helper", helper, "uniqueActorsAvailable: false");
+assertIncludes("journey funnel helper", helper, "ratioMeaning");
+assertIncludes("journey funnel helper", helper, "countUnit: \"events\"");
+assertIncludes("journey funnel helper", helper, "supportingEvents");
 assertIncludes("journey funnel helper", helper, "rawEventCount");
 assertIncludes("journey funnel helper", helper, "uniqueUserCount");
 assertIncludes("journey funnel helper", helper, "uniqueSessionCount");
@@ -70,8 +83,11 @@ assertIncludes("journey funnel helper", helper, "journeyStatsComparison");
 assertIncludes("journey funnel helper", helper, "fakeZeroPrevented");
 assertIncludes("journey funnel helper", helper, "displayedPercent");
 assertIncludes("journey funnel helper", helper, "purchaseCount > checkoutCount");
-assertIncludes("journey funnel helper", helper, "raw_event");
+assertIncludes("journey funnel helper", helper, "\"event_volume_chain\"");
+assertIncludes("journey funnel helper", helper, "\"partial_event_chain\"");
 assertIncludes("journey funnel helper", helper, "orderedJourneyAvailable: false");
+assertIncludes("journey funnel helper", helper, "This is event volume, not a sequential conversion funnel.");
+assertIncludes("journey funnel helper", helper, "Not a conversion rate.");
 
 assertIncludes("useAdminAnalyticsState", hook, "buildAdminAnalyticsJourneyFunnelModel");
 assertIncludes("useAdminAnalyticsState", hook, "journeyFunnelModel");
@@ -84,6 +100,8 @@ assertIncludes("agent truth doc", doc, "Event Chain");
 assertIncludes("agent truth doc", doc, "later step exceeds a prior step");
 assertIncludes("agent truth doc", doc, "Fake zeros are forbidden");
 assertIncludes("agent truth doc", doc, "Future agents must not display raw event ratios as ordered conversion or primary operator copy");
+assertIncludes("agent truth doc", doc, "Repeated event ratios are event-volume ratios, not user conversion");
+assertIncludes("agent truth doc", doc, "Largest event-volume decrease");
 
 if (process.exitCode) {
   process.exit(process.exitCode);

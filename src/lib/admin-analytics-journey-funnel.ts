@@ -1,8 +1,14 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
-import type { HistoricalAnalyticsResponse, RangeOption } from "@/types/admin-analytics";
+import type {
+  EventChainPanelState,
+  EventChainStep,
+  EventSupportingGroup,
+  HistoricalAnalyticsResponse,
+  RangeOption,
+} from "@/types/admin-analytics";
 
-type FunnelMode = "ordered" | "unique_user" | "unique_session" | "raw_event" | "mixed_degraded";
-type DenominatorMode = "prior_step" | "base_step" | "raw_event_ratio" | "ordered_transition";
+type FunnelMode = EventChainPanelState["mode"];
+type DenominatorMode = EventChainPanelState["denominatorMode"];
 type JourneySource = "first_party_event_counts" | "mixed_first_party_payment" | "waiting" | "unavailable";
 
 type FunnelFlags = {
@@ -13,7 +19,7 @@ type FunnelFlags = {
   estimated: boolean;
 };
 
-export type AdminAnalyticsJourneyFunnelStep = FunnelFlags & {
+export type AdminAnalyticsJourneyFunnelStep = FunnelFlags & EventChainStep & {
   stepKey: string;
   eventName: string;
   visibleLabel: string;
@@ -31,7 +37,16 @@ export type AdminAnalyticsJourneyFunnelStep = FunnelFlags & {
   fakeZeroPrevented: boolean;
 };
 
-export type AdminAnalyticsJourneyFunnelModel = FunnelFlags & {
+export type AdminAnalyticsJourneyFunnelSupportingMetric = FunnelFlags & EventSupportingGroup & {
+  stepKey: string;
+  visibleLabel: string;
+  rawEventCount: number | null;
+  source: JourneySource;
+  truthState: AdminSurfaceState;
+  fakeZeroPrevented: boolean;
+};
+
+export type AdminAnalyticsJourneyFunnelModel = FunnelFlags & Omit<EventChainPanelState, "steps" | "supportingEvents"> & {
   selectedRange: RangeOption;
   funnelMode: FunnelMode;
   denominatorMode: DenominatorMode;
@@ -39,7 +54,8 @@ export type AdminAnalyticsJourneyFunnelModel = FunnelFlags & {
   visibleTitle: "Event Chain" | "Journey Funnel";
   visibleHelperCopy: string;
   steps: AdminAnalyticsJourneyFunnelStep[];
-  supportingMetrics: AdminAnalyticsJourneyFunnelStep[];
+  supportingEvents: AdminAnalyticsJourneyFunnelSupportingMetric[];
+  supportingMetrics: AdminAnalyticsJourneyFunnelSupportingMetric[];
   nonSequentialSteps: string[];
   sourceMismatchSteps: string[];
   onboardingComparison: {
@@ -109,6 +125,7 @@ function buildStep(input: {
   visibleLabel: string;
   count: number | null;
   priorStep: string | null;
+  priorStepLabel: string | null;
   priorValue: number | null;
   source: JourneySource;
   truthState: AdminSurfaceState;
@@ -121,20 +138,83 @@ function buildStep(input: {
       : input.priorStep === null && input.count !== null
         ? 1
         : null;
+  const ratioMeaning: EventChainStep["ratioMeaning"] = input.priorStep
+    ? "event_volume_ratio"
+    : "not_comparable";
+  const stepState: EventChainStep["state"] =
+    input.count === null
+      ? "unknown"
+      : displayedPercent !== null && displayedPercent > 1
+        ? "review"
+        : input.truthState === "degraded"
+          ? "partial"
+          : "live";
+  const explanation =
+    input.priorStep === null
+      ? `${input.visibleLabel} sets the base event count for this repeated activity chain.`
+      : input.stepKey === "purchases" && input.priorStep === "checkoutStarts"
+        ? `${input.count ?? 0} purchase events are compared against ${input.priorValue ?? 0} checkout start events. This is closest to a checkout conversion proxy only if actor/session matching exists; otherwise it is still an event ratio.`
+      : displayedPercent !== null && displayedPercent > 1
+        ? `${input.visibleLabel} has more events than ${input.priorStepLabel ?? input.priorStep} because this is repeated event volume, not a sequential conversion funnel.`
+        : `${input.count ?? 0} ${input.visibleLabel.toLowerCase()} events are compared against ${input.priorValue ?? 0} ${input.priorStepLabel?.toLowerCase() ?? input.priorStep} events as an event-volume ratio only.`;
 
   return {
+    stepId: input.stepKey,
+    label: input.visibleLabel,
     stepKey: input.stepKey,
     eventName: input.eventName,
     visibleLabel: input.visibleLabel,
+    count: input.count ?? 0,
+    countUnit: "events",
     rawEventCount: input.count,
     uniqueUserCount: null,
     uniqueSessionCount: null,
     orderedTransitionCount: null,
     displayedCount: input.count,
     displayedPercent,
+    denominatorStepId: input.priorStep ?? undefined,
+    denominatorCount: input.priorValue ?? undefined,
+    ratioPct: displayedPercent,
+    ratioMeaning,
+    state: stepState,
+    explanation,
     denominatorStep: input.priorStep,
     denominatorValue: input.priorValue,
-    denominatorLabel: input.priorStep ? `vs ${input.priorStep}` : "Base events",
+    denominatorLabel: input.priorStepLabel ? `vs ${input.priorStepLabel}` : "Base events",
+    source: input.source,
+    truthState: input.truthState,
+    fakeZeroPrevented: input.fakeZeroPrevented,
+    ...input.flags,
+  };
+}
+
+function buildSupportingMetric(input: {
+  stepKey: FunnelKey;
+  eventName: string;
+  visibleLabel: string;
+  count: number | null;
+  source: JourneySource;
+  truthState: AdminSurfaceState;
+  flags: FunnelFlags;
+  fakeZeroPrevented: boolean;
+}): AdminAnalyticsJourneyFunnelSupportingMetric {
+  const stepState: EventSupportingGroup["state"] =
+    input.count === null
+      ? "unknown"
+      : input.truthState === "degraded"
+        ? "partial"
+        : "live";
+  return {
+    groupId: input.stepKey,
+    label: input.visibleLabel,
+    stepKey: input.stepKey,
+    visibleLabel: input.visibleLabel,
+    eventName: input.eventName,
+    count: input.count ?? 0,
+    countUnit: "events",
+    state: stepState,
+    explanation: `${input.visibleLabel} is supporting activity volume, not a sequential funnel step.`,
+    rawEventCount: input.count,
     source: input.source,
     truthState: input.truthState,
     fakeZeroPrevented: input.fakeZeroPrevented,
@@ -178,11 +258,11 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
       ? ["purchases"]
       : [];
   const funnelMode: FunnelMode = !hasResponse
-    ? input.loading ? "mixed_degraded" : "mixed_degraded"
+    ? "partial_event_chain"
     : nonSequentialSteps.length > 0 || sourceMismatchSteps.length > 0
-      ? "raw_event"
-      : "raw_event";
-  const denominatorMode: DenominatorMode = "raw_event_ratio";
+      ? "partial_event_chain"
+      : "event_volume_chain";
+  const denominatorMode: DenominatorMode = "prior_step_events";
   const truthState = resolveTruthState({
     response: input.response,
     loading: input.loading,
@@ -200,6 +280,7 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
       ...step,
       count: hasResponse ? rawCounts.get(step.stepKey) ?? null : null,
       priorStep: prior?.stepKey ?? null,
+      priorStepLabel: prior?.visibleLabel ?? null,
       priorValue: prior ? rawCounts.get(prior.stepKey) ?? null : null,
       source: stepSource,
       truthState,
@@ -208,11 +289,9 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     });
   });
   const supportingMetrics = SUPPORTING_STEPS.map((step) =>
-    buildStep({
+    buildSupportingMetric({
       ...step,
       count: hasResponse ? rawCounts.get(step.stepKey) ?? null : null,
-      priorStep: null,
-      priorValue: null,
       source,
       truthState,
       flags,
@@ -232,18 +311,35 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     onboardingCompletions !== null &&
     Math.abs(authSignUps - onboardingCompletions) > Math.max(3, onboardingCompletions * 0.25);
   const degradedReasons = [
-    "Journey Funnel is currently repeated event counts, not ordered actor/session transitions.",
+    "This lane is repeated event volume, not a unique-user or session funnel.",
     ...nonSequentialSteps.map((step) => `${step} exceeds its prior step.`),
     ...sourceMismatchSteps.map((step) => `${step} uses purchase evidence that exceeds checkout starts.`),
     onboardingMismatch ? "Onboarding completion counts differ from auth signup counts." : null,
   ].filter((reason): reason is string => Boolean(reason));
+  const warnings = [
+    "This is event volume, not a sequential conversion funnel.",
+    ...nonSequentialSteps.map((step) => `${step} exceeds its prior-step event count because actions are not sequentially deduped.`),
+    ...sourceMismatchSteps.map((step) => `${step} exceeds its prior-step event count because the source differs or checkout telemetry is incomplete.`),
+  ];
   const visibleHelperCopy = hasResponse
-    ? "This view counts repeated events, not unique people moving step by step."
+    ? "This is event volume, not a sequential conversion funnel. Counts can exceed earlier steps when users repeat actions."
     : input.loading
       ? "Waiting for first snapshot."
-      : "Journey event counts are unavailable.";
+      : "Event-volume chain data is unavailable.";
+  const generatedAtUtc = input.response?.generatedAtMs
+    ? new Date(input.response.generatedAtMs).toISOString()
+    : new Date().toISOString();
+  const largestEventVolumeDecreaseLabel = biggestDropoff
+    ? `${steps.find((step) => step.stepKey === biggestDropoff.step)?.visibleLabel ?? biggestDropoff.step} vs ${steps.find((step) => step.stepKey === biggestDropoff.step)?.denominatorLabel.replace(/^vs /, "") ?? "prior step"}`
+    : null;
 
   return {
+    generatedAtUtc,
+    mode: funnelMode,
+    sequential: false,
+    uniqueActorsAvailable: false,
+    warningCount: warnings.length,
+    warnings,
     selectedRange: input.selectedRange,
     funnelMode,
     denominatorMode,
@@ -251,6 +347,7 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     visibleTitle: "Event Chain",
     visibleHelperCopy,
     steps,
+    supportingEvents: supportingMetrics,
     supportingMetrics,
     nonSequentialSteps,
     sourceMismatchSteps,
@@ -265,16 +362,16 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
       uniqueUserAvailable: false,
       uniqueSessionAvailable: false,
     },
-    biggestDropoffStep: biggestDropoff?.step ?? null,
+    biggestDropoffStep: biggestDropoff ? (steps.find((step) => step.stepKey === biggestDropoff.step)?.visibleLabel ?? biggestDropoff.step) : null,
     biggestDropoffPercent: biggestDropoff ? biggestDropoff.dropoff : null,
     recommendation: sourceMismatchSteps.length > 0
-      ? "Event counts exceed prior steps; use unique journey mode before treating this as conversion."
-      : biggestDropoff
-        ? `${biggestDropoff.step} is the largest event drop-off.`
-        : "Event chain is available; ordered journey validation is still required for conversion claims.",
+      ? "True user funnel unavailable until unique actor/session chain is computed. Current ratios are event-volume only."
+      : largestEventVolumeDecreaseLabel
+        ? `Largest event-volume decrease: ${largestEventVolumeDecreaseLabel}. Not a conversion rate.`
+        : "True user funnel unavailable until unique actor/session chain is computed. Current ratios are event-volume only.",
     degradedReasons,
     visibleDegradedCopy: degradedReasons.length > 0
-      ? "Some steps need review, so conversion is directional."
+      ? "Some steps need review because later event counts can exceed earlier steps in a repeated-activity chain."
       : "",
     duplicateRefreshPrevented: Boolean(input.response?.cacheRevalidating && input.loading),
     hydrationMs: hasResponse ? 0 : null,

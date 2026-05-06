@@ -11,11 +11,11 @@ import { cn } from "@/lib/utils";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 
 function formatJourneyDenominatorMode(mode: string) {
-  if (mode === "raw_event_ratio") return "Prior-step event ratio";
-  if (mode === "ordered_transition") return "Ordered journey ratio";
-  if (mode === "base_step") return "Base-step ratio";
-  if (mode === "prior_step") return "Prior-step ratio";
-  return "Event ratio";
+  if (mode === "prior_step_events") return "Prior-step event denominator";
+  if (mode === "base_events") return "Base event denominator";
+  if (mode === "unique_users") return "Unique-user denominator";
+  if (mode === "sessions") return "Session denominator";
+  return "Unknown denominator";
 }
 
 export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
@@ -415,7 +415,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
             <SectionCard
               title={journeyFunnelModel.visibleTitle}
-              subtitle="Event chain with source and denominator truth."
+              subtitle="Repeated event-volume chain. Not a unique-user funnel."
               icon={Eye}
               rightSlot={renderSectionRangeControl("journeyFunnel")}
             >
@@ -450,9 +450,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   valueClassName="text-lg leading-6 md:text-xl"
                 />
                 <MetricCard
-                  label="Biggest Drop"
+                  label="Largest Event-Volume Decrease"
                   value={biggestDropoffLabel}
-                  hint="Prior-step event ratio"
+                  hint="Largest prior-step event gap"
                   icon={AlertTriangle}
                   truthState={historicalMetricTruthState}
                   statusBadgeLabel={journeyFunnelBadgeLabel}
@@ -497,10 +497,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           <p className="mt-0.5 truncate text-[10px] text-gray-500">
                             {journeyCountLabel(step.displayedCount)} tracked events - {step.denominatorLabel}
                           </p>
+                          <p className="mt-0.5 text-[10px] leading-4 text-gray-400">
+                            {step.explanation}
+                          </p>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-200">
                             {percentLabel}
+                          </span>
+                          <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-[10px] font-semibold text-brand-purple">
+                            {step.ratioMeaning === "event_volume_ratio"
+                              ? "Event ratio"
+                              : step.ratioMeaning === "not_comparable"
+                                ? "Base"
+                                : step.ratioMeaning}
                           </span>
                           {rowDiffers ? (
                             <AdminStatusBadge
@@ -522,20 +532,28 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 })}
               </div>
 
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {journeyFunnelModel.supportingMetrics.map((item) => (
-                  <MetricCard
-                    key={item.stepKey}
-                    label={item.visibleLabel}
-                    value={journeyCountLabel(item.displayedCount)}
-                    hint="Supporting events"
-                    icon={item.stepKey === "shares" ? Share2 : CheckCircle2}
-                    truthState={historicalMetricTruthState}
-                    statusBadgeLabel={journeyFunnelBadgeLabel}
-                    className="rounded-[1rem] p-2"
-                    valueClassName="text-lg leading-6 md:text-xl"
-                  />
-                ))}
+              <div className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                    Supporting Events
+                  </p>
+                  <span className="text-[10px] text-gray-500">Separate from the chain</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {journeyFunnelModel.supportingEvents.map((item) => (
+                    <MetricCard
+                      key={item.stepKey}
+                      label={item.visibleLabel}
+                      value={journeyCountLabel(item.count)}
+                      hint={item.explanation}
+                      icon={item.stepKey === "shares" ? Share2 : CheckCircle2}
+                      truthState={historicalMetricTruthState}
+                      statusBadgeLabel={journeyFunnelBadgeLabel}
+                      className="rounded-[1rem] p-2"
+                      valueClassName="text-lg leading-6 md:text-xl"
+                    />
+                  ))}
+                </div>
               </div>
 
               <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">

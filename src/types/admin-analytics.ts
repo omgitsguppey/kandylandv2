@@ -785,6 +785,46 @@ export type AnalyticsOverviewCard = {
   warnings: string[];
 };
 
+export type EventChainStep = {
+  stepId: string;
+  label: string;
+  eventName: string;
+  count: number;
+  countUnit: "events" | "users" | "sessions";
+  denominatorStepId?: string;
+  denominatorCount?: number;
+  ratioPct?: number | null;
+  ratioMeaning:
+    | "event_volume_ratio"
+    | "sequential_conversion"
+    | "not_comparable"
+    | "supporting_ratio";
+  state: "live" | "review" | "partial" | "unknown";
+  explanation: string;
+};
+
+export type EventSupportingGroup = {
+  groupId: string;
+  label: string;
+  eventName: string;
+  count: number;
+  countUnit: "events" | "users" | "sessions";
+  state: "live" | "review" | "partial" | "unknown";
+  explanation: string;
+};
+
+export type EventChainPanelState = {
+  generatedAtUtc: string;
+  mode: "event_volume_chain" | "user_funnel" | "partial_event_chain";
+  denominatorMode: "prior_step_events" | "base_events" | "unique_users" | "sessions" | "unknown";
+  sequential: boolean;
+  uniqueActorsAvailable: boolean;
+  warningCount: number;
+  warnings: string[];
+  steps: EventChainStep[];
+  supportingEvents: EventSupportingGroup[];
+};
+
 export type AdminBehaviorLeaderboardFilter =
   | "all"
   | "returned_7d"
