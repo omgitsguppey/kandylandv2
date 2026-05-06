@@ -19,6 +19,7 @@ function formatRelative(timestamp?: number) {
 
 export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
     const panel = data?.behavioralIntelligencePanel;
+    const recoveryPanel = data?.telemetryTruthRecoveryPanel;
     const dropRows = panel?.dropRows || [];
     const rankingModeLabel = panel?.activeRankingMode === "ml_active"
         ? "ML active"
@@ -88,7 +89,7 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
                                             <p className="font-semibold text-white">{entry.dropTitle || entry.dropId}</p>
-                                            <p className="text-xs text-gray-400">{entry.creatorName || "Unknown creator"} · {entry.dropId}</p>
+                                            <p className="text-xs text-gray-400">{entry.creatorName || "Unknown creator"} - {entry.dropId}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Freshness" value={entry.profileFreshnessState || "unknown"} tone={entry.profileFreshnessState === "fresh" ? "good" : "warn"} truthState={entry.profileFreshnessState === "fresh" ? "live" : "degraded"} badgeLabel="LOADED" />
@@ -117,7 +118,7 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                     <p className="text-xs text-gray-300">Confidence formula: {entry.confidenceFormula}</p>
                                     <p className="text-xs text-gray-300">Completion: {entry.completionExplanation}</p>
                                     <p className="text-xs text-gray-300">Negative: {entry.negativeExplanation}</p>
-                                    <p className="text-xs text-gray-400">Top reasons: {(entry.topReasons || []).length ? entry.topReasons.join(" · ") : "No strong ranking reason surfaced in the sampled profile."}</p>
+                                    <p className="text-xs text-gray-400">Top reasons: {(entry.topReasons || []).length ? entry.topReasons.join(" - ") : "No strong ranking reason surfaced in the sampled profile."}</p>
                                     <p className="text-xs text-gray-500">Missing inputs: {(entry.missingInputs || []).length ? entry.missingInputs.join(", ") : "none"}</p>
                                 </div>
                             )) : <div className="px-4 py-4 text-sm text-amber-100">No behavioral drop-intelligence rows are available yet. Rebuild the snapshots or wait for the scheduled pass.</div>}
@@ -130,45 +131,86 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                 title="Telemetry Truth Recovery"
                 subtitle="Observed, checked, final, and estimated analytics layers with repair visibility."
                 defaultOpen={false}
-                summary={<><Pill label="Drop metrics" value={data?.stats?.analyticsTruthDropMetrics ?? 0} /><Pill label="User metrics" value={data?.stats?.analyticsTruthUserMetrics ?? 0} /><Pill label="Repairs" value={data?.stats?.analyticsTruthRepairs ?? 0} tone={(data?.stats?.analyticsTruthRepairs ?? 0) > 0 ? "warn" : "good"} /><Pill label="Quality" value={data?.analyticsTruthRecovery?.global?.qualityLabel || "unknown"} tone={data?.analyticsTruthRecovery?.global?.qualityLabel === "exact" ? "good" : data?.analyticsTruthRecovery?.global?.qualityLabel === "estimated" ? "warn" : "neutral"} /></>}
+                summary={
+                    <>
+                        <Pill label="Drop metrics" value={recoveryPanel?.dropMetricCount ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="User metrics" value={recoveryPanel?.userMetricCount ?? 0} truthState="live" badgeLabel="LOADED" />
+                        <Pill label="Repairs" value={recoveryPanel?.openRepairCount ?? 0} tone={(recoveryPanel?.openRepairCount ?? 0) > 0 ? "warn" : "good"} truthState={(recoveryPanel?.openRepairCount ?? 0) > 0 ? "degraded" : "live"} badgeLabel="LOADED" />
+                        <Pill label="Quality" value={recoveryPanel?.qualityState || "unknown"} tone={recoveryPanel?.qualityState === "verified" ? "good" : "warn"} truthState={recoveryPanel?.qualityState === "verified" ? "live" : "degraded"} badgeLabel="LOADED" />
+                    </>
+                }
             >
-                <div className="grid gap-4 lg:grid-cols-1">
+                <div
+                    className="grid gap-4 lg:grid-cols-1"
+                    data-telemetry-truth-last-rebuild-at-utc={recoveryPanel?.lastRebuildAtUtc || "unknown"}
+                    data-telemetry-truth-freshness-state={recoveryPanel?.freshnessState || "unknown"}
+                    data-telemetry-truth-quality-state={recoveryPanel?.qualityState || "unknown"}
+                    data-telemetry-truth-estimated-ratio={recoveryPanel?.estimatedRatioPct ?? 0}
+                    data-telemetry-truth-duplicate-rate={recoveryPanel?.duplicateRatePct ?? 0}
+                    data-telemetry-truth-recovered-sessions={recoveryPanel?.recoveredSessionCount ?? 0}
+                    data-telemetry-truth-formula-state={recoveryPanel?.formulaState || "unknown"}
+                    data-telemetry-truth-open-repairs={recoveryPanel?.openRepairCount ?? 0}
+                >
                     <div className="space-y-3">
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Global truth summary</p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                <Pill label="Freshness" value={recoveryPanel?.freshnessState || "unknown"} tone={recoveryPanel?.freshnessState === "live" ? "good" : "warn"} truthState={recoveryPanel?.freshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
+                                <Pill label="Last rebuild" value={recoveryPanel?.lastRebuildAtUtc ? formatRelative(Date.parse(recoveryPanel.lastRebuildAtUtc)) : "unknown"} tone={recoveryPanel?.freshnessState === "live" ? "good" : "warn"} truthState={recoveryPanel?.freshnessState === "live" ? "live" : "degraded"} badgeLabel="LOADED" />
+                                <Pill label="Formula state" value={recoveryPanel?.formulaState || "unknown"} tone={recoveryPanel?.formulaState === "documented" ? "good" : "warn"} truthState={recoveryPanel?.formulaState === "documented" ? "live" : "degraded"} badgeLabel="LOADED" />
+                                <Pill label="Actionable repairs" value={recoveryPanel?.actionableRepairCount ?? 0} tone={(recoveryPanel?.actionableRepairCount ?? 0) > 0 ? "warn" : "good"} truthState={(recoveryPanel?.actionableRepairCount ?? 0) > 0 ? "degraded" : "live"} badgeLabel="LOADED" />
+                                <Pill label="Inspect-only" value={recoveryPanel?.inspectOnlyRepairCount ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                            </div>
                             <div className="mt-3 grid grid-cols-2 gap-3">
-                                <StatCard label="Observed views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.raw?.raw_view_count ?? 0} meta="Observed viewer-open and session-start activity" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
-                                <StatCard label="Checked views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.validated?.deduped_view_count ?? 0} meta="Duplicate page loads collapsed" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
-                                <StatCard label="Final views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.finalized?.finalized_view_count ?? 0} meta="Reporting value after review" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
-                                <StatCard label="Estimated ratio" value={`${Math.round(((data?.analyticsTruthRecovery?.global?.truthLayers?.estimated?.estimated_data_ratio ?? 0) as number) * 100)}%`} meta="Recovered or inferred share of final metrics" truthState={data?.analyticsTruthRecovery?.global?.qualityLabel === "estimated" ? "fallback" : data?.analyticsTruthRecovery ? "live" : "unavailable"} />
+                                <StatCard label="Observed views" value={recoveryPanel?.observedViews ?? 0} meta={recoveryPanel?.formulas?.observedViews || "Observed formula missing."} truthState={recoveryPanel ? "live" : "unavailable"} />
+                                <StatCard label="Checked views" value={recoveryPanel?.checkedViews ?? 0} meta={recoveryPanel?.formulas?.checkedViews || "Checked formula missing."} truthState={recoveryPanel ? "live" : "unavailable"} />
+                                <StatCard label="Final views" value={recoveryPanel?.finalViews ?? 0} meta={recoveryPanel?.formulas?.finalViews || "Final formula missing."} truthState={recoveryPanel ? "live" : "unavailable"} />
+                                <StatCard label="Estimated ratio" value={`${recoveryPanel?.estimatedRatioPct ?? 0}%`} meta={recoveryPanel?.formulas?.estimatedRatio || "Estimated formula missing."} truthState={recoveryPanel?.qualityState === "estimated" || recoveryPanel?.qualityState === "degraded" ? "fallback" : recoveryPanel ? "live" : "unavailable"} />
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">
-                                <Pill label="Confidence" value={`${Math.round(((data?.analyticsTruthRecovery?.global?.confidenceScore ?? 0) as number) * 100)}%`} />
-                                <Pill label="Duplicate rate" value={`${Math.round(((data?.analyticsTruthRecovery?.global?.truthLayers?.validated?.duplicate_event_rate ?? 0) as number) * 100)}%`} tone={((data?.analyticsTruthRecovery?.global?.truthLayers?.validated?.duplicate_event_rate ?? 0) as number) > 0.1 ? "warn" : "good"} />
-                                <Pill label="Recovered sessions" value={data?.analyticsTruthRecovery?.global?.truthLayers?.estimated?.recovered_sessions_count ?? 0} tone={(data?.analyticsTruthRecovery?.global?.truthLayers?.estimated?.recovered_sessions_count ?? 0) > 0 ? "warn" : "good"} />
-                                <Pill label="Freshness" value={data?.analyticsTruthRecovery?.status?.freshnessLabel || "unknown"} tone={data?.analyticsTruthRecovery?.status?.freshnessLabel === "live" ? "good" : "warn"} />
+                                <Pill label="Confidence" value={`${recoveryPanel?.confidencePct ?? 0}%`} tone={(recoveryPanel?.confidencePct ?? 0) >= 85 ? "good" : "warn"} truthState="live" badgeLabel="LOADED" />
+                                <Pill label="Duplicate rate" value={`${recoveryPanel?.duplicateRatePct ?? 0}%`} tone={(recoveryPanel?.duplicateRatePct ?? 0) > 10 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                <Pill label="Recovered sessions" value={recoveryPanel?.recoveredSessionCount ?? 0} tone={(recoveryPanel?.recoveredSessionCount ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                <Pill label="Estimated views" value={recoveryPanel?.estimatedViews ?? 0} tone={(recoveryPanel?.estimatedViews ?? 0) > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
                             </div>
-                            <p className="mt-3 text-sm text-gray-300">Last rebuild {formatRelative(data?.analyticsTruthRecovery?.status?.lastComputedAtMs)}. Observed, checked, final, and estimated layers stay separate and explicitly labeled.</p>
+                            <p className="mt-3 text-sm text-gray-300">
+                                Last rebuild {recoveryPanel?.lastRebuildAtUtc ? formatRelative(Date.parse(recoveryPanel.lastRebuildAtUtc)) : "unknown"}.
+                                Observed, checked, final, and estimated layers stay separate and explicitly labeled.
+                            </p>
+                            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+                                {(recoveryPanel?.sourceLayers || []).map((layer: any) => (
+                                    <StatCard
+                                        key={layer.layer}
+                                        label={layer.layer}
+                                        value={layer.count ?? 0}
+                                        meta={`${layer.source} - ${layer.explanation}`}
+                                        truthState={layer.freshnessState === "live" ? "live" : "degraded"}
+                                    />
+                                ))}
+                            </div>
+                            {!!(recoveryPanel?.warnings || []).length && (
+                                <div className="mt-3 space-y-1 rounded-xl border border-amber-400/20 bg-amber-400/10 p-3 text-sm text-amber-100">
+                                    {(recoveryPanel?.warnings || []).map((warning: string) => (
+                                        <p key={warning}>{warning}</p>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <ScrollWrap>
                             <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
-                                {(data?.analyticsTruthRepairs || []).length ? (data?.analyticsTruthRepairs || []).map((entry: any) => (
-                                    <div key={entry.repairId} className="space-y-2 px-4 py-3">
+                                {(recoveryPanel?.repairGroups || []).length ? (recoveryPanel?.repairGroups || []).map((entry: any) => (
+                                    <div key={`${entry.repairType}:${entry.actionability}`} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
                                                 <p className="font-semibold text-white">{entry.repairType}</p>
-                                                <p className="text-xs text-gray-400">{entry.scopeType || "scope"} · {entry.scopeKey || entry.repairId}</p>
+                                                <p className="text-xs text-gray-400">{entry.explanation}</p>
                                             </div>
                                             <div className="flex flex-wrap gap-2">
-                                                <Pill label="Layer" value={entry.truthLabel || "unknown"} tone={entry.truthLabel === "estimated" ? "warn" : "neutral"} />
-                                                <Pill label="Confidence" value={`${Math.round(((entry.confidenceScore || 0) as number) * 100)}%`} />
+                                                <Pill label="Count" value={entry.count ?? 0} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Actionability" value={entry.actionability === "actionable" ? "Actionable repairs" : "Inspect-only"} tone={entry.actionability === "actionable" ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Latest" value={entry.latestAtUtc ? formatRelative(Date.parse(entry.latestAtUtc)) : "unknown"} truthState="live" badgeLabel="LOADED" />
                                             </div>
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            <Pill label="Recovered watch" value={`${Math.round(((entry.recoveredWatchTimeMs || 0) as number) / 1000)}s`} />
-                                            <Pill label="Completion repairs" value={entry.repairedCompletionCount || 0} />
-                                            <Pill label="Provenance" value={entry.provenance || "unknown"} />
                                         </div>
                                     </div>
                                 )) : <div className="px-4 py-4 text-sm text-emerald-100">No telemetry repair rows are present in the current truth window.</div>}
@@ -184,18 +226,18 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
                                                 <p className="font-semibold text-white">{entry.dropId}</p>
-                                                <p className="text-xs text-gray-400">Finalized views {entry.truthLayers?.finalized?.finalized_view_count ?? 0} · watch {Math.round(((entry.truthLayers?.finalized?.finalized_watch_time_ms ?? 0) as number) / 1000)}s</p>
+                                                <p className="text-xs text-gray-400">Finalized views {entry.truthLayers?.finalized?.finalized_view_count ?? 0} - watch {Math.round(((entry.truthLayers?.finalized?.finalized_watch_time_ms ?? 0) as number) / 1000)}s</p>
                                             </div>
                                             <div className="flex flex-wrap gap-2">
-                                                <Pill label="Quality" value={entry.qualityLabel || "unknown"} tone={entry.qualityLabel === "exact" ? "good" : entry.qualityLabel === "estimated" ? "warn" : "neutral"} />
-                                                <Pill label="Repaired" value={`${Math.round(((entry.repairedDataRatio || 0) as number) * 100)}%`} tone={((entry.repairedDataRatio || 0) as number) > 0.15 ? "warn" : "good"} />
+                                                <Pill label="Quality" value={entry.qualityLabel || "unknown"} tone={entry.qualityLabel === "exact" ? "good" : entry.qualityLabel === "estimated" ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Repaired" value={`${Math.round(((entry.repairedDataRatio || 0) as number) * 100)}%`} tone={((entry.repairedDataRatio || 0) as number) > 0.15 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Raw views" value={entry.truthLayers?.raw?.raw_view_count ?? 0} />
-                                            <Pill label="Validated" value={entry.truthLayers?.validated?.deduped_view_count ?? 0} />
-                                            <Pill label="Estimated views" value={entry.truthLayers?.estimated?.estimated_recovered_view_count ?? 0} />
-                                            <Pill label="Dupes" value={`${Math.round(((entry.truthLayers?.validated?.duplicate_event_rate ?? 0) as number) * 100)}%`} />
+                                            <Pill label="Raw views" value={entry.truthLayers?.raw?.raw_view_count ?? 0} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Validated" value={entry.truthLayers?.validated?.deduped_view_count ?? 0} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Estimated views" value={entry.truthLayers?.estimated?.estimated_recovered_view_count ?? 0} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Dupes" value={`${Math.round(((entry.truthLayers?.validated?.duplicate_event_rate ?? 0) as number) * 100)}%`} truthState="live" badgeLabel="LOADED" />
                                         </div>
                                     </div>
                                 )) : <div className="px-4 py-4 text-sm text-amber-100">No per-drop analytics truth rows are available yet. Run the reconciliation job or wait for the scheduled pass.</div>}
@@ -209,18 +251,18 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
                                                 <p className="font-semibold text-white">{entry.userId}</p>
-                                                <p className="text-xs text-gray-400">Watch {Math.round(((entry.truthLayers?.finalized?.finalized_watch_time_ms ?? 0) as number) / 1000)}s · unique viewers {entry.truthLayers?.finalized?.finalized_unique_viewers ?? 0}</p>
+                                                <p className="text-xs text-gray-400">Watch {Math.round(((entry.truthLayers?.finalized?.finalized_watch_time_ms ?? 0) as number) / 1000)}s - unique viewers {entry.truthLayers?.finalized?.finalized_unique_viewers ?? 0}</p>
                                             </div>
                                             <div className="flex flex-wrap gap-2">
-                                                <Pill label="Quality" value={entry.qualityLabel || "unknown"} tone={entry.qualityLabel === "exact" ? "good" : entry.qualityLabel === "estimated" ? "warn" : "neutral"} />
-                                                <Pill label="Confidence" value={`${Math.round(((entry.confidenceScore || 0) as number) * 100)}%`} />
+                                                <Pill label="Quality" value={entry.qualityLabel || "unknown"} tone={entry.qualityLabel === "exact" ? "good" : entry.qualityLabel === "estimated" ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Confidence" value={`${Math.round(((entry.confidenceScore || 0) as number) * 100)}%`} truthState="live" badgeLabel="LOADED" />
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Sessions" value={entry.truthLayers?.validated?.total_drop_view_sessions ?? 0} />
-                                            <Pill label="Unlocks" value={entry.truthLayers?.finalized?.unlock_count ?? 0} />
-                                            <Pill label="Estimated watch" value={`${Math.round(((entry.truthLayers?.estimated?.estimated_watch_time_ms ?? 0) as number) / 1000)}s`} />
-                                            <Pill label="Raw gaps" value={entry.truthLayers?.estimated?.raw_coverage_gap_count ?? 0} tone={(entry.truthLayers?.estimated?.raw_coverage_gap_count ?? 0) > 0 ? "warn" : "good"} />
+                                            <Pill label="Sessions" value={entry.truthLayers?.validated?.total_drop_view_sessions ?? 0} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Unlocks" value={entry.truthLayers?.finalized?.unlock_count ?? 0} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Estimated watch" value={`${Math.round(((entry.truthLayers?.estimated?.estimated_watch_time_ms ?? 0) as number) / 1000)}s`} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Raw gaps" value={entry.truthLayers?.estimated?.raw_coverage_gap_count ?? 0} tone={(entry.truthLayers?.estimated?.raw_coverage_gap_count ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                                         </div>
                                     </div>
                                 )) : <div className="px-4 py-4 text-sm text-amber-100">No per-user analytics truth rows are available yet.</div>}

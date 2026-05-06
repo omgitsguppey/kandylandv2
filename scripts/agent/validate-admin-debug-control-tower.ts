@@ -270,6 +270,23 @@ for (const expected of [
   "confidenceFormula",
   "completionExplanation",
   "negativeExplanation",
+  "TelemetryTruthRecoveryState",
+  "TelemetryTruthRecoverySourceLayer",
+  "TelemetryTruthRecoveryRepairGroup",
+  "buildTelemetryTruthRecoveryState",
+  "telemetryTruthRecoveryPanel",
+  "formulaState",
+  "actionableRepairCount",
+  "inspectOnlyRepairCount",
+  "estimatedViews",
+  "estimatedRatioPct",
+  "duplicateRatePct",
+  "recoveredSessionCount",
+  "Last rebuild is",
+  "Observed layer only counts viewer opens/session starts; checked layer also includes eligible page-load candidates after dedupe review.",
+  "Estimated ratio does not match estimated views divided by final views. Inspect estimated-layer math.",
+  "Duplicate rate is present without an explicit duplicate-candidate denominator. Inspect validated-layer source fields.",
+  "Weighted source truth, rebuild freshness, sample quality, and repair burden.",
   "\"not_enough_sample\"",
   "\"under_baseline\"",
   "\"experimental\"",
@@ -1428,6 +1445,30 @@ for (const expected of [
   "badgeLabel=\"LOADED\"",
 ]) {
   requireIncludes(debugAdvancedBehavior, expected, "Behavioral intelligence panel must expose loaded calibration truth");
+}
+for (const expected of [
+  "Telemetry Truth Recovery",
+  "Formula state",
+  "Actionable repairs",
+  "Inspect-only",
+  "Observed views",
+  "Checked views",
+  "Final views",
+  "Estimated ratio",
+  "Recovered sessions",
+  "Estimated views",
+  "Global truth summary",
+  "Observed, checked, final, and estimated layers stay separate and explicitly labeled.",
+  "data-telemetry-truth-last-rebuild-at-utc",
+  "data-telemetry-truth-freshness-state",
+  "data-telemetry-truth-quality-state",
+  "data-telemetry-truth-estimated-ratio",
+  "data-telemetry-truth-duplicate-rate",
+  "data-telemetry-truth-recovered-sessions",
+  "data-telemetry-truth-formula-state",
+  "data-telemetry-truth-open-repairs",
+]) {
+  requireIncludes(debugAdvancedBehavior, expected, "Telemetry truth recovery panel must expose freshness, formulas, and repair grouping");
 }
 requireNotIncludes(debugAdvancedBehavior, "WAIT", "Behavioral intelligence panel must not show WAIT for loaded values");
 

@@ -589,6 +589,60 @@ type BehavioralIntelligencePanelState = {
     dropRows: BehavioralDropPanelRow[];
 };
 
+type TelemetryTruthRecoveryFreshnessState = "live" | "stale" | "expired" | "unknown";
+type TelemetryTruthRecoveryQualityState = "verified" | "mixed" | "estimated" | "degraded" | "unknown";
+type TelemetryTruthRecoveryFormulaState = "documented" | "unknown";
+
+type TelemetryTruthRecoverySourceLayer = {
+    layer: "observed" | "checked" | "final" | "estimated" | "recovered";
+    source: string;
+    count: number;
+    freshnessState: TelemetryTruthRecoveryFreshnessState;
+    explanation: string;
+};
+
+type TelemetryTruthRecoveryRepairGroup = {
+    repairType: "missing source context" | "dedupe repair" | "recovered session review" | "stale metric rebuild" | "unknown";
+    count: number;
+    actionability: "actionable" | "inspect_only";
+    explanation: string;
+    latestAtUtc: string | null;
+};
+
+type TelemetryTruthRecoveryState = {
+    generatedAtUtc: string;
+    lastRebuildAtUtc: string | null;
+    rebuildAgeHours: number | null;
+    freshnessState: TelemetryTruthRecoveryFreshnessState;
+    qualityState: TelemetryTruthRecoveryQualityState;
+    formulaState: TelemetryTruthRecoveryFormulaState;
+    overallState: "live" | "review" | "error";
+    dropMetricCount: number;
+    userMetricCount: number;
+    openRepairCount: number;
+    actionableRepairCount: number;
+    inspectOnlyRepairCount: number;
+    observedViews: number;
+    checkedViews: number;
+    finalViews: number;
+    estimatedViews: number;
+    estimatedRatioPct: number;
+    duplicateRatePct: number;
+    recoveredSessionCount: number;
+    confidencePct: number;
+    formulas: {
+        observedViews: string;
+        checkedViews: string;
+        finalViews: string;
+        estimatedRatio: string;
+        duplicateRate: string;
+        confidence: string;
+    };
+    sourceLayers: TelemetryTruthRecoverySourceLayer[];
+    repairGroups: TelemetryTruthRecoveryRepairGroup[];
+    warnings: string[];
+};
+
 const TELEMETRY_COVERAGE_LEGACY_EVENT_NAMES = new Set([
     "unlock_drop_success",
 ]);
@@ -1882,6 +1936,232 @@ function formatUtcFromMs(value: unknown) {
     return ms > 0 ? new Date(ms).toISOString() : null;
 }
 
+function normalizeTelemetryTruthQualityState(value: unknown): TelemetryTruthRecoveryQualityState {
+    const normalized = toOptionalString(value)?.toLowerCase() || "";
+    if (normalized === "exact" || normalized === "verified") return "verified";
+    if (normalized === "mixed" || normalized === "partial") return "mixed";
+    if (normalized === "estimated") return "estimated";
+    if (normalized === "degraded" || normalized === "fallback" || normalized === "failed") return "degraded";
+    return "unknown";
+}
+
+function resolveTelemetryTruthFreshnessState(nowMs: number, lastRebuildAtMs: number): TelemetryTruthRecoveryFreshnessState {
+    if (lastRebuildAtMs <= 0) return "unknown";
+    const ageMs = Math.max(0, nowMs - lastRebuildAtMs);
+    if (ageMs <= 2 * 60 * 60 * 1000) return "live";
+    if (ageMs <= 24 * 60 * 60 * 1000) return "stale";
+    if (ageMs <= 72 * 60 * 60 * 1000) return "stale";
+    return "expired";
+}
+
+function classifyTelemetryTruthRepairGroup(entry: Record<string, unknown>): TelemetryTruthRecoveryRepairGroup["repairType"] {
+    const repairType = `${toOptionalString(entry.repairType) || ""} ${toOptionalString(entry.provenance) || ""}`.toLowerCase();
+    if (repairType.includes("source") || repairType.includes("context")) return "missing source context";
+    if (repairType.includes("dedupe") || repairType.includes("duplicate")) return "dedupe repair";
+    if (repairType.includes("recover") || repairType.includes("session")) return "recovered session review";
+    if (repairType.includes("stale") || repairType.includes("rebuild") || repairType.includes("refresh")) return "stale metric rebuild";
+    return "unknown";
+}
+
+function isTelemetryTruthRepairActionable(repairType: TelemetryTruthRecoveryRepairGroup["repairType"]) {
+    return repairType === "stale metric rebuild";
+}
+
+function buildTelemetryTruthRecoveryState(input: {
+    nowMs: number;
+    analyticsTruthRecovery: Record<string, unknown> | null;
+    analyticsTruthDrops: Array<Record<string, unknown>>;
+    analyticsTruthUsers: Array<Record<string, unknown>>;
+    analyticsTruthRepairs: Array<Record<string, unknown>>;
+}): TelemetryTruthRecoveryState {
+    const globalRecord = input.analyticsTruthRecovery?.global && typeof input.analyticsTruthRecovery.global === "object"
+        ? input.analyticsTruthRecovery.global as Record<string, unknown>
+        : {};
+    const statusRecord = input.analyticsTruthRecovery?.status && typeof input.analyticsTruthRecovery.status === "object"
+        ? input.analyticsTruthRecovery.status as Record<string, unknown>
+        : {};
+    const truthLayers = globalRecord.truthLayers && typeof globalRecord.truthLayers === "object"
+        ? globalRecord.truthLayers as Record<string, unknown>
+        : {};
+    const rawLayer = truthLayers.raw && typeof truthLayers.raw === "object" ? truthLayers.raw as Record<string, unknown> : {};
+    const validatedLayer = truthLayers.validated && typeof truthLayers.validated === "object" ? truthLayers.validated as Record<string, unknown> : {};
+    const finalizedLayer = truthLayers.finalized && typeof truthLayers.finalized === "object" ? truthLayers.finalized as Record<string, unknown> : {};
+    const estimatedLayer = truthLayers.estimated && typeof truthLayers.estimated === "object" ? truthLayers.estimated as Record<string, unknown> : {};
+
+    const observedViews = toNumber(rawLayer.raw_view_count);
+    const checkedViews = toNumber(validatedLayer.deduped_view_count);
+    const finalViews = toNumber(finalizedLayer.finalized_view_count);
+    const estimatedViews = toNumber(estimatedLayer.estimated_recovered_view_count);
+    const duplicateCandidates = toNumber(validatedLayer.duplicate_candidate_count);
+    const duplicateRateRatio = typeof validatedLayer.duplicate_event_rate === "number"
+        ? Number(validatedLayer.duplicate_event_rate)
+        : checkedViews + duplicateCandidates > 0
+            ? duplicateCandidates / (checkedViews + duplicateCandidates)
+            : 0;
+    const duplicateRatePct = Math.max(0, Math.round(duplicateRateRatio * 100));
+    const recoveredSessionCount = toNumber(estimatedLayer.recovered_sessions_count);
+    const lastRebuildAtMs = toNumber(statusRecord.lastComputedAtMs);
+    const rebuildAgeHours = lastRebuildAtMs > 0
+        ? Math.round((Math.max(0, input.nowMs - lastRebuildAtMs) / (60 * 60 * 1000)) * 10) / 10
+        : null;
+    const freshnessState = resolveTelemetryTruthFreshnessState(input.nowMs, lastRebuildAtMs);
+    const qualityState = normalizeTelemetryTruthQualityState(globalRecord.qualityLabel);
+    const estimatedRatioRaw = typeof estimatedLayer.estimated_data_ratio === "number"
+        ? Number(estimatedLayer.estimated_data_ratio)
+        : finalViews > 0
+            ? estimatedViews / finalViews
+            : 0;
+    const estimatedRatioPct = Math.max(0, Math.round(estimatedRatioRaw * 100));
+    const confidencePct = Math.max(0, Math.round(toNumber(globalRecord.confidenceScore) * 100));
+    const formulas = {
+        observedViews: "Raw viewer-open and session-start events from the observed analytics layer.",
+        checkedViews: "Deduped eligible view candidates after duplicate/page-load collapse in the checked layer.",
+        finalViews: "Reporting value after checked views plus recovered or estimated adjustments from the finalized layer.",
+        estimatedRatio: "estimatedViews / finalViews from the estimated layer.",
+        duplicateRate: "duplicateCandidates / rawCandidates in the checked layer.",
+        confidence: "Weighted source truth, rebuild freshness, sample quality, and repair burden.",
+    };
+    const formulaState: TelemetryTruthRecoveryFormulaState = Object.values(formulas).every(Boolean) ? "documented" : "unknown";
+
+    const repairGroupMap = new Map<string, TelemetryTruthRecoveryRepairGroup>();
+    for (const rawEntry of input.analyticsTruthRepairs) {
+        const entry = rawEntry as Record<string, unknown>;
+        const repairType = classifyTelemetryTruthRepairGroup(entry);
+        const actionability = isTelemetryTruthRepairActionable(repairType) ? "actionable" : "inspect_only";
+        const key = `${repairType}:${actionability}`;
+        const existing = repairGroupMap.get(key);
+        const repairedAtUtc = formatUtcFromMs(entry.repairedAtMs);
+        if (existing) {
+            existing.count += 1;
+            if (!existing.latestAtUtc || (repairedAtUtc && repairedAtUtc > existing.latestAtUtc)) {
+                existing.latestAtUtc = repairedAtUtc;
+            }
+            continue;
+        }
+        repairGroupMap.set(key, {
+            repairType,
+            count: 1,
+            actionability,
+            explanation: repairType === "missing source context"
+                ? "Missing source context repairs need manual evidence review before metrics can be trusted."
+                : repairType === "dedupe repair"
+                    ? "Duplicate-candidate repairs explain checked-layer collapse and need inspection before changing truth."
+                    : repairType === "recovered session review"
+                        ? "Recovered-session repairs explain estimated additions and should stay visible until reviewed."
+                        : repairType === "stale metric rebuild"
+                            ? "Stale metric rebuild repairs point to rebuild work rather than data mutation."
+                            : "Repair exists but the underlying type was not classified yet.",
+            latestAtUtc: repairedAtUtc,
+        });
+    }
+    const repairGroups = Array.from(repairGroupMap.values()).sort((left, right) => right.count - left.count);
+    const actionableRepairCount = repairGroups
+        .filter((group) => group.actionability === "actionable")
+        .reduce((sum, group) => sum + group.count, 0);
+    const inspectOnlyRepairCount = repairGroups
+        .filter((group) => group.actionability === "inspect_only")
+        .reduce((sum, group) => sum + group.count, 0);
+
+    const sourceLayers: TelemetryTruthRecoverySourceLayer[] = [
+        {
+            layer: "observed",
+            source: "analytics_truth_global_metrics.truthLayers.raw.raw_view_count",
+            count: observedViews,
+            freshnessState,
+            explanation: formulas.observedViews,
+        },
+        {
+            layer: "checked",
+            source: "analytics_truth_global_metrics.truthLayers.validated.deduped_view_count",
+            count: checkedViews,
+            freshnessState,
+            explanation: `${formulas.checkedViews} Duplicate denominator uses ${Math.max(checkedViews + duplicateCandidates, 0)} raw candidates.`,
+        },
+        {
+            layer: "final",
+            source: "analytics_truth_global_metrics.truthLayers.finalized.finalized_view_count",
+            count: finalViews,
+            freshnessState,
+            explanation: formulas.finalViews,
+        },
+        {
+            layer: "estimated",
+            source: "analytics_truth_global_metrics.truthLayers.estimated.estimated_recovered_view_count",
+            count: estimatedViews,
+            freshnessState,
+            explanation: formulas.estimatedRatio,
+        },
+        {
+            layer: "recovered",
+            source: "analytics_truth_global_metrics.truthLayers.estimated.recovered_sessions_count",
+            count: recoveredSessionCount,
+            freshnessState,
+            explanation: "Recovered sessions are restored sessions used by the estimated layer; they do not mean raw observed opens increased one-for-one.",
+        },
+    ];
+
+    const warnings: string[] = [];
+    if (freshnessState === "stale" || freshnessState === "expired") {
+        warnings.push(`Last rebuild is ${rebuildAgeHours === null ? "unknown" : `${rebuildAgeHours}h`} old. Metrics are estimated/stale until analytics truth is rebuilt.`);
+    }
+    if (qualityState === "estimated") {
+        warnings.push("Quality is estimated, so recovered and inferred layers must stay visible before trusting the final reporting value.");
+    }
+    if (input.analyticsTruthRepairs.length > 0) {
+        warnings.push(`${input.analyticsTruthRepairs.length} open repairs remain in the truth window. Review grouped repair types before treating these metrics as verified.`);
+    }
+    if (checkedViews > observedViews) {
+        warnings.push("Observed layer only counts viewer opens/session starts; checked layer also includes eligible page-load candidates after dedupe review.");
+    }
+    if (finalViews < checkedViews) {
+        warnings.push("Final views are lower than checked views. Inspect final-layer exclusions before treating this as expected.");
+    }
+    const expectedEstimatedRatioPct = finalViews > 0 ? Math.round((estimatedViews / finalViews) * 100) : 0;
+    if (Math.abs(expectedEstimatedRatioPct - estimatedRatioPct) > 1) {
+        warnings.push("Estimated ratio does not match estimated views divided by final views. Inspect estimated-layer math.");
+    }
+    if (duplicateCandidates <= 0 && duplicateRatePct > 0) {
+        warnings.push("Duplicate rate is present without an explicit duplicate-candidate denominator. Inspect validated-layer source fields.");
+    }
+    if (formulaState === "unknown") {
+        warnings.push("One or more telemetry truth formulas are undocumented.");
+    }
+
+    const overallState: TelemetryTruthRecoveryState["overallState"] =
+        freshnessState === "expired"
+            ? "error"
+            : qualityState === "estimated" || qualityState === "degraded" || input.analyticsTruthRepairs.length > 0 || freshnessState === "stale" || formulaState === "unknown"
+                ? "review"
+                : "live";
+
+    return {
+        generatedAtUtc: new Date(input.nowMs).toISOString(),
+        lastRebuildAtUtc: lastRebuildAtMs > 0 ? new Date(lastRebuildAtMs).toISOString() : null,
+        rebuildAgeHours,
+        freshnessState,
+        qualityState,
+        formulaState,
+        overallState,
+        dropMetricCount: input.analyticsTruthDrops.length,
+        userMetricCount: input.analyticsTruthUsers.length,
+        openRepairCount: input.analyticsTruthRepairs.length,
+        actionableRepairCount,
+        inspectOnlyRepairCount,
+        observedViews,
+        checkedViews,
+        finalViews,
+        estimatedViews,
+        estimatedRatioPct,
+        duplicateRatePct,
+        recoveredSessionCount,
+        confidencePct,
+        formulas,
+        sourceLayers,
+        repairGroups,
+        warnings,
+    };
+}
+
 function buildBehavioralIntelligencePanelState(input: {
     nowMs: number;
     behavioralSnapshotStatus: Record<string, unknown> | null;
@@ -2595,6 +2875,13 @@ export async function GET(request: NextRequest) {
             nowMs,
             behavioralSnapshotStatus: behavioralSnapshotStatus as Record<string, unknown> | null,
             behavioralDrops: behavioralDrops as Array<Record<string, unknown>>,
+        });
+        const telemetryTruthRecoveryPanel = buildTelemetryTruthRecoveryState({
+            nowMs,
+            analyticsTruthRecovery: analyticsTruthRecovery as Record<string, unknown> | null,
+            analyticsTruthDrops: analyticsTruthDrops as Array<Record<string, unknown>>,
+            analyticsTruthUsers: analyticsTruthUsers as Array<Record<string, unknown>>,
+            analyticsTruthRepairs: analyticsTruthRepairs as Array<Record<string, unknown>>,
         });
                 const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
         const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {
@@ -4406,6 +4693,7 @@ export async function GET(request: NextRequest) {
             behavioralSnapshotStatus,
             behavioralDrops,
             behavioralIntelligencePanel,
+            telemetryTruthRecoveryPanel,
             analyticsTruthRecovery,
             analyticsTruthDrops,
             analyticsTruthUsers,
