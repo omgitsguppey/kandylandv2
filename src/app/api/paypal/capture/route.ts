@@ -288,13 +288,19 @@ async function POST_handler(request: NextRequest) {
     }
 
     const [analyticsResult, taskEventResult] = await Promise.allSettled([
-      trackServerEvent("purchase_verified", {
+      trackServerEvent("server_purchase_verified", {
         order_id: orderId,
         transaction_id: result.transactionId ?? orderId,
+        purchase_id: result.transactionId ?? orderId,
+        paypal_capture_id: capture.id,
         value: paidUsd,
+        value_usd: paidUsd,
+        amount_usd: paidUsd,
         currency: "USD",
         purchase_source: "paypal_capture",
         sourceTruth: "canonical",
+        route: "/api/paypal/capture",
+        source_component: "paypal_capture_route",
         items_count: dropsToCredit,
         paypal_fee_usd: economics.paypalFeeUsd,
         net_revenue_usd: economics.netRevenueUsd,
@@ -303,6 +309,7 @@ async function POST_handler(request: NextRequest) {
         bonus_gumdrops: economics.bonusGumDrops,
         adjusted_profit_usd: economics.adjustedProfitUsd,
         bundle_key: bundlePresentation.bundleKey,
+        package_id: bundlePresentation.bundleKey,
       }, userId),
       recordCanonicalTaskEvent(userId, result.username ?? caller?.email ?? userId, "gumdrops_purchase_completed", {
         package_drops: dropsToCredit,

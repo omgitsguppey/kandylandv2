@@ -66,6 +66,31 @@ describe("behavioral event facts", () => {
     });
   });
 
+  it("normalizes canonical and legacy server purchase aliases into gumdrops_purchased", () => {
+    for (const eventName of ["server_purchase_verified", "purchase_verified", "paypal_capture_completed", "purchase_completed"]) {
+      const result = normalizeBehavioralEventFactWithDiagnostics({
+        eventId: `${eventName}-1`,
+        eventName,
+        params: {
+          source_component: "paypal_capture_route",
+          route: "/api/paypal/capture",
+          transaction_id: "txn-1",
+          paid_gumdrops: 500,
+          bonus_gumdrops: 50,
+          value_usd: 4.99,
+        },
+        timestamp: 1000,
+        userId: "user-1",
+        sessionId: "session-1",
+        source: "server",
+      });
+
+      expect(result.diagnostic).toBeNull();
+      expect(result.fact?.normalizedAction).toBe("gumdrops_purchased");
+      expect(result.fact?.entityId).toBe("txn-1");
+    }
+  });
+
   it("dedupes repeat file views inside the configured window", () => {
     const first = normalizeBehavioralEventFactWithDiagnostics({
       eventName: "file_viewed",

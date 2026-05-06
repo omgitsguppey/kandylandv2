@@ -219,9 +219,10 @@ describe("POST /api/paypal/capture", () => {
             purchaseSourceClassification: "paid_purchase_including_bonus",
             sourceTruth: "server_purchase_transaction",
         });
-        expect(mockState.trackServerEvent).toHaveBeenCalledWith("purchase_verified", expect.objectContaining({
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("server_purchase_verified", expect.objectContaining({
             order_id: "order_1",
             transaction_id: expect.any(String),
+            paypal_capture_id: "capture_1",
             sourceTruth: "canonical",
             purchase_source: "paypal_capture",
         }), "fan_1");

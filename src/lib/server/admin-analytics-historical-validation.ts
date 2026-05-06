@@ -141,6 +141,32 @@ export interface TelemetryParityValidation {
   failureClusters: FailureCluster[];
 }
 
+export interface CommerceParityCheck {
+  range: string;
+  generatedAtUtc: string;
+  revenueTruth: {
+    completedTransactions: number;
+    canonicalPurchaseRollups: number;
+    state: "pass" | "review" | "fail";
+    confidence: number;
+  };
+  funnelTelemetryTruth: {
+    purchaseTelemetryEvents: number;
+    expectedPurchaseEvents: number;
+    missingPurchaseTelemetryCount: number;
+    coveragePct: number;
+    state: "pass" | "review" | "fail";
+    passAllowed: boolean;
+    blockedReason?: "purchase_telemetry_undercount" | "missing_server_purchase_event" | "unknown";
+  };
+  creatorSpendTruth: {
+    sampledTransactions: number;
+    amountMismatches: number;
+    restrictedRewardSpendViolations: number;
+    state: "pass" | "review" | "fail";
+  };
+}
+
 function toUtcString(timestamp?: number | null) {
   return timestamp && Number.isFinite(timestamp) && timestamp > 0
     ? new Date(timestamp).toISOString()
@@ -482,13 +508,21 @@ const VALIDATION_OPERATOR_COPY: Record<string, {
     whyItMatters: "Refresh failures can delay new analytics snapshots.",
     action: "Open route diagnostics and inspect active refresh failures.",
   },
-  purchase_parity: {
-    pass: "Purchase tracking matches for this range.",
-    warn: "Purchase tracking needs review.",
-    fail: "Purchase tracking needs review.",
-    source: "Purchase records",
-    whyItMatters: "Revenue may be correct while purchase funnel analytics can undercount.",
-    action: "Check purchase event emission after payment confirmation.",
+  purchase_revenue_truth: {
+    pass: "Purchase revenue truth matches for this range.",
+    warn: "Purchase revenue truth needs review.",
+    fail: "Purchase revenue truth needs review.",
+    source: "Revenue ledger",
+    whyItMatters: "Transactions and canonical commerce rollups must agree before revenue is treated as settled truth.",
+    action: "Compare completed purchase transactions against canonical purchase rollups.",
+  },
+  purchase_funnel_telemetry: {
+    pass: "Purchase funnel telemetry matches completed purchases for this range.",
+    warn: "Purchase funnel telemetry needs review.",
+    fail: "Purchase funnel telemetry is undercounting completed purchases.",
+    source: "Purchase funnel telemetry",
+    whyItMatters: "Revenue may be correct while conversion analytics, attribution, and value scoring undercount paid behavior.",
+    action: "Check canonical server purchase telemetry after PayPal capture confirmation.",
   },
   unlock_parity: {
     pass: "Unlock tracking matches for this range.",
@@ -775,11 +809,49 @@ export function buildHistoricalValidationSummary(input: {
   });
 
   const unhealthyModules = moduleCoverage.filter((module) => module.status !== "healthy");
-  const purchaseParity = buildParityInsight([
+  const purchaseRevenueParity = buildParityInsight([
     { key: "transactions", label: "Transactions", count: input.completedPurchaseTransactionsCount },
     { key: "rollups", label: "Canonical rollups", count: input.firstPartyPurchaseCount },
-    { key: "telemetry", label: "Telemetry", count: input.telemetryPurchaseCount },
   ]);
+  const purchaseTelemetryMissingCount = Math.max(input.completedPurchaseTransactionsCount - input.telemetryPurchaseCount, 0);
+  const purchaseTelemetryCoveragePct = input.completedPurchaseTransactionsCount > 0
+    ? Number(((input.telemetryPurchaseCount / input.completedPurchaseTransactionsCount) * 100).toFixed(2))
+    : 100;
+  const purchaseFunnelState: CommerceParityCheck["funnelTelemetryTruth"]["state"] =
+    input.completedPurchaseTransactionsCount <= 0
+      ? "review"
+      : purchaseTelemetryMissingCount > 0
+        ? "fail"
+        : "pass";
+  const commerceParityCheck: CommerceParityCheck = {
+    range: selectedRange,
+    generatedAtUtc: toUtcString(input.generatedAtMs ?? lastValidatedAt) ?? new Date(input.generatedAtMs ?? lastValidatedAt).toISOString(),
+    revenueTruth: {
+      completedTransactions: input.completedPurchaseTransactionsCount,
+      canonicalPurchaseRollups: input.firstPartyPurchaseCount,
+      state: purchaseRevenueParity.status === "pass" ? "pass" : purchaseRevenueParity.status === "warn" ? "review" : "fail",
+      confidence: purchaseRevenueParity.score,
+    },
+    funnelTelemetryTruth: {
+      purchaseTelemetryEvents: input.telemetryPurchaseCount,
+      expectedPurchaseEvents: input.completedPurchaseTransactionsCount,
+      missingPurchaseTelemetryCount: purchaseTelemetryMissingCount,
+      coveragePct: purchaseTelemetryCoveragePct,
+      state: purchaseFunnelState,
+      passAllowed: purchaseTelemetryMissingCount === 0,
+      blockedReason: purchaseTelemetryMissingCount > 0 ? "purchase_telemetry_undercount" : undefined,
+    },
+    creatorSpendTruth: {
+      sampledTransactions: input.creatorSpendTransactionCount,
+      amountMismatches: input.creatorSpendParityMismatchCount,
+      restrictedRewardSpendViolations: input.creatorRestrictedSpendViolationCount,
+      state: input.creatorSpendParityMismatchCount > 0 || input.creatorRestrictedSpendViolationCount > 0
+        ? "fail"
+        : input.creatorSpendTransactionCount > 0
+          ? "pass"
+          : "review",
+    },
+  };
   const unlockParity = buildParityInsight([
     { key: "transactions", label: "Transactions", count: input.unlockTransactionsCount },
     { key: "rollups", label: "Canonical rollups", count: input.firstPartyUnlockCount },
@@ -816,13 +888,14 @@ export function buildHistoricalValidationSummary(input: {
     truthState: input.truthState,
   });
   const parityScore = Math.round((
-    purchaseParity.score
+    purchaseRevenueParity.score
+    + Math.max(0, Math.min(100, Math.round(commerceParityCheck.funnelTelemetryTruth.coveragePct)))
     + unlockParity.score
     + onboardingParity.score
     + taskGuidanceParity.score
     + creatorSpendParityScore
     + input.truthState.score
-  ) / 6);
+  ) / 7);
   const telemetrySampleCoveragePct = input.firstPartyAuthenticatedEvents > 0
     ? Number(((input.canonicalSampleCount / input.firstPartyAuthenticatedEvents) * 100).toFixed(2))
     : 0;
@@ -931,17 +1004,51 @@ export function buildHistoricalValidationSummary(input: {
           : "Pipeline failures were recorded, but no cluster details were derived.",
     }),
     buildValidationCheck({
-      checkKey: "purchase_parity",
-      title: "Purchase parity",
-      status: purchaseParity.status,
-      detail: `${input.completedPurchaseTransactionsCount.toLocaleString()} completed purchase transactions vs ${input.firstPartyPurchaseCount.toLocaleString()} canonical purchase rollups. Telemetry captured ${input.telemetryPurchaseCount.toLocaleString()} purchase events in the same range. Confidence ${purchaseParity.score}%.`,
-      source: "transactions + commerce rollups + telemetry purchase events",
+      checkKey: "purchase_revenue_truth",
+      title: "Purchase revenue truth",
+      status: commerceParityCheck.revenueTruth.state === "pass"
+        ? "pass"
+        : commerceParityCheck.revenueTruth.state === "review"
+          ? "warn"
+          : "fail",
+      detail: `${input.completedPurchaseTransactionsCount.toLocaleString()} completed purchase transactions vs ${input.firstPartyPurchaseCount.toLocaleString()} canonical purchase rollups.`,
+      source: "transactions + commerce rollups",
       selectedRange,
       lastValidatedAt,
-      confidence: purchaseParity.score,
+      confidence: commerceParityCheck.revenueTruth.confidence,
       sampleRequired: true,
-      sampleCount: Math.min(input.completedPurchaseTransactionsCount, input.firstPartyPurchaseCount, input.telemetryPurchaseCount),
-      action: purchaseParity.status === "pass" ? "No action required." : "Compare canonical payment/internal records against telemetry purchase events.",
+      sampleCount: Math.min(input.completedPurchaseTransactionsCount, input.firstPartyPurchaseCount),
+      passAllowed: commerceParityCheck.revenueTruth.state === "pass",
+      technicalEvidence: `${input.completedPurchaseTransactionsCount.toLocaleString()} completed purchase transactions vs ${input.firstPartyPurchaseCount.toLocaleString()} canonical purchase rollups.`,
+      action: commerceParityCheck.revenueTruth.state === "pass"
+        ? "No action required."
+        : "Compare completed purchase transactions against canonical commerce rollups before trusting revenue totals.",
+    }),
+    buildValidationCheck({
+      checkKey: "purchase_funnel_telemetry",
+      title: "Purchase funnel telemetry",
+      status: commerceParityCheck.funnelTelemetryTruth.state === "pass"
+        ? "pass"
+        : commerceParityCheck.funnelTelemetryTruth.state === "review"
+          ? "warn"
+          : "fail",
+      detail: `${input.telemetryPurchaseCount.toLocaleString()} canonical purchase telemetry event(s) vs ${input.completedPurchaseTransactionsCount.toLocaleString()} completed purchase transactions. Missing purchase telemetry: ${commerceParityCheck.funnelTelemetryTruth.missingPurchaseTelemetryCount.toLocaleString()}. Coverage ${commerceParityCheck.funnelTelemetryTruth.coveragePct}%.`,
+      source: "canonical server purchase telemetry",
+      selectedRange,
+      lastValidatedAt,
+      confidence: input.completedPurchaseTransactionsCount > 0
+        ? Math.max(0, Math.min(100, Math.round(commerceParityCheck.funnelTelemetryTruth.coveragePct)))
+        : null,
+      sampleRequired: true,
+      sampleCount: input.telemetryPurchaseCount,
+      passAllowed: commerceParityCheck.funnelTelemetryTruth.passAllowed,
+      blockedReason: commerceParityCheck.funnelTelemetryTruth.blockedReason ?? null,
+      technicalEvidence: commerceParityCheck.funnelTelemetryTruth.missingPurchaseTelemetryCount > 0
+        ? `${input.completedPurchaseTransactionsCount.toLocaleString()} completed purchase transactions were recorded, but only ${input.telemetryPurchaseCount.toLocaleString()} canonical server purchase telemetry event(s) were found in range. Missing ${commerceParityCheck.funnelTelemetryTruth.missingPurchaseTelemetryCount.toLocaleString()}.`
+        : `${input.telemetryPurchaseCount.toLocaleString()} canonical server purchase telemetry event(s) matched ${input.completedPurchaseTransactionsCount.toLocaleString()} completed purchase transactions in range.`,
+      action: commerceParityCheck.funnelTelemetryTruth.passAllowed
+        ? "No action required."
+        : "Check PayPal capture telemetry emission and canonical purchase fact normalization before trusting funnel analytics.",
     }),
     buildValidationCheck({
       checkKey: "unlock_parity",

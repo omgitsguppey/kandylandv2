@@ -215,7 +215,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "spend_virtual_currency", label: "Virtual currency spent (GA)", category: "commerce", sources: DEFAULT_GA_ONLY_SOURCES, modules: ["commerce", "content"] },
   { eventName: "gumdrops_purchase_completed", label: "Gum Drops purchase completed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce", "tasks"] },
   { eventName: "gumdrops_purchase_failed", label: "Gum Drops purchase failed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
-  { eventName: "purchase_verified", label: "Purchase verified", category: "commerce", sources: DEFAULT_SERVER_SOURCES, modules: ["commerce"] },
+  { eventName: "server_purchase_verified", label: "Server purchase verified", category: "commerce", sources: DEFAULT_SERVER_SOURCES, modules: ["commerce"], aliases: ["purchase_verified", "paypal_capture_completed", "purchase_completed"] },
   { eventName: "drop_card_impression", label: "Drop card impression", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content"] },
   { eventName: "search_query_submitted", label: "Search query submitted", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
   { eventName: "filter_selected", label: "Filter selected", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["content", "navigation"] },
@@ -1078,7 +1078,7 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     ];
   }
 
-  if (eventName === "purchase" || eventName === "purchase_verified" || eventName.startsWith("gumdrops_purchase_") || eventName === "begin_checkout") {
+  if (eventName === "purchase" || eventName === "server_purchase_verified" || eventName === "purchase_verified" || eventName === "paypal_capture_completed" || eventName === "purchase_completed" || eventName.startsWith("gumdrops_purchase_") || eventName === "begin_checkout") {
     return [
       "purchase_id|purchaseId|order_id|orderId|transaction_id|transactionId",
       "amount|value|package_price|source|payment_source|purchase_source",
@@ -1144,7 +1144,7 @@ function buildRequiredActorFields(eventName: string, family: TelemetryEventFamil
     return ["actor_admin_id|actorAdminId|admin_id|adminId"];
   }
 
-  if (family === "unlock" || eventName === "purchase_verified" || eventName.startsWith("gumdrops_purchase_")) {
+  if (family === "unlock" || eventName === "server_purchase_verified" || eventName === "purchase_verified" || eventName === "paypal_capture_completed" || eventName === "purchase_completed" || eventName.startsWith("gumdrops_purchase_")) {
     return ["user_id|userId|authenticated caller"];
   }
 
@@ -1216,7 +1216,7 @@ function buildRequiredSurfaceFields(eventName: string, family: TelemetryEventFam
     return ["method|provider", "outcome|success|error_code", "route|page_path|pagePath|surface|source_component"];
   }
 
-  if (eventName === "purchase_verified") {
+  if (eventName === "server_purchase_verified" || eventName === "purchase_verified") {
     return ["source|payment_source|purchase_source|tracking_origin"];
   }
 
@@ -1245,7 +1245,7 @@ export function buildTelemetryEventPayloadContract(eventName: string): Telemetry
     || canonicalEventName === "drop_card_impression"
     || canonicalEventName === "featured_slide_viewed"
     || canonicalEventName === "creator_rail_impression"
-    || canonicalEventName === "purchase_verified"
+    || canonicalEventName === "server_purchase_verified"
     || canonicalEventName.startsWith("gumdrops_purchase_");
   const highRiskFamilies: TelemetryEventFamily[] = ["unlock", "purchase", "notification", "admin"];
 
@@ -1258,7 +1258,7 @@ export function buildTelemetryEventPayloadContract(eventName: string): Telemetry
     requiredObjectFields,
     requiredSurfaceFields,
     dedupeKeyRequired,
-    guestAllowed: family !== "admin" && family !== "unlock" && canonicalEventName !== "purchase_verified",
+    guestAllowed: family !== "admin" && family !== "unlock" && canonicalEventName !== "server_purchase_verified",
     adminExcludedFromUserAnalytics: family === "admin",
     legacyDeprecated: false,
     missingFieldsRisk: requiredActorFields.length + requiredObjectFields.length + requiredSurfaceFields.length === 0

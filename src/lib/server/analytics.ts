@@ -188,7 +188,7 @@ export async function trackServerEvent(
     : null;
   const transactionId = readStringParam(enrichedParams, "transaction_id", "transactionId", "purchase_id", "purchaseId", "order_id", "orderId");
   const sourceTruth = readStringParam(enrichedParams, "source_truth", "sourceTruth")
-    || (canonicalEventName === "purchase_verified" ? "canonical" : normalizedEventFact?.sourceTruth ?? "server");
+    || (canonicalEventName === "server_purchase_verified" ? "canonical" : normalizedEventFact?.sourceTruth ?? "server");
   const sourceConfidence = sourceTruth === "canonical" ? 1 : normalizedEventFact?.confidence ?? 0.98;
 
   try {

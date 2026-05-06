@@ -383,7 +383,9 @@ async function GET_handler(
         )).length;
         const directOnboardingStartCount = analyticsFacts.filter((event) => event.eventName === "guided_onboarding_started").length;
         const directOnboardingCompletionCount = analyticsFacts.filter((event) => event.eventName === "guided_onboarding_completed").length;
-        const purchaseVerifiedFactCount = analyticsFacts.filter((event) => event.eventName === "purchase_verified").length;
+        const purchaseVerifiedFactCount = analyticsFacts.filter((event) => (
+            event.eventName === "server_purchase_verified" || event.eventName === "purchase_verified"
+        )).length;
         const purchaseCompletedFactCount = analyticsFacts.filter((event) => event.eventName === "gumdrops_purchase_completed").length;
         const directPurchaseCount = purchaseVerifiedFactCount;
         const directEventCount = analyticsFacts.length;

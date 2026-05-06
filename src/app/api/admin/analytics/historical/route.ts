@@ -41,6 +41,7 @@ import {
     getRangeWindow,
     rawDateToDayKey,
     safeParams,
+    sumEventCounts,
     sumSnapshotField,
     timestampToDayKey,
     toNumber,
@@ -973,7 +974,12 @@ async function GET_handler(request: NextRequest) {
                 )
                 : registrationFacts.length;
             const emailRegistrationCount = registrationFacts.filter((fact) => fact.registrationMethod === "email").length;
-            const telemetryPurchaseCount = eventsData.purchase_verified || 0;
+            const telemetryPurchaseCount = sumEventCounts(canonicalEventCounts, [
+                "server_purchase_verified",
+                "purchase_verified",
+                "paypal_capture_completed",
+                "purchase_completed",
+            ]);
             const purchases = firstPartyPurchaseCount > 0
                 ? firstPartyPurchaseCount
                 : telemetryPurchaseCount;

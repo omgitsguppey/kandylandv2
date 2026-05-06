@@ -135,10 +135,18 @@ describe("buildHistoricalValidationSummary", () => {
     });
   });
 
-  it("keeps low-confidence purchase and unlock parity as failures", () => {
+  it("separates purchase revenue truth from funnel telemetry undercount", () => {
     const summary = build();
 
-    expect(summary.validations.find((check) => check.checkKey === "purchase_parity")?.status).toBe("fail");
+    expect(summary.validations.find((check) => check.checkKey === "purchase_revenue_truth")).toMatchObject({
+      status: "pass",
+      passAllowed: true,
+    });
+    expect(summary.validations.find((check) => check.checkKey === "purchase_funnel_telemetry")).toMatchObject({
+      status: "fail",
+      passAllowed: false,
+      passBlockedReason: "purchase_telemetry_undercount",
+    });
     expect(summary.validations.find((check) => check.checkKey === "unlock_parity")?.status).toBe("fail");
     expect(summary.validations.find((check) => check.checkKey === "pipeline_health")?.status).toBe("fail");
   });

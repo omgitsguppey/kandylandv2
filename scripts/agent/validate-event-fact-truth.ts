@@ -66,6 +66,10 @@ assert(normalizer.includes('task_guidance_banner_viewed: { normalizedAction: "ta
 assert(normalizer.includes('task_guidance_cta_clicked: { normalizedAction: "task_guidance_tapped"'), "Task guidance tapped alias is missing from event fact normalization.");
 assert(normalizer.includes('task_guidance_banner_dismissed: { normalizedAction: "task_guidance_dismissed"'), "Task guidance dismissed alias is missing from event fact normalization.");
 assert(normalizer.includes('task_help_opened: { normalizedAction: "task_help_opened"'), "Task help event is missing from event fact normalization.");
+assert(normalizer.includes('server_purchase_verified: { normalizedAction: "gumdrops_purchased"'), "Canonical server purchase alias is missing from event fact normalization.");
+assert(normalizer.includes('purchase_verified: { normalizedAction: "gumdrops_purchased"'), "Legacy purchase alias is missing from event fact normalization.");
+assert(normalizer.includes('paypal_capture_completed: { normalizedAction: "gumdrops_purchased"'), "PayPal capture alias is missing from event fact normalization.");
+assert(normalizer.includes('purchase_completed: { normalizedAction: "gumdrops_purchased"'), "Completed purchase alias is missing from event fact normalization.");
 assert(rollup.includes("unknownEvents"), "Event fact rollup does not surface unknown events.");
 
 assert(taxonomy.includes("BEHAVIORAL_NORMALIZED_ACTIONS"), "Legacy action taxonomy does not reuse canonical event facts.");

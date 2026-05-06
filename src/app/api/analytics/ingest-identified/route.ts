@@ -94,7 +94,7 @@ function resolveIdentifiedSourceTruth(
 
     if (
         canonicalEventName === "identity_linked"
-        || canonicalEventName === "purchase_verified"
+        || canonicalEventName === "server_purchase_verified"
         || canonicalEventName === "daily_checkin_claimed"
         || canonicalEventName === "task_completed"
     ) {
