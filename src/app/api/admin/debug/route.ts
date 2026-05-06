@@ -649,6 +649,35 @@ type EstimatedWatchRecoveryGroup = {
     explanation: string;
 };
 
+type DropTelemetryRecoveryRow = {
+    dropId: string;
+    shortDropId: string;
+    dropTitle: string;
+    creatorId?: string;
+    creatorName?: string;
+    dropIdentityState: "resolved" | "fallback_id" | "missing";
+    adminDropHref?: string;
+    quality: "verified" | "mixed" | "estimated" | "degraded" | "unknown";
+    rawViews: number;
+    validatedViews: number;
+    estimatedViews: number;
+    finalizedViews: number;
+    duplicateRatePct: number;
+    repairedPct: number;
+    watchSeconds: number;
+    watchDurationDisplay: string;
+    metricExplanation: {
+        rawViews: string;
+        validatedViews: string;
+        estimatedViews: string;
+        finalizedViews: string;
+        duplicateRate: string;
+        repairedPct: string;
+    };
+    state: "live" | "review" | "error";
+    warnings: string[];
+};
+
 type TelemetryTruthRecoveryState = {
     generatedAtUtc: string;
     lastRebuildAtUtc: string | null;
@@ -681,6 +710,7 @@ type TelemetryTruthRecoveryState = {
     sourceLayers: TelemetryTruthRecoverySourceLayer[];
     repairGroups: TelemetryTruthRecoveryRepairGroup[];
     estimatedWatchRecoveryGroups: EstimatedWatchRecoveryGroup[];
+    dropRows: DropTelemetryRecoveryRow[];
     warnings: string[];
 };
 
@@ -2120,12 +2150,23 @@ function buildEstimatedWatchRecoveryGroups(repairs: Array<Record<string, unknown
     }).sort((left, right) => right.count - left.count);
 }
 
+function formatDurationCompactFromSeconds(seconds: number) {
+    const safeSeconds = Math.max(0, Math.round(seconds));
+    const minutes = Math.floor(safeSeconds / 60);
+    const remainingSeconds = safeSeconds % 60;
+    if (minutes <= 0) {
+        return `${remainingSeconds}s`;
+    }
+    return `${minutes}m ${remainingSeconds}s`;
+}
+
 function buildTelemetryTruthRecoveryState(input: {
     nowMs: number;
     analyticsTruthRecovery: Record<string, unknown> | null;
     analyticsTruthDrops: Array<Record<string, unknown>>;
     analyticsTruthUsers: Array<Record<string, unknown>>;
     analyticsTruthRepairs: Array<Record<string, unknown>>;
+    dropLookup: Map<string, { title: string; creatorId?: string; creatorName?: string }>;
 }): TelemetryTruthRecoveryState {
     const globalRecord = input.analyticsTruthRecovery?.global && typeof input.analyticsTruthRecovery.global === "object"
         ? input.analyticsTruthRecovery.global as Record<string, unknown>
@@ -2209,6 +2250,98 @@ function buildTelemetryTruthRecoveryState(input: {
     }
     const repairGroups = Array.from(repairGroupMap.values()).sort((left, right) => right.count - left.count);
     const estimatedWatchRecoveryGroups = buildEstimatedWatchRecoveryGroups(input.analyticsTruthRepairs);
+    const dropRows: DropTelemetryRecoveryRow[] = input.analyticsTruthDrops.map((entry) => {
+        const dropId = toOptionalString(entry.dropId) || "unknown-drop";
+        const dropIdentity = input.dropLookup.get(dropId);
+        const rawLayer = entry.truthLayers && typeof entry.truthLayers === "object"
+            ? ((entry.truthLayers as Record<string, unknown>).raw as Record<string, unknown> | undefined)
+            : undefined;
+        const validatedLayer = entry.truthLayers && typeof entry.truthLayers === "object"
+            ? ((entry.truthLayers as Record<string, unknown>).validated as Record<string, unknown> | undefined)
+            : undefined;
+        const estimatedLayer = entry.truthLayers && typeof entry.truthLayers === "object"
+            ? ((entry.truthLayers as Record<string, unknown>).estimated as Record<string, unknown> | undefined)
+            : undefined;
+        const finalizedLayer = entry.truthLayers && typeof entry.truthLayers === "object"
+            ? ((entry.truthLayers as Record<string, unknown>).finalized as Record<string, unknown> | undefined)
+            : undefined;
+        const rawViews = toNumber(rawLayer?.raw_view_count);
+        const validatedViews = toNumber(validatedLayer?.deduped_view_count);
+        const estimatedViewsForRow = toNumber(estimatedLayer?.estimated_recovered_view_count);
+        const finalizedViewsForRow = toNumber(finalizedLayer?.finalized_view_count);
+        const duplicateRateForRow = Math.max(0, Math.round(toNumber(validatedLayer?.duplicate_event_rate) * 100));
+        const repairedPctForRow = Math.max(0, Math.round(toNumber(entry.repairedDataRatio) * 100));
+        const watchSeconds = Math.max(0, Math.round(toNumber(finalizedLayer?.finalized_watch_time_ms) / 1000));
+        const quality = normalizeTelemetryTruthQualityState(entry.qualityLabel);
+        const warningsForRow: string[] = [];
+        if (!dropIdentity?.title) {
+            warningsForRow.push("missing_drop_identity");
+        }
+        if (finalizedViewsForRow !== validatedViews + estimatedViewsForRow) {
+            warningsForRow.push("finalized_formula_mismatch");
+        }
+        if (quality === "estimated") {
+            warningsForRow.push("estimated_quality");
+        }
+        const hasEstimatedReason = estimatedViewsForRow > 0
+            ? "Estimated/recovered views exist for this drop, so quality remains estimated."
+            : repairedPctForRow > 0
+                ? "Recovery share remains non-zero for this drop even though current estimated view count is zero."
+                : "No explicit estimated-view reason was attached.";
+        if (quality === "estimated" && estimatedViewsForRow <= 0 && repairedPctForRow <= 0) {
+            warningsForRow.push("missing_estimated_reason");
+        }
+        if (rawViews < validatedViews) {
+            warningsForRow.push("raw_layer_narrower_than_validated");
+        }
+        const metricExplanation = {
+            rawViews: "Observed raw views are directly observed viewer-open and session-start events before recovery review.",
+            validatedViews: rawViews < validatedViews
+                ? "Validated views are accepted candidates after dedupe and eligibility checks. This can exceed observed raw views because raw only counts direct viewer-open/session-start events while validated also includes checked page/session candidates."
+                : "Validated views are accepted candidates after dedupe and eligibility checks.",
+            estimatedViews: estimatedViewsForRow > 0
+                ? "Estimated/recovered views come from the repair layer and are not verified watch truth."
+                : "No estimated/recovered views were added for this drop in the current bounded sample.",
+            finalizedViews: finalizedViewsForRow === validatedViews + estimatedViewsForRow
+                ? "Final reporting views equal validated views plus estimated/recovered views."
+                : "Final reporting views do not equal validated plus estimated views in this sample; inspect finalized_formula_mismatch.",
+            duplicateRate: "Duplicate rate = duplicate candidates / checked raw candidates before validated collapse.",
+            repairedPct: "Recovery share = repairedDataRatio * 100; it shows the share of finalized reporting affected by recovery or repair logic.",
+        };
+        const state: DropTelemetryRecoveryRow["state"] =
+            !dropIdentity?.title
+                ? "review"
+                : warningsForRow.includes("finalized_formula_mismatch")
+                    ? "error"
+                    : quality === "estimated" || quality === "degraded" || repairedPctForRow > 0
+                        ? "review"
+                        : "live";
+
+        return {
+            dropId,
+            shortDropId: shortenDebugId(dropId),
+            dropTitle: dropIdentity?.title || "Unknown drop",
+            creatorId: dropIdentity?.creatorId,
+            creatorName: dropIdentity?.creatorName,
+            dropIdentityState: dropIdentity?.title ? "resolved" : dropId ? "fallback_id" : "missing",
+            adminDropHref: dropId ? `/admin/drops?dropId=${encodeURIComponent(dropId)}` : undefined,
+            quality,
+            rawViews,
+            validatedViews,
+            estimatedViews: estimatedViewsForRow,
+            finalizedViews: finalizedViewsForRow,
+            duplicateRatePct: duplicateRateForRow,
+            repairedPct: repairedPctForRow,
+            watchSeconds,
+            watchDurationDisplay: formatDurationCompactFromSeconds(watchSeconds),
+            metricExplanation,
+            state,
+            warnings: [
+                ...warningsForRow,
+                ...(quality === "estimated" ? [hasEstimatedReason] : []),
+            ],
+        };
+    });
     const actionableRepairCount = repairGroups
         .filter((group) => group.actionability === "actionable")
         .reduce((sum, group) => sum + group.count, 0);
@@ -2316,6 +2449,7 @@ function buildTelemetryTruthRecoveryState(input: {
         sourceLayers,
         repairGroups,
         estimatedWatchRecoveryGroups,
+        dropRows,
         warnings,
     };
 }
@@ -3029,6 +3163,43 @@ export async function GET(request: NextRequest) {
             listAnalyticsTruthRepairs(20),
             listAdminMetricSnapshotDebugMetadata({ limit: 120 }),
         ]);
+        const analyticsTruthDropIds = Array.from(new Set(
+            (analyticsTruthDrops as Array<Record<string, unknown>>)
+                .map((entry) => toOptionalString(entry.dropId))
+                .filter((value): value is string => Boolean(value)),
+        ));
+        const analyticsTruthDropRefs = analyticsTruthDropIds.map((dropId) => adminDb.collection("drops").doc(dropId));
+        const analyticsTruthDropSnapshots = analyticsTruthDropRefs.length > 0 ? await adminDb.getAll(...analyticsTruthDropRefs) : [];
+        const analyticsTruthDropLookup = new Map<string, { title: string; creatorId?: string; creatorName?: string }>();
+        const analyticsTruthCreatorIds = new Set<string>();
+        analyticsTruthDropSnapshots.forEach((snapshot) => {
+            if (!snapshot.exists) return;
+            const raw = snapshot.data() as Record<string, unknown>;
+            const creatorId = toOptionalString(raw.creatorId) || toOptionalString(raw.submittedByCreatorId) || undefined;
+            if (creatorId) analyticsTruthCreatorIds.add(creatorId);
+            analyticsTruthDropLookup.set(snapshot.id, {
+                title: toOptionalString(raw.title) || toOptionalString(raw.dropTitle) || `Drop ${shortenDebugId(snapshot.id)}`,
+                creatorId,
+            });
+        });
+        const analyticsTruthCreatorRefs = Array.from(analyticsTruthCreatorIds).map((creatorId) => adminDb.collection("users").doc(creatorId));
+        const analyticsTruthCreatorSnapshots = analyticsTruthCreatorRefs.length > 0 ? await adminDb.getAll(...analyticsTruthCreatorRefs) : [];
+        const analyticsTruthCreatorLookup = new Map<string, string>();
+        analyticsTruthCreatorSnapshots.forEach((snapshot) => {
+            if (!snapshot.exists) return;
+            const raw = snapshot.data() as Record<string, unknown>;
+            const username = toOptionalString(raw.username);
+            const displayName = toOptionalString(raw.displayName);
+            analyticsTruthCreatorLookup.set(snapshot.id, username ? `@${username}` : displayName || shortenDebugId(snapshot.id));
+        });
+        analyticsTruthDropLookup.forEach((value, key) => {
+            if (value.creatorId) {
+                analyticsTruthDropLookup.set(key, {
+                    ...value,
+                    creatorName: analyticsTruthCreatorLookup.get(value.creatorId),
+                });
+            }
+        });
         const behavioralIntelligencePanel = buildBehavioralIntelligencePanelState({
             nowMs,
             behavioralSnapshotStatus: behavioralSnapshotStatus as Record<string, unknown> | null,
@@ -3040,6 +3211,7 @@ export async function GET(request: NextRequest) {
             analyticsTruthDrops: analyticsTruthDrops as Array<Record<string, unknown>>,
             analyticsTruthUsers: analyticsTruthUsers as Array<Record<string, unknown>>,
             analyticsTruthRepairs: analyticsTruthRepairs as Array<Record<string, unknown>>,
+            dropLookup: analyticsTruthDropLookup,
         });
                 const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
         const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {

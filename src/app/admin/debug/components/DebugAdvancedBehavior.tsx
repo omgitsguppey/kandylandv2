@@ -282,24 +282,65 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                     <div className="space-y-4">
                         <ScrollWrap>
                             <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
-                                {(data?.analyticsTruthDrops || []).length ? (data?.analyticsTruthDrops || []).map((entry: any) => (
-                                    <div key={entry.dropId} className="space-y-2 px-4 py-3">
+                                {(recoveryPanel?.dropRows || []).length ? (recoveryPanel?.dropRows || []).map((entry: any) => (
+                                    <div
+                                        key={entry.dropId}
+                                        className="space-y-2 px-4 py-3"
+                                        data-drop-recovery-drop-id={entry.dropId}
+                                        data-drop-recovery-identity-state={entry.dropIdentityState || "missing"}
+                                        data-drop-recovery-quality={entry.quality || "unknown"}
+                                        data-drop-recovery-raw-views={entry.rawViews ?? 0}
+                                        data-drop-recovery-validated-views={entry.validatedViews ?? 0}
+                                        data-drop-recovery-estimated-views={entry.estimatedViews ?? 0}
+                                        data-drop-recovery-finalized-views={entry.finalizedViews ?? 0}
+                                        data-drop-recovery-duplicate-rate={entry.duplicateRatePct ?? 0}
+                                        data-drop-recovery-repaired-pct={entry.repairedPct ?? 0}
+                                        data-drop-recovery-formula-state={entry.warnings?.includes("finalized_formula_mismatch") ? "review" : "documented"}
+                                    >
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.dropId}</p>
-                                                <p className="text-xs text-gray-400">Finalized views {entry.truthLayers?.finalized?.finalized_view_count ?? 0} - watch {Math.round(((entry.truthLayers?.finalized?.finalized_watch_time_ms ?? 0) as number) / 1000)}s</p>
+                                                <p className="font-semibold text-white">{entry.dropTitle || "Unknown drop"}</p>
+                                                <p className="text-xs text-gray-400">
+                                                    Creator: {entry.creatorName || "Unknown creator"} - Drop ID: {entry.shortDropId || "unknown"}
+                                                </p>
+                                                <p className="text-xs text-gray-400">
+                                                    Final reporting views {entry.finalizedViews ?? 0} - watch {entry.watchDurationDisplay || "0s"}
+                                                </p>
                                             </div>
                                             <div className="flex flex-wrap gap-2">
-                                                <Pill label="Quality" value={entry.qualityLabel || "unknown"} tone={entry.qualityLabel === "exact" ? "good" : entry.qualityLabel === "estimated" ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                                                <Pill label="Repaired" value={`${Math.round(((entry.repairedDataRatio || 0) as number) * 100)}%`} tone={((entry.repairedDataRatio || 0) as number) > 0.15 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Quality" value={entry.quality || "unknown"} tone={entry.quality === "verified" ? "good" : "warn"} truthState={entry.quality === "verified" ? "live" : "degraded"} badgeLabel="LOADED" />
+                                                <Pill label="Recovery share" value={`${entry.repairedPct ?? 0}%`} tone={(entry.repairedPct ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                                <Pill label="Duplicate rate" value={`${entry.duplicateRatePct ?? 0}%`} tone={(entry.duplicateRatePct ?? 0) > 10 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Raw views" value={entry.truthLayers?.raw?.raw_view_count ?? 0} truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Validated" value={entry.truthLayers?.validated?.deduped_view_count ?? 0} truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Estimated views" value={entry.truthLayers?.estimated?.estimated_recovered_view_count ?? 0} truthState="live" badgeLabel="LOADED" />
-                                            <Pill label="Dupes" value={`${Math.round(((entry.truthLayers?.validated?.duplicate_event_rate ?? 0) as number) * 100)}%`} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Observed raw views" value={entry.rawViews ?? 0} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Validated views" value={entry.validatedViews ?? 0} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Estimated/recovered views" value={entry.estimatedViews ?? 0} tone={(entry.estimatedViews ?? 0) > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
+                                            <Pill label="Final reporting views" value={entry.finalizedViews ?? 0} truthState="live" badgeLabel="LOADED" />
                                         </div>
+                                        <p className="text-xs text-gray-300">Observed raw views: {entry.metricExplanation?.rawViews}</p>
+                                        <p className="text-xs text-gray-300">Validated views: {entry.metricExplanation?.validatedViews}</p>
+                                        <p className="text-xs text-gray-300">Estimated/recovered views: {entry.metricExplanation?.estimatedViews}</p>
+                                        <p className="text-xs text-gray-300">Final reporting views: {entry.metricExplanation?.finalizedViews}</p>
+                                        <p className="text-xs text-gray-300">Duplicate rate: {entry.metricExplanation?.duplicateRate}</p>
+                                        <p className="text-xs text-gray-300">Recovery share: {entry.metricExplanation?.repairedPct}</p>
+                                        {!!(entry.warnings || []).length && (
+                                            <div className="rounded-xl border border-amber-400/20 bg-amber-400/10 p-3 text-xs text-amber-100">
+                                                {(entry.warnings || []).map((warning: string) => (
+                                                    <p key={warning}>{warning}</p>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <details className="rounded-xl border border-white/10 bg-black/10 p-3">
+                                            <summary className="cursor-pointer text-sm text-gray-200">Raw identity and source details</summary>
+                                            <div className="mt-3 space-y-2 text-xs text-gray-400">
+                                                <p>dropId: {entry.dropId}</p>
+                                                <p>adminDropHref: {entry.adminDropHref || "none"}</p>
+                                                <p>watchSeconds: {entry.watchSeconds ?? 0}</p>
+                                                <p>dropIdentityState: {entry.dropIdentityState || "missing"}</p>
+                                            </div>
+                                        </details>
                                     </div>
                                 )) : <div className="px-4 py-4 text-sm text-amber-100">No per-drop analytics truth rows are available yet. Run the reconciliation job or wait for the scheduled pass.</div>}
                             </div>
