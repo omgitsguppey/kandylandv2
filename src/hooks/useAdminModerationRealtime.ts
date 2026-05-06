@@ -1,5 +1,8 @@
-import { useEffect, useState, useMemo } from "react";
-import { collection, query, orderBy, limit, onSnapshot, where } from "firebase/firestore";
+import { useEffect, useMemo, useState } from "react";
+import { collection, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
+
+import { useAuth } from "@/context/AuthContext";
+import { authFetch } from "@/lib/authFetch";
 import { db } from "@/lib/firebase-data";
 import { reportRealtimeIssue, buildFirestoreClientIssueDetail } from "@/lib/client-error-reporting";
 import { createAutoHealingObserver } from "@/lib/self-healing";
@@ -11,6 +14,8 @@ import {
 } from "@/lib/admin-moderation-security-alerts";
 import type {
     AdminModerationMessageRecord,
+    AdminModerationRouteErrorCode,
+    AdminModerationRouteErrorResponse,
     AdminModerationSecurityAlertsResponse,
     AdminModerationSecurityAlert,
     AdminModerationThreadDetailResponse,
@@ -22,20 +27,49 @@ const THREAD_LIMIT = 80;
 const MESSAGE_LIMIT = 250;
 const SECURITY_LIMIT = 120;
 
+type ModerationRouteError = Error & {
+    status?: number;
+    errorCode?: AdminModerationRouteErrorCode;
+    adminModerationRoute?: boolean;
+};
+
+type ModerationSessionState = "waiting_for_admin_session" | "ready";
+
 async function fetchAdminModerationJson<T>(path: string): Promise<T> {
-    const response = await fetch(path, {
+    const response = await authFetch(path, {
         cache: "no-store",
-        credentials: "same-origin",
         headers: {
-            "Accept": "application/json",
+            Accept: "application/json",
         },
     });
 
     if (!response.ok) {
-        throw new Error(`Admin moderation snapshot failed (${response.status})`);
+        const body = await response.json().catch(() => null) as Partial<AdminModerationRouteErrorResponse> | null;
+        const error = new Error(body?.error || `Admin moderation snapshot failed (${response.status})`) as ModerationRouteError;
+        error.status = response.status;
+        error.errorCode = body?.errorCode;
+        error.adminModerationRoute = body?.adminModerationRoute === true;
+        throw error;
     }
 
     return response.json() as Promise<T>;
+}
+
+function classifyModerationRouteError(error: unknown): ModerationRouteError {
+    const routeError = error instanceof Error ? error as ModerationRouteError : new Error(String(error)) as ModerationRouteError;
+    const message = routeError.message || "";
+
+    if (routeError.errorCode) {
+        return routeError;
+    }
+
+    if (message === "Not authenticated" || message === "Missing or invalid token") {
+        routeError.status = 401;
+        routeError.errorCode = "unauthorized";
+        return routeError;
+    }
+
+    return routeError;
 }
 
 function toNumber(value: unknown) {
@@ -85,8 +119,8 @@ function mapMessageRecord(id: string, value: Record<string, unknown>): AdminMode
         userId: toStringValue(value.userId),
         senderRole: value.senderRole === "creator" || value.senderRole === "admin" ? value.senderRole : "user",
         messageKind: value.messageKind === "image" || value.messageKind === "video" || value.messageKind === "broadcast" ? value.messageKind : "text",
-        text: toNullableString(value.text) && !toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "text"), toNullableString(value.text))) 
-            ? "[Decryption Failed]" 
+        text: toNullableString(value.text) && !toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "text"), toNullableString(value.text)))
+            ? "[Decryption Failed]"
             : toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "text"), toNullableString(value.text))) ?? undefined,
         assetUrl: toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "assetUrl"), toNullableString(value.assetUrl))) ?? undefined,
         assetName: toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "assetName"), toNullableString(value.assetName))) ?? undefined,
@@ -103,15 +137,19 @@ function mapSecurityAlert(id: string, value: Record<string, unknown>): AdminMode
 }
 
 export function useAdminModerationRealtime(selectedThreadId: string | null) {
+    const { user, userProfile, loading: authLoading } = useAuth();
     const [threads, setThreads] = useState<AdminModerationThreadSummary[]>([]);
     const [messages, setMessages] = useState<AdminModerationMessageRecord[]>([]);
     const [messagesThreadId, setMessagesThreadId] = useState<string | null>(null);
     const [rawAlerts, setRawAlerts] = useState<AdminModerationSecurityAlert[]>([]);
     const [isLoadingThreads, setIsLoadingThreads] = useState(true);
     const [isLoadingAlerts, setIsLoadingAlerts] = useState(true);
-    const [threadsError, setThreadsError] = useState<Error | null>(null);
-    const [messagesError, setMessagesError] = useState<Error | null>(null);
-    const [alertsError, setAlertsError] = useState<Error | null>(null);
+    const [threadsError, setThreadsError] = useState<ModerationRouteError | null>(null);
+    const [messagesError, setMessagesError] = useState<ModerationRouteError | null>(null);
+    const [alertsError, setAlertsError] = useState<ModerationRouteError | null>(null);
+    const adminSessionState: ModerationSessionState = authLoading || !user || userProfile?.role !== "admin"
+        ? "waiting_for_admin_session"
+        : "ready";
     const activeThreadId = useMemo(() => {
         if (selectedThreadId) {
             return selectedThreadId;
@@ -120,8 +158,13 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
         return threads[0]?.id ?? null;
     }, [selectedThreadId, threads]);
 
-    // Threads Subscription
     useEffect(() => {
+        if (adminSessionState !== "ready") {
+            setIsLoadingThreads(true);
+            setThreadsError(null);
+            return;
+        }
+
         let cancelled = false;
         void fetchAdminModerationJson<AdminModerationThreadsResponse>("/api/admin/moderation/threads")
             .then((body) => {
@@ -132,32 +175,36 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
             })
             .catch((error) => {
                 if (cancelled) return;
-                setThreadsError(error as Error);
+                setThreadsError(classifyModerationRouteError(error));
                 setIsLoadingThreads(false);
             });
+
         const q = query(collection(db, CHAT_COLLECTIONS.threads), orderBy("lastMessageAt", "desc"), limit(THREAD_LIMIT));
         const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
             if (cancelled) return;
-            const mapped = snapshot.docs.map(doc => mapThreadSummary(doc.id, doc.data() as Record<string, unknown>));
+            const mapped = snapshot.docs.map((doc) => mapThreadSummary(doc.id, doc.data() as Record<string, unknown>));
             setThreads(mapped);
             setIsLoadingThreads(false);
-            setThreadsError(null);
         }, (error) => {
             if (cancelled) return;
-            setThreadsError(error as Error);
-            setIsLoadingThreads(false);
             control.triggerReconnect(error);
         }), (error) => {
             reportRealtimeIssue("Admin moderation threads", buildFirestoreClientIssueDetail(error), { listener: "admin_moderation_threads" });
         });
+
         return () => {
             cancelled = true;
             control.cleanup();
         };
-    }, []);
+    }, [adminSessionState]);
 
-    // Security Alerts Subscription
     useEffect(() => {
+        if (adminSessionState !== "ready") {
+            setIsLoadingAlerts(true);
+            setAlertsError(null);
+            return;
+        }
+
         let cancelled = false;
         void fetchAdminModerationJson<AdminModerationSecurityAlertsResponse>("/api/admin/moderation/security-alerts")
             .then((body) => {
@@ -168,33 +215,40 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
             })
             .catch((error) => {
                 if (cancelled) return;
-                setAlertsError(error as Error);
+                setAlertsError(classifyModerationRouteError(error));
                 setIsLoadingAlerts(false);
             });
+
         const q = query(collection(db, "security_events"), orderBy("timestamp", "desc"), limit(SECURITY_LIMIT));
         const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
             if (cancelled) return;
-            const mapped = snapshot.docs.map(doc => mapSecurityAlert(doc.id, doc.data() as Record<string, unknown>));
+            const mapped = snapshot.docs.map((doc) => mapSecurityAlert(doc.id, doc.data() as Record<string, unknown>));
             setRawAlerts(mapped);
             setIsLoadingAlerts(false);
-            setAlertsError(null);
         }, (error) => {
             if (cancelled) return;
-            setAlertsError(error as Error);
-            setIsLoadingAlerts(false);
             control.triggerReconnect(error);
         }), (error) => {
             reportRealtimeIssue("Admin moderation security alerts", buildFirestoreClientIssueDetail(error), { listener: "admin_moderation_security_alerts" });
         });
+
         return () => {
             cancelled = true;
             control.cleanup();
         };
-    }, []);
+    }, [adminSessionState]);
 
-    // Thread Detail Subscription
     useEffect(() => {
         if (!activeThreadId) {
+            setMessages([]);
+            setMessagesThreadId(null);
+            setMessagesError(null);
+            return;
+        }
+
+        if (adminSessionState !== "ready") {
+            setMessagesThreadId(activeThreadId);
+            setMessagesError(null);
             return;
         }
 
@@ -209,36 +263,37 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
             .catch((error) => {
                 if (cancelled) return;
                 setMessagesThreadId(activeThreadId);
-                setMessagesError(error as Error);
+                setMessagesError(classifyModerationRouteError(error));
             });
+
         const q = query(collection(db, CHAT_COLLECTIONS.messages), where("threadId", "==", activeThreadId));
         const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
             if (cancelled) return;
             const mapped = snapshot.docs
-                .map(doc => mapMessageRecord(doc.id, doc.data() as Record<string, unknown>))
+                .map((doc) => mapMessageRecord(doc.id, doc.data() as Record<string, unknown>))
                 .sort((left, right) => left.createdAt - right.createdAt)
                 .slice(-MESSAGE_LIMIT);
             setMessagesThreadId(activeThreadId);
             setMessages(mapped);
-            setMessagesError(null);
         }, (error) => {
             if (cancelled) return;
-            setMessagesThreadId(activeThreadId);
-            setMessagesError(error as Error);
             control.triggerReconnect(error);
         }), (error) => {
             reportRealtimeIssue("Admin moderation messages", buildFirestoreClientIssueDetail(error), { listener: "admin_moderation_messages", threadId: activeThreadId });
         });
+
         return () => {
             cancelled = true;
             control.cleanup();
         };
-    }, [activeThreadId]);
+    }, [activeThreadId, adminSessionState]);
 
     const alerts = useMemo(() => clusterAdminModerationSecurityAlerts(rawAlerts), [rawAlerts]);
     const activeMessages = activeThreadId && messagesThreadId === activeThreadId ? messages : [];
     const activeMessagesError = activeThreadId && messagesThreadId === activeThreadId ? messagesError : null;
-    const isLoadingMessages = Boolean(activeThreadId && messagesThreadId !== activeThreadId && !activeMessagesError);
+    const isLoadingMessages = adminSessionState === "waiting_for_admin_session"
+        ? false
+        : Boolean(activeThreadId && messagesThreadId !== activeThreadId && !activeMessagesError);
 
     return {
         threads,
@@ -251,5 +306,6 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
         threadsError,
         messagesError: activeMessagesError,
         alertsError,
+        adminSessionState,
     };
 }

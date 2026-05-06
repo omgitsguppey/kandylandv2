@@ -40,11 +40,39 @@ function turnLabel(sender?: string) {
     return "User context";
 }
 
+function explainModerationRouteError(error: Error | null, route: string) {
+    if (!error) {
+        return `${route} is unavailable.`;
+    }
+
+    if (error.message === "Admin permission required.") {
+        return "Admin permission required.";
+    }
+
+    if (error.message === "Not authenticated" || error.message === "Missing or invalid token") {
+        return "Waiting for admin session...";
+    }
+
+    return `${route} failed: ${error.message}`;
+}
+
 export function AdminModerationConsole() {
     const [selectedThreadIdOverride, setSelectedThreadIdOverride] = useState<string | null>(null);
     const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null);
     const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
-    const { threads, messages, alerts, isLoadingThreads, isLoadingMessages, isLoadingAlerts, threadsError, messagesError, alertsError, activeThreadId } = useAdminModerationRealtime(selectedThreadIdOverride);
+    const {
+        threads,
+        messages,
+        alerts,
+        isLoadingThreads,
+        isLoadingMessages,
+        isLoadingAlerts,
+        threadsError,
+        messagesError,
+        alertsError,
+        activeThreadId,
+        adminSessionState,
+    } = useAdminModerationRealtime(selectedThreadIdOverride);
 
     const model = useMemo(() => buildAdminModerationControlTowerModel({
         threads,
@@ -66,6 +94,16 @@ export function AdminModerationConsole() {
         if (filter === "Entitlement") return alert.reasonCodes.some((code) => code.includes("entitlement"));
         return true;
     }), [filter, model.sortedAlerts]);
+    const threadCountLabel = adminSessionState === "waiting_for_admin_session"
+        ? "Waiting..."
+        : threadsError
+            ? "Unavailable"
+            : `${threads.length} threads`;
+    const alertCountLabel = adminSessionState === "waiting_for_admin_session"
+        ? "Waiting..."
+        : alertsError
+            ? "Alerts unavailable"
+            : `${alerts.length} alerts`;
 
     function selectAlert(alertId: string) {
         setSelectedAlertId(alertId);
@@ -117,8 +155,8 @@ export function AdminModerationConsole() {
                 actions={(
                     <>
                         <span className="rounded-full border border-brand-purple/30 bg-brand-purple/12 px-3 py-1 text-xs font-bold text-[#e4d4ff]">Real evidence only</span>
-                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{threads.length} threads</span>
-                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{alerts.length} alerts</span>
+                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{threadCountLabel}</span>
+                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{alertCountLabel}</span>
                     </>
                 )}
             />
@@ -181,13 +219,14 @@ export function AdminModerationConsole() {
                                     </button>
                                 );
                             })}
+                            {adminSessionState === "waiting_for_admin_session" ? <div className="p-3 text-xs text-gray-400">Waiting for admin session...</div> : null}
                             {isLoadingThreads && threads.length === 0 ? <div className="p-3 text-xs text-gray-400">Loading queue...</div> : null}
                             {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-sm text-gray-400">No moderation threads linked.</div> : null}
-                            {threadsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Thread route failed: /api/admin/moderation/threads.</div> : null}
+                            {threadsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">{explainModerationRouteError(threadsError, "/api/admin/moderation/threads")}</div> : null}
                         </div>
                     </section>
 
-                    <AdminModerationSecurityAlerts alerts={visibleAlerts} selectedAlertId={model.selectedAlert?.id} isLoading={isLoadingAlerts} error={alertsError} onSelectAlert={selectAlert} />
+                    <AdminModerationSecurityAlerts alerts={visibleAlerts} selectedAlertId={model.selectedAlert?.id} isLoading={isLoadingAlerts} error={alertsError} adminSessionState={adminSessionState} onSelectAlert={selectAlert} />
                 </aside>
 
                 <main className="min-h-[520px] rounded-2xl border border-white/10 bg-black/25" data-moderation-evidence-workspace="primary">
@@ -242,8 +281,9 @@ export function AdminModerationConsole() {
                                                         {message.text ? <p className="text-sm leading-6 text-gray-200">{message.text}</p> : null}
                                                     </div>
                                                 ))}
+                                                {adminSessionState === "waiting_for_admin_session" ? <div className="text-xs text-gray-400">Waiting for admin session...</div> : null}
                                                 {isLoadingMessages && messages.length === 0 ? <div className="text-xs text-gray-400">Loading transcript...</div> : null}
-                                                {messagesError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Message route failed: /api/admin/moderation/threads/[threadId]. Retry by selecting the thread again.</div> : null}
+                                                {messagesError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">{explainModerationRouteError(messagesError, "/api/admin/moderation/threads/[threadId]")}</div> : null}
                                             </div>
                                         ) : (
                                             <p className="text-sm text-gray-400">No thread linked. Evidence-only alert.</p>

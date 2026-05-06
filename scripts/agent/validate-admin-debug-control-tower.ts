@@ -110,6 +110,13 @@ const dependencyTruthScript = readRequired("scripts/agent/check-dependency-truth
 const adminOverviewRoute = readRequired("src/app/api/admin/overview/route.ts");
 const adminOverviewUsers = readRequired("src/lib/server/admin-overview-users.ts");
 const adminOverviewContract = readRequired("src/lib/admin-overview.ts");
+const adminModerationConsole = readRequired("src/components/Admin/AdminModerationConsole.tsx");
+const adminModerationSecurityAlerts = readRequired("src/components/Admin/AdminModerationSecurityAlerts.tsx");
+const adminModerationRealtime = readRequired("src/hooks/useAdminModerationRealtime.ts");
+const adminModerationContracts = readRequired("src/lib/admin-moderation.ts");
+const adminModerationThreadsRoute = readRequired("src/app/api/admin/moderation/threads/route.ts");
+const adminModerationThreadDetailRoute = readRequired("src/app/api/admin/moderation/threads/[threadId]/route.ts");
+const adminModerationSecurityAlertsRoute = readRequired("src/app/api/admin/moderation/security-alerts/route.ts");
 const functionsPackageJson = JSON.parse(readRequired("functions/package.json")) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string>; overrides?: Record<string, unknown> };
 const debugNowBundle = `${debugTabNow}\n${debugCreatorLane}\n${debugNowDiagnostics}`;
 
@@ -216,6 +223,80 @@ for (const expected of [
   "return;",
 ]) {
   requireIncludes(analyticsIngestIdentifiedRoute, expected, "Analytics ingest identified route must keep browser security boundary errors out of server diagnostics");
+}
+
+for (const expected of [
+  "AdminModerationRouteErrorCode",
+  "AdminModerationRouteErrorResponse",
+  "\"unauthorized\"",
+  "\"forbidden\"",
+  "\"moderation_threads_unavailable\"",
+  "\"moderation_alerts_unavailable\"",
+  "\"moderation_query_failed\"",
+]) {
+  requireIncludes(adminModerationContracts, expected, "Admin moderation contracts must expose typed route errors");
+}
+for (const expected of [
+  "useAuth()",
+  "authFetch(path",
+  "classifyModerationRouteError",
+  "adminSessionState",
+  "\"waiting_for_admin_session\"",
+]) {
+  requireIncludes(adminModerationRealtime, expected, "Admin moderation realtime hook must wait for admin auth and use authenticated fetch");
+}
+requireNotIncludes(adminModerationRealtime, "fetch(path", "Admin moderation realtime hook must not use raw fetch for guarded admin routes");
+for (const expected of [
+  "guardApiRequest",
+  "auth: \"admin\"",
+  "moderationThreadsGuarded: true",
+  "errorCode: error.status === 403 ? \"forbidden\" : \"unauthorized\"",
+  "errorCode: \"moderation_threads_unavailable\"",
+  "adminModerationRoute: true",
+  "adminOnly: true",
+]) {
+  requireIncludes(adminModerationThreadsRoute, expected, "Admin moderation threads route must enforce typed admin auth");
+}
+for (const expected of [
+  "guardApiRequest",
+  "auth: \"admin\"",
+  "moderationThreadDetailGuarded: true",
+  "errorCode: error.status === 403 ? \"forbidden\" : \"unauthorized\"",
+  "errorCode: \"moderation_thread_detail_unavailable\"",
+  "adminModerationRoute: true",
+  "adminOnly: true",
+]) {
+  requireIncludes(adminModerationThreadDetailRoute, expected, "Admin moderation thread detail route must enforce typed admin auth");
+}
+for (const expected of [
+  "guardApiRequest",
+  "auth: \"admin\"",
+  "moderationAlertsGuarded: true",
+  "errorCode: error.status === 403 ? \"forbidden\" : \"unauthorized\"",
+  "errorCode: \"moderation_alerts_unavailable\"",
+  "adminModerationRoute: true",
+  "adminOnly: true",
+]) {
+  requireIncludes(adminModerationSecurityAlertsRoute, expected, "Admin moderation security alerts route must enforce typed admin auth");
+}
+for (const expected of [
+  "explainModerationRouteError",
+  "threadCountLabel",
+  "alertCountLabel",
+  "Waiting for admin session...",
+  "/api/admin/moderation/threads",
+  "/api/admin/moderation/threads/[threadId]",
+]) {
+  requireIncludes(adminModerationConsole, expected, "Admin moderation console must distinguish auth wait from route failure");
+}
+for (const expected of [
+  "const displayCount = error",
+  "\"Unknown\"",
+  "Waiting for admin session...",
+  "{error.message}",
+  "adminSessionState",
+]) {
+  requireIncludes(adminModerationSecurityAlerts, expected, "Admin moderation alerts panel must not show verified zero on route failure");
 }
 
 for (const expected of [
@@ -1925,6 +2006,8 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugTabActions\.tsx$/u,
     /^src\/components\/Dashboard\/DailyTasksModule\.tsx$/u,
     /^src\/components\/AdminErrorCatcher\.tsx$/u,
+    /^src\/components\/Admin\/AdminModerationConsole\.tsx$/u,
+    /^src\/components\/Admin\/AdminModerationSecurityAlerts\.tsx$/u,
     /^src\/components\/Admin\/AdminStatsBar\.tsx$/u,
     /^src\/components\/Navigation\/NotificationBell\.tsx$/u,
     /^src\/components\/Notifications\/NotificationRuntimeBridge\.tsx$/u,
@@ -1935,6 +2018,7 @@ try {
     /^src\/lib\/creator-lane-debug-parity\.ts$/u,
     /^src\/lib\/creator-onboarding\.ts$/u,
     /^src\/lib\/admin\/synthetic-creators-view-as\.ts$/u,
+    /^src\/lib\/admin-moderation\.ts$/u,
     /^src\/lib\/telemetry-catalog\.ts$/u,
     /^src\/lib\/debug-evidence-contract\.ts$/u,
     /^src\/lib\/notification-contracts\.ts$/u,
@@ -1961,12 +2045,16 @@ try {
     /^src\/lib\/server\/creator-onboarding\.ts$/u,
     /^src\/lib\/server\/creator-onboarding-diagnostics\.ts$/u,
     /^src\/lib\/server\/creator-review-queue\.ts$/u,
+    /^src\/app\/api\/admin\/moderation\/threads\/route\.ts$/u,
+    /^src\/app\/api\/admin\/moderation\/threads\/\[threadId\]\/route\.ts$/u,
+    /^src\/app\/api\/admin\/moderation\/security-alerts\/route\.ts$/u,
     /^src\/app\/admin\/roster\/page\.tsx$/u,
     /^src\/app\/api\/creator\/broadcasts\/route\.ts$/u,
     /^src\/app\/api\/cron\/process-creator-subscriptions\/route\.ts$/u,
     /^src\/app\/api\/admin\/roster\/route\.ts$/u,
     /^src\/app\/api\/tasks\/materialize\/route\.ts$/u,
     /^src\/hooks\/useNotifications\.ts$/u,
+    /^src\/hooks\/useAdminModerationRealtime\.ts$/u,
     /^src\/hooks\/useAdminOverviewRealtime\.ts$/u,
     /^functions\/src\/analytics-task-events\.ts$/u,
     /^functions\/src\/daily-task-materializer\.ts$/u,

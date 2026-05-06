@@ -3,6 +3,25 @@ import type { AdminModuleVerification } from "@/lib/admin-parity";
 import type { ModerationEvidenceConfidence } from "@/lib/moderation/moderation-evidence";
 import type { ScrapeRiskTier } from "@/lib/moderation/scrape-risk-score";
 
+export type AdminModerationRouteErrorCode =
+    | "unauthorized"
+    | "forbidden"
+    | "moderation_threads_unavailable"
+    | "moderation_alerts_unavailable"
+    | "moderation_thread_detail_unavailable"
+    | "moderation_query_failed";
+
+export type AdminModerationRouteErrorResponse = {
+    success: false;
+    error: string;
+    errorCode: AdminModerationRouteErrorCode;
+    adminModerationRoute: true;
+    adminOnly: true;
+    moderationThreadsGuarded?: boolean;
+    moderationAlertsGuarded?: boolean;
+    moderationThreadDetailGuarded?: boolean;
+};
+
 export type AdminModerationThreadSummary = {
     id: string;
     creatorId: string;

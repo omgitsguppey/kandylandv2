@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { type AdminModerationSecurityAlertsResponse } from "@/lib/admin-moderation";
+import {
+    type AdminModerationRouteErrorResponse,
+    type AdminModerationSecurityAlertsResponse,
+} from "@/lib/admin-moderation";
 import { listAdminModerationSecurityAlerts } from "@/lib/server/admin-moderation";
-import { handleApiError } from "@/lib/server/auth";
+import { AuthError } from "@/lib/server/auth";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -11,6 +14,34 @@ import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+function buildSecurityAlertsRouteError(error: unknown): { body: AdminModerationRouteErrorResponse; status: number } {
+    if (error instanceof AuthError) {
+        return {
+            status: error.status,
+            body: {
+                success: false,
+                error: error.status === 403 ? "Admin permission required." : error.message,
+                errorCode: error.status === 403 ? "forbidden" : "unauthorized",
+                adminModerationRoute: true,
+                adminOnly: true,
+                moderationAlertsGuarded: true,
+            },
+        };
+    }
+
+    return {
+        status: 503,
+        body: {
+            success: false,
+            error: "Moderation alerts are unavailable right now.",
+            errorCode: "moderation_alerts_unavailable",
+            adminModerationRoute: true,
+            adminOnly: true,
+            moderationAlertsGuarded: true,
+        },
+    };
+}
 
 export async function GET(request: NextRequest) {
     const startedAt = Date.now();
@@ -55,6 +86,7 @@ export async function GET(request: NextRequest) {
             },
         }));
     } catch (error) {
-        return finalize(handleApiError(error, "admin/moderation/security-alerts"), error);
+        const routeError = buildSecurityAlertsRouteError(error);
+        return finalize(NextResponse.json(routeError.body, { status: routeError.status }), error);
     }
 }

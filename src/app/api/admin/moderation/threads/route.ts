@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { type AdminModerationThreadsResponse } from "@/lib/admin-moderation";
+import {
+    type AdminModerationRouteErrorResponse,
+    type AdminModerationThreadsResponse,
+} from "@/lib/admin-moderation";
 import { listAdminModerationThreads } from "@/lib/server/admin-moderation";
-import { handleApiError } from "@/lib/server/auth";
+import { AuthError } from "@/lib/server/auth";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
@@ -10,6 +13,34 @@ import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+function buildThreadsRouteError(error: unknown): { body: AdminModerationRouteErrorResponse; status: number } {
+    if (error instanceof AuthError) {
+        return {
+            status: error.status,
+            body: {
+                success: false,
+                error: error.status === 403 ? "Admin permission required." : error.message,
+                errorCode: error.status === 403 ? "forbidden" : "unauthorized",
+                adminModerationRoute: true,
+                adminOnly: true,
+                moderationThreadsGuarded: true,
+            },
+        };
+    }
+
+    return {
+        status: 503,
+        body: {
+            success: false,
+            error: "Moderation threads are unavailable right now.",
+            errorCode: "moderation_threads_unavailable",
+            adminModerationRoute: true,
+            adminOnly: true,
+            moderationThreadsGuarded: true,
+        },
+    };
+}
 
 export async function GET(request: NextRequest) {
     const startedAt = Date.now();
@@ -48,6 +79,7 @@ export async function GET(request: NextRequest) {
             },
         }));
     } catch (error) {
-        return finalize(handleApiError(error, "admin/moderation/threads"), error);
+        const routeError = buildThreadsRouteError(error);
+        return finalize(NextResponse.json(routeError.body, { status: routeError.status }), error);
     }
 }

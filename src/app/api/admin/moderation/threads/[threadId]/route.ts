@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { type AdminModerationThreadDetailResponse } from "@/lib/admin-moderation";
+import {
+    type AdminModerationRouteErrorResponse,
+    type AdminModerationThreadDetailResponse,
+} from "@/lib/admin-moderation";
 import { getAdminModerationThreadDetail } from "@/lib/server/admin-moderation";
-import { handleApiError } from "@/lib/server/auth";
+import { AuthError } from "@/lib/server/auth";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
@@ -16,6 +19,34 @@ type RouteContext = {
         threadId: string;
     }>;
 };
+
+function buildThreadDetailRouteError(error: unknown): { body: AdminModerationRouteErrorResponse; status: number } {
+    if (error instanceof AuthError) {
+        return {
+            status: error.status,
+            body: {
+                success: false,
+                error: error.status === 403 ? "Admin permission required." : error.message,
+                errorCode: error.status === 403 ? "forbidden" : "unauthorized",
+                adminModerationRoute: true,
+                adminOnly: true,
+                moderationThreadDetailGuarded: true,
+            },
+        };
+    }
+
+    return {
+        status: 503,
+        body: {
+            success: false,
+            error: "Moderation thread detail is unavailable right now.",
+            errorCode: "moderation_thread_detail_unavailable",
+            adminModerationRoute: true,
+            adminOnly: true,
+            moderationThreadDetailGuarded: true,
+        },
+    };
+}
 
 export async function GET(request: NextRequest, context: RouteContext) {
     const startedAt = Date.now();
@@ -57,6 +88,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
             },
         }));
     } catch (error) {
-        return finalize(handleApiError(error, "admin/moderation/thread"), error);
+        const routeError = buildThreadDetailRouteError(error);
+        return finalize(NextResponse.json(routeError.body, { status: routeError.status }), error);
     }
 }

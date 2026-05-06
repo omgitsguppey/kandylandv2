@@ -35,6 +35,7 @@ type AdminModerationSecurityAlertsProps = {
     selectedAlertId?: string | null;
     isLoading: boolean;
     error: Error | null;
+    adminSessionState: "waiting_for_admin_session" | "ready";
     onSelectAlert: (alertId: string) => void;
 };
 
@@ -43,8 +44,11 @@ export function AdminModerationSecurityAlerts({
     selectedAlertId,
     isLoading,
     error,
+    adminSessionState,
     onSelectAlert,
 }: AdminModerationSecurityAlertsProps) {
+    const displayCount = error ? "Unknown" : String(alerts.length);
+
     return (
         <section className="rounded-2xl border border-white/10 bg-black/25 p-3" data-moderation-alert-list="risk-first">
             <div className="mb-3 flex items-center justify-between gap-3">
@@ -52,7 +56,7 @@ export function AdminModerationSecurityAlerts({
                     <h2 className="text-sm font-bold text-white">Risk Alerts</h2>
                     <p className="truncate text-xs text-gray-500">Evidence-weighted, not screenshot claims.</p>
                 </div>
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">{alerts.length}</span>
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">{displayCount}</span>
             </div>
             <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-1">
                 {alerts.slice(0, 24).map((alert) => {
@@ -94,12 +98,15 @@ export function AdminModerationSecurityAlerts({
                 {isLoading && alerts.length === 0 ? (
                     <div className="p-3 text-xs text-gray-400"><Loader2 className="mr-2 inline h-3 w-3 animate-spin" />Loading alerts...</div>
                 ) : null}
+                {adminSessionState === "waiting_for_admin_session" ? (
+                    <div className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-gray-400">Waiting for admin session...</div>
+                ) : null}
                 {!isLoading && alerts.length === 0 && !error ? (
                     <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-3 text-sm text-gray-400">No unresolved risk alerts.</div>
                 ) : null}
                 {error ? (
                     <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-100">
-                        Alert route failed: /api/admin/moderation/security-alerts. Retry by reopening the moderation console.
+                        {error.message}
                     </div>
                 ) : null}
             </div>
