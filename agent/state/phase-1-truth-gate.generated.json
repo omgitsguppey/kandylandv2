@@ -1,0 +1,215 @@
+{
+  "generatedAt": "2026-05-06T00:00:00-05:00",
+  "task": "phase-1-overnight-truth-gate",
+  "status": "partial",
+  "startingState": {
+    "headSha": "aec5d53347d2b1c8cd5e364c1391ce9a645053a8",
+    "worktreeClean": true,
+    "dirtyFileCount": 0,
+    "untrackedCount": 0,
+    "deletedCount": 0
+  },
+  "scores": {
+    "versioningReleaseNotes": 88,
+    "serviceWorkerCacheFreshness": 91,
+    "adminAnalytics": 78,
+    "adminDebug": 74,
+    "adminAi": 88,
+    "platformEconomy": 89,
+    "tasks": 82,
+    "telemetryEventFacts": 92,
+    "watchViewer": 84,
+    "notifications": 87,
+    "chatSupport": 80,
+    "dropsPurchaseWallet": 79,
+    "legacyCodeHygiene": 86,
+    "overallPhase1Readiness": 81
+  },
+  "truthSummary": {
+    "true": [
+      "beta_odometer_versioning",
+      "public_release_note_artifact_agreement",
+      "service_worker_versioned_registration",
+      "service_worker_managed_cache_rotation",
+      "pwa_runtime_update_prompt",
+      "admin_debug_primary_focus_revalidation",
+      "admin_ai_version_scoped_ui_state",
+      "admin_ai_server_local_hydration_split",
+      "platform_economy_source_of_funds_truth",
+      "daily_task_reward_bounds",
+      "daily_task_telemetry_truth",
+      "event_fact_normalization",
+      "watch_time_truth_v2",
+      "notification_read_truth",
+      "purchase_telemetry_truth",
+      "unlock_telemetry_truth",
+      "privacy_consent_truth",
+      "wallet_single_paypal_button_truth"
+    ],
+    "false": [
+      "admin_debug_release_note_coverage",
+      "daily_task_lifecycle_release_note_coverage"
+    ],
+    "simulative": [
+      {
+        "surface": "admin_analytics_override_slice_carryover",
+        "file": "src/app/admin/analytics/AnalyticsHelpers.tsx",
+        "reason": "keepPreviousData plus no focus revalidation can display prior range data as if current"
+      },
+      {
+        "surface": "support_selected_thread_detail_carryover",
+        "file": "src/components/Support/SupportInbox.tsx",
+        "reason": "keepPreviousData can hold prior thread detail during selection changes"
+      }
+    ],
+    "stale": [
+      {
+        "surface": "admin_analytics_override_ranges",
+        "file": "src/app/admin/analytics/AnalyticsHelpers.tsx",
+        "reason": "revalidateOnFocus is false for historical override reads"
+      },
+      {
+        "surface": "wallet_package_modal_data",
+        "file": "src/components/PurchaseModal.tsx",
+        "reason": "packagesLoaded prevents refresh after first modal fetch in a mounted session"
+      },
+      {
+        "surface": "wallet_package_route_cache",
+        "file": "src/app/api/wallet/packages/route.ts",
+        "reason": "public stale-while-revalidate cache can preserve outdated package metadata"
+      },
+      {
+        "surface": "viewer_pending_watch_replay_storage",
+        "file": "src/hooks/useViewerWatchSession.ts",
+        "reason": "session storage key is schema-only and not app-version-scoped"
+      }
+    ],
+    "legacy": [
+      "drop-preview-modal-fallback",
+      "drops-query-modal-flow",
+      "synthetic-view-as-local-projection",
+      "admin-users-realtime-route",
+      "notification-opened-read-score-split"
+    ]
+  },
+  "blockersBeforeKreditFlow": [
+    {
+      "id": "release-notes-admin-debug-daily-task-gap",
+      "severity": "medium",
+      "files": [
+        "scripts/release/update-public-changelog.ts"
+      ],
+      "reason": "admin debug control tower and daily task lifecycle validators fail on missing required release-note copy strings"
+    },
+    {
+      "id": "admin-analytics-stale-override-carryover",
+      "severity": "medium",
+      "files": [
+        "src/app/admin/analytics/AnalyticsHelpers.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
+      ],
+      "reason": "historical override slices preserve prior values and do not revalidate on focus"
+    },
+    {
+      "id": "wallet-package-freshness",
+      "severity": "medium",
+      "files": [
+        "src/components/PurchaseModal.tsx",
+        "src/app/api/wallet/packages/route.ts"
+      ],
+      "reason": "package truth can stay stale after deploy or config change until hard refresh/remount"
+    },
+    {
+      "id": "support-selected-thread-stale-detail",
+      "severity": "medium",
+      "files": [
+        "src/components/Support/SupportInbox.tsx"
+      ],
+      "reason": "selected thread detail can carry stale prior data during thread changes"
+    }
+  ],
+  "algorithmicRefinementsNeeded": [
+    {
+      "id": "admin-analytics-slice-invalidation",
+      "priority": "before_kreditflow",
+      "files": [
+        "src/app/admin/analytics/AnalyticsHelpers.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
+      ]
+    },
+    {
+      "id": "support-thread-ownership-transition",
+      "priority": "before_kreditflow",
+      "files": [
+        "src/components/Support/SupportInbox.tsx"
+      ]
+    },
+    {
+      "id": "wallet-package-refresh-versioning",
+      "priority": "before_kreditflow",
+      "files": [
+        "src/components/PurchaseModal.tsx",
+        "src/app/api/wallet/packages/route.ts"
+      ]
+    },
+    {
+      "id": "viewer-pending-watch-version-scope",
+      "priority": "after_kreditflow_if_truthful",
+      "files": [
+        "src/hooks/useViewerWatchSession.ts"
+      ]
+    }
+  ],
+  "validation": {
+    "passed": [
+      "npm run typecheck",
+      "npm run check:beta-versioning",
+      "npm run check:beta-release-notes",
+      "npm run check:pwa-service-worker",
+      "npm run check:admin-analytics-overview",
+      "npm run check:admin-ai-control-tower",
+      "npm run check:admin-user-behavior-truth",
+      "npm run check:platform-economy-treasury",
+      "npm run check:gumdrop-source-of-funds-truth",
+      "npm run check:daily-task-reward-economy",
+      "npm run check:daily-task-telemetry-truth",
+      "npm run check:event-fact-truth",
+      "npm run check:telemetry-identified-parity",
+      "npm run check:watch-time-truth-v2",
+      "npm run check:notification-read-truth",
+      "npm run check:purchase-telemetry-truth",
+      "npm run check:unlock-telemetry-truth",
+      "npm run check:privacy-consent-truth",
+      "npm run check:legacy-phaseout",
+      "npm run check:wallet-single-paypal-button"
+    ],
+    "failed": [
+      {
+        "command": "npm run check:admin-debug-control-tower",
+        "reason": "missing required release-note automation copy for current debug truth improvements"
+      },
+      {
+        "command": "npm run check:daily-task-lifecycle",
+        "reason": "missing required release-note automation copy for daily task reset reliability"
+      }
+    ],
+    "notRun": [
+      "npm run check",
+      "playwright",
+      "cypress",
+      "lighthouse",
+      "deploy"
+    ]
+  },
+  "manualBrowserChecks": [
+    "Beta badge",
+    "/dashboard/chat",
+    "/admin/analytics",
+    "/admin/debug",
+    "/admin/economy",
+    "/drops",
+    "purchase modal",
+    "notifications"
+  ],
+  "readyToBeginKreditFlow": false
+}
