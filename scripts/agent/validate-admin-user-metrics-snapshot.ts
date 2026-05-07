@@ -46,8 +46,11 @@ assert(snapshotHelper.includes("buildAdminUserMetricsSnapshot"), "Snapshot build
 assert(snapshotHelper.includes("readAdminUserMetricsSnapshot"), "Snapshot reader is missing.");
 assert(usersRoute.includes("buildAdminUserMetricsSnapshot"), "Admin users route must build the canonical user metrics snapshot.");
 assert(usersRoute.includes("metricsSnapshot: userMetricsSnapshot"), "Admin users summary must include the canonical snapshot.");
-assert(overviewRoute.includes("readAdminUserMetricsSnapshot"), "Admin overview route must read the canonical user metrics snapshot.");
-assert(overviewRoute.includes("userMetricsSnapshot"), "Admin overview stats must include the canonical snapshot.");
+assert(
+  overviewRoute.includes("readAdminUserMetricsSnapshot") || overviewRoute.includes("readAdminUserTruthSnapshot"),
+  "Admin overview route must read the canonical user metrics snapshot.",
+);
+assert(overviewRoute.includes("userMetricsSnapshot") || overviewRoute.includes("userTruthSnapshot"), "Admin overview stats must include the canonical snapshot.");
 assert(types.includes("metricsSnapshot?: AdminUserMetricsSnapshot"), "UsersSummary must expose snapshot metadata.");
 assert(usersPage.includes("data-admin-metric-source") && usersPage.includes("data-admin-metric-freshness"), "Admin users page must expose metric source/freshness metadata.");
 assert(statsBar.includes("data-admin-metric-source") && statsBar.includes("data-admin-metric-freshness"), "Admin stats bar must expose metric source/freshness metadata.");

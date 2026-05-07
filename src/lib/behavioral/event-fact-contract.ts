@@ -93,10 +93,26 @@ export type BehavioralEventEntityType =
   | "moderation";
 
 export type BehavioralEventSource = "client" | "server" | "materialized" | "legacy";
+export type BehavioralMetricExclusionReason =
+  | "admin_event"
+  | "admin_projection"
+  | "creator_admin_event"
+  | "notification_diagnostic_only"
+  | "privacy_limited"
+  | "unsupported_event"
+  | "missing_required_context"
+  | "non_behavioral_identity_link";
 
 export type BehavioralEventFact = {
   eventId: string;
   userId?: string;
+  actorUserId?: string;
+  actorAdminId?: string;
+  actorCreatorId?: string;
+  targetUserId?: string;
+  targetCreatorId?: string;
+  targetDropId?: string;
+  targetFileId?: string;
   sessionId?: string;
   anonymousVisitorId?: string;
   eventName: string;
@@ -122,7 +138,10 @@ export type BehavioralEventFact = {
   gumDropsAmount?: number;
   reasonCode?: string;
   source: BehavioralEventSource;
-  sourceTruth: BehavioralEventSource;
+  sourceTruth: BehavioralEventSource | "canonical";
+  sourceReliability?: number;
+  metricEligible?: boolean;
+  metricExclusionReason?: BehavioralMetricExclusionReason | "";
   confidence: number;
   dedupeKey: string;
 };

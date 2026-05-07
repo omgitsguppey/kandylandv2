@@ -53,6 +53,7 @@ import {
     type CreatorOnboardingHistoryEntry,
 } from "@/lib/creator-onboarding";
 import type { UserBehaviorRollup } from "@/lib/user-behavior-rollup-contract";
+import type { UserBehaviorTruthRollup } from "@/lib/behavioral/user-score-contract";
 import type { UserEngagementScoreResult } from "@/lib/behavioral/user-engagement-score";
 import type { UserValueScoreResult } from "@/lib/behavioral/user-value-score";
 
@@ -97,6 +98,7 @@ type UserDetailAnalytics = {
     valueScore?: number;
     value?: UserValueScoreResult;
     behaviorRollup?: UserBehaviorRollup;
+    behaviorTruthRollup?: UserBehaviorTruthRollup;
     actionLedger?: UserActionLedgerItem[];
     actionTaxonomyVersion?: string;
     unlockSpendGdTotal: number;
@@ -430,6 +432,7 @@ export default function AdminUserAnalyticsPage() {
     const failedTxCount = transactions.filter((transaction) => transaction.status === "failed").length;
     const parity = analytics?.parity;
     const behaviorRollup = analytics?.behaviorRollup;
+    const behaviorTruthRollup = analytics?.behaviorTruthRollup;
     const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
     const value = analytics?.value ?? behaviorRollup?.value;
     const actionLedger = analytics?.actionLedger ?? [];
@@ -442,6 +445,7 @@ export default function AdminUserAnalyticsPage() {
     const recommendationDisplayMode = recommendationDebug?.displayMode || "fallback-compact";
     const showBehavioralExplanationCards = recommendationDebug?.showExplanationCards === true;
     const behavioralRecommendations = Array.isArray(recommendationDebug?.drops) ? recommendationDebug.drops : [];
+    const hideBehavioralRecommendations = behaviorTruthRollup?.shouldHideRecommendations === true;
     const commerceTruthState = resolveAdminTruthState({
         hasUsableValue: hasUsableAdminTruthValue(
             analytics?.grossRevenueUsd,
@@ -470,7 +474,7 @@ export default function AdminUserAnalyticsPage() {
     const behaviorTruthState = resolveAdminTruthState({
         hasUsableValue: Boolean(behaviorRollup),
         sourceConfigured: true,
-        valueState: behaviorRollup?.confidence === "unknown" ? "unavailable" : behaviorRollup?.freshnessState,
+        valueState: behaviorTruthRollup?.sourceFreshness ?? (behaviorRollup?.confidence === "unknown" ? "unavailable" : behaviorRollup?.freshnessState),
         reviewRequired: Boolean(behaviorRollup?.issues.length) || behaviorRollup?.confidence === "insufficient" || behaviorRollup?.confidence === "low",
     });
     const supportTruthState = resolveAdminTruthState({
@@ -713,15 +717,16 @@ export default function AdminUserAnalyticsPage() {
                         {analytics?.metricSourceLabel || "No canonical user metrics source found."}
                         {analytics?.metricIntegrityFailures?.length ? ` Issues: ${analytics.metricIntegrityFailures.join(", ")}.` : ""}
                     </div>
-                    <div
-                        className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400"
-                        data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
-                        data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
-                    >
-                        <AdminReviewBadge decision={behaviorReviewDecision} className="mr-1 py-0.5" />
-                        <AdminTruthBadge state={behaviorTruthState} className="mr-1 py-0.5" hasUsableValue={Boolean(behaviorRollup)} />{" "}
-                        {behaviorRollup
-                            ? `Behavior rollup: ${behaviorRollup.sourceLabel} / ${behaviorRollup.confidence} (${behaviorRollup.confidenceScore}%). Math: ${behaviorRollup.mathCalibration?.activeMode ?? "deterministic"} / ${behaviorRollup.mathCalibration?.verdict ?? "unvalidated"} / truth ${Math.round((behaviorRollup.truthScore ?? 0) * 100)}%.`
+        <div
+            className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400"
+            data-user-behavior-rollup-source={behaviorRollup?.source ?? "unavailable"}
+            data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
+            data-user-behavior-truth-score={behaviorTruthRollup?.sourceTruthScore ?? 0}
+        >
+            <AdminReviewBadge decision={behaviorReviewDecision} className="mr-1 py-0.5" />
+            <AdminTruthBadge state={behaviorTruthState} className="mr-1 py-0.5" hasUsableValue={Boolean(behaviorRollup)} />{" "}
+            {behaviorRollup
+                ? `Behavior rollup: ${behaviorRollup.sourceLabel} / ${behaviorRollup.confidence} (${behaviorRollup.confidenceScore}%). Math: ${behaviorRollup.mathCalibration?.activeMode ?? "deterministic"} / ${behaviorRollup.mathCalibration?.verdict ?? "unvalidated"} / truth ${Math.round((behaviorRollup.truthScore ?? 0) * 100)}%.`
                             : "Behavior rollup unavailable."}
                         {behaviorIssueSummary ? ` Issues: ${behaviorIssueSummary}` : ""}
                     </div>
@@ -858,7 +863,7 @@ export default function AdminUserAnalyticsPage() {
                             </div>
                         </div>
 
-                        {showBehavioralAffinity ? (
+                        {showBehavioralAffinity && !hideBehavioralRecommendations ? (
                             <>
                                 <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Top creator affinity</p>
@@ -890,9 +895,11 @@ export default function AdminUserAnalyticsPage() {
                         ) : (
                             <div className="rounded-[1.35rem] border border-dashed border-white/10 bg-black/20 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Affinity state</p>
-                                <p className="mt-2 text-sm font-semibold text-white">Insufficient signal</p>
+                                <p className="mt-2 text-sm font-semibold text-white">{hideBehavioralRecommendations ? "Confidence below threshold" : "Insufficient signal"}</p>
                                 <p className="mt-1 text-xs leading-5 text-gray-400">
-                                    {recommendationDebug?.insufficientSignalReason || "No meaningful creator or content affinity is available for this account yet."}
+                                    {hideBehavioralRecommendations
+                                        ? "Personalized recommendations stay collapsed until canonical behavior confidence clears the threshold."
+                                        : (recommendationDebug?.insufficientSignalReason || "No meaningful creator or content affinity is available for this account yet.")}
                                 </p>
                             </div>
                         )}
@@ -903,11 +910,13 @@ export default function AdminUserAnalyticsPage() {
                         <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Recommended drops with explanations</p>
                             <div className="mt-4 space-y-3">
-                                {recommendationDisplayMode === "insufficient-signal" ? (
+                                {recommendationDisplayMode === "insufficient-signal" || hideBehavioralRecommendations ? (
                                     <div className="rounded-[1.1rem] border border-dashed border-white/10 bg-black/20 p-4">
-                                        <p className="text-sm font-semibold text-white">Insufficient signal</p>
+                                        <p className="text-sm font-semibold text-white">{hideBehavioralRecommendations ? "Confidence below threshold" : "Insufficient signal"}</p>
                                         <p className="mt-1 text-xs leading-5 text-gray-400">
-                                            {recommendationDebug?.insufficientSignalReason || "No recommendation explanations are shown until this account has verified behavioral signal."}
+                                            {hideBehavioralRecommendations
+                                                ? "Recommendations stay hidden until the canonical behavior truth rollup clears the confidence threshold."
+                                                : (recommendationDebug?.insufficientSignalReason || "No recommendation explanations are shown until this account has verified behavioral signal.")}
                                         </p>
                                     </div>
                                 ) : showBehavioralExplanationCards ? (
@@ -980,7 +989,7 @@ export default function AdminUserAnalyticsPage() {
                                         </div>
                                     ))
                                 )}
-                                {!behavioralRecommendations.length && recommendationDisplayMode !== "insufficient-signal" ? <p className="text-sm text-gray-500">No ranked drop candidates are available for this user yet.</p> : null}
+                                {!behavioralRecommendations.length && recommendationDisplayMode !== "insufficient-signal" && !hideBehavioralRecommendations ? <p className="text-sm text-gray-500">No ranked drop candidates are available for this user yet.</p> : null}
                             </div>
                         </div>
                     </div>

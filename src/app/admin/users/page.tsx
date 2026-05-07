@@ -453,10 +453,10 @@ export default function UserManagementPage() {
         valueState: behaviorRollup?.confidence === "unknown" ? "unavailable" : behaviorRollup?.freshnessState,
         reviewRequired: Boolean(behaviorRollup?.issues.length) || behaviorRollup?.confidence === "insufficient" || behaviorRollup?.confidence === "low",
     });
-    const formatMoney = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `$${value.toFixed(2)}` : "[unavailable]";
-    const formatPercent = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "[unavailable]";
+    const formatMoney = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `$${value.toFixed(2)}` : "Unavailable";
+    const formatPercent = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "Unavailable";
     const formatCount = (value?: number, analytics?: UserAnalytics) =>
-        !analytics || analytics.metricTruthLabel === "unknown" ? "[unavailable]" : (value ?? 0).toLocaleString();
+        !analytics || analytics.metricTruthLabel === "unknown" ? "Unavailable" : (value ?? 0).toLocaleString();
     const formatWatchHours = (watchTimeMs?: number, fallbackHours?: number) => {
         if (typeof watchTimeMs === "number" && Number.isFinite(watchTimeMs)) {
             return `${Number((watchTimeMs / 3_600_000).toFixed(1))}h`;
@@ -821,6 +821,8 @@ export default function UserManagementPage() {
                     <div
                         className="grid grid-cols-2 gap-2 min-[390px]:grid-cols-3 md:gap-2.5 xl:grid-cols-5"
                         data-admin-users-stats-layout="compact-grid"
+                        data-admin-users-truth-source={summary?.truthSnapshot?.sourceTruth ?? "unavailable"}
+                        data-admin-users-truth-freshness={summary?.truthSnapshot?.sourceFreshness ?? "unavailable"}
                     >
                         {(summary?.kpiCards ?? []).map((card) => (
                             <div key={card.id}>

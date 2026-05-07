@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import type { AdminOverviewActivityItem, AdminOverviewDayPoint, AdminOverviewIssueDetail, PlatformPulseMetric, RecentTransactionAdminRow } from "@/lib/admin-overview";
 import { buildRolling30dWindow, calculateOverviewMetricDelta } from "@/lib/admin-overview";
+import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { TELEMETRY_EVENT_LABELS, TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
 import { APP_TIMEZONE, fromCSTInput, getCSTDateKey, shiftCSTDateKey } from "@/lib/timezone";
@@ -17,7 +18,7 @@ import {
     buildAdminOverviewUserIdentityMap,
     type AdminOverviewUserIdentity,
 } from "@/lib/server/admin-overview-users";
-import { readAdminUserMetricsSnapshot } from "@/lib/server/admin-user-metrics-snapshot";
+import { readAdminUserTruthSnapshot } from "@/lib/server/admin-user-truth-snapshot";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import {
     safeDocumentWithDiagnostics,
@@ -111,7 +112,87 @@ function buildIssueDetail(input: {
     sourceTruth: AdminOverviewIssueDetail["sourceTruth"];
     freshnessState: AdminOverviewIssueDetail["freshnessState"];
 }) {
-    return input;
+  return input;
+}
+
+function buildPlatformPulseFromTruthSnapshot(snapshot: AdminUserTruthSnapshot): PlatformPulseMetric[] {
+    const confidence = snapshot.confidenceScore;
+    const freshnessState: PlatformPulseMetric["freshnessState"] = snapshot.sourceFreshness === "live"
+        ? "live"
+        : snapshot.sourceFreshness === "refreshing"
+            ? "live"
+            : snapshot.sourceFreshness === "stale" || snapshot.sourceFreshness === "legacy_fallback"
+                ? "stale"
+                : snapshot.sourceFreshness === "degraded" || snapshot.sourceFreshness === "delayed" || snapshot.sourceFreshness === "privacy_limited" || snapshot.sourceFreshness === "review"
+                    ? "review"
+                    : "unknown";
+    const warnings = snapshot.issues.map((issue) => issue.message);
+
+    return [
+        {
+            id: "accounts",
+            label: "Users",
+            primaryValue: snapshot.totalUsers,
+            primaryScope: "lifetime",
+            current30dValue: snapshot.activeUsers,
+            lifetimeValue: snapshot.totalUsers,
+            lifetimeLabel: `${snapshot.activeUsers.toLocaleString()} active accounts`,
+            deltaPct: null,
+            deltaLabel: `${snapshot.returnedLast7Days.toLocaleString()} returned in last 7d`,
+            subtext: `${snapshot.verifiedUsers.toLocaleString()} verified · ${snapshot.onboardedUsers.toLocaleString()} onboarded`,
+            sourceTruth: "materialized_snapshot",
+            freshnessState,
+            confidence,
+            warnings,
+        },
+        {
+            id: "purchases30d",
+            label: "Purchases",
+            primaryValue: snapshot.verifiedPurchases,
+            primaryScope: "lifetime",
+            current30dValue: snapshot.returnedLast7Days,
+            lifetimeValue: snapshot.verifiedPurchases,
+            lifetimeLabel: `${snapshot.pushEnabledUsers.toLocaleString()} push enabled`,
+            deltaPct: null,
+            deltaLabel: `${snapshot.trackedUnwraps.toLocaleString()} verified unwraps`,
+            subtext: "Server purchase and entitlement truth only.",
+            sourceTruth: "materialized_snapshot",
+            freshnessState,
+            confidence,
+            warnings,
+        },
+        {
+            id: "revenue",
+            label: "Revenue",
+            primaryValue: `$${snapshot.totalRevenueUsd.toFixed(2)}`,
+            primaryScope: "lifetime",
+            lifetimeValue: Math.round(snapshot.totalRevenueUsd * 100),
+            lifetimeLabel: `${Math.round(snapshot.validWatchTimeMs / 60_000).toLocaleString()} verified watch minutes`,
+            deltaPct: null,
+            deltaLabel: `${snapshot.verifiedPurchases.toLocaleString()} verified purchases`,
+            subtext: "Server transaction truth only.",
+            sourceTruth: "materialized_snapshot",
+            freshnessState,
+            confidence,
+            warnings,
+        },
+        {
+            id: "unwraps",
+            label: "Unwraps",
+            primaryValue: snapshot.trackedUnwraps,
+            primaryScope: "lifetime",
+            current30dValue: snapshot.returnedLast7Days,
+            lifetimeValue: snapshot.trackedUnwraps,
+            lifetimeLabel: `${Math.round(snapshot.validWatchTimeMs / 3_600_000 * 10) / 10} verified watch hours`,
+            deltaPct: null,
+            deltaLabel: `${snapshot.activeUsers.toLocaleString()} active users`,
+            subtext: "Unlock truth and watch truth stay separate.",
+            sourceTruth: "materialized_snapshot",
+            freshnessState,
+            confidence,
+            warnings,
+        },
+    ];
 }
 
 function buildWindowChart(endDayKey: string) {
@@ -387,12 +468,12 @@ async function GET_handler(request: NextRequest) {
                     .limit(ADMIN_OVERVIEW_DAILY_ROLLUP_LIMIT)
                     .get(),
             }),
-            readAdminUserMetricsSnapshot({
+            readAdminUserTruthSnapshot({
                 db: adminDb,
                 generatedAt: now,
             }),
         ]);
-        const userMetricsSnapshot = userMetricsSnapshotMeta.snapshot;
+        const userTruthSnapshot = userMetricsSnapshotMeta;
 
         if (allUsersSnapshot.size >= ADMIN_OVERVIEW_USER_LIMIT) {
             issues.push("Overview user sample reached the read cap; snapshot-backed totals should be treated as authoritative.");
@@ -629,12 +710,12 @@ async function GET_handler(request: NextRequest) {
             ? (commerceSummarySnapshot.data() as Record<string, unknown>)
             : null;
         const grossRevenueCents = Math.max(
-            Math.round(userMetricsSnapshot.totalRevenueUsd * 100),
+            Math.round(userTruthSnapshot.totalRevenueUsd * 100),
             commerceSummary
                 ? Math.round(readMetric(commerceSummary, "revenueCentsTotal", "grossRevenueCents"))
                 : currentRevenueCents + previousRevenueCents,
         );
-        const totalUnwraps = Math.max(userMetricsSnapshot.trackedUnwraps, dropUnlockTotals);
+        const totalUnwraps = Math.max(userTruthSnapshot.trackedUnwraps, dropUnlockTotals);
 
         const overviewIssues: AdminOverviewIssueDetail[] = issues.map((issue) =>
             buildIssueDetail({
@@ -660,74 +741,7 @@ async function GET_handler(request: NextRequest) {
             }));
         }
 
-        const platformPulse: PlatformPulseMetric[] = [
-            {
-                id: "accounts",
-                label: "Accounts",
-                primaryValue: userMetricsSnapshot.totalUsers,
-                primaryScope: "lifetime",
-                current30dValue: currentNewUsers,
-                prior30dValue: previousNewUsers,
-                deltaPct: calculateOverviewMetricDelta(currentNewUsers, previousNewUsers).percentChange,
-                deltaLabel: resolveDeltaLabel(currentNewUsers, previousNewUsers, "new accounts"),
-                subtext: usersMissingCreatedAtCount > 0
-                    ? "New account source incomplete"
-                    : `${currentNewUsers.toLocaleString()} new in last 30d`,
-                sourceTruth: "user_doc",
-                freshnessState: usersMissingCreatedAtCount > 0 ? "review" : "live",
-                confidence: usersMissingCreatedAtCount > 0 ? 0.6 : 0.98,
-                warnings: usersMissingCreatedAtCount > 0 ? ["new_account_source_incomplete"] : [],
-            },
-            {
-                id: "purchases30d",
-                label: "Purchases (30D)",
-                primaryValue: rollingPurchaseCount,
-                primaryScope: "rolling_30d",
-                current30dValue: rollingPurchaseCount,
-                prior30dValue: priorRollingPurchaseCount,
-                deltaPct: calculateOverviewMetricDelta(rollingPurchaseCount, priorRollingPurchaseCount).percentChange,
-                deltaLabel: resolveDeltaLabel(rollingPurchaseCount, priorRollingPurchaseCount, "purchases"),
-                subtext: `${rollingPurchaseCount.toLocaleString()} purchases in last 30d`,
-                sourceTruth: "server_transaction",
-                freshnessState: "live",
-                confidence: 0.98,
-                warnings: [],
-            },
-            {
-                id: "revenue",
-                label: "Revenue (30D)",
-                primaryValue: formatUsdFromCents(rollingRevenueCents),
-                primaryScope: "rolling_30d",
-                current30dValue: rollingRevenueCents,
-                prior30dValue: priorRollingRevenueCents,
-                lifetimeValue: grossRevenueCents,
-                lifetimeLabel: `Lifetime revenue ${formatUsdFromCents(grossRevenueCents)}`,
-                deltaPct: calculateOverviewMetricDelta(rollingRevenueCents, priorRollingRevenueCents).percentChange,
-                deltaLabel: `${formatUsdFromCents(rollingRevenueCents)} vs ${formatUsdFromCents(priorRollingRevenueCents)} in prior 30d`,
-                subtext: `Lifetime revenue ${formatUsdFromCents(grossRevenueCents)}`,
-                sourceTruth: "server_transaction",
-                freshnessState: "live",
-                confidence: 0.97,
-                warnings: [],
-            },
-            {
-                id: "unwraps",
-                label: "Unwraps (30D)",
-                primaryValue: currentUnwraps,
-                primaryScope: "rolling_30d",
-                current30dValue: currentUnwraps,
-                prior30dValue: previousUnwraps,
-                lifetimeValue: totalUnwraps,
-                lifetimeLabel: `Lifetime unwraps ${totalUnwraps.toLocaleString()}`,
-                deltaPct: calculateOverviewMetricDelta(currentUnwraps, previousUnwraps).percentChange,
-                deltaLabel: resolveDeltaLabel(currentUnwraps, previousUnwraps, "unwraps"),
-                subtext: `Lifetime unwraps ${totalUnwraps.toLocaleString()}`,
-                sourceTruth: "entitlement_rollup",
-                freshnessState: "live",
-                confidence: 0.94,
-                warnings: [],
-            },
-        ];
+        const platformPulse = buildPlatformPulseFromTruthSnapshot(userTruthSnapshot);
 
         const lastTransactionAt = recentTransactions.reduce(
             (latest, transaction) => Math.max(latest, typeof transaction.timestamp === "number" ? transaction.timestamp : 0),
@@ -760,14 +774,14 @@ async function GET_handler(request: NextRequest) {
                 lastAdminActivityAt,
             },
             stats: {
-                totalUsers: userMetricsSnapshot.totalUsers,
+                totalUsers: userTruthSnapshot.totalUsers,
                 liveDrops: drops.filter((drop) => drop.status === "active").length,
                 totalDrops: drops.length,
                 grossRevenueCents,
                 totalUnwraps,
                 currentWindowPurchases: rollingPurchaseCount,
                 currentWindowNewUsers: currentNewUsers,
-                userMetricsSnapshot,
+                userMetricsSnapshot: undefined,
             },
             deltas: {
                 accounts: calculateOverviewMetricDelta(currentNewUsers, previousNewUsers),
@@ -827,7 +841,7 @@ async function GET_handler(request: NextRequest) {
                 degradedReason: issues.length > 0 ? issues[0] : null,
                 status: issues.length > 0 ? "degraded" : "live",
                 countComposition: {
-                    totalUsers: userMetricsSnapshot.totalUsers,
+                    totalUsers: userTruthSnapshot.totalUsers,
                     liveDrops: drops.filter((drop) => drop.status === "active").length,
                     totalDrops: drops.length,
                     recentTransactions: recentTransactions.length,

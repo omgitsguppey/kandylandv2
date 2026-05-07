@@ -64,7 +64,11 @@ const failures: string[] = [];
 assert(snapshotHelper.includes("buildAdminUserMetricsSnapshot"), "Canonical admin user metrics snapshot builder is missing.", failures);
 assert(snapshotHelper.includes("readAdminUserMetricsSnapshot"), "Canonical admin user metrics snapshot reader is missing.", failures);
 assert(usersRoute.includes("buildAdminUserMetricsSnapshot"), "User Management summary route must use the canonical admin user metrics snapshot builder.", failures);
-assert(overviewRoute.includes("readAdminUserMetricsSnapshot"), "Admin overview must read the canonical admin user metrics snapshot.", failures);
+assert(
+  overviewRoute.includes("readAdminUserMetricsSnapshot") || overviewRoute.includes("readAdminUserTruthSnapshot"),
+  "Admin overview must read the canonical admin user metrics snapshot.",
+  failures,
+);
 assert(usersPage.includes('data-admin-users-stats-layout="compact-grid"'), "User Management stats grid must keep the compact layout marker.", failures);
 assert(statsGridValidator.includes('data-admin-users-stats-layout="compact-grid"'), "Stats-grid validator must enforce the compact layout marker.", failures);
 assert(loadingLanesValidator.includes('authFetch("/api/admin/users?mode=summary")'), "Loading-lanes validator must enforce the separate summary lane.", failures);

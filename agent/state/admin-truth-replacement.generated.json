@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-05-07T20:43:34.133Z",
+  "status": "pass",
+  "failures": [],
+  "classifiedPaths": [
+    "src/lib/server/admin-user-truth-snapshot.ts",
+    "src/lib/server/user-behavior-truth-rollup.ts",
+    "src/lib/admin-overview.ts",
+    "src/lib/admin-analytics-live-runtime.ts",
+    "src/lib/server/analytics-metrics.ts",
+    "scripts/release/update-public-changelog.ts"
+  ]
+}

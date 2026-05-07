@@ -7,6 +7,8 @@ import type {
   AnalyticsTruthSummary,
 } from "@/lib/admin-analytics-truth";
 import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
+import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
+import type { UserBehaviorTruthRollup } from "@/lib/behavioral/user-score-contract";
 import type { UserBehaviorRollup } from "@/lib/user-behavior-rollup-contract";
 import type { UserEngagementScoreResult } from "@/lib/behavioral/user-engagement-score";
 import type { UserValueScoreResult } from "@/lib/behavioral/user-value-score";
@@ -1122,6 +1124,7 @@ export type UserAnalytics = {
   valueScore?: number;
   value?: UserValueScoreResult;
   behaviorRollup?: UserBehaviorRollup;
+  behaviorTruthRollup?: UserBehaviorTruthRollup;
   watchTimeSource?: WatchTimeRollupSource;
   watchTimeIssues?: WatchTimeRollupIssue[];
   watchTimeDiagnosticEstimate?: WatchTimeDiagnosticEstimate | null;
@@ -1158,6 +1161,7 @@ export type UsersSummary = {
   commerceEmptyReason?: string | null;
   kpiCards: AdminUsersKpiCard[];
   metricsSnapshot?: AdminUserMetricsSnapshot;
+  truthSnapshot?: AdminUserTruthSnapshot;
   creatorOps?: {
     creatorsWithFollowers: number;
     totalFollowers: number;

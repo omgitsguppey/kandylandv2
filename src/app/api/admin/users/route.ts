@@ -8,7 +8,8 @@ import type {
   AdminUsersResponse,
   UsersSummary,
 } from "@/types/admin-analytics";
-import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
+import type { AdminUserMetricsSnapshot, AdminUserMetricsSnapshotMetadata } from "@/lib/admin-user-metrics-contract";
+import { toAdminUserTruthSnapshot } from "@/lib/server/admin-user-truth-snapshot";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
@@ -2270,6 +2271,7 @@ async function GET_handler(request: NextRequest) {
       degraded: metricFailureUsers.length > 0,
     });
     const userMetricsSnapshot = metricsSnapshotMeta.snapshot;
+    const userTruthSnapshot = toAdminUserTruthSnapshot(metricsSnapshotMeta);
 
     const summaryBase: Omit<UsersSummary, "kpiCards" | "creatorOps"> = {
       totalUsers: userMetricsSnapshot.totalUsers,
@@ -2311,6 +2313,7 @@ async function GET_handler(request: NextRequest) {
       commerceSourceLabel: commerceSummaryMetrics.commerceSourceLabel,
       commerceEmptyReason: commerceSummaryMetrics.commerceEmptyReason,
       metricsSnapshot: userMetricsSnapshot,
+      truthSnapshot: userTruthSnapshot,
     };
     const summary: UsersSummary = {
       ...summaryBase,
@@ -3026,16 +3029,13 @@ type UserDailyAggregate = {
 
 function buildSummaryFromMetricsSnapshot(input: {
   users?: Array<ReturnType<typeof serializeUserDoc>>;
-  metricsSnapshotMeta: {
-    snapshot: AdminUserMetricsSnapshot;
-    sourceLabel: string;
-    staleReason: string | null;
-  };
+  metricsSnapshotMeta: AdminUserMetricsSnapshotMetadata;
   commerceSummaryRaw?: Record<string, unknown>;
   commerceSummaryExists?: boolean;
 }): UsersSummary {
   const users = input.users ?? [];
   const userMetricsSnapshot = input.metricsSnapshotMeta.snapshot;
+  const userTruthSnapshot = toAdminUserTruthSnapshot(input.metricsSnapshotMeta);
   const commerceSummaryRaw = input.commerceSummaryRaw ?? {};
   const commerceSummaryMetrics = input.commerceSummaryExists
     ? buildCommerceMetricsFromRollup(commerceSummaryRaw)
@@ -3079,6 +3079,7 @@ function buildSummaryFromMetricsSnapshot(input: {
     commerceSourceLabel: commerceSummaryMetrics.commerceSourceLabel,
     commerceEmptyReason: commerceSummaryMetrics.commerceEmptyReason,
     metricsSnapshot: userMetricsSnapshot,
+    truthSnapshot: userTruthSnapshot,
   };
 
   return {

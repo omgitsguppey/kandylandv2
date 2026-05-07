@@ -13,7 +13,11 @@ import type { WatchTimeDiagnosticEstimate } from "@/lib/behavioral/watch-time-es
 
 export type AdminUserMetricsSnapshotSource = "hot_cache" | "materialized" | "live_fallback";
 
-export type AdminUserMetricsFreshnessState = BehavioralFreshnessState;
+export type AdminUserMetricsFreshnessState =
+  | "live"
+  | "stale"
+  | "degraded"
+  | "unavailable";
 
 export type AdminUserMetricsSnapshot = {
   totalUsers: number;

@@ -316,7 +316,21 @@ export function normalizeIdentifiedMetricEventFact(input: NormalizeInput): Ident
   const normalizedMetricEligible = eligibility.metricEligible && !(notificationInteractionEvent && !targetUserId);
 
   return {
-    behavioralFact: behavioral,
+    behavioralFact: behavioral ? {
+      ...behavioral,
+      actorUserId,
+      actorAdminId,
+      actorCreatorId,
+      targetUserId,
+      targetCreatorId,
+      targetDropId,
+      targetFileId,
+      transactionId,
+      sourceTruth: input.sourceTruth === "local_projection" ? "client" : input.sourceTruth ?? "server",
+      sourceReliability: sourceConfidence,
+      metricEligible: normalizedMetricEligible,
+      metricExclusionReason: normalizedMetricEligible ? eligibility.metricExclusionReason : "missing_required_context",
+    } : null,
     normalizedAction,
     metricFamily,
     actorUserId,

@@ -8,6 +8,9 @@ export const ADMIN_TRUTH_STATES = [
   "failed",
   "unavailable",
   "delayed",
+  "privacy_limited",
+  "legacy_fallback",
+  "blocked",
   "review",
 ] as const;
 
@@ -21,7 +24,10 @@ type TruthLikeState =
   | "empty"
   | "unknown"
   | "warn"
-  | "error";
+  | "error"
+  | "privacy_limited"
+  | "legacy_fallback"
+  | "blocked";
 
 const LEGACY_TRUTH_STATE_MAP: Record<TruthLikeState, AdminTruthState> = {
   live: "live",
@@ -31,6 +37,9 @@ const LEGACY_TRUTH_STATE_MAP: Record<TruthLikeState, AdminTruthState> = {
   failed: "failed",
   unavailable: "unavailable",
   delayed: "delayed",
+  privacy_limited: "privacy_limited",
+  legacy_fallback: "legacy_fallback",
+  blocked: "blocked",
   review: "review",
   loading: "unavailable",
   cached: "stale",
@@ -87,6 +96,14 @@ export function resolveAdminTruthState(input: {
     return "unavailable";
   }
 
+  if (transportState === "blocked" || valueState === "blocked") {
+    return "blocked";
+  }
+
+  if (transportState === "privacy_limited" || valueState === "privacy_limited") {
+    return input.hasUsableValue ? "privacy_limited" : "unavailable";
+  }
+
   if (!input.hasUsableValue) {
     if (transportState === "failed" || valueState === "failed") {
       return "failed";
@@ -97,6 +114,10 @@ export function resolveAdminTruthState(input: {
 
   if (input.delayed || transportState === "delayed" || valueState === "delayed") {
     return "delayed";
+  }
+
+  if (transportState === "legacy_fallback" || valueState === "legacy_fallback") {
+    return "legacy_fallback";
   }
 
   if (input.reviewRequired || transportState === "review" || valueState === "review") {
@@ -139,6 +160,9 @@ export function getAdminTruthStateBadgeLabel(
   if (state === "degraded") return "DEGRADED";
   if (state === "failed") return "FAILED";
   if (state === "delayed") return "DELAYED";
+  if (state === "privacy_limited") return "PRIVACY";
+  if (state === "legacy_fallback") return "LEGACY";
+  if (state === "blocked") return "BLOCKED";
   if (state === "review") return "REVIEW";
   return "UNAVAILABLE";
 }
@@ -150,6 +174,9 @@ export function getAdminTruthStateDescription(state: AdminTruthState) {
   if (state === "degraded") return "A usable value is showing, but the source reported an issue.";
   if (state === "failed") return "No usable value exists because the source failed.";
   if (state === "delayed") return "A usable value is showing, but payment or settlement timing is delayed.";
+  if (state === "privacy_limited") return "A usable value is showing, but privacy limits prevent full attribution.";
+  if (state === "legacy_fallback") return "A usable value is showing from a labeled legacy fallback source.";
+  if (state === "blocked") return "This surface is blocked from acting as canonical truth.";
   if (state === "review") return "A usable value is showing, but the data needs operator review.";
   return "No configured source or no usable value is available yet.";
 }
@@ -161,6 +188,9 @@ export function getAdminTruthStateClasses(state: AdminTruthState) {
   if (state === "degraded") return "border-amber-500/30 bg-amber-500/10 text-amber-300";
   if (state === "failed") return "border-red-500/30 bg-red-500/10 text-red-300";
   if (state === "delayed") return "border-orange-500/30 bg-orange-500/10 text-orange-300";
+  if (state === "privacy_limited") return "border-cyan-500/30 bg-cyan-500/10 text-cyan-200";
+  if (state === "legacy_fallback") return "border-stone-500/30 bg-stone-500/10 text-stone-200";
+  if (state === "blocked") return "border-red-700/40 bg-red-950/30 text-red-200";
   if (state === "review") return "border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-200";
   return "border-gray-500/30 bg-gray-500/10 text-gray-300";
 }

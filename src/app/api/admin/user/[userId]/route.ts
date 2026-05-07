@@ -19,6 +19,7 @@ import {
     buildAdminUserMetricIntegrity,
 } from "@/lib/admin-user-metrics";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
+import { toUserBehaviorTruthRollup } from "@/lib/server/user-behavior-truth-rollup";
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
 import {
     buildUserEngagementScoreInputFromActivityDays,
@@ -863,6 +864,7 @@ async function GET_handler(
             valueScore: value.valueScore,
             value,
             behaviorRollup,
+            behaviorTruthRollup: null as ReturnType<typeof toUserBehaviorTruthRollup> | null,
             actionLedger: behavioralEventFactRollup.facts.slice(0, 80).map((fact) => toUserActionLedgerItem({
                 actionName: fact.normalizedAction,
                 actionId: fact.dedupeKey,
@@ -1244,6 +1246,11 @@ async function GET_handler(
             }),
         ]);
         const behavioralRecommendationState = buildBehavioralRecommendationState(behavioralProfile as Record<string, unknown> | null);
+        const behaviorTruthRollup = toUserBehaviorTruthRollup(
+            behaviorRollup,
+            behavioralRecommendationState.confidenceScore,
+        );
+        analytics.behaviorTruthRollup = behaviorTruthRollup;
         const recommendationDisplayMode = behavioralRecommendationState.insufficientSignal
             ? "insufficient-signal"
             : behavioralRecommendationState.explanationEligible
