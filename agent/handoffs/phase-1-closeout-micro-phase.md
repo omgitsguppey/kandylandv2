@@ -16,10 +16,10 @@ Summary:
 
 ## Commit
 Branch: main
-Commit SHA: 
-Commit message: 
+Commit SHA: d335d5e9742453c2cca000b1407782ff7a2a2508
+Commit message: fix(admin): close out phase 1 freshness pass
 
-Not committed because: commit step pending after handoff update.
+
 
 ## Files Changed
 - src/app/admin/debug/page.tsx: removed stale `revalidateOnFocus: false` overrides and included debug preferences in refresh-all
