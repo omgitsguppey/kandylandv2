@@ -1,34 +1,31 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.113.4",
+  "currentVersion": "1.2.1",
+  "betaReleaseCounter": 201,
   "channel": "beta",
   "generatedAt": "2026-05-06T19:58:40.374Z",
   "generatedAtUtc": "2026-05-06T19:58:40.374Z",
   "lastCommitSha": "b43f8f272fe4071e4731d9d4e24d60f416b7a902",
   "notes": [
     {
-      "version": "1.113.4",
-      "previousVersion": "1.113.3",
+      "version": "1.2.1",
+      "previousVersion": "1.2.0",
+      "betaReleaseCounter": 201,
+      "previousBetaReleaseCounter": 200,
       "commitSha": "b43f8f272fe4071e4731d9d4e24d60f416b7a902",
-      "commitTitle": "fix(beta): avoid repeated audit release notes",
+      "commitTitle": "fix(beta): improve beta update notes and changelog behavior",
+      "commitCount": 4,
+      "commitShas": [
+        "8b5a6256cf5b7660590df0c4e3786a1a1875ac11",
+        "04b6e80c3f6bdd7eed4d17f2b5c337815d62cb85",
+        "b522306e5d1e92e473ee9fed14dbd852429a96a8",
+        "b43f8f272fe4071e4731d9d4e24d60f416b7a902"
+      ],
       "committedAt": "2026-05-06T19:58:25.000Z",
       "generatedAt": "2026-05-06T19:58:40.373Z",
       "committedAtUtc": "2026-05-06T19:58:25.000Z",
       "generatedAtUtc": "2026-05-06T19:58:40.373Z",
-      "diffStats": {
-        "rawAdditions": 113,
-        "rawDeletions": 103,
-        "rawChangeCount": 216,
-        "additions": 113,
-        "deletions": 103,
-        "effectiveAdditions": 8,
-        "effectiveDeletions": 1,
-        "changedFiles": 4,
-        "effectiveChangeCount": 9,
-        "excludedGeneratedChangeCount": 207
-      },
-      "bumpType": "patch",
       "category": "Fixed",
       "title": "Improved Beta update notes",
       "updatedAtUtc": "2026-05-06T19:58:40.373Z",
@@ -36,190 +33,158 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "userFacingTitle": "Improved Beta update notes",
       "bullets": [
         "Improved Beta notes with cleaner summaries and compact bullets.",
-        "Updated timestamps so recent changes are easier to compare with reports.",
+        "Updated the Beta badge and panel so the latest changelog opens more reliably.",
         "Reduced technical wording in public update notes."
       ],
       "audience": "all",
       "technicalDetails": [
-        "Release note summaries are generated separately from collapsed technical details."
+        "Grouped 4 commits into one accepted beta release.",
+        "Release note summaries remain separate from collapsed technical details."
       ],
       "affectedSurfaces": [
+        "navigation",
         "release-notes",
         "repo-tooling"
       ]
     },
     {
-      "version": "1.113.3",
-      "previousVersion": "1.113.2",
-      "commitSha": "6b46f9325f543c95b14a83f2661814c91847a0a1",
-      "commitTitle": "fix(admin): close beta and task truth gaps",
-      "committedAt": "2026-05-06T19:57:06.000Z",
-      "generatedAt": "2026-05-06T19:57:23.155Z",
-      "committedAtUtc": "2026-05-06T19:57:06.000Z",
-      "generatedAtUtc": "2026-05-06T19:57:23.155Z",
-      "diffStats": {
-        "rawAdditions": 46,
-        "rawDeletions": 33,
-        "rawChangeCount": 79,
-        "additions": 46,
-        "deletions": 33,
-        "effectiveAdditions": 28,
-        "effectiveDeletions": 15,
-        "changedFiles": 7,
-        "effectiveChangeCount": 43,
-        "excludedGeneratedChangeCount": 36
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "title": "Improved Beta update notes",
-      "updatedAtUtc": "2026-05-06T19:57:23.155Z",
+      "version": "1.2.0",
+      "previousVersion": "1.1.99",
+      "betaReleaseCounter": 200,
+      "previousBetaReleaseCounter": 199,
+      "commitSha": "6b88d0fd95672cbf18e4cbcb91a4996037520dd7",
+      "commitTitle": "fix(system): harden deterministic admin truth surfaces",
+      "commitCount": 1,
+      "commitShas": [
+        "6b88d0fd95672cbf18e4cbcb91a4996037520dd7"
+      ],
+      "committedAt": "2026-05-06T17:01:38.000Z",
+      "generatedAt": "2026-05-06T17:11:11.469Z",
+      "committedAtUtc": "2026-05-06T17:01:38.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:11.469Z",
+      "category": "Admin",
+      "title": "Improved admin status accuracy",
+      "updatedAtUtc": "2026-05-06T17:11:11.469Z",
       "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
-      "userFacingTitle": "Improved Beta update notes",
+      "userFacingTitle": "Improved admin status accuracy",
       "bullets": [
-        "Fixed repeated Beta note wording in the visible changelog.",
-        "Clarified task pipeline labels for reward and guidance review.",
-        "Updated unavailable analytics badges so they no longer appear as loading."
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Reduced confusing status messages in Beta admin tools."
       ],
       "audience": "admins",
       "technicalDetails": [
-        "Admin metrics keep source, range, and freshness details separate from public summaries.",
-        "Release note summaries are generated separately from collapsed technical details."
+        "Admin metrics keep source, range, and freshness details separate from public summaries."
       ],
       "affectedSurfaces": [
         "admin",
-        "release-notes",
-        "repo-tooling"
+        "documentation",
+        "repo-tooling",
+        "telemetry"
       ]
     },
     {
-      "version": "1.113.2",
-      "previousVersion": "1.113.1",
-      "commitSha": "b522306e5d1e92e473ee9fed14dbd852429a96a8",
-      "commitTitle": "fix(beta): keep changelog modal above page chrome",
-      "committedAt": "2026-05-06T19:46:54.000Z",
-      "generatedAt": "2026-05-06T19:47:11.549Z",
-      "committedAtUtc": "2026-05-06T19:46:54.000Z",
-      "generatedAtUtc": "2026-05-06T19:47:11.549Z",
-      "diffStats": {
-        "rawAdditions": 29,
-        "rawDeletions": 2,
-        "rawChangeCount": 31,
-        "additions": 29,
-        "deletions": 2,
-        "effectiveAdditions": 29,
-        "effectiveDeletions": 2,
-        "changedFiles": 2,
-        "effectiveChangeCount": 31,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "title": "Improved Beta update notes",
-      "updatedAtUtc": "2026-05-06T19:47:11.549Z",
-      "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
-      "userFacingTitle": "Improved Beta update notes",
-      "bullets": [
-        "Fixed the Beta notes panel so it stays above page controls.",
-        "Improved page locking while the changelog is open.",
-        "Updated the overlay spacing for small mobile screens."
+      "version": "1.1.99",
+      "previousVersion": "1.1.98",
+      "betaReleaseCounter": 199,
+      "previousBetaReleaseCounter": 198,
+      "commitSha": "2df00e332c340fc3b5b7cdb5c0b4dad0463341c3",
+      "commitTitle": "fix(admin): clarify library viewer drilldown truth",
+      "commitCount": 1,
+      "commitShas": [
+        "2df00e332c340fc3b5b7cdb5c0b4dad0463341c3"
       ],
-      "audience": "all",
-      "technicalDetails": [
-        "Release note summaries are generated separately from collapsed technical details."
-      ],
-      "affectedSurfaces": [
-        "release-notes",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.113.1",
-      "previousVersion": "1.113.0",
-      "commitSha": "04b6e80c3f6bdd7eed4d17f2b5c337815d62cb85",
-      "commitTitle": "fix(beta): ensure badge opens latest notes",
-      "committedAt": "2026-05-06T19:33:17.000Z",
-      "generatedAt": "2026-05-06T19:33:36.599Z",
-      "committedAtUtc": "2026-05-06T19:33:17.000Z",
-      "generatedAtUtc": "2026-05-06T19:33:36.599Z",
-      "diffStats": {
-        "rawAdditions": 9,
-        "rawDeletions": 13,
-        "rawChangeCount": 22,
-        "additions": 9,
-        "deletions": 13,
-        "effectiveAdditions": 9,
-        "effectiveDeletions": 13,
-        "changedFiles": 3,
-        "effectiveChangeCount": 22,
-        "excludedGeneratedChangeCount": 0
-      },
-      "bumpType": "patch",
-      "category": "Fixed",
-      "title": "Improved Beta update notes",
-      "updatedAtUtc": "2026-05-06T19:33:36.599Z",
-      "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
-      "userFacingTitle": "Improved Beta update notes",
-      "bullets": [
-        "Fixed the Beta badge so taps open the current notes panel.",
-        "Updated the notes request so the latest changelog is loaded.",
-        "Reduced cases where an older app tab could miss the newest notes."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Release note summaries are generated separately from collapsed technical details."
-      ],
-      "affectedSurfaces": [
-        "release-notes",
-        "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.113.0",
-      "previousVersion": "1.112.0",
-      "commitSha": "8b5a6256cf5b7660590df0c4e3786a1a1875ac11",
-      "commitTitle": "fix(beta): polish release notes and admin truth cleanup",
-      "committedAt": "2026-05-06T17:16:55.000Z",
-      "generatedAt": "2026-05-06T17:17:20.048Z",
-      "committedAtUtc": "2026-05-06T17:16:55.000Z",
-      "generatedAtUtc": "2026-05-06T17:17:20.048Z",
-      "diffStats": {
-        "rawAdditions": 2413,
-        "rawDeletions": 1432,
-        "rawChangeCount": 3845,
-        "additions": 2413,
-        "deletions": 1432,
-        "effectiveAdditions": 498,
-        "effectiveDeletions": 35,
-        "changedFiles": 15,
-        "effectiveChangeCount": 533,
-        "excludedGeneratedChangeCount": 3312
-      },
-      "bumpType": "minor",
-      "category": "Fixed",
-      "title": "Improved Beta update notes",
-      "updatedAtUtc": "2026-05-06T17:17:20.048Z",
+      "committedAt": "2026-05-06T16:37:58.000Z",
+      "generatedAt": "2026-05-06T17:11:11.313Z",
+      "committedAtUtc": "2026-05-06T16:37:58.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:11.313Z",
+      "category": "Admin",
+      "title": "Improved viewer analytics",
+      "updatedAtUtc": "2026-05-06T17:11:11.313Z",
       "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
-      "userFacingTitle": "Improved Beta update notes",
+      "userFacingTitle": "Improved viewer analytics",
       "bullets": [
-        "Improved Beta notes with cleaner summaries and compact bullets.",
-        "Updated timestamps so recent changes are easier to compare with reports.",
-        "Reduced technical wording in public update notes."
+        "Clarified verified and estimated viewer watch time.",
+        "Improved stale and quiet viewer activity labels.",
+        "Updated viewer rows to use readable names where available."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.1.98",
+      "previousVersion": "1.1.97",
+      "betaReleaseCounter": 198,
+      "previousBetaReleaseCounter": 197,
+      "commitSha": "0f5c808375eb600082da4b19f178a08386119f38",
+      "commitTitle": "fix(admin): tighten commerce feed mobile cards",
+      "commitCount": 1,
+      "commitShas": [
+        "0f5c808375eb600082da4b19f178a08386119f38"
+      ],
+      "committedAt": "2026-05-06T16:22:45.000Z",
+      "generatedAt": "2026-05-06T17:11:11.166Z",
+      "committedAtUtc": "2026-05-06T16:22:45.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:11.166Z",
+      "category": "Admin",
+      "title": "Improved transaction review",
+      "updatedAtUtc": "2026-05-06T17:11:11.166Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved transaction review",
+      "bullets": [
+        "Added clearer names to recent transaction rows.",
+        "Improved GumDrops transaction labels and timestamps for admin review.",
+        "Clarified unavailable commerce details instead of showing waiting states."
+      ],
+      "audience": "admins",
+      "affectedSurfaces": [
+        "admin",
+        "repo-tooling"
+      ]
+    },
+    {
+      "version": "1.1.97",
+      "previousVersion": "1.1.96",
+      "betaReleaseCounter": 197,
+      "previousBetaReleaseCounter": 196,
+      "commitSha": "05ad94d6859c78ab686e479d8eab5c976631130d",
+      "commitTitle": "fix(admin): clarify top drop unwrap conversion",
+      "commitCount": 1,
+      "commitShas": [
+        "05ad94d6859c78ab686e479d8eab5c976631130d"
+      ],
+      "committedAt": "2026-05-06T16:10:11.000Z",
+      "generatedAt": "2026-05-06T17:11:11.020Z",
+      "committedAtUtc": "2026-05-06T16:10:11.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:11.020Z",
+      "category": "Admin",
+      "title": "Improved drop conversion review",
+      "updatedAtUtc": "2026-05-06T17:11:11.020Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "userFacingTitle": "Improved drop conversion review",
+      "bullets": [
+        "Improved drop rows with readable names instead of long IDs.",
+        "Clarified unwrap counts and small conversion percentages.",
+        "Added page controls when more drop rows are available."
       ],
       "audience": "admins",
       "technicalDetails": [
-        "Admin metrics keep source, range, and freshness details separate from public summaries.",
-        "Release note summaries are generated separately from collapsed technical details."
+        "Display language uses unwrap; backend entitlement fields may still use unlock."
       ],
       "affectedSurfaces": [
         "admin",
-        "release-notes",
-        "repo-tooling"
+        "repo-tooling",
+        "telemetry"
       ]
     }
   ]
 } satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
+  betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,
   appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,
   releaseChannel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,
 } as const;

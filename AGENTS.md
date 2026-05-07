@@ -56,10 +56,11 @@ This command budget is mandatory for doctrine and governance work.
 
 Public beta release notes doctrine:
 
-KandyDrops Beta release notes are user-facing and update after every commit. The Beta badge beside the top nav title opens the last 5 app-style updates. Versioning uses MAJOR.MINOR.PATCH starting at 1.0.0. MAJOR never auto-increments. Effective non-generated diff size above 100 additions/deletions bumps MINOR and resets PATCH. Effective diff size of 100 or below bumps PATCH. Changelog copy must explain what changed for users, not dump technical commit noise.
+KandyDrops Beta release notes are user-facing and track accepted public beta releases, not raw commits. The Beta badge beside the top nav title opens the last 5 app-style updates. Versioning uses odometer format `1.<block>.<release>`, where each accepted public beta release increments one counter by exactly 1. Changelog copy must explain what changed for users, not dump technical commit noise.
 
 - Read `docs/agent-truth/public-beta-release-notes.md` before changing release-note automation or the Beta badge.
-- Run `npm run release:notes` after commits that need public changelog updates.
+- Run `npm run release:notes` to normalize bundled/public release-note artifacts.
+- Run `npm run release:notes:accept` when a new accepted public beta release should be published.
 - Run `npm run check:release-notes` and targeted release-note tests for this lane.
 - Do not run Playwright, Lighthouse, Cypress, or full `npm run check` for this lane by default.
 

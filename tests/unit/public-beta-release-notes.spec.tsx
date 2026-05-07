@@ -6,9 +6,9 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  bumpPublicVersion,
-  classifyPublicVersionBump,
+  CURRENT_BETA_RELEASE_VERSION,
 } from "@/lib/release-notes/release-version-contract";
+import { formatBetaOdometerVersion } from "@/lib/release-notes/beta-odometer-version";
 
 const mockState = vi.hoisted(() => ({
   trackEvent: vi.fn(),
@@ -22,18 +22,27 @@ import { BetaBadge } from "@/components/ReleaseNotes/BetaBadge";
 
 function buildReleaseNotesResponse() {
   return {
-    currentVersion: "1.0.1",
+    currentVersion: CURRENT_BETA_RELEASE_VERSION,
+    betaReleaseCounter: 201,
     channel: "beta",
     generatedAt: "2026-05-05T15:00:00.000Z",
+    generatedAtUtc: "2026-05-05T15:00:00.000Z",
     lastCommitSha: "abc123",
     notes: [
       {
-        version: "1.0.1",
-        previousVersion: "1.0.0",
+        version: "1.2.1",
+        previousVersion: "1.2.0",
+        betaReleaseCounter: 201,
+        previousBetaReleaseCounter: 200,
         commitSha: "abc123",
         commitTitle: "feat(app): add beta release notes badge",
+        commitCount: 2,
+        commitShas: ["abc111", "abc123"],
         committedAt: "2026-05-05T14:30:00.000Z",
         generatedAt: "2026-05-05T15:00:00.000Z",
+        committedAtUtc: "2026-05-05T14:30:00.000Z",
+        generatedAtUtc: "2026-05-05T15:00:00.000Z",
+        updatedAtUtc: "2026-05-05T15:00:00.000Z",
         diffStats: {
           rawAdditions: 10,
           rawDeletions: 2,
@@ -48,8 +57,14 @@ function buildReleaseNotesResponse() {
         },
         bumpType: "patch",
         category: "Added",
+        title: "Added a Beta badge with app update notes in the top navigation.",
+        summary: "Cleaner Beta update notes with clearer summaries and timestamps.",
         userFacingTitle: "Added a Beta badge with app update notes in the top navigation.",
-        bullets: ["Tap Beta beside KandyDrops to see the latest app-style updates."],
+        bullets: [
+          "Added a Beta badge beside KandyDrops for update notes.",
+          "Improved public update history so the latest notes are easier to read.",
+        ],
+        audience: "all",
         affectedSurfaces: ["release-notes", "navigation"],
       },
     ],
@@ -65,11 +80,9 @@ describe("public beta release notes", () => {
     })));
   });
 
-  it("bumps minor for substantial effective diffs and patch for small diffs", () => {
-    expect(classifyPublicVersionBump(101)).toBe("minor");
-    expect(bumpPublicVersion("1.0.4", "minor")).toBe("1.1.0");
-    expect(classifyPublicVersionBump(100)).toBe("patch");
-    expect(bumpPublicVersion("1.0.0", "patch")).toBe("1.0.1");
+  it("formats odometer beta versions from the canonical counter", () => {
+    expect(formatBetaOdometerVersion(200)).toBe("1.2.0");
+    expect(formatBetaOdometerVersion(201)).toBe("1.2.1");
   });
 
   it("opens a lazy beta changelog drawer from the nav badge", async () => {
@@ -85,9 +98,9 @@ describe("public beta release notes", () => {
     }));
 
     expect(await screen.findByRole("dialog", { name: /what's new in beta/i })).toBeInTheDocument();
-    expect(await screen.findByText(/current version: v1\.0\.1/i)).toBeInTheDocument();
-    expect(await screen.findByText(/added a beta badge/i)).toBeInTheDocument();
-    expect(await screen.findByText(/tap beta beside kandydrops/i)).toBeInTheDocument();
+    expect(await screen.findByText(/current version: v1\.2\.1/i)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /added a beta badge with app update notes/i })).toBeInTheDocument();
+    expect(await screen.findByText(/improved public update history so the latest notes are easier to read/i)).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: /close beta release notes/i }));
 

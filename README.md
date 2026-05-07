@@ -69,6 +69,8 @@ Do not run Playwright, Lighthouse, Cypress, deploys, or full `npm run check` by 
 
 KandyDrops global cost guardrails cover runtime telemetry, PostHog/GA/session replay, cloud logging, debug evidence, Firebase Storage/media proxy access, auth abuse, notification fan-out, CI/build minutes, visual/browser audit tooling, scheduled rebuilds, analytics materializers, dependency tooling, and admin import/export jobs.
 
+KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic.
+
 KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default.
 
 Google cost-bearing surfaces must be declared before use.
@@ -92,6 +94,8 @@ Codex must verify authentication before attempting cloud or billing checks. Read
 
 Phase 1 is debug-first stabilization: fix one selected Debug Control Tower/admin-evidence issue at a time, with allowed files, forbidden files, validator, release-note impact, and rollback note stated before implementation. KreditFlow by iKandy is Phase 2. Advocacy and referrals are Phase 3.
 
+KandyDrops public beta scoring is deterministic and mathematical.
+
 - Roadmap: [docs/agent-truth/beta-roadmap.md](./docs/agent-truth/beta-roadmap.md)
 - Command: `npm run check:debug-first-roadmap`
 
@@ -104,12 +108,12 @@ Phase 1 is debug-first stabilization: fix one selected Debug Control Tower/admin
 
 ## Beta Release Notes
 
-KandyDrops Beta release notes are user-facing and update after every commit. The Beta badge beside the top nav title opens the last 5 app-style updates. Versioning uses MAJOR.MINOR.PATCH starting at 1.0.0. MAJOR never auto-increments. Effective non-generated diff size above 100 additions/deletions bumps MINOR and resets PATCH. Effective diff size of 100 or below bumps PATCH. Changelog copy must explain what changed for users, not dump technical commit noise.
+KandyDrops Beta release notes are user-facing and track accepted public beta releases, not raw commits. The Beta badge beside the top nav title opens the last 5 app-style updates. Versioning uses odometer format `1.<block>.<release>`, where each accepted public beta release increments one counter by exactly 1. Changelog copy must explain what changed for users, not dump technical commit noise.
 
 - Public notes: [public/kandydrops-release-notes.json](./public/kandydrops-release-notes.json)
 - Human changelog: [CHANGELOG.md](./CHANGELOG.md)
 - Dev truth: [Public Beta Release Notes](./docs/agent-truth/public-beta-release-notes.md)
-- Commands: `npm run release:notes` and `npm run check:release-notes`
+- Commands: `npm run release:notes`, `npm run release:notes:accept`, and `npm run check:release-notes`
 
 ## Current Rule
 

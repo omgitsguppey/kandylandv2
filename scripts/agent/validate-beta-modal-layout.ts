@@ -7,7 +7,7 @@ const failures: string[] = [];
 
 for (const expected of [
   "fixed inset-0",
-  "z-[200]",
+  "z-[300]",
   "isolate",
   "overflow-hidden",
   "overscroll-contain",

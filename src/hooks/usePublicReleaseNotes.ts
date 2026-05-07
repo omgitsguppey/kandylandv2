@@ -29,8 +29,11 @@ function isPublicReleaseNote(value: unknown): value is PublicReleaseNote {
 
   return typeof note.version === "string"
     && typeof note.previousVersion === "string"
+    && typeof note.betaReleaseCounter === "number"
     && typeof note.commitSha === "string"
     && typeof note.commitTitle === "string"
+    && typeof note.commitCount === "number"
+    && Array.isArray(note.commitShas)
     && typeof note.committedAt === "string"
     && typeof note.generatedAt === "string"
     && typeof note.committedAtUtc === "string"
@@ -41,8 +44,7 @@ function isPublicReleaseNote(value: unknown): value is PublicReleaseNote {
     && typeof note.userFacingTitle === "string"
     && typeof note.audience === "string"
     && Array.isArray(note.bullets)
-    && Array.isArray(note.affectedSurfaces)
-    && typeof note.diffStats?.effectiveChangeCount === "number";
+    && Array.isArray(note.affectedSurfaces);
 }
 
 function isPublicReleaseNotesDocument(value: unknown): value is PublicReleaseNotesDocument {
@@ -50,6 +52,7 @@ function isPublicReleaseNotesDocument(value: unknown): value is PublicReleaseNot
   const document = value as PublicReleaseNotesDocument;
 
   return isValidPublicVersion(document.currentVersion)
+    && typeof document.betaReleaseCounter === "number"
     && document.channel === PUBLIC_RELEASE_CHANNEL
     && typeof document.generatedAt === "string"
     && typeof document.generatedAtUtc === "string"

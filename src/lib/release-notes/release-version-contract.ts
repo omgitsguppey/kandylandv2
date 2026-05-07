@@ -1,9 +1,19 @@
+import {
+  formatBetaOdometerVersion,
+  getNextBetaOdometerVersion,
+  migrateLegacyVersionToBetaCounter,
+  normalizeBetaReleaseCounter,
+  parseBetaOdometerVersion,
+} from "./beta-odometer-version";
+
 export const PUBLIC_RELEASE_CHANNEL = "beta" as const;
 export const INITIAL_PUBLIC_VERSION = "1.0.0";
 export const PUBLIC_RELEASE_NOTES_VISIBLE_COUNT = 5;
 export const PUBLIC_RELEASE_NOTES_MAX_COUNT = 50;
 export const PUBLIC_RELEASE_NOTES_MAJOR_LOCK = 1;
-export const PUBLIC_RELEASE_VERSION_SHAPE = "MAJOR.MINOR.PATCH";
+export const PUBLIC_RELEASE_VERSION_SHAPE = "1.<block>.<release>";
+export const CURRENT_BETA_RELEASE_COUNTER = 201;
+export const CURRENT_BETA_RELEASE_VERSION = formatBetaOdometerVersion(CURRENT_BETA_RELEASE_COUNTER);
 
 export const PUBLIC_RELEASE_NOTE_CATEGORIES = [
   "New",
@@ -19,31 +29,21 @@ export const PUBLIC_RELEASE_NOTE_CATEGORIES = [
 ] as const;
 
 export type PublicReleaseNoteCategory = typeof PUBLIC_RELEASE_NOTE_CATEGORIES[number];
-export type PublicReleaseBumpType = "major" | "minor" | "patch";
 export type PublicReleaseAudience = "users" | "creators" | "admins" | "all";
 
 export type PublicReleaseNote = {
   version: string;
   previousVersion: string;
+  betaReleaseCounter: number;
+  previousBetaReleaseCounter: number | null;
   commitSha: string;
   commitTitle: string;
+  commitCount: number;
+  commitShas: string[];
   committedAt: string;
   generatedAt: string;
   committedAtUtc: string;
   generatedAtUtc: string;
-  diffStats: {
-    rawAdditions: number;
-    rawDeletions: number;
-    rawChangeCount: number;
-    additions: number;
-    deletions: number;
-    effectiveAdditions: number;
-    effectiveDeletions: number;
-    changedFiles: number;
-    effectiveChangeCount: number;
-    excludedGeneratedChangeCount: number;
-  };
-  bumpType: PublicReleaseBumpType;
   category: PublicReleaseNoteCategory;
   title: string;
   updatedAtUtc: string;
@@ -58,6 +58,7 @@ export type PublicReleaseNote = {
 
 export type PublicReleaseNotesDocument = {
   currentVersion: string;
+  betaReleaseCounter: number;
   channel: typeof PUBLIC_RELEASE_CHANNEL;
   generatedAt: string;
   generatedAtUtc: string;
@@ -65,21 +66,8 @@ export type PublicReleaseNotesDocument = {
   notes: PublicReleaseNote[];
 };
 
-export type VersionParts = {
-  major: number;
-  minor: number;
-  patch: number;
-};
-
-export function parsePublicVersion(version: string): VersionParts | null {
-  const match = /^(\d+)\.(\d+)\.(\d+)$/u.exec(version.trim());
-  if (!match) return null;
-
-  return {
-    major: Number(match[1]),
-    minor: Number(match[2]),
-    patch: Number(match[3]),
-  };
+export function parsePublicVersion(version: string) {
+  return parseBetaOdometerVersion(version);
 }
 
 export function isValidPublicVersion(version: string) {
@@ -90,17 +78,42 @@ export function comparePublicVersions(left: string, right: string) {
   const leftParts = parsePublicVersion(left);
   const rightParts = parsePublicVersion(right);
   if (!leftParts || !rightParts) return 0;
-
-  for (const key of ["major", "minor", "patch"] as const) {
-    const delta = leftParts[key] - rightParts[key];
-    if (delta !== 0) return delta;
-  }
-
-  return 0;
+  return leftParts.counter - rightParts.counter;
 }
 
-export function classifyPublicVersionBump(effectiveChangeCount: number): PublicReleaseBumpType {
-  return effectiveChangeCount > 100 ? "minor" : "patch";
+export function getCurrentBetaVersionContext() {
+  return {
+    betaReleaseCounter: CURRENT_BETA_RELEASE_COUNTER,
+    appVersion: CURRENT_BETA_RELEASE_VERSION,
+    releaseChannel: PUBLIC_RELEASE_CHANNEL,
+  } as const;
+}
+
+export function resolveCurrentBetaReleaseCounter(input: unknown) {
+  if (typeof input === "string") {
+    const migrated = migrateLegacyVersionToBetaCounter(input);
+    if (migrated !== null) return migrated;
+  }
+
+  try {
+    return normalizeBetaReleaseCounter(input);
+  } catch {
+    return CURRENT_BETA_RELEASE_COUNTER;
+  }
+}
+
+export function getNextPublicVersionFromCounter(counter: number) {
+  return getNextBetaOdometerVersion(counter);
+}
+
+export function normalizeReleaseVersion(version: string, fallbackCounter = CURRENT_BETA_RELEASE_COUNTER) {
+  const parsed = parsePublicVersion(version);
+  if (parsed) return formatBetaOdometerVersion(parsed.counter);
+
+  const migrated = migrateLegacyVersionToBetaCounter(version);
+  if (migrated !== null) return formatBetaOdometerVersion(migrated);
+
+  return formatBetaOdometerVersion(fallbackCounter);
 }
 
 export function isReleaseGeneratedArtifactPath(path: string, packageJsonChanged: boolean) {
@@ -124,25 +137,6 @@ export function isReleaseGeneratedArtifactPath(path: string, packageJsonChanged:
     || normalizedPath === "src/lib/release-notes/public-release-notes.ts"
     || normalizedPath === "CHANGELOG.md"
     || (normalizedPath === "package-lock.json" && !packageJsonChanged);
-}
-
-export function bumpPublicVersion(
-  currentVersion: string,
-  bumpType: PublicReleaseBumpType,
-  allowMajorVersionBump = false,
-) {
-  const parsed = parsePublicVersion(currentVersion) ?? parsePublicVersion(INITIAL_PUBLIC_VERSION);
-  const version = parsed ?? { major: PUBLIC_RELEASE_NOTES_MAJOR_LOCK, minor: 0, patch: 0 };
-
-  if (bumpType === "major" && allowMajorVersionBump) {
-    return `${version.major + 1}.0.0`;
-  }
-
-  if (bumpType === "minor") {
-    return `${version.major}.${version.minor + 1}.0`;
-  }
-
-  return `${version.major}.${version.minor}.${version.patch + 1}`;
 }
 
 export function getPublicReleaseNotesVisibleNotes(

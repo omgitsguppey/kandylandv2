@@ -1,9 +1,9 @@
-# KandyDrops Cloud Build public release-note lane.
+# KandyDrops Cloud Build public release-note normalization lane.
 #
-# Configure a Cloud Build trigger on GitHub main pushes and grant Secret Manager
-# access to a `GITHUB_TOKEN` secret with contents/write permission. The build
-# commits generated public changelog artifacts back with `[skip release-notes]`
-# to avoid loops.
+# This lane may normalize bundled/public changelog artifacts on push, but it
+# must not create a new accepted public beta release unless acceptance is
+# explicit. Accepted public beta releases are published through
+# `npm run release:notes:accept`.
 timeout: "1200s"
 options:
   logging: CLOUD_LOGGING_ONLY
