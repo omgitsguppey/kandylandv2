@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-04T02:17:17.655Z",
-  "overallScore": 98.71,
+  "generatedAt": "2026-05-06T20:38:38.679Z",
+  "overallScore": 100,
   "overallStatus": "clean",
   "domainScores": {
     "layout": {
@@ -13,9 +13,9 @@
     },
     "hydration": {
       "weight": 14,
-      "score": 97.36,
+      "score": 100,
       "status": "clean",
-      "findingCount": 1,
+      "findingCount": 0,
       "criticalCount": 0,
       "majorCount": 0
     },
@@ -29,9 +29,9 @@
     },
     "telemetry": {
       "weight": 14,
-      "score": 95.7,
+      "score": 100,
       "status": "clean",
-      "findingCount": 1,
+      "findingCount": 0,
       "criticalCount": 0,
       "majorCount": 0
     },
@@ -61,113 +61,19 @@
     },
     "testingCoverage": {
       "weight": 8,
-      "score": 96.05,
+      "score": 100,
       "status": "clean",
-      "findingCount": 2,
+      "findingCount": 0,
       "criticalCount": 0,
       "majorCount": 0
     }
   },
-  "findings": [
-    {
-      "domain": "telemetry",
-      "category": "source-component",
-      "title": "Locked preview telemetry is missing source_component context",
-      "severity": "moderate",
-      "confidence": 0.86,
-      "blastRadius": "component",
-      "filePath": "src/components/Drops/LockedDropPreviewClient.tsx",
-      "line": 86,
-      "excerpt": "trackEvent(\"drop_preview_page_viewed\", payload);",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "escalation": "Add source_component in the existing payload builder; do not rename events.",
-      "evidence": [
-        "Critical public beta interactions need component-specific payloads."
-      ],
-      "docsBasis": [
-        "kandydrops",
-        "repo"
-      ],
-      "id": "telemetry-source-component-i3zgsu",
-      "rawPenalty": 4.3,
-      "weightedPenalty": 4.3
-    },
-    {
-      "domain": "hydration",
-      "category": "eager-global-module",
-      "title": "Cookie banner is statically imported into the global shell",
-      "severity": "minor",
-      "confidence": 0.88,
-      "blastRadius": "global",
-      "filePath": "src/components/CoreLayoutWrapper.tsx",
-      "line": 5,
-      "excerpt": "import CookieBanner from \"@/components/CookieBanner\";",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "escalation": "Consider dynamic import behind the existing overlay readiness gate; verify consent behavior is preserved.",
-      "evidence": [
-        "Core shell already defers purchase/auth/onboarding modules; CookieBanner is still a static import."
-      ],
-      "docsBasis": [
-        "kandydrops",
-        "repo"
-      ],
-      "id": "hydration-eager-global-module-ket33i",
-      "rawPenalty": 1.76,
-      "weightedPenalty": 2.64
-    },
-    {
-      "domain": "testingCoverage",
-      "category": "missing-msw-scenarios",
-      "title": "MSW scenario directory is missing",
-      "severity": "minor",
-      "confidence": 0.8,
-      "blastRadius": "shared",
-      "filePath": "tests/mocks",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "escalation": "Add MSW scenarios only when route-level network mocks are needed; do not block existing unit validators.",
-      "evidence": [
-        "tests/mocks was not present during deterministic scan."
-      ],
-      "docsBasis": [
-        "repo"
-      ],
-      "id": "testingCoverage-missing-msw-scenarios-11waltg",
-      "rawPenalty": 1.6,
-      "weightedPenalty": 2
-    },
-    {
-      "domain": "testingCoverage",
-      "category": "missing-ast-grep-config",
-      "title": "ast-grep config is not present",
-      "severity": "minor",
-      "confidence": 0.78,
-      "blastRadius": "shared",
-      "filePath": "ast-grep.yml",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "escalation": "Add ast-grep rules when a concrete static source rule is identified; current scorer falls back to source scans.",
-      "evidence": [
-        "No ast-grep.yml or sgconfig.yml was found."
-      ],
-      "docsBasis": [
-        "repo"
-      ],
-      "id": "testingCoverage-missing-ast-grep-config-3o9p5s",
-      "rawPenalty": 1.56,
-      "weightedPenalty": 1.95
-    }
-  ],
-  "dedupedFindingCount": 4,
+  "findings": [],
+  "dedupedFindingCount": 0,
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
   "recommendedNextActions": [
-    "MODERATE: Locked preview telemetry is missing source_component context (src/components/Drops/LockedDropPreviewClient.tsx)",
-    "MINOR: Cookie banner is statically imported into the global shell (src/components/CoreLayoutWrapper.tsx)",
-    "MINOR: MSW scenario directory is missing (tests/mocks)",
-    "MINOR: ast-grep config is not present (ast-grep.yml)"
+    "Keep using `npm run score:beta` and targeted tests before public beta UI/economy changes."
   ],
   "minimalVerificationCommands": [
     "npm run score:beta",
@@ -198,7 +104,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta deterministic score 98.71/100 (clean) with 4 deduped finding(s) and 0 safe autofix(es) available.",
+  "summary": "Public beta deterministic score 100/100 (clean) with 0 deduped finding(s) and 0 safe autofix(es) available.",
   "debugEvidence": {
     "layout": [],
     "hydration": [],

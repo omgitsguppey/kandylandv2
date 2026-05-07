@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-04T10:22:54.623Z",
-  "overallScore": 77,
+  "generatedAt": "2026-05-06T21:29:35.974Z",
+  "overallScore": 94,
   "status": "beta-risk",
   "domainScores": {
     "routeCachingAndDataCost": {
@@ -13,19 +13,19 @@
     },
     "clientHydrationAndEffects": {
       "weight": 12,
-      "score": 90,
-      "status": "beta-risk",
-      "findingCount": 1,
+      "score": 100,
+      "status": "clean",
+      "findingCount": 0,
       "criticalCount": 0,
-      "majorCount": 1
+      "majorCount": 0
     },
     "apiRateLimitAndCloudCost": {
       "weight": 14,
-      "score": 0,
+      "score": 70,
       "status": "beta-risk",
-      "findingCount": 59,
+      "findingCount": 3,
       "criticalCount": 0,
-      "majorCount": 59
+      "majorCount": 3
     },
     "paymentWalletAndEconomyTruth": {
       "weight": 12,
@@ -45,11 +45,11 @@
     },
     "telemetryPrivacyAndDebugEvidence": {
       "weight": 12,
-      "score": 50,
-      "status": "beta-risk",
-      "findingCount": 5,
+      "score": 100,
+      "status": "clean",
+      "findingCount": 0,
       "criticalCount": 0,
-      "majorCount": 5
+      "majorCount": 0
     },
     "deviceUiAndImagePerformance": {
       "weight": 10,
@@ -80,1439 +80,11 @@
     {
       "domain": "apiRateLimitAndCloudCost",
       "severity": "major",
-      "filePath": "src/app/api/admin/analytics/realtime/route.ts",
-      "line": 351,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 7 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_16dfclx",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
-      "line": 474,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_hbvpis",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-agreements/route.ts",
-      "line": 297,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_119yaim",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
-      "line": 194,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_qmtjs1",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-options/route.ts",
-      "line": 36,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_158h612",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 60,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_19uqyay",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/route.ts",
-      "line": 429,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1gadzou",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/drops/route.ts",
-      "line": 126,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_17xjoun",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/orchestration/repairs/route.ts",
-      "line": 34,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_53hxkn",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 211,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 6 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_123wtyv",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 445,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 12 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1kexr8w",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/user/[userId]/creator-onboarding/id-document/route.ts",
-      "line": 40,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_si38tv",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 99,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 12 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_pb9ws",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/[userId]/username/route.ts",
-      "line": 48,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_19sadgk",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 547,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 15 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1a2dzv0",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/view-as-creator/route.ts",
-      "line": 87,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_hr8xf8",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/analytics/ingest-identified/route.ts",
-      "line": 6,
-      "title": "State-mutating API route lacks trusted-origin evidence",
-      "evidence": [
-        "Expected requireTrustedOrigin: true for POST/PUT/PATCH/DELETE unless explicitly exempted."
-      ],
-      "expectedRule": "Mutating routes must protect against cross-origin state changes.",
-      "actualPattern": "missing requireTrustedOrigin: true",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Review route origin requirements and add trusted-origin enforcement through guardApiRequest.",
-      "humanReadableEscalation": "Trusted-origin changes affect auth/security and require route-owner review.",
-      "id": "hardening_ysf9ev",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/auth/navigation-session/route.ts",
-      "line": 28,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_10zpts2",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/cancel/route.ts",
-      "line": 51,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1wd5nl0",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/complete/route.ts",
-      "line": 76,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_7svlvq",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/chat/attachments/prepare/route.ts",
-      "line": 78,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1gmuaa8",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/chat/threads/[threadId]/messages/route.ts",
-      "line": 52,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1w9tdpw",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/chat/threads/[threadId]/route.ts",
-      "line": 43,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_8i74g3",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/chat/threads/route.ts",
-      "line": 37,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1weq8z6",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/checkin/route.ts",
-      "line": 146,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_b1s6xy",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/bookings/route.ts",
-      "line": 121,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 7 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1brjztn",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 36,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 9 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_g7mr6c",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/drops/assets/route.ts",
-      "line": 33,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_19nazux",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/drops/route.ts",
-      "line": 33,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_16djgon",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/messages/route.ts",
-      "line": 66,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 4 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_16qbbjp",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/agreement-document/route.ts",
-      "line": 37,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_8s16lp",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/application/route.ts",
-      "line": 66,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_vom5ud",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/contract-signature/route.ts",
-      "line": 131,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1q0uu7t",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/id-submission/route.ts",
-      "line": 100,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1wg4zs4",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/onboarding/intro/route.ts",
-      "line": 62,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_xj92mt",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/payouts/route.ts",
-      "line": 37,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 7 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_dz9ltm",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 67,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 7 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_13b0whz",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/requests/route.ts",
-      "line": 57,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 4 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_9wp8tn",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/settings/route.ts",
-      "line": 23,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 8 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_3me3xb",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creator/subscriptions/route.ts",
-      "line": 129,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 4 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_92w32v",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/creators/[username]/route.ts",
-      "line": 57,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1h8h2m",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 52,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1kv7hq3",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/drops/content/route.ts",
-      "line": 66,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_16d565k",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/drops/duplicate-filenames/route.ts",
-      "line": 37,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_86651x",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/drops/impression/route.ts",
-      "line": 61,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_14si1sz",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/drops/retention/route.ts",
-      "line": 25,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1fabl5i",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/notifications/route.ts",
-      "line": 286,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_pkbjx2",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 332,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1tx8cpg",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/settings/landing/route.ts",
-      "line": 27,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_c41rz2",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/settings/landing/upload/route.ts",
-      "line": 74,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_solosw",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/support/threads/route.ts",
-      "line": 82,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_x4vlxj",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
       "filePath": "src/app/api/user/data/route.ts",
       "line": 41,
       "title": "Firestore collection reads may be unbounded",
       "evidence": [
-        "Found 6 .get() call(s) without nearby limit/pagination evidence."
+        "Found 1 .get() call(s) without nearby limit/pagination evidence."
       ],
       "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
       "actualPattern": ".get() without nearby limit",
@@ -1540,7 +112,7 @@
       "line": 45,
       "title": "Firestore collection reads may be unbounded",
       "evidence": [
-        "Found 3 .get() call(s) without nearby limit/pagination evidence."
+        "Found 2 .get() call(s) without nearby limit/pagination evidence."
       ],
       "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
       "actualPattern": ".get() without nearby limit",
@@ -1549,146 +121,6 @@
       "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
       "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
       "id": "hardening_1b84zyw",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/user/follow/route.ts",
-      "line": 46,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1nkrfj",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/user/onboarding-progress/route.ts",
-      "line": 51,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_r7b7ql",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/user/profile/route.ts",
-      "line": 232,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 3 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_11krwqy",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/user/register/route.ts",
-      "line": 245,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1ny20dc",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/viewer/watch-session/route.ts",
-      "line": 173,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_x59teu",
       "blockedBroadCommands": [
         "npm run check",
         "npm run check:ui:audits",
@@ -1716,174 +148,6 @@
       "suggestedFix": "Run targeted content-protection validation and add explicit entitlement guard if missing.",
       "humanReadableEscalation": "Content access cannot be auto-repaired from a source heuristic.",
       "id": "hardening_ii8g8o",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 319,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: chat_thread_opened, chat_compose_sheet_opened, chat_list_search_focused, chat_message_send_attempted, chat_message_send_failed, chat_message_sent, creator_profile_link_missing, creator_profile_link_clicked."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_a7d8g8",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "clientHydrationAndEffects",
-      "severity": "major",
-      "filePath": "src/components/CoreLayoutWrapper.tsx",
-      "title": "Global shell is missing staged hydration evidence",
-      "evidence": [
-        "Missing afterPaintReady.",
-        "Missing idleReady."
-      ],
-      "expectedRule": "Critical shell, telemetry, overlays, diagnostics, and idle bridges must be explicitly staged.",
-      "actualPattern": "missing staged hydration marker",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Restore the named readiness lane or debug marker without changing telemetry/privacy behavior.",
-      "humanReadableEscalation": "Hydration lane changes can disconnect telemetry or diagnostics if done blindly.",
-      "id": "hardening_g0irzf",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/Dashboard/DailyTasksModule.tsx",
-      "line": 112,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: daily_tasks_viewed, navigation_click, navigation_click, navigation_click, navigation_click."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_pyywmi",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/DropCard.tsx",
-      "line": 115,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: view_drop_details, drop_unwrap_intent_blocked_by_funds, drop_unlock_attempted, unlock_drop_success."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_12crax0",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/Feedback/ReportBugButton.tsx",
-      "line": 179,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: feedback_submitted."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_qirzu5",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "telemetryPrivacyAndDebugEvidence",
-      "severity": "major",
-      "filePath": "src/components/PurchaseModal.tsx",
-      "line": 123,
-      "title": "Critical UI telemetry calls lack source_component",
-      "evidence": [
-        "Events without source_component in scanned call window: wallet_closed_incomplete, navigation_click, wallet_opened, purchase_package_selected, purchase, gumdrops_purchase_completed, gumdrops_purchase_failed, purchase_package_selected, ...."
-      ],
-      "expectedRule": "Critical CTA/action telemetry includes source_component and relevant entity/reason context.",
-      "actualPattern": "trackEvent without source_component",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add source_component through the canonical telemetry payload and update catalog/tests if needed.",
-      "humanReadableEscalation": "Telemetry payload changes need catalog parity review.",
-      "id": "hardening_9ehdiq",
       "blockedBroadCommands": [
         "npm run check",
         "npm run check:ui:audits",
@@ -1958,36 +222,8 @@
     {
       "domain": "apiRateLimitAndCloudCost",
       "severity": "major",
-      "filePath": "src/app/api/admin/analytics/realtime/route.ts",
-      "line": 351,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 7 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_16dfclx",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
-      "line": 474,
+      "filePath": "src/app/api/user/data/route.ts",
+      "line": 41,
       "title": "Firestore collection reads may be unbounded",
       "evidence": [
         "Found 1 .get() call(s) without nearby limit/pagination evidence."
@@ -1998,7 +234,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
       "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_hbvpis",
+      "id": "hardening_19hnv27",
       "blockedBroadCommands": [
         "npm run check",
         "npm run check:ui:audits",
@@ -2014,148 +250,8 @@
     {
       "domain": "apiRateLimitAndCloudCost",
       "severity": "major",
-      "filePath": "src/app/api/admin/creator-agreements/route.ts",
-      "line": 297,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_119yaim",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
-      "line": 194,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_qmtjs1",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-options/route.ts",
-      "line": 36,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_158h612",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 60,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_19uqyay",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/route.ts",
-      "line": 429,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1gadzou",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/drops/route.ts",
-      "line": 126,
+      "filePath": "src/app/api/user/delete/route.ts",
+      "line": 45,
       "title": "Firestore collection reads may be unbounded",
       "evidence": [
         "Found 2 .get() call(s) without nearby limit/pagination evidence."
@@ -2166,7 +262,34 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
       "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_17xjoun",
+      "id": "hardening_1b84zyw",
+      "blockedBroadCommands": [
+        "npm run check",
+        "npm run check:ui:audits",
+        "npm run check:ui:continuity",
+        "npm run check:ui:omni",
+        "npm run check:ui:lighthouse",
+        "playwright",
+        "cypress",
+        "lighthouse",
+        "test:gate:signoff"
+      ]
+    },
+    {
+      "domain": "contentProtectionAndEntitlements",
+      "severity": "major",
+      "filePath": "src/app/dashboard/viewer/page.tsx",
+      "title": "Viewer/content path lacks obvious entitlement evidence",
+      "evidence": [
+        "Viewer routes and media APIs must prove ownership/unlock before exposing content."
+      ],
+      "expectedRule": "Locked content access is gated server-side and UI-side by entitlement/ownership truth.",
+      "actualPattern": "missing entitlement/unlocked/ownership evidence",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Run targeted content-protection validation and add explicit entitlement guard if missing.",
+      "humanReadableEscalation": "Content access cannot be auto-repaired from a source heuristic.",
+      "id": "hardening_ii8g8o",
       "blockedBroadCommands": [
         "npm run check",
         "npm run check:ui:audits",
@@ -2182,19 +305,19 @@
     {
       "domain": "apiRateLimitAndCloudCost",
       "severity": "major",
-      "filePath": "src/app/api/admin/orchestration/repairs/route.ts",
-      "line": 34,
-      "title": "Firestore collection reads may be unbounded",
+      "filePath": "src/lib/server/ai-debug-assistant.ts",
+      "line": 3,
+      "title": "Vertex AI surface lacks full budget guard evidence",
       "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
+        "Vertex helper has settings/model/timeout/output caps, but token estimate/count evidence is not source-visible."
       ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
+      "expectedRule": "Paid AI calls must be admin-only and fenced by deterministic cost controls.",
+      "actualPattern": "Vertex import without token estimate/count evidence",
       "canAutofix": false,
       "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_53hxkn",
+      "suggestedFix": "Add or verify AI kill switch, model allowlist, token estimate/count, request limit, and debug evidence.",
+      "humanReadableEscalation": "Do not auto-edit paid AI route behavior; escalate cost/security review.",
+      "id": "hardening_10o0xfm",
       "blockedBroadCommands": [
         "npm run check",
         "npm run check:ui:audits",
@@ -2208,21 +331,21 @@
       ]
     },
     {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 211,
-      "title": "Firestore collection reads may be unbounded",
+      "domain": "routeCachingAndDataCost",
+      "severity": "moderate",
+      "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "line": 99,
+      "title": "Public route or page uses no-store caching without source-level policy evidence",
       "evidence": [
-        "Found 6 .get() call(s) without nearby limit/pagination evidence."
+        "Stable public or server-seeded data should use static, SWR, Data Cache, or hot-cache when safe."
       ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
+      "expectedRule": "Do not default public/stable route data to no-store; document no_store only when freshness/security requires it.",
+      "actualPattern": "no-store/noStore in public route surface",
       "canAutofix": false,
       "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_123wtyv",
+      "suggestedFix": "Classify the route as static, SWR, hot_cache, or no_store and update fetch/cache behavior only after verifying freshness needs.",
+      "humanReadableEscalation": "Route caching must be reviewed against source-of-truth freshness before changing runtime behavior.",
+      "id": "hardening_eebnbc",
       "blockedBroadCommands": [
         "npm run check",
         "npm run check:ui:audits",
@@ -2240,10 +363,8 @@
   "safeAutofixesApplied": 0,
   "recommendedFixOrder": [
     "Classify route caching and eliminate unnecessary no-store/client refetch cost.",
-    "Defer global hydration modules and remove startup timer/effect work.",
     "Close API guard, rate-limit, trusted-origin, and cloud-cost gaps.",
-    "Repair content entitlement and locked-preview safety before runtime testing.",
-    "Restore consent-aware telemetry, source_component payloads, and debug evidence."
+    "Repair content entitlement and locked-preview safety before runtime testing."
   ],
   "minimalCommands": [
     "npm run score:hardening",
@@ -2288,71 +409,36 @@
   },
   "filesMostAtRisk": [
     {
-      "filePath": "src/app/api/admin/analytics/realtime/route.ts",
+      "filePath": "src/app/api/user/data/route.ts",
       "findingCount": 1,
       "highestSeverity": "major"
     },
     {
-      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
+      "filePath": "src/app/api/user/delete/route.ts",
       "findingCount": 1,
       "highestSeverity": "major"
     },
     {
-      "filePath": "src/app/api/admin/creator-agreements/route.ts",
+      "filePath": "src/app/dashboard/viewer/page.tsx",
       "findingCount": 1,
       "highestSeverity": "major"
     },
     {
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
+      "filePath": "src/lib/server/ai-debug-assistant.ts",
       "findingCount": 1,
       "highestSeverity": "major"
     },
     {
-      "filePath": "src/app/api/admin/creator-options/route.ts",
+      "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
       "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/app/api/admin/debug/route.ts",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/app/api/admin/drops/route.ts",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/app/api/admin/orchestration/repairs/route.ts",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/app/api/admin/roster/route.ts",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/app/api/admin/user/[userId]/creator-onboarding/id-document/route.ts",
-      "findingCount": 1,
-      "highestSeverity": "major"
+      "highestSeverity": "moderate"
     }
   ],
   "routeCostClassificationSummary": {
-    "static": 2,
+    "static": 1,
     "swr": 4,
     "hot_cache": 4,
-    "no_store": 107,
+    "no_store": 117,
     "unknown": 0,
     "routes": [
       {
@@ -2546,7 +632,7 @@
           "POST"
         ],
         "cachePolicy": "no_store",
-        "costClass": "firestore_read"
+        "costClass": "storage_egress"
       },
       {
         "routePath": "/api/admin/creator-fan-experience-settings",
@@ -2589,7 +675,17 @@
         "filePath": "src/app/api/admin/debug/assistant/route.ts",
         "methods": [
           "GET",
+          "POST",
           "PUT"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "firestore_read"
+      },
+      {
+        "routePath": "/api/admin/debug/control-tower",
+        "filePath": "src/app/api/admin/debug/control-tower/route.ts",
+        "methods": [
+          "GET"
         ],
         "cachePolicy": "no_store",
         "costClass": "firestore_read"
@@ -2620,6 +716,66 @@
           "POST",
           "PUT",
           "DELETE"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "firestore_read"
+      },
+      {
+        "routePath": "/api/admin/economy/drift",
+        "filePath": "src/app/api/admin/economy/drift/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "firestore_read"
+      },
+      {
+        "routePath": "/api/admin/economy/offers",
+        "filePath": "src/app/api/admin/economy/offers/route.ts",
+        "methods": [
+          "GET",
+          "POST",
+          "PATCH"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "firestore_read"
+      },
+      {
+        "routePath": "/api/admin/economy/packages",
+        "filePath": "src/app/api/admin/economy/packages/route.ts",
+        "methods": [
+          "GET",
+          "POST",
+          "PATCH"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "firestore_read"
+      },
+      {
+        "routePath": "/api/admin/economy/promos",
+        "filePath": "src/app/api/admin/economy/promos/route.ts",
+        "methods": [
+          "GET",
+          "POST",
+          "PATCH"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "firestore_read"
+      },
+      {
+        "routePath": "/api/admin/economy/redemptions",
+        "filePath": "src/app/api/admin/economy/redemptions/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "firestore_read"
+      },
+      {
+        "routePath": "/api/admin/economy/treasury",
+        "filePath": "src/app/api/admin/economy/treasury/route.ts",
+        "methods": [
+          "GET"
         ],
         "cachePolicy": "no_store",
         "costClass": "firestore_read"
@@ -2672,6 +828,15 @@
       {
         "routePath": "/api/admin/overview",
         "filePath": "src/app/api/admin/overview/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "firestore_read"
+      },
+      {
+        "routePath": "/api/admin/privacy/preflight",
+        "filePath": "src/app/api/admin/privacy/preflight/route.ts",
         "methods": [
           "GET"
         ],
@@ -2764,7 +929,7 @@
           "GET"
         ],
         "cachePolicy": "no_store",
-        "costClass": "firestore_read"
+        "costClass": "storage_egress"
       },
       {
         "routePath": "/api/admin/user/[userId]",
@@ -2991,7 +1156,7 @@
           "GET"
         ],
         "cachePolicy": "no_store",
-        "costClass": "firestore_write"
+        "costClass": "storage_egress"
       },
       {
         "routePath": "/api/creator/onboarding/application",
@@ -3222,7 +1387,7 @@
         "methods": [
           "GET"
         ],
-        "cachePolicy": "static",
+        "cachePolicy": "no_store",
         "costClass": "free_read"
       },
       {
@@ -3323,6 +1488,15 @@
       {
         "routePath": "/api/tasks/feedback",
         "filePath": "src/app/api/tasks/feedback/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "cachePolicy": "no_store",
+        "costClass": "firestore_write"
+      },
+      {
+        "routePath": "/api/tasks/materialize",
+        "filePath": "src/app/api/tasks/materialize/route.ts",
         "methods": [
           "POST"
         ],
@@ -3462,5 +1636,5 @@
   "legacyCleanupPlan": [
     "No legacy cleanup blockers found by the deterministic hardening scan."
   ],
-  "summary": "KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic. Current report found 67 findings across 9 domains."
+  "summary": "KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic. Current report found 5 findings across 9 domains."
 }

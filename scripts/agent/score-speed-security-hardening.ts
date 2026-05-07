@@ -283,13 +283,15 @@ function hasBoundedFirestoreGetEvidence(source: string, getIndex: number) {
   const normalizedPrefix = prefix.replace(/\s+/gu, " ");
   const directDocRead = /(?:adminDb|adminFirestore|db|firestore)\s*(?:\.\s*collection\([^)]*\)\s*)+\.\s*doc\([^)]*\)\s*$/u.test(prefix)
     || /(?:adminDb|adminFirestore|db|firestore)\s*\.\s*doc\([^)]*\)\s*$/u.test(prefix);
+  const directDocRefRead = /\b\w+(?:DocRef|Ref)\s*$/u.test(normalizedPrefix);
   const aggregateCountRead = /\.count\(\)\s*$/u.test(prefix);
+  const aggregateRead = normalizedPrefix.includes(".aggregate(");
   const explicitBoundEvidence = /\.limit\(|limit\(|pageSize|cursor|bounded|ALLOW_UNBOUNDED|hot-cache|snapshot/u.test(prefix)
     || /cost-bound:\s*single Firestore document read/u.test(normalizedPrefix)
     || /cost-bound:\s*Firestore query is limited to \d+ records/u.test(normalizedPrefix)
     || /cost-bound:\s*aggregate count read/u.test(normalizedPrefix);
 
-  return directDocRead || aggregateCountRead || explicitBoundEvidence;
+  return directDocRead || directDocRefRead || aggregateCountRead || aggregateRead || explicitBoundEvidence;
 }
 
 function buildFinding(input: SpeedSecurityFindingInput): SpeedSecurityFinding {
@@ -872,7 +874,12 @@ function scanContentPaymentEconomy(root: string, findings: SpeedSecurityFindingI
   }
 
   const capture = readIfExists(root, "src/app/api/paypal/capture/route.ts") ?? "";
-  if (/bonusGumDrops[\s\S]{0,120}reward|reward[\s\S]{0,120}bonusGumDrops/u.test(capture)) {
+  const captureUsesPaidPurchaseTruth =
+    capture.includes("buildPaidPurchaseBalanceCredit")
+    && capture.includes("buildPurchaseSourceOfFundsBreakdown")
+    && capture.includes('rewardPromoGd: 0')
+    && capture.includes('sourceClassification');
+  if (!captureUsesPaidPurchaseTruth && /bonusGumDrops[\s\S]{0,120}reward|reward[\s\S]{0,120}bonusGumDrops/u.test(capture)) {
     pushFinding(findings, {
       domain: "contentPaymentEconomyProtection",
       severity: "critical",

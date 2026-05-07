@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:48:19.557Z",
+  "generatedAt": "2026-05-06T20:38:43.101Z",
   "version": 1,
   "surface": "code-organization",
   "researchBasis": [
@@ -250,63 +250,63 @@
     "status": "fail",
     "topRefactorTargets": [
       {
+        "filePath": "src/app/api/admin/debug/route.ts",
+        "lines": 6348,
+        "classification": "routeHandler",
+        "severity": "critical"
+      },
+      {
+        "filePath": "src/app/api/admin/users/route.ts",
+        "lines": 3118,
+        "classification": "routeHandler",
+        "severity": "critical"
+      },
+      {
         "filePath": "src/components/Chat/ChatExperience.tsx",
         "lines": 2923,
         "classification": "component",
         "severity": "critical"
       },
       {
+        "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "lines": 2827,
+        "classification": "component",
+        "severity": "critical"
+      },
+      {
         "filePath": "src/lib/server/ai-drop-covers.ts",
-        "lines": 2778,
+        "lines": 2824,
         "classification": "serverHelper",
         "severity": "critical"
       },
       {
-        "filePath": "src/app/api/admin/users/route.ts",
-        "lines": 2504,
-        "classification": "routeHandler",
+        "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
+        "lines": 2559,
+        "classification": "validator",
         "severity": "critical"
       },
       {
-        "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "lines": 2324,
-        "classification": "component",
-        "severity": "critical"
-      },
-      {
-        "filePath": "src/app/api/admin/debug/route.ts",
-        "lines": 2049,
-        "classification": "routeHandler",
+        "filePath": "functions/src/behavioral-intelligence-runtime.ts",
+        "lines": 2241,
+        "classification": "serverHelper",
         "severity": "critical"
       },
       {
         "filePath": "src/lib/creator-onboarding.ts",
-        "lines": 1927,
+        "lines": 1947,
         "classification": "source",
         "severity": "critical"
       },
       {
-        "filePath": "src/app/admin/users/page.tsx",
-        "lines": 1581,
-        "classification": "component",
+        "filePath": "src/lib/server/daily-tasks.ts",
+        "lines": 1875,
+        "classification": "serverHelper",
         "severity": "critical"
       },
       {
-        "filePath": "src/app/admin/roster/page.tsx",
-        "lines": 1546,
-        "classification": "component",
-        "severity": "critical"
-      },
-      {
-        "filePath": "src/app/admin/user/[userId]/page.tsx",
-        "lines": 1416,
-        "classification": "component",
-        "severity": "critical"
-      },
-      {
-        "filePath": "src/app/api/admin/user/[userId]/route.ts",
-        "lines": 1325,
-        "classification": "routeHandler",
+        "filePath": "src/lib/server/admin-analytics-historical-validation.ts",
+        "lines": 1808,
+        "classification": "serverHelper",
         "severity": "critical"
       }
     ],

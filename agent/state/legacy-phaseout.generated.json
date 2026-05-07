@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T02:44:18.879Z",
+  "generatedAt": "2026-05-06T20:26:33.620Z",
   "registryVersion": "legacy-phaseout-v1",
   "reportPath": "agent/state/legacy-phaseout.generated.json",
   "docsPath": "docs/agent-truth/legacy-phaseout.md",
@@ -114,14 +114,13 @@
       "blockedReferences": [
         "sourceTruth: \"live_projection\"",
         "includeInUserBehavior: true",
-        "metricEligible: true",
         "performedAs: \"creator\""
       ],
       "stagePenalty": 3,
       "riskWeight": 3,
       "overdueMultiplier": 1,
       "debtScore": 9,
-      "referenceCount": 1,
+      "referenceCount": 0,
       "blockedReferenceCount": 0,
       "overdueState": "current"
     },

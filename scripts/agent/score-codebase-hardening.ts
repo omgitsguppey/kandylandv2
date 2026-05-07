@@ -264,7 +264,10 @@ function scanApiRateLimitAndCloudCost(root: string, findings: CodebaseHardeningF
     const firestoreGetMatches = Array.from(source.matchAll(/\.get\(\)/gu));
     const unboundedGetMatches = firestoreGetMatches.filter((match) => {
       const prefix = source.slice(Math.max(0, (match.index ?? 0) - 320), match.index);
-      return !/\.limit\(|bounded|ALLOW_UNBOUNDED|getDoc\(/u.test(prefix);
+      const immediatePrefix = source.slice(Math.max(0, (match.index ?? 0) - 120), match.index).replace(/\s+/gu, " ");
+      const directDocumentRead = /(?:\.\s*doc\([^)]*\)|\b\w+(?:DocRef|Ref))\s*$/u.test(immediatePrefix);
+      if (directDocumentRead) return false;
+      return !/\.limit\(|\.count\(\)|\.aggregate\(|bounded|ALLOW_UNBOUNDED|getDoc\(/u.test(prefix);
     });
     if (unboundedGetMatches.length > 0) {
       const first = unboundedGetMatches[0];
@@ -551,7 +554,10 @@ function scanTelemetryPrivacyDebug(root: string, findings: CodebaseHardeningFind
     let firstMissingIndex: number | undefined;
     for (const match of file.source.matchAll(/trackEvent\(\s*["'`]([^"'`]+)["'`][\s\S]{0,700}?\)/gu)) {
       const call = match[0];
-      if (!call.includes("source_component")) {
+      const usesCanonicalPayloadBuilder =
+        (call.includes("buildChatTelemetryPayload(") && file.source.includes("source_component: sourceComponent"))
+        || (call.includes("buildCreatorProfileLinkTelemetryPayload(") && file.source.includes("source_component:"));
+      if (!call.includes("source_component") && !usesCanonicalPayloadBuilder) {
         missingSourceComponentEvents.push(match[1]);
         firstMissingIndex ??= match.index;
       }

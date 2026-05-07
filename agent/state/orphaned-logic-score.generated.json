@@ -1,29 +1,9 @@
 {
-  "score": 85,
-  "status": "warning",
-  "generatedAt": "2026-05-05T02:47:21.754Z",
+  "score": 90,
+  "status": "pass",
+  "generatedAt": "2026-05-06T20:27:27.440Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [
-    {
-      "severity": "moderate",
-      "category": "wallet_subcopy_doctrine",
-      "title": "Doc still describes old visible wallet paid/bonus subcopy",
-      "filePath": "docs/agent-truth/legal-payment-user-trust-copy.md",
-      "line": 15,
-      "excerpt": "- Purchase UI must separate paid GumDrops from bonus GumDrops when a package includes both.",
-      "suggestedFix": "Update wallet copy doctrine to compact rows: delivered total, package label, price, purple bonus chip, and source-aware free/paid balance chip.",
-      "escalation": "Wallet copy changes require doctrine review and must not alter source-of-funds accounting or package math.",
-      "evidence": [
-        "- Purchase UI must separate paid GumDrops from bonus GumDrops when a package includes both.",
-        "- Package rows show total GumDrops, USD price, paid GumDrops, and bonus GumDrops before checkout.",
-        "- The success state repeats credited GumDrops, paid GumDrops, bonus GumDrops, and secured USD amount.",
-        "- `500 paid + 500 bonus GumDrops`",
-        "- Wallet package copy separates paid and bonus GumDrops."
-      ],
-      "id": "orphaned-logic-48ja9u",
-      "scoreImpact": -5,
-      "canAutofix": false
-    },
     {
       "severity": "major",
       "category": "realtime_hot_cache",
@@ -45,7 +25,7 @@
       "category": "telemetry_duplicate_intent",
       "title": "Potential duplicate telemetry intent group is present",
       "filePath": "src/lib/telemetry-catalog.ts",
-      "line": 222,
+      "line": 237,
       "excerpt": "{ eventName: \"drop_preview_opened\", label: \"Drop preview opened\", category: \"content\", sources: DEFAULT_CLIENT_SOURCES, modules: [\"content\"] },",
       "suggestedFix": "Keep both only if event-catalog docs define distinct lifecycle moments or audit coverage aliases.",
       "escalation": "Do not rename telemetry events automatically; analytics history and validators must be updated together.",
@@ -53,7 +33,7 @@
         "drop_preview_opened",
         "drop_preview_page_viewed"
       ],
-      "id": "orphaned-logic-1hvhk2g",
+      "id": "orphaned-logic-jqzsum",
       "scoreImpact": 0,
       "canAutofix": false
     }
@@ -61,7 +41,7 @@
   "criticalCount": 0,
   "majorCount": 1,
   "safeAutofixesAvailable": 0,
-  "scannedFileCount": 1053,
+  "scannedFileCount": 1219,
   "checkedFiles": [
     "src/app/drops/[id]/preview/page.tsx",
     "src/app/drops/DropsClient.tsx",
@@ -123,5 +103,5 @@
       "broad UI audits"
     ]
   },
-  "summary": "Detected 3 orphaned-logic/stale-artifact finding(s); behavior-changing cleanup requires escalation."
+  "summary": "Detected 2 orphaned-logic/stale-artifact finding(s); behavior-changing cleanup requires escalation."
 }

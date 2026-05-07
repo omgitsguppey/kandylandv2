@@ -1,25 +1,9 @@
 {
-  "score": 0,
+  "score": 40,
   "status": "fail",
-  "generatedAt": "2026-05-05T21:40:53.521Z",
+  "generatedAt": "2026-05-06T21:29:35.080Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [
-    {
-      "severity": "moderate",
-      "category": "cache_policy",
-      "title": "Route contract expects cache/SWR but source has no cache evidence",
-      "filePath": "src/app/api/creator/discovery/route.ts",
-      "routePath": "/api/creator/discovery",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add explicit cache headers, ETag/SWR behavior, or update the contract to no_store if caching is unsafe.",
-      "escalation": "Cache policy affects freshness and cost; do not guess without owner review.",
-      "evidence": [
-        "swr"
-      ],
-      "id": "google-cost-c09z67",
-      "scoreImpact": -5,
-      "canAutofix": false
-    },
     {
       "severity": "major",
       "category": "rate_limit",
@@ -35,22 +19,6 @@
       ],
       "id": "google-cost-1kwab4w",
       "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "moderate",
-      "category": "cache_policy",
-      "title": "Route contract expects cache/SWR but source has no cache evidence",
-      "filePath": "src/app/api/creators/[username]/route.ts",
-      "routePath": "/api/creators/[username]",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add explicit cache headers, ETag/SWR behavior, or update the contract to no_store if caching is unsafe.",
-      "escalation": "Cache policy affects freshness and cost; do not guess without owner review.",
-      "evidence": [
-        "swr"
-      ],
-      "id": "google-cost-ox84zj",
-      "scoreImpact": -5,
       "canAutofix": false
     },
     {
@@ -73,22 +41,6 @@
     {
       "severity": "major",
       "category": "rate_limit",
-      "title": "Cost-bearing route lacks a visible rate/budget guard",
-      "filePath": "src/app/api/drops/feedback/route.ts",
-      "routePath": "/api/drops/feedback",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add a route-specific rate limit or document a deterministic upstream budget guard in the ApiCostContract.",
-      "escalation": "Rate-limit changes can alter user flow behavior and require targeted route tests.",
-      "evidence": [
-        "STANDARD"
-      ],
-      "id": "google-cost-swljtv",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "rate_limit",
       "title": "Public cheap GET likely pays Firestore writes for remote rate limiting",
       "filePath": "src/app/api/drops/route.ts",
       "routePath": "/api/drops",
@@ -101,38 +53,6 @@
       ],
       "id": "google-cost-xkdh54",
       "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "moderate",
-      "category": "cache_policy",
-      "title": "Route contract expects cache/SWR but source has no cache evidence",
-      "filePath": "src/app/api/health/route.ts",
-      "routePath": "/api/health",
-      "costClass": "free_read",
-      "suggestedFix": "Add explicit cache headers, ETag/SWR behavior, or update the contract to no_store if caching is unsafe.",
-      "escalation": "Cache policy affects freshness and cost; do not guess without owner review.",
-      "evidence": [
-        "static"
-      ],
-      "id": "google-cost-u5qak5",
-      "scoreImpact": -5,
-      "canAutofix": false
-    },
-    {
-      "severity": "moderate",
-      "category": "cache_policy",
-      "title": "Route contract expects cache/SWR but source has no cache evidence",
-      "filePath": "src/app/api/settings/landing/route.ts",
-      "routePath": "/api/settings/landing",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add explicit cache headers, ETag/SWR behavior, or update the contract to no_store if caching is unsafe.",
-      "escalation": "Cache policy affects freshness and cost; do not guess without owner review.",
-      "evidence": [
-        "swr"
-      ],
-      "id": "google-cost-w36mvz",
-      "scoreImpact": -5,
       "canAutofix": false
     },
     {
@@ -170,22 +90,6 @@
       "canAutofix": false
     },
     {
-      "severity": "moderate",
-      "category": "cache_policy",
-      "title": "Route contract expects cache/SWR but source has no cache evidence",
-      "filePath": "src/app/api/wallet/packages/route.ts",
-      "routePath": "/api/wallet/packages",
-      "costClass": "free_read",
-      "suggestedFix": "Add explicit cache headers, ETag/SWR behavior, or update the contract to no_store if caching is unsafe.",
-      "escalation": "Cache policy affects freshness and cost; do not guess without owner review.",
-      "evidence": [
-        "static"
-      ],
-      "id": "google-cost-1v43tub",
-      "scoreImpact": -5,
-      "canAutofix": false
-    },
-    {
       "severity": "major",
       "category": "rate_limit",
       "title": "Public cheap GET likely pays Firestore writes for remote rate limiting",
@@ -201,1473 +105,10 @@
       "id": "google-cost-hjk0fw",
       "scoreImpact": -10,
       "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/creator-options/route.ts",
-      "line": 33,
-      "excerpt": "adminDb.collection(\"users\") .where(\"role\", \"in\", [\"creator\", \"admin\"]) .select(\"role\", \"creator\", \"status\", \"displayName\", \"username\", \"photoURL\") .get(",
-      "routePath": "/api/admin/creator-options",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\") .where(\"role\", \"in\", [\"creator\", \"admin\"]) .select(\"role\", \"creator\", \"status\", \"displayName\", \"username\", \"photoURL\") .get("
-      ],
-      "id": "google-cost-1jskamo",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 60,
-      "excerpt": "adminDb.collection(\"users\").get(",
-      "routePath": "/api/admin/debug/assistant",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\").get("
-      ],
-      "id": "google-cost-jn745s",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 66,
-      "excerpt": "adminDb.collection(\"analytics_pipeline_daily\") .where(\"dayKey\", \">=\", weekAgoDayKey) .get(",
-      "routePath": "/api/admin/debug/assistant",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_pipeline_daily\") .where(\"dayKey\", \">=\", weekAgoDayKey) .get("
-      ],
-      "id": "google-cost-lb4qbm",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 69,
-      "excerpt": "adminDb.collection(\"analytics_event_stats\").get(",
-      "routePath": "/api/admin/debug/assistant",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_event_stats\").get("
-      ],
-      "id": "google-cost-m53jej",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 70,
-      "excerpt": "adminDb.collection(\"analytics_task_rollup\").get(",
-      "routePath": "/api/admin/debug/assistant",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_task_rollup\").get("
-      ],
-      "id": "google-cost-lb7vtl",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/debug/route.ts",
-      "line": 429,
-      "excerpt": "adminDb.collection(\"users\").get(",
-      "routePath": "/api/admin/debug",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\").get("
-      ],
-      "id": "google-cost-1sk9wor",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/debug/route.ts",
-      "line": 440,
-      "excerpt": "adminDb.collection(\"analytics_event_stats\").get(",
-      "routePath": "/api/admin/debug",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_event_stats\").get("
-      ],
-      "id": "google-cost-robw12",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/debug/route.ts",
-      "line": 442,
-      "excerpt": "adminDb.collection(\"analytics_task_rollup\").get(",
-      "routePath": "/api/admin/debug",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_task_rollup\").get("
-      ],
-      "id": "google-cost-r4con4",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/debug/route.ts",
-      "line": 444,
-      "excerpt": "adminDb.collection(\"daily_task_definitions\").get(",
-      "routePath": "/api/admin/debug",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"daily_task_definitions\").get("
-      ],
-      "id": "google-cost-ssaasy",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/debug/route.ts",
-      "line": 450,
-      "excerpt": "adminDb.collection(\"analytics_pipeline_daily\") .where(\"dayKey\", \">=\", weekAgoDayKey) .get(",
-      "routePath": "/api/admin/debug",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_pipeline_daily\") .where(\"dayKey\", \">=\", weekAgoDayKey) .get("
-      ],
-      "id": "google-cost-1suxshb",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Delete/cleanup loop lacks a visible bounded batch limit",
-      "filePath": "src/app/api/admin/drops/route.ts",
-      "line": 204,
-      "excerpt": "await dropRef.delete();",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add a deterministic batch limit and route cost contract before running cleanup deletes.",
-      "escalation": "Cleanup write loops can create cost spikes and must be reviewed.",
-      "evidence": [
-        ".delete()"
-      ],
-      "id": "google-cost-kzzgeo",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 206,
-      "excerpt": "adminDb.collection(\"users\") .where(\"createdAt\", \">=\", previousStartMs) .get(",
-      "routePath": "/api/admin/overview",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\") .where(\"createdAt\", \">=\", previousStartMs) .get("
-      ],
-      "id": "google-cost-8r2mm",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 215,
-      "excerpt": "adminDb.collection(\"drops\").get(",
-      "routePath": "/api/admin/overview",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\").get("
-      ],
-      "id": "google-cost-12t17i",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 250,
-      "excerpt": "adminDb.collection(\"analytics_commerce_daily\") .where(\"dayKey\", \">=\", previousStartDayKey) .get(",
-      "routePath": "/api/admin/overview",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_commerce_daily\") .where(\"dayKey\", \">=\", previousStartDayKey) .get("
-      ],
-      "id": "google-cost-vb6w7t",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 259,
-      "excerpt": "adminDb.collection(\"analytics_drop_daily\") .where(\"dayKey\", \">=\", currentStartDayKey) .get(",
-      "routePath": "/api/admin/overview",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_drop_daily\") .where(\"dayKey\", \">=\", currentStartDayKey) .get("
-      ],
-      "id": "google-cost-x9442m",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 331,
-      "excerpt": "adminDb.collection(\"users\"), userIds: overviewUserIds, }); const recentTransactions = recentTransactionsSource.map((transaction) => serializeRecentTransaction(transaction, userNameMap.get(",
-      "routePath": "/api/admin/overview",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\"), userIds: overviewUserIds, }); const recentTransactions = recentTransactionsSource.map((transaction) => serializeRecentTransaction(transaction, userNameMap.get("
-      ],
-      "id": "google-cost-1v21kgn",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 445,
-      "excerpt": "adminDb.collection(\"users\").orderBy(\"createdAt\", \"desc\").get(",
-      "routePath": "/api/admin/roster",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\").orderBy(\"createdAt\", \"desc\").get("
-      ],
-      "id": "google-cost-1hacsjd",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 453,
-      "excerpt": "adminDb.collection(\"drops\").where(\"approvalStatus\", \"==\", \"pending_review\").get(",
-      "routePath": "/api/admin/roster",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\").where(\"approvalStatus\", \"==\", \"pending_review\").get("
-      ],
-      "id": "google-cost-kjt1se",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 190,
-      "excerpt": "adminDb.collection(\"analytics_session_facts\") .where(\"userId\", \"==\", userId) .orderBy(\"lastEventAt\", \"desc\") .get(",
-      "routePath": "/api/admin/user/[userId]",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_session_facts\") .where(\"userId\", \"==\", userId) .orderBy(\"lastEventAt\", \"desc\") .get("
-      ],
-      "id": "google-cost-5l8sr0",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 194,
-      "excerpt": "adminDb.collection(\"analytics_watch_sessions\") .where(\"userId\", \"==\", userId) .get(",
-      "routePath": "/api/admin/user/[userId]",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_watch_sessions\") .where(\"userId\", \"==\", userId) .get("
-      ],
-      "id": "google-cost-4hadz4",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 197,
-      "excerpt": "adminDb.collection(\"analytics_user_daily\") .where(\"uid\", \"==\", userId) .orderBy(\"dayKey\", \"desc\") .get(",
-      "routePath": "/api/admin/user/[userId]",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_user_daily\") .where(\"uid\", \"==\", userId) .orderBy(\"dayKey\", \"desc\") .get("
-      ],
-      "id": "google-cost-5b9721",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 1104,
-      "excerpt": "adminDb.collection(\"drops\").where(\"submittedByCreatorId\", \"==\", userId).get(",
-      "routePath": "/api/admin/user/[userId]",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\").where(\"submittedByCreatorId\", \"==\", userId).get("
-      ],
-      "id": "google-cost-1x0dm6o",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 490,
-      "excerpt": "adminDb.collection(\"analytics_watch_sessions\").get(",
-      "routePath": "/api/admin/users",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_watch_sessions\").get("
-      ],
-      "id": "google-cost-1tgmn23",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 780,
-      "excerpt": "adminDb.collection(\"users\").orderBy(\"createdAt\", \"desc\").get(",
-      "routePath": "/api/admin/users",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\").orderBy(\"createdAt\", \"desc\").get("
-      ],
-      "id": "google-cost-118wy8n",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 812,
-      "excerpt": "adminDb.collection(\"analytics_user_daily\").where(\"uid\", \"==\", userId).get(",
-      "routePath": "/api/admin/users",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_user_daily\").where(\"uid\", \"==\", userId).get("
-      ],
-      "id": "google-cost-kov4cl",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 813,
-      "excerpt": "adminDb.collection(\"analytics_watch_sessions\").where(\"userId\", \"==\", userId).get(",
-      "routePath": "/api/admin/users",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_watch_sessions\").where(\"userId\", \"==\", userId).get("
-      ],
-      "id": "google-cost-kevinm",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 780,
-      "excerpt": "adminDb.collection(\"users\").orderBy(\"createdAt\", \"desc\").get(",
-      "routePath": "/api/admin/users",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\").orderBy(\"createdAt\", \"desc\").get("
-      ],
-      "id": "google-cost-118wy8n",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 1040,
-      "excerpt": "adminDb.collection(\"analytics_users_rollup\").get(",
-      "routePath": "/api/admin/users",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_users_rollup\").get("
-      ],
-      "id": "google-cost-5o80mn",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 1041,
-      "excerpt": "adminDb.collection(\"analytics_user_daily\").get(",
-      "routePath": "/api/admin/users",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_user_daily\").get("
-      ],
-      "id": "google-cost-5e8exo",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 490,
-      "excerpt": "adminDb.collection(\"analytics_watch_sessions\").get(",
-      "routePath": "/api/admin/users",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_watch_sessions\").get("
-      ],
-      "id": "google-cost-1tgmn23",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 1051,
-      "excerpt": "adminDb.collection(\"drops\").where(\"approvalStatus\", \"==\", \"pending_review\").get(",
-      "routePath": "/api/admin/users",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\").where(\"approvalStatus\", \"==\", \"pending_review\").get("
-      ],
-      "id": "google-cost-13spruh",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 1359,
-      "excerpt": "adminDb.collection(\"analytics_event_facts\") .where(\"userId\", \"in\", uids) .get(",
-      "routePath": "/api/admin/users",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_event_facts\") .where(\"userId\", \"in\", uids) .get("
-      ],
-      "id": "google-cost-zumcwg",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 144,
-      "excerpt": "adminDb.collection(\"users\") .select(\"role\", \"status\", \"displayName\", \"username\", \"photoURL\", \"bio\", \"isVerified\", \"creatorApplication\") .get(",
-      "routePath": "/api/creator/relationships",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\") .select(\"role\", \"status\", \"displayName\", \"username\", \"photoURL\", \"bio\", \"isVerified\", \"creatorApplication\") .get("
-      ],
-      "id": "google-cost-e1tct1",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 147,
-      "excerpt": "adminDb.collection(\"drops\").get(",
-      "routePath": "/api/creator/relationships",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\").get("
-      ],
-      "id": "google-cost-d7ujq4",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/creator/settings/route.ts",
-      "line": 59,
-      "excerpt": "adminDb.collection(\"creator_ledger_accruals\") .where(\"creatorId\", \"==\", caller.uid) .aggregate({ totalEarnings: AggregateField.sum(\"creatorShareGd\") }) .get(",
-      "routePath": "/api/creator/settings",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"creator_ledger_accruals\") .where(\"creatorId\", \"==\", caller.uid) .aggregate({ totalEarnings: AggregateField.sum(\"creatorShareGd\") }) .get("
-      ],
-      "id": "google-cost-qpxq46",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/creator/settings/route.ts",
-      "line": 63,
-      "excerpt": "adminDb.collection(\"creator_payout_requests\") .where(\"creatorId\", \"==\", caller.uid) .where(\"status\", \"==\", \"pending\") .aggregate({ totalPending: AggregateField.sum(\"requestedGd\") }) .get(",
-      "routePath": "/api/creator/settings",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"creator_payout_requests\") .where(\"creatorId\", \"==\", caller.uid) .where(\"status\", \"==\", \"pending\") .aggregate({ totalPending: AggregateField.sum(\"requestedGd\") }) .get("
-      ],
-      "id": "google-cost-ulvbbr",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/creators/[username]/route.ts",
-      "line": 72,
-      "excerpt": "adminDb.collection(\"drops\") .where(\"creatorId\", \"==\", creator.uid) .get(",
-      "routePath": "/api/creators/[username]",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\") .where(\"creatorId\", \"==\", creator.uid) .get("
-      ],
-      "id": "google-cost-1bz8gxf",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Delete/cleanup loop lacks a visible bounded batch limit",
-      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 259,
-      "excerpt": "lastRenewalWarningAt: FieldValue.delete(),",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add a deterministic batch limit and route cost contract before running cleanup deletes.",
-      "escalation": "Cleanup write loops can create cost spikes and must be reviewed.",
-      "evidence": [
-        ".delete()"
-      ],
-      "id": "google-cost-1ob0za2",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/app/api/drops/duplicate-filenames/route.ts",
-      "line": 35,
-      "excerpt": "adminDb.collection(\"drops\") : adminDb.collection(\"drops\").where(\"creatorId\", \"==\", caller.uid); const snapshot = await dropsQuery.get(",
-      "routePath": "/api/drops/duplicate-filenames",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\") : adminDb.collection(\"drops\").where(\"creatorId\", \"==\", caller.uid); const snapshot = await dropsQuery.get("
-      ],
-      "id": "google-cost-1fhtnde",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 163,
-      "excerpt": "adminDb.collection(\"analytics_rollups_daily\") .where(\"dayKey\", \">=\", startDayKey) .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_rollups_daily\") .where(\"dayKey\", \">=\", startDayKey) .get("
-      ],
-      "id": "google-cost-1a1gjbe",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 172,
-      "excerpt": "adminDb.collection(\"analytics_page_daily\") .where(\"dayKey\", \">=\", startDayKey) .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_page_daily\") .where(\"dayKey\", \">=\", startDayKey) .get("
-      ],
-      "id": "google-cost-17jgyko",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 181,
-      "excerpt": "adminDb.collection(\"analytics_drop_daily\") .where(\"dayKey\", \">=\", startDayKey) .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_drop_daily\") .where(\"dayKey\", \">=\", startDayKey) .get("
-      ],
-      "id": "google-cost-13wcpuu",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 190,
-      "excerpt": "adminDb.collection(\"analytics_task_daily\") .where(\"dayKey\", \">=\", startDayKey) .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_task_daily\") .where(\"dayKey\", \">=\", startDayKey) .get("
-      ],
-      "id": "google-cost-12ibjw0",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 199,
-      "excerpt": "adminDb.collection(\"analytics_commerce_daily\") .where(\"dayKey\", \">=\", startDayKey) .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_commerce_daily\") .where(\"dayKey\", \">=\", startDayKey) .get("
-      ],
-      "id": "google-cost-1507z4r",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 208,
-      "excerpt": "adminDb.collection(\"analytics_session_facts\") .where(\"dayKey\", \">=\", startDayKey) .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_session_facts\") .where(\"dayKey\", \">=\", startDayKey) .get("
-      ],
-      "id": "google-cost-l1rh3s",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 217,
-      "excerpt": "adminDb.collection(\"analytics_pipeline_daily\") .where(\"dayKey\", \">=\", startDayKey) .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_pipeline_daily\") .where(\"dayKey\", \">=\", startDayKey) .get("
-      ],
-      "id": "google-cost-1kag5p8",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 227,
-      "excerpt": "adminDb.collection(\"analytics_event_facts\") .orderBy(\"timestamp\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_event_facts\") .orderBy(\"timestamp\", \"desc\") .get("
-      ],
-      "id": "google-cost-1kajb77",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 236,
-      "excerpt": "adminDb.collection(\"analytics_event_facts\") .where(\"timestamp\", \">=\", startMs) .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_event_facts\") .where(\"timestamp\", \">=\", startMs) .get("
-      ],
-      "id": "google-cost-1p0fphp",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 245,
-      "excerpt": "adminDb.collection(\"analytics_event_stats\").get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_event_stats\").get("
-      ],
-      "id": "google-cost-1o6k1wr",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 253,
-      "excerpt": "adminDb.collection(\"security_events\") .orderBy(\"timestamp\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"security_events\") .orderBy(\"timestamp\", \"desc\") .get("
-      ],
-      "id": "google-cost-qc1wdw",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 262,
-      "excerpt": "adminDb.collection(\"security_events\") .where(\"timestamp\", \">=\", startMs) .orderBy(\"timestamp\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"security_events\") .where(\"timestamp\", \">=\", startMs) .orderBy(\"timestamp\", \"desc\") .get("
-      ],
-      "id": "google-cost-jeezjk",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 273,
-      "excerpt": "adminDb.collection(\"analytics_guest_batches\") .orderBy(\"receivedAtMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_guest_batches\") .orderBy(\"receivedAtMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-lwekaa",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 282,
-      "excerpt": "adminDb.collection(\"analytics_guest_batches\") .where(\"receivedAtMs\", \">=\", startMs) .orderBy(\"receivedAtMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_guest_batches\") .where(\"receivedAtMs\", \">=\", startMs) .orderBy(\"receivedAtMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-1nd02fi",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 293,
-      "excerpt": "adminDb.collection(\"analytics_sessions\") .orderBy(\"lastReceivedAtMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_sessions\") .orderBy(\"lastReceivedAtMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-1nn2tmg",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 302,
-      "excerpt": "adminDb.collection(\"analytics_sessions\") .where(\"lastReceivedAtMs\", \">=\", startMs) .orderBy(\"lastReceivedAtMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_sessions\") .where(\"lastReceivedAtMs\", \">=\", startMs) .orderBy(\"lastReceivedAtMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-1iibd3l",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 322,
-      "excerpt": "adminDb.collection(\"server_diagnostics\") .orderBy(\"createdAtMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"server_diagnostics\") .orderBy(\"createdAtMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-1e2bf03",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 331,
-      "excerpt": "adminDb.collection(\"server_diagnostics\") .where(\"createdAtMs\", \">=\", startMs) .orderBy(\"createdAtMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"server_diagnostics\") .where(\"createdAtMs\", \">=\", startMs) .orderBy(\"createdAtMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-1d89gf7",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 341,
-      "excerpt": "adminDb.collection(\"analytics_task_rollup\").get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_task_rollup\").get("
-      ],
-      "id": "google-cost-1fguk2k",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 349,
-      "excerpt": "adminDb.collection(\"drops\").get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\").get("
-      ],
-      "id": "google-cost-1hordmc",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 358,
-      "excerpt": "adminDb.collection(\"analytics_watch_sessions\") .orderBy(\"lastSeenAtMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_watch_sessions\") .orderBy(\"lastSeenAtMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-gs52v2",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 367,
-      "excerpt": "adminDb.collection(\"analytics_watch_sessions\") .where(\"lastSeenAtMs\", \">=\", startMs) .orderBy(\"lastSeenAtMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_watch_sessions\") .where(\"lastSeenAtMs\", \">=\", startMs) .orderBy(\"lastSeenAtMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-jtxjzs",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 378,
-      "excerpt": "adminDb.collection(\"analytics_watch_assets\") .orderBy(\"lastSeenAtMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_watch_assets\") .orderBy(\"lastSeenAtMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-hvx6n0",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 387,
-      "excerpt": "adminDb.collection(\"analytics_watch_assets\") .where(\"lastSeenAtMs\", \">=\", startMs) .orderBy(\"lastSeenAtMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"analytics_watch_assets\") .where(\"lastSeenAtMs\", \">=\", startMs) .orderBy(\"lastSeenAtMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-fep1hu",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 405,
-      "excerpt": "adminDb.collection(\"daily_task_events\") .where(\"timestamp\", \">=\", startMs) .orderBy(\"timestamp\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"daily_task_events\") .where(\"timestamp\", \">=\", startMs) .orderBy(\"timestamp\", \"desc\") .get("
-      ],
-      "id": "google-cost-1oncb9l",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 416,
-      "excerpt": "adminDb.collection(\"transactions\") .orderBy(\"timestamp\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"transactions\") .orderBy(\"timestamp\", \"desc\") .get("
-      ],
-      "id": "google-cost-1st9i65",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/admin-analytics-data.ts",
-      "line": 425,
-      "excerpt": "adminDb.collection(\"transactions\") .where(\"timestampMs\", \">=\", startMs) .orderBy(\"timestampMs\", \"desc\") .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"transactions\") .where(\"timestampMs\", \">=\", startMs) .orderBy(\"timestampMs\", \"desc\") .get("
-      ],
-      "id": "google-cost-o0mgpb",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/creator-onboarding-alerts.ts",
-      "line": 46,
-      "excerpt": "adminDb.collection(\"users\").where(\"role\", \"==\", \"admin\").get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\").where(\"role\", \"==\", \"admin\").get("
-      ],
-      "id": "google-cost-1753q7x",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Delete/cleanup loop lacks a visible bounded batch limit",
-      "filePath": "src/lib/server/creator-review-queue.ts",
-      "line": 192,
-      "excerpt": "await queueRef.delete();",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add a deterministic batch limit and route cost contract before running cleanup deletes.",
-      "escalation": "Cleanup write loops can create cost spikes and must be reviewed.",
-      "evidence": [
-        ".delete()"
-      ],
-      "id": "google-cost-1wbssks",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Delete/cleanup loop lacks a visible bounded batch limit",
-      "filePath": "src/lib/server/drop-mutations.ts",
-      "line": 46,
-      "excerpt": "sanitized[key] = raw[key] === null ? FieldValue.delete() : raw[key];",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add a deterministic batch limit and route cost contract before running cleanup deletes.",
-      "escalation": "Cleanup write loops can create cost spikes and must be reviewed.",
-      "evidence": [
-        ".delete()"
-      ],
-      "id": "google-cost-algv2x",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/drop-queue.ts",
-      "line": 60,
-      "excerpt": "adminDb.collection(\"drops\").where(\"rotationConfig.enabled\", \"==\", true).get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\").where(\"rotationConfig.enabled\", \"==\", true).get("
-      ],
-      "id": "google-cost-rpz8de",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Delete/cleanup loop lacks a visible bounded batch limit",
-      "filePath": "src/lib/server/drop-queue.ts",
-      "line": 104,
-      "excerpt": "rotationConfig: FieldValue.delete(),",
-      "costClass": "firestore_write",
-      "suggestedFix": "Add a deterministic batch limit and route cost contract before running cleanup deletes.",
-      "escalation": "Cleanup write loops can create cost spikes and must be reviewed.",
-      "evidence": [
-        ".delete()"
-      ],
-      "id": "google-cost-t0pk05",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/drop-references.ts",
-      "line": 70,
-      "excerpt": "adminDb.collection(\"drops\"), dropIds, }); } export async function getAllDropReferenceMap(): Promise<Record<string, DropReference>> { const snapshot = await adminDb.collection(\"drops\").get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\"), dropIds, }); } export async function getAllDropReferenceMap(): Promise<Record<string, DropReference>> { const snapshot = await adminDb.collection(\"drops\").get("
-      ],
-      "id": "google-cost-1kxb6ng",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/drops.ts",
-      "line": 21,
-      "excerpt": "adminDb.collection(\"drops\").orderBy(\"validFrom\", \"desc\").get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\").orderBy(\"validFrom\", \"desc\").get("
-      ],
-      "id": "google-cost-2e9mcq",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/queue-runtime.ts",
-      "line": 220,
-      "excerpt": "adminDb.collection(\"drops\"); const [scheduledSnap, activeSnap] = await Promise.all([ dropsRef.where(\"status\", \"==\", \"scheduled\").get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"drops\"); const [scheduledSnap, activeSnap] = await Promise.all([ dropsRef.where(\"status\", \"==\", \"scheduled\").get("
-      ],
-      "id": "google-cost-rdocxh",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Firestore collection get appears unbounded",
-      "filePath": "src/lib/server/queue-runtime.ts",
-      "line": 278,
-      "excerpt": "adminDb.collection(\"users\") .where(\"unlockedContent\", \"array-contains\", dropId) .select() // ⚡ Bolt: Optimize I/O by only returning document IDs .get(",
-      "costClass": "firestore_read",
-      "suggestedFix": "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-      "escalation": "Firestore query shape changes can affect data correctness and require targeted route tests.",
-      "evidence": [
-        "adminDb.collection(\"users\") .where(\"unlockedContent\", \"array-contains\", dropId) .select() // ⚡ Bolt: Optimize I/O by only returning document IDs .get("
-      ],
-      "id": "google-cost-1p7twgg",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Non-admin Firestore listener lacks visible query limit",
-      "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 1429,
-      "excerpt": "return onSnapshot(",
-      "costClass": "firestore_listener",
-      "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
-      "escalation": "Realtime listener scope changes require runtime/freshness review.",
-      "evidence": [
-        "onSnapshot("
-      ],
-      "id": "google-cost-8id1wf",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Non-admin Firestore listener lacks visible query limit",
-      "filePath": "src/components/Dashboard/RecentActivityFeed.tsx",
-      "line": 507,
-      "excerpt": "return onSnapshot(",
-      "costClass": "firestore_listener",
-      "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
-      "escalation": "Realtime listener scope changes require runtime/freshness review.",
-      "evidence": [
-        "onSnapshot("
-      ],
-      "id": "google-cost-1xikvin",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Non-admin Firestore listener lacks visible query limit",
-      "filePath": "src/context/AuthContext.tsx",
-      "line": 300,
-      "excerpt": "return onSnapshot(profileDocRef, async (snapshot) => {",
-      "costClass": "firestore_listener",
-      "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
-      "escalation": "Realtime listener scope changes require runtime/freshness review.",
-      "evidence": [
-        "onSnapshot("
-      ],
-      "id": "google-cost-8n8ilh",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Non-admin Firestore listener lacks visible query limit",
-      "filePath": "src/hooks/useChatUnreadStatus.ts",
-      "line": 44,
-      "excerpt": "return onSnapshot(",
-      "costClass": "firestore_listener",
-      "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
-      "escalation": "Realtime listener scope changes require runtime/freshness review.",
-      "evidence": [
-        "onSnapshot("
-      ],
-      "id": "google-cost-6k5pzu",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Non-admin Firestore listener lacks visible query limit",
-      "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 727,
-      "excerpt": "if (!file.source.includes(\"onSnapshot(\")) continue;",
-      "costClass": "firestore_listener",
-      "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
-      "escalation": "Realtime listener scope changes require runtime/freshness review.",
-      "evidence": [
-        "onSnapshot("
-      ],
-      "id": "google-cost-pqxtu2",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Non-admin Firestore listener lacks visible query limit",
-      "filePath": "scripts/agent/score-orphaned-logic.ts",
-      "line": 659,
-      "excerpt": "for (const needle of [\"onSnapshot(\", \"setInterval(\"]) {",
-      "costClass": "firestore_listener",
-      "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
-      "escalation": "Realtime listener scope changes require runtime/freshness review.",
-      "evidence": [
-        "onSnapshot("
-      ],
-      "id": "google-cost-1c6cvi0",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "firestore",
-      "title": "Non-admin Firestore listener lacks visible query limit",
-      "filePath": "scripts/agent/validate-drop-runtime-refresh.ts",
-      "line": 127,
-      "excerpt": "if (countOccurrences(useDrops, \"onSnapshot(\") !== 1) {",
-      "costClass": "firestore_listener",
-      "suggestedFix": "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
-      "escalation": "Realtime listener scope changes require runtime/freshness review.",
-      "evidence": [
-        "onSnapshot("
-      ],
-      "id": "google-cost-1tun5eu",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "critical",
-      "category": "storage_egress",
-      "title": "Storage/media route lacks MEDIA_PROXY or equivalent byte/rate guard",
-      "filePath": "src/app/api/creator/onboarding/id-submission/route.ts",
-      "routePath": "/api/creator/onboarding/id-submission",
-      "costClass": "storage_egress",
-      "suggestedFix": "Apply MEDIA_PROXY or a route-specific byte/rate guard before Storage/media egress.",
-      "escalation": "Unbounded media routes can create immediate billing spikes.",
-      "evidence": [
-        "MEDIA_PROXY"
-      ],
-      "id": "google-cost-1ubegtk",
-      "scoreImpact": -25,
-      "canAutofix": false
-    },
-    {
-      "severity": "critical",
-      "category": "storage_egress",
-      "title": "Storage/media route lacks MEDIA_PROXY or equivalent byte/rate guard",
-      "filePath": "src/app/api/settings/landing/upload/route.ts",
-      "routePath": "/api/settings/landing/upload",
-      "costClass": "storage_egress",
-      "suggestedFix": "Apply MEDIA_PROXY or a route-specific byte/rate guard before Storage/media egress.",
-      "escalation": "Unbounded media routes can create immediate billing spikes.",
-      "evidence": [
-        "MEDIA_PROXY"
-      ],
-      "id": "google-cost-1jtequ4",
-      "scoreImpact": -25,
-      "canAutofix": false
     }
   ],
-  "criticalCount": 2,
-  "majorCount": 89,
+  "criticalCount": 0,
+  "majorCount": 6,
   "routeContracts": [
     {
       "routePattern": "/api/health",
@@ -1676,12 +117,12 @@
       ],
       "costClass": "free_read",
       "ratePolicy": "none",
-      "cachePolicy": "static",
+      "cachePolicy": "no_store",
       "authRequired": "none",
       "trustedOriginRequired": false,
       "budgetGuardRequired": false,
       "maxExpectedCallsPerUserPerMinute": 60,
-      "notes": "Health check is intentionally unauthenticated and must not touch Google paid services."
+      "notes": "Health check is intentionally unauthenticated, no-store, and must not touch Google paid services."
     },
     {
       "routePattern": "/api/wallet/packages",
@@ -1785,14 +226,14 @@
         "DELETE"
       ],
       "costClass": "storage_egress",
-      "ratePolicy": "MEDIA_PROXY",
+      "ratePolicy": "MEDIA_PROXY / ADMIN_STORAGE_UPLOAD",
       "cachePolicy": "no_store",
       "authRequired": "admin",
       "trustedOriginRequired": true,
       "budgetGuardRequired": true,
       "maxExpectedCallsPerUserPerMinute": 30,
       "maxExpectedStorageBytesPerCall": 262144000,
-      "notes": "Admin content/storage surface. Storage calls must stay admin-only, MEDIA_PROXY rate limited, and expose short-lived admin preview URLs only."
+      "notes": "Admin content/storage surface. Storage list/read paths stay MEDIA_PROXY rate limited; uploads use ADMIN_STORAGE_UPLOAD. Storage calls must stay admin-only and expose short-lived admin preview URLs only."
     },
     {
       "routePattern": "/api/admin/creator-agreements",
@@ -3052,14 +1493,14 @@
           "DELETE"
         ],
         "costClass": "storage_egress",
-        "ratePolicy": "MEDIA_PROXY",
+        "ratePolicy": "MEDIA_PROXY / ADMIN_STORAGE_UPLOAD",
         "cachePolicy": "no_store",
         "authRequired": "admin",
         "trustedOriginRequired": true,
         "budgetGuardRequired": true,
         "maxExpectedCallsPerUserPerMinute": 30,
         "maxExpectedStorageBytesPerCall": 262144000,
-        "notes": "Admin content/storage surface. Storage calls must stay admin-only, MEDIA_PROXY rate limited, and expose short-lived admin preview URLs only."
+        "notes": "Admin content/storage surface. Storage list/read paths stay MEDIA_PROXY rate limited; uploads use ADMIN_STORAGE_UPLOAD. Storage calls must stay admin-only and expose short-lived admin preview URLs only."
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
@@ -3271,6 +1712,7 @@
       "routePath": "/api/admin/debug/assistant",
       "methods": [
         "GET",
+        "POST",
         "PUT"
       ],
       "contract": {
@@ -3437,6 +1879,222 @@
       "hasRateGuard": true,
       "authMode": "admin",
       "cachePolicyEvidence": []
+    },
+    {
+      "filePath": "src/app/api/admin/economy/drift/route.ts",
+      "routePath": "/api/admin/economy/drift",
+      "methods": [
+        "GET"
+      ],
+      "contract": {
+        "routePattern": "/api/admin/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_read",
+        "ratePolicy": "ADMIN / route-specific admin limits",
+        "cachePolicy": "no_store",
+        "authRequired": "admin",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 30,
+        "maxExpectedFirestoreReadsPerCall": 250,
+        "maxExpectedFirestoreWritesPerCall": 20,
+        "notes": "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": false,
+      "hasRateGuard": true,
+      "authMode": "admin",
+      "cachePolicyEvidence": [
+        "no-store",
+        "Cache-Control"
+      ]
+    },
+    {
+      "filePath": "src/app/api/admin/economy/offers/route.ts",
+      "routePath": "/api/admin/economy/offers",
+      "methods": [
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "contract": {
+        "routePattern": "/api/admin/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_read",
+        "ratePolicy": "ADMIN / route-specific admin limits",
+        "cachePolicy": "no_store",
+        "authRequired": "admin",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 30,
+        "maxExpectedFirestoreReadsPerCall": 250,
+        "maxExpectedFirestoreWritesPerCall": 20,
+        "notes": "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": true,
+      "hasRateGuard": true,
+      "authMode": "admin",
+      "cachePolicyEvidence": [
+        "no-store",
+        "Cache-Control"
+      ]
+    },
+    {
+      "filePath": "src/app/api/admin/economy/packages/route.ts",
+      "routePath": "/api/admin/economy/packages",
+      "methods": [
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "contract": {
+        "routePattern": "/api/admin/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_read",
+        "ratePolicy": "ADMIN / route-specific admin limits",
+        "cachePolicy": "no_store",
+        "authRequired": "admin",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 30,
+        "maxExpectedFirestoreReadsPerCall": 250,
+        "maxExpectedFirestoreWritesPerCall": 20,
+        "notes": "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": true,
+      "hasRateGuard": true,
+      "authMode": "admin",
+      "cachePolicyEvidence": [
+        "no-store",
+        "Cache-Control"
+      ]
+    },
+    {
+      "filePath": "src/app/api/admin/economy/promos/route.ts",
+      "routePath": "/api/admin/economy/promos",
+      "methods": [
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "contract": {
+        "routePattern": "/api/admin/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_read",
+        "ratePolicy": "ADMIN / route-specific admin limits",
+        "cachePolicy": "no_store",
+        "authRequired": "admin",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 30,
+        "maxExpectedFirestoreReadsPerCall": 250,
+        "maxExpectedFirestoreWritesPerCall": 20,
+        "notes": "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": true,
+      "hasRateGuard": true,
+      "authMode": "admin",
+      "cachePolicyEvidence": [
+        "no-store",
+        "Cache-Control"
+      ]
+    },
+    {
+      "filePath": "src/app/api/admin/economy/redemptions/route.ts",
+      "routePath": "/api/admin/economy/redemptions",
+      "methods": [
+        "GET"
+      ],
+      "contract": {
+        "routePattern": "/api/admin/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_read",
+        "ratePolicy": "ADMIN / route-specific admin limits",
+        "cachePolicy": "no_store",
+        "authRequired": "admin",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 30,
+        "maxExpectedFirestoreReadsPerCall": 250,
+        "maxExpectedFirestoreWritesPerCall": 20,
+        "notes": "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": false,
+      "hasRateGuard": true,
+      "authMode": "admin",
+      "cachePolicyEvidence": [
+        "no-store",
+        "Cache-Control"
+      ]
+    },
+    {
+      "filePath": "src/app/api/admin/economy/treasury/route.ts",
+      "routePath": "/api/admin/economy/treasury",
+      "methods": [
+        "GET"
+      ],
+      "contract": {
+        "routePattern": "/api/admin/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_read",
+        "ratePolicy": "ADMIN / route-specific admin limits",
+        "cachePolicy": "no_store",
+        "authRequired": "admin",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 30,
+        "maxExpectedFirestoreReadsPerCall": 250,
+        "maxExpectedFirestoreWritesPerCall": 20,
+        "notes": "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": false,
+      "hasRateGuard": true,
+      "authMode": "admin",
+      "cachePolicyEvidence": [
+        "no-store",
+        "Cache-Control"
+      ]
     },
     {
       "filePath": "src/app/api/admin/feedback/route.ts",
@@ -3644,6 +2302,42 @@
         "force-no-store",
         "no-store",
         "revalidate = 0"
+      ]
+    },
+    {
+      "filePath": "src/app/api/admin/privacy/preflight/route.ts",
+      "routePath": "/api/admin/privacy/preflight",
+      "methods": [
+        "GET"
+      ],
+      "contract": {
+        "routePattern": "/api/admin/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_read",
+        "ratePolicy": "ADMIN / route-specific admin limits",
+        "cachePolicy": "no_store",
+        "authRequired": "admin",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 30,
+        "maxExpectedFirestoreReadsPerCall": 250,
+        "maxExpectedFirestoreWritesPerCall": 20,
+        "notes": "Default admin API contract. Mutations require trusted origin; heavy reads should be bounded or cached."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": true,
+      "hasRateGuard": true,
+      "authMode": "admin",
+      "cachePolicyEvidence": [
+        "no-store",
+        "revalidate = 0",
+        "Cache-Control"
       ]
     },
     {
@@ -4574,7 +3268,9 @@
       "hasTrustedOrigin": false,
       "hasRateGuard": true,
       "authMode": "none",
-      "cachePolicyEvidence": []
+      "cachePolicyEvidence": [
+        "Cache-Control"
+      ]
     },
     {
       "filePath": "src/app/api/creator/drops/assets/route.ts",
@@ -5024,7 +3720,9 @@
       "hasTrustedOrigin": false,
       "hasRateGuard": true,
       "authMode": "none",
-      "cachePolicyEvidence": []
+      "cachePolicyEvidence": [
+        "Cache-Control"
+      ]
     },
     {
       "filePath": "src/app/api/cron/notify-active-drops/route.ts",
@@ -5271,7 +3969,7 @@
       },
       "hasGuard": true,
       "hasTrustedOrigin": true,
-      "hasRateGuard": false,
+      "hasRateGuard": true,
       "authMode": "user",
       "cachePolicyEvidence": []
     },
@@ -5474,18 +4172,21 @@
         ],
         "costClass": "free_read",
         "ratePolicy": "none",
-        "cachePolicy": "static",
+        "cachePolicy": "no_store",
         "authRequired": "none",
         "trustedOriginRequired": false,
         "budgetGuardRequired": false,
         "maxExpectedCallsPerUserPerMinute": 60,
-        "notes": "Health check is intentionally unauthenticated and must not touch Google paid services."
+        "notes": "Health check is intentionally unauthenticated, no-store, and must not touch Google paid services."
       },
       "hasGuard": false,
       "hasTrustedOrigin": false,
       "hasRateGuard": false,
       "authMode": "unknown",
-      "cachePolicyEvidence": []
+      "cachePolicyEvidence": [
+        "no-store",
+        "Cache-Control"
+      ]
     },
     {
       "filePath": "src/app/api/notifications/route.ts",
@@ -5679,7 +4380,9 @@
       "hasTrustedOrigin": false,
       "hasRateGuard": true,
       "authMode": "none",
-      "cachePolicyEvidence": []
+      "cachePolicyEvidence": [
+        "Cache-Control"
+      ]
     },
     {
       "filePath": "src/app/api/settings/landing/upload/route.ts",
@@ -5841,6 +4544,38 @@
       "hasTrustedOrigin": true,
       "hasRateGuard": true,
       "authMode": "user",
+      "cachePolicyEvidence": []
+    },
+    {
+      "filePath": "src/app/api/tasks/materialize/route.ts",
+      "routePath": "/api/tasks/materialize",
+      "methods": [
+        "POST"
+      ],
+      "contract": {
+        "routePattern": "/api/tasks/**",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "costClass": "firestore_write",
+        "ratePolicy": "STANDARD",
+        "cachePolicy": "no_store",
+        "authRequired": "user",
+        "trustedOriginRequired": true,
+        "budgetGuardRequired": true,
+        "maxExpectedCallsPerUserPerMinute": 20,
+        "maxExpectedFirestoreReadsPerCall": 50,
+        "maxExpectedFirestoreWritesPerCall": 8,
+        "notes": "Tasks/reminders/feedback writes must stay user-scoped and bounded."
+      },
+      "hasGuard": true,
+      "hasTrustedOrigin": true,
+      "hasRateGuard": true,
+      "authMode": "admin",
       "cachePolicyEvidence": []
     },
     {
@@ -6287,7 +5022,9 @@
       "hasTrustedOrigin": false,
       "hasRateGuard": true,
       "authMode": "none",
-      "cachePolicyEvidence": []
+      "cachePolicyEvidence": [
+        "Cache-Control"
+      ]
     }
   ],
   "suspectedCostSurfaces": [
@@ -6413,7 +5150,7 @@
     },
     {
       "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 22,
+      "line": 26,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -6894,7 +5631,7 @@
     {
       "filePath": "src/components/Chat/ChatExperience.tsx",
       "line": 22,
-      "excerpt": "import { collection, onSnapshot, query, where } from \"firebase/firestore\";",
+      "excerpt": "import { collection, limit, onSnapshot, query, where } from \"firebase/firestore\";",
       "kind": "firestore-client"
     },
     {
@@ -6905,7 +5642,7 @@
     },
     {
       "filePath": "src/context/AuthContext.tsx",
-      "line": 295,
+      "line": 394,
       "excerpt": "const { doc, onSnapshot } = await import(\"firebase/firestore\");",
       "kind": "firestore-client"
     },
@@ -6918,7 +5655,7 @@
     {
       "filePath": "src/hooks/useAdminModerationRealtime.ts",
       "line": 2,
-      "excerpt": "import { collection, query, orderBy, limit, onSnapshot, where } from \"firebase/firestore\";",
+      "excerpt": "import { collection, limit, onSnapshot, orderBy, query, where } from \"firebase/firestore\";",
       "kind": "firestore-client"
     },
     {
@@ -6928,15 +5665,9 @@
       "kind": "firestore-client"
     },
     {
-      "filePath": "src/hooks/useAdminPrivacyPreflight.ts",
-      "line": 2,
-      "excerpt": "import { onSnapshot, collection, query, limit, orderBy } from \"firebase/firestore\";",
-      "kind": "firestore-client"
-    },
-    {
       "filePath": "src/hooks/useChatUnreadStatus.ts",
       "line": 2,
-      "excerpt": "import { collection, onSnapshot, query, where } from \"firebase/firestore\";",
+      "excerpt": "import { collection, limit, onSnapshot, query, where } from \"firebase/firestore\";",
       "kind": "firestore-client"
     },
     {
@@ -6947,7 +5678,7 @@
     },
     {
       "filePath": "src/lib/admin-debug-control-tower.ts",
-      "line": 128,
+      "line": 133,
       "excerpt": "{ id: \"sql-mirror\", label: \"Data Connect Mirror\", section: \"money_cost\", fileName: \"sql-mirror-status.generated.json\", command: \"npm run agent:sync-sql\" },",
       "kind": "data-connect"
     },
@@ -7048,6 +5779,12 @@
       "kind": "firebase-admin"
     },
     {
+      "filePath": "src/lib/server/admin-privacy-console.ts",
+      "line": 3,
+      "excerpt": "import { QueryDocumentSnapshot } from \"firebase-admin/firestore\";",
+      "kind": "firebase-admin"
+    },
+    {
       "filePath": "src/lib/server/admin-ui-preferences.ts",
       "line": 3,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
@@ -7073,7 +5810,7 @@
     },
     {
       "filePath": "src/lib/server/ai-drop-covers.ts",
-      "line": 58,
+      "line": 59,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "admin-storage"
     },
@@ -7194,7 +5931,7 @@
     {
       "filePath": "src/lib/server/daily-tasks.ts",
       "line": 3,
-      "excerpt": "import { FieldValue, type Transaction } from \"firebase-admin/firestore\";",
+      "excerpt": "import { FieldPath, FieldValue, type Transaction } from \"firebase-admin/firestore\";",
       "kind": "firebase-admin"
     },
     {
@@ -7273,6 +6010,18 @@
       "filePath": "src/lib/server/onboarding-analytics.ts",
       "line": 3,
       "excerpt": "import * as admin from \"firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/server/platform-economy-mutations.ts",
+      "line": 3,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/server/platform-economy.ts",
+      "line": 3,
+      "excerpt": "import { AggregateField } from \"firebase-admin/firestore\";",
       "kind": "firebase-admin"
     },
     {
@@ -7480,30 +6229,6 @@
       "kind": "data-connect"
     },
     {
-      "filePath": "scripts/agent/check-dependency-truth.ts",
-      "line": 65,
-      "excerpt": "\"firebase-admin\",",
-      "kind": "firebase-admin"
-    },
-    {
-      "filePath": "scripts/agent/check-dependency-truth.ts",
-      "line": 68,
-      "excerpt": "\"@google-cloud/vertexai\",",
-      "kind": "vertex-ai"
-    },
-    {
-      "filePath": "scripts/agent/check-dependency-truth.ts",
-      "line": 67,
-      "excerpt": "\"google-auth-library\",",
-      "kind": "google-auth"
-    },
-    {
-      "filePath": "scripts/agent/check-dependency-truth.ts",
-      "line": 66,
-      "excerpt": "\"@google-analytics/data\",",
-      "kind": "ga-data-api"
-    },
-    {
       "filePath": "scripts/agent/check-infrastructure-truth.ts",
       "line": 48,
       "excerpt": "verifyDep(\"firebase-admin\");",
@@ -7547,31 +6272,31 @@
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 323,
+      "line": 326,
       "excerpt": "line: lineOf(source, \"@google-cloud/vertexai\"),",
       "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 299,
+      "line": 302,
       "excerpt": "title: \"Runtime SQL/Data Connect usage appears outside the approved agent mirror\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 301,
+      "line": 304,
       "excerpt": "expectedRule: \"Data Connect/Cloud SQL is allowed only for agent-context mirror paths unless a route contract explicitly approves runtime usage.\",",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 291,
+      "line": 294,
       "excerpt": "const hasRuntimeSqlClient = /(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/score-codebase-hardening.ts",
-      "line": 291,
+      "line": 294,
       "excerpt": "const hasRuntimeSqlClient = /(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "mysql"
     },
@@ -7655,37 +6380,37 @@
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 980,
+      "line": 987,
       "excerpt": "line: lineOf(source, \"@google-cloud/vertexai\") ?? lineOf(source, \"BetaAnalyticsDataClient\") ?? lineOf(source, \"GoogleAuth\"),",
       "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 583,
+      "line": 585,
       "excerpt": "if (/adminStorage|storage\\.bucket|bucket\\(/u.test(source) && !/entitlement|unlocked|owner|participant|MEDIA_PROXY|media_proxy|requireAdmin/u.test(source)) {",
       "kind": "admin-storage"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 927,
+      "line": 934,
       "excerpt": "title: \"Runtime SQL/Data Connect usage appears outside approved agent mirror\",",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 928,
+      "line": 935,
       "excerpt": "evidence: [\"Firebase Data Connect/Cloud SQL is allowed only for agent-context mirror infrastructure unless explicitly contracted.\"],",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 920,
+      "line": 927,
       "excerpt": "if (/(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/score-speed-security-hardening.ts",
-      "line": 920,
+      "line": 927,
       "excerpt": "if (/(from\\s+[\"'](?:pg|postgres|mysql2?|@prisma\\/client|prisma|drizzle-orm|kysely|sequelize|@google-cloud\\/cloud-sql-connector)[\"'])|\\bCLOUD_SQL_CONNECTION_NAME\\b/u.test(source)",
       "kind": "mysql"
     },
@@ -7882,13 +6607,6 @@
       "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
     },
     {
-      "filePath": "dataconnect/schema/structured_profiles.gql",
-      "kind": "sql_dataconnect_agent_context_mirror",
-      "costClass": "sql_dataconnect_agent_context_mirror",
-      "classification": "sql_dataconnect_agent_context_mirror",
-      "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
-    },
-    {
       "filePath": "scripts/agent/sync-sql.ts",
       "kind": "sql_dataconnect_agent_context_mirror",
       "costClass": "sql_dataconnect_agent_context_mirror",
@@ -7897,13 +6615,7 @@
     }
   ],
   "requiredFixes": [
-    "Add explicit cache headers, ETag/SWR behavior, or update the contract to no_store if caching is unsafe.",
-    "Review whether this cheap public GET should use cache/edge-friendly throttling instead of Firestore-backed rate-limit writes.",
-    "Add a route-specific rate limit or document a deterministic upstream budget guard in the ApiCostContract.",
-    "Add limit/pagination or route through a materialized snapshot/hot-cache layer.",
-    "Add a deterministic batch limit and route cost contract before running cleanup deletes.",
-    "Add a bounded query limit or document why the listener is a single-doc runtime invalidation exception.",
-    "Apply MEDIA_PROXY or a route-specific byte/rate guard before Storage/media egress."
+    "Review whether this cheap public GET should use cache/edge-friendly throttling instead of Firestore-backed rate-limit writes."
   ],
   "safeAutofixSuggestions": [],
   "minimalVerificationCommands": [
@@ -7925,5 +6637,5 @@
       "broad UI audits"
     ]
   },
-  "summary": "Detected 96 Google API cost/rate-limit finding(s); no business logic was auto-fixed."
+  "summary": "Detected 6 Google API cost/rate-limit finding(s); no business logic was auto-fixed."
 }

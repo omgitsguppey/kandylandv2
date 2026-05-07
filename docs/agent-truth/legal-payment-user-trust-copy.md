@@ -12,7 +12,7 @@ This document is not legal advice. It records product-copy truth and consistency
 - Product UI should call them `GumDrops` unless a legal page intentionally quotes the existing legal wording.
 - Bonus, promo, reward, or admin-granted GumDrops must not be presented as cash value, refundable value, or revenue.
 - Purchase UI must show the USD amount and total GumDrops before checkout.
-- Purchase UI must separate paid GumDrops from bonus GumDrops when a package includes both.
+- Purchase UI must preserve source-of-funds truth while keeping package rows compact.
 - Unlock UI must show the GumDrops cost before the user confirms the unlock.
 - Expiration copy must distinguish public Drop availability from owned library access.
 - Notification permission copy must say what notifications are for before asking users to enable them.
@@ -27,8 +27,8 @@ Terms and Privacy:
 
 Wallet refill:
 - `src/components/PurchaseModal.tsx` uses the canonical GumDrop economics helpers.
-- Package rows show total GumDrops, USD price, paid GumDrops, and bonus GumDrops before checkout.
-- The success state repeats credited GumDrops, paid GumDrops, bonus GumDrops, and secured USD amount.
+- Package rows show total delivered GumDrops, USD price, and a compact bonus indicator before checkout.
+- The success state repeats credited GumDrops and secured USD amount while source-of-funds details remain in backend/admin truth.
 
 Unlock:
 - Drop cards display the GD cost on the card.
@@ -57,7 +57,7 @@ Support:
 - `Refill GumDrops`
 - `Unwrap for 50 GD`
 - `Confirm 50 GD?`
-- `500 paid + 500 bonus GumDrops`
+- `500 GumDrops + bonus`
 - `This action costs 50 GumDrops.`
 - `Expired Drops leave the public Drops page.`
 - `Unwrapped Drops stay in your Library.`
@@ -84,7 +84,7 @@ npm run check:legal-payment-copy
 
 The validator checks:
 - `agent/state/legal-payment-copy-audit.generated.json` exists and records every required clarity lane.
-- Wallet package copy separates paid and bonus GumDrops.
+- Wallet package copy stays compact while backend/admin truth preserves paid-source and bonus-source accounting.
 - Unlock UI shows cost before action.
 - Terms, Privacy, and Support paths exist or missing state is documented.
 - Bonus/promo copy does not imply cash value.

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T11:19:28.291Z",
+  "generatedAt": "2026-05-06T21:29:33.981Z",
   "overallScore": 47,
   "overallStatus": "fail",
   "domainScores": {
@@ -15,9 +15,9 @@
       "weight": 25,
       "score": 0,
       "status": "fail",
-      "findingCount": 95,
+      "findingCount": 97,
       "criticalCount": 4,
-      "majorCount": 91
+      "majorCount": 93
     },
     "firebaseRulesAppCheckReadiness": {
       "weight": 20,
@@ -39,9 +39,9 @@
       "weight": 10,
       "score": 0,
       "status": "fail",
-      "findingCount": 54,
-      "criticalCount": 27,
-      "majorCount": 27
+      "findingCount": 14,
+      "criticalCount": 1,
+      "majorCount": 13
     },
     "docsDebugEvidenceCompleteness": {
       "weight": 5,
@@ -58,7 +58,7 @@
       "force_cache": 0,
       "swr": 3,
       "hot_cache": 4,
-      "no_store": 89,
+      "no_store": 95,
       "must_not_cache": 22,
       "unknown": 0
     },
@@ -478,6 +478,96 @@
           "POST",
           "PUT",
           "DELETE"
+        ],
+        "contractPattern": "/api/admin/**",
+        "cacheMode": "no_store",
+        "surface": "admin",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
+      },
+      {
+        "routePath": "/api/admin/economy/drift",
+        "filePath": "src/app/api/admin/economy/drift/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "contractPattern": "/api/admin/**",
+        "cacheMode": "no_store",
+        "surface": "admin",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
+      },
+      {
+        "routePath": "/api/admin/economy/offers",
+        "filePath": "src/app/api/admin/economy/offers/route.ts",
+        "methods": [
+          "GET",
+          "POST",
+          "PATCH"
+        ],
+        "contractPattern": "/api/admin/**",
+        "cacheMode": "no_store",
+        "surface": "admin",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
+      },
+      {
+        "routePath": "/api/admin/economy/packages",
+        "filePath": "src/app/api/admin/economy/packages/route.ts",
+        "methods": [
+          "GET",
+          "POST",
+          "PATCH"
+        ],
+        "contractPattern": "/api/admin/**",
+        "cacheMode": "no_store",
+        "surface": "admin",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
+      },
+      {
+        "routePath": "/api/admin/economy/promos",
+        "filePath": "src/app/api/admin/economy/promos/route.ts",
+        "methods": [
+          "GET",
+          "POST",
+          "PATCH"
+        ],
+        "contractPattern": "/api/admin/**",
+        "cacheMode": "no_store",
+        "surface": "admin",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
+      },
+      {
+        "routePath": "/api/admin/economy/redemptions",
+        "filePath": "src/app/api/admin/economy/redemptions/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "contractPattern": "/api/admin/**",
+        "cacheMode": "no_store",
+        "surface": "admin",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
+      },
+      {
+        "routePath": "/api/admin/economy/treasury",
+        "filePath": "src/app/api/admin/economy/treasury/route.ts",
+        "methods": [
+          "GET"
         ],
         "contractPattern": "/api/admin/**",
         "cacheMode": "no_store",
@@ -1797,16 +1887,16 @@
   },
   "routeSecurityClassification": {
     "totals": {
-      "routes": 120,
-      "mutations": 87,
-      "trustedOriginRequired": 87,
-      "trustedOriginPresent": 99,
-      "guardPresent": 119,
-      "rateLimitEvidence": 119,
+      "routes": 126,
+      "mutations": 90,
+      "trustedOriginRequired": 90,
+      "trustedOriginPresent": 102,
+      "guardPresent": 125,
+      "rateLimitEvidence": 125,
       "idempotencyRequired": 12,
       "idempotencyEvidence": 17,
-      "bodyLimitRequired": 113,
-      "bodyLimitEvidence": 13
+      "bodyLimitRequired": 119,
+      "bodyLimitEvidence": 14
     },
     "routes": [
       {
@@ -2659,6 +2749,180 @@
         "sensitiveWrites": true,
         "trustedOriginRequired": true,
         "trustedOriginPresent": true,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "unauthorized",
+          "forbidden",
+          "invalid_admin_request"
+        ]
+      },
+      {
+        "routePath": "/api/admin/economy/drift",
+        "filePath": "src/app/api/admin/economy/drift/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "contractPattern": "/api/admin/**",
+        "authRequired": "admin",
+        "rateLimitPolicy": "admin",
+        "costRisk": "high",
+        "csrfRisk": "high",
+        "mutation": false,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": false,
+        "trustedOriginPresent": false,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "unauthorized",
+          "forbidden",
+          "invalid_admin_request"
+        ]
+      },
+      {
+        "routePath": "/api/admin/economy/offers",
+        "filePath": "src/app/api/admin/economy/offers/route.ts",
+        "methods": [
+          "GET",
+          "POST",
+          "PATCH"
+        ],
+        "contractPattern": "/api/admin/**",
+        "authRequired": "admin",
+        "rateLimitPolicy": "admin",
+        "costRisk": "high",
+        "csrfRisk": "high",
+        "mutation": true,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": true,
+        "trustedOriginPresent": true,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "unauthorized",
+          "forbidden",
+          "invalid_admin_request"
+        ]
+      },
+      {
+        "routePath": "/api/admin/economy/packages",
+        "filePath": "src/app/api/admin/economy/packages/route.ts",
+        "methods": [
+          "GET",
+          "POST",
+          "PATCH"
+        ],
+        "contractPattern": "/api/admin/**",
+        "authRequired": "admin",
+        "rateLimitPolicy": "admin",
+        "costRisk": "high",
+        "csrfRisk": "high",
+        "mutation": true,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": true,
+        "trustedOriginPresent": true,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "unauthorized",
+          "forbidden",
+          "invalid_admin_request"
+        ]
+      },
+      {
+        "routePath": "/api/admin/economy/promos",
+        "filePath": "src/app/api/admin/economy/promos/route.ts",
+        "methods": [
+          "GET",
+          "POST",
+          "PATCH"
+        ],
+        "contractPattern": "/api/admin/**",
+        "authRequired": "admin",
+        "rateLimitPolicy": "admin",
+        "costRisk": "high",
+        "csrfRisk": "high",
+        "mutation": true,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": true,
+        "trustedOriginPresent": true,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "unauthorized",
+          "forbidden",
+          "invalid_admin_request"
+        ]
+      },
+      {
+        "routePath": "/api/admin/economy/redemptions",
+        "filePath": "src/app/api/admin/economy/redemptions/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "contractPattern": "/api/admin/**",
+        "authRequired": "admin",
+        "rateLimitPolicy": "admin",
+        "costRisk": "high",
+        "csrfRisk": "high",
+        "mutation": false,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": false,
+        "trustedOriginPresent": false,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "unauthorized",
+          "forbidden",
+          "invalid_admin_request"
+        ]
+      },
+      {
+        "routePath": "/api/admin/economy/treasury",
+        "filePath": "src/app/api/admin/economy/treasury/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "contractPattern": "/api/admin/**",
+        "authRequired": "admin",
+        "rateLimitPolicy": "admin",
+        "costRisk": "high",
+        "csrfRisk": "high",
+        "mutation": false,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": false,
+        "trustedOriginPresent": false,
         "trustedOriginChecked": true,
         "guardPresent": true,
         "rateLimitPresent": true,
@@ -4728,7 +4992,7 @@
         "idempotencyRequired": false,
         "idempotencyPresent": false,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5723,7 +5987,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 224,
+      "line": 230,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -5734,7 +5998,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1l4yc4u"
+      "id": "speed_security_o1you5"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -5769,6 +6033,57 @@
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
       "id": "speed_security_1qgdb4c"
+    },
+    {
+      "domain": "apiRouteSecurityExploitHardening",
+      "severity": "major",
+      "filePath": "src/app/api/admin/economy/offers/route.ts",
+      "line": 50,
+      "title": "Mutating route has body limit contract but no source-visible cap",
+      "evidence": [
+        "Contract body limit is 64000 bytes."
+      ],
+      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
+      "actualPattern": "missing body limit evidence",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
+      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
+      "id": "speed_security_g0ng0t"
+    },
+    {
+      "domain": "apiRouteSecurityExploitHardening",
+      "severity": "major",
+      "filePath": "src/app/api/admin/economy/packages/route.ts",
+      "line": 50,
+      "title": "Mutating route has body limit contract but no source-visible cap",
+      "evidence": [
+        "Contract body limit is 64000 bytes."
+      ],
+      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
+      "actualPattern": "missing body limit evidence",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
+      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
+      "id": "speed_security_8gl3fj"
+    },
+    {
+      "domain": "apiRouteSecurityExploitHardening",
+      "severity": "major",
+      "filePath": "src/app/api/admin/economy/promos/route.ts",
+      "line": 50,
+      "title": "Mutating route has body limit contract but no source-visible cap",
+      "evidence": [
+        "Contract body limit is 64000 bytes."
+      ],
+      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
+      "actualPattern": "missing body limit evidence",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
+      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
+      "id": "speed_security_1ialt94"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -5825,7 +6140,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 790,
+      "line": 808,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -5836,7 +6151,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_11a5okh"
+      "id": "speed_security_1nckyg9"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -5927,7 +6242,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 2409,
+      "line": 2417,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -5938,7 +6253,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1uvvr9f"
+      "id": "speed_security_16xhk8m"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6110,7 +6425,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/bookings/route.ts",
-      "line": 183,
+      "line": 188,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6121,13 +6436,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1u9l7g5"
+      "id": "speed_security_1asp7tq"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 130,
+      "line": 134,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6138,7 +6453,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_5wxvqj"
+      "id": "speed_security_an9k67"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6330,7 +6645,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/payouts/route.ts",
-      "line": 98,
+      "line": 101,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6341,13 +6656,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_apdacf"
+      "id": "speed_security_80lx1m"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 296,
+      "line": 303,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6358,7 +6673,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1bqkooh"
+      "id": "speed_security_1jx11by"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6381,7 +6696,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/requests/route.ts",
-      "line": 92,
+      "line": 95,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6392,7 +6707,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_18espkk"
+      "id": "speed_security_g9rihn"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6432,7 +6747,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/subscriptions/route.ts",
-      "line": 176,
+      "line": 179,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6443,7 +6758,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_bcod75"
+      "id": "speed_security_1w4pf6u"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6482,7 +6797,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/drops/duplicate-filenames/route.ts",
-      "line": 32,
+      "line": 34,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6493,13 +6808,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_qs56zy"
+      "id": "speed_security_453pwk"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/drops/feedback/route.ts",
-      "line": 32,
+      "line": 34,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6510,7 +6825,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1hu678n"
+      "id": "speed_security_brzj85"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6584,7 +6899,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/notifications/route.ts",
-      "line": 143,
+      "line": 144,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6595,13 +6910,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_y2hszg"
+      "id": "speed_security_m2dewz"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 61,
+      "line": 62,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -6612,7 +6927,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_u7sdet"
+      "id": "speed_security_qtta7a"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6680,22 +6995,6 @@
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
       "id": "speed_security_eb2dg9"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/settings/landing/upload/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_15sdokl"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6983,7 +7282,7 @@
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/app/api/health/route.ts",
-      "line": 7,
+      "line": 28,
       "title": "Public/cacheable route uses no-store or force-dynamic",
       "evidence": [
         "/api/health contract is static, but source shows no-store/force-dynamic evidence."
@@ -6994,7 +7293,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Review freshness/security needs, then remove no-store or document why this route is truly dynamic.",
       "humanReadableEscalation": "Do not auto-change caching on routes without source-owner freshness review.",
-      "id": "speed_security_1o3rkar"
+      "id": "speed_security_15xujpe"
     },
     {
       "domain": "speedCachingHydration",
@@ -7034,7 +7333,7 @@
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 1721,
+      "line": 1724,
       "title": "Public shell surface uses interval work",
       "evidence": [
         "Speed fixes must not add polling; startup timers can increase input delay and cost."
@@ -7045,423 +7344,15 @@
       "autofixConfidence": 0,
       "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
       "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_1v0an12"
+      "id": "speed_security_10s5xs1"
     }
   ],
   "costRisks": [
     {
       "domain": "costRunawayWorkControls",
       "severity": "critical",
-      "filePath": "src/app/api/checkin/route.ts",
-      "line": 152,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_8udr6h"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/bookings/route.ts",
-      "line": 136,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 3 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_pe6gzr"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 80,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_d8q6lj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/drops/route.ts",
-      "line": 132,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_uzei51"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/messages/route.ts",
-      "line": 228,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_80shjt"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/application/route.ts",
-      "line": 66,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1rzgyn3"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/contract-signature/route.ts",
-      "line": 131,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_9dmjtv"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/id-submission/route.ts",
-      "line": 100,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1hgca4c"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/intro/route.ts",
-      "line": 62,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1iewkjj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/payouts/route.ts",
-      "line": 48,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 4 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_azfe24"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 135,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 4 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_n2jz6b"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/requests/route.ts",
-      "line": 63,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_x3bc3m"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/settings/route.ts",
-      "line": 62,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_189tsau"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/subscriptions/route.ts",
-      "line": 129,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 3 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1owgru5"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creators/[username]/route.ts",
-      "line": 74,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1whg1ct"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 53,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_18wcsq6"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/drops/content/route.ts",
-      "line": 67,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1xkmkzv"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/drops/impression/route.ts",
-      "line": 61,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_cvksht"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 346,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1whi9ir"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/settings/landing/upload/route.ts",
-      "line": 74,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_13b7jik"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
       "filePath": "src/app/api/user/data/route.ts",
-      "line": 100,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 3 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_a3c3hj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/delete/route.ts",
-      "line": 86,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_12xhkz1"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/follow/route.ts",
-      "line": 46,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_8ch867"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/onboarding-progress/route.ts",
-      "line": 51,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1popro3"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/profile/route.ts",
-      "line": 232,
+      "line": 101,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -7472,41 +7363,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_xh0ww2"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/register/route.ts",
-      "line": 245,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_4yd1lm"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/viewer/watch-session/route.ts",
-      "line": 178,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_mx0ztb"
+      "id": "speed_security_x4upfo"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7545,40 +7402,6 @@
     {
       "domain": "costRunawayWorkControls",
       "severity": "major",
-      "filePath": "src/app/api/admin/analytics/realtime/route.ts",
-      "line": 425,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 6 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_xwf4xj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
-      "line": 474,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_13xwd24"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
       "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
       "line": 132,
       "title": "Potential unbounded Promise.all fanout",
@@ -7596,212 +7419,8 @@
     {
       "domain": "costRunawayWorkControls",
       "severity": "major",
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
-      "line": 194,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1vznpf"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-options/route.ts",
-      "line": 36,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_bseniu"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 56,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_rxmp0v"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/route.ts",
-      "line": 3563,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_hocrlw"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/drops/route.ts",
-      "line": 126,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_7uw14x"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/orchestration/repairs/route.ts",
-      "line": 34,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_6dpasj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 315,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 5 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1sw15jo"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 455,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 12 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1yyxjr1"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 178,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 12 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_n0jjwy"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/[userId]/username/route.ts",
-      "line": 48,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_l92wg4"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 1040,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 18 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_c0skx9"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/view-as-creator/route.ts",
-      "line": 88,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_dvbdld"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
       "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 143,
+      "line": 148,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -7812,13 +7431,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1kpik63"
+      "id": "speed_security_b9s50s"
     },
     {
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 92,
+      "line": 94,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -7829,7 +7448,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_gk4kje"
+      "id": "speed_security_14wrgi4"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7869,7 +7488,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/lib/server/admin-analytics-shared.ts",
-      "line": 446,
+      "line": 447,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -7880,7 +7499,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1fm1vdm"
+      "id": "speed_security_1x7q06v"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7937,7 +7556,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/lib/server/queue-runtime.ts",
-      "line": 32,
+      "line": 35,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -7948,7 +7567,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1v71ic7"
+      "id": "speed_security_93cg3w"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -8036,416 +7655,8 @@
     {
       "domain": "costRunawayWorkControls",
       "severity": "critical",
-      "filePath": "src/app/api/checkin/route.ts",
-      "line": 152,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_8udr6h"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/bookings/route.ts",
-      "line": 136,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 3 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_pe6gzr"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 80,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_d8q6lj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/drops/route.ts",
-      "line": 132,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_uzei51"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/messages/route.ts",
-      "line": 228,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_80shjt"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/application/route.ts",
-      "line": 66,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1rzgyn3"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/contract-signature/route.ts",
-      "line": 131,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_9dmjtv"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/id-submission/route.ts",
-      "line": 100,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1hgca4c"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/intro/route.ts",
-      "line": 62,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1iewkjj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/payouts/route.ts",
-      "line": 48,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 4 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_azfe24"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 135,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 4 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_n2jz6b"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/requests/route.ts",
-      "line": 63,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_x3bc3m"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/settings/route.ts",
-      "line": 62,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_189tsau"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/subscriptions/route.ts",
-      "line": 129,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 3 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1owgru5"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creators/[username]/route.ts",
-      "line": 74,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1whg1ct"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 53,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_18wcsq6"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/drops/content/route.ts",
-      "line": 67,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1xkmkzv"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/drops/impression/route.ts",
-      "line": 61,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_cvksht"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 346,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1whi9ir"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/settings/landing/upload/route.ts",
-      "line": 74,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_13b7jik"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
       "filePath": "src/app/api/user/data/route.ts",
-      "line": 100,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 3 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_a3c3hj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/delete/route.ts",
-      "line": 86,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_12xhkz1"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/follow/route.ts",
-      "line": 46,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_8ch867"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/onboarding-progress/route.ts",
-      "line": 51,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1popro3"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/profile/route.ts",
-      "line": 232,
+      "line": 101,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -8456,41 +7667,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_xh0ww2"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/register/route.ts",
-      "line": 245,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_4yd1lm"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/viewer/watch-session/route.ts",
-      "line": 178,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_mx0ztb"
+      "id": "speed_security_x4upfo"
     }
   ],
   "findings": [
@@ -8561,416 +7738,8 @@
     {
       "domain": "costRunawayWorkControls",
       "severity": "critical",
-      "filePath": "src/app/api/checkin/route.ts",
-      "line": 152,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_8udr6h"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/bookings/route.ts",
-      "line": 136,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 3 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_pe6gzr"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 80,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_d8q6lj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/drops/route.ts",
-      "line": 132,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_uzei51"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/messages/route.ts",
-      "line": 228,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_80shjt"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/application/route.ts",
-      "line": 66,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1rzgyn3"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/contract-signature/route.ts",
-      "line": 131,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_9dmjtv"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/id-submission/route.ts",
-      "line": 100,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1hgca4c"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/onboarding/intro/route.ts",
-      "line": 62,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1iewkjj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/payouts/route.ts",
-      "line": 48,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 4 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_azfe24"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 135,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 4 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_n2jz6b"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/requests/route.ts",
-      "line": 63,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_x3bc3m"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/settings/route.ts",
-      "line": 62,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_189tsau"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creator/subscriptions/route.ts",
-      "line": 129,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 3 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1owgru5"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/creators/[username]/route.ts",
-      "line": 74,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1whg1ct"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 53,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_18wcsq6"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/drops/content/route.ts",
-      "line": 67,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1xkmkzv"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/drops/impression/route.ts",
-      "line": 61,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_cvksht"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 346,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1whi9ir"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/settings/landing/upload/route.ts",
-      "line": 74,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_13b7jik"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
       "filePath": "src/app/api/user/data/route.ts",
-      "line": 100,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 3 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_a3c3hj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/delete/route.ts",
-      "line": 86,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_12xhkz1"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/follow/route.ts",
-      "line": 46,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_8ch867"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/onboarding-progress/route.ts",
-      "line": 51,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1popro3"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/profile/route.ts",
-      "line": 232,
+      "line": 101,
       "title": "Route contains Firestore collection get without nearby bound",
       "evidence": [
         "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
@@ -8981,41 +7750,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
       "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_xh0ww2"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/user/register/route.ts",
-      "line": 245,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_4yd1lm"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "critical",
-      "filePath": "src/app/api/viewer/watch-session/route.ts",
-      "line": 178,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_mx0ztb"
+      "id": "speed_security_x4upfo"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -9222,23 +7957,6 @@
       "id": "speed_security_m9umbj"
     },
     {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/analytics/realtime/route.ts",
-      "line": 425,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 6 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_xwf4xj"
-    },
-    {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/analytics/refresh/route.ts",
@@ -9288,23 +8006,6 @@
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
       "id": "speed_security_8qaltt"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
-      "line": 474,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_13xwd24"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -9375,23 +8076,6 @@
       "id": "speed_security_pv1cr0"
     },
     {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
-      "line": 194,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1vznpf"
-    },
-    {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
@@ -9407,23 +8091,6 @@
       "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
       "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
       "id": "speed_security_n23v2i"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-options/route.ts",
-      "line": 36,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_bseniu"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -9463,7 +8130,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 224,
+      "line": 230,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -9474,24 +8141,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1l4yc4u"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/assistant/route.ts",
-      "line": 56,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_rxmp0v"
+      "id": "speed_security_o1you5"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -9511,23 +8161,6 @@
       "id": "speed_security_cqffs3"
     },
     {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/route.ts",
-      "line": 3563,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_hocrlw"
-    },
-    {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/drops/route.ts",
@@ -9545,21 +8178,55 @@
       "id": "speed_security_1qgdb4c"
     },
     {
-      "domain": "costRunawayWorkControls",
+      "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
-      "filePath": "src/app/api/admin/drops/route.ts",
-      "line": 126,
-      "title": "Route contains Firestore collection get without nearby bound",
+      "filePath": "src/app/api/admin/economy/offers/route.ts",
+      "line": 50,
+      "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
-        "Found 2 .get() call(s) without limit/pagination/hot-cache evidence."
+        "Contract body limit is 64000 bytes."
       ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
+      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
+      "actualPattern": "missing body limit evidence",
       "canAutofix": false,
       "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_7uw14x"
+      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
+      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
+      "id": "speed_security_g0ng0t"
+    },
+    {
+      "domain": "apiRouteSecurityExploitHardening",
+      "severity": "major",
+      "filePath": "src/app/api/admin/economy/packages/route.ts",
+      "line": 50,
+      "title": "Mutating route has body limit contract but no source-visible cap",
+      "evidence": [
+        "Contract body limit is 64000 bytes."
+      ],
+      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
+      "actualPattern": "missing body limit evidence",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
+      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
+      "id": "speed_security_8gl3fj"
+    },
+    {
+      "domain": "apiRouteSecurityExploitHardening",
+      "severity": "major",
+      "filePath": "src/app/api/admin/economy/promos/route.ts",
+      "line": 50,
+      "title": "Mutating route has body limit contract but no source-visible cap",
+      "evidence": [
+        "Contract body limit is 64000 bytes."
+      ],
+      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
+      "actualPattern": "missing body limit evidence",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
+      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
+      "id": "speed_security_1ialt94"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -9577,40 +8244,6 @@
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
       "id": "speed_security_1sqeh5j"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/orchestration/repairs/route.ts",
-      "line": 34,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_6dpasj"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 315,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 5 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1sw15jo"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -9650,7 +8283,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 790,
+      "line": 808,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -9661,24 +8294,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_11a5okh"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/roster/route.ts",
-      "line": 455,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 12 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_1yyxjr1"
+      "id": "speed_security_1nckyg9"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -9749,23 +8365,6 @@
       "id": "speed_security_973kl9"
     },
     {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/user/[userId]/route.ts",
-      "line": 178,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 12 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_n0jjwy"
-    },
-    {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/[userId]/username/route.ts",
@@ -9783,27 +8382,10 @@
       "id": "speed_security_l70izq"
     },
     {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/[userId]/username/route.ts",
-      "line": 48,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_l92wg4"
-    },
-    {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/users/route.ts",
-      "line": 2409,
+      "line": 2417,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 64000 bytes."
@@ -9814,24 +8396,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1uvvr9f"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/users/route.ts",
-      "line": 1040,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 18 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_c0skx9"
+      "id": "speed_security_16xhk8m"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -9866,23 +8431,6 @@
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
       "id": "speed_security_ni19vz"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/view-as-creator/route.ts",
-      "line": 88,
-      "title": "Route contains Firestore collection get without nearby bound",
-      "evidence": [
-        "Found 1 .get() call(s) without limit/pagination/hot-cache evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes are bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit/pagination",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add pagination/limit or move the read behind a materialized hot-cache refresh.",
-      "humanReadableEscalation": "Query shape changes can affect admin/runtime truth and need owner review.",
-      "id": "speed_security_dvbdld"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -10020,7 +8568,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/bookings/route.ts",
-      "line": 183,
+      "line": 188,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10031,13 +8579,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1u9l7g5"
+      "id": "speed_security_1asp7tq"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/broadcasts/route.ts",
-      "line": 130,
+      "line": 134,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10048,7 +8596,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_5wxvqj"
+      "id": "speed_security_an9k67"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -10274,7 +8822,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/payouts/route.ts",
-      "line": 98,
+      "line": 101,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10285,13 +8833,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_apdacf"
+      "id": "speed_security_80lx1m"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 296,
+      "line": 303,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10302,13 +8850,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1bqkooh"
+      "id": "speed_security_1jx11by"
     },
     {
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 143,
+      "line": 148,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -10319,7 +8867,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1kpik63"
+      "id": "speed_security_b9s50s"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -10342,7 +8890,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/requests/route.ts",
-      "line": 92,
+      "line": 95,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10353,7 +8901,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_18espkk"
+      "id": "speed_security_g9rihn"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -10393,7 +8941,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/subscriptions/route.ts",
-      "line": 176,
+      "line": 179,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10404,13 +8952,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_bcod75"
+      "id": "speed_security_1w4pf6u"
     },
     {
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 92,
+      "line": 94,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -10421,7 +8969,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_gk4kje"
+      "id": "speed_security_14wrgi4"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -10460,7 +9008,7 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/drops/duplicate-filenames/route.ts",
-      "line": 32,
+      "line": 34,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10471,13 +9019,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_qs56zy"
+      "id": "speed_security_453pwk"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/drops/feedback/route.ts",
-      "line": 32,
+      "line": 34,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10488,7 +9036,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1hu678n"
+      "id": "speed_security_brzj85"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -10579,7 +9127,7 @@
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/app/api/health/route.ts",
-      "line": 7,
+      "line": 28,
       "title": "Public/cacheable route uses no-store or force-dynamic",
       "evidence": [
         "/api/health contract is static, but source shows no-store/force-dynamic evidence."
@@ -10590,13 +9138,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Review freshness/security needs, then remove no-store or document why this route is truly dynamic.",
       "humanReadableEscalation": "Do not auto-change caching on routes without source-owner freshness review.",
-      "id": "speed_security_1o3rkar"
+      "id": "speed_security_15xujpe"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/notifications/route.ts",
-      "line": 143,
+      "line": 144,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10607,13 +9155,13 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_y2hszg"
+      "id": "speed_security_m2dewz"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/paypal/capture/route.ts",
-      "line": 61,
+      "line": 62,
       "title": "Mutating route has body limit contract but no source-visible cap",
       "evidence": [
         "Contract body limit is 32768 bytes."
@@ -10624,7 +9172,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_u7sdet"
+      "id": "speed_security_qtta7a"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -10692,22 +9240,6 @@
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
       "id": "speed_security_eb2dg9"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/settings/landing/upload/route.ts",
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_15sdokl"
     },
     {
       "domain": "contentPaymentEconomyProtection",
@@ -10995,7 +9527,7 @@
       "domain": "speedCachingHydration",
       "severity": "major",
       "filePath": "src/components/Chat/ChatExperience.tsx",
-      "line": 1721,
+      "line": 1724,
       "title": "Public shell surface uses interval work",
       "evidence": [
         "Speed fixes must not add polling; startup timers can increase input delay and cost."
@@ -11006,7 +9538,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Replace with existing SWR/runtime invalidation or defer diagnostics to idle.",
       "humanReadableEscalation": "Timer behavior needs surface-specific review.",
-      "id": "speed_security_1v0an12"
+      "id": "speed_security_10s5xs1"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -11046,7 +9578,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/lib/server/admin-analytics-shared.ts",
-      "line": 446,
+      "line": 447,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -11057,7 +9589,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1fm1vdm"
+      "id": "speed_security_1x7q06v"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -11114,7 +9646,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/lib/server/queue-runtime.ts",
-      "line": 32,
+      "line": 35,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -11125,7 +9657,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1v71ic7"
+      "id": "speed_security_93cg3w"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -11207,5 +9739,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 159 findings across 120 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 121 findings across 126 API routes."
 }

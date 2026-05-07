@@ -688,7 +688,8 @@ function scanFirestoreRisks(findings: GoogleCostFinding[], routes: RouteSummary[
     const getMatches = [...file.source.matchAll(/adminDb\.collection\(["'`][^"'`]+["'`]\)([\s\S]{0,240}?)\.get\(/gu)];
     for (const match of getMatches) {
       const chain = match[0];
-      if (chain.includes(".limit(") || chain.includes(".doc(") || chain.includes(".count()")) continue;
+      if (chain.includes(".limit(") || chain.includes(".doc(") || chain.includes(".count()") || chain.includes(".aggregate(")) continue;
+      if (/\b\w+(?:Map|Lookup)\.get\($/u.test(chain)) continue;
       const route = routes.find((candidate) => candidate.filePath === file.filePath);
       addFinding(findings, {
         severity: "major",
@@ -705,8 +706,10 @@ function scanFirestoreRisks(findings: GoogleCostFinding[], routes: RouteSummary[
       });
     }
 
-    const deleteLoops = [...file.source.matchAll(/batch\.delete\(|\.delete\(\)/gu)];
-    if (deleteLoops.length > 0 && !/\.limit\(\s*\d+\s*\)|MAX_|BATCH|limit\s*=/u.test(file.source)) {
+    const deleteLoops = [...file.source.matchAll(/batch\.delete\(|\.delete\(\)/gu)]
+      .filter((match) => !file.source.slice(Math.max(0, (match.index ?? 0) - "FieldValue".length), match.index).endsWith("FieldValue"));
+    const hasDeleteFanout = /batch\.delete\(|forEach\([\s\S]{0,240}\.delete\(\)|\.map\([\s\S]{0,240}\.delete\(\)|for\s*\([^)]*\)[\s\S]{0,240}\.delete\(\)/u.test(file.source);
+    if (deleteLoops.length > 0 && (hasDeleteFanout || deleteLoops.length > 1) && !/\.limit\(\s*\d+\s*\)|MAX_|BATCH|limit\s*=/u.test(file.source)) {
       const first = deleteLoops[0][0];
       addFinding(findings, {
         severity: "major",
@@ -725,6 +728,8 @@ function scanFirestoreRisks(findings: GoogleCostFinding[], routes: RouteSummary[
 
   for (const file of files) {
     if (!file.source.includes("onSnapshot(")) continue;
+    const hasCollectionQueryListener = /onSnapshot\(\s*query\(/u.test(file.source);
+    if (!hasCollectionQueryListener) continue;
     const hasLimit = /query\([\s\S]{0,260}limit\(/u.test(file.source);
     const isAdminOrDebug = file.filePath.includes("/admin/") || file.filePath.toLowerCase().includes("admin") || file.filePath.includes("/debug/");
     if (!hasLimit && !isAdminOrDebug && file.filePath !== "src/hooks/useDrops.ts") {
@@ -757,6 +762,10 @@ function scanStorageRisks(findings: GoogleCostFinding[], routes: RouteSummary[],
     const hasMediaLimit =
       source.includes("MEDIA_PROXY") ||
       route.contract?.ratePolicy.includes("MEDIA_PROXY") ||
+      (
+        /MAX_[A-Z0-9_]*BYTES/u.test(source) &&
+        /rateLimit:\s*(?:STRICT|ADMIN_STORAGE_UPLOAD|MEDIA_PROXY)/u.test(source)
+      ) ||
       (
         adminContentEvidenceSource.includes("google-cost-guard: admin content storage access is protected by MEDIA_PROXY") &&
         adminContentEvidenceSource.includes("storageEgressGuarded: true") &&

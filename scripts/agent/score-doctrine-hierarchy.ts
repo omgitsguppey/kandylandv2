@@ -335,7 +335,7 @@ function buildRegistry(): DoctrineRegistryEntry[] {
       ],
       requiredValidators: ["check:doctrine", "check:human-readable-admin-copy"],
       canonicalRules: ["Product, business, user-loop, trust, and brand constraints live here."],
-      blockedPatterns: ["generic SaaS filler", "fake urgency", "Coins as user-facing GumDrop value"],
+      blockedPatterns: ["generic SaaS filler", "fake urgency", "old economy iconography as user-facing GumDrop value"],
     }),
     entry({
       id: "source-of-truth-constitution",

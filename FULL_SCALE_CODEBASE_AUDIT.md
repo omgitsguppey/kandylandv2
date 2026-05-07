@@ -1,5 +1,55 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-06 #171] FULL AUDIT: Deterministic Codebase Findings Pass
+
+Scope started:
+- Performing a full source-only codebase audit pass from the current `main` state using the repository's deterministic score/check lanes instead of Playwright, Lighthouse, Cypress, deploys, or full `npm run check`.
+- Audit covered hardening, code organization, public beta readiness, device UI dry audit, GumDrops economy, content protection, telemetry parity, orphaned logic, legacy phaseout, global cost, Google cost, Cloud/Data Connect/BigQuery guardrails, dependency architecture, inventory, and TypeScript.
+- This pass reports and remediates low-risk deterministic findings only. It does not mutate runtime data, analytics records, ledgers, payments, tasks, notifications, drops, or user records.
+
+Findings summary:
+- Hardening score improved to `94/beta-risk` with 5 findings, mostly remaining intentional user data/delete export-delete scans, viewer entitlement evidence, AI budget evidence, and one creator public cache policy finding that require source-specific follow-up.
+- Code organization score is `10/100 fail`; the largest debt remains oversized route handlers, admin analytics state, chat experience, AI cover helpers, validators, and large generated JSON context artifacts.
+- Public beta score is now `100/100 clean`; deferred readiness markers and locked preview source-component telemetry evidence are clean.
+- Device UI dry audit is now `100/clean`; wallet-modal fold-risk findings are resolved.
+- Orphaned logic score improved to `90/100 pass`; stale wallet copy and old economy vocabulary are resolved. Remaining items are direct admin analytics realtime/hot-cache review and duplicate telemetry intent evidence.
+- Legacy phaseout remains debt `101 warning` but blocked runtime references are now `0`; the synthetic view-as false-positive block pattern was narrowed.
+- Google cost score improved to `40/100 fail` with 6 findings and 0 critical findings; remaining debt is public cheap GET remote rate-limiter storage on cached public read routes.
+- Cloud cost guardrails are now `100/100 clean`; the inactive non-agent Data Connect profile schema was removed.
+- GumDrops economy, content protection, telemetry parity, global cost surfaces, dependency architecture, inventory, and TypeScript are clean in this pass.
+
+Scope completed:
+- Added missing README doctrine sentences required by hardening and public beta validators.
+- Added bounded limits to admin analytics historical/realtime reads, admin AI debug assistant samples, admin overview/roster/users reads, creator list routes, queue/drop helper scans, and chat realtime listeners.
+- Documented/suppressed only true bounded single-document reads in admin mutation routes.
+- Removed inactive Data Connect runtime-shaped profile schema so Data Connect remains an agent-context mirror only.
+- Tightened landing asset upload to use `ADMIN_STORAGE_UPLOAD`, explicit byte caps, and updated Google-cost scanner recognition for strict byte-capped upload routes.
+- Fixed public beta source evidence by exposing `source_component`, aligning hydration readiness markers, and reducing wallet modal density.
+- Cleaned stale wallet/economy copy and icon vocabulary drift.
+- Narrowed the synthetic view-as legacy block list so legitimate server metric eligibility is not treated as deprecated projection leakage.
+
+Verification:
+- `npm run score:hardening` completed with score `94/beta-risk`.
+- `npm run check:hardening` passed.
+- `npm run score:code-organization` completed with score `10/100 fail`; `npm run check:code-organization` passed.
+- `npm run score:beta` completed with score `100/100 clean`; `npm run check:beta-score` passed.
+- `npm run score:device-ui` completed with score `100/clean`; `npm run check:device-ui` passed.
+- `npm run score:economy` passed at `100/100`; `npm run score:content-protection` passed at `100/100`; `npm run score:telemetry` passed at `100/100`.
+- `npm run score:orphans` completed with score `90/100 pass`; `npm run check:orphaned-logic` passed.
+- `npm run score:legacy-phaseout` completed with debt `101 warning` and 0 blocked references; `npm run check:legacy-phaseout` passed.
+- `npm run score:global-cost` passed at `100/100`; `npm run check:global-cost` passed.
+- `npm run score:google-cost` completed with score `40/100 fail`, 6 findings, and 0 critical; `npm run check:google-cost` passed, confirming the audit lane is structurally valid while public-rate-limit storage findings remain open.
+- `npm run score:cloud-cost` completed with score `100/100 clean`; `npm run check:cloud-cost` passed.
+- `npm run score:speed-security` completed with score `47/fail` and 5 critical score findings; `npm run check:speed-security` passed. Remaining score debt is route idempotency plus user data/delete bounding work requiring route-specific tests.
+- `npm run score:doctrine` completed with score `100/100`; `npm run check:doctrine` passed.
+- `npm run check:surface-doctrine-split` passed.
+- `npm run check:admin-analytics-overview` passed.
+- `npm run check:admin-analytics-live-pulse` passed.
+- `npm run check:inventory` passed and reported 1,908 tracked files.
+- `npm run check:architecture` passed with no dependency violations across 796 modules and 2,854 dependencies.
+- `npm run typecheck` passed.
+- Playwright, Lighthouse, Cypress, deploys, Firebase/Google Cloud provider commands, and full `npm run check` were not run.
+
 ## [2026-05-06 #170] PRE: Platform Economy Commerce Control Center
 
 Scope started:
