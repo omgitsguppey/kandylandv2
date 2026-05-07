@@ -1,47 +1,109 @@
-export default function AdminLoading() {
-  return (
-    <div className="flex min-h-[calc(100dvh-8rem)] w-full flex-1 flex-col gap-4 overflow-hidden rounded-[1.6rem] border border-white/10 bg-black/20 p-4 md:min-h-[calc(100dvh-10rem)] md:gap-5 md:p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-2">
-          <div className="h-3 w-24 rounded-full bg-white/8" />
-          <div className="h-8 w-56 rounded-full bg-white/10" />
-          <div className="h-3 w-72 max-w-full rounded-full bg-white/6" />
-        </div>
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
-          <div className="h-5 w-5 rounded-full border-[3px] border-white/10 border-t-brand-purple animate-spin" />
-        </div>
-      </div>
+function SkeletonLine({ className }: { className: string }) {
+  return <div className={`rounded-full bg-white/8 ${className}`} />;
+}
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="rounded-[1.25rem] border border-white/8 bg-white/[0.03] p-3">
-            <div className="h-3 w-20 rounded-full bg-white/8" />
-            <div className="mt-3 h-7 w-16 rounded-full bg-white/10" />
-            <div className="mt-3 h-3 w-28 rounded-full bg-white/6" />
+function SkeletonModule({
+  headerWidth,
+  rows,
+}: {
+  headerWidth: string;
+  rows: number;
+}) {
+  return (
+    <div className="rounded-[1.35rem] border border-white/8 bg-white/[0.03] p-3 md:p-4">
+      <SkeletonLine className={`h-3 ${headerWidth}`} />
+      <div className="mt-3 space-y-2.5">
+        {Array.from({ length: rows }).map((_, index) => (
+          <div
+            key={index}
+            className="rounded-xl border border-white/7 bg-black/20 p-3"
+          >
+            <SkeletonLine className="h-3 w-24" />
+            <SkeletonLine className="mt-2 h-3 w-full bg-white/6" />
+            <SkeletonLine className="mt-2 h-3 w-5/6 bg-white/6" />
           </div>
         ))}
       </div>
+    </div>
+  );
+}
 
-      <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <div className="min-h-0 rounded-[1.25rem] border border-white/8 bg-white/[0.03] p-3">
-          <div className="h-3 w-28 rounded-full bg-white/8" />
-          <div className="mt-3 space-y-2">
-            {Array.from({ length: 7 }).map((_, index) => (
-              <div key={index} className="h-11 rounded-xl bg-white/[0.04]" />
-            ))}
+export default function AdminLoading() {
+  return (
+    <div className="min-h-[calc(100dvh-10rem)] w-full space-y-3 md:min-h-[calc(100dvh-11rem)] md:space-y-4">
+      <div className="rounded-[1.6rem] border border-white/10 bg-black/20 p-4 md:p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2">
+            <SkeletonLine className="h-3 w-24" />
+            <SkeletonLine className="h-8 w-56 max-w-full bg-white/10" />
+            <SkeletonLine className="h-3 w-72 max-w-full bg-white/6" />
+          </div>
+          <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2">
+            <SkeletonLine className="h-3 w-24" />
           </div>
         </div>
 
-        <div className="min-h-0 rounded-[1.25rem] border border-white/8 bg-white/[0.03] p-3">
-          <div className="h-3 w-24 rounded-full bg-white/8" />
-          <div className="mt-3 space-y-3">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="rounded-xl border border-white/8 bg-black/20 p-3">
-                <div className="h-3 w-24 rounded-full bg-white/8" />
-                <div className="mt-2 h-3 w-full rounded-full bg-white/6" />
-                <div className="mt-2 h-3 w-5/6 rounded-full bg-white/6" />
-              </div>
-            ))}
+        <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-[1.15rem] border border-white/8 bg-white/[0.03] p-3"
+            >
+              <SkeletonLine className="h-3 w-20" />
+              <SkeletonLine className="mt-3 h-7 w-16 bg-white/10" />
+              <SkeletonLine className="mt-3 h-3 w-28 bg-white/6" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-3 xl:grid-cols-12">
+        <div className="xl:col-span-12">
+          <div className="rounded-[1.35rem] border border-white/8 bg-white/[0.03] p-3 md:p-4">
+            <SkeletonLine className="h-3 w-32" />
+            <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="rounded-xl border border-white/7 bg-black/20 p-3"
+                >
+                  <SkeletonLine className="h-3 w-20" />
+                  <SkeletonLine className="mt-2 h-6 w-16 bg-white/10" />
+                  <SkeletonLine className="mt-2 h-3 w-24 bg-white/6" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="xl:col-span-7">
+          <SkeletonModule headerWidth="w-36" rows={5} />
+        </div>
+
+        <div className="xl:col-span-5">
+          <SkeletonModule headerWidth="w-32" rows={4} />
+        </div>
+
+        <div className="xl:col-span-12">
+          <div className="rounded-[1.35rem] border border-white/8 bg-white/[0.03] p-3 md:p-4">
+            <SkeletonLine className="h-3 w-28" />
+            <div className="mt-3 grid gap-2">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] gap-3 rounded-xl border border-white/7 bg-black/20 p-3"
+                >
+                  <div className="space-y-2">
+                    <SkeletonLine className="h-3 w-28" />
+                    <SkeletonLine className="h-3 w-full bg-white/6" />
+                  </div>
+                  <div className="space-y-2">
+                    <SkeletonLine className="h-3 w-20" />
+                    <SkeletonLine className="h-3 w-24 bg-white/6" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

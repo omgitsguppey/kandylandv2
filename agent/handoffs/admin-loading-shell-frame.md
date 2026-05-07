@@ -8,9 +8,9 @@ Status:
 - completed
 
 Summary:
-- Replaced the compressed generic admin loading panel with a wider, shell-shaped skeleton frame.
-- Reserved stable header, stats, and module lanes so the admin content area does not collapse while the route hydrates.
-- Kept the existing admin glass styling and avoided any route or data logic changes.
+- Replaced the compact generic admin loading panel with a stable admin shell-sized skeleton frame.
+- Reserved header, stats, and module lanes so the admin content area does not collapse while loading.
+- Preserved the existing admin visual style and avoided any route or data logic changes.
 
 ## Commit
 Branch: main
@@ -26,23 +26,19 @@ Pending until `npm run typecheck` passes and the requested commit is created.
 
 ## Behavior Changed
 Before:
-- Generic admin loading used a compact centered panel that could leave the content lane feeling collapsed before the actual admin page mounted.
-- The loading state emphasized a spinner more than the eventual page footprint.
+- Generic admin loading used a compact centered panel that did not hold the full admin page lane very well.
+- The loading state leaned on a spinner instead of the eventual admin page footprint.
 
 After:
 - Generic admin loading now reserves a stable admin-sized frame with header, stat, and module skeleton lanes.
-- The visual language stays consistent with the existing admin glass styling.
-- No route behavior, data loading behavior, or admin page logic changed.
+- The visual style remains aligned with the existing admin glass presentation.
+- No route behavior, data loading behavior, or page logic changed.
 
 ## Validation
 Commands run:
 - `npm run optimize:doctrine-context -- --task "generic admin loading skeleton frame" --changed src/app/admin/loading.tsx`: pass
 - `npm run trace:adjacent -- src/app/admin/loading.tsx`: pass
 - `npm run typecheck`: pass
-
-Important output:
-- Admin UI doctrine confirmed the surface should prioritize stable density and truth-first loading presentation.
-- `trace:adjacent` confirmed `src/app/admin/loading.tsx` is isolated from admin route logic and imports no runtime helpers.
 
 Commands not run:
 - broader admin validators: task restricted validation to `npm run typecheck`
@@ -52,9 +48,3 @@ Commands not run:
 - This patch changes only the generic loading shell frame, not any admin page or route logic.
 - The new skeleton intentionally reserves more vertical space during admin navigation to prevent shell collapse.
 - No analytics/debug/admin-AI logic, APIs, package metadata, or lockfiles were touched.
-
-## Needs Uylus / ChatGPT Review
-- None expected if `npm run typecheck` passes.
-
-## Follow-up Suggestions
-- If any specific admin route still visibly jumps after this, the next check should be whether that route has its own narrower loading boundary overriding the generic admin loader.
