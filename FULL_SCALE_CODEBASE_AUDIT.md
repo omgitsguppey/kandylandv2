@@ -13800,6 +13800,27 @@ Follow-up opportunities:
 3. Add more prompt-policy performance rollups beyond the current category bucket counts so acceptance rate by policy version is not limited to recent job history.
 4. Add attachment/reference storage rules coverage if the AI admin reference library starts accepting anything beyond image assets.
 
+## 2026-04-21 - Wallet package base/bonus visual separation
+
+Scope:
+- `src/components/PurchaseModal.tsx`
+- `tests/unit/purchase-modal-source-of-funds-static.spec.ts`
+
+Problem fixed:
+- The wallet purchase UI was combining paid and bonus GumDrops into a single total while also rendering a "+ X Bonus" chip, causing visual double counting for the user.
+- The "King Size Bundle" was doing the same by showing the full delivered drops next to the bonus chip.
+
+Hardening applied:
+- `PurchaseModal.tsx` now explicitly reads `pkgEconomics.paidGumDrops.toLocaleString()` to show the base paid amount, with the bonus displayed separately.
+- "King Size Bundle" math was updated to derive the paid amount via `deriveGumdropEconomics` so that its base value accurately mirrors the paid-only portion of the delivered drops.
+- Unit tests validating the source-of-funds static rules were updated to check for separated paid GumDrops.
+
+Verification:
+- `npx vitest run tests/unit/purchase-modal-source-of-funds-static.spec.ts`
+
+Results:
+- Tests passed.
+
 ## 2026-04-21 - Guest/public analytics truth recovery for consent-limited telemetry
 
 Scope:
