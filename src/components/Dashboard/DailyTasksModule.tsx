@@ -112,7 +112,10 @@ export function DailyTasksModule() {
       return;
     }
 
-    trackEvent("daily_tasks_viewed");
+    trackEvent("daily_tasks_viewed", {
+      source_component: "daily_tasks_module",
+      sourceTruth: "client_supporting",
+    });
   }, [userProfile?.uid]);
 
   useEffect(() => {
@@ -376,12 +379,12 @@ export function DailyTasksModule() {
 
   const handleTaskAction = async (task: DailyTaskAssignment) => {
     trackEvent("daily_task_action_clicked", {
+      source_component: "daily_tasks_module",
       task_id: task.id,
       reward_gd: task.reward,
       day_key: dailyTaskState?.lastResetMs ? getCSTDateKey(dailyTaskState.lastResetMs) : getCSTDateKey(Date.now()),
       action_type: task.actionType,
       sourceTruth: "client_supporting",
-      source_component: "daily_tasks_module",
     });
     activateTaskGuidance(task);
 
@@ -626,6 +629,7 @@ export function DailyTasksModule() {
                 trackEvent("navigation_click", {
                   destination: "/drops",
                   source: "daily_tasks_empty",
+                  source_component: "daily_tasks_module",
                 });
                 router.push("/drops");
               }}
@@ -639,6 +643,7 @@ export function DailyTasksModule() {
                 trackEvent("navigation_click", {
                   destination: "/dashboard/library",
                   source: "daily_tasks_empty",
+                  source_component: "daily_tasks_module",
                 });
                 router.push("/dashboard/library");
               }}
@@ -669,6 +674,7 @@ export function DailyTasksModule() {
                   trackEvent("navigation_click", {
                     destination: "/drops",
                     source: "daily_tasks_complete",
+                    source_component: "daily_tasks_module",
                   });
                   router.push("/drops");
                 }}
@@ -682,6 +688,7 @@ export function DailyTasksModule() {
                   trackEvent("navigation_click", {
                     destination: "/dashboard/library",
                     source: "daily_tasks_complete",
+                    source_component: "daily_tasks_module",
                   });
                   router.push("/dashboard/library");
                 }}

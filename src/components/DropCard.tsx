@@ -123,12 +123,12 @@ function DropCardBase({
 
     const handlePreviewOpen = () => {
         trackEvent("view_drop_details", {
+            source_component: "compact_drop_card",
             drop_id: drop.id,
             drop_category: drop.type,
             is_unlocked: !!isUnlocked,
             drop_tags: (drop.tags || []).join("|"),
             card_aspect_ratio: resolvedRatio,
-            source_component: "compact_drop_card",
             ui_density: DROPS_MOBILE_UI_DENSITY,
             ...getDropCardVisibilityTelemetryPayload(visibilityState),
         });
@@ -152,6 +152,7 @@ function DropCardBase({
         const balance = userProfile?.gumDropsBalance ?? 0;
         if (balance < drop.unlockCost) {
             trackEvent("drop_unwrap_intent_blocked_by_funds", {
+                source_component: "compact_drop_card",
                 drop_id: drop.id,
                 drop_category: drop.type,
                 unlock_cost: drop.unlockCost,
@@ -159,7 +160,6 @@ function DropCardBase({
                 shortfall_gd: Math.max(1, visibilityState.shortfallGd || drop.unlockCost - balance),
                 idempotency_key: `${user.uid}:unlock_blocked:${drop.id}`,
                 reason_code: "insufficient_gumdrops",
-                source_component: "compact_drop_card",
                 ui_density: DROPS_MOBILE_UI_DENSITY,
                 ...getDropCardVisibilityTelemetryPayload(visibilityState),
             });
@@ -171,12 +171,12 @@ function DropCardBase({
             setConfirming(true);
             triggerHaptic();
             trackEvent("drop_unlock_attempted", {
+                source_component: "compact_drop_card",
                 drop_id: drop.id,
                 drop_category: drop.type,
                 unlock_cost: drop.unlockCost,
                 idempotency_key: `${user.uid}:unlock_attempt:${drop.id}`,
                 drop_tags: (drop.tags || []).join("|"),
-                source_component: "compact_drop_card",
                 ui_density: DROPS_MOBILE_UI_DENSITY,
                 ...getDropCardVisibilityTelemetryPayload(visibilityState),
             });

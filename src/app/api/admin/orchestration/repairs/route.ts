@@ -31,6 +31,7 @@ async function POST_handler(request: NextRequest) {
 
         const { proposalId, action } = repairActionSchema.parse(await request.json());
         const proposalRef = adminDb.collection(ORCHESTRATION_COLLECTIONS.repairProposals).doc(proposalId);
+        // bounded document read: repair actions target one explicit proposal id.
         const proposalSnap = await proposalRef.get();
         if (!proposalSnap.exists) {
             return buildNotFoundResponse("repair_proposal", "Repair proposal not found");

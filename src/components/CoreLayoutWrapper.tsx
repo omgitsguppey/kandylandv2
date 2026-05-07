@@ -108,18 +108,22 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         idle: true,
     });
     const interactionOpenedLaneReady = afterPaintLaneReady || isAuthModalOpen || isPurchaseModalOpen || isInsufficientBalanceModalOpen;
-    const hydrationPriorityLanes = {
-        critical: criticalLaneReady,
-        afterPaint: afterPaintLaneReady,
-        idle: idleLaneReady,
-        interactionOpened: interactionOpenedLaneReady,
-        adminOnly: isAdminRoute,
-        routeOnly: Boolean(pathname),
-    };
     const diagnosticsReady = isHomeRoute ? homepageAfterPaintLaneReady : afterPaintLaneReady;
     const telemetryReady = isHomeRoute ? homepageIdleLaneReady : afterPaintLaneReady;
     const enhancementReady = isHomeRoute ? homepageIdleLaneReady : idleLaneReady;
     const overlayReady = isHomeRoute ? homepageOverlayLaneReady : telemetryReady;
+    const afterPaintReady = afterPaintLaneReady;
+    const idleReady = idleLaneReady;
+    const interactiveOverlayReady = overlayReady;
+    const hydrationPriorityLanes = {
+        critical: criticalLaneReady,
+        afterPaint: afterPaintReady,
+        idle: idleReady,
+        interactionOpened: interactionOpenedLaneReady,
+        interactiveOverlay: interactiveOverlayReady,
+        adminOnly: isAdminRoute,
+        routeOnly: Boolean(pathname),
+    };
     const scrollControlsReady = !isHomeRoute || homepageAfterPaintLaneReady;
 
     useEffect(() => {
@@ -221,7 +225,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             {telemetryReady && isUserShell ? <div className="contents" data-hydration-lane="after-paint"><NotificationRuntimeBridge /></div> : null}
             {telemetryReady && shouldShowTaskGuidanceBanner ? <div className="contents" data-hydration-lane="after-paint"><TaskGuidanceBanner /></div> : null}
             {enhancementReady && shouldEnablePwaRuntime ? <div className="contents" data-hydration-lane="idle"><PwaRuntimeBridge /></div> : null}
-            {overlayReady && shouldShowBugReportTrigger ? <div className="contents" data-hydration-lane="idle"><GlobalBugReportTrigger /></div> : null}
+            {hydrationPriorityLanes.interactiveOverlay && shouldShowBugReportTrigger ? <div className="contents" data-hydration-lane="idle"><GlobalBugReportTrigger /></div> : null}
             {interactionOpenedLaneReady && shouldShowPurchaseUi && isPurchaseModalOpen ? (
                 <div className="contents" data-hydration-lane="interaction-opened">
                     <PayPalProvider>
@@ -233,7 +237,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             {interactionOpenedLaneReady && shouldShowAuthUi && isAuthModalOpen ? <div className="contents" data-hydration-lane="interaction-opened"><GlobalAuthModal /></div> : null}
             {enhancementReady && shouldLoadOnboarding ? <div className="contents" data-hydration-lane="idle"><GuidedOnboarding /></div> : null}
             <Toaster position="top-center" theme="dark" richColors closeButton />
-            {overlayReady && shouldShowCookieBanner ? <div className="contents" data-hydration-lane="idle"><CookieBanner /></div> : null}
+            {hydrationPriorityLanes.interactiveOverlay && shouldShowCookieBanner ? <div className="contents" data-hydration-lane="idle"><CookieBanner /></div> : null}
             {telemetryReady && shouldShowDebugBreakpoints ? <div className="contents" data-hydration-lane="after-paint"><DebugBreakpoints /></div> : null}
         </>
     );

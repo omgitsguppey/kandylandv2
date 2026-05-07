@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
-import { ADMIN } from "@/lib/server/rate-limit";
+import { ADMIN_STORAGE_UPLOAD } from "@/lib/server/rate-limit";
 import { isAllowedLandingAssetKey } from "@/lib/landing-assets";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+
+const MAX_LANDING_ASSET_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 function isImageFormat(mimeType: string) {
     return ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(mimeType);
@@ -34,7 +36,7 @@ async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "settings/landing/upload",
-            rateLimit: ADMIN,
+            rateLimit: ADMIN_STORAGE_UPLOAD,
             requireTrustedOrigin: true,
             auth: "admin",
         });
@@ -57,7 +59,7 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Database or storage not available" }, { status: 500 });
         }
 
-        if (file.size > 10 * 1024 * 1024) {
+        if (file.size > MAX_LANDING_ASSET_UPLOAD_BYTES) {
             return NextResponse.json({ error: "File exceeds 10MB limit." }, { status: 400 });
         }
 

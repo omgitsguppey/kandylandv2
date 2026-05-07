@@ -69,6 +69,13 @@ import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
 
+const ADMIN_USERS_LIST_LIMIT = 5_000;
+const ADMIN_USERS_DAILY_ROLLUP_LIMIT = 10_000;
+const ADMIN_USERS_WATCH_SESSION_LIMIT = 5_000;
+const ADMIN_USERS_CREATOR_OPS_LIMIT = 5_000;
+const ADMIN_USERS_PENDING_DROP_LIMIT = 1_000;
+const ADMIN_USERS_EVENT_FACT_RECOVERY_LIMIT = 5_000;
+
 type AdminUsersKpiFreshness = AdminUsersKpiCard["freshnessState"];
 
 function toTimestampNumber(value: unknown): number {
@@ -1037,7 +1044,7 @@ async function readAdminUsersFastSummarySnapshot() {
     readAggregateCount(usersCollection.where("onboardingCompleted", "==", true)),
     readAggregateCount(analyticsRollupCollection.where("lastSeenAt", ">=", sevenDaysAgo)),
     readAggregateCount(analyticsRollupCollection.where("purchaseCount", ">", 0)),
-    adminDb.collection("analytics_watch_sessions").get(),
+    adminDb.collection("analytics_watch_sessions").limit(ADMIN_USERS_WATCH_SESSION_LIMIT).get(),
     adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
   ]);
   const commerceSummaryRaw = commerceSummarySnap.exists
@@ -1345,7 +1352,7 @@ async function GET_handler(request: NextRequest) {
     }
 
     if (mode === "list") {
-      const usersSnapshot = await adminDb.collection("users").orderBy("createdAt", "desc").get();
+      const usersSnapshot = await adminDb.collection("users").orderBy("createdAt", "desc").limit(ADMIN_USERS_LIST_LIMIT).get();
       const users = usersSnapshot.docs.map((doc) => serializeUserDoc(doc.id, doc.data()));
 
       return NextResponse.json({
@@ -1377,8 +1384,8 @@ async function GET_handler(request: NextRequest) {
       const [userSnap, analyticsSnap, userDailySnapshot, watchSessionsSnapshot] = await Promise.all([
         adminDb.collection("users").doc(userId).get(),
         adminDb.collection("analytics_users_rollup").doc(userId).get(),
-        adminDb.collection("analytics_user_daily").where("uid", "==", userId).get(),
-        adminDb.collection("analytics_watch_sessions").where("userId", "==", userId).get(),
+        adminDb.collection("analytics_user_daily").where("uid", "==", userId).limit(ADMIN_USERS_DAILY_ROLLUP_LIMIT).get(),
+        adminDb.collection("analytics_watch_sessions").where("userId", "==", userId).limit(ADMIN_USERS_WATCH_SESSION_LIMIT).get(),
       ]);
 
       if (!userSnap.exists) {
@@ -1604,19 +1611,19 @@ async function GET_handler(request: NextRequest) {
       creatorAccrualsSnap,
       pendingCreatorDropsSnap,
     ] = await Promise.all([
-      adminDb.collection("users").orderBy("createdAt", "desc").get(),
-      adminDb.collection("analytics_users_rollup").get(),
-      adminDb.collection("analytics_user_daily").get(),
-      adminDb.collection("analytics_watch_sessions").get(),
+      adminDb.collection("users").orderBy("createdAt", "desc").limit(ADMIN_USERS_LIST_LIMIT).get(),
+      adminDb.collection("analytics_users_rollup").limit(ADMIN_USERS_LIST_LIMIT).get(),
+      adminDb.collection("analytics_user_daily").limit(ADMIN_USERS_DAILY_ROLLUP_LIMIT).get(),
+      adminDb.collection("analytics_watch_sessions").limit(ADMIN_USERS_WATCH_SESSION_LIMIT).get(),
       adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
-      adminDb.collection(CREATOR_COLLECTIONS.relationships).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.subscriptions).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.requests).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.bookings).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.messageThreads).get(),
-      adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).get(),
-      adminDb.collection("drops").where("approvalStatus", "==", "pending_review").get(),
+      adminDb.collection(CREATOR_COLLECTIONS.relationships).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.subscriptions).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.requests).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.bookings).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.messageThreads).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
+      adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).limit(ADMIN_USERS_CREATOR_OPS_LIMIT).get(),
+      adminDb.collection("drops").where("approvalStatus", "==", "pending_review").limit(ADMIN_USERS_PENDING_DROP_LIMIT).get(),
     ]);
 
     const users = usersSnapshot.docs.map((doc) => serializeUserDoc(doc.id, doc.data()));
@@ -1926,6 +1933,7 @@ async function GET_handler(request: NextRequest) {
       const eventSnapshots = await Promise.all(
         chunkValues(fallbackUserIds, 30).map((uids) => adminDb.collection("analytics_event_facts")
           .where("userId", "in", uids)
+          .limit(ADMIN_USERS_EVENT_FACT_RECOVERY_LIMIT)
           .get()),
       );
 

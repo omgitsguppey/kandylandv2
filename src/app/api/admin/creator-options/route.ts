@@ -7,6 +7,8 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { isCreatorRole } from "@/lib/creator-experiences";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
+const ADMIN_CREATOR_OPTIONS_LIMIT = 500;
+
 type CreatorOptionRecord = Record<string, unknown> & {
     uid: string;
     role?: unknown;
@@ -33,6 +35,7 @@ async function GET_handler(request: NextRequest) {
         const snap = await adminDb.collection("users")
             .where("role", "in", ["creator", "admin"])
             .select("role", "creator", "status", "displayName", "username", "photoURL")
+            .limit(ADMIN_CREATOR_OPTIONS_LIMIT)
             .get();
 
         const creators = snap.docs

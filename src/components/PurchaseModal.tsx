@@ -127,6 +127,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         wallet_close_source: source,
         wallet_close_state: processing ? "checkout_processing" : error ? "error_visible" : "package_selected",
         ...walletDensityPayload,
+        source_component: "purchase_modal",
       });
     }
 
@@ -212,6 +213,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     trackEvent("navigation_click", {
       destination,
       source,
+      source_component: "purchase_modal",
     });
     closeModal("wallet_success_navigation");
     requestAnimationFrame(() => {
@@ -236,6 +238,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_bonus_drops: selectedEconomics.bonusGumDrops,
         package_adjusted_profit_usd: selectedEconomics.adjustedProfitUsd,
         ...walletDensityPayload,
+        source_component: "purchase_modal",
       });
     }
 
@@ -267,6 +270,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       package_paid_drops: bundleEconomics.paidGumDrops,
       package_bonus_drops: bundleEconomics.bonusGumDrops,
       ...walletDensityPayload,
+      source_component: "purchase_modal",
     });
 
     return bundle;
@@ -359,6 +363,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         value: selectedPackage.price,
         currency: "USD",
         sourceTruth: "client_supporting",
+        source_component: "purchase_modal",
         items: [{
           item_id: `gumdrops_${selectedPackage.drops}`,
           item_name: selectedPackage.label,
@@ -379,6 +384,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_effective_usd_per_100_gd: selectedEconomics.effectiveUsdPer100Gd,
         sourceTruth: "client_supporting",
         ...walletDensityPayload,
+        source_component: "purchase_modal",
         ...(consumeTimedFlow(CHECKOUT_FLOW_KEY).mergedParams ?? {}),
       });
     } catch (err: unknown) {
@@ -406,6 +412,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_bonus_drops: selectedEconomics.bonusGumDrops,
         sourceTruth: "client",
         ...walletDensityPayload,
+        source_component: "purchase_modal",
         ...(consumeTimedFlow(CHECKOUT_FLOW_KEY, { failure_reason: problemCopy.headline }).mergedParams ?? {}),
       });
       toast.error(problemCopy.headline, { description: problemCopy.body });
@@ -434,7 +441,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 data-wallet-balance-chip="split-source"
                 data-wallet-package-subcopy="removed"
                 data-wallet-bonus-chip-theme="brand-purple"
-                className="relative w-full max-w-md bg-black/45 backdrop-blur-xl rounded-3xl p-4 sm:p-5 md:p-6 shadow-2xl border border-white/10 pointer-events-auto"
+                className="relative w-full max-w-md bg-black/45 backdrop-blur-xl rounded-3xl p-4 sm:p-5 md:p-5 shadow-2xl border border-white/10 pointer-events-auto"
               >
                 <button ref={closeButtonRef} aria-label="Close modal" onClick={() => closeModal("wallet_close_button")} className="absolute top-3 right-3 flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition-colors z-30">
                   <X className="w-5 h-5" />
@@ -482,6 +489,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   package_paid_drops: pkgEconomics.paidGumDrops,
                                   package_bonus_drops: pkgEconomics.bonusGumDrops,
                                   ...walletDensityPayload,
+                                  source_component: "purchase_modal",
                                 });
                               }}
                               aria-pressed={isSelected}
@@ -670,6 +678,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                     package_price: selectedPackage.price,
                                     sourceTruth: "client_funnel",
                                     ...walletDensityPayload,
+                                    source_component: "purchase_modal",
                                   });
 
                                   return order.id || "";

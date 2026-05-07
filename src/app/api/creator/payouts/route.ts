@@ -11,6 +11,9 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 
+const CREATOR_PAYOUTS_READ_LIMIT = 500;
+const CREATOR_ACCRUALS_READ_LIMIT = 2_000;
+
 const createPayoutSchema = z.object({
     requestedGd: z.number().int().min(100),
 });
@@ -45,8 +48,8 @@ async function GET_handler(request: NextRequest) {
             : caller.uid;
 
         const [payoutSnap, accrualSnap] = await Promise.all([
-            adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).where(field, "==", value).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).where("creatorId", "==", value).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).where(field, "==", value).limit(CREATOR_PAYOUTS_READ_LIMIT).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).where("creatorId", "==", value).limit(CREATOR_ACCRUALS_READ_LIMIT).get(),
         ]);
 
         const availableGd = accrualSnap.docs.reduce((sum, doc) => {
@@ -96,7 +99,10 @@ async function POST_handler(request: NextRequest) {
         }
 
         const { requestedGd } = createPayoutSchema.parse(await request.json());
-        const accrualSnap = await adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).where("creatorId", "==", caller.uid).get();
+        const accrualSnap = await adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals)
+            .where("creatorId", "==", caller.uid)
+            .limit(CREATOR_ACCRUALS_READ_LIMIT)
+            .get();
         const availableGd = accrualSnap.docs.reduce((sum, doc) => {
             const data = doc.data() as Record<string, unknown>;
             if (data.status === "honored") {

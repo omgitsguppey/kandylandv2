@@ -9,6 +9,7 @@ import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runti
 import { buildNotificationRecord } from "@/lib/notification-contracts";
 
 const CREATOR_ONBOARDING_NOTIFICATION_WINDOW_MS = 5 * 60 * 1000;
+const CREATOR_ONBOARDING_ADMIN_NOTIFY_LIMIT = 100;
 
 function buildDispatchFingerprint(input: {
     eventKey: string;
@@ -44,7 +45,10 @@ export async function sendCreatorOnboardingAdminNotification(input: {
         };
     }
 
-    const adminsSnapshot = await adminDb.collection("users").where("role", "==", "admin").get();
+    const adminsSnapshot = await adminDb.collection("users")
+        .where("role", "==", "admin")
+        .limit(CREATOR_ONBOARDING_ADMIN_NOTIFY_LIMIT)
+        .get();
     const adminIds = adminsSnapshot.docs.map((doc) => doc.id).filter(Boolean);
     if (adminIds.length === 0) {
         return {

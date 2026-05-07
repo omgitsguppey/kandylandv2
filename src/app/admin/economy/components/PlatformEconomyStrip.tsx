@@ -1,22 +1,22 @@
 "use client";
 
-import { Coins, AlertTriangle, PiggyBank, Sparkles } from "lucide-react";
+import { AlertTriangle, Candy, PiggyBank, Sparkles } from "lucide-react";
 
 import type { PlatformEconomyTreasurySummary } from "@/lib/platform-economy";
 
 function formatGd(value: number | null) {
-    return value == null ? "—" : `${value.toLocaleString()} GD`;
+    return value == null ? "--" : `${value.toLocaleString()} GD`;
 }
 
 function formatUsdRate(value: number | null) {
-    return value == null ? "—" : `$${value.toFixed(2)} / 100 GD`;
+    return value == null ? "--" : `$${value.toFixed(2)} / 100 GD`;
 }
 
 const STRIP_ITEMS = [
-    { key: "outstandingGd", label: "Outstanding GD", icon: Coins },
+    { key: "outstandingGd", label: "Outstanding GD", icon: Candy },
     { key: "paidGd", label: "Paid GD", icon: PiggyBank },
     { key: "paidBonusGd", label: "Bonus paid-source GD", icon: Sparkles },
-    { key: "rewardFreeGd", label: "Reward/free GD", icon: Coins },
+    { key: "rewardFreeGd", label: "Reward/free GD", icon: Candy },
 ] as const;
 
 export function PlatformEconomyStrip({

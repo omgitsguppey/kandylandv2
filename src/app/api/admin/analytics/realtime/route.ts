@@ -37,6 +37,9 @@ const ADMIN_ANALYTICS_REALTIME_CACHE_TTL_MS = 10_000;
 const ADMIN_ANALYTICS_REALTIME_HOT_CACHE_FRESH_MS = 5 * 60_000;
 const ADMIN_ANALYTICS_REALTIME_HOT_CACHE_STALE_MS = 30 * 60_000;
 const ADMIN_ANALYTICS_REALTIME_HOT_CACHE_DOC_ID = "realtime_summary";
+const ADMIN_ANALYTICS_REALTIME_ACTIVE_USER_LIMIT = 500;
+const ADMIN_ANALYTICS_REALTIME_EVENT_FACT_LIMIT = 1_500;
+const ADMIN_ANALYTICS_REALTIME_SAMPLE_LIMIT = 1_000;
 
 type AdminRealtimePayload = RealtimeAnalyticsResponse & Record<string, unknown>;
 
@@ -398,6 +401,7 @@ async function GET_handler(request: NextRequest) {
           const aggregateDoc = await adminDb
             .collection(ANALYTICS_OPERATIONAL_COLLECTIONS.aggregateStats)
             .doc(ADMIN_ANALYTICS_REALTIME_HOT_CACHE_DOC_ID)
+            // bounded document read: hot-cache summary uses a single known document id.
             .get();
 
           if (aggregateDoc.exists) {
@@ -472,6 +476,7 @@ async function GET_handler(request: NextRequest) {
             issues,
             reader: () => adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers)
               .where("lastSeenAt", ">=", thirtyMinsAgo)
+              .limit(ADMIN_ANALYTICS_REALTIME_ACTIVE_USER_LIMIT)
               .get(),
           }),
           safeQueryWithDiagnostics({
@@ -481,6 +486,7 @@ async function GET_handler(request: NextRequest) {
             issues,
             reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
               .where("timestamp", ">=", onboardingWindowStartMs)
+              .limit(ADMIN_ANALYTICS_REALTIME_EVENT_FACT_LIMIT)
               .get(),
           }),
           safeQueryWithDiagnostics({
@@ -490,6 +496,7 @@ async function GET_handler(request: NextRequest) {
             issues,
             reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
               .where("timestamp", ">=", thirtyMinsAgo)
+              .limit(ADMIN_ANALYTICS_REALTIME_EVENT_FACT_LIMIT)
               .get(),
           }),
           safeQueryWithDiagnostics({
@@ -499,6 +506,7 @@ async function GET_handler(request: NextRequest) {
             issues,
             reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.guestBatches)
               .where("receivedAtMs", ">=", thirtyMinsAgo)
+              .limit(ADMIN_ANALYTICS_REALTIME_SAMPLE_LIMIT)
               .get(),
           }),
           safeQueryWithDiagnostics({
@@ -508,6 +516,7 @@ async function GET_handler(request: NextRequest) {
             issues,
             reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.watchSessions)
               .where("lastSeenAtMs", ">=", thirtyMinsAgo)
+              .limit(ADMIN_ANALYTICS_REALTIME_SAMPLE_LIMIT)
               .get(),
           }),
           safeQueryWithDiagnostics({
@@ -517,6 +526,7 @@ async function GET_handler(request: NextRequest) {
             issues,
             reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.watchAssets)
               .where("lastSeenAtMs", ">=", thirtyMinsAgo)
+              .limit(ADMIN_ANALYTICS_REALTIME_SAMPLE_LIMIT)
               .get(),
           }),
         ]);

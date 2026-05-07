@@ -25,6 +25,9 @@ import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "
 import { getCSTDateKey } from "@/lib/timezone";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const ASSISTANT_USER_SAMPLE_LIMIT = 1_000;
+const ASSISTANT_DAILY_SAMPLE_LIMIT = 370;
+const ASSISTANT_ROLLUP_SAMPLE_LIMIT = 500;
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -53,7 +56,7 @@ async function buildAssistantSignalSnapshot() {
         creatorOnboardingSnapshot,
         creatorReviewQueueSnapshot,
     ] = await Promise.all([
-        adminDb.collection("users").get(),
+        adminDb.collection("users").limit(ASSISTANT_USER_SAMPLE_LIMIT).get(),
         adminDb.collection("server_diagnostics")
             .where("createdAtMs", ">=", weekAgoMs)
             .orderBy("createdAtMs", "desc")
@@ -61,9 +64,10 @@ async function buildAssistantSignalSnapshot() {
             .get(),
         adminDb.collection("analytics_pipeline_daily")
             .where("dayKey", ">=", weekAgoDayKey)
+            .limit(ASSISTANT_DAILY_SAMPLE_LIMIT)
             .get(),
-        adminDb.collection("analytics_event_stats").get(),
-        adminDb.collection("analytics_task_rollup").get(),
+        adminDb.collection("analytics_event_stats").limit(ASSISTANT_ROLLUP_SAMPLE_LIMIT).get(),
+        adminDb.collection("analytics_task_rollup").limit(ASSISTANT_ROLLUP_SAMPLE_LIMIT).get(),
         adminDb.collection("analytics_guest_batches")
             .where("receivedAtMs", ">=", weekAgoMs)
             .orderBy("receivedAtMs", "desc")
@@ -84,14 +88,16 @@ async function buildAssistantSignalSnapshot() {
             .orderBy("lastSeenAtMs", "desc")
             .limit(60)
             .get(),
-        adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
+        adminDb.collection("analytics_commerce_rollup").doc("summary")
+            // bounded document read: assistant commerce context uses the summary doc only.
+            .get(),
         adminDb.collection(ORCHESTRATION_COLLECTIONS.events).orderBy("observedAtMs", "desc").limit(80).get(),
         adminDb.collection(ORCHESTRATION_COLLECTIONS.findings).orderBy("updatedAtMs", "desc").limit(40).get(),
         adminDb.collection(ORCHESTRATION_COLLECTIONS.repairProposals).orderBy("updatedAtMs", "desc").limit(40).get(),
         adminDb.collection(ORCHESTRATION_COLLECTIONS.actorSummaries).orderBy("lastSeenAtMs", "desc").limit(40).get(),
         adminDb.collection(ORCHESTRATION_COLLECTIONS.repairActions).orderBy("createdAtMs", "desc").limit(40).get(),
-        adminDb.collection(CREATOR_ONBOARDING_COLLECTION).get(),
-        adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
+        adminDb.collection(CREATOR_ONBOARDING_COLLECTION).limit(ASSISTANT_USER_SAMPLE_LIMIT).get(),
+        adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).limit(ASSISTANT_USER_SAMPLE_LIMIT).get(),
     ]);
 
     const opsHealth = buildAdminOpsHealth({

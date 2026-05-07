@@ -22,7 +22,12 @@ export async function GET() {
                 timestamp: new Date().toISOString(),
                 environment: process.env.NODE_ENV || "unknown",
             },
-            { status: 200 }
+            {
+                status: 200,
+                headers: {
+                    "Cache-Control": "no-store",
+                },
+            }
         );
     } catch (error) {
         // In the event of a failure, leverage the standard handleApiError 

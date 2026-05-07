@@ -22,6 +22,8 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
 
+const CREATOR_SUBSCRIPTIONS_READ_LIMIT = 500;
+
 const subscriptionActionSchema = z.object({
     creatorId: z.string().trim().min(1),
     action: z.enum(["subscribe", "cancel"]),
@@ -126,6 +128,7 @@ async function GET_handler(request: NextRequest) {
 
         const creatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || "";
         if (creatorId) {
+            // bounded document read: one caller/creator subscription pair.
             const snap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(buildSubscriptionId(caller.uid, creatorId)).get();
             return NextResponse.json({
                 success: true,
@@ -134,8 +137,8 @@ async function GET_handler(request: NextRequest) {
         }
 
         const [outboundSnap, inboundSnap, callerSnap] = await Promise.all([
-            adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("userId", "==", caller.uid).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("creatorId", "==", caller.uid).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("userId", "==", caller.uid).limit(CREATOR_SUBSCRIPTIONS_READ_LIMIT).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("creatorId", "==", caller.uid).limit(CREATOR_SUBSCRIPTIONS_READ_LIMIT).get(),
             adminDb.collection("users").doc(caller.uid).get(),
         ]);
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;

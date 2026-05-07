@@ -89,6 +89,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         creatorId: drop.creatorId ?? drop.submittedByCreatorId ?? creator?.uid ?? "",
         actorUserId: actorUserId ?? "",
         sourceComponent: "drop_preview_page",
+        source_component: "drop_preview_page",
         isGuest: truth.isGuest,
         isOwnerOrCreator: truth.isOwnerOrCreator,
         hasEnoughGumDrops: truth.hasEnoughGumDrops,

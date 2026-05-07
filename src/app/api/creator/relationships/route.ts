@@ -16,6 +16,10 @@ import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib
 import { buildDeterministicCreatorRecommendations } from "@/lib/server/behavioral-intelligence";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 
+const CREATOR_RELATIONSHIPS_READ_LIMIT = 500;
+const CREATOR_RELATIONSHIP_DISCOVERY_USER_LIMIT = 1_000;
+const CREATOR_RELATIONSHIP_DISCOVERY_DROP_LIMIT = 2_000;
+
 type CreatorRelationshipRecord = Record<string, unknown> & {
     id: string;
     creatorId?: unknown;
@@ -100,7 +104,7 @@ async function countActiveCreatorFollowers(creatorId: string) {
         return Number(snapshot.data().count) || 0;
     }
 
-    const snapshot = await query.get();
+    const snapshot = await query.limit(CREATOR_RELATIONSHIPS_READ_LIMIT).get();
     return snapshot.size || snapshot.docs.length || 0;
 }
 
@@ -132,6 +136,7 @@ export async function GET(request: NextRequest) {
         const relationshipsSnap = await adminDb
             .collection(CREATOR_COLLECTIONS.relationships)
             .where("userId", "==", caller.uid)
+            .limit(CREATOR_RELATIONSHIPS_READ_LIMIT)
             .get();
 
         const rawRelationships = relationshipsSnap.docs.map((doc) => ({
@@ -143,8 +148,9 @@ export async function GET(request: NextRequest) {
         const [recommendedCreatorDocs, dropsSnap] = await Promise.all([
             adminDb.collection("users")
                 .select("role", "status", "displayName", "username", "photoURL", "bio", "isVerified", "creatorApplication")
+                .limit(CREATOR_RELATIONSHIP_DISCOVERY_USER_LIMIT)
                 .get(),
-            adminDb.collection("drops").get(),
+            adminDb.collection("drops").limit(CREATOR_RELATIONSHIP_DISCOVERY_DROP_LIMIT).get(),
         ]);
         const activeDropCounts = new Map<string, number>();
         dropsSnap.docs.forEach((doc) => {
@@ -218,6 +224,7 @@ export async function GET(request: NextRequest) {
 
         if (creatorId) {
             const relationship = relationships.find((entry) => entry.creatorId === creatorId) || null;
+            // bounded document read: one caller/creator subscription pair.
             const subscriptionSnap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(buildSubscriptionId(caller.uid, creatorId)).get();
 
             return finalize(NextResponse.json({

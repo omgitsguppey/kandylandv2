@@ -337,7 +337,9 @@ async function GET_handler(request: NextRequest) {
       }
 
       const template = templateId
-        ? normalizeCreatorAgreementTemplate((await adminDb.collection(CREATOR_AGREEMENT_TEMPLATE_COLLECTION).doc(templateId).get()).data())
+        ? normalizeCreatorAgreementTemplate((await adminDb.collection(CREATOR_AGREEMENT_TEMPLATE_COLLECTION).doc(templateId)
+          // bounded document read: template download targets one explicit template id.
+          .get()).data())
         : await getActiveCreatorAgreementTemplate();
       const storagePath = template?.pdfStoragePath || template?.fullTextStoragePath;
 

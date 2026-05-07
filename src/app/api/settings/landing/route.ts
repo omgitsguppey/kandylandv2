@@ -7,6 +7,7 @@ import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 export const dynamic = 'force-dynamic';
+const LANDING_SETTINGS_CACHE_CONTROL = "public, max-age=60, s-maxage=300, stale-while-revalidate=900";
 
 async function GET_handler(request: NextRequest) {
     try {
@@ -29,11 +30,19 @@ async function GET_handler(request: NextRequest) {
         if (landingDoc.exists) {
             const data = landingDoc.data();
             if (data && data[key]) {
-                return NextResponse.json({ url: data[key] });
+                return NextResponse.json({ url: data[key] }, {
+                    headers: {
+                        "Cache-Control": LANDING_SETTINGS_CACHE_CONTROL,
+                    },
+                });
             }
         }
 
-        return NextResponse.json({ url: null });
+        return NextResponse.json({ url: null }, {
+            headers: {
+                "Cache-Control": LANDING_SETTINGS_CACHE_CONTROL,
+            },
+        });
     } catch (error: any) {
         recordRouteWarning("settings/landing", "Failed to fetch landing custom image", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

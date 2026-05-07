@@ -126,7 +126,6 @@ export const LEGACY_REGISTRY: LegacyRegistryItem[] = [
     blockedReferences: [
       "sourceTruth: \"live_projection\"",
       "includeInUserBehavior: true",
-      "metricEligible: true",
       "performedAs: \"creator\"",
     ],
   },

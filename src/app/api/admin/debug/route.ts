@@ -75,6 +75,11 @@ import { buildAdminOverviewFallbackIdentity, buildAdminOverviewUserIdentityMap, 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
 const TASK_DAILY_SERIES_LIMIT = 60;
+const DEBUG_USER_SAMPLE_LIMIT = 2_000;
+const DEBUG_EVENT_STATS_LIMIT = 1_000;
+const DEBUG_CONFIG_SAMPLE_LIMIT = 500;
+const DEBUG_PIPELINE_SERIES_LIMIT = 60;
+const DEBUG_CREATOR_QUEUE_LIMIT = 500;
 const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]);
 const TASK_ACTION_SET = new Set<string>(DAILY_TASK_ACTION_OPTIONS.map((option) => option.value));
 const TASK_ICON_SET = new Set<string>(DAILY_TASK_ICON_OPTIONS.map((option) => option.value));
@@ -3560,7 +3565,7 @@ export async function GET(request: NextRequest) {
             creatorMessageThreadsSnapshot,
             creatorMessagesSnapshot,
         ] = await Promise.all([
-            adminDb.collection("users").get(),
+            adminDb.collection("users").limit(DEBUG_USER_SAMPLE_LIMIT).get(),
             adminDb.collection("daily_task_events")
                 .where("timestamp", ">=", weekAgoMs)
                 .orderBy("timestamp", "desc")
@@ -3571,11 +3576,11 @@ export async function GET(request: NextRequest) {
                 .orderBy("timestamp", "desc")
                 .limit(TASK_AUDIT_SAMPLE_LIMIT)
                 .get(),
-            adminDb.collection("analytics_event_stats").get(),
+            adminDb.collection("analytics_event_stats").limit(DEBUG_EVENT_STATS_LIMIT).get(),
             adminDb.collection("transactions").orderBy("timestamp", "desc").limit(600).get(),
-            adminDb.collection("analytics_task_rollup").get(),
+            adminDb.collection("analytics_task_rollup").limit(DEBUG_EVENT_STATS_LIMIT).get(),
             adminDb.collection("analytics_task_daily").orderBy("lastEventAt", "desc").limit(TASK_DAILY_SERIES_LIMIT).get(),
-            adminDb.collection("daily_task_definitions").get(),
+            adminDb.collection("daily_task_definitions").limit(DEBUG_CONFIG_SAMPLE_LIMIT).get(),
             adminDb.collection("server_diagnostics")
                 .where("createdAtMs", ">=", weekAgoMs)
                 .orderBy("createdAtMs", "desc")
@@ -3583,6 +3588,7 @@ export async function GET(request: NextRequest) {
                 .get(),
             adminDb.collection("analytics_pipeline_daily")
                 .where("dayKey", ">=", weekAgoDayKey)
+                .limit(DEBUG_PIPELINE_SERIES_LIMIT)
                 .get(),
             adminDb.collection("analytics_guest_batches")
                 .where("receivedAtMs", ">=", weekAgoMs)
@@ -3604,7 +3610,7 @@ export async function GET(request: NextRequest) {
                 .orderBy("lastSeenAtMs", "desc")
                 .limit(200)
                 .get(),
-            adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.exportStatus).get(),
+            adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.exportStatus).limit(DEBUG_CONFIG_SAMPLE_LIMIT).get(),
             adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
             adminDb.collection("platform_feedback").orderBy("timestamp", "desc").limit(160).get(),
             adminDb.collection(ORCHESTRATION_COLLECTIONS.events).orderBy("observedAtMs", "desc").limit(120).get(),
@@ -3612,8 +3618,8 @@ export async function GET(request: NextRequest) {
             adminDb.collection(ORCHESTRATION_COLLECTIONS.repairProposals).orderBy("updatedAtMs", "desc").limit(80).get(),
             adminDb.collection(ORCHESTRATION_COLLECTIONS.actorSummaries).orderBy("lastSeenAtMs", "desc").limit(60).get(),
             adminDb.collection(ORCHESTRATION_COLLECTIONS.repairActions).orderBy("createdAtMs", "desc").limit(60).get(),
-            adminDb.collection(CREATOR_ONBOARDING_COLLECTION).get(),
-            adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
+            adminDb.collection(CREATOR_ONBOARDING_COLLECTION).limit(DEBUG_CREATOR_QUEUE_LIMIT).get(),
+            adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).limit(DEBUG_CREATOR_QUEUE_LIMIT).get(),
             adminDb.collectionGroup(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).limit(2_000).get(),
             adminDb.collection(CREATOR_COLLECTIONS.subscriptions).limit(1_000).get(),
             adminDb.collection(CREATOR_COLLECTIONS.requests).limit(1_000).get(),

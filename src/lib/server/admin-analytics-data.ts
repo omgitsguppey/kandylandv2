@@ -12,6 +12,13 @@ import {
 import { ADMIN_TELEMETRY_LOG_EVENT_NAMES, TELEMETRY_EVENT_QUERY_NAMES } from "@/lib/telemetry-catalog";
 
 const ADMIN_ANALYTICS_HISTORICAL_CACHE_TTL_MS = 30_000;
+const ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT = 370;
+const ADMIN_ANALYTICS_EVENT_FACT_LIMIT = 5_000;
+const ADMIN_ANALYTICS_EVENT_STATS_LIMIT = 500;
+const ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT = 1_000;
+const ADMIN_ANALYTICS_DROP_ARCHIVE_LIMIT = 1_000;
+const ADMIN_ANALYTICS_TASK_EVENT_LIMIT = 5_000;
+const ADMIN_ANALYTICS_TRANSACTION_LIMIT = 5_000;
 
 export function getAdminAnalyticsPropertyId() {
   return process.env.GA_PROPERTY_ID || "";
@@ -171,6 +178,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       issues,
       reader: () => adminDb.collection("analytics_rollups_daily")
         .where("dayKey", ">=", startDayKey)
+        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
         .get(),
     }),
     safeQueryWithDiagnostics({
@@ -180,6 +188,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       issues,
       reader: () => adminDb.collection("analytics_page_daily")
         .where("dayKey", ">=", startDayKey)
+        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
         .get(),
     }),
     safeQueryWithDiagnostics({
@@ -189,6 +198,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       issues,
       reader: () => adminDb.collection("analytics_drop_daily")
         .where("dayKey", ">=", startDayKey)
+        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
         .get(),
     }),
     safeQueryWithDiagnostics({
@@ -198,6 +208,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       issues,
       reader: () => adminDb.collection("analytics_task_daily")
         .where("dayKey", ">=", startDayKey)
+        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
         .get(),
     }),
     safeQueryWithDiagnostics({
@@ -207,6 +218,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       issues,
       reader: () => adminDb.collection("analytics_commerce_daily")
         .where("dayKey", ">=", startDayKey)
+        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
         .get(),
     }),
     safeQueryWithDiagnostics({
@@ -216,6 +228,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       issues,
       reader: () => adminDb.collection("analytics_session_facts")
         .where("dayKey", ">=", startDayKey)
+        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
         .get(),
     }),
     safeQueryWithDiagnostics({
@@ -225,6 +238,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       issues,
       reader: () => adminDb.collection("analytics_pipeline_daily")
         .where("dayKey", ">=", startDayKey)
+        .limit(ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT)
         .get(),
     }),
     period === "all"
@@ -235,6 +249,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         issues,
         reader: () => adminDb.collection("analytics_event_facts")
           .orderBy("timestamp", "desc")
+          .limit(ADMIN_ANALYTICS_EVENT_FACT_LIMIT)
           .get(),
       })
       : safeQueryWithDiagnostics({
@@ -244,6 +259,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         issues,
         reader: () => adminDb.collection("analytics_event_facts")
           .where("timestamp", ">=", startMs)
+          .limit(ADMIN_ANALYTICS_EVENT_FACT_LIMIT)
           .get(),
       }),
     safeQueryWithDiagnostics({
@@ -251,7 +267,9 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       channel: "analytics",
       label: "analytics event stats",
       issues,
-      reader: () => adminDb.collection("analytics_event_stats").get(),
+      reader: () => adminDb.collection("analytics_event_stats")
+        .limit(ADMIN_ANALYTICS_EVENT_STATS_LIMIT)
+        .get(),
     }),
     period === "all"
       ? safeQueryWithDiagnostics({
@@ -261,6 +279,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         issues,
         reader: () => adminDb.collection("security_events")
           .orderBy("timestamp", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       })
       : safeQueryWithDiagnostics({
@@ -271,6 +290,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         reader: () => adminDb.collection("security_events")
           .where("timestamp", ">=", startMs)
           .orderBy("timestamp", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       }),
     period === "all"
@@ -281,6 +301,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         issues,
         reader: () => adminDb.collection("analytics_guest_batches")
           .orderBy("receivedAtMs", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       })
       : safeQueryWithDiagnostics({
@@ -291,6 +312,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         reader: () => adminDb.collection("analytics_guest_batches")
           .where("receivedAtMs", ">=", startMs)
           .orderBy("receivedAtMs", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       }),
     period === "all"
@@ -301,6 +323,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         issues,
         reader: () => adminDb.collection("analytics_sessions")
           .orderBy("lastReceivedAtMs", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       })
       : safeQueryWithDiagnostics({
@@ -311,6 +334,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         reader: () => adminDb.collection("analytics_sessions")
           .where("lastReceivedAtMs", ">=", startMs)
           .orderBy("lastReceivedAtMs", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       }),
     safeDocumentWithDiagnostics({
@@ -330,6 +354,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         issues,
         reader: () => adminDb.collection("server_diagnostics")
           .orderBy("createdAtMs", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       })
       : safeQueryWithDiagnostics({
@@ -340,6 +365,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         reader: () => adminDb.collection("server_diagnostics")
           .where("createdAtMs", ">=", startMs)
           .orderBy("createdAtMs", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       }),
     safeQueryWithDiagnostics({
@@ -347,7 +373,9 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       channel: "analytics",
       label: "task analytics summary",
       issues,
-      reader: () => adminDb.collection("analytics_task_rollup").get(),
+      reader: () => adminDb.collection("analytics_task_rollup")
+        .limit(ADMIN_ANALYTICS_EVENT_STATS_LIMIT)
+        .get(),
     }),
     period === "all"
       ? safeQueryWithDiagnostics({
@@ -355,7 +383,9 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         channel: "admin",
         label: "drops archive",
         issues,
-        reader: () => adminDb.collection("drops").get(),
+        reader: () => adminDb.collection("drops")
+          .limit(ADMIN_ANALYTICS_DROP_ARCHIVE_LIMIT)
+          .get(),
       })
       : Promise.resolve<FirebaseFirestore.QuerySnapshot | null>(null),
     period === "all"
@@ -366,6 +396,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         issues,
         reader: () => adminDb.collection("analytics_watch_sessions")
           .orderBy("lastSeenAtMs", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       })
       : safeQueryWithDiagnostics({
@@ -376,6 +407,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         reader: () => adminDb.collection("analytics_watch_sessions")
           .where("lastSeenAtMs", ">=", startMs)
           .orderBy("lastSeenAtMs", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       }),
     period === "all"
@@ -386,6 +418,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         issues,
         reader: () => adminDb.collection("analytics_watch_assets")
           .orderBy("lastSeenAtMs", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       })
       : safeQueryWithDiagnostics({
@@ -396,6 +429,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
         reader: () => adminDb.collection("analytics_watch_assets")
           .where("lastSeenAtMs", ">=", startMs)
           .orderBy("lastSeenAtMs", "desc")
+          .limit(ADMIN_ANALYTICS_RECENT_SAMPLE_LIMIT)
           .get(),
       }),
   ]);
@@ -414,6 +448,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
           reader: () => adminDb.collection("daily_task_events")
             .where("timestamp", ">=", startMs)
             .orderBy("timestamp", "desc")
+            .limit(ADMIN_ANALYTICS_TASK_EVENT_LIMIT)
             .get(),
         }),
         period === "all"
@@ -424,6 +459,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
             issues,
             reader: () => adminDb.collection("transactions")
               .orderBy("timestamp", "desc")
+              .limit(ADMIN_ANALYTICS_TRANSACTION_LIMIT)
               .get(),
           })
           : safeQueryWithDiagnostics({
@@ -434,9 +470,17 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
             reader: () => adminDb.collection("transactions")
               .where("timestampMs", ">=", startMs)
               .orderBy("timestampMs", "desc")
+              .limit(ADMIN_ANALYTICS_TRANSACTION_LIMIT)
               .get(),
           }),
       ]);
+
+      if (taskEventsSnapshot.size >= ADMIN_ANALYTICS_TASK_EVENT_LIMIT) {
+        issues.push("Daily task event sample reached the analytics read cap; panel totals should be treated as partial.");
+      }
+      if (transactionsInRangeSnapshot.size >= ADMIN_ANALYTICS_TRANSACTION_LIMIT) {
+        issues.push("Commerce transaction sample reached the analytics read cap; rollup-backed totals remain authoritative.");
+      }
 
       return {
         issues,

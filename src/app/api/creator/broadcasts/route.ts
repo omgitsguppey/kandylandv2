@@ -14,6 +14,9 @@ import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildNotificationQualityMetadata } from "@/lib/notifications/notification-quality-score";
 import { buildNotificationRecord } from "@/lib/notification-contracts";
 
+const CREATOR_BROADCASTS_READ_LIMIT = 100;
+const CREATOR_BROADCAST_RECIPIENT_LIMIT = 1_000;
+
 const createBroadcastSchema = z.object({
     title: z.string().trim().min(2).max(80).optional(),
     message: z.string().trim().min(4).max(280),
@@ -77,6 +80,7 @@ async function GET_handler(request: NextRequest) {
 
         const broadcastsSnap = await adminDb.collection(CREATOR_COLLECTIONS.broadcasts)
             .where("creatorId", "==", creatorId)
+            .limit(CREATOR_BROADCASTS_READ_LIMIT)
             .get();
 
         const broadcasts = broadcastsSnap.docs
@@ -130,6 +134,7 @@ async function POST_handler(request: NextRequest) {
         const { title, message } = createBroadcastSchema.parse(await request.json());
         const relationshipsSnap = await adminDb.collection(CREATOR_COLLECTIONS.relationships)
             .where("creatorId", "==", caller.uid)
+            .limit(CREATOR_BROADCAST_RECIPIENT_LIMIT)
             .get();
 
         const followerIds: string[] = [];

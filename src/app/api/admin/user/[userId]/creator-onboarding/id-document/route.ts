@@ -73,7 +73,7 @@ async function GET_handler(
         }
 
         const { userId } = await context.params;
-        // cost-bound: single Firestore document read scoped to the selected creator onboarding record; not a collection scan.
+        // bounded cost: single Firestore document read scoped to the selected creator onboarding record; not a collection scan.
         const onboardingSnap = await adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId).get();
         const canonical = normalizeCreatorOnboardingCanonicalRecord(onboardingSnap.data());
         const requestedSide = request.nextUrl.searchParams.get("side") === "back" ? "back" : "front";

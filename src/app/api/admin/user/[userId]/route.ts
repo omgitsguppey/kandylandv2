@@ -61,6 +61,11 @@ import {
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 
+const ADMIN_USER_SESSION_FACT_LIMIT = 500;
+const ADMIN_USER_WATCH_SESSION_LIMIT = 500;
+const ADMIN_USER_DAILY_ROLLUP_LIMIT = 370;
+const ADMIN_USER_CREATOR_OPS_LIMIT = 1_000;
+
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
         return value;
@@ -190,13 +195,16 @@ async function GET_handler(
             adminDb.collection("analytics_session_facts")
                 .where("userId", "==", userId)
                 .orderBy("lastEventAt", "desc")
+                .limit(ADMIN_USER_SESSION_FACT_LIMIT)
                 .get(),
             adminDb.collection("analytics_watch_sessions")
                 .where("userId", "==", userId)
+                .limit(ADMIN_USER_WATCH_SESSION_LIMIT)
                 .get(),
             adminDb.collection("analytics_user_daily")
                 .where("uid", "==", userId)
                 .orderBy("dayKey", "desc")
+                .limit(ADMIN_USER_DAILY_ROLLUP_LIMIT)
                 .get(),
             adminDb.collection("security_events")
                 .where("userId", "==", userId)
@@ -1094,16 +1102,16 @@ async function GET_handler(
                     broadcastSnap,
                     pendingSubmissionSnap,
                 ] = await Promise.all([
-                    adminDb.collection(CREATOR_COLLECTIONS.relationships).where("creatorId", "==", userId).get(),
-                    adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("creatorId", "==", userId).get(),
-                    adminDb.collection(CREATOR_COLLECTIONS.requests).where("creatorId", "==", userId).get(),
-                    adminDb.collection(CREATOR_COLLECTIONS.bookings).where("creatorId", "==", userId).get(),
-                    adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).where("creatorId", "==", userId).get(),
-                    adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).where("creatorId", "==", userId).get(),
-                    adminDb.collection(CREATOR_COLLECTIONS.messageThreads).where("creatorId", "==", userId).get(),
-                    adminDb.collection(CREATOR_COLLECTIONS.messages).where("creatorId", "==", userId).get(),
-                    adminDb.collection(CREATOR_COLLECTIONS.broadcasts).where("creatorId", "==", userId).get(),
-                    adminDb.collection("drops").where("submittedByCreatorId", "==", userId).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.relationships).where("creatorId", "==", userId).limit(ADMIN_USER_CREATOR_OPS_LIMIT).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("creatorId", "==", userId).limit(ADMIN_USER_CREATOR_OPS_LIMIT).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.requests).where("creatorId", "==", userId).limit(ADMIN_USER_CREATOR_OPS_LIMIT).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.bookings).where("creatorId", "==", userId).limit(ADMIN_USER_CREATOR_OPS_LIMIT).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).where("creatorId", "==", userId).limit(ADMIN_USER_CREATOR_OPS_LIMIT).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).where("creatorId", "==", userId).limit(ADMIN_USER_CREATOR_OPS_LIMIT).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.messageThreads).where("creatorId", "==", userId).limit(ADMIN_USER_CREATOR_OPS_LIMIT).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.messages).where("creatorId", "==", userId).limit(ADMIN_USER_CREATOR_OPS_LIMIT).get(),
+                    adminDb.collection(CREATOR_COLLECTIONS.broadcasts).where("creatorId", "==", userId).limit(ADMIN_USER_CREATOR_OPS_LIMIT).get(),
+                    adminDb.collection("drops").where("submittedByCreatorId", "==", userId).limit(ADMIN_USER_CREATOR_OPS_LIMIT).get(),
                 ]);
 
             const relationshipSummary = relationshipSnap.docs.reduce((acc, doc) => {

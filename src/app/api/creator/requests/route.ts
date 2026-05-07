@@ -23,6 +23,8 @@ import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
 
+const CREATOR_REQUESTS_READ_LIMIT = 200;
+
 type CreatorRequestRecord = Record<string, unknown> & {
     id: string;
     createdAt?: unknown;
@@ -60,6 +62,7 @@ async function GET_handler(request: NextRequest) {
 
         const snap = await adminDb.collection(CREATOR_COLLECTIONS.requests)
             .where(isCreator ? "creatorId" : "userId", "==", caller.uid)
+            .limit(CREATOR_REQUESTS_READ_LIMIT)
             .get();
 
         const requests = snap.docs

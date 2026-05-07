@@ -24,6 +24,9 @@ import {
   recordRuntimeWarning,
 } from "@/lib/server/runtime-warning-store";
 
+const DROP_LIFECYCLE_SCAN_LIMIT = 1_000;
+const DROP_OWNER_EXCLUSION_SCAN_LIMIT = 5_000;
+
 async function recordInvariantWarnings(input: {
   invariants: Array<{ code: string; severity: "warn" | "error"; message: string; dropId?: string; detail?: Record<string, unknown> }>;
   executionLayer: RuntimeWarningExecutionLayer;
@@ -219,8 +222,8 @@ export async function notifyActiveDropsRuntime(input: {
     const now = Date.now();
     const dropsRef = adminDb.collection("drops");
     const [scheduledSnap, activeSnap] = await Promise.all([
-      dropsRef.where("status", "==", "scheduled").get(),
-      dropsRef.where("status", "==", "active").get(),
+      dropsRef.where("status", "==", "scheduled").limit(DROP_LIFECYCLE_SCAN_LIMIT).get(),
+      dropsRef.where("status", "==", "active").limit(DROP_LIFECYCLE_SCAN_LIMIT).get(),
     ]);
 
     const toRuntimeDrop = (
@@ -278,6 +281,7 @@ export async function notifyActiveDropsRuntime(input: {
           const ownersSnap = await adminDb.collection("users")
             .where("unlockedContent", "array-contains", dropId)
             .select() // ⚡ Bolt: Optimize I/O by only returning document IDs
+            .limit(DROP_OWNER_EXCLUSION_SCAN_LIMIT)
             .get();
 
           const excludedUserIds: string[] = [];

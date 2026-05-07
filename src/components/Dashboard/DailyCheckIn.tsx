@@ -158,6 +158,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
             }).catch(() => { });
 
             trackEvent("daily_checkin_claimed", {
+                source_component: "daily_check_in",
                 task_id: "check_in_today",
                 streak_count: streak,
                 reward_gd: reward,
@@ -165,7 +166,6 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                 day_key: getCSTDateKey(claimedAt),
                 transaction_id: `${user?.uid ?? "user"}:checkin:${claimedAt}`,
                 sourceTruth: "client_supporting",
-                source_component: "daily_check_in",
             });
             emitGuidedCheckIn("success");
         } catch (error: unknown) {

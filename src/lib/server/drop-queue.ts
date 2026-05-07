@@ -17,6 +17,8 @@ export const DEFAULT_DROP_QUEUE_CONFIG: DropQueueConfig = {
   timesPerDay: ["12:00"],
 };
 
+const LEGACY_QUEUED_DROP_SCAN_LIMIT = 1_000;
+
 function normalizeTimesPerDay(timesPerDay: unknown, dropsPerDay: number): string[] {
   const rawTimes = Array.isArray(timesPerDay)
     ? timesPerDay.filter((value): value is string => typeof value === "string" && /^\d{2}:\d{2}$/.test(value))
@@ -57,7 +59,10 @@ export async function getLegacyQueuedDropIds(): Promise<string[]> {
     return [];
   }
 
-  const snapshot = await adminDb.collection("drops").where("rotationConfig.enabled", "==", true).get();
+  const snapshot = await adminDb.collection("drops")
+    .where("rotationConfig.enabled", "==", true)
+    .limit(LEGACY_QUEUED_DROP_SCAN_LIMIT)
+    .get();
   return snapshot.docs.map((doc) => doc.id);
 }
 

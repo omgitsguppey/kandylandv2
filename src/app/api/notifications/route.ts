@@ -21,6 +21,7 @@ import { buildBrowserNotificationTag, buildNotificationIdempotencyKey } from "@/
 import { buildNotificationQualityMetadata } from "@/lib/notifications/notification-quality-score";
 
 const DUPLICATE_NOTIFICATION_WINDOW_MS = 2 * 60 * 1000;
+const NOTIFICATION_MUTATION_ID_LIMIT = 100;
 
 function buildNotificationsEtag(
   notifications: Array<{
@@ -305,8 +306,12 @@ export async function PUT(request: NextRequest) {
     }
 
     const uniqueIds = [...new Set(requestedIds)];
+    if (uniqueIds.length > NOTIFICATION_MUTATION_ID_LIMIT) {
+      return finalize(NextResponse.json({ error: "Too many notification ids" }, { status: 400 }));
+    }
     const refs = uniqueIds.map((notificationId) => adminDb.collection("notifications").doc(notificationId));
     const snapshots = refs.length === 1
+      // bounded document read: one requested notification id.
       ? [await refs[0].get()]
       : await adminDb.getAll(...refs);
     const batch = adminDb.batch();

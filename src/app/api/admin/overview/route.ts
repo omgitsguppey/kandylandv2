@@ -32,6 +32,10 @@ import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/r
 const OVERVIEW_WINDOW_DAYS = 30;
 const RECENT_TRANSACTION_LIMIT = 20;
 const ADMIN_ACTIVITY_LIMIT = 20;
+const ADMIN_OVERVIEW_USER_LIMIT = 5_000;
+const ADMIN_OVERVIEW_DROP_LIMIT = 5_000;
+const ADMIN_OVERVIEW_ROLLING_TRANSACTION_LIMIT = 5_000;
+const ADMIN_OVERVIEW_DAILY_ROLLUP_LIMIT = 90;
 const CHART_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
     timeZone: APP_TIMEZONE,
     month: "short",
@@ -312,14 +316,18 @@ async function GET_handler(request: NextRequest) {
                 channel: "admin",
                 label: "users",
                 issues,
-                reader: () => adminDb.collection("users").get(),
+                reader: () => adminDb.collection("users")
+                    .limit(ADMIN_OVERVIEW_USER_LIMIT)
+                    .get(),
             }),
             safeQueryWithDiagnostics({
                 routeName: "admin/overview",
                 channel: "admin",
                 label: "drops",
                 issues,
-                reader: () => adminDb.collection("drops").get(),
+                reader: () => adminDb.collection("drops")
+                    .limit(ADMIN_OVERVIEW_DROP_LIMIT)
+                    .get(),
             }),
             safeQueryWithDiagnostics({
                 routeName: "admin/overview",
@@ -338,6 +346,7 @@ async function GET_handler(request: NextRequest) {
                 issues,
                 reader: () => adminDb.collection("transactions")
                     .where("timestamp", ">=", priorRollingStartMs)
+                    .limit(ADMIN_OVERVIEW_ROLLING_TRANSACTION_LIMIT)
                     .get(),
             }),
             safeQueryWithDiagnostics({
@@ -365,6 +374,7 @@ async function GET_handler(request: NextRequest) {
                 issues,
                 reader: () => adminDb.collection("analytics_commerce_daily")
                     .where("dayKey", ">=", previousStartDayKey)
+                    .limit(ADMIN_OVERVIEW_DAILY_ROLLUP_LIMIT)
                     .get(),
             }),
             safeQueryWithDiagnostics({
@@ -374,6 +384,7 @@ async function GET_handler(request: NextRequest) {
                 issues,
                 reader: () => adminDb.collection("analytics_drop_daily")
                     .where("dayKey", ">=", currentStartDayKey)
+                    .limit(ADMIN_OVERVIEW_DAILY_ROLLUP_LIMIT)
                     .get(),
             }),
             readAdminUserMetricsSnapshot({
@@ -382,6 +393,16 @@ async function GET_handler(request: NextRequest) {
             }),
         ]);
         const userMetricsSnapshot = userMetricsSnapshotMeta.snapshot;
+
+        if (allUsersSnapshot.size >= ADMIN_OVERVIEW_USER_LIMIT) {
+            issues.push("Overview user sample reached the read cap; snapshot-backed totals should be treated as authoritative.");
+        }
+        if (dropsSnapshot.size >= ADMIN_OVERVIEW_DROP_LIMIT) {
+            issues.push("Overview drop sample reached the read cap; detailed drop mix may be partial.");
+        }
+        if (rollingTransactionsSnapshot.size >= ADMIN_OVERVIEW_ROLLING_TRANSACTION_LIMIT) {
+            issues.push("Rolling transaction sample reached the read cap; commerce rollups should be treated as authoritative.");
+        }
 
         const telemetryLogsByEvent = await fetchTelemetryLogs(ADMIN_ACTIVITY_TELEMETRY_EVENT_NAMES, adminActivityStartMs);
 

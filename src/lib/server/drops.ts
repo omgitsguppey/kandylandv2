@@ -7,6 +7,8 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import type { Drop } from "@/types/db";
 
+const PUBLIC_DROPS_READ_LIMIT = 1_000;
+
 export function sanitizeDropForClient(drop: Drop): Drop {
     const safeContentUrls = Array.isArray(drop.contentUrls)
         ? drop.contentUrls.map(() => "")
@@ -18,7 +20,10 @@ export function sanitizeDropForClient(drop: Drop): Drop {
 export const getDrops = cache(async (): Promise<Drop[]> => {
     try {
         if (!adminDb) return [];
-        const snapshot = await adminDb.collection("drops").orderBy("validFrom", "desc").get();
+        const snapshot = await adminDb.collection("drops")
+            .orderBy("validFrom", "desc")
+            .limit(PUBLIC_DROPS_READ_LIMIT)
+            .get();
 
         if (snapshot.empty) return [];
 

@@ -123,6 +123,7 @@ async function PUT_handler(request: NextRequest) {
         }
 
         const dropRef = adminDb.collection("drops").doc(dropId);
+        // bounded document read: admin drop edit validates one explicit drop id.
         const existingDropSnap = await dropRef.get();
         if (!existingDropSnap.exists) {
             return buildNotFoundResponse("drop", "Drop not found");
@@ -196,6 +197,7 @@ async function DELETE_handler(request: NextRequest) {
         }
 
         const dropRef = adminDb.collection("drops").doc(dropId);
+        // bounded document read: admin drop delete validates one explicit drop id.
         const dropSnap = await dropRef.get();
         if (!dropSnap.exists) {
             return buildNotFoundResponse("drop", "Drop not found");

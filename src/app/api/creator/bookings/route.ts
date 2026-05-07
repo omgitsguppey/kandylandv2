@@ -26,6 +26,8 @@ import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
 
+const CREATOR_BOOKINGS_READ_LIMIT = 200;
+
 type CreatorBookingProblemCode =
     | "creator_or_user_not_found"
     | "creator_unavailable"
@@ -133,7 +135,7 @@ async function GET_handler(request: NextRequest) {
 
             const [creatorSnap, bookingsSnap, subscriptionSnap] = await Promise.all([
                 adminDb.collection("users").doc(creatorId).get(),
-                bookingsQuery.get(),
+                bookingsQuery.limit(CREATOR_BOOKINGS_READ_LIMIT).get(),
                 adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(`${caller.uid}__${creatorId}`).get(),
             ]);
             const creatorData = creatorSnap.data() as Record<string, unknown> | undefined;
@@ -147,7 +149,10 @@ async function GET_handler(request: NextRequest) {
         }
 
         const field = callerIsCreator ? "creatorId" : "userId";
-        const bookingsSnap = await adminDb.collection(CREATOR_COLLECTIONS.bookings).where(field, "==", caller.uid).get();
+        const bookingsSnap = await adminDb.collection(CREATOR_COLLECTIONS.bookings)
+            .where(field, "==", caller.uid)
+            .limit(CREATOR_BOOKINGS_READ_LIMIT)
+            .get();
 
         return NextResponse.json({
             success: true,

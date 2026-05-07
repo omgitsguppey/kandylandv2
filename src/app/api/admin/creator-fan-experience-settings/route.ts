@@ -191,6 +191,7 @@ async function POST_handler(request: NextRequest) {
     const actor = buildCreatorOnboardingActorFromMarker(marker);
     const nowMs = Date.now();
     const userRef = adminDb.collection("users").doc(command.targetUserId);
+    // bounded document read: fan settings target one explicit creator/user id.
     const userSnap = await userRef.get();
     if (!userSnap.exists) {
       return buildNotFoundResponse("user", "User not found");

@@ -19,6 +19,8 @@ type DropReferenceCollection = {
   };
 };
 
+const ALL_DROP_REFERENCE_LIMIT = 5_000;
+
 function normalizeDropReference(id: string, raw: Record<string, unknown>): DropReference {
   const creatorName = [
     raw.creatorDisplayName,
@@ -84,7 +86,7 @@ export async function getDropReferenceMap(dropIds: string[]): Promise<Record<str
 }
 
 export async function getAllDropReferenceMap(): Promise<Record<string, DropReference>> {
-  const snapshot = await adminDb.collection("drops").get();
+  const snapshot = await adminDb.collection("drops").limit(ALL_DROP_REFERENCE_LIMIT).get();
   return Object.fromEntries(
     snapshot.docs.map((doc) => [doc.id, normalizeDropReference(doc.id, doc.data() as Record<string, unknown>)]),
   );

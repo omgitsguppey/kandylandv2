@@ -45,6 +45,7 @@ async function PATCH_handler(
     }
 
     const userRef = adminDb.collection("users").doc(userId);
+    // bounded document read: username changes target one explicit user id.
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {

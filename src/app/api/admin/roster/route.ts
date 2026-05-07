@@ -83,6 +83,10 @@ type RosterEntry = {
     createdAt: number;
 };
 
+const ADMIN_ROSTER_USER_LIMIT = 5_000;
+const ADMIN_ROSTER_CREATOR_OPS_LIMIT = 5_000;
+const ADMIN_ROSTER_QUEUE_LIMIT = 1_000;
+
 type CreatorReviewQueueRosterEntry = RosterEntry & {
     creatorDisplayName: string;
     queueBucket: CreatorReviewQueueBucket;
@@ -452,17 +456,30 @@ async function GET_handler(request: NextRequest) {
             pendingCreatorDropsSnap,
             initialQueueSnapshot,
         ] = await Promise.all([
-            adminDb.collection("users").orderBy("createdAt", "desc").get(),
-            adminDb.collection(CREATOR_COLLECTIONS.relationships).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.subscriptions).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.requests).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.bookings).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.messageThreads).get(),
-            adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).get(),
-            adminDb.collection("drops").where("approvalStatus", "==", "pending_review").get(),
-            adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).orderBy("submittedAt", "desc").get(),
+            adminDb.collection("users").orderBy("createdAt", "desc").limit(ADMIN_ROSTER_USER_LIMIT).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.relationships).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.subscriptions).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.requests).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.bookings).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.messageThreads).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).limit(ADMIN_ROSTER_CREATOR_OPS_LIMIT).get(),
+            adminDb.collection("drops").where("approvalStatus", "==", "pending_review").limit(ADMIN_ROSTER_QUEUE_LIMIT).get(),
+            adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).orderBy("submittedAt", "desc").limit(ADMIN_ROSTER_QUEUE_LIMIT).get(),
         ]);
+
+        const dataLimitWarnings = [
+            usersSnapshot.size >= ADMIN_ROSTER_USER_LIMIT ? "User roster sample reached the admin read cap." : null,
+            creatorRelationshipsSnap.size >= ADMIN_ROSTER_CREATOR_OPS_LIMIT ? "Creator relationship sample reached the admin read cap." : null,
+            creatorSubscriptionsSnap.size >= ADMIN_ROSTER_CREATOR_OPS_LIMIT ? "Creator subscription sample reached the admin read cap." : null,
+            creatorRequestsSnap.size >= ADMIN_ROSTER_CREATOR_OPS_LIMIT ? "Creator request sample reached the admin read cap." : null,
+            creatorBookingsSnap.size >= ADMIN_ROSTER_CREATOR_OPS_LIMIT ? "Creator booking sample reached the admin read cap." : null,
+            creatorPayoutsSnap.size >= ADMIN_ROSTER_CREATOR_OPS_LIMIT ? "Creator payout sample reached the admin read cap." : null,
+            creatorThreadsSnap.size >= ADMIN_ROSTER_CREATOR_OPS_LIMIT ? "Creator thread sample reached the admin read cap." : null,
+            creatorAccrualsSnap.size >= ADMIN_ROSTER_CREATOR_OPS_LIMIT ? "Creator accrual sample reached the admin read cap." : null,
+            pendingCreatorDropsSnap.size >= ADMIN_ROSTER_QUEUE_LIMIT ? "Pending creator drop sample reached the admin read cap." : null,
+            initialQueueSnapshot.size >= ADMIN_ROSTER_QUEUE_LIMIT ? "Creator review queue sample reached the admin read cap." : null,
+        ].filter((entry): entry is string => Boolean(entry));
 
         const userDocs = usersSnapshot.docs.map((doc) => ({
             id: doc.id,
@@ -577,7 +594,7 @@ async function GET_handler(request: NextRequest) {
         }
 
         const queueSnapshot = repairCandidates.length > 0
-            ? await adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).orderBy("submittedAt", "desc").get()
+            ? await adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).orderBy("submittedAt", "desc").limit(ADMIN_ROSTER_QUEUE_LIMIT).get()
             : initialQueueSnapshot;
 
         const creatorOpsByUser = new Map<string, CreatorOpsAggregate>();
@@ -741,6 +758,7 @@ async function GET_handler(request: NextRequest) {
             searchResults,
             creatorOpsByUser: Object.fromEntries(creatorOpsByUser),
             summary,
+            dataLimitWarnings,
         });
     } catch (error) {
         return handleApiError(error, "Admin.Roster.GET");

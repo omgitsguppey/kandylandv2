@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { AuthError, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { readSourceAwareBalance, creditSourceAwareGumdrops, buildSourceAwareBalancePatch } from "@/lib/gumdrop-ledger";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -26,6 +27,7 @@ async function POST_handler(request: NextRequest) {
     const caller = await guardApiRequest(request, {
       routeName: "drops/feedback",
       auth: "user",
+      rateLimit: SENSITIVE_WRITE,
       requireTrustedOrigin: true,
     });
     

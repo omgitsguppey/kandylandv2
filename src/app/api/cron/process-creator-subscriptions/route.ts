@@ -19,6 +19,7 @@ const SUBSCRIPTION_TERM_MS = 30 * 24 * 60 * 60 * 1000;
 const WARNING_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const USER_PREFETCH_CHUNK_SIZE = 100;
 const USER_PREFETCH_CONCURRENCY = 3;
+const ACTIVE_SUBSCRIPTION_SCAN_LIMIT = 1_000;
 
 type RenewalOutcome =
     | { status: "warned"; creatorId: string; userId: string }
@@ -50,6 +51,7 @@ async function GET_handler(request: NextRequest) {
         const now = Date.now();
         const subscriptionsSnap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions)
             .where("status", "==", "active")
+            .limit(ACTIVE_SUBSCRIPTION_SCAN_LIMIT)
             .get();
 
         const outcomes: RenewalOutcome[] = [];

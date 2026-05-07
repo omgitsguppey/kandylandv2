@@ -12,6 +12,8 @@ const duplicateFilenameSchema = z.object({
     excludeDropId: z.string().trim().optional(),
 });
 
+const DUPLICATE_FILENAME_DROP_SCAN_LIMIT = 1_000;
+
 function normalizeFileName(value: string) {
     return value.trim().toLowerCase();
 }
@@ -34,7 +36,7 @@ async function POST_handler(request: NextRequest) {
         const dropsQuery = caller.isAdmin
             ? adminDb.collection("drops")
             : adminDb.collection("drops").where("creatorId", "==", caller.uid);
-        const snapshot = await dropsQuery.get();
+        const snapshot = await dropsQuery.limit(DUPLICATE_FILENAME_DROP_SCAN_LIMIT).get();
 
         const matches = snapshot.docs.flatMap((doc) => {
             if (excludeDropId && doc.id === excludeDropId) {

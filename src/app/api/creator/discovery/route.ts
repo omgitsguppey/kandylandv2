@@ -8,6 +8,8 @@ import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { listCreatorDiscoveryProfiles } from "@/lib/server/creator-discovery";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
+const CREATOR_DISCOVERY_CACHE_CONTROL = "public, max-age=60, s-maxage=300, stale-while-revalidate=900";
+
 export async function GET(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
@@ -32,6 +34,10 @@ export async function GET(request: NextRequest) {
         return finalize(NextResponse.json({
             success: true,
             creators,
+        }, {
+            headers: {
+                "Cache-Control": CREATOR_DISCOVERY_CACHE_CONTROL,
+            },
         }));
     } catch (error) {
         return finalize(handleApiError(error, "Creator.Discovery.GET"), error);

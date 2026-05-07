@@ -11,6 +11,9 @@ import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experienc
 import { sanitizeDropForClient } from "@/lib/server/drops";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
+const CREATOR_PROFILE_DROP_LIMIT = 40;
+const CREATOR_PROFILE_CACHE_CONTROL = "public, max-age=60, s-maxage=300, stale-while-revalidate=900";
+
 async function GET_handler(
     request: NextRequest,
     context: { params: Promise<{ username: string }> },
@@ -71,6 +74,7 @@ async function GET_handler(
 
         const dropsSnapshot = await adminDb.collection("drops")
             .where("creatorId", "==", creator.uid)
+            .limit(CREATOR_PROFILE_DROP_LIMIT)
             .get();
 
         const drops = dropsSnapshot.docs.flatMap((doc) => {
@@ -91,7 +95,11 @@ async function GET_handler(
             });
         });
 
-        return NextResponse.json({ success: true, creator, drops });
+        return NextResponse.json({ success: true, creator, drops }, {
+            headers: {
+                "Cache-Control": CREATOR_PROFILE_CACHE_CONTROL,
+            },
+        });
     } catch (error) {
         return handleApiError(error, "Creators.Profile.GET");
     }
