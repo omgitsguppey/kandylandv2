@@ -57,6 +57,7 @@ import { buildAdminAnalyticsRegionDemandModel } from "@/lib/admin-analytics-regi
 import { buildAdminAnalyticsTopDropConversionModel } from "@/lib/admin-analytics-top-drop-conversion";
 import { buildAdminAnalyticsRecentCommerceFeedState } from "@/lib/admin-analytics-recent-commerce-feed";
 import { summarizeAdminIssueForOperator } from "@/lib/admin-copy/admin-truth-copy";
+import { PUBLIC_APP_VERSION } from "@/lib/release-notes/public-release-notes";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -100,6 +101,8 @@ import { useAdminAnalyticsRealtime } from "./useAdminAnalyticsRealtime";
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
 const ADMIN_ANALYTICS_OVERVIEW_HYDRATION_BUDGET_MS = 3_000;
+const ADMIN_ANALYTICS_STORAGE_VERSION = PUBLIC_APP_VERSION;
+const ADMIN_ANALYTICS_STORAGE_PREFIX = `kandydrops.admin.analytics.${ADMIN_ANALYTICS_STORAGE_VERSION}`;
 const ADMIN_ANALYTICS_OVERVIEW_SNAPSHOT_STORAGE_PREFIX =
   "kandydrops.admin.analytics.overview.lastValidatedBackendSnapshot";
 const EMPTY_TASK_LEADERBOARD: TaskLeaderboardItem[] = [];
@@ -231,7 +234,36 @@ function getClientPerformanceMs() {
 }
 
 function buildOverviewSnapshotStorageKey(url: string) {
+  return `${ADMIN_ANALYTICS_STORAGE_PREFIX}.overview.lastValidatedBackendSnapshot:${url}`;
+}
+
+function buildLegacyOverviewSnapshotStorageKey(url: string) {
   return `${ADMIN_ANALYTICS_OVERVIEW_SNAPSHOT_STORAGE_PREFIX}:${url}`;
+}
+
+function buildVersionedAnalyticsFilterStorageKey(baseKey: string) {
+  return `${ADMIN_ANALYTICS_STORAGE_PREFIX}.filters:${baseKey}`;
+}
+
+function clearLegacyAdminAnalyticsStorage(input: {
+  analyticsFilterStorageKey: string;
+  historicalUrl: string;
+}) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.removeItem(input.analyticsFilterStorageKey);
+    window.sessionStorage.removeItem(
+      buildLegacyOverviewSnapshotStorageKey(input.historicalUrl),
+    );
+  } catch (error) {
+    reportStorageIssue("admin analytics legacy storage cleanup", error, {
+      analyticsFilterStorageKey: input.analyticsFilterStorageKey,
+      historicalStorageKey: buildLegacyOverviewSnapshotStorageKey(input.historicalUrl),
+    });
+  }
 }
 
 function hasOverviewSnapshotValue(response: HistoricalAnalyticsResponse | undefined) {
@@ -453,9 +485,12 @@ const { user } = useAuth();
   const [moduleRanges, setModuleRanges] =
     useState<AdminAnalyticsModuleRangeMap>({});
   const [savingSectionKey, setSavingSectionKey] = useState<string | null>(null);
-  const analyticsFilterStorageKey = user
+  const baseAnalyticsFilterStorageKey = user
     ? `${ANALYTICS_FILTER_STORAGE_KEY}:${user.uid}`
     : ANALYTICS_FILTER_STORAGE_KEY;
+  const analyticsFilterStorageKey = buildVersionedAnalyticsFilterStorageKey(
+    baseAnalyticsFilterStorageKey,
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -528,7 +563,6 @@ const { user } = useAuth();
     30_000,
     {
       keepPreviousData: true,
-      revalidateOnFocus: false,
     },
   );
 
@@ -613,7 +647,6 @@ const { user } = useAuth();
     30_000,
     {
       keepPreviousData: true,
-      revalidateOnFocus: false,
     },
   );
 
@@ -623,14 +656,19 @@ const { user } = useAuth();
     isLoading: historicalLoading,
   } = useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, 60_000, {
     keepPreviousData: true,
-    revalidateOnFocus: false,
   });
   const {
     data: adminOverviewResponse,
   } = useAdminPollingSWR<AdminOverviewResponse>("/api/admin/overview", 60_000, {
     keepPreviousData: true,
-    revalidateOnFocus: false,
   });
+
+  useEffect(() => {
+    clearLegacyAdminAnalyticsStorage({
+      analyticsFilterStorageKey: baseAnalyticsFilterStorageKey,
+      historicalUrl,
+    });
+  }, [baseAnalyticsFilterStorageKey, historicalUrl]);
   const [seededHistoricalOverviewResponse, setSeededHistoricalOverviewResponse] =
     useState<HistoricalAnalyticsResponse | undefined>(() =>
       readStoredHistoricalOverviewSnapshot(historicalUrl),
