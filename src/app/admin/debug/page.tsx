@@ -97,8 +97,11 @@ export default function DebugConsole() {
     const [runningAiAssistantLiveCall, setRunningAiAssistantLiveCall] = useState(false);
     const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
     const debugPreferencesHydratedRef = useRef(false);
+    const focusRefreshAtRef = useRef(0);
 
-    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 60000);
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 60000, {
+        keepPreviousData: false,
+    });
 
     const {
         clusteredWarnings,
@@ -109,9 +112,20 @@ export default function DebugConsole() {
         queueHeartbeats: realtimeQueueHeartbeats,
         listenerErrors: debugRealtimeState,
     } = useAdminDebugRealtime();
-    const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>("/api/admin/debug/preferences", 15000);
-    const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>("/api/admin/debug/assistant", 15000);
+    const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>("/api/admin/debug/preferences", 15000, {
+        // Preferences are non-blocking UI state, so preserving the prior value while refetching is intentional.
+        keepPreviousData: true,
+    });
+    const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>("/api/admin/debug/assistant", 15000, {
+        keepPreviousData: false,
+    });
     const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview();
+
+    const revalidatePrimaryDebugTruth = useCallback(() => {
+        void mutate();
+        void mutateOverview();
+        void mutateAiDebug();
+    }, [mutate, mutateAiDebug, mutateOverview]);
 
     useEffect(() => {
         const preferences = debugPreferencesData?.preferences;
@@ -127,6 +141,32 @@ export default function DebugConsole() {
             setRouteRuntimeFilter(preferences.routeRuntimeFilter as AdminDebugRouteRuntimeFilter);
         }
     }, [debugPreferencesData?.preferences]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const handleFocusRefresh = () => {
+            if (document.visibilityState !== "visible") {
+                return;
+            }
+            const now = Date.now();
+            if (now - focusRefreshAtRef.current < 1_000) {
+                return;
+            }
+            focusRefreshAtRef.current = now;
+            revalidatePrimaryDebugTruth();
+        };
+
+        window.addEventListener("focus", handleFocusRefresh);
+        document.addEventListener("visibilitychange", handleFocusRefresh);
+
+        return () => {
+            window.removeEventListener("focus", handleFocusRefresh);
+            document.removeEventListener("visibilitychange", handleFocusRefresh);
+        };
+    }, [revalidatePrimaryDebugTruth]);
 
     const persistDebugPreferences = useCallback(async (patch: {
         activeTab?: DebugTabId;
