@@ -3,24 +3,6 @@
 ## Task
 Complete Phase 1 Closeout Micro-Phase for admin freshness, admin AI state scoping, admin loading shell stability, Platform Economy progressive hydration, and final readiness handoff.
 
-## Scope
-Allowed files touched:
-- src/app/admin/debug/page.tsx
-- src/app/admin/ai/hooks/useAdminAiState.tsx
-- src/app/admin/loading.tsx
-- src/app/admin/economy/components/PlatformEconomyConsole.tsx
-- CODEX_HANDOFF.md
-- agent/handoffs/phase-1-closeout-micro-phase.md
-
-Files intentionally not touched:
-- Beta badge files
-- chat files
-- versioning/release-note files
-- service worker/cache files
-- admin API routes
-- wallet/packages source
-- PurchaseModal
-
 ## Result
 Status:
 - completed

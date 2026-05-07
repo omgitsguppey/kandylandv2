@@ -50,6 +50,15 @@ function SectionCard({ title, detail, children }: { title: string; detail: strin
     );
 }
 
+const ECONOMY_ENDPOINTS = [
+    ["treasury", "/api/admin/economy/treasury"],
+    ["packages", "/api/admin/economy/packages"],
+    ["promos", "/api/admin/economy/promos"],
+    ["offers", "/api/admin/economy/offers"],
+    ["redemptions", "/api/admin/economy/redemptions"],
+    ["drift", "/api/admin/economy/drift"],
+] as const satisfies ReadonlyArray<readonly [keyof PlatformEconomyDashboardState, string]>;
+
 export function PlatformEconomyConsole() {
     const [tab, setTab] = useState<EconomyTabId>("treasury");
     const [state, setState] = useState<PlatformEconomyDashboardState>({
@@ -65,33 +74,48 @@ export function PlatformEconomyConsole() {
         let cancelled = false;
 
         async function load() {
-            const endpoints = [
-                ["treasury", "/api/admin/economy/treasury"] as const,
-                ["packages", "/api/admin/economy/packages"] as const,
-                ["promos", "/api/admin/economy/promos"] as const,
-                ["offers", "/api/admin/economy/offers"] as const,
-                ["redemptions", "/api/admin/economy/redemptions"] as const,
-                ["drift", "/api/admin/economy/drift"] as const,
-            ];
+            setState({
+                treasury: createLoadingSlice<PlatformEconomyTreasurySummary>(),
+                packages: createLoadingSlice<PlatformEconomyPackageRecord[]>(),
+                promos: createLoadingSlice<PlatformEconomyPromoRecord[]>(),
+                offers: createLoadingSlice<PlatformEconomyOfferRecord[]>(),
+                redemptions: createLoadingSlice<PlatformEconomyRedemptionRecord[]>(),
+                drift: createLoadingSlice<PlatformEconomyDriftRecord[]>(),
+            });
 
-            const results = await Promise.all(endpoints.map(async ([key, url]) => {
+            const requests = ECONOMY_ENDPOINTS.map(async ([key, url]) => {
                 try {
                     const response = await authFetch(url);
                     const body = await response.json();
                     if (!response.ok || !body.success) {
                         throw new Error(body.error || `Failed to load ${key}`);
                     }
-                    return [key, { loading: false, error: null, data: body[key] ?? null }] as const;
+                    if (cancelled) return;
+                    setState((current) => ({
+                        ...current,
+                        [key]: {
+                            loading: false,
+                            error: null,
+                            data: body[key] ?? null,
+                        },
+                    }));
                 } catch (error) {
-                    return [key, { loading: false, error: error instanceof Error ? error.message : `Failed to load ${key}`, data: null }] as const;
+                    if (cancelled) return;
+                    setState((current) => ({
+                        ...current,
+                        [key]: {
+                            loading: false,
+                            error: error instanceof Error ? error.message : `Failed to load ${key}`,
+                            data: null,
+                        },
+                    }));
                 }
-            }));
+            });
 
-            if (cancelled) return;
-            setState((current) => ({ ...current, ...Object.fromEntries(results) }));
+            await Promise.all(requests);
         }
 
-        load();
+        void load();
         return () => {
             cancelled = true;
         };

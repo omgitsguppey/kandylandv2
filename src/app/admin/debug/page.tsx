@@ -98,10 +98,7 @@ export default function DebugConsole() {
     const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
     const debugPreferencesHydratedRef = useRef(false);
 
-    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 60000, {
-        keepPreviousData: true,
-        revalidateOnFocus: false,
-    });
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 60000);
 
     const {
         clusteredWarnings,
@@ -112,14 +109,8 @@ export default function DebugConsole() {
         queueHeartbeats: realtimeQueueHeartbeats,
         listenerErrors: debugRealtimeState,
     } = useAdminDebugRealtime();
-    const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>("/api/admin/debug/preferences", 15000, {
-        keepPreviousData: true,
-        revalidateOnFocus: false,
-    });
-    const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>("/api/admin/debug/assistant", 15000, {
-        keepPreviousData: true,
-        revalidateOnFocus: false,
-    });
+    const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>("/api/admin/debug/preferences", 15000);
+    const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>("/api/admin/debug/assistant", 15000);
     const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview();
 
     useEffect(() => {
@@ -455,7 +446,7 @@ export default function DebugConsole() {
     }), [freshestLoadedSignalAt]);
 
     const refreshAll = async () => {
-        await Promise.all([mutate(), mutateOverview(), mutateAiDebug()]);
+        await Promise.all([mutate(), mutateDebugPreferences(), mutateOverview(), mutateAiDebug()]);
         toast.success("Debug console refreshed");
     };
 

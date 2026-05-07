@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { PUBLIC_APP_VERSION } from "@/lib/release-notes/public-release-notes";
 import { toast } from "sonner";
 import {
     ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS,
@@ -89,6 +90,18 @@ export const MODULE_DEFAULTS = {
 export type AiModuleKey = keyof typeof MODULE_DEFAULTS;
 export type ReviewFilter = "all" | "accepted" | "liked" | "neutral" | "disliked" | "failed";
 
+const ADMIN_AI_UI_PREFERENCE_PREFIX = `admin_ai.${PUBLIC_APP_VERSION}.`;
+
+function getVersionedAdminAiModuleKey(key: AiModuleKey) {
+    return `${ADMIN_AI_UI_PREFERENCE_PREFIX}${key}`;
+}
+
+function readVersionedCollapsedModule(
+    collapsedModules: Record<string, boolean>,
+    key: AiModuleKey,
+) {
+    return collapsedModules[getVersionedAdminAiModuleKey(key)] === true;
+}
 
 
 export function useAdminAiState() {
@@ -140,13 +153,13 @@ export function useAdminAiState() {
 
         preferencesHydratedRef.current = true;
         setModuleOpenState({
-            "admin_ai.runtime": collapsedModules["admin_ai.runtime"] === true ? false : MODULE_DEFAULTS["admin_ai.runtime"],
-            "admin_ai.prompt": collapsedModules["admin_ai.prompt"] === true ? false : MODULE_DEFAULTS["admin_ai.prompt"],
-            "admin_ai.references": collapsedModules["admin_ai.references"] === true ? false : MODULE_DEFAULTS["admin_ai.references"],
-            "admin_ai.recent": collapsedModules["admin_ai.recent"] === true ? false : MODULE_DEFAULTS["admin_ai.recent"],
-            "admin_ai.gallery": collapsedModules["admin_ai.gallery"] === true ? false : MODULE_DEFAULTS["admin_ai.gallery"],
-            "admin_ai.optimizer": collapsedModules["admin_ai.optimizer"] === true ? false : MODULE_DEFAULTS["admin_ai.optimizer"],
-            "admin_ai.diagnostics": collapsedModules["admin_ai.diagnostics"] === true ? false : MODULE_DEFAULTS["admin_ai.diagnostics"],
+            "admin_ai.runtime": readVersionedCollapsedModule(collapsedModules, "admin_ai.runtime") ? false : MODULE_DEFAULTS["admin_ai.runtime"],
+            "admin_ai.prompt": readVersionedCollapsedModule(collapsedModules, "admin_ai.prompt") ? false : MODULE_DEFAULTS["admin_ai.prompt"],
+            "admin_ai.references": readVersionedCollapsedModule(collapsedModules, "admin_ai.references") ? false : MODULE_DEFAULTS["admin_ai.references"],
+            "admin_ai.recent": readVersionedCollapsedModule(collapsedModules, "admin_ai.recent") ? false : MODULE_DEFAULTS["admin_ai.recent"],
+            "admin_ai.gallery": readVersionedCollapsedModule(collapsedModules, "admin_ai.gallery") ? false : MODULE_DEFAULTS["admin_ai.gallery"],
+            "admin_ai.optimizer": readVersionedCollapsedModule(collapsedModules, "admin_ai.optimizer") ? false : MODULE_DEFAULTS["admin_ai.optimizer"],
+            "admin_ai.diagnostics": readVersionedCollapsedModule(collapsedModules, "admin_ai.diagnostics") ? false : MODULE_DEFAULTS["admin_ai.diagnostics"],
         });
     }, [uiPreferencesData?.preferences?.collapsedModules]);
 
@@ -253,7 +266,7 @@ export function useAdminAiState() {
                 await authFetch("/api/admin/ui/preferences", {
                     method: "PUT",
                     body: JSON.stringify({
-                        key,
+                        key: getVersionedAdminAiModuleKey(key),
                         collapsed: !nextOpen,
                     }),
                 });
