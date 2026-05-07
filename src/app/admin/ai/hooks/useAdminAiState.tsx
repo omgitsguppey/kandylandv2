@@ -90,7 +90,18 @@ export const MODULE_DEFAULTS = {
 export type AiModuleKey = keyof typeof MODULE_DEFAULTS;
 export type ReviewFilter = "all" | "accepted" | "liked" | "neutral" | "disliked" | "failed";
 
-const ADMIN_AI_UI_PREFERENCE_PREFIX = `admin_ai.${PUBLIC_APP_VERSION}.`;
+const ADMIN_AI_UI_SCHEMA_VERSION = "v1";
+const ADMIN_AI_UI_PREFERENCE_PREFIX = `admin_ai.${ADMIN_AI_UI_SCHEMA_VERSION}.${PUBLIC_APP_VERSION}.`;
+
+function createEmptyPolicyDraft() {
+    return {
+        baseStylePrompt: "",
+        lockedClauses: "",
+        mutableClauses: "",
+        currentMutablePrompt: "",
+        autoOptimize: true,
+    };
+}
 
 function getVersionedAdminAiModuleKey(key: AiModuleKey) {
     return `${ADMIN_AI_UI_PREFERENCE_PREFIX}${key}`;
@@ -118,13 +129,7 @@ export function useAdminAiState() {
     const [reviewingJobId, setReviewingJobId] = useState<string | null>(null);
     const [galleryFilter, setGalleryFilter] = useState<ReviewFilter>("all");
     const [moduleOpenState, setModuleOpenState] = useState<Record<AiModuleKey, boolean>>(MODULE_DEFAULTS);
-    const [policyDraft, setPolicyDraft] = useState({
-        baseStylePrompt: "",
-        lockedClauses: "",
-        mutableClauses: "",
-        currentMutablePrompt: "",
-        autoOptimize: true,
-    });
+    const [policyDraft, setPolicyDraft] = useState(createEmptyPolicyDraft);
     const [policyDirty, setPolicyDirty] = useState(false);
 
     const preferencesHydratedRef = useRef(false);
@@ -132,11 +137,12 @@ export function useAdminAiState() {
     const primaryInputRef = useRef<HTMLInputElement | null>(null);
 
     const { data, error, isLoading, mutate } = useAdminPollingSWR<AdminAiDropCoverDashboard>("/api/admin/ai/drop-covers", refreshIntervalMs, {
-        keepPreviousData: true,
+        keepPreviousData: false,
     });
     const { data: uiPreferencesData } = useAdminPollingSWR<AdminUiPreferencesResponse>("/api/admin/ui/preferences", 15_000, {
         keepPreviousData: true,
     });
+    const serverDashboardHydratedAt = data?.refreshedAtMs ?? 0;
 
     useEffect(() => {
         const nextInterval = (data?.aggregate.activeGenerationCount || 0) > 0
@@ -164,7 +170,7 @@ export function useAdminAiState() {
     }, [uiPreferencesData?.preferences?.collapsedModules]);
 
     useEffect(() => {
-        if (!data?.promptPolicy || policyDirty) {
+        if (!serverDashboardHydratedAt || !data?.promptPolicy || policyDirty) {
             return;
         }
 
@@ -175,7 +181,7 @@ export function useAdminAiState() {
             currentMutablePrompt: data.promptPolicy.currentMutablePrompt,
             autoOptimize: data.promptPolicy.autoOptimize,
         });
-    }, [data?.promptPolicy, policyDirty]);
+    }, [data?.promptPolicy, policyDirty, serverDashboardHydratedAt]);
 
     const selectedModelHealth = useMemo(
         () => (data?.modelHealth || []).find((entry) => entry.selected) || null,

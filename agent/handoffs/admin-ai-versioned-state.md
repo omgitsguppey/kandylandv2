@@ -10,7 +10,7 @@ Status:
 Summary:
 - Tightened the Admin AI state hook so persisted module state is explicitly schema-and-app-version scoped.
 - Stopped the Admin AI dashboard poller from carrying forward previous server payloads while current runtime data is loading.
-- Kept the prompt draft local and only hydrated it from a current server dashboard payload, separate from non-blocking UI preferences.
+- Kept the prompt draft local and only hydrated it from a current server dashboard payload.
 
 ## Commit
 Branch: main
@@ -27,8 +27,8 @@ Pending until `npm run typecheck` passes and the requested commit is created.
 ## Behavior Changed
 Before:
 - The Admin AI dashboard SWR hook kept previous server data during refetches.
-- The local prompt draft could be hydrated from carried-over dashboard data instead of waiting for the current server payload.
-- Collapsed module preferences were version-tagged by app version, but not by an explicit Admin AI UI schema version.
+- The local prompt draft could hydrate from carried-over dashboard data instead of waiting for the current server payload.
+- Collapsed module preferences were version-tagged only by app version.
 
 After:
 - `/api/admin/ai/drop-covers` no longer keeps previous server dashboard data during refetches.
@@ -42,22 +42,12 @@ Commands run:
 - `npm run trace:adjacent -- src/app/admin/ai/hooks/useAdminAiState.tsx`: pass
 - `npm run typecheck`: pass
 
-Important output:
-- `agent/context/optimized-task-context.generated.json` selected the admin surface plus admin-ai and ai-panel doctrine cards.
-- `trace:adjacent` confirmed the hook is the state owner for the Admin AI page and its sections, with `PUBLIC_APP_VERSION` already available from the release-note version context.
-
 Commands not run:
-- release-note generators or validators: not requested and explicitly out of scope
 - broader admin validators: task restricted validation to `npm run typecheck`
+- release-note generation: out of scope
 - Playwright/Cypress/Lighthouse: not requested
 
 ## Risk Notes
 - This patch does not change model ids, routing, prompt refinement logic, or API behavior.
-- The Admin AI dashboard may now show its loading state instead of a carried-over stale snapshot during refetch windows, which is intentional for truth-first admin behavior.
+- The Admin AI dashboard may now show loading state instead of a carried-over stale snapshot during refetch windows, which is intentional for admin truth.
 - Non-blocking UI preferences still keep previous data intentionally.
-
-## Needs Uylus / ChatGPT Review
-- None expected if `npm run typecheck` passes.
-
-## Follow-up Suggestions
-- If any other Admin AI local state is later persisted client-side, it should reuse the same schema-and-version scope instead of introducing unversioned keys.
