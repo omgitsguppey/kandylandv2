@@ -223,3 +223,5 @@ export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,
   releaseChannel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,
 } as const;
+
+export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion;

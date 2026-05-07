@@ -3,8 +3,11 @@ const FIREBASE_SDK_VERSION = "12.10.0";
 importScripts(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-app-compat.js`);
 importScripts(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-messaging-compat.js`);
 
-const APP_SHELL_CACHE = "kandydrops-app-shell-v3";
-const APP_RUNTIME_CACHE = "kandydrops-runtime-v3";
+const DEFAULT_CACHE_VERSION = "v3";
+const CACHE_NAME_PREFIXES = {
+    appShell: "kandydrops-app-shell-",
+    runtime: "kandydrops-runtime-",
+};
 const NOTIFICATION_ICON = "/icon-192x192.png";
 const OFFLINE_FALLBACK_URL = "/offline";
 const PRECACHE_URLS = [
@@ -17,13 +20,25 @@ const PRECACHE_URLS = [
     "/icon-192x192.png",
     "/icon-512x512.png",
 ];
+const SEARCH_PARAMS = new URL(self.location).searchParams;
+const CACHE_VERSION = normalizeCacheVersion(SEARCH_PARAMS.get("v") || SEARCH_PARAMS.get("build") || DEFAULT_CACHE_VERSION);
+const APP_SHELL_CACHE = `${CACHE_NAME_PREFIXES.appShell}${CACHE_VERSION}`;
+const APP_RUNTIME_CACHE = `${CACHE_NAME_PREFIXES.runtime}${CACHE_VERSION}`;
 
 const firebaseConfig = {
-    apiKey: new URL(location).searchParams.get("apiKey"),
-    projectId: new URL(location).searchParams.get("projectId"),
-    messagingSenderId: new URL(location).searchParams.get("messagingSenderId"),
-    appId: new URL(location).searchParams.get("appId"),
+    apiKey: SEARCH_PARAMS.get("apiKey"),
+    projectId: SEARCH_PARAMS.get("projectId"),
+    messagingSenderId: SEARCH_PARAMS.get("messagingSenderId"),
+    appId: SEARCH_PARAMS.get("appId"),
 };
+
+function normalizeCacheVersion(rawVersion) {
+    const cleaned = String(rawVersion || DEFAULT_CACHE_VERSION)
+        .trim()
+        .replace(/[^a-zA-Z0-9._-]+/g, "_");
+
+    return cleaned || DEFAULT_CACHE_VERSION;
+}
 
 function resolveSafeNotificationUrl(rawUrl) {
     try {
@@ -67,6 +82,32 @@ function resolveNotificationTag(data) {
     return `kandydrops:${type}:${dropId}`;
 }
 
+function isManagedKandyDropsCache(cacheName) {
+    return cacheName.startsWith(CACHE_NAME_PREFIXES.appShell) || cacheName.startsWith(CACHE_NAME_PREFIXES.runtime);
+}
+
+function shouldDeleteManagedCache(cacheName) {
+    return isManagedKandyDropsCache(cacheName)
+        && cacheName !== APP_SHELL_CACHE
+        && cacheName !== APP_RUNTIME_CACHE;
+}
+
+function shouldHandleNavigationCache(pathname) {
+    if (
+        pathname === "/"
+        || pathname === "/drops"
+        || pathname.startsWith("/drops/")
+        || pathname.startsWith("/creators/")
+        || pathname === "/privacy"
+        || pathname === "/terms"
+        || pathname === "/offline"
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
 firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
@@ -91,7 +132,7 @@ self.addEventListener("activate", (event) => {
         const cacheNames = await caches.keys();
         await Promise.all(
             cacheNames
-                .filter((cacheName) => cacheName !== APP_SHELL_CACHE && cacheName !== APP_RUNTIME_CACHE)
+                .filter((cacheName) => shouldDeleteManagedCache(cacheName))
                 .map((cacheName) => caches.delete(cacheName)),
         );
 
@@ -110,6 +151,12 @@ async function cacheRuntimeResponse(request, response) {
 }
 
 async function handleNavigationRequest(request) {
+    const requestUrl = new URL(request.url);
+
+    if (!shouldHandleNavigationCache(requestUrl.pathname)) {
+        return fetch(request);
+    }
+
     try {
         const response = await fetch(request);
         return cacheRuntimeResponse(request, response);
