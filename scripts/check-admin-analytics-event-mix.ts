@@ -31,6 +31,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const helper = read("src/lib/admin-analytics-event-mix.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
@@ -41,11 +42,12 @@ const section = component.slice(
 );
 
 assertIncludes("AdminAnalyticsOperationsTab", component, "eventMixModel");
+assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_EVENT_MIX_DEBUG__");
 assertIncludes("Event Mix section", section, "Ranked event activity");
 assertIncludes("Event Mix section", section, "tracked events");
 assertIncludes("Event Mix section", section, "event count / total counted events");
-assertIncludes("Event Mix section", section, "Surface context is unavailable");
+assertIncludes("Event Mix section", section, "Verified route and surface context are unavailable for this range.");
 assertIncludes("Event Mix section", section, "rounded-[0.9rem]");
 assertNotIncludes("Event Mix section", section, "angle={-18}");
 assertNotIncludes("Event Mix section", section, "h-64 w-full md:h-72");
@@ -68,7 +70,7 @@ assertIncludes("event mix helper", helper, "unmappedEventCount");
 assertIncludes("event mix helper", helper, "missingSurfaceMappings");
 assertIncludes("event mix helper", helper, "mappedByFallbackCatalog");
 assertIncludes("event mix helper", helper, "fakeZeroPrevented");
-assertIncludes("event mix helper", helper, "Surface context is unavailable for this range.");
+assertIncludes("event mix helper", helper, "verified route and surface context is missing for this range");
 
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsEventMix");
 assertIncludes("AdminDebugRoute", debugRoute, "shareRule");

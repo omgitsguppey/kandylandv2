@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:20:41.101Z",
+  "generatedAt": "2026-05-07T23:54:05.767Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -278,8 +278,13 @@
         "generic_repo_agent"
       ],
       "relatedPaths": [
+        ".github/workflows/cloud-readiness-smoke.yml",
         "/agent/index/*",
         "; provider billing state is not proven from source. This surface is allowed only for agent/repo intelligence mirror use and is forbidden for user/payment/Drop/chat/support/creator runtime flows unless an explicit SQL/Data Connect ",
+        "agent/context/doctrine-cards.jsonl",
+        "agent/context/doctrine-registry.json",
+        "agent/context/optimized-task-context.generated.json",
+        "agent/context/surface-doctrine-map.json",
         "agent/index/*.json",
         "agent/index/ui-surface-coverage.json",
         "agent/index/verification-commands.json",
@@ -287,6 +292,7 @@
         "agent/prompts/task-prompt.deep.md",
         "agent/prompts/task-prompt.short.md",
         "agent/prompts/task-prompt.standard.md",
+        "agent/state/codex-auth-readiness.generated.json",
         "agent/state/sql-mirror-status.generated.json",
         "agent/state/sql-sync.payload.generated.json",
         "agent/state/task-context.generated.json",
@@ -294,9 +300,24 @@
         "dataconnect/dataconnect.yaml",
         "dataconnect/example/*",
         "dataconnect/schema/*.gql",
+        "docs/agent-truth/global-cost-surfaces.md",
+        "docs/agent-truth/public-beta-release-notes.md",
+        "docs/doctrine/00-product-constitution.md",
+        "docs/doctrine/01-source-of-truth-constitution.md",
+        "docs/doctrine/02-engineering-constitution.md",
+        "docs/doctrine/03-surface-hierarchy.md",
+        "docs/doctrine/surfaces/",
+        "docs/doctrine/surfaces/*.md",
+        "docs/doctrine/surfaces/admin-ui-doctrine.md",
+        "docs/doctrine/surfaces/creator-ui-doctrine.md",
+        "docs/doctrine/surfaces/server-truth-doctrine.md",
+        "docs/doctrine/surfaces/shared-brand-primitives.md",
+        "docs/doctrine/surfaces/user-ui-doctrine.md",
         "output/dependency-graph.json",
         "scripts/agent/sync-sql.ts",
+        "src/app/admin/**",
         "src/lib/device-layout-contract.ts",
+        "src/lib/server/global-cost-surface-contract.ts",
         "src/lib/user-mobile-shell.ts"
       ]
     }

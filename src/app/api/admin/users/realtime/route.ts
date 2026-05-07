@@ -41,6 +41,7 @@ async function GET_handler(request: NextRequest) {
         send({
           type: "heartbeat",
           source: "admin_users_realtime",
+          metricScope: "operational_pulse_only",
           emittedAt: Date.now(),
         });
       }, 25_000);
@@ -51,6 +52,7 @@ async function GET_handler(request: NextRequest) {
             send({
               type: "invalidate",
               source,
+              metricScope: "operational_pulse_only",
               emittedAt: Date.now(),
             });
           },
@@ -67,6 +69,7 @@ async function GET_handler(request: NextRequest) {
             send({
               type: "failed",
               source,
+              metricScope: "operational_pulse_only",
               emittedAt: Date.now(),
             });
           },
@@ -82,6 +85,7 @@ async function GET_handler(request: NextRequest) {
       send({
         type: "connected",
         source: "admin_users_realtime",
+        metricScope: "operational_pulse_only",
         emittedAt: Date.now(),
       });
 

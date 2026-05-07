@@ -255,6 +255,9 @@ if (!releaseArtifacts) {
     if (bannedVisibleJargon.test(visiblePublicCopy)) {
       failures.push("Current public release note exposes forbidden technical jargon in visible copy.");
     }
+    if (publicTopNote.surfaceCategory === "Internal reliability") {
+      failures.push("Current visible public release note must not be internal-reliability-only.");
+    }
   }
 }
 

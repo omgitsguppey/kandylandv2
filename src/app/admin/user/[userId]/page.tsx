@@ -475,8 +475,17 @@ export default function AdminUserAnalyticsPage() {
         hasUsableValue: Boolean(behaviorRollup),
         sourceConfigured: true,
         valueState: behaviorTruthRollup?.sourceFreshness ?? (behaviorRollup?.confidence === "unknown" ? "unavailable" : behaviorRollup?.freshnessState),
-        reviewRequired: Boolean(behaviorRollup?.issues.length) || behaviorRollup?.confidence === "insufficient" || behaviorRollup?.confidence === "low",
+        reviewRequired: Boolean(behaviorRollup?.issues.some((issue) => !issue.code.startsWith("privacy_limited_")))
+            || (
+                behaviorTruthRollup?.dataAvailabilityReason === "full_signal"
+                && (behaviorRollup?.confidence === "insufficient" || behaviorRollup?.confidence === "low")
+            ),
     });
+    const behaviorAvailabilitySummary = behaviorTruthRollup?.dataAvailabilityReason === "privacy_limited_global_privacy_control"
+        ? "Global Privacy Control is blocking identified analytics, so missing behavior is privacy-limited instead of treated as zero activity."
+        : behaviorTruthRollup?.dataAvailabilityReason === "privacy_limited_identified_analytics_denied"
+            ? "Identified analytics are disabled for this user, so missing behavior is privacy-limited instead of treated as a tracking error."
+            : "";
     const supportTruthState = resolveAdminTruthState({
         hasUsableValue: Boolean(supportReadiness),
         sourceConfigured: true,
@@ -728,6 +737,7 @@ export default function AdminUserAnalyticsPage() {
             {behaviorRollup
                 ? `Behavior rollup: ${behaviorRollup.sourceLabel} / ${behaviorRollup.confidence} (${behaviorRollup.confidenceScore}%). Math: ${behaviorRollup.mathCalibration?.activeMode ?? "deterministic"} / ${behaviorRollup.mathCalibration?.verdict ?? "unvalidated"} / truth ${Math.round((behaviorRollup.truthScore ?? 0) * 100)}%.`
                             : "Behavior rollup unavailable."}
+                        {behaviorAvailabilitySummary ? ` ${behaviorAvailabilitySummary}` : ""}
                         {behaviorIssueSummary ? ` Issues: ${behaviorIssueSummary}` : ""}
                     </div>
                     <div className="mt-3">

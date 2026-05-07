@@ -35,6 +35,39 @@ function truthStateForPanelStatus(status?: string): AdminSurfaceState {
 function labelForPanelStatus(status?: string) {
     return formatAdminSurfaceStateLabel(truthStateForPanelStatus(status));
 }
+function formatCompactCurrency(value?: number) {
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+    }).format(value ?? 0);
+}
+function formatCompactWatch(valueMs?: number) {
+    const totalMinutes = Math.round((valueMs ?? 0) / 60_000);
+    if (totalMinutes < 60) return `${totalMinutes}m`;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+}
+function businessTruthState(snapshot?: any): AdminSurfaceState {
+    if (!snapshot) return "unavailable";
+    if (
+        snapshot.sourceFreshness === "failed"
+        || snapshot.sourceFreshness === "unavailable"
+        || (snapshot.issues || []).some((issue: any) => issue.severity === "fail")
+    ) {
+        return "failed";
+    }
+    if (
+        snapshot.sourceFreshness === "stale"
+        || snapshot.sourceFreshness === "degraded"
+        || snapshot.sourceTruth === "legacy_fallback"
+        || (snapshot.issues || []).some((issue: any) => issue.severity === "warn")
+    ) {
+        return "stale";
+    }
+    return "live";
+}
 
 /* ─── Props ─── */
 export interface DebugTabNowProps {
@@ -91,6 +124,8 @@ export function DebugTabNow({
         writerFailCount,
         runtimeWarningCount: (data?.opsHealth?.runtime?.warnings || []).length,
     });
+    const adminUserTruthSnapshot = data?.adminUserTruthSnapshot;
+    const businessTruth = businessTruthState(adminUserTruthSnapshot);
     const systemHealthTruthState = systemHealthNow.pipeline.truthState === "failed" || systemHealthNow.writers.truthState === "failed"
         ? "failed"
         : systemHealthNow.pipeline.truthState === "degraded" || systemHealthNow.diagnostics.truthState === "degraded" || systemHealthNow.writers.truthState === "degraded"
@@ -99,7 +134,7 @@ export function DebugTabNow({
 
     return (
         <div className="space-y-4">
-            <DebugControlTower />
+            <DebugControlTower businessSnapshot={adminUserTruthSnapshot} />
 
             <div
                 data-debug-health-freshness={healthFreshnessState}
@@ -212,6 +247,55 @@ export function DebugTabNow({
                         </div>
                     </Section>
             </div>
+
+            <Section
+                title="Business truth now"
+                subtitle="Canonical user and business metrics from the admin-user truth snapshot."
+                defaultOpen={!isCompactViewport}
+                summary={<>
+                    <Pill label="Freshness" value={adminUserTruthSnapshot?.sourceFreshness || "unavailable"} tone={businessTruth === "live" ? "good" : businessTruth === "stale" ? "warn" : "bad"} truthState={businessTruth} />
+                    <Pill label="Truth" value={adminUserTruthSnapshot?.sourceTruth || "unavailable"} tone={businessTruth === "live" ? "good" : businessTruth === "stale" ? "warn" : "bad"} truthState={businessTruth} />
+                    <Pill label="Users" value={adminUserTruthSnapshot?.totalUsers ?? "--"} truthState={businessTruth} />
+                    <Pill label="Revenue" value={adminUserTruthSnapshot ? formatCompactCurrency(adminUserTruthSnapshot.totalRevenueUsd) : "--"} truthState={businessTruth} />
+                    <Pill label="Watch" value={adminUserTruthSnapshot ? formatCompactWatch(adminUserTruthSnapshot.validWatchTimeMs) : "--"} truthState={businessTruth} />
+                </>}
+            >
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Total users</p>
+                        <p className="mt-2 text-xl font-black text-white">{adminUserTruthSnapshot?.totalUsers ?? "--"}</p>
+                    </div>
+                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Verified purchases</p>
+                        <p className="mt-2 text-xl font-black text-white">{adminUserTruthSnapshot?.verifiedPurchases ?? "--"}</p>
+                    </div>
+                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Revenue</p>
+                        <p className="mt-2 text-xl font-black text-white">{adminUserTruthSnapshot ? formatCompactCurrency(adminUserTruthSnapshot.totalRevenueUsd) : "--"}</p>
+                    </div>
+                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Tracked unwraps</p>
+                        <p className="mt-2 text-xl font-black text-white">{adminUserTruthSnapshot?.trackedUnwraps ?? "--"}</p>
+                    </div>
+                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Valid watch time</p>
+                        <p className="mt-2 text-xl font-black text-white">{adminUserTruthSnapshot ? formatCompactWatch(adminUserTruthSnapshot.validWatchTimeMs) : "--"}</p>
+                    </div>
+                </div>
+                <p className="mt-3 text-xs text-gray-400">
+                    Debug reports and ops health cannot mark these business metrics healthy. This lane stays tied to the canonical admin-user truth snapshot only.
+                </p>
+                {(adminUserTruthSnapshot?.issues || []).length ? (
+                    <div className="mt-3 space-y-2">
+                        {(adminUserTruthSnapshot?.issues || []).slice(0, 4).map((issue: any) => (
+                            <div key={issue.code} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
+                                <p className="font-semibold text-white">{issue.severity}</p>
+                                <p className="mt-1">{issue.message}</p>
+                            </div>
+                        ))}
+                    </div>
+                ) : null}
+            </Section>
 
                     <DebugCreatorLane data={data} />
 

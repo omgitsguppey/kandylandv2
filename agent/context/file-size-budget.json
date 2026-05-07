@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:24:27.910Z",
+  "generatedAt": "2026-05-07T23:54:51.996Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -38,44 +38,56 @@
       {
         "path": "docs/agent-truth/rollback-incident-response.md",
         "lines": 368
+      },
+      {
+        "path": "docs/agent-truth/behavioral-math-calibration.md",
+        "lines": 355
       }
     ],
     "generatedJsonOverBudget": [
       {
         "path": "agent/index/retrieval-index.json",
-        "lines": 45665
+        "lines": 52147
       },
       {
         "path": "agent/index/repo-inventory.json",
-        "lines": 27527
+        "lines": 31527
       },
       {
         "path": "agent/index/blast-radius.json",
-        "lines": 15253
+        "lines": 17568
       },
       {
         "path": "agent/state/speed-security-hardening.generated.json",
-        "lines": 11957
-      },
-      {
-        "path": "agent/state/google-cost-bleed.generated.json",
-        "lines": 7617
+        "lines": 9744
       },
       {
         "path": "agent/state/event-catalog-telemetry-audit.generated.json",
         "lines": 6809
       },
       {
-        "path": "agent/index/verification-commands.json",
-        "lines": 4564
+        "path": "agent/state/google-cost-bleed.generated.json",
+        "lines": 6642
       },
       {
-        "path": "agent/state/codebase-hardening.generated.json",
-        "lines": 3467
+        "path": "agent/index/verification-commands.json",
+        "lines": 5397
       },
       {
         "path": "agent/index/ui-surface-coverage.json",
-        "lines": 2596
+        "lines": 2654
+      },
+      {
+        "path": "agent/state/codebase-hardening.generated.json",
+        "lines": 1641
+      },
+      {
+        "path": "agent/state/global-cost-surfaces.generated.json",
+        "lines": 1619
+      },
+      {
+        "path": "agent/state/code-organization-score.generated.json",
+        "lines": 1454
       },
       {
         "path": "agent/state/creator-lane-legacy-truth-inventory.generated.json",
@@ -102,10 +114,6 @@
         "lines": 625
       },
       {
-        "path": "agent/context/task-pack.generated.json",
-        "lines": 618
-      },
-      {
         "path": "agent/state/accessibility-tap-target-audit.generated.json",
         "lines": 595
       },
@@ -118,8 +126,16 @@
         "lines": 578
       },
       {
+        "path": "agent/context/validator-map.json",
+        "lines": 550
+      },
+      {
         "path": "agent/state/security-role-boundary-audit.generated.json",
         "lines": 542
+      },
+      {
+        "path": "agent/state/codex-auth-readiness.generated.json",
+        "lines": 539
       },
       {
         "path": "agent/state/final-launch-readiness-report.generated.json",
@@ -128,64 +144,88 @@
     ],
     "sourceFilesOverWarningBudget": [
       {
-        "path": "src/components/Chat/ChatExperience.tsx",
-        "loc": 2923
-      },
-      {
-        "path": "src/lib/server/ai-drop-covers.ts",
-        "loc": 2778
+        "path": "src/app/api/admin/debug/route.ts",
+        "loc": 6361
       },
       {
         "path": "src/app/api/admin/users/route.ts",
-        "loc": 2504
+        "loc": 3148
+      },
+      {
+        "path": "src/components/Chat/ChatExperience.tsx",
+        "loc": 2996
       },
       {
         "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "loc": 2324
+        "loc": 2865
       },
       {
-        "path": "src/app/api/admin/debug/route.ts",
-        "loc": 2049
+        "path": "src/lib/server/ai-drop-covers.ts",
+        "loc": 2824
+      },
+      {
+        "path": "scripts/agent/validate-admin-debug-control-tower.ts",
+        "loc": 2581
+      },
+      {
+        "path": "functions/src/behavioral-intelligence-runtime.ts",
+        "loc": 2347
       },
       {
         "path": "src/lib/creator-onboarding.ts",
-        "loc": 1927
+        "loc": 1947
+      },
+      {
+        "path": "src/lib/server/daily-tasks.ts",
+        "loc": 1875
+      },
+      {
+        "path": "src/lib/server/admin-analytics-historical-validation.ts",
+        "loc": 1808
+      },
+      {
+        "path": "src/app/api/admin/analytics/historical/route.ts",
+        "loc": 1762
+      },
+      {
+        "path": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "loc": 1664
       },
       {
         "path": "src/app/admin/users/page.tsx",
-        "loc": 1581
+        "loc": 1612
       },
       {
         "path": "src/app/admin/roster/page.tsx",
-        "loc": 1546
+        "loc": 1550
       },
       {
         "path": "src/hooks/useViewerWatchSession.ts",
         "loc": 1499
       },
       {
-        "path": "src/lib/server/daily-tasks.ts",
-        "loc": 1420
+        "path": "src/app/admin/user/[userId]/page.tsx",
+        "loc": 1443
       },
       {
-        "path": "src/app/admin/user/[userId]/page.tsx",
-        "loc": 1416
+        "path": "src/types/admin-analytics.ts",
+        "loc": 1393
       },
       {
         "path": "src/app/api/admin/user/[userId]/route.ts",
-        "loc": 1325
+        "loc": 1366
       },
       {
-        "path": "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-        "loc": 1258
+        "path": "src/lib/route-runtime-health.ts",
+        "loc": 1363
+      },
+      {
+        "path": "src/lib/telemetry-catalog.ts",
+        "loc": 1303
       },
       {
         "path": "src/lib/ai-drop-covers.ts",
-        "loc": 1244
-      },
-      {
-        "path": "functions/src/behavioral-intelligence-runtime.ts",
-        "loc": 1243
+        "loc": 1257
       },
       {
         "path": "src/lib/server/chat.ts",
@@ -193,7 +233,7 @@
       },
       {
         "path": "scripts/agent/score-speed-security-hardening.ts",
-        "loc": 1194
+        "loc": 1214
       },
       {
         "path": "src/app/admin/drops/page.tsx",
@@ -204,28 +244,52 @@
         "loc": 1188
       },
       {
-        "path": "src/lib/telemetry-catalog.ts",
-        "loc": 1161
+        "path": "src/lib/tasks/task-observability.ts",
+        "loc": 1164
       },
       {
-        "path": "src/lib/route-runtime-health.ts",
-        "loc": 1143
+        "path": "src/components/Auth/AuthModal.tsx",
+        "loc": 1147
+      },
+      {
+        "path": "src/components/Admin/AssetUploader.tsx",
+        "loc": 1146
       },
       {
         "path": "src/lib/device-layout-score.ts",
         "loc": 1124
       },
       {
-        "path": "src/app/api/admin/analytics/historical/route.ts",
-        "loc": 1110
+        "path": "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "loc": 1112
+      },
+      {
+        "path": "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "loc": 1100
       },
       {
         "path": "src/lib/device-ui-dry-audit.ts",
         "loc": 1098
       },
       {
+        "path": "src/lib/server/admin-analytics-historical-engagement.ts",
+        "loc": 1093
+      },
+      {
         "path": "src/app/api/admin/roster/route.ts",
-        "loc": 1055
+        "loc": 1085
+      },
+      {
+        "path": "src/lib/server/creator-onboarding-diagnostics.ts",
+        "loc": 1084
+      },
+      {
+        "path": "src/components/Admin/CreateDropModal.tsx",
+        "loc": 1050
+      },
+      {
+        "path": "src/lib/server/admin-ops-health.ts",
+        "loc": 1050
       },
       {
         "path": "functions/src/queue-runtime.ts",
@@ -236,16 +300,16 @@
         "loc": 1030
       },
       {
-        "path": "src/components/Admin/CreateDropModal.tsx",
-        "loc": 1025
-      },
-      {
-        "path": "src/components/Auth/AuthModal.tsx",
-        "loc": 1021
-      },
-      {
         "path": "src/lib/server/admin-analytics-historical-viewer.ts",
-        "loc": 978
+        "loc": 996
+      },
+      {
+        "path": "scripts/agent/score-google-cost-bleed.ts",
+        "loc": 991
+      },
+      {
+        "path": "src/lib/tasks/task-catalog.ts",
+        "loc": 970
       },
       {
         "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
@@ -253,30 +317,38 @@
       },
       {
         "path": "scripts/agent/score-codebase-hardening.ts",
-        "loc": 961
+        "loc": 967
       },
       {
-        "path": "scripts/agent/score-google-cost-bleed.ts",
-        "loc": 955
+        "path": "scripts/agent/score-code-organization.ts",
+        "loc": 966
       },
       {
-        "path": "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "loc": 896
+        "path": "src/lib/server/creator-onboarding.ts",
+        "loc": 932
+      },
+      {
+        "path": "scripts/validate-behavioral-models.ts",
+        "loc": 927
+      },
+      {
+        "path": "src/lib/server/ai-debug-assistant.ts",
+        "loc": 905
       },
       {
         "path": "scripts/agent/score-orphaned-logic.ts",
         "loc": 888
       },
       {
-        "path": "scripts/validate-behavioral-models.ts",
-        "loc": 887
+        "path": "functions/src/analytics-truth-runtime.ts",
+        "loc": 862
       },
       {
-        "path": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+        "path": "src/app/api/admin/overview/route.ts",
         "loc": 858
       },
       {
-        "path": "src/lib/tasks/task-catalog.ts",
+        "path": "src/app/dashboard/profile/hooks/useProfileState.tsx",
         "loc": 858
       },
       {
@@ -284,12 +356,20 @@
         "loc": 854
       },
       {
-        "path": "src/lib/server/creator-onboarding-diagnostics.ts",
-        "loc": 850
+        "path": "src/components/Dashboard/DailyTasksModule.tsx",
+        "loc": 844
       },
       {
-        "path": "src/lib/tasks/task-observability.ts",
-        "loc": 805
+        "path": "src/lib/server/admin-panel-system-logs.ts",
+        "loc": 843
+      },
+      {
+        "path": "src/lib/server/admin-analytics-historical-content.ts",
+        "loc": 836
+      },
+      {
+        "path": "src/lib/server/analytics-metrics.ts",
+        "loc": 822
       }
     ],
     "cardsOverBudget": []

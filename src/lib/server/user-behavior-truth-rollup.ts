@@ -12,6 +12,18 @@ function clamp01(value: number) {
   return Math.max(0, Math.min(1, value));
 }
 
+function clampRecommendationConfidence(
+  recommendationConfidence: number,
+  dataAvailabilityReason: ReturnType<typeof buildUserBehaviorRollup>["dataAvailabilityReason"],
+) {
+  const normalized = clamp01(recommendationConfidence);
+  if (dataAvailabilityReason === "full_signal") {
+    return normalized;
+  }
+
+  return Math.min(normalized, 0.34);
+}
+
 export function toUserBehaviorTruthRollup(
   rollup: ReturnType<typeof buildUserBehaviorRollup>,
   recommendationConfidence = 0,
@@ -30,6 +42,10 @@ export function toUserBehaviorTruthRollup(
   const sourceFreshness = rollup.freshnessState === "degraded" && sourceTruth === "legacy_fallback"
     ? "legacy_fallback"
     : rollup.freshnessState;
+  const cappedRecommendationConfidence = clampRecommendationConfidence(
+    recommendationConfidence,
+    rollup.dataAvailabilityReason,
+  );
 
   return {
     userId: rollup.userId,
@@ -45,11 +61,12 @@ export function toUserBehaviorTruthRollup(
     unlockCount: rollup.unwraps,
     validWatchTimeMs: rollup.watchTimeMs,
     actionCount: rollup.totalActions,
-    recommendationConfidence: clamp01(recommendationConfidence),
+    recommendationConfidence: cappedRecommendationConfidence,
+    dataAvailabilityReason: rollup.dataAvailabilityReason,
     issues: rollup.issues,
     sourceTruth,
     sourceFreshness,
-    shouldHideRecommendations: clamp01(recommendationConfidence) < ADMIN_RECOMMENDATION_CONFIDENCE_THRESHOLD,
+    shouldHideRecommendations: cappedRecommendationConfidence < ADMIN_RECOMMENDATION_CONFIDENCE_THRESHOLD,
   };
 }
 

@@ -31,6 +31,8 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const contracts = read("src/lib/admin-analytics-contracts.ts");
+const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const realtimeHook = read("src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts");
 const helper = read("src/lib/admin-analytics-live-pulse.ts");
@@ -43,6 +45,11 @@ const livePulseSection = component.slice(
 );
 
 assertIncludes("AdminAnalyticsOperationsTab", component, "livePulseModel");
+assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
+assertIncludes("AdminAnalyticsOperationsTab", component, "resolveAdminAnalyticsLivePulseBadgeLabel");
+assertIncludes("AdminAnalyticsOperationsTab", component, "formatAdminAnalyticsJourneyDenominatorMode");
+assertNotIncludes("AdminAnalyticsOperationsTab", component, "const livePulseBadgeLabel = livePulseModel.mode");
+assertNotIncludes("AdminAnalyticsOperationsTab", component, "function formatJourneyDenominatorMode");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_LIVE_PULSE_DEBUG__");
 assertIncludes("AdminAnalyticsOperationsTab", component, "compactChartHeightClass");
 assertIncludes("AdminAnalyticsOperationsTab", component, "Graph awaiting first snapshot.");
@@ -74,6 +81,11 @@ assertNotIncludes("Live Pulse section", livePulseSection, "Realtime surfaces are
 for (const phrase of BANNED_VISIBLE_COPY) {
   assertNotIncludes("visible Live Pulse copy", livePulseSection, phrase);
 }
+
+assertIncludes("admin analytics contracts", contracts, "\"live_pulse\"");
+assertIncludes("admin analytics contracts", contracts, "\"journey_funnel\"");
+assertIncludes("admin analytics contracts", contracts, "resolveAdminAnalyticsLivePulseBadgeLabel");
+assertIncludes("admin analytics contracts", contracts, "formatAdminAnalyticsJourneyDenominatorMode");
 
 assertIncludes("live pulse helper", helper, "graphSourceMismatch");
 assertIncludes("live pulse helper", helper, "graphDerivedFromPresence");

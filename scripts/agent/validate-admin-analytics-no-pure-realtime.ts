@@ -27,6 +27,7 @@ function requireNotIncludes(source: string, needle: string, label: string) {
 }
 
 const displayStateHelper = readRequired("src/lib/analytics/admin-analytics-display-state.ts");
+const adminMetricSnapshotContract = readRequired("src/lib/analytics/admin-metric-snapshot.ts");
 const operationsTab = readRequired("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const stateHook = readRequired("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const livePulseModel = readRequired("src/lib/admin-analytics-live-pulse.ts");
@@ -50,6 +51,8 @@ for (const helperNeedle of [
 ]) {
   requireIncludes(displayStateHelper, helperNeedle, "Admin Analytics display state helper");
 }
+
+requireIncludes(adminMetricSnapshotContract, "AdminMetricSnapshot", "Canonical admin analytics snapshot contract");
 
 for (const moduleKey of [
   "platform_pulse",

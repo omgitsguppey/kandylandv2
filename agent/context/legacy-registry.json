@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:24:27.458Z",
+  "generatedAt": "2026-05-07T23:54:51.175Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -102,7 +102,6 @@
       "blockedReferences": [
         "sourceTruth: \"live_projection\"",
         "includeInUserBehavior: true",
-        "metricEligible: true",
         "performedAs: \"creator\""
       ]
     },

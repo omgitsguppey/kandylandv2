@@ -50,6 +50,7 @@ const packageJson = read("package.json");
 const analyticsPage = read("src/app/admin/analytics/page.tsx");
 const analyticsHook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const analyticsDisplayState = read("src/lib/analytics/admin-analytics-display-state.ts");
+const adminMetricSnapshotContract = read("src/lib/analytics/admin-metric-snapshot.ts");
 const analyticsOperations = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const analyticsComponents = [
   analyticsPage,
@@ -137,6 +138,7 @@ includes(copyGuide, "Launch Finalization Addendum", "Admin copy style guide");
 includes(humanCopyDoc, "Launch Finalization Addendum", "Human-readable admin truth doc");
 includes(adminCopyRegistry, "analytics_delayed", "admin copy registry");
 includes(adminTruthCopy, "buildOperatorStatusCopy", "admin truth copy mapper");
+includes(adminMetricSnapshotContract, "AdminMetricSnapshot", "Canonical admin analytics snapshot contract");
 
 for (const codeNeedle of [
   "snapshotRevenueValue",

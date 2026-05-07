@@ -1,3 +1,5 @@
+import type { BehavioralDataAvailabilityReason } from "@/lib/behavioral/behavioral-truth-source";
+
 export const ADMIN_RECOMMENDATION_CONFIDENCE_THRESHOLD = 0.55;
 
 export type UserBehaviorTruthIssue = {
@@ -21,9 +23,9 @@ export type UserBehaviorTruthRollup = {
   validWatchTimeMs: number;
   actionCount: number;
   recommendationConfidence: number;
+  dataAvailabilityReason: BehavioralDataAvailabilityReason;
   issues: UserBehaviorTruthIssue[];
   sourceTruth: "canonical" | "materialized" | "server" | "legacy_fallback" | "blocked";
-  sourceFreshness: "live" | "stale" | "degraded" | "unavailable" | "legacy_fallback" | "review";
+  sourceFreshness: "live" | "stale" | "degraded" | "unavailable" | "legacy_fallback" | "review" | "privacy_limited";
   shouldHideRecommendations: boolean;
 };
-

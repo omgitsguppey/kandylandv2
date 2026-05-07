@@ -18,6 +18,19 @@ type ParsedArgs = {
   changedPackageScripts: string[];
 };
 
+type ValidatorAuthorityStatus = "canonical" | "supporting" | "legacy" | "blocked";
+
+type ValidatorAuthorityEntry = {
+  status: ValidatorAuthorityStatus;
+  reason: string;
+};
+
+type ValidatorAuthorityDocument = {
+  defaultAffectedAuditBlockedStatuses?: ValidatorAuthorityStatus[];
+  defaults?: Array<ValidatorAuthorityEntry & { match: string }>;
+  overrides?: Record<string, ValidatorAuthorityEntry>;
+};
+
 const root = process.cwd();
 
 function parseArgs(argv: string[]): ParsedArgs {
@@ -91,6 +104,115 @@ function readSurfaceMap() {
 
 function readDependencyGraph() {
   return readJsonFile<AffectedDependencyGraphSummary>("agent/index/dependency-graph.summary.json", {});
+}
+
+function readValidatorAuthority() {
+  return readJsonFile<ValidatorAuthorityDocument>("agent/context/validator-authority.json", {
+    defaultAffectedAuditBlockedStatuses: ["legacy", "blocked"],
+    defaults: [],
+    overrides: {},
+  });
+}
+
+function matchesPattern(value: string, pattern: string) {
+  const escaped = pattern
+    .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/\*/g, ".*");
+  return new RegExp(`^${escaped}$`, "u").test(value);
+}
+
+function resolveValidatorAuthorityEntry(
+  filePath: string,
+  authority: ValidatorAuthorityDocument,
+): ValidatorAuthorityEntry | null {
+  const override = authority.overrides?.[filePath];
+  if (override) {
+    return override;
+  }
+
+  for (const entry of authority.defaults ?? []) {
+    if (matchesPattern(filePath, entry.match)) {
+      return {
+        status: entry.status,
+        reason: entry.reason,
+      };
+    }
+  }
+
+  return null;
+}
+
+function extractValidatorFilesFromPackageScript(script: string) {
+  return Array.from(
+    script.matchAll(/scripts\/(?:agent\/validate-[^"'`\s;&|]+\.ts|check-[^"'`\s;&|]+\.ts)/gu),
+    (match) => normalizeAffectedPath(match[0] ?? ""),
+  ).filter(Boolean);
+}
+
+function filterPlanByValidatorAuthority(
+  plan: AffectedAuditPlan,
+  packageScripts: Record<string, string>,
+  authority: ValidatorAuthorityDocument,
+) {
+  const blockedStatuses = new Set<ValidatorAuthorityStatus>(
+    authority.defaultAffectedAuditBlockedStatuses ?? ["legacy", "blocked"],
+  );
+
+  const shouldKeepCommand = (command: string) => {
+    const match = command.match(/^npm run ([^ ]+)$/u);
+    if (!match) {
+      return { keep: true as const };
+    }
+
+    const scriptName = match[1] ?? "";
+    const packageScript = packageScripts[scriptName];
+    if (!packageScript) {
+      return { keep: true as const };
+    }
+
+    const validatorFiles = extractValidatorFilesFromPackageScript(packageScript);
+    if (validatorFiles.length === 0) {
+      return { keep: true as const };
+    }
+
+    const excluded = validatorFiles
+      .map((filePath) => ({ filePath, authority: resolveValidatorAuthorityEntry(filePath, authority) }))
+      .filter((entry) => entry.authority && blockedStatuses.has(entry.authority.status));
+
+    if (excluded.length === 0) {
+      return { keep: true as const };
+    }
+
+    return {
+      keep: false as const,
+      why: excluded
+        .map((entry) => `${entry.filePath} is ${entry.authority?.status}: ${entry.authority?.reason}`)
+        .join(" | "),
+      scriptName,
+    };
+  };
+
+  const skipReasons = [...plan.skipReasons];
+  const filterCommands = (commands: AffectedAuditPlan["requiredStaticScans"]) =>
+    commands.filter((entry) => {
+      const verdict = shouldKeepCommand(entry.command);
+      if (!verdict.keep) {
+        skipReasons.push({
+          command: entry.command,
+          surface: entry.surface,
+          whySafeToSkip: `Validator authority excludes it from the default affected audit plan because ${verdict.why}`,
+        });
+      }
+      return verdict.keep;
+    });
+
+  return {
+    ...plan,
+    requiredStaticScans: filterCommands(plan.requiredStaticScans),
+    requiredTargetedTests: filterCommands(plan.requiredTargetedTests),
+    optionalChecks: filterCommands(plan.optionalChecks),
+    skipReasons,
+  } satisfies AffectedAuditPlan;
 }
 
 function gitOutput(args: string[]) {
@@ -182,7 +304,7 @@ function printPlan(plan: AffectedAuditPlan) {
 
 const args = parseArgs(process.argv.slice(2));
 const changedFiles = readGitChangedFiles(args);
-const plan = planAffectedAudits({
+const rawPlan = planAffectedAudits({
   changedFiles,
   changedPackageScripts: readChangedPackageScripts(args, changedFiles),
   taskSummary: args.taskSummary,
@@ -192,6 +314,7 @@ const plan = planAffectedAudits({
   surfaceMap: readSurfaceMap(),
   dependencyGraph: readDependencyGraph(),
 });
+const plan = filterPlanByValidatorAuthority(rawPlan, readPackageScripts(), readValidatorAuthority());
 
 writePlan(plan);
 printPlan(plan);

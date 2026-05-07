@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:24:27.449Z",
+  "generatedAt": "2026-05-07T23:54:51.158Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -17,403 +17,220 @@
     "agent/context/validator-map.json",
     "agent/context/legacy-registry.json"
   ],
-  "taskSummary": "compact doctrine into task context packs",
+  "taskSummary": "cut over analytics and behavioral materializers so they consume canonical runtime facts and metric facts only",
   "changedFiles": [
-    "EVERY_FILE_FUNCTION_CHECKLIST.md",
-    "FULL_SCALE_CODEBASE_AUDIT.md",
-    "REPO_MEMORY_LEDGER.md",
-    "agent/context/doctrine.cards.jsonl",
-    "agent/context/doctrine.index.json",
-    "agent/context/file-size-budget.json",
-    "agent/context/legacy-registry.json",
-    "agent/context/surface-contracts.jsonl",
-    "agent/context/task-pack.generated.json",
-    "agent/context/validator-map.json",
-    "agent/index/blast-radius.json",
-    "agent/index/canonical-helpers.json",
-    "agent/index/dependency-graph.summary.json",
-    "agent/index/governance-truth.json",
-    "agent/index/known-pitfalls.json",
-    "agent/index/package-manager-truth.json",
-    "agent/index/recent-passes.json",
-    "agent/index/repo-inventory.json",
-    "agent/index/retrieval-index.json",
-    "agent/index/runtime-observability.json",
-    "agent/index/surface-map.json",
-    "agent/index/ui-surface-coverage.json",
-    "agent/index/verification-commands.json",
-    "agent/index/workflow-guidance.json",
-    "agent/prompts/task-prompt.deep.md",
-    "agent/prompts/task-prompt.short.md",
-    "agent/prompts/task-prompt.standard.md",
-    "agent/state/affected-audit-plan.generated.json",
-    "agent/state/sql-mirror-status.generated.json",
-    "agent/state/sql-sync.payload.generated.json",
-    "agent/state/task-context.generated.json",
-    "docs/agent-truth/compact-agent-context.md",
-    "package.json",
-    "scripts/agent/build-compact-agent-context.ts",
-    "scripts/agent/build-task-context.ts",
-    "scripts/agent/validate-compact-agent-context.ts",
-    "src/lib/agent-audit/affected-surface-router.ts"
+    "functions/src/analytics-truth-cli.ts",
+    "functions/src/behavioral-intelligence-runtime.ts",
+    "scripts/rebuild-analytics-truth.ts",
+    "scripts/rebuild-behavioral-intelligence.ts",
+    "src/lib/server/admin-analytics-materializers.ts"
   ],
   "affectedSurfaces": [
-    "agent-context",
-    "ai-panel",
-    "legacy-phaseout",
-    "repo-governance"
+    "behavioral-intelligence",
+    "google-cost",
+    "speed-security"
   ],
   "loadPlan": [
     "agent/context/doctrine.index.json",
-    "agent/context/doctrine.cards.jsonl filtered to: agent-context, ai-panel, legacy-phaseout, repo-governance",
-    "agent/context/surface-contracts.jsonl filtered to: agent-context, ai-panel, legacy-phaseout, repo-governance",
+    "agent/context/doctrine.cards.jsonl filtered to: behavioral-intelligence, google-cost, speed-security",
+    "agent/context/surface-contracts.jsonl filtered to: behavioral-intelligence, google-cost, speed-security",
     "agent/context/validator-map.json",
     "agent/context/legacy-registry.json"
   ],
   "relevantCards": [
     {
-      "id": "doctrine_card__ai-panel",
-      "title": "AI Panel Runtime Truth",
-      "surface": "ai-panel",
+      "id": "doctrine_card__behavioral-intelligence",
+      "title": "Behavioral Intelligence Facts",
+      "surface": "behavioral-intelligence",
       "scope": [
-        "src/app/admin/ai/**",
-        "src/app/api/admin/ai/**",
-        "src/lib/ai-*.ts",
-        "src/lib/server/ai-*.ts"
+        "src/lib/behavioral/**",
+        "src/lib/recommendations/**",
+        "functions/src/behavioral-intelligence-runtime.ts"
       ],
       "canonicalFiles": [
-        "src/app/admin/ai/page.tsx",
-        "src/lib/admin-ai-models.ts",
-        "src/lib/server/ai-drop-covers.ts"
+        "src/lib/behavioral/event-fact-contract.ts",
+        "src/lib/behavioral/normalize-event-fact.ts",
+        "src/lib/recommendations/deterministic-ranker.ts"
       ],
       "rules": [
-        "AI model metadata comes from the shared registry.",
-        "Admin AI history remains canonical for prompt learning.",
-        "Create Drop local history clearing must not delete canonical AI jobs."
+        "Raw events normalize into canonical event facts before scoring.",
+        "Deterministic ranking remains the safety baseline unless validation promotes ML.",
+        "Aliases must dedupe by user, entity, and time window."
       ],
       "blockedPatterns": [
-        "hardcoded model alias outside registry",
-        "modal clear deletes server AI history",
-        "AI admin fallback shown healthy"
+        "unknown event as production count",
+        "client retry counted twice",
+        "ML artifact active without validation"
       ],
       "requiredValidators": [
-        "check:admin-debug-control-tower",
-        "check:admin-review-badges"
+        "check:event-fact-truth",
+        "check:behavioral-truth-source",
+        "check:recommendation-ranker",
+        "check:math-goal-alignment"
       ],
-      "lastUpdated": "2026-05-05T05:16:14.811Z",
-      "sourceDoc": "docs/agent-truth/admin-debug-control-tower.md",
-      "priority": "high",
-      "tokenEstimate": 208
-    },
-    {
-      "id": "doctrine_card__legacy-phaseout",
-      "title": "Legacy Phaseout Registry",
-      "surface": "legacy-phaseout",
-      "scope": [
-        "src/lib/legacy/**",
-        "scripts/agent/*legacy*",
-        "agent/state/legacy-phaseout.generated.json"
-      ],
-      "canonicalFiles": [
-        "src/lib/legacy/legacy-registry.ts",
-        "scripts/agent/score-legacy-phaseout.ts",
-        "scripts/agent/validate-legacy-phaseout.ts"
-      ],
-      "rules": [
-        "Legacy systems need owner, replacement, deadline, and allowed/blocked references.",
-        "Blocked legacy cannot re-enter canonical runtime paths.",
-        "Old systems cannot become canonical without registry update."
-      ],
-      "blockedPatterns": [
-        "blocked legacy imported by canonical code",
-        "deprecated item without removeBy",
-        "local projection treated as live behavior"
-      ],
-      "requiredValidators": [
-        "check:legacy-phaseout",
-        "score:legacy-phaseout",
-        "check:orphaned-logic"
-      ],
-      "lastUpdated": "2026-05-05T02:48:46.131Z",
-      "sourceDoc": "docs/agent-truth/legacy-phaseout.md",
+      "lastUpdated": "2026-05-07T20:32:07.099Z",
+      "sourceDoc": "docs/agent-truth/event-fact-truth.md",
       "priority": "critical",
-      "tokenEstimate": 227
+      "tokenEstimate": 247
     },
     {
-      "id": "doctrine_card__agent-context",
-      "title": "Compact Agent Context",
-      "surface": "agent-context",
+      "id": "doctrine_card__speed-security",
+      "title": "Speed And Security Hardening",
+      "surface": "speed-security",
       "scope": [
-        "agent/context/**",
-        "scripts/agent/build-compact-agent-context.ts",
-        "scripts/agent/validate-compact-agent-context.ts"
+        "src/app/api/**",
+        "src/lib/server/**",
+        "firestore.rules",
+        "storage.rules",
+        "functions/src/**"
       ],
       "canonicalFiles": [
-        "scripts/agent/build-compact-agent-context.ts",
-        "scripts/agent/validate-compact-agent-context.ts"
+        "src/lib/server/route-cache-contract.ts",
+        "src/lib/server/security-hardening-contract.ts"
       ],
       "rules": [
-        "Agents read doctrine.index.json first, then relevant JSONL cards, then source docs only when needed.",
-        "Append-only historical ledgers prefer JSONL.",
-        "Task packs include only relevant cards, validators, and legacy warnings."
+        "API routes declare auth, origin, rate, idempotency, cache, cost, and failure contracts.",
+        "User/payment/support/chat/security routes stay no-store where needed.",
+        "Heavy browser audits are forbidden by default."
       ],
       "blockedPatterns": [
-        "loading every doctrine markdown by default",
-        "giant generated array as append-only ledger",
-        "validator without surface mapping"
+        "unbounded route cost",
+        "silent catch block",
+        "full suite as first audit"
       ],
       "requiredValidators": [
-        "check:agent-context",
-        "build:agent-context",
-        "check:affected-audit-router"
+        "check:speed-security",
+        "score:speed-security",
+        "check:hardening"
       ],
-      "lastUpdated": "2026-05-05T05:24:17.024Z",
-      "sourceDoc": "docs/agent-truth/compact-agent-context.md",
-      "priority": "high",
-      "tokenEstimate": 233
+      "lastUpdated": "2026-05-06T11:17:43.936Z",
+      "sourceDoc": "docs/agent-truth/speed-security-hardening.md",
+      "priority": "critical",
+      "tokenEstimate": 209
     },
     {
-      "id": "doctrine_card__repo-governance",
-      "title": "Repo Governance Ledgers",
-      "surface": "repo-governance",
+      "id": "doctrine_card__google-cost",
+      "title": "Google Cost Guardrails",
+      "surface": "google-cost",
       "scope": [
-        "AGENTS.md",
-        "FULL_SCALE_CODEBASE_AUDIT.md",
-        "REPO_MEMORY_LEDGER.md",
-        "EVERY_FILE_FUNCTION_CHECKLIST.md"
+        "src/lib/server/api-cost-contract.ts",
+        "dataconnect/**",
+        "functions/src/**"
       ],
       "canonicalFiles": [
-        "AGENTS.md",
-        "FULL_SCALE_CODEBASE_AUDIT.md",
-        "REPO_MEMORY_LEDGER.md",
-        "EVERY_FILE_FUNCTION_CHECKLIST.md"
+        "src/lib/server/api-cost-contract.ts",
+        "src/lib/server/cloud-cost-contract.ts"
       ],
       "rules": [
-        "Verified runtime code outranks generated artifacts and chat.",
-        "Broad tooling work updates governance ledgers before signoff.",
-        "Generated context is a retrieval plane, not stronger truth."
+        "Google cost-bearing surfaces must be declared before use.",
+        "Data Connect remains an agent-context mirror unless explicitly promoted.",
+        "Provider jobs and deploy commands are documentation-only unless a human promotes them."
       ],
       "blockedPatterns": [
-        "chat memory over repo truth",
-        "generated artifact as primary source",
-        "governance edit without verification note"
+        "undocumented Cloud SQL runtime path",
+        "BigQuery mutates runtime balances",
+        "gcloud deploy from audit lane"
       ],
       "requiredValidators": [
-        "check:inventory",
-        "check:agent-intelligence",
-        "check:generated-artifacts"
+        "check:google-cost",
+        "score:google-cost",
+        "check:cloud-cost"
       ],
-      "lastUpdated": "2026-05-05T05:16:43.579Z",
-      "sourceDoc": "AGENTS.md",
-      "priority": "normal",
-      "tokenEstimate": 212
+      "lastUpdated": "2026-05-07T22:49:06.140Z",
+      "sourceDoc": "docs/agent-truth/google-cost-bleed.md",
+      "priority": "critical",
+      "tokenEstimate": 208
     }
   ],
   "validators": [
-    "npm run check:affected-audit-router",
-    "npm run check:agent-context",
-    "npm run check:audit-cache",
-    "npm run check:audit-runtime-ledger",
-    "npm run score:audit-runtime",
-    "npm run check:admin-review-badges",
-    "npm run validate:behavioral-models",
-    "npm run check:analytics-legacy-recovery",
-    "npm run check:creator-lane-legacy-truth-inventory",
-    "npm run check:drop-preview-legacy-handoff",
-    "npm run check:legacy-creator-application-migration",
-    "npm run check:legacy-phaseout",
-    "npm run check:orphaned-logic",
-    "npm run check:telemetry-orphan-cleanup",
-    "npm run score:legacy-phaseout",
-    "npm run score:orphans",
-    "npm run check:admin-cms-workflow",
-    "npm run check:admin-data-validation-relocation",
-    "npm run check:admin-shell-spacing",
-    "npm run check:agent-intelligence",
-    "npm run check:consistency",
-    "npm run check:cycles",
-    "npm run check:cycles:app",
-    "npm run check:cycles:functions",
-    "npm run check:dependency-truth",
-    "npm run check:deployment",
-    "npm run check:deps",
-    "npm run check:firebase:rules",
-    "npm run check:functions",
-    "npm run check:generated-artifacts",
-    "npm run check:human-readable-admin-copy",
-    "npm run check:inventory",
-    "npm run check:not-found",
-    "npm run check:notification-return-loop",
-    "npm run check:outdated",
-    "npm run check:refresh-based-hot-cache",
-    "npm run check:scheduler:freshness",
-    "npm run check:test-fixtures-demo",
-    "npm run check:versions",
-    "npm run check:warnings"
+    "npm run check:admin-analytics-daily-task-pipeline",
+    "npm run check:behavioral-experiments",
+    "npm run check:behavioral-explanations",
+    "npm run check:behavioral-intelligence-confidence",
+    "npm run check:behavioral-math-calibration",
+    "npm run check:behavioral-truth-source",
+    "npm run check:daily-task-lifecycle",
+    "npm run check:daily-task-telemetry-truth",
+    "npm run check:event-fact-truth",
+    "npm run check:math-goal-alignment",
+    "npm run check:notification-pipeline",
+    "npm run check:notification-read-truth",
+    "npm run check:recommendation-ranker",
+    "npm run check:task-catalog-coverage",
+    "npm run check:tracking-surface-coverage",
+    "npm run score:tracking-surface-coverage",
+    "npm run validate:behavioral-predictions",
+    "npm run check:cloud-cost",
+    "npm run check:google-cost",
+    "npm run score:cloud-cost",
+    "npm run score:google-cost",
+    "npm run check:ast-grep-rules",
+    "npm run check:background-job-idempotency",
+    "npm run check:beta-release-notes",
+    "npm run check:beta-score",
+    "npm run check:beta-update-tracker",
+    "npm run check:beta-versioning",
+    "npm run check:environment-deployment-truth",
+    "npm run check:final-launch-readiness-report",
+    "npm run check:hardening",
+    "npm run check:launch-finalization-baseline",
+    "npm run check:launch-pr-triage",
+    "npm run check:launch-readiness-final",
+    "npm run check:pwa-service-worker",
+    "npm run check:release-notes",
+    "npm run check:rollback-incident-response",
+    "npm run check:security-role-boundaries",
+    "npm run check:speed-security",
+    "npm run score:beta",
+    "npm run score:hardening",
+    "npm run score:speed-security"
   ],
   "validatorSurfaces": {
-    "check:affected-audit-router": "agent-context",
-    "check:agent-context": "agent-context",
-    "check:audit-cache": "agent-context",
-    "check:audit-runtime-ledger": "agent-context",
-    "score:audit-runtime": "agent-context",
-    "check:admin-review-badges": "ai-panel",
-    "validate:behavioral-models": "ai-panel",
-    "check:analytics-legacy-recovery": "legacy-phaseout",
-    "check:creator-lane-legacy-truth-inventory": "legacy-phaseout",
-    "check:drop-preview-legacy-handoff": "legacy-phaseout",
-    "check:legacy-creator-application-migration": "legacy-phaseout",
-    "check:legacy-phaseout": "legacy-phaseout",
-    "check:orphaned-logic": "legacy-phaseout",
-    "check:telemetry-orphan-cleanup": "legacy-phaseout",
-    "score:legacy-phaseout": "legacy-phaseout",
-    "score:orphans": "legacy-phaseout",
-    "check:admin-cms-workflow": "repo-governance",
-    "check:admin-data-validation-relocation": "repo-governance",
-    "check:admin-shell-spacing": "repo-governance",
-    "check:agent-intelligence": "repo-governance",
-    "check:consistency": "repo-governance",
-    "check:cycles": "repo-governance",
-    "check:cycles:app": "repo-governance",
-    "check:cycles:functions": "repo-governance",
-    "check:dependency-truth": "repo-governance",
-    "check:deployment": "repo-governance",
-    "check:deps": "repo-governance",
-    "check:firebase:rules": "repo-governance",
-    "check:functions": "repo-governance",
-    "check:generated-artifacts": "repo-governance",
-    "check:human-readable-admin-copy": "repo-governance",
-    "check:inventory": "repo-governance",
-    "check:not-found": "repo-governance",
-    "check:notification-return-loop": "repo-governance",
-    "check:outdated": "repo-governance",
-    "check:refresh-based-hot-cache": "repo-governance",
-    "check:scheduler:freshness": "repo-governance",
-    "check:test-fixtures-demo": "repo-governance",
-    "check:versions": "repo-governance",
-    "check:warnings": "repo-governance"
+    "check:admin-analytics-daily-task-pipeline": "behavioral-intelligence",
+    "check:behavioral-experiments": "behavioral-intelligence",
+    "check:behavioral-explanations": "behavioral-intelligence",
+    "check:behavioral-intelligence-confidence": "behavioral-intelligence",
+    "check:behavioral-math-calibration": "behavioral-intelligence",
+    "check:behavioral-truth-source": "behavioral-intelligence",
+    "check:daily-task-lifecycle": "behavioral-intelligence",
+    "check:daily-task-telemetry-truth": "behavioral-intelligence",
+    "check:event-fact-truth": "behavioral-intelligence",
+    "check:math-goal-alignment": "behavioral-intelligence",
+    "check:notification-pipeline": "behavioral-intelligence",
+    "check:notification-read-truth": "behavioral-intelligence",
+    "check:recommendation-ranker": "behavioral-intelligence",
+    "check:task-catalog-coverage": "behavioral-intelligence",
+    "check:tracking-surface-coverage": "behavioral-intelligence",
+    "score:tracking-surface-coverage": "behavioral-intelligence",
+    "validate:behavioral-predictions": "behavioral-intelligence",
+    "check:cloud-cost": "google-cost",
+    "check:google-cost": "google-cost",
+    "score:cloud-cost": "google-cost",
+    "score:google-cost": "google-cost",
+    "check:ast-grep-rules": "speed-security",
+    "check:background-job-idempotency": "speed-security",
+    "check:beta-release-notes": "speed-security",
+    "check:beta-score": "speed-security",
+    "check:beta-update-tracker": "speed-security",
+    "check:beta-versioning": "speed-security",
+    "check:environment-deployment-truth": "speed-security",
+    "check:final-launch-readiness-report": "speed-security",
+    "check:hardening": "speed-security",
+    "check:launch-finalization-baseline": "speed-security",
+    "check:launch-pr-triage": "speed-security",
+    "check:launch-readiness-final": "speed-security",
+    "check:pwa-service-worker": "speed-security",
+    "check:release-notes": "speed-security",
+    "check:rollback-incident-response": "speed-security",
+    "check:security-role-boundaries": "speed-security",
+    "check:speed-security": "speed-security",
+    "score:beta": "speed-security",
+    "score:hardening": "speed-security",
+    "score:speed-security": "speed-security"
   },
-  "legacyWarnings": [
-    {
-      "id": "drop-preview-modal-fallback",
-      "name": "DropPreviewModal legacy fallback",
-      "status": "allowed_fallback",
-      "ownerSurface": "locked_drop_preview",
-      "canonicalReplacement": "Full-page locked Drop preview route at /drops/[id]/preview",
-      "reviewBy": "2026-05-19",
-      "removeBy": "2026-07-01",
-      "riskIfKept": "Locked preview ownership can drift back to modal-first behavior and weaken content-protection/conversion truth.",
-      "matchedFiles": [
-        "agent/context/legacy-registry.json"
-      ]
-    },
-    {
-      "id": "drops-query-modal-flow",
-      "name": "/drops?drop modal query flow",
-      "status": "remove_by_deadline",
-      "ownerSurface": "drops_discovery_to_preview",
-      "canonicalReplacement": "Redirect or hand off to /drops/[id]/preview only",
-      "reviewBy": "2026-05-19",
-      "removeBy": "2026-06-15",
-      "riskIfKept": "Deep links can silently restore modal-first locked preview ownership instead of the canonical full-page route.",
-      "matchedFiles": [
-        "agent/context/legacy-registry.json"
-      ]
-    },
-    {
-      "id": "synthetic-view-as-local-projection",
-      "name": "Synthetic/simulative admin view-as",
-      "status": "deprecated",
-      "ownerSurface": "admin_creator_projection",
-      "canonicalReplacement": "Admin creator projection with actorAdminId, performedAs, local-only source truth, and write-block diagnostics",
-      "reviewBy": "2026-05-26",
-      "removeBy": "2026-07-15",
-      "riskIfKept": "Local projection and synthetic creator state can be mistaken for live creator behavior or user engagement.",
-      "matchedFiles": [
-        "agent/context/legacy-registry.json"
-      ]
-    },
-    {
-      "id": "old-moderation-screenshot-certainty",
-      "name": "Old moderation screenshot certainty",
-      "status": "blocked",
-      "ownerSurface": "admin_moderation_real_risk",
-      "canonicalReplacement": "Evidence-weighted theft-risk and scrape-risk scoring",
-      "reviewBy": "2026-05-12",
-      "removeBy": "2026-06-05",
-      "riskIfKept": "Weak browser visibility or blur heuristics could be presented as confirmed screenshot evidence.",
-      "matchedFiles": [
-        "agent/context/legacy-registry.json"
-      ]
-    },
-    {
-      "id": "admin-users-realtime-route",
-      "name": "Realtime-ish admin/users route",
-      "status": "remove_by_deadline",
-      "ownerSurface": "admin_user_hot_cache",
-      "canonicalReplacement": "Admin user hot-cache/materialized snapshot route",
-      "reviewBy": "2026-05-26",
-      "removeBy": "2026-08-01",
-      "riskIfKept": "Unbounded realtime admin reads can bypass hot-cache doctrine and inflate cost or stale-state confusion.",
-      "matchedFiles": [
-        "agent/context/legacy-registry.json"
-      ]
-    },
-    {
-      "id": "old-wallet-total-only-balance-chip",
-      "name": "Old wallet total-only balance chip",
-      "status": "blocked",
-      "ownerSurface": "wallet_density",
-      "canonicalReplacement": "Source-aware split balance chip showing free GD and paid GD",
-      "reviewBy": "2026-05-12",
-      "removeBy": "2026-06-05",
-      "riskIfKept": "Total-only wallet display can hide paid-vs-reward source truth and confuse creator monetization eligibility.",
-      "matchedFiles": [
-        "agent/context/legacy-registry.json"
-      ]
-    },
-    {
-      "id": "old-green-bonus-chips",
-      "name": "Old green wallet bonus chips",
-      "status": "blocked",
-      "ownerSurface": "wallet_density",
-      "canonicalReplacement": "Brand-purple bonus chip theme",
-      "reviewBy": "2026-05-12",
-      "removeBy": "2026-06-05",
-      "riskIfKept": "Old green bonus chips reintroduce pre-density visual language and can drift from wallet doctrine.",
-      "matchedFiles": [
-        "agent/context/legacy-registry.json"
-      ]
-    },
-    {
-      "id": "notification-opened-read-score-split",
-      "name": "Notification opened/read split for behavioral scoring",
-      "status": "blocked",
-      "ownerSurface": "notification_behavior_truth",
-      "canonicalReplacement": "Canonical behavioral action notification_read; opened/clicked remain UI diagnostics only",
-      "reviewBy": "2026-05-12",
-      "removeBy": "2026-06-05",
-      "riskIfKept": "Notification open and read can be scored separately, inflating engagement counts.",
-      "matchedFiles": [
-        "agent/context/legacy-registry.json"
-      ]
-    },
-    {
-      "id": "admin-support-realtime-queue",
-      "name": "Admin support realtime queue",
-      "status": "allowed_fallback",
-      "ownerSurface": "support_recovery_flows",
-      "canonicalReplacement": "Unified support inbox model with admin support route truth and debug evidence",
-      "reviewBy": "2026-05-26",
-      "removeBy": "2026-08-01",
-      "riskIfKept": "Admin support UI can keep relying on direct realtime assumptions instead of explicit route truth and debug evidence.",
-      "matchedFiles": [
-        "agent/context/legacy-registry.json"
-      ]
-    }
-  ],
+  "legacyWarnings": [],
   "excludedByDesign": {
     "sourceMarkdown": "Not loaded unless a compact card or validator leaves uncertainty.",
-    "unrelatedCards": 15
+    "unrelatedCards": 16
   }
 }

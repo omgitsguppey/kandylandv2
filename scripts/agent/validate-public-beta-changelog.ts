@@ -74,6 +74,8 @@ if (document) {
     if (typeof note.betaReleaseCounter !== "number") failures.push(`notes[${index}].betaReleaseCounter must be present.`);
     if (!Array.isArray(note.commitShas) || note.commitShas.length === 0) failures.push(`notes[${index}].commitShas must be present.`);
     if (typeof note.commitCount !== "number" || note.commitCount < 1) failures.push(`notes[${index}].commitCount must be present.`);
+    if (typeof note.surfaceCategory !== "string" || note.surfaceCategory.length === 0) failures.push(`notes[${index}].surfaceCategory must be present.`);
+    if (note.surfaceCategory === "Internal reliability") failures.push(`notes[${index}] must not expose internal-reliability-only copy in the visible public feed.`);
     if (note.version === "1.113.4") failures.push(`notes[${index}] must not keep legacy 1.113.4 as a visible version.`);
   }
 }
@@ -134,6 +136,8 @@ for (const expected of [
   "commitCount",
   "commitShas",
   "betaReleaseCounter",
+  "surfaceCategory",
+  "No product-facing unreleased commits found for an accepted beta release.",
   "currentVersion: CURRENT_BETA_RELEASE_VERSION",
 ]) {
   requireIncludes(releaseScript, expected, "release notes generator");

@@ -32,6 +32,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const helper = read("src/lib/admin-analytics-journey-funnel.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
@@ -43,9 +44,10 @@ const section = component.slice(
 );
 
 assertIncludes("AdminAnalyticsOperationsTab", component, "journeyFunnelModel");
+assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_JOURNEY_FUNNEL_DEBUG__");
 assertIncludes("AdminAnalyticsOperationsTab", component, "Repeated event-volume chain. Not a unique-user funnel.");
-assertIncludes("AdminAnalyticsOperationsTab", component, "formatJourneyDenominatorMode");
+assertIncludes("AdminAnalyticsOperationsTab", component, "formatAdminAnalyticsJourneyDenominatorMode");
 assertIncludes("AdminAnalyticsOperationsTab", component, "nonSequentialSteps");
 assertIncludes("AdminAnalyticsOperationsTab", component, "sourceMismatchSteps");
 assertIncludes("AdminAnalyticsOperationsTab", component, "Largest Event-Volume Decrease");

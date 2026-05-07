@@ -8,11 +8,14 @@ Owner: cloud/sql/bigquery
 
 - Treat Firebase Data Connect and Cloud SQL as agent-context mirror infrastructure unless explicitly promoted.
 - Keep BigQuery exports/imports dry-run, idempotent, and blocked from mutating runtime balances/transactions unless a contract approves it.
+- Treat BigQuery and GA exports as analytics evidence, not primary product truth.
+- Allow imported analytics rows to map only into normalized event facts or canonical metric facts after schema validation.
 - Protect Cloud Run max instances and concurrency around SQL and AI surfaces.
 
 ## Must Not
 
 - Use SQL/Data Connect for user, payment, Drop, chat, support, or creator runtime flows without an explicit ApiCostContract.
+- Write legacy admin metric snapshots directly from import/export lanes.
 - Run `gcloud`, Firebase deploys, Data Connect deploys, or BigQuery jobs from default audit lanes.
 
 ## Source Truth

@@ -21,6 +21,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx");
+const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const pipelineComponent = read("src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx");
 const model = read("src/lib/admin-task-pipeline.ts");
 const leaderboardHelper = read("src/lib/admin-task-leaderboard.ts");
@@ -34,6 +35,7 @@ const sectionStart = pipelineComponent.indexOf('title="Daily Task Pipeline"');
 const section = pipelineComponent.slice(sectionStart);
 
 assertIncludes("AdminDailyTaskPipelineModule", section, "model.lifecycleMetrics");
+assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("AdminDailyTaskPipelineModule", section, "model.guidanceMetrics");
 assertIncludes("AdminDailyTaskPipelineModule", section, "Completion speed");
 assertIncludes("AdminDailyTaskPipelineModule", section, "model.speedBuckets");

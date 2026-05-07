@@ -21,6 +21,11 @@ const files = {
   userPage: read("src/app/admin/user/[userId]/page.tsx"),
   truthState: read("src/lib/admin-truth-state.ts"),
   truthBadge: read("src/components/Admin/AdminTruthBadge.tsx"),
+  analyticsHelpers: read("src/app/admin/analytics/AnalyticsHelpers.tsx"),
+  aiHelpers: read("src/app/admin/ai/AiHelpers.tsx"),
+  adminStatsBar: read("src/components/Admin/AdminStatsBar.tsx"),
+  adminModuleVerificationCard: read("src/components/Admin/AdminModuleVerificationCard.tsx"),
+  debugPrimitives: read("src/app/admin/debug/components/DebugPrimitives.tsx"),
   snapshotContract: read("src/lib/admin-user-truth-contract.ts"),
   snapshotServer: read("src/lib/server/admin-user-truth-snapshot.ts"),
   rollupContract: read("src/lib/behavioral/user-score-contract.ts"),
@@ -54,6 +59,24 @@ assert(files.eventNormalizer.includes("admin_projection") && files.eventNormaliz
 assert(files.legacyRegistry.includes('classification: "blocked"') && files.legacyRegistry.includes("src/lib/admin-analytics-live-runtime.ts"), "Legacy registry must block old live-runtime formulas.", failures);
 assert(files.truthState.includes('"privacy_limited"') && files.truthState.includes('"legacy_fallback"') && files.truthState.includes('"blocked"'), "Admin truth state must expose the replacement truth states.", failures);
 assert(files.truthBadge.includes("data-admin-truth-state"), "Admin truth badge must keep the explicit truth marker.", failures);
+assert(files.aiHelpers.includes("AdminTruthBadge"), "Admin AI helpers must render canonical truth badges.", failures);
+assert(files.adminStatsBar.includes("AdminTruthBadge"), "Admin stats bar must render canonical truth badges.", failures);
+assert(files.adminModuleVerificationCard.includes("AdminTruthBadge"), "Admin module verification card must render canonical truth badges.", failures);
+assert(files.debugPrimitives.includes("AdminTruthBadge"), "Admin debug primitives must render canonical truth badges.", failures);
+assert(files.aiHelpers.includes("resolveAdminTruthState"), "Admin AI helpers must resolve AdminTruthState through the canonical helper.", failures);
+assert(files.adminStatsBar.includes("resolveAdminTruthState"), "Admin stats bar must resolve AdminTruthState through the canonical helper.", failures);
+assert(files.adminModuleVerificationCard.includes("resolveAdminTruthState"), "Admin module verification card must resolve AdminTruthState through the canonical helper.", failures);
+assert(files.debugPrimitives.includes("resolveAdminTruthState"), "Admin debug primitives must resolve AdminTruthState through the canonical helper.", failures);
+for (const [label, source] of [
+  ["Admin analytics helpers", files.analyticsHelpers],
+  ["Admin AI helpers", files.aiHelpers],
+  ["Admin stats bar", files.adminStatsBar],
+  ["Admin module verification card", files.adminModuleVerificationCard],
+  ["Admin debug primitives", files.debugPrimitives],
+] as const) {
+  assert(!source.includes("AdminStatusBadge"), `${label} must not use AdminStatusBadge after the canonical truth-state cutover.`, failures);
+  assert(!source.includes("stateFromTone("), `${label} must not define a local tone-to-truth map outside src/lib/admin-truth-state.ts.`, failures);
+}
 assert(!files.usersPage.includes("[unavailable]"), "User Management must not render [unavailable] as a metric value.", failures);
 assert(files.userPage.includes("details") && files.userPage.includes("Insufficient signal"), "Per-user recommendations and math must stay collapsed unless confidence is sufficient.", failures);
 assert(files.betaTracker.includes("check:beta-update-tracker"), "Beta release-note tracker must remain canonical.", failures);

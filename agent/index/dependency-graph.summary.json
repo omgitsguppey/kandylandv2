@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:20:46.638Z",
+  "generatedAt": "2026-05-07T23:54:19.072Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -18,92 +18,98 @@
   "sourceKind": "local_import_graph",
   "highInboundFiles": [
     {
-      "path": "src/lib/server/firebase-admin.ts",
-      "inboundCount": 124,
+      "path": "src/lib/server/rate-limit.ts",
+      "inboundCount": 128,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
-      "path": "src/lib/server/rate-limit.ts",
-      "inboundCount": 119,
+      "path": "src/lib/server/firebase-admin.ts",
+      "inboundCount": 127,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/lib/server/request-guard.ts",
-      "inboundCount": 118,
-      "runtimeCritical": true,
-      "likelySharedHelper": true
-    },
-    {
-      "path": "src/lib/server/route-runtime-health.ts",
-      "inboundCount": 118,
+      "inboundCount": 126,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/lib/server/auth.ts",
-      "inboundCount": 117,
+      "inboundCount": 125,
+      "runtimeCritical": true,
+      "likelySharedHelper": true
+    },
+    {
+      "path": "src/lib/server/route-runtime-health.ts",
+      "inboundCount": 120,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/types/db.ts",
-      "inboundCount": 96,
+      "inboundCount": 109,
       "runtimeCritical": false,
       "likelySharedHelper": false
     },
     {
       "path": "src/lib/server/route-diagnostics.ts",
-      "inboundCount": 84,
+      "inboundCount": 86,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/lib/utils.ts",
-      "inboundCount": 75,
+      "inboundCount": 76,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/lib/telemetry.ts",
-      "inboundCount": 66,
+      "inboundCount": 70,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/lib/client-error-reporting.ts",
-      "inboundCount": 62,
+      "inboundCount": 63,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/context/AuthContext.tsx",
-      "inboundCount": 60,
+      "inboundCount": 62,
       "runtimeCritical": false,
       "likelySharedHelper": false
     },
     {
       "path": "src/lib/authFetch.ts",
-      "inboundCount": 56,
+      "inboundCount": 60,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/lib/admin-parity.ts",
-      "inboundCount": 43,
+      "inboundCount": 51,
+      "runtimeCritical": true,
+      "likelySharedHelper": true
+    },
+    {
+      "path": "src/types/admin-analytics.ts",
+      "inboundCount": 41,
+      "runtimeCritical": false,
+      "likelySharedHelper": false
+    },
+    {
+      "path": "src/lib/creator-experiences.ts",
+      "inboundCount": 38,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/lib/creator-onboarding.ts",
       "inboundCount": 38,
-      "runtimeCritical": true,
-      "likelySharedHelper": true
-    },
-    {
-      "path": "src/lib/creator-experiences.ts",
-      "inboundCount": 37,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
@@ -126,138 +132,132 @@
       "likelySharedHelper": false
     },
     {
-      "path": "src/types/admin-analytics.ts",
-      "inboundCount": 29,
-      "runtimeCritical": false,
-      "likelySharedHelper": false
-    },
-    {
       "path": "scripts/agent/shared.ts",
-      "inboundCount": 26,
+      "inboundCount": 27,
       "runtimeCritical": false,
       "likelySharedHelper": true
     }
   ],
   "blastRadiusSurfaces": [
     {
-      "path": "src/lib/server/firebase-admin.ts",
-      "inboundCount": 124,
+      "path": "src/lib/server/rate-limit.ts",
+      "inboundCount": 128,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
-      "path": "src/lib/server/rate-limit.ts",
-      "inboundCount": 119,
+      "path": "src/lib/server/firebase-admin.ts",
+      "inboundCount": 127,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
       "path": "src/lib/server/request-guard.ts",
-      "inboundCount": 118,
-      "reason": "Runtime-critical shared helper with multiple inbound references."
-    },
-    {
-      "path": "src/lib/server/route-runtime-health.ts",
-      "inboundCount": 118,
+      "inboundCount": 126,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
       "path": "src/lib/server/auth.ts",
-      "inboundCount": 117,
+      "inboundCount": 125,
+      "reason": "Runtime-critical shared helper with multiple inbound references."
+    },
+    {
+      "path": "src/lib/server/route-runtime-health.ts",
+      "inboundCount": 120,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
       "path": "src/lib/server/route-diagnostics.ts",
-      "inboundCount": 84,
+      "inboundCount": 86,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
       "path": "src/lib/utils.ts",
-      "inboundCount": 75,
+      "inboundCount": 76,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
       "path": "src/lib/telemetry.ts",
-      "inboundCount": 66,
+      "inboundCount": 70,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
       "path": "src/lib/client-error-reporting.ts",
-      "inboundCount": 62,
+      "inboundCount": 63,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
       "path": "src/lib/authFetch.ts",
-      "inboundCount": 56,
+      "inboundCount": 60,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
       "path": "src/lib/admin-parity.ts",
-      "inboundCount": 43,
+      "inboundCount": 51,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
-      "path": "src/lib/creator-onboarding.ts",
+      "path": "src/lib/creator-experiences.ts",
       "inboundCount": 38,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     }
   ],
   "highRiskSharedHelpers": [
     {
-      "path": "src/lib/server/firebase-admin.ts",
-      "inboundCount": 124,
+      "path": "src/lib/server/rate-limit.ts",
+      "inboundCount": 128,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
-      "path": "src/lib/server/rate-limit.ts",
-      "inboundCount": 119,
+      "path": "src/lib/server/firebase-admin.ts",
+      "inboundCount": 127,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
       "path": "src/lib/server/request-guard.ts",
-      "inboundCount": 118,
-      "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
-    },
-    {
-      "path": "src/lib/server/route-runtime-health.ts",
-      "inboundCount": 118,
+      "inboundCount": 126,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
       "path": "src/lib/server/auth.ts",
-      "inboundCount": 117,
+      "inboundCount": 125,
+      "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
+    },
+    {
+      "path": "src/lib/server/route-runtime-health.ts",
+      "inboundCount": 120,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
       "path": "src/lib/server/route-diagnostics.ts",
-      "inboundCount": 84,
+      "inboundCount": 86,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
       "path": "src/lib/utils.ts",
-      "inboundCount": 75,
+      "inboundCount": 76,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
       "path": "src/lib/telemetry.ts",
-      "inboundCount": 66,
+      "inboundCount": 70,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
       "path": "src/lib/client-error-reporting.ts",
-      "inboundCount": 62,
+      "inboundCount": 63,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
       "path": "src/lib/authFetch.ts",
-      "inboundCount": 56,
+      "inboundCount": 60,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
       "path": "src/lib/admin-parity.ts",
-      "inboundCount": 43,
+      "inboundCount": 51,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
-      "path": "src/lib/creator-onboarding.ts",
+      "path": "src/lib/creator-experiences.ts",
       "inboundCount": 38,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     }
@@ -314,11 +314,11 @@
         "src/lib/http-cache.ts",
         "src/lib/notification-contracts.ts",
         "src/lib/notification-identity.ts",
+        "src/lib/notifications/notification-quality-score.ts",
         "src/lib/server/auth.ts",
         "src/lib/server/fcm-utils.ts",
         "src/lib/server/firebase-admin.ts",
-        "src/lib/server/firestore-sanitize.ts",
-        "src/lib/server/not-found.ts"
+        "src/lib/server/firestore-sanitize.ts"
       ]
     },
     {
@@ -346,14 +346,14 @@
     {
       "route": "src/app/api/admin/content/route.ts",
       "helperPaths": [
+        "src/lib/server/admin-content-storage-safety.ts",
         "src/lib/server/admin-source-verification.ts",
         "src/lib/server/auth.ts",
         "src/lib/server/firebase-admin.ts",
         "src/lib/server/not-found.ts",
         "src/lib/server/rate-limit.ts",
         "src/lib/server/request-guard.ts",
-        "src/lib/server/route-runtime-health.ts",
-        "src/lib/server/storage-assets.ts"
+        "src/lib/server/route-diagnostics.ts"
       ]
     },
     {
@@ -399,13 +399,13 @@
       "route": "src/app/api/admin/overview/route.ts",
       "helperPaths": [
         "src/lib/admin-overview.ts",
+        "src/lib/admin-user-truth-contract.ts",
         "src/lib/drop-read-models.ts",
         "src/lib/server/admin-analytics-shared.ts",
         "src/lib/server/admin-overview-users.ts",
         "src/lib/server/admin-source-verification.ts",
-        "src/lib/server/admin-user-metrics-snapshot.ts",
-        "src/lib/server/auth.ts",
-        "src/lib/server/diagnostic-read-fallbacks.ts"
+        "src/lib/server/admin-user-truth-snapshot.ts",
+        "src/lib/server/auth.ts"
       ]
     },
     {
@@ -450,13 +450,13 @@
     {
       "route": "src/app/api/analytics/ingest-identified/route.ts",
       "helperPaths": [
-        "src/lib/analytics/analytics-event-contract.ts",
-        "src/lib/behavioral/event-fact-contract.ts",
-        "src/lib/behavioral/event-fact-normalizer.ts",
         "src/lib/behavioral/identified-metric-parity.ts",
+        "src/lib/behavioral/search-intent-profile.ts",
+        "src/lib/runtime-facts/normalize-runtime-fact.ts",
         "src/lib/server/analytics-event-utils.ts",
         "src/lib/server/analytics-governance.ts",
         "src/lib/server/auth.ts",
+        "src/lib/server/debug-evidence-store.ts",
         "src/lib/server/firebase-admin.ts"
       ]
     },
@@ -464,13 +464,13 @@
       "route": "src/app/api/analytics/ingest/route.ts",
       "helperPaths": [
         "src/lib/analytics-identifiers.ts",
-        "src/lib/behavioral/event-fact-contract.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
+        "src/lib/runtime-facts/normalize-runtime-fact.ts",
+        "src/lib/runtime-facts/runtime-fact-contract.ts",
         "src/lib/server/analytics-event-utils.ts",
         "src/lib/server/analytics-governance.ts",
         "src/lib/server/analytics-pipeline-health.ts",
-        "src/lib/server/event-fact-rollup.ts",
-        "src/lib/server/firebase-admin.ts"
+        "src/lib/server/firebase-admin.ts",
+        "src/lib/server/privacy-consent.ts"
       ]
     },
     {
@@ -502,11 +502,11 @@
   ],
   "broadChangeDangerMarkers": [
     {
-      "path": "src/lib/server/firebase-admin.ts",
+      "path": "src/lib/server/rate-limit.ts",
       "marker": "high_inbound_shared_helper"
     },
     {
-      "path": "src/lib/server/rate-limit.ts",
+      "path": "src/lib/server/firebase-admin.ts",
       "marker": "high_inbound_shared_helper"
     },
     {
@@ -514,11 +514,11 @@
       "marker": "high_inbound_shared_helper"
     },
     {
-      "path": "src/lib/server/route-runtime-health.ts",
+      "path": "src/lib/server/auth.ts",
       "marker": "high_inbound_shared_helper"
     },
     {
-      "path": "src/lib/server/auth.ts",
+      "path": "src/lib/server/route-runtime-health.ts",
       "marker": "high_inbound_shared_helper"
     },
     {
@@ -534,11 +534,11 @@
       "marker": "high_inbound_shared_helper"
     },
     {
-      "path": "src/lib/server/firebase-admin.ts",
+      "path": "src/lib/server/rate-limit.ts",
       "marker": "runtime_critical_blast_radius"
     },
     {
-      "path": "src/lib/server/rate-limit.ts",
+      "path": "src/lib/server/firebase-admin.ts",
       "marker": "runtime_critical_blast_radius"
     },
     {
@@ -546,11 +546,11 @@
       "marker": "runtime_critical_blast_radius"
     },
     {
-      "path": "src/lib/server/route-runtime-health.ts",
+      "path": "src/lib/server/auth.ts",
       "marker": "runtime_critical_blast_radius"
     },
     {
-      "path": "src/lib/server/auth.ts",
+      "path": "src/lib/server/route-runtime-health.ts",
       "marker": "runtime_critical_blast_radius"
     },
     {

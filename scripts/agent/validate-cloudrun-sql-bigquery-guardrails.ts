@@ -114,6 +114,8 @@ for (const expected of [
   "Cloud SQL-backed",
   "maxConnectionsPerInstance: 100",
   "importBackToRuntimeAllowed: false",
+  'canonicalImportTargets: ["analytics_event_facts", "analytics_metric_facts"]',
+  '"legacy_admin_metric_snapshots"',
 ]) {
   requireIncludes(contract, expected, "cloud cost contract");
 }
@@ -137,6 +139,8 @@ for (const expected of [
   "50 TiB/day",
   "1GB single-file extract",
   "runtime_import_blocked",
+  "canonical event facts or metric facts",
+  "legacy admin metric snapshots",
   "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
 ]) {
   requireIncludes(scorer, expected, "cloud cost scorer");
@@ -204,6 +208,12 @@ if (report) {
   }
   if (report.bigQueryImportStatus !== "runtime_import_blocked") {
     failures.push("BigQuery runtime import must be blocked unless a future import contract is approved.");
+  }
+  if (!report.bigQueryPipelines.every((pipeline) => Array.isArray(pipeline.canonicalImportTargets) && pipeline.canonicalImportTargets.includes("analytics_event_facts") && pipeline.canonicalImportTargets.includes("analytics_metric_facts"))) {
+    failures.push("Every BigQuery pipeline must declare canonicalImportTargets for analytics_event_facts and analytics_metric_facts.");
+  }
+  if (!report.bigQueryPipelines.every((pipeline) => Array.isArray(pipeline.forbiddenRuntimeMutationSurfaces) && pipeline.forbiddenRuntimeMutationSurfaces.includes("legacy_admin_metric_snapshots"))) {
+    failures.push("Every BigQuery pipeline must block legacy_admin_metric_snapshots as a runtime mutation surface.");
   }
   for (const item of [
     "Check Cloud Run max instances for each deployed service",

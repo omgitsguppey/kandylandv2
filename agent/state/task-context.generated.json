@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:20:39.570Z",
+  "generatedAt": "2026-05-07T23:55:03.925Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -19,79 +19,91 @@
     "agent/index/dependency-graph.summary.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "taskctx__audit-validate-repo-intelligence-fabric-outputs",
+  "stable_id": "taskctx__server-cut-over-analytics-and-behavioral-materializers-so-they-consume-canonical-runtime-facts-and-metric-facts-only",
   "input": {
-    "task": "validate repo intelligence fabric outputs",
-    "mode": "audit",
+    "task": "cut over analytics and behavioral materializers so they consume canonical runtime facts and metric facts only",
+    "mode": "server",
     "fileHints": [
-      "scripts/agent/build-agent-indexes.ts"
+      "functions/src/behavioral-intelligence-runtime.ts",
+      "functions/src/analytics-truth-cli.ts",
+      "scripts/rebuild-behavioral-intelligence.ts",
+      "scripts/rebuild-analytics-truth.ts",
+      "src/lib/server/admin-analytics-materializers.ts"
     ],
     "tokenBudgetProfile": "standard"
   },
-  "normalizedTaskSummary": "validate repo intelligence fabric outputs",
-  "taskModeClassification": "audit",
+  "normalizedTaskSummary": "cut over analytics and behavioral materializers so they consume canonical runtime facts and metric facts only",
+  "taskModeClassification": "server",
   "scopeClassification": "broad",
   "scopeWhy": "Touches repo-tooling, governance, or multiple broad-signoff surfaces.",
-  "likelySurfaceCategory": "repo_scripts",
+  "likelySurfaceCategory": "analytics",
   "likelySurfaces": [
+    "analytics",
+    "firebase_functions",
     "repo_scripts",
+    "admin_route",
     "shared_runtime"
   ],
   "hotContextFiles": [
-    "scripts/agent/build-agent-indexes.ts",
-    "scripts/agent/build-task-context.ts",
-    "src/lib/agent-audit/affected-surface-router.ts",
-    "src/lib/agent-audit/audit-cache.ts",
-    "src/lib/agent-audit/audit-runtime-contract.ts"
+    "functions/src/analytics-truth-cli.ts",
+    "functions/src/behavioral-intelligence-runtime.ts",
+    "src/lib/server/admin-analytics-materializers.ts",
+    "scripts/rebuild-analytics-truth.ts",
+    "scripts/rebuild-behavioral-intelligence.ts"
   ],
   "warmContextFiles": [
-    "src/lib/agent-audit/audit-speed-score.ts",
-    "src/lib/agent-audit/file-fingerprint.ts",
-    "src/lib/agent-audit/verification-command-budget.ts",
-    "scripts/agent/shared.ts",
-    "scripts/agent/build-ui-surface-coverage.ts"
+    "src/lib/analytics/admin-metric-snapshot.ts",
+    "src/app/api/admin/debug/route.ts",
+    "src/app/api/admin/analytics/refresh/route.ts",
+    "src/lib/behavioral/behavioral-math-calibration.ts",
+    "src/lib/admin-parity.ts"
   ],
   "coldContextFiles": [
     "FULL_SCALE_CODEBASE_AUDIT.md",
     "REPO_MEMORY_LEDGER.md",
     "EVERY_FILE_FUNCTION_CHECKLIST.md",
-    "agent/context/",
-    "agent/context/*",
-    "agent/context/doctrine.index.json",
-    "agent/index/*"
+    " state using the repository's deterministic score/check lanes instead of Playwright, Lighthouse, Cypress, deploys, or full ",
+    "10/100 fail",
+    "100/100",
+    "100/100 clean"
   ],
   "likelyTouchedFiles": [
-    "scripts/agent/build-agent-indexes.ts",
-    "scripts/agent/build-task-context.ts",
-    "src/lib/agent-audit/affected-surface-router.ts",
-    "src/lib/agent-audit/audit-cache.ts",
-    "src/lib/agent-audit/audit-runtime-contract.ts",
-    "src/lib/agent-audit/audit-speed-score.ts",
-    "src/lib/agent-audit/file-fingerprint.ts",
-    "src/lib/agent-audit/verification-command-budget.ts",
-    "scripts/agent/shared.ts",
-    "scripts/agent/build-ui-surface-coverage.ts",
-    "scripts/agent/check-agent-context.ts",
-    "scripts/agent/classify-repo-files.ts"
+    "functions/src/analytics-truth-cli.ts",
+    "functions/src/behavioral-intelligence-runtime.ts",
+    "src/lib/server/admin-analytics-materializers.ts",
+    "scripts/rebuild-analytics-truth.ts",
+    "scripts/rebuild-behavioral-intelligence.ts",
+    "src/lib/analytics/admin-metric-snapshot.ts",
+    "src/app/api/admin/debug/route.ts",
+    "src/app/api/admin/analytics/refresh/route.ts",
+    "src/lib/behavioral/behavioral-math-calibration.ts",
+    "src/lib/admin-parity.ts",
+    "src/lib/telemetry.ts",
+    "src/lib/server/analytics.ts"
   ],
   "likelyAdjacentFiles": [
-    "scripts/agent/extract-canonical-helpers.ts",
-    "scripts/agent/extract-governance.ts",
-    "scripts/agent/extract-runtime-observability.ts",
-    "scripts/agent/extract-workflow.ts",
-    "scripts/agent/summarize-dependency-graph.ts",
-    "scripts/agent/run-evals.ts",
-    "scripts/agent/sync-sql.ts",
-    "scripts/agent/build-compact-agent-context.ts",
-    "scripts/agent/verification-selector.ts",
-    "scripts/agent/fast-start.ts",
-    "scripts/agent/plan-affected-audits.ts",
-    "scripts/agent/validate-affected-audit-router.ts"
+    "tests/unit/admin-metric-snapshot.spec.ts",
+    "src/lib/cache/refresh-cache-contract.ts",
+    "src/hooks/useAdminAnalyticsSnapshot.ts",
+    "src/hooks/useAdminAnalyticsSnapshotRegistry.ts",
+    "src/lib/analytics/admin-analytics-display-state.ts",
+    "src/lib/analytics/admin-analytics-loading-state.ts",
+    "src/lib/analytics/legacy-recovery-contract.ts",
+    "src/lib/server/admin-analytics-snapshots.ts",
+    "tests/unit/admin-analytics-display-state.spec.ts",
+    "tests/unit/admin-analytics-refresh-route.spec.ts",
+    "src/lib/server/firebase-admin.ts",
+    "src/lib/server/auth.ts"
   ],
   "likelyAdjacentHelpers": [
-    "src/lib/gumdrop-economics.ts",
-    "src/lib/gumdrop-ledger.ts",
-    "src/lib/server/paypal.ts"
+    "src/lib/telemetry.ts",
+    "src/lib/server/auth.ts",
+    "src/lib/route-runtime-health.ts",
+    "src/lib/server/admin-panel-system-logs.ts",
+    "src/lib/server/request-guard.ts",
+    "src/lib/server/route-diagnostics.ts",
+    "src/lib/server/route-runtime-health.ts",
+    "src/lib/server/server-diagnostics.ts"
   ],
   "governanceConsultFull": [
     "FULL_SCALE_CODEBASE_AUDIT.md",
@@ -100,37 +112,58 @@
   ],
   "governanceConsultSelective": [],
   "canonicalHelpersToReuse": [
-    "src/lib/gumdrop-economics.ts",
-    "src/lib/gumdrop-ledger.ts",
-    "src/lib/server/paypal.ts"
+    "src/lib/telemetry.ts",
+    "src/lib/server/auth.ts",
+    "src/lib/route-runtime-health.ts",
+    "src/lib/server/admin-panel-system-logs.ts",
+    "src/lib/server/request-guard.ts",
+    "src/lib/server/route-diagnostics.ts",
+    "src/lib/server/route-runtime-health.ts",
+    "src/lib/server/server-diagnostics.ts"
   ],
   "relevantKnownPitfalls": [
+    "stale_lockfile_drift",
     "diagnostics_serialization_crash",
+    "request_json_parse_falls_into_500",
     "consumed_response_stream_fallback",
     "generated_artifact_cleanup_miss",
     "sidecar_truth_confusion",
+    "route_runtime_stale_vs_unseen_confusion",
     "legacy_queue_adapter_usage",
     "queue_activation_missing_notification_outcome",
-    "creator_booking_timezone_drift"
+    "stale_queue_scheduler_heartbeat",
+    "unchecked_response_ok_ui_hydration",
+    "viewer_watch_capture_continuity_drift"
   ],
   "requiredVerificationCommands": [
-    "npm run check:agent-context",
-    "npm run check:continuity",
-    "npm run trace:adjacent -- <path>",
+    "npm run check:analytics-semantics",
+    "npm run check:analytics:continuity",
+    "npm run check:telemetry",
     "npm run test:contracts",
+    "npm run trace:adjacent -- <path>",
+    "npm --prefix functions run check",
+    "npm run check:continuity",
     "npm run check:architecture",
-    "npm run check:inventory"
+    "npm run check:inventory",
+    "npm run check:agent-context"
   ],
   "optionalVerificationCommands": [],
   "fastVerificationCommands": [
     "npm run typecheck",
-    "npm run agent:test -- scripts/agent/build-agent-indexes.ts",
-    "npm run agent:test -- scripts/agent/build-task-context.ts",
-    "npm run agent:test -- src/lib/agent-audit/affected-surface-router.ts",
-    "npm run agent:test -- src/lib/agent-audit/audit-cache.ts",
+    "npm run agent:test -- functions/src/analytics-truth-cli.ts",
+    "npm run agent:test -- functions/src/behavioral-intelligence-runtime.ts",
+    "npm run agent:test -- src/lib/server/admin-analytics-materializers.ts",
+    "npm run agent:test -- scripts/rebuild-analytics-truth.ts",
+    "npm run check:ui:coverage",
+    "npm run check:ui:runtime",
+    "npm run check:telemetry",
+    "npm run check:analytics-semantics",
+    "npm --prefix functions run check",
     "npm run check:agent-context"
   ],
   "signoffVerificationCommands": [
+    "npm run check:ui:audits",
+    "npm run check:analytics:continuity",
     "npm run check:inventory",
     "npm run check:architecture",
     "npm run check:agent-intelligence",
@@ -155,72 +188,116 @@
   "broadWorkStartupProtocolRequired": true,
   "sqlMirrorFreshnessState": "unknown",
   "confidenceNotes": [
-    "Mode resolved as audit.",
-    "Ranking considered 1709 repo files and 20 canonical helper entries.",
+    "Mode resolved as server.",
+    "Ranking considered 1959 repo files and 20 canonical helper entries.",
     "UI coverage matched 8 indexed surfaces."
   ],
   "ambiguityNotes": [],
   "do_not_read_unless_needed": [],
   "excludedContext": [
     {
-      "path": "REPO_MEMORY_LEDGER.md",
+      "path": "qa-screenshots/desktop-admin-create-full.png",
       "why_not_selected": "evidence_only"
     },
     {
-      "path": "agent/index/repo-inventory.json",
-      "why_not_selected": "generated_penalty"
-    },
-    {
-      "path": "agent/state/analytics-legacy-mapping-report.generated.json",
-      "why_not_selected": "generated_penalty"
-    },
-    {
-      "path": "agent/state/eval-results.generated.json",
-      "why_not_selected": "generated_penalty"
-    },
-    {
-      "path": "agent/state/final-launch-readiness-report.generated.json",
-      "why_not_selected": "generated_penalty"
-    },
-    {
-      "path": "agent/state/launch-readiness-report.generated.json",
-      "why_not_selected": "generated_penalty"
-    },
-    {
-      "path": "agent/state/user-critical-path-fix-report.generated.json",
-      "why_not_selected": "generated_penalty"
-    },
-    {
-      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-apply-page-tsx-chromium-win32.png",
+      "path": "qa-screenshots/desktop-admin-create-viewport.png",
       "why_not_selected": "evidence_only"
     },
     {
-      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-apply-page-tsx-Mobile-Chrome-win32.png",
+      "path": "qa-screenshots/desktop-admin-drops-full.png",
       "why_not_selected": "evidence_only"
     },
     {
-      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-waitlist-page-tsx-chromium-win32.png",
+      "path": "qa-screenshots/desktop-admin-drops-viewport.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "qa-screenshots/desktop-admin-full.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "qa-screenshots/desktop-admin-viewport.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "qa-screenshots/mobile-admin-create-full.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "qa-screenshots/mobile-admin-create-viewport.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "qa-screenshots/mobile-admin-drops-full.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "qa-screenshots/mobile-admin-drops-viewport.png",
       "why_not_selected": "evidence_only"
     }
   ],
   "do_not_touch_without_broad_signoff": [
-    "scripts/agent/build-agent-indexes.ts",
-    "scripts/agent/build-task-context.ts",
-    "src/lib/agent-audit/affected-surface-router.ts",
-    "src/lib/agent-audit/audit-cache.ts",
-    "src/lib/agent-audit/audit-runtime-contract.ts",
-    "src/lib/agent-audit/audit-speed-score.ts",
-    "src/lib/agent-audit/file-fingerprint.ts",
-    "src/lib/agent-audit/verification-command-budget.ts",
-    "scripts/agent/shared.ts",
-    "scripts/agent/build-ui-surface-coverage.ts",
-    "scripts/agent/check-agent-context.ts",
-    "scripts/agent/classify-repo-files.ts"
+    "src/lib/server/admin-analytics-materializers.ts",
+    "scripts/rebuild-analytics-truth.ts",
+    "scripts/rebuild-behavioral-intelligence.ts",
+    "src/lib/analytics/admin-metric-snapshot.ts",
+    "src/lib/behavioral/behavioral-math-calibration.ts",
+    "src/lib/admin-parity.ts",
+    "src/lib/telemetry.ts",
+    "src/lib/server/analytics.ts"
   ],
   "rankingEvidence": [
     {
-      "stable_id": "file__scripts__agent__build-agent-indexes-ts",
-      "path": "scripts/agent/build-agent-indexes.ts",
+      "stable_id": "file__functions__src__analytics-truth-cli-ts",
+      "path": "functions/src/analytics-truth-cli.ts",
+      "score": 158,
+      "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, verification_lane_match",
+      "weighted_components": [
+        "explicit_file_hint",
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "pitfall_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__functions__src__behavioral-intelligence-runtime-ts",
+      "path": "functions/src/behavioral-intelligence-runtime.ts",
+      "score": 158,
+      "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, verification_lane_match",
+      "weighted_components": [
+        "explicit_file_hint",
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "pitfall_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__server__admin-analytics-materializers-ts",
+      "path": "src/lib/server/admin-analytics-materializers.ts",
+      "score": 158,
+      "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, verification_lane_match",
+      "weighted_components": [
+        "explicit_file_hint",
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "pitfall_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__scripts__rebuild-analytics-truth-ts",
+      "path": "scripts/rebuild-analytics-truth.ts",
       "score": 146,
       "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, verification_lane_match",
       "weighted_components": [
@@ -234,196 +311,134 @@
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__scripts__agent__build-task-context-ts",
-      "path": "scripts/agent/build-task-context.ts",
-      "score": 136,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
+      "stable_id": "file__scripts__rebuild-behavioral-intelligence-ts",
+      "path": "scripts/rebuild-behavioral-intelligence.ts",
+      "score": 146,
+      "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, verification_lane_match",
+      "weighted_components": [
+        "explicit_file_hint",
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__analytics__admin-metric-snapshot-ts",
+      "path": "src/lib/analytics/admin-metric-snapshot.ts",
+      "score": 134,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, pitfall_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
         "adjacency_match",
-        "recent_pass_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__lib__agent-audit__affected-surface-router-ts",
-      "path": "src/lib/agent-audit/affected-surface-router.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
         "pitfall_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__src__lib__agent-audit__audit-cache-ts",
-      "path": "src/lib/agent-audit/audit-cache.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__lib__agent-audit__audit-runtime-contract-ts",
-      "path": "src/lib/agent-audit/audit-runtime-contract.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__lib__agent-audit__audit-speed-score-ts",
-      "path": "src/lib/agent-audit/audit-speed-score.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__lib__agent-audit__file-fingerprint-ts",
-      "path": "src/lib/agent-audit/file-fingerprint.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__lib__agent-audit__verification-command-budget-ts",
-      "path": "src/lib/agent-audit/verification-command-budget.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__shared-ts",
-      "path": "scripts/agent/shared.ts",
-      "score": 128,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match, high_inbound_bonus",
+      "stable_id": "file__src__app__api__admin__debug__route-ts",
+      "path": "src/app/api/admin/debug/route.ts",
+      "score": 134,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, pitfall_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
         "adjacency_match",
+        "pitfall_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__app__api__admin__analytics__refresh__route-ts",
+      "path": "src/app/api/admin/analytics/refresh/route.ts",
+      "score": 134,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, pitfall_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "pitfall_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__behavioral__behavioral-math-calibration-ts",
+      "path": "src/lib/behavioral/behavioral-math-calibration.ts",
+      "score": 132,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "recent_pass_match",
+        "pitfall_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__admin-parity-ts",
+      "path": "src/lib/admin-parity.ts",
+      "score": 124,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, verification_lane_match, high_inbound_bonus",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "pitfall_match",
         "verification_lane_match",
         "high_inbound_bonus"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__scripts__agent__build-ui-surface-coverage-ts",
-      "path": "scripts/agent/build-ui-surface-coverage.ts",
-      "score": 122,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
+      "stable_id": "file__src__lib__telemetry-ts",
+      "path": "src/lib/telemetry.ts",
+      "score": 124,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, verification_lane_match, high_inbound_bonus",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "adjacency_match",
-        "verification_lane_match"
+        "pitfall_match",
+        "verification_lane_match",
+        "high_inbound_bonus"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__scripts__agent__check-agent-context-ts",
-      "path": "scripts/agent/check-agent-context.ts",
-      "score": 122,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
+      "stable_id": "file__src__lib__server__analytics-ts",
+      "path": "src/lib/server/analytics.ts",
+      "score": 124,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, verification_lane_match, high_inbound_bonus",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "adjacency_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__classify-repo-files-ts",
-      "path": "scripts/agent/classify-repo-files.ts",
-      "score": 122,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "verification_lane_match"
+        "pitfall_match",
+        "verification_lane_match",
+        "high_inbound_bonus"
       ],
       "freshness_state": "fresh"
     }
   ],
   "relevantUiSurfaces": [
-    {
-      "route_or_component": "src/app/(legal)/privacy/page.tsx",
-      "criticality": "medium",
-      "hydration_mode": "static",
-      "coverage_notes": [
-        "Mapped to app_routes."
-      ]
-    },
-    {
-      "route_or_component": "src/app/(legal)/terms/page.tsx",
-      "criticality": "medium",
-      "hydration_mode": "static",
-      "coverage_notes": [
-        "Mapped to app_routes."
-      ]
-    },
     {
       "route_or_component": "src/app/admin/ai/page.tsx",
       "criticality": "high",
@@ -477,6 +492,25 @@
       "coverage_notes": [
         "Auth-required surface indexed with admin audit requirement.",
         "No direct runtime dependency imports detected.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "route_or_component": "src/app/admin/moderation/page.tsx",
+      "criticality": "high",
+      "hydration_mode": "static",
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "No direct runtime dependency imports detected.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "route_or_component": "src/app/admin/page.tsx",
+      "criticality": "high",
+      "hydration_mode": "static",
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
         "Mapped to app_routes."
       ]
     }

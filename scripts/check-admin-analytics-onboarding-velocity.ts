@@ -32,6 +32,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx");
+const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const operationsTab = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const helper = read("src/lib/admin-onboarding-velocity.ts");
@@ -43,6 +44,7 @@ const section = component.slice(
 );
 
 assertIncludes("AdminOnboardingAnalyticsModules", component, "onboardingVelocityModel");
+assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("AdminOnboardingAnalyticsModules", component, "__KANDYDROPS_ADMIN_ANALYTICS_ONBOARDING_VELOCITY_DEBUG__");
 assertIncludes("Onboarding Velocity section", section, "Showing verified onboarding starts.");
 assertIncludes("AdminOnboardingAnalyticsModules", component, "Details in Debug");

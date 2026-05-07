@@ -26,6 +26,8 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
+const contracts = read("src/lib/admin-analytics-contracts.ts");
+const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const helper = read("src/lib/admin-analytics-commerce-snapshot.ts");
 const contentConversionHelper = read("src/lib/admin-analytics-content-conversion.ts");
 const topDropConversionHelper = read("src/lib/admin-analytics-top-drop-conversion.ts");
@@ -37,6 +39,11 @@ const analyticsTypes = read("src/types/admin-analytics.ts");
 const doc = read("docs/agent-truth/admin-analytics-commerce-snapshot.md");
 
 assertIncludes("AdminAnalyticsCommerceTab", component, "commerceSnapshotModel.commerceSnapshotState");
+assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
+assertIncludes("AdminAnalyticsCommerceTab", component, "resolveAdminAnalyticsCommerceBadgeLabel");
+assertIncludes("AdminAnalyticsCommerceTab", component, "buildAdminAnalyticsViewerDrilldownContract");
+assertIncludes("AdminAnalyticsCommerceTab", component, "resolveAdminAnalyticsContentConversionRowTruthState");
+assertIncludes("AdminAnalyticsCommerceTab", component, "resolveAdminAnalyticsTopDropIdentityTruthState");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Treasury truth lives in Platform Economy.");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Last verified");
 assertIncludes("AdminAnalyticsCommerceTab", component, "Cache freshness");
@@ -72,12 +79,22 @@ assertIncludes("AdminAnalyticsCommerceTab", component, "grid-cols-[auto_minmax(0
 assertIncludes("AdminAnalyticsCommerceTab", component, "item.amountDisplay");
 assertIncludes("AdminAnalyticsCommerceTab", component, "item.sourceLabel");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "Checkout conversion: {commerceConversionLabel}");
+assertNotIncludes("AdminAnalyticsCommerceTab", component, "const commerceBadgeLabel = commerceSnapshotModel.cacheState");
+assertNotIncludes("AdminAnalyticsCommerceTab", component, "const livePulseBadgeLabel =");
+assertNotIncludes("AdminAnalyticsCommerceTab", component, "const earlyExitFormula =");
+assertNotIncludes("AdminAnalyticsCommerceTab", component, "const avgWatchDenominator =");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "Unlocked drops with enough demand to matter.");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "name=\"Unlocks\"");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "dataKey=\"dropId\"");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "item.amount.toLocaleString()");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, "Unlocked:");
 assertNotIncludes("AdminAnalyticsCommerceTab", component, " Â· ");
+
+assertIncludes("admin analytics contracts", contracts, "\"commerce_snapshot\"");
+assertIncludes("admin analytics contracts", contracts, "\"viewer_drilldown\"");
+assertIncludes("admin analytics contracts", contracts, "\"top_drop_conversion\"");
+assertIncludes("admin analytics contracts", contracts, "resolveAdminAnalyticsCommerceBadgeLabel");
+assertIncludes("admin analytics contracts", contracts, "buildAdminAnalyticsViewerDrilldownContract");
 
 assertIncludes("commerce snapshot helper", helper, "CommerceSnapshotState");
 assertIncludes("commerce snapshot helper", helper, "selectedRangeLabel");

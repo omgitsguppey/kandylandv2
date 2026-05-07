@@ -1,6 +1,17 @@
-import { buildBehavioralTruthSummary } from "@/lib/behavioral/behavioral-truth-source";
-import { computeUserEngagementScore, type UserEngagementScoreInput } from "@/lib/behavioral/user-engagement-score";
-import { computeUserValueScore, type UserValueScoreInput } from "@/lib/behavioral/user-value-score";
+import {
+  buildBehavioralTruthSummary,
+  type BehavioralDataAvailabilityReason,
+} from "@/lib/behavioral/behavioral-truth-source";
+import {
+  computeUserEngagementScore,
+  type UserEngagementScoreInput,
+  type UserEngagementScoreResult,
+} from "@/lib/behavioral/user-engagement-score";
+import {
+  computeUserValueScore,
+  type UserValueScoreInput,
+  type UserValueScoreResult,
+} from "@/lib/behavioral/user-value-score";
 import {
   clamp01,
   computeBehavioralTruthScore,
@@ -53,6 +64,62 @@ function resolveSourceReliability(input: {
   return 0;
 }
 
+function resolveBehaviorPrivacyAvailability(input: {
+  identifiedAnalyticsEnabled?: boolean;
+  honorGlobalPrivacyControl?: boolean;
+  globalPrivacyControl?: boolean;
+  hasPrivacySettings?: boolean;
+}): BehavioralDataAvailabilityReason {
+  if (input.hasPrivacySettings !== true) {
+    return "full_signal";
+  }
+
+  const gpcBlocked = input.honorGlobalPrivacyControl !== false && input.globalPrivacyControl === true;
+  if (gpcBlocked) {
+    return "privacy_limited_global_privacy_control";
+  }
+
+  if (input.identifiedAnalyticsEnabled !== true) {
+    return "privacy_limited_identified_analytics_denied";
+  }
+
+  return "full_signal";
+}
+
+function applyPrivacyLimitedEngagementFloor(
+  engagement: UserEngagementScoreResult,
+  privacyReason: BehavioralDataAvailabilityReason,
+  hasVerifiedSignal: boolean,
+): UserEngagementScoreResult {
+  if (privacyReason === "full_signal" || hasVerifiedSignal) {
+    return engagement;
+  }
+
+  return {
+    ...engagement,
+    score: Math.max(engagement.score, 24),
+    tier: "light",
+    verdict: "Privacy limited",
+  };
+}
+
+function applyPrivacyLimitedValueFloor(
+  value: UserValueScoreResult,
+  privacyReason: BehavioralDataAvailabilityReason,
+  hasVerifiedSignal: boolean,
+): UserValueScoreResult {
+  if (privacyReason === "full_signal" || hasVerifiedSignal) {
+    return value;
+  }
+
+  return {
+    ...value,
+    valueScore: Math.max(value.valueScore, 22),
+    valueTier: "warm",
+    verdict: "Privacy limited",
+  };
+}
+
 export function buildUserBehaviorRollup(input: {
   userId: string;
   totalActions?: unknown;
@@ -75,6 +142,10 @@ export function buildUserBehaviorRollup(input: {
   hasWatchSessions?: boolean;
   hasLegacyPageDuration?: boolean;
   hasTransactions?: boolean;
+  identifiedAnalyticsEnabled?: boolean;
+  honorGlobalPrivacyControl?: boolean;
+  globalPrivacyControl?: boolean;
+  hasPrivacySettings?: boolean;
   commerceSourcePresent?: boolean;
   engagementInput?: UserEngagementScoreInput;
   valueInput?: UserValueScoreInput;
@@ -86,6 +157,12 @@ export function buildUserBehaviorRollup(input: {
     Math.round(readNumber(input.watchTimeMs) || readNumber(input.watchSecondsTotal) * 1000),
   );
   const authEvents = Math.max(0, Math.round(readNumber(input.authEvents)));
+  const privacyAvailabilityReason = resolveBehaviorPrivacyAvailability({
+    identifiedAnalyticsEnabled: input.identifiedAnalyticsEnabled,
+    honorGlobalPrivacyControl: input.honorGlobalPrivacyControl,
+    globalPrivacyControl: input.globalPrivacyControl,
+    hasPrivacySettings: input.hasPrivacySettings,
+  });
   const issues: UserBehaviorRollupIssue[] = [];
 
   if (
@@ -149,6 +226,30 @@ export function buildUserBehaviorRollup(input: {
     });
   }
 
+  if (privacyAvailabilityReason === "privacy_limited_identified_analytics_denied") {
+    issues.push({
+      code: "privacy_limited_identified_analytics_denied",
+      severity: "info",
+      message: "Identified analytics are disabled for this user, so engagement and value truth are privacy-limited.",
+      evidence: {
+        identifiedAnalyticsEnabled: input.identifiedAnalyticsEnabled === true,
+        hasPrivacySettings: input.hasPrivacySettings === true,
+      },
+    });
+  }
+
+  if (privacyAvailabilityReason === "privacy_limited_global_privacy_control") {
+    issues.push({
+      code: "privacy_limited_global_privacy_control",
+      severity: "info",
+      message: "Global Privacy Control is blocking identified analytics, so engagement and value truth are privacy-limited.",
+      evidence: {
+        honorGlobalPrivacyControl: input.honorGlobalPrivacyControl !== false,
+        globalPrivacyControl: input.globalPrivacyControl === true,
+      },
+    });
+  }
+
   (input.sourceIssues ?? []).forEach((issue) => {
     if (!issue) return;
     if (typeof issue !== "string") {
@@ -181,11 +282,13 @@ export function buildUserBehaviorRollup(input: {
     authEvents > 0 ||
     readNumber(input.lastSeenAt) > 0 ||
     input.onboardingCompleted === true ||
-    input.pushEnabled === true
+    input.pushEnabled === true ||
+    privacyAvailabilityReason !== "full_signal"
   );
   const truthSummary = buildBehavioralTruthSummary({
     scope: "user_detail_behavior",
     hasValue,
+    dataAvailabilityReason: privacyAvailabilityReason,
     ageMs: readNumber(input.lastSeenAt) > 0 ? Math.max(0, Date.now() - readNumber(input.lastSeenAt)) : Number.MAX_SAFE_INTEGER,
     sampleCount: Math.max(
       0,
@@ -208,7 +311,7 @@ export function buildUserBehaviorRollup(input: {
     issues,
     hasMaterializedRollup: input.hasRollup === true || input.hasDaily === true,
     hasEventFacts: input.hasFacts === true || input.hasSessionFacts === true || input.hasWatchSessions === true || input.hasTransactions === true,
-    hasUserProfileFields: input.onboardingCompleted === true || input.pushEnabled === true,
+    hasUserProfileFields: input.onboardingCompleted === true || input.pushEnabled === true || input.hasPrivacySettings === true,
     hasLegacyFallback: input.hasLegacyPageDuration === true,
     materializedLabel: input.hasRollup === true && input.hasDaily === true
       ? "analytics_users_rollup+analytics_user_daily"
@@ -251,7 +354,7 @@ export function buildUserBehaviorRollup(input: {
     schemaCompleteness: truthSummary.requiredFieldsPresent / Math.max(1, truthSummary.requiredFieldsTotal),
     sourceDisagreementPenalty: clamp01(issues.length / 5),
   });
-  const engagement = computeUserEngagementScore(input.engagementInput ?? {
+  const rawEngagement = computeUserEngagementScore(input.engagementInput ?? {
     normalizedActionCount7d: Math.max(0, Math.round(readNumber(input.totalActions))),
     unwrappedCount30d: unwraps,
     validWatchMinutes30d: Math.max(0, Math.round(watchTimeMs / 60_000)),
@@ -259,7 +362,7 @@ export function buildUserBehaviorRollup(input: {
     activeDays7d: readNumber(input.lastSeenAt) > 0 ? 1 : 0,
     freeGdEarned30d: Math.max(0, Math.round(readNumber(input.rewardGdEarned))),
   });
-  const value = computeUserValueScore(input.valueInput ?? {
+  const rawValue = computeUserValueScore(input.valueInput ?? {
     totalSpendUsd: revenueUsd,
     purchaseCount: purchasesCount,
     paidGdPurchased: Math.max(0, Math.round(readNumber(input.paidGdPurchased))),
@@ -269,6 +372,30 @@ export function buildUserBehaviorRollup(input: {
     unwrapsAfterPurchase: unwraps,
     daysSinceLastPurchase: purchasesCount > 0 && readNumber(input.lastSeenAt) > 0 ? 0 : null,
   });
+  const hasVerifiedEngagementSignal = Boolean(
+    readNumber(input.totalActions) > 0 ||
+    views > 0 ||
+    unwraps > 0 ||
+    watchTimeMs > 0 ||
+    purchasesCount > 0 ||
+    authEvents > 0
+  );
+  const hasVerifiedValueSignal = Boolean(
+    purchasesCount > 0 ||
+    revenueUsd > 0 ||
+    Math.round(readNumber(input.paidGdPurchased)) > 0 ||
+    unwraps > 0
+  );
+  const engagement = applyPrivacyLimitedEngagementFloor(
+    rawEngagement,
+    privacyAvailabilityReason,
+    hasVerifiedEngagementSignal,
+  );
+  const value = applyPrivacyLimitedValueFloor(
+    rawValue,
+    privacyAvailabilityReason,
+    hasVerifiedValueSignal,
+  );
   const predictionOutputs = {
     pPurchase7d: value.repeatPurchaseLikelihood,
     pUnlock24h: clamp01(views === 0 ? 0 : unwraps / Math.max(1, views)),
@@ -306,6 +433,7 @@ export function buildUserBehaviorRollup(input: {
     source: truthSummary.source,
     sourceLabel: truthSummary.sourceLabel,
     freshnessState: truthSummary.freshnessState,
+    dataAvailabilityReason: truthSummary.dataAvailabilityReason,
     issues,
     engagement,
     value,

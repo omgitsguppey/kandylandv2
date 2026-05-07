@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:20:58.710Z",
+  "generatedAt": "2026-05-07T23:54:47.305Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -28,7 +28,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 84."
+        "Inbound dependency count: 86."
       ]
     },
     {
@@ -44,7 +44,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 118."
+        "Inbound dependency count: 120."
       ]
     },
     {
@@ -75,7 +75,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 43."
+        "Inbound dependency count: 51."
       ]
     },
     {
@@ -106,7 +106,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 56."
+        "Inbound dependency count: 60."
       ]
     },
     {
@@ -122,7 +122,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 62."
+        "Inbound dependency count: 63."
       ]
     },
     {
@@ -138,7 +138,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 37."
+        "Inbound dependency count: 38."
       ]
     },
     {
@@ -201,7 +201,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 117."
+        "Inbound dependency count: 125."
       ]
     },
     {
@@ -232,7 +232,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 124."
+        "Inbound dependency count: 127."
       ]
     },
     {
@@ -264,7 +264,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 119."
+        "Inbound dependency count: 128."
       ]
     },
     {
@@ -280,7 +280,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 118."
+        "Inbound dependency count: 126."
       ]
     },
     {
@@ -311,7 +311,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 66."
+        "Inbound dependency count: 70."
       ]
     },
     {
@@ -327,7 +327,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 75."
+        "Inbound dependency count: 76."
       ]
     },
     {
@@ -466,6 +466,51 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__admin-analytics-content-conversion-ts",
+      "path": "src/lib/admin-analytics-content-conversion.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__admin-analytics-contracts-ts",
+      "path": "src/lib/admin-analytics-contracts.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__admin-analytics-device-mix-ts",
+      "path": "src/lib/admin-analytics-device-mix.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__admin-analytics-event-mix-ts",
       "path": "src/lib/admin-analytics-event-mix.ts",
       "blast_radius_score": 70,
@@ -556,6 +601,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__admin-analytics-navigation-destinations-ts",
+      "path": "src/lib/admin-analytics-navigation-destinations.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__admin-analytics-preferences-ts",
       "path": "src/lib/admin-analytics-preferences.ts",
       "blast_radius_score": 70,
@@ -571,8 +631,68 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__admin-analytics-recent-commerce-feed-ts",
+      "path": "src/lib/admin-analytics-recent-commerce-feed.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__admin-analytics-region-demand-ts",
+      "path": "src/lib/admin-analytics-region-demand.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__admin-analytics-return-cadence-ts",
       "path": "src/lib/admin-analytics-return-cadence.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__admin-analytics-top-drop-conversion-ts",
+      "path": "src/lib/admin-analytics-top-drop-conversion.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__admin-analytics-top-paths-ts",
+      "path": "src/lib/admin-analytics-top-paths.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -901,6 +1021,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__admin-privacy-console-ts",
+      "path": "src/lib/admin-privacy-console.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__admin-shell-spacing-ts",
       "path": "src/lib/admin-shell-spacing.ts",
       "blast_radius_score": 70,
@@ -993,6 +1128,21 @@
     {
       "stable_id": "blast__src__lib__admin-user-metrics-ts",
       "path": "src/lib/admin-user-metrics.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__admin-user-truth-contract-ts",
+      "path": "src/lib/admin-user-truth-contract.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -1188,6 +1338,21 @@
     {
       "stable_id": "blast__src__lib__agent-score__weights-ts",
       "path": "src/lib/agent-score/weights.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__ai-cover-reference-policy-ts",
+      "path": "src/lib/ai-cover-reference-policy.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -1441,6 +1606,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__auth-outcome-telemetry-ts",
+      "path": "src/lib/auth-outcome-telemetry.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__behavioral__behavioral-confidence-ts",
       "path": "src/lib/behavioral/behavioral-confidence.ts",
       "blast_radius_score": 70,
@@ -1471,8 +1651,38 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__behavioral__behavioral-math-calibration-ts",
+      "path": "src/lib/behavioral/behavioral-math-calibration.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__behavioral__behavioral-truth-source-ts",
       "path": "src/lib/behavioral/behavioral-truth-source.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__behavioral__drop-momentum-score-ts",
+      "path": "src/lib/behavioral/drop-momentum-score.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -1531,6 +1741,36 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__behavioral__metric-fact-contract-ts",
+      "path": "src/lib/behavioral/metric-fact-contract.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__behavioral__negative-preference-score-ts",
+      "path": "src/lib/behavioral/negative-preference-score.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__behavioral__normalize-event-fact-ts",
       "path": "src/lib/behavioral/normalize-event-fact.ts",
       "blast_radius_score": 70,
@@ -1561,6 +1801,36 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__behavioral__satisfaction-score-ts",
+      "path": "src/lib/behavioral/satisfaction-score.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__behavioral__search-intent-profile-ts",
+      "path": "src/lib/behavioral/search-intent-profile.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__behavioral__tracking-surface-map-ts",
       "path": "src/lib/behavioral/tracking-surface-map.ts",
       "blast_radius_score": 70,
@@ -1578,6 +1848,21 @@
     {
       "stable_id": "blast__src__lib__behavioral__user-engagement-score-ts",
       "path": "src/lib/behavioral/user-engagement-score.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__behavioral__user-score-contract-ts",
+      "path": "src/lib/behavioral/user-score-contract.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -1846,6 +2131,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__code-organization__code-organization-contract-ts",
+      "path": "src/lib/code-organization/code-organization-contract.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__codebase-hardening-contract-ts",
       "path": "src/lib/codebase-hardening-contract.ts",
       "blast_radius_score": 70,
@@ -1966,6 +2266,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__creator-lane-debug-parity-ts",
+      "path": "src/lib/creator-lane-debug-parity.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__creator-message-compatibility-ts",
       "path": "src/lib/creator-message-compatibility.ts",
       "blast_radius_score": 70,
@@ -2026,6 +2341,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__creator__creator-supply-quality-score-ts",
+      "path": "src/lib/creator/creator-supply-quality-score.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__daily-checkin-ts",
       "path": "src/lib/daily-checkin.ts",
       "blast_radius_score": 70,
@@ -2058,6 +2388,21 @@
     {
       "stable_id": "blast__src__lib__design-system-ts",
       "path": "src/lib/design-system.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__deterministic-admin-truth-ts",
+      "path": "src/lib/deterministic-admin-truth.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -2131,8 +2476,83 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__devops__auth-surface-contract-ts",
+      "path": "src/lib/devops/auth-surface-contract.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__discovery-telemetry-ts",
       "path": "src/lib/discovery-telemetry.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__doctrine__doctrine-conflict-score-ts",
+      "path": "src/lib/doctrine/doctrine-conflict-score.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__doctrine__doctrine-context-cost-ts",
+      "path": "src/lib/doctrine/doctrine-context-cost.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__doctrine__doctrine-coverage-score-ts",
+      "path": "src/lib/doctrine/doctrine-coverage-score.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__doctrine__doctrine-retrieval-optimizer-ts",
+      "path": "src/lib/doctrine/doctrine-retrieval-optimizer.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -2328,6 +2748,36 @@
     {
       "stable_id": "blast__src__lib__drops-account-overview-view-model-ts",
       "path": "src/lib/drops-account-overview-view-model.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__experiments__behavioral-experiment-contract-ts",
+      "path": "src/lib/experiments/behavioral-experiment-contract.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__experiments__experiment-assignment-ts",
+      "path": "src/lib/experiments/experiment-assignment.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -2551,6 +3001,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__legacy__admin-analytics-legacy-registry-ts",
+      "path": "src/lib/legacy/admin-analytics-legacy-registry.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__legacy__legacy-registry-ts",
       "path": "src/lib/legacy/legacy-registry.ts",
       "blast_radius_score": 70,
@@ -2598,6 +3063,21 @@
     {
       "stable_id": "blast__src__lib__media-hosts-ts",
       "path": "src/lib/media-hosts.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__moderation__integrity-risk-map-ts",
+      "path": "src/lib/moderation/integrity-risk-map.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -2761,6 +3241,36 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__notifications__notification-quality-score-ts",
+      "path": "src/lib/notifications/notification-quality-score.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__notifications__notification-throttle-policy-ts",
+      "path": "src/lib/notifications/notification-throttle-policy.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__orchestration__contract-ts",
       "path": "src/lib/orchestration/contract.ts",
       "blast_radius_score": 70,
@@ -2778,6 +3288,21 @@
     {
       "stable_id": "blast__src__lib__platform-config-ts",
       "path": "src/lib/platform-config.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__platform-economy-ts",
+      "path": "src/lib/platform-economy.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -2836,6 +3361,36 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__recommendations__cold-start-candidates-ts",
+      "path": "src/lib/recommendations/cold-start-candidates.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__recommendations__creator-quality-adjustment-ts",
+      "path": "src/lib/recommendations/creator-quality-adjustment.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__recommendations__deterministic-ranker-ts",
       "path": "src/lib/recommendations/deterministic-ranker.ts",
       "blast_radius_score": 70,
@@ -2851,8 +3406,83 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__recommendations__diversity-reranker-ts",
+      "path": "src/lib/recommendations/diversity-reranker.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__recommendations__drop-momentum-boost-ts",
+      "path": "src/lib/recommendations/drop-momentum-boost.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__recommendations__exploration-policy-ts",
+      "path": "src/lib/recommendations/exploration-policy.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__recommendations__integrity-demotions-ts",
+      "path": "src/lib/recommendations/integrity-demotions.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__recommendations__ml-ranker-ts",
       "path": "src/lib/recommendations/ml-ranker.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__recommendations__query-intent-ranking-ts",
+      "path": "src/lib/recommendations/query-intent-ranking.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -2896,6 +3526,66 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__recommendations__suppression-rules-ts",
+      "path": "src/lib/recommendations/suppression-rules.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__release-notes__beta-odometer-version-ts",
+      "path": "src/lib/release-notes/beta-odometer-version.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__release-notes__public-release-notes-ts",
+      "path": "src/lib/release-notes/public-release-notes.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__release-notes__release-version-contract-ts",
+      "path": "src/lib/release-notes/release-version-contract.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__release-tracking-ts",
       "path": "src/lib/release-tracking.ts",
       "blast_radius_score": 70,
@@ -2913,6 +3603,36 @@
     {
       "stable_id": "blast__src__lib__rollouts-ts",
       "path": "src/lib/rollouts.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__runtime-facts__normalize-runtime-fact-ts",
+      "path": "src/lib/runtime-facts/normalize-runtime-fact.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__runtime-facts__runtime-fact-contract-ts",
+      "path": "src/lib/runtime-facts/runtime-fact-contract.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -3211,6 +3931,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__server__admin-content-storage-safety-ts",
+      "path": "src/lib/server/admin-content-storage-safety.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__server__admin-debug-preferences-ts",
       "path": "src/lib/server/admin-debug-preferences.ts",
       "blast_radius_score": 70,
@@ -3271,6 +4006,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__server__admin-orchestration-repairs-ts",
+      "path": "src/lib/server/admin-orchestration-repairs.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__server__admin-orchestration-ts",
       "path": "src/lib/server/admin-orchestration.ts",
       "blast_radius_score": 70,
@@ -3316,6 +4066,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__server__admin-privacy-console-ts",
+      "path": "src/lib/server/admin-privacy-console.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__server__admin-source-verification-ts",
       "path": "src/lib/server/admin-source-verification.ts",
       "blast_radius_score": 70,
@@ -3348,6 +4113,21 @@
     {
       "stable_id": "blast__src__lib__server__admin-user-metrics-snapshot-ts",
       "path": "src/lib/server/admin-user-metrics-snapshot.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__server__admin-user-truth-snapshot-ts",
+      "path": "src/lib/server/admin-user-truth-snapshot.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -3916,6 +4696,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__server__event-fact-writer-ts",
+      "path": "src/lib/server/event-fact-writer.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__server__fcm-utils-ts",
       "path": "src/lib/server/fcm-utils.ts",
       "blast_radius_score": 70,
@@ -3961,8 +4756,38 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__server__global-cost-surface-contract-ts",
+      "path": "src/lib/server/global-cost-surface-contract.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__server__gumdrop-ledger-ts",
       "path": "src/lib/server/gumdrop-ledger.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__server__metric-fact-materializer-ts",
+      "path": "src/lib/server/metric-fact-materializer.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -4023,6 +4848,36 @@
     {
       "stable_id": "blast__src__lib__server__paypal-ts",
       "path": "src/lib/server/paypal.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__server__platform-economy-mutations-ts",
+      "path": "src/lib/server/platform-economy-mutations.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__server__platform-economy-ts",
+      "path": "src/lib/server/platform-economy.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -4216,6 +5071,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__server__user-behavior-truth-rollup-ts",
+      "path": "src/lib/server/user-behavior-truth-rollup.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__server__user-runtime-ts",
       "path": "src/lib/server/user-runtime.ts",
       "blast_radius_score": 70,
@@ -4248,6 +5118,21 @@
     {
       "stable_id": "blast__src__lib__server__watch-time-rollup-ts",
       "path": "src/lib/server/watch-time-rollup.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__server__write-runtime-fact-ts",
+      "path": "src/lib/server/write-runtime-fact.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -4426,6 +5311,36 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__uploads__asset-upload-queue-ts",
+      "path": "src/lib/uploads/asset-upload-queue.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__uploads__upload-error-copy-ts",
+      "path": "src/lib/uploads/upload-error-copy.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__user-behavior-rollup-contract-ts",
       "path": "src/lib/user-behavior-rollup-contract.ts",
       "blast_radius_score": 70,
@@ -4557,7 +5472,7 @@
       "why_score_was_assigned": [
         "Likely shared helper.",
         "Broad signoff likely.",
-        "Inbound dependency count: 26."
+        "Inbound dependency count: 27."
       ]
     },
     {
@@ -4586,6 +5501,19 @@
       "why_score_was_assigned": [
         "Likely shared helper.",
         "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__api__admin__economy__packages__route-ts",
+      "path": "src/app/api/admin/economy/packages/route.ts",
+      "blast_radius_score": 65,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 10,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
       ]
     },
     {
@@ -4755,6 +5683,20 @@
       ]
     },
     {
+      "stable_id": "blast__src__hooks__useadminusersrealtime-ts",
+      "path": "src/hooks/useAdminUsersRealtime.ts",
+      "blast_radius_score": 60,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__hooks__useauthswr-ts",
       "path": "src/hooks/useAuthSWR.ts",
       "blast_radius_score": 60,
@@ -4869,6 +5811,20 @@
     {
       "stable_id": "blast__src__hooks__usenow-ts",
       "path": "src/hooks/useNow.ts",
+      "blast_radius_score": 60,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__hooks__usepublicreleasenotes-ts",
+      "path": "src/hooks/usePublicReleaseNotes.ts",
       "blast_radius_score": 60,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -5355,6 +6311,71 @@
       ]
     },
     {
+      "stable_id": "blast__src__app__api__admin__economy__drift__route-ts",
+      "path": "src/app/api/admin/economy/drift/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__api__admin__economy__offers__route-ts",
+      "path": "src/app/api/admin/economy/offers/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__api__admin__economy__promos__route-ts",
+      "path": "src/app/api/admin/economy/promos/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__api__admin__economy__redemptions__route-ts",
+      "path": "src/app/api/admin/economy/redemptions/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__api__admin__economy__treasury__route-ts",
+      "path": "src/app/api/admin/economy/treasury/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__app__api__admin__feedback__route-ts",
       "path": "src/app/api/admin/feedback/route.ts",
       "blast_radius_score": 55,
@@ -5422,6 +6443,19 @@
     {
       "stable_id": "blast__src__app__api__admin__overview__route-ts",
       "path": "src/app/api/admin/overview/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__api__admin__privacy__preflight__route-ts",
+      "path": "src/app/api/admin/privacy/preflight/route.ts",
       "blast_radius_score": 55,
       "shared_helper_risk": 0,
       "route_boundary_risk": 20,
@@ -6330,6 +7364,19 @@
       ]
     },
     {
+      "stable_id": "blast__src__app__api__tasks__materialize__route-ts",
+      "path": "src/app/api/tasks/materialize/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__app__api__tasks__reminders__sync__route-ts",
       "path": "src/app/api/tasks/reminders/sync/route.ts",
       "blast_radius_score": 55,
@@ -6820,8 +7867,36 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__optimize-doctrine-context-ts",
+      "path": "scripts/agent/optimize-doctrine-context.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__plan-affected-audits-ts",
       "path": "scripts/agent/plan-affected-audits.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__plan-cloud-auth-bootstrap-ts",
+      "path": "scripts/agent/plan-cloud-auth-bootstrap.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -6850,6 +7925,20 @@
     {
       "stable_id": "blast__scripts__agent__repair-codebase-hardening-safe-ts",
       "path": "scripts/agent/repair-codebase-hardening-safe.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__repair-creator-lifecycle-history-gap-ts",
+      "path": "scripts/agent/repair-creator-lifecycle-history-gap.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -6974,6 +8063,20 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__score-code-organization-ts",
+      "path": "scripts/agent/score-code-organization.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__score-codebase-hardening-ts",
       "path": "scripts/agent/score-codebase-hardening.ts",
       "blast_radius_score": 45,
@@ -7002,6 +8105,20 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__score-creator-lane-debug-parity-ts",
+      "path": "scripts/agent/score-creator-lane-debug-parity.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__score-device-layout-contract-ts",
       "path": "scripts/agent/score-device-layout-contract.ts",
       "blast_radius_score": 45,
@@ -7018,6 +8135,34 @@
     {
       "stable_id": "blast__scripts__agent__score-device-ui-dry-audit-ts",
       "path": "scripts/agent/score-device-ui-dry-audit.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__score-doctrine-hierarchy-ts",
+      "path": "scripts/agent/score-doctrine-hierarchy.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__score-global-cost-surfaces-ts",
+      "path": "scripts/agent/score-global-cost-surfaces.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -7226,6 +8371,20 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-admin-ai-control-tower-ts",
+      "path": "scripts/agent/validate-admin-ai-control-tower.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-admin-analytics-finalization-ts",
       "path": "scripts/agent/validate-admin-analytics-finalization.ts",
       "blast_radius_score": 45,
@@ -7284,6 +8443,20 @@
     {
       "stable_id": "blast__scripts__agent__validate-admin-cms-workflow-ts",
       "path": "scripts/agent/validate-admin-cms-workflow.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-admin-copy-surface-truth-ts",
+      "path": "scripts/agent/validate-admin-copy-surface-truth.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -7396,6 +8569,20 @@
     {
       "stable_id": "blast__scripts__agent__validate-admin-truth-badge-doctrine-ts",
       "path": "scripts/agent/validate-admin-truth-badge-doctrine.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-admin-truth-replacement-ts",
+      "path": "scripts/agent/validate-admin-truth-replacement.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -7548,8 +8735,36 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-auth-outcomes-truth-ts",
+      "path": "scripts/agent/validate-auth-outcomes-truth.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-background-job-idempotency-ts",
       "path": "scripts/agent/validate-background-job-idempotency.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-behavioral-experiments-ts",
+      "path": "scripts/agent/validate-behavioral-experiments.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -7590,8 +8805,78 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-behavioral-math-calibration-ts",
+      "path": "scripts/agent/validate-behavioral-math-calibration.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-behavioral-truth-source-ts",
       "path": "scripts/agent/validate-behavioral-truth-source.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-beta-modal-layout-ts",
+      "path": "scripts/agent/validate-beta-modal-layout.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-beta-release-notes-ts",
+      "path": "scripts/agent/validate-beta-release-notes.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-beta-update-tracker-ts",
+      "path": "scripts/agent/validate-beta-update-tracker.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-beta-versioning-ts",
+      "path": "scripts/agent/validate-beta-versioning.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -7618,8 +8903,36 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-code-organization-ts",
+      "path": "scripts/agent/validate-code-organization.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-codebase-hardening-ts",
       "path": "scripts/agent/validate-codebase-hardening.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-codex-auth-readiness-ts",
+      "path": "scripts/agent/validate-codex-auth-readiness.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -7898,6 +9211,48 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-creator-supply-quality-ts",
+      "path": "scripts/agent/validate-creator-supply-quality.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-daily-task-lifecycle-ts",
+      "path": "scripts/agent/validate-daily-task-lifecycle.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-daily-task-reward-economy-ts",
+      "path": "scripts/agent/validate-daily-task-reward-economy.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-daily-task-telemetry-truth-ts",
       "path": "scripts/agent/validate-daily-task-telemetry-truth.ts",
       "blast_radius_score": 45,
@@ -7914,6 +9269,20 @@
     {
       "stable_id": "blast__scripts__agent__validate-debug-evidence-pipeline-ts",
       "path": "scripts/agent/validate-debug-evidence-pipeline.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-debug-first-roadmap-ts",
+      "path": "scripts/agent/validate-debug-first-roadmap.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -7996,8 +9365,78 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-diversity-reranking-ts",
+      "path": "scripts/agent/validate-diversity-reranking.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-doctrine-hierarchy-ts",
+      "path": "scripts/agent/validate-doctrine-hierarchy.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-doctrine-retrieval-optimizer-ts",
+      "path": "scripts/agent/validate-doctrine-retrieval-optimizer.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-drop-asset-upload-progress-ts",
+      "path": "scripts/agent/validate-drop-asset-upload-progress.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-drop-cover-visibility-truth-ts",
       "path": "scripts/agent/validate-drop-cover-visibility-truth.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-drop-momentum-score-ts",
+      "path": "scripts/agent/validate-drop-momentum-score.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -8122,6 +9561,20 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-exploration-budget-ts",
+      "path": "scripts/agent/validate-exploration-budget.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-fan-pass-gumdrops-truth-ts",
       "path": "scripts/agent/validate-fan-pass-gumdrops-truth.ts",
       "blast_radius_score": 45,
@@ -8152,6 +9605,34 @@
     {
       "stable_id": "blast__scripts__agent__validate-final-launch-readiness-report-ts",
       "path": "scripts/agent/validate-final-launch-readiness-report.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-functions-canonical-facts-ts",
+      "path": "scripts/agent/validate-functions-canonical-facts.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-global-cost-surfaces-ts",
+      "path": "scripts/agent/validate-global-cost-surfaces.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -8248,6 +9729,20 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-human-dev-readiness-ts",
+      "path": "scripts/agent/validate-human-dev-readiness.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-human-readable-admin-copy-ts",
       "path": "scripts/agent/validate-human-readable-admin-copy.ts",
       "blast_radius_score": 45,
@@ -8278,6 +9773,20 @@
     {
       "stable_id": "blast__scripts__agent__validate-identity-link-continuity-ts",
       "path": "scripts/agent/validate-identity-link-continuity.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-integrity-demotions-ts",
+      "path": "scripts/agent/validate-integrity-demotions.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -8402,6 +9911,34 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-negative-preferences-ts",
+      "path": "scripts/agent/validate-negative-preferences.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-notification-quality-ts",
+      "path": "scripts/agent/validate-notification-quality.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-notification-read-truth-ts",
       "path": "scripts/agent/validate-notification-read-truth.ts",
       "blast_radius_score": 45,
@@ -8432,6 +9969,62 @@
     {
       "stable_id": "blast__scripts__agent__validate-orphaned-logic-ts",
       "path": "scripts/agent/validate-orphaned-logic.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-platform-economy-commerce-controls-ts",
+      "path": "scripts/agent/validate-platform-economy-commerce-controls.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-platform-economy-treasury-ts",
+      "path": "scripts/agent/validate-platform-economy-treasury.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-privacy-consent-truth-ts",
+      "path": "scripts/agent/validate-privacy-consent-truth.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-public-beta-changelog-ts",
+      "path": "scripts/agent/validate-public-beta-changelog.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -8528,6 +10121,48 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-runtime-facts-cutover-ts",
+      "path": "scripts/agent/validate-runtime-facts-cutover.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-satisfaction-signal-ts",
+      "path": "scripts/agent/validate-satisfaction-signal.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-search-intent-truth-ts",
+      "path": "scripts/agent/validate-search-intent-truth.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-security-role-boundaries-ts",
       "path": "scripts/agent/validate-security-role-boundaries.ts",
       "blast_radius_score": 45,
@@ -8598,8 +10233,36 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-surface-doctrine-split-ts",
+      "path": "scripts/agent/validate-surface-doctrine-split.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-synthetic-creators-view-as-ts",
       "path": "scripts/agent/validate-synthetic-creators-view-as.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-task-catalog-coverage-ts",
+      "path": "scripts/agent/validate-task-catalog-coverage.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -8780,6 +10443,20 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-validator-authority-ts",
+      "path": "scripts/agent/validate-validator-authority.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-viewer-file-tracking-ts",
       "path": "scripts/agent/validate-viewer-file-tracking.ts",
       "blast_radius_score": 45,
@@ -8866,6 +10543,20 @@
     {
       "stable_id": "blast__scripts__agent__verification-selector-ts",
       "path": "scripts/agent/verification-selector.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__verify-codex-native-auth-ts",
+      "path": "scripts/agent/verify-codex-native-auth.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -9115,6 +10806,19 @@
     {
       "stable_id": "blast__functions__src__behavioral-intelligence-runtime-ts",
       "path": "functions/src/behavioral-intelligence-runtime.ts",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__functions__src__daily-task-materializer-ts",
+      "path": "functions/src/daily-task-materializer.ts",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -9750,6 +11454,19 @@
       ]
     },
     {
+      "stable_id": "blast__src__app__admin__debug__components__debugbugintakepanel-tsx",
+      "path": "src/app/admin/debug/components/DebugBugIntakePanel.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__app__admin__debug__components__debugcontroltower-tsx",
       "path": "src/app/admin/debug/components/DebugControlTower.tsx",
       "blast_radius_score": 35,
@@ -9776,6 +11493,19 @@
       ]
     },
     {
+      "stable_id": "blast__src__app__admin__debug__components__debugcreatorlane-tsx",
+      "path": "src/app/admin/debug/components/DebugCreatorLane.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__app__admin__debug__components__debugmonitoringroutes-tsx",
       "path": "src/app/admin/debug/components/DebugMonitoringRoutes.tsx",
       "blast_radius_score": 35,
@@ -9791,6 +11521,19 @@
     {
       "stable_id": "blast__src__app__admin__debug__components__debugnowdiagnostics-tsx",
       "path": "src/app/admin/debug/components/DebugNowDiagnostics.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugpanelstatusbysection-tsx",
+      "path": "src/app/admin/debug/components/DebugPanelStatusBySection.tsx",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -9934,6 +11677,45 @@
     {
       "stable_id": "blast__src__app__admin__drops__page-tsx",
       "path": "src/app/admin/drops/page.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__economy__components__platformeconomyconsole-tsx",
+      "path": "src/app/admin/economy/components/PlatformEconomyConsole.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__economy__components__platformeconomystrip-tsx",
+      "path": "src/app/admin/economy/components/PlatformEconomyStrip.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__economy__components__types-ts",
+      "path": "src/app/admin/economy/components/types.ts",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -11882,6 +13664,19 @@
       ]
     },
     {
+      "stable_id": "blast__src__components__feedback__contentsatisfactionprompt-tsx",
+      "path": "src/components/Feedback/ContentSatisfactionPrompt.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__components__feedback__globalbugreporttrigger-tsx",
       "path": "src/components/Feedback/GlobalBugReportTrigger.tsx",
       "blast_radius_score": 35,
@@ -12274,6 +14069,32 @@
     {
       "stable_id": "blast__src__components__pwaruntimebridge-tsx",
       "path": "src/components/PwaRuntimeBridge.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__components__releasenotes__betabadge-tsx",
+      "path": "src/components/ReleaseNotes/BetaBadge.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__components__releasenotes__betareleasenotesdrawer-tsx",
+      "path": "src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -12727,6 +14548,58 @@
       ]
     },
     {
+      "stable_id": "blast__agent__context__code-organization-index-json",
+      "path": "agent/context/code-organization.index.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__context__doctrine-cards-jsonl",
+      "path": "agent/context/doctrine-cards.jsonl",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__context__doctrine-conflicts-generated-json",
+      "path": "agent/context/doctrine-conflicts.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__context__doctrine-registry-json",
+      "path": "agent/context/doctrine-registry.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__agent__context__doctrine-cards-jsonl",
       "path": "agent/context/doctrine.cards.jsonl",
       "blast_radius_score": 20,
@@ -12779,8 +14652,34 @@
       ]
     },
     {
+      "stable_id": "blast__agent__context__optimized-task-context-generated-json",
+      "path": "agent/context/optimized-task-context.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__agent__context__surface-contracts-jsonl",
       "path": "agent/context/surface-contracts.jsonl",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__context__surface-doctrine-map-json",
+      "path": "agent/context/surface-doctrine-map.json",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -12805,8 +14704,268 @@
       ]
     },
     {
+      "stable_id": "blast__agent__context__validator-authority-json",
+      "path": "agent/context/validator-authority.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__agent__context__validator-map-json",
       "path": "agent/context/validator-map.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__admin-ai-versioned-state-md",
+      "path": "agent/handoffs/admin-ai-versioned-state.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__admin-analytics-versioned-session-freshness-md",
+      "path": "agent/handoffs/admin-analytics-versioned-session-freshness.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__admin-debug-focus-freshness-md",
+      "path": "agent/handoffs/admin-debug-focus-freshness.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__admin-loading-shell-frame-md",
+      "path": "agent/handoffs/admin-loading-shell-frame.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__beta-badge-size-tune-md",
+      "path": "agent/handoffs/beta-badge-size-tune.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__beta-odometer-versioning-rewrite-md",
+      "path": "agent/handoffs/beta-odometer-versioning-rewrite.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__chat-clean-composer-padding-tune-md",
+      "path": "agent/handoffs/chat-clean-composer-padding-tune.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__chat-composer-transcript-stability-md",
+      "path": "agent/handoffs/chat-composer-transcript-stability.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__chat-shell-width-height-stability-md",
+      "path": "agent/handoffs/chat-shell-width-height-stability.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__chat-summary-padding-tune-md",
+      "path": "agent/handoffs/chat-summary-padding-tune.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__deploy-version-sw-cache-refresh-md",
+      "path": "agent/handoffs/deploy-version-sw-cache-refresh.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__dirty-worktree-resolution-md",
+      "path": "agent/handoffs/dirty-worktree-resolution.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__hydration-skeleton-race-audit-md",
+      "path": "agent/handoffs/hydration-skeleton-race-audit.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__legacy-update-tracker-cleanup-md",
+      "path": "agent/handoffs/legacy-update-tracker-cleanup.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__phase-1-closeout-micro-phase-md",
+      "path": "agent/handoffs/phase-1-closeout-micro-phase.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__phase-1-closeout-readiness-md",
+      "path": "agent/handoffs/phase-1-closeout-readiness.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__phase-1-overnight-truth-gate-md",
+      "path": "agent/handoffs/phase-1-overnight-truth-gate.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__platform-economy-progressive-hydration-md",
+      "path": "agent/handoffs/platform-economy-progressive-hydration.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__handoffs__sitewide-cache-diagnosis-md",
+      "path": "agent/handoffs/sitewide-cache-diagnosis.md",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -13364,6 +15523,19 @@
       ]
     },
     {
+      "stable_id": "blast__agent__state__admin-truth-replacement-generated-json",
+      "path": "agent/state/admin-truth-replacement.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__agent__state__affected-audit-plan-generated-json",
       "path": "agent/state/affected-audit-plan.generated.json",
       "blast_radius_score": 20,
@@ -13455,6 +15627,19 @@
       ]
     },
     {
+      "stable_id": "blast__agent__state__behavioral-math-calibration-generated-json",
+      "path": "agent/state/behavioral-math-calibration.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__agent__state__behavioral-model-validation-generated-json",
       "path": "agent/state/behavioral-model-validation.generated.json",
       "blast_radius_score": 20,
@@ -13481,8 +15666,34 @@
       ]
     },
     {
+      "stable_id": "blast__agent__state__code-organization-score-generated-json",
+      "path": "agent/state/code-organization-score.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__agent__state__codebase-hardening-generated-json",
       "path": "agent/state/codebase-hardening.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__state__codex-auth-readiness-generated-json",
+      "path": "agent/state/codex-auth-readiness.generated.json",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -13509,6 +15720,19 @@
     {
       "stable_id": "blast__agent__state__content-protection-score-generated-json",
       "path": "agent/state/content-protection-score.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__state__creator-lane-debug-parity-generated-json",
+      "path": "agent/state/creator-lane-debug-parity.generated.json",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -13611,6 +15835,19 @@
       ]
     },
     {
+      "stable_id": "blast__agent__state__doctrine-retrieval-optimizer-generated-json",
+      "path": "agent/state/doctrine-retrieval-optimizer.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__agent__state__environment-deployment-truth-audit-generated-json",
       "path": "agent/state/environment-deployment-truth-audit.generated.json",
       "blast_radius_score": 20,
@@ -13689,6 +15926,19 @@
       ]
     },
     {
+      "stable_id": "blast__agent__state__global-cost-surfaces-generated-json",
+      "path": "agent/state/global-cost-surfaces.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__agent__state__global-loading-performance-audit-generated-json",
       "path": "agent/state/global-loading-performance-audit.generated.json",
       "blast_radius_score": 20,
@@ -13743,6 +15993,19 @@
     {
       "stable_id": "blast__agent__state__handoff-template-json",
       "path": "agent/state/handoff.template.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__state__human-dev-readiness-generated-json",
+      "path": "agent/state/human-dev-readiness.generated.json",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -13886,6 +16149,19 @@
     {
       "stable_id": "blast__agent__state__orphaned-logic-score-generated-json",
       "path": "agent/state/orphaned-logic-score.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__state__phase-1-truth-gate-generated-json",
+      "path": "agent/state/phase-1-truth-gate.generated.json",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -14354,6 +16630,19 @@
     {
       "stable_id": "blast__scripts__analytics__map-legacy-events-ts",
       "path": "scripts/analytics/map-legacy-events.ts",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__analytics__validate-canonical-import-export-ts",
+      "path": "scripts/analytics/validate-canonical-import-export.ts",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -14924,6 +17213,19 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__release__update-public-changelog-ts",
+      "path": "scripts/release/update-public-changelog.ts",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__remove-hovers-mjs",
       "path": "scripts/remove-hovers.mjs",
       "blast_radius_score": 20,
@@ -15186,6 +17488,19 @@
     {
       "stable_id": "blast__scripts__validate-behavioral-models-ts",
       "path": "scripts/validate-behavioral-models.ts",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__validate-behavioral-predictions-ts",
+      "path": "scripts/validate-behavioral-predictions.ts",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,

@@ -26,6 +26,11 @@ const DEFAULT_PRIVACY_SETTINGS: PrivacySettingsSnapshot = {
     consentUpdatedAt: 0,
 };
 
+export type PrivacyDataAvailabilityReason =
+    | "full_signal"
+    | "privacy_limited_identified_analytics_denied"
+    | "privacy_limited_global_privacy_control";
+
 function canUseDom() {
     return typeof window !== "undefined" && typeof document !== "undefined";
 }
@@ -200,4 +205,18 @@ export function canUseIdentifiedAnalytics(settings: PrivacySettingsSnapshot = re
     }
 
     return true;
+}
+
+export function resolvePrivacyDataAvailabilityReason(
+    settings: PrivacySettingsSnapshot = readPrivacySettingsSnapshot(),
+): PrivacyDataAvailabilityReason {
+    if (settings.honorGlobalPrivacyControl && getBrowserGlobalPrivacyControl()) {
+        return "privacy_limited_global_privacy_control";
+    }
+
+    if (!settings.identifiedAnalyticsEnabled) {
+        return "privacy_limited_identified_analytics_denied";
+    }
+
+    return "full_signal";
 }

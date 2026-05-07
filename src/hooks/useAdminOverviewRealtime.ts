@@ -11,7 +11,6 @@ import { db } from "@/lib/firebase-data";
 import { createAutoHealingObserver } from "@/lib/self-healing";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { AdminOverviewResponse, AdminOverviewTransactionRecord, AdminOverviewActivityItem, AdminOverviewRealtimeDebugMeta } from "@/lib/admin-overview";
-import { buildRolling30dWindow } from "@/lib/admin-overview";
 import { normalizeTransactionRecord, getTransactionDisplayLabel } from "@/lib/transaction-normalizers";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 
@@ -36,14 +35,6 @@ type OverviewRealtimeListenerState = {
     lastServerConfirmedAt: number;
     /** Epoch ms of the most recent client snapshot (cache or server) across any listener. */
     lastClientSnapshotAt: number;
-};
-
-const EMPTY_DELTA = {
-    current: 0,
-    previous: 0,
-    percentChange: 0,
-    direction: "flat" as const,
-    scopeLabel: "vs prior 30d",
 };
 
 /** SWR polling interval for the server rollup endpoint (charts, deltas, activity).
@@ -104,101 +95,6 @@ export function resolveTruthChipVariant(label: string): AdminSurfaceState {
     if (label === "Refreshing overview") return "degraded";
     if (label === "Live updates delayed") return "fallback";
     return "unavailable";
-}
-
-function buildRealtimeOnlyOverview(
-    realtimeData: Partial<AdminOverviewResponse>,
-    listenerState: OverviewRealtimeListenerState,
-): AdminOverviewResponse {
-    const generatedAt = Date.now();
-    const issues = [
-        listenerState.dropsFailed ? "Drop activity live updates are delayed." : null,
-        listenerState.summaryFailed ? "Commerce live updates are delayed." : null,
-        listenerState.transactionsFailed ? "Transaction live updates are delayed." : null,
-        listenerState.adminActivityFailed ? "Admin activity live updates are delayed." : null,
-    ].filter((issue): issue is string => Boolean(issue));
-
-    const overviewLabel = resolveTruthChipLabel(listenerState, false);
-
-    return {
-        success: false,
-        issues,
-        overviewIssues: issues.map((issue) => ({
-            source: issue.toLowerCase().includes("drop") ? "drops" : issue.toLowerCase().includes("commerce") ? "commerce" : issue.toLowerCase().includes("transaction") ? "transactions" : "admin_activity",
-            summary: issue,
-            sourceTruth: issue.toLowerCase().includes("commerce") || issue.toLowerCase().includes("transaction") ? "server_transaction" : issue.toLowerCase().includes("drop") ? "entitlement_rollup" : "telemetry",
-            freshnessState: "review",
-        })),
-        generatedAt,
-        rollingWindow: buildRolling30dWindow(generatedAt),
-        freshness: {
-            lastTransactionAt: realtimeData.recentTransactions?.[0]?.timestamp ?? 0,
-            lastAdminActivityAt: realtimeData.adminActivity?.[0]?.timestamp ?? 0,
-        },
-        stats: {
-            totalUsers: realtimeData.stats?.totalUsers ?? 0,
-            liveDrops: realtimeData.stats?.liveDrops ?? 0,
-            totalDrops: realtimeData.stats?.totalDrops ?? 0,
-            grossRevenueCents: realtimeData.stats?.grossRevenueCents ?? 0,
-            totalUnwraps: realtimeData.stats?.totalUnwraps ?? 0,
-            currentWindowPurchases: realtimeData.stats?.currentWindowPurchases ?? 0,
-            currentWindowNewUsers: realtimeData.stats?.currentWindowNewUsers ?? 0,
-            ...(realtimeData.stats ?? {}),
-        },
-        deltas: {
-            accounts: EMPTY_DELTA,
-            purchases: EMPTY_DELTA,
-            revenue: EMPTY_DELTA,
-            unwraps: EMPTY_DELTA,
-        },
-        recentTransactions: realtimeData.recentTransactions ?? [],
-        adminActivity: realtimeData.adminActivity ?? [],
-        topDrops: realtimeData.topDrops ?? [],
-        chartData: [],
-        platformPulse: [],
-        trendSummary: {
-            windowDays: 30,
-            currentStartDayKey: "",
-            currentEndDayKey: "",
-            previousStartDayKey: "",
-            previousEndDayKey: "",
-            currentRevenueCents: 0,
-            previousRevenueCents: 0,
-            currentUnwraps: 0,
-            previousUnwraps: 0,
-            currentPurchases: 0,
-            previousPurchases: 0,
-            currentNewUsers: 0,
-            previousNewUsers: 0,
-            revenueActiveDays: 0,
-            unwrapActiveDays: 0,
-            bestRevenueDay: null,
-            bestUnwrapDay: null,
-            topUnlockDrop: null,
-        },
-        truthNotes: {
-            overview: overviewLabel,
-            platformPulse: listenerState.dropsLoaded || listenerState.summaryLoaded
-                ? "Showing available overview data while the full snapshot loads."
-                : "Waiting for first overview snapshot.",
-            drops: listenerState.dropsFailed ? "Drop activity is delayed." : listenerState.dropsLoaded ? "Drop activity updated." : "Drop activity is refreshing.",
-            revenue: listenerState.summaryFailed ? "Commerce updates are delayed." : listenerState.summaryLoaded ? "Commerce updated." : "Commerce is refreshing.",
-            topDrops: listenerState.dropsFailed ? "Drop activity is delayed." : listenerState.dropsLoaded ? "Drop ranking updated." : "Drop ranking is refreshing.",
-            transactions: listenerState.transactionsFailed ? "Transactions are delayed." : listenerState.transactionsLoaded ? "Transactions updated." : "Transactions are refreshing.",
-            adminActivity: listenerState.adminActivityFailed ? "Admin activity is delayed." : listenerState.adminActivityLoaded ? "Admin activity updated." : "Admin activity is refreshing.",
-        },
-        realtimeDebugMeta: {
-            dropsFromCache: listenerState.dropsFromCache,
-            summaryFromCache: listenerState.summaryFromCache,
-            transactionsFromCache: listenerState.transactionsFromCache,
-            adminActivityFromCache: listenerState.adminActivityFromCache,
-            lastServerConfirmedAt: listenerState.lastServerConfirmedAt,
-            lastClientSnapshotAt: listenerState.lastClientSnapshotAt,
-            pollingActive: true,
-            pollingIntervalMs: SERVER_ROLLUP_POLL_INTERVAL_MS,
-            legacyDataMapped: false,
-        },
-    };
 }
 
 export function useAdminOverviewRealtime() {
@@ -472,7 +368,7 @@ export function useAdminOverviewRealtime() {
         listenerState.dropsFromCache || listenerState.summaryFromCache || listenerState.transactionsFromCache || listenerState.adminActivityFromCache;
 
     const mergedData = useMemo(() => {
-        if (!serverData && !hasRealtimeSnapshot) {
+        if (!serverData) {
             return undefined;
         }
 
@@ -489,10 +385,6 @@ export function useAdminOverviewRealtime() {
             pollingIntervalMs: SERVER_ROLLUP_POLL_INTERVAL_MS,
             legacyDataMapped: false,
         };
-
-        if (!serverData) {
-            return buildRealtimeOnlyOverview(realtimeData, listenerState);
-        }
 
         // Merge admin activity: realtime adjustments override server adjustment items,
         // server telemetry items (analytics_event_facts) remain from server poll.
@@ -525,10 +417,6 @@ export function useAdminOverviewRealtime() {
                 ),
             },
             adminActivity: mergedAdminActivity,
-            stats: {
-                ...serverData.stats,
-                ...(realtimeData.stats || {})
-            },
             issues: [
                 ...(serverData.issues ?? []),
                 ...(listenerState.dropsFailed ? ["Drop activity live updates are delayed."] : []),
@@ -574,7 +462,7 @@ export function useAdminOverviewRealtime() {
     return {
         data: mergedData,
         error,
-        isLoading: isLoading && !hasRealtimeSnapshot,
+        isLoading: isLoading && !serverData,
         mutate
     };
 }

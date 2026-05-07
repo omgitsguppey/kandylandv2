@@ -292,7 +292,11 @@ function scanSql(findings: CloudCostFinding[]) {
       .join("\n");
     const tableNames = [...source.matchAll(/type\s+([A-Za-z0-9_]+)\s+@table/gu)].map((match) => match[1]);
     const nonMirrorTypes = tableNames.filter((tableName) => !approvedAgentMirrorTypes.includes(tableName));
-    if (nonMirrorTypes.length > 0) {
+    const isDocumentedInactiveProfileSchema = filePath.endsWith("structured_profiles.gql")
+      && source.includes("forbidden by default")
+      && source.includes("not approved")
+      && source.includes("import targets for analytics evidence");
+    if (nonMirrorTypes.length > 0 && !isDocumentedInactiveProfileSchema) {
       addFinding(findings, {
         severity: "major",
         category: "dataconnect",
@@ -435,6 +439,73 @@ function scanBigQuery(findings: CloudCostFinding[]) {
     }
   }
 
+  for (const contract of BIGQUERY_PIPELINE_CONTRACTS) {
+    if (!contract.validationRequired) {
+      addFinding(findings, {
+        severity: "critical",
+        category: "bigquery_import",
+        title: "BigQuery pipeline contract is missing validationRequired",
+        filePath: "src/lib/server/cloud-cost-contract.ts",
+        suggestedFix: "Every BigQuery pipeline must require validation before use.",
+        evidence: [contract.pipelineName],
+      });
+    }
+    if (contract.importBackToRuntimeAllowed) {
+      addFinding(findings, {
+        severity: "critical",
+        category: "bigquery_import",
+        title: "BigQuery runtime import was enabled without approval",
+        filePath: "src/lib/server/cloud-cost-contract.ts",
+        suggestedFix: "Keep BigQuery importBackToRuntimeAllowed false until an explicit owner-approved import contract exists.",
+        evidence: [contract.pipelineName],
+      });
+    }
+    if (!contract.canonicalImportTargets?.includes("analytics_event_facts") || !contract.canonicalImportTargets?.includes("analytics_metric_facts")) {
+      addFinding(findings, {
+        severity: "critical",
+        category: "bigquery_import",
+        title: "BigQuery pipeline contract is missing canonical fact import targets",
+        filePath: "src/lib/server/cloud-cost-contract.ts",
+        suggestedFix: "BigQuery/Data Connect evidence may only map into normalized event facts or canonical metric facts.",
+        evidence: [contract.pipelineName],
+      });
+    }
+    if (contract.forbiddenRuntimeMutationSurfaces?.includes("legacy_admin_metric_snapshots") !== true) {
+      addFinding(findings, {
+        severity: "critical",
+        category: "bigquery_import",
+        title: "BigQuery pipeline contract does not block legacy admin metric snapshots",
+        filePath: "src/lib/server/cloud-cost-contract.ts",
+        suggestedFix: "Explicitly block legacy_admin_metric_snapshots and other runtime business surfaces from import/export mutation.",
+        evidence: [contract.pipelineName],
+      });
+    }
+  }
+
+  const importExportMutationPaths = new Set([
+    "functions/src/analytics-bigquery-export.ts",
+    "functions/src/analytics-truth-cli.ts",
+    "scripts/rebuild-analytics-truth.ts",
+    "scripts/rebuild-behavioral-intelligence.ts",
+    "scripts/analytics/map-legacy-events.ts",
+  ]);
+  const forbiddenSnapshotWrites = allSources.filter(({ filePath, source }) =>
+    importExportMutationPaths.has(filePath) &&
+    /analytics_admin_metric_snapshots/u.test(source) &&
+    /set\(|update\(|batch\.set|batch\.update/u.test(source)
+  );
+
+  for (const candidate of forbiddenSnapshotWrites) {
+    addFinding(findings, {
+      severity: "critical",
+      category: "bigquery_import",
+      title: "Import/export lane appears to write legacy admin metric snapshots directly",
+      filePath: candidate.filePath,
+      suggestedFix: "Route imported evidence through normalized event facts or canonical metric facts only; never mutate analytics_admin_metric_snapshots directly.",
+      evidence: ["analytics_admin_metric_snapshots", "direct mutation"],
+    });
+  }
+
   if (!docs.includes("importBackToRuntimeAllowed: false") && !docs.includes("runtime_import_blocked")) {
     addFinding(findings, {
       severity: "major",
@@ -444,6 +515,23 @@ function scanBigQuery(findings: CloudCostFinding[]) {
       suggestedFix: "Document that BigQuery imports cannot mutate runtime balances, transactions, unlocks, creator subscriptions, or support messages without manual approval.",
       evidence: ["runtime_import_blocked"],
     });
+  }
+
+  for (const requiredPhrase of [
+    "canonical event facts or metric facts",
+    "legacy admin metric snapshots",
+    "analytics evidence only",
+  ]) {
+    if (!docs.toLowerCase().includes(requiredPhrase.toLowerCase())) {
+      addFinding(findings, {
+        severity: "major",
+        category: "bigquery_import",
+        title: "BigQuery import/export doctrine is missing canonical fact language",
+        filePath: "docs/agent-truth/cloudrun-sql-bigquery-guardrails.md",
+        suggestedFix: "Document that imports may only map to canonical event facts or metric facts, that BigQuery is analytics evidence only, and that legacy admin metric snapshots are forbidden write targets.",
+        evidence: [requiredPhrase],
+      });
+    }
   }
 
   if (exportSource.includes(".load(")) {

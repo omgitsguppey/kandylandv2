@@ -2,23 +2,22 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminDebugCardCopy } from "@/lib/admin-debug-summary-cards";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import {
+    coerceAdminTruthState,
+    hasUsableAdminTruthValue,
+    resolveAdminTruthState,
+    type AdminTruthState,
+} from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
 
 /* ─── Shared Tone Type ─── */
 export type PillTone = "neutral" | "good" | "warn" | "bad";
 
-function stateFromTone(tone: PillTone): AdminSurfaceState {
-    if (tone === "good") return "live";
-    if (tone === "warn") return "degraded";
-    if (tone === "bad") return "failed";
-    return "unavailable";
-}
-
 /* ─── Pill ─── */
-export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }: { label: string; value: string | number; tone?: PillTone; truthState?: AdminSurfaceState; badgeLabel?: string }) {
+export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }: { label: string; value: string | number; tone?: PillTone; truthState?: AdminTruthState | AdminSurfaceState | "loading"; badgeLabel?: string }) {
     const toneClassName = tone === "good"
         ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
         : tone === "warn"
@@ -27,9 +26,24 @@ export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }:
                 ? "border-red-400/20 bg-red-500/10 text-red-100"
                 : "border-white/10 bg-white/5 text-gray-200";
 
+    const hasUsableValue = hasUsableAdminTruthValue(value);
+    const normalizedTruthState = coerceAdminTruthState(truthState) ?? "unavailable";
+    const resolvedTruthState = resolveAdminTruthState({
+        hasUsableValue,
+        sourceConfigured: true,
+        transportState: normalizedTruthState,
+        valueState: normalizedTruthState,
+    });
+
     return (
         <div className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs", toneClassName)}>
-            <AdminStatusBadge state={truthState ?? stateFromTone(tone)} label={badgeLabel} className="py-0 text-[8px]" />
+            <AdminTruthBadge
+                state={resolvedTruthState}
+                label={badgeLabel}
+                className="py-0 text-[8px]"
+                pendingInitialLoad={truthState === "loading" && !hasUsableValue}
+                hasUsableValue={hasUsableValue}
+            />
             <span className="text-gray-400">{label}</span>
             <span className="font-semibold text-white">{value}</span>
         </div>
@@ -47,14 +61,28 @@ export function StatCard({
     label: string;
     value: string | number;
     meta?: string;
-    truthState: AdminSurfaceState;
+    truthState: AdminTruthState | AdminSurfaceState | "loading";
     copy?: AdminDebugCardCopy;
 }) {
+    const hasUsableValue = hasUsableAdminTruthValue(value);
+    const normalizedTruthState = coerceAdminTruthState(truthState) ?? "unavailable";
+    const resolvedTruthState = resolveAdminTruthState({
+        hasUsableValue,
+        sourceConfigured: true,
+        transportState: normalizedTruthState,
+        valueState: normalizedTruthState,
+    });
+
     return (
         <div className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-2.5">
             <div className="flex items-center justify-between gap-2">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
-                <AdminStatusBadge state={truthState} className="py-0 text-[8px]" />
+                <AdminTruthBadge
+                    state={resolvedTruthState}
+                    className="py-0 text-[8px]"
+                    pendingInitialLoad={truthState === "loading" && !hasUsableValue}
+                    hasUsableValue={hasUsableValue}
+                />
             </div>
             <div className="mt-1 text-[1.4rem] font-black text-white">{value}</div>
             {meta ? <p className="mt-1 text-[11px] text-gray-400">{meta}</p> : null}

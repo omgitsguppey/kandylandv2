@@ -263,7 +263,7 @@ const LEGACY_SOURCES: LegacyRecoverySourceInventoryItem[] = [
     eventNameFields: ["event_name"],
     recoverability: "directional",
     confidence: "medium",
-    risks: ["GA4 daily is stable historical validation, not first-party product truth."],
+    risks: ["GA4 daily is stable historical validation, not first-party product truth or a runtime import target."],
   },
   {
     sourceName: "ga4_intraday",
@@ -280,7 +280,7 @@ const LEGACY_SOURCES: LegacyRecoverySourceInventoryItem[] = [
     eventNameFields: ["event_name"],
     recoverability: "directional",
     confidence: "directional",
-    risks: ["Intraday export is incomplete/live-ish; label as directional and never as verified server truth."],
+    risks: ["Intraday export is incomplete/live-ish; label as directional and never as verified server truth or a runtime import target."],
   },
   {
     sourceName: "analytics_admin_metric_snapshots",
@@ -297,7 +297,7 @@ const LEGACY_SOURCES: LegacyRecoverySourceInventoryItem[] = [
     eventNameFields: ["moduleKey"],
     recoverability: "debug_only",
     confidence: "high",
-    risks: ["Snapshots are display truth; they must include parity but are not raw event ledgers."],
+    risks: ["Snapshots are display truth; they must include parity but are not raw event ledgers and must never be a direct import/export mutation target."],
   },
 ];
 

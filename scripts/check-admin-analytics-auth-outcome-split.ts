@@ -25,11 +25,13 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const helper = read("src/lib/admin-analytics-auth-outcome-split.ts");
 const serverHelper = read("src/lib/server/admin-analytics-historical-engagement.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 
 assertIncludes("AdminAnalyticsOperationsTab", component, 'title="Auth Outcomes"');
+assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("AdminAnalyticsOperationsTab", component, "Source-truthed auth attempts, lifecycle outcomes, and finish timing.");
 assertIncludes("AdminAnalyticsOperationsTab", component, "Auth lifecycle outcomes");
 assertIncludes("AdminAnalyticsOperationsTab", component, "Timing review");

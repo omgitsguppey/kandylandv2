@@ -4,9 +4,10 @@ import React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { CheckCircle2, Clock, AlertTriangle, XCircle, Database, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { summarizeAdminIssueForOperator } from "@/lib/admin-copy/admin-truth-copy";
-import { formatAdminSurfaceStateLabel, type AdminModuleVerification, type AdminSurfaceState } from "@/lib/admin-parity";
+import { type AdminModuleVerification, type AdminSurfaceState } from "@/lib/admin-parity";
+import { coerceAdminTruthState, resolveAdminTruthState } from "@/lib/admin-truth-state";
 
 interface AdminModuleVerificationCardProps {
     verification: AdminModuleVerification;
@@ -36,6 +37,21 @@ export function AdminModuleVerificationCard({
     const operatorIssue = verification.degradedReason
         ? summarizeAdminIssueForOperator(verification.degradedReason)
         : null;
+    const hasUsableFallback = Boolean(
+        verification.fallbackSource
+        || verification.freshnessTimestamp
+        || (verification.countComposition && Object.keys(verification.countComposition).length > 0),
+    );
+    const truthState = resolveAdminTruthState({
+        hasUsableValue: verification.status === "failed" ? hasUsableFallback : true,
+        sourceConfigured: Boolean(verification.canonicalSource),
+        transportState: coerceAdminTruthState(verification.status) ?? "unavailable",
+        valueState: verification.verificationState === "fallback"
+            ? "legacy_fallback"
+            : coerceAdminTruthState(verification.status) ?? "unavailable",
+        reviewRequired: Boolean(verification.degradedReason),
+        sourceIssue: verification.status === "degraded" || verification.status === "failed",
+    });
     
     return (
         <div className={cn("rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 transition-all hover:bg-white/[0.07]", className)}>
@@ -48,7 +64,11 @@ export function AdminModuleVerificationCard({
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
                     <StatusIcon className="h-3 w-3" />
-                    <AdminStatusBadge state={verification.status} />
+                    <AdminTruthBadge
+                        state={truthState}
+                        pendingInitialLoad={verification.status === "loading"}
+                        hasUsableValue={verification.status === "failed" ? hasUsableFallback : true}
+                    />
                 </div>
             </div>
 
@@ -58,7 +78,7 @@ export function AdminModuleVerificationCard({
                     <span className="text-gray-200">
                         Primary verified source
                         {verification.verificationState === "canonical" && (
-                            <span className="ml-2 text-[10px] text-emerald-300">{formatAdminSurfaceStateLabel("live")}</span>
+                            <span className="ml-2 text-[10px] text-emerald-300">Fresh source verified</span>
                         )}
                     </span>
                 </div>
@@ -69,7 +89,7 @@ export function AdminModuleVerificationCard({
                         <span className="text-gray-200">
                         Last verified data available
                         {verification.verificationState === "fallback" && (
-                                <span className="ml-2 text-[10px] text-orange-300">{formatAdminSurfaceStateLabel("fallback")}</span>
+                                <span className="ml-2 text-[10px] text-orange-300">Fallback labeled</span>
                         )}
                         </span>
                     </div>

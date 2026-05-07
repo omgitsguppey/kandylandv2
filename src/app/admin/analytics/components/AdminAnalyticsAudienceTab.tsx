@@ -4,6 +4,10 @@ import {
 } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Pie, PieChart, Cell } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
+import {
+  buildAdminAnalyticsReturnCadenceBuckets,
+  resolveAdminAnalyticsGuestEstimateBadgeLabel,
+} from "@/lib/admin-analytics-contracts";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 
 export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
@@ -51,9 +55,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     audienceSnapshotModel.refreshStatus === "running" && !audienceSnapshotModel.serverConfirmed
       ? "Waiting for audience snapshot"
       : "Unavailable";
-  const guestBadgeLabel = audienceSnapshotModel.guestEstimateFormulaUsed
-    ? "EST"
-    : undefined;
+  const guestBadgeLabel = resolveAdminAnalyticsGuestEstimateBadgeLabel(
+    audienceSnapshotModel.guestEstimateFormulaUsed,
+  );
+  const returnCadenceBuckets = buildAdminAnalyticsReturnCadenceBuckets(returnCadenceModel);
   const continuityLabel = audienceSnapshotModel.continuity.gapSeverity === "error"
     ? "Traffic gap detected"
     : audienceSnapshotModel.continuity.gapSeverity === "review"
@@ -477,24 +482,16 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   </ResponsiveContainer>
                 </div>
                 <div className="mt-3 grid gap-2 md:grid-cols-4">
-                  {[
-                    { label: "1 day", count: returnCadenceModel.buckets.oneDay },
-                    { label: "2 days", count: returnCadenceModel.buckets.twoDays },
-                    { label: "3-4 days", count: returnCadenceModel.buckets.threeToFourDays },
-                    { label: "5+ days", count: returnCadenceModel.buckets.fivePlusDays },
-                  ].map((bucket) => {
-                    const pct = returnCadenceModel.trackedAuthenticatedUsers > 0
-                      ? bucket.count / returnCadenceModel.trackedAuthenticatedUsers
-                      : 0;
+                  {returnCadenceBuckets.map((bucket) => {
                     return (
                       <div
                         key={bucket.label}
                         className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300"
                       >
                         <p className="font-semibold text-white">{bucket.label}</p>
-                        <p>{returnCadenceModel.fakeZeroPrevented ? "[unavailable]" : formatCompactNumber(bucket.count)}</p>
+                        <p>{bucket.countDisplay ?? formatCompactNumber(bucket.count)}</p>
                         <p className="text-gray-500">
-                          {returnCadenceModel.fakeZeroPrevented ? "No verified denominator" : formatPercent(pct)}
+                          {bucket.percentDisplay ?? formatPercent(bucket.pct)}
                         </p>
                       </div>
                     );

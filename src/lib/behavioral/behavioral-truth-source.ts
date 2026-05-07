@@ -12,7 +12,12 @@ export type BehavioralTruthSource =
   | "legacy_fallback"
   | "unavailable";
 
-export type BehavioralFreshnessState = "live" | "stale" | "degraded" | "unavailable";
+export type BehavioralDataAvailabilityReason =
+  | "full_signal"
+  | "privacy_limited_identified_analytics_denied"
+  | "privacy_limited_global_privacy_control";
+
+export type BehavioralFreshnessState = "live" | "stale" | "degraded" | "unavailable" | "privacy_limited";
 
 export type BehavioralTruthScope =
   | "admin_metrics"
@@ -43,6 +48,7 @@ export type BehavioralTruthSummary = {
   ageMs: number;
   maxFreshnessMs: number;
   freshnessState: BehavioralFreshnessState;
+  dataAvailabilityReason: BehavioralDataAvailabilityReason;
   confidenceScore: number;
   confidenceLabel: BehavioralConfidenceLabel;
   issueCount: number;
@@ -124,6 +130,7 @@ export function resolveBehavioralTruthSource(input: {
 export function buildBehavioralTruthSummary(input: {
   scope: BehavioralTruthScope;
   hasValue: boolean;
+  dataAvailabilityReason?: BehavioralDataAvailabilityReason;
   ageMs: number;
   sampleCount: number;
   requiredFieldsPresent: number;
@@ -140,6 +147,7 @@ export function buildBehavioralTruthSummary(input: {
   legacyFallbackLabel?: string;
 }) : BehavioralTruthSummary {
   const issues = input.issues ?? [];
+  const dataAvailabilityReason = input.dataAvailabilityReason ?? "full_signal";
   const sourceResolution = resolveBehavioralTruthSource({
     scope: input.scope,
     hasMaterializedRollup: input.hasMaterializedRollup,
@@ -172,7 +180,9 @@ export function buildBehavioralTruthSummary(input: {
     issueCount,
   });
 
-  const freshnessState: BehavioralFreshnessState = !input.hasValue || sourceResolution.source === "unavailable"
+  const freshnessState: BehavioralFreshnessState = dataAvailabilityReason !== "full_signal"
+    ? "privacy_limited"
+    : !input.hasValue || sourceResolution.source === "unavailable"
     ? "unavailable"
     : sourceResolution.source === "live_fallback" || sourceResolution.source === "legacy_fallback"
       ? "degraded"
@@ -194,6 +204,7 @@ export function buildBehavioralTruthSummary(input: {
     ageMs: Math.max(0, input.ageMs),
     maxFreshnessMs: sourceResolution.maxFreshnessMs,
     freshnessState,
+    dataAvailabilityReason,
     confidenceScore: confidence.score,
     confidenceLabel: confidence.label,
     issueCount,

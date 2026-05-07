@@ -6,6 +6,7 @@ import type { LucideIcon } from "lucide-react";
 import { Activity , Info } from "lucide-react";
 
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { resolveAdminAnalyticsBadgeLabel } from "@/lib/admin-analytics-contracts";
 import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 
@@ -44,17 +45,6 @@ export interface MetricCardProps {
     dictionaryTooltip?: string;
     statusBadgeLabel?: string;
 }
-
-const ANALYTICS_METRIC_BADGE_LABELS: Record<AdminSurfaceState, string> = {
-    loading: "WAIT",
-    live: "LIVE",
-    cached: "SNAP",
-    degraded: "REVIEW",
-    fallback: "SNAP",
-    stale: "DELAYED",
-    unavailable: "UNAVAILABLE",
-    failed: "ERROR",
-};
 
 export function AnalyticsTooltip({
     active,
@@ -192,7 +182,7 @@ export function MetricCard({
                     <div className="min-w-0 max-w-[5.75rem] justify-self-end overflow-hidden">
                         <AdminStatusBadge
                             state={resolvedTruthState}
-                            label={statusBadgeLabel ?? ANALYTICS_METRIC_BADGE_LABELS[resolvedTruthState]}
+                            label={statusBadgeLabel ?? resolveAdminAnalyticsBadgeLabel(resolvedTruthState)}
                             className="max-w-full min-w-0 truncate whitespace-nowrap rounded px-1.5 py-0.5 text-[9px] leading-4 tracking-[0.08em]"
                         />
                     </div>

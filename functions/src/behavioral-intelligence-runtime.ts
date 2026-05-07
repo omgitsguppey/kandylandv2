@@ -44,6 +44,7 @@ type DropRecord = Record<string, unknown> & {
 }
 
 type AnalyticsEventFactRecord = Record<string, unknown>
+type MetricFactRecord = Record<string, unknown>
 type WatchSessionRecord = Record<string, unknown>
 type GuestBatchRecord = Record<string, unknown>
 type FeedbackRecord = Record<string, unknown>
@@ -634,28 +635,28 @@ function recordSearchIntent(input: {
 }
 
 function deriveExperienceKey(input: {
-  eventName: string
+  normalizedAction: string
   pagePath: string
 }) {
-  const eventName = input.eventName.toLowerCase()
+  const normalizedAction = input.normalizedAction.toLowerCase()
   const pagePath = input.pagePath.toLowerCase()
 
-  if (eventName.includes("wallet") || pagePath.includes("/wallet")) {
+  if (normalizedAction.includes("wallet") || pagePath.includes("/wallet")) {
     return "wallet"
   }
-  if (eventName.includes("support") || pagePath.includes("/support")) {
+  if (normalizedAction.includes("support") || pagePath.includes("/support")) {
     return "support"
   }
-  if (eventName.includes("creator") || pagePath.includes("/creator")) {
+  if (normalizedAction.includes("creator") || pagePath.includes("/creator")) {
     return "creator"
   }
-  if (eventName.includes("experience") || pagePath.includes("/experiences")) {
+  if (normalizedAction.includes("experience") || pagePath.includes("/experiences")) {
     return "experience_hub"
   }
-  if (eventName.includes("viewer") || pagePath.includes("/viewer")) {
+  if (normalizedAction.includes("watch") || normalizedAction.includes("file_viewed") || pagePath.includes("/viewer")) {
     return "viewer"
   }
-  if (eventName.includes("chat") || eventName.includes("message") || pagePath.includes("/messages")) {
+  if (normalizedAction.includes("chat") || normalizedAction.includes("message") || pagePath.includes("/messages")) {
     return "chat"
   }
   if (pagePath.includes("/drops")) {
@@ -761,22 +762,85 @@ function readSourceTruth(record: Record<string, unknown>) {
   return readString(record.sourceTruth || record.normalizedActionSourceTruth).toLowerCase()
 }
 
-function isServerPurchaseFact(eventName: string, record: Record<string, unknown>) {
+function isCanonicalMetricSource(record: Record<string, unknown>) {
   const sourceTruth = readSourceTruth(record)
-  return eventName === "purchase_verified"
-    || sourceTruth === "server"
+  return sourceTruth === "server"
     || sourceTruth === "canonical"
+    || sourceTruth === "materialized"
     || sourceTruth === "server_transaction"
+    || sourceTruth === "server_entitlement_unlock"
+    || sourceTruth === "watch_session_rollup"
 }
 
-function isServerUnlockFact(eventName: string, record: Record<string, unknown>) {
-  const sourceTruth = readSourceTruth(record)
-  return eventName === "drop_unwrapped"
-    || eventName === "drop_unlocked"
-    || eventName === "entitlement_granted"
-    || sourceTruth === "server"
-    || sourceTruth === "canonical"
-    || sourceTruth === "server_entitlement_unlock"
+function readMetricName(record: Record<string, unknown>) {
+  return readString(record.metricName).toLowerCase()
+}
+
+function buildCanonicalMetricFacts(input: {
+  eventFacts: AnalyticsEventFactRecord[]
+  watchSessions: WatchSessionRecord[]
+}) {
+  const metricFacts: MetricFactRecord[] = []
+
+  input.eventFacts.forEach((record) => {
+    const normalizedAction = readNormalizedAction(record)
+    if (!normalizedAction || record.metricEligible === false || !isCanonicalMetricSource(record)) {
+      return
+    }
+
+    if (normalizedAction === "gumdrops_purchased") {
+      metricFacts.push({
+        metricName: "gumdrops_purchased",
+        eventId: readString(record.eventId) || readString(record.id),
+        actorUserId: readString(record.actorUserId) || readString(record.userId),
+        targetDropId: readString(record.targetDropId) || readString(record.dropId),
+        transactionId: readString(record.transactionId),
+        sourceTruth: readSourceTruth(record) || "canonical",
+        sourceReliability: readNumber(record.sourceConfidence) || 1,
+        value: readNumber(record.valueUsd) || readNumber(record.gumDropsAmount) || 1,
+        timestampMs: readNumber(record.timestamp) || Date.now(),
+        provenance: "server_transaction",
+      })
+      return
+    }
+
+    if (normalizedAction === "drop_unlocked") {
+      metricFacts.push({
+        metricName: "drop_unlocked",
+        eventId: readString(record.eventId) || readString(record.id),
+        actorUserId: readString(record.actorUserId) || readString(record.userId),
+        targetDropId: readString(record.targetDropId) || readString(record.dropId),
+        transactionId: readString(record.transactionId),
+        sourceTruth: readSourceTruth(record) || "canonical",
+        sourceReliability: readNumber(record.sourceConfidence) || 1,
+        value: 1,
+        timestampMs: readNumber(record.timestamp) || Date.now(),
+        provenance: "server_entitlement",
+      })
+    }
+  })
+
+  input.watchSessions.forEach((record) => {
+    const watchScoreSource = readString(record.watchScoreSource)
+    const validWatchMs = readNumber(record.validWatchMs)
+    if (watchScoreSource !== "watch_session_rollup" || validWatchMs <= 0) {
+      return
+    }
+
+    metricFacts.push({
+      metricName: "watch_session_verified",
+      eventId: readString(record.watchSessionId) || readString(record.id),
+      actorUserId: readString(record.userId),
+      targetDropId: readString(record.dropId),
+      sourceTruth: "watch_session_rollup",
+      sourceReliability: 0.95,
+      value: validWatchMs,
+      timestampMs: readNumber(record.lastSeenAtMs) || Date.now(),
+      provenance: "watch_session_rollup",
+    })
+  })
+
+  return metricFacts
 }
 
 function ensureUserAggregate(userId: string, store: Map<string, UserSignalAggregate>) {
@@ -930,16 +994,11 @@ function isWithinDropLaunchHours(aggregate: DropSignalAggregate, timestamp: numb
     && timestamp <= aggregate.validFrom + (hours * 60 * 60 * 1000)
 }
 
-function isActionEvent(eventName: string) {
-  return ![
-    "drop_card_impression",
-    "home_page_viewed",
-    "drops_page_viewed",
-    "dashboard_viewed",
-    "library_viewed",
-    "semantic_page_viewed",
-    "semantic_page_passive",
-  ].includes(eventName)
+function isActionEvent(normalizedAction: string) {
+  return Boolean(normalizedAction) && ![
+    "home_viewed",
+    "drop_card_viewed",
+  ].includes(normalizedAction)
 }
 
 function readNormalizedAction(record: Record<string, unknown>) {
@@ -1073,6 +1132,10 @@ async function readRecentCollections(nowMs: number) {
     guestBatches: guestBatchesSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
     feedbacks: feedbackSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
     relationships: relationshipsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+    metricFacts: buildCanonicalMetricFacts({
+      eventFacts: eventFactsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+      watchSessions: watchSessionsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+    }),
   }
 }
 
@@ -1128,7 +1191,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     const tags = drop ? normalizeTags(drop.tags) : []
     const pagePath = readString(event.pagePath)
     const experienceKey = deriveExperienceKey({
-      eventName,
+      normalizedAction,
       pagePath,
     })
     const isNegativePreferenceAction = normalizedAction === "drop_not_interested"
@@ -1151,7 +1214,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
 
     if (drop && dropId) {
       const dropAggregate = ensureDropAggregate(drop, dropAggregates)
-      if (eventName === "drop_card_impression") {
+      if (normalizedAction === "drop_card_viewed") {
         dropAggregate.impressions += 1
         if (isWithinDropLaunchHours(dropAggregate, timestamp, 1)) {
           dropAggregate.impressions1h += 1
@@ -1172,7 +1235,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
           dropAggregate.previewOpens6h += 1
         }
       }
-      if (eventName === "viewer_opened" || eventName === "viewer_session_started") {
+      if (normalizedAction === "watch_session_started" || normalizedAction === "file_viewed") {
         dropAggregate.viewerOpens += 1
         if (isWithinDropLaunchHours(dropAggregate, timestamp, 6)) {
           dropAggregate.viewerOpens6h += 1
@@ -1180,15 +1243,6 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
         if (isWithinDropLaunchHours(dropAggregate, timestamp, 24)) {
           dropAggregate.viewerOpens24h += 1
         }
-      }
-      if (normalizedAction === "drop_unlocked" && isServerUnlockFact(eventName, event)) {
-        dropAggregate.unlocks += 1
-        if (isWithinDropLaunchHours(dropAggregate, timestamp, 6)) {
-          dropAggregate.unlocks6h += 1
-        }
-      }
-      if (normalizedAction === "gumdrops_purchased" && isServerPurchaseFact(eventName, event) && isWithinDropLaunchHours(dropAggregate, timestamp, 24)) {
-        dropAggregate.purchasesAfterView24h += 1
       }
       if (isNegativePreferenceAction) {
         dropAggregate.negativeFeedbackCount += 1
@@ -1245,7 +1299,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       if (dropId) {
         existingSession.dropIds.add(dropId)
       }
-      if (isActionEvent(eventName)) {
+      if (isActionEvent(normalizedAction)) {
         existingSession.actionCount += 1
         if (existingSession.firstActionAtMs === 0) {
           existingSession.firstActionAtMs = timestamp
@@ -1253,36 +1307,26 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
           existingSession.secondActionAtMs = timestamp
         }
       }
-      if (eventName === "wallet_opened" && existingSession.walletAtMs === 0) {
+      if (normalizedAction === "wallet_opened" && existingSession.walletAtMs === 0) {
         existingSession.walletAtMs = timestamp
       }
-      if ((eventName === "drop_unwrapped" || eventName === "drop_unlocked" || eventName === "entitlement_granted") && existingSession.unlockAtMs === 0) {
+      if (normalizedAction === "drop_unlocked" && existingSession.unlockAtMs === 0) {
         existingSession.unlockAtMs = timestamp
       }
       sessionAggregates.set(sessionId, existingSession)
     }
 
-    if (eventName === "wallet_opened") {
+    if (normalizedAction === "wallet_opened") {
       aggregate.walletOpenCount += 1
     }
-    if (eventName === "begin_checkout") {
+    if (normalizedAction === "checkout_started") {
       aggregate.checkoutStartCount += 1
-    }
-    if (normalizedAction === "gumdrops_purchased" && isServerPurchaseFact(eventName, event)) {
-      aggregate.purchaseCount += 1
-      aggregate.serverPurchaseCount += 1
-      aggregate.sourceTimestamps.serverTransactions.push(timestamp)
     }
     if (normalizedAction === "drop_preview_opened" || normalizedAction === "drop_viewed") {
       aggregate.previewOpenCount += 1
     }
-    if (eventName === "viewer_opened" || eventName === "viewer_session_started") {
+    if (normalizedAction === "watch_session_started" || normalizedAction === "file_viewed") {
       aggregate.viewerOpenCount += 1
-    }
-    if (normalizedAction === "drop_unlocked" && isServerUnlockFact(eventName, event)) {
-      aggregate.unlockCount += 1
-      aggregate.serverUnlockCount += 1
-      aggregate.sourceTimestamps.serverUnlocks.push(timestamp)
     }
     if (isNegativePreferenceAction) {
       recordNegativePreference({
@@ -1344,8 +1388,48 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       scoreMapIncrement(
         aggregate.topExperienceScores,
         experienceKey,
-        isActionEvent(eventName) ? 0.45 : 0.15,
+        isActionEvent(normalizedAction) ? 0.45 : 0.15,
       )
+    }
+  })
+
+  input.metricFacts.forEach((record) => {
+    const metricName = readMetricName(record)
+    const userId = readString(record.actorUserId) || readString(record.targetUserId)
+    const dropId = readString(record.targetDropId)
+    const timestamp = readNumber(record.timestampMs) || nowMs
+
+    if (!metricName || !userId) {
+      return
+    }
+
+    const aggregate = ensureUserAggregate(userId, userAggregates)
+    aggregate.sourceTimestamps.eventFacts.push(timestamp)
+
+    if (metricName === "gumdrops_purchased") {
+      aggregate.purchaseCount += 1
+      aggregate.serverPurchaseCount += 1
+      aggregate.sourceTimestamps.serverTransactions.push(timestamp)
+      if (dropId && dropMap.has(dropId)) {
+        const dropAggregate = ensureDropAggregate(dropMap.get(dropId) as DropRecord, dropAggregates)
+        if (isWithinDropLaunchHours(dropAggregate, timestamp, 24)) {
+          dropAggregate.purchasesAfterView24h += 1
+        }
+      }
+      return
+    }
+
+    if (metricName === "drop_unlocked") {
+      aggregate.unlockCount += 1
+      aggregate.serverUnlockCount += 1
+      aggregate.sourceTimestamps.serverUnlocks.push(timestamp)
+      if (dropId && dropMap.has(dropId)) {
+        const dropAggregate = ensureDropAggregate(dropMap.get(dropId) as DropRecord, dropAggregates)
+        dropAggregate.unlocks += 1
+        if (isWithinDropLaunchHours(dropAggregate, timestamp, 6)) {
+          dropAggregate.unlocks6h += 1
+        }
+      }
     }
   })
 
@@ -1565,6 +1649,11 @@ function buildUserProfileDoc(input: {
   const identifiedEnabled = privacySettings.identifiedAnalyticsEnabled === true
   const recommendationsEnabled = privacySettings.allowRecommendations === true && identifiedEnabled
   const gpcBlocked = privacySettings.honorGlobalPrivacyControl !== false && privacySettings.globalPrivacyControl === true
+  const privacyLimitedIssueCode = gpcBlocked
+    ? "privacy_limited_global_privacy_control"
+    : identifiedEnabled
+      ? ""
+      : "privacy_limited_identified_analytics_denied"
 
   const timeToFirstActionMs = average(sessionRecords.map((session) => Math.max(0, session.firstActionAtMs - session.firstEventAtMs)).filter((value) => value > 0))
   const timeToSecondActionMs = average(sessionRecords.map((session) => Math.max(0, session.secondActionAtMs - session.firstEventAtMs)).filter((value) => value > 0))
@@ -1733,6 +1822,15 @@ function buildUserProfileDoc(input: {
     sessionFrequency30d > 0,
     consentAvailability > 0,
   ].filter(Boolean).length
+  const issueCodes = [
+    watchScoreSource === "legacy_page_duration" ? "legacy_page_duration_fallback" : "",
+    input.aggregate.viewerOpenCount > 0 && input.aggregate.watchSessionCount === 0 ? "watch_time_missing_despite_views" : "",
+    input.aggregate.purchaseCount > input.aggregate.serverPurchaseCount ? "client_purchase_context_only" : "",
+    input.aggregate.unlockCount > input.aggregate.serverUnlockCount ? "client_unlock_context_only" : "",
+    latestSourceAtMs > 0 && input.nowMs - latestSourceAtMs > STALE_AFTER_MS ? "stale_behavioral_snapshot" : "",
+    privacyLimitedIssueCode,
+    consentAvailability === 0 ? "deterministic_fallback_profile" : "",
+  ].filter(Boolean)
   const confidenceResult = computeBehavioralTruthConfidence({
     agreeingSources: availableSourceCount,
     availableSources: availableSourceCount,
@@ -1741,9 +1839,11 @@ function buildUserProfileDoc(input: {
     sampleCount: profileSampleCount,
     requiredFieldsPresent: profileRequiredFieldsPresent,
     requiredFieldsTotal: 7,
-    issueCount: 0,
+    issueCount: issueCodes.length,
   })
-  const confidenceScore = confidenceResult.normalizedScore
+  const confidenceScore = consentAvailability === 0
+    ? Math.min(confidenceResult.normalizedScore, 0.34)
+    : confidenceResult.normalizedScore
   const freshnessScore = latestSourceAtMs > 0
     ? Math.max(0, 1 - (Math.max(0, input.nowMs - latestSourceAtMs) / STALE_AFTER_MS))
     : 0
@@ -1806,6 +1906,8 @@ function buildUserProfileDoc(input: {
     latestSourceAtMs,
     freshnessLabel: normalizeProfileFreshness(latestSourceAtMs || input.nowMs, input.nowMs),
     recommendationState,
+    recommendationCardState: recommendationState === "profile-driven" ? "profile-driven" : "fallback-limited",
+    recommendationCardCap: recommendationState === "profile-driven" ? null : 3,
     profilingEligibility: {
       anonymousAnalyticsEnabled: anonymousEnabled,
       identifiedAnalyticsEnabled: identifiedEnabled,
@@ -1814,6 +1916,7 @@ function buildUserProfileDoc(input: {
       eligible: recommendationsEnabled && !gpcBlocked,
     },
     confidenceScore: round(confidenceScore, 3),
+    sourceTruthScore: round(truthScore, 4),
     truthScore: round(truthScore, 4),
     sourceReliability: round(sourceReliability, 2),
     schemaCompleteness: round(schemaCompleteness, 4),
@@ -1822,8 +1925,11 @@ function buildUserProfileDoc(input: {
     recommendationThresholdMet: !insufficientSignal && consentAvailability === 1,
     insufficientSignal,
     insufficientSignalReason: insufficientSignal
-      ? "Not enough watch, unwrap, creator, content, purchase, or return-cadence signal yet."
+      ? consentAvailability === 0
+        ? "Identified analytics are disabled for this user, so recommendation confidence stays privacy-limited."
+        : "Not enough watch, unwrap, creator, content, purchase, or return-cadence signal yet."
       : "",
+    issueCodes,
     signalSummary: {
       watchSessions: input.aggregate.watchSessionCount,
       completedUnwraps: input.aggregate.unlockCount,

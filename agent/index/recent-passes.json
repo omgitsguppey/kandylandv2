@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:20:41.123Z",
+  "generatedAt": "2026-05-07T23:54:05.801Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,235 +15,44 @@
   ],
   "passes": [
     {
-      "stable_id": "pass__2026-05-05-pre-compact-agent-context",
-      "date": "2026-05-05",
-      "title": "PRE: Compact Agent Context",
+      "stable_id": "pass__2026-05-06-full-audit-deterministic-codebase-findings-pass",
+      "date": "2026-05-06",
+      "title": "FULL AUDIT: Deterministic Codebase Findings Pass",
       "scopeSummary": [],
       "touchedSurfaces": [
-        "agent/context/",
-        "agent/context/*",
-        "agent/context/doctrine.index.json",
-        "agent/index/*",
-        "agent/state/task-context.generated.json",
-        "docs/agent-truth/compact-agent-context.md",
-        "npm exec -- tsx scripts/agent/validate-compact-agent-context.ts",
-        "scripts/agent/build-compact-agent-context.ts",
-        "scripts/agent/build-task-context.ts",
-        "scripts/agent/validate-compact-agent-context.ts"
+        " state using the repository's deterministic score/check lanes instead of Playwright, Lighthouse, Cypress, deploys, or full ",
+        "10/100 fail",
+        "100/100",
+        "100/100 clean",
+        "100/clean",
+        "40/100 fail",
+        "47/fail",
+        "90/100 pass",
+        "94/beta-risk"
       ],
       "canonicalHelpersReused": [],
       "verificationCommandsRun": [],
       "resultSummary": [],
       "warnings": [],
-      "architecture_change": true,
+      "architecture_change": false,
       "runtime_change": false,
       "ui_change": false,
       "security_change": false,
       "maintenance_only": false,
-      "changeKinds": [
-        "ui",
-        "tooling"
-      ]
+      "changeKinds": []
     },
     {
-      "stable_id": "pass__2026-05-05-pre-legacy-phaseout-registry",
-      "date": "2026-05-05",
-      "title": "PRE: Legacy Phaseout Registry",
+      "stable_id": "pass__2026-05-06-pre-platform-economy-commerce-control-center",
+      "date": "2026-05-06",
+      "title": "PRE: Platform Economy Commerce Control Center",
       "scopeSummary": [],
       "touchedSurfaces": [
-        " / ",
-        " so future registry/docs/script changes route to ",
-        "agent/state/legacy-phaseout.generated.json",
-        "docs/agent-truth/legacy-phaseout.md",
-        "docs/agent-truth/orphaned-logic-score.md",
-        "scripts/agent/score-legacy-phaseout.ts",
-        "scripts/agent/score-orphaned-logic.ts",
-        "scripts/agent/validate-legacy-phaseout.ts",
-        "src/lib/legacy/legacy-registry.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-05-pre-audit-cache-fingerprints",
-      "date": "2026-05-05",
-      "title": "PRE: Audit Cache Fingerprints",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        " / ",
-        "agent/cache/audit-cache-index.json",
-        "docs/agent-truth/audit-cache.md",
-        "scripts/agent/cache-audit-result.ts",
-        "scripts/agent/run-audit-with-ledger.ts",
-        "scripts/agent/validate-audit-cache.ts",
-        "src/lib/agent-audit/audit-cache.ts",
-        "src/lib/agent-audit/file-fingerprint.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-05-pre-affected-audit-router",
-      "date": "2026-05-05",
-      "title": "PRE: Affected Audit Router",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        " / ",
-        "agent/state/affected-audit-plan.generated.json",
-        "docs/agent-truth/affected-audit-router.md",
-        "scripts/agent/plan-affected-audits.ts",
-        "scripts/agent/run-audit-with-ledger.ts",
-        "scripts/agent/validate-affected-audit-router.ts",
-        "src/lib/agent-audit/affected-surface-router.ts",
-        "src/lib/agent-audit/verification-command-budget.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-05-pre-audit-runtime-ledger",
-      "date": "2026-05-05",
-      "title": "PRE: Audit Runtime Ledger",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        " / ",
-        "agent/state/audit-runtime-ledger.jsonl",
-        "agent/state/audit-runtime-summary.generated.json",
-        "docs/agent-truth/audit-runtime-ledger.md",
-        "npm run audit:run -- --audit scripts/agent/validate-audit-runtime-ledger.ts --trigger direct_validator_smoke",
-        "scripts/agent/run-audit-with-ledger.ts",
-        "scripts/agent/score-audit-runtime.ts",
-        "scripts/agent/validate-*.ts",
-        "scripts/agent/validate-audit-runtime-ledger.ts",
-        "scripts/agent/validate-codebase-hardening.ts",
-        "src/lib/agent-audit/audit-runtime-contract.ts",
-        "src/lib/agent-audit/audit-speed-score.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "runtime",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-04-pre-behavioral-tracking-surface-coverage",
-      "date": "2026-05-04",
-      "title": "PRE: Behavioral Tracking Surface Coverage",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "admin/users/page.tsx",
-        "agent/state/tracking-surface-coverage.generated.json",
-        "npx vitest run tests/unit/event-fact-truth.spec.ts",
-        "scripts/agent/score-tracking-surface-coverage.ts",
-        "scripts/agent/validate-tracking-surface-coverage.ts",
-        "src/lib/behavioral/tracking-surface-map.ts",
-        "src/lib/server/analytics.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-04-pre-behavioral-model-validation-harness",
-      "date": "2026-05-04",
-      "title": "PRE: Behavioral Model Validation Harness",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "agent/state/behavioral-model-validation.generated.json",
-        "docs/agent-truth/math-goal-alignment.md",
-        "scripts/agent/validate-math-goal-alignment.ts",
-        "scripts/rebuild-behavioral-intelligence.ts",
-        "scripts/train-behavioral-models.ts",
-        "scripts/validate-behavioral-models.ts",
-        "src/lib/recommendations/ml-ranker.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "ui",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-04-pre-recommendation-ranker-truth",
-      "date": "2026-05-04",
-      "title": "PRE: Recommendation Ranker Truth",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        " / ",
-        "/api/admin/user/[userId]",
-        "agent/state/recommendation-model.generated.json",
-        "docs/agent-truth/recommendation-ranking.md",
-        "functions/src/behavioral-intelligence-runtime.ts",
-        "npx vitest run tests/unit/recommendation-ranker.spec.ts tests/unit/behavioral-intelligence-confidence.spec.ts",
-        "scripts/agent/validate-recommendation-ranker.ts",
-        "scripts/train-recommendation-ranker.ts",
-        "src/app/admin/user/[userId]/page.tsx",
-        "src/lib/recommendations/*",
-        "src/lib/recommendations/candidate-generation.ts",
-        "src/lib/server/behavioral-intelligence.ts",
-        "tests/unit/recommendation-ranker.spec.ts"
+        "/admin/economy",
+        "src/app/admin/economy/page.tsx",
+        "src/app/api/admin/economy/*",
+        "src/lib/platform-economy.ts",
+        "src/lib/server/platform-economy-mutations.ts",
+        "src/lib/server/platform-economy.ts"
       ],
       "canonicalHelpersReused": [],
       "verificationCommandsRun": [],
@@ -257,6 +66,158 @@
       "changeKinds": [
         "admin",
         "runtime",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-05-pre-codex-native-auth-readiness",
+      "date": "2026-05-05",
+      "title": "PRE: Codex Native Auth Readiness",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        ".github/workflows/cloud-readiness-smoke.yml",
+        "agent/state/codex-auth-readiness.generated.json",
+        "docs/agent-truth/codex-native-auth-readiness.md",
+        "docs/runbooks/cloud-auth-bootstrap.md",
+        "src/lib/devops/auth-surface-contract.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-05-pre-behavioral-math-calibration",
+      "date": "2026-05-05",
+      "title": "PRE: Behavioral Math Calibration",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "../shared/runtime",
+        "agent/state/behavioral-math-calibration.generated.json",
+        "docs/agent-truth/behavioral-math-calibration.md",
+        "functions/tsconfig.json",
+        "src/lib/behavioral/behavioral-math-calibration.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "runtime",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-05-pre-global-cost-surface-guardrails",
+      "date": "2026-05-05",
+      "title": "PRE: Global Cost Surface Guardrails",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        " passed with score 100/100, status ",
+        "agent/state/global-cost-surfaces.generated.json",
+        "docs/agent-truth/global-cost-surfaces.md",
+        "src/lib/server/global-cost-surface-contract.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-05-pre-doctrine-retrieval-optimizer",
+      "date": "2026-05-05",
+      "title": "PRE: Doctrine Retrieval Optimizer",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "npm run optimize:doctrine-context -- --task \"wallet density fix\" --changed src/components/PurchaseModal.tsx",
+        "src/lib/doctrine/*"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-05-pre-surface-doctrine-split",
+      "date": "2026-05-05",
+      "title": "PRE: Surface Doctrine Split",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "agent/context/surface-doctrine-map.json",
+        "docs/doctrine/03-surface-hierarchy.md",
+        "scripts/agent/validate-surface-doctrine-split.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "tooling"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-05-pre-release-notes-effective-diff-bumping",
+      "date": "2026-05-05",
+      "title": "PRE: Release Notes Effective Diff Bumping",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        ".next/**",
+        "agent/cache/**",
+        "agent/context/*.generated.json",
+        "agent/state/*.generated.json",
+        "build/**",
+        "coverage/**",
+        "dist/**",
+        "npx vitest run tests/unit/public-beta-release-notes.spec.tsx",
+        "scripts/agent/validate-public-beta-changelog.ts",
+        "scripts/release/update-public-changelog.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui",
         "tooling",
         "architecture"
       ]

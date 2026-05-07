@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:24:26.965Z",
+  "generatedAt": "2026-05-07T23:54:51.142Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -20,8 +20,6 @@
   "researchModel": "JSON Lines records are streamable and structured manifests are faster for deterministic lookup than narrative markdown.",
   "loadPlan": [
     "Read agent/context/doctrine.index.json first.",
-    "Prefer agent/context/optimized-task-context.generated.json from npm run optimize:doctrine-context for task-specific doctrine loading.",
-    "Read agent/context/surface-doctrine-map.json before applying UI density, copy, state, or server truth rules.",
     "Select surfaces by changed files, task terms, or validator map.",
     "Stream agent/context/doctrine.cards.jsonl and keep only matching surfaces.",
     "Stream agent/context/surface-contracts.jsonl for canonical files and validators.",
@@ -272,8 +270,6 @@
     "docs/agent-truth/debug-evidence-pipeline.md",
     "docs/agent-truth/device-layout-contract.md",
     "docs/agent-truth/device-ui-dry-audit.md",
-    "docs/agent-truth/doctrine-retrieval-optimizer.md",
-    "docs/agent-truth/doctrine-storage-strategy.md",
     "docs/agent-truth/drop-cover-visibility-truth.md",
     "docs/agent-truth/drop-preview-page.md",
     "docs/agent-truth/event-fact-truth.md",
@@ -292,17 +288,12 @@
     "docs/agent-truth/user-engagement-score.md",
     "docs/agent-truth/user-value-score.md",
     "docs/agent-truth/watch-time-truth.md",
-    "docs/doctrine/03-surface-hierarchy.md",
-    "docs/doctrine/surfaces/admin-ui-doctrine.md",
-    "docs/doctrine/surfaces/creator-ui-doctrine.md",
-    "docs/doctrine/surfaces/server-truth-doctrine.md",
-    "docs/doctrine/surfaces/shared-brand-primitives.md",
-    "docs/doctrine/surfaces/user-ui-doctrine.md",
     "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md",
     "docs/doctrine/kandydrops-ui-doctrine.md"
   ],
   "warnings": [
     "docs/agent-truth/analytics-file-inventory.md is 442 lines; compact cards should be preferred before loading the source doc.",
+    "docs/agent-truth/behavioral-math-calibration.md is 355 lines; compact cards should be preferred before loading the source doc.",
     "docs/agent-truth/rollback-incident-response.md is 368 lines; compact cards should be preferred before loading the source doc."
   ]
 }

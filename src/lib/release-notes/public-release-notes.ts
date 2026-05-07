@@ -1,13 +1,51 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.2",
-  "betaReleaseCounter": 202,
+  "currentVersion": "1.2.3",
+  "betaReleaseCounter": 203,
   "channel": "beta",
-  "generatedAt": "2026-05-07T04:14:54.577Z",
-  "generatedAtUtc": "2026-05-07T04:14:54.577Z",
-  "lastCommitSha": "75cf6cad6b805bc086d0f6b884596028c25bf012",
+  "generatedAt": "2026-05-07T22:13:11.677Z",
+  "generatedAtUtc": "2026-05-07T22:13:11.677Z",
+  "lastCommitSha": "6225b319e620d1e4385016b0cfebf2e7b99b2546",
   "notes": [
+    {
+      "version": "1.2.3",
+      "previousVersion": "1.2.2",
+      "betaReleaseCounter": 203,
+      "previousBetaReleaseCounter": 202,
+      "commitSha": "6225b319e620d1e4385016b0cfebf2e7b99b2546",
+      "commitTitle": "fix(admin): rebuild drop asset upload progress",
+      "commitCount": 3,
+      "commitShas": [
+        "6beb73fd97782acb9d51b79ddafc1898b14c2a19",
+        "623500cbab6d4f75c0dee0d8d93b4281fbdfe8b6",
+        "6225b319e620d1e4385016b0cfebf2e7b99b2546"
+      ],
+      "committedAt": "2026-05-07T21:23:52.000Z",
+      "generatedAt": "2026-05-07T22:13:11.677Z",
+      "committedAtUtc": "2026-05-07T21:23:52.000Z",
+      "generatedAtUtc": "2026-05-07T22:13:11.677Z",
+      "category": "Admin",
+      "title": "Improved drop conversion review",
+      "updatedAtUtc": "2026-05-07T22:13:11.677Z",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.",
+      "userFacingTitle": "Improved drop conversion review",
+      "surfaceCategory": "Admin tools",
+      "bullets": [
+        "Fixed admin labels that could appear stuck after data loaded.",
+        "Improved how hidden, delayed, or unavailable data is labeled.",
+        "Improved behind-the-scenes reliability without changing core admin workflows."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Grouped 3 commits into one accepted beta release.",
+        "Includes internal reliability work that does not change the public product surface."
+      ],
+      "affectedSurfaces": [
+        "admin"
+      ],
+      "hiddenFromPublic": false
+    },
     {
       "version": "1.2.2",
       "previousVersion": "1.2.1",
@@ -43,69 +81,32 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "generatedAt": "2026-05-07T04:14:54.576Z",
       "committedAtUtc": "2026-05-07T04:09:56.000Z",
       "generatedAtUtc": "2026-05-07T04:14:54.576Z",
-      "category": "Fixed",
-      "title": "Improved Beta update notes",
+      "category": "Admin",
+      "title": "Improved Beta updates and version visibility",
       "updatedAtUtc": "2026-05-07T04:14:54.576Z",
-      "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
-      "userFacingTitle": "Improved Beta update notes",
+      "summary": "Bug fixes and quality-of-life improvements for Beta updates, version visibility, and behind-the-scenes release reliability.",
+      "userFacingTitle": "Improved Beta updates and version visibility",
       "bullets": [
-        "Improved Beta notes with cleaner summaries and compact bullets.",
-        "Updated timestamps so recent changes are easier to compare with reports.",
-        "Reduced technical wording in public update notes."
+        "Improved how the Beta drawer opens the latest accepted updates.",
+        "Reduced stale or repeated release-note copy in the visible Beta feed.",
+        "Improved behind-the-scenes release tracking without flooding public notes with internal audit churn."
       ],
       "audience": "admins",
       "technicalDetails": [
         "Grouped 21 commits into one accepted beta release.",
-        "Release note summaries remain separate from collapsed technical details."
+        "Includes internal reliability work that does not change the public product surface."
       ],
       "affectedSurfaces": [
+        "account-onboarding",
         "admin",
-        "chat",
-        "documentation",
-        "release-notes",
-        "repo-tooling",
-        "security",
-        "wallet"
-      ]
-    },
-    {
-      "version": "1.2.1",
-      "previousVersion": "1.2.0",
-      "betaReleaseCounter": 201,
-      "previousBetaReleaseCounter": 200,
-      "commitSha": "b43f8f272fe4071e4731d9d4e24d60f416b7a902",
-      "commitTitle": "fix(beta): improve beta update notes and changelog behavior",
-      "commitCount": 4,
-      "commitShas": [
-        "8b5a6256cf5b7660590df0c4e3786a1a1875ac11",
-        "04b6e80c3f6bdd7eed4d17f2b5c337815d62cb85",
-        "b522306e5d1e92e473ee9fed14dbd852429a96a8",
-        "b43f8f272fe4071e4731d9d4e24d60f416b7a902"
-      ],
-      "committedAt": "2026-05-06T19:58:25.000Z",
-      "generatedAt": "2026-05-06T19:58:40.373Z",
-      "committedAtUtc": "2026-05-06T19:58:25.000Z",
-      "generatedAtUtc": "2026-05-06T19:58:40.373Z",
-      "category": "Fixed",
-      "title": "Improved Beta update notes",
-      "updatedAtUtc": "2026-05-06T19:58:40.373Z",
-      "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
-      "userFacingTitle": "Improved Beta update notes",
-      "bullets": [
-        "Improved Beta notes with cleaner summaries and compact bullets.",
-        "Updated the Beta badge and panel so the latest changelog opens more reliably.",
-        "Reduced technical wording in public update notes."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 4 commits into one accepted beta release.",
-        "Release note summaries remain separate from collapsed technical details."
-      ],
-      "affectedSurfaces": [
+        "creator",
+        "drops-viewer",
         "navigation",
-        "release-notes",
-        "repo-tooling"
-      ]
+        "notifications",
+        "wallet"
+      ],
+      "surfaceCategory": "Admin tools",
+      "hiddenFromPublic": false
     },
     {
       "version": "1.2.0",
@@ -123,25 +124,25 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "committedAtUtc": "2026-05-06T17:01:38.000Z",
       "generatedAtUtc": "2026-05-06T17:11:11.469Z",
       "category": "Admin",
-      "title": "Improved admin status accuracy",
+      "title": "Improved admin reliability and status accuracy",
       "updatedAtUtc": "2026-05-06T17:11:11.469Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
-      "userFacingTitle": "Improved admin status accuracy",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.",
+      "userFacingTitle": "Improved admin reliability and status accuracy",
       "bullets": [
         "Fixed admin labels that could appear stuck after data loaded.",
         "Improved how hidden, delayed, or unavailable data is labeled.",
-        "Reduced confusing status messages in Beta admin tools."
+        "Improved behind-the-scenes reliability without changing core admin workflows."
       ],
       "audience": "admins",
       "technicalDetails": [
-        "Admin metrics keep source, range, and freshness details separate from public summaries."
+        "Includes internal reliability work that does not change the public product surface."
       ],
       "affectedSurfaces": [
         "admin",
-        "documentation",
-        "repo-tooling",
-        "telemetry"
-      ]
+        "drops-viewer"
+      ],
+      "surfaceCategory": "Admin tools",
+      "hiddenFromPublic": false
     },
     {
       "version": "1.1.99",
@@ -161,7 +162,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "category": "Admin",
       "title": "Improved viewer analytics",
       "updatedAtUtc": "2026-05-06T17:11:11.313Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.",
       "userFacingTitle": "Improved viewer analytics",
       "bullets": [
         "Clarified verified and estimated viewer watch time.",
@@ -171,8 +172,13 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "audience": "admins",
       "affectedSurfaces": [
         "admin",
-        "repo-tooling"
-      ]
+        "drops-viewer"
+      ],
+      "surfaceCategory": "Admin tools",
+      "technicalDetails": [
+        "Includes internal reliability work that does not change the public product surface."
+      ],
+      "hiddenFromPublic": false
     },
     {
       "version": "1.1.98",
@@ -192,7 +198,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "category": "Admin",
       "title": "Improved transaction review",
       "updatedAtUtc": "2026-05-06T17:11:11.166Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
+      "summary": "Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.",
       "userFacingTitle": "Improved transaction review",
       "bullets": [
         "Added clearer names to recent transaction rows.",
@@ -201,9 +207,13 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       ],
       "audience": "admins",
       "affectedSurfaces": [
-        "admin",
-        "repo-tooling"
-      ]
+        "admin"
+      ],
+      "surfaceCategory": "Admin tools",
+      "technicalDetails": [
+        "Includes internal reliability work that does not change the public product surface."
+      ],
+      "hiddenFromPublic": false
     }
   ]
 } satisfies PublicReleaseNotesDocument;

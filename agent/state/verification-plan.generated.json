@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T21:19:33.038Z",
+  "generatedAt": "2026-05-07T23:55:03.969Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,25 +16,44 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__lib__telemetry-ts",
+  "stable_id": "verifyplan__functions__src__behavioral-intelligence-runtime-ts-functions__src__analytics-truth-cli-ts-scripts__rebuild-behavioral-intelligence-ts-scripts__rebuild-analytics-truth-ts-src__lib__server__admin-analytics-materializers-ts",
   "inputPaths": [
-    "src/lib/telemetry.ts"
+    "functions/src/behavioral-intelligence-runtime.ts",
+    "functions/src/analytics-truth-cli.ts",
+    "scripts/rebuild-behavioral-intelligence.ts",
+    "scripts/rebuild-analytics-truth.ts",
+    "src/lib/server/admin-analytics-materializers.ts"
   ],
   "matchedRepoPaths": [
-    "src/lib/telemetry.ts"
+    "functions/src/behavioral-intelligence-runtime.ts",
+    "functions/src/analytics-truth-cli.ts",
+    "scripts/rebuild-behavioral-intelligence.ts",
+    "scripts/rebuild-analytics-truth.ts",
+    "src/lib/server/admin-analytics-materializers.ts"
   ],
   "unmatchedPaths": [],
   "touchedDomains": [
+    "functions",
+    "repo_tooling",
     "shared_server_helpers"
   ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/lib/telemetry.ts",
+    "npm run agent:test -- functions/src/behavioral-intelligence-runtime.ts",
+    "npm run agent:test -- functions/src/analytics-truth-cli.ts",
+    "npm run agent:test -- scripts/rebuild-behavioral-intelligence.ts",
+    "npm run agent:test -- scripts/rebuild-analytics-truth.ts",
     "npm run check:telemetry",
-    "npm run check:analytics-semantics"
+    "npm run check:analytics-semantics",
+    "npm --prefix functions run check",
+    "npm run check:agent-context"
   ],
   "signoffCommands": [
     "npm run check:analytics:continuity",
+    "npm run check:inventory",
+    "npm run check:architecture",
+    "npm run check:agent-intelligence",
+    "npm run eval:agent-context",
     "npm run check:continuity"
   ],
   "fastSelections": [
@@ -46,7 +65,28 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/lib/telemetry.ts",
+      "command": "npm run agent:test -- functions/src/behavioral-intelligence-runtime.ts",
+      "why": [
+        "Run the narrowest related contract/unit tests first."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run agent:test -- functions/src/analytics-truth-cli.ts",
+      "why": [
+        "Run the narrowest related contract/unit tests first."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run agent:test -- scripts/rebuild-behavioral-intelligence.ts",
+      "why": [
+        "Run the narrowest related contract/unit tests first."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run agent:test -- scripts/rebuild-analytics-truth.ts",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
@@ -65,6 +105,20 @@
         "Canonical analytics naming/schema must remain aligned."
       ],
       "lane": "fast"
+    },
+    {
+      "command": "npm --prefix functions run check",
+      "why": [
+        "Functions runtime/manifests changed."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run check:agent-context",
+      "why": [
+        "Repo intelligence outputs should stay internally valid."
+      ],
+      "lane": "fast"
     }
   ],
   "signoffSelections": [
@@ -72,6 +126,34 @@
       "command": "npm run check:analytics:continuity",
       "why": [
         "Analytics continuity needs explicit signoff for behavioral/runtime changes."
+      ],
+      "lane": "signoff"
+    },
+    {
+      "command": "npm run check:inventory",
+      "why": [
+        "Repo-tooling changes must preserve inventory truth."
+      ],
+      "lane": "signoff"
+    },
+    {
+      "command": "npm run check:architecture",
+      "why": [
+        "Repo-tooling/shared-helper changes need architecture validation."
+      ],
+      "lane": "signoff"
+    },
+    {
+      "command": "npm run check:agent-intelligence",
+      "why": [
+        "Agent indexes and helper extraction must stay coherent."
+      ],
+      "lane": "signoff"
+    },
+    {
+      "command": "npm run eval:agent-context",
+      "why": [
+        "Task-context retrieval/eval fixtures changed."
       ],
       "lane": "signoff"
     },
@@ -95,6 +177,6 @@
   ],
   "broadWork": true,
   "reasoning": [
-    "Matched 1 repo-tracked paths."
+    "Matched 5 repo-tracked paths."
   ]
 }

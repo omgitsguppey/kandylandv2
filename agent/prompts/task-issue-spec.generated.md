@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-harden identified telemetry parity
+replace scattered runtime event interpretation with one canonical runtime fact layer
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,7 +10,8 @@ harden identified telemetry parity
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- src/lib/telemetry.ts
+- src/app/api/analytics/ingest-identified/route.ts
+- src/app/api/analytics/ingest/route.ts
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -21,14 +22,14 @@ harden identified telemetry parity
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/lib/telemetry.ts
+- npm run agent:test -- src/app/api/analytics/ingest-identified/route.ts
+- npm run agent:test -- src/app/api/analytics/ingest/route.ts
 - npm run check:telemetry
 - npm run check:analytics-semantics
 
 ## Signoff Verification
 - npm run check:analytics:continuity
-- npm run check:continuity
 
 ## Notes
-- Mode: admin
+- Mode: server
 - Format follow-up implementation prompts like an issue: goal, acceptance criteria, entrypoints, forbidden surfaces, and exact verification lanes.

@@ -4,6 +4,8 @@ import type {
   SurfaceMixItem,
 } from "@/types/admin-analytics";
 
+export const ADMIN_ANALYTICS_REALTIME_SCOPE = "operational_live_pulse_only" as const;
+
 export type AdminAnalyticsLiveFeedStatus =
   | "realtime"
   | "partial"
@@ -18,6 +20,7 @@ export type AdminAnalyticsLiveActor = RealtimeActiveUserItem & {
 };
 
 export interface AdminAnalyticsLiveSignals {
+  /** Operational live pulse only. Canonical business totals stay on refresh-based snapshots. */
   feedStatus: AdminAnalyticsLiveFeedStatus;
   feedDetail: string;
   generatedAtMs: number | null;
@@ -536,24 +539,24 @@ export function buildAdminAnalyticsLiveSignals(input: {
 
   let feedStatus: AdminAnalyticsLiveFeedStatus = "polled";
   let feedDetail =
-    "Realtime analytics observers have not loaded yet. Showing the polled admin summary.";
+    "Realtime analytics observers have not loaded yet. Showing the hot-cache admin snapshot for business totals.";
 
   if (loadedCount === 4 && failedCount === 0) {
     feedStatus = "realtime";
     feedDetail =
-      "Realtime Firestore observers are active for identified events, guest batches, guest sessions, and watch sessions.";
+      "Realtime Firestore observers are active for operational live pulse lanes. Canonical business totals stay on the hot-cache admin snapshot.";
   } else if (loadedCount > 0 && failedCount > 0) {
     feedStatus = "partial";
     feedDetail =
-      "Realtime analytics observers are only partially connected. Some live lanes are streaming, while failed lanes are falling back to polled data.";
+      "Realtime analytics observers are only partially connected. Some live pulse lanes are streaming, while failed lanes are falling back to the hot-cache admin snapshot.";
   } else if (loadedCount > 0) {
     feedStatus = "partial";
     feedDetail =
-      "Realtime analytics observers are warming up. Some live lanes are active, but not every canonical source has loaded yet.";
+      "Realtime analytics observers are warming up. Some live pulse lanes are active, while business totals remain on the hot-cache admin snapshot.";
   } else if (failedCount > 0) {
     feedStatus = "failed";
     feedDetail =
-      "Realtime analytics observers failed closed. Admin analytics is falling back to the polled route snapshot.";
+      "Realtime analytics observers failed closed. Admin analytics is showing the hot-cache admin snapshot for business totals.";
   }
 
   return {

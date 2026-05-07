@@ -7,13 +7,14 @@ import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { buildAdminReviewBadge } from "@/lib/behavioral/review-badge-rules";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import type { AdminTruthState } from "@/lib/admin-truth-state";
 import { hasUsableAdminTruthValue, resolveAdminTruthState } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
 
 type AdminStatsBarProps = {
     platformPulse?: AdminOverviewResponse["platformPulse"];
     overviewIssues?: AdminOverviewResponse["overviewIssues"];
-    truthState: AdminSurfaceState;
+    truthState?: AdminTruthState | AdminSurfaceState;
 };
 
 function formatDelta(metric: PlatformPulseMetric) {

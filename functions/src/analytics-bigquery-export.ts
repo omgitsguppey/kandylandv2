@@ -12,6 +12,15 @@ const TABLE_ID = process.env.BQ_ANALYTICS_RAW_EVENTS_TABLE_ID || process.env.BIG
 const EXPORT_STATUS_COLLECTION = "analytics_export_status"
 const EXPORT_STATUS_DOC_ID = "bigquery_raw_events"
 const DATASET_LOCATION = process.env.BQ_ANALYTICS_LOCATION || process.env.BIGQUERY_ANALYTICS_LOCATION || "US"
+const EXPORT_TRUTH_CLASS = "analytics_evidence_only"
+const CANONICAL_IMPORT_TARGETS = ["analytics_event_facts", "analytics_metric_facts"] as const
+const FORBIDDEN_RUNTIME_MUTATION_SURFACES = [
+  "runtime_balances",
+  "runtime_unlocks",
+  "runtime_purchases",
+  "runtime_user_rollups",
+  "legacy_admin_metric_snapshots",
+] as const
 const RAW_EVENTS_TABLE_SCHEMA = [
   {name: "eventId", type: "STRING", mode: "REQUIRED"},
   {name: "eventName", type: "STRING", mode: "NULLABLE"},
@@ -82,6 +91,11 @@ async function recordBigQueryExportStatus(input: {
   const payload = input.status === "healthy"
     ? {
       writer: "functions/onAnalyticsEventFactBigQueryExport",
+      truthClass: EXPORT_TRUTH_CLASS,
+      primaryProductTruth: false,
+      runtimeImportBlocked: true,
+      canonicalImportTargets: [...CANONICAL_IMPORT_TARGETS],
+      forbiddenRuntimeMutationSurfaces: [...FORBIDDEN_RUNTIME_MUTATION_SURFACES],
       status: input.status,
       datasetId: DATASET_ID,
       tableId: TABLE_ID,
@@ -92,6 +106,11 @@ async function recordBigQueryExportStatus(input: {
     }
     : {
       writer: "functions/onAnalyticsEventFactBigQueryExport",
+      truthClass: EXPORT_TRUTH_CLASS,
+      primaryProductTruth: false,
+      runtimeImportBlocked: true,
+      canonicalImportTargets: [...CANONICAL_IMPORT_TARGETS],
+      forbiddenRuntimeMutationSurfaces: [...FORBIDDEN_RUNTIME_MUTATION_SURFACES],
       status: input.status,
       datasetId: DATASET_ID,
       tableId: TABLE_ID,

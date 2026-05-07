@@ -30,6 +30,7 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const helper = read("src/lib/admin-analytics-live-interaction-stream.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
@@ -40,6 +41,7 @@ const section = component.slice(
 );
 
 assertIncludes("AdminAnalyticsOperationsTab", component, "liveInteractionStreamModel");
+assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_LIVE_INTERACTION_STREAM_DEBUG__");
 assertIncludes("Live Interaction Stream section", section, "liveInteractionStreamModel.eventRows");
 assertIncludes("Live Interaction Stream section", section, "Admin excl.");

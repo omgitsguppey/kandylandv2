@@ -1215,6 +1215,9 @@ function serializeUserDoc(id: string, raw: Record<string, unknown>) {
   const dailyTasksState = raw.dailyTasksState && typeof raw.dailyTasksState === "object"
     ? raw.dailyTasksState as Record<string, unknown>
     : {};
+  const privacySettings = raw.privacySettings && typeof raw.privacySettings === "object"
+    ? raw.privacySettings as Record<string, unknown>
+    : {};
 
   const hydratedTasks = Array.isArray(dailyTasksState.tasks)
     ? dailyTasksState.tasks.map((task) => {
@@ -1268,6 +1271,16 @@ function serializeUserDoc(id: string, raw: Record<string, unknown>) {
       newDropAlerts: notificationSettings.newDropAlerts !== false,
       expiringSoonAlerts: notificationSettings.expiringSoonAlerts !== false,
     },
+    privacySettings: {
+      anonymousAnalyticsEnabled: privacySettings.anonymousAnalyticsEnabled === true,
+      identifiedAnalyticsEnabled: privacySettings.identifiedAnalyticsEnabled === true,
+      allowRecommendations: privacySettings.allowRecommendations === true,
+      showInAnonymousStats: privacySettings.showInAnonymousStats === true,
+      honorGlobalPrivacyControl: privacySettings.honorGlobalPrivacyControl !== false,
+      consentUpdatedAt: Number.isFinite(privacySettings.consentUpdatedAt) ? Number(privacySettings.consentUpdatedAt) : undefined,
+      globalPrivacyControl: privacySettings.globalPrivacyControl === true,
+    },
+    hasPrivacyConsentRecord: Boolean(raw.privacySettings && typeof raw.privacySettings === "object"),
     securityFlags: {
       ripAttempts: typeof securityFlags.ripAttempts === "number" ? securityFlags.ripAttempts : 0,
       lastViolation: typeof securityFlags.lastViolation === "string" ? securityFlags.lastViolation : undefined,
@@ -1535,6 +1548,10 @@ async function GET_handler(request: NextRequest) {
         hasWatchSessions: watchTimeRollup.validSessionCount > 0,
         hasLegacyPageDuration: watchTimeRollup.source === "legacy_page_duration",
         hasTransactions: false,
+        identifiedAnalyticsEnabled: user.privacySettings?.identifiedAnalyticsEnabled === true,
+        honorGlobalPrivacyControl: user.privacySettings?.honorGlobalPrivacyControl !== false,
+        globalPrivacyControl: user.privacySettings?.globalPrivacyControl === true,
+        hasPrivacySettings: user.hasPrivacyConsentRecord === true,
         commerceSourcePresent: Boolean(analytics.commerceSourceLabel),
         sourceIssues: [
           ...metricIntegrity.failures,
@@ -2191,6 +2208,10 @@ async function GET_handler(request: NextRequest) {
         hasWatchSessions: analytics.watchTimeSource === "watch_session_rollup",
         hasLegacyPageDuration: analytics.watchTimeSource === "legacy_page_duration",
         hasTransactions: false,
+        identifiedAnalyticsEnabled: user.privacySettings?.identifiedAnalyticsEnabled === true,
+        honorGlobalPrivacyControl: user.privacySettings?.honorGlobalPrivacyControl !== false,
+        globalPrivacyControl: user.privacySettings?.globalPrivacyControl === true,
+        hasPrivacySettings: user.hasPrivacyConsentRecord === true,
         commerceSourcePresent: Boolean(analytics.commerceSourceLabel),
         sourceIssues: [
           ...metricIntegrity.failures,

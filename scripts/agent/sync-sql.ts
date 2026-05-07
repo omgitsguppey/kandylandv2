@@ -107,6 +107,16 @@ export function syncAgentSqlMirror() {
     repoTruthPrecedence: "repo_truth_wins_over_sql_mirror",
     allowedUse: "agent_repo_intelligence_mirror_only",
     runtimeUseForbidden: true,
+    analyticsEvidenceOnly: true,
+    runtimeImportBlocked: true,
+    canonicalFactImportTargets: ["analytics_event_facts", "analytics_metric_facts"],
+    forbiddenRuntimeMutationSurfaces: [
+      "runtime_balances",
+      "runtime_unlocks",
+      "runtime_purchases",
+      "runtime_user_rollups",
+      "legacy_admin_metric_snapshots",
+    ],
     cloudSql: {
       location: "us-central1",
       database: "kandydrops_db",
@@ -133,6 +143,10 @@ export function syncAgentSqlMirror() {
     repoTruthPrecedence: payload.repoTruthPrecedence,
     allowedUse: payload.allowedUse,
     runtimeUseForbidden: payload.runtimeUseForbidden,
+    analyticsEvidenceOnly: payload.analyticsEvidenceOnly,
+    runtimeImportBlocked: payload.runtimeImportBlocked,
+    canonicalFactImportTargets: payload.canonicalFactImportTargets,
+    forbiddenRuntimeMutationSurfaces: payload.forbiddenRuntimeMutationSurfaces,
     cloudSql: payload.cloudSql,
     artifacts: mirror.artifactStatus,
   };

@@ -75,7 +75,7 @@ Data Connect operation/query/mutation additions must declare purpose, table/type
 
 ## BigQuery
 
-BigQuery is a validation/export lane, not product truth by default.
+BigQuery is a validation/export lane, not product truth by default. BigQuery and GA exports are analytics evidence only.
 
 Current export owner:
 
@@ -106,6 +106,8 @@ BigQuery runtime imports are blocked. BigQuery import into Firestore/user runtim
 - validation report before mutation
 - capped rows per run
 - explicit manual approval before touching GumDrops balances, transactions, unlocks, creator subscriptions, or support messages
+
+Imported rows must map to canonical event facts or metric facts only. They must not write legacy admin metric snapshots directly, and they must not mutate runtime balances, unlocks, purchases, or user rollups.
 
 The current import status is `runtime_import_blocked`; `importBackToRuntimeAllowed: false` remains the active doctrine.
 

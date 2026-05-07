@@ -42,6 +42,7 @@ function isPublicReleaseNote(value: unknown): value is PublicReleaseNote {
     && typeof note.updatedAtUtc === "string"
     && typeof note.summary === "string"
     && typeof note.userFacingTitle === "string"
+    && typeof note.surfaceCategory === "string"
     && typeof note.audience === "string"
     && Array.isArray(note.bullets)
     && Array.isArray(note.affectedSurfaces);

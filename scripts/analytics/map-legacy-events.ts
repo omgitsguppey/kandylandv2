@@ -233,7 +233,7 @@ const report: LegacyMappingReport = {
     writeRequiresExplicitFlag: true,
     writeRequiresEnvironmentFlag: "ANALYTICS_LEGACY_WRITE_ENABLED",
     writeTarget: LEGACY_RECOVERED_EVENTS_COLLECTION,
-    reason: "Phase 4 defines the typed recovery collection and dry-run report only. Production writes stay disabled until a reviewed backfill plan enables them.",
+    reason: "Phase 4 defines the typed recovery collection and dry-run report only. Production writes stay disabled until a reviewed backfill plan enables normalized event-fact or metric-fact writes with schema validation. Legacy admin metric snapshots are never a write target.",
   },
 };
 

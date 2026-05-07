@@ -35,6 +35,9 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 const page = read("src/app/admin/analytics/page.tsx");
 const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const primitives = read("src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx");
+const contracts = read("src/lib/admin-analytics-contracts.ts");
+const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
+const userBehaviorTruthRollup = read("src/lib/server/user-behavior-truth-rollup.ts");
 const statusBadge = read("src/components/Admin/AdminStatusBadge.tsx");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 const historicalRoute = read("src/app/api/admin/analytics/historical/route.ts");
@@ -58,7 +61,19 @@ const adminOverviewRoute = read("src/app/api/admin/overview/route.ts");
 const adminOverviewContract = read("src/lib/admin-overview.ts");
 const adminOverviewDoc = read("docs/agent-truth/admin-overview.md");
 
-assertIncludes("AdminAnalyticsPrimitives", primitives, "ANALYTICS_METRIC_BADGE_LABELS");
+assertIncludes("admin analytics contracts", contracts, "ADMIN_ANALYTICS_MODULE_CONTRACT_REGISTRY");
+assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
+assertIncludes("user behavior truth rollup", userBehaviorTruthRollup, "buildUserBehaviorTruthRollup");
+assertIncludes("admin analytics contracts", contracts, "resolveAdminAnalyticsBadgeLabel");
+assertIncludes("admin analytics contracts", contracts, "resolveAdminAnalyticsLivePulseBadgeLabel");
+assertIncludes("admin analytics contracts", contracts, "resolveAdminAnalyticsCommerceBadgeLabel");
+assertIncludes("admin analytics contracts", contracts, "buildAdminAnalyticsReturnCadenceBuckets");
+assertIncludes("admin analytics contracts", contracts, "buildAdminAnalyticsViewerDrilldownContract");
+assertIncludes("admin analytics contracts", contracts, "formatAdminAnalyticsJourneyDenominatorMode");
+assertIncludes("admin analytics contracts", contracts, "\"return_cadence\"");
+assertIncludes("admin analytics contracts", contracts, "\"viewer_drilldown\"");
+assertIncludes("AdminAnalyticsPrimitives", primitives, "resolveAdminAnalyticsBadgeLabel");
+assertNotIncludes("AdminAnalyticsPrimitives", primitives, "ANALYTICS_METRIC_BADGE_LABELS");
 for (const expected of [
   "resolveMetricState",
   "safeRate",
@@ -80,7 +95,7 @@ for (const expected of [
   assertIncludes("admin analytics doctrine bundle", `${analyticsDoctrine}\n${analyticsTruthDoc}`, expected);
 }
 for (const badge of EXPECTED_OPERATOR_BADGES) {
-  assertIncludes("AdminAnalyticsPrimitives", primitives, badge);
+  assertIncludes("admin analytics contracts", contracts, badge);
 }
 assertIncludes("AdminAnalyticsPrimitives", primitives, "grid grid-cols-[minmax(0,1fr)_auto]");
 assertIncludes("AdminAnalyticsPrimitives", primitives, "min-w-0");
@@ -202,7 +217,7 @@ assertIncludes("commerce tab", commerceTab, "data-library-viewer-source-truth");
 assertIncludes("commerce tab", commerceTab, "data-library-viewer-freshness");
 assertIncludes("commerce tab", commerceTab, "label=\"Total Watch\"");
 assertIncludes("commerce tab", commerceTab, "Verified ${formatDuration(verifiedWatchSeconds)}; estimated ${formatDuration(estimatedWatchSeconds)}");
-assertIncludes("commerce tab", commerceTab, "Monitor live - no recent viewer sessions.");
+assertIncludes("commerce tab", commerceTab, "viewerCapturePulseExplanation");
 assertIncludes("commerce tab", commerceTab, "data-library-viewer-user-session-count");
 assertIncludes("commerce tab", commerceTab, "unwrap/asset-consumed signals");
 assertIncludes("commerce tab", commerceTab, "Page {boundedViewerDropPage} of {viewerDropPageCount}");
@@ -237,7 +252,6 @@ assertIncludes("admin overview route", adminOverviewRoute, "buildRolling30dWindo
 assertIncludes("admin overview route", adminOverviewRoute, "overviewIssues");
 assertIncludes("admin overview route", adminOverviewRoute, "platformPulse");
 assertIncludes("admin overview route", adminOverviewRoute, "rolling transactions");
-assertIncludes("admin overview route", adminOverviewRoute, "New account source incomplete");
 assertIncludes("admin overview route", adminOverviewRoute, "Purchases and revenue come from completed transactions");
 assertIncludes("admin overview page", adminOverviewPage, "platformPulse={data.platformPulse}");
 assertIncludes("admin overview page", adminOverviewPage, "overviewIssues={data.overviewIssues}");

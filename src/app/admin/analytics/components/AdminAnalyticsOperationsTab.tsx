@@ -6,17 +6,13 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { AdminOnboardingAnalyticsModules } from "@/components/Admin/Analytics/AdminOnboardingAnalyticsModules";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import {
+  formatAdminAnalyticsJourneyDenominatorMode,
+  resolveAdminAnalyticsLivePulseBadgeLabel,
+} from "@/lib/admin-analytics-contracts";
 import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
-
-function formatJourneyDenominatorMode(mode: string) {
-  if (mode === "prior_step_events") return "Prior-step event denominator";
-  if (mode === "base_events") return "Base event denominator";
-  if (mode === "unique_users") return "Unique-user denominator";
-  if (mode === "sessions") return "Session denominator";
-  return "Unknown denominator";
-}
 
 export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const {
@@ -69,18 +65,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
         : "Live updates";
   const compactLiveMetricClass = "rounded-[1rem] p-2";
   const compactLiveMetricValueClass = "text-lg leading-6 md:text-xl";
-  const livePulseBadgeLabel =
-    livePulseModel.mode === "delayed_snapshot"
-      ? "SNAP"
-      : livePulseModel.presenceSourceStatus === "failed"
-      ? "ERROR"
-      : livePulseModel.presenceSourceStatus === "fallback"
-        ? "SNAP"
-        : livePulseModel.presenceSourceStatus === "waiting"
-          ? "WAIT"
-          : livePulseModel.presenceSourceStatus === "cache"
-            ? "DELAYED"
-            : "LIVE";
+  const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
   const firstSnapshotLabel = "Waiting for first snapshot";
   const noSnapshotLabel = "No verified snapshot yet";
   const activeNowValue = livePulseModel.activeCount.value === null
@@ -439,7 +424,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label="Mode"
                   value={journeyFunnelModel.modeLabel}
-                  hint={formatJourneyDenominatorMode(journeyFunnelModel.denominatorMode)}
+                  hint={formatAdminAnalyticsJourneyDenominatorMode(journeyFunnelModel.denominatorMode)}
                   icon={Route}
                   truthState={historicalMetricTruthState}
                   statusBadgeLabel={journeyFunnelBadgeLabel}

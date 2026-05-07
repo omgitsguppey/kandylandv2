@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T05:20:41.085Z",
+  "generatedAt": "2026-05-07T23:54:05.745Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -290,6 +290,23 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-optimize-doctrine-context",
+      "command": "npm run optimize:doctrine-context",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-agent-sync-sql",
       "command": "npm run agent:sync-sql",
       "scopeType": "repo_tooling",
@@ -460,6 +477,23 @@
       "verifies_continuity": true
     },
     {
+      "stable_id": "command__root-check-validator-authority",
+      "command": "npm run check:validator-authority",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-check-agent-context",
       "command": "npm run check:agent-context",
       "scopeType": "repo",
@@ -547,6 +581,193 @@
     {
       "stable_id": "command__root-validate-behavioral-models",
       "command": "npm run validate:behavioral-models",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-validate-behavioral-predictions",
+      "command": "npm run validate:behavioral-predictions",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-behavioral-math-calibration",
+      "command": "npm run check:behavioral-math-calibration",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-negative-preferences",
+      "command": "npm run check:negative-preferences",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-satisfaction-signal",
+      "command": "npm run check:satisfaction-signal",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-search-intent-truth",
+      "command": "npm run check:search-intent-truth",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-diversity-reranking",
+      "command": "npm run check:diversity-reranking",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-drop-momentum-score",
+      "command": "npm run check:drop-momentum-score",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-exploration-budget",
+      "command": "npm run check:exploration-budget",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-integrity-demotions",
+      "command": "npm run check:integrity-demotions",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-behavioral-experiments",
+      "command": "npm run check:behavioral-experiments",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-notification-quality",
+      "command": "npm run check:notification-quality",
       "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],
@@ -817,6 +1038,278 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-score-code-organization",
+      "command": "npm run score:code-organization",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-code-organization",
+      "command": "npm run check:code-organization",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-score-doctrine",
+      "command": "npm run score:doctrine",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-doctrine",
+      "command": "npm run check:doctrine",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-surface-doctrine-split",
+      "command": "npm run check:surface-doctrine-split",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-doctrine-retrieval-optimizer",
+      "command": "npm run check:doctrine-retrieval-optimizer",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-release-notes",
+      "command": "npm run release:notes",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-release-notes-accept",
+      "command": "npm run release:notes:accept",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-release-notes",
+      "command": "npm run check:release-notes",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-beta-versioning",
+      "command": "npm run check:beta-versioning",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-beta-release-notes",
+      "command": "npm run check:beta-release-notes",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-beta-update-tracker",
+      "command": "npm run check:beta-update-tracker",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-beta-modal-layout",
+      "command": "npm run check:beta-modal-layout",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-copy-surface-truth",
+      "command": "npm run check:admin-copy-surface-truth",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-debug-first-roadmap",
+      "command": "npm run check:debug-first-roadmap",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-human-dev-readiness",
+      "command": "npm run check:human-dev-readiness",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-score-speed-security",
       "command": "npm run score:speed-security",
       "scopeType": "repo",
@@ -921,6 +1414,23 @@
     {
       "stable_id": "command__root-check-analytics-semantics",
       "command": "npm run check:analytics-semantics",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-analytics-import-export",
+      "command": "npm run check:analytics-import-export",
       "scopeType": "analytics",
       "root_or_functions": "root",
       "requiredWhen": [],
@@ -1091,6 +1601,23 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-check-admin-truth-replacement",
+      "command": "npm run check:admin-truth-replacement",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-check-admin-users-stats-grid",
       "command": "npm run check:admin-users-stats-grid",
       "scopeType": "repo",
@@ -1193,6 +1720,23 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-check-runtime-facts-cutover",
+      "command": "npm run check:runtime-facts-cutover",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-score-telemetry-identified-parity",
       "command": "npm run score:telemetry-identified-parity",
       "scopeType": "analytics",
@@ -1213,6 +1757,23 @@
       "stable_id": "command__root-check-telemetry-identified-parity",
       "command": "npm run check:telemetry-identified-parity",
       "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-privacy-consent-truth",
+      "command": "npm run check:privacy-consent-truth",
+      "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],
       "optionalWhen": [
@@ -1380,6 +1941,23 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-check-admin-ai-control-tower",
+      "command": "npm run check:admin-ai-control-tower",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-check-admin-moderation-real-risk",
       "command": "npm run check:admin-moderation-real-risk",
       "scopeType": "repo",
@@ -1502,6 +2080,23 @@
       "stable_id": "command__root-check-admin-analytics-auth-outcome-split",
       "command": "npm run check:admin-analytics-auth-outcome-split",
       "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-auth-outcomes-truth",
+      "command": "npm run check:auth-outcomes-truth",
+      "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],
       "optionalWhen": [
@@ -1788,9 +2383,60 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-check-daily-task-lifecycle",
+      "command": "npm run check:daily-task-lifecycle",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-daily-task-reward-economy",
+      "command": "npm run check:daily-task-reward-economy",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-check-daily-task-telemetry-truth",
       "command": "npm run check:daily-task-telemetry-truth",
       "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-task-catalog-coverage",
+      "command": "npm run check:task-catalog-coverage",
+      "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],
       "optionalWhen": [
@@ -2383,6 +3029,40 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-score-global-cost",
+      "command": "npm run score:global-cost",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-global-cost",
+      "command": "npm run check:global-cost",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-score-google-cost",
       "command": "npm run score:google-cost",
       "scopeType": "repo",
@@ -2436,6 +3116,57 @@
     {
       "stable_id": "command__root-check-cloud-cost",
       "command": "npm run check:cloud-cost",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-codex-auth",
+      "command": "npm run check:codex-auth",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-plan-cloud-auth-bootstrap",
+      "command": "npm run plan:cloud-auth-bootstrap",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-codex-auth-readiness",
+      "command": "npm run check:codex-auth-readiness",
       "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],
@@ -2621,6 +3352,23 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-check-drop-asset-upload-progress",
+      "command": "npm run check:drop-asset-upload-progress",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-check-admin-cms-workflow",
       "command": "npm run check:admin-cms-workflow",
       "scopeType": "repo",
@@ -2691,6 +3439,40 @@
     {
       "stable_id": "command__root-check-gumdrop-source-of-funds-truth",
       "command": "npm run check:gumdrop-source-of-funds-truth",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-platform-economy-treasury",
+      "command": "npm run check:platform-economy-treasury",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-platform-economy-commerce-controls",
+      "command": "npm run check:platform-economy-commerce-controls",
       "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],
@@ -3080,6 +3862,23 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-check-creator-supply-quality",
+      "command": "npm run check:creator-supply-quality",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-check-creator-booking-error-copy",
       "command": "npm run check:creator-booking-error-copy",
       "scopeType": "repo",
@@ -3167,6 +3966,40 @@
     {
       "stable_id": "command__root-check-creator-profile-routing",
       "command": "npm run check:creator-profile-routing",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-score-creator-lane-debug-parity",
+      "command": "npm run score:creator-lane-debug-parity",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-repair-creator-lifecycle-history",
+      "command": "npm run repair:creator-lifecycle-history",
       "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],

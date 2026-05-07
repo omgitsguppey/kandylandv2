@@ -12,7 +12,7 @@ export const PUBLIC_RELEASE_NOTES_VISIBLE_COUNT = 5;
 export const PUBLIC_RELEASE_NOTES_MAX_COUNT = 50;
 export const PUBLIC_RELEASE_NOTES_MAJOR_LOCK = 1;
 export const PUBLIC_RELEASE_VERSION_SHAPE = "1.<block>.<release>";
-export const CURRENT_BETA_RELEASE_COUNTER = 202;
+export const CURRENT_BETA_RELEASE_COUNTER = 203;
 export const CURRENT_BETA_RELEASE_VERSION = formatBetaOdometerVersion(CURRENT_BETA_RELEASE_COUNTER);
 
 export const PUBLIC_RELEASE_NOTE_CATEGORIES = [
@@ -30,6 +30,19 @@ export const PUBLIC_RELEASE_NOTE_CATEGORIES = [
 
 export type PublicReleaseNoteCategory = typeof PUBLIC_RELEASE_NOTE_CATEGORIES[number];
 export type PublicReleaseAudience = "users" | "creators" | "admins" | "all";
+export type PublicReleaseSurfaceCategory =
+  | "App experience"
+  | "Account & onboarding"
+  | "Admin tools"
+  | "Chat & support"
+  | "Creator tools"
+  | "Daily tasks"
+  | "Drops & viewer"
+  | "Navigation"
+  | "Notifications"
+  | "Privacy & security"
+  | "Wallet"
+  | "Internal reliability";
 
 export type PublicReleaseNote = {
   version: string;
@@ -49,6 +62,7 @@ export type PublicReleaseNote = {
   updatedAtUtc: string;
   summary: string;
   userFacingTitle: string;
+  surfaceCategory: PublicReleaseSurfaceCategory;
   bullets: string[];
   audience: PublicReleaseAudience;
   technicalDetails?: string[];
@@ -143,5 +157,19 @@ export function getPublicReleaseNotesVisibleNotes(
   notes: PublicReleaseNote[],
   count = PUBLIC_RELEASE_NOTES_VISIBLE_COUNT,
 ) {
-  return notes.filter((note) => note.hiddenFromPublic !== true).slice(0, count);
+  const visible: PublicReleaseNote[] = [];
+  const seenPublicCopy = new Set<string>();
+
+  for (const note of notes) {
+    if (note.hiddenFromPublic === true) continue;
+
+    const publicCopy = `${note.title} ${note.summary} ${note.bullets.join(" ")}`.trim();
+    if (seenPublicCopy.has(publicCopy)) continue;
+    seenPublicCopy.add(publicCopy);
+    visible.push(note);
+
+    if (visible.length >= count) break;
+  }
+
+  return visible;
 }

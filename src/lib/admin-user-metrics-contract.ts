@@ -17,6 +17,7 @@ export type AdminUserMetricsFreshnessState =
   | "live"
   | "stale"
   | "degraded"
+  | "privacy_limited"
   | "unavailable";
 
 export type AdminUserMetricsSnapshot = {

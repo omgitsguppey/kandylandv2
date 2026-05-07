@@ -16,8 +16,11 @@ function assert(condition: unknown, message: string) {
 const contract = read("src/lib/admin-user-metrics-contract.ts");
 const snapshotHelper = read("src/lib/server/admin-user-metrics-snapshot.ts");
 const usersRoute = read("src/app/api/admin/users/route.ts");
+const usersRealtimeRoute = read("src/app/api/admin/users/realtime/route.ts");
 const overviewRoute = read("src/app/api/admin/overview/route.ts");
 const usersPage = read("src/app/admin/users/page.tsx");
+const usersRealtimeHook = read("src/hooks/useAdminUsersRealtime.ts");
+const overviewRealtimeHook = read("src/hooks/useAdminOverviewRealtime.ts");
 const statsBar = read("src/components/Admin/AdminStatsBar.tsx");
 const types = read("src/types/admin-analytics.ts");
 
@@ -54,5 +57,18 @@ assert(overviewRoute.includes("userMetricsSnapshot") || overviewRoute.includes("
 assert(types.includes("metricsSnapshot?: AdminUserMetricsSnapshot"), "UsersSummary must expose snapshot metadata.");
 assert(usersPage.includes("data-admin-metric-source") && usersPage.includes("data-admin-metric-freshness"), "Admin users page must expose metric source/freshness metadata.");
 assert(statsBar.includes("data-admin-metric-source") && statsBar.includes("data-admin-metric-freshness"), "Admin stats bar must expose metric source/freshness metadata.");
+assert(usersPage.includes("useAdminUsersRealtime("), "Admin users page must use the shared realtime pulse hook.");
+assert(!usersPage.includes('authFetch("/api/admin/users/realtime"'), "Admin users page must not stream business metrics directly from the realtime route.");
+assert(usersPage.includes("snapshotRefreshState"), "Admin users page must keep a snapshot refresh state separate from the realtime pulse.");
+assert(usersPage.includes("data-admin-users-snapshot-state") && usersPage.includes("data-admin-users-pulse-state"), "Admin users page must expose snapshot and pulse state separately.");
+assert(usersRealtimeHook.includes("Showing last verified snapshot"), "Admin users realtime hook must preserve the last verified snapshot during pulse reconnects.");
+assert(
+  usersRealtimeHook.includes("Realtime pulse failed. Showing the last verified snapshot.")
+  && usersRealtimeHook.includes("Realtime pulse is delayed. Showing the last verified snapshot."),
+  "Admin users realtime hook must not overwrite snapshot-backed truth with ERROR when the pulse fails.",
+);
+assert(usersRealtimeRoute.includes('metricScope: "operational_pulse_only"'), "Admin users realtime route must declare its invalidate-only operational scope.");
+assert(!overviewRealtimeHook.includes("buildRealtimeOnlyOverview"), "Admin overview hook must not synthesize business totals from realtime-only state.");
+assert(!overviewRealtimeHook.includes("...(realtimeData.stats || {})"), "Admin overview hook must not let realtime state overwrite canonical business totals.");
 
 console.log("Admin user metrics snapshot contract is wired.");

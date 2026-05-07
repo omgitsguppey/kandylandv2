@@ -12,6 +12,7 @@ export type BehavioralExplanationType =
   | "return_likely"
   | "watch_likely"
   | "unlock_likely"
+  | "privacy_limited"
   | "insufficient_signal"
   | "tracking_issue"
   | "stale_source"
@@ -125,6 +126,18 @@ function getCommonExplanationState(input: {
   insufficientSummary: string;
 }) {
   const sharedIssue = getSharedBehaviorIssue(input.behaviorRollup);
+  if (
+    input.truthState === "privacy_limited" ||
+    sharedIssue?.code === "privacy_limited_identified_analytics_denied" ||
+    sharedIssue?.code === "privacy_limited_global_privacy_control"
+  ) {
+    return {
+      type: "privacy_limited" as const,
+      verdict: "Privacy limited",
+      summary: "Identified analytics are intentionally limited for this user, so missing behavior is not treated as zero activity or a tracking failure.",
+    };
+  }
+
   if (sharedIssue && sharedIssue.code !== "source_degraded" && sharedIssue.code !== "legacy_page_duration_fallback") {
     return {
       type: "tracking_issue" as const,

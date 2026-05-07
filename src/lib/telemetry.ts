@@ -6,7 +6,12 @@ import { buildAnalyticsSemanticParams } from "./analytics-semantics";
 import { buildClientIdentityLinkRecord, getClientSessionId, rememberClientIdentityLink } from "./client-session";
 import { recordClientDiagnostic } from "./client-diagnostics";
 import { authFetch } from "./authFetch";
-import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
+import {
+    canUseAnonymousAnalytics,
+    canUseIdentifiedAnalytics,
+    readPrivacySettingsSnapshot,
+    resolvePrivacyDataAvailabilityReason,
+} from "./privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "./tasks/task-catalog";
 import type { RolloutTelemetryContext } from "./rollouts";
 import {
@@ -405,6 +410,7 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
     const privacySettings = readPrivacySettingsSnapshot();
     const allowAnonymousAnalytics = canUseAnonymousAnalytics(privacySettings);
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
+    const privacyDataAvailabilityReason = resolvePrivacyDataAvailabilityReason(privacySettings);
     const preparedEvent = prepareAnalyticsEvent(eventName, eventParams);
     const shouldSyncTaskProgress = TASK_PROGRESS_EVENT_NAMES.has(preparedEvent.canonicalEventName);
     const eventNameForDispatch = preparedEvent.isKnownEvent ? preparedEvent.canonicalEventName : eventName;
@@ -466,6 +472,7 @@ export function trackIdentityLinked(input: {
 
     const privacySettings = readPrivacySettingsSnapshot();
     const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
+    const privacyDataAvailabilityReason = resolvePrivacyDataAvailabilityReason(privacySettings);
     const consentState = allowIdentifiedAnalytics ? "granted" : "denied";
     const identityLink = buildClientIdentityLinkRecord({
         userId: input.userId,
@@ -486,14 +493,22 @@ export function trackIdentityLinked(input: {
         eligible_past_session_ids: identityLink.eligiblePastSessionIds,
         confidence: identityLink.persisted ? "high" : "medium",
         metric_eligible: allowIdentifiedAnalytics,
-        metric_exclusion_reason: allowIdentifiedAnalytics ? "" : "privacy_limited",
-        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : "privacy_limited",
+        metric_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+        privacy_data_availability_reason: privacyDataAvailabilityReason,
         identity_persistence_allowed: identityLink.persisted,
         consent_state: identityLink.consentState,
         source_truth: "canonical",
         source_confidence: allowIdentifiedAnalytics ? 1 : 0.7,
     });
-    const enrichedParams = getEnrichedEventParams(preparedEvent.enrichedParams);
+    const enrichedParams = getEnrichedEventParams({
+        ...preparedEvent.enrichedParams,
+        consent_state: allowIdentifiedAnalytics ? "granted" : "denied",
+        identified_analytics_allowed: allowIdentifiedAnalytics,
+        privacy_data_availability_reason: privacyDataAvailabilityReason,
+        metric_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+    });
     const sessionId = typeof enrichedParams?.session_id === "string" ? enrichedParams.session_id : getSessionId();
     const eventTimestampMs = typeof enrichedParams?.event_timestamp_ms === "number"
         ? enrichedParams.event_timestamp_ms

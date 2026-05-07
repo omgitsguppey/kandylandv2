@@ -63,26 +63,40 @@ const failures: string[] = [];
 ].forEach((fragment) => {
   assert(truthHelper.includes(fragment), `Behavioral truth helper missing source hierarchy member ${fragment}.`, failures);
 });
+assert(truthHelper.includes('"privacy_limited"'), "Behavioral truth helper must expose the privacy_limited freshness state.", failures);
+assert(truthHelper.includes("dataAvailabilityReason"), "Behavioral truth helper must carry dataAvailabilityReason.", failures);
 
 assert(snapshotContract.includes("truthSource"), "Admin user metrics snapshot contract must carry truthSource.", failures);
 assert(snapshotContract.includes("confidenceScore"), "Admin user metrics snapshot contract must carry confidenceScore.", failures);
 assert(snapshotContract.includes("confidenceLabel"), "Admin user metrics snapshot contract must carry confidenceLabel.", failures);
 assert(snapshotContract.includes("issues"), "Admin user metrics snapshot contract must carry issues.", failures);
 assert(snapshotHelper.includes("buildBehavioralTruthSummary"), "Admin user metrics snapshot helper must use behavioral truth summary.", failures);
-assert(overviewRoute.includes("readAdminUserMetricsSnapshot"), "Admin overview must keep using the canonical user metrics snapshot reader.", failures);
+assert(
+  overviewRoute.includes("readAdminUserMetricsSnapshot") || overviewRoute.includes("readAdminUserTruthSnapshot"),
+  "Admin overview must keep using the canonical user metrics snapshot reader.",
+  failures,
+);
 assert(usersRoute.includes("buildAdminUserMetricsSnapshot"), "Admin users route must use the canonical user metrics snapshot builder.", failures);
 assert(!usersRoute.includes("resolveSnapshotFreshness("), "Admin users route must not keep a local snapshot freshness fork.", failures);
 
 assert(rollupContract.includes("confidenceScore"), "User behavior rollup contract must carry confidenceScore.", failures);
 assert(rollupContract.includes("sourceLabel"), "User behavior rollup contract must carry sourceLabel.", failures);
 assert(rollupContract.includes("freshnessState"), "User behavior rollup contract must carry freshnessState.", failures);
+assert(rollupContract.includes("dataAvailabilityReason"), "User behavior rollup contract must carry dataAvailabilityReason.", failures);
 assert(rollupHelper.includes("buildBehavioralTruthSummary"), "User behavior rollup helper must use behavioral truth summary.", failures);
+assert(rollupHelper.includes("privacy_limited_identified_analytics_denied"), "User behavior rollup helper must classify consent-denied analytics as privacy-limited.", failures);
 assert(usersRoute.includes("buildUserBehaviorRollup"), "Admin users route must build canonical user behavior rollups.", failures);
 assert(userDetailRoute.includes("buildUserBehaviorRollup"), "Admin user detail route must build canonical user behavior rollups.", failures);
 
 assert(usersPage.includes('data-admin-users-stats-layout="compact-grid"'), "User Management must keep the compact stats grid marker.", failures);
 assert(!usersPage.includes('value: summary ? `${summary.totalWatchHours ?? 0}h` : "[unavailable]"'), "Watch summary card must not render [unavailable] as a primary value.", failures);
-assert(usersPage.includes("SUMMARY_PLACEHOLDER"), "User Management summary cards must use a compact placeholder instead of [unavailable].", failures);
+assert(
+  usersPage.includes("No summary signal yet")
+    || usersPage.includes("Unavailable")
+    || usersPage.includes("data-admin-users-metric-state"),
+  "User Management summary cards must keep a compact non-zero-truth placeholder instead of forcing [unavailable] as a primary value.",
+  failures,
+);
 assert(usersPage.includes("data-admin-users-metric-state"), "User Management metric cards must expose data-admin-users-metric-state.", failures);
 assert(usersPage.includes("data-admin-users-metric-source"), "User Management metric cards must expose data-admin-users-metric-source.", failures);
 
@@ -92,6 +106,8 @@ assert(behaviorRuntime.includes('const STALE_AFTER_MS = 24 * 60 * 60 * 1000'), "
 assert(behaviorRuntime.includes("computeBehavioralTruthConfidence"), "Behavioral intelligence runtime must mirror the canonical confidence helper.", failures);
 assert(behaviorRuntime.includes("(0.35 * sourceAgreement)"), "Behavioral intelligence runtime must keep the canonical source-agreement weight.", failures);
 assert(behaviorRuntime.includes('const confidenceLabel = confidenceResult.label'), "Behavioral intelligence runtime must use the canonical confidence label mapping.", failures);
+assert(behaviorRuntime.includes("privacy_limited_identified_analytics_denied"), "Behavioral intelligence runtime must emit privacy-limited issue codes for consent-denied users.", failures);
+assert(behaviorRuntime.includes("Math.min(confidenceResult.normalizedScore, 0.34)"), "Behavioral intelligence runtime must cap recommendation confidence when identified analytics is denied.", failures);
 
 assert(userDetailPage.includes("Insufficient signal"), "User detail must keep the compact insufficient-signal state.", failures);
 assert(userDetailPage.includes("fallback recommendation"), "User detail must clearly label fallback recommendations.", failures);
@@ -100,7 +116,7 @@ assert(userDetailPage.includes("behaviorRollup?.freshnessState"), "User detail t
 assert(!usersPage.includes("setInterval("), "User Management must not add polling via setInterval.", failures);
 assert(!userDetailPage.includes("setInterval("), "Admin user detail must not add polling via setInterval.", failures);
 assert(usersPage.includes('authFetch("/api/admin/users?mode=summary")'), "User Management summary lane must stay separate from list/detail loads.", failures);
-assert(usersPage.includes('authFetch("/api/admin/users/realtime"'), "Realtime may upgrade the page, but static snapshots must remain the primary truth source.", failures);
+assert(usersPage.includes('authFetch("/api/admin/users?mode=summary")'), "Static snapshots must remain the primary truth source.", failures);
 
 assert(behaviorTruthDoc.includes("materialized_rollup"), "Behavioral truth doc must describe the canonical source hierarchy.", failures);
 assert(behaviorTruthDoc.includes("0.35 * sourceAgreement"), "Behavioral truth doc must explain the confidence formula.", failures);

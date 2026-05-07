@@ -7,6 +7,7 @@ import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import type { AdminDebugControlTowerModel, AdminDebugControlTowerSection } from "@/lib/admin-debug-control-tower";
+import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 import { cn } from "@/lib/utils";
 import {
     FILTERS,
@@ -30,7 +31,43 @@ function SummaryMetric({ label, value }: { label: string; value: string | number
     );
 }
 
-export function DebugControlTower() {
+function businessTruthState(snapshot?: AdminUserTruthSnapshot | null) {
+    if (!snapshot) return "unavailable" as const;
+    if (
+        snapshot.sourceFreshness === "failed"
+        || snapshot.sourceFreshness === "unavailable"
+        || snapshot.issues.some((issue) => issue.severity === "fail")
+    ) {
+        return "failed" as const;
+    }
+    if (
+        snapshot.sourceFreshness === "stale"
+        || snapshot.sourceFreshness === "degraded"
+        || snapshot.sourceTruth === "legacy_fallback"
+        || snapshot.issues.some((issue) => issue.severity === "warn")
+    ) {
+        return "stale" as const;
+    }
+    return "live" as const;
+}
+
+function formatCompactCurrency(value: number) {
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+    }).format(value);
+}
+
+function formatCompactWatchTime(valueMs: number) {
+    const totalMinutes = Math.round(valueMs / 60_000);
+    if (totalMinutes < 60) return `${totalMinutes}m`;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+}
+
+export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: AdminUserTruthSnapshot | null }) {
     const [model, setModel] = useState<AdminDebugControlTowerModel | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -99,6 +136,7 @@ export function DebugControlTower() {
 
     const Icon = model?.criticalCount ? AlertTriangle : loading ? Clock3 : CheckCircle2;
     const controlTruthState = model?.truthState ?? (loading ? "unknown" : error ? "failed" : "unavailable");
+    const canonicalBusinessTruthState = businessTruthState(businessSnapshot);
 
     return (
         <section
@@ -140,6 +178,55 @@ export function DebugControlTower() {
                     <SummaryMetric label="Live issues" value={model?.liveIssueCount ?? "--"} />
                 </div>
             </div>
+
+            {businessSnapshot ? (
+                <div
+                    className="rounded-[1.2rem] border border-white/10 bg-black/25 p-3"
+                    data-debug-report-source="canonical-business-truth"
+                    data-debug-truth-state={canonicalBusinessTruthState}
+                >
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 className="font-bold text-white">Canonical Business Truth</h3>
+                            <p className="text-xs text-gray-400">
+                                User, purchase, revenue, unwrap, and watch metrics come from the admin-user truth snapshot and do not inherit ops-health status.
+                            </p>
+                        </div>
+                        <AdminStatusBadge state={toBadgeState(canonicalBusinessTruthState)} />
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+                        <SummaryMetric label="Users" value={businessSnapshot.totalUsers} />
+                        <SummaryMetric label="Purchases" value={businessSnapshot.verifiedPurchases} />
+                        <SummaryMetric label="Revenue" value={formatCompactCurrency(businessSnapshot.totalRevenueUsd)} />
+                        <SummaryMetric label="Unwraps" value={businessSnapshot.trackedUnwraps} />
+                        <SummaryMetric label="Watch" value={formatCompactWatchTime(businessSnapshot.validWatchTimeMs)} />
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-300">
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+                            freshness {businessSnapshot.sourceFreshness}
+                        </span>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+                            truth {businessSnapshot.sourceTruth}
+                        </span>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+                            confidence {businessSnapshot.confidenceScore}%
+                        </span>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+                            generated {formatRelative(businessSnapshot.generatedAt)}
+                        </span>
+                    </div>
+                    {businessSnapshot.issues.length > 0 ? (
+                        <div className="mt-3 space-y-2">
+                            {businessSnapshot.issues.slice(0, 4).map((issue) => (
+                                <div key={issue.code} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
+                                    <p className="font-semibold text-white">{issue.severity}</p>
+                                    <p className="mt-1">{issue.message}</p>
+                                </div>
+                            ))}
+                        </div>
+                    ) : null}
+                </div>
+            ) : null}
 
             <div className="flex gap-2 overflow-x-auto pb-1">
                 {FILTERS.map((filter) => {

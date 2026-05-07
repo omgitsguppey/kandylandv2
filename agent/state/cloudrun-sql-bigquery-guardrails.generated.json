@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T20:39:40.974Z",
+  "generatedAt": "2026-05-07T22:53:27.926Z",
   "score": 100,
   "status": "clean",
   "cloudRunFindings": [],
@@ -181,7 +181,18 @@
       "maxLoadJobsPerTablePerDay": 1500,
       "validationRequired": true,
       "importBackToRuntimeAllowed": false,
-      "notes": "Functions export first-party analytics event facts to BigQuery and must record analytics_export_status."
+      "canonicalImportTargets": [
+        "analytics_event_facts",
+        "analytics_metric_facts"
+      ],
+      "forbiddenRuntimeMutationSurfaces": [
+        "runtime_balances",
+        "runtime_unlocks",
+        "runtime_purchases",
+        "runtime_user_rollups",
+        "legacy_admin_metric_snapshots"
+      ],
+      "notes": "Functions export first-party analytics event facts to BigQuery and must record analytics_export_status. BigQuery is analytics evidence only and cannot become primary product truth."
     },
     {
       "pipelineName": "bigquery_runtime_imports",
@@ -193,7 +204,18 @@
       "maxLoadJobsPerTablePerDay": 0,
       "validationRequired": true,
       "importBackToRuntimeAllowed": false,
-      "notes": "BigQuery import back into runtime state is blocked unless a dry-run, schema-validated, idempotent import contract is approved."
+      "canonicalImportTargets": [
+        "analytics_event_facts",
+        "analytics_metric_facts"
+      ],
+      "forbiddenRuntimeMutationSurfaces": [
+        "runtime_balances",
+        "runtime_unlocks",
+        "runtime_purchases",
+        "runtime_user_rollups",
+        "legacy_admin_metric_snapshots"
+      ],
+      "notes": "BigQuery import back into runtime state is blocked unless a dry-run, schema-validated, idempotent import contract is approved. Imported rows must map to normalized event facts or canonical metric facts only."
     }
   ],
   "manualCloudConsoleChecklist": [

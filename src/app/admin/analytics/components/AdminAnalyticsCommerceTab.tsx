@@ -5,6 +5,13 @@ import {
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Line, LineChart } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import {
+  buildAdminAnalyticsViewerDrilldownContract,
+  resolveAdminAnalyticsCommerceConversionFooter,
+  resolveAdminAnalyticsCommerceBadgeLabel,
+  resolveAdminAnalyticsContentConversionRowTruthState,
+  resolveAdminAnalyticsTopDropIdentityTruthState,
+} from "@/lib/admin-analytics-contracts";
 import { coerceAdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -55,17 +62,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     formatter: (next: number) => string,
     waitingLabel = "No verified snapshot yet",
   ) => (typeof value === "number" && Number.isFinite(value) ? formatter(value) : waitingLabel);
-  const commerceBadgeLabel = commerceSnapshotModel.cacheState === "live"
-    ? "LIVE"
-    : commerceSnapshotModel.cacheState === "delayed"
-      ? "DELAYED"
-      : commerceSnapshotModel.cacheState === "partial"
-        ? "REVIEW"
-        : commerceSnapshotModel.cacheState === "stale"
-          ? "DELAYED"
-          : commerceSnapshotModel.refreshStatus === "running" && !commerceSnapshotModel.serverConfirmed
-            ? "WAIT"
-            : "ERROR";
+  const commerceBadgeLabel = resolveAdminAnalyticsCommerceBadgeLabel(commerceSnapshotModel);
   const compactMetricClass = "rounded-[1rem] p-2";
   const compactMetricValueClass = "text-lg leading-6 md:text-xl";
   const commerceConversionLabel =
@@ -86,9 +83,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const commerceGeneratedAtLabel = commerceSnapshotModel.generatedAtUtc
     ? formatAbsoluteDateTime(Date.parse(commerceSnapshotModel.generatedAtUtc))
     : "Unknown";
-  const commerceConversionFooter = commerceSnapshotModel.checkoutConversionWarning
-    ? commerceSnapshotModel.checkoutConversionWarning
-    : `Checkout conversion: completed purchases / checkout starts = ${commerceConversionLabel}`;
+  const commerceConversionFooter = resolveAdminAnalyticsCommerceConversionFooter({
+    checkoutConversionWarning: commerceSnapshotModel.checkoutConversionWarning,
+    checkoutConversionLabel: commerceConversionLabel,
+  });
   const [contentConversionGrouping, setContentConversionGrouping] = React.useState<"contentType" | "flavor" | "creator" | "priceBand">("contentType");
   const contentConversionRows = contentConversionModel.rowsByDimension[contentConversionGrouping] ?? [];
   const contentConversionVisibleRows = contentConversionRows.slice(0, 8);
@@ -114,89 +112,29 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const viewerLastSessionLabel = viewerDrilldownCaptureHealth.lastSeenAtMs
     ? formatRelativeTime(viewerDrilldownCaptureHealth.lastSeenAtMs, nowMs)
     : "No viewer session timestamp";
-  const viewerSourceTruth =
-    viewerDrilldownOverview.watchScoreSource === "watch_session_rollup"
-      ? "watch_sessions"
-      : viewerDrilldownOverview.watchScoreSource === "legacy_page_duration"
-        ? "estimated"
-        : viewerDrilldownOverview.watchScoreSource || "mixed";
-  const viewerFreshnessState =
-    viewerDrilldownCaptureHealth.lastSeenAtMs <= 0
-      ? "unknown"
-      : nowMs - viewerDrilldownCaptureHealth.lastSeenAtMs > 24 * 60 * 60 * 1000
-        ? "stale"
-        : nowMs - viewerDrilldownCaptureHealth.lastSeenAtMs > 15 * 60 * 1000
-          ? "recent"
-          : "live";
-  const verifiedWatchSeconds =
-    viewerDrilldownOverview.watchScoreSource === "watch_session_rollup"
-      ? viewerDrilldownOverview.totalWatchSeconds
-      : 0;
-  const estimatedWatchSeconds =
-    viewerDrilldownOverview.watchScoreSource === "watch_session_rollup"
-      ? 0
-      : viewerDrilldownOverview.totalWatchSeconds;
-  const totalViewerWatchSeconds = verifiedWatchSeconds + estimatedWatchSeconds;
-  const avgWatchDenominator = viewerDrilldownOverview.sessionCount > 0
-    ? `${formatDuration(Math.round(totalViewerWatchSeconds / viewerDrilldownOverview.sessionCount))} avg / session`
-    : "Avg unavailable: no viewer sessions";
-  const shallowBounceCount = Math.max(
-    0,
-    viewerDrilldownOverview.bounceSessionCount -
-      viewerDrilldownOverview.abandonedSessionCount -
-      viewerDrilldownOverview.stalledSessionCount,
-  );
-  const earlyExitFormula = `${viewerDrilldownOverview.abandonedSessionCount.toLocaleString()} abandoned + ${viewerDrilldownOverview.stalledSessionCount.toLocaleString()} stalled + ${shallowBounceCount.toLocaleString()} shallow bounces`;
-  const captureUnknownTransportCount =
-    viewerDrilldownCaptureHealth.transportBreakdown.find((item: any) => item.transport === "unknown")?.count ?? 0;
-  const captureUnknownTransportWarning =
-    captureUnknownTransportCount > 0
-      ? `REVIEW: ${captureUnknownTransportCount.toLocaleString()} watch sessions have unknown capture transport.`
-      : null;
-  const captureHealthExplanation = `Full capture means the session closed or recovered cleanly. Replay recovery can still count as full when replay repaired missing capture segments. Avg gap is the mean max capture gap across sessions.`;
-  const livePulseState =
-    liveWatchCaptureHealth.sessionCount <= 0
-      ? "quiet"
-      : liveWatchCaptureHealth.lastSeenAtMs > 0 && nowMs - liveWatchCaptureHealth.lastSeenAtMs > 15 * 60 * 1000
-        ? "stale"
-        : "live";
-  const livePulseBadgeLabel =
-    livePulseState === "quiet"
-      ? "QUIET"
-      : livePulseState === "stale"
-        ? "STALE"
-        : "LIVE";
-  const livePulseExplanation =
-    livePulseState === "quiet"
-      ? "Monitor live - no recent viewer sessions."
-      : livePulseState === "stale"
-        ? "Viewer capture sample is stale; newest recent session is outside the live window."
-        : "Viewer capture sample has recent sessions inside the live window.";
-  const viewerUserJourneyRows = viewerDrilldownUsers.slice(0, 6).map((item: any) => {
-    const username = item.username ? (item.username.startsWith("@") ? item.username : `@${item.username}`) : `uid:${String(item.uid || "unknown").slice(0, 8)}`;
-    return {
-      ...item,
-      displayName: username,
-      lastSeenAtMs: item.lastSeenAtMs || 0,
-      freshnessState:
-        item.lastSeenAtMs && nowMs - item.lastSeenAtMs <= 15 * 60 * 1000
-          ? "live"
-          : item.lastSeenAtMs && nowMs - item.lastSeenAtMs <= 24 * 60 * 60 * 1000
-            ? "recent"
-            : item.lastSeenAtMs
-              ? "stale"
-              : "unknown",
-    };
+  const viewerDrilldownContract = buildAdminAnalyticsViewerDrilldownContract({
+    nowMs,
+    formatDuration,
+    viewerDrilldownOverview,
+    viewerDrilldownCaptureHealth,
+    liveWatchCaptureHealth,
+    viewerDrilldownUsers,
   });
-  const viewerPanelWarnings = [
-    viewerSourceTruth === "estimated"
-      ? "Watch time is estimated from fallback page/session duration and is not verified watch-session truth."
-      : null,
-    viewerDrilldownOverview.openedWithoutDepthCount > viewerDrilldownOverview.meaningfulSessionCount
-      ? "Opened-no-depth is high: many viewer opens did not reach meaningful consumption."
-      : null,
-    captureUnknownTransportWarning,
-  ].filter(Boolean) as string[];
+  const {
+    viewerSourceTruth,
+    viewerFreshnessState,
+    verifiedWatchSeconds,
+    estimatedWatchSeconds,
+    totalViewerWatchSeconds,
+    avgWatchDenominator,
+    earlyExitFormula,
+    captureHealthExplanation,
+    viewerCapturePulseState,
+    viewerCapturePulseBadgeLabel,
+    viewerCapturePulseExplanation,
+    viewerUserJourneyRows,
+    viewerPanelWarnings,
+  } = viewerDrilldownContract;
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -569,7 +507,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 <p className="truncate text-sm font-semibold text-white">{row.groupLabel}</p>
                                 <p className="mt-1 text-[11px] text-gray-500">{`${row.dropCount} drops | ${row.previewCount.toLocaleString()} previews | ${row.unlockCount.toLocaleString()} ${row.unlockCount === 1 ? "unwrap" : "unwraps"}`}</p>
                               </div>
-                              <AdminStatusBadge state={coerceAdminSurfaceState(row.conversionState === "healthy" ? "live" : row.conversionState === "no_data" ? "unavailable" : "degraded")} />
+                              <AdminStatusBadge state={resolveAdminAnalyticsContentConversionRowTruthState(row.conversionState)} />
                             </div>
                             <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400">
                               <span>
@@ -603,7 +541,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               {row.watchSeconds !== null && row.watchSeconds !== undefined ? formatDuration(row.watchSeconds) : "Unavailable"}
                             </div>
                             <div>
-                              <AdminStatusBadge state={coerceAdminSurfaceState(row.conversionState === "healthy" ? "live" : row.conversionState === "no_data" ? "unavailable" : "degraded")} />
+                              <AdminStatusBadge state={resolveAdminAnalyticsContentConversionRowTruthState(row.conversionState)} />
                             </div>
                           </div>
                         </div>
@@ -749,7 +687,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                             <div className="text-sm font-semibold text-white">{drop.unwraps.toLocaleString()}</div>
                             <div className="text-sm font-semibold text-brand-purple">{drop.unwrapRateDisplay}</div>
                             <div>
-                              <AdminStatusBadge state={coerceAdminSurfaceState(drop.dropIdentityState === "resolved" ? "cached" : "degraded")} />
+                              <AdminStatusBadge state={resolveAdminAnalyticsTopDropIdentityTruthState(drop.dropIdentityState)} />
                             </div>
                           </div>
                           <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
@@ -1236,15 +1174,15 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               <span
                                 className={cn(
                                   "rounded-full border px-3 py-1 text-[11px] font-semibold",
-                                  livePulseState === "live"
+                                  viewerCapturePulseState === "live"
                                     ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-100"
-                                    : livePulseState === "stale"
+                                    : viewerCapturePulseState === "stale"
                                       ? "border-amber-400/25 bg-amber-500/10 text-amber-100"
                                       : "border-cyan-400/25 bg-cyan-500/10 text-cyan-100",
                                 )}
-                                data-library-viewer-live-pulse-state={livePulseState}
+                                data-library-viewer-live-pulse-state={viewerCapturePulseState}
                               >
-                                {livePulseBadgeLabel}
+                                {viewerCapturePulseBadgeLabel}
                               </span>
                               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
                                 {liveWatchCaptureHealth.sessionCount <= 0 ? "0" : liveWatchCaptureHealth.sessionCount.toLocaleString()}{" "}
@@ -1255,7 +1193,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
 
                           <div className="space-y-3">
                             <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs leading-5 text-gray-300">
-                              {livePulseExplanation}
+                              {viewerCapturePulseExplanation}
                               {liveWatchCaptureHealth.lastSeenAtMs > 0
                                 ? ` Last recent viewer session: ${formatRelativeTime(liveWatchCaptureHealth.lastSeenAtMs, nowMs)}.`
                                 : " Last recent viewer session: none."}

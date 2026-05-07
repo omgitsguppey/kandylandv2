@@ -795,6 +795,16 @@ async function GET_handler(
             hasWatchSessions: watchTimeRollup.validSessionCount > 0,
             hasLegacyPageDuration: watchTimeRollup.source === "legacy_page_duration",
             hasTransactions: transactions.length > 0,
+            identifiedAnalyticsEnabled: rawUser.privacySettings && typeof rawUser.privacySettings === "object"
+                ? (rawUser.privacySettings as Record<string, unknown>).identifiedAnalyticsEnabled === true
+                : undefined,
+            honorGlobalPrivacyControl: rawUser.privacySettings && typeof rawUser.privacySettings === "object"
+                ? (rawUser.privacySettings as Record<string, unknown>).honorGlobalPrivacyControl !== false
+                : undefined,
+            globalPrivacyControl: rawUser.privacySettings && typeof rawUser.privacySettings === "object"
+                ? (rawUser.privacySettings as Record<string, unknown>).globalPrivacyControl === true
+                : undefined,
+            hasPrivacySettings: Boolean(rawUser.privacySettings && typeof rawUser.privacySettings === "object"),
             commerceSourcePresent: Boolean(commerceMetrics.commerceSourceLabel),
             sourceIssues: [
                 ...metricIntegrity.failures,

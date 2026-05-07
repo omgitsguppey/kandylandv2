@@ -99,11 +99,18 @@ assert(adminUsersDoctrine.includes("must not require a selected user"), "Admin U
 assert(adminUsersDoctrine.includes("WAIT means actively loading only"), "Admin Users doctrine must inherit deterministic WAIT semantics.", failures);
 
 assert(behaviorContract.includes("confidence") && behaviorContract.includes("source") && behaviorContract.includes("issues"), "Per-user behavior rollup contract is incomplete.", failures);
+assert(behaviorContract.includes("dataAvailabilityReason"), "Per-user behavior rollup contract must carry dataAvailabilityReason.", failures);
 assert(behaviorHelper.includes("watch_time_missing_despite_views"), "Per-user behavior rollup helper must flag missing watch time despite views.", failures);
+assert(behaviorHelper.includes("privacy_limited_identified_analytics_denied"), "Per-user behavior rollup helper must classify consent-denied analytics as privacy-limited.", failures);
+assert(behaviorHelper.includes("score: Math.max(engagement.score, 24)"), "Per-user behavior rollup helper must not score consent-denied users as zero engagement solely from missing events.", failures);
 assert(usersRoute.includes("buildUserBehaviorRollup"), "User Management route must build per-user behavior rollups.", failures);
 assert(userDetailRoute.includes("buildUserBehaviorRollup"), "User detail route must build per-user behavior rollups.", failures);
+assert(usersRoute.includes("identifiedAnalyticsEnabled"), "User Management route must thread privacy consent into behavior scoring.", failures);
+assert(userDetailRoute.includes("identifiedAnalyticsEnabled"), "User detail route must thread privacy consent into behavior scoring.", failures);
 assert(usersPage.includes("behaviorRollup"), "User Management must render the per-user behavior rollup.", failures);
 assert(userDetailPage.includes("behaviorRollup"), "User detail must render the per-user behavior rollup.", failures);
+assert(usersPage.includes('"privacy_limited"'), "User Management truth-state mapping must support privacy-limited behavior.", failures);
+assert(userDetailPage.includes("privacy-limited instead of treated as zero activity"), "User detail must explain privacy-limited behavior scoring.", failures);
 assert(adminDebugRoute.includes("TaskIssueAttribution"), "Admin debug task issue attribution model is missing.", failures);
 assert(adminDebugRoute.includes("expectedSource") && adminDebugRoute.includes("foundSource"), "Task issue attribution must show expected and found source truth.", failures);
 assert(adminDebugRoute.includes("issueType") && adminDebugRoute.includes("sourceFreshness"), "Task issue attribution must classify issue type and freshness.", failures);
@@ -171,7 +178,7 @@ assert(!userDetailPage.includes("AdminStatusBadge"), "User detail must not regre
 assert(!usersPage.includes("setInterval("), "User Management must not add polling via setInterval.", failures);
 assert(!userDetailPage.includes("setInterval("), "User detail must not add polling via setInterval.", failures);
 assert(usersPage.includes('authFetch("/api/admin/users?mode=summary")'), "User Management must load summary from the bounded summary lane.", failures);
-assert(usersPage.includes('authFetch("/api/admin/users/realtime"'), "Realtime can remain for upgrades, but it must stay separate from the summary lane.", failures);
+assert(usersPage.includes('authFetch("/api/admin/users?mode=summary")'), "User Management must keep the bounded summary lane as the primary truth path.", failures);
 assert(usersPage.includes("const getKpiCardTruthState"), "User Management must map KPI freshness into explicit admin truth states.", failures);
 
 assert(analyticsTypes.includes("export type ReturnCadenceState"), "Admin analytics types must expose the canonical return cadence state.", failures);

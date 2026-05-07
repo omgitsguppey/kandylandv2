@@ -228,4 +228,52 @@ describe("AssetUploader", () => {
       expect(mockState.trackEvent).toHaveBeenCalledWith("asset_upload_retry_clicked", expect.any(Object));
     });
   });
+
+  it("accepts admin uploads when only persistedUrl is available", async () => {
+    const onChange = vi.fn();
+    mockState.authFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        file: {
+          url: null,
+          persistedUrl: "https://firebasestorage.googleapis.com/v0/b/test/o/drops%2Fasset.png?alt=media&token=abc",
+          safePreview: {
+            url: null,
+          },
+          contentType: "image/png",
+          size: 4,
+          name: "asset.png",
+        },
+      }),
+    });
+
+    render(
+      <AssetUploader
+        label="Cover"
+        folder="drops/images"
+        aspectRatio="1:1"
+        onAspectRatioChange={() => undefined}
+        onChange={onChange}
+        accept="image/*"
+        disableCrop={true}
+        serverUploadEndpoint="/api/admin/content"
+      />,
+    );
+
+    const input = document.querySelector("input[type='file']") as HTMLInputElement;
+    fireEvent.change(input, {
+      target: {
+        files: [new File(["img"], "asset.png", { type: "image/png" })],
+      },
+    });
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenLastCalledWith([
+        expect.objectContaining({
+          url: "https://firebasestorage.googleapis.com/v0/b/test/o/drops%2Fasset.png?alt=media&token=abc",
+        }),
+      ]);
+      expect(screen.getByText("Uploaded")).toBeTruthy();
+    });
+  });
 });

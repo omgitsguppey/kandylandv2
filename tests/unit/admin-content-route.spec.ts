@@ -287,6 +287,7 @@ describe("admin content route", () => {
       displayPath: "drops/[asset]/1775133296000_hero_image.png",
       contentType: "image/png",
       size: 5,
+      persistedUrl: expect.stringContaining("firebasestorage.googleapis.com"),
     });
     expect(payload.file).not.toHaveProperty("fullPath");
     expect(payload.file.url).toContain("X-Goog-Signature=signed");
@@ -355,6 +356,7 @@ describe("admin content route", () => {
     expect(payload.file).toMatchObject({
       name: "1775133296000_hero_image.png",
       url: null,
+      persistedUrl: expect.stringContaining("firebasestorage.googleapis.com"),
       safePreview: expect.objectContaining({
         available: false,
       }),

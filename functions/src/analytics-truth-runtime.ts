@@ -20,6 +20,7 @@ import {
 } from "./analytics-truth-contract.js"
 
 type EventFactRecord = Record<string, unknown>
+type MetricFactRecord = Record<string, unknown>
 type WatchSessionRecord = Record<string, unknown>
 type WatchAssetRecord = Record<string, unknown>
 type WatchObservationRecord = Record<string, unknown>
@@ -75,8 +76,8 @@ type RepairRecord = Record<string, unknown> & {
   repairId: string
 }
 
-const VIEW_EVENT_NAMES = new Set(["viewer_opened", "viewer_session_started"])
-const PREVIEW_EVENT_NAMES = new Set(["drop_preview_opened", "view_drop_details"])
+const VIEW_NORMALIZED_ACTIONS = new Set(["watch_session_started", "file_viewed"])
+const PREVIEW_NORMALIZED_ACTIONS = new Set(["drop_preview_opened", "drop_viewed"])
 
 function clamp01(value: number) {
   if (!Number.isFinite(value)) {
@@ -103,6 +104,66 @@ function average(values: number[]) {
   return round(values.reduce((sum, value) => sum + value, 0) / values.length, 2)
 }
 
+function readNormalizedAction(record: Record<string, unknown>) {
+  return readString(record.normalizedActionName).toLowerCase()
+}
+
+function readSourceTruth(record: Record<string, unknown>) {
+  return readString(record.sourceTruth || record.normalizedActionSourceTruth).toLowerCase()
+}
+
+function isCanonicalMetricSource(record: Record<string, unknown>) {
+  const sourceTruth = readSourceTruth(record)
+  return sourceTruth === "server"
+    || sourceTruth === "canonical"
+    || sourceTruth === "materialized"
+    || sourceTruth === "server_entitlement_unlock"
+    || sourceTruth === "watch_session_rollup"
+}
+
+function readMetricName(record: Record<string, unknown>) {
+  return readString(record.metricName).toLowerCase()
+}
+
+function buildCanonicalMetricFacts(input: {
+  eventFacts: EventFactRecord[]
+  watchSessions: WatchSessionRecord[]
+}) {
+  const metricFacts: MetricFactRecord[] = []
+
+  input.eventFacts.forEach((record) => {
+    const normalizedAction = readNormalizedAction(record)
+    if (normalizedAction !== "drop_unlocked" || record.metricEligible === false || !isCanonicalMetricSource(record)) {
+      return
+    }
+
+    metricFacts.push({
+      metricName: "drop_unlocked",
+      actorUserId: readString(record.actorUserId) || readString(record.userId),
+      targetDropId: readString(record.targetDropId) || readString(record.dropId),
+      timestampMs: readNumber(record.timestamp) || Date.now(),
+    })
+  })
+
+  input.watchSessions.forEach((record) => {
+    const watchScoreSource = readString(record.watchScoreSource)
+    const validWatchMs = readNumber(record.validWatchMs)
+    if (watchScoreSource !== "watch_session_rollup" || validWatchMs <= 0) {
+      return
+    }
+
+    metricFacts.push({
+      metricName: "watch_session_verified",
+      actorUserId: readString(record.userId),
+      targetDropId: readString(record.dropId),
+      timestampMs: readNumber(record.lastSeenAtMs) || Date.now(),
+      value: validWatchMs,
+    })
+  })
+
+  return metricFacts
+}
+
 function buildRecoveryKey(input: {
   userId: string
   sessionId: string
@@ -116,11 +177,11 @@ function buildDuplicateKey(input: {
   userId: string
   sessionId: string
   dropId: string
-  eventName: string
+  actionKey: string
   timestampMs: number
 }) {
-  const collapseWindowMs = PREVIEW_EVENT_NAMES.has(input.eventName) ? 45000 : 90000
-  return `${input.userId || "anonymous"}::${input.sessionId || "unknown"}::${input.dropId || "site"}::${input.eventName}::${Math.floor(input.timestampMs / collapseWindowMs)}`
+  const collapseWindowMs = PREVIEW_NORMALIZED_ACTIONS.has(input.actionKey) ? 45000 : 90000
+  return `${input.userId || "anonymous"}::${input.sessionId || "unknown"}::${input.dropId || "site"}::${input.actionKey}::${Math.floor(input.timestampMs / collapseWindowMs)}`
 }
 
 function ensureBucket(scopeKey: string, store: Map<string, CounterBucket>) {
@@ -213,6 +274,10 @@ async function readTruthSources(nowMs: number) {
     watchSessions: watchSessionsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
     watchAssets: watchAssetsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
     watchObservations: watchObservationsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+    metricFacts: buildCanonicalMetricFacts({
+      eventFacts: eventFactsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+      watchSessions: watchSessionsSnapshot.docs.map((doc) => ({id: doc.id, ...(doc.data() as Record<string, unknown>)})),
+    }),
   }
 }
 
@@ -256,7 +321,7 @@ function buildAnalyticsTruthDocs(input: Awaited<ReturnType<typeof readTruthSourc
 
   input.eventFacts.forEach((record) => {
     const event = record as EventFactRecord
-    const eventName = readString(event.eventName)
+    const normalizedAction = readNormalizedAction(event)
     const timestampMs = readNumber(event.timestamp) || nowMs
     const userId = readString(event.userId)
     const sessionId = readString(event.sessionId)
@@ -264,7 +329,7 @@ function buildAnalyticsTruthDocs(input: Awaited<ReturnType<typeof readTruthSourc
     const userBucket = userId ? ensureBucket(userId, userBuckets) : undefined
     const dropBucket = dropId ? ensureBucket(dropId, dropBuckets) : undefined
 
-    if (VIEW_EVENT_NAMES.has(eventName)) {
+    if (VIEW_NORMALIZED_ACTIONS.has(normalizedAction)) {
       applyToAllScopes({
         globalBucket,
         dropBucket,
@@ -277,7 +342,7 @@ function buildAnalyticsTruthDocs(input: Awaited<ReturnType<typeof readTruthSourc
         userId,
         sessionId,
         dropId,
-        eventName,
+        actionKey: normalizedAction || "view_unknown",
         timestampMs,
       })
       const nextCount = (duplicateViewKeys.get(duplicateKey) || 0) + 1
@@ -300,7 +365,7 @@ function buildAnalyticsTruthDocs(input: Awaited<ReturnType<typeof readTruthSourc
       }))
     }
 
-    if (PREVIEW_EVENT_NAMES.has(eventName)) {
+    if (PREVIEW_NORMALIZED_ACTIONS.has(normalizedAction)) {
       applyToAllScopes({
         globalBucket,
         dropBucket,
@@ -313,7 +378,7 @@ function buildAnalyticsTruthDocs(input: Awaited<ReturnType<typeof readTruthSourc
         userId,
         sessionId,
         dropId,
-        eventName,
+        actionKey: normalizedAction || "preview_unknown",
         timestampMs,
       })
       const nextCount = (duplicatePreviewKeys.get(duplicateKey) || 0) + 1
@@ -330,16 +395,27 @@ function buildAnalyticsTruthDocs(input: Awaited<ReturnType<typeof readTruthSourc
       }
     }
 
-    if (eventName === "unlock_drop_success") {
-      applyToAllScopes({
-        globalBucket,
-        dropBucket,
-        userBucket,
-        run: (bucket) => {
-          bucket.unlockCount += 1
-        },
-      })
+  })
+
+  input.metricFacts.forEach((record) => {
+    const metricName = readMetricName(record)
+    if (metricName !== "drop_unlocked") {
+      return
     }
+
+    const userId = readString(record.actorUserId)
+    const dropId = readString(record.targetDropId)
+    const userBucket = userId ? ensureBucket(userId, userBuckets) : undefined
+    const dropBucket = dropId ? ensureBucket(dropId, dropBuckets) : undefined
+
+    applyToAllScopes({
+      globalBucket,
+      dropBucket,
+      userBucket,
+      run: (bucket) => {
+        bucket.unlockCount += 1
+      },
+    })
   })
 
   input.watchSessions.forEach((record) => {

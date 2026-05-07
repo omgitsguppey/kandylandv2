@@ -2,6 +2,7 @@ import type {
   BehavioralConfidenceLabel,
 } from "@/lib/behavioral/behavioral-confidence";
 import type {
+  BehavioralDataAvailabilityReason,
   BehavioralFreshnessState,
   BehavioralTruthSource,
 } from "@/lib/behavioral/behavioral-truth-source";
@@ -29,6 +30,8 @@ export type UserBehaviorRollupIssue = {
     | "commerce_source_missing"
     | "last_seen_missing"
     | "legacy_page_duration_fallback"
+    | "privacy_limited_identified_analytics_denied"
+    | "privacy_limited_global_privacy_control"
     | "source_degraded";
   severity: "info" | "warn" | "fail";
   message: string;
@@ -61,6 +64,7 @@ export type UserBehaviorRollup = {
   source: UserBehaviorRollupSource;
   sourceLabel: string;
   freshnessState: BehavioralFreshnessState;
+  dataAvailabilityReason: BehavioralDataAvailabilityReason;
   issues: UserBehaviorRollupIssue[];
   engagement: UserEngagementScoreResult;
   value: UserValueScoreResult;

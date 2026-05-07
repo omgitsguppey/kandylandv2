@@ -28,11 +28,19 @@ if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(document.generatedAtU
 
 const visibleNotes = getPublicReleaseNotesVisibleNotes(document.notes);
 if (visibleNotes.length > 5) failures.push("Beta panel must expose only the last 5 updates.");
+const internalOnlyVisibleNotes = visibleNotes.filter((note) =>
+  note.surfaceCategory === "Internal reliability"
+  || note.hiddenFromPublic === true
+  || note.affectedSurfaces.length === 0,
+);
+if (internalOnlyVisibleNotes.length > 0) {
+  failures.push("Visible beta notes must stay product-facing and must not be internal-reliability-only.");
+}
 
 const seenPublicCopy = new Set<string>();
 for (const [index, note] of visibleNotes.entries()) {
-  if (!note.title || !note.summary || !note.audience || !note.updatedAtUtc || typeof note.betaReleaseCounter !== "number") {
-    failures.push(`Visible note ${index} must include title, summary, audience, updatedAtUtc, and betaReleaseCounter.`);
+  if (!note.title || !note.summary || !note.audience || !note.updatedAtUtc || typeof note.betaReleaseCounter !== "number" || !note.surfaceCategory) {
+    failures.push(`Visible note ${index} must include title, summary, audience, updatedAtUtc, betaReleaseCounter, and surfaceCategory.`);
   }
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(note.updatedAtUtc)) {
     failures.push(`Visible note ${index} updatedAtUtc must be a full UTC timestamp.`);

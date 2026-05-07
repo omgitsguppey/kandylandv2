@@ -25,6 +25,8 @@ function assertNotIncludes(file: string, source: string, unexpected: string) {
 }
 
 const component = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
+const contracts = read("src/lib/admin-analytics-contracts.ts");
+const adminUserTruthSnapshot = read("src/lib/server/admin-user-truth-snapshot.ts");
 const helper = read("src/lib/admin-analytics-audience-snapshot.ts");
 const deviceMixHelper = read("src/lib/admin-analytics-device-mix.ts");
 const topPathsHelper = read("src/lib/admin-analytics-top-paths.ts");
@@ -36,6 +38,7 @@ const types = read("src/types/admin-analytics.ts");
 const doc = read("docs/agent-truth/admin-analytics-audience-snapshot.md");
 
 assertIncludes("audience types", types, "export type AudienceSnapshotState");
+assertIncludes("admin user truth snapshot", adminUserTruthSnapshot, "buildAdminUserTruthSnapshot");
 assertIncludes("audience types", types, "sourceState: \"verified\" | \"mixed\" | \"estimated\" | \"partial\" | \"gap_detected\" | \"stale\"");
 assertIncludes("audience types", types, "export type AudienceSnapshotDiagnostics");
 assertIncludes("audience types", types, "export type ReturnCadenceState");
@@ -85,6 +88,8 @@ assertIncludes("region demand helper", regionDemandHelper, "route-level admin ex
 assertIncludes("region demand helper", regionDemandHelper, "Unknown city/country is a data-quality bucket");
 
 assertIncludes("audience component", component, "data-audience-source-state");
+assertIncludes("audience component", component, "resolveAdminAnalyticsGuestEstimateBadgeLabel");
+assertIncludes("audience component", component, "buildAdminAnalyticsReturnCadenceBuckets");
 assertIncludes("audience component", component, "data-audience-ga-freshness");
 assertIncludes("audience component", component, "data-audience-first-party-freshness");
 assertIncludes("audience component", component, "data-audience-missing-days-count");
@@ -97,6 +102,8 @@ assertIncludes("audience component", component, "data-return-cadence-tracked-use
 assertIncludes("audience component", component, "data-return-cadence-generated-at-utc");
 assertIncludes("audience component", component, "Tracked Auth Users");
 assertIncludes("audience component", component, "No verified zero should be displayed");
+assertNotIncludes("audience component", component, "bucket.count / returnCadenceModel.trackedAuthenticatedUsers");
+assertNotIncludes("audience component", component, "const guestBadgeLabel = audienceSnapshotModel.guestEstimateFormulaUsed");
 assertIncludes("return cadence helper", returnCadenceHelper, "Return cadence is using identified activity fallback because the cadence snapshot has not hydrated.");
 assertIncludes("audience component", component, "label=\"GA4 Users\"");
 assertIncludes("audience component", component, "Guest estimate");
@@ -130,6 +137,10 @@ assertIncludes("audience component", component, "Unknown location");
 assertIncludes("audience component", component, "Internal/admin:");
 assertIncludes("audience component", component, "Adjusted external");
 assertNotIncludes("audience component", component, "label=\"Active Users\"");
+
+assertIncludes("admin analytics contracts", contracts, "\"return_cadence\"");
+assertIncludes("admin analytics contracts", contracts, "resolveAdminAnalyticsGuestEstimateBadgeLabel");
+assertIncludes("admin analytics contracts", contracts, "buildAdminAnalyticsReturnCadenceBuckets");
 
 assertIncludes("debug route", debugRoute, "adminAnalyticsAudienceSnapshot");
 assertIncludes("debug route", debugRoute, "guestEstimateMetadata.formula");

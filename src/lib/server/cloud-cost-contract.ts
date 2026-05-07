@@ -48,6 +48,8 @@ export type BigQueryPipelineContract = {
   maxLoadJobsPerTablePerDay?: number;
   validationRequired: boolean;
   importBackToRuntimeAllowed: boolean;
+  canonicalImportTargets?: string[];
+  forbiddenRuntimeMutationSurfaces?: string[];
   notes: string;
 };
 
@@ -204,7 +206,15 @@ export const BIGQUERY_PIPELINE_CONTRACTS: BigQueryPipelineContract[] = [
     maxLoadJobsPerTablePerDay: 1_500,
     validationRequired: true,
     importBackToRuntimeAllowed: false,
-    notes: "Functions export first-party analytics event facts to BigQuery and must record analytics_export_status.",
+    canonicalImportTargets: ["analytics_event_facts", "analytics_metric_facts"],
+    forbiddenRuntimeMutationSurfaces: [
+      "runtime_balances",
+      "runtime_unlocks",
+      "runtime_purchases",
+      "runtime_user_rollups",
+      "legacy_admin_metric_snapshots",
+    ],
+    notes: "Functions export first-party analytics event facts to BigQuery and must record analytics_export_status. BigQuery is analytics evidence only and cannot become primary product truth.",
   },
   {
     pipelineName: "bigquery_runtime_imports",
@@ -216,6 +226,14 @@ export const BIGQUERY_PIPELINE_CONTRACTS: BigQueryPipelineContract[] = [
     maxLoadJobsPerTablePerDay: 0,
     validationRequired: true,
     importBackToRuntimeAllowed: false,
-    notes: "BigQuery import back into runtime state is blocked unless a dry-run, schema-validated, idempotent import contract is approved.",
+    canonicalImportTargets: ["analytics_event_facts", "analytics_metric_facts"],
+    forbiddenRuntimeMutationSurfaces: [
+      "runtime_balances",
+      "runtime_unlocks",
+      "runtime_purchases",
+      "runtime_user_rollups",
+      "legacy_admin_metric_snapshots",
+    ],
+    notes: "BigQuery import back into runtime state is blocked unless a dry-run, schema-validated, idempotent import contract is approved. Imported rows must map to normalized event facts or canonical metric facts only.",
   },
 ];

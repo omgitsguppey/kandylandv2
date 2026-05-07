@@ -13,6 +13,9 @@
 # Environments: repo/dev documentation only unless explicitly approved.
 # Runtime data: would touch user-derived runtime data if activated, so activation
 # is forbidden by default. Billing risk: Cloud SQL/Data Connect cost-bearing.
+# BigQuery/GA imports may only map into normalized event facts or canonical
+# metric facts after explicit approval; these profile tables are not approved
+# import targets for analytics evidence.
 # ----------------------------------------------------------------------------------------
 
 type UserFeatureProfile @table(name: "user_feature_profiles", key: ["uid"]) {

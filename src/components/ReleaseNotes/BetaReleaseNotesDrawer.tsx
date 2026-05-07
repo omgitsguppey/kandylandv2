@@ -150,7 +150,7 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
                 <h3 className="mt-2 truncate text-sm font-bold text-white">{note.title || note.userFacingTitle}</h3>
                 <p className="mt-1 text-sm leading-5 text-white/72">{note.summary}</p>
                 <p className="mt-3 text-xs font-bold uppercase tracking-[0.18em] text-white/45">
-                  Bug fixes and quality-of-life improvements
+                  {note.surfaceCategory}
                 </p>
                 <ul className="mt-2 space-y-1.5 text-sm leading-5 text-white/68">
                   {note.bullets.slice(0, 5).map((bullet) => (

@@ -13,7 +13,7 @@ import { adminStorage } from "@/lib/server/firebase-admin";
 import { ADMIN_STORAGE_UPLOAD, MEDIA_PROXY } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
-import { sanitizeStorageFileName } from "@/lib/server/storage-assets";
+import { ensureFirebaseDownloadUrl, sanitizeStorageFileName } from "@/lib/server/storage-assets";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundBody } from "@/lib/server/not-found";
 
@@ -235,9 +235,11 @@ async function POST_handler(request: NextRequest) {
         }
 
         let safeFile;
+        let persistedUrl: string | null = null;
         try {
             const [metadata] = await storageFile.getMetadata();
             const unsafeMediaFieldReport = createUnsafeAdminContentMediaFieldReport();
+            persistedUrl = await ensureFirebaseDownloadUrl(bucket, storageFile, metadata);
             safeFile = await serializeAdminContentFile(
                 storageFile,
                 metadata,
@@ -260,7 +262,10 @@ async function POST_handler(request: NextRequest) {
             success: true,
             uploadGuarded: true,
             sourceSurface: ADMIN_CONTENT_UPLOAD_SOURCE_SURFACE,
-            file: safeFile,
+            file: {
+                ...safeFile,
+                persistedUrl,
+            },
         }, { status: 201 });
     } catch (error) {
         if (error instanceof AuthError) {

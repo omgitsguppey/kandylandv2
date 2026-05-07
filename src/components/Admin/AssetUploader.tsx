@@ -503,13 +503,20 @@ export function AssetUploader({
       errorCode?: string;
       file?: {
         url?: string;
+        persistedUrl?: string;
+        safePreview?: {
+          url?: string | null;
+        };
         contentType?: string;
         size?: number;
         name?: string;
       };
     };
 
-    if (!response.ok || !result.file?.url) {
+    const persistedUrl = result.file?.persistedUrl || result.file?.url;
+    const previewUrl = result.file?.safePreview?.url || result.file?.url || persistedUrl;
+
+    if (!response.ok || !persistedUrl) {
       const error = new Error(result.error || "Asset upload failed");
       Object.assign(error, {
         status: response.status,
@@ -532,7 +539,8 @@ export function AssetUploader({
 
     updateAsset(asset.id, (current) => ({
       ...current,
-      uploadUrl: result.file?.url,
+      uploadUrl: persistedUrl,
+      previewUrl: previewUrl || current.previewUrl,
       uploadType: result.file?.contentType || uploadType,
       uploadSize: result.file?.size || uploadBlob.size,
       fileName: result.file?.name || current.fileName,

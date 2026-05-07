@@ -35,6 +35,7 @@ import {
 } from "@/lib/admin-truth-state";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
+import { useAdminUsersRealtime } from "@/hooks/useAdminUsersRealtime";
 import type { 
     AdminBehaviorLeaderboardFilter,
     AdminBehaviorLeaderboardPanel,
@@ -82,7 +83,7 @@ export default function UserManagementPage() {
     const [behaviorLeaderboardPage, setBehaviorLeaderboardPage] = useState(1);
     const [behaviorLeaderboardFilter, setBehaviorLeaderboardFilter] = useState<AdminBehaviorLeaderboardFilter>("all");
     const [selectedUserDetailLoading, setSelectedUserDetailLoading] = useState<string | null>(null);
-    const [realtimeState, setRealtimeState] = useState<AdminSurfaceState>("loading");
+    const [snapshotRefreshState, setSnapshotRefreshState] = useState<AdminSurfaceState>("loading");
     const [searchQuery, setSearchQuery] = useState("");
     const [actionUser, setActionUser] = useState<UserProfile | null>(null);
     const [actionType, setActionType] = useState<'suspend' | 'ban' | 'activate' | null>(null);
@@ -108,6 +109,8 @@ export default function UserManagementPage() {
 
     const refreshDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastUsableSummaryRef = useRef(false);
+    const lastUsableUsersRef = useRef(false);
+    const lastUsableBehaviorLeaderboardRef = useRef(false);
 
     const mergeUserDetail = useCallback((result: AdminUsersLaneResponse) => {
         const detailUser = result.users?.[0];
@@ -179,11 +182,11 @@ export default function UserManagementPage() {
             setSummary(result.summary || null);
             lastUsableSummaryRef.current = Boolean(result.summary);
             if (options.reason) {
-                setRealtimeState("live");
+                setSnapshotRefreshState("live");
             }
         } catch (error) {
             if (options.silent) {
-                setRealtimeState("degraded");
+                setSnapshotRefreshState(lastUsableSummaryRef.current ? "degraded" : "failed");
             }
             reportClientIssue({
                 channel: "ui",
@@ -217,12 +220,13 @@ export default function UserManagementPage() {
             }
 
             setUsers(result.users || []);
+            lastUsableUsersRef.current = (result.users?.length || 0) > 0;
             if (options.reason) {
-                setRealtimeState("live");
+                setSnapshotRefreshState("live");
             }
         } catch (error) {
             if (options.silent) {
-                setRealtimeState("degraded");
+                setSnapshotRefreshState((lastUsableUsersRef.current || lastUsableSummaryRef.current) ? "degraded" : "failed");
             }
             reportClientIssue({
                 channel: "ui",
@@ -265,12 +269,15 @@ export default function UserManagementPage() {
             }
 
             setBehaviorLeaderboard(result.behaviorLeaderboard || null);
+            lastUsableBehaviorLeaderboardRef.current = Boolean(result.behaviorLeaderboard);
             if (options.reason) {
-                setRealtimeState("live");
+                setSnapshotRefreshState("live");
             }
         } catch (error) {
             if (options.silent) {
-                setRealtimeState("degraded");
+                setSnapshotRefreshState(
+                    (lastUsableBehaviorLeaderboardRef.current || lastUsableSummaryRef.current) ? "degraded" : "failed",
+                );
             }
             reportClientIssue({
                 channel: "ui",
@@ -299,108 +306,36 @@ export default function UserManagementPage() {
         fetchUsers();
     }, [fetchSummary, fetchUsers]);
 
+    const scheduleRealtimeRefresh = useCallback((reason: string) => {
+        if (refreshDebounceRef.current) {
+            clearTimeout(refreshDebounceRef.current);
+        }
+        setSnapshotRefreshState((current) => {
+            if (!lastUsableSummaryRef.current && current !== "live") {
+                return "loading";
+            }
+            return current === "live" ? "fallback" : current;
+        });
+        refreshDebounceRef.current = setTimeout(() => {
+            void fetchSummary({ silent: true, reason });
+            void fetchUsers({ silent: true, reason });
+            void fetchBehaviorLeaderboard({ silent: true, reason });
+        }, 450);
+    }, [fetchBehaviorLeaderboard, fetchSummary, fetchUsers]);
+
+    const usersRealtimePulse = useAdminUsersRealtime({
+        enabled: viewMode === "users",
+        hasSnapshotValue: Boolean(summary),
+        onInvalidate: scheduleRealtimeRefresh,
+    });
+
     useEffect(() => {
-        let cancelled = false;
-        let controller = new AbortController();
-        let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-        let attempt = 0;
-
-        const scheduleRefresh = (reason: string) => {
-            if (refreshDebounceRef.current) {
-                clearTimeout(refreshDebounceRef.current);
-            }
-            refreshDebounceRef.current = setTimeout(() => {
-                fetchSummary({ silent: true, reason });
-                fetchUsers({ silent: true, reason });
-                fetchBehaviorLeaderboard({ silent: true, reason });
-            }, 450);
-        };
-
-        const connect = async () => {
-            setRealtimeState((current) => current === "live" ? "degraded" : "loading");
-            try {
-                const response = await authFetch("/api/admin/users/realtime", {
-                    signal: controller.signal,
-                    headers: { Accept: "text/event-stream" },
-                });
-                if (!response.ok || !response.body) {
-                    throw new Error(`Realtime stream failed with ${response.status}`);
-                }
-
-                setRealtimeState("live");
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let buffer = "";
-
-                while (!cancelled) {
-                    const { value, done } = await reader.read();
-                    if (done) {
-                        setRealtimeState("degraded");
-                        if (!cancelled) {
-                            reconnectTimer = setTimeout(() => {
-                                controller = new AbortController();
-                                attempt += 1;
-                                void connect();
-                            }, Math.min(10_000, 1_000 * (attempt + 1)));
-                        }
-                        return;
-                    }
-                    buffer += decoder.decode(value, { stream: true });
-                    const messages = buffer.split("\n\n");
-                    buffer = messages.pop() || "";
-                    messages.forEach((message) => {
-                        const line = message.split("\n").find((entry) => entry.startsWith("data: "));
-                        if (!line) {
-                            return;
-                        }
-                        try {
-                            const payload = JSON.parse(line.slice(6)) as { type?: string; source?: string };
-                            if (payload.type === "invalidate") {
-                                scheduleRefresh(payload.source || "admin_users_realtime");
-                            }
-                            if (payload.type === "failed") {
-                                setRealtimeState("fallback");
-                            }
-                        } catch {
-                            setRealtimeState("degraded");
-                        }
-                    });
-                }
-            } catch (error) {
-                if (!cancelled) {
-                    setRealtimeState("failed");
-                    reportClientIssue({
-                        channel: "ui",
-                        message: "Admin users realtime stream failed",
-                        error,
-                        detail: {
-                            adminView: "users",
-                            action: "realtime_stream",
-                        },
-                        consoleLabel: "[Admin Users] realtime stream failed",
-                    });
-                    reconnectTimer = setTimeout(() => {
-                        controller = new AbortController();
-                        attempt += 1;
-                        void connect();
-                    }, Math.min(15_000, 2_000 * (attempt + 1)));
-                }
-            }
-        };
-
-        connect();
-
         return () => {
-            cancelled = true;
-            controller.abort();
             if (refreshDebounceRef.current) {
                 clearTimeout(refreshDebounceRef.current);
             }
-            if (reconnectTimer) {
-                clearTimeout(reconnectTimer);
-            }
         };
-    }, [fetchSummary, fetchUsers, fetchBehaviorLeaderboard]);
+    }, []);
 
     useEffect(() => {
         void fetchBehaviorLeaderboard({ page: behaviorLeaderboardPage, filter: behaviorLeaderboardFilter });
@@ -447,11 +382,31 @@ export default function UserManagementPage() {
 
     const getUserAnalytics = (uid: string) => userAnalytics[uid];
     const getBehaviorRollup = (uid: string) => userAnalytics[uid]?.behaviorRollup;
+    const getBehaviorAvailabilityLabel = (behaviorRollup?: UserAnalytics["behaviorRollup"]) => {
+        if (behaviorRollup?.dataAvailabilityReason === "privacy_limited_global_privacy_control") {
+            return "Privacy-limited by Global Privacy Control.";
+        }
+
+        if (behaviorRollup?.dataAvailabilityReason === "privacy_limited_identified_analytics_denied") {
+            return "Privacy-limited because identified analytics are disabled.";
+        }
+
+        return null;
+    };
     const getBehaviorTruthState = (behaviorRollup?: UserAnalytics["behaviorRollup"]) => resolveAdminTruthState({
         hasUsableValue: Boolean(behaviorRollup),
         sourceConfigured: true,
-        valueState: behaviorRollup?.confidence === "unknown" ? "unavailable" : behaviorRollup?.freshnessState,
-        reviewRequired: Boolean(behaviorRollup?.issues.length) || behaviorRollup?.confidence === "insufficient" || behaviorRollup?.confidence === "low",
+        valueState: behaviorRollup?.dataAvailabilityReason && behaviorRollup.dataAvailabilityReason !== "full_signal"
+            ? "privacy_limited"
+            : behaviorRollup?.confidence === "unknown"
+                ? "unavailable"
+                : behaviorRollup?.freshnessState,
+        reviewRequired: Boolean(
+            behaviorRollup?.issues.some((issue) => !issue.code.startsWith("privacy_limited_")),
+        ) || (
+            behaviorRollup?.dataAvailabilityReason === "full_signal"
+            && (behaviorRollup?.confidence === "insufficient" || behaviorRollup?.confidence === "low")
+        ),
     });
     const formatMoney = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `$${value.toFixed(2)}` : "Unavailable";
     const formatPercent = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "Unavailable";
@@ -543,6 +498,20 @@ export default function UserManagementPage() {
     };
     const getBounceRate = (analytics?: UserAnalytics) =>
         analytics && analytics.viewCount > 0 ? analytics.bounceCount / Math.max(1, analytics.viewCount) : 0;
+    const userSummaryTruthState = resolveAdminTruthState({
+        hasUsableValue: Boolean(summary?.kpiCards?.length),
+        sourceConfigured: true,
+        transportState: !summary && summaryLoading ? "loading" : snapshotRefreshState,
+        valueState: summary?.truthSnapshot?.sourceFreshness,
+        reviewRequired: Boolean(summary?.truthSnapshot?.issues.length),
+    });
+    const usersRealtimePulseTruthState = resolveAdminTruthState({
+        hasUsableValue: Boolean(summary),
+        sourceConfigured: true,
+        transportState: usersRealtimePulse.pulseState,
+        refreshInFlight: usersRealtimePulse.pulseState === "loading" || usersRealtimePulse.pulseState === "fallback",
+        sourceIssue: usersRealtimePulse.pulseState === "degraded",
+    });
     const getOnboardingBadge = (user: UserProfile, analytics?: UserAnalytics) =>
         user.onboardingCompleted || (analytics?.onboardingCompletionCount || 0) > 0
             ? {
@@ -783,6 +752,35 @@ export default function UserManagementPage() {
                     : viewMode === 'feedback'
                         ? 'Review user-submitted feedback from daily tasks.'
                         : 'Create daily missions and monitor live task triggers.'}
+                topSlot={viewMode === "users" ? (
+                    <div
+                        className="flex flex-wrap items-center gap-2"
+                        data-admin-users-snapshot-state={userSummaryTruthState}
+                        data-admin-users-pulse-state={usersRealtimePulse.pulseState}
+                    >
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-2.5 py-1.5 text-[11px] text-gray-300">
+                            <AdminTruthBadge
+                                state={userSummaryTruthState}
+                                pendingInitialLoad={!summary && summaryLoading}
+                                hasUsableValue={Boolean(summary?.kpiCards?.length)}
+                                className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                            />
+                            <span>Snapshot totals</span>
+                        </div>
+                        <div
+                            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-2.5 py-1.5 text-[11px] text-gray-300"
+                            data-admin-users-pulse-label={usersRealtimePulse.pulseLabel}
+                        >
+                            <AdminTruthBadge
+                                state={usersRealtimePulseTruthState}
+                                pendingInitialLoad={!summary && summaryLoading}
+                                hasUsableValue={Boolean(summary)}
+                                className="px-1.5 py-0 text-[8px] tracking-[0.08em]"
+                            />
+                            <span>{usersRealtimePulse.pulseLabel}</span>
+                        </div>
+                    </div>
+                ) : null}
                 actions={
                     <>
                     <button
@@ -864,7 +862,7 @@ export default function UserManagementPage() {
                                                 ? "stale"
                                                 : behaviorLeaderboard?.sourceFreshness === "review"
                                                     ? "review"
-                                                    : realtimeState,
+                                                    : snapshotRefreshState,
                                     })}
                                     pendingInitialLoad={behaviorLeaderboardLoading && leaderboardRows.length === 0}
                                     hasUsableValue={leaderboardRows.length > 0}
@@ -950,8 +948,8 @@ export default function UserManagementPage() {
                                             <span>{row.freshnessState}</span>
                                             {row.returnedInLast7d ? <span>returned 7d</span> : null}
                                         </div>
-                                        {row.warnings.length > 0 ? (
-                                            <p className="mt-2 text-[11px] text-amber-200">{row.warnings[0]}</p>
+                                        {row.warnings.length > 0 || getBehaviorAvailabilityLabel(getBehaviorRollup(row.userId)) ? (
+                                            <p className="mt-2 text-[11px] text-amber-200">{getBehaviorAvailabilityLabel(getBehaviorRollup(row.userId)) ?? row.warnings[0]}</p>
                                         ) : null}
                                     </Link>
                                 ))}
@@ -1095,7 +1093,7 @@ export default function UserManagementPage() {
                                                                 <AdminReviewBadge decision={reviewDecision} className="px-1.5 py-0 text-[8px] tracking-[0.08em]" />
                                                             </div>
                                                             <div className="text-[10px] text-gray-500">
-                                                                {valueExplanation.statusLabel || engagementExplanation.statusLabel || "No recent signal"} / {behaviorRollup?.issues.length ?? 0} issues
+                                                                {(getBehaviorAvailabilityLabel(behaviorRollup) ?? valueExplanation.statusLabel ?? engagementExplanation.statusLabel ?? "No recent signal")} / {behaviorRollup?.issues.length ?? 0} issues
                                                             </div>
                                                         </div>
                                                     ) : (

@@ -2,6 +2,7 @@ import "server-only";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import type { AdminOpsHealth } from "@/lib/admin-ops-health";
+import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 import {
     getRouteRuntimeHealthCluster,
     getRouteRuntimeHealthCoverageState,
@@ -239,6 +240,7 @@ export function buildAdminPanelSystemLogs(input: {
     releaseEntryCount: number;
     creatorSpendViolationsLast7d: number;
     opsHealth: AdminOpsHealth;
+    adminUserTruthSnapshot?: AdminUserTruthSnapshot;
     orchestration: OrchestrationSummaryInput;
     routeRuntimeHealth?: RouteRuntimeHealthItem[];
 }) {
@@ -310,6 +312,47 @@ export function buildAdminPanelSystemLogs(input: {
             : materializerWarnings > 0 || activeDiagnosticWarnCount > 0 || recentDiagnosticErrorCount > 0 || recentDiagnosticWarnCount > 0 || runtimeWarningCount > 0
                 ? "warn"
                 : "healthy";
+    const adminUserTruthSnapshot = input.adminUserTruthSnapshot ?? {
+        totalUsers: 0,
+        activeUsers: 0,
+        returnedLast7Days: 0,
+        onboardedUsers: 0,
+        verifiedUsers: 0,
+        pushEnabledUsers: 0,
+        trackedUnwraps: 0,
+        verifiedPurchases: 0,
+        totalRevenueUsd: 0,
+        validWatchTimeMs: 0,
+        sourceFreshness: "unavailable",
+        generatedAt: nowMs,
+        sourceTruthBreakdown: {
+            users: "blocked",
+            purchases: "blocked",
+            revenue: "blocked",
+            watchTime: "blocked",
+            unwraps: "blocked",
+        },
+        issues: [{
+            code: "missing_admin_user_truth_snapshot",
+            severity: "warn",
+            message: "Canonical admin-user truth snapshot was not provided to admin panel system logs.",
+        }],
+        sourceTruth: "canonical",
+        confidenceScore: 0,
+        sourceLabel: "Admin user truth snapshot unavailable",
+    } satisfies AdminUserTruthSnapshot;
+    const businessTruthStatus: AdminPanelSystemLogStatus =
+        adminUserTruthSnapshot.sourceFreshness === "unavailable"
+        || adminUserTruthSnapshot.sourceFreshness === "failed"
+        || adminUserTruthSnapshot.issues.some((issue) => issue.severity === "fail")
+            ? "fail"
+            : adminUserTruthSnapshot.sourceFreshness === "stale"
+                || adminUserTruthSnapshot.sourceFreshness === "degraded"
+                || adminUserTruthSnapshot.sourceTruth === "legacy_fallback"
+                || adminUserTruthSnapshot.issues.some((issue) => issue.severity === "warn")
+                ? "warn"
+                : "healthy";
+    const businessTruthIssueCount = adminUserTruthSnapshot.issues.length;
 
         const routeRuntimeHealth = input.routeRuntimeHealth ?? [];
         const routeFailCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "fail").length;
@@ -362,6 +405,33 @@ export function buildAdminPanelSystemLogs(input: {
     });
 
     return [
+        buildLog({
+            id: "overview.business_truth_snapshot",
+            panelKey: "overview.business_truth_snapshot",
+            tab: "overview",
+            panelTitle: "Canonical business truth snapshot",
+            status: businessTruthStatus,
+            summary: businessTruthStatus === "healthy"
+                ? "User, purchase, revenue, unwrap, and watch metrics are sourced from the canonical admin-user truth snapshot."
+                : `Canonical business truth is ${adminUserTruthSnapshot.sourceFreshness} and must not be overridden by ops-health or debug-report freshness.`,
+            action: businessTruthStatus === "healthy"
+                ? "No action required."
+                : "Repair the canonical admin-user truth snapshot before treating Debug user or business metrics as healthy.",
+            signalCount: businessTruthIssueCount,
+            signalKeys: [
+                "business_truth_snapshot.freshness",
+                "business_truth_snapshot.sourceTruth",
+                "business_truth_snapshot.issues",
+            ],
+            signals: [
+                signal("business_truth_snapshot.issues", "finding", businessTruthIssueCount, businessTruthIssueCount > 0, businessTruthStatus === "fail" ? "error" : "warn", "issues"),
+            ].filter((entry): entry is AdminPanelSignal => entry !== null),
+            sectionExplanation: businessTruthStatus === "healthy"
+                ? "Canonical business truth is independent from ops health. A clean debug report does not upgrade stale or unavailable business metrics."
+                : "Canonical business truth is stale, degraded, legacy fallback, or unavailable. Debug must surface that state directly.",
+            freshnessState: businessTruthStatus === "healthy" ? "fresh" : "stale",
+            observedAtMs: nowMs,
+        }),
         buildLog({
             id: "overview.behavior_orchestration",
             panelKey: "overview.behavior_orchestration",

@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "updatedAt": "2026-05-07T22:45:00.000Z",
+  "defaultAffectedAuditBlockedStatuses": [
+    "legacy",
+    "blocked"
+  ],
+  "defaults": [
+    {
+      "match": "scripts/agent/validate-*.ts",
+      "status": "canonical",
+      "reason": "Agent validate lanes are the primary source-scanned truth gates unless explicitly downgraded."
+    },
+    {
+      "match": "scripts/check-admin-analytics-*.ts",
+      "status": "supporting",
+      "reason": "Admin analytics check lanes support the canonical snapshot and contract validators but do not define business truth alone."
+    },
+    {
+      "match": "scripts/check-*.ts",
+      "status": "supporting",
+      "reason": "Legacy root check lanes are supporting evidence unless explicitly promoted or downgraded."
+    }
+  ],
+  "overrides": {
+    "scripts/agent/validate-admin-truth-replacement.ts": {
+      "status": "canonical",
+      "reason": "Canonical replacement registry for admin truth path classification."
+    },
+    "scripts/agent/validate-admin-user-metrics-snapshot.ts": {
+      "status": "canonical",
+      "reason": "Canonical admin-user snapshot truth gate."
+    },
+    "scripts/agent/validate-admin-user-behavior-truth.ts": {
+      "status": "canonical",
+      "reason": "Canonical per-user behavior rollup truth gate."
+    },
+    "scripts/agent/validate-admin-debug-control-tower.ts": {
+      "status": "canonical",
+      "reason": "Canonical Admin Debug business-truth routing gate."
+    },
+    "scripts/agent/validate-admin-analytics-no-pure-realtime.ts": {
+      "status": "canonical",
+      "reason": "Canonical guard against pure realtime business truth."
+    },
+    "scripts/agent/validate-watch-time-rollup-truth.ts": {
+      "status": "canonical",
+      "reason": "Canonical watch truth must prioritize watch-session rollups over page-duration fallbacks."
+    },
+    "scripts/agent/validate-purchase-telemetry-truth.ts": {
+      "status": "canonical",
+      "reason": "Canonical purchase truth must come from server transaction capture."
+    },
+    "scripts/agent/validate-unlock-telemetry-truth.ts": {
+      "status": "canonical",
+      "reason": "Canonical unlock truth must come from server entitlement/unlock facts."
+    },
+    "scripts/check-admin-parity.ts": {
+      "status": "legacy",
+      "reason": "Old admin parity gate predates the canonical admin truth replacement and is kept only as historical fallback evidence."
+    },
+    "scripts/check-admin-truth-contracts.ts": {
+      "status": "legacy",
+      "reason": "Pre-replacement admin truth contract gate is superseded by canonical snapshot and rollup validators."
+    }
+  }
+}
