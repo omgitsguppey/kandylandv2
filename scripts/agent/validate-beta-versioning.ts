@@ -53,7 +53,7 @@ expectEqual(formatBetaOdometerVersion(19999), "1.99.99.1a", "counter 19999");
 expectEqual(parseBetaOdometerVersion("1.2.1")?.counter, 201, "parse 1.2.1");
 expectEqual(parseBetaOdometerVersion("1.99.99.1a")?.counter, 19999, "parse overflow");
 expectEqual(migrateLegacyVersionToBetaCounter("1.113.4"), 201, "legacy migration");
-expectEqual(getNextBetaOdometerVersion(201), "1.2.2", "next version from 1.2.1 baseline");
+expectEqual(getNextBetaOdometerVersion(201), "1.2.2", "first accepted release after migration baseline");
 
 expectEqual(formatBetaOdometerVersion(CURRENT_BETA_RELEASE_COUNTER), CURRENT_BETA_RELEASE_VERSION, "canonical current version");
 expectEqual(publicJson.betaReleaseCounter, CURRENT_BETA_RELEASE_COUNTER, "public JSON counter");

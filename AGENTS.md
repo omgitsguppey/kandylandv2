@@ -56,7 +56,7 @@ This command budget is mandatory for doctrine and governance work.
 
 Public beta release notes doctrine:
 
-KandyDrops Beta release notes are user-facing and track accepted public beta releases, not raw commits. The Beta badge beside the top nav title opens the last 5 app-style updates. Versioning uses odometer format `1.<block>.<release>`, where each accepted public beta release increments one counter by exactly 1. Changelog copy must explain what changed for users, not dump technical commit noise.
+KandyDrops Beta release notes are user-facing and track accepted public beta releases, not raw commits. The Beta badge beside the top nav title opens the last 5 app-style updates. Versioning uses odometer format `1.<block>.<release>`, where each accepted public beta release increments one counter by exactly 1. The legacy visible version `1.113.4` migrated to `betaReleaseCounter = 201`, which displays as `1.2.1`, and the first accepted public beta release after migration increments to `1.2.2`. Public notes may group multiple commits into one accepted public beta release. Changelog copy must explain what changed for users, not dump technical commit noise.
 
 - Read `docs/agent-truth/public-beta-release-notes.md` before changing release-note automation or the Beta badge.
 - Run `npm run release:notes` to normalize bundled/public release-note artifacts.

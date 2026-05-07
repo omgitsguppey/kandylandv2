@@ -27,12 +27,6 @@ type CommitRecord = {
   title: string;
 };
 
-type NumstatRecord = {
-  additions: number;
-  deletions: number;
-  path: string;
-};
-
 const root = process.cwd();
 const publicJsonPath = join(root, "public/kandydrops-release-notes.json");
 const fallbackTsPath = join(root, "src/lib/release-notes/public-release-notes.ts");
@@ -104,25 +98,14 @@ function getPendingCommits(lastCommitSha: string) {
     .filter((commit) => !/\[skip release-notes\]/iu.test(commit.title));
 }
 
-function parseNumstat(sha: string): NumstatRecord[] {
-  const raw = safeRunGit(["show", "--numstat", "--format=", "--no-renames", sha]);
+function getChangedFiles(sha: string) {
+  const raw = safeRunGit(["show", "--name-only", "--format=", "--no-renames", sha]);
   if (!raw) return [];
 
-  return raw.split(/\r?\n/u).flatMap((line) => {
-    const [rawAdditions, rawDeletions, ...pathParts] = line.split(/\t/u);
-    const path = pathParts.join("\t");
-    if (!path) return [];
-
-    return [{
-      additions: Number.parseInt(rawAdditions, 10) || 0,
-      deletions: Number.parseInt(rawDeletions, 10) || 0,
-      path: path.replace(/\\/gu, "/"),
-    }];
-  });
-}
-
-function getChangedFiles(sha: string) {
-  return parseNumstat(sha).map((item) => item.path);
+  return raw
+    .split(/\r?\n/u)
+    .map((path) => path.trim().replace(/\\/gu, "/"))
+    .filter(Boolean);
 }
 
 function affectedSurfacesFor(paths: string[]) {

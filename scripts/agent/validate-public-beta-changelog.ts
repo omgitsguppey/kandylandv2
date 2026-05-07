@@ -56,8 +56,8 @@ const agents = readRequired("AGENTS.md");
 
 if (document) {
   if (document.channel !== PUBLIC_RELEASE_CHANNEL) failures.push("public release notes channel must remain beta.");
-  if (document.currentVersion !== CURRENT_BETA_RELEASE_VERSION) failures.push(`currentVersion must migrate to ${CURRENT_BETA_RELEASE_VERSION}.`);
-  if (document.betaReleaseCounter !== CURRENT_BETA_RELEASE_COUNTER) failures.push(`betaReleaseCounter must migrate to ${CURRENT_BETA_RELEASE_COUNTER}.`);
+  if (document.currentVersion !== CURRENT_BETA_RELEASE_VERSION) failures.push(`currentVersion must match canonical version ${CURRENT_BETA_RELEASE_VERSION}.`);
+  if (document.betaReleaseCounter !== CURRENT_BETA_RELEASE_COUNTER) failures.push(`betaReleaseCounter must match canonical counter ${CURRENT_BETA_RELEASE_COUNTER}.`);
   if ((parseBetaOdometerVersion(document.currentVersion)?.counter ?? -1) < (migrateLegacyVersionToBetaCounter("1.113.4") ?? 201)) {
     failures.push("currentVersion must be 1.2.1 or newer after legacy migration.");
   }
@@ -81,9 +81,21 @@ if (document) {
 for (const source of [docs, readme, agents]) {
   requireIncludes(source, "KandyDrops Beta release notes are user-facing", "release note doctrine");
   requireIncludes(source, "1.<block>.<release>", "release note doctrine");
+  requireIncludes(source, "accepted public beta release", "release note doctrine");
+  requireIncludes(source, "group multiple commits", "release note doctrine");
   requireExcludes(source, "MAJOR.MINOR.PATCH", "release note doctrine");
   requireExcludes(source, "Effective non-generated diff size above 100 additions/deletions bumps MINOR", "release note doctrine");
   requireExcludes(source, "update after every commit", "release note doctrine");
+}
+
+for (const expected of [
+  "1.113.4",
+  "betaReleaseCounter = 201",
+  "1.2.1",
+  "1.2.2",
+  "lose-our-minds overflow rule",
+]) {
+  requireIncludes(docs, expected, "release note doctrine");
 }
 
 for (const expected of [
@@ -131,6 +143,9 @@ for (const forbidden of [
   "classifyPublicVersionBump",
   "bumpPublicVersion",
   "effectiveChangeCount > 100",
+  "--numstat",
+  "additions:",
+  "deletions:",
   "last git commit must be represented",
 ]) {
   requireExcludes(releaseScript, forbidden, "release notes generator");

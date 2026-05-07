@@ -2,6 +2,14 @@
 
 KandyDrops Beta release notes are user-facing and track accepted public beta releases, not raw commits. The Beta badge beside the top nav title opens the last 5 app-style updates. Versioning uses odometer format `1.<block>.<release>`, where `1` is the Beta V1 product era, `block` is `floor(betaReleaseCounter / 100)`, and `release` is `betaReleaseCounter % 100`. Each accepted public beta release increments one `betaReleaseCounter` by exactly 1. Changelog copy must explain what changed for users, not dump technical commit noise.
 
+## Migration Truth
+
+- The legacy visible version `1.113.4` migrated to odometer baseline `betaReleaseCounter = 201`, which displays as `1.2.1`.
+- The first accepted public beta release after that migration increments to `1.2.2`.
+- Current canonical Beta versions may be newer than `1.2.2`, but they must never fall behind the `1.2.1` migration baseline again.
+- One accepted public beta release may group multiple commits when they ship the same user-facing outcome. The tracker must not require one public release note per commit.
+- The lose-our-minds overflow rule exists: once standard `1.<block>.<release>` space is exhausted, the helper moves into `1.99.99.<n>` overflow forms before any manual product-era decision.
+
 ## User Surface
 
 - The top nav keeps the KandyDrops title text unchanged.
@@ -38,7 +46,7 @@ KandyDrops Beta release notes are user-facing and track accepted public beta rel
 - Docs, tooling, audit, and release-note plumbing commits still get traceable entries, but the Beta tab must translate them into user-safe beta reliability or support-traceability copy.
 - The Beta badge feature copy is reserved for commits that explicitly ship the Beta badge/release-note UI, not every release-note or changelog maintenance commit.
 - Notes include 1-3 bullets and newest notes appear first.
-- Multiple commits may be grouped into one accepted public beta release when they belong to the same user-facing outcome.
+- Notes may group multiple commits into one accepted public beta release when they belong to the same user-facing outcome.
 - Internal-only commits may collapse into `Bug fixes and quality-of-life improvements.` or `Bug fixes and performance improvements.`
 
 ## Command Budget

@@ -43,6 +43,8 @@ const releaseArtifacts = readJson<PublicReleaseNotesDocument>("public/kandydrops
 const fallbackSource = readRequired("src/lib/release-notes/public-release-notes.ts");
 const firebaseMessagingSource = readRequired("src/lib/firebase-messaging.ts");
 const packageJsonSource = readRequired("package.json");
+const releaseScriptSource = readRequired("scripts/release/update-public-changelog.ts");
+const releaseDoctrineSource = readRequired("docs/agent-truth/public-beta-release-notes.md");
 
 const bannedVisibleJargon =
   /\b(sourceTruth|validator|Firestore|canonical|materializer|route runtime|diff scope)\b|scripts\/|src\/|\.tsx?\b|[0-9a-f]{7,40}/iu;
@@ -170,6 +172,33 @@ function firstVisibleNote(document: PublicReleaseNotesDocument | null) {
 
 if (!packageJsonSource.includes('"check:beta-update-tracker": "tsx scripts/agent/validate-beta-update-tracker.ts"')) {
   failures.push('package.json must expose "check:beta-update-tracker".');
+}
+
+for (const forbidden of [
+  "--numstat",
+  "additions:",
+  "deletions:",
+  "PublicReleaseBumpType",
+  "classifyPublicVersionBump",
+  "bumpPublicVersion",
+  "effectiveChangeCount",
+  "MAJOR.MINOR.PATCH",
+]) {
+  if (releaseScriptSource.includes(forbidden)) {
+    failures.push(`Release generator must not keep legacy semver or diff-size logic: found "${forbidden}".`);
+  }
+}
+
+for (const expected of [
+  "1.113.4",
+  "betaReleaseCounter = 201",
+  "1.2.1",
+  "1.2.2",
+  "lose-our-minds overflow rule",
+]) {
+  if (!releaseDoctrineSource.includes(expected)) {
+    failures.push(`Release-note doctrine must document "${expected}".`);
+  }
 }
 
 if (!releaseArtifacts) {

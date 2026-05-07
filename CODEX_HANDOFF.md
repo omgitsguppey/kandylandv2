@@ -1,160 +1,146 @@
 # Codex Handoff
 
 ## Task
-Phase 1 overnight truth gate.
+Clean up legacy update-tracker/versioning logic.
 
 ## Result
-Status: partial
+Status: completed
 
-## Starting State
-- latest commit: `aec5d53347d2b1c8cd5e364c1391ce9a645053a8`
-- dirty files: `0`
-- major risks:
-  - Admin Analytics still keeps prior historical slice data visible for override ranges with `keepPreviousData: true` and `revalidateOnFocus: false`.
-  - Support thread detail keeps prior thread content during selection changes.
-  - Wallet package data can stay stale inside a mounted Purchase modal session because the client fetch is one-shot and the route is publicly cacheable.
-  - Two targeted validators fail because release-note automation text coverage is behind current admin/task truth changes.
+## Legacy Findings
+- File: `scripts/release/update-public-changelog.ts`
+  Finding: The release generator still parsed `--numstat` additions/deletions even though odometer releases no longer use diff size for versioning or note generation.
+  Classification: active legacy
+  Action taken: rewritten
+  Reason: Diff-size parsing looked like a competing bump path and was not needed for grouped accepted Beta releases.
+- File: `src/lib/release-notes/beta-odometer-version.ts`
+  Finding: `migrateLegacyVersionToBetaCounter("1.113.4")` remains as a one-time migration bridge.
+  Classification: passive legacy
+  Action taken: kept unchanged
+  Reason: It does not drive current version bumps and still provides deterministic local migration proof.
+- File: `src/lib/release-notes/release-version-contract.ts`
+  Finding: The contract still accepts legacy version strings through the migration helper.
+  Classification: passive legacy
+  Action taken: kept unchanged
+  Reason: This is compatibility normalization, not active semver or diff-size behavior.
+- File: `scripts/agent/validate-beta-update-tracker.ts`
+  Finding: The validator did not explicitly fail on leftover diff-size parsing or missing migration/overflow doctrine text.
+  Classification: safe to rewrite
+  Action taken: rewritten
+  Reason: The tracker now fails loudly if the generator keeps diff-size bump remnants or the doctrine drops the migration anchor.
+- File: `scripts/agent/validate-public-beta-changelog.ts`
+  Finding: The compatibility validator still centered old changelog wording and did not enforce the grouped-release and migration doctrine details strongly enough.
+  Classification: safe to rewrite
+  Action taken: rewritten
+  Reason: The validator now enforces accepted-release wording, grouped-commit wording, migration anchors, and removal of diff-size bump remnants.
+- File: `scripts/agent/validate-beta-versioning.ts`
+  Finding: The migration-baseline assertion wording still read like generic next-version logic.
+  Classification: safe to rewrite
+  Action taken: rewritten
+  Reason: The wording now labels `1.2.2` as the first accepted release after the `1.2.1` migration baseline.
+- File: `docs/agent-truth/public-beta-release-notes.md`
+  Finding: Doctrine explained odometer versioning but did not yet spell out the `1.113.4 -> 1.2.1` migration anchor, `betaReleaseCounter = 201`, or the overflow rule in one place.
+  Classification: safe to rewrite
+  Action taken: rewritten
+  Reason: The doctrine now states the migration baseline, grouped-release rule, and lose-our-minds overflow rule explicitly.
+- File: `README.md`
+  Finding: README gave the high-level odometer rule but omitted the migration anchor and grouped-release behavior.
+  Classification: safe to rewrite
+  Action taken: rewritten
+  Reason: Repo gateway docs should not lag the canonical release-note doctrine.
+- File: `AGENTS.md`
+  Finding: Agent instructions described odometer versioning but omitted the migration anchor and grouped-release clarification.
+  Classification: safe to rewrite
+  Action taken: rewritten
+  Reason: Repo instructions should match the current release-note doctrine.
+- File: `public/kandydrops-release-notes.json`
+  Finding: Historical entries still include older odometer versions such as `1.1.99`.
+  Classification: passive legacy
+  Action taken: kept unchanged
+  Reason: These are valid historical accepted Beta releases, not legacy semver current-version truth.
+- File: `src/lib/release-notes/public-release-notes.ts`
+  Finding: Bundled fallback mirrors the current accepted public release notes and still contains historical prior odometer entries.
+  Classification: passive legacy
+  Action taken: kept unchanged
+  Reason: Historical odometer entries are expected and do not conflict with current truth.
 
-## Actions Taken
-- dirty worktree cleanup:
-  - none needed; worktree started clean
-- beta badge:
-  - no change in this task; previously shrunk and already committed
-- beta update tracker:
-  - added a deterministic local validator at `scripts/agent/validate-beta-update-tracker.ts`
-  - wired `package.json` with `check:beta-update-tracker`
-  - hardened the beta version validators so they no longer pin the app forever to `1.2.1`
-  - advanced the accepted public beta release artifacts locally to `1.2.2` from git history so the latest relevant non-skipped commit range is represented
-- audits:
-  - completed source-only audit across versioning, service worker/cache freshness, admin analytics/debug/AI, economy, tasks, telemetry, watch/viewer, notifications, chat/support, wallet/purchase, and legacy hygiene
-- fixes:
-  - none; no additional mechanical source fix was applied in this report-only pass
-- quarantines:
-  - none applied in code tonight
-  - recommended quarantine remains conditional on manual browser proof, not source-only inference
+## Removed or Rewritten Legacy Logic
+- file: `scripts/release/update-public-changelog.ts`
+  old behavior: parsed `--numstat` additions/deletions even though diff size no longer affects versioning
+  new behavior: reads changed file paths with `--name-only` only
+- file: `scripts/agent/validate-beta-update-tracker.ts`
+  old behavior: validated commit coverage/version agreement but did not explicitly reject diff-size-shaped release generator remnants
+  new behavior: rejects `--numstat`, additions/deletions bump remnants, and missing migration/overflow doctrine strings
+- file: `scripts/agent/validate-public-beta-changelog.ts`
+  old behavior: checked odometer basics without strongly enforcing grouped-release and migration-anchor wording
+  new behavior: enforces accepted-release wording, grouped-commit wording, migration-anchor wording, and removal of diff-size remnants
+- file: `docs/agent-truth/public-beta-release-notes.md`
+  old behavior: described odometer releases generally
+  new behavior: explicitly documents `1.113.4 -> 1.2.1`, `betaReleaseCounter = 201`, first post-migration `1.2.2`, and the lose-our-minds overflow rule
+- file: `README.md`
+  old behavior: high-level odometer note only
+  new behavior: includes migration anchor and grouped accepted-release clarification
+- file: `AGENTS.md`
+  old behavior: high-level odometer note only
+  new behavior: includes migration anchor and grouped accepted-release clarification
 
-## Truth Summary
-- true:
-  - Beta odometer versioning is implemented and validated.
-  - Public JSON, bundled fallback, and exported version context now agree on current visible version `1.2.2`.
-  - The beta update tracker is now locally verifiable from git history and repo files without GitHub APIs.
-  - The latest non-skipped relevant commit range is represented by the current accepted public beta release entry.
-  - Service worker registration is versioned by `PUBLIC_APP_VERSION`, managed cache names are versioned, old managed caches are deleted on activate, and a runtime update prompt exists.
-  - Admin Debug primary truth reads refresh on focus/visibility return and preserve polling/manual refresh.
-  - Admin AI persisted module state is version-scoped and separated from server dashboard hydration.
-  - Platform Economy source-of-funds split and treasury validators pass.
-  - Daily task reward bounds, telemetry truth, event-fact truth, watch-time truth, notification-read truth, purchase telemetry truth, unlock telemetry truth, privacy-consent truth, and wallet single-PayPal truth all validate.
-- false:
-  - Admin Debug and daily-task lifecycle release-note coverage is not complete enough for their validators; those checks fail on missing required release-note copy strings.
-- simulative:
-  - Admin Analytics override slices can keep prior values visible while refetching, which can look current without fresh confirmation.
-  - Support selected-thread detail can briefly present prior thread data while a new thread fetch is loading.
-- stale:
-  - Historical admin analytics override reads do not revalidate on focus.
-  - Purchase modal package data can remain stale for the life of a mounted client session after the first successful fetch.
-  - Viewer pending watch-session replay storage is owner-scoped and age-bounded, but not app-version-scoped.
-- legacy:
-  - Drop preview modal fallback, `/drops?drop=` modal flow, synthetic admin view-as, realtime-ish admin users route, and blocked legacy notification/open scoring patterns remain explicitly tracked in the legacy registry.
-- algorithmic refinements:
-  - Admin Analytics conversion/range slices still need stricter stale invalidation and possibly per-slice focus refresh rules.
-  - Support thread ownership needs a no-stale-detail transition pattern instead of `keepPreviousData`.
-  - Wallet package freshness needs client invalidation stronger than one-shot modal fetch plus public SWR cache.
-  - Viewer replay storage should be version-scoped in addition to owner and age guards.
+## Current Version Truth
+- canonical app version: `1.2.2`
+- betaReleaseCounter: `202`
+- public JSON version: `1.2.2`
+- bundled fallback version: `1.2.2`
+- Beta modal version: `1.2.2`
+- service worker version source: `PUBLIC_APP_VERSION` from `src/lib/release-notes/public-release-notes.ts`
 
-## Scores
-- Versioning/release notes: `88`
-- Service worker/cache freshness: `91`
-- Admin Analytics: `78`
-- Admin Debug: `74`
-- Admin AI: `88`
-- Platform Economy: `89`
-- Tasks: `82`
-- Telemetry/event facts: `92`
-- Watch/viewer: `84`
-- Notifications: `87`
-- Chat/support: `80`
-- Drops/purchase/wallet: `79`
-- Legacy/code hygiene: `86`
-- Overall Phase 1 readiness: `81`
+## Validators Updated
+- validator: `scripts/agent/validate-beta-update-tracker.ts`
+  what it now proves: local git coverage, JSON/fallback/version-context agreement, no legacy diff-size bump remnants in the generator, migration/overflow doctrine presence, and service-worker version-source consistency
+- validator: `scripts/agent/validate-public-beta-changelog.ts`
+  what it now proves: canonical current version agreement, grouped-release doctrine wording, migration-anchor wording, and absence of known diff-size release-generator remnants
+- validator: `scripts/agent/validate-beta-versioning.ts`
+  what it now proves: odometer math still maps the legacy migration baseline `1.113.4 -> 201 -> 1.2.1` and the first accepted post-migration release remains `1.2.2`
 
-## Commits Created
-- pending until report-only handoff commit is created
-
-## Files Reverted/Restored
+## Files Deleted
 - none
 
-## Files Left Dirty
-Only if any:
-- expected before report-only commit:
-  - `CODEX_HANDOFF.md`
-  - `PHASE1_TRUTH_AUDIT.md`
-  - `agent/handoffs/phase-1-overnight-truth-gate.md`
-  - `agent/state/phase-1-truth-gate.generated.json`
-  - reason: required report artifacts for this task
-  - decision needed: none
+## Files Left Unchanged
+Important legacy-looking files intentionally kept:
+- file: `src/lib/release-notes/beta-odometer-version.ts`
+  reason: the migration helper is passive compatibility evidence and not an active second versioning system
+- file: `src/lib/release-notes/release-version-contract.ts`
+  reason: legacy normalization remains deterministic and does not perform semver or diff-size bumps
+- file: `public/kandydrops-release-notes.json`
+  reason: older odometer entries are valid history and not falsely presented as current semver truth
+- file: `src/lib/release-notes/public-release-notes.ts`
+  reason: bundled fallback mirrors the same historical accepted Beta entries as the public JSON
 
 ## Validation
 Commands run:
-- `npm run typecheck`: pass
+- `npm run check:beta-update-tracker`: pass
 - `npm run check:beta-versioning`: pass
 - `npm run check:beta-release-notes`: pass
-- `npm run check:beta-update-tracker`: pass
-- `npm run check:pwa-service-worker`: pass
-- `npm run check:admin-analytics-overview`: pass
-- `npm run check:admin-debug-control-tower`: fail
-- `npm run check:admin-ai-control-tower`: pass
-- `npm run check:admin-user-behavior-truth`: pass
-- `npm run check:platform-economy-treasury`: pass
-- `npm run check:gumdrop-source-of-funds-truth`: pass
-- `npm run check:daily-task-lifecycle`: fail
-- `npm run check:daily-task-reward-economy`: pass
-- `npm run check:daily-task-telemetry-truth`: pass
-- `npm run check:event-fact-truth`: pass
-- `npm run check:telemetry-identified-parity`: pass
-- `npm run check:watch-time-truth-v2`: pass
-- `npm run check:notification-read-truth`: pass
-- `npm run check:purchase-telemetry-truth`: pass
-- `npm run check:unlock-telemetry-truth`: pass
-- `npm run check:privacy-consent-truth`: pass
-- `npm run check:legacy-phaseout`: pass
-- `npm run check:wallet-single-paypal-button`: pass
+- `npm run typecheck`: pass
 
 Commands not run:
 - `npm run check`: forbidden by task
 - Playwright/Cypress/Lighthouse: forbidden by task
 - deploy commands: forbidden by task
 
-## Manual Browser Checks Needed
-- Beta badge
-- `/dashboard/chat`
-- `/admin/analytics`
-- `/admin/debug`
-- `/admin/economy`
-- `/drops`
-- purchase modal
-- notifications
+## Risk Notes
+- any compatibility alias kept:
+  - `check:release-notes` remains as a compatibility alias to `scripts/agent/validate-public-beta-changelog.ts`
+- any uncertain old script/doc:
+  - none
+- anything requiring Uylus/ChatGPT review:
+  - none for this mechanical cleanup lane
 
-## Is KandyDrops ready to begin KreditFlow?
-- No, blockers listed
-
-## Blockers Before KreditFlow
-- Release-note automation coverage is behind current admin debug/task truth validators.
-  - exact file/surface: `scripts/release/update-public-changelog.ts`, Admin Debug readiness lane, Daily Task lifecycle lane
-  - why: two targeted validators fail on missing required release-note copy strings
-- Admin Analytics still carries previous override slice data without focus revalidation.
-  - exact file/surface: `src/app/admin/analytics/AnalyticsHelpers.tsx`, `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
-  - why: non-default historical ranges can look current while showing stale carryover
-- Purchase modal package freshness is not self-reliant enough for Phase 2.
-  - exact file/surface: `src/components/PurchaseModal.tsx`, `src/app/api/wallet/packages/route.ts`
-  - why: one-shot client fetch plus public SWR cache can keep outdated package truth visible after config changes or deploy
-- Support thread detail can momentarily masquerade as current when selection changes.
-  - exact file/surface: `src/components/Support/SupportInbox.tsx`
-  - why: `keepPreviousData: true` is applied to thread detail
-
-Final git status:
+## Final git status
 ```text
-M CODEX_HANDOFF.md
-A PHASE1_TRUTH_AUDIT.md
-A agent/handoffs/phase-1-overnight-truth-gate.md
-A agent/state/phase-1-truth-gate.generated.json
+ M AGENTS.md
+ M CODEX_HANDOFF.md
+ M README.md
+ M docs/agent-truth/public-beta-release-notes.md
+ M scripts/agent/validate-beta-update-tracker.ts
+ M scripts/agent/validate-beta-versioning.ts
+ M scripts/agent/validate-public-beta-changelog.ts
+ M scripts/release/update-public-changelog.ts
 ```
