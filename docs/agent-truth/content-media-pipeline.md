@@ -45,6 +45,10 @@ Protected Drop assets require entitlement before access:
 - Creator Drop asset upload requires authenticated creator role and trusted origin.
 - Upload routes validate file type, file size, and sanitized Storage filename server-side.
 - Admin/creator upload returns Admin-minted Firebase download URLs for later server-side Drop records; public clients must not treat those as entitlement.
+- Drop asset uploads use a real queue state machine. `Uploading` is measured when Firebase Storage progress is available, with percentage and progress bar. `Pending` is not a final state.
+- Explicit client states are `local`, `queued`, `uploading`, `processing`, `success`, `failed`, `canceled`, and `blocked`.
+- Direct Storage permissions must be verified against `storage.rules`; for `drops/**`, direct client upload is blocked and the uploader must use the guarded admin or creator server route.
+- Mobile upload UI keeps progress, retry, cancel, and status inside compact thumbnail overlays to cut vertical sprawl without hiding truth.
 
 ## Expired And Archived Drops
 

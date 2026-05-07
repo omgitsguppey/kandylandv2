@@ -42,6 +42,9 @@ Current media flow:
 - creator upload: `/api/creator/drops/assets`
 - public feed: sanitized by `sanitizeDropForClient`
 - locked content access: `/api/drops/content`
+- `AssetUploader` queues every selected asset that needs upload and only emits server-accepted success URLs back into the CMS form.
+- Cover crop waits in `local` state until `Use Cover`, then joins the same queue truth as other uploads.
+- Failed, blocked, or canceled assets stay visible with typed error copy and retry/remove controls instead of silently looking pending.
 
 Content Drops require at least one locked asset before publication. Promo and external Drops do not require locked assets, but they require a safe action URL.
 

@@ -39,6 +39,15 @@ interface UploadedAsset {
     fileName?: string;
 }
 
+interface AssetUploadStateSummary {
+    total: number;
+    queued: number;
+    uploading: number;
+    success: number;
+    failed: number;
+    allComplete: boolean;
+}
+
 interface CreatorOption {
     uid: string;
     displayName: string;
@@ -98,6 +107,8 @@ interface FilesAndAssetsSectionProps {
     initialContentAssets: UploadedAsset[];
     onCoverAssetsChange: (assets: UploadedAsset[]) => void;
     onContentAssetsChange: (assets: UploadedAsset[]) => void;
+    onCoverUploadStateChange: (state: AssetUploadStateSummary) => void;
+    onContentUploadStateChange: (state: AssetUploadStateSummary) => void;
     serverUploadEndpoint: string;
     aiPanel?: ReactNode;
     errors: FieldErrors<DropFormData>;
@@ -153,6 +164,8 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
     initialContentAssets,
     onCoverAssetsChange,
     onContentAssetsChange,
+    onCoverUploadStateChange,
+    onContentUploadStateChange,
     serverUploadEndpoint,
     aiPanel,
     errors,
@@ -195,6 +208,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                         initialUrl={imageUrl}
                         initialType="image/png"
                         onChange={onCoverAssetsChange}
+                        onUploadStateChange={onCoverUploadStateChange}
                         serverUploadEndpoint={serverUploadEndpoint}
                     />
                     {errors.imageUrl && <p className="text-red-400 text-xs">{errors.imageUrl.message}</p>}
@@ -211,6 +225,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                         initialUrl={contentUrl}
                         initialType={contentType}
                         onChange={onContentAssetsChange}
+                        onUploadStateChange={onContentUploadStateChange}
                         disableCrop={true}
                         serverUploadEndpoint={serverUploadEndpoint}
                     />
@@ -238,6 +253,8 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const [fetching, setFetching] = useState(isEditMode);
     const [contentAssets, setContentAssets] = useState<UploadedAsset[]>([]);
     const [coverAssets, setCoverAssets] = useState<UploadedAsset[]>([]);
+    const [coverUploadState, setCoverUploadState] = useState<AssetUploadStateSummary | null>(null);
+    const [contentUploadState, setContentUploadState] = useState<AssetUploadStateSummary | null>(null);
     const [creatorOptions, setCreatorOptions] = useState<CreatorOption[]>([]);
     const [duplicateWarnings, setDuplicateWarnings] = useState<Array<{ dropId: string; title: string; duplicateFileNames: string[]; approvalStatus: string }>>([]);
     const [checkingDuplicateNames, setCheckingDuplicateNames] = useState(false);
@@ -320,6 +337,10 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
         return dropType === "promo" ? "Configure the ad button and destination." : "Configure the external destination and CTA.";
     }, [dropType]);
+    const uploadsBusy = Boolean(
+        (coverUploadState && !coverUploadState.allComplete && (coverUploadState.queued > 0 || coverUploadState.uploading > 0))
+        || (contentUploadState && !contentUploadState.allComplete && (contentUploadState.queued > 0 || contentUploadState.uploading > 0)),
+    );
 
     const basicsOpen = openSection === "basics";
     const uploadsOpen = openSection === "assets";
@@ -375,6 +396,8 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             setSelectedAiCoverJobId(null);
             setSelectedAiDescriptionJobId(null);
             setDraftSessionId(null);
+            setCoverUploadState(null);
+            setContentUploadState(null);
             reset(createDefaultDropFormValues(creatorIdOverride));
             setDuplicateWarnings([]);
             return;
@@ -874,6 +897,8 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         initialContentAssets={contentAssets}
                                         onCoverAssetsChange={handleCoverAssetsChange}
                                         onContentAssetsChange={handleContentAssetsChange}
+                                        onCoverUploadStateChange={setCoverUploadState}
+                                        onContentUploadStateChange={setContentUploadState}
                                         serverUploadEndpoint={mode === "creator" ? "/api/creator/drops/assets" : "/api/admin/content"}
                                         aiPanel={mode === "admin" ? (
                                             <AiDropCoverGeneratorPanel
@@ -1008,7 +1033,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                             <button
                                 type="submit"
                                 form="create-drop-form"
-                                disabled={isSubmitting || fetching}
+                                disabled={isSubmitting || fetching || uploadsBusy}
                                 className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-purple to-[#d946ef] font-bold text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_25px_rgba(236,72,153,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                             >
                                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}

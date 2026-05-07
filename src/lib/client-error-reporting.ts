@@ -51,6 +51,8 @@ function mapClientChannelToEvidenceCategory(
       return "firestore_rules";
     case "payments":
       return "wallet";
+    case "media_uploads":
+      return "drops";
     case "telemetry":
       return "telemetry";
     case "auth":

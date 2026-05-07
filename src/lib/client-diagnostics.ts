@@ -37,6 +37,7 @@ export type ClientDiagnosticChannel =
   | "notifications"
   | "payments"
   | "storage"
+  | "media_uploads"
   | "ui"
   | "error"
   | "feedback"
