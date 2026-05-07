@@ -1,13 +1,73 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.1",
-  "betaReleaseCounter": 201,
+  "currentVersion": "1.2.2",
+  "betaReleaseCounter": 202,
   "channel": "beta",
-  "generatedAt": "2026-05-06T19:58:40.374Z",
-  "generatedAtUtc": "2026-05-06T19:58:40.374Z",
-  "lastCommitSha": "b43f8f272fe4071e4731d9d4e24d60f416b7a902",
+  "generatedAt": "2026-05-07T04:14:54.577Z",
+  "generatedAtUtc": "2026-05-07T04:14:54.577Z",
+  "lastCommitSha": "75cf6cad6b805bc086d0f6b884596028c25bf012",
   "notes": [
+    {
+      "version": "1.2.2",
+      "previousVersion": "1.2.1",
+      "betaReleaseCounter": 202,
+      "previousBetaReleaseCounter": 201,
+      "commitSha": "75cf6cad6b805bc086d0f6b884596028c25bf012",
+      "commitTitle": "docs(agent): record phase 1 truth gate",
+      "commitCount": 21,
+      "commitShas": [
+        "d0be5219bcfd0ab2146215653ec9bbf0a6d5a958",
+        "1e6c789b6c45c87dbe805f2ba6c1f28c8f6541df",
+        "001975daf654eda04da0c6cb5045a5b3aaf2470a",
+        "502f677b07df5d10c7157316374e438bdf7f6446",
+        "983b2a7cc33a17f563c4899d8e8ccdb4367e1c0e",
+        "db8528aa6c86cd9dc34e36d9d27385511e20bc5e",
+        "8db96e0ee276bf2ac32f0023846943b5ba87f982",
+        "60a0ab66d9298efd7aa8dd3cea0409f39410bc62",
+        "f1ce2463fcf29285316fb98bb0d0a4323c02a9c0",
+        "1e2f4dcadb46d645713b5d92a0e1a4bff4d8f948",
+        "8e0ca36b0ce7216ba9b0d5561a384ca790773d61",
+        "ab86315907b63b0292353a71e99bd1ec94a6d845",
+        "d335d5e9742453c2cca000b1407782ff7a2a2508",
+        "3e62f9141c956d0039c96ec4266b28ddc9918d72",
+        "7995314e8a4997928c5031ee2f1fd80fbde335dc",
+        "c50086810738f2c91c0853f8b0e9d3db66279f4b",
+        "765ed141f86a13b7592374605814b5a3f44d7829",
+        "8e9bbffe96603ffd424f2747a5dfc1ce081adc6f",
+        "a330e8fa9ddcb1f97b4e0642b7d54e1f492e8e18",
+        "aec5d53347d2b1c8cd5e364c1391ce9a645053a8",
+        "75cf6cad6b805bc086d0f6b884596028c25bf012"
+      ],
+      "committedAt": "2026-05-07T04:09:56.000Z",
+      "generatedAt": "2026-05-07T04:14:54.576Z",
+      "committedAtUtc": "2026-05-07T04:09:56.000Z",
+      "generatedAtUtc": "2026-05-07T04:14:54.576Z",
+      "category": "Fixed",
+      "title": "Improved Beta update notes",
+      "updatedAtUtc": "2026-05-07T04:14:54.576Z",
+      "summary": "Cleaner Beta update notes with clearer summaries and timestamps.",
+      "userFacingTitle": "Improved Beta update notes",
+      "bullets": [
+        "Improved Beta notes with cleaner summaries and compact bullets.",
+        "Updated timestamps so recent changes are easier to compare with reports.",
+        "Reduced technical wording in public update notes."
+      ],
+      "audience": "admins",
+      "technicalDetails": [
+        "Grouped 21 commits into one accepted beta release.",
+        "Release note summaries remain separate from collapsed technical details."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "chat",
+        "documentation",
+        "release-notes",
+        "repo-tooling",
+        "security",
+        "wallet"
+      ]
+    },
     {
       "version": "1.2.1",
       "previousVersion": "1.2.0",
@@ -143,41 +203,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "affectedSurfaces": [
         "admin",
         "repo-tooling"
-      ]
-    },
-    {
-      "version": "1.1.97",
-      "previousVersion": "1.1.96",
-      "betaReleaseCounter": 197,
-      "previousBetaReleaseCounter": 196,
-      "commitSha": "05ad94d6859c78ab686e479d8eab5c976631130d",
-      "commitTitle": "fix(admin): clarify top drop unwrap conversion",
-      "commitCount": 1,
-      "commitShas": [
-        "05ad94d6859c78ab686e479d8eab5c976631130d"
-      ],
-      "committedAt": "2026-05-06T16:10:11.000Z",
-      "generatedAt": "2026-05-06T17:11:11.020Z",
-      "committedAtUtc": "2026-05-06T16:10:11.000Z",
-      "generatedAtUtc": "2026-05-06T17:11:11.020Z",
-      "category": "Admin",
-      "title": "Improved drop conversion review",
-      "updatedAtUtc": "2026-05-06T17:11:11.020Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools.",
-      "userFacingTitle": "Improved drop conversion review",
-      "bullets": [
-        "Improved drop rows with readable names instead of long IDs.",
-        "Clarified unwrap counts and small conversion percentages.",
-        "Added page controls when more drop rows are available."
-      ],
-      "audience": "admins",
-      "technicalDetails": [
-        "Display language uses unwrap; backend entitlement fields may still use unlock."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "repo-tooling",
-        "telemetry"
       ]
     }
   ]

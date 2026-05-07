@@ -20,6 +20,11 @@ Status: partial
   - none needed; worktree started clean
 - beta badge:
   - no change in this task; previously shrunk and already committed
+- beta update tracker:
+  - added a deterministic local validator at `scripts/agent/validate-beta-update-tracker.ts`
+  - wired `package.json` with `check:beta-update-tracker`
+  - hardened the beta version validators so they no longer pin the app forever to `1.2.1`
+  - advanced the accepted public beta release artifacts locally to `1.2.2` from git history so the latest relevant non-skipped commit range is represented
 - audits:
   - completed source-only audit across versioning, service worker/cache freshness, admin analytics/debug/AI, economy, tasks, telemetry, watch/viewer, notifications, chat/support, wallet/purchase, and legacy hygiene
 - fixes:
@@ -31,7 +36,9 @@ Status: partial
 ## Truth Summary
 - true:
   - Beta odometer versioning is implemented and validated.
-  - Public JSON and bundled release-note fallback agree on current visible version `1.2.1`.
+  - Public JSON, bundled fallback, and exported version context now agree on current visible version `1.2.2`.
+  - The beta update tracker is now locally verifiable from git history and repo files without GitHub APIs.
+  - The latest non-skipped relevant commit range is represented by the current accepted public beta release entry.
   - Service worker registration is versioned by `PUBLIC_APP_VERSION`, managed cache names are versioned, old managed caches are deleted on activate, and a runtime update prompt exists.
   - Admin Debug primary truth reads refresh on focus/visibility return and preserve polling/manual refresh.
   - Admin AI persisted module state is version-scoped and separated from server dashboard hydration.
@@ -91,6 +98,7 @@ Commands run:
 - `npm run typecheck`: pass
 - `npm run check:beta-versioning`: pass
 - `npm run check:beta-release-notes`: pass
+- `npm run check:beta-update-tracker`: pass
 - `npm run check:pwa-service-worker`: pass
 - `npm run check:admin-analytics-overview`: pass
 - `npm run check:admin-debug-control-tower`: fail

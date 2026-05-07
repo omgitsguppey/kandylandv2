@@ -9,6 +9,10 @@ import {
   getPublicReleaseNotesVisibleNotes,
   type PublicReleaseNotesDocument,
 } from "../../src/lib/release-notes/release-version-contract";
+import {
+  migrateLegacyVersionToBetaCounter,
+  parseBetaOdometerVersion,
+} from "../../src/lib/release-notes/beta-odometer-version";
 
 const root = process.cwd();
 const failures: string[] = [];
@@ -54,6 +58,9 @@ if (document) {
   if (document.channel !== PUBLIC_RELEASE_CHANNEL) failures.push("public release notes channel must remain beta.");
   if (document.currentVersion !== CURRENT_BETA_RELEASE_VERSION) failures.push(`currentVersion must migrate to ${CURRENT_BETA_RELEASE_VERSION}.`);
   if (document.betaReleaseCounter !== CURRENT_BETA_RELEASE_COUNTER) failures.push(`betaReleaseCounter must migrate to ${CURRENT_BETA_RELEASE_COUNTER}.`);
+  if ((parseBetaOdometerVersion(document.currentVersion)?.counter ?? -1) < (migrateLegacyVersionToBetaCounter("1.113.4") ?? 201)) {
+    failures.push("currentVersion must be 1.2.1 or newer after legacy migration.");
+  }
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(document.generatedAtUtc)) {
     failures.push("document.generatedAtUtc must be a full UTC timestamp.");
   }
@@ -80,7 +87,7 @@ for (const source of [docs, readme, agents]) {
 }
 
 for (const expected of [
-  "CURRENT_BETA_RELEASE_COUNTER = 201",
+  "CURRENT_BETA_RELEASE_COUNTER =",
   "CURRENT_BETA_RELEASE_VERSION",
   "betaReleaseCounter: number",
   "commitCount: number",

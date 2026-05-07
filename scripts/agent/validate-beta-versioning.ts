@@ -21,6 +21,12 @@ function expectEqual(actual: unknown, expected: unknown, label: string) {
   }
 }
 
+function expect(condition: boolean, message: string) {
+  if (!condition) {
+    failures.push(message);
+  }
+}
+
 const publicJson = JSON.parse(
   readFileSync(join(root, "public/kandydrops-release-notes.json"), "utf8"),
 ) as {
@@ -47,15 +53,22 @@ expectEqual(formatBetaOdometerVersion(19999), "1.99.99.1a", "counter 19999");
 expectEqual(parseBetaOdometerVersion("1.2.1")?.counter, 201, "parse 1.2.1");
 expectEqual(parseBetaOdometerVersion("1.99.99.1a")?.counter, 19999, "parse overflow");
 expectEqual(migrateLegacyVersionToBetaCounter("1.113.4"), 201, "legacy migration");
-expectEqual(getNextBetaOdometerVersion(201), "1.2.2", "next version from current counter");
+expectEqual(getNextBetaOdometerVersion(201), "1.2.2", "next version from 1.2.1 baseline");
 
-expectEqual(CURRENT_BETA_RELEASE_COUNTER, 201, "canonical current counter");
-expectEqual(CURRENT_BETA_RELEASE_VERSION, "1.2.1", "canonical current version");
-expectEqual(publicJson.betaReleaseCounter, 201, "public JSON counter");
-expectEqual(publicJson.currentVersion, "1.2.1", "public JSON current version");
+expectEqual(formatBetaOdometerVersion(CURRENT_BETA_RELEASE_COUNTER), CURRENT_BETA_RELEASE_VERSION, "canonical current version");
+expectEqual(publicJson.betaReleaseCounter, CURRENT_BETA_RELEASE_COUNTER, "public JSON counter");
+expectEqual(publicJson.currentVersion, CURRENT_BETA_RELEASE_VERSION, "public JSON current version");
+expect(
+  (parseBetaOdometerVersion(CURRENT_BETA_RELEASE_VERSION)?.counter ?? -1) >= (migrateLegacyVersionToBetaCounter("1.113.4") ?? 201),
+  "Canonical current version must be 1.2.1 or newer after legacy migration.",
+);
+expect(
+  (parseBetaOdometerVersion(publicJson.currentVersion)?.counter ?? -1) >= (migrateLegacyVersionToBetaCounter("1.113.4") ?? 201),
+  "Public JSON current version must be 1.2.1 or newer after legacy migration.",
+);
 
-if (!fallbackSource.includes("\"currentVersion\": \"1.2.1\"")) {
-  failures.push("Bundled fallback must carry currentVersion 1.2.1.");
+if (!fallbackSource.includes(`"currentVersion": "${CURRENT_BETA_RELEASE_VERSION}"`)) {
+  failures.push(`Bundled fallback must carry currentVersion ${CURRENT_BETA_RELEASE_VERSION}.`);
 }
 if (fallbackSource.includes("\"currentVersion\": \"1.113.4\"")) {
   failures.push("Bundled fallback must not keep legacy currentVersion 1.113.4.");

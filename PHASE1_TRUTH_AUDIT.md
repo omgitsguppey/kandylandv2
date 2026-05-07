@@ -15,9 +15,13 @@ Method: repo inspection plus targeted deterministic validators. No deploy, Playw
 
 ### 1. Versioning and release notes
 - true:
-  - Visible version is `1.2.1`.
+  - Visible version is `1.2.2`.
   - Odometer versioning is implemented through `src/lib/release-notes/beta-odometer-version.ts`.
   - `src/lib/release-notes/public-release-notes.ts` and `public/kandydrops-release-notes.json` agree on `currentVersion`, `betaReleaseCounter`, and note payload.
+  - `PUBLIC_APP_VERSION` and `PUBLIC_RELEASE_NOTES_VERSION_CONTEXT` agree with the public JSON and bundled fallback.
+  - A deterministic local beta update tracker now exists at `scripts/agent/validate-beta-update-tracker.ts`.
+  - The beta update tracker verifies the latest non-skipped relevant commit from local git history against the current accepted release note entry.
+  - The service worker registration path uses the same `PUBLIC_APP_VERSION` source instead of a hardcoded stale version token.
   - Release-note UI is user-facing and the badge wiring is real.
 - false:
   - Release-note automation coverage for recent Admin Debug and daily-task lifecycle truth changes is incomplete; two validators fail on required copy strings in `scripts/release/update-public-changelog.ts`.
@@ -26,6 +30,17 @@ Method: repo inspection plus targeted deterministic validators. No deploy, Playw
 - legacy:
   - `migrateLegacyVersionToBetaCounter("1.113.4")` exists as a legacy migration path.
 - score: `88`
+
+### Beta Update Tracker Follow-up
+- validator: `npm run check:beta-update-tracker`
+- result: pass
+- release state after hardening:
+  - current version: `1.2.2`
+  - current beta release counter: `202`
+  - current accepted release entry now groups the pending local commit range through the last non-skipped relevant commit before this tooling pass
+- remaining gap:
+  - this fixes local commit-to-release-note coverage detection
+  - it does not by itself resolve the separate Admin Debug and daily-task release-note copy requirements enforced by their own validators
 
 ### 2. Service worker/cache freshness
 - true:
@@ -298,6 +313,7 @@ Method: repo inspection plus targeted deterministic validators. No deploy, Playw
   - `npm run typecheck`
   - `npm run check:beta-versioning`
   - `npm run check:beta-release-notes`
+  - `npm run check:beta-update-tracker`
   - `npm run check:pwa-service-worker`
   - `npm run check:admin-analytics-overview`
   - `npm run check:admin-ai-control-tower`

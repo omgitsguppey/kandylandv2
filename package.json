@@ -73,6 +73,7 @@
         "check:release-notes": "tsx scripts/agent/validate-public-beta-changelog.ts",
         "check:beta-versioning": "tsx scripts/agent/validate-beta-versioning.ts",
         "check:beta-release-notes": "tsx scripts/agent/validate-beta-release-notes.ts",
+        "check:beta-update-tracker": "tsx scripts/agent/validate-beta-update-tracker.ts",
         "check:beta-modal-layout": "tsx scripts/agent/validate-beta-modal-layout.ts",
         "check:admin-copy-surface-truth": "tsx scripts/agent/validate-admin-copy-surface-truth.ts",
         "check:debug-first-roadmap": "tsx scripts/agent/validate-debug-first-roadmap.ts",
