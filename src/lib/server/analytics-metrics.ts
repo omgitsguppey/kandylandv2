@@ -92,9 +92,27 @@ function resolvePagePathFromFact(fact: AnalyticsEventFactRecord) {
   const params = (fact.params ?? {}) as Record<string, unknown>;
   return normalizePagePath(
     toStringValue(fact.pagePath)
+    || toStringValue(fact.route)
     || toStringValue(params.page_path)
     || getLegacyPagePathForEvent(toStringValue(fact.eventName)),
   );
+}
+
+function resolveFactActionName(fact: AnalyticsEventFactRecord) {
+  return toStringValue(fact.normalizedAction)
+    || toStringValue(fact.normalizedActionName)
+    || normalizeBehavioralEventFact({
+      eventId: (fact as Record<string, unknown>).eventId,
+      eventName: toStringValue(fact.eventName),
+      params: (fact.params ?? {}) as Record<string, unknown>,
+      timestamp: fact.timestamp,
+      userId: fact.userId,
+      sessionId: fact.sessionId,
+      pagePath: resolvePagePathFromFact(fact),
+      dropId: fact.dropId,
+      source: "server",
+    })?.normalizedAction
+    || "";
 }
 
 function resolveSessionIdFromFact(fact: AnalyticsEventFactRecord) {
@@ -263,19 +281,23 @@ function isPageViewEvent(eventName: string) {
   ]).has(eventName);
 }
 
-function isClickLikeEvent(eventName: string) {
+function isClickLikeEvent(actionName: string) {
   return new Set([
-    "semantic_target_clicked",
-    "navigation_click",
-    "daily_task_action_clicked",
-    "drop_clicked",
-    "view_drop_details",
+    "drop_viewed",
+    "drop_card_viewed",
     "drop_preview_opened",
-    "drop_unlock_attempted",
-    "unlock_drop_success",
-    "drop_unwrapped",
-    "viewer_related_drop_clicked",
-  ]).has(eventName);
+    "drop_unwrap_attempted",
+    "wallet_opened",
+    "wallet_package_selected",
+    "checkout_started",
+    "creator_followed",
+    "creator_unfollowed",
+    "creator_search_selected",
+    "notification_opened",
+    "notification_action_clicked",
+    "support_reply_viewed",
+    "chat_thread_opened",
+  ]).has(actionName);
 }
 
 function buildSessionSummaries(input: AnalyticsMetricEngineInput) {
@@ -283,6 +305,7 @@ function buildSessionSummaries(input: AnalyticsMetricEngineInput) {
 
   (input.eventFacts ?? []).forEach((fact) => {
     const eventName = toStringValue(fact.eventName);
+    const actionName = resolveFactActionName(fact);
     const params = (fact.params ?? {}) as Record<string, unknown>;
     const pagePath = resolvePagePathFromFact(fact);
     const sessionId = resolveSessionIdFromFact(fact);
@@ -296,24 +319,18 @@ function buildSessionSummaries(input: AnalyticsMetricEngineInput) {
       summary.pageViews += 1;
     }
 
-    const normalizedAction = normalizeBehavioralEventFact({
-      eventId: (fact as Record<string, unknown>).eventId,
-      eventName,
-      params,
-      timestamp: fact.timestamp,
-      userId: fact.userId,
-      sessionId: fact.sessionId,
-      pagePath,
-      dropId: fact.dropId,
-      source: "server",
-    });
+    const normalizedAction = actionName
+      ? {
+        dedupeKey: `${actionName}:${toStringValue((fact as Record<string, unknown>).eventId) || sessionId}:${Math.floor(toNumber(fact.timestamp) / 1000)}`,
+      }
+      : null;
 
     if (normalizedAction) {
       if (!summary.actionIds.has(normalizedAction.dedupeKey)) {
         summary.actionIds.add(normalizedAction.dedupeKey);
         summary.clickCount += 1;
       }
-    } else if (isClickLikeEvent(eventName)) {
+    } else if (isClickLikeEvent(actionName)) {
       summary.clickCount += Math.max(1, toNumber(params.click_count) || 1);
     }
 
@@ -335,7 +352,18 @@ function buildSessionSummaries(input: AnalyticsMetricEngineInput) {
       summary.deepScroll = true;
     }
 
-    if (dropId || eventName.startsWith("viewer_") || eventName.startsWith("drop_") || eventName.startsWith("unlock_")) {
+    if (
+      dropId
+      || actionName === "file_viewed"
+      || actionName === "watch_session_started"
+      || actionName === "watch_session_completed"
+      || actionName === "drop_preview_opened"
+      || actionName === "drop_unwrap_attempted"
+      || actionName === "drop_unlocked"
+      || actionName === "drop_unwrap_failed"
+      || actionName === "drop_viewed"
+      || actionName === "drop_card_viewed"
+    ) {
       summary.hasDropSurface = true;
     }
   });

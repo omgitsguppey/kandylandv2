@@ -10,11 +10,10 @@ import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
 import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS, ANALYTICS_ROUTE_POLICIES } from "@/lib/server/analytics-governance";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
-import { explainEventInclusion } from "@/lib/analytics/analytics-event-contract";
-import { BEHAVIORAL_EVENT_FACT_VERSION } from "@/lib/behavioral/event-fact-contract";
 import { buildIdentifiedActiveUserPatch } from "@/lib/behavioral/identified-metric-parity";
-import { normalizeIdentifiedMetricEventFact } from "@/lib/behavioral/event-fact-normalizer";
 import { isSearchIntentEventName, sanitizeSearchIntentParams } from "@/lib/behavioral/search-intent-profile";
+import { normalizeIdentifiedRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
+import { createRuntimeFactFirestoreDocument } from "@/lib/server/write-runtime-fact";
 
 export const dynamic = "force-dynamic";
 
@@ -104,88 +103,6 @@ function classifyBrowserSecurityBoundaryFromAdminUiError(params: Record<string, 
             ? "Browser blocked cross-origin frame access. This is expected when third-party iframes are protected. App code should not inspect cross-origin frames."
             : "Browser blocked cross-origin frame access. Review app frame logic and avoid reading cross-origin frame internals.",
     };
-}
-
-function resolveIdentifiedSourceTruth(
-    canonicalEventName: string,
-    params: Record<string, unknown>,
-) {
-    const explicitSourceTruth = readStringParam(params, "source_truth", "sourceTruth");
-
-    if (
-        explicitSourceTruth === "client"
-        || explicitSourceTruth === "client_funnel"
-        || explicitSourceTruth === "client_supporting"
-    ) {
-        return "client" as const;
-    }
-
-    if (explicitSourceTruth === "local_projection") {
-        return "local_projection" as const;
-    }
-
-    if (explicitSourceTruth === "legacy") {
-        return "legacy" as const;
-    }
-
-    if (explicitSourceTruth === "materialized") {
-        return "materialized" as const;
-    }
-
-    if (explicitSourceTruth === "server") {
-        return "server" as const;
-    }
-
-    if (explicitSourceTruth === "canonical") {
-        return "canonical" as const;
-    }
-
-    if (
-        canonicalEventName === "identity_linked"
-        || canonicalEventName === "server_purchase_verified"
-        || canonicalEventName === "daily_checkin_claimed"
-        || canonicalEventName === "task_completed"
-    ) {
-        return "canonical" as const;
-    }
-
-    if (canonicalEventName === "drop_unlocked" || canonicalEventName === "drop_unwrapped" || canonicalEventName === "entitlement_granted") {
-        return "server" as const;
-    }
-
-    if (canonicalEventName === "unlock_drop_success") {
-        return "client" as const;
-    }
-
-    if (
-        canonicalEventName === "drop_not_interested"
-        || canonicalEventName === "creator_not_interested"
-        || canonicalEventName === "category_not_interested"
-        || canonicalEventName === "creator_muted"
-        || canonicalEventName === "recommendation_dismissed"
-        || canonicalEventName === "content_satisfaction_positive"
-        || canonicalEventName === "content_satisfaction_negative"
-        || canonicalEventName === "content_satisfaction_skipped"
-        || canonicalEventName === "recommendation_reason_helpful"
-        || canonicalEventName === "recommendation_reason_not_helpful"
-        || isSearchIntentEventName(canonicalEventName)
-    ) {
-        return "client" as const;
-    }
-
-    if (canonicalEventName === "gumdrops_purchase_completed" || canonicalEventName === "purchase") {
-        return "client" as const;
-    }
-
-    if (
-        canonicalEventName.startsWith("watch_session_")
-        || canonicalEventName === "viewer_session_completed"
-        || canonicalEventName === "watch_score_computed"
-    ) {
-        return "canonical" as const;
-    }
-
-    return "server" as const;
 }
 
 async function recordLegacyClientDiagnostic(
@@ -315,7 +232,7 @@ async function POST_handler(request: NextRequest) {
 
             const canonicalEventName = telemetryEvent.canonicalEventName;
             const eventId = rawEvent.eventId || buildFallbackEventId(caller.uid, canonicalEventName);
-            const ref = adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts).doc(eventId);
+            const ref = adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.runtimeFacts).doc(eventId);
 
             const timestamp = rawEvent.eventTimestampMs || Date.now();
             const enrichedParamsBase = {
@@ -326,161 +243,63 @@ async function POST_handler(request: NextRequest) {
             const enrichedParams = isSearchIntentEventName(canonicalEventName)
                 ? sanitizeSearchIntentParams(enrichedParamsBase, canonicalEventName)
                 : enrichedParamsBase;
-            const sourceSurface = String(params.page_path || params.pagePath || "client");
-            const pagePath = String(enrichedParams.page_path || enrichedParams.pagePath || "");
-            const performedAs = readStringParam(enrichedParams, "performed_as", "performedAs");
-            const projectionMode = readStringParam(enrichedParams, "projection_mode", "projectionMode", "view_as_mode", "viewAsMode");
-            const sourceTruth = resolveIdentifiedSourceTruth(canonicalEventName, enrichedParams);
-            const explicitActorAdminId = readStringParam(
-                enrichedParams,
-                "actor_admin_id",
-                "actorAdminId",
-                "admin_id",
-                "adminId",
-                "actor_uid",
-                "actorUid",
-            );
-            const adminRouteOrEvent = telemetryEvent.option?.category === "admin"
-                || canonicalEventName.startsWith("admin_")
-                || performedAs === "admin_view_as_creator"
-                || projectionMode.includes("projection")
-                || sourceTruth === "local_projection"
-                || pagePath === "/admin"
-                || pagePath.startsWith("/admin/");
-            const inclusion = explainEventInclusion({
-                eventName: canonicalEventName,
-                userId: caller.uid,
-                actorAdminId: explicitActorAdminId,
-                adminId: adminRouteOrEvent ? (explicitActorAdminId || caller.uid) : readStringParam(enrichedParams, "admin_id", "adminId"),
-                actorType: readStringParam(enrichedParams, "actor_type", "actorType") || (adminRouteOrEvent ? "admin" : "user"),
-                route: pagePath,
-                surface: sourceSurface,
-                source: "identified_ingest",
-                performedAs,
-                projectionMode,
-                sourceTruth,
-            });
-            const actorClassification = inclusion.actorClassification;
-            const adminId = actorClassification.isAdmin ? (explicitActorAdminId || caller.uid) : "";
-            const parityFact = normalizeIdentifiedMetricEventFact({
+            const runtimeFactResult = normalizeIdentifiedRuntimeFact({
                 eventId,
-                eventName: canonicalEventName,
+                rawEventName: rawEvent.eventName,
                 params: enrichedParams,
-                timestamp,
+                timestampMs: timestamp,
                 callerUid: caller.uid,
-                pagePath,
-                includeInUserBehavior: inclusion.includeInUserBehavior,
-                actorType: actorClassification.actorType,
-                actorLane: actorClassification.actorLane,
-                sourceTruth,
             });
-            const normalizedEventFact = parityFact.behavioralFact;
-            
-            const finalEvent = {
-                eventId,
-                eventName: canonicalEventName,
-                timestamp,
-                clientTimestamp: timestamp,
-                serverTimestamp: Date.now(),
-                userId: caller.uid,
-                analyticsUserId: inclusion.includeInUserBehavior ? caller.uid : "",
-                adminId,
-                actorType: actorClassification.actorType,
-                actorLane: actorClassification.actorLane,
-                performedAs,
-                projectionMode,
-                includeInUserBehavior: inclusion.includeInUserBehavior,
-                includeInAdminAnalytics: inclusion.includeInAdminAnalytics,
-                analyticsExclusionReason: inclusion.exclusionReason ?? "",
-                username: "",
-                consentMode: "identified",
-                sourceLayer: "observed",
-                sourceSurface,
-                idempotencyKey: eventId,
-                sessionId: String(enrichedParams.session_id || enrichedParams.sessionId || ""),
-                pagePath,
-                dayKey: String(enrichedParams.day_key || enrichedParams.dayKey || ""),
-                hourKey: String(enrichedParams.hour_key || enrichedParams.hourKey || ""),
-                minuteKey: String(enrichedParams.minute_key || enrichedParams.minuteKey || ""),
-                dropId: String(enrichedParams.drop_id || enrichedParams.dropId || ""),
-                dropTitle: String(enrichedParams.drop_title || enrichedParams.dropTitle || ""),
-                dropCategory: String(enrichedParams.drop_category || enrichedParams.dropCategory || ""),
-                assetKey: String(enrichedParams.asset_key || enrichedParams.assetKey || ""),
-                assetIndex: Number(enrichedParams.asset_index || enrichedParams.assetIndex || 0),
-                contentKind: String(enrichedParams.content_kind || enrichedParams.contentKind || ""),
-                destination: String(enrichedParams.destination || ""),
-                destinationType: String(enrichedParams.destination_type || enrichedParams.destinationType || ""),
-                sessionWatchSeconds: Number(enrichedParams.session_watch_seconds || enrichedParams.sessionWatchSeconds || 0),
-                watchSeconds: Number(enrichedParams.watch_seconds || enrichedParams.watchSeconds || 0),
-                durationMs: Number(enrichedParams.duration_ms || enrichedParams.durationMs || 0),
-                loadMs: Number(enrichedParams.load_ms || enrichedParams.loadMs || 0),
-                viewportWidth: Number(enrichedParams.viewport_width || enrichedParams.viewportWidth || 0),
-                viewportHeight: Number(enrichedParams.viewport_height || enrichedParams.viewportHeight || 0),
-                isMobileViewport: Boolean(enrichedParams.is_mobile_viewport || enrichedParams.isMobileViewport || false),
-                authState: "authenticated",
-                eventCategory: telemetryEvent.option?.category || "system",
-                eventModules: telemetryEvent.option?.modules || [],
-                trackingSources: telemetryEvent.option?.sources || [],
-                eventIndexVersion: String(enrichedParams.event_index_version || ""),
-                trackingOrigin: "identified_api_ingest",
-                guestUserAdminSeparation: {
-                    guestOrAnonymous: actorClassification.isGuestLike,
-                    authenticatedUser: actorClassification.isAuthenticatedUser,
-                    creator: actorClassification.isCreator,
-                    admin: actorClassification.isAdmin,
-                    system: actorClassification.isSystem,
-                    unknown: actorClassification.isUnknown,
-                },
+            if (!runtimeFactResult.fact) {
+                skippedUnsupported += 1;
+                skippedUnsupportedEventNames.add(rawEvent.eventName);
+                await recordLegacyClientDiagnostic(caller.uid, rawEvent.eventName, params);
+                continue;
+            }
+
+            const finalEvent = createRuntimeFactFirestoreDocument({
+                runtimeFact: runtimeFactResult.fact,
                 params: enrichedParams,
-                behavioralEventFactVersion: normalizedEventFact ? BEHAVIORAL_EVENT_FACT_VERSION : "",
-                normalizedActionName: normalizedEventFact?.normalizedAction ?? "",
-                normalizedActionId: normalizedEventFact?.dedupeKey ?? "",
-                normalizedActionConfidence: normalizedEventFact?.confidence ?? 0,
-                normalizedActionSourceTruth: normalizedEventFact?.sourceTruth ?? "",
-                normalizedActionReasonCode: normalizedEventFact?.reasonCode ?? "",
-                metricFamily: parityFact.metricFamily,
-                actorUserId: parityFact.actorUserId,
-                actorAdminId: parityFact.actorAdminId,
-                actorCreatorId: parityFact.actorCreatorId,
-                targetUserId: parityFact.targetUserId,
-                targetCreatorId: parityFact.targetCreatorId,
-                targetDropId: parityFact.targetDropId,
-                targetFileId: parityFact.targetFileId,
-                targetThreadId: parityFact.targetThreadId,
-                transactionId: parityFact.transactionId,
-                sourceTruth: parityFact.sourceTruth,
-                sourceConfidence: parityFact.sourceConfidence,
-                metricEligible: parityFact.metricEligible,
-                metricExclusionReason: parityFact.metricExclusionReason,
-                actionEntityId: normalizedEventFact?.entityId ?? "",
-                actionEntityType: normalizedEventFact?.entityType ?? "",
-                actionSourceComponent: normalizedEventFact?.sourceComponent ?? "",
-                actionRoute: normalizedEventFact?.route ?? "",
-                actionDropId: normalizedEventFact?.dropId ?? "",
-                actionFileId: normalizedEventFact?.fileId ?? "",
-                actionCreatorId: normalizedEventFact?.creatorId ?? "",
-                actionTransactionId: normalizedEventFact?.transactionId ?? "",
-                actionThreadId: normalizedEventFact?.threadId ?? "",
-                actionNotificationId: normalizedEventFact?.notificationId ?? "",
-                actionTaskId: normalizedEventFact?.taskId ?? "",
-            };
+                telemetryEventCategory: telemetryEvent.option?.category || "system",
+                telemetryEventModules: telemetryEvent.option?.modules || [],
+                telemetryTrackingSources: telemetryEvent.option?.sources || [],
+                trackingOrigin: "identified_api_ingest",
+            });
 
             // Using batch.set with merge: false to mimic create, but safer. Deduplication is handled by background worker if duplicate
             batch.set(ref, finalEvent, { merge: false });
             processed++;
 
-            if (inclusion.includeInUserBehavior && (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0))) {
+            if (runtimeFactResult.fact.includeInUserBehavior && (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0))) {
                 latestActiveUserPatch = buildIdentifiedActiveUserPatch({
                     uid: caller.uid,
                     timestampMs: timestamp,
                     eventName: canonicalEventName,
-                    pagePath: finalEvent.pagePath,
+                    pagePath: runtimeFactResult.fact.route,
                     username: readStringParam(enrichedParams, "username", "user_name", "display_name", "displayName"),
                     semanticScopeLabel: readStringParam(enrichedParams, "semantic_scope_label", "semanticScopeLabel"),
                     componentName: readStringParam(enrichedParams, "component_name", "componentName"),
                     eventModules: readEventModules(enrichedParams),
                     source: "identified_client_ingest",
-                    parityFact,
+                    parityFact: {
+                        normalizedAction: runtimeFactResult.fact.normalizedAction,
+                        metricFamily: runtimeFactResult.fact.metricFamily as any,
+                        actorUserId: runtimeFactResult.fact.actor.actorUserId,
+                        actorAdminId: runtimeFactResult.fact.actor.actorAdminId,
+                        actorCreatorId: runtimeFactResult.fact.actor.actorCreatorId,
+                        targetUserId: runtimeFactResult.fact.target.targetUserId,
+                        targetCreatorId: runtimeFactResult.fact.target.targetCreatorId,
+                        targetDropId: runtimeFactResult.fact.target.targetDropId,
+                        targetFileId: runtimeFactResult.fact.target.targetFileId,
+                        targetThreadId: runtimeFactResult.fact.target.targetThreadId,
+                        transactionId: runtimeFactResult.fact.target.transactionId,
+                        sourceTruth: runtimeFactResult.fact.sourceTruth,
+                        sourceConfidence: runtimeFactResult.fact.confidence,
+                        metricEligible: runtimeFactResult.fact.metricEligible,
+                        metricExclusionReason: finalEvent.metricExclusionReason,
+                        reasonCode: finalEvent.metricExclusionReason,
+                        behavioralFact: null,
+                    } as any,
                 });
             }
         }

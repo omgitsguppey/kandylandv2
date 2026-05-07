@@ -9,7 +9,14 @@ export type AnalyticsMetricStatus = "healthy" | "partial" | "empty";
 export interface AnalyticsEventFactRecord {
   eventId?: string;
   eventName?: string;
+  rawEventName?: string;
+  normalizedAction?: string;
+  normalizedActionName?: string;
   pagePath?: string;
+  route?: string;
+  source_component?: string;
+  sourceTruth?: string;
+  confidence?: number;
   sessionId?: string;
   userId?: string;
   username?: string;

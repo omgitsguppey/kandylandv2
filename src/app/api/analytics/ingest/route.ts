@@ -11,15 +11,18 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId, createAnalyticsStorageKey } from "@/lib/analytics-identifiers";
-import { BEHAVIORAL_EVENT_FACT_VERSION } from "@/lib/behavioral/event-fact-contract";
-import { buildBehavioralEventFactRollup } from "@/lib/server/event-fact-rollup";
-import { normalizeBehavioralEventFactWithDiagnostics } from "@/lib/behavioral/normalize-event-fact";
 import {
     ANALYTICS_CANONICAL_COLLECTIONS,
     ANALYTICS_OPERATIONAL_COLLECTIONS,
     ANALYTICS_ROUTE_POLICIES,
 } from "@/lib/server/analytics-governance";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { normalizeAnonymousRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
+import {
+    RUNTIME_FACT_CONTRACT_VERSION,
+    type RuntimeFact,
+    type RuntimeFactDiagnostic,
+} from "@/lib/runtime-facts/runtime-fact-contract";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -157,25 +160,25 @@ async function POST_handler(request: NextRequest) {
             x: typeof event.x === "number" ? Math.floor(event.x / 24) * 24 : undefined,
             y: typeof event.y === "number" ? Math.floor(event.y / 24) * 24 : undefined,
         }));
-        const normalizedEventFactResults = sanitizedEvents.map((event) => normalizeBehavioralEventFactWithDiagnostics({
-            eventName: event.semanticSurfaceKey || event.targetId || event.semanticScopeKey || event.type,
-            params: {
-                source_component: event.semanticSurfaceKey || event.targetId || event.targetTag || "guest_analytics_ingest",
-                route: event.path,
-                drop_id: event.dropId,
-            },
-            timestamp: event.timestamp,
+        const runtimeFactResults = sanitizedEvents.map((event, index) => normalizeAnonymousRuntimeFact({
+            eventId: `${batchId}:${index}`,
+            timestampMs: event.timestamp,
             sessionId: sessionId || sessionKey,
             anonymousVisitorId: sessionKey,
-            pagePath: event.path,
+            path: event.path,
             dropId: event.dropId,
-            source: "legacy",
-            confidence: 0.6,
+            type: event.type,
+            targetId: event.targetId,
+            targetTag: event.targetTag,
+            interactionState: event.interactionState,
+            exitIntent: event.exitIntent,
         }));
-        const eventFactRollup = buildBehavioralEventFactRollup({
-            facts: normalizedEventFactResults.map((result) => result.fact),
-            diagnostics: normalizedEventFactResults.map((result) => result.diagnostic),
-        });
+        const runtimeFacts = runtimeFactResults
+            .map((result) => result.fact)
+            .filter((fact): fact is RuntimeFact => Boolean(fact));
+        const runtimeDiagnostics = runtimeFactResults
+            .map((result) => result.diagnostic)
+            .filter((diagnostic): diagnostic is RuntimeFactDiagnostic => Boolean(diagnostic));
 
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
         const minuteBucket = timeKeys.minuteKey;
@@ -255,11 +258,12 @@ async function POST_handler(request: NextRequest) {
                 maxScrollDepth: batchScrollDepth,
                 hasPixelData,
                 events: sanitizedEvents,
-                behavioralEventFactVersion: eventFactRollup.facts.length > 0 ? BEHAVIORAL_EVENT_FACT_VERSION : "",
-                normalizedActions: eventFactRollup.facts.slice(0, 50),
-                normalizedActionCount: eventFactRollup.facts.length,
-                unknownBehavioralEvents: eventFactRollup.unknownEvents.slice(0, 20),
-                unknownBehavioralEventCount: eventFactRollup.diagnostics.length,
+                runtimeFactVersion: runtimeFacts.length > 0 ? RUNTIME_FACT_CONTRACT_VERSION : "",
+                runtimeFacts: runtimeFacts.slice(0, 50),
+                normalizedActions: runtimeFacts.map((fact) => fact.normalizedAction).filter(Boolean).slice(0, 50),
+                normalizedActionCount: runtimeFacts.length,
+                unknownRuntimeEvents: runtimeDiagnostics.slice(0, 20),
+                unknownRuntimeEventCount: runtimeDiagnostics.length,
                 createdAt: FieldValue.serverTimestamp(),
             });
 

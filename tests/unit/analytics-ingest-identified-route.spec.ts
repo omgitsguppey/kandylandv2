@@ -72,6 +72,7 @@ vi.mock("@/lib/server/server-diagnostics", () => ({
 
 vi.mock("@/lib/server/analytics-governance", () => ({
   ANALYTICS_CANONICAL_COLLECTIONS: {
+    runtimeFacts: "analytics_event_facts",
     identifiedEventFacts: "analytics_event_facts",
   },
   ANALYTICS_OPERATIONAL_COLLECTIONS: {
@@ -120,6 +121,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_alias");
     expect(eventWrite?.data).toMatchObject({
       eventName: "notification_read",
+      rawEventName: "notification_marked_read",
       eventCategory: "notifications",
       metricFamily: "notification",
       metricEligible: true,
@@ -198,6 +200,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_follow");
     expect(eventWrite?.data).toMatchObject({
       actorType: "user",
+      actorLane: "user",
       actorUserId: "user_123",
       actorCreatorId: "",
       targetCreatorId: "creator_456",
@@ -442,7 +445,7 @@ describe("POST /api/analytics/ingest-identified", () => {
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_purchase_verified");
     expect(eventWrite?.data).toMatchObject({
-      eventName: "purchase_verified",
+      eventName: "server_purchase_verified",
       transactionId: "txn_server_123",
       sourceTruth: "canonical",
       normalizedActionName: "gumdrops_purchased",
@@ -476,7 +479,7 @@ describe("POST /api/analytics/ingest-identified", () => {
       dropId: "drop_123",
       transactionId: "txn_unlock_123",
       sourceTruth: "server",
-      normalizedActionName: "drop_unwrapped",
+      normalizedActionName: "drop_unlocked",
       metricEligible: true,
     });
   });
@@ -505,7 +508,7 @@ describe("POST /api/analytics/ingest-identified", () => {
       eventName: "unlock_drop_success",
       transactionId: "txn_unlock_support_123",
       sourceTruth: "client",
-      normalizedActionName: "drop_unwrapped",
+      normalizedActionName: "drop_unlocked",
       metricEligible: true,
     });
   });
@@ -534,6 +537,8 @@ describe("POST /api/analytics/ingest-identified", () => {
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_projection");
     expect(eventWrite?.data).toMatchObject({
       actorType: "admin",
+      performedAs: "admin_view_as_creator",
+      projectionMode: "read_only_creator_projection",
       analyticsUserId: "",
       includeInUserBehavior: false,
       metricEligible: false,
@@ -542,8 +547,6 @@ describe("POST /api/analytics/ingest-identified", () => {
       actorUserId: "",
       actorCreatorId: "",
       targetCreatorId: "creator_789",
-      performedAs: "admin_view_as_creator",
-      projectionMode: "read_only_creator_projection",
       sourceTruth: "local_projection",
     });
 
@@ -576,6 +579,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_projection_blocked");
     expect(eventWrite?.data).toMatchObject({
       eventName: "admin_projection_write_blocked",
+      rawEventName: "admin_view_as_creator_action_blocked",
       actorType: "admin",
       analyticsUserId: "",
       includeInUserBehavior: false,

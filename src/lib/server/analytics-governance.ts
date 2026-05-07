@@ -1,5 +1,6 @@
 export const ANALYTICS_CANONICAL_COLLECTIONS = {
   guestBatches: "analytics_guest_batches",
+  runtimeFacts: "analytics_event_facts",
   identifiedEventFacts: "analytics_event_facts",
   watchObservations: "analytics_watch_observations",
   watchSessions: "analytics_watch_sessions",
