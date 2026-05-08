@@ -208,6 +208,8 @@
         "score:cloud-cost": "tsx scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
         "score:4xx-cost": "tsx scripts/agent/score-4xx-cost-guardrails.ts",
         "check:4xx-cost": "npm run score:4xx-cost && tsx scripts/agent/validate-4xx-cost-guardrails.ts",
+        "score:billing-spikes": "tsx scripts/agent/score-billing-spike-radar.ts",
+        "check:billing-spikes": "npm run score:billing-spikes && tsx scripts/agent/validate-billing-spike-radar.ts",
         "check:cloud-cost": "tsx scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts",
         "check:codex-auth": "tsx scripts/agent/verify-codex-native-auth.ts",
         "plan:cloud-auth-bootstrap": "tsx scripts/agent/plan-cloud-auth-bootstrap.ts",
