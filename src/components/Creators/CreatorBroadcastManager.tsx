@@ -256,6 +256,7 @@ export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId:
             <article key={broadcast.id} className="rounded-2xl border border-white/10 bg-black/35 p-4">
               <button
                 type="button"
+                aria-expanded={expanded}
                 onClick={() => {
                   setExpandedId(expanded ? null : broadcast.id);
                   trackEvent("creator_broadcast_detail_viewed", {

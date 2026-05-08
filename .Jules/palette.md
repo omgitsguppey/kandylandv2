@@ -9,3 +9,7 @@
 ## 2024-03-31 - Added ARIA label to mobile profile avatar
 **Learning:** Found a profile avatar `<button>` in the Navbar that was visually an icon-only button on mobile devices (`md:hidden`). It used an image or initial for sighted users but lacked an accessible name for screen readers.
 **Action:** Always provide an `aria-label` to avatar or profile buttons when they function as icon-only interactive elements without visible text labels.
+
+## 2024-05-08 - Tie boolean states to aria-expanded
+**Learning:** Found several toggle buttons in dashboard settings (`CreatorDashboardSettingsHub.tsx`) and broadcast manager (`CreatorBroadcastManager.tsx`) that effectively toggled UI elements but failed to communicate this to screen readers.
+**Action:** Directly map boolean visibility states (like `expanded`, `isOpen`) to the `aria-expanded` attribute on their respective `<button>` toggle triggers.
