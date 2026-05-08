@@ -23,6 +23,7 @@ function requireExcludes(source: string, forbidden: string, label: string) {
 const bigQueryExport = read("functions/src/analytics-bigquery-export.ts");
 const rebuildAnalyticsTruth = read("scripts/rebuild-analytics-truth.ts");
 const rebuildBehavioral = read("scripts/rebuild-behavioral-intelligence.ts");
+const importExportTruthPolicy = read("src/lib/analytics/import-export-truth-policy.ts");
 const analyticsTruthCli = read("functions/src/analytics-truth-cli.ts");
 const analyticsTruthRuntime = read("functions/src/analytics-truth-runtime.ts");
 const sourceHierarchy = read("docs/agent-truth/analytics-source-hierarchy.md");
@@ -51,9 +52,18 @@ requireIncludes(rebuildBehavioral, 'runFunctionsCommand("rebuild:analytics-truth
 requireIncludes(rebuildBehavioral, 'KD_ANALYTICS_IMPORT_SCHEMA_VALIDATION_REQUIRED: "true"', "Behavioral rebuild");
 requireIncludes(rebuildBehavioral, 'canonicalFactImportTargets: [...CANONICAL_FACT_IMPORT_TARGETS]', "Behavioral rebuild");
 
+requireIncludes(importExportTruthPolicy, 'ANALYTICS_IMPORT_EXPORT_TRUTH_CLASS = "analytics_evidence_only"', "Import/export truth policy");
+requireIncludes(importExportTruthPolicy, '"runtime_transactions"', "Import/export truth policy");
+requireIncludes(importExportTruthPolicy, '"runtime_subscriptions"', "Import/export truth policy");
+requireIncludes(importExportTruthPolicy, '"runtime_support_messages"', "Import/export truth policy");
+requireIncludes(importExportTruthPolicy, "idempotentImportRequired: true", "Import/export truth policy");
+
 requireIncludes(analyticsTruthCli, 'truthClass: "canonical_fact_materializer_only"', "Analytics truth CLI");
 requireIncludes(analyticsTruthCli, 'importWritesLegacySnapshotsForbidden: true', "Analytics truth CLI");
 requireIncludes(analyticsTruthCli, '"analytics_watch_sessions"', "Analytics truth CLI");
+requireIncludes(analyticsTruthCli, '"runtime_transactions"', "Analytics truth CLI");
+requireIncludes(analyticsTruthCli, '"runtime_subscriptions"', "Analytics truth CLI");
+requireIncludes(analyticsTruthCli, '"runtime_support_messages"', "Analytics truth CLI");
 
 requireIncludes(analyticsTruthRuntime, "buildCanonicalMetricFacts", "Analytics truth runtime");
 requireIncludes(analyticsTruthRuntime, 'db.collection("analytics_event_facts")', "Analytics truth runtime");
@@ -66,8 +76,10 @@ requireIncludes(cloudGuardrails, "BigQuery is a validation/export lane, not prod
 requireIncludes(cloudGuardrails, "BigQuery runtime imports are blocked.", "Cloud guardrails docs");
 requireIncludes(cloudGuardrails, "schema validation", "Cloud guardrails docs");
 requireIncludes(cloudGuardrails, "dry-run mode", "Cloud guardrails docs");
+requireIncludes(cloudGuardrails, "idempotent", "Cloud guardrails docs");
 requireIncludes(cloudGuardrails, "canonical event facts or metric facts", "Cloud guardrails docs");
 requireIncludes(cloudGuardrails, "legacy admin metric snapshots", "Cloud guardrails docs");
+requireIncludes(cloudGuardrails, "support messages", "Cloud guardrails docs");
 
 if (sqlMirrorPayload.analyticsEvidenceOnly !== true) {
   failures.push("SQL mirror payload must set analyticsEvidenceOnly=true.");
@@ -78,6 +90,9 @@ if (sqlMirrorPayload.runtimeImportBlocked !== true) {
 if (!Array.isArray(sqlMirrorPayload.canonicalFactImportTargets) || !sqlMirrorPayload.canonicalFactImportTargets.includes("analytics_event_facts") || !sqlMirrorPayload.canonicalFactImportTargets.includes("analytics_metric_facts")) {
   failures.push("SQL mirror payload must declare canonicalFactImportTargets for analytics_event_facts and analytics_metric_facts.");
 }
+if (!Array.isArray(sqlMirrorPayload.forbiddenRuntimeMutationSurfaces) || !sqlMirrorPayload.forbiddenRuntimeMutationSurfaces.includes("runtime_transactions") || !sqlMirrorPayload.forbiddenRuntimeMutationSurfaces.includes("runtime_subscriptions") || !sqlMirrorPayload.forbiddenRuntimeMutationSurfaces.includes("runtime_support_messages")) {
+  failures.push("SQL mirror payload must block runtime transactions, subscriptions, and support message mutations.");
+}
 if (sqlMirrorStatus.analyticsEvidenceOnly !== true) {
   failures.push("SQL mirror status must set analyticsEvidenceOnly=true.");
 }
@@ -86,6 +101,9 @@ if (sqlMirrorStatus.runtimeImportBlocked !== true) {
 }
 if (!Array.isArray(sqlMirrorStatus.canonicalFactImportTargets) || !sqlMirrorStatus.canonicalFactImportTargets.includes("analytics_event_facts") || !sqlMirrorStatus.canonicalFactImportTargets.includes("analytics_metric_facts")) {
   failures.push("SQL mirror status must declare canonicalFactImportTargets for analytics_event_facts and analytics_metric_facts.");
+}
+if (!Array.isArray(sqlMirrorStatus.forbiddenRuntimeMutationSurfaces) || !sqlMirrorStatus.forbiddenRuntimeMutationSurfaces.includes("runtime_transactions") || !sqlMirrorStatus.forbiddenRuntimeMutationSurfaces.includes("runtime_subscriptions") || !sqlMirrorStatus.forbiddenRuntimeMutationSurfaces.includes("runtime_support_messages")) {
+  failures.push("SQL mirror status must block runtime transactions, subscriptions, and support message mutations.");
 }
 
 requireIncludes(dataconnectAgentContext, "never as runtime product truth", "Data Connect agent-context schema");

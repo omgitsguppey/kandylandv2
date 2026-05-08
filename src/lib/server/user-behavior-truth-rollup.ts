@@ -2,6 +2,7 @@ import {
   ADMIN_RECOMMENDATION_CONFIDENCE_THRESHOLD,
   type UserBehaviorTruthRollup,
 } from "@/lib/behavioral/user-score-contract";
+import { capRecommendationConfidenceByDataAvailability } from "@/lib/behavioral/privacy-aware-scoring";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 
 function clamp01(value: number) {
@@ -10,18 +11,6 @@ function clamp01(value: number) {
   }
 
   return Math.max(0, Math.min(1, value));
-}
-
-function clampRecommendationConfidence(
-  recommendationConfidence: number,
-  dataAvailabilityReason: ReturnType<typeof buildUserBehaviorRollup>["dataAvailabilityReason"],
-) {
-  const normalized = clamp01(recommendationConfidence);
-  if (dataAvailabilityReason === "full_signal") {
-    return normalized;
-  }
-
-  return Math.min(normalized, 0.34);
 }
 
 export function toUserBehaviorTruthRollup(
@@ -42,7 +31,7 @@ export function toUserBehaviorTruthRollup(
   const sourceFreshness = rollup.freshnessState === "degraded" && sourceTruth === "legacy_fallback"
     ? "legacy_fallback"
     : rollup.freshnessState;
-  const cappedRecommendationConfidence = clampRecommendationConfidence(
+  const cappedRecommendationConfidence = capRecommendationConfidenceByDataAvailability(
     recommendationConfidence,
     rollup.dataAvailabilityReason,
   );

@@ -9,7 +9,7 @@ This doctrine defines how KandyDrops uses Google Analytics 4, BigQuery, Firebase
 - GA4 Data API requests consume property quotas. Admin pages must prefer cached or materialized KandyDrops read models before issuing live GA4 report calls.
 - GA4 BigQuery export can stop because of billing, missing/deleted service accounts, or organization policy. KandyDrops must expose export heartbeat state in Admin Debug before treating warehouse delivery as healthy.
 - BigQuery query cache and materialized views are optimization layers, not the primary app source of truth. Materialized views are acceptable for warehouse reporting when refresh state and staleness remain visible.
-- BigQuery and GA exports are analytics evidence only. They cannot overwrite runtime balances, unlocks, purchases, user rollups, or legacy admin metric snapshots.
+- BigQuery and GA exports are analytics evidence only. They cannot overwrite runtime balances, transactions, unlocks, purchases, subscriptions, support messages, user rollups, or legacy admin metric snapshots.
 - Firestore read-time aggregations are useful for small summary checks, but large admin dashboards must prefer write-time aggregates or scheduled materializers.
 - Firebase scheduled functions are the approved backend mechanism for periodic hot summaries. Scheduled functions can overlap, so they must be idempotent and write source-state metadata.
 - Cloud Run and App Hosting services that serve admin analytics must keep at least one warm instance when latency matters.
@@ -74,8 +74,8 @@ KandyDrops uses Firebase Data Connect with Cloud SQL only as an agent-context mi
 
 - Cloud Run/App Hosting services that can trigger AI, media proxying, analytics rebuilds, admin refresh, cron, Data Connect, Cloud SQL, or BigQuery must have max-instance and concurrency guidance before launch.
 - Cloud SQL-backed Data Connect is cost-bearing twice: Data Connect operations and the Cloud SQL PostgreSQL instance. Provider-side instance state, tier, storage, backups, HA/read replicas, and budget alerts must be checked in Cloud Console before treating the mirror as cost-safe.
-- BigQuery export/import status must be explicit. Missing export config is `[unconfirmed]`, missing import safety is `[blocked]`, and BigQuery data must never overwrite GumDrops balances, transactions, unlocks, creator subscriptions, or support messages without manual approval.
-- Imported analytics rows must map into normalized event facts or canonical metric facts only, with dry-run and schema validation recorded before any approved mutation path exists.
+- BigQuery export/import status must be explicit. Missing export config is `[unconfirmed]`, missing import safety is `[blocked]`, and BigQuery data must never overwrite GumDrops balances, transactions, unlocks, creator subscriptions, support messages, or runtime rollups without manual approval.
+- Imported analytics rows must map into normalized event facts or canonical metric facts only, with dry-run, schema validation, and idempotent execution recorded before any approved mutation path exists.
 - The deterministic guardrail lane is `npm run score:cloud-cost` and `npm run check:cloud-cost`. It may suggest `gcloud run services update ...` commands as documentation, but agents must not execute `gcloud`, deploy, run BigQuery jobs, or deploy Data Connect from this lane.
 
 ## Admin Truth Rules

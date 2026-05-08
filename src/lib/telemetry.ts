@@ -145,6 +145,9 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
     }
 
     const isAuthenticated = Boolean(auth?.currentUser);
+    const privacySettings = readPrivacySettingsSnapshot();
+    const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
+    const privacyDataAvailabilityReason = resolvePrivacyDataAvailabilityReason(privacySettings);
     const viewportWidth = Math.round(window.innerWidth || 0);
     const viewportHeight = Math.round(window.innerHeight || 0);
     const enriched: Record<string, string | number | boolean> = {
@@ -156,6 +159,10 @@ function getEnrichedEventParams(eventParams?: Record<string, unknown>) {
         is_mobile_viewport: viewportWidth <= 768,
         event_timestamp_ms: Date.now(),
         auth_state: isAuthenticated ? "authenticated" : "guest",
+        identified_analytics_allowed: allowIdentifiedAnalytics,
+        privacy_data_availability_reason: privacyDataAvailabilityReason,
+        metric_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
+        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : privacyDataAvailabilityReason,
         ...buildAnalyticsSemanticParams({
             pagePath: window.location.pathname,
             dropId: typeof sanitizedParams.drop_id === "string" ? sanitizedParams.drop_id : undefined,

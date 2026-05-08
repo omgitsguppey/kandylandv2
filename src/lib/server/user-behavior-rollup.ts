@@ -19,6 +19,10 @@ import {
   logNorm,
   resolveBehavioralModelActivation,
 } from "@/lib/behavioral/behavioral-math-calibration";
+import {
+  applyPrivacyAwareEngagementFloor,
+  applyPrivacyAwareValueFloor,
+} from "@/lib/behavioral/privacy-aware-scoring";
 import type {
   UserBehaviorRollup,
   UserBehaviorRollupConfidence,
@@ -84,40 +88,6 @@ function resolveBehaviorPrivacyAvailability(input: {
   }
 
   return "full_signal";
-}
-
-function applyPrivacyLimitedEngagementFloor(
-  engagement: UserEngagementScoreResult,
-  privacyReason: BehavioralDataAvailabilityReason,
-  hasVerifiedSignal: boolean,
-): UserEngagementScoreResult {
-  if (privacyReason === "full_signal" || hasVerifiedSignal) {
-    return engagement;
-  }
-
-  return {
-    ...engagement,
-    score: Math.max(engagement.score, 24),
-    tier: "light",
-    verdict: "Privacy limited",
-  };
-}
-
-function applyPrivacyLimitedValueFloor(
-  value: UserValueScoreResult,
-  privacyReason: BehavioralDataAvailabilityReason,
-  hasVerifiedSignal: boolean,
-): UserValueScoreResult {
-  if (privacyReason === "full_signal" || hasVerifiedSignal) {
-    return value;
-  }
-
-  return {
-    ...value,
-    valueScore: Math.max(value.valueScore, 22),
-    valueTier: "warm",
-    verdict: "Privacy limited",
-  };
 }
 
 export function buildUserBehaviorRollup(input: {
@@ -386,16 +356,32 @@ export function buildUserBehaviorRollup(input: {
     Math.round(readNumber(input.paidGdPurchased)) > 0 ||
     unwraps > 0
   );
-  const engagement = applyPrivacyLimitedEngagementFloor(
-    rawEngagement,
-    privacyAvailabilityReason,
-    hasVerifiedEngagementSignal,
-  );
-  const value = applyPrivacyLimitedValueFloor(
-    rawValue,
-    privacyAvailabilityReason,
-    hasVerifiedValueSignal,
-  );
+  const engagement = {
+    ...rawEngagement,
+    score: applyPrivacyAwareEngagementFloor(
+      rawEngagement.score,
+      privacyAvailabilityReason,
+      hasVerifiedEngagementSignal,
+    ),
+    tier: privacyAvailabilityReason === "full_signal" || hasVerifiedEngagementSignal ? rawEngagement.tier : "light",
+    verdict:
+      privacyAvailabilityReason === "full_signal" || hasVerifiedEngagementSignal
+        ? rawEngagement.verdict
+        : "Privacy limited",
+  };
+  const value = {
+    ...rawValue,
+    valueScore: applyPrivacyAwareValueFloor(
+      rawValue.valueScore,
+      privacyAvailabilityReason,
+      hasVerifiedValueSignal,
+    ),
+    valueTier: privacyAvailabilityReason === "full_signal" || hasVerifiedValueSignal ? rawValue.valueTier : "warm",
+    verdict:
+      privacyAvailabilityReason === "full_signal" || hasVerifiedValueSignal
+        ? rawValue.verdict
+        : "Privacy limited",
+  };
   const predictionOutputs = {
     pPurchase7d: value.repeatPurchaseLikelihood,
     pUnlock24h: clamp01(views === 0 ? 0 : unwraps / Math.max(1, views)),

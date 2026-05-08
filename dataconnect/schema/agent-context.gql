@@ -2,8 +2,8 @@
 # Purpose: mirror generated agent/repo intelligence JSON into Cloud SQL-backed
 # Firebase Data Connect tables for retrieval, never as runtime product truth.
 # BigQuery/GA exports are analytics evidence only and may not write runtime
-# balances, unlocks, purchases, user rollups, or legacy admin metric snapshots
-# through this mirror.
+# balances, transactions, unlocks, purchases, subscriptions, support messages,
+# user rollups, or legacy admin metric snapshots through this mirror.
 # Tables/types touched: AgentRepoInventory, AgentSurfaceMap,
 # AgentCanonicalHelper, AgentVerificationCommand, AgentKnowledgeRecord,
 # AgentTaskContextRun, AgentActiveTask, AgentHandoff, AgentRetrievalEdge.

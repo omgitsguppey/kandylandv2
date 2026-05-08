@@ -16,8 +16,11 @@ const EXPORT_TRUTH_CLASS = "analytics_evidence_only"
 const CANONICAL_IMPORT_TARGETS = ["analytics_event_facts", "analytics_metric_facts"] as const
 const FORBIDDEN_RUNTIME_MUTATION_SURFACES = [
   "runtime_balances",
+  "runtime_transactions",
   "runtime_unlocks",
   "runtime_purchases",
+  "runtime_subscriptions",
+  "runtime_support_messages",
   "runtime_user_rollups",
   "legacy_admin_metric_snapshots",
 ] as const

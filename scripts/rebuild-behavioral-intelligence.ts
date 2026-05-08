@@ -1,17 +1,14 @@
 import {spawn} from "node:child_process"
 import path from "node:path"
 
+import {
+  CANONICAL_FACT_IMPORT_TARGETS,
+  FORBIDDEN_RUNTIME_MUTATION_SURFACES,
+} from "../src/lib/analytics/import-export-truth-policy"
+
 const BEHAVIORAL_INTELLIGENCE_REBUILD_MAX_ROWS = 12000
 const BEHAVIORAL_INTELLIGENCE_REBUILD_MAX_RUNTIME_MS = 10 * 60 * 1000
 const BEHAVIORAL_INTELLIGENCE_REBUILD_MAX_RETRIES = 0
-const CANONICAL_FACT_IMPORT_TARGETS = ["analytics_event_facts", "analytics_metric_facts"] as const
-const FORBIDDEN_RUNTIME_MUTATION_SURFACES = [
-  "runtime_balances",
-  "runtime_unlocks",
-  "runtime_purchases",
-  "runtime_user_rollups",
-  "legacy_admin_metric_snapshots",
-] as const
 
 function hasFlag(flag: string) {
   return process.argv.slice(2).includes(flag)

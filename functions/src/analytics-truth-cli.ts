@@ -18,8 +18,11 @@ async function main() {
     canonicalFactOutputs: ["analytics_truth_*", "canonical materializer envelopes"],
     forbiddenRuntimeMutationSurfaces: [
       "runtime_balances",
+      "runtime_transactions",
       "runtime_unlocks",
       "runtime_purchases",
+      "runtime_subscriptions",
+      "runtime_support_messages",
       "runtime_user_rollups",
       "legacy_admin_metric_snapshots",
     ],

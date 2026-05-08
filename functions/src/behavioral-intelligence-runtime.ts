@@ -31,6 +31,7 @@ const SOURCE_RELIABILITY_WEIGHTS = {
 } as const
 const SEARCH_INTENT_HALF_LIFE_HOURS = 24
 const SATISFACTION_SIGNAL_HALF_LIFE_DAYS = 30
+const PRIVACY_LIMITED_RECOMMENDATION_CONFIDENCE_CAP = 0.34
 
 type DropRecord = Record<string, unknown> & {
   id: string
@@ -1807,7 +1808,7 @@ function buildUserProfileDoc(input: {
     issueCount: issueCodes.length,
   })
   const confidenceScore = consentAvailability === 0
-    ? Math.min(confidenceResult.normalizedScore, 0.34)
+    ? Math.min(confidenceResult.normalizedScore, PRIVACY_LIMITED_RECOMMENDATION_CONFIDENCE_CAP)
     : confidenceResult.normalizedScore
   const freshnessScore = latestSourceAtMs > 0
     ? Math.max(0, 1 - (Math.max(0, input.nowMs - latestSourceAtMs) / STALE_AFTER_MS))
@@ -1878,6 +1879,9 @@ function buildUserProfileDoc(input: {
     userId: input.aggregate.userId,
     generatedAt,
     freshnessState,
+    dataAvailabilityReason: consentAvailability === 0
+      ? privacyLimitedIssueCode || "privacy_limited_identified_analytics_denied"
+      : "full_signal",
     sourceBreakdown,
     issues,
     updatedAtMs: input.nowMs,
