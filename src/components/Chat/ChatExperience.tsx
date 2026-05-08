@@ -66,9 +66,10 @@ import { storage, db, rtdb } from "@/lib/firebase-data";
 import { formatCompactGd } from "@/lib/gumdrop-formatting";
 import { trackEvent } from "@/lib/telemetry";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
-import { isAndroidStandalonePwa } from "@/lib/device-layout-contract";
+import { isAndroidStandalonePwa, isIosStandalonePwa } from "@/lib/device-layout-contract";
 import { cn } from "@/lib/utils";
 import { ref as storageRef, uploadBytes } from "firebase/storage";
+import { CHAT_MEDIA_LIMIT_BYTES_DEFAULT, CHAT_MEDIA_LIMIT_BYTES_FAN_PASS, formatChatMediaLimitMb } from "@/lib/chat/chat-media-limits";
 import {
     CHAT_LIST_CONTROL_HEIGHT,
     CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET,
@@ -86,6 +87,7 @@ const CHAT_COMPOSER_DEFAULT_HEIGHT_PX = 104;
 const CHAT_COMPOSER_CLEAN_PADDING_PX = 72;
 const CHAT_COMPOSER_SUMMARY_PADDING_PX = 92;
 const CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME = "max-h-[min(28vh,10rem)] overflow-y-auto overscroll-y-contain";
+const CHAT_MEDIA_MAX_WIDTH_CLASSNAME = "max-w-[42%]";
 
 type ThreadListResponse = {
     threads?: ChatThreadRecord[];
@@ -132,6 +134,9 @@ type ChatAttachmentPrepareResponse = {
     storagePath: string;
     fileName: string;
     mimeType: string;
+    errorCode?: string;
+    maxBytes?: number;
+    actualBytes?: number;
 };
 
 type ChatAttachmentCompleteResponse = {
@@ -139,6 +144,9 @@ type ChatAttachmentCompleteResponse = {
     assetName: string;
     assetMimeType: string;
     storagePath: string;
+    errorCode?: string;
+    maxBytes?: number;
+    actualBytes?: number;
 };
 
 type UploadedChatAttachment = {
@@ -575,6 +583,16 @@ function isVideoAttachment(mimeType?: string, assetUrl?: string) {
     return Boolean(mimeType?.startsWith("video/") || assetUrl?.match(/\.(mp4|webm|mov)$/i));
 }
 
+function buildChatIceBreakers(creatorFirstName: string) {
+    return [
+        `Hey ${creatorFirstName} 👋`,
+        "What drop should I unwrap first?",
+        "What are you posting next?",
+        "I just found your page 🍬",
+        "Send me your favorite drop",
+    ];
+}
+
 function mergeThreads(nextThreads: ChatThreadRecord[], selectedThread: ChatThreadRecord | null) {
     const merged = new Map<string, ChatThreadRecord>();
     nextThreads.forEach((thread) => {
@@ -731,6 +749,7 @@ export function ChatExperience() {
     const [chatComposerHeightPx, setChatComposerHeightPx] = useState(CHAT_COMPOSER_DEFAULT_HEIGHT_PX);
     const profileRouteTelemetryKeyRef = useRef<string | null>(null);
     const noFollowPromptViewedRef = useRef(false);
+    const emptyStateViewedKeyRef = useRef<string | null>(null);
     const paidGdGateViewedKeyRef = useRef<string | null>(null);
     const autoResolvedThreadKeyRef = useRef<string | null>(null);
 
@@ -798,6 +817,7 @@ export function ChatExperience() {
     }, [normalizedThreadSearch, visibleThreads]);
     const showCompactThreadListOnly = isCompactViewport && !selectedThreadId;
     const [isAndroidPwaChatShell, setIsAndroidPwaChatShell] = useState(false);
+    const [isIosPwaChatShell, setIsIosPwaChatShell] = useState(false);
     const canComposeFromFollowedCreators = followedCreators.length > 0;
     const selectedThreadCreatorFirstName = selectedThread ? readCreatorFirstName(selectedThread.counterpartDisplayName) : "this creator";
     const proactivePaidGdGate = useMemo(() => buildChatPaidGdGateState({
@@ -805,6 +825,7 @@ export function ChatExperience() {
         pricing: selectedDetail?.pricing,
     }), [selectedDetail?.pricing, selectedThread?.viewerRole]);
     const proactivePaidGdGateVisible = proactivePaidGdGate?.gated === true;
+    const chatFanPassActive = selectedDetail?.pricing?.fanPassActive === true;
     const composerBlockedByPaidGdGate = proactivePaidGdGateVisible;
     const composerSummary = useMemo(
         () => renderPriceSummary(selectedDetail, selectedThread?.viewerRole ?? "user"),
@@ -818,19 +839,32 @@ export function ChatExperience() {
             return;
         }
 
-        const syncAndroidPwaShell = () => {
+        const syncPlatformPwaShell = () => {
             setIsAndroidPwaChatShell(isAndroidStandalonePwa());
+            setIsIosPwaChatShell(isIosStandalonePwa());
         };
 
-        syncAndroidPwaShell();
-        window.addEventListener("resize", syncAndroidPwaShell, { passive: true });
-        window.addEventListener("orientationchange", syncAndroidPwaShell, { passive: true });
+        syncPlatformPwaShell();
+        window.addEventListener("resize", syncPlatformPwaShell, { passive: true });
+        window.addEventListener("orientationchange", syncPlatformPwaShell, { passive: true });
 
         return () => {
-            window.removeEventListener("resize", syncAndroidPwaShell);
-            window.removeEventListener("orientationchange", syncAndroidPwaShell);
+            window.removeEventListener("resize", syncPlatformPwaShell);
+            window.removeEventListener("orientationchange", syncPlatformPwaShell);
         };
     }, []);
+
+    useEffect(() => {
+        if (!isIosPwaChatShell) {
+            return;
+        }
+
+        trackEvent("chat_ios_pwa_shell_applied", {
+            source_component: "chat_shell",
+            route: "/dashboard/chat",
+            platform_shell: "ios-pwa",
+        });
+    }, [isIosPwaChatShell]);
 
     const chatViewportShellStyle = useMemo(() => ({
         paddingBottom: isCompactViewport
@@ -839,7 +873,8 @@ export function ChatExperience() {
         minHeight: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
         height: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
         maxHeight: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
-    }) satisfies CSSProperties, [isAndroidPwaChatShell, isCompactViewport]);
+        transform: isIosPwaChatShell ? "translateY(calc(-1 * var(--kd-ios-pwa-shell-lift, 0px)))" : undefined,
+    }) satisfies CSSProperties, [isAndroidPwaChatShell, isCompactViewport, isIosPwaChatShell]);
     const compactThreadListScrollStyle = useMemo(() => ({
         paddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
         scrollPaddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
@@ -866,6 +901,13 @@ export function ChatExperience() {
         paddingBottom: `max(calc(var(--chat-transcript-bottom-padding, ${CHAT_COMPOSER_CLEAN_PADDING_PX}px)), calc(${CHAT_COMPOSER_CLEAN_PADDING_PX}px + var(--chat-safe-bottom, 0px)))`,
         scrollPaddingBottom: `max(calc(var(--chat-transcript-bottom-padding, ${CHAT_COMPOSER_CLEAN_PADDING_PX}px)), calc(${CHAT_COMPOSER_CLEAN_PADDING_PX}px + var(--chat-safe-bottom, 0px)))`,
     }) satisfies CSSProperties, []);
+    const newMessageSheetStyle = useMemo(() => (
+        isIosPwaChatShell
+            ? {
+                paddingBottom: "calc(var(--kd-ios-pwa-bottom-nav-height, 56px) + var(--kd-ios-pwa-safe-bottom, 0px) + 10px)",
+            } satisfies CSSProperties
+            : ({} satisfies CSSProperties)
+    ), [isIosPwaChatShell]);
     const selectedThreadIdSet = useMemo(() => new Set(selectedThreadIds), [selectedThreadIds]);
     const liveViewerRole = useMemo(() => resolveChatViewerRole({
         viewerUid: user?.uid || "",
@@ -1484,6 +1526,25 @@ export function ChatExperience() {
     }, [followedCreators.length, selectedThreadId, threadsLoading]);
 
     useEffect(() => {
+        if (threadsLoading || selectedThreadId) {
+            emptyStateViewedKeyRef.current = null;
+            return;
+        }
+        const state = followedCreators.length > 0 ? "start_creator_chat" : "follow_creator_first";
+        const key = `${state}:${isIosPwaChatShell ? "ios-pwa" : "default"}`;
+        if (emptyStateViewedKeyRef.current === key) {
+            return;
+        }
+        emptyStateViewedKeyRef.current = key;
+        trackEvent("chat_empty_state_viewed", {
+            source_component: "chat_thread_list_empty_state",
+            route: "/dashboard/chat",
+            state,
+            platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+        });
+    }, [followedCreators.length, isIosPwaChatShell, selectedThreadId, threadsLoading]);
+
+    useEffect(() => {
         if (!proactivePaidGdGateVisible || !selectedThread) {
             paidGdGateViewedKeyRef.current = null;
             return;
@@ -1772,11 +1833,17 @@ export function ChatExperience() {
     }, [selectedDetail, selectedThreadId]);
 
     const openThreadComposer = useCallback((nextCreatorId: string) => {
+        trackEvent("chat_new_message_sheet_creator_selected", {
+            source_component: "chat_new_message_sheet",
+            route: "/dashboard/chat",
+            platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+            creator_id: nextCreatorId,
+        });
         setComposePickerOpen(false);
         setSelectedThreadId(null);
         setSelectedDetail(null);
         router.replace(`/dashboard/chat?creator=${encodeURIComponent(nextCreatorId)}`, { scroll: false });
-    }, [router]);
+    }, [isIosPwaChatShell, router]);
 
     const returnToThreadList = useCallback(() => {
         setSelectedThreadId(null);
@@ -1804,12 +1871,18 @@ export function ChatExperience() {
 
     const openComposePicker = useCallback((sourceComponent: string, nextCreatorId?: string | null) => {
         setComposePickerOpen(true);
+        trackEvent("chat_new_message_sheet_opened", {
+            source_component: sourceComponent,
+            route: "/dashboard/chat",
+            platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+            creator_id: nextCreatorId ?? null,
+        });
         deferChatComposeSheetOpenedTelemetry({
             sourceComponent,
             userId: user?.uid,
             creatorId: nextCreatorId ?? null,
         });
-    }, [user?.uid]);
+    }, [isIosPwaChatShell, user?.uid]);
 
     const openChatPaidGdPurchaseModal = useCallback((sourceComponent: string) => {
         trackEvent("chat_paid_gd_gate_primary_clicked", {
@@ -1846,6 +1919,16 @@ export function ChatExperience() {
             cta_target: target,
         });
     }, []);
+
+    const handleIceBreakerInsert = useCallback((text: string) => {
+        setComposerText(text);
+        trackEvent("chat_icebreaker_inserted", {
+            source_component: "chat_thread_empty_state",
+            route: "/dashboard/chat",
+            creator_id: selectedThread?.creatorId ?? null,
+            platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+        });
+    }, [isIosPwaChatShell, selectedThread?.creatorId]);
 
     const handleThreadSearchFocus = useCallback(() => {
         deferChatListSearchFocusedTelemetry({
@@ -2034,9 +2117,49 @@ export function ChatExperience() {
             return;
         }
 
+        const maxBytes = chatFanPassActive ? CHAT_MEDIA_LIMIT_BYTES_FAN_PASS : CHAT_MEDIA_LIMIT_BYTES_DEFAULT;
+        if (file.size > maxBytes) {
+            const message = chatFanPassActive
+                ? "This file is too large. Fan Pass uploads support up to 500 MB. Please upload a smaller file."
+                : "This file is too large. Chat uploads are limited to 25 MB unless you have a Fan Pass.";
+            const errorCode = chatFanPassActive ? "fan_pass_file_limit_exceeded" : "file_too_large_requires_fan_pass";
+            trackEvent("chat_media_file_rejected_size", {
+                source_component: "chat_thread_composer",
+                route: "/dashboard/chat",
+                platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+                file_size_bytes: file.size,
+                max_size_bytes: maxBytes,
+                has_fan_pass: chatFanPassActive,
+                error_code: errorCode,
+            });
+            setSendErrorMessage(message);
+            if (!chatFanPassActive && selectedThreadCreatorProfileHref) {
+                toast.error(message, {
+                    action: {
+                        label: "View Fan Pass",
+                        onClick: () => router.push(selectedThreadCreatorProfileHref),
+                    },
+                });
+            } else {
+                toast.error(message);
+            }
+            return;
+        }
+
+        if (chatFanPassActive && file.size > CHAT_MEDIA_LIMIT_BYTES_DEFAULT) {
+            trackEvent("chat_media_file_allowed_fan_pass", {
+                source_component: "chat_thread_composer",
+                route: "/dashboard/chat",
+                platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+                file_size_bytes: file.size,
+                max_size_bytes: CHAT_MEDIA_LIMIT_BYTES_FAN_PASS,
+                has_fan_pass: true,
+            });
+        }
+
         setComposerFile(file);
         setComposerKind(attachmentKind);
-    }, []);
+    }, [chatFanPassActive, isIosPwaChatShell, router, selectedThreadCreatorProfileHref]);
 
     const openImagePicker = useCallback(() => {
         setAttachmentMenuOpen(false);
@@ -2111,7 +2234,11 @@ export function ChatExperience() {
                 throw new Error(`Prepare API returned non-JSON (${prepareResponse.status}): ${prepareRawText.slice(0, 150).trim()}`);
             }
             if (!prepareResponse.ok || !prepareBody.storagePath) {
-                throw new Error(prepareBody.error || "Failed to prepare chat attachment upload.");
+                const typedMessage = buildChatSendErrorMessage({
+                    error: prepareBody.error,
+                    errorCode: prepareBody.errorCode,
+                });
+                throw new Error(typedMessage);
             }
             preparedStoragePath = prepareBody.storagePath;
 
@@ -2137,7 +2264,11 @@ export function ChatExperience() {
                 throw new Error(`Complete API returned non-JSON (${completeResponse.status}): ${completeRawText.slice(0, 150).trim()}`);
             }
             if (!completeResponse.ok || !completeBody.assetUrl) {
-                throw new Error(completeBody.error || "Failed to finalize chat attachment.");
+                const typedMessage = buildChatSendErrorMessage({
+                    error: completeBody.error,
+                    errorCode: completeBody.errorCode,
+                });
+                throw new Error(typedMessage);
             }
 
             return {
@@ -2401,6 +2532,26 @@ export function ChatExperience() {
         });
     }, []);
 
+    const restoreChatBottomAnchor = useCallback((reason: string, behavior: ScrollBehavior = "auto") => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const first = window.requestAnimationFrame(() => {
+            const second = window.requestAnimationFrame(() => {
+                scrollMessageListToBottom(behavior);
+                trackEvent("chat_bottom_anchor_restored", {
+                    source_component: "chat_transcript",
+                    route: "/dashboard/chat",
+                    platform_shell: isIosPwaChatShell ? "ios-pwa" : "default",
+                    reason_code: reason,
+                });
+            });
+            return () => window.cancelAnimationFrame(second);
+        });
+        return () => window.cancelAnimationFrame(first);
+    }, [isIosPwaChatShell, scrollMessageListToBottom]);
+
     const handleMessageListScroll = useCallback(() => {
         const node = messageListRef.current;
         if (!node) {
@@ -2430,12 +2581,13 @@ export function ChatExperience() {
 
     useEffect(() => {
         shouldStickToBottomRef.current = true;
-        const frameId = window.requestAnimationFrame(() => {
-            scrollMessageListToBottom("auto");
-        });
-
-        return () => window.cancelAnimationFrame(frameId);
-    }, [scrollMessageListToBottom, selectedThreadId]);
+        const cleanup = restoreChatBottomAnchor("thread_open", "auto");
+        return () => {
+            if (typeof cleanup === "function") {
+                cleanup();
+            }
+        };
+    }, [restoreChatBottomAnchor, selectedThreadId]);
 
     useEffect(() => {
         if (!selectedDetail?.messages.length || !selectedThread) {
@@ -2451,6 +2603,61 @@ export function ChatExperience() {
         }
     }, [latestMessageSnapshot, scrollMessageListToBottom, selectedDetail?.messages, selectedThread]);
 
+    useEffect(() => {
+        if (!isIosPwaChatShell || !selectedThreadId || !messageListRef.current) {
+            return;
+        }
+
+        const scrollNode = messageListRef.current;
+        if (!(scrollNode instanceof HTMLElement) || typeof ResizeObserver !== "function") {
+            return;
+        }
+
+        const observer = new ResizeObserver(() => {
+            if (!shouldStickToBottomRef.current) {
+                return;
+            }
+            restoreChatBottomAnchor("transcript_resize", "auto");
+        });
+        observer.observe(scrollNode);
+        return () => observer.disconnect();
+    }, [isIosPwaChatShell, restoreChatBottomAnchor, selectedThreadId]);
+
+    useEffect(() => {
+        if (!isIosPwaChatShell || !selectedThreadId) {
+            return;
+        }
+
+        const node = messageListRef.current;
+        if (!node) {
+            return;
+        }
+
+        const mediaNodes = node.querySelectorAll("img,video");
+        if (mediaNodes.length === 0) {
+            return;
+        }
+
+        const cleanups: Array<() => void> = [];
+        mediaNodes.forEach((mediaNode) => {
+            const handleLoad = () => {
+                if (shouldStickToBottomRef.current) {
+                    restoreChatBottomAnchor("media_loaded", "auto");
+                }
+            };
+            mediaNode.addEventListener("load", handleLoad, { passive: true });
+            mediaNode.addEventListener("loadedmetadata", handleLoad, { passive: true });
+            cleanups.push(() => {
+                mediaNode.removeEventListener("load", handleLoad);
+                mediaNode.removeEventListener("loadedmetadata", handleLoad);
+            });
+        });
+
+        return () => {
+            cleanups.forEach((cleanup) => cleanup());
+        };
+    }, [isIosPwaChatShell, latestMessageSnapshot, restoreChatBottomAnchor, selectedThreadId]);
+
     if (!user || !userProfile) {
         return null;
     }
@@ -2461,7 +2668,8 @@ export function ChatExperience() {
             className={CHAT_VIEWPORT_SHELL_CLASSNAME}
             style={chatViewportShellStyle}
             data-chat-shell-mode={showCompactThreadListOnly ? "list" : "thread"}
-            data-platform-shell={isAndroidPwaChatShell ? "android-pwa" : "default"}
+            data-platform-shell={isIosPwaChatShell ? "ios-pwa" : isAndroidPwaChatShell ? "android-pwa" : "default"}
+            data-chat-shell-platform={isIosPwaChatShell ? "ios-pwa" : isAndroidPwaChatShell ? "android-pwa" : "default"}
             data-chat-bottom-nav-reserved="true"
             data-chat-composer-above-bottom-nav="true"
             data-chat-list-controls-above-bottom-nav="true"
@@ -2613,16 +2821,16 @@ export function ChatExperience() {
                                                 <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
                                                     <MessageSquare className="h-8 w-8" />
                                                 </div>
-                                                <p className="mt-5 text-2xl font-black text-white">No messages yet</p>
+                                                <p className="mt-5 text-2xl font-black text-white">Start a creator chat</p>
                                                 <p className="mt-2 max-w-sm text-sm leading-6 text-[#8f9097]">
-                                                    Start your first chat with a creator you already follow.
+                                                    Pick a creator you follow and send the first message.
                                                 </p>
                                                 <button
                                                     type="button"
                                                     onClick={() => openComposePicker("chat_empty_state_compose")}
                                                     className="mt-5 rounded-full bg-brand-purple px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8457ff]"
                                                 >
-                                                    Compose a message
+                                                    New message
                                                 </button>
                                             </div>
                                         ) : (
@@ -2631,9 +2839,9 @@ export function ChatExperience() {
                                                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple ring-1 ring-white/8">
                                                         <MessageSquare className="h-6 w-6" />
                                                     </div>
-                                                    <p className="mt-4 text-xl font-black text-white">Follow creators to start chatting</p>
+                                                    <p className="mt-4 text-xl font-black text-white">Follow a creator first</p>
                                                     <p className="mt-2 text-sm leading-6 text-[#a9a9b1]">
-                                                        Start by following a creator you want to message. Once you follow them, their chat thread will open here automatically.
+                                                        Follow a creator to start a private chat.
                                                     </p>
                                                     <div className="mt-4 flex flex-wrap justify-center gap-2">
                                                         <Link
@@ -2926,7 +3134,7 @@ export function ChatExperience() {
                                                     </div>
                                                 ) : null}
                                                 <div className={cn("flex", isOutgoing ? "justify-end" : "justify-start")}>
-                                                    <div className="max-w-[84%] sm:max-w-[72%]">
+                                                    <div className="max-w-[84%] sm:max-w-[72%]" data-chat-media-density="compact-v2">
                                                         <div className={cn(
                                                             "overflow-hidden px-4 py-2.5 text-[15px] leading-6 shadow-[0_12px_30px_rgba(0,0,0,0.22)]",
                                                             isOutgoing
@@ -2940,13 +3148,14 @@ export function ChatExperience() {
                                                                 <div className={cn(message.text ? "mt-3" : "")}>
                                                                     <div className={cn(
                                                                         "overflow-hidden rounded-[1.15rem]",
+                                                                        CHAT_MEDIA_MAX_WIDTH_CLASSNAME,
                                                                         isOutgoing ? "bg-[#5b2fdd]" : "bg-[#1a1a1d]",
                                                                     )}>
                                                                         {isImageAttachment(message.assetMimeType, message.assetUrl) ? (
                                                                             // eslint-disable-next-line @next/next/no-img-element
-                                                                            <img src={message.assetUrl} alt="" className="h-auto w-full object-cover" />
+                                                                            <img src={message.assetUrl} alt="" className="h-auto w-full object-cover" data-chat-media-kind="image" />
                                                                         ) : isVideoAttachment(message.assetMimeType, message.assetUrl) ? (
-                                                                            <video src={message.assetUrl} controls className="h-auto w-full" />
+                                                                            <video src={message.assetUrl} controls className="h-auto w-full" data-chat-media-kind="video" />
                                                                         ) : (
                                                                             <a
                                                                                 href={message.assetUrl}
@@ -2972,8 +3181,21 @@ export function ChatExperience() {
                                         );
                                     }) : (
                                         <div className="flex h-full min-h-[320px] items-center justify-center">
-                                            <div className="rounded-[1.4rem] bg-[#121214] px-4 py-3 text-sm text-[#b6b6bc] ring-1 ring-white/8">
-                                                No messages yet. This thread is ready when you are.
+                                            <div className="w-full max-w-md rounded-[1.4rem] bg-[#121214] px-4 py-4 text-sm text-[#b6b6bc] ring-1 ring-white/8">
+                                                <p className="text-base font-semibold text-white">Say hey to {selectedThreadCreatorFirstName}</p>
+                                                <p className="mt-1 leading-6 text-[#8f9097]">Start simple or use a quick ice breaker.</p>
+                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                    {buildChatIceBreakers(selectedThreadCreatorFirstName).map((iceBreaker) => (
+                                                        <button
+                                                            key={iceBreaker}
+                                                            type="button"
+                                                            onClick={() => handleIceBreakerInsert(iceBreaker)}
+                                                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/10"
+                                                        >
+                                                            {iceBreaker}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -3069,14 +3291,16 @@ export function ChatExperience() {
                                             ) : null}
                                         </div>
                                     ) : null}
-                                    <div ref={chatThreadComposerControlRef} className="flex h-12 max-h-12 min-w-0 items-center gap-2">
+                                    <div ref={chatThreadComposerControlRef} className={cn("flex min-w-0 items-center gap-2", isIosPwaChatShell ? "h-9 max-h-9" : "h-12 max-h-12")}>
                                         <div ref={attachmentMenuRef} className="relative shrink-0">
                                             <button
                                                 type="button"
                                                 onClick={() => setAttachmentMenuOpen((current) => !current)}
                                                 disabled={composerBlockedByPaidGdGate}
                                                 className={cn(
-                                                    "inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]",
+                                                    isIosPwaChatShell
+                                                        ? "inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]"
+                                                        : "inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]",
                                                     composerBlockedByPaidGdGate ? "cursor-not-allowed opacity-45 hover:bg-[#141417]" : "",
                                                 )}
                                                 aria-label="Add attachment"
@@ -3095,9 +3319,9 @@ export function ChatExperience() {
                                                         type="button"
                                                         role="menuitem"
                                                         onClick={openImagePicker}
-                                                        className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-white transition hover:bg-white/5"
+                                                        className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-2 text-left text-xs font-medium text-white transition hover:bg-white/5"
                                                     >
-                                                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-purple/18 text-brand-purple">
+                                                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple/18 text-brand-purple">
                                                             <ImageIcon className="h-4 w-4" />
                                                         </span>
                                                         <span>Image</span>
@@ -3106,9 +3330,9 @@ export function ChatExperience() {
                                                         type="button"
                                                         role="menuitem"
                                                         onClick={openVideoPicker}
-                                                        className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-white transition hover:bg-white/5"
+                                                        className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-2 text-left text-xs font-medium text-white transition hover:bg-white/5"
                                                     >
-                                                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/8 text-white">
+                                                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-white">
                                                             <Video className="h-4 w-4" />
                                                         </span>
                                                         <span>Video</span>
@@ -3136,7 +3360,7 @@ export function ChatExperience() {
                                                 }}
                                             />
                                         </div>
-                                        <div className="flex h-12 max-h-12 min-w-0 flex-1 items-center gap-2 rounded-[1.65rem] bg-[#121214] py-1 pl-4 pr-1 ring-1 ring-white/8">
+                                        <div className={cn("flex min-w-0 flex-1 items-center gap-2 rounded-[1.65rem] bg-[#121214] ring-1 ring-white/8", isIosPwaChatShell ? "h-9 max-h-9 py-0.5 pl-3 pr-0.5" : "h-12 max-h-12 py-1 pl-4 pr-1")}>
                                             <textarea
                                                 value={composerText}
                                                 onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
@@ -3144,14 +3368,19 @@ export function ChatExperience() {
                                                 rows={1}
                                                 disabled={composerBlockedByPaidGdGate}
                                                 placeholder={composerBlockedByPaidGdGate ? "Paid GumDrops required for creator messaging" : selectedThread.viewerRole === "creator" ? "Reply..." : "Message"}
-                                                className="block max-h-6 min-h-[24px] w-full resize-none self-center overflow-y-auto bg-transparent py-0 text-[16px] leading-6 text-white placeholder:text-[#5d5e66] focus:outline-none sm:text-[14px]"
+                                                className={cn(
+                                                    "block w-full resize-none self-center overflow-y-auto bg-transparent py-0 text-white placeholder:text-[#5d5e66] focus:outline-none",
+                                                    isIosPwaChatShell ? "max-h-5 min-h-[20px] text-[12px] leading-5" : "max-h-6 min-h-[24px] text-[16px] leading-6 sm:text-[14px]",
+                                                )}
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => void handleSendMessage()}
                                                 disabled={sendingMessage || composerBlockedByPaidGdGate}
                                                 className={cn(
-                                                    "inline-flex h-12 w-12 shrink-0 self-center items-center justify-center rounded-full transition",
+                                                    isIosPwaChatShell
+                                                        ? "inline-flex h-9 w-9 shrink-0 self-center items-center justify-center rounded-full transition"
+                                                        : "inline-flex h-12 w-12 shrink-0 self-center items-center justify-center rounded-full transition",
                                                     sendingMessage || composerBlockedByPaidGdGate
                                                         ? "cursor-not-allowed bg-brand-purple/50 text-white/80"
                                                         : "bg-brand-purple text-white hover:bg-[#8457ff]",
@@ -3192,8 +3421,8 @@ export function ChatExperience() {
                 </div>
             </div>
             {composePickerOpen ? (
-                <div className="fixed inset-0 z-40 bg-black/70 px-4 py-6 backdrop-blur-[2px]">
-                    <div ref={composePickerRef} className="mx-auto flex h-full w-full max-w-md flex-col justify-end">
+                <div className="fixed inset-0 z-40 bg-black/70 px-4 py-6 backdrop-blur-[2px]" data-new-message-sheet-platform={isIosPwaChatShell ? "ios-pwa" : "default"} data-new-message-sheet-safe={isIosPwaChatShell ? "above-bottom-nav" : "default"}>
+                    <div ref={composePickerRef} className="mx-auto flex h-full w-full max-w-md flex-col justify-end" style={newMessageSheetStyle}>
                         <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#111113] shadow-[0_32px_80px_rgba(0,0,0,0.55)]">
                             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
                                 <div>
@@ -3209,7 +3438,7 @@ export function ChatExperience() {
                                     <X className="h-4 w-4" />
                                 </button>
                             </div>
-                            <div className="max-h-[60vh] overflow-y-auto px-3 py-3">
+                            <div className={cn("overflow-y-auto px-3 py-3", isIosPwaChatShell ? "max-h-[52vh]" : "max-h-[60vh]")}>
                                 {followedCreators.length > 0 ? followedCreators.map((creator) => (
                                     <button
                                         key={creator.uid}

@@ -20,7 +20,7 @@ import {
     USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
     USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT,
 } from "@/lib/user-mobile-shell";
-import { detectDeviceDisplayMode, type DeviceDisplayMode } from "@/lib/device-layout-contract";
+import { detectDeviceDisplayMode, isIosStandalonePwa, type DeviceDisplayMode } from "@/lib/device-layout-contract";
 
 const PayPalProvider = dynamic(() => import("@/components/PayPalProvider").then((mod) => mod.PayPalProvider), { ssr: false });
 const GlobalPurchaseModal = dynamic(() => import("@/components/GlobalPurchaseModal").then((mod) => mod.GlobalPurchaseModal));
@@ -176,6 +176,51 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         setDisplayMode(detectDeviceDisplayMode());
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const root = document.documentElement;
+        const syncIosPwaNavOffset = () => {
+            if (!isIosStandalonePwa()) {
+                if (root.getAttribute("data-platform-shell") === "ios-pwa") {
+                    root.removeAttribute("data-platform-shell");
+                }
+                root.style.removeProperty("--kd-mobile-bottom-nav-bottom-offset");
+                return;
+            }
+
+            root.setAttribute("data-platform-shell", "ios-pwa");
+            const visualHeight = Math.round(window.visualViewport?.height ?? window.innerHeight);
+            const safeBottom = Math.max(0, Math.round(window.innerHeight - visualHeight));
+            root.style.setProperty("--kd-mobile-bottom-nav-bottom-offset", `${safeBottom}px`);
+        };
+
+        const visualViewport = window.visualViewport;
+        let frame: number | null = null;
+        const scheduleSync = () => {
+            if (frame !== null) {
+                window.cancelAnimationFrame(frame);
+            }
+            frame = window.requestAnimationFrame(syncIosPwaNavOffset);
+        };
+
+        scheduleSync();
+        visualViewport?.addEventListener("resize", scheduleSync, { passive: true });
+        visualViewport?.addEventListener("scroll", scheduleSync, { passive: true });
+        window.addEventListener("orientationchange", scheduleSync, { passive: true });
+
+        return () => {
+            if (frame !== null) {
+                window.cancelAnimationFrame(frame);
+            }
+            visualViewport?.removeEventListener("resize", scheduleSync);
+            visualViewport?.removeEventListener("scroll", scheduleSync);
+            window.removeEventListener("orientationchange", scheduleSync);
+        };
     }, []);
 
     const routedChildren = isAdminRoute ? (

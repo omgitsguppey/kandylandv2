@@ -22,6 +22,12 @@ export function buildChatSendErrorMessage(input: {
             return "This chat thread is no longer valid.";
         case "empty_message":
             return "Add a message or attachment before sending.";
+        case "file_too_large_requires_fan_pass":
+            return "This file is too large. Chat uploads are limited to 25 MB unless you have a Fan Pass.";
+        case "fan_pass_file_limit_exceeded":
+            return "This file is too large. Fan Pass uploads support up to 500 MB. Please upload a smaller file.";
+        case "file_too_large":
+            return "This file is too large for chat upload.";
         default:
             return "We couldn't send your message. Try again shortly.";
     }

@@ -65,6 +65,7 @@ Fan Pass entitlement truth:
 - Fan Pass may unlock eligible drops via server entitlement checks.
 - Fan Pass does not mint paid GumDrops.
 - Fan Pass does not bypass paid-GD creator chat unless `subscriberFreeChatApplies` is explicitly true by policy.
+- Fan Pass may raise chat media upload size allowance to 500 MB; non-Fan-Pass users remain capped at 25 MB.
 
 Creator onboarding history records:
 

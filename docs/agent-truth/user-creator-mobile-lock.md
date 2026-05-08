@@ -10,6 +10,18 @@
   - `--kd-android-pwa-bottom-safe-padding`
 - Android PWA marker: `data-platform-shell="android-pwa"` only on the chat surface branch.
 
+## iOS PWA chat shell scope
+
+- iOS PWA chat shell overrides are isolated to chat shell and bottom-nav variable branches.
+- iPhone Safari browser, Android browser, Android PWA, tablet, and desktop preserve existing shell behavior.
+- iOS PWA-only variables:
+  - `--kd-ios-pwa-visual-height`
+  - `--kd-ios-pwa-bottom-nav-y`
+  - `--kd-ios-pwa-bottom-nav-height`
+  - `--kd-ios-pwa-safe-bottom`
+  - `--kd-ios-pwa-chat-bottom-gap`
+  - `--kd-ios-pwa-shell-lift`
+
 ## Build freshness UX policy
 
 - User-facing stale-build banners are suppressed in public UI.

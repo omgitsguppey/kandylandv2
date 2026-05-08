@@ -341,6 +341,7 @@ function shouldGrantSubscriberFreeChat(subscriptionActive: boolean, creatorSetti
 
 function buildChatPricingSummary(input: {
     purchasedBalanceGd: number;
+    fanPassActive: boolean;
     subscriberFreeChatApplies: boolean;
     subscriberFreeChatEnabled: boolean;
 }): ChatThreadPricing {
@@ -352,6 +353,7 @@ function buildChatPricingSummary(input: {
         videoPriceGd: free ? 0 : 10,
         purchasedOnly: true,
         purchasedBalanceGd: Math.max(0, Math.trunc(input.purchasedBalanceGd)),
+        fanPassActive: input.fanPassActive,
         subscriberFreeChatApplies: free,
         subscriberFreeChatEnabled: input.subscriberFreeChatEnabled,
     };
@@ -724,6 +726,7 @@ export async function getChatThreadDetailForViewer(input: {
         : { total: 0, purchased: 0, reward: 0 };
     const pricing = buildChatPricingSummary({
         purchasedBalanceGd: participantBalance.purchased,
+        fanPassActive: subscriptionActive,
         subscriberFreeChatApplies,
         subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
     });
@@ -975,6 +978,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 message: existingMessage,
                 pricing: buildChatPricingSummary({
                     purchasedBalanceGd: viewerRole === "user" ? participantBalance.purchased : 0,
+                    fanPassActive: subscriptionActive,
                     subscriberFreeChatApplies,
                     subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
                 }),
@@ -1144,6 +1148,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             message: mapCreatorMessage(messageRef.id, messageRecord),
             pricing: buildChatPricingSummary({
                 purchasedBalanceGd: viewerRole === "user" ? nextParticipantBalance.purchased : 0,
+                fanPassActive: subscriptionActive,
                 subscriberFreeChatApplies,
                 subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
             }),

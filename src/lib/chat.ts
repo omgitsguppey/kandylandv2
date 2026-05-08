@@ -36,6 +36,7 @@ export type ChatThreadPricing = {
     videoPriceGd: number;
     purchasedOnly: boolean;
     purchasedBalanceGd: number;
+    fanPassActive?: boolean;
     subscriberFreeChatApplies: boolean;
     subscriberFreeChatEnabled: boolean;
 };

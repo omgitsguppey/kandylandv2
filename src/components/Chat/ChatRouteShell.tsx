@@ -4,9 +4,11 @@ import { useEffect } from "react";
 import {
     USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT,
     USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT,
+    USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT,
+    USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT,
     USER_MOBILE_CHAT_VIEWPORT_HEIGHT,
 } from "@/lib/user-mobile-shell";
-import { isAndroidStandalonePwa } from "@/lib/device-layout-contract";
+import { isAndroidStandalonePwa, isIosStandalonePwa } from "@/lib/device-layout-contract";
 
 export function ChatRouteShell({ children }: { children: React.ReactNode }) {
     useEffect(() => {
@@ -17,11 +19,20 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
         const compactViewportQuery = window.matchMedia("(max-width: 767px)");
         const visualViewport = window.visualViewport;
         const androidPwa = isAndroidStandalonePwa();
+        const iosPwa = isIosStandalonePwa();
+        const iosPwaShell = iosPwa && !androidPwa;
 
         const previousChatViewportHeight = documentElement.style.getPropertyValue("--chat-visual-viewport-height");
         const previousAndroidPwaVisualHeight = documentElement.style.getPropertyValue("--kd-android-pwa-visual-height");
         const previousAndroidPwaBottomNavHeight = documentElement.style.getPropertyValue("--kd-android-pwa-bottom-nav-height");
         const previousAndroidPwaBottomSafePadding = documentElement.style.getPropertyValue("--kd-android-pwa-bottom-safe-padding");
+        const previousIosPwaVisualHeight = documentElement.style.getPropertyValue("--kd-ios-pwa-visual-height");
+        const previousIosPwaBottomNavY = documentElement.style.getPropertyValue("--kd-ios-pwa-bottom-nav-y");
+        const previousIosPwaBottomNavHeight = documentElement.style.getPropertyValue("--kd-ios-pwa-bottom-nav-height");
+        const previousIosPwaSafeBottom = documentElement.style.getPropertyValue("--kd-ios-pwa-safe-bottom");
+        const previousIosPwaChatBottomGap = documentElement.style.getPropertyValue("--kd-ios-pwa-chat-bottom-gap");
+        const previousIosPwaShellLift = documentElement.style.getPropertyValue("--kd-ios-pwa-shell-lift");
+        const previousMobileBottomNavOffset = documentElement.style.getPropertyValue("--kd-mobile-bottom-nav-bottom-offset");
         const previousPlatformShell = documentElement.getAttribute("data-platform-shell");
         const previousDocumentOverflow = documentElement.style.overflow;
         const previousDocumentOverscrollY = documentElement.style.overscrollBehaviorY;
@@ -40,6 +51,8 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
 
         if (androidPwa) {
             documentElement.setAttribute("data-platform-shell", "android-pwa");
+        } else if (iosPwaShell) {
+            documentElement.setAttribute("data-platform-shell", "ios-pwa");
         }
 
         documentElement.style.overflow = "hidden";
@@ -63,6 +76,23 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
                 documentElement.style.setProperty("--kd-android-pwa-visual-height", `${viewportHeight}px`);
                 documentElement.style.setProperty("--kd-android-pwa-bottom-nav-height", `${bottomNavHeight}px`);
                 documentElement.style.setProperty("--kd-android-pwa-bottom-safe-padding", "12px");
+            } else if (iosPwaShell) {
+                const bottomNav = document.querySelector('nav[aria-label="Mobile navigation"]');
+                const bottomNavElement = bottomNav instanceof HTMLElement ? bottomNav : null;
+                const bottomNavRect = bottomNavElement?.getBoundingClientRect() ?? null;
+                const navGap = 8;
+                const bottomNavHeight = bottomNavRect ? Math.max(0, Math.round(bottomNavRect.height)) : 56;
+                const viewportBottom = viewportHeight;
+                const safeBottom = Math.max(0, Math.round(window.innerHeight - viewportHeight));
+                const navBottomOffset = Math.max(0, viewportBottom - (bottomNavRect?.bottom ?? viewportBottom - navGap));
+
+                documentElement.style.setProperty("--kd-ios-pwa-visual-height", `${viewportHeight}px`);
+                documentElement.style.setProperty("--kd-ios-pwa-bottom-nav-height", `${bottomNavHeight}px`);
+                documentElement.style.setProperty("--kd-ios-pwa-safe-bottom", `${safeBottom}px`);
+                documentElement.style.setProperty("--kd-ios-pwa-bottom-nav-y", `${navBottomOffset}px`);
+                documentElement.style.setProperty("--kd-ios-pwa-chat-bottom-gap", "10px");
+                documentElement.style.setProperty("--kd-ios-pwa-shell-lift", "6px");
+                documentElement.style.setProperty("--kd-mobile-bottom-nav-bottom-offset", `${navBottomOffset}px`);
             }
 
             if (!mainElement) {
@@ -72,12 +102,23 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
             mainElement.style.boxSizing = "border-box";
             mainElement.style.overflow = "hidden";
             mainElement.style.overscrollBehaviorY = "none";
-            mainElement.style.height = androidPwa ? USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT : USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
-            mainElement.style.maxHeight = androidPwa ? USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT : USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
+            mainElement.style.height = androidPwa
+                ? USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT
+                : iosPwaShell
+                    ? USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT
+                    : USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
+            mainElement.style.maxHeight = androidPwa
+                ? USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT
+                : iosPwaShell
+                    ? USER_MOBILE_CHAT_IOS_PWA_VIEWPORT_SHELL_HEIGHT
+                    : USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
             mainElement.style.minHeight = "0";
             if (androidPwa) {
                 mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT);
                 mainElement.style.paddingBottom = USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT;
+            } else if (iosPwaShell) {
+                mainElement.style.setProperty("--user-mobile-chat-bottom-reserved-height", USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT);
+                mainElement.style.paddingBottom = USER_MOBILE_CHAT_IOS_PWA_BOTTOM_RESERVED_HEIGHT;
             } else {
                 mainElement.style.paddingBottom = "var(--user-mobile-chat-bottom-reserved-height, 0px)";
             }
@@ -141,6 +182,41 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
             } else {
                 documentElement.style.removeProperty("--kd-android-pwa-bottom-safe-padding");
             }
+            if (previousIosPwaVisualHeight) {
+                documentElement.style.setProperty("--kd-ios-pwa-visual-height", previousIosPwaVisualHeight);
+            } else {
+                documentElement.style.removeProperty("--kd-ios-pwa-visual-height");
+            }
+            if (previousIosPwaBottomNavY) {
+                documentElement.style.setProperty("--kd-ios-pwa-bottom-nav-y", previousIosPwaBottomNavY);
+            } else {
+                documentElement.style.removeProperty("--kd-ios-pwa-bottom-nav-y");
+            }
+            if (previousIosPwaBottomNavHeight) {
+                documentElement.style.setProperty("--kd-ios-pwa-bottom-nav-height", previousIosPwaBottomNavHeight);
+            } else {
+                documentElement.style.removeProperty("--kd-ios-pwa-bottom-nav-height");
+            }
+            if (previousIosPwaSafeBottom) {
+                documentElement.style.setProperty("--kd-ios-pwa-safe-bottom", previousIosPwaSafeBottom);
+            } else {
+                documentElement.style.removeProperty("--kd-ios-pwa-safe-bottom");
+            }
+            if (previousIosPwaChatBottomGap) {
+                documentElement.style.setProperty("--kd-ios-pwa-chat-bottom-gap", previousIosPwaChatBottomGap);
+            } else {
+                documentElement.style.removeProperty("--kd-ios-pwa-chat-bottom-gap");
+            }
+            if (previousIosPwaShellLift) {
+                documentElement.style.setProperty("--kd-ios-pwa-shell-lift", previousIosPwaShellLift);
+            } else {
+                documentElement.style.removeProperty("--kd-ios-pwa-shell-lift");
+            }
+            if (previousMobileBottomNavOffset) {
+                documentElement.style.setProperty("--kd-mobile-bottom-nav-bottom-offset", previousMobileBottomNavOffset);
+            } else {
+                documentElement.style.removeProperty("--kd-mobile-bottom-nav-bottom-offset");
+            }
             if (previousPlatformShell) {
                 documentElement.setAttribute("data-platform-shell", previousPlatformShell);
             } else {
@@ -169,7 +245,10 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
     }, []);
 
     return (
-        <div className="flex h-full min-h-0 flex-col overflow-hidden overscroll-none touch-pan-y" data-chat-platform-shell="android-pwa-conditional">
+        <div
+            className="flex h-full min-h-0 flex-col overflow-hidden overscroll-none touch-pan-y"
+            data-chat-platform-shell={isIosStandalonePwa() ? "ios-pwa" : isAndroidStandalonePwa() ? "android-pwa" : "default"}
+        >
             {children}
         </div>
     );

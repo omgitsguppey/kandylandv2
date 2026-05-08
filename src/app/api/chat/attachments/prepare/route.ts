@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { CHAT_ATTACHMENT_MAX_BYTES, isSupportedChatAttachmentMimeType } from "@/lib/chat-attachments";
+import { isSupportedChatAttachmentMimeType } from "@/lib/chat-attachments";
+import { CHAT_MEDIA_LIMIT_BYTES_FAN_PASS } from "@/lib/chat/chat-media-limits";
+import { resolveServerChatMediaLimitPolicy } from "@/lib/server/chat-media-limit-policy";
 import { safeGetChatThreadDetailForViewer, toChatClientError } from "@/lib/server/chat";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -15,7 +17,7 @@ const prepareAttachmentSchema = z.object({
     threadId: z.string().trim().min(1),
     fileName: z.string().trim().min(1).max(260),
     mimeType: z.string().trim().min(1).max(160),
-    sizeBytes: z.number().int().positive().max(CHAT_ATTACHMENT_MAX_BYTES),
+    sizeBytes: z.number().int().positive(),
 });
 
 function sanitizeFileName(fileName: string) {
@@ -68,6 +70,29 @@ export async function POST(request: NextRequest) {
         }
 
         const payload = parsedPayload.data;
+        const mediaLimitPolicy = await resolveServerChatMediaLimitPolicy({
+            threadId: payload.threadId,
+            actorUid: caller.uid,
+        });
+        if (payload.sizeBytes > CHAT_MEDIA_LIMIT_BYTES_FAN_PASS) {
+            return finalize(NextResponse.json({
+                error: "This file is too large for chat upload.",
+                errorCode: "file_too_large",
+                maxBytes: CHAT_MEDIA_LIMIT_BYTES_FAN_PASS,
+                actualBytes: payload.sizeBytes,
+            }, { status: 400 }));
+        }
+        if (payload.sizeBytes > mediaLimitPolicy.maxBytes) {
+            const code = mediaLimitPolicy.hasFanPass ? "fan_pass_file_limit_exceeded" : "file_too_large_requires_fan_pass";
+            return finalize(NextResponse.json({
+                error: mediaLimitPolicy.hasFanPass
+                    ? "This file is too large. Fan Pass uploads support up to 500 MB. Please upload a smaller file."
+                    : "This file is too large. Chat uploads are limited to 25 MB unless you have a Fan Pass.",
+                errorCode: code,
+                maxBytes: mediaLimitPolicy.maxBytes,
+                actualBytes: payload.sizeBytes,
+            }, { status: 400 }));
+        }
         if (!isSupportedChatAttachmentMimeType(payload.mimeType)) {
             return finalize(NextResponse.json({
                 error: "Only image and video attachments are supported in chat.",

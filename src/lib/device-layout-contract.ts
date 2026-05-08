@@ -201,6 +201,31 @@ export function isAndroidStandalonePwa(): boolean {
   return standalone && isAndroidUserAgent(navigator.userAgent);
 }
 
+export function isIosUserAgent(userAgent: string | null | undefined, platform?: string | null | undefined, maxTouchPoints?: number | null | undefined): boolean {
+  if (!userAgent && !platform) {
+    return false;
+  }
+
+  const ua = userAgent ?? "";
+  const pf = platform ?? "";
+  const points = typeof maxTouchPoints === "number" ? maxTouchPoints : 0;
+  const directIos = /iPad|iPhone|iPod/i.test(ua) || /iPad|iPhone|iPod/i.test(pf);
+  const touchMacFallback = /MacIntel/i.test(pf) && points > 1;
+  return directIos || touchMacFallback;
+}
+
+export function isIosStandalonePwa(): boolean {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
+    return false;
+  }
+
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches
+    || (window.navigator as IOSNavigator).standalone === true;
+
+  return standalone && isIosUserAgent(navigator.userAgent, navigator.platform, navigator.maxTouchPoints);
+}
+
 export function resolveDeviceLayoutClass(widthPx: number): DeviceLayoutClass {
   const normalizedWidth = Number.isFinite(widthPx) ? Math.max(0, Math.floor(widthPx)) : 0;
   const matchedClass = DEVICE_LAYOUT_CLASSES.find((layoutClass) => {

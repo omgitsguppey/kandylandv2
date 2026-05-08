@@ -9,6 +9,7 @@ import { useUI } from "@/context/UIContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
+import { isIosStandalonePwa } from "@/lib/device-layout-contract";
 import {
     USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET,
     USER_MOBILE_BOTTOM_NAV_HEIGHT,
@@ -48,6 +49,7 @@ function MobileBottomBarInner() {
     const { openPurchaseModal } = useUI();
     const { hasUnreadMessages } = useChatUnreadStatus();
     const authSettled = !loading;
+    const iosPwa = typeof window !== "undefined" ? isIosStandalonePwa() : false;
 
     if (pathname?.startsWith("/admin")) {
         return null;
@@ -72,6 +74,7 @@ function MobileBottomBarInner() {
         <div
             className="pointer-events-none fixed inset-x-0 z-40 px-3 md:hidden sm:px-4"
             style={{ bottom: USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET }}
+            data-platform-shell={iosPwa ? "ios-pwa" : "default"}
         >
             <nav
                 aria-label="Mobile navigation"
