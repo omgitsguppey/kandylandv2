@@ -107,6 +107,8 @@
         "check:admin-users-stats-grid": "tsx scripts/agent/validate-admin-users-stats-grid.ts",
         "check:admin-users-loading-lanes": "tsx scripts/agent/validate-admin-users-loading-lanes.ts",
         "check:user-behavior-rollup": "tsx scripts/agent/validate-user-behavior-rollup.ts",
+        "score:user-tracking-indexes": "tsx scripts/agent/score-user-tracking-indexes.ts",
+        "check:user-tracking-index-cutover": "npm run score:user-tracking-indexes && tsx scripts/agent/validate-user-tracking-index-cutover.ts",
         "check:watch-time-rollup-truth": "tsx scripts/agent/validate-watch-time-rollup-truth.ts",
         "check:user-action-ledger-events": "tsx scripts/agent/validate-user-action-ledger-events.ts",
         "check:event-fact-truth": "tsx scripts/agent/validate-event-fact-truth.ts",

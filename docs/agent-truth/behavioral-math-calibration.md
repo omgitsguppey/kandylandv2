@@ -13,6 +13,8 @@ Behavioral confidence is now explicitly source-derived and outcome-aware with ha
 
 Privacy-limited data availability must be labeled as `privacy_limited` and must not be treated as low engagement by default.
 
+Per-user tracking indexes use source-derived confidence with weighted source/sample/freshness/schema/outcome inputs and explicit caps for guest-only, legacy-only, and no-outcome states.
+
 ## Source Truth
 
 Source reliability weights:

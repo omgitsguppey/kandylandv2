@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2026-05-08T06:27:52.966Z",
+  "status": "pass",
+  "score": 100,
+  "checks": [
+    {
+      "id": "contract_exists",
+      "pass": true,
+      "detail": "User tracking index contract exists."
+    },
+    {
+      "id": "guest_contract_exists",
+      "pass": true,
+      "detail": "Guest tracking index contract exists."
+    },
+    {
+      "id": "identity_lineage_contract_exists",
+      "pass": true,
+      "detail": "Identity lineage index contract exists."
+    },
+    {
+      "id": "normalizer_exists",
+      "pass": true,
+      "detail": "User index normalizer exists."
+    },
+    {
+      "id": "writer_exists",
+      "pass": true,
+      "detail": "User index writer exists."
+    },
+    {
+      "id": "reader_exists",
+      "pass": true,
+      "detail": "User index reader exists."
+    },
+    {
+      "id": "materializer_caps",
+      "pass": true,
+      "detail": "Materializer has caps and dry-run."
+    },
+    {
+      "id": "guest_ingest_calls_materializer",
+      "pass": true,
+      "detail": "Guest ingest triggers index materialization."
+    },
+    {
+      "id": "identified_ingest_calls_materializer",
+      "pass": true,
+      "detail": "Identified ingest triggers index materialization."
+    },
+    {
+      "id": "governance_collections_updated",
+      "pass": true,
+      "detail": "Analytics governance contains new index collections."
+    },
+    {
+      "id": "legacy_paths_blocked",
+      "pass": true,
+      "detail": "Legacy tracking registry blocks old paths."
+    },
+    {
+      "id": "admin_surfaces_source_labels",
+      "pass": true,
+      "detail": "Admin surfaces expose truth/source state."
+    },
+    {
+      "id": "scripts_wired",
+      "pass": true,
+      "detail": "Package scripts wired."
+    }
+  ],
+  "criticalBlockers": [],
+  "warnings": [],
+  "surfacesAffected": [
+    "analytics ingest routes",
+    "user tracking index materializer",
+    "admin/recommendation index read models"
+  ],
+  "exactValidatorsToRun": [
+    "npm run score:user-tracking-indexes",
+    "npm run check:user-tracking-index-cutover",
+    "npm run typecheck"
+  ]
+}

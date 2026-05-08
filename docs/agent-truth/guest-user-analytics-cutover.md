@@ -27,3 +27,7 @@ KandyDrops analytics is first-party first. Guest and identified behavior flow in
 - Privacy-limited paths must be labeled `privacy_limited`, not forced into dormant/low-engagement outcomes.
 - Low-value hover/visibility/page-leave events are diagnostic-only and must not inflate confidence.
 - Page duration is diagnostic and is never watch truth.
+
+## User Index Read Models
+
+Per-user and per-guest behavioral serving now routes through canonical user tracking indexes. Timeline facts remain the ingest truth, and index materializers provide reusable read models for admin, recommendations, moderation, and user diagnostics.

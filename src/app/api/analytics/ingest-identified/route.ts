@@ -17,6 +17,7 @@ import { createRuntimeFactFirestoreDocument } from "@/lib/server/write-runtime-f
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
 import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
 import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
+import { materializeUserTrackingIndexes } from "@/lib/server/user-index-materializer";
 import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
 
 export const dynamic = "force-dynamic";
@@ -378,6 +379,13 @@ async function POST_handler(request: NextRequest) {
         }
 
         const timelineWrite = await writeBehavioralTimelineFacts(timelineFacts);
+        await materializeUserTrackingIndexes({
+            userIds: [caller.uid],
+            maxUsers: 1,
+            maxFacts: 1000,
+            runtimeCapMs: 1500,
+            sourceWindowStartMs: Date.now() - (1000 * 60 * 60 * 24 * 14),
+        });
 
         return NextResponse.json({
             success: true,

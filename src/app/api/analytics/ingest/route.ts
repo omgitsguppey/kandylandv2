@@ -25,6 +25,7 @@ import {
 } from "@/lib/runtime-facts/runtime-fact-contract";
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
 import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
+import { materializeUserTrackingIndexes } from "@/lib/server/user-index-materializer";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -292,6 +293,13 @@ async function POST_handler(request: NextRequest) {
                 consentState: globalPrivacyControl ? "partial" : "granted",
             }));
         const timelineResult = await writeBehavioralTimelineFacts(timelineFacts);
+        await materializeUserTrackingIndexes({
+            anonymousVisitorIds: [sessionKey],
+            maxUsers: 1,
+            maxFacts: 500,
+            runtimeCapMs: 1500,
+            sourceWindowStartMs: nowMs - (1000 * 60 * 60 * 24 * 7),
+        });
 
         const response = NextResponse.json({
             success: true,

@@ -102,6 +102,16 @@ vi.mock("@/lib/server/analytics-identity-linking", () => ({
   })),
 }));
 
+vi.mock("@/lib/server/user-index-materializer", () => ({
+  materializeUserTrackingIndexes: vi.fn(async () => ({
+    dryRun: false,
+    usersProcessed: 1,
+    guestsProcessed: 0,
+    factsProcessed: 1,
+    issueCodes: [],
+  })),
+}));
+
 import { POST } from "@/app/api/analytics/ingest-identified/route";
 
 function buildRequest(body: unknown) {
