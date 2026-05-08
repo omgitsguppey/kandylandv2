@@ -5,7 +5,6 @@ import {
     Loader2,
     MessageSquare,
     Sparkles,
-    Wallet,
     ChevronLeft,
     ChevronRight,
     Star,
@@ -16,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
+import { CreatorPaidGdGuidanceCard, type CreatorPaidGdGuidanceReason } from "@/components/Creators/CreatorPaidGdGuidanceCard";
 import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import {
@@ -134,6 +134,12 @@ export function CreatorExperiencesPanel({
     const phoneRatePerMinute = settings.phoneRatePerMinuteGd || CREATOR_BOOKING_RATES.phone;
     const videoRatePerMinute = settings.videoRatePerMinuteGd || CREATOR_BOOKING_RATES.video;
     const subscriberVideoRatePerMinute = Math.round(videoRatePerMinute * (1 - (settings.videoSubscriberDiscountPercent || 0) / 100));
+    const guidanceReasonByView: Record<CreatorExperienceView, CreatorPaidGdGuidanceReason> = {
+        subscriptions: "fan_pass",
+        messages: "chat",
+        requests: "request",
+        bookings: "booking",
+    };
 
     const activeOpacity = "opacity-100 scale-100";
     const inactiveOpacity = "opacity-50 scale-95 hover:opacity-100 hover:scale-100";
@@ -220,9 +226,12 @@ export function CreatorExperiencesPanel({
         if (balance < cost) {
             const deficit = cost - balance;
             return (
-                <button
-                    type="button"
-                    onClick={() => {
+                <CreatorPaidGdGuidanceCard
+                    creatorName={creatorGuidanceName}
+                    currentPaidGd={balance}
+                    requiredPaidGd={cost}
+                    reason={guidanceReasonByView[view]}
+                    onOpenWallet={() => {
                         setDebugState((current) => ({
                             ...current,
                             insufficientBalanceTriggered: true,
@@ -230,22 +239,21 @@ export function CreatorExperiencesPanel({
                         trackCreatorExperienceEvent("creator_experience_insufficient_balance", view, cost, {
                             deficitGd: deficit,
                             insufficientBalanceTriggered: true,
+                            ctaTarget: "wallet",
                         });
                         router.push("/dashboard/wallet");
                     }}
-                    className="mt-3 flex min-h-11 w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition-colors hover:border-brand-purple/50 hover:bg-white/10"
-                >
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple/20">
-                                <Wallet className="h-4 w-4 text-brand-purple" />
-                            </div>
-                            <div className="text-left">
-                                <span className="block leading-none">Add Gum Drops</span>
-                                <span className="mt-1 block text-[11px] text-zinc-400">Need {deficit} paid GD to continue</span>
-                            </div>
-                        </div>
-                    <ChevronRight className="h-4 w-4 text-zinc-500" />
-                </button>
+                    onOpenDrops={() => {
+                        trackCreatorExperienceEvent("creator_experience_insufficient_balance", view, cost, {
+                            deficitGd: deficit,
+                            insufficientBalanceTriggered: true,
+                            ctaTarget: "drops",
+                        });
+                        router.push("/drops");
+                    }}
+                    compact
+                    className="mt-3"
+                />
             );
         }
 

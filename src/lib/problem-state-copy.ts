@@ -273,8 +273,8 @@ export function getCreatorBookingProblemCopy(reason?: unknown) {
   if (code === "insufficient_paid_gumdrops" || normalized.includes("insufficient") && normalized.includes("purchased")) {
     const shortfallGd = normalizePositiveInteger(payload.shortfallGd);
     return shortfallGd > 0
-      ? `You need ${shortfallGd} more paid GD to book this.`
-      : "You need more paid GD to book this.";
+      ? `Open Wallet to add ${shortfallGd} more paid GD, then book this again.`
+      : "Open Wallet to add more paid GD, then book this again.";
   }
 
   if (code === "creator_unavailable") {
@@ -305,8 +305,8 @@ export function getCreatorSubscriptionProblemCopy(reason?: unknown) {
   if (code === "insufficient_paid_gumdrops" || normalized.includes("insufficient") && normalized.includes("purchased")) {
     const shortfallGd = normalizePositiveInteger(payload.shortfallGd);
     return shortfallGd > 0
-      ? `You need ${shortfallGd} more paid GD to start this Fan Pass.`
-      : "You need more paid GD to start this Fan Pass.";
+      ? `Open Wallet to add ${shortfallGd} more paid GD, then start this Fan Pass again.`
+      : "Open Wallet to add more paid GD, then start this Fan Pass again.";
   }
 
   if (code === "subscriptions_unavailable" || normalized.includes("subscriptions are unavailable")) {
@@ -341,8 +341,8 @@ export function getCreatorRequestProblemCopy(reason?: unknown) {
   if (code === "insufficient_paid_gumdrops" || normalized.includes("insufficient") && normalized.includes("purchased")) {
     const shortfallGd = normalizePositiveInteger(payload.shortfallGd);
     return shortfallGd > 0
-      ? `You need ${shortfallGd} more paid GD to send this request.`
-      : "You need more paid GD to send this request.";
+      ? `Open Wallet to add ${shortfallGd} more paid GD, then send this request again.`
+      : "Open Wallet to add more paid GD, then send this request again.";
   }
 
   if (code === "requests_unavailable" || normalized.includes("custom requests are unavailable")) {

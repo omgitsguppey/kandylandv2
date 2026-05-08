@@ -29,9 +29,15 @@ import { trackEvent } from "@/lib/telemetry";
 import { loadUiContinuityModules, readUiJson, type UiContinuityModuleState } from "@/lib/ui-continuity";
 import { cn } from "@/lib/utils";
 import { Drop, UserProfile } from "@/types/db";
+import { CreatorPaidGdGuidanceCard, type CreatorPaidGdGuidanceReason } from "@/components/Creators/CreatorPaidGdGuidanceCard";
 
 type CreatorExperienceView = "subscriptions" | "messages" | "requests" | "bookings";
 type ExperienceModuleKey = "relationship" | "subscriptions" | "messages" | "bookings" | "broadcasts";
+type MonetizationGuidanceState = {
+    reason: CreatorPaidGdGuidanceReason;
+    requiredPaidGd: number;
+    currentPaidGd: number;
+};
 
 function readFirstName(value: string | null | undefined) {
     const normalized = typeof value === "string" ? value.trim() : "";
@@ -93,6 +99,7 @@ export default function CreatorProfileClient() {
     const [bookingServiceType, setBookingServiceType] = useState<"phone" | "video">("phone");
     const [creatingBooking, setCreatingBooking] = useState(false);
     const [moduleState, setModuleState] = useState<Record<ExperienceModuleKey, UiContinuityModuleState>>(DEFAULT_MODULE_STATE);
+    const [monetizationGuidance, setMonetizationGuidance] = useState<MonetizationGuidanceState | null>(null);
     const creatorFirstName = useMemo(() => readFirstName(creator?.displayName), [creator?.displayName]);
     const lastTrackedBroadcastKeyRef = useRef<string>("");
     const handleCreatorDropPreview = useCallback((drop: Drop) => {
@@ -349,15 +356,16 @@ export default function CreatorProfileClient() {
     const canMessageCreator = availableExperienceViews.includes("messages");
     const purchasedBalanceGd = currentUserProfile?.gumDropsPurchasedBalance ?? currentUserProfile?.gumDropsBalance ?? 0;
     const chatCostGd = creatorSettings.chatFreeForSubscribers && subscriptionActive ? 0 : CREATOR_MESSAGE_COSTS.text;
+    const creatorDisplayName = creatorFirstName || creator?.displayName || "this creator";
     const messageHint = currentUser
         ? !following
-            ? `Follow ${creatorFirstName || creator?.displayName || "this creator"} to open chat, then keep paid GumDrops ready.`
+            ? `Follow ${creatorDisplayName} to open chat, then keep paid GumDrops ready.`
             : chatCostGd > 0 && purchasedBalanceGd < chatCostGd
-                ? `You need ${chatCostGd - purchasedBalanceGd} more paid GD to message ${creatorFirstName || creator?.displayName || "this creator"}.`
+                ? `You need ${chatCostGd - purchasedBalanceGd} more paid GD to message ${creatorDisplayName}.`
                 : creatorSettings.chatFreeForSubscribers && subscriptionActive
-                    ? `Fan Pass makes chat free with ${creatorFirstName || creator?.displayName || "this creator"}.`
-                    : `Paid GumDrops are required to message ${creatorFirstName || creator?.displayName || "this creator"}.`
-        : `Sign in, follow ${creatorFirstName || creator?.displayName || "this creator"}, and keep paid GumDrops ready to chat.`;
+                    ? `Fan Pass makes chat free with ${creatorDisplayName}.`
+                    : `Paid GumDrops are required to message ${creatorDisplayName}.`
+        : `Sign in, follow ${creatorDisplayName}, and keep paid GumDrops ready to chat.`;
 
     useEffect(() => {
         if (!hasExperiences) {
@@ -412,13 +420,16 @@ export default function CreatorProfileClient() {
         }
 
         if (!following) {
-            toast.error(`Follow ${creatorFirstName || creator.displayName || "this creator"} to start chatting.`);
+            toast.error(`Follow ${creatorDisplayName} to start chatting.`);
             return;
         }
 
         if (chatCostGd > 0 && purchasedBalanceGd < chatCostGd) {
-            openPurchaseModal(chatCostGd - purchasedBalanceGd);
-            toast.error(`You need ${chatCostGd - purchasedBalanceGd} more paid GD to message ${creatorFirstName || creator.displayName || "this creator"}.`);
+            setMonetizationGuidance({
+                reason: "chat",
+                requiredPaidGd: chatCostGd,
+                currentPaidGd: purchasedBalanceGd,
+            });
             return;
         }
 
@@ -427,6 +438,7 @@ export default function CreatorProfileClient() {
             source: "creator_profile_message_cta",
             source_component: "creator_profile_page",
         });
+        setMonetizationGuidance(null);
         router.push(`/dashboard/chat?creator=${encodeURIComponent(creator.uid)}`);
     };
 
@@ -636,6 +648,21 @@ export default function CreatorProfileClient() {
             };
             if (!response.ok) {
                 const message = getCreatorSubscriptionProblemCopy(result);
+                if (result.code === "insufficient_paid_gumdrops") {
+                    const preferredDrops = typeof result.shortfallGd === "number" && Number.isFinite(result.shortfallGd)
+                        ? result.shortfallGd
+                        : typeof result.priceGd === "number" && Number.isFinite(result.priceGd)
+                            ? result.priceGd
+                            : undefined;
+                    setMonetizationGuidance({
+                        reason: "fan_pass",
+                        requiredPaidGd: Math.max(1, preferredDrops ?? 0),
+                        currentPaidGd: typeof result.paidBalanceGd === "number" && Number.isFinite(result.paidBalanceGd)
+                            ? result.paidBalanceGd
+                            : purchasedBalanceGd,
+                    });
+                    return;
+                }
                 reportClientIssue({
                     channel: "payments",
                     message: "Creator subscription action failed",
@@ -649,20 +676,13 @@ export default function CreatorProfileClient() {
                     },
                     consoleLabel: "[CreatorProfile] subscription action failed",
                 });
-                if (result.code === "insufficient_paid_gumdrops") {
-                    const preferredDrops = typeof result.shortfallGd === "number" && Number.isFinite(result.shortfallGd)
-                        ? result.shortfallGd
-                        : typeof result.priceGd === "number" && Number.isFinite(result.priceGd)
-                            ? result.priceGd
-                            : undefined;
-                    openPurchaseModal(preferredDrops);
-                }
                 toast.error(message);
                 return;
             }
 
             const nextActive = result.action === "subscribe";
             setSubscriptionActive(nextActive);
+            setMonetizationGuidance(null);
             if (nextActive) {
                 await refreshCreatorBroadcasts(creator.uid);
             } else if (!following) {
@@ -719,12 +739,18 @@ export default function CreatorProfileClient() {
                         : typeof result.priceGd === "number" && Number.isFinite(result.priceGd)
                             ? result.priceGd
                             : undefined;
-                    openPurchaseModal(preferredDrops);
+                    setMonetizationGuidance({
+                        reason: "request",
+                        requiredPaidGd: Math.max(1, preferredDrops ?? 0),
+                        currentPaidGd: purchasedBalanceGd,
+                    });
+                    return;
                 }
                 throw new Error(message);
             }
 
             setRequestDetails("");
+            setMonetizationGuidance(null);
             toast.success("Custom request submitted.");
         } catch (error: any) {
             reportClientIssue({
@@ -777,6 +803,21 @@ export default function CreatorProfileClient() {
             };
             if (!response.ok) {
                 const message = getCreatorBookingProblemCopy(result);
+                if (result.code === "insufficient_paid_gumdrops") {
+                    const preferredDrops = typeof result.shortfallGd === "number" && Number.isFinite(result.shortfallGd)
+                        ? result.shortfallGd
+                        : typeof result.requiredPaidGd === "number" && Number.isFinite(result.requiredPaidGd)
+                            ? result.requiredPaidGd
+                            : typeof result.priceGd === "number" && Number.isFinite(result.priceGd)
+                                ? result.priceGd
+                                : undefined;
+                    setMonetizationGuidance({
+                        reason: "booking",
+                        requiredPaidGd: Math.max(1, preferredDrops ?? 0),
+                        currentPaidGd: purchasedBalanceGd,
+                    });
+                    return;
+                }
                 reportClientIssue({
                     channel: "payments",
                     message: "Creator booking failed",
@@ -792,16 +833,6 @@ export default function CreatorProfileClient() {
                     },
                     consoleLabel: "[CreatorProfile] booking failed",
                 });
-                if (result.code === "insufficient_paid_gumdrops") {
-                    const preferredDrops = typeof result.shortfallGd === "number" && Number.isFinite(result.shortfallGd)
-                        ? result.shortfallGd
-                        : typeof result.requiredPaidGd === "number" && Number.isFinite(result.requiredPaidGd)
-                            ? result.requiredPaidGd
-                            : typeof result.priceGd === "number" && Number.isFinite(result.priceGd)
-                                ? result.priceGd
-                                : undefined;
-                    openPurchaseModal(preferredDrops);
-                }
                 toast.error(message);
                 return;
             }
@@ -809,6 +840,7 @@ export default function CreatorProfileClient() {
             const refreshResponse = await authFetch(`/api/creator/bookings?creatorId=${encodeURIComponent(creator.uid)}`);
             const refreshResult = await refreshResponse.json() as { bookings?: Array<Record<string, unknown>> };
             setBookings(Array.isArray(refreshResult.bookings) ? refreshResult.bookings : []);
+            setMonetizationGuidance(null);
             toast.success("Creator booking confirmed.");
         } catch (error: any) {
             reportClientIssue({
@@ -887,6 +919,20 @@ export default function CreatorProfileClient() {
                     relationshipLoading={relationshipLoading}
                     subscribeLoading={subscribeLoading}
                 />
+
+                {monetizationGuidance ? (
+                    <div className="mt-4">
+                        <CreatorPaidGdGuidanceCard
+                            creatorName={creatorDisplayName}
+                            currentPaidGd={monetizationGuidance.currentPaidGd}
+                            requiredPaidGd={monetizationGuidance.requiredPaidGd}
+                            reason={monetizationGuidance.reason}
+                            onOpenWallet={() => openPurchaseModal(monetizationGuidance.requiredPaidGd)}
+                            onOpenDrops={() => router.push("/drops")}
+                            onClose={() => setMonetizationGuidance(null)}
+                        />
+                    </div>
+                ) : null}
 
                 <div className="mb-6 mt-5 flex items-center gap-6 border-b border-white/10 px-1 sm:px-2">
                     <button

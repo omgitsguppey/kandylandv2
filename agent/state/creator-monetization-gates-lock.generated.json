@@ -1,0 +1,107 @@
+{
+  "generatedAt": "2026-05-08T04:33:48.480Z",
+  "status": "pass",
+  "criticalBlockers": [],
+  "warnings": [],
+  "changedFilesSinceLastCreatorMonetizationGatesLock": [
+    "package.json",
+    "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/components/Creators/CreatorExperiencesPanel.tsx",
+    "src/lib/chat-send-feedback.ts",
+    "src/lib/problem-state-copy.ts",
+    "agent/state/creator-monetization-gates-lock.generated.json",
+    "docs/agent-truth/creator-monetization-gates-lock.md",
+    "scripts/agent/validate-creator-monetization-gates-lock.ts",
+    "src/components/Creators/CreatorPaidGdGuidanceCard.tsx"
+  ],
+  "requiredTargetedChecks": [
+    "npm run check:creator-monetization-gates-lock",
+    "npm run typecheck"
+  ],
+  "forbiddenBroadChecks": [
+    "npm run check",
+    "playwright",
+    "cypress",
+    "lighthouse",
+    "firebase deploy"
+  ],
+  "promoReadinessNotes": [
+    "Creator monetization surfaces now guide fans to Wallet first and keep unwrap as the fallback path where relevant.",
+    "Expected subscription, request, booking, and chat payment blocks now surface typed user copy instead of generic internal errors.",
+    "The low paid-GD reminder cycle remains server-owned and re-arms only after paid refill."
+  ],
+  "checks": [
+    {
+      "key": "shared-guidance-card",
+      "label": "Shared compact paid-GD guidance card exists",
+      "ok": true,
+      "evidence": [
+        "The shared creator guidance card explains the wallet-first next action and keeps unwrap as the secondary path."
+      ]
+    },
+    {
+      "key": "creator-panel-guidance",
+      "label": "Creator experience panel renders the guidance card on low balance",
+      "ok": true,
+      "evidence": [
+        "Fan Pass, chat, request, and booking lanes now share the compact paid-GD guidance component."
+      ]
+    },
+    {
+      "key": "profile-guidance",
+      "label": "Creator profile surfaces the guidance card for monetization failures",
+      "ok": true,
+      "evidence": [
+        "Profile actions now surface a compact guidance card instead of dead-ending on wallet-only toasts."
+      ]
+    },
+    {
+      "key": "chat-guidance",
+      "label": "Chat keeps proactive and reactive paid-GD guidance",
+      "ok": true,
+      "evidence": [
+        "The chat shell already shows the paid-GD gate before send-time errors and keeps unwrap as the secondary action."
+      ]
+    },
+    {
+      "key": "problem-copy",
+      "label": "Expected creator monetization failures use human copy",
+      "ok": true,
+      "evidence": [
+        "Subscription, request, and booking failures now point to Wallet instead of technical jargon."
+      ]
+    },
+    {
+      "key": "typed-errors",
+      "label": "Typed backend errors exist for expected monetization blocks",
+      "ok": true,
+      "evidence": [
+        "The API surface returns typed, user-facing problems for the creator monetization flows."
+      ]
+    },
+    {
+      "key": "low-balance-reminder",
+      "label": "Low paid-GD reminder fires once per cycle and resets on paid refill",
+      "ok": true,
+      "evidence": [
+        "Chat reminder state tracks the paid-balance cycle and re-arms after paid refill, not free balance changes."
+      ]
+    },
+    {
+      "key": "paid-only-policies",
+      "label": "Paid-source GumDrops remain the spend policy for creator monetization",
+      "ok": true,
+      "evidence": [
+        "Creator spend policies remain purchased-only and keep free GumDrops limited to unwrap flows."
+      ]
+    },
+    {
+      "key": "package-script",
+      "label": "Package script is wired",
+      "ok": true,
+      "evidence": [
+        "package.json exposes the creator monetization gates lock command."
+      ]
+    }
+  ]
+}

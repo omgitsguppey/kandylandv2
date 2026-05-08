@@ -10,6 +10,8 @@ export function buildChatSendErrorMessage(input: {
     switch (input.errorCode) {
         case "forbidden":
             return "You are not allowed to send messages in this thread.";
+        case "insufficient_paid_gumdrops":
+            return "You need more paid GumDrops to message this creator.";
         case "creator_unavailable":
             return "Messaging is unavailable for this creator right now.";
         case "invalid_attachment":
