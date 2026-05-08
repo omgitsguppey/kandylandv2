@@ -99,6 +99,6 @@ Run:
 
 ```bash
 npm run check:admin-ai-control-tower
-npm run check:admin-debug-control-tower
+npm run check:debug-control-tower-cutover
 npm run check:google-cost
 ```

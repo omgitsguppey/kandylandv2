@@ -9,6 +9,13 @@ import {
   uniqueAffectedValues,
   type AffectedAuditPlan,
 } from "../../src/lib/agent-audit/verification-command-budget";
+import {
+  VALIDATOR_AUTHORITY_PATH,
+  readRootPackageScripts,
+  resolvePackageScriptValidatorFiles,
+  type ValidatorAuthorityDocument,
+  type ValidatorAuthorityStatus,
+} from "./validator-authority-shared";
 
 type ParsedArgs = {
   base?: string;
@@ -16,19 +23,6 @@ type ParsedArgs = {
   taskSummary: string;
   files: string[];
   changedPackageScripts: string[];
-};
-
-type ValidatorAuthorityStatus = "canonical" | "supporting" | "legacy" | "blocked";
-
-type ValidatorAuthorityEntry = {
-  status: ValidatorAuthorityStatus;
-  reason: string;
-};
-
-type ValidatorAuthorityDocument = {
-  defaultAffectedAuditBlockedStatuses?: ValidatorAuthorityStatus[];
-  defaults?: Array<ValidatorAuthorityEntry & { match: string }>;
-  overrides?: Record<string, ValidatorAuthorityEntry>;
 };
 
 const root = process.cwd();
@@ -95,7 +89,7 @@ function readJsonFile<T>(filePath: string, fallback: T): T {
 }
 
 function readPackageScripts() {
-  return readJsonFile<{ scripts?: Record<string, string> }>("package.json", {}).scripts ?? {};
+  return readRootPackageScripts();
 }
 
 function readSurfaceMap() {
@@ -107,46 +101,23 @@ function readDependencyGraph() {
 }
 
 function readValidatorAuthority() {
-  return readJsonFile<ValidatorAuthorityDocument>("agent/context/validator-authority.json", {
+  return readJsonFile<ValidatorAuthorityDocument>(VALIDATOR_AUTHORITY_PATH, {
+    version: 2,
+    updatedAt: "",
     defaultAffectedAuditBlockedStatuses: ["legacy", "blocked"],
-    defaults: [],
-    overrides: {},
+    validators: {},
+    packageScripts: {},
+    summary: {
+      validatorCount: 0,
+      packageScriptCount: 0,
+      byStatus: {
+        canonical: 0,
+        supporting: 0,
+        legacy: 0,
+        blocked: 0,
+      },
+    },
   });
-}
-
-function matchesPattern(value: string, pattern: string) {
-  const escaped = pattern
-    .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
-    .replace(/\*/g, ".*");
-  return new RegExp(`^${escaped}$`, "u").test(value);
-}
-
-function resolveValidatorAuthorityEntry(
-  filePath: string,
-  authority: ValidatorAuthorityDocument,
-): ValidatorAuthorityEntry | null {
-  const override = authority.overrides?.[filePath];
-  if (override) {
-    return override;
-  }
-
-  for (const entry of authority.defaults ?? []) {
-    if (matchesPattern(filePath, entry.match)) {
-      return {
-        status: entry.status,
-        reason: entry.reason,
-      };
-    }
-  }
-
-  return null;
-}
-
-function extractValidatorFilesFromPackageScript(script: string) {
-  return Array.from(
-    script.matchAll(/scripts\/(?:agent\/validate-[^"'`\s;&|]+\.ts|check-[^"'`\s;&|]+\.ts)/gu),
-    (match) => normalizeAffectedPath(match[0] ?? ""),
-  ).filter(Boolean);
 }
 
 function filterPlanByValidatorAuthority(
@@ -170,13 +141,24 @@ function filterPlanByValidatorAuthority(
       return { keep: true as const };
     }
 
-    const validatorFiles = extractValidatorFilesFromPackageScript(packageScript);
+    const packageEntry = authority.packageScripts?.[scriptName];
+    if (packageEntry && blockedStatuses.has(packageEntry.status)) {
+      return {
+        keep: false as const,
+        why: `${scriptName} is ${packageEntry.status}: ${packageEntry.reason}`,
+        scriptName,
+      };
+    }
+
+    const validatorFiles = resolvePackageScriptValidatorFiles(packageScripts, scriptName)
+      .map(normalizeAffectedPath)
+      .filter(Boolean);
     if (validatorFiles.length === 0) {
       return { keep: true as const };
     }
 
     const excluded = validatorFiles
-      .map((filePath) => ({ filePath, authority: resolveValidatorAuthorityEntry(filePath, authority) }))
+      .map((filePath) => ({ filePath, authority: authority.validators[filePath] }))
       .filter((entry) => entry.authority && blockedStatuses.has(entry.authority.status));
 
     if (excluded.length === 0) {

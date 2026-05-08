@@ -1,18 +1,19 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-type ValidatorAuthorityStatus = "canonical" | "supporting" | "legacy" | "blocked";
-
-type ValidatorAuthorityEntry = {
-  status: ValidatorAuthorityStatus;
-  reason: string;
-};
-
-type ValidatorAuthorityDocument = {
-  defaultAffectedAuditBlockedStatuses?: ValidatorAuthorityStatus[];
-  defaults?: Array<ValidatorAuthorityEntry & { match: string }>;
-  overrides?: Record<string, ValidatorAuthorityEntry>;
-};
+import {
+  VALIDATOR_AUTHORITY_PATH,
+  listStandaloneValidatorFiles,
+  listValidatorPackageScripts,
+  readRootPackageScripts,
+  readValidatorAuthority,
+  resolvePackageScriptValidatorFiles,
+  type ValidatorAuthorityDocument,
+  type ValidatorAuthorityLevel,
+  type ValidatorAuthorityPackageScriptEntry,
+  type ValidatorAuthorityStatus,
+  type ValidatorAuthorityValidatorEntry,
+} from "./validator-authority-shared";
 
 const root = process.cwd();
 const failures: string[] = [];
@@ -21,144 +22,173 @@ function read(relativePath: string) {
   return readFileSync(join(root, relativePath), "utf8");
 }
 
-function readJson<T>(relativePath: string) {
-  return JSON.parse(read(relativePath)) as T;
-}
-
-function listValidatorFiles() {
-  const agentValidators = readdirSync(join(root, "scripts/agent"))
-    .filter((name) => /^validate-.*\.ts$/u.test(name))
-    .map((name) => `scripts/agent/${name}`);
-  const rootChecks = readdirSync(join(root, "scripts"))
-    .filter((name) => /^check-.*\.ts$/u.test(name))
-    .map((name) => `scripts/${name}`);
-
-  return [...agentValidators, ...rootChecks].sort();
-}
-
-function matchesPattern(value: string, pattern: string) {
-  const escaped = pattern
-    .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
-    .replace(/\*/g, ".*");
-  return new RegExp(`^${escaped}$`, "u").test(value);
-}
-
-function resolveAuthority(filePath: string, authority: ValidatorAuthorityDocument): ValidatorAuthorityEntry | null {
-  const override = authority.overrides?.[filePath];
-  if (override) {
-    return override;
-  }
-
-  for (const entry of authority.defaults ?? []) {
-    if (matchesPattern(filePath, entry.match)) {
-      return {
-        status: entry.status,
-        reason: entry.reason,
-      };
-    }
-  }
-
-  return null;
-}
-
-function extractValidatorFilesFromPackageScript(script: string) {
-  return Array.from(
-    script.matchAll(/scripts\/(?:agent\/validate-[^"'`\s;&|]+\.ts|check-[^"'`\s;&|]+\.ts)/gu),
-    (match) => match[0] ?? "",
-  );
+function fail(message: string) {
+  failures.push(message);
 }
 
 function requireIncludes(source: string, needle: string, label: string) {
   if (!source.includes(needle)) {
-    failures.push(`${label} must include "${needle}".`);
+    fail(`${label} must include "${needle}".`);
   }
 }
 
-const authority = readJson<ValidatorAuthorityDocument>("agent/context/validator-authority.json");
-const packageJson = readJson<{ scripts?: Record<string, string> }>("package.json");
-const packageScripts = packageJson.scripts ?? {};
-const validatorFiles = listValidatorFiles();
+function expectedAuthorityForStatus(status: ValidatorAuthorityStatus): ValidatorAuthorityLevel[] {
+  if (status === "canonical") return ["canonical_contract"];
+  if (status === "supporting") return ["supporting_contract", "supporting_score"];
+  if (status === "legacy") return ["legacy_reference"];
+  return ["blocked_reference"];
+}
 
-for (const filePath of validatorFiles) {
-  const resolved = resolveAuthority(filePath, authority);
-  if (!resolved) {
-    failures.push(`Validator authority is missing a status for ${filePath}.`);
-    continue;
+function validateEntryShape(
+  key: string,
+  entry: ValidatorAuthorityValidatorEntry | ValidatorAuthorityPackageScriptEntry,
+) {
+  if (!entry.surface.trim()) {
+    fail(`${key} must declare a surface.`);
   }
-  if (!resolved.reason.trim()) {
-    failures.push(`Validator authority reason is empty for ${filePath}.`);
+  if (!entry.reason.trim()) {
+    fail(`${key} must declare a reason.`);
+  }
+  if (entry.canonicalContracts.length === 0) {
+    fail(`${key} must declare canonical contracts.`);
+  }
+  if (!expectedAuthorityForStatus(entry.status).includes(entry.authority)) {
+    fail(`${key} has mismatched authority ${entry.authority} for status ${entry.status}.`);
   }
 }
 
-for (const [scriptName, scriptValue] of Object.entries(packageScripts)) {
-  if (!scriptName.startsWith("check:")) {
-    continue;
+function validateAdminAnalyticsContracts(filePath: string, entry: ValidatorAuthorityValidatorEntry, source: string) {
+  if (!filePath.includes("admin-analytics")) {
+    return;
   }
 
-  const validatorRefs = extractValidatorFilesFromPackageScript(scriptValue);
-  for (const filePath of validatorRefs) {
-    const resolved = resolveAuthority(filePath, authority);
-    if (!resolved) {
-      failures.push(`Package script ${scriptName} references ${filePath} without validator authority status.`);
-      continue;
+  for (const contract of [
+    "src/lib/admin-analytics-contracts.ts",
+    "src/lib/server/admin-user-truth-snapshot.ts",
+    "src/lib/server/user-behavior-truth-rollup.ts",
+  ]) {
+    if (!entry.canonicalContracts.includes(contract)) {
+      fail(`${filePath} must declare ${contract} as a canonical contract.`);
     }
-    if (resolved.status === "blocked") {
-      failures.push(`Package script ${scriptName} must not expose blocked validator ${filePath} as a normal check.`);
-    }
   }
-}
 
-const affectedPlanSource = read("scripts/agent/plan-affected-audits.ts");
-requireIncludes(
-  affectedPlanSource,
-  "validator-authority.json",
-  "Affected audit planner",
-);
-requireIncludes(
-  affectedPlanSource,
-  "defaultAffectedAuditBlockedStatuses",
-  "Affected audit planner",
-);
-
-const adminAnalyticsValidators = validatorFiles.filter((filePath) =>
-  filePath.includes("admin-analytics"),
-);
-for (const filePath of adminAnalyticsValidators) {
-  const source = read(filePath);
   const hasCanonicalReference =
     source.includes("src/lib/admin-analytics-contracts.ts")
     || source.includes("src/lib/server/admin-user-truth-snapshot.ts")
     || source.includes("src/lib/server/user-behavior-truth-rollup.ts")
-    || source.includes("src/lib/analytics/admin-metric-snapshot.ts")
-    || source.includes("src/hooks/useAdminAnalyticsSnapshot.ts")
-    || source.includes("src/hooks/useAdminAnalyticsSnapshotRegistry.ts")
-    || source.includes("src/lib/server/admin-analytics-snapshots.ts");
+    || source.includes("src/lib/server/admin-analytics-snapshots.ts")
+    || source.includes("adminMetricSnapshot")
+    || source.includes("resolveAdminAnalyticsDisplayState")
+    || source.includes("AdminMetricSnapshot");
   if (!hasCanonicalReference) {
-    failures.push(`${filePath} must reference a canonical snapshot or rollup contract.`);
+    fail(`${filePath} must reference canonical snapshot or rollup contracts in source.`);
   }
 }
 
-for (const [filePath, requiredNeedles] of Object.entries({
-  "scripts/agent/validate-watch-time-rollup-truth.ts": [
-    'watchScoreSource: "watch_session_rollup"',
-    "watch_session_rollup",
-    "legacy_page_duration",
-  ],
-  "scripts/agent/validate-purchase-telemetry-truth.ts": [
-    'trackServerEvent("server_purchase_verified"',
-    'sourceTruth: "server_purchase_transaction"',
-    "server_purchase_verified",
-  ],
-  "scripts/agent/validate-unlock-telemetry-truth.ts": [
-    'trackServerEvent("entitlement_granted"',
-    'sourceTruth: "server"',
-    "drop_unwrapped",
-  ],
-})) {
-  const source = read(filePath);
-  for (const needle of requiredNeedles) {
-    requireIncludes(source, needle, filePath);
+function validateServerTruthPriority(filePath: string, entry: ValidatorAuthorityValidatorEntry, source: string) {
+  if (filePath.includes("purchase")) {
+    for (const contract of [
+      "src/app/api/paypal/capture/route.ts",
+      "src/lib/server/gumdrop-ledger.ts",
+      "src/lib/behavioral/metric-fact-contract.ts",
+    ]) {
+      if (!entry.canonicalContracts.includes(contract)) {
+        fail(`${filePath} must declare ${contract} as purchase server truth.`);
+      }
+    }
+    requireIncludes(source, "server_purchase", filePath);
   }
+
+  if (filePath.includes("unlock")) {
+    for (const contract of [
+      "src/app/api/drops/unlock/route.ts",
+      "src/lib/behavioral/metric-fact-contract.ts",
+    ]) {
+      if (!entry.canonicalContracts.includes(contract)) {
+        fail(`${filePath} must declare ${contract} as unlock server truth.`);
+      }
+    }
+    requireIncludes(source, "entitlement", filePath);
+  }
+
+  if (filePath.includes("watch-time") || filePath.includes("viewer")) {
+    for (const contract of [
+      "src/hooks/useViewerWatchSession.ts",
+      "src/lib/viewer-watch-session.ts",
+      "src/app/api/viewer/watch-session/route.ts",
+    ]) {
+      if (!entry.canonicalContracts.includes(contract)) {
+        fail(`${filePath} must declare ${contract} as watch-session truth.`);
+      }
+    }
+    requireIncludes(source, "watch_session", filePath);
+  }
+}
+
+const authority = readValidatorAuthority();
+const packageScripts = readRootPackageScripts();
+const validatorFiles = listStandaloneValidatorFiles();
+const validatorPackageScripts = listValidatorPackageScripts(packageScripts);
+
+if (authority.version < 2) {
+  fail(`${VALIDATOR_AUTHORITY_PATH} must be upgraded to version 2.`);
+}
+
+for (const [filePath, entry] of Object.entries(authority.validators)) {
+  validateEntryShape(filePath, entry);
+}
+for (const [scriptName, entry] of Object.entries(authority.packageScripts)) {
+  validateEntryShape(scriptName, entry);
+}
+
+for (const filePath of validatorFiles) {
+  const entry = authority.validators[filePath];
+  if (!entry) {
+    fail(`Validator authority is missing ${filePath}.`);
+    continue;
+  }
+
+  const source = read(filePath);
+  validateAdminAnalyticsContracts(filePath, entry, source);
+  validateServerTruthPriority(filePath, entry, source);
+}
+
+for (const scriptName of validatorPackageScripts) {
+  const entry = authority.packageScripts[scriptName];
+  if (!entry) {
+    fail(`Validator authority is missing package script ${scriptName}.`);
+    continue;
+  }
+
+  const resolvedFiles = resolvePackageScriptValidatorFiles(packageScripts, scriptName).sort((left, right) => left.localeCompare(right));
+  const declaredFiles = [...entry.validators].sort((left, right) => left.localeCompare(right));
+  if (JSON.stringify(resolvedFiles) !== JSON.stringify(declaredFiles)) {
+    fail(`${scriptName} validator file set is stale. Expected ${resolvedFiles.join(", ")}, found ${declaredFiles.join(", ")}.`);
+  }
+
+  const referencedStatuses = declaredFiles.map((filePath) => authority.validators[filePath]?.status ?? "supporting");
+  const hasBlocked = referencedStatuses.includes("blocked");
+  const hasLegacy = referencedStatuses.includes("legacy");
+
+  if ((hasBlocked || hasLegacy) && !scriptName.startsWith("legacy:")) {
+    fail(`${scriptName} must not expose ${hasBlocked ? "blocked" : "legacy"} validators as a default check/score script.`);
+  }
+
+  if (entry.status === "blocked" && !scriptName.startsWith("legacy:")) {
+    fail(`${scriptName} is blocked and may only appear as a legacy reference.`);
+  }
+}
+
+const affectedPlanSource = read("scripts/agent/plan-affected-audits.ts");
+requireIncludes(affectedPlanSource, "defaultAffectedAuditBlockedStatuses", "Affected audit planner");
+requireIncludes(affectedPlanSource, "resolvePackageScriptValidatorFiles", "Affected audit planner");
+requireIncludes(affectedPlanSource, "authority.validators[filePath]", "Affected audit planner");
+
+if (packageScripts["score:validator-authority"] !== "tsx scripts/agent/score-validator-authority.ts") {
+  fail("package.json must expose score:validator-authority.");
+}
+if (packageScripts["check:validator-authority"] !== "tsx scripts/agent/validate-validator-authority.ts") {
+  fail("package.json must expose check:validator-authority.");
 }
 
 if (failures.length > 0) {

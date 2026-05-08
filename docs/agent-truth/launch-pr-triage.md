@@ -49,7 +49,7 @@ Original 2026-05-01 baseline note: No PR was merged, closed, rebased, or edited 
 - PR #206: `npm run typecheck -- --pretty false` plus a targeted creator experiences render/accessibility check if present.
 - PR #202: targeted PurchaseModal/economics tests, wallet smoke check, `npm run typecheck -- --pretty false`.
 - PR #204: `npm run check:telemetry`, `npm run check:analytics-event-contract`, targeted PurchaseModal/DropPreviewModal tests, `npm run typecheck -- --pretty false`.
-- PR #205: `npm run check:human-readable-admin-copy`, `npm run check:drops-mobile-refinement`, `npm run check:admin-truth`, `npm run typecheck -- --pretty false` after removing package-manager drift.
+- PR #205: `npm run check:human-readable-admin-copy`, `npm run check:drops-mobile-refinement`, `npm run check:admin-truth-replacement`, `npm run typecheck -- --pretty false` after removing package-manager drift.
 
 ## Duplicate And Conflict Notes
 

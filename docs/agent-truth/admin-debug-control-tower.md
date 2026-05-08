@@ -92,7 +92,7 @@ The first screen is a compact card stack: summary card, horizontal chip rail, to
 
 Use:
 
-- `npm run check:admin-debug-control-tower`
+- `npm run check:debug-control-tower-cutover`
 - targeted Control Tower unit tests
 - `npm run typecheck` if TypeScript changed
 

@@ -140,7 +140,7 @@ for (const gate of [
   "npm run check:human-readable-admin-copy",
   "npm run check:refresh-based-hot-cache",
   "npm run check:global-loading-performance",
-  "npm run check:admin-truth",
+  "npm run check:admin-truth-replacement",
 ]) {
   if (!requiredGates.includes(gate)) {
     failures.push(`baseline.requiredValidationGates is missing "${gate}".`);

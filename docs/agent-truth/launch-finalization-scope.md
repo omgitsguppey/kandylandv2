@@ -105,7 +105,7 @@ Use the narrowest relevant gate first. Do not run broad slow audits unless a lau
 - Admin human-readable truth: `npm run check:human-readable-admin-copy`
 - Refresh-based hot cache: `npm run check:refresh-based-hot-cache`
 - Global loading performance: `npm run check:global-loading-performance`
-- Admin truth contracts: `npm run check:admin-truth`
+- Admin truth contracts: `npm run check:admin-truth-replacement`
 - Admin Analytics hot cache: `npm run check:admin-analytics-hot-cache`
 - Notifications: `npm run check:notification-pipeline`
 - Chat/profile routing: `npm run check:user-chat-shell-routing`

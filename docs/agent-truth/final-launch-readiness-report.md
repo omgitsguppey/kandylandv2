@@ -93,7 +93,7 @@ All targeted launch validations that exist were run and passed unless noted:
 - `npm run check:launch-readiness-final`
 - `npm run check:analytics-truth-layer-v2`
 - `npm run check:analytics-event-contract`
-- `npm run check:admin-truth`
+- `npm run check:admin-truth-replacement`
 - `npm run check:firebase-runtime`
 - `npm run check:functions`
 - `npm run check:firebase:rules`

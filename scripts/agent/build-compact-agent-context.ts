@@ -209,7 +209,7 @@ const SURFACE_DEFINITIONS: CompactSurfaceDefinition[] = [
     sourceDocs: ["docs/agent-truth/admin-debug-control-tower.md", "docs/agent-truth/debug-evidence-pipeline.md"],
     rules: ["Admin debug surfaces label live, cached, stale, fallback, partial, failed, or unknown truth.", "Missing or stale data must not render healthy.", "Heavy raw JSON stays collapsed behind operational summaries."],
     blockedPatterns: ["fake green healthy state", "missing data shown as live", "raw JSON as primary admin truth"],
-    requiredValidators: ["check:admin-debug-control-tower", "check:debug-evidence-pipeline", "check:admin-truth"],
+    requiredValidators: ["check:debug-control-tower-cutover", "check:debug-evidence-pipeline", "check:admin-truth-replacement"],
     ownerSurface: "admin_debug_control_tower",
   },
   {
@@ -221,7 +221,7 @@ const SURFACE_DEFINITIONS: CompactSurfaceDefinition[] = [
     sourceDocs: ["docs/agent-truth/admin-debug-control-tower.md", "REPO_MEMORY_LEDGER.md"],
     rules: ["AI model metadata comes from the shared registry.", "Admin AI history remains canonical for prompt learning.", "Create Drop local history clearing must not delete canonical AI jobs."],
     blockedPatterns: ["hardcoded model alias outside registry", "modal clear deletes server AI history", "AI admin fallback shown healthy"],
-    requiredValidators: ["check:admin-debug-control-tower", "check:admin-review-badges"],
+    requiredValidators: ["check:admin-ai-control-tower", "check:admin-review-badges", "check:google-cost"],
     ownerSurface: "admin_ai_runtime_truth",
   },
   {
