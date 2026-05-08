@@ -30,6 +30,8 @@ KandyDrops doctrine retrieval is an optimization problem. Agents should generate
 - Level 6: Generated reports as snapshots, not doctrine.
 - Level 7: Legacy docs with superseded-by and phase-out metadata.
 
+Generated reports are evidence snapshots only. `agent/state/*.generated.json`, `agent/index/*.json`, and generated `agent/context/*.json` cannot override doctrine or runtime business truth, and they are stale after 24 hours unless a contract explicitly says otherwise. Use `npm run check:generated-report-authority` to verify the authority boundary.
+
 ## Economy Truth Note
 
 Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments.

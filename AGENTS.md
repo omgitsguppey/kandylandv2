@@ -42,6 +42,8 @@ Canonical authority order:
 6. Generated reports as snapshots, not doctrine
 7. Legacy docs with `supersededBy`, `reviewBy`, and `removeBy`
 
+Generated reports are evidence snapshots only. `agent/state/*.generated.json`, `agent/index/*.json`, and generated `agent/context/*.json` must never override doctrine or runtime business truth, and they become stale after 24 hours unless an explicit contract says otherwise. Runtime `src/app`, `src/components`, and `src/lib/server` business logic must not import or read them. Use `npm run check:generated-report-authority` when this boundary changes.
+
 Command budget doctrine:
 
 This command budget is mandatory for doctrine and governance work.

@@ -120,6 +120,11 @@ const SURFACE_DEFAULT_CONTRACTS: Record<string, string[]> = {
     "src/app/api/notifications/route.ts",
     "src/lib/notification-contracts.ts",
   ],
+  "generated-report-authority": [
+    "src/lib/generated-reports/generated-report-contract.ts",
+    "agent/state/generated-report-authority.generated.json",
+    "agent/context/doctrine-registry.json",
+  ],
 };
 
 function unique<T>(values: T[]) {
@@ -144,6 +149,7 @@ function inferSurface(scriptName: string, filePath: string, validatorMap: Return
   if (haystack.includes("creator") || haystack.includes("fan-pass")) return "creator-dashboard";
   if (haystack.includes("admin-ai") || haystack.includes("review-badges")) return "ai-panel";
   if (haystack.includes("moderation") || haystack.includes("theft-risk")) return "moderation";
+  if (haystack.includes("generated-report")) return "generated-report-authority";
   if (haystack.includes("legacy-phaseout") || haystack.includes("orphan") || haystack.includes("legacy-recovery")) return "legacy-phaseout";
   if (haystack.includes("image") || haystack.includes("content-media") || haystack.includes("drop-asset")) return "image-policy";
   if (haystack.includes("doctrine") || haystack.includes("validator-authority") || haystack.includes("affected-audit") || haystack.includes("agent-context") || haystack.includes("dependency-truth")) return "agent-context";
