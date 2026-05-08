@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
 import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
+import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
@@ -145,10 +146,18 @@ function StatusPill({ label, tone = "neutral" }: { label: string; tone?: "good" 
     );
 }
 
+function formatDashboardMetric(value: number | null | undefined) {
+    return typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "Unavailable";
+}
+
 export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfile }) {
+    const { viewAsState } = useAdminViewAs();
     const creatorApplication = userProfile.creatorApplication as CreatorApplication | undefined;
     const isCreatorOperator = userProfile.role === "creator";
-    const hasCreatorWorkspace = isCreatorOperator || Boolean(creatorApplication);
+    const isProjectionMode = Boolean(viewAsState);
+    const projectionCreatorId = viewAsState?.adminViewingAsUserId ?? "";
+    const projectionDisplayName = viewAsState?.adminViewingAsDisplayName ?? "Creator";
+    const hasCreatorWorkspace = isCreatorOperator || Boolean(creatorApplication) || isProjectionMode;
 
     const [creatorStats, setCreatorStats] = useState<CreatorStats | null>(null);
     const [requests, setRequests] = useState<CreatorRequestRecord[]>([]);
@@ -167,6 +176,15 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     const [broadcastDraft, setBroadcastDraft] = useState("");
 
     const onboardingSummary = useMemo(() => {
+        if (isProjectionMode) {
+            return {
+                stage: "Projection",
+                label: "Admin projection active",
+                summary: `Read-only projection of ${projectionDisplayName}'s creator dashboard.`,
+                timeline: "",
+            };
+        }
+
         if (creatorApplication) {
             return getCreatorOnboardingStatusSummary(creatorApplication);
         }
@@ -181,7 +199,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
         }
 
         return getCreatorOnboardingStatusSummary(undefined);
-    }, [creatorApplication, isCreatorOperator]);
+    }, [creatorApplication, isCreatorOperator, isProjectionMode, projectionDisplayName]);
     const blockingReasons = useMemo(
         () => (creatorApplication?.blockingReasons ?? []).map((reason) => describeCreatorFacingOnboardingBlockingReason(reason)),
         [creatorApplication?.blockingReasons],
@@ -192,9 +210,11 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     );
 
     const loadWorkspace = useCallback(async () => {
-        if (!isCreatorOperator) {
+        if (!isCreatorOperator && !isProjectionMode) {
             return;
         }
+
+        const creatorQuery = projectionCreatorId ? `?creatorId=${encodeURIComponent(projectionCreatorId)}` : "";
 
         const nextErrors: Record<ModuleKey, string | null> = {
             settings: null,
@@ -215,7 +235,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                     load: async () => readUiJson<{
                         stats?: CreatorStats | null;
                     }>(
-                        await authFetch("/api/creator/settings"),
+                        await authFetch(`/api/creator/settings${creatorQuery}`),
                         { moduleLabel: "creator settings", url: "/api/creator/settings" },
                     ),
                 },
@@ -223,7 +243,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                     key: "requests",
                     label: "creator requests",
                     load: async () => readUiJson<{ requests?: CreatorRequestRecord[] }>(
-                        await authFetch("/api/creator/requests"),
+                        await authFetch(`/api/creator/requests${creatorQuery}`),
                         { moduleLabel: "creator requests", url: "/api/creator/requests" },
                     ),
                     fallbackValue: { requests: [] },
@@ -233,7 +253,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                     label: "creator bookings",
                     critical: true,
                     load: async () => readUiJson<{ bookings?: CreatorBookingRecord[] }>(
-                        await authFetch("/api/creator/bookings"),
+                        await authFetch(`/api/creator/bookings${creatorQuery}`),
                         { moduleLabel: "creator bookings", url: "/api/creator/bookings" },
                     ),
                     fallbackValue: { bookings: [] },
@@ -243,7 +263,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                     label: "creator subscriptions",
                     critical: true,
                     load: async () => readUiJson<{ subscribers?: CreatorSubscriptionRecord[] }>(
-                        await authFetch("/api/creator/subscriptions"),
+                        await authFetch(`/api/creator/subscriptions${creatorQuery}`),
                         { moduleLabel: "creator subscriptions", url: "/api/creator/subscriptions" },
                     ),
                     fallbackValue: { subscribers: [] },
@@ -252,7 +272,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                     key: "threads",
                     label: "creator messages",
                     load: async () => readUiJson<{ threads?: CreatorThreadRecord[] }>(
-                        await authFetch("/api/chat/threads"),
+                        await authFetch(`/api/chat/threads${creatorQuery}`),
                         { moduleLabel: "creator messages", url: "/api/chat/threads" },
                     ),
                     fallbackValue: { threads: [] },
@@ -289,7 +309,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
         setModuleErrors(nextErrors);
         setModuleState(nextModuleState);
-    }, [isCreatorOperator]);
+    }, [isCreatorOperator, isProjectionMode, projectionCreatorId]);
 
     useEffect(() => {
         if (!isCreatorOperator) {
@@ -320,6 +340,11 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     }, []);
 
     const handleRequestAction = useCallback((requestId: string, action: "accept" | "decline" | "fulfill") => {
+        if (isProjectionMode) {
+            toast.error("Creator dashboard is read-only in admin projection.");
+            return;
+        }
+
         void runAction(`request:${requestId}:${action}`, async () => {
             await readUiJson(
                 await authFetch("/api/creator/requests", {
@@ -331,9 +356,14 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             toast.success(`Request ${action}ed.`);
             await loadWorkspace();
         }, "We could not update that request.");
-    }, [loadWorkspace, runAction]);
+    }, [isProjectionMode, loadWorkspace, runAction]);
 
     const handleBookingAction = useCallback((bookingId: string, action: "complete" | "cancel") => {
+        if (isProjectionMode) {
+            toast.error("Creator dashboard is read-only in admin projection.");
+            return;
+        }
+
         void runAction(`booking:${bookingId}:${action}`, async () => {
             await readUiJson(
                 await authFetch("/api/creator/bookings", {
@@ -345,10 +375,15 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             toast.success(action === "complete" ? "Booking completed." : "Booking canceled.");
             await loadWorkspace();
         }, "We could not update that booking.");
-    }, [loadWorkspace, runAction]);
+    }, [isProjectionMode, loadWorkspace, runAction]);
 
     const handleBroadcastSend = useCallback(() => {
         if (!broadcastDraft.trim().length) {
+            return;
+        }
+
+        if (isProjectionMode) {
+            toast.error("Creator dashboard is read-only in admin projection.");
             return;
         }
 
@@ -363,7 +398,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             setBroadcastDraft("");
             toast.success("Broadcast sent.");
         }, "We could not send that broadcast.");
-    }, [broadcastDraft, runAction]);
+    }, [broadcastDraft, isProjectionMode, runAction]);
 
     if (!hasCreatorWorkspace) {
         return null;
@@ -378,6 +413,20 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
     return (
         <section className="mb-5 md:mb-8">
+            {isProjectionMode ? (
+                <div className="mb-4 rounded-2xl border border-brand-purple/30 bg-brand-purple/10 px-4 py-3 text-sm text-white">
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                            <p className="font-bold">Admin projection</p>
+                            <p className="mt-1 text-xs text-white/75">
+                                Read-only creator dashboard preview for {projectionDisplayName}. Writes are blocked.
+                            </p>
+                        </div>
+                        <StatusPill label="Read-only" tone="warn" />
+                    </div>
+                </div>
+            ) : null}
+
             {!isCreatorOperator ? (
                 <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -407,10 +456,17 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                 <MessageCircle className="h-4 w-4" />
                                 Inbox {unreadMessagesCount > 0 ? <span className="flex h-5 items-center justify-center rounded-full bg-brand-purple px-2 text-[10px] font-bold">{unreadMessagesCount}</span> : null}
                             </Link>
-                            <Link href="/dashboard/drops" className="flex shrink-0 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10">
-                                <Package className="h-4 w-4" />
-                                Create drop
-                            </Link>
+                            {isProjectionMode ? (
+                                <button type="button" onClick={() => toast.error("Creator dashboard is read-only in admin projection.")} className="flex shrink-0 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white opacity-60">
+                                    <Package className="h-4 w-4" />
+                                    Create drop
+                                </button>
+                            ) : (
+                                <Link href="/dashboard/drops" className="flex shrink-0 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+                                    <Package className="h-4 w-4" />
+                                    Create drop
+                                </Link>
+                            )}
                             <Link href="/dashboard/profile" className="flex shrink-0 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10">
                                 Creator settings
                             </Link>
@@ -459,8 +515,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                     <DollarSign className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <p className="text-2xl font-black text-white">{creatorStats?.earningsGd || 0} <span className="text-[10px] uppercase tracking-wider text-brand-purple">GD</span></p>
-                                    <p className="text-xs text-brand-purple/70">${cashValueUsd} value</p>
+                                    <p className="text-2xl font-black text-white">{formatDashboardMetric(creatorStats?.earningsGd)} <span className="text-[10px] uppercase tracking-wider text-brand-purple">GD</span></p>
+                                    <p className="text-xs text-brand-purple/70">{creatorStats ? `$${cashValueUsd} value` : "Unavailable"}</p>
                                 </div>
                             </div>
                             <div className="flex flex-col justify-between rounded-2xl border border-emerald-400/10 bg-emerald-400/5 p-4 transition-colors hover:bg-emerald-400/10">
@@ -468,8 +524,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                     <Activity className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <p className="text-2xl font-black text-white">{actionNeededCount}</p>
-                                    <p className="text-xs text-emerald-400/70">Tasks needed</p>
+                                    <p className="text-2xl font-black text-white">{creatorStats ? formatDashboardMetric(actionNeededCount) : "Unavailable"}</p>
+                                    <p className="text-xs text-emerald-400/70">Action needed</p>
                                 </div>
                             </div>
                             <div className="flex flex-col justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
@@ -477,8 +533,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                     <Users className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <p className="text-2xl font-black text-white">{creatorStats?.followerCount || 0}</p>
-                                    <p className="text-xs text-gray-400">Followers</p>
+                                    <p className="text-2xl font-black text-white">{formatDashboardMetric(creatorStats?.followerCount)}</p>
+                                    <p className="text-xs text-gray-400">Fans</p>
                                 </div>
                             </div>
                             <div className="flex flex-col justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
@@ -486,8 +542,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                     <Eye className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <p className="text-2xl font-black text-white">{creatorStats?.profileViewsCount || 0}</p>
-                                    <p className="text-xs text-gray-400">Profile views</p>
+                                    <p className="text-2xl font-black text-white">{formatDashboardMetric(creatorStats?.profileViewsCount)}</p>
+                                    <p className="text-xs text-gray-400">Content views</p>
                                 </div>
                             </div>
                             <div className="flex flex-col justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
@@ -495,8 +551,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                     <MessageCircle className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <p className="text-2xl font-black text-white">{unreadMessagesCount}</p>
-                                    <p className="text-xs text-gray-400">Unread DMs</p>
+                                    <p className="text-2xl font-black text-white">{formatDashboardMetric(unreadMessagesCount)}</p>
+                                    <p className="text-xs text-gray-400">Messages</p>
                                 </div>
                             </div>
                             <div className="flex flex-col justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
@@ -504,8 +560,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                     <PlaySquare className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <p className="text-2xl font-black text-white">{creatorStats?.liveDropsCount || 0}</p>
-                                    <p className="text-xs text-gray-400">Live drops</p>
+                                    <p className="text-2xl font-black text-white">{formatDashboardMetric(creatorStats?.liveDropsCount)}</p>
+                                    <p className="text-xs text-gray-400">Content</p>
                                 </div>
                             </div>
                             <div className="flex flex-col justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
@@ -513,8 +569,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                     <CheckCircle className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <p className="text-2xl font-black text-white">{creatorStats?.openRequests || 0}</p>
-                                    <p className="text-xs text-gray-400">Open requests</p>
+                                    <p className="text-2xl font-black text-white">{formatDashboardMetric(creatorStats?.openRequests)}</p>
+                                    <p className="text-xs text-gray-400">Requests</p>
                                 </div>
                             </div>
                             <div className="flex flex-col justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
@@ -522,8 +578,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                     <Phone className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <p className="text-2xl font-black text-white">{creatorStats?.bookedCalls || 0}</p>
-                                    <p className="text-xs text-gray-400">Booked calls</p>
+                                    <p className="text-2xl font-black text-white">{formatDashboardMetric(creatorStats?.bookedCalls)}</p>
+                                    <p className="text-xs text-gray-400">Bookings</p>
                                 </div>
                             </div>
                             <div className="flex flex-col justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
@@ -531,8 +587,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                     <Users className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3">
-                                    <p className="text-2xl font-black text-white">{creatorStats?.activeSubscribers || 0}</p>
-                                    <p className="text-xs text-gray-400">Active subs</p>
+                                    <p className="text-2xl font-black text-white">{formatDashboardMetric(creatorStats?.activeSubscribers)}</p>
+                                    <p className="text-xs text-gray-400">Fan Pass</p>
                                 </div>
                             </div>
                         </div>
@@ -554,7 +610,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                         variant="brand"
                                         size="sm"
                                         isLoading={busyAction === "broadcast:send"}
-                                        disabled={broadcastDraft.trim().length < 4}
+                                        disabled={broadcastDraft.trim().length < 4 || isProjectionMode}
                                         onClick={handleBroadcastSend}
                                         className="h-8 rounded-full px-4 text-xs font-bold"
                                     >
@@ -574,11 +630,11 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                                 <div className="flex shrink-0 gap-1">
                                                     {r.status === "pending" && (
                                                         <>
-                                                            <button onClick={() => handleRequestAction(r.id, "accept")} disabled={busyAction !== null} className="rounded-lg bg-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-300 transition-colors hover:bg-emerald-500/30">Accept</button>
-                                                            <button onClick={() => handleRequestAction(r.id, "decline")} disabled={busyAction !== null} className="rounded-lg bg-red-500/10 px-2 py-1 text-[10px] font-bold text-red-300 transition-colors hover:bg-red-500/20">Deny</button>
+                                                            <button onClick={() => handleRequestAction(r.id, "accept")} disabled={busyAction !== null || isProjectionMode} className="rounded-lg bg-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-300 transition-colors hover:bg-emerald-500/30">Accept</button>
+                                                            <button onClick={() => handleRequestAction(r.id, "decline")} disabled={busyAction !== null || isProjectionMode} className="rounded-lg bg-red-500/10 px-2 py-1 text-[10px] font-bold text-red-300 transition-colors hover:bg-red-500/20">Deny</button>
                                                         </>
                                                     )}
-                                                    {r.status === "accepted" && <button onClick={() => handleRequestAction(r.id, "fulfill")} disabled={busyAction !== null} className="rounded-lg bg-brand-purple/20 px-2 py-1 text-[10px] font-bold text-brand-purple transition-colors hover:bg-brand-purple/30">Done</button>}
+                                                    {r.status === "accepted" && <button onClick={() => handleRequestAction(r.id, "fulfill")} disabled={busyAction !== null || isProjectionMode} className="rounded-lg bg-brand-purple/20 px-2 py-1 text-[10px] font-bold text-brand-purple transition-colors hover:bg-brand-purple/30">Done</button>}
                                                 </div>
                                             </div>
                                         ))}
@@ -595,7 +651,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                                 <p className="truncate text-sm font-semibold text-white">{formatStatusLabel(b.serviceType)} Call - {formatStatusLabel(b.status)}</p>
                                                 <div className="flex shrink-0 gap-1">
                                                     {b.status === "booked" && (
-                                                        <button onClick={() => handleBookingAction(b.id, "complete")} disabled={busyAction !== null} className="rounded-lg bg-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-300 transition-colors hover:bg-emerald-500/30">Mark done</button>
+                                                        <button onClick={() => handleBookingAction(b.id, "complete")} disabled={busyAction !== null || isProjectionMode} className="rounded-lg bg-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-300 transition-colors hover:bg-emerald-500/30">Mark done</button>
                                                     )}
                                                 </div>
                                             </div>

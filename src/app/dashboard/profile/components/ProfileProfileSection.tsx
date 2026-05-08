@@ -26,9 +26,15 @@ export function ProfileProfileSection({ state }: { state: ProfileState }) {
         handleSendCreatorBroadcast, handleRequestCreatorPayout,
         updateCreatorSettingsState, setCreatorSettingsState
     } = state;
+    const isReadOnlyProjection = state.isCreatorProjectionActive;
 
     return (
         <SectionContainer title="Profile">
+                    {isReadOnlyProjection && (
+                        <div className="border-b border-white/5 bg-brand-purple/10 px-4 py-2 text-xs font-medium text-white/80">
+                            Read-only admin projection. Profile edits are disabled.
+                        </div>
+                    )}
                     <div className="flex items-center gap-4 p-4">
                         <div className="group relative h-16 w-16 rounded-full overflow-hidden border border-white/10 bg-black/40 shrink-0 cursor-pointer">
                             <input
@@ -36,7 +42,7 @@ export function ProfileProfileSection({ state }: { state: ProfileState }) {
                                 accept="image/*"
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                 onChange={handleChangeAvatar}
-                                disabled={isUploadingAvatar}
+                                disabled={isUploadingAvatar || isReadOnlyProjection}
                             />
                             {isUploadingAvatar ? (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
@@ -66,6 +72,7 @@ export function ProfileProfileSection({ state }: { state: ProfileState }) {
                         onChange={(val) => updateForm("displayName", val)}
                         placeholder="Enter your name"
                         icon={<User className="w-4 h-4" />}
+                        disabled={isReadOnlyProjection}
                     />
                     <RowDivider />
                     <ValueInputRow
@@ -75,6 +82,7 @@ export function ProfileProfileSection({ state }: { state: ProfileState }) {
                         onChange={(val) => updateForm("username", sanitizeUsername(val))}
                         placeholder="your_handle"
                         icon={<AtSign className="w-4 h-4" />}
+                        disabled={isReadOnlyProjection}
                     />
                 </SectionContainer>
     );

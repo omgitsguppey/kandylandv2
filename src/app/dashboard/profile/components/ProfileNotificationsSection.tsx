@@ -24,9 +24,15 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
         handleSendCreatorBroadcast, handleRequestCreatorPayout,
         updateCreatorSettingsState, setCreatorSettingsState
     } = state;
+    const isReadOnlyProjection = state.isCreatorProjectionActive;
 
     return (
         <SectionContainer title="Notifications">
+                    {isReadOnlyProjection && (
+                        <div className="border-b border-white/5 bg-brand-purple/10 px-4 py-2 text-xs font-medium text-white/80">
+                            Read-only admin projection. Notification changes are disabled.
+                        </div>
+                    )}
                     <StaticRow
                         label="Service & Purchase Notices"
                         description="Required for security and payments."
@@ -39,7 +45,7 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
                         description={notificationSupportMessage || "Reminders for tasks and drops."}
                         checked={formState.browserPushEnabled}
                         onChange={(value) => void handleBrowserPushToggle(value)}
-                        disabled={notificationSetupLoading}
+                        disabled={notificationSetupLoading || isReadOnlyProjection}
                         badge={notificationSetupLoading ? "Wait" : undefined}
                     />
                     <RowDivider />
@@ -48,6 +54,7 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
                         description="Show task and drop alerts inside the app."
                         checked={formState.inAppEnabled}
                         onChange={(value) => updateForm("inAppEnabled", value)}
+                        disabled={isReadOnlyProjection}
                     />
                     <RowDivider />
                     <ToggleRow
@@ -55,6 +62,7 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
                         description="Alert me when new drops go live."
                         checked={formState.newDropAlerts}
                         onChange={(value) => updateForm("newDropAlerts", value)}
+                        disabled={isReadOnlyProjection}
                     />
                     <RowDivider />
                     <ToggleRow
@@ -62,6 +70,7 @@ export function ProfileNotificationsSection({ state }: { state: ProfileState }) 
                         description="Warn me before drops expire."
                         checked={formState.expiringSoonAlerts}
                         onChange={(value) => updateForm("expiringSoonAlerts", value)}
+                        disabled={isReadOnlyProjection}
                     />
                 </SectionContainer>
     );

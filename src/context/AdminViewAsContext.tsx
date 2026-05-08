@@ -99,7 +99,7 @@ export function AdminViewAsProvider({ children }: { children: ReactNode }) {
       simulationStartedAt,
       sourceComponent: "AdminViewAsContext",
     }));
-    toast.success(`Viewing as ${nextState.adminViewingAsDisplayName}.`);
+    toast.success(`Viewing as ${nextState.adminViewingAsDisplayName} in read-only projection.`);
   }, [pathname, user?.uid]);
 
   const endViewAsCreator = useCallback(async (reason = "Returned to admin") => {

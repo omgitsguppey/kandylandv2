@@ -8,6 +8,7 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 
 export async function GET(request: NextRequest) {
     const startedAt = Date.now();
@@ -33,17 +34,21 @@ export async function GET(request: NextRequest) {
             return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
-        const creatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || null;
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        const creatorId = projection?.targetCreatorId || request.nextUrl.searchParams.get("creatorId")?.trim() || null;
+        const viewerUid = projection?.targetCreatorId || caller.uid;
+        const effectiveCallerSnap = projection ? await adminDb.collection("users").doc(viewerUid).get() : callerSnap;
+        const effectiveCallerData = effectiveCallerSnap.data() as Record<string, unknown> | undefined;
         const viewerRole = resolveChatViewerRole({
-            viewerUid: caller.uid,
+            viewerUid,
             creatorId,
-            profile: callerData,
+            profile: effectiveCallerData,
         });
 
         const result = await safeListChatThreadsForViewer({
-            viewerUid: caller.uid,
+            viewerUid,
             viewerRole,
             creatorId,
         });

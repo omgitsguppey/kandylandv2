@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T03:40:23.589Z",
+  "generatedAt": "2026-05-08T04:00:55.422Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 243,
+  "validatorCount": 244,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -183,6 +183,7 @@
       "check:creator-lane-old-logic-removal",
       "check:creator-profile-routing",
       "check:creator-projection-normalizer",
+      "check:creator-public-profile-lock",
       "check:creator-review-queue-materializer",
       "check:creator-supply-quality",
       "check:experiences-compact-layout",
@@ -408,6 +409,7 @@
     "check:creator-lane-old-logic-removal": "creator-dashboard",
     "check:creator-profile-routing": "creator-dashboard",
     "check:creator-projection-normalizer": "creator-dashboard",
+    "check:creator-public-profile-lock": "creator-dashboard",
     "check:creator-review-queue-materializer": "creator-dashboard",
     "check:creator-supply-quality": "creator-dashboard",
     "check:cycles": "repo-governance",

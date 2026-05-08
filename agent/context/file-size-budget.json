@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T03:40:24.544Z",
+  "generatedAt": "2026-05-08T04:00:58.532Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -47,15 +47,15 @@
     "generatedJsonOverBudget": [
       {
         "path": "agent/index/retrieval-index.json",
-        "lines": 53066
+        "lines": 53145
       },
       {
         "path": "agent/index/repo-inventory.json",
-        "lines": 32071
+        "lines": 32119
       },
       {
         "path": "agent/index/blast-radius.json",
-        "lines": 17993
+        "lines": 18020
       },
       {
         "path": "agent/state/speed-security-hardening.generated.json",
@@ -75,7 +75,7 @@
       },
       {
         "path": "agent/index/verification-commands.json",
-        "lines": 5601
+        "lines": 5618
       },
       {
         "path": "agent/index/ui-surface-coverage.json",
@@ -135,7 +135,7 @@
       },
       {
         "path": "agent/context/validator-map.json",
-        "lines": 570
+        "lines": 572
       },
       {
         "path": "agent/state/security-role-boundary-audit.generated.json",
@@ -148,10 +148,6 @@
       {
         "path": "agent/state/final-launch-readiness-report.generated.json",
         "lines": 531
-      },
-      {
-        "path": "agent/state/task-context.generated.json",
-        "lines": 519
       }
     ],
     "sourceFilesOverWarningBudget": [
@@ -312,6 +308,10 @@
         "loc": 1030
       },
       {
+        "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "loc": 1018
+      },
+      {
         "path": "src/lib/server/admin-analytics-historical-viewer.ts",
         "loc": 996
       },
@@ -322,10 +322,6 @@
       {
         "path": "src/lib/tasks/task-catalog.ts",
         "loc": 970
-      },
-      {
-        "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
-        "loc": 968
       },
       {
         "path": "scripts/agent/score-codebase-hardening.ts",

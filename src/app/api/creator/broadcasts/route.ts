@@ -7,6 +7,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -60,7 +61,10 @@ async function GET_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const creatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || caller.uid;
+        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
+        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        const creatorId = projection?.targetCreatorId || request.nextUrl.searchParams.get("creatorId")?.trim() || caller.uid;
         const creatorSnap = await adminDb.collection("users").doc(creatorId).get();
         if (!creatorSnap.exists) {
             return NextResponse.json({ success: true, broadcasts: [] });
@@ -71,8 +75,6 @@ async function GET_handler(request: NextRequest) {
             return NextResponse.json({ success: true, broadcasts: [] });
         }
 
-        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
-        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const allowed = await canViewCreatorBroadcasts(caller.uid, callerData?.role, creatorId);
         if (!allowed) {
             return NextResponse.json({ success: true, broadcasts: [] });
@@ -112,20 +114,26 @@ async function POST_handler(request: NextRequest) {
         }
 
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
+        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const callerRecord = callerData ?? {};
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        if (projection) {
+            return buildAdminCreatorProjectionReadOnlyResponse();
+        }
+
         if (!callerSnap.exists) {
             return buildNotFoundResponse("creator", "Creator not found");
         }
 
-        const callerData = callerSnap.data() as Record<string, unknown>;
-        if (!isCreatorRole(callerData.role)) {
+        if (!isCreatorRole(callerRecord.role)) {
             return NextResponse.json({ error: "Creator access required" }, { status: 403 });
         }
 
-        const creatorSettings = callerData.creatorSettings && typeof callerData.creatorSettings === "object"
-            ? callerData.creatorSettings as Record<string, unknown>
+        const creatorSettings = callerRecord.creatorSettings && typeof callerRecord.creatorSettings === "object"
+            ? callerRecord.creatorSettings as Record<string, unknown>
             : {};
-        const creatorRestrictions = callerData.creatorRestrictions && typeof callerData.creatorRestrictions === "object"
-            ? callerData.creatorRestrictions as Record<string, unknown>
+        const creatorRestrictions = callerRecord.creatorRestrictions && typeof callerRecord.creatorRestrictions === "object"
+            ? callerRecord.creatorRestrictions as Record<string, unknown>
             : {};
         if (creatorSettings.broadcastsEnabled === false || creatorRestrictions.broadcastsRestricted === true) {
             return NextResponse.json({ error: "Broadcasts are unavailable for this creator." }, { status: 403 });
@@ -152,10 +160,10 @@ async function POST_handler(request: NextRequest) {
             }
         });
 
-        const creatorDisplayName = typeof callerData.displayName === "string" && callerData.displayName.trim().length > 0
-            ? callerData.displayName.trim()
+        const creatorDisplayName = typeof callerRecord.displayName === "string" && callerRecord.displayName.trim().length > 0
+            ? callerRecord.displayName.trim()
             : "Creator";
-        const creatorUsername = typeof callerData.username === "string" ? callerData.username : "";
+        const creatorUsername = typeof callerRecord.username === "string" ? callerRecord.username : "";
         const now = Date.now();
         const broadcastRef = adminDb.collection(CREATOR_COLLECTIONS.broadcasts).doc();
         const batch = adminDb.batch();

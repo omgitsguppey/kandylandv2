@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-Finish creator public profiles as fan conversion pages
+Finish creator dashboard refinements so the dashboard can be reviewed through real read-only admin creator projection without logging into creator accounts
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,7 +10,7 @@ Finish creator public profiles as fan conversion pages
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- src/app/creators/[username]/page.tsx
+- src/context/AdminViewAsContext.tsx
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -21,13 +21,10 @@ Finish creator public profiles as fan conversion pages
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/creators/[username]/page.tsx
-- npm run check:ui:coverage
-- npm run check:ui:runtime
+- npm run agent:test -- src/context/AdminViewAsContext.tsx
 
 ## Signoff Verification
-- npm run check:ui:audits
 
 ## Notes
-- Mode: user
+- Mode: admin
 - Format follow-up implementation prompts like an issue: goal, acceptance criteria, entrypoints, forbidden surfaces, and exact verification lanes.

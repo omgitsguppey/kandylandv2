@@ -26,9 +26,15 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
         handleSendCreatorBroadcast, handleRequestCreatorPayout,
         updateCreatorSettingsState, setCreatorSettingsState
     } = state;
+    const isReadOnlyProjection = state.isCreatorProjectionActive;
 
     return (
         <SectionContainer title="Creator Tools">
+                        {isReadOnlyProjection && (
+                            <div className="border-b border-white/5 bg-brand-purple/10 px-4 py-2 text-xs font-medium text-white/80">
+                                Read-only admin projection. Creator controls are visible but disabled.
+                            </div>
+                        )}
                         {creatorSettingsNotice && (
                             <div className="px-4 py-3 bg-amber-500/10 text-amber-200 text-xs border-b border-white/5">
                                 {creatorSettingsNotice}
@@ -37,15 +43,27 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                         <ToggleRow
                             label="Creator messaging"
                             checked={creatorSettingsState.messagingEnabled}
-                            onChange={(value) => updateCreatorSettingsState("messagingEnabled", value)}
+                            onChange={(value) => {
+                                if (isReadOnlyProjection) {
+                                    return;
+                                }
+                                updateCreatorSettingsState("messagingEnabled", value);
+                            }}
                             icon={<MessageSquare className="w-4 h-4" />}
+                            disabled={isReadOnlyProjection}
                         />
                         <RowDivider />
                         <ToggleRow
                             label="Creator broadcasts"
                             checked={creatorSettingsState.broadcastsEnabled}
-                            onChange={(value) => updateCreatorSettingsState("broadcastsEnabled", value)}
+                            onChange={(value) => {
+                                if (isReadOnlyProjection) {
+                                    return;
+                                }
+                                updateCreatorSettingsState("broadcastsEnabled", value);
+                            }}
                             icon={<Sparkles className="w-4 h-4" />}
+                            disabled={isReadOnlyProjection}
                         />
                         {creatorSettingsState.broadcastsEnabled && (
                             <div className="px-4 py-3 bg-black/40 border-y border-white/5 mx-4 my-2 rounded-xl">
@@ -54,14 +72,15 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                                     onChange={(event) => setCreatorBroadcastMessage(event.target.value.slice(0, 280))}
                                     rows={2}
                                     placeholder="Tell followers what just dropped..."
-                                    className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white resize-none outline-none focus:border-brand-purple/50"
+                                    disabled={isReadOnlyProjection}
+                                    className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white resize-none outline-none focus:border-brand-purple/50 disabled:cursor-not-allowed disabled:opacity-60"
                                 />
                                 <div className="flex justify-between items-center mt-2">
                                     <span className="text-[10px] text-gray-500">{creatorBroadcastMessage.length}/280</span>
                                     <button
                                         type="button"
                                         onClick={handleSendCreatorBroadcast}
-                                        disabled={sendingCreatorBroadcast || creatorBroadcastMessage.trim().length < 4}
+                                        disabled={sendingCreatorBroadcast || creatorBroadcastMessage.trim().length < 4 || isReadOnlyProjection}
                                         className="rounded-md bg-brand-purple/20 text-brand-purple px-3 py-1 text-xs font-bold disabled:opacity-50 transition-colors"
                                     >
                                         Send
@@ -73,8 +92,14 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                         <ToggleRow
                             label="Subscriptions"
                             checked={creatorSettingsState.subscriptionsEnabled}
-                            onChange={(value) => updateCreatorSettingsState("subscriptionsEnabled", value)}
+                            onChange={(value) => {
+                                if (isReadOnlyProjection) {
+                                    return;
+                                }
+                                updateCreatorSettingsState("subscriptionsEnabled", value);
+                            }}
                             icon={<Wallet className="w-4 h-4" />}
+                            disabled={isReadOnlyProjection}
                         />
                         {creatorSettingsState.subscriptionsEnabled && (
                             <>
@@ -84,7 +109,13 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                                     type="number"
                                     min={CREATOR_SUBSCRIPTION_MIN_GD}
                                     value={creatorSettingsState.subscriptionPriceGd}
-                                    onChange={(val) => updateCreatorSettingsState("subscriptionPriceGd", Math.max(CREATOR_SUBSCRIPTION_MIN_GD, Number(val)))}
+                                    onChange={(val) => {
+                                        if (isReadOnlyProjection) {
+                                            return;
+                                        }
+                                        updateCreatorSettingsState("subscriptionPriceGd", Math.max(CREATOR_SUBSCRIPTION_MIN_GD, Number(val)));
+                                    }}
+                                    disabled={isReadOnlyProjection}
                                 />
                             </>
                         )}
@@ -92,8 +123,14 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                         <ToggleRow
                             label="Calls + bookings"
                             checked={creatorSettingsState.bookingsEnabled}
-                            onChange={(value) => updateCreatorSettingsState("bookingsEnabled", value)}
+                            onChange={(value) => {
+                                if (isReadOnlyProjection) {
+                                    return;
+                                }
+                                updateCreatorSettingsState("bookingsEnabled", value);
+                            }}
                             icon={<CalendarClock className="w-4 h-4" />}
+                            disabled={isReadOnlyProjection}
                         />
                         {creatorSettingsState.bookingsEnabled && (
                             <>
@@ -103,21 +140,39 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                                     type="number"
                                     min={5} step={5}
                                     value={creatorSettingsState.bookingMinimumMinutes}
-                                    onChange={(val) => updateCreatorSettingsState("bookingMinimumMinutes", Math.max(5, Number(val)))}
+                                    onChange={(val) => {
+                                        if (isReadOnlyProjection) {
+                                            return;
+                                        }
+                                        updateCreatorSettingsState("bookingMinimumMinutes", Math.max(5, Number(val)));
+                                    }}
+                                    disabled={isReadOnlyProjection}
                                 />
                                 <RowDivider />
                                 <ValueInputRow
                                     label="Phone rate / min"
                                     type="number"
                                     value={creatorSettingsState.phoneRatePerMinuteGd}
-                                    onChange={(val) => updateCreatorSettingsState("phoneRatePerMinuteGd", Math.max(0, Number(val)))}
+                                    onChange={(val) => {
+                                        if (isReadOnlyProjection) {
+                                            return;
+                                        }
+                                        updateCreatorSettingsState("phoneRatePerMinuteGd", Math.max(0, Number(val)));
+                                    }}
+                                    disabled={isReadOnlyProjection}
                                 />
                                 <RowDivider />
                                 <ValueInputRow
                                     label="Video rate / min"
                                     type="number"
                                     value={creatorSettingsState.videoRatePerMinuteGd}
-                                    onChange={(val) => updateCreatorSettingsState("videoRatePerMinuteGd", Math.max(0, Number(val)))}
+                                    onChange={(val) => {
+                                        if (isReadOnlyProjection) {
+                                            return;
+                                        }
+                                        updateCreatorSettingsState("videoRatePerMinuteGd", Math.max(0, Number(val)));
+                                    }}
+                                    disabled={isReadOnlyProjection}
                                 />
                             </>
                         )}
@@ -125,8 +180,14 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                         <ToggleRow
                             label="Custom requests"
                             checked={creatorSettingsState.customRequestsEnabled}
-                            onChange={(value) => updateCreatorSettingsState("customRequestsEnabled", value)}
+                            onChange={(value) => {
+                                if (isReadOnlyProjection) {
+                                    return;
+                                }
+                                updateCreatorSettingsState("customRequestsEnabled", value);
+                            }}
                             icon={<Sparkles className="w-4 h-4" />}
+                            disabled={isReadOnlyProjection}
                         />
                         {creatorSettingsState.customRequestsEnabled && (
                             <div className="bg-black/30 border-y border-white/5 p-3 space-y-2 mx-4 my-2 rounded-xl">
@@ -140,7 +201,11 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                                             <input
                                                 type="number" min={0}
                                                 value={category.priceGd}
+                                                disabled={isReadOnlyProjection}
                                                 onChange={(e) => {
+                                                    if (isReadOnlyProjection) {
+                                                        return;
+                                                    }
                                                     const nextPrice = Math.max(0, Number(e.target.value) || 0);
                                                     setCreatorSettingsState((cur: any) => ({
                                                         ...cur,
@@ -152,12 +217,16 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                                             <button
                                                 type="button"
                                                 onClick={() => {
+                                                    if (isReadOnlyProjection) {
+                                                        return;
+                                                    }
                                                     setCreatorSettingsState((cur: any) => ({
                                                         ...cur,
                                                         requestCategories: cur.requestCategories.map((entry: any, i: number) => i === index ? { ...entry, enabled: !entry.enabled } : entry)
                                                     }));
                                                 }}
-                                                className={cn("rounded px-2 text-[10px] font-bold uppercase tracking-wider transition-colors", category.enabled ? "bg-brand-purple/20 text-brand-purple" : "bg-white/5 text-gray-500")}
+                                                disabled={isReadOnlyProjection}
+                                                className={cn("rounded px-2 text-[10px] font-bold uppercase tracking-wider transition-colors disabled:cursor-not-allowed", category.enabled ? "bg-brand-purple/20 text-brand-purple" : "bg-white/5 text-gray-500")}
                                             >
                                                 {category.enabled ? "Vis" : "Hid"}
                                             </button>
@@ -171,13 +240,18 @@ export function ProfileCreatorToolsSection({ state }: { state: ProfileState }) {
                             label="Submit creator drop"
                             description="Upload new content to the platform"
                             icon={<Sparkles className="w-4 h-4" />}
-                            onClick={() => setCreatorDropModalOpen(true)}
+                            onClick={() => {
+                                if (isReadOnlyProjection) {
+                                    return;
+                                }
+                                setCreatorDropModalOpen(true);
+                            }}
                         />
                         <RowDivider />
                         <button
                             type="button"
                             onClick={handleSaveCreatorSettings}
-                            disabled={creatorSettingsLoading}
+                            disabled={creatorSettingsLoading || isReadOnlyProjection}
                             className="w-full py-4 text-center text-[13px] font-extrabold uppercase tracking-widest text-brand-purple hover:bg-white/5 transition-colors disabled:opacity-50"
                         >
                             {creatorSettingsLoading ? "Saving..." : "Save Creator Requirements"}

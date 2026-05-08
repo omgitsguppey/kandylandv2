@@ -13,6 +13,7 @@ import { DEFAULT_CREATOR_SETTINGS, type CreatorSettings } from "@/lib/creator-ex
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { getClientErrorMessage, reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
+import { useAdminViewAs } from "@/context/AdminViewAsContext";
 
 export const TIMEZONE_OPTIONS = [
     "Auto",
@@ -102,6 +103,7 @@ export function buildFormState(params: any): ProfileSettingsFormState {
 export function useProfileState() {
     const { user, logout } = useAuth();
     const { userProfile } = useUserProfile();
+    const { viewAsState } = useAdminViewAs();
 
     const normalizedInitialState = useMemo(() => buildFormState({
         displayName: userProfile?.displayName ?? user?.displayName ?? null,
@@ -164,7 +166,10 @@ export function useProfileState() {
     const [creatorPayoutAmount, setCreatorPayoutAmount] = useState(100);
     const lastCreatorNoticeRef = useRef<string | null>(null);
     const browserGpcEnabled = useMemo(() => getBrowserGlobalPrivacyControl(), []);
-    const isCreatorAccount = userProfile?.role === "creator" || userProfile?.role === "admin";
+    const isCreatorProjectionActive = Boolean(viewAsState);
+    const projectionCreatorId = viewAsState?.adminViewingAsUserId ?? "";
+    const projectionCreatorName = viewAsState?.adminViewingAsDisplayName ?? "Creator";
+    const isCreatorAccount = userProfile?.role === "creator" || userProfile?.role === "admin" || isCreatorProjectionActive;
     useEffect(() => {
         setFormState(normalizedInitialState);
         lastSavedSignatureRef.current = JSON.stringify(normalizedInitialState);
@@ -192,13 +197,14 @@ export function useProfileState() {
         }
 
         let cancelled = false;
+        const creatorQuery = projectionCreatorId ? `?creatorId=${encodeURIComponent(projectionCreatorId)}` : "";
 
         async function loadCreatorSettings() {
             try {
                 setCreatorSettingsLoading(true);
                 const [settingsResult, broadcastsResult] = await Promise.allSettled([
-                    authFetch("/api/creator/settings"),
-                    authFetch("/api/creator/broadcasts"),
+                    authFetch(`/api/creator/settings${creatorQuery}`),
+                    authFetch(`/api/creator/broadcasts${creatorQuery}`),
                 ]);
                 const notices: string[] = [];
 
@@ -359,7 +365,7 @@ export function useProfileState() {
         return () => {
             cancelled = true;
         };
-    }, [isCreatorAccount, userProfile?.creatorSettings]);
+    }, [isCreatorAccount, projectionCreatorId, userProfile?.creatorSettings]);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -420,6 +426,10 @@ export function useProfileState() {
         | "showInAnonymousStats"
         | "honorGlobalPrivacyControl"
     >) => {
+        if (isCreatorProjectionActive) {
+            throw new Error("Creator dashboard is read-only in admin projection.");
+        }
+
         const response = await authFetch("/api/user/profile", {
             method: "PUT",
             body: JSON.stringify({
@@ -445,10 +455,15 @@ export function useProfileState() {
             showInAnonymousStats: nextPrivacyState.showInAnonymousStats,
             honorGlobalPrivacyControl: nextPrivacyState.honorGlobalPrivacyControl,
         });
-    }, []);
+    }, [isCreatorProjectionActive]);
 
     const persistSettings = useCallback(async (nextState: ProfileSettingsFormState) => {
         if (!user) {
+            return false;
+        }
+
+        if (isCreatorProjectionActive) {
+            toast.error("Creator dashboard is read-only in admin projection.");
             return false;
         }
 
@@ -495,7 +510,7 @@ export function useProfileState() {
         } finally {
             setSaving(false);
         }
-    }, [buildSettingsPayload, scheduleAutosaveFeedbackReset, user]);
+    }, [buildSettingsPayload, isCreatorProjectionActive, scheduleAutosaveFeedbackReset, user]);
 
     useEffect(() => {
         let cancelled = false;
@@ -535,6 +550,11 @@ export function useProfileState() {
 
     const handleBrowserPushToggle = async (nextValue: boolean) => {
         if (!user || !userProfile) {
+            return;
+        }
+
+        if (isCreatorProjectionActive) {
+            toast.error("Creator dashboard is read-only in admin projection.");
             return;
         }
 
@@ -580,6 +600,11 @@ export function useProfileState() {
     };
 
     const handleWithdrawOptionalTracking = useCallback(async () => {
+        if (isCreatorProjectionActive) {
+            toast.error("Creator dashboard is read-only in admin projection.");
+            return;
+        }
+
         const nextState = {
             anonymousAnalyticsEnabled: false,
             identifiedAnalyticsEnabled: false,
@@ -612,7 +637,7 @@ export function useProfileState() {
         } finally {
             setSaving(false);
         }
-    }, [formState, savePrivacyPreferences, scheduleAutosaveFeedbackReset]);
+    }, [formState, isCreatorProjectionActive, savePrivacyPreferences, scheduleAutosaveFeedbackReset]);
 
     useEffect(() => {
         if (!user || !autosaveReadyRef.current) {
@@ -642,6 +667,11 @@ export function useProfileState() {
     const handleChangeAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !user) return;
+
+        if (isCreatorProjectionActive) {
+            toast.error("Creator dashboard is read-only in admin projection.");
+            return;
+        }
 
         if (file.size > 5 * 1024 * 1024) {
             toast.error("Image must be less than 5MB");
@@ -697,6 +727,11 @@ export function useProfileState() {
     };
 
     const handleRequestDeletion = async () => {
+        if (isCreatorProjectionActive) {
+            toast.error("Creator dashboard is read-only in admin projection.");
+            return;
+        }
+
         const confirmed = window.confirm("Are you incredibly sure? This will permanently delete your account, your KandyDrops collection, and your entire data profile. This cannot be undone.");
         if (!confirmed) {
             return;
@@ -759,6 +794,11 @@ export function useProfileState() {
             return;
         }
 
+        if (isCreatorProjectionActive) {
+            toast.error("Creator dashboard is read-only in admin projection.");
+            return;
+        }
+
         setCreatorSettingsLoading(true);
         try {
             const response = await authFetch("/api/creator/settings", {
@@ -784,6 +824,11 @@ export function useProfileState() {
             return;
         }
 
+        if (isCreatorProjectionActive) {
+            toast.error("Creator dashboard is read-only in admin projection.");
+            return;
+        }
+
         try {
             const response = await authFetch("/api/creator/payouts", {
                 method: "POST",
@@ -803,6 +848,11 @@ export function useProfileState() {
 
     const handleSendCreatorBroadcast = async () => {
         if (!isCreatorAccount || creatorBroadcastMessage.trim().length < 4) {
+            return;
+        }
+
+        if (isCreatorProjectionActive) {
+            toast.error("Creator dashboard is read-only in admin projection.");
             return;
         }
 
@@ -834,7 +884,7 @@ export function useProfileState() {
         }
     };
 
-  return {
+    return {
     user, userProfile, logout,
     formState, updateForm, saving, saveFeedback,
     isDownloading, isDeleting, isUploadingAvatar,
@@ -845,6 +895,7 @@ export function useProfileState() {
     creatorDropModalOpen, setCreatorDropModalOpen,
     creatorPayoutAmount, setCreatorPayoutAmount,
     browserGpcEnabled, isCreatorAccount,
+    isCreatorProjectionActive, projectionCreatorName,
     profileName, profileEmail, profileUsername,
     profileIdentityLabel, profileIdentityDetail,
     avatarFallback, referralLink,

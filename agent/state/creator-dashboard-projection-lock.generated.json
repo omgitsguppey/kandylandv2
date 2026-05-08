@@ -1,0 +1,121 @@
+{
+  "generatedAt": "2026-05-08T04:23:47.243Z",
+  "status": "pass",
+  "criticalBlockers": [],
+  "warnings": [],
+  "changedFilesSinceLastCreatorDashboardProjectionLock": [
+    "package.json",
+    "src/app/api/admin/view-as-creator/route.ts",
+    "src/app/api/chat/threads/route.ts",
+    "src/app/api/creator/bookings/route.ts",
+    "src/app/api/creator/broadcasts/route.ts",
+    "src/app/api/creator/requests/route.ts",
+    "src/app/api/creator/settings/route.ts",
+    "src/app/api/creator/subscriptions/route.ts",
+    "src/app/dashboard/DashboardClient.tsx",
+    "src/app/dashboard/profile/components/ProfileAccountSection.tsx",
+    "src/app/dashboard/profile/components/ProfileCreatorEarningsSection.tsx",
+    "src/app/dashboard/profile/components/ProfileCreatorToolsSection.tsx",
+    "src/app/dashboard/profile/components/ProfileNotificationsSection.tsx",
+    "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+    "src/app/dashboard/profile/components/ProfileProfileSection.tsx",
+    "src/app/dashboard/profile/hooks/useProfileState.tsx",
+    "src/app/dashboard/profile/page.tsx",
+    "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+    "src/context/AdminViewAsContext.tsx",
+    "agent/state/creator-dashboard-projection-lock.generated.json",
+    "docs/agent-truth/creator-dashboard-projection-lock.md",
+    "scripts/agent/validate-creator-dashboard-projection-lock.ts",
+    "src/lib/server/admin-creator-projection.ts"
+  ],
+  "requiredTargetedChecks": [
+    "npm run check:creator-dashboard-projection-lock",
+    "npm run typecheck"
+  ],
+  "forbiddenBroadChecks": [
+    "npm run check",
+    "playwright",
+    "lighthouse",
+    "cypress",
+    "firebase deploy"
+  ],
+  "promoReadinessNotes": [
+    "Admin can refine the creator dashboard from an admin account using real creator data.",
+    "Projection mode is clearly labeled read-only and the write paths are blocked in UI and server routes.",
+    "Missing data now reads as unavailable rather than fake healthy zeros on the creator dashboard/profile surfaces."
+  ],
+  "checks": [
+    {
+      "key": "server-validation-helper",
+      "label": "Admin projection is server-validated and read-only",
+      "ok": true,
+      "evidence": [
+        "Server helper validates the actor and the admin view-as route now returns explicit projection metadata."
+      ]
+    },
+    {
+      "key": "dashboard-uses-projection",
+      "label": "Dashboard reads projection state",
+      "ok": true,
+      "evidence": [
+        "Dashboard mounts the creator workspace when projection mode is active."
+      ]
+    },
+    {
+      "key": "workspace-read-path",
+      "label": "Creator workspace reads the target creator via projection",
+      "ok": true,
+      "evidence": [
+        "Workspace banner and API reads switch to the projected creator id."
+      ]
+    },
+    {
+      "key": "workspace-write-blocks",
+      "label": "Creator workspace blocks destructive actions in projection",
+      "ok": true,
+      "evidence": [
+        "Projection mode disables broadcast, request, booking, and create-drop actions."
+      ]
+    },
+    {
+      "key": "profile-hook-projection",
+      "label": "Profile hook treats projection as read-only",
+      "ok": true,
+      "evidence": [
+        "Profile state now loads projected creator data and blocks creator writes."
+      ]
+    },
+    {
+      "key": "profile-ui-readonly",
+      "label": "Creator dashboard profile sections show read-only banners and disabled controls",
+      "ok": true,
+      "evidence": [
+        "Profile page and creator-specific sections now present compact read-only copy instead of silent write affordances."
+      ]
+    },
+    {
+      "key": "creator-api-projection-read",
+      "label": "Creator API routes read projected creator data",
+      "ok": true,
+      "evidence": [
+        "Server routes now read the projected creator's data instead of treating the admin session as the creator's own account."
+      ]
+    },
+    {
+      "key": "admin-context-copy",
+      "label": "Admin view-as copy is projection-oriented",
+      "ok": true,
+      "evidence": [
+        "Admin view-as start toast now names the session as a read-only projection."
+      ]
+    },
+    {
+      "key": "package-script",
+      "label": "Package script is wired",
+      "ok": true,
+      "evidence": [
+        "package.json exposes the creator dashboard projection lock command."
+      ]
+    }
+  ]
+}

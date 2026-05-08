@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T03:40:20.271Z",
+  "generatedAt": "2026-05-08T04:00:47.874Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -6042,6 +6042,20 @@
         "Runtime-critical surface.",
         "Broad signoff likely.",
         "Data Connect related surface."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-creator-public-profile-lock-ts",
+      "path": "scripts/agent/validate-creator-public-profile-lock.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 10,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
       ]
     },
     {
@@ -14637,6 +14651,19 @@
     {
       "stable_id": "blast__agent__schemas__package-manager-truth-schema-json",
       "path": "agent/schemas/package-manager-truth.schema.json",
+      "blast_radius_score": 30,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 10,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__state__creator-public-profile-lock-generated-json",
+      "path": "agent/state/creator-public-profile-lock.generated.json",
       "blast_radius_score": 30,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,

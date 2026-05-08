@@ -6,6 +6,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_BOOKING_MIN_MINUTES, CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
     buildBookingSlotKey,
@@ -122,9 +123,11 @@ async function GET_handler(request: NextRequest) {
 
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        const projectionCreatorId = projection?.targetCreatorId || "";
         const callerIsCreator = isCreatorRole(callerData?.role);
         const callerIsAdmin = callerData?.role === "admin";
-        const creatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || "";
+        const creatorId = projectionCreatorId || request.nextUrl.searchParams.get("creatorId")?.trim() || "";
         if (creatorId) {
             const bookingsQuery = (!callerIsAdmin && caller.uid !== creatorId)
                 ? adminDb.collection(CREATOR_COLLECTIONS.bookings)
@@ -181,6 +184,13 @@ async function POST_handler(request: NextRequest) {
         }
         if (!adminDb) {
             throw new Error("Database not available");
+        }
+
+        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
+        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        if (projection) {
+            return buildAdminCreatorProjectionReadOnlyResponse();
         }
 
         let bookingRequest: z.infer<typeof createBookingSchema>;
@@ -542,9 +552,14 @@ async function PUT_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { bookingId, action } = updateBookingSchema.parse(await request.json());
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        if (projection) {
+            return buildAdminCreatorProjectionReadOnlyResponse();
+        }
+
+        const { bookingId, action } = updateBookingSchema.parse(await request.json());
         const isAdmin = callerData?.role === "admin";
 
         const bookingRef = adminDb.collection(CREATOR_COLLECTIONS.bookings).doc(bookingId);

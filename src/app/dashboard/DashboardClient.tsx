@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
 import { CreatorWorkspacePanel } from "@/components/Dashboard/CreatorWorkspacePanel";
+import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useDrops } from "@/hooks/useDrops";
 import { mergeResolvedDropsById } from "@/lib/drop-dashboard";
 import { isDropActiveNow } from "@/lib/drop-status";
@@ -36,6 +37,7 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ drops, creatorRailProfiles }: DashboardClientProps) {
     const { userProfile, loading } = useAuth();
+    const { viewAsState } = useAdminViewAs();
     const initialActiveDrops = useMemo(() => drops.filter((drop) => isDropActiveNow(drop)), [drops]);
     const { drops: liveActiveDrops, nowMs } = useDrops(["active"], initialActiveDrops);
     const visibleDrops = useMemo(
@@ -73,7 +75,7 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
     return (
         <div id="dashboard-home" tabIndex={-1} className="scroll-mt-24 mx-auto w-full max-w-7xl px-3 sm:px-4 outline-none" data-onboarding-page="dashboard">
 
-            {(userProfile.role === "creator" || Boolean(userProfile.creatorApplication)) ? (
+            {(userProfile.role === "creator" || Boolean(userProfile.creatorApplication) || Boolean(viewAsState)) ? (
                 <CreatorWorkspacePanel userProfile={userProfile} />
             ) : null}
 

@@ -6,6 +6,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
     buildCreatorAccrual,
@@ -106,10 +107,14 @@ async function GET_handler(request: NextRequest) {
 
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
-        const isCreator = isCreatorRole(callerData?.role);
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        const callerId = projection?.targetCreatorId || caller.uid;
+        const effectiveCallerSnap = projection ? await adminDb.collection("users").doc(callerId).get() : callerSnap;
+        const effectiveCallerData = effectiveCallerSnap.data() as Record<string, unknown> | undefined;
+        const isCreator = isCreatorRole(effectiveCallerData?.role);
 
         const snap = await adminDb.collection(CREATOR_COLLECTIONS.requests)
-            .where(isCreator ? "creatorId" : "userId", "==", caller.uid)
+            .where(isCreator ? "creatorId" : "userId", "==", callerId)
             .limit(CREATOR_REQUESTS_READ_LIMIT)
             .get();
 
@@ -138,6 +143,13 @@ async function POST_handler(request: NextRequest) {
         });
         if (!caller || !adminDb) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
+        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        if (projection) {
+            return buildAdminCreatorProjectionReadOnlyResponse();
         }
 
         const { creatorId, categoryId, details, idempotencyKey: rawIdempotencyKey } = createRequestSchema.parse(await request.json());
@@ -420,9 +432,14 @@ async function PUT_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { requestId, action, responseNote } = updateRequestSchema.parse(await request.json());
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        if (projection) {
+            return buildAdminCreatorProjectionReadOnlyResponse();
+        }
+
+        const { requestId, action, responseNote } = updateRequestSchema.parse(await request.json());
         const isAdmin = callerData?.role === "admin";
 
         const requestRef = adminDb.collection(CREATOR_COLLECTIONS.requests).doc(requestId);

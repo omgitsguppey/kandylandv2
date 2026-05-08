@@ -6,6 +6,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, CREATOR_SUBSCRIPTION_MIN_GD, isCreatorOrAdminRole, isCreatorRole } from "@/lib/creator-experiences";
+import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
     buildCreatorAccrual,
@@ -126,8 +127,23 @@ async function GET_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const creatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || "";
+        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
+        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        const creatorId = projection?.targetCreatorId || request.nextUrl.searchParams.get("creatorId")?.trim() || "";
         if (creatorId) {
+            if (projection) {
+                const subscribersSnap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions)
+                    .where("creatorId", "==", creatorId)
+                    .limit(CREATOR_SUBSCRIPTIONS_READ_LIMIT)
+                    .get();
+
+                return NextResponse.json({
+                    success: true,
+                    subscribers: subscribersSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) })),
+                });
+            }
+
             // bounded document read: one caller/creator subscription pair.
             const snap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(buildSubscriptionId(caller.uid, creatorId)).get();
             return NextResponse.json({
@@ -136,12 +152,10 @@ async function GET_handler(request: NextRequest) {
             });
         }
 
-        const [outboundSnap, inboundSnap, callerSnap] = await Promise.all([
+        const [outboundSnap, inboundSnap] = await Promise.all([
             adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("userId", "==", caller.uid).limit(CREATOR_SUBSCRIPTIONS_READ_LIMIT).get(),
             adminDb.collection(CREATOR_COLLECTIONS.subscriptions).where("creatorId", "==", caller.uid).limit(CREATOR_SUBSCRIPTIONS_READ_LIMIT).get(),
-            adminDb.collection("users").doc(caller.uid).get(),
         ]);
-        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const inbound = isCreatorOrAdminRole(callerData?.role) ? inboundSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) })) : [];
 
         return NextResponse.json({
@@ -172,6 +186,13 @@ async function POST_handler(request: NextRequest) {
         }
         if (!adminDb) {
             throw new Error("Database not available");
+        }
+
+        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
+        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        if (projection) {
+            return buildAdminCreatorProjectionReadOnlyResponse();
         }
 
         let subscriptionRequest: z.infer<typeof subscriptionActionSchema>;

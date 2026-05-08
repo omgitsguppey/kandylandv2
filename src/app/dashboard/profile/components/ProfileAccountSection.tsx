@@ -25,9 +25,15 @@ export function ProfileAccountSection({ state }: { state: ProfileState }) {
         handleSendCreatorBroadcast, handleRequestCreatorPayout,
         updateCreatorSettingsState, setCreatorSettingsState
     } = state;
+    const isReadOnlyProjection = state.isCreatorProjectionActive;
 
     return (
         <SectionContainer title="Account">
+                    {isReadOnlyProjection && (
+                        <div className="border-b border-white/5 bg-brand-purple/10 px-4 py-2 text-xs font-medium text-white/80">
+                            Read-only admin projection. Account edits are disabled.
+                        </div>
+                    )}
                     <div className="flex w-full items-center justify-between gap-4 py-3.5 px-4">
                         <div className="flex items-start gap-3 min-w-0">
                             <div className="mt-0.5 shrink-0 text-gray-400"><Mail className="w-4 h-4" /></div>
@@ -44,6 +50,7 @@ export function ProfileAccountSection({ state }: { state: ProfileState }) {
                         onChange={(val) => updateForm("dateOfBirth", val)}
                         type="date"
                         icon={<CalendarDays className="w-4 h-4" />}
+                        disabled={isReadOnlyProjection}
                     />
                     <RowDivider />
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 px-4 bg-black/30">
@@ -56,6 +63,7 @@ export function ProfileAccountSection({ state }: { state: ProfileState }) {
                         <select
                             value={formState.timezone}
                             onChange={(e) => updateForm("timezone", normalizeTimezone(e.target.value))}
+                            disabled={isReadOnlyProjection}
                             className="w-full sm:w-48 appearance-none rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-sm text-white focus:outline-none"
                         >
                             {TIMEZONE_OPTIONS.map((tz: string) => (

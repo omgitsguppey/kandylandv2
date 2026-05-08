@@ -40,6 +40,15 @@ export default function ProfilePage() {
                 </div>
             </div>
 
+            {state.isCreatorProjectionActive ? (
+                <div className="mx-4 mt-4 rounded-2xl border border-brand-purple/30 bg-brand-purple/10 px-4 py-3 text-sm text-white">
+                    <p className="font-bold">Admin projection</p>
+                    <p className="mt-1 text-xs text-white/75">
+                        Read-only preview of {state.projectionCreatorName}'s creator dashboard.
+                    </p>
+                </div>
+            ) : null}
+
             <form onSubmit={(e) => { e.preventDefault(); }} className="space-y-4 pt-4">
                 <ProfileProfileSection state={state} />
                 <ProfileAccountSection state={state} />
@@ -52,7 +61,7 @@ export default function ProfilePage() {
                 <ProfileSupportSafetySection state={state} />
             </form>
 
-            {state.isCreatorAccount && (
+            {state.isCreatorAccount && !state.isCreatorProjectionActive && (
                 <CreateDropModal
                     isOpen={state.creatorDropModalOpen}
                     onClose={() => state.setCreatorDropModalOpen(false)}

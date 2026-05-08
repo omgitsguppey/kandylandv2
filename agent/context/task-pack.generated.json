@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T03:40:23.594Z",
+  "generatedAt": "2026-05-08T04:00:55.445Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -17,220 +17,86 @@
     "agent/context/validator-map.json",
     "agent/context/legacy-registry.json"
   ],
-  "taskSummary": "Finish creator public profiles as fan conversion pages",
+  "taskSummary": "Finish creator dashboard refinements so the dashboard can be reviewed through real read-only admin creator projection without logging into creator accounts",
   "changedFiles": [
-    "src/app/creators/[username]/page.tsx"
+    "src/context/AdminViewAsContext.tsx"
   ],
   "affectedSurfaces": [
-    "creator-dashboard",
-    "device-ui",
-    "image-policy"
+    "agent-context"
   ],
   "loadPlan": [
     "agent/context/doctrine.index.json",
-    "agent/context/doctrine.cards.jsonl filtered to: creator-dashboard, device-ui, image-policy",
-    "agent/context/surface-contracts.jsonl filtered to: creator-dashboard, device-ui, image-policy",
+    "agent/context/doctrine.cards.jsonl filtered to: agent-context",
+    "agent/context/surface-contracts.jsonl filtered to: agent-context",
     "agent/context/validator-map.json",
     "agent/context/legacy-registry.json"
   ],
   "relevantCards": [
     {
-      "id": "doctrine_card__creator-dashboard",
-      "title": "Creator Dashboard And Experience Truth",
-      "surface": "creator-dashboard",
+      "id": "doctrine_card__agent-context",
+      "title": "Compact Agent Context",
+      "surface": "agent-context",
       "scope": [
-        "src/components/Creators/**",
-        "src/app/creators/**",
-        "src/app/api/creator/**"
+        "agent/context/**",
+        "scripts/agent/build-compact-agent-context.ts",
+        "scripts/agent/validate-compact-agent-context.ts"
       ],
       "canonicalFiles": [
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/app/api/creator/bookings/route.ts",
-        "src/app/api/creator/subscriptions/route.ts"
+        "scripts/agent/build-compact-agent-context.ts",
+        "scripts/agent/validate-compact-agent-context.ts"
       ],
       "rules": [
-        "Creator paid experiences spend paid-source GumDrops only where required.",
-        "Expected booking and fan-pass failures return typed safe errors.",
-        "Admin projection cannot become live creator behavior."
+        "Agents read doctrine.index.json first, then relevant JSONL cards, then source docs only when needed.",
+        "Append-only historical ledgers prefer JSONL.",
+        "Task packs include only relevant cards, validators, and legacy warnings."
       ],
       "blockedPatterns": [
-        "reward GumDrops for Fan Pass",
-        "generic internal server error for expected booking failure",
-        "projection write treated as live creator action"
+        "loading every doctrine markdown by default",
+        "giant generated array as append-only ledger",
+        "validator without surface mapping"
       ],
       "requiredValidators": [
-        "check:creator-experience-transaction-truth",
-        "check:creator-booking-error-copy",
-        "check:fan-pass-gumdrops-truth",
-        "check:admin-projection-analytics-exclusion"
+        "check:agent-context",
+        "build:agent-context",
+        "check:affected-audit-router"
       ],
-      "lastUpdated": "2026-05-08T01:38:50.809Z",
-      "sourceDoc": "docs/agent-truth/creator-experience-transaction-truth.md",
+      "lastUpdated": "2026-05-08T01:56:59.584Z",
+      "sourceDoc": "docs/agent-truth/compact-agent-context.md",
       "priority": "high",
-      "tokenEstimate": 261
-    },
-    {
-      "id": "doctrine_card__device-ui",
-      "title": "Device UI And Layout Contract",
-      "surface": "device-ui",
-      "scope": [
-        "src/lib/device-*.ts",
-        "src/components/layout/**",
-        "src/app/**",
-        "src/components/**"
-      ],
-      "canonicalFiles": [
-        "src/lib/device-layout-contract.ts",
-        "src/lib/user-mobile-shell.ts",
-        "src/lib/device-ui-dry-audit.ts"
-      ],
-      "rules": [
-        "Google owns structural breakpoints and viewport math; Apple owns cohesive shell styling.",
-        "Use shared device helpers instead of freestyle layout physics.",
-        "Device dry audits run before broad browser audits."
-      ],
-      "blockedPatterns": [
-        "raw 100vh mobile shell",
-        "duplicated mobile nav physics",
-        "unsafe area padding by guess"
-      ],
-      "requiredValidators": [
-        "check:device-layout-contract",
-        "check:device-ui",
-        "score:device-ui"
-      ],
-      "lastUpdated": "2026-05-05T07:22:08.564Z",
-      "sourceDoc": "docs/agent-truth/device-layout-contract.md",
-      "priority": "critical",
-      "tokenEstimate": 211
-    },
-    {
-      "id": "doctrine_card__image-policy",
-      "title": "Image Loading And Content Safety",
-      "surface": "image-policy",
-      "scope": [
-        "src/lib/image-loading-policy.ts",
-        "src/components/**",
-        "src/app/**"
-      ],
-      "canonicalFiles": [
-        "src/lib/image-loading-policy.ts"
-      ],
-      "rules": [
-        "Above-fold LCP images are eager sparingly; grids and rails are lazy.",
-        "Fill images require accurate sizes.",
-        "Locked previews never render internal content thumbnails before unlock."
-      ],
-      "blockedPatterns": [
-        "internal thumbnail before entitlement",
-        "fill image without sizes",
-        "repeated card preload"
-      ],
-      "requiredValidators": [
-        "check:sitewide-image-optimization",
-        "check:content-protection"
-      ],
-      "lastUpdated": "2026-05-05T22:28:49.772Z",
-      "sourceDoc": "docs/agent-truth/sitewide-image-optimization.md",
-      "priority": "high",
-      "tokenEstimate": 187
+      "tokenEstimate": 233
     }
   ],
   "validators": [
-    "npm run check:admin-creator-account-controls",
-    "npm run check:admin-projection-analytics-exclusion",
-    "npm run check:admin-roster-decision-queue",
-    "npm run check:creator-admin-action-route",
-    "npm run check:creator-agreement-document-manager",
-    "npm run check:creator-agreement-signature-ux",
-    "npm run check:creator-agreement-version-truth",
-    "npm run check:creator-audit-trail",
-    "npm run check:creator-booking-error-copy",
-    "npm run check:creator-experience-transaction-truth",
-    "npm run check:creator-experiences-copy",
-    "npm run check:creator-fan-experience-settings",
-    "npm run check:creator-identity-markers",
-    "npm run check:creator-intake-flow",
-    "npm run check:creator-lane-old-logic-removal",
-    "npm run check:creator-profile-routing",
-    "npm run check:creator-projection-normalizer",
-    "npm run check:creator-review-queue-materializer",
-    "npm run check:creator-supply-quality",
-    "npm run check:experiences-compact-layout",
-    "npm run check:fan-pass-gumdrops-truth",
-    "npm run check:synthetic-creators-view-as",
-    "npm run check:accessibility-tap-targets",
-    "npm run check:admin-ui-primitives-cutover",
-    "npm run check:architecture",
-    "npm run check:beta-modal-layout",
-    "npm run check:design-system-drift",
-    "npm run check:device-layout-contract",
-    "npm run check:device-layout-score",
-    "npm run check:device-ui",
-    "npm run check:global-speed-hydration-cache",
-    "npm run check:home-hydration",
-    "npm run check:home-mobile-hero-shell",
-    "npm run check:hydration-performance",
-    "npm run check:mobile-shell-safe-area",
-    "npm run check:ui:coverage",
-    "npm run check:ui:lighthouse",
-    "npm run check:ui:mobile-doctrine",
-    "npm run check:ui:omni",
-    "npm run score:device-ui",
-    "npm run score:hydration",
-    "npm run score:layout",
-    "npm run check:global-loading-performance",
-    "npm run check:sitewide-image-optimization"
+    "npm run check:affected-audit-router",
+    "npm run check:agent-context",
+    "npm run check:audit-cache",
+    "npm run check:audit-runtime-ledger",
+    "npm run score:audit-runtime"
   ],
   "validatorSurfaces": {
-    "check:admin-creator-account-controls": "creator-dashboard",
-    "check:admin-projection-analytics-exclusion": "creator-dashboard",
-    "check:admin-roster-decision-queue": "creator-dashboard",
-    "check:creator-admin-action-route": "creator-dashboard",
-    "check:creator-agreement-document-manager": "creator-dashboard",
-    "check:creator-agreement-signature-ux": "creator-dashboard",
-    "check:creator-agreement-version-truth": "creator-dashboard",
-    "check:creator-audit-trail": "creator-dashboard",
-    "check:creator-booking-error-copy": "creator-dashboard",
-    "check:creator-experience-transaction-truth": "creator-dashboard",
-    "check:creator-experiences-copy": "creator-dashboard",
-    "check:creator-fan-experience-settings": "creator-dashboard",
-    "check:creator-identity-markers": "creator-dashboard",
-    "check:creator-intake-flow": "creator-dashboard",
-    "check:creator-lane-old-logic-removal": "creator-dashboard",
-    "check:creator-profile-routing": "creator-dashboard",
-    "check:creator-projection-normalizer": "creator-dashboard",
-    "check:creator-review-queue-materializer": "creator-dashboard",
-    "check:creator-supply-quality": "creator-dashboard",
-    "check:experiences-compact-layout": "creator-dashboard",
-    "check:fan-pass-gumdrops-truth": "creator-dashboard",
-    "check:synthetic-creators-view-as": "creator-dashboard",
-    "check:accessibility-tap-targets": "device-ui",
-    "check:admin-ui-primitives-cutover": "device-ui",
-    "check:architecture": "device-ui",
-    "check:beta-modal-layout": "device-ui",
-    "check:design-system-drift": "device-ui",
-    "check:device-layout-contract": "device-ui",
-    "check:device-layout-score": "device-ui",
-    "check:device-ui": "device-ui",
-    "check:global-speed-hydration-cache": "device-ui",
-    "check:home-hydration": "device-ui",
-    "check:home-mobile-hero-shell": "device-ui",
-    "check:hydration-performance": "device-ui",
-    "check:mobile-shell-safe-area": "device-ui",
-    "check:ui:coverage": "device-ui",
-    "check:ui:lighthouse": "device-ui",
-    "check:ui:mobile-doctrine": "device-ui",
-    "check:ui:omni": "device-ui",
-    "score:device-ui": "device-ui",
-    "score:hydration": "device-ui",
-    "score:layout": "device-ui",
-    "check:global-loading-performance": "image-policy",
-    "check:sitewide-image-optimization": "image-policy"
+    "check:affected-audit-router": "agent-context",
+    "check:agent-context": "agent-context",
+    "check:audit-cache": "agent-context",
+    "check:audit-runtime-ledger": "agent-context",
+    "score:audit-runtime": "agent-context"
   },
-  "legacyWarnings": [],
+  "legacyWarnings": [
+    {
+      "id": "synthetic-view-as-local-projection",
+      "name": "Synthetic/simulative admin view-as",
+      "status": "deprecated",
+      "ownerSurface": "admin_creator_projection",
+      "canonicalReplacement": "Admin creator projection with actorAdminId, performedAs, local-only source truth, and write-block diagnostics",
+      "reviewBy": "2026-05-26",
+      "removeBy": "2026-07-15",
+      "riskIfKept": "Local projection and synthetic creator state can be mistaken for live creator behavior or user engagement.",
+      "matchedFiles": [
+        "src/context/AdminViewAsContext.tsx"
+      ]
+    }
+  ],
   "excludedByDesign": {
     "sourceMarkdown": "Not loaded unless a compact card or validator leaves uncertainty.",
-    "unrelatedCards": 16
+    "unrelatedCards": 18
   }
 }

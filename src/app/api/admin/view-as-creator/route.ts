@@ -21,6 +21,7 @@ import {
 import {
   buildAdminViewAsDebugFields,
   buildAdminViewAsTelemetryPayload,
+  ADMIN_VIEW_AS_PROJECTION_MODE,
   normalizeSyntheticCreatorType,
   parseAdminViewAsState,
 } from "@/lib/admin/synthetic-creators-view-as";
@@ -203,6 +204,12 @@ async function POST_handler(request: NextRequest) {
       success: true,
       action,
       targetUserId,
+      projection: viewAsState ? {
+        active: true,
+        readOnly: true,
+        projectionMode: ADMIN_VIEW_AS_PROJECTION_MODE,
+        sourceTruth: "server_validated_projection",
+      } : null,
       debug: debugFields,
     });
   } catch (error) {

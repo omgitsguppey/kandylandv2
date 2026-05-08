@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T03:39:33.264Z",
+  "generatedAt": "2026-05-08T03:58:27.228Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -2878,6 +2878,23 @@
     {
       "stable_id": "command__root-check-user-critical-path-lock",
       "command": "npm run check:user-critical-path-lock",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-creator-public-profile-lock",
+      "command": "npm run check:creator-public-profile-lock",
       "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],

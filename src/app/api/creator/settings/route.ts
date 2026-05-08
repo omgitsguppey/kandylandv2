@@ -6,6 +6,7 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { isCreatorOrAdminRole } from "@/lib/creator-experiences";
+import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import { buildCreatorUpdateMerge, sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from "@/lib/server/creator-experiences";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { trackServerEvent } from "@/lib/server/analytics";
@@ -46,7 +47,11 @@ async function GET_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { data } = await requireCreator(caller.uid);
+        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
+        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        const creatorId = projection?.targetCreatorId || caller.uid;
+        const { data } = await requireCreator(creatorId);
         const [
             ledgerSnap,
             payoutSnap,
@@ -57,32 +62,32 @@ async function GET_handler(request: NextRequest) {
             dropsSnap,
         ] = await Promise.all([
             adminDb.collection("creator_ledger_accruals")
-                .where("creatorId", "==", caller.uid)
+                .where("creatorId", "==", creatorId)
                 .aggregate({ totalEarnings: AggregateField.sum("creatorShareGd") })
                 .get(),
             adminDb.collection("creator_payout_requests")
-                .where("creatorId", "==", caller.uid)
+                .where("creatorId", "==", creatorId)
                 .where("status", "==", "pending")
                 .aggregate({ totalPending: AggregateField.sum("requestedGd") })
                 .get(),
             adminDb.collection("creator_subscriptions")
-                .where("creatorId", "==", caller.uid)
+                .where("creatorId", "==", creatorId)
                 .where("status", "==", "active")
                 .count()
                 .get(),
             adminDb.collection("creator_custom_requests")
-                .where("creatorId", "==", caller.uid)
+                .where("creatorId", "==", creatorId)
                 .where("status", "==", "pending")
                 .count()
                 .get(),
             adminDb.collection("creator_call_bookings")
-                .where("creatorId", "==", caller.uid)
+                .where("creatorId", "==", creatorId)
                 .where("status", "==", "booked")
                 .count()
                 .get(),
-            adminDb.collection("creator_relationships_ops").doc(caller.uid).get(),
+            adminDb.collection("creator_relationships_ops").doc(creatorId).get(),
             adminDb.collection("drops")
-                .where("creatorId", "==", caller.uid)
+                .where("creatorId", "==", creatorId)
                 .where("status", "==", "active")
                 .count()
                 .get(),
@@ -100,6 +105,15 @@ async function GET_handler(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
+            projection: projection ? {
+                active: true,
+                targetCreatorId: projection.targetCreatorId,
+                actorAdminUid: projection.actorAdminUid,
+                startedAt: projection.startedAt,
+                projectionMode: projection.projectionMode,
+                sourceTruth: projection.sourceTruth,
+                readOnly: true,
+            } : null,
             creatorSettings: data.creatorSettings ?? null,
             creatorRestrictions: data.creatorRestrictions ?? null,
             stats: {
@@ -129,6 +143,13 @@ async function PUT_handler(request: NextRequest) {
         });
         if (!caller || !adminDb) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
+        const callerData = callerSnap.data() as Record<string, unknown> | undefined;
+        const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
+        if (projection) {
+            return buildAdminCreatorProjectionReadOnlyResponse();
         }
 
         const { data } = await requireCreator(caller.uid);

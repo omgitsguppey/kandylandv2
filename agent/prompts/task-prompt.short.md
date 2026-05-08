@@ -1,24 +1,24 @@
 # SHORT Task Context
 
 ## Goal
-Finish creator public profiles as fan conversion pages
+Finish creator dashboard refinements so the dashboard can be reviewed through real read-only admin creator projection without logging into creator accounts
 
-Mode: user
+Mode: admin
 Scope: moderate
 Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
 
 ## Likely Entrypoints
-- src/app/creators/[username]/page.tsx
-- src/lib/creator-experiences.ts
-- src/lib/creator-profile-routing.ts
-- src/app/creators/[username]/CreatorProfileClient.tsx
-- src/lib/creator-onboarding.ts
+- src/context/AdminViewAsContext.tsx
+- src/components/Admin/AdminCreatorViewAsControls.tsx
+- src/components/Admin/AdminViewAsBanner.tsx
+- src/lib/admin/synthetic-creators-view-as.ts
+- src/lib/admin-parity.ts
 
 ## Canonical Helpers To Reuse
 - src/lib/creator-onboarding.ts
-- src/lib/server/creator-onboarding.ts
-- src/lib/tasks/task-catalog.ts
-- src/lib/tasks/task-observability.ts
+- src/lib/route-runtime-health.ts
+- src/lib/server/admin-panel-system-logs.ts
+- src/lib/server/auth.ts
 
 ## Acceptance Criteria
 - Reuse the canonical helpers before introducing new ownership paths.
@@ -26,10 +26,10 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 - Report any blocked or unverified lane explicitly instead of implying success.
 
 ## Relevant Pitfalls
+- stale_lockfile_drift
 - diagnostics_serialization_crash
+- request_json_parse_falls_into_500
 - consumed_response_stream_fallback
-- legacy_queue_adapter_usage
-- stale_queue_scheduler_heartbeat
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -39,12 +39,13 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/creators/[username]/page.tsx
-- npm run agent:test -- src/lib/creator-experiences.ts
-- npm run agent:test -- src/lib/creator-profile-routing.ts
-- npm run agent:test -- src/app/creators/[username]/CreatorProfileClient.tsx
+- npm run agent:test -- src/context/AdminViewAsContext.tsx
+- npm run agent:test -- src/components/Admin/AdminCreatorViewAsControls.tsx
+- npm run agent:test -- src/components/Admin/AdminViewAsBanner.tsx
+- npm run agent:test -- src/lib/admin/synthetic-creators-view-as.ts
 - npm run check:ui:coverage
 - npm run check:ui:runtime
+- npm --prefix functions run check
 
 ## Signoff Verification
 - npm run check:ui:audits
