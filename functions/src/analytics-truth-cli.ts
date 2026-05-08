@@ -14,14 +14,18 @@ async function main() {
     analyticsEvidenceOnly: true,
     schemaValidationRequired: true,
     importWritesLegacySnapshotsForbidden: true,
-    canonicalFactInputs: ["analytics_event_facts", "analytics_watch_sessions", "analytics_watch_assets", "analytics_watch_observations"],
-    canonicalFactOutputs: ["analytics_truth_*", "analytics_metric_facts (materialized in-memory)"],
+    canonicalFactInputs: ["analytics_event_facts", "analytics_metric_facts", "analytics_watch_sessions", "analytics_watch_assets", "analytics_watch_observations"],
+    canonicalFactOutputs: ["analytics_truth_*", "canonical materializer envelopes"],
     forbiddenRuntimeMutationSurfaces: [
       "runtime_balances",
       "runtime_unlocks",
       "runtime_purchases",
       "runtime_user_rollups",
       "legacy_admin_metric_snapshots",
+    ],
+    blockedInputs: [
+      "raw_client_event_names",
+      "legacy_page_duration_as_verified_watch_truth",
     ],
   }))
   await rebuildAnalyticsTruthLayers()

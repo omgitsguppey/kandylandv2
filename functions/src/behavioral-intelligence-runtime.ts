@@ -1004,90 +1004,55 @@ function isActionEvent(normalizedAction: string) {
 function readNormalizedAction(record: Record<string, unknown>) {
   const explicit = readString(record.normalizedActionName)
   if (explicit) {
-    return explicit
+    return explicit.toLowerCase()
   }
 
-  const eventName = readString(record.eventName)
-  switch (eventName) {
-  case "guided_onboarding_completed":
-  case "onboarding_completed":
-  case "onboarding_complete":
-    return "onboarding_completed"
-  case "daily_check_in_claim":
-  case "daily_reward_claimed":
-    return "daily_checkin_claimed"
-  case "drop_clicked":
-  case "view_drop_details":
-    return "drop_viewed"
-  case "search_query_submitted":
-    return "search_query_submitted"
-  case "filter_selected":
-    return "filter_selected"
-  case "sort_changed":
-    return "sort_changed"
-  case "category_clicked":
-    return "category_clicked"
-  case "creator_search_selected":
-    return "creator_search_selected"
-  case "drop_preview_opened":
-  case "drop_preview_page_viewed":
-    return "drop_preview_opened"
-  case "content_satisfaction_positive":
-    return "content_satisfaction_positive"
-  case "content_satisfaction_negative":
-    return "content_satisfaction_negative"
-  case "content_satisfaction_skipped":
-    return "content_satisfaction_skipped"
-  case "recommendation_reason_helpful":
-    return "recommendation_reason_helpful"
-  case "recommendation_reason_not_helpful":
-    return "recommendation_reason_not_helpful"
-  case "drop_not_interested":
-    return "drop_not_interested"
-  case "category_not_interested":
-    return "category_not_interested"
-  case "recommendation_dismissed":
-    return "recommendation_dismissed"
-  case "unlock_drop_success":
-  case "drop_unwrapped":
-  case "drop_unlocked":
-  case "entitlement_granted":
-    return "drop_unlocked"
-  case "viewer_asset_started":
-  case "viewer_asset_changed":
-  case "file_viewed":
-    return "file_viewed"
-  case "watch_session_completed":
-  case "watch_session_ended":
-  case "watch_score_computed":
-    return "watch_session_completed"
-  case "gumdrops_purchase_completed":
-  case "purchase_verified":
-  case "purchase":
-    return "gumdrops_purchased"
-  case "creator_followed":
-    return "creator_followed"
-  case "creator_not_interested":
-    return "creator_not_interested"
-  case "creator_muted":
-    return "creator_muted"
-  case "notification_opened":
-  case "notification_clicked":
-  case "notification_read":
-    return "notification_opened"
-  case "support_ticket_created":
-  case "support_ticket_submitted":
-  case "support_reply_viewed":
-  case "support_reply_sent":
-  case "feedback_submitted":
-  case "bug_report_submitted":
-    return "support_ticket_created"
-  case "chat_message_sent":
-  case "creator_message_sent":
-    return "chat_message_sent"
-  default:
-    return ""
+  return ""
+}
+
+function buildBehavioralSourceBreakdown(input: {
+  aggregate: UserSignalAggregate
+  watchScoreSource: string
+}) {
+  return {
+    runtimeFacts: ["analytics_event_facts"],
+    metricFacts: [
+      input.aggregate.serverPurchaseCount > 0 ? "server_transaction_truth" : "",
+      input.aggregate.serverUnlockCount > 0 ? "server_entitlement_truth" : "",
+      input.aggregate.watchSessionCount > 0 ? "analytics_watch_sessions" : "",
+      input.aggregate.sourceTimestamps.relationships.length > 0 ? "creator_relationships" : "",
+    ].filter(Boolean),
+    diagnostics: [
+      input.watchScoreSource === "legacy_page_duration" ? "legacy_page_duration" : "",
+      input.aggregate.purchaseCount > input.aggregate.serverPurchaseCount ? "client_purchase_context_only" : "",
+      input.aggregate.unlockCount > input.aggregate.serverUnlockCount ? "client_unlock_context_only" : "",
+    ].filter(Boolean),
   }
+}
+
+function buildMaterializerIssues(issueCodes: string[]) {
+  return issueCodes.map((code) => ({
+    code,
+    severity: code.includes("stale") || code.includes("missing") ? "warn" : "info",
+    message: code.replace(/_/g, " "),
+  }))
+}
+
+function resolveMaterializerFreshnessState(input: {
+  latestSourceAtMs: number
+  nowMs: number
+  diagnostics: string[]
+}) {
+  if (!input.latestSourceAtMs) {
+    return "unavailable"
+  }
+  if (input.nowMs - input.latestSourceAtMs > STALE_AFTER_MS) {
+    return "stale"
+  }
+  if (input.diagnostics.length > 0) {
+    return "diagnostic_fallback"
+  }
+  return "live"
 }
 
 async function readRecentCollections(nowMs: number) {
@@ -1855,7 +1820,6 @@ function buildUserProfileDoc(input: {
     input.aggregate.watchSessionCount > 0 ? SOURCE_RELIABILITY_WEIGHTS.watch_session_rollup : 0,
     input.aggregate.sourceTimestamps.relationships.length > 0 ? SOURCE_RELIABILITY_WEIGHTS.server_creator_relationship : 0,
     input.aggregate.sourceTimestamps.eventFacts.length > 0 ? SOURCE_RELIABILITY_WEIGHTS.identified_event_fact : 0,
-    watchScoreSource === "legacy_page_duration" ? SOURCE_RELIABILITY_WEIGHTS.legacy_page_duration : 0,
   )
   const sourceDisagreementPenalty = clamp01(
     (watchScoreSource === "legacy_page_duration" ? 0.45 : 0) +
@@ -1898,9 +1862,24 @@ function buildUserProfileDoc(input: {
     : insufficientSignal
       ? "insufficient-signal"
       : "profile-driven"
+  const sourceBreakdown = buildBehavioralSourceBreakdown({
+    aggregate: input.aggregate,
+    watchScoreSource,
+  })
+  const issues = buildMaterializerIssues(issueCodes)
+  const generatedAt = new Date(input.nowMs).toISOString()
+  const freshnessState = resolveMaterializerFreshnessState({
+    latestSourceAtMs,
+    nowMs: input.nowMs,
+    diagnostics: sourceBreakdown.diagnostics ?? [],
+  })
 
   return {
     userId: input.aggregate.userId,
+    generatedAt,
+    freshnessState,
+    sourceBreakdown,
+    issues,
     updatedAtMs: input.nowMs,
     sourceWindowStartMs: input.windowStartMs,
     latestSourceAtMs,
@@ -2038,11 +2017,27 @@ function buildUserProfileDoc(input: {
 function buildGuestProfileDoc(aggregate: GuestSignalAggregate, nowMs: number, windowStartMs: number) {
   return {
     sessionKey: aggregate.sessionKey,
+    generatedAt: new Date(nowMs).toISOString(),
+    freshnessState: aggregate.latestAtMs > 0 && nowMs - aggregate.latestAtMs <= STALE_AFTER_MS ? "live" : "stale",
+    sourceBreakdown: {
+      runtimeFacts: ["analytics_guest_batches"],
+      metricFacts: [],
+      diagnostics: ["deterministic-fallback"],
+    },
+    issues: [
+      {
+        code: "deterministic_fallback_profile",
+        severity: "info",
+        message: "Guest profiles remain diagnostic fallback only.",
+      },
+    ],
     updatedAtMs: nowMs,
     sourceWindowStartMs: windowStartMs,
     latestSourceAtMs: aggregate.latestAtMs,
     freshnessLabel: normalizeProfileFreshness(aggregate.latestAtMs || nowMs, nowMs),
     recommendationState: "deterministic-fallback",
+    recommendationCardState: "fallback-limited",
+    recommendationCardCap: 3,
     eventCount: aggregate.eventCount,
     previewOpenCount: aggregate.previewOpenCount,
     maxScrollDepth: round(aggregate.maxScrollDepth, 2),
@@ -2067,7 +2062,6 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
     aggregate.unlocks > 0 ? SOURCE_RELIABILITY_WEIGHTS.server_entitlement_unlock : 0,
     aggregate.watchSecondsSamples.length > 0 ? SOURCE_RELIABILITY_WEIGHTS.watch_session_rollup : 0,
     aggregate.viewerOpens > 0 ? SOURCE_RELIABILITY_WEIGHTS.identified_event_fact : 0,
-    watchScoreSource === "legacy_page_duration" ? SOURCE_RELIABILITY_WEIGHTS.legacy_page_duration : 0,
   )
   const freshnessScore = clamp01(1 - (ageDays / 30))
   const sampleCount = aggregate.viewerOpens + aggregate.previewOpens + aggregate.unlocks + aggregate.watchSecondsSamples.length
@@ -2127,8 +2121,28 @@ function buildDropDoc(aggregate: DropSignalAggregate, nowMs: number, windowStart
     : aggregate.impressions24h < 20
       ? "early signal"
       : "sampled"
+  const sourceBreakdown = {
+    runtimeFacts: ["analytics_event_facts"],
+    metricFacts: [
+      aggregate.unlocks > 0 ? "server_entitlement_truth" : "",
+      aggregate.watchSecondsSamples.length > 0 ? "analytics_watch_sessions" : "",
+    ].filter(Boolean),
+    diagnostics: [watchScoreSource === "legacy_page_duration" ? "legacy_page_duration" : ""].filter(Boolean),
+  }
+  const issueCodes = [
+    watchScoreSource === "legacy_page_duration" ? "legacy_page_duration_fallback" : "",
+    aggregate.viewerOpens > 0 && aggregate.watchSecondsSamples.length === 0 ? "watch_time_missing_despite_views" : "",
+  ].filter(Boolean)
   return {
     dropId: aggregate.dropId,
+    generatedAt: new Date(nowMs).toISOString(),
+    freshnessState: resolveMaterializerFreshnessState({
+      latestSourceAtMs: aggregate.latestAtMs,
+      nowMs,
+      diagnostics: sourceBreakdown.diagnostics,
+    }),
+    sourceBreakdown,
+    issues: buildMaterializerIssues(issueCodes),
     creatorId: aggregate.creatorId,
     dropTitle: aggregate.dropTitle,
     dropCategory: aggregate.dropCategory,
@@ -2282,6 +2296,14 @@ async function writeSnapshotDocs(input: {
   }
 
   batch.set(db.collection(SNAPSHOT_STATUS_COLLECTION).doc("summary"), {
+    generatedAt: new Date(input.nowMs).toISOString(),
+    freshnessState: "live",
+    sourceBreakdown: {
+      runtimeFacts: ["analytics_event_facts", "analytics_guest_batches"],
+      metricFacts: ["analytics_metric_facts", "analytics_watch_sessions"],
+      diagnostics: [],
+    },
+    issues: [],
     updatedAtMs: input.nowMs,
     sourceWindowStartMs: input.windowStartMs,
     userProfileCount: input.userDocs.length,
@@ -2339,6 +2361,14 @@ export async function rebuildBehavioralIntelligenceSnapshots() {
     dropIntelligenceRows: dropDocs.length,
     sourceWindowStartMs: recent.windowStartMs,
     updatedAtMs: nowMs,
+    generatedAt: new Date(nowMs).toISOString(),
+    freshnessState: "live",
+    sourceBreakdown: {
+      runtimeFacts: ["analytics_event_facts", "analytics_guest_batches"],
+      metricFacts: ["analytics_metric_facts", "analytics_watch_sessions"],
+      diagnostics: [],
+    },
+    issues: [],
   }
 
   logger.info("[Behavioral Intelligence] snapshot rebuild completed", summary)

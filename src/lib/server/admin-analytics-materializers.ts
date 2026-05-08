@@ -6,6 +6,10 @@ import {
   ADMIN_METRIC_SNAPSHOT_RANGES,
   createUnavailableAdminMetricSnapshot,
 } from "@/lib/analytics/admin-metric-snapshot";
+import {
+  buildCanonicalMaterializerSourcePolicy,
+  type MaterializerSourcePolicy,
+} from "@/lib/materializers/materializer-source-policy";
 
 export const ADMIN_ANALYTICS_SNAPSHOT_MODULE_KEYS = [
   "platform_pulse",
@@ -41,6 +45,7 @@ export interface AdminAnalyticsMaterializerEntry {
   label: string;
   supportedRanges: AdminMetricSnapshotRange[];
   canonicalSources: string[];
+  sourcePolicy: MaterializerSourcePolicy;
   parityChecksRequired: string[];
   legacySupportStatus: "none" | "directional" | "supported" | "debug_only";
   currentImplementationStatus: AdminAnalyticsMaterializerStatus;
@@ -62,12 +67,14 @@ function unavailableRefresh(reason: string) {
     });
 }
 
-function buildEntry(input: Omit<AdminAnalyticsMaterializerEntry, "supportedRanges" | "refresh"> & {
+function buildEntry(input: Omit<AdminAnalyticsMaterializerEntry, "supportedRanges" | "refresh" | "sourcePolicy"> & {
+  sourcePolicy?: MaterializerSourcePolicy;
   supportedRanges?: AdminMetricSnapshotRange[];
   unavailableReason: string;
 }): AdminAnalyticsMaterializerEntry {
   return {
     ...input,
+    sourcePolicy: input.sourcePolicy ?? buildCanonicalMaterializerSourcePolicy(),
     supportedRanges: input.supportedRanges ?? [...ADMIN_METRIC_SNAPSHOT_RANGES],
     refresh: unavailableRefresh(input.unavailableReason),
   };
@@ -78,6 +85,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "platform_pulse",
     label: "Platform Pulse",
     canonicalSources: ["analytics_aggregate_stats/realtime_summary", "analytics_event_facts", "analytics_active_users"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts", "analytics_active_users"],
+      diagnostics: ["realtime_operational_pulse_only"],
+    }),
     parityChecksRequired: ["hot cache vs first-party ledger", "realtime cache freshness"],
     legacySupportStatus: "directional",
     currentImplementationStatus: "existing_route_cache",
@@ -87,6 +98,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "audience_snapshot",
     label: "Audience Snapshot",
     canonicalSources: ["analytics_page_daily", "analytics_guest_batches", "analytics_sessions", "analytics_event_facts", "ga4_daily"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts"],
+      diagnostics: ["ga4_daily"],
+    }),
     parityChecksRequired: ["guest estimate formula", "identified traffic subtraction", "GA4 daily parity"],
     legacySupportStatus: "directional",
     currentImplementationStatus: "placeholder_unavailable",
@@ -96,6 +111,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "commerce_snapshot",
     label: "Commerce Snapshot",
     canonicalSources: ["transactions", "analytics_commerce_rollup", "paypal captures", "analytics_event_facts"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["transactions", "analytics_metric_facts"],
+      diagnostics: ["paypal captures", "analytics_commerce_rollup"],
+    }),
     parityChecksRequired: ["payments vs internal purchases", "promo excluded from revenue", "GA commerce drift"],
     legacySupportStatus: "supported",
     currentImplementationStatus: "placeholder_unavailable",
@@ -105,6 +124,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "live_pulse",
     label: "Live Pulse",
     canonicalSources: ["analytics_active_users", "analytics_event_facts", "analytics_guest_batches", "watch sessions"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts", "analytics_watch_sessions"],
+      diagnostics: ["analytics_active_users", "analytics_guest_batches"],
+    }),
     parityChecksRequired: ["presence rows vs graph points", "guest inclusion", "stale row count"],
     legacySupportStatus: "directional",
     currentImplementationStatus: "existing_route_cache",
@@ -114,6 +137,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "journey_funnel",
     label: "Journey Funnel",
     canonicalSources: ["analytics_event_facts", "onboarding state", "commerce events"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts"],
+      diagnostics: ["onboarding state", "commerce events"],
+    }),
     parityChecksRequired: ["raw event vs ordered journey", "non-sequential step detection"],
     legacySupportStatus: "directional",
     currentImplementationStatus: "placeholder_unavailable",
@@ -123,6 +150,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "auth_outcomes",
     label: "Auth Outcomes",
     canonicalSources: ["analytics_event_facts", "auth records", "user records"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts"],
+      diagnostics: ["auth records", "user records"],
+    }),
     parityChecksRequired: ["attempt reconciliation", "registered users not method", "timing coverage"],
     legacySupportStatus: "directional",
     currentImplementationStatus: "placeholder_unavailable",
@@ -132,6 +163,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "onboarding_performance",
     label: "Onboarding Performance",
     canonicalSources: ["onboarding step state", "analytics_event_facts"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts"],
+      diagnostics: ["onboarding step state"],
+    }),
     parityChecksRequired: ["starts vs completions", "duration bucket reconciliation", "auth signup mismatch"],
     legacySupportStatus: "supported",
     currentImplementationStatus: "placeholder_unavailable",
@@ -141,6 +176,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "daily_task_pipeline",
     label: "Daily Task Pipeline",
     canonicalSources: ["user task state", "daily_task_events", "task lifecycle logs", "task catalog"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts"],
+      diagnostics: ["user task state", "daily_task_events", "task lifecycle logs", "task catalog"],
+    }),
     parityChecksRequired: ["pipeline totals vs leaderboard", "reward reconciliation", "timing coverage"],
     legacySupportStatus: "supported",
     currentImplementationStatus: "placeholder_unavailable",
@@ -150,6 +189,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "notification_funnel",
     label: "Notification Funnel",
     canonicalSources: ["user_notifications", "push/runtime logs", "analytics_event_facts"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts"],
+      diagnostics: ["user_notifications", "push/runtime logs"],
+    }),
     parityChecksRequired: ["dedupe prevented", "read persistence", "queued drop return-live trigger"],
     legacySupportStatus: "directional",
     currentImplementationStatus: "placeholder_unavailable",
@@ -159,6 +202,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "event_mix",
     label: "Event Mix",
     canonicalSources: ["analytics_event_facts", "telemetry catalog", "GA4 daily"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts"],
+      diagnostics: ["telemetry catalog", "GA4 daily"],
+    }),
     parityChecksRequired: ["raw event denominator", "surface mapping hydration", "unmapped events"],
     legacySupportStatus: "directional",
     currentImplementationStatus: "placeholder_unavailable",
@@ -169,6 +216,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     label: "Live Interaction Stream",
     supportedRanges: ["24h"],
     canonicalSources: ["analytics_event_facts", "guest interaction buckets"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts"],
+      diagnostics: ["guest interaction buckets"],
+    }),
     parityChecksRequired: ["admin exclusion", "actor classification", "duplicate task grouping"],
     legacySupportStatus: "none",
     currentImplementationStatus: "placeholder_unavailable",
@@ -178,6 +229,10 @@ export const ADMIN_ANALYTICS_MATERIALIZER_REGISTRY: AdminAnalyticsMaterializerEn
     moduleKey: "data_health_summary",
     label: "Data Health Summary",
     canonicalSources: ["Admin Debug validation", "analytics source health", "parity checks"],
+    sourcePolicy: buildCanonicalMaterializerSourcePolicy({
+      metricFacts: ["analytics_metric_facts"],
+      diagnostics: ["Admin Debug validation", "analytics source health", "parity checks"],
+    }),
     parityChecksRequired: ["PASS rules", "stale validation", "module coverage"],
     legacySupportStatus: "debug_only",
     currentImplementationStatus: "deprecated_debug_only",

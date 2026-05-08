@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:54:51.996Z",
+  "generatedAt": "2026-05-07T23:57:56.973Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -140,6 +140,10 @@
       {
         "path": "agent/state/final-launch-readiness-report.generated.json",
         "lines": 531
+      },
+      {
+        "path": "agent/state/task-context.generated.json",
+        "lines": 519
       }
     ],
     "sourceFilesOverWarningBudget": [

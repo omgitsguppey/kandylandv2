@@ -59,6 +59,18 @@ type SessionTruthDoc = {
   userId: string
   dropId: string
   dropTitle: string
+  generatedAt: string
+  freshnessState: string
+  sourceBreakdown: {
+    runtimeFacts: string[]
+    metricFacts: string[]
+    diagnostics: string[]
+  }
+  issues: Array<{
+    code: string
+    severity: "info" | "warn" | "fail"
+    message: string
+  }>
   truthLabel: AnalyticsTruthLabel
   sourceLayer: AnalyticsTruthLabel
   lastComputedAtMs: number
@@ -102,6 +114,29 @@ function average(values: number[]) {
   }
 
   return round(values.reduce((sum, value) => sum + value, 0) / values.length, 2)
+}
+
+function buildTruthMaterializerIssue(code: string, severity: "info" | "warn" | "fail" = "info") {
+  return {
+    code,
+    severity,
+    message: code.replace(/_/g, " "),
+  }
+}
+
+function resolveTruthFreshnessState(input: {
+  estimatedDataRatio?: number
+  rawCoverageGapCount?: number
+  lastSeenAtMs?: number
+  nowMs: number
+}) {
+  if (input.lastSeenAtMs && input.nowMs - input.lastSeenAtMs > ANALYTICS_TRUTH_STALE_SESSION_MS) {
+    return "stale"
+  }
+  if ((input.estimatedDataRatio ?? 0) > 0 || (input.rawCoverageGapCount ?? 0) > 0) {
+    return "diagnostic_fallback"
+  }
+  return "live"
 }
 
 function readNormalizedAction(record: Record<string, unknown>) {
@@ -282,6 +317,7 @@ async function readTruthSources(nowMs: number) {
 }
 
 function buildAnalyticsTruthDocs(input: Awaited<ReturnType<typeof readTruthSources>>, nowMs: number) {
+  const generatedAt = new Date(nowMs).toISOString()
   const globalBucket = ensureBucket("global", new Map<string, CounterBucket>())
   const dropBuckets = new Map<string, CounterBucket>()
   const userBuckets = new Map<string, CounterBucket>()
@@ -488,6 +524,25 @@ function buildAnalyticsTruthDocs(input: Awaited<ReturnType<typeof readTruthSourc
       userId,
       dropId,
       dropTitle,
+      generatedAt,
+      freshnessState: resolveTruthFreshnessState({
+        estimatedDataRatio: repairedDataRatio,
+        rawCoverageGapCount: rawObservationCount === 0 ? 1 : 0,
+        lastSeenAtMs,
+        nowMs,
+      }),
+      sourceBreakdown: {
+        runtimeFacts: ["analytics_event_facts"],
+        metricFacts: ["analytics_watch_sessions"],
+        diagnostics: [
+          estimatedWatchTimeMs > 0 ? "legacy_page_duration" : "",
+          rawObservationCount === 0 ? "raw_observation_gap" : "",
+        ].filter(Boolean),
+      },
+      issues: [
+        ...(estimatedWatchTimeMs > 0 ? [buildTruthMaterializerIssue("legacy_page_duration_diagnostic_fallback", "warn")] : []),
+        ...(rawObservationCount === 0 ? [buildTruthMaterializerIssue("raw_observation_gap", "warn")] : []),
+      ],
       truthLabel: !finalizeReady ? "provisional" : estimatedWatchTimeMs > 0 ? "estimated" : "finalized",
       sourceLayer: !finalizeReady ? "provisional" : estimatedWatchTimeMs > 0 ? "estimated" : "validated",
       lastComputedAtMs: nowMs,
@@ -666,6 +721,24 @@ function buildAnalyticsTruthDocs(input: Awaited<ReturnType<typeof readTruthSourc
           : "stale"
 
     return {
+      generatedAt,
+      freshnessState: resolveTruthFreshnessState({
+        estimatedDataRatio,
+        rawCoverageGapCount: bucket.rawCoverageGapCount,
+        nowMs,
+      }),
+      sourceBreakdown: {
+        runtimeFacts: ["analytics_event_facts"],
+        metricFacts: ["analytics_metric_facts", "analytics_watch_sessions"],
+        diagnostics: [
+          estimatedDataRatio > 0 ? "legacy_page_duration" : "",
+          bucket.rawCoverageGapCount > 0 ? "raw_observation_gap" : "",
+        ].filter(Boolean),
+      },
+      issues: [
+        ...(estimatedDataRatio > 0 ? [buildTruthMaterializerIssue("legacy_page_duration_diagnostic_fallback", "warn")] : []),
+        ...(bucket.rawCoverageGapCount > 0 ? [buildTruthMaterializerIssue("raw_observation_gap", "warn")] : []),
+      ],
       scopeType,
       scopeKey,
       lastComputedAtMs: nowMs,
@@ -831,6 +904,16 @@ async function writeAnalyticsTruthDocs(input: ReturnType<typeof buildAnalyticsTr
     collection: ANALYTICS_TRUTH_COLLECTIONS.status,
     id: "summary",
   }, {
+    generatedAt: new Date(Date.now()).toISOString(),
+    freshnessState: "live",
+    sourceBreakdown: {
+      runtimeFacts: ["analytics_event_facts"],
+      metricFacts: ["analytics_metric_facts", "analytics_watch_sessions"],
+      diagnostics: input.globalDoc.repairedDataRatio > 0 ? ["legacy_page_duration"] : [],
+    },
+    issues: input.globalDoc.repairedDataRatio > 0
+      ? [buildTruthMaterializerIssue("legacy_page_duration_diagnostic_fallback", "warn")]
+      : [],
     lastComputedAtMs: Date.now(),
     globalScope: {
       finalizedViewCount: input.globalDoc.truthLayers.finalized.finalized_view_count,

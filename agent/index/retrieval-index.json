@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:54:50.633Z",
+  "generatedAt": "2026-05-07T23:57:55.538Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1556,7 +1556,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992499:930e8d8cedd5",
+      "recency": "1778198091164:a22a934e4d16",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1582,7 +1582,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992497:a0145c7e558d",
+      "recency": "1778198091160:4fe09f241248",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1608,7 +1608,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196993361:a813c67bf1e1",
+      "recency": "1778198091999:36be2b92d9c5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1634,7 +1634,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992511:63a4d28af7be",
+      "recency": "1778198091177:8234fdc6954c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1688,7 +1688,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992503:2a285d12268c",
+      "recency": "1778198091169:2a285d12268c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1740,7 +1740,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196993362:174eb07d644a",
+      "recency": "1778198092003:525db26cabb7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1794,7 +1794,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992506:a25942d031d9",
+      "recency": "1778198091175:26dc5109e019",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2342,7 +2342,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992067:2b11e15dbff8",
+      "recency": "1778198090774:b0ae48983252",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2370,7 +2370,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196991968:53ceff1720bc",
+      "recency": "1778198090708:56570ad4bbda",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2398,7 +2398,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992054:d6011e5a6991",
+      "recency": "1778198090762:912d4fc4a8d7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2426,7 +2426,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992010:b32dacc1e0cf",
+      "recency": "1778198090742:7d1e561976e6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2454,7 +2454,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992014:962776104cc3",
+      "recency": "1778198090744:5c3d1866312c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2482,7 +2482,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196991995:e70957c4ebeb",
+      "recency": "1778198090731:087ca5ec9985",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2510,7 +2510,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992038:9f3c016d3416",
+      "recency": "1778198090747:cf0e4f54f66b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2538,7 +2538,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196991904:d89eb835613b",
+      "recency": "1778198090656:d5c3b10138a8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2566,7 +2566,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992097:d8cedc45e1cd",
+      "recency": "1778198090796:a7fb021bbb99",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2594,7 +2594,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196992044:f8c64be2cb94",
+      "recency": "1778198090751:5e9b5bfe18fa",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2622,7 +2622,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196991961:29cec76ba8e8",
+      "recency": "1778198090701:da7098eb391f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2650,7 +2650,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198059069:5ca66a56722e",
+      "recency": "1778198245092:6508977459d5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2678,7 +2678,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196991978:dd2567fa83bb",
+      "recency": "1778198090717:9a757d716931",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2706,7 +2706,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778196991998:125828b580ca",
+      "recency": "1778198090737:06362e0438c2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2734,7 +2734,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778197036211:c25d5bf521e4",
+      "recency": "1778198207175:0e0980aa2e99",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2762,7 +2762,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778197004856:54586326ff58",
+      "recency": "1778198103944:b1067da39811",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2788,7 +2788,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778197004847:155c3962b7f9",
+      "recency": "1778198103936:621b65aa2d03",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2814,7 +2814,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778197004853:613c0a64d42b",
+      "recency": "1778198103940:3eaf17b80266",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2840,7 +2840,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778197004887:880e50381871",
+      "recency": "1778198103977:a888dbdab9d5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4282,7 +4282,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778197036209:26bf96d80cf8",
+      "recency": "1778198207170:b8de8c6d049f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5202,7 +5202,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778197004841:1a998a8baf5e",
+      "recency": "1778198103932:dc028da43b72",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5452,7 +5452,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778197004883:30fc02e00670",
+      "recency": "1778198103972:b4dcb5009bc7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"

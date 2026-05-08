@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-replace scattered runtime event interpretation with one canonical runtime fact layer
+cut over analytics and behavioral materializers so they consume canonical runtime facts and metric facts only
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,8 +10,11 @@ replace scattered runtime event interpretation with one canonical runtime fact l
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- src/app/api/analytics/ingest-identified/route.ts
-- src/app/api/analytics/ingest/route.ts
+- functions/src/behavioral-intelligence-runtime.ts
+- functions/src/analytics-truth-cli.ts
+- scripts/rebuild-behavioral-intelligence.ts
+- scripts/rebuild-analytics-truth.ts
+- src/lib/server/admin-analytics-materializers.ts
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -22,13 +25,22 @@ replace scattered runtime event interpretation with one canonical runtime fact l
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/api/analytics/ingest-identified/route.ts
-- npm run agent:test -- src/app/api/analytics/ingest/route.ts
+- npm run agent:test -- functions/src/behavioral-intelligence-runtime.ts
+- npm run agent:test -- functions/src/analytics-truth-cli.ts
+- npm run agent:test -- scripts/rebuild-behavioral-intelligence.ts
+- npm run agent:test -- scripts/rebuild-analytics-truth.ts
 - npm run check:telemetry
 - npm run check:analytics-semantics
+- npm --prefix functions run check
+- npm run check:agent-context
 
 ## Signoff Verification
 - npm run check:analytics:continuity
+- npm run check:inventory
+- npm run check:architecture
+- npm run check:agent-intelligence
+- npm run eval:agent-context
+- npm run check:continuity
 
 ## Notes
 - Mode: server

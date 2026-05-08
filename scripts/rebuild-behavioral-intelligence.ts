@@ -67,6 +67,7 @@ if (hasFlag("--dry-run")) {
     schemaValidationRequired: true,
     dryRunRequiredBeforeImport: true,
     canonicalFactImportTargets: [...CANONICAL_FACT_IMPORT_TARGETS],
+    materializerOutputContract: ["sourceBreakdown", "generatedAt", "freshnessState", "issues"],
     forbiddenRuntimeMutationSurfaces: [...FORBIDDEN_RUNTIME_MUTATION_SURFACES],
     mutationSkipped: true,
   }, null, 2))

@@ -104,6 +104,7 @@
         "check:user-action-ledger-events": "tsx scripts/agent/validate-user-action-ledger-events.ts",
         "check:event-fact-truth": "tsx scripts/agent/validate-event-fact-truth.ts",
         "check:runtime-facts-cutover": "tsx scripts/agent/validate-runtime-facts-cutover.ts",
+        "check:materializers-cutover": "tsx scripts/agent/validate-materializers-cutover.ts",
         "score:telemetry-identified-parity": "tsx scripts/agent/score-telemetry-identified-parity.ts",
         "check:telemetry-identified-parity": "npm run score:telemetry-identified-parity && tsx scripts/agent/validate-telemetry-identified-parity.ts",
         "check:privacy-consent-truth": "tsx scripts/agent/validate-privacy-consent-truth.ts",
