@@ -5,6 +5,7 @@ import { collection, doc, limit, onSnapshot, orderBy, query, where } from "fireb
 import useSWR from "swr";
 
 import { authFetch } from "@/lib/authFetch";
+import { ADMIN_OVERVIEW_REALTIME_POLICY } from "@/lib/admin/admin-realtime-policy";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { db } from "@/lib/firebase-data";
@@ -12,7 +13,7 @@ import { createAutoHealingObserver } from "@/lib/self-healing";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { AdminOverviewResponse, AdminOverviewTransactionRecord, AdminOverviewActivityItem, AdminOverviewRealtimeDebugMeta } from "@/lib/admin-overview";
 import { normalizeTransactionRecord, getTransactionDisplayLabel } from "@/lib/transaction-normalizers";
-import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
+import { normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 
 type OverviewRealtimeListenerState = {
     dropsLoaded: boolean;
@@ -37,20 +38,15 @@ type OverviewRealtimeListenerState = {
     lastClientSnapshotAt: number;
 };
 
-/** SWR polling interval for the server rollup endpoint (charts, deltas, activity).
- *  Realtime listeners cover the hot-path data. This polling remains intentionally
- *  for chart/trend data that doesn't need sub-minute freshness. */
-const SERVER_ROLLUP_POLL_INTERVAL_MS = 60_000;
-
 /**
  * Resolve a human-readable truth chip label from the listener state.
  *
  * Vocabulary:
- * - "Updated"                             - all live upgrade listeners loaded, none from cache
- * - "Showing last verified data"          - verified server data exists, cache is in use, or live upgrade is absent
+ * - "Operational pulse connected"         - all live upgrade listeners loaded, none from cache
+ * - "Showing verified snapshot totals"    - verified server data exists, cache is in use, or live upgrade is absent
  * - "Waiting for first overview snapshot" - no verified overview data exists yet
- * - "Live updates delayed"                - at least one live upgrade listener has failed
- * - "Refreshing overview"                 - partial live upgrade listeners loaded, none failed
+ * - "Operational pulse delayed"           - at least one live upgrade listener has failed
+ * - "Connecting operational pulse"        - partial live upgrade listeners loaded, none failed
  */
 export function resolveTruthChipLabel(
     state: Pick<OverviewRealtimeListenerState,
@@ -66,23 +62,23 @@ export function resolveTruthChipLabel(
     const anyFromCache = state.dropsFromCache || state.summaryFromCache || state.transactionsFromCache || state.adminActivityFromCache;
 
     if (failedCount > 0) {
-        return "Live updates delayed";
+        return "Operational pulse delayed";
     }
 
     if (allLoaded && !anyFromCache) {
-        return "Updated";
+        return "Operational pulse connected";
     }
 
     if (allLoaded && anyFromCache) {
-        return "Showing last verified data";
+        return "Showing verified snapshot totals";
     }
 
     if (anyLoaded) {
-        return "Refreshing overview";
+        return "Connecting operational pulse";
     }
 
     if (hasServerData) {
-        return "Showing last verified data";
+        return "Showing verified snapshot totals";
     }
 
     return "Waiting for first overview snapshot";
@@ -90,10 +86,10 @@ export function resolveTruthChipLabel(
 
 /** Map a truth chip label to a CSS chip style variant. */
 export function resolveTruthChipVariant(label: string): AdminSurfaceState {
-    if (label === "Updated") return "live";
-    if (label === "Showing last verified data") return "stale";
-    if (label === "Refreshing overview") return "degraded";
-    if (label === "Live updates delayed") return "fallback";
+    if (label === "Operational pulse connected") return "live";
+    if (label === "Showing verified snapshot totals") return "stale";
+    if (label === "Connecting operational pulse") return "degraded";
+    if (label === "Operational pulse delayed") return "fallback";
     return "unavailable";
 }
 
@@ -110,7 +106,10 @@ export function useAdminOverviewRealtime() {
     const { data: serverData, error, isLoading, mutate } = useSWR<AdminOverviewResponse>(
         "/api/admin/overview",
         fetcher,
-        { refreshInterval: SERVER_ROLLUP_POLL_INTERVAL_MS, revalidateOnFocus: false }
+        {
+            refreshInterval: ADMIN_OVERVIEW_REALTIME_POLICY.snapshotRefreshCadenceMs,
+            revalidateOnFocus: false,
+        }
     );
 
     const serverDataRef = useRef<AdminOverviewResponse | undefined>(undefined);
@@ -131,8 +130,6 @@ export function useAdminOverviewRealtime() {
         lastServerConfirmedAt: 0,
         lastClientSnapshotAt: 0,
     });
-    const dropsLoadedRef = useRef(false);
-
     useEffect(() => {
         serverDataRef.current = serverData;
     }, [serverData]);
@@ -147,26 +144,9 @@ export function useAdminOverviewRealtime() {
             if (cancelled) return;
             const now = Date.now();
             const fromCache = snapshot.metadata.fromCache;
-            const drops = snapshot.docs.flatMap(doc => {
-                const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now);
-                return normalized && !isDropHiddenFromPublic(normalized) ? [normalized] : [];
+            snapshot.docs.forEach((doc) => {
+                normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now);
             });
-            const topDrops = [...drops].sort((a, b) => (b.totalUnlocks || 0) - (a.totalUnlocks || 0)).slice(0, 20);
-            const latestServerData = serverDataRef.current;
-
-            setRealtimeData(prev => ({
-                ...prev,
-                generatedAt: now,
-                topDrops,
-                stats: {
-                    ...prev.stats,
-                    ...(latestServerData?.stats || {}),
-                    liveDrops: drops.filter(d => d.status === "active" && !isDropHiddenFromPublic(d)).length,
-                    totalDrops: drops.length,
-                    totalUnwraps: drops.reduce((sum, d) => sum + (d.totalUnlocks || 0), 0)
-                } as AdminOverviewResponse["stats"]
-            }));
-            dropsLoadedRef.current = true;
             setListenerState((current) => ({
                 ...current,
                 dropsLoaded: true,
@@ -189,24 +169,6 @@ export function useAdminOverviewRealtime() {
             if (cancelled) return;
             const now = Date.now();
             const fromCache = snapshot.metadata.fromCache;
-            if (snapshot.exists()) {
-                const raw = snapshot.data();
-                const grossRevenueUsdTotal = Number(raw.grossRevenueUsdTotal || 0);
-                const grossRevenueCents = Math.round(grossRevenueUsdTotal * 100) || Number(raw.revenueCentsTotal || 0);
-                const unlockCount = Number(raw.unlockCount || raw.totalUnlocks || 0);
-                const latestServerData = serverDataRef.current;
-
-                setRealtimeData(prev => ({
-                    ...prev,
-                    generatedAt: now,
-                    stats: {
-                        ...prev.stats,
-                        ...(latestServerData?.stats || {}),
-                        grossRevenueCents: Math.max(grossRevenueCents, prev.stats?.grossRevenueCents || 0, latestServerData?.stats?.grossRevenueCents || 0),
-                        totalUnwraps: dropsLoadedRef.current ? (prev.stats?.totalUnwraps || 0) : Math.max(unlockCount, prev.stats?.totalUnwraps || 0, latestServerData?.stats?.totalUnwraps || 0)
-                    } as AdminOverviewResponse["stats"]
-                }));
-            }
             setListenerState((current) => ({
                 ...current,
                 summaryLoaded: true,
@@ -358,15 +320,6 @@ export function useAdminOverviewRealtime() {
         };
     }, []);
 
-    const hasRealtimeSnapshot =
-        listenerState.dropsLoaded || listenerState.summaryLoaded || listenerState.transactionsLoaded || listenerState.adminActivityLoaded;
-    const hasRealtimeFailure =
-        listenerState.dropsFailed || listenerState.summaryFailed || listenerState.transactionsFailed || listenerState.adminActivityFailed;
-    const allRealtimeLoaded =
-        listenerState.dropsLoaded && listenerState.summaryLoaded && listenerState.transactionsLoaded && listenerState.adminActivityLoaded;
-    const anyFromCache =
-        listenerState.dropsFromCache || listenerState.summaryFromCache || listenerState.transactionsFromCache || listenerState.adminActivityFromCache;
-
     const mergedData = useMemo(() => {
         if (!serverData) {
             return undefined;
@@ -382,8 +335,13 @@ export function useAdminOverviewRealtime() {
             lastServerConfirmedAt: listenerState.lastServerConfirmedAt,
             lastClientSnapshotAt: listenerState.lastClientSnapshotAt,
             pollingActive: true,
-            pollingIntervalMs: SERVER_ROLLUP_POLL_INTERVAL_MS,
+            pollingIntervalMs: ADMIN_OVERVIEW_REALTIME_POLICY.snapshotRefreshCadenceMs ?? 0,
             legacyDataMapped: false,
+            metricScope: ADMIN_OVERVIEW_REALTIME_POLICY.metricScope,
+            purpose: ADMIN_OVERVIEW_REALTIME_POLICY.purpose,
+            owner: ADMIN_OVERVIEW_REALTIME_POLICY.owner,
+            costRisk: ADMIN_OVERVIEW_REALTIME_POLICY.costRisk,
+            businessTruthSource: ADMIN_OVERVIEW_REALTIME_POLICY.businessTruthSource,
         };
 
         // Merge admin activity: realtime adjustments override server adjustment items,
@@ -403,7 +361,6 @@ export function useAdminOverviewRealtime() {
 
         return {
             ...serverData,
-            ...realtimeData,
             generatedAt: Math.max(serverData.generatedAt, realtimeData.generatedAt ?? 0),
             freshness: {
                 ...serverData.freshness,
@@ -416,37 +373,43 @@ export function useAdminOverviewRealtime() {
                     mergedAdminActivity[0]?.timestamp ?? 0,
                 ),
             },
+            stats: serverData.stats,
+            deltas: serverData.deltas,
+            topDrops: serverData.topDrops,
+            recentTransactions: realtimeData.recentTransactions?.length
+                ? realtimeData.recentTransactions
+                : serverData.recentTransactions,
             adminActivity: mergedAdminActivity,
             issues: [
                 ...(serverData.issues ?? []),
-                ...(listenerState.dropsFailed ? ["Drop activity live updates are delayed."] : []),
-                ...(listenerState.summaryFailed ? ["Commerce live updates are delayed."] : []),
-                ...(listenerState.transactionsFailed ? ["Transaction live updates are delayed."] : []),
-                ...(listenerState.adminActivityFailed ? ["Admin activity live updates are delayed."] : []),
+                ...(listenerState.dropsFailed ? ["Operational drop pulse is delayed. Showing verified snapshot totals."] : []),
+                ...(listenerState.summaryFailed ? ["Operational commerce pulse is delayed. Showing verified snapshot totals."] : []),
+                ...(listenerState.transactionsFailed ? ["Operational transaction pulse is delayed. Showing verified snapshot totals."] : []),
+                ...(listenerState.adminActivityFailed ? ["Operational admin activity pulse is delayed. Showing verified snapshot totals."] : []),
             ],
             overviewIssues: [
                 ...(serverData.overviewIssues ?? []),
                 ...(listenerState.dropsFailed ? [{
                     source: "drops" as const,
-                    summary: "Drop activity live updates are delayed.",
+                    summary: "Operational drop pulse is delayed. Showing verified snapshot totals.",
                     sourceTruth: "entitlement_rollup" as const,
                     freshnessState: "review" as const,
                 }] : []),
                 ...(listenerState.summaryFailed ? [{
                     source: "commerce" as const,
-                    summary: "Commerce live updates are delayed.",
+                    summary: "Operational commerce pulse is delayed. Showing verified snapshot totals.",
                     sourceTruth: "server_transaction" as const,
                     freshnessState: "review" as const,
                 }] : []),
                 ...(listenerState.transactionsFailed ? [{
                     source: "transactions" as const,
-                    summary: "Transaction live updates are delayed.",
+                    summary: "Operational transaction pulse is delayed. Showing verified snapshot totals.",
                     sourceTruth: "server_transaction" as const,
                     freshnessState: "review" as const,
                 }] : []),
                 ...(listenerState.adminActivityFailed ? [{
                     source: "admin_activity" as const,
-                    summary: "Admin activity live updates are delayed.",
+                    summary: "Operational admin activity pulse is delayed. Showing verified snapshot totals.",
                     sourceTruth: "telemetry" as const,
                     freshnessState: "review" as const,
                 }] : []),
@@ -457,7 +420,7 @@ export function useAdminOverviewRealtime() {
             },
             realtimeDebugMeta: debugMeta,
         } as AdminOverviewResponse;
-    }, [hasRealtimeSnapshot, listenerState, realtimeData, serverData]);
+    }, [listenerState, realtimeData, serverData]);
 
     return {
         data: mergedData,

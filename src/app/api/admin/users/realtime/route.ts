@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 
+import { ADMIN_USERS_REALTIME_POLICY } from "@/lib/admin/admin-realtime-policy";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -41,10 +42,14 @@ async function GET_handler(request: NextRequest) {
         send({
           type: "heartbeat",
           source: "admin_users_realtime",
-          metricScope: "operational_pulse_only",
+          metricScope: ADMIN_USERS_REALTIME_POLICY.metricScope,
+          purpose: ADMIN_USERS_REALTIME_POLICY.purpose,
+          owner: ADMIN_USERS_REALTIME_POLICY.owner,
+          cadenceMs: ADMIN_USERS_REALTIME_POLICY.heartbeatIntervalMs,
+          costRisk: ADMIN_USERS_REALTIME_POLICY.costRisk,
           emittedAt: Date.now(),
         });
-      }, 25_000);
+      }, ADMIN_USERS_REALTIME_POLICY.heartbeatIntervalMs ?? 25_000);
 
       const watch = (source: string, subscribe: (onChange: () => void, onError: (error: unknown) => void) => FirestoreUnsubscribe) => {
         const unsubscribe = subscribe(
@@ -52,7 +57,11 @@ async function GET_handler(request: NextRequest) {
             send({
               type: "invalidate",
               source,
-              metricScope: "operational_pulse_only",
+              metricScope: ADMIN_USERS_REALTIME_POLICY.metricScope,
+              purpose: ADMIN_USERS_REALTIME_POLICY.purpose,
+              owner: ADMIN_USERS_REALTIME_POLICY.owner,
+              cadenceMs: ADMIN_USERS_REALTIME_POLICY.snapshotRefreshCadenceMs,
+              costRisk: ADMIN_USERS_REALTIME_POLICY.costRisk,
               emittedAt: Date.now(),
             });
           },
@@ -69,7 +78,11 @@ async function GET_handler(request: NextRequest) {
             send({
               type: "failed",
               source,
-              metricScope: "operational_pulse_only",
+              metricScope: ADMIN_USERS_REALTIME_POLICY.metricScope,
+              purpose: ADMIN_USERS_REALTIME_POLICY.purpose,
+              owner: ADMIN_USERS_REALTIME_POLICY.owner,
+              cadenceMs: ADMIN_USERS_REALTIME_POLICY.snapshotRefreshCadenceMs,
+              costRisk: ADMIN_USERS_REALTIME_POLICY.costRisk,
               emittedAt: Date.now(),
             });
           },
@@ -85,7 +98,11 @@ async function GET_handler(request: NextRequest) {
       send({
         type: "connected",
         source: "admin_users_realtime",
-        metricScope: "operational_pulse_only",
+        metricScope: ADMIN_USERS_REALTIME_POLICY.metricScope,
+        purpose: ADMIN_USERS_REALTIME_POLICY.purpose,
+        owner: ADMIN_USERS_REALTIME_POLICY.owner,
+        cadenceMs: ADMIN_USERS_REALTIME_POLICY.heartbeatIntervalMs,
+        costRisk: ADMIN_USERS_REALTIME_POLICY.costRisk,
         emittedAt: Date.now(),
       });
 

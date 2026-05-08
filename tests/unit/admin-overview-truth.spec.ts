@@ -38,20 +38,20 @@ describe("admin overview truth chips", () => {
         adminActivityFromCache: false,
     };
 
-    it("returns 'Updated' when all listeners loaded and none from cache", () => {
-        expect(resolveTruthChipLabel(allLoaded, true)).toBe("Updated");
+    it("returns 'Operational pulse connected' when all listeners loaded and none from cache", () => {
+        expect(resolveTruthChipLabel(allLoaded, true)).toBe("Operational pulse connected");
     });
 
-    it("returns 'Showing last verified data' when all loaded but some from cache", () => {
-        expect(resolveTruthChipLabel({ ...allLoaded, dropsFromCache: true }, true)).toBe("Showing last verified data");
+    it("returns 'Showing verified snapshot totals' when all loaded but some from cache", () => {
+        expect(resolveTruthChipLabel({ ...allLoaded, dropsFromCache: true }, true)).toBe("Showing verified snapshot totals");
     });
 
-    it("returns delayed copy when live updates fail", () => {
+    it("returns delayed copy when operational pulse lanes fail", () => {
         expect(resolveTruthChipLabel({ ...allLoaded, dropsFailed: true }, true)).toBe(
-            "Live updates delayed",
+            "Operational pulse delayed",
         );
         expect(resolveTruthChipLabel({ ...allLoaded, dropsFailed: true, summaryFailed: true }, true)).toBe(
-            "Live updates delayed",
+            "Operational pulse delayed",
         );
     });
 
@@ -64,18 +64,18 @@ describe("admin overview truth chips", () => {
         expect(resolveTruthChipLabel(empty, false)).toBe("Waiting for first overview snapshot");
     });
 
-    it("returns 'Refreshing overview' when some but not all loaded", () => {
+    it("returns 'Connecting operational pulse' when some but not all loaded", () => {
         const partial = { ...allLoaded, summaryLoaded: false, transactionsLoaded: false };
-        expect(resolveTruthChipLabel(partial, true)).toBe("Refreshing overview");
+        expect(resolveTruthChipLabel(partial, true)).toBe("Connecting operational pulse");
     });
 
-    it("returns 'Showing last verified data' when no live upgrade but server data exists", () => {
+    it("returns 'Showing verified snapshot totals' when no live upgrade but server data exists", () => {
         const noRealtime = {
             dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false, adminActivityLoaded: false,
             dropsFailed: false, summaryFailed: false, transactionsFailed: false, adminActivityFailed: false,
             dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false, adminActivityFromCache: false,
         };
-        expect(resolveTruthChipLabel(noRealtime, true)).toBe("Showing last verified data");
+        expect(resolveTruthChipLabel(noRealtime, true)).toBe("Showing verified snapshot totals");
     });
 
     it("never produces vague bracket-prefixed labels", () => {
@@ -106,10 +106,10 @@ describe("admin overview truth chips", () => {
 
 describe("admin overview truth chip variants", () => {
     it("maps known labels to correct CSS variants", () => {
-        expect(resolveTruthChipVariant("Updated")).toBe("live");
-        expect(resolveTruthChipVariant("Showing last verified data")).toBe("stale");
-        expect(resolveTruthChipVariant("Refreshing overview")).toBe("degraded");
-        expect(resolveTruthChipVariant("Live updates delayed")).toBe("fallback");
+        expect(resolveTruthChipVariant("Operational pulse connected")).toBe("live");
+        expect(resolveTruthChipVariant("Showing verified snapshot totals")).toBe("stale");
+        expect(resolveTruthChipVariant("Connecting operational pulse")).toBe("degraded");
+        expect(resolveTruthChipVariant("Operational pulse delayed")).toBe("fallback");
         expect(resolveTruthChipVariant("Waiting for first overview snapshot")).toBe("unavailable");
     });
 
@@ -131,6 +131,11 @@ describe("admin overview debug meta type contract", () => {
             pollingActive: true,
             pollingIntervalMs: 60000,
             legacyDataMapped: false,
+            metricScope: "operational_pulse_only",
+            purpose: "operational_pulse_only",
+            owner: "admin_overview",
+            costRisk: "moderate",
+            businessTruthSource: "refresh_based_hot_cache",
         };
 
         expect(meta).toHaveProperty("dropsFromCache");
@@ -142,6 +147,11 @@ describe("admin overview debug meta type contract", () => {
         expect(meta).toHaveProperty("pollingActive");
         expect(meta).toHaveProperty("pollingIntervalMs");
         expect(meta).toHaveProperty("legacyDataMapped");
+        expect(meta).toHaveProperty("metricScope");
+        expect(meta).toHaveProperty("purpose");
+        expect(meta).toHaveProperty("owner");
+        expect(meta).toHaveProperty("costRisk");
+        expect(meta).toHaveProperty("businessTruthSource");
     });
 });
 

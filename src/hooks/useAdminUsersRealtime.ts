@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 
 import { authFetch } from "@/lib/authFetch";
+import {
+  ADMIN_USERS_REALTIME_POLICY,
+  resolveAdminRealtimeFailureState,
+} from "@/lib/admin/admin-realtime-policy";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 
@@ -11,6 +15,10 @@ type AdminUsersRealtimeMessage = {
   source?: string;
   emittedAt?: number;
   metricScope?: "operational_pulse_only";
+  purpose?: "operational_pulse_only";
+  owner?: string;
+  cadenceMs?: number;
+  costRisk?: "low" | "moderate" | "high";
 };
 
 type UseAdminUsersRealtimeInput = {
@@ -64,11 +72,11 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
     let attempt = 0;
 
     const connect = async () => {
-      setPulseState((current) => {
-        if (hasSnapshotRef.current) {
-          return current === "live" ? "fallback" : current;
-        }
-        return "loading";
+          setPulseState((current) => {
+            if (hasSnapshotRef.current) {
+              return current === "live" ? "fallback" : current;
+            }
+            return "loading";
       });
       setPulseLabel(
         hasSnapshotRef.current
@@ -121,6 +129,16 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
 
             try {
               const payload = JSON.parse(line.slice(6)) as AdminUsersRealtimeMessage;
+              if (payload.metricScope !== ADMIN_USERS_REALTIME_POLICY.metricScope) {
+                setLastFailureAt(Date.now());
+                setPulseState(resolveAdminRealtimeFailureState(hasSnapshotRef.current));
+                setPulseLabel(
+                  hasSnapshotRef.current
+                    ? "Realtime pulse reported an invalid scope. Showing the last verified snapshot."
+                    : "Realtime pulse reported an invalid scope before a verified snapshot was available.",
+                );
+                return;
+              }
               const emittedAt = payload.emittedAt ?? Date.now();
               setLastPulseAt(emittedAt);
               if (payload.type === "invalidate") {
@@ -129,7 +147,7 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
               }
               if (payload.type === "failed") {
                 setLastFailureAt(emittedAt);
-                setPulseState(hasSnapshotRef.current ? "degraded" : "failed");
+                setPulseState(resolveAdminRealtimeFailureState(hasSnapshotRef.current));
                 setPulseLabel(
                   hasSnapshotRef.current
                     ? "Realtime pulse is delayed. Showing the last verified snapshot."
@@ -137,7 +155,7 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
                 );
               }
             } catch {
-              setPulseState(hasSnapshotRef.current ? "degraded" : "failed");
+              setPulseState(resolveAdminRealtimeFailureState(hasSnapshotRef.current));
               setPulseLabel(
                 hasSnapshotRef.current
                   ? "Realtime pulse data was malformed. Showing the last verified snapshot."
@@ -149,7 +167,7 @@ export function useAdminUsersRealtime(input: UseAdminUsersRealtimeInput) {
       } catch (error) {
         if (!cancelled) {
           setLastFailureAt(Date.now());
-          setPulseState(hasSnapshotRef.current ? "degraded" : "failed");
+          setPulseState(resolveAdminRealtimeFailureState(hasSnapshotRef.current));
           setPulseLabel(
             hasSnapshotRef.current
               ? "Realtime pulse failed. Showing the last verified snapshot."

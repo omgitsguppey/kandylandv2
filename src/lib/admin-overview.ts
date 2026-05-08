@@ -1,4 +1,5 @@
 import type { Drop, Transaction } from "@/types/db";
+import type { AdminRealtimeCostRisk, AdminRealtimeMetricScope } from "@/lib/admin/admin-realtime-policy";
 import type { AdminModuleVerification } from "@/lib/admin-parity";
 import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
@@ -197,6 +198,11 @@ export type AdminOverviewRealtimeDebugMeta = {
     pollingActive: boolean;
     pollingIntervalMs: number;
     legacyDataMapped: boolean;
+    metricScope: AdminRealtimeMetricScope;
+    purpose: "operational_pulse_only";
+    owner: string;
+    costRisk: AdminRealtimeCostRisk;
+    businessTruthSource: "refresh_based_hot_cache";
 };
 
 export function calculateOverviewMetricDelta(

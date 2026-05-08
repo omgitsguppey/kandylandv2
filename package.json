@@ -101,6 +101,7 @@
         "check:admin-truth-replacement": "tsx scripts/agent/validate-admin-truth-replacement.ts",
         "check:admin-ui-primitives-cutover": "tsx scripts/agent/validate-admin-ui-primitives-cutover.ts",
         "check:admin-pages-cutover": "tsx scripts/agent/validate-admin-pages-cutover.ts",
+        "check:admin-realtime-cutover": "tsx scripts/agent/validate-admin-realtime-cutover.ts",
         "check:admin-users-stats-grid": "tsx scripts/agent/validate-admin-users-stats-grid.ts",
         "check:admin-users-loading-lanes": "tsx scripts/agent/validate-admin-users-loading-lanes.ts",
         "check:user-behavior-rollup": "tsx scripts/agent/validate-user-behavior-rollup.ts",

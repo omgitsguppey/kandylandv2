@@ -1,10 +1,11 @@
+import { ADMIN_ANALYTICS_REALTIME_POLICY } from "@/lib/admin/admin-realtime-policy";
 import type {
   RealtimeActiveUserItem,
   RealtimePoint,
   SurfaceMixItem,
 } from "@/types/admin-analytics";
 
-export const ADMIN_ANALYTICS_REALTIME_SCOPE = "operational_live_pulse_only" as const;
+export const ADMIN_ANALYTICS_REALTIME_SCOPE = ADMIN_ANALYTICS_REALTIME_POLICY.metricScope;
 
 export type AdminAnalyticsLiveFeedStatus =
   | "realtime"
