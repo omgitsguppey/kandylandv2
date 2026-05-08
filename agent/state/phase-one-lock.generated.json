@@ -1,70 +1,137 @@
 {
-  "generatedAt": "2026-05-08T03:03:48.842Z",
+  "reportKey": "phase-one-lock",
+  "generatedAt": "2026-05-08T03:20:26.683Z",
+  "sourceCommit": "2e54dfa75999e5ca82299120ee948e2acd3a73e9",
+  "freshness": "fresh",
   "status": "pass",
-  "requiredChecks": [
-    "check:runtime-facts-cutover",
-    "check:materializers-cutover",
-    "check:admin-pages-cutover",
-    "check:admin-ui-primitives-cutover",
-    "check:debug-control-tower-cutover",
-    "check:admin-realtime-cutover",
-    "check:generated-report-authority",
-    "check:validator-authority",
-    "check:release-notes-cutover",
-    "check:privacy-import-export-cutover",
-    "check:chat-paid-gumdrops-guidance",
-    "check:drop-asset-upload-progress"
+  "summary": {
+    "sectionCount": 16,
+    "passedSectionCount": 16,
+    "failedSectionCount": 0,
+    "criticalBlockerCount": 0,
+    "warningCount": 0,
+    "changedFileCount": 4,
+    "requiredTargetedCheckCount": 15,
+    "forbiddenBroadCheckCount": 6
+  },
+  "criticalBlockers": [],
+  "warnings": [],
+  "changedFilesSinceLastPhaseLock": [
+    "agent/context/optimized-task-context.generated.json",
+    "agent/state/phase-one-lock.generated.json",
+    "docs/agent-truth/phase-one-lock.md",
+    "scripts/agent/validate-phase-one-lock.ts"
   ],
-  "executedChecks": [
+  "requiredTargetedChecks": [
+    "npm run check:runtime-facts-cutover",
+    "npm run check:materializers-cutover",
+    "npm run check:admin-pages-cutover",
+    "npm run check:admin-ui-primitives-cutover",
+    "npm run check:debug-control-tower-cutover",
+    "npm run check:admin-realtime-cutover",
+    "npm run check:generated-report-authority",
+    "npm run check:validator-authority",
+    "npm run check:release-notes-cutover",
+    "npm run check:privacy-import-export-cutover",
+    "npm run check:chat-paid-gumdrops-guidance",
+    "npm run check:drop-asset-upload-progress",
+    "npm run check:wallet-density",
+    "npm run check:wallet-single-paypal-button",
+    "npm run check:payment-unlock-security"
+  ],
+  "forbiddenBroadChecks": [
+    "npm run check",
+    "npx vitest run",
+    "playwright",
+    "cypress",
+    "lighthouse",
+    "firebase deploy"
+  ],
+  "promoReadinessNotes": [
+    "Phase 1 has one truth gate and it is sealed.",
+    "Promote only after rerunning the targeted checks if any file in the covered surfaces changes again.",
+    "Generated reports remain evidence snapshots; runtime must not import them."
+  ],
+  "validationResults": [
     {
-      "scriptName": "check:runtime-facts-cutover",
-      "ok": true
+      "name": "Runtime facts canonical",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:materializers-cutover",
-      "ok": true
+      "name": "Materializers consume canonical facts",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:admin-pages-cutover",
-      "ok": true
+      "name": "Admin pages use canonical snapshots/rollups",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:admin-ui-primitives-cutover",
-      "ok": true
+      "name": "Admin UI primitives use shared badges and cards",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:debug-control-tower-cutover",
-      "ok": true
+      "name": "Debug control tower reads canonical truth only",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:admin-realtime-cutover",
-      "ok": true
+      "name": "Realtime admin routes cannot override snapshot business metrics",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:generated-report-authority",
-      "ok": true
+      "name": "Generated reports cannot be imported by runtime",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:validator-authority",
-      "ok": true
+      "name": "Validators are classified in validator authority",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:release-notes-cutover",
-      "ok": true
+      "name": "Release notes skip generated/audit churn and cannot loop",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:privacy-import-export-cutover",
-      "ok": true
+      "name": "Privacy-limited data is not scored as zero",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:chat-paid-gumdrops-guidance",
-      "ok": true
+      "name": "Chat paid-GD guidance is present and shell constants unchanged",
+      "status": "pass",
+      "failures": []
     },
     {
-      "scriptName": "check:drop-asset-upload-progress",
-      "ok": true
+      "name": "Drop uploader uses uploadStatus/uploadProgress and no fake pending",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Storage upload paths are rules-validated or server-uploaded",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Wallet paid/free source truth remains intact",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Server purchase/unlock truth remains primary",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "No blocked legacy path is imported by canonical UI",
+      "status": "pass",
+      "failures": []
     }
-  ],
-  "boundaryChecks": [],
-  "failures": []
+  ]
 }
