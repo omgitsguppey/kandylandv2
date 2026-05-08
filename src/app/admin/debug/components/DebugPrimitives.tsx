@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminDebugCardCopy } from "@/lib/admin-debug-summary-cards";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import {
-    coerceAdminTruthState,
-    hasUsableAdminTruthValue,
-    resolveAdminTruthState,
+    resolveAdminInputTruthState,
     type AdminTruthState,
 } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
@@ -26,23 +25,20 @@ export function Pill({ label, value, tone = "neutral", truthState, badgeLabel }:
                 ? "border-red-400/20 bg-red-500/10 text-red-100"
                 : "border-white/10 bg-white/5 text-gray-200";
 
-    const hasUsableValue = hasUsableAdminTruthValue(value);
-    const normalizedTruthState = coerceAdminTruthState(truthState) ?? "unavailable";
-    const resolvedTruthState = resolveAdminTruthState({
-        hasUsableValue,
-        sourceConfigured: true,
-        transportState: normalizedTruthState,
-        valueState: normalizedTruthState,
+    const resolvedTruth = resolveAdminInputTruthState({
+        truthState,
+        value,
+        pendingInitialLoad: truthState === "loading",
     });
 
     return (
         <div className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs", toneClassName)}>
             <AdminTruthBadge
-                state={resolvedTruthState}
+                state={resolvedTruth.truthState}
                 label={badgeLabel}
                 className="py-0 text-[8px]"
-                pendingInitialLoad={truthState === "loading" && !hasUsableValue}
-                hasUsableValue={hasUsableValue}
+                pendingInitialLoad={resolvedTruth.pendingInitialLoad}
+                hasUsableValue={resolvedTruth.hasUsableValue}
             />
             <span className="text-gray-400">{label}</span>
             <span className="font-semibold text-white">{value}</span>
@@ -64,28 +60,25 @@ export function StatCard({
     truthState: AdminTruthState | AdminSurfaceState | "loading";
     copy?: AdminDebugCardCopy;
 }) {
-    const hasUsableValue = hasUsableAdminTruthValue(value);
-    const normalizedTruthState = coerceAdminTruthState(truthState) ?? "unavailable";
-    const resolvedTruthState = resolveAdminTruthState({
-        hasUsableValue,
-        sourceConfigured: true,
-        transportState: normalizedTruthState,
-        valueState: normalizedTruthState,
+    const resolvedTruth = resolveAdminInputTruthState({
+        truthState,
+        value,
+        pendingInitialLoad: truthState === "loading",
     });
 
     return (
         <div className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-2.5">
-            <div className="flex items-center justify-between gap-2">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
-                <AdminTruthBadge
-                    state={resolvedTruthState}
-                    className="py-0 text-[8px]"
-                    pendingInitialLoad={truthState === "loading" && !hasUsableValue}
-                    hasUsableValue={hasUsableValue}
-                />
-            </div>
-            <div className="mt-1 text-[1.4rem] font-black text-white">{value}</div>
-            {meta ? <p className="mt-1 text-[11px] text-gray-400">{meta}</p> : null}
+            <AdminMetricCard
+                label={label}
+                value={value}
+                meta={meta}
+                truthState={resolvedTruth.truthState}
+                hasUsableValue={resolvedTruth.hasUsableValue}
+                pendingInitialLoad={resolvedTruth.pendingInitialLoad}
+                badgeClassName="py-0 text-[8px]"
+                valueClassName="mt-1 text-[1.4rem] md:text-[1.4rem]"
+                className="border-0 bg-transparent p-0"
+            />
             {copy ? (
                 <details className="mt-2 rounded-xl border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
                     <summary className="cursor-pointer font-semibold text-gray-100">Explain this</summary>

@@ -87,10 +87,20 @@ export function resolveAdminTruthState(input: {
   delayed?: boolean;
   reviewRequired?: boolean;
   sourceIssue?: boolean;
+  confidence?: number | null;
+  confidenceThreshold?: number;
 }): AdminTruthState {
   const transportState = coerceAdminTruthState(input.transportState);
   const valueState = coerceAdminTruthState(input.valueState);
   const sourceConfigured = input.sourceConfigured ?? true;
+  const confidence =
+    typeof input.confidence === "number" && Number.isFinite(input.confidence)
+      ? input.confidence
+      : null;
+  const confidenceThreshold =
+    typeof input.confidenceThreshold === "number" && Number.isFinite(input.confidenceThreshold)
+      ? input.confidenceThreshold
+      : null;
 
   if (!sourceConfigured) {
     return "unavailable";
@@ -140,7 +150,91 @@ export function resolveAdminTruthState(input: {
     return "stale";
   }
 
+  if (confidenceThreshold !== null && (confidence === null || confidence < confidenceThreshold)) {
+    return "review";
+  }
+
   return "live";
+}
+
+export function resolveAdminInputTruthState(input: {
+  truthState?: unknown;
+  value?: unknown;
+  sourceConfigured?: boolean;
+  pendingInitialLoad?: boolean;
+  refreshInFlight?: boolean;
+  delayed?: boolean;
+  reviewRequired?: boolean;
+  sourceIssue?: boolean;
+  confidence?: number | null;
+  confidenceThreshold?: number;
+}) {
+  const hasUsableValue = hasUsableAdminTruthValue(input.value);
+  return {
+    truthState: resolveAdminTruthState({
+      hasUsableValue,
+      sourceConfigured: input.sourceConfigured ?? true,
+      transportState: input.truthState,
+      valueState: input.truthState,
+      refreshInFlight: input.refreshInFlight,
+      delayed: input.delayed,
+      reviewRequired: input.reviewRequired,
+      sourceIssue: input.sourceIssue,
+      confidence: input.confidence,
+      confidenceThreshold: input.confidenceThreshold,
+    }),
+    hasUsableValue,
+    pendingInitialLoad: Boolean(input.pendingInitialLoad && !hasUsableValue),
+  };
+}
+
+export function resolveAdminMetricTruthState(input: {
+  truthState?: unknown;
+  value?: unknown;
+  reviewRequired?: boolean;
+  confidence?: number | null;
+  confidenceThreshold?: number;
+}) {
+  return resolveAdminTruthState({
+    hasUsableValue: hasUsableAdminTruthValue(input.value),
+    sourceConfigured: true,
+    transportState: input.truthState,
+    valueState: input.truthState,
+    reviewRequired: input.reviewRequired,
+    confidence: input.confidence,
+    confidenceThreshold: input.confidenceThreshold,
+  });
+}
+
+export function resolveAdminVerificationTruthState(input: {
+  status?: unknown;
+  canonicalSource?: string | null;
+  fallbackSource?: string | null;
+  freshnessTimestamp?: number | null;
+  countComposition?: Record<string, number> | null;
+  verificationState?: unknown;
+  degradedReason?: string | null;
+}) {
+  const hasUsableFallback = Boolean(
+    input.fallbackSource
+      || input.freshnessTimestamp
+      || (input.countComposition && Object.keys(input.countComposition).length > 0),
+  );
+  const hasUsableValue = input.status === "failed" ? hasUsableFallback : true;
+  const normalizedStatus = coerceAdminTruthState(input.status) ?? "unavailable";
+
+  return {
+    truthState: resolveAdminTruthState({
+      hasUsableValue,
+      sourceConfigured: Boolean(input.canonicalSource),
+      transportState: normalizedStatus,
+      valueState: input.verificationState === "fallback" ? "legacy_fallback" : normalizedStatus,
+      reviewRequired: Boolean(input.degradedReason),
+      sourceIssue: input.status === "degraded" || input.status === "failed",
+    }),
+    hasUsableValue,
+    pendingInitialLoad: input.status === "loading" && !hasUsableValue,
+  };
 }
 
 export function getAdminTruthStateBadgeLabel(

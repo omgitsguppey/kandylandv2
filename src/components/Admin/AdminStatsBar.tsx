@@ -3,18 +3,17 @@
 import { ArrowDownRight, ArrowRight, ArrowUpRight, DollarSign, ShoppingBag, Users, Zap } from "lucide-react";
 
 import type { AdminOverviewIssueDetail, AdminOverviewResponse, PlatformPulseMetric } from "@/lib/admin-overview";
+import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminReviewBadge } from "@/components/Admin/AdminReviewBadge";
-import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { buildAdminReviewBadge } from "@/lib/behavioral/review-badge-rules";
-import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { AdminTruthState } from "@/lib/admin-truth-state";
-import { hasUsableAdminTruthValue, resolveAdminTruthState } from "@/lib/admin-truth-state";
+import { hasUsableAdminTruthValue, resolveAdminMetricTruthState } from "@/lib/admin-truth-state";
 import { cn } from "@/lib/utils";
 
 type AdminStatsBarProps = {
     platformPulse?: AdminOverviewResponse["platformPulse"];
     overviewIssues?: AdminOverviewResponse["overviewIssues"];
-    truthState?: AdminTruthState | AdminSurfaceState;
+    truthState?: AdminTruthState;
 };
 
 function formatDelta(metric: PlatformPulseMetric) {
@@ -87,11 +86,12 @@ function formatConfidence(confidence: number | null) {
 }
 
 function buildMetricTruthState(metric: PlatformPulseMetric) {
-    return resolveAdminTruthState({
-        hasUsableValue: hasUsableAdminTruthValue(metric.primaryValue),
-        sourceConfigured: true,
-        transportState: metric.freshnessState === "review" ? "review" : metric.freshnessState,
+    return resolveAdminMetricTruthState({
+        value: metric.primaryValue,
+        truthState: metric.freshnessState === "review" ? "review" : metric.freshnessState,
         reviewRequired: metric.warnings.length > 0,
+        confidence: metric.confidence,
+        confidenceThreshold: 0.6,
     });
 }
 
@@ -124,36 +124,41 @@ export function AdminStatsBar({ platformPulse, overviewIssues, truthState }: Adm
                     return (
                         <div
                             key={metric.id}
-                            className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5"
                             data-admin-metric-id={metric.id}
                             data-admin-metric-source={metric.sourceTruth}
                             data-admin-metric-freshness={metric.freshnessState}
                             data-admin-metric-confidence={metric.confidence ?? "unknown"}
                         >
-                            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
-                                <Icon className="h-3.5 w-3.5 text-brand-purple" />
-                                {metric.label}
-                                <span className="ml-auto flex items-center gap-1">
-                                    <AdminReviewBadge decision={reviewDecision} className="py-0.5" />
-                                    <AdminTruthBadge state={metricState} className="py-0.5" hasUsableValue />
-                                </span>
-                            </p>
-                            <div className="mt-2 flex items-start justify-between gap-2">
-                                <p className={cn("text-lg font-black text-white md:text-[1.45rem]", metric.id === "revenue" ? "font-mono" : "")}>
-                                    {formatPrimaryValue(metric.primaryValue)}
-                                </p>
-                                <DeltaBadge metric={metric} />
-                            </div>
-                            <p className="mt-2 text-[10px] text-gray-400">{metric.subtext}</p>
-                            <p className="mt-1 text-[10px] text-gray-500">{metric.deltaLabel}</p>
-                            <p className="mt-1 text-[10px] text-gray-500">
-                                {metric.lifetimeLabel ?? `${metric.sourceTruth} | ${formatConfidence(metric.confidence)}`}
-                            </p>
-                            {metric.lifetimeLabel ? (
-                                <p className="mt-1 text-[10px] text-gray-500">
-                                    {metric.sourceTruth} | {formatConfidence(metric.confidence)}
-                                </p>
-                            ) : null}
+                            <AdminMetricCard
+                                label={metric.label}
+                                icon={<Icon className="h-3.5 w-3.5 shrink-0 text-brand-purple" />}
+                                truthState={metricState}
+                                hasUsableValue={hasUsableAdminTruthValue(metric.primaryValue)}
+                                auxiliaryBadges={<AdminReviewBadge decision={reviewDecision} className="py-0.5" />}
+                                badgeClassName="py-0.5"
+                                className="rounded-[1.35rem] border-white/8 bg-black/35 px-3.5 py-3.5"
+                                valueClassName={cn("text-lg md:text-[1.45rem]", metric.id === "revenue" ? "font-mono" : "")}
+                                value={(
+                                    <div className="flex items-start justify-between gap-2">
+                                        <span>{formatPrimaryValue(metric.primaryValue)}</span>
+                                        <DeltaBadge metric={metric} />
+                                    </div>
+                                )}
+                                meta={(
+                                    <>
+                                        <p className="text-[10px] text-gray-400">{metric.subtext}</p>
+                                        <p className="mt-1 text-[10px] text-gray-500">{metric.deltaLabel}</p>
+                                        <p className="mt-1 text-[10px] text-gray-500">
+                                            {metric.lifetimeLabel ?? `${metric.sourceTruth} | ${formatConfidence(metric.confidence)}`}
+                                        </p>
+                                        {metric.lifetimeLabel ? (
+                                            <p className="mt-1 text-[10px] text-gray-500">
+                                                {metric.sourceTruth} | {formatConfidence(metric.confidence)}
+                                            </p>
+                                        ) : null}
+                                    </>
+                                )}
+                            />
                         </div>
                     );
                 })}

@@ -1,10 +1,12 @@
 import { cn } from "@/lib/utils";
+import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { adminMetricStateToSurfaceState } from "@/lib/admin-metric-truth-state";
 import {
-    coerceAdminTruthState,
     hasUsableAdminTruthValue,
+    resolveAdminInputTruthState,
+    resolveAdminMetricTruthState,
     resolveAdminTruthState,
     type AdminTruthState,
 } from "@/lib/admin-truth-state";
@@ -74,12 +76,9 @@ export function resolveAdminAiDataState(input: {
     error?: unknown;
     isLoading?: boolean;
 }): AdminSurfaceState {
-    const truthState = resolveAdminTruthState({
-        hasUsableValue: hasUsableAdminTruthValue(input.data),
-        sourceConfigured: true,
-        transportState: input.error ? "failed" : undefined,
-        refreshInFlight: Boolean(input.isLoading && input.data),
-        sourceIssue: Boolean(input.error && input.data),
+    const truthState = resolveAdminMetricTruthState({
+        value: input.data,
+        truthState: input.error ? "failed" : input.isLoading && !input.data ? "unavailable" : undefined,
     });
     return adminMetricStateToSurfaceState(truthState);
 }
@@ -102,34 +101,22 @@ export function MetricCard({ label, value, meta, tone = "neutral", truthState }:
     tone?: "neutral" | "good" | "warn";
     truthState?: AdminTruthState | AdminSurfaceState | "loading";
 }) {
-    const toneClassName = tone === "good"
-        ? "border-emerald-400/20 bg-emerald-500/10"
-        : tone === "warn"
-            ? "border-amber-400/20 bg-amber-500/10"
-            : "border-white/10 bg-white/[0.04]";
-    const hasUsableValue = hasUsableAdminTruthValue(value);
-    const normalizedTruthState = coerceAdminTruthState(truthState) ?? "unavailable";
-    const resolvedTruthState = resolveAdminTruthState({
-        hasUsableValue,
-        sourceConfigured: true,
-        transportState: normalizedTruthState,
-        valueState: normalizedTruthState,
+    const resolvedTruth = resolveAdminInputTruthState({
+        truthState,
+        value,
+        pendingInitialLoad: truthState === "loading",
     });
 
     return (
-        <div className={cn("min-w-0 overflow-hidden rounded-[1.1rem] border p-3", toneClassName)}>
-            <div className="flex items-center justify-between gap-2">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
-                <AdminTruthBadge
-                    state={resolvedTruthState}
-                    className="py-0.5"
-                    pendingInitialLoad={truthState === "loading" && !hasUsableValue}
-                    hasUsableValue={hasUsableValue}
-                />
-            </div>
-            <div className="mt-1.5 break-words text-xl font-black text-white md:text-2xl">{value}</div>
-            {meta ? <p className="mt-1 break-words text-xs text-gray-400">{meta}</p> : null}
-        </div>
+        <AdminMetricCard
+            label={label}
+            value={value}
+            meta={meta}
+            tone={tone}
+            truthState={resolvedTruth.truthState}
+            hasUsableValue={resolvedTruth.hasUsableValue}
+            pendingInitialLoad={resolvedTruth.pendingInitialLoad}
+        />
     );
 }
 

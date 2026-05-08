@@ -32,6 +32,8 @@ export function AdminTruthBadge({
       title={title ?? description}
       aria-label={`${badgeLabel}. ${description}`}
       data-admin-truth-state={state}
+      data-admin-truth-has-usable-value={hasUsableValue ? "true" : "false"}
+      data-admin-truth-pending-initial-load={pendingInitialLoad ? "true" : "false"}
       className={cn(
         "inline-flex rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
         LAUNCH_BADGE_CONTAINMENT_CLASSNAME,

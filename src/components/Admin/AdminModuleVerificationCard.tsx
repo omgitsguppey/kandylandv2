@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { summarizeAdminIssueForOperator } from "@/lib/admin-copy/admin-truth-copy";
 import { type AdminModuleVerification, type AdminSurfaceState } from "@/lib/admin-parity";
-import { coerceAdminTruthState, resolveAdminTruthState } from "@/lib/admin-truth-state";
+import { resolveAdminVerificationTruthState } from "@/lib/admin-truth-state";
 
 interface AdminModuleVerificationCardProps {
     verification: AdminModuleVerification;
@@ -37,20 +37,14 @@ export function AdminModuleVerificationCard({
     const operatorIssue = verification.degradedReason
         ? summarizeAdminIssueForOperator(verification.degradedReason)
         : null;
-    const hasUsableFallback = Boolean(
-        verification.fallbackSource
-        || verification.freshnessTimestamp
-        || (verification.countComposition && Object.keys(verification.countComposition).length > 0),
-    );
-    const truthState = resolveAdminTruthState({
-        hasUsableValue: verification.status === "failed" ? hasUsableFallback : true,
-        sourceConfigured: Boolean(verification.canonicalSource),
-        transportState: coerceAdminTruthState(verification.status) ?? "unavailable",
-        valueState: verification.verificationState === "fallback"
-            ? "legacy_fallback"
-            : coerceAdminTruthState(verification.status) ?? "unavailable",
-        reviewRequired: Boolean(verification.degradedReason),
-        sourceIssue: verification.status === "degraded" || verification.status === "failed",
+    const verificationTruth = resolveAdminVerificationTruthState({
+        status: verification.status,
+        canonicalSource: verification.canonicalSource,
+        fallbackSource: verification.fallbackSource,
+        freshnessTimestamp: verification.freshnessTimestamp,
+        countComposition: verification.countComposition,
+        verificationState: verification.verificationState,
+        degradedReason: verification.degradedReason,
     });
     
     return (
@@ -65,9 +59,9 @@ export function AdminModuleVerificationCard({
                 <div className="flex shrink-0 items-center gap-1.5">
                     <StatusIcon className="h-3 w-3" />
                     <AdminTruthBadge
-                        state={truthState}
-                        pendingInitialLoad={verification.status === "loading"}
-                        hasUsableValue={verification.status === "failed" ? hasUsableFallback : true}
+                        state={verificationTruth.truthState}
+                        pendingInitialLoad={verificationTruth.pendingInitialLoad}
+                        hasUsableValue={verificationTruth.hasUsableValue}
                     />
                 </div>
             </div>

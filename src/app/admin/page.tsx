@@ -48,7 +48,7 @@ export default function AdminDashboardPage() {
                             <AdminStatsBar
                                 platformPulse={pageData.platformPulse}
                                 overviewIssues={data.overviewIssues}
-                                truthState={truthVariant}
+                                truthState={pageData.truthState}
                             />
                         ) : (
                             <div className={overviewFallbackClassName}>
