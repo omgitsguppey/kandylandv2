@@ -1240,9 +1240,8 @@ export function AssetUploader({
                   </div>
 
                   <div className="absolute bottom-1 right-1 rounded bg-black/70 px-1.5 py-0.5 text-[9px] text-gray-200 shadow-sm">
-                    <span className="inline-flex items-center gap-1">
+                    <span className="inline-flex items-center">
                       {asset.kind === "image" ? <ImageIcon className="h-3 w-3" /> : asset.kind === "video" ? <Video className="h-3 w-3" /> : <FileArchive className="h-3 w-3" />}
-                      {asset.kind}
                     </span>
                   </div>
 

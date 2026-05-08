@@ -60,6 +60,12 @@ Client telemetry:
 
 Payloads must include `actorType`, `actorUid`, `targetUserId`, `performedAs`, `settingKey`, `oldValue`, `newValue`, and `route: /admin/roster`.
 
+Fan Pass entitlement truth:
+
+- Fan Pass may unlock eligible drops via server entitlement checks.
+- Fan Pass does not mint paid GumDrops.
+- Fan Pass does not bypass paid-GD creator chat unless `subscriberFreeChatApplies` is explicitly true by policy.
+
 Creator onboarding history records:
 
 - `creator_experience_settings_updated`

@@ -102,3 +102,10 @@ npm run check:admin-ai-control-tower
 npm run check:debug-control-tower-cutover
 npm run check:google-cost
 ```
+
+## Deterministic Cutover
+
+- `cover_prompt_refinement` is blocked for active cover prompt generation.
+- Cover prompt source is deterministic compiler output (`data-cover-prompt-source="deterministic-compiler"`).
+- Description source is deterministic patterns with optional polish (`data-description-ai-polish="optional"`).
+- Admin AI layout marker for compact mode: `data-ai-dashboard-density="compact-v2"`.

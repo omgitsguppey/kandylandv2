@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import {
-    getAdminAiDropCoverPromptPolicy,
-    saveAdminAiDropCoverPromptPolicy,
     toAdminAiDropCoverClientError,
 } from "@/lib/server/ai-drop-covers";
 import { handleApiError } from "@/lib/server/auth";
@@ -39,13 +37,16 @@ async function GET_handler(request: NextRequest) {
         });
 
         return finalize(startedAt, "admin/ai/drop-covers/prompt-policy:GET", NextResponse.json({
-            success: true,
-            promptPolicy: await getAdminAiDropCoverPromptPolicy(),
+            success: false,
+            code: "cover_prompt_refinement_blocked",
+            message: "LLM prompt refinement is deprecated. Deterministic cover prompt compiler is canonical.",
+            deterministic: true,
+            dataCoverPromptSource: "deterministic-compiler",
         }, {
             headers: {
                 "Cache-Control": "no-store, max-age=0",
             },
-        }));
+        },));
     } catch (error) {
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {
@@ -58,40 +59,18 @@ async function GET_handler(request: NextRequest) {
 async function PUT_handler(request: NextRequest) {
     const startedAt = Date.now();
     try {
-        const caller = await guardApiRequest(request, {
+        await guardApiRequest(request, {
             routeName: "admin/ai/drop-covers/prompt-policy",
             rateLimit: ADMIN_AI_CONTROL,
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
         });
-
-        const body = await request.json() as {
-            baseStylePrompt?: unknown;
-            lockedClauses?: unknown;
-            mutableClauses?: unknown;
-            currentMutablePrompt?: unknown;
-            autoOptimize?: unknown;
-        };
-
         return finalize(startedAt, "admin/ai/drop-covers/prompt-policy:PUT", NextResponse.json({
-            success: true,
-            promptPolicy: await saveAdminAiDropCoverPromptPolicy({
-                actorUid: caller?.uid || "",
-                actorEmail: caller?.email,
-                baseStylePrompt: typeof body.baseStylePrompt === "string" ? body.baseStylePrompt : undefined,
-                lockedClauses: Array.isArray(body.lockedClauses)
-                    ? body.lockedClauses.filter((value): value is string => typeof value === "string")
-                    : undefined,
-                mutableClauses: Array.isArray(body.mutableClauses)
-                    ? body.mutableClauses.filter((value): value is string => typeof value === "string")
-                    : undefined,
-                currentMutablePrompt: typeof body.currentMutablePrompt === "string" ? body.currentMutablePrompt : undefined,
-                autoOptimize: typeof body.autoOptimize === "boolean" ? body.autoOptimize : undefined,
-                source: "manual_override",
-                action: "manual_edit",
-            }),
-        }));
+            success: false,
+            code: "cover_prompt_refinement_blocked",
+            message: "Prompt-policy writes are blocked. Use deterministic compiler weights only.",
+        }, { status: 409 }));
     } catch (error) {
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {

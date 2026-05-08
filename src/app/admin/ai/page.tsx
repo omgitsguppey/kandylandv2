@@ -38,7 +38,7 @@ export default function AIAdminPage() {
     );
 
     return (
-        <div className="min-h-screen overflow-x-clip bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+        <div className="min-h-screen overflow-x-clip bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8" data-ai-dashboard-density="compact-v2">
             <PageViewEvent eventName="admin_ai_viewed" eventParams={{ page: "admin-ai" }} />
             <input
                 ref={libraryInputRef}

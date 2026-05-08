@@ -4,6 +4,8 @@ import {
     getAdminAiModelAlias,
     getAiModelReferenceLimit,
 } from "@/lib/admin-ai-models";
+import { compileCoverPrompt } from "@/lib/ai-cover/cover-prompt-compiler";
+import { parseCoverTitle } from "@/lib/ai-cover/cover-title-parser";
 
 export const ADMIN_AI_DROP_COVER_SETTINGS_DOC = "aiDropCovers";
 export const ADMIN_AI_DROP_COVER_JOBS_COLLECTION = "admin_ai_drop_cover_jobs";
@@ -846,14 +848,9 @@ export function parseAdminAiDropCoverTitle(
     creatorName?: string | null,
 ) {
     const trimmedTitle = title.trim();
-    const titleParts = trimmedTitle
-        .split("|")
-        .map((part) => part.trim())
-        .filter((part) => part.length > 0);
-    const explicitCreator = titleParts.length >= 2 ? titleParts[0] || null : null;
-    const explicitFlavor = titleParts.length >= 2 ? titleParts.slice(1).join(" | ").trim() : null;
-    const creatorDisplayName = explicitCreator || creatorName?.trim() || null;
-    const normalizedFlavorTitle = explicitFlavor || trimmedTitle;
+    const parsed = parseCoverTitle(trimmedTitle);
+    const creatorDisplayName = parsed.creatorBrandFromTitle || creatorName?.trim() || null;
+    const normalizedFlavorTitle = parsed.flavorTitle || trimmedTitle;
 
     return {
         requestedTitle: trimmedTitle,
@@ -863,25 +860,17 @@ export function parseAdminAiDropCoverTitle(
 }
 
 export function normalizeAdminAiDropCoverFlavorTitle(title: string, creatorName?: string | null) {
-    const parsed = parseAdminAiDropCoverTitle(title, creatorName);
-    if (parsed.requestedTitle.includes("|")) {
-        return parsed.normalizedFlavorTitle;
+    const parsed = parseCoverTitle(title);
+    if (parsed.flavorTitle.trim().length > 0) {
+        return parsed.flavorTitle.trim();
     }
-
-    const trimmedTitle = parsed.requestedTitle;
-    const trimmedCreator = parsed.creatorDisplayName?.trim() || "";
-    if (!trimmedCreator) {
-        return trimmedTitle;
-    }
-
-    const creatorPattern = new RegExp(`^${escapeRegExp(trimmedCreator)}['’]s\\s+`, "i");
-    return trimmedTitle.replace(creatorPattern, "").trim() || trimmedTitle;
+    const legacyParsed = parseAdminAiDropCoverTitle(title, creatorName);
+    return legacyParsed.normalizedFlavorTitle;
 }
 
 export function getAdminAiDropCoverFocusTerms(title: string, creatorName?: string | null) {
-    const normalizedFlavorTitle = normalizeAdminAiDropCoverFlavorTitle(title, creatorName);
-    const terms = normalizedFlavorTitle
-        .split(/[^A-Za-z0-9]+/)
+    const parsed = parseCoverTitle(title);
+    const terms = parsed.normalizedFlavorTokens
         .map((token) => token.trim().toLowerCase())
         .filter((token) => token.length >= 3 && !TITLE_TOKEN_STOP_WORDS.has(token));
 
@@ -1074,46 +1063,14 @@ export function buildAdminAiDropCoverPrompt(
         manualPromptOverride?: string | null;
     },
 ) {
-    const recipe = options?.recipe || buildAdminAiDropCoverConsistencyRecipe(input);
-    const parsedTitle = parseAdminAiDropCoverTitle(input.title, input.creatorName);
-    const requestedTitle = parsedTitle.requestedTitle;
-    const title = recipe.normalizedFlavorTitle;
-    const creatorName = recipe.creatorDisplayName?.trim() || "";
-    const promptPolicy = options?.promptPolicy || getDefaultAdminAiDropCoverPromptPolicy();
-    const lockedClauses = promptPolicy.lockedClauses.length > 0 ? promptPolicy.lockedClauses : DEFAULT_STYLE_LOCKED_CLAUSES;
-    const mutablePrompt = options?.manualPromptOverride?.trim()
-        || promptPolicy.currentMutablePrompt.trim()
-        || promptPolicy.mutableClauses.join(" ");
-    const referenceInstruction = options?.referenceGuided
-        ? `Use the provided reference images as layout anchors only for framing, title hierarchy, typography placement, and lower ribbon structure. For "${requestedTitle}", ignore every reference flavor, ingredient, candy, chocolate, fruit, drink, garnish, prop, background object, and palette unless that exact idea appears in the current title.`
-        : `Focus this cover on "${requestedTitle}", ensuring the color matches the title theme and the colors are easy to distinguish.`;
-
-    return [
-        promptPolicy.baseStylePrompt || DEFAULT_BASE_STYLE_PROMPT,
-        ...lockedClauses,
-        referenceInstruction,
-        `Main title treatment: ${title}.`,
-        creatorName ? `Render ${creatorName} as the smaller creator-name treatment above the main title and keep it intact.` : "",
-        buildDropTypeNote(input.dropType),
-        recipe.heroSubject,
-        recipe.paletteDirection,
-        recipe.lightingDirection,
-        recipe.backgroundDirection,
-        recipe.compositionDirection,
-        recipe.overlayDirection,
-        recipe.antiAnchoringDirection,
-        mutablePrompt,
-        "The image must feel like KandyDrops luxury candy packaging meets a premium poster, but the edible or flavor subject must come only from the current title.",
-        options?.referenceGuided
-            ? "Match the reference layout closely; do not borrow the reference flavor, colorway, ingredients, garnish, candy pieces, or props."
-            : "",
-        "Use depth, gloss, tactile lighting, and a flavor-led visual identity.",
-        `Render the main title "${title}" clearly and legibly in the cover.`,
-        creatorName ? "Keep the creator-name treatment smaller than the main title and visually separate from it." : "",
-        "Keep the hero subject, title treatment, and lower ribbon treatment easy to distinguish at a glance.",
-        "Do not crop the hero subject awkwardly. Avoid logos, watermarks, UI, split panels, collage grids, busy backgrounds, extra props, copied reference ingredients, or generic stock-photo composition.",
-        "Return a complete 1:1 square cover composition.",
-    ].filter((line) => line.length > 0).join(" ");
+    const compiled = compileCoverPrompt({
+        title: input.title,
+        creatorSelectedName: input.creatorName,
+        creatorDisplayName: input.creatorName,
+        imageModel: ADMIN_AI_DROP_COVER_MODEL,
+        referenceCoverStyleId: options?.referenceGuided ? "reference_guided" : "standard",
+    });
+    return compiled.prompt;
 }
 
 export function getAdminAiDropCoverPricePerGenerationUsd(model = ADMIN_AI_DROP_COVER_MODEL) {

@@ -21,6 +21,9 @@ import { generateSecureClientId } from "@/lib/client-random";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
+import { CompactAiActionButton } from "@/components/Admin/CompactAiActionButton";
+import { CompactAiModuleCard } from "@/components/Admin/CompactAiModuleCard";
+import { CompactAiStatusChip } from "@/components/Admin/CompactAiStatusChip";
 
 type AdminAiDropCoverDashboard = {
     settings: {
@@ -386,7 +389,13 @@ export function AiDropCoverGeneratorPanel({
     }
 
     return (
-        <div className="rounded-[1rem] border border-brand-purple/15 bg-brand-purple/[0.04] p-3">
+        <CompactAiModuleCard
+            title="Cover"
+            defaultOpen
+            statusChip={<CompactAiStatusChip label={dashboard?.runtime.status === "ready" ? "live" : "degraded"} tone={dashboard?.runtime.status === "ready" ? "good" : "warn"} />}
+            className="border-brand-purple/15 bg-brand-purple/[0.04]"
+        >
+        <div data-cover-prompt-source="deterministic-compiler" data-cover-title-source="title-prefix">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                     <div className="flex items-center gap-2 text-sm font-bold text-white">
@@ -411,15 +420,15 @@ export function AiDropCoverGeneratorPanel({
 
             {featureEnabled && runtimeReady ? (
                 <div className="mt-3 flex flex-wrap gap-2">
-                    <button
+                    <CompactAiActionButton
                         type="button"
                         onClick={() => void handleGenerate(null)}
                         disabled={!titleReady || generating}
-                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-4 text-sm font-semibold text-white disabled:opacity-50"
+                        className="h-9 border-brand-purple/25 bg-brand-purple/15 px-3 text-xs"
                     >
                         {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                         Generate cover
-                    </button>
+                    </CompactAiActionButton>
                     <div className="inline-flex min-h-11 items-center gap-1 rounded-full border border-white/10 bg-black/35 p-1">
                         {modelOptions.map((option) => {
                             const isActive = option.id === selectedModel;
@@ -572,42 +581,42 @@ export function AiDropCoverGeneratorPanel({
                                     {job.errorMessage ? <p className="text-[11px] text-red-200">{job.errorMessage}</p> : null}
 
                                     <div className="flex flex-wrap gap-2">
-                                        <button
+                                        <CompactAiActionButton
                                             type="button"
                                             onClick={() => void handleFeedback(job.id, "like")}
                                             disabled={!canUse || feedbackPending}
                                             className={cn(
-                                                "inline-flex min-h-10 items-center gap-1 rounded-full border px-3 text-xs font-semibold text-white disabled:opacity-45",
+                                                "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
                                                 job.feedback === "liked" ? "border-emerald-400/20 bg-emerald-500/10" : "border-white/10 bg-black/35",
                                             )}
                                         >
                                             <ThumbsUp className="h-3.5 w-3.5" />
                                             Like
-                                        </button>
-                                        <button
+                                        </CompactAiActionButton>
+                                        <CompactAiActionButton
                                             type="button"
                                             onClick={() => void handleFeedback(job.id, "dislike")}
                                             disabled={!canUse || feedbackPending}
                                             className={cn(
-                                                "inline-flex min-h-10 items-center gap-1 rounded-full border px-3 text-xs font-semibold text-white disabled:opacity-45",
+                                                "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
                                                 job.feedback === "disliked" ? "border-red-400/20 bg-red-500/10" : "border-white/10 bg-black/35",
                                             )}
                                         >
                                             <ThumbsDown className="h-3.5 w-3.5" />
                                             Dislike
-                                        </button>
-                                        <button
+                                        </CompactAiActionButton>
+                                        <CompactAiActionButton
                                             type="button"
                                             onClick={() => void handleFeedback(job.id, "accept")}
                                             disabled={!canUse || feedbackPending}
                                             className={cn(
-                                                "inline-flex min-h-10 items-center gap-1 rounded-full border px-3 text-xs font-semibold text-white disabled:opacity-45",
+                                                "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
                                                 isSelected ? "border-brand-purple/30 bg-brand-purple/20" : "border-white/10 bg-black/35",
                                             )}
                                         >
                                             {feedbackPending && selectedJobId !== job.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                                             {isSelected ? "Cover selected" : "Use as cover"}
-                                        </button>
+                                        </CompactAiActionButton>
                                     </div>
                                 </div>
                             </article>
@@ -616,5 +625,6 @@ export function AiDropCoverGeneratorPanel({
                 </div>
             ) : null}
         </div>
+        </CompactAiModuleCard>
     );
 }

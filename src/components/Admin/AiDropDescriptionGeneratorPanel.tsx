@@ -13,6 +13,9 @@ import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
+import { CompactAiActionButton } from "@/components/Admin/CompactAiActionButton";
+import { CompactAiModuleCard } from "@/components/Admin/CompactAiModuleCard";
+import { CompactAiStatusChip } from "@/components/Admin/CompactAiStatusChip";
 
 type AdminAiDropDescriptionDashboard = {
     settings: {
@@ -254,7 +257,13 @@ export function AiDropDescriptionGeneratorPanel({
     }
 
     return (
-        <div className="rounded-[1rem] border border-brand-purple/15 bg-brand-purple/[0.04] p-3">
+        <CompactAiModuleCard
+            title="Description"
+            defaultOpen
+            statusChip={<CompactAiStatusChip label={dashboard?.runtime.status === "ready" ? "live" : "degraded"} tone={dashboard?.runtime.status === "ready" ? "good" : "warn"} />}
+            className="border-brand-purple/15 bg-brand-purple/[0.04]"
+        >
+        <div data-description-source="deterministic-patterns" data-description-ai-polish="optional">
             <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
                     <Sparkles className="h-4 w-4 text-brand-purple" />
@@ -271,15 +280,15 @@ export function AiDropDescriptionGeneratorPanel({
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2">
-                <button
+                <CompactAiActionButton
                     type="button"
                     onClick={() => void handleGenerate()}
                     disabled={!featureEnabled || !runtimeReady || !titleReady || generating}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-4 text-sm font-semibold text-white disabled:opacity-50"
+                    className="h-9 border-brand-purple/25 bg-brand-purple/15 px-3 text-xs"
                 >
                     {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                     {visibleJobs.length > 0 ? "Generate again" : "Generate description"}
-                </button>
+                </CompactAiActionButton>
                 {visibleJobs.length > 0 ? (
                     <button
                         type="button"
@@ -336,42 +345,42 @@ export function AiDropDescriptionGeneratorPanel({
                                     </div>
                                 </div>
                                 <div className="mt-3 flex flex-wrap gap-2">
-                                    <button
+                                    <CompactAiActionButton
                                         type="button"
                                         onClick={() => void handleFeedback(job.id, "like")}
                                         disabled={!canUse || feedbackPending}
                                         className={cn(
-                                            "inline-flex min-h-10 items-center gap-1 rounded-full border px-3 text-xs font-semibold text-white disabled:opacity-45",
+                                            "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
                                             job.feedback === "liked" ? "border-emerald-400/20 bg-emerald-500/10" : "border-white/10 bg-black/35",
                                         )}
                                     >
                                         <ThumbsUp className="h-3.5 w-3.5" />
                                         Like
-                                    </button>
-                                    <button
+                                    </CompactAiActionButton>
+                                    <CompactAiActionButton
                                         type="button"
                                         onClick={() => void handleFeedback(job.id, "dislike")}
                                         disabled={!canUse || feedbackPending}
                                         className={cn(
-                                            "inline-flex min-h-10 items-center gap-1 rounded-full border px-3 text-xs font-semibold text-white disabled:opacity-45",
+                                            "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
                                             job.feedback === "disliked" ? "border-red-400/20 bg-red-500/10" : "border-white/10 bg-black/35",
                                         )}
                                     >
                                         <ThumbsDown className="h-3.5 w-3.5" />
                                         Dislike
-                                    </button>
-                                    <button
+                                    </CompactAiActionButton>
+                                    <CompactAiActionButton
                                         type="button"
                                         onClick={() => void handleFeedback(job.id, "accept")}
                                         disabled={!canUse || feedbackPending}
                                         className={cn(
-                                            "inline-flex min-h-10 items-center gap-1 rounded-full border px-3 text-xs font-semibold text-white disabled:opacity-45",
+                                            "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
                                             isSelected ? "border-brand-purple/30 bg-brand-purple/20" : "border-white/10 bg-black/35",
                                         )}
                                     >
                                         {feedbackPending && selectedJobId !== job.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                                         {isSelected ? "Applied" : "Use"}
-                                    </button>
+                                    </CompactAiActionButton>
                                 </div>
                             </article>
                         );
@@ -379,5 +388,6 @@ export function AiDropDescriptionGeneratorPanel({
                 </div>
             ) : null}
         </div>
+        </CompactAiModuleCard>
     );
 }

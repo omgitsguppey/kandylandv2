@@ -70,3 +70,4 @@ Deletion/archive behavior for launch:
 - Do not replace entitlement with client profile state.
 - Do not add fallback images that reference missing files or old starter logos.
 - If a new media surface is added, wire it into `npm run check:content-media-pipeline`.
+- Thumbnail kind badges should stay icon-first; avoid redundant text labels when status/progress overlays already convey truth.

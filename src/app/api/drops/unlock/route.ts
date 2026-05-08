@@ -289,6 +289,8 @@ async function POST_handler(request: NextRequest) {
       alreadyUnlocked: result.alreadyUnlocked,
       unwrappedAt: result.unwrappedAt ?? null,
       usedSubscriptionAccess: result.usedSubscriptionAccess ?? false,
+      fanPassUnlockState: result.usedSubscriptionAccess ? "included_with_fan_pass" : "gumdrops_required",
+      dataFanPassUnlockState: result.usedSubscriptionAccess ? "included_with_fan_pass" : "gumdrops_required",
       transactionId: result.transactionId,
       entitlementId: result.entitlementId,
       sourceTruth: "server",
