@@ -1,12 +1,12 @@
 name: Public Beta Release Notes
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
-# Automated release-note normalization belongs to Cloud Build through
-# cloudbuild.release-notes.yaml. Keep this workflow as a manual accepted-release
-# fallback only; GitHub-hosted runners can fail before checkout when account
-# runner billing is locked.
+# Keep release notes synchronized automatically after each main commit.
 
 permissions:
   contents: write
@@ -32,7 +32,7 @@ jobs:
         run: npm ci
 
       - name: Update public changelog
-        run: npm run release:notes:accept
+        run: npm run release:notes
 
       - name: Commit generated release notes
         run: |

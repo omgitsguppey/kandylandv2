@@ -295,9 +295,9 @@ export function buildTechnicalDetails(descriptor: ReleaseDescriptor, commitCount
 export function classifyCategory(descriptor: ReleaseDescriptor): PublicReleaseNoteCategory {
   const normalized = descriptor.titles.join(" ").toLowerCase();
   if (normalized.includes("security")) return "Security";
-  if (!descriptor.userFacing) return "Internal";
-  if (descriptor.surfaceCategory === "Navigation") return "Beta";
+  if (!descriptor.userFacing) return "Internal Reliability";
   if (normalized.includes("feat(") || normalized.includes("feat:")) return "New";
-  if (normalized.includes("perf(") || normalized.includes("perf:")) return "Improved";
+  if (normalized.includes("perf(") || normalized.includes("perf:")) return "Performance";
+  if (normalized.includes("improve") || normalized.includes("refactor")) return "Improved";
   return "Fixed";
 }

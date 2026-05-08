@@ -73,6 +73,7 @@ Use the targeted cleanup pass for final Phase 1 hardening:
 
 ```bash
 npm run scan:codebase-junk
+npm run check:beta-versioning-final
 npm run check:phase-one-final-cleanup
 ```
 

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-08T07:29:06.792Z",
+  "generatedAt": "2026-05-08T07:40:51.263Z",
   "status": "warning",
-  "summary": "classified=1417, orphanCandidates=12, deprecated=0, blocked=0",
+  "summary": "classified=1439, orphanCandidates=12, deprecated=0, blocked=0",
   "records": [
     {
       "file": "agent/context/legacy-registry.json",
@@ -125,6 +125,13 @@
       ]
     },
     {
+      "file": "agent/state/client-loading-speed.generated.json",
+      "classification": "generated_snapshot",
+      "reasons": [
+        "Generated state snapshot; evidence only."
+      ]
+    },
+    {
       "file": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
       "classification": "generated_snapshot",
       "reasons": [
@@ -140,6 +147,13 @@
     },
     {
       "file": "agent/state/codebase-hardening.generated.json",
+      "classification": "generated_snapshot",
+      "reasons": [
+        "Generated state snapshot; evidence only."
+      ]
+    },
+    {
+      "file": "agent/state/codebase-junk-cleanup.generated.json",
       "classification": "generated_snapshot",
       "reasons": [
         "Generated state snapshot; evidence only."
@@ -273,6 +287,13 @@
       ]
     },
     {
+      "file": "agent/state/event-timeline-management.generated.json",
+      "classification": "generated_snapshot",
+      "reasons": [
+        "Generated state snapshot; evidence only."
+      ]
+    },
+    {
       "file": "agent/state/fast-start.generated.json",
       "classification": "generated_snapshot",
       "reasons": [
@@ -309,6 +330,13 @@
     },
     {
       "file": "agent/state/global-speed-hydration-cache-audit.generated.json",
+      "classification": "generated_snapshot",
+      "reasons": [
+        "Generated state snapshot; evidence only."
+      ]
+    },
+    {
+      "file": "agent/state/google-cloud-cost-data-handoff.generated.json",
       "classification": "generated_snapshot",
       "reasons": [
         "Generated state snapshot; evidence only."
@@ -429,6 +457,13 @@
       ]
     },
     {
+      "file": "agent/state/phase-one-final-cleanup.generated.json",
+      "classification": "generated_snapshot",
+      "reasons": [
+        "Generated state snapshot; evidence only."
+      ]
+    },
+    {
       "file": "agent/state/phase-one-lock.generated.json",
       "classification": "generated_snapshot",
       "reasons": [
@@ -479,6 +514,13 @@
     },
     {
       "file": "agent/state/security-role-boundary-audit.generated.json",
+      "classification": "generated_snapshot",
+      "reasons": [
+        "Generated state snapshot; evidence only."
+      ]
+    },
+    {
+      "file": "agent/state/server-loading-speed.generated.json",
       "classification": "generated_snapshot",
       "reasons": [
         "Generated state snapshot; evidence only."
@@ -556,6 +598,13 @@
     },
     {
       "file": "agent/state/tracking-surface-coverage.generated.json",
+      "classification": "generated_snapshot",
+      "reasons": [
+        "Generated state snapshot; evidence only."
+      ]
+    },
+    {
+      "file": "agent/state/user-creator-feature-parity.generated.json",
       "classification": "generated_snapshot",
       "reasons": [
         "Generated state snapshot; evidence only."
@@ -1011,6 +1060,13 @@
       ]
     },
     {
+      "file": "docs/agent-truth/client-loading-speed.md",
+      "classification": "supporting",
+      "reasons": [
+        "Agent truth documentation."
+      ]
+    },
+    {
       "file": "docs/agent-truth/cloudrun-sql-bigquery-guardrails.md",
       "classification": "supporting",
       "reasons": [
@@ -1026,6 +1082,13 @@
     },
     {
       "file": "docs/agent-truth/codebase-hardening.md",
+      "classification": "supporting",
+      "reasons": [
+        "Agent truth documentation."
+      ]
+    },
+    {
+      "file": "docs/agent-truth/codebase-junk-cleanup.md",
       "classification": "supporting",
       "reasons": [
         "Agent truth documentation."
@@ -1355,6 +1418,13 @@
       ]
     },
     {
+      "file": "docs/agent-truth/event-timeline-management.md",
+      "classification": "supporting",
+      "reasons": [
+        "Agent truth documentation."
+      ]
+    },
+    {
       "file": "docs/agent-truth/experiences-compact-daily-hub.md",
       "classification": "supporting",
       "reasons": [
@@ -1384,6 +1454,13 @@
     },
     {
       "file": "docs/agent-truth/global-loading-performance.md",
+      "classification": "supporting",
+      "reasons": [
+        "Agent truth documentation."
+      ]
+    },
+    {
+      "file": "docs/agent-truth/google-cloud-cost-data-handoff.md",
       "classification": "supporting",
       "reasons": [
         "Agent truth documentation."
@@ -1546,6 +1623,13 @@
       ]
     },
     {
+      "file": "docs/agent-truth/phase-one-final-cleanup.md",
+      "classification": "supporting",
+      "reasons": [
+        "Agent truth documentation."
+      ]
+    },
+    {
       "file": "docs/agent-truth/phase-one-lock.md",
       "classification": "supporting",
       "reasons": [
@@ -1623,6 +1707,13 @@
       ]
     },
     {
+      "file": "docs/agent-truth/server-loading-speed.md",
+      "classification": "supporting",
+      "reasons": [
+        "Agent truth documentation."
+      ]
+    },
+    {
       "file": "docs/agent-truth/sitewide-image-optimization.md",
       "classification": "supporting",
       "reasons": [
@@ -1694,6 +1785,13 @@
     },
     {
       "file": "docs/agent-truth/user-chat-shell-routing.md",
+      "classification": "supporting",
+      "reasons": [
+        "Agent truth documentation."
+      ]
+    },
+    {
+      "file": "docs/agent-truth/user-creator-feature-parity.md",
       "classification": "supporting",
       "reasons": [
         "Agent truth documentation."
@@ -2226,6 +2324,13 @@
     },
     {
       "file": "scripts/agent/run-evals.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
+      "file": "scripts/agent/scan-codebase-junk.ts",
       "classification": "supporting",
       "reasons": [
         "Agent script is referenced by package scripts."
@@ -2773,6 +2878,13 @@
       ]
     },
     {
+      "file": "scripts/agent/validate-client-loading-speed.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
       "file": "scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts",
       "classification": "supporting",
       "reasons": [
@@ -2788,6 +2900,13 @@
     },
     {
       "file": "scripts/agent/validate-codebase-hardening.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
+      "file": "scripts/agent/validate-codebase-junk-cleanup.ts",
       "classification": "supporting",
       "reasons": [
         "Agent script is referenced by package scripts."
@@ -3160,6 +3279,13 @@
       ]
     },
     {
+      "file": "scripts/agent/validate-event-timeline-management.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
       "file": "scripts/agent/validate-experiences-compact-layout.ts",
       "classification": "supporting",
       "reasons": [
@@ -3231,6 +3357,13 @@
     },
     {
       "file": "scripts/agent/validate-global-speed-hydration-cache.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
+      "file": "scripts/agent/validate-google-cloud-cost-data-handoff.ts",
       "classification": "supporting",
       "reasons": [
         "Agent script is referenced by package scripts."
@@ -3428,6 +3561,13 @@
       ]
     },
     {
+      "file": "scripts/agent/validate-phase-one-final-cleanup.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
       "file": "scripts/agent/validate-phase-one-lock.ts",
       "classification": "supporting",
       "reasons": [
@@ -3541,6 +3681,13 @@
     },
     {
       "file": "scripts/agent/validate-security-role-boundaries.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
+      "file": "scripts/agent/validate-server-loading-speed.ts",
       "classification": "supporting",
       "reasons": [
         "Agent script is referenced by package scripts."
@@ -3667,6 +3814,13 @@
     },
     {
       "file": "scripts/agent/validate-user-chat-shell-routing.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
+      "file": "scripts/agent/validate-user-creator-feature-parity.ts",
       "classification": "supporting",
       "reasons": [
         "Agent script is referenced by package scripts."

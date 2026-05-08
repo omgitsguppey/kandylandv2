@@ -20,6 +20,7 @@ const validators = [
   "check:user-creator-feature-parity",
   "check:event-timeline-management",
   "check:google-cloud-cost-data-handoff",
+  "check:beta-versioning-final",
   "check:user-tracking-index-cutover",
   "check:guest-user-analytics",
   "check:4xx-cost",
@@ -78,7 +79,7 @@ function main() {
   const results = validators.map((script) => run(script, scripts));
   const blockers = results
     .filter((result) => result.status !== "pass")
-    .map((result) => `${result.script}: ${result.output[0] ?? "failed"}`);
+    .map((result) => `${result.script}: ${result.output.find((line) => line && !line.startsWith(">")) ?? "failed"}`);
 
   const report = {
     generatedAt: nowIso(),

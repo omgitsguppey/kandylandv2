@@ -85,6 +85,7 @@
         "check:release-notes": "tsx scripts/agent/validate-public-beta-changelog.ts",
         "check:release-notes-cutover": "tsx scripts/agent/validate-release-notes-cutover.ts",
         "check:beta-versioning": "tsx scripts/agent/validate-beta-versioning.ts",
+        "check:beta-versioning-final": "tsx scripts/agent/validate-beta-versioning-final.ts",
         "check:beta-release-notes": "tsx scripts/agent/validate-beta-release-notes.ts",
         "check:beta-update-tracker": "tsx scripts/agent/validate-beta-update-tracker.ts",
         "check:beta-modal-layout": "tsx scripts/agent/validate-beta-modal-layout.ts",

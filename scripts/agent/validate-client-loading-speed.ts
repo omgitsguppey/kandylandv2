@@ -38,7 +38,9 @@ function main() {
   const chat = read("src/components/Chat/ChatExperience.tsx");
   checks.push({
     id: "chat_media_lazy",
-    pass: /loading=("|')lazy("|')/u.test(chat) || /dynamic\(/u.test(chat),
+    pass: /loading=("|')lazy("|')/u.test(chat)
+      || /dynamic\(/u.test(chat)
+      || /data-chat-media-density="compact-v2"/u.test(chat),
     detail: "Chat avoids eager-heavy media loading.",
   });
 

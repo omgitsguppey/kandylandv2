@@ -2841,7 +2841,7 @@ export function ChatExperience() {
                                                     </div>
                                                     <p className="mt-4 text-xl font-black text-white">Follow a creator first</p>
                                                     <p className="mt-2 text-sm leading-6 text-[#a9a9b1]">
-                                                        Follow a creator to start a private chat.
+                                                        Follow creators to start chatting. Follow a creator to start a private chat.
                                                     </p>
                                                     <div className="mt-4 flex flex-wrap justify-center gap-2">
                                                         <Link

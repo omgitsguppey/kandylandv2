@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T07:29:26.390Z",
+  "generatedAt": "2026-05-08T07:40:17.057Z",
   "status": "pass",
   "surfaces": [
     {
@@ -13,7 +13,7 @@
       "handoffStatus": "mirror_only",
       "owner": "server_truth",
       "cap": "no runtime dependency without explicit approval",
-      "lastVerified": "2026-05-08T07:29:26.389Z",
+      "lastVerified": "2026-05-08T07:40:17.052Z",
       "issueCodes": [],
       "recommendedAction": "Keep SQL/Data Connect read models out of runtime user/creator routes."
     },
@@ -28,7 +28,7 @@
       "handoffStatus": "optional_external_evidence",
       "owner": "analytics_governance",
       "cap": "GA cannot be canonical product truth",
-      "lastVerified": "2026-05-08T07:29:26.390Z",
+      "lastVerified": "2026-05-08T07:40:17.057Z",
       "issueCodes": [],
       "recommendedAction": "Keep first-party timeline as primary and GA as optional evidence."
     },
@@ -43,7 +43,7 @@
       "handoffStatus": "guarded",
       "owner": "global_cost_surfaces",
       "cap": "route-level caps + dedupe + bounded materializers",
-      "lastVerified": "2026-05-08T07:29:26.390Z",
+      "lastVerified": "2026-05-08T07:40:17.057Z",
       "issueCodes": [],
       "recommendedAction": "Keep capped routes, deduped evidence, and bounded materializer runs."
     }

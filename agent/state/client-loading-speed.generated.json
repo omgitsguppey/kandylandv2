@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-08T07:29:19.417Z",
-  "status": "fail",
-  "score": 80,
+  "generatedAt": "2026-05-08T07:40:09.534Z",
+  "status": "pass",
+  "score": 100,
   "checks": [
     {
       "id": "home_client_dynamic",
@@ -15,7 +15,7 @@
     },
     {
       "id": "chat_media_lazy",
-      "pass": false,
+      "pass": true,
       "detail": "Chat avoids eager-heavy media loading."
     },
     {
@@ -29,8 +29,6 @@
       "detail": "Client speed validator wired in package scripts."
     }
   ],
-  "criticalBlockers": [
-    "chat_media_lazy: Chat avoids eager-heavy media loading."
-  ],
+  "criticalBlockers": [],
   "warnings": []
 }

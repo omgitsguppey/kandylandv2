@@ -441,6 +441,7 @@ git push origin work:main
 For the final cleanup, normalization, speed, telemetry, cost, and parity pass, run targeted commands only:
 
 - `npm run scan:codebase-junk`
+- `npm run check:beta-versioning-final`
 - `npm run check:phase-one-final-cleanup`
 - `npm run typecheck` when TypeScript changed
 

@@ -9,23 +9,23 @@ import {
 export const PUBLIC_RELEASE_CHANNEL = "beta" as const;
 export const INITIAL_PUBLIC_VERSION = "1.0.0";
 export const PUBLIC_RELEASE_NOTES_VISIBLE_COUNT = 5;
-export const PUBLIC_RELEASE_NOTES_MAX_COUNT = 50;
+export const PUBLIC_RELEASE_NOTES_MAX_COUNT = 25;
+export const PUBLIC_RELEASE_NOTES_PAGE_SIZE = 5;
 export const PUBLIC_RELEASE_NOTES_MAJOR_LOCK = 1;
-export const PUBLIC_RELEASE_VERSION_SHAPE = "1.<block>.<release>";
+export const PUBLIC_RELEASE_VERSION_SHAPE = "MAJOR.MINOR.PATCH";
 export const CURRENT_BETA_RELEASE_COUNTER = 204;
 export const CURRENT_BETA_RELEASE_VERSION = "1.2.4";
 
 export const PUBLIC_RELEASE_NOTE_CATEGORIES = [
   "New",
   "Improved",
-  "Added",
-  "Changed",
   "Fixed",
   "Security",
   "Performance",
+  "Internal Reliability",
   "Internal",
-  "Admin",
   "Beta",
+  "Admin",
 ] as const;
 
 export type PublicReleaseNoteCategory = typeof PUBLIC_RELEASE_NOTE_CATEGORIES[number];
@@ -68,6 +68,11 @@ export type PublicReleaseNote = {
   technicalDetails?: string[];
   affectedSurfaces: string[];
   hiddenFromPublic?: boolean;
+  changedFiles?: string[];
+  effectiveChangeCount?: number;
+  excludedGeneratedChangeCount?: number;
+  bumpType?: "minor" | "patch" | "none";
+  sourceCommit?: string;
 };
 
 export type PublicReleaseNotesDocument = {
@@ -172,4 +177,27 @@ export function getPublicReleaseNotesVisibleNotes(
   }
 
   return visible;
+}
+
+export function paginatePublicReleaseNotes(
+  notes: PublicReleaseNote[],
+  page: number,
+  pageSize = PUBLIC_RELEASE_NOTES_PAGE_SIZE,
+) {
+  const normalizedPage = Math.max(1, Math.floor(page));
+  const visible = getPublicReleaseNotesVisibleNotes(notes, PUBLIC_RELEASE_NOTES_MAX_COUNT);
+  const totalVisible = visible.length;
+  const totalPages = Math.max(1, Math.ceil(totalVisible / pageSize));
+  const clampedPage = Math.min(normalizedPage, totalPages);
+  const start = (clampedPage - 1) * pageSize;
+  const end = Math.min(start + pageSize, totalVisible);
+  return {
+    page: clampedPage,
+    pageSize,
+    totalVisible,
+    totalPages,
+    start: totalVisible === 0 ? 0 : start + 1,
+    end,
+    notes: visible.slice(start, end),
+  };
 }

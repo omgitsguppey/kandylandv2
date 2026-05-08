@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-08T07:29:22.951Z",
-  "status": "fail",
+  "generatedAt": "2026-05-08T07:40:13.518Z",
+  "status": "pass",
   "checks": [
     {
       "surface": "user_homepage",
@@ -14,7 +14,7 @@
     },
     {
       "surface": "drops_preview_unlock",
-      "status": "disconnected",
+      "status": "connected",
       "detail": "Drop preview route present."
     },
     {
@@ -38,13 +38,7 @@
       "detail": "Telemetry catalog includes user/creator features."
     }
   ],
-  "disconnected": [
-    {
-      "surface": "drops_preview_unlock",
-      "status": "disconnected",
-      "detail": "Drop preview route present."
-    }
-  ],
+  "disconnected": [],
   "missingTelemetry": [],
   "simulated": [],
   "missingDebugMarker": []

@@ -3,30 +3,21 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import {
-  CURRENT_BETA_RELEASE_COUNTER,
-  CURRENT_BETA_RELEASE_VERSION,
   INITIAL_PUBLIC_VERSION,
   PUBLIC_RELEASE_CHANNEL,
   PUBLIC_RELEASE_NOTES_MAX_COUNT,
-  PUBLIC_RELEASE_NOTES_VISIBLE_COUNT,
-  getPublicReleaseNotesVisibleNotes,
-  resolveCurrentBetaReleaseCounter,
+  PUBLIC_RELEASE_NOTES_PAGE_SIZE,
   type PublicReleaseNote,
   type PublicReleaseNotesDocument,
+  isReleaseGeneratedArtifactPath,
 } from "../../src/lib/release-notes/release-version-contract";
 import {
   buildReleaseBullets,
   buildReleaseDescriptor,
   buildReleaseSummary,
   buildReleaseTitle,
-  buildTechnicalDetails,
   classifyCategory,
-  ensureBulletVerb,
 } from "../../src/lib/release-notes/release-note-classifier";
-import {
-  formatBetaOdometerVersion,
-  getNextBetaOdometerVersion,
-} from "../../src/lib/release-notes/beta-odometer-version";
 
 type CommitRecord = {
   sha: string;
@@ -38,21 +29,9 @@ const root = process.cwd();
 const publicJsonPath = join(root, "public/kandydrops-release-notes.json");
 const fallbackTsPath = join(root, "src/lib/release-notes/public-release-notes.ts");
 const changelogPath = join(root, "CHANGELOG.md");
-const acceptRelease = process.argv.includes("--accept") || process.env.PUBLIC_BETA_ACCEPT_RELEASE === "1";
 
-function toUtcIso(value: string) {
-  const timestamp = Date.parse(value);
-  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : new Date(0).toISOString();
-}
-
-function nowUtcIso() {
+function nowIso() {
   return new Date().toISOString();
-}
-
-function formatUtcTimestamp(value: string) {
-  const date = new Date(toUtcIso(value));
-  const pad = (part: number) => String(part).padStart(2, "0");
-  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())} UTC`;
 }
 
 function runGit(args: string[]) {
@@ -67,15 +46,32 @@ function safeRunGit(args: string[]) {
   }
 }
 
+function parseSemver(version: string) {
+  const match = /^(\d+)\.(\d+)\.(\d+)$/u.exec(version.trim());
+  if (!match) return null;
+  return { major: Number(match[1]), minor: Number(match[2]), patch: Number(match[3]) };
+}
+
+function formatSemver(major: number, minor: number, patch: number) {
+  return `${major}.${minor}.${patch}`;
+}
+
+function bumpVersion(currentVersion: string, bumpType: "minor" | "patch") {
+  const parsed = parseSemver(currentVersion) ?? parseSemver(INITIAL_PUBLIC_VERSION);
+  if (!parsed) return INITIAL_PUBLIC_VERSION;
+  if (bumpType === "minor") return formatSemver(parsed.major, parsed.minor + 1, 0);
+  return formatSemver(parsed.major, parsed.minor, parsed.patch + 1);
+}
+
 function readExistingDocument(): PublicReleaseNotesDocument {
   if (!existsSync(publicJsonPath)) {
-    const generatedAtUtc = nowUtcIso();
+    const now = nowIso();
     return {
-      currentVersion: CURRENT_BETA_RELEASE_VERSION,
-      betaReleaseCounter: CURRENT_BETA_RELEASE_COUNTER,
+      currentVersion: INITIAL_PUBLIC_VERSION,
+      betaReleaseCounter: 0,
       channel: PUBLIC_RELEASE_CHANNEL,
-      generatedAt: generatedAtUtc,
-      generatedAtUtc,
+      generatedAt: now,
+      generatedAtUtc: now,
       lastCommitSha: "",
       notes: [],
     };
@@ -96,134 +92,114 @@ function getPendingCommits(lastCommitSha: string) {
   const hasAnchor = lastCommitSha && safeRunGit(["rev-parse", "--verify", lastCommitSha]);
   const raw = hasAnchor
     ? safeRunGit(["rev-list", "--reverse", `${lastCommitSha}..HEAD`])
-    : "";
-  const shas = raw ? raw.split(/\r?\n/u).filter(Boolean) : [];
-
-  return shas
-    .map(getCommit)
-    .filter((commit): commit is CommitRecord => Boolean(commit))
-    .filter((commit) => !/\[skip release-notes\]/iu.test(commit.title));
-}
-
-function getChangedFiles(sha: string) {
-  const raw = safeRunGit(["show", "--name-only", "--format=", "--no-renames", sha]);
-  if (!raw) return [];
+    : safeRunGit(["rev-list", "--reverse", "HEAD"]);
 
   return raw
     .split(/\r?\n/u)
-    .map((path) => path.trim().replace(/\\/gu, "/"))
+    .filter(Boolean)
+    .map(getCommit)
+    .filter((entry): entry is CommitRecord => Boolean(entry));
+}
+
+function getChangedFiles(sha: string) {
+  const raw = safeRunGit(["show", "--numstat", "--format=", "--no-renames", sha]);
+  if (!raw) return [];
+  return raw
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.split(/\s+/u).slice(2).join(" ").replace(/\\/gu, "/"))
     .filter(Boolean);
 }
 
-function normalizeExistingNote(
-  note: PublicReleaseNote,
-  index: number,
-  currentCounter: number,
-): PublicReleaseNote {
-  const betaReleaseCounter = typeof note.betaReleaseCounter === "number"
-    ? note.betaReleaseCounter
-    : Math.max(currentCounter - index, 0);
-  const previousBetaReleaseCounter = betaReleaseCounter > 0 ? betaReleaseCounter - 1 : null;
-  const version = formatBetaOdometerVersion(betaReleaseCounter);
-  const previousVersion = previousBetaReleaseCounter === null
-    ? INITIAL_PUBLIC_VERSION
-    : formatBetaOdometerVersion(previousBetaReleaseCounter);
-  const commitShas = Array.isArray(note.commitShas) && note.commitShas.length > 0
-    ? note.commitShas
-    : [note.commitSha].filter(Boolean);
-  const commitCount = typeof note.commitCount === "number" && note.commitCount > 0
-    ? note.commitCount
-    : commitShas.length || 1;
-  const commits = commitShas
-    .map(getCommit)
-    .filter((commit): commit is CommitRecord => Boolean(commit));
-  const descriptor = buildReleaseDescriptor(
-    commits.map((commit) => commit.title),
-    commits.flatMap((commit) => getChangedFiles(commit.sha)),
-  );
-  const committedAtUtc = toUtcIso(note.committedAtUtc ?? note.committedAt);
-  const generatedAtUtc = toUtcIso(note.generatedAtUtc ?? note.generatedAt);
+function getDiffStats(sha: string) {
+  const raw = safeRunGit(["show", "--numstat", "--format=", "--no-renames", sha]);
+  if (!raw) return { raw: 0, effective: 0, excluded: 0 };
+
+  let rawCount = 0;
+  let effectiveCount = 0;
+  let excludedCount = 0;
+  const changedFiles = getChangedFiles(sha);
+  const packageJsonChanged = changedFiles.includes("package.json");
+
+  for (const line of raw.split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean)) {
+    const [addsRaw, delsRaw, ...fileRest] = line.split(/\s+/u);
+    const filePath = fileRest.join(" ").replace(/\\/gu, "/");
+    const adds = /^\d+$/u.test(addsRaw) ? Number(addsRaw) : 0;
+    const dels = /^\d+$/u.test(delsRaw) ? Number(delsRaw) : 0;
+    const change = adds + dels;
+    rawCount += change;
+
+    if (isReleaseGeneratedArtifactPath(filePath, packageJsonChanged)) {
+      excludedCount += change;
+      continue;
+    }
+    effectiveCount += change;
+  }
+
+  return { raw: rawCount, effective: effectiveCount, excluded: excludedCount };
+}
+
+function toUtc(value: string) {
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : nowIso();
+}
+
+function formatDate(iso: string) {
+  return toUtc(iso).slice(0, 10);
+}
+
+function normalizeInternalReliabilityBullets(bullets: string[]) {
+  if (bullets.length > 0) return bullets.slice(0, 5);
+  return ["Improved behind-the-scenes reliability."];
+}
+
+function buildNoteFromCommit(commit: CommitRecord, previousVersion: string, previousCounter: number): PublicReleaseNote {
+  const changedFiles = getChangedFiles(commit.sha);
+  const descriptor = buildReleaseDescriptor([commit.title], changedFiles);
+  const stats = getDiffStats(commit.sha);
+  // [skip release-notes] commits are tracked internally but hidden from public notes.
+  const hiddenFromPublic = /\[skip release-notes\]/iu.test(commit.title) || descriptor.hiddenFromPublic;
+  const bumpType = hiddenFromPublic ? "none" : (stats.effective > 100 ? "minor" : "patch");
+  const version = bumpType === "none" ? previousVersion : bumpVersion(previousVersion, bumpType);
+  const category = classifyCategory(descriptor);
   const title = buildReleaseTitle(descriptor);
+  const summary = buildReleaseSummary(descriptor);
+  const generatedAt = nowIso();
+  const committedAt = toUtc(commit.committedAt);
+  const bullets = category === "Internal Reliability"
+    ? ["Improved behind-the-scenes reliability."]
+    : normalizeInternalReliabilityBullets(buildReleaseBullets(descriptor));
 
   return {
-    ...note,
     version,
     previousVersion,
-    betaReleaseCounter,
-    previousBetaReleaseCounter,
-    commitCount,
-    commitShas,
-    committedAt: committedAtUtc,
-    generatedAt: generatedAtUtc,
-    committedAtUtc,
-    generatedAtUtc,
-    updatedAtUtc: note.updatedAtUtc || generatedAtUtc,
-    category: classifyCategory(descriptor),
-    title,
-    summary: buildReleaseSummary(descriptor),
-    userFacingTitle: title,
-    surfaceCategory: descriptor.surfaceCategory,
-    bullets: buildReleaseBullets(descriptor).map(ensureBulletVerb).slice(0, 5),
-    audience: descriptor.audience,
-    technicalDetails: buildTechnicalDetails(descriptor, commitCount),
-    affectedSurfaces: descriptor.affectedSurfaces,
-    hiddenFromPublic: descriptor.hiddenFromPublic,
-  };
-}
-
-function normalizeExistingDocument(document: PublicReleaseNotesDocument): PublicReleaseNotesDocument {
-  const currentCounter = resolveCurrentBetaReleaseCounter(document.betaReleaseCounter ?? document.currentVersion);
-  const generatedAtUtc = toUtcIso(document.generatedAtUtc ?? document.generatedAt);
-  const notes = (document.notes ?? [])
-    .slice(0, PUBLIC_RELEASE_NOTES_MAX_COUNT)
-    .map((note, index) => normalizeExistingNote(note, index, currentCounter));
-
-  return {
-    currentVersion: formatBetaOdometerVersion(currentCounter),
-    betaReleaseCounter: currentCounter,
-    channel: PUBLIC_RELEASE_CHANNEL,
-    generatedAt: generatedAtUtc,
-    generatedAtUtc,
-    lastCommitSha: document.lastCommitSha ?? "",
-    notes,
-  };
-}
-
-function createAggregatedNote(commits: CommitRecord[], previousCounter: number): PublicReleaseNote {
-  const latestCommit = commits[commits.length - 1];
-  const commitShas = commits.map((commit) => commit.sha);
-  const descriptor = buildReleaseDescriptor(
-    commits.map((commit) => commit.title),
-    commits.flatMap((commit) => getChangedFiles(commit.sha)),
-  );
-  const nextCounter = previousCounter + 1;
-  const generatedAtUtc = nowUtcIso();
-  const title = buildReleaseTitle(descriptor);
-
-  return {
-    version: getNextBetaOdometerVersion(previousCounter),
-    previousVersion: formatBetaOdometerVersion(previousCounter),
-    betaReleaseCounter: nextCounter,
+    betaReleaseCounter: previousCounter + (bumpType === "none" ? 0 : 1),
     previousBetaReleaseCounter: previousCounter,
-    commitSha: latestCommit.sha,
-    commitTitle: latestCommit.title,
-    commitCount: commits.length,
-    commitShas,
-    committedAt: toUtcIso(latestCommit.committedAt),
-    generatedAt: generatedAtUtc,
-    committedAtUtc: toUtcIso(latestCommit.committedAt),
-    generatedAtUtc,
-    category: classifyCategory(descriptor),
+    commitSha: commit.sha,
+    commitTitle: commit.title,
+    commitCount: 1,
+    commitShas: [commit.sha],
+    committedAt,
+    generatedAt,
+    committedAtUtc: committedAt,
+    generatedAtUtc: generatedAt,
+    updatedAtUtc: generatedAt,
+    category,
     title,
-    updatedAtUtc: generatedAtUtc,
-    summary: buildReleaseSummary(descriptor),
+    summary,
     userFacingTitle: title,
     surfaceCategory: descriptor.surfaceCategory,
-    bullets: buildReleaseBullets(descriptor).map(ensureBulletVerb).slice(0, 5),
+    bullets,
     audience: descriptor.audience,
-    technicalDetails: buildTechnicalDetails(descriptor, commits.length),
+    technicalDetails: undefined,
     affectedSurfaces: descriptor.affectedSurfaces,
-    hiddenFromPublic: descriptor.hiddenFromPublic,
+    hiddenFromPublic,
+    changedFiles,
+    effectiveChangeCount: stats.effective,
+    excludedGeneratedChangeCount: stats.excluded,
+    bumpType,
+    sourceCommit: commit.sha,
   };
 }
 
@@ -231,90 +207,68 @@ function renderFallbackTs(document: PublicReleaseNotesDocument) {
   return `import type { PublicReleaseNotesDocument } from "./release-version-contract";\n\nexport const PUBLIC_RELEASE_NOTES_FALLBACK = ${JSON.stringify(document, null, 2)} satisfies PublicReleaseNotesDocument;\n\nexport const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {\n  betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,\n  appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,\n  releaseChannel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,\n} as const;\n\nexport const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion;\n`;
 }
 
-function renderChangelog(notes: PublicReleaseNote[]) {
-  const visibleNotes = getPublicReleaseNotesVisibleNotes(notes, PUBLIC_RELEASE_NOTES_MAX_COUNT);
-  const lines = ["# Changelog", "", "User-facing KandyDrops Beta updates, newest first.", ""];
-  for (const note of visibleNotes) {
-    const committedAtUtc = note.committedAtUtc ?? toUtcIso(note.committedAt);
-    const date = committedAtUtc.slice(0, 10);
-    lines.push(
-      `## [${note.version}] - ${date}`,
-      "",
-      `### ${note.surfaceCategory}`,
-      "",
-      `- Updated ${formatUtcTimestamp(note.updatedAtUtc || committedAtUtc)}`,
-      `- ${note.title || note.userFacingTitle}`,
-      `- ${note.summary}`,
-    );
+function renderChangelog(document: PublicReleaseNotesDocument) {
+  const visible = document.notes.filter((note) => note.hiddenFromPublic !== true).slice(0, PUBLIC_RELEASE_NOTES_MAX_COUNT);
+  const lines = [
+    "# Changelog",
+    "",
+    "What’s new in KandyDrops Beta (latest first).",
+    "",
+    `Showing the last ${Math.min(PUBLIC_RELEASE_NOTES_MAX_COUNT, visible.length)} public updates in pages of ${PUBLIC_RELEASE_NOTES_PAGE_SIZE}.`,
+    "",
+  ];
+  for (const note of visible) {
+    lines.push(`## ${note.version} - ${formatDate(note.committedAtUtc || note.committedAt)}`);
+    lines.push(`- ${note.title}`);
     for (const bullet of note.bullets.slice(0, 5)) lines.push(`- ${bullet}`);
     lines.push("");
   }
   return `${lines.join("\n").trim()}\n`;
 }
 
-function renderReleaseVersionContract(nextCounter: number) {
-  const source = readFileSync(join(root, "src/lib/release-notes/release-version-contract.ts"), "utf8");
-  const nextVersion = formatBetaOdometerVersion(nextCounter);
-
-  const withCounter = source.replace(
-    /export const CURRENT_BETA_RELEASE_COUNTER = \d+;/u,
-    `export const CURRENT_BETA_RELEASE_COUNTER = ${nextCounter};`,
-  );
-  const withVersion = withCounter.replace(
-    /export const CURRENT_BETA_RELEASE_VERSION = .*?;/u,
-    `export const CURRENT_BETA_RELEASE_VERSION = "${nextVersion}";`,
-  );
-
-  return withVersion;
-}
-
-function writeIfChanged(path: string, content: string) {
-  mkdirSync(dirname(path), { recursive: true });
-  const current = existsSync(path) ? readFileSync(path, "utf8") : "";
-  if (current !== content) writeFileSync(path, content);
+function writeIfChanged(filePath: string, content: string) {
+  mkdirSync(dirname(filePath), { recursive: true });
+  const current = existsSync(filePath) ? readFileSync(filePath, "utf8") : "";
+  if (current !== content) writeFileSync(filePath, content, "utf8");
 }
 
 function main() {
-  const normalizedExisting = normalizeExistingDocument(readExistingDocument());
-  const pendingCommits = getPendingCommits(normalizedExisting.lastCommitSha);
-  let nextDocument = normalizedExisting;
-
-  if (acceptRelease && pendingCommits.length > 0) {
-    const nextDescriptor = buildReleaseDescriptor(
-      pendingCommits.map((commit) => commit.title),
-      pendingCommits.flatMap((commit) => getChangedFiles(commit.sha)),
-    );
-    if (nextDescriptor.hiddenFromPublic) {
-      console.log("No product-facing unreleased commits found for an accepted beta release.");
-    } else {
-      const nextNote = createAggregatedNote(pendingCommits, normalizedExisting.betaReleaseCounter);
-      const generatedAtUtc = nowUtcIso();
-      nextDocument = {
-        currentVersion: nextNote.version,
-        betaReleaseCounter: nextNote.betaReleaseCounter,
-        channel: PUBLIC_RELEASE_CHANNEL,
-        generatedAt: generatedAtUtc,
-        generatedAtUtc,
-        lastCommitSha: nextNote.commitSha,
-        notes: [nextNote, ...normalizedExisting.notes].slice(0, PUBLIC_RELEASE_NOTES_MAX_COUNT),
-      };
-    }
-  } else if (acceptRelease && pendingCommits.length === 0) {
-    console.log("No unreleased commits found for an accepted beta release.");
-  } else {
-    console.log("Release notes normalized without creating a new accepted beta release. Pass --accept or PUBLIC_BETA_ACCEPT_RELEASE=1 to publish the next beta release.");
+  const existing = readExistingDocument();
+  const pending = getPendingCommits(existing.lastCommitSha);
+  if (pending.length === 0) {
+    console.log("No pending commits for release-note processing.");
+    return;
   }
+
+  let version = parseSemver(existing.currentVersion) ? existing.currentVersion : INITIAL_PUBLIC_VERSION;
+  let counter = typeof existing.betaReleaseCounter === "number" ? existing.betaReleaseCounter : 0;
+  const nextNotes = [...(existing.notes ?? [])];
+
+  for (const commit of pending) {
+    const note = buildNoteFromCommit(commit, version, counter);
+    nextNotes.unshift(note);
+    if (note.bumpType !== "none") {
+      version = note.version;
+      counter = note.betaReleaseCounter;
+    }
+  }
+
+  const generatedAt = nowIso();
+  const nextDocument: PublicReleaseNotesDocument = {
+    currentVersion: version,
+    betaReleaseCounter: counter,
+    channel: PUBLIC_RELEASE_CHANNEL,
+    generatedAt,
+    generatedAtUtc: generatedAt,
+    lastCommitSha: pending[pending.length - 1]?.sha ?? existing.lastCommitSha,
+    notes: nextNotes.slice(0, PUBLIC_RELEASE_NOTES_MAX_COUNT),
+  };
 
   writeIfChanged(publicJsonPath, `${JSON.stringify(nextDocument, null, 2)}\n`);
   writeIfChanged(fallbackTsPath, renderFallbackTs(nextDocument));
-  writeIfChanged(changelogPath, renderChangelog(nextDocument.notes));
-  if (acceptRelease && nextDocument.betaReleaseCounter !== CURRENT_BETA_RELEASE_COUNTER) {
-    writeIfChanged(
-      join(root, "src/lib/release-notes/release-version-contract.ts"),
-      renderReleaseVersionContract(nextDocument.betaReleaseCounter),
-    );
-  }
-  console.log(`Public release notes current at v${nextDocument.currentVersion} (counter ${nextDocument.betaReleaseCounter}).`);
+  writeIfChanged(changelogPath, renderChangelog(nextDocument));
+
+  console.log(`Release notes updated to ${nextDocument.currentVersion} with ${pending.length} processed commits.`);
 }
 
 main();

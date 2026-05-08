@@ -6,7 +6,7 @@ Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## 2026-05-08 Phase 1 final cleanup gate
 
-Added a targeted final cleanup lane for Phase 1 hardening: `scan:codebase-junk`, `check:codebase-junk-cleanup`, `check:client-loading-speed`, `check:server-loading-speed`, `check:user-creator-feature-parity`, `check:event-timeline-management`, `check:google-cloud-cost-data-handoff`, and `check:phase-one-final-cleanup`. New generated reports are written to `agent/state/*-generated.json` for junk classification, loading-speed checks, feature parity, event timeline management, cloud-cost/data handoff, and final gate orchestration. Final gate only runs targeted validators and reports missing validators as `missing_validator` instead of blindly executing unavailable scripts.
+Added a targeted final cleanup lane for Phase 1 hardening: `scan:codebase-junk`, `check:codebase-junk-cleanup`, `check:client-loading-speed`, `check:server-loading-speed`, `check:user-creator-feature-parity`, `check:event-timeline-management`, `check:google-cloud-cost-data-handoff`, `check:beta-versioning-final`, and `check:phase-one-final-cleanup`. New generated reports are written to `agent/state/*-generated.json` for junk classification, loading-speed checks, feature parity, event timeline management, cloud-cost/data handoff, and final gate orchestration. Beta release notes now enforce compact user-facing pagination (last 25, 5 per page), remove public technical dropdowns, and rely on automatic release-note sync workflow with `[skip release-notes]` loop protection.
 
 ## 2026-05-06 Platform Economy commerce control center
 

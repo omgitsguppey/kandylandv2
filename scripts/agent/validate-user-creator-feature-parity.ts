@@ -35,7 +35,9 @@ function main() {
   });
   checks.push({
     surface: "drops_preview_unlock",
-    status: fileExists("src/app/drops/[id]/page.tsx") || fileExists("src/app/drops/[dropId]/page.tsx")
+    status: fileExists("src/app/drops/[id]/page.tsx")
+      || fileExists("src/app/drops/[dropId]/page.tsx")
+      || fileExists("src/app/drops/[id]/preview/page.tsx")
       ? "connected"
       : "disconnected",
     detail: "Drop preview route present.",

@@ -6,7 +6,9 @@ import { X } from "lucide-react";
 
 import { usePublicReleaseNotes } from "@/hooks/usePublicReleaseNotes";
 import {
+  PUBLIC_RELEASE_NOTES_PAGE_SIZE,
   getPublicReleaseNotesVisibleNotes,
+  paginatePublicReleaseNotes,
   type PublicReleaseNote,
 } from "@/lib/release-notes/release-version-contract";
 import { trackEvent } from "@/lib/telemetry";
@@ -35,7 +37,9 @@ function formatLastUpdated(generatedAt: string) {
 
 export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDrawerProps) {
   const { releaseNotes, source, freshness, isLoading } = usePublicReleaseNotes(isOpen);
-  const visibleNotes = getPublicReleaseNotesVisibleNotes(releaseNotes.notes);
+  const [page, setPage] = useState(1);
+  const pagination = paginatePublicReleaseNotes(releaseNotes.notes, page, PUBLIC_RELEASE_NOTES_PAGE_SIZE);
+  const visibleNotes = pagination.notes;
   const openedTrackedRef = useRef(false);
   const [portalReady, setPortalReady] = useState(false);
 
@@ -59,6 +63,11 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
     });
     openedTrackedRef.current = true;
   }, [freshness, isLoading, isOpen, releaseNotes, source]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setPage(1);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -106,6 +115,10 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
         aria-labelledby="beta-release-notes-title"
         className="pointer-events-auto ml-auto flex max-h-[min(34rem,calc(100dvh-7rem))] w-full max-w-md max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-[1.5rem] border border-white/12 bg-[#130819]/95 shadow-2xl shadow-black/50"
         data-beta-release-notes-count={visibleNotes.length}
+        data-beta-release-page={pagination.page}
+        data-beta-release-page-size={pagination.pageSize}
+        data-beta-release-total-visible={pagination.totalVisible}
+        data-beta-version-current={releaseNotes.currentVersion}
         data-beta-release-notes-freshness={freshness}
         data-beta-changelog-source={source}
         role="dialog"
@@ -129,10 +142,6 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
         </div>
 
         <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4">
-          <p className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-5 text-white/70">
-            App-style Beta notes with the latest user-facing fixes and improvements.
-          </p>
-
           {visibleNotes.length === 0 ? (
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-5 text-sm text-white/70">
               {isLoading ? "Loading beta updates..." : "No beta updates have been published yet."}
@@ -157,24 +166,37 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
                     <li key={bullet} className="break-words">- {bullet}</li>
                   ))}
                 </ul>
-                {note.technicalDetails?.length ? (
-                  <details className="mt-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-xs text-white/58">
-                    <summary className="cursor-pointer font-bold text-white/70">Technical details</summary>
-                    <ul className="mt-2 space-y-1.5 leading-5">
-                      {note.technicalDetails.slice(0, 4).map((detail) => (
-                        <li key={detail} className="break-words">- {detail}</li>
-                      ))}
-                    </ul>
-                  </details>
-                ) : null}
               </article>
             ))
           )}
         </div>
 
         <footer className="shrink-0 border-t border-white/10 px-4 py-3 text-xs text-white/45">
-          {formatLastUpdated(releaseNotes.generatedAt)}
-          {source === "bundled-fallback" ? " [fallback]" : ""}
+          <div className="flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              disabled={pagination.page <= 1}
+              className="rounded border border-white/15 px-2 py-1 text-white/70 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <span>
+              {pagination.start}-{pagination.end} of {Math.min(25, pagination.totalVisible)}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.min(pagination.totalPages, current + 1))}
+              disabled={pagination.page >= pagination.totalPages}
+              className="rounded border border-white/15 px-2 py-1 text-white/70 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
+          <div className="mt-2">
+            {formatLastUpdated(releaseNotes.generatedAt)}
+            {source === "bundled-fallback" ? " [fallback]" : ""}
+          </div>
         </footer>
       </section>
     </div>,

@@ -14,6 +14,7 @@ This final gate consolidates targeted validators for cleanup, speed, telemetry, 
 - `check:user-creator-feature-parity`
 - `check:event-timeline-management`
 - `check:google-cloud-cost-data-handoff`
+- `check:beta-versioning-final`
 - plus existing targeted phase validators when scripts are present
 
 Missing scripts are reported as `missing_validator` and block promo readiness until resolved.
