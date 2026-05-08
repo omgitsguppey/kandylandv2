@@ -119,6 +119,7 @@
         "check:recommendation-ranker": "tsx scripts/agent/validate-recommendation-ranker.ts",
         "check:math-goal-alignment": "tsx scripts/agent/validate-math-goal-alignment.ts",
         "check:admin-debug-control-tower": "tsx scripts/agent/validate-admin-debug-control-tower.ts",
+        "check:debug-control-tower-cutover": "tsx scripts/agent/validate-debug-control-tower-cutover.ts",
         "check:admin-ai-control-tower": "tsx scripts/agent/validate-admin-ai-control-tower.ts",
         "check:admin-moderation-real-risk": "tsx scripts/agent/validate-admin-moderation-real-risk.ts",
         "check:theft-risk-score": "tsx scripts/agent/validate-theft-risk-score.ts",

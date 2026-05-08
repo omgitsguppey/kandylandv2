@@ -1,6 +1,7 @@
 "use client";
 
 import { buildAdminDebugSystemHealthNowModel } from "@/lib/admin-debug-summary-cards";
+import { resolveControlTowerBusinessTruthState } from "@/lib/admin-debug/control-tower-truth";
 import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
 import { Pill, Section } from "./DebugPrimitives";
 import { DebugCreatorLane } from "./DebugCreatorLane";
@@ -49,26 +50,6 @@ function formatCompactWatch(valueMs?: number) {
     const minutes = totalMinutes % 60;
     return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
 }
-function businessTruthState(snapshot?: any): AdminSurfaceState {
-    if (!snapshot) return "unavailable";
-    if (
-        snapshot.sourceFreshness === "failed"
-        || snapshot.sourceFreshness === "unavailable"
-        || (snapshot.issues || []).some((issue: any) => issue.severity === "fail")
-    ) {
-        return "failed";
-    }
-    if (
-        snapshot.sourceFreshness === "stale"
-        || snapshot.sourceFreshness === "degraded"
-        || snapshot.sourceTruth === "legacy_fallback"
-        || (snapshot.issues || []).some((issue: any) => issue.severity === "warn")
-    ) {
-        return "stale";
-    }
-    return "live";
-}
-
 /* ─── Props ─── */
 export interface DebugTabNowProps {
     data: any;
@@ -125,7 +106,7 @@ export function DebugTabNow({
         runtimeWarningCount: (data?.opsHealth?.runtime?.warnings || []).length,
     });
     const adminUserTruthSnapshot = data?.adminUserTruthSnapshot;
-    const businessTruth = businessTruthState(adminUserTruthSnapshot);
+    const businessTruth = resolveControlTowerBusinessTruthState(adminUserTruthSnapshot);
     const systemHealthTruthState = systemHealthNow.pipeline.truthState === "failed" || systemHealthNow.writers.truthState === "failed"
         ? "failed"
         : systemHealthNow.pipeline.truthState === "degraded" || systemHealthNow.diagnostics.truthState === "degraded" || systemHealthNow.writers.truthState === "degraded"

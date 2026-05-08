@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { buildAdminDebugControlTowerModel } from "@/lib/admin-debug-control-tower";
 import { handleApiError } from "@/lib/server/auth";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { listRecentDebugEvidence } from "@/lib/server/debug-evidence-store";
+import { loadAdminDebugControlTower } from "@/lib/server/admin-debug-control-tower-loader";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
@@ -30,11 +29,7 @@ async function GET_handler(request: NextRequest) {
             scopeToCaller: true,
         });
 
-        const debugEvidence = await listRecentDebugEvidence({ limit: 60 });
-        const model = buildAdminDebugControlTowerModel({
-            debugEvidence,
-            debugEvidenceSource: debugEvidence.length > 0 ? "firestore" : "generated",
-        });
+        const model = await loadAdminDebugControlTower({ evidenceLimit: 60 });
 
         return finalize(NextResponse.json(model, {
             headers: {

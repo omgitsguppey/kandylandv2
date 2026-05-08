@@ -4,6 +4,8 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import type { DebugEvidenceAuditSummary } from "@/lib/debug-evidence-contract";
+import type { AdminTruthState } from "@/lib/admin-truth-state";
+import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 
 export type AdminDebugTruthState = "live" | "stale" | "missing" | "unavailable" | "failed" | "unknown";
 export type AdminDebugSeverity = "info" | "minor" | "moderate" | "major" | "critical";
@@ -69,6 +71,21 @@ export type AdminDebugLiveIssueCard = {
     browserFrameOwner?: string;
 };
 
+export type AdminDebugRuntimeEvidenceGroup = {
+    id: string;
+    fingerprint: string;
+    source: DebugEvidenceAuditSummary["source"];
+    severity: DebugEvidenceAuditSummary["severity"];
+    truthState: AdminTruthState;
+    occurrenceCount: number;
+    issueCount: number;
+    lastSeenAt: number;
+    categories: string[];
+    routes: string[];
+    components: string[];
+    issues: DebugEvidenceAuditSummary[];
+};
+
 export type AdminDebugNextAction = {
     id: string;
     action: string;
@@ -92,9 +109,13 @@ export type AdminDebugControlTowerModel = {
     reports: AdminDebugReportCard[];
     sections: Record<AdminDebugControlTowerSection, AdminDebugReportCard[]>;
     liveIssues: AdminDebugLiveIssueCard[];
+    runtimeEvidenceGroups: AdminDebugRuntimeEvidenceGroup[];
     nextActions: AdminDebugNextAction[];
     debugEvidenceSource: "firestore" | "generated" | "unavailable";
     reportSource: "agent_state";
+    businessSnapshot: AdminUserTruthSnapshot | null;
+    businessTruthState: AdminTruthState;
+    reportFreshnessState: "live" | "stale" | "missing" | "failed" | "unknown" | "unavailable";
 };
 
 type ReportDefinition = {
@@ -504,8 +525,12 @@ export function buildAdminDebugControlTowerModel(options?: {
         reports,
         sections: buildSections(reports),
         liveIssues,
+        runtimeEvidenceGroups: [],
         nextActions,
         debugEvidenceSource: options?.debugEvidenceSource ?? (options?.debugEvidence?.length ? "firestore" : generatedEvidence.length > 0 ? "generated" : "unavailable"),
         reportSource: "agent_state",
+        businessSnapshot: null,
+        businessTruthState: "unavailable",
+        reportFreshnessState: truthState,
     };
 }

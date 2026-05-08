@@ -3,12 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Clock3 } from "lucide-react";
 
-import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import type { AdminDebugControlTowerModel, AdminDebugControlTowerSection } from "@/lib/admin-debug-control-tower";
+import { resolveControlTowerBusinessTruthState } from "@/lib/admin-debug/control-tower-truth";
 import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 import { cn } from "@/lib/utils";
+import { DebugControlTowerBusinessTruth } from "./DebugControlTowerBusinessTruth";
+import { DebugRuntimeEvidenceGroups } from "./DebugRuntimeEvidenceGroups";
 import {
     FILTERS,
     type FilterId,
@@ -19,53 +22,7 @@ import {
     SECTION_COPY,
     filterReport,
     formatRelative,
-    toBadgeState,
 } from "./DebugControlTowerCards";
-
-function SummaryMetric({ label, value }: { label: string; value: string | number }) {
-    return (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">{label}</p>
-            <p className="mt-1 text-xl font-black text-white">{value}</p>
-        </div>
-    );
-}
-
-function businessTruthState(snapshot?: AdminUserTruthSnapshot | null) {
-    if (!snapshot) return "unavailable" as const;
-    if (
-        snapshot.sourceFreshness === "failed"
-        || snapshot.sourceFreshness === "unavailable"
-        || snapshot.issues.some((issue) => issue.severity === "fail")
-    ) {
-        return "failed" as const;
-    }
-    if (
-        snapshot.sourceFreshness === "stale"
-        || snapshot.sourceFreshness === "degraded"
-        || snapshot.sourceTruth === "legacy_fallback"
-        || snapshot.issues.some((issue) => issue.severity === "warn")
-    ) {
-        return "stale" as const;
-    }
-    return "live" as const;
-}
-
-function formatCompactCurrency(value: number) {
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 0,
-    }).format(value);
-}
-
-function formatCompactWatchTime(valueMs: number) {
-    const totalMinutes = Math.round(valueMs / 60_000);
-    if (totalMinutes < 60) return `${totalMinutes}m`;
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
-}
 
 export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: AdminUserTruthSnapshot | null }) {
     const [model, setModel] = useState<AdminDebugControlTowerModel | null>(null);
@@ -136,7 +93,11 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
 
     const Icon = model?.criticalCount ? AlertTriangle : loading ? Clock3 : CheckCircle2;
     const controlTruthState = model?.truthState ?? (loading ? "unknown" : error ? "failed" : "unavailable");
-    const canonicalBusinessTruthState = businessTruthState(businessSnapshot);
+    const resolvedBusinessSnapshot = model?.businessSnapshot ?? businessSnapshot ?? null;
+    const canonicalBusinessTruthState = model?.businessTruthState ?? resolveControlTowerBusinessTruthState(resolvedBusinessSnapshot);
+    const controlTowerBadgeState = controlTruthState === "missing" || controlTruthState === "unknown"
+        ? "unavailable"
+        : controlTruthState;
 
     return (
         <section
@@ -144,7 +105,7 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
             data-admin-debug-v2="control-tower"
             data-debug-mobile-layout="compact-card-stack"
             data-debug-report-source={model?.reportSource ?? "agent_state"}
-            data-debug-report-freshness={model?.staleReportCount ? "stale" : "fresh"}
+            data-debug-report-freshness={model?.reportFreshnessState ?? "unknown"}
             data-debug-truth-state={controlTruthState}
             data-debug-critical-count={model?.criticalCount ?? 0}
             data-debug-next-action-count={model?.nextActions.length ?? 0}
@@ -166,66 +127,43 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                         </p>
                     </div>
                     <div className="shrink-0 text-right">
-                        <AdminStatusBadge state={toBadgeState(controlTruthState)} className="mb-2" />
+                        <AdminTruthBadge state={controlTowerBadgeState} className="mb-2" />
                         <p className="text-3xl font-black text-white">{model?.overallScore ?? "--"}</p>
                         <p className="text-[11px] text-gray-400">{loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
                     </div>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <SummaryMetric label="Critical" value={model?.criticalCount ?? "--"} />
-                    <SummaryMetric label="Stale" value={model?.staleReportCount ?? "--"} />
-                    <SummaryMetric label="Missing" value={model?.missingReportCount ?? "--"} />
-                    <SummaryMetric label="Live issues" value={model?.liveIssueCount ?? "--"} />
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                        <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Critical</p>
+                        <p className="mt-1 text-xl font-black text-white">{model?.criticalCount ?? "--"}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                        <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Stale</p>
+                        <p className="mt-1 text-xl font-black text-white">{model?.staleReportCount ?? "--"}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                        <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Missing</p>
+                        <p className="mt-1 text-xl font-black text-white">{model?.missingReportCount ?? "--"}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                        <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Live issues</p>
+                        <p className="mt-1 text-xl font-black text-white">{model?.liveIssueCount ?? "--"}</p>
+                    </div>
                 </div>
             </div>
 
-            {businessSnapshot ? (
-                <div
-                    className="rounded-[1.2rem] border border-white/10 bg-black/25 p-3"
-                    data-debug-report-source="canonical-business-truth"
-                    data-debug-truth-state={canonicalBusinessTruthState}
-                >
-                    <div className="flex items-start justify-between gap-3">
-                        <div>
-                            <h3 className="font-bold text-white">Canonical Business Truth</h3>
-                            <p className="text-xs text-gray-400">
-                                User, purchase, revenue, unwrap, and watch metrics come from the admin-user truth snapshot and do not inherit ops-health status.
-                            </p>
-                        </div>
-                        <AdminStatusBadge state={toBadgeState(canonicalBusinessTruthState)} />
-                    </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
-                        <SummaryMetric label="Users" value={businessSnapshot.totalUsers} />
-                        <SummaryMetric label="Purchases" value={businessSnapshot.verifiedPurchases} />
-                        <SummaryMetric label="Revenue" value={formatCompactCurrency(businessSnapshot.totalRevenueUsd)} />
-                        <SummaryMetric label="Unwraps" value={businessSnapshot.trackedUnwraps} />
-                        <SummaryMetric label="Watch" value={formatCompactWatchTime(businessSnapshot.validWatchTimeMs)} />
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-300">
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
-                            freshness {businessSnapshot.sourceFreshness}
-                        </span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
-                            truth {businessSnapshot.sourceTruth}
-                        </span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
-                            confidence {businessSnapshot.confidenceScore}%
-                        </span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
-                            generated {formatRelative(businessSnapshot.generatedAt)}
-                        </span>
-                    </div>
-                    {businessSnapshot.issues.length > 0 ? (
-                        <div className="mt-3 space-y-2">
-                            {businessSnapshot.issues.slice(0, 4).map((issue) => (
-                                <div key={issue.code} className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
-                                    <p className="font-semibold text-white">{issue.severity}</p>
-                                    <p className="mt-1">{issue.message}</p>
-                                </div>
-                            ))}
-                        </div>
-                    ) : null}
-                </div>
+            {resolvedBusinessSnapshot ? (
+                <DebugControlTowerBusinessTruth
+                    businessSnapshot={resolvedBusinessSnapshot}
+                    truthState={canonicalBusinessTruthState}
+                />
+            ) : null}
+
+            {model && model.runtimeEvidenceGroups.length > 0 ? (
+                <DebugRuntimeEvidenceGroups
+                    groups={model.runtimeEvidenceGroups}
+                    debugEvidenceSource={model.debugEvidenceSource}
+                />
             ) : null}
 
             <div className="flex gap-2 overflow-x-auto pb-1">
@@ -277,7 +215,7 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                             <h3 className="font-bold text-white">Live Issues</h3>
                             <p className="text-xs text-gray-400">Top redacted runtime evidence by severity, count, and recency.</p>
                         </div>
-                        <AdminStatusBadge state={model.liveIssues.some((issue) => issue.severity === "critical") ? "failed" : "live"} />
+                        <AdminTruthBadge state={model.liveIssues.some((issue) => issue.severity === "critical") ? "failed" : "live"} />
                     </div>
                     <div className="mt-3 grid gap-2">
                         {model.liveIssues.slice(0, 10).map((issue) => (
