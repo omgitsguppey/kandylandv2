@@ -6,6 +6,7 @@ export type ParsedCoverTitle = {
   normalizedFlavorTokens: string[];
   primaryFlavorCategory: string;
   heroObject: string;
+  supportingProps: string[];
   palette: string[];
   avoidObjects: string[];
 };
@@ -32,6 +33,7 @@ export function parseCoverTitle(inputTitle: string): ParsedCoverTitle {
     normalizedFlavorTokens,
     primaryFlavorCategory: ontology.category,
     heroObject: ontology.heroObject,
+    supportingProps: ontology.supportingProps,
     palette: ontology.palette,
     avoidObjects: ontology.forbiddenSourceObjects,
   };

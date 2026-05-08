@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
+import { compileCoverPrompt } from "../../src/lib/ai-cover/cover-prompt-compiler";
+
 const repoRoot = process.cwd();
 const failures: string[] = [];
 const requiredFiles = [
@@ -30,6 +32,40 @@ if (!compiler.includes("coverTitleSource") || !compiler.includes("deterministic-
 }
 if (!compiler.includes("Do not add profile/display name unless it appears in the title")) {
   failures.push("Cover compiler must enforce title-prefix creator naming.");
+}
+if (!compiler.includes("Lock the core object category")) {
+  failures.push("Cover compiler must lock the core object category.");
+}
+if (!compiler.includes("Within that locked category, intelligently enrich")) {
+  failures.push("Cover compiler must allow category-safe enrichment.");
+}
+if (!compiler.includes("Category-safe enrichment may add supporting props")) {
+  failures.push("Cover compiler must mention supporting props enrichment.");
+}
+
+const blueberryMuffins = compileCoverPrompt({
+  title: "Blueberry Muffins",
+  imageModel: "image_3_pro_preview",
+});
+if (blueberryMuffins.debugBrief.primaryFlavorCategory !== "muffin_bakery") {
+  failures.push("Blueberry Muffins must remain in the muffin/bakery category.");
+}
+if (!String(blueberryMuffins.prompt).includes("Lock the core object category to muffin_bakery")) {
+  failures.push("Compiled prompt must keep the category-lock guidance visible.");
+}
+
+const chocolateBar = compileCoverPrompt({
+  title: "Chocolate Bar",
+  imageModel: "image_3_pro_preview",
+});
+if (chocolateBar.debugBrief.primaryFlavorCategory !== "candy_bar") {
+  failures.push("Chocolate Bar must remain in the candy/bar category.");
+}
+if (String(chocolateBar.prompt).includes("cherry drink") || String(chocolateBar.prompt).includes("soda")) {
+  failures.push("Chocolate Bar prompt must not drift into drink/soda categories.");
+}
+if (!String(chocolateBar.prompt).includes("Within that locked category, intelligently enrich")) {
+  failures.push("Compiled prompt must permit safe category enrichment.");
 }
 
 const route = read("src/app/api/admin/ai/drop-covers/prompt-policy/route.ts");

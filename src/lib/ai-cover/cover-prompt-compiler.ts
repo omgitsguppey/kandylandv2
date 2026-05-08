@@ -36,8 +36,11 @@ export function compileCoverPrompt(input: CoverPromptCompileInput): CoverPromptC
     `Keep the same square KandyDrops cover layout and typography hierarchy as the selected reference${input.referenceCoverStyleId ? ` (${input.referenceCoverStyleId})` : ""}.`,
     `Top brand text: ${creatorBrand}.`,
     `Main title: ${parsed.flavorTitle}.`,
+    `Lock the core object category to ${parsed.primaryFlavorCategory}.`,
     `Replace the hero object with ${parsed.heroObject}.`,
+    `Within that locked category, intelligently enrich with common flavor, ingredient, texture, garnish, plating, palette, and atmosphere cues that match the title and category.`,
     `Use ${parsed.palette.join(", ")}.`,
+    `Category-safe enrichment may add supporting props such as ${parsed.supportingProps.join(", ")}.`,
     `Preserve bottom bar text: ${layout.bottomBarText}.`,
     `Do not add profile/display name unless it appears in the title.`,
   ].join(" ");
