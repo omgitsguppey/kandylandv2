@@ -794,6 +794,7 @@ async function GET_handler(request: NextRequest) {
             topDrops,
             chartData: chartSeed,
             platformPulse,
+            truthSnapshot: userTruthSnapshot,
             trendSummary: {
                 windowDays: OVERVIEW_WINDOW_DAYS,
                 currentStartDayKey,

@@ -1,6 +1,4 @@
 "use client";
-
-import { formatDistanceToNow } from "date-fns";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
 import { AdminAnalyticsCharts } from "@/components/Admin/AdminAnalyticsCharts";
@@ -11,33 +9,19 @@ import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
 import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
-import { resolveTruthChipVariant } from "@/hooks/useAdminOverviewRealtime";
+import { coerceAdminSurfaceState } from "@/lib/admin-parity";
+import { buildAdminOverviewPageData } from "@/lib/server/admin-page-data-loader";
 
 export default function AdminDashboardPage() {
     const { data, error, isLoading } = useAdminOverview();
-    const issueCount = data?.overviewIssues?.length ?? data?.issues?.length ?? 0;
-    const overviewLoadState = error ? "failed" : isLoading ? "loading" : "unavailable";
+    const pageData = buildAdminOverviewPageData({ data, error, isLoading });
+    const overviewLoadState = pageData.fallbackState;
     const overviewFallbackClassName = overviewLoadState === "failed"
         ? "rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100"
         : overviewLoadState === "loading"
             ? "rounded-xl border border-sky-400/20 bg-sky-500/10 px-4 py-4 text-sm text-sky-100"
             : "rounded-xl border border-slate-400/20 bg-slate-500/10 px-4 py-4 text-sm text-slate-100";
-
-    /* Last server-confirmed update label.
-       Uses realtimeDebugMeta.lastServerConfirmedAt when available (actual Firestore
-       server-confirmed snapshot timestamp), otherwise falls back to freshness.lastTransactionAt
-       which comes from the server rollup. We label the source explicitly. */
-    const lastServerConfirmedAt = data?.realtimeDebugMeta?.lastServerConfirmedAt;
-    const lastTransactionAt = data?.freshness.lastTransactionAt;
-    const serverUpdateLabel = lastServerConfirmedAt && lastServerConfirmedAt > 0
-        ? `Last server update ${formatDistanceToNow(lastServerConfirmedAt, { addSuffix: true })}`
-        : lastTransactionAt && lastTransactionAt > 0
-            ? `Last server update ${formatDistanceToNow(lastTransactionAt, { addSuffix: true })}`
-            : "No server update yet";
-
-    /* Truth chip: concise human-readable admin truth state */
-    const truthLabel = data?.truthNotes?.overview ?? "Waiting for first overview snapshot";
-    const truthVariant = resolveTruthChipVariant(truthLabel);
+    const truthVariant = coerceAdminSurfaceState(pageData.truthState) ?? "unavailable";
 
 
     return (
@@ -47,12 +31,12 @@ export default function AdminDashboardPage() {
             <AdminPageHeader
                 eyebrow={null}
                 title="Admin Overview"
-                subtitle={serverUpdateLabel}
+                subtitle={pageData.serverUpdateLabel}
                 compact
                 actions={(
                     <div className="flex items-center gap-2">
                         <AdminStatusBadge state={truthVariant} />
-                        <span className="text-[11px] font-semibold text-gray-400">{truthLabel}</span>
+                        <span className="text-[11px] font-semibold text-gray-400">{pageData.truthLabel}</span>
                     </div>
                 )}
             />
@@ -62,14 +46,14 @@ export default function AdminDashboardPage() {
                     <AdminDashboardModule title="Platform pulse" defaultOpen={true}>
                         {data ? (
                             <AdminStatsBar
-                                platformPulse={data.platformPulse}
+                                platformPulse={pageData.platformPulse}
                                 overviewIssues={data.overviewIssues}
                                 truthState={truthVariant}
                             />
                         ) : (
                             <div className={overviewFallbackClassName}>
                                 <AdminStatusBadge state={overviewLoadState} className="mb-2" />
-                                <div>{error?.message ?? (isLoading ? "Loading overview snapshot." : "Overview snapshot has no verified source yet.")}</div>
+                                <div>{pageData.fallbackMessage}</div>
                             </div>
                         )}
                     </AdminDashboardModule>
@@ -88,7 +72,7 @@ export default function AdminDashboardPage() {
                                 chartData={data?.chartData || []}
                                 trendSummary={data.trendSummary}
                                 topDrops={data?.topDrops || []}
-                                truthLabel={truthLabel}
+                                truthLabel={pageData.truthLabel}
                                 truthVariant={truthVariant}
                                 loading={isLoading && !data}
                             />

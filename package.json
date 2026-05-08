@@ -97,6 +97,7 @@
         "check:user-value-score": "tsx scripts/agent/validate-user-value-score.ts",
         "check:admin-user-metrics-snapshot": "tsx scripts/agent/validate-admin-user-metrics-snapshot.ts",
         "check:admin-truth-replacement": "tsx scripts/agent/validate-admin-truth-replacement.ts",
+        "check:admin-pages-cutover": "tsx scripts/agent/validate-admin-pages-cutover.ts",
         "check:admin-users-stats-grid": "tsx scripts/agent/validate-admin-users-stats-grid.ts",
         "check:admin-users-loading-lanes": "tsx scripts/agent/validate-admin-users-loading-lanes.ts",
         "check:user-behavior-rollup": "tsx scripts/agent/validate-user-behavior-rollup.ts",

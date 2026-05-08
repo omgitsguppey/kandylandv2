@@ -1,6 +1,7 @@
 import type { Drop, Transaction } from "@/types/db";
 import type { AdminModuleVerification } from "@/lib/admin-parity";
 import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
+import type { AdminUserTruthSnapshot } from "@/lib/admin-user-truth-contract";
 
 export type AdminOverviewDeltaDirection = "up" | "down" | "flat";
 
@@ -177,6 +178,7 @@ export interface AdminOverviewResponse {
     chartData: AdminOverviewDayPoint[];
     trendSummary: AdminOverviewWindowSummary;
     platformPulse?: PlatformPulseMetric[];
+    truthSnapshot?: AdminUserTruthSnapshot;
     truthNotes: AdminOverviewTruthNotes;
     verification?: AdminModuleVerification;
     /** Debug metadata surfaced from the realtime layer for admin debug panel visibility.

@@ -40,7 +40,6 @@ import {
     resolveAdminTruthState,
     type AdminTruthState,
 } from "@/lib/admin-truth-state";
-import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { Transaction, UserProfile } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
 import type { SupportReadinessSnapshot } from "@/lib/support-readiness";
@@ -56,6 +55,7 @@ import type { UserBehaviorRollup } from "@/lib/user-behavior-rollup-contract";
 import type { UserBehaviorTruthRollup } from "@/lib/behavioral/user-score-contract";
 import type { UserEngagementScoreResult } from "@/lib/behavioral/user-engagement-score";
 import type { UserValueScoreResult } from "@/lib/behavioral/user-value-score";
+import { buildAdminUserDetailPageData } from "@/lib/server/admin-page-data-loader";
 
 type UserDetailAnalytics = {
     eventCount: number;
@@ -406,37 +406,31 @@ export default function AdminUserAnalyticsPage() {
         void loadUserData();
     }, [loadUserData]);
 
-    const purchaseTransactions = useMemo(() => (
-        transactions
-            .filter((transaction) => transaction.status === "completed" && (transaction.type === "purchase_currency" || String(transaction.type) === "purchase"))
-            .map((transaction) => ({
-                ...transaction,
-                economics: deriveGumdropEconomics(
-                    transaction.deliveredGumDrops ?? transaction.amount,
-                    transaction.grossRevenueUsd ?? transaction.cost ?? 0,
-                ),
-            }))
-    ), [transactions]);
-
-    const totalSpentUsd = analytics?.grossRevenueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
-    const adjustedProfitUsd = analytics?.adjustedProfitUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.adjustedProfitUsd, 0);
-    const bonusValueUsd = analytics?.bonusValueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusValueUsd, 0);
-    const bonusGumDrops = analytics?.bonusGumDrops ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusGumDrops, 0);
-    const paypalFeeUsd = analytics?.paypalFeeUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paypalFeeUsd, 0);
-    const netRevenueUsd = analytics?.netRevenueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.netRevenueUsd, 0);
-    const deliveredGumDrops = analytics?.deliveredGumDrops ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
-    const effectiveUsdPer100Gd = analytics?.effectiveUsdPer100Gd ?? (deliveredGumDrops > 0 ? totalSpentUsd / (deliveredGumDrops / 100) : 0);
-    const averageOrderUsd = (analytics?.purchaseCount || purchaseTransactions.length) > 0
-        ? totalSpentUsd / (analytics?.purchaseCount || purchaseTransactions.length)
-        : 0;
-    const failedTxCount = transactions.filter((transaction) => transaction.status === "failed").length;
+    const pageData = useMemo(
+        () => buildAdminUserDetailPageData({ analytics, transactions }),
+        [analytics, transactions],
+    );
+    const {
+        totalSpentUsd,
+        adjustedProfitUsd,
+        bonusValueUsd,
+        bonusGumDrops,
+        paypalFeeUsd,
+        netRevenueUsd,
+        deliveredGumDrops,
+        effectiveUsdPer100Gd,
+        averageOrderUsd,
+        failedTxCount,
+    } = pageData.commerce;
     const parity = analytics?.parity;
-    const behaviorRollup = analytics?.behaviorRollup;
-    const behaviorTruthRollup = analytics?.behaviorTruthRollup;
-    const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
-    const value = analytics?.value ?? behaviorRollup?.value;
-    const actionLedger = analytics?.actionLedger ?? [];
-    const behaviorIssueSummary = behaviorRollup?.issues.map((issue) => issue.message).join(" ");
+    const {
+        behaviorRollup,
+        behaviorTruthRollup,
+        engagement,
+        value,
+        actionLedger,
+        issueSummary: behaviorIssueSummary,
+    } = pageData.behavior;
     const behavioralConfidence = Math.round(((behavioralProfile?.confidenceScore ?? recommendationDebug?.profileConfidence ?? 0) as number) * 100);
     const behavioralTopCreators = ((behavioralProfile?.topCreators || []) as Array<{ key: string; score: number }>).filter((entry) => entry.score > 0.5);
     const behavioralTopCategories = ((behavioralProfile?.topCategories || []) as Array<{ key: string; score: number }>).filter((entry) => entry.score > 0.35);
@@ -453,7 +447,7 @@ export default function AdminUserAnalyticsPage() {
             analytics?.adjustedProfitUsd,
             totalSpentUsd,
         ),
-        sourceConfigured: Boolean(analytics?.commerceSourceLabel || purchaseTransactions.length > 0 || analytics),
+        sourceConfigured: Boolean(analytics?.commerceSourceLabel || transactions.length > 0 || analytics),
         valueState: analytics?.commerceTruthLabel,
         delayed: coerceAdminTruthState(analytics?.commerceTruthLabel) === "stale",
         reviewRequired: Boolean(analytics?.commerceEmptyReason && analytics),
@@ -514,7 +508,7 @@ export default function AdminUserAnalyticsPage() {
     const commerceReviewDecision = buildAdminReviewBadge({
         truthState: commerceTruthState,
         delayedExpected: coerceAdminTruthState(analytics?.commerceTruthLabel) === "stale",
-        revenueExistsButPurchaseCountMissing: Boolean(totalSpentUsd > 0 && !(analytics?.purchaseCount || purchaseTransactions.length)),
+        revenueExistsButPurchaseCountMissing: Boolean(totalSpentUsd > 0 && !(analytics?.purchaseCount || 0)),
         reviewSummary: analytics?.commerceEmptyReason || undefined,
     });
     const metricReviewDecision = buildAdminReviewBadge({

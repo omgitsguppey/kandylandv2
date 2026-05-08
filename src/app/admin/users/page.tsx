@@ -36,6 +36,7 @@ import {
 import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
 import { useAdminUsersRealtime } from "@/hooks/useAdminUsersRealtime";
+import { buildAdminUsersPageData } from "@/lib/server/admin-page-data-loader";
 import type { 
     AdminBehaviorLeaderboardFilter,
     AdminBehaviorLeaderboardPanel,
@@ -498,20 +499,15 @@ export default function UserManagementPage() {
     };
     const getBounceRate = (analytics?: UserAnalytics) =>
         analytics && analytics.viewCount > 0 ? analytics.bounceCount / Math.max(1, analytics.viewCount) : 0;
-    const userSummaryTruthState = resolveAdminTruthState({
-        hasUsableValue: Boolean(summary?.kpiCards?.length),
-        sourceConfigured: true,
-        transportState: !summary && summaryLoading ? "loading" : snapshotRefreshState,
-        valueState: summary?.truthSnapshot?.sourceFreshness,
-        reviewRequired: Boolean(summary?.truthSnapshot?.issues.length),
+    const pageData = buildAdminUsersPageData({
+        summary,
+        summaryLoading,
+        snapshotRefreshState,
+        usersRealtimePulse,
+        behaviorLeaderboard,
     });
-    const usersRealtimePulseTruthState = resolveAdminTruthState({
-        hasUsableValue: Boolean(summary),
-        sourceConfigured: true,
-        transportState: usersRealtimePulse.pulseState,
-        refreshInFlight: usersRealtimePulse.pulseState === "loading" || usersRealtimePulse.pulseState === "fallback",
-        sourceIssue: usersRealtimePulse.pulseState === "degraded",
-    });
+    const userSummaryTruthState = pageData.truthState;
+    const usersRealtimePulseTruthState = pageData.realtimePulseTruthState;
     const getOnboardingBadge = (user: UserProfile, analytics?: UserAnalytics) =>
         user.onboardingCompleted || (analytics?.onboardingCompletionCount || 0) > 0
             ? {
@@ -748,7 +744,7 @@ export default function UserManagementPage() {
                 title={viewMode === 'users' ? 'User Management' : viewMode === 'feedback' ? 'Platform Feedback' : 'Daily Task Control'}
                 compact
                 subtitle={viewMode === 'users'
-                    ? 'Manage accounts, roles, balance, and content access.'
+                    ? pageData.subtitle
                     : viewMode === 'feedback'
                         ? 'Review user-submitted feedback from daily tasks.'
                         : 'Create daily missions and monitor live task triggers.'}
@@ -822,7 +818,7 @@ export default function UserManagementPage() {
                         data-admin-users-truth-source={summary?.truthSnapshot?.sourceTruth ?? "unavailable"}
                         data-admin-users-truth-freshness={summary?.truthSnapshot?.sourceFreshness ?? "unavailable"}
                     >
-                        {(summary?.kpiCards ?? []).map((card) => (
+                        {pageData.kpiCards.map((card) => (
                             <div key={card.id}>
                                 {renderSummaryMetricCard(card)}
                             </div>
