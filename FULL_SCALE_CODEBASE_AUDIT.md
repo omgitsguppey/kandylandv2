@@ -1,3 +1,37 @@
+
+## Monolith File + Responsibility Boundary Audit
+
+Scope started:
+- Targeted structural pass to inspect oversized multi-responsibility files and unclear ownership boundaries.
+
+Candidate Files & Classification:
+1. `src/app/api/admin/debug/route.ts` (6360 lines)
+   - Classification: **God-file risk**
+2. `src/app/api/admin/users/route.ts` (3147 lines)
+   - Classification: **God-file risk**
+3. `src/components/Chat/ChatExperience.tsx` (3232 lines)
+   - Classification: **Oversized but tolerable** (or Mixed responsibility drift)
+4. `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (2864 lines)
+   - Classification: **Mixed responsibility drift**
+
+Blocker:
+These files are between 2,800 and 6,360 lines long, containing deeply entwined handler logic, UI component view rendering inline with hooks (e.g. `SnapshotRefreshControl` inside hooks folder), and orchestration logic. Extracting their logic boundaries safely without regressions requires abstract syntax tree parsing or human-guided multi-file structural decomposition beyond a single safe automated pass, making it too risky to attempt large-scale string-replace modifications on protected telemetry and admin components without a dedicated structural refactoring pipeline.
+
+Affected files/components/helpers:
+- `src/app/api/admin/debug/route.ts`
+- `src/app/api/admin/users/route.ts`
+- `src/components/Chat/ChatExperience.tsx` (components: `ChatAvatar`, `TypingStatus`, `ChatPaidGdGuidanceCard`)
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (component: `SnapshotRefreshControl`)
+
+Codex Prompt for Blocked Remainder:
+```
+You are tasked with decomposing a set of God-files in the KandyDrops repository to improve stability and boundary clarity. Please systematically extract pure functional helpers, separated UI components, and discrete route handlers from the following files without altering runtime behavior or economy doctrine:
+1. Extract `SnapshotRefreshControl` from `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` into `src/app/admin/analytics/components/SnapshotRefreshControl.tsx`.
+2. Extract `ChatAvatar`, `TypingStatus`, and `ChatPaidGdGuidanceCard` from `src/components/Chat/ChatExperience.tsx` into `src/components/Chat/ChatComponents.tsx`.
+3. Break down `GET`, `POST`, `PUT` handlers and discrete utilities in `src/app/api/admin/debug/route.ts` and `src/app/api/admin/users/route.ts` into a dedicated `handlers` and `utils` subdirectory for each route.
+Maintain all existing telemetry, auth bounds, and fallback states.
+```
+
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
 ## [2026-05-06 #171] FULL AUDIT: Deterministic Codebase Findings Pass
