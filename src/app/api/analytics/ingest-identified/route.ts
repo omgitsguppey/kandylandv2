@@ -181,6 +181,10 @@ async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             ...ANALYTICS_ROUTE_POLICIES.identifiedIngest,
+            allowedMethods: ["POST"],
+            maxBodyBytes: MAX_ANALYTICS_BODY_BYTES,
+            requiredContentTypePrefix: "application/json",
+            requireAuthHeaderPresence: true,
             preAuthRateLimit: ANALYTICS_WRITE,
             rateLimit: ANALYTICS_WRITE,
             requireTrustedOrigin: true,

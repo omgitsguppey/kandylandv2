@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2026-05-08T06:34:26.182Z",
+  "status": "pass",
+  "score": 100,
+  "checks": [
+    {
+      "id": "contract_exists",
+      "pass": true,
+      "detail": "4xx cost policy contract exists."
+    },
+    {
+      "id": "cheap_response_exists",
+      "pass": true,
+      "detail": "cheap 4xx helper exists."
+    },
+    {
+      "id": "classifier_exists",
+      "pass": true,
+      "detail": "4xx route classifier exists."
+    },
+    {
+      "id": "dedupe_exists",
+      "pass": true,
+      "detail": "4xx dedupe helper exists."
+    },
+    {
+      "id": "probe_paths_blocked",
+      "pass": true,
+      "detail": "probe paths are cheaply rejected in middleware."
+    },
+    {
+      "id": "legacy_paths_blocked",
+      "pass": true,
+      "detail": "legacy routes are cheap rejected."
+    },
+    {
+      "id": "request_guard_order",
+      "pass": true,
+      "detail": "request guard order is documented/enforced."
+    },
+    {
+      "id": "analytics_method_body_guarded",
+      "pass": true,
+      "detail": "analytics routes enforce cheap method/body prechecks."
+    },
+    {
+      "id": "scripts_wired",
+      "pass": true,
+      "detail": "package scripts wired."
+    }
+  ],
+  "criticalBlockers": [],
+  "warnings": [],
+  "routeReports": [
+    {
+      "routePattern": "/.env",
+      "status": 404,
+      "class": "bot_probe",
+      "likelyCostCause": "high-volume automated probing",
+      "cachePolicy": "public max-age=300",
+      "loggingPolicy": "deduped",
+      "firestoreBeforeReject": false,
+      "responseTooLarge": false,
+      "rateLimitRequired": false,
+      "debugEvidenceDedupe": true,
+      "recommendedFix": "Keep middleware short-circuit and deduped diagnostics.",
+      "riskTier": "low"
+    },
+    {
+      "routePattern": "/api/analytics/ingest",
+      "status": 400,
+      "class": "analytics_ignored",
+      "likelyCostCause": "malformed/oversized analytics payloads",
+      "cachePolicy": "no-store",
+      "loggingPolicy": "sampled",
+      "firestoreBeforeReject": false,
+      "responseTooLarge": false,
+      "rateLimitRequired": true,
+      "debugEvidenceDedupe": true,
+      "recommendedFix": "Preserve ignored-path lightweight returns and sampled logs.",
+      "riskTier": "low"
+    }
+  ]
+}

@@ -18,6 +18,7 @@ KandyDrops cost control is broader than Google API, Cloud SQL, and BigQuery usag
 - Upload telemetry must checkpoint at coarse milestones only, such as 25/50/75/100, and must not emit one event per percentage point.
 - Debug evidence dedupes by fingerprint, caps event document writes per fingerprint per hour, rolls up repeats, and never blocks user flows.
 - Cloud/server logging must cap detail previews, redact sensitive fields, and avoid full request/response payload logs.
+- 4xx traffic must be deduped/sampled by fingerprint to avoid log storms and repeated debug evidence writes.
 - Media proxy and signed-url routes require entitlement checks, allowed-host checks, private/no-store cache behavior, byte budgets, rate policies, and no raw asset URL telemetry.
 - Auth/signup/login/reset routes require trusted-origin and rate/abuse policies; future phone auth is disabled until an SMS budget guard and fictional QA test-number policy exist.
 - Notification fan-out requires idempotency, duplicate prevention, batch caps, recipient caps, retry caps, user preference gates, quality scoring, per-user daily caps, and same-type fatigue throttles.

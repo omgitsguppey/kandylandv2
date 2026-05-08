@@ -73,6 +73,10 @@ App Check is staged, not blindly enforced. The source contract currently records
 
 Do not accidentally break PayPal webhooks, cron routes, admin refresh flows, or legitimate PWA/browser clients.
 
+## 4xx Cost Lane
+
+4xx traffic is treated as a speed/security cost lane. Known bot probes and stale legacy paths should be short-circuited in middleware or prevalidation, API 4xx bodies must be minimal and typed, and repeated 4xx diagnostics should be deduped/sampled instead of written as unlimited unique records.
+
 ## Timeout And Runaway Work
 
 Cloud Run can time out while route work continues. Cost-sensitive routes and scripts must use bounded work:

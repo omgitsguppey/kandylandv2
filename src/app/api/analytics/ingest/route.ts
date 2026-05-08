@@ -124,6 +124,9 @@ async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             ...ANALYTICS_ROUTE_POLICIES.guestIngest,
+            allowedMethods: ["POST"],
+            maxBodyBytes: MAX_ANALYTICS_BODY_BYTES,
+            requiredContentTypePrefix: "application/json",
             preAuthRateLimit: ANALYTICS_WRITE,
             rateLimit: ANALYTICS_WRITE,
             requireTrustedOrigin: true,

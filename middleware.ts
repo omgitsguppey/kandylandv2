@@ -8,9 +8,37 @@ import {
 import { CREATOR_WAITLIST_PATH } from "@/lib/creator-application";
 import { verifyNavigationSessionCookieValue, NAV_SESSION_COOKIE } from "@/lib/navigation-session";
 import { getCanonicalSiteHost } from "@/lib/site-origin";
+import { cheap4xxResponse } from "@/lib/server/cheap-4xx-response";
+import { isInternalBypassPath, isKnownBotProbePath, isKnownLegacyPath } from "@/lib/server/route-4xx-classifier";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (isInternalBypassPath(pathname)) {
+    return NextResponse.next();
+  }
+
+  if (isKnownBotProbePath(pathname)) {
+    return cheap4xxResponse({
+      status: 404,
+      code: "bot_probe_path_blocked",
+      message: "Not found",
+      class: "bot_probe",
+      cacheTtlSeconds: 300,
+      contentType: "text",
+    });
+  }
+
+  if (isKnownLegacyPath(pathname)) {
+    return cheap4xxResponse({
+      status: 410,
+      code: "legacy_route_gone",
+      message: "This route is no longer supported.",
+      class: "legacy_route",
+      cacheTtlSeconds: 120,
+    });
+  }
+
   const requestHost = request.nextUrl.host;
   const canonicalSiteHost = getCanonicalSiteHost();
 
@@ -75,5 +103,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|.*\\..*|__/).*)"],
+  matcher: ["/:path*"],
 };

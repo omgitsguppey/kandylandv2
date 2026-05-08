@@ -27,6 +27,7 @@ Admin moderation consumes content-protection findings as evidence, not as fake s
 - The preview page must expose `data-safe-preview-fields-only="true"` so deterministic audits can verify the route without browser automation.
 - `DropPreviewModal` is legacy fallback only and must not read `drop.contentUrl` or `drop.contentUrls`; file count must come from presentation metadata such as `getDropMediaSummary`.
 - `/api/drops/content` may touch raw content URLs only after authenticated, trusted-origin, caller-scoped entitlement checks prove creator ownership or server-written unlock entitlement.
+- Content/media 4xx paths must return typed minimal errors, avoid raw URL leakage, and dedupe repeated missing-entitlement/media-not-found evidence to control cost and log volume.
 - The dashboard viewer can read raw Drop server-side only long enough to pass `sanitizeDropForClient` into the client. The client fetches protected bytes only through `/api/drops/content` after `isAuthorized`.
 - Raw Firebase/Storage URLs must not appear in preview, guest, public feed, or viewer shell source.
 

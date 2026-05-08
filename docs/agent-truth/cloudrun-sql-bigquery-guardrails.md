@@ -77,6 +77,8 @@ Data Connect operation/query/mutation additions must declare purpose, table/type
 
 BigQuery is a validation/export lane, not product truth by default. BigQuery and GA exports are analytics evidence only.
 
+High-volume 4xx traffic should be rejected before Cloud Run reaches heavy route logic whenever possible. Bot/probe, malformed payload, and legacy-path traffic must avoid SQL/BigQuery-affecting refresh paths and keep response/log overhead minimal.
+
 Current export owner:
 
 - File: `functions/src/analytics-bigquery-export.ts`
