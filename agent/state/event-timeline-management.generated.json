@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-05-08T07:29:24.603Z",
+  "status": "pass",
+  "score": 100,
+  "checks": [
+    {
+      "id": "timeline_contract_fields",
+      "pass": true,
+      "detail": "Behavioral timeline contract includes canonical fact fields."
+    },
+    {
+      "id": "guest_ingest_timeline",
+      "pass": true,
+      "detail": "Guest ingest writes normalized timeline facts."
+    },
+    {
+      "id": "identified_ingest_timeline",
+      "pass": true,
+      "detail": "Identified ingest writes normalized timeline facts."
+    },
+    {
+      "id": "normalizer_present",
+      "pass": true,
+      "detail": "Runtime fact normalizer is present."
+    },
+    {
+      "id": "ga_optional_only",
+      "pass": true,
+      "detail": "GA is not used as canonical signal in confidence lane."
+    },
+    {
+      "id": "package_script",
+      "pass": true,
+      "detail": "Event timeline validator is wired."
+    }
+  ],
+  "criticalBlockers": [],
+  "warnings": []
+}

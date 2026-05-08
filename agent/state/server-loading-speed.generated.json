@@ -1,0 +1,34 @@
+{
+  "generatedAt": "2026-05-08T07:29:21.298Z",
+  "status": "pass",
+  "score": 100,
+  "checks": [
+    {
+      "id": "request_guard_prevalidation",
+      "pass": true,
+      "detail": "Request guard contains cheap prevalidation ordering."
+    },
+    {
+      "id": "rate_limit_present",
+      "pass": true,
+      "detail": "Server rate limiting utility exists."
+    },
+    {
+      "id": "analytics_ingest_capped",
+      "pass": true,
+      "detail": "Analytics ingest route has cap/dedupe guards."
+    },
+    {
+      "id": "cheap_4xx_helper",
+      "pass": true,
+      "detail": "Cheap 4xx response helper exists."
+    },
+    {
+      "id": "server_speed_script",
+      "pass": true,
+      "detail": "Server speed validator wired in package scripts."
+    }
+  ],
+  "criticalBlockers": [],
+  "warnings": []
+}

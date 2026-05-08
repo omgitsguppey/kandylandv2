@@ -1,0 +1,262 @@
+{
+  "generatedAt": "2026-05-08T07:29:48.375Z",
+  "status": "fail",
+  "passFail": "fail",
+  "criticalBlockers": [
+    "check:client-loading-speed: > kandydrops@0.1.0 check:client-loading-speed",
+    "check:user-creator-feature-parity: > kandydrops@0.1.0 check:user-creator-feature-parity",
+    "check:chat-paid-gumdrops-guidance: > kandydrops@0.1.0 check:chat-paid-gumdrops-guidance"
+  ],
+  "warnings": [],
+  "exactValidatorsToRun": [
+    "npm run check:codebase-junk-cleanup",
+    "npm run check:client-loading-speed",
+    "npm run check:server-loading-speed",
+    "npm run check:user-creator-feature-parity",
+    "npm run check:event-timeline-management",
+    "npm run check:google-cloud-cost-data-handoff",
+    "npm run check:user-tracking-index-cutover",
+    "npm run check:guest-user-analytics",
+    "npm run check:4xx-cost",
+    "npm run check:billing-spikes",
+    "npm run check:fan-pass-unlock-entitlement",
+    "npm run check:ai-drop-creation-compact",
+    "npm run check:daily-task-engine-rewrite",
+    "npm run check:batch-upload-stability",
+    "npm run check:chat-paid-gumdrops-guidance",
+    "npm run check:ios-pwa-chat-refinements"
+  ],
+  "surfacesAffected": [
+    "user surfaces",
+    "creator surfaces",
+    "telemetry timeline",
+    "cost/data handoff",
+    "legacy/junk cleanup"
+  ],
+  "removedFiles": [],
+  "deprecatedFiles": [],
+  "blockedLegacyPaths": [],
+  "normalizedDuplicateLogic": [],
+  "speedImprovements": [],
+  "userCreatorDisconnectedSurfaces": [],
+  "telemetryGapsFixed": [],
+  "parityGapsFixed": [],
+  "googleCloudCostRisks": [],
+  "dataLossRisks": [],
+  "sqlDataConnectStatus": "sidecar_only_unless_approved",
+  "bigQueryStatus": "analytics_evidence_not_runtime_truth",
+  "gaOptionalEvidenceStatus": "optional_external_evidence_only",
+  "behavioralProfileStatus": "normalized_first_party_facts_required",
+  "promoReadinessVerdict": "blocked",
+  "validatorResults": [
+    {
+      "script": "check:codebase-junk-cleanup",
+      "command": "npm run check:codebase-junk-cleanup",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:codebase-junk-cleanup",
+        "> tsx scripts/agent/validate-codebase-junk-cleanup.ts",
+        "Codebase junk cleanup validation passed."
+      ]
+    },
+    {
+      "script": "check:client-loading-speed",
+      "command": "npm run check:client-loading-speed",
+      "status": "fail",
+      "exitCode": 1,
+      "output": [
+        "> kandydrops@0.1.0 check:client-loading-speed",
+        "> tsx scripts/agent/validate-client-loading-speed.ts",
+        "Client loading speed validation failed (1 blockers)."
+      ]
+    },
+    {
+      "script": "check:server-loading-speed",
+      "command": "npm run check:server-loading-speed",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:server-loading-speed",
+        "> tsx scripts/agent/validate-server-loading-speed.ts",
+        "Server loading speed validation PASS (100)."
+      ]
+    },
+    {
+      "script": "check:user-creator-feature-parity",
+      "command": "npm run check:user-creator-feature-parity",
+      "status": "fail",
+      "exitCode": 1,
+      "output": [
+        "> kandydrops@0.1.0 check:user-creator-feature-parity",
+        "> tsx scripts/agent/validate-user-creator-feature-parity.ts",
+        "User/creator feature parity validation failed."
+      ]
+    },
+    {
+      "script": "check:event-timeline-management",
+      "command": "npm run check:event-timeline-management",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:event-timeline-management",
+        "> tsx scripts/agent/validate-event-timeline-management.ts",
+        "Event timeline management validation passed (100)."
+      ]
+    },
+    {
+      "script": "check:google-cloud-cost-data-handoff",
+      "command": "npm run check:google-cloud-cost-data-handoff",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:google-cloud-cost-data-handoff",
+        "> tsx scripts/agent/validate-google-cloud-cost-data-handoff.ts",
+        "Google Cloud cost/data handoff validation passed."
+      ]
+    },
+    {
+      "script": "check:user-tracking-index-cutover",
+      "command": "npm run check:user-tracking-index-cutover",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:user-tracking-index-cutover",
+        "> npm run score:user-tracking-indexes && tsx scripts/agent/validate-user-tracking-index-cutover.ts",
+        "> kandydrops@0.1.0 score:user-tracking-indexes",
+        "> tsx scripts/agent/score-user-tracking-indexes.ts",
+        "User tracking indexes score: 100/100 (pass)",
+        "User tracking index cutover validated: 100/100 (pass)"
+      ]
+    },
+    {
+      "script": "check:guest-user-analytics",
+      "command": "npm run check:guest-user-analytics",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:guest-user-analytics",
+        "> npm run score:guest-user-analytics && tsx scripts/agent/validate-guest-user-analytics-cutover.ts",
+        "> kandydrops@0.1.0 score:guest-user-analytics",
+        "> tsx scripts/agent/score-guest-user-analytics-cutover.ts",
+        "Guest/user analytics cutover score: 100/100 (pass)",
+        "Guest/user analytics cutover validated: 100/100 (pass)"
+      ]
+    },
+    {
+      "script": "check:4xx-cost",
+      "command": "npm run check:4xx-cost",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:4xx-cost",
+        "> npm run score:4xx-cost && tsx scripts/agent/validate-4xx-cost-guardrails.ts",
+        "> kandydrops@0.1.0 score:4xx-cost",
+        "> tsx scripts/agent/score-4xx-cost-guardrails.ts",
+        "4xx cost guardrails score: 100/100 (pass)",
+        "4xx cost guardrails validated: 100/100 (pass)"
+      ]
+    },
+    {
+      "script": "check:billing-spikes",
+      "command": "npm run check:billing-spikes",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:billing-spikes",
+        "> npm run score:billing-spikes && tsx scripts/agent/validate-billing-spike-radar.ts",
+        "> kandydrops@0.1.0 score:billing-spikes",
+        "> tsx scripts/agent/score-billing-spike-radar.ts",
+        "Billing spike radar: WARNING (overallRiskScore=69).",
+        "Billing spike radar validation passed."
+      ]
+    },
+    {
+      "script": "check:fan-pass-unlock-entitlement",
+      "command": "npm run check:fan-pass-unlock-entitlement",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:fan-pass-unlock-entitlement",
+        "> tsx scripts/agent/validate-fan-pass-unlock-entitlement.ts",
+        "Fan pass unlock entitlement validation passed."
+      ]
+    },
+    {
+      "script": "check:ai-drop-creation-compact",
+      "command": "npm run check:ai-drop-creation-compact",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:ai-drop-creation-compact",
+        "> tsx scripts/agent/validate-ai-drop-creation-compact-cutover.ts",
+        "AI drop creation compact cutover validation passed."
+      ]
+    },
+    {
+      "script": "check:daily-task-engine-rewrite",
+      "command": "npm run check:daily-task-engine-rewrite",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:daily-task-engine-rewrite",
+        "> tsx scripts/agent/validate-daily-task-engine-rewrite.ts",
+        "pass",
+        "critical blockers",
+        "- none",
+        "warnings",
+        "- none",
+        "exact validators to run",
+        "- npm run check:daily-task-engine-rewrite",
+        "- npx vitest run tests/unit/daily-task-engine.spec.ts tests/unit/daily-tasks-idempotency.spec.ts tests/unit/task-timestamps.spec.ts tests/contracts/task-economy-contract.spec.ts tests/unit/gumdrop-ledger.spec.ts",
+        "- npm run typecheck",
+        "surfaces affected",
+        "- src/lib/server/daily-tasks.ts",
+        "- src/lib/server/daily-task-runtime.ts",
+        "- src/lib/tasks/daily-task-assignment-engine.ts",
+        "- src/lib/tasks/daily-task-window-contract.ts",
+        "- src/lib/tasks/daily-task-reward-contract.ts",
+        "- src/lib/tasks/task-catalog.ts",
+        "- src/components/Dashboard/DailyTasksModule.tsx",
+        "- src/lib/telemetry-catalog.ts",
+        "- src/lib/tasks/task-observability.ts",
+        "promo readiness verdict",
+        "ready"
+      ]
+    },
+    {
+      "script": "check:batch-upload-stability",
+      "command": "npm run check:batch-upload-stability",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:batch-upload-stability",
+        "> tsx scripts/agent/validate-batch-upload-stability.ts",
+        "Batch upload stability validation passed."
+      ]
+    },
+    {
+      "script": "check:chat-paid-gumdrops-guidance",
+      "command": "npm run check:chat-paid-gumdrops-guidance",
+      "status": "fail",
+      "exitCode": 1,
+      "output": [
+        "> kandydrops@0.1.0 check:chat-paid-gumdrops-guidance",
+        "> tsx scripts/agent/validate-chat-paid-gumdrops-guidance.ts",
+        "Chat paid GumDrops guidance validation failed:",
+        "- ChatExperience must show no-followed-creators guidance."
+      ]
+    },
+    {
+      "script": "check:ios-pwa-chat-refinements",
+      "command": "npm run check:ios-pwa-chat-refinements",
+      "status": "pass",
+      "exitCode": 0,
+      "output": [
+        "> kandydrops@0.1.0 check:ios-pwa-chat-refinements",
+        "> tsx scripts/agent/validate-ios-pwa-chat-refinements.ts",
+        "validate-ios-pwa-chat-refinements passed."
+      ]
+    }
+  ]
+}

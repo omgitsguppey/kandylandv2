@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T06:41:34.553Z",
+  "generatedAt": "2026-05-08T07:29:39.215Z",
   "status": "warning",
   "overallRiskScore": 69,
   "topSpikeRisks": [
@@ -549,6 +549,7 @@
         "src/lib/server/behavioral-timeline-mapper.ts",
         "src/lib/server/behavioral-timeline-reader.ts",
         "src/lib/server/behavioral-timeline-writer.ts",
+        "src/lib/server/chat-media-limit-policy.ts",
         "src/lib/server/chat.ts",
         "src/lib/server/cheap-4xx-response.ts",
         "src/lib/server/cloud-cost-contract.ts",
@@ -1453,6 +1454,10 @@
         "src/components/Admin/AssetUploader.tsx",
         "src/components/Admin/BalanceAdjustmentModal.tsx",
         "src/components/Admin/BehavioralVerdictCard.tsx",
+        "src/components/Admin/CollapsibleDropSection.tsx",
+        "src/components/Admin/CompactAiActionButton.tsx",
+        "src/components/Admin/CompactAiModuleCard.tsx",
+        "src/components/Admin/CompactAiStatusChip.tsx",
         "src/components/Admin/CreateDropModal.tsx",
         "src/components/Admin/CreatorAccountControlsPanel.tsx",
         "src/components/Admin/CreatorAuditTrailPanel.tsx",

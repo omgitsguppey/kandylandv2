@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-05-08T07:29:22.951Z",
+  "status": "fail",
+  "checks": [
+    {
+      "surface": "user_homepage",
+      "status": "connected",
+      "detail": "User homepage route present."
+    },
+    {
+      "surface": "user_dashboard",
+      "status": "connected",
+      "detail": "User dashboard route present."
+    },
+    {
+      "surface": "drops_preview_unlock",
+      "status": "disconnected",
+      "detail": "Drop preview route present."
+    },
+    {
+      "surface": "creator_public_profile",
+      "status": "connected",
+      "detail": "Creator public profile route present."
+    },
+    {
+      "surface": "creator_dashboard",
+      "status": "connected",
+      "detail": "Creator dashboard route present."
+    },
+    {
+      "surface": "chat_paid_gd_guidance",
+      "status": "connected",
+      "detail": "Chat guidance markers are present."
+    },
+    {
+      "surface": "telemetry_catalog",
+      "status": "connected",
+      "detail": "Telemetry catalog includes user/creator features."
+    }
+  ],
+  "disconnected": [
+    {
+      "surface": "drops_preview_unlock",
+      "status": "disconnected",
+      "detail": "Drop preview route present."
+    }
+  ],
+  "missingTelemetry": [],
+  "simulated": [],
+  "missingDebugMarker": []
+}

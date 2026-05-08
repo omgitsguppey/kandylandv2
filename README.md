@@ -67,6 +67,17 @@ npm run typecheck
 
 Do not run Playwright, Lighthouse, Cypress, deploys, or full `npm run check` by default for doctrine-only work.
 
+## Phase 1 Final Cleanup Gate
+
+Use the targeted cleanup pass for final Phase 1 hardening:
+
+```bash
+npm run scan:codebase-junk
+npm run check:phase-one-final-cleanup
+```
+
+The final gate aggregates cleanup, loading-speed, parity, timeline, and cloud-cost handoff checks without running broad browser audits.
+
 ## Global Cost Surfaces
 
 KandyDrops global cost guardrails cover runtime telemetry, PostHog/GA/session replay, cloud logging, debug evidence, Firebase Storage/media proxy access, auth abuse, notification fan-out, CI/build minutes, visual/browser audit tooling, scheduled rebuilds, analytics materializers, dependency tooling, and admin import/export jobs.

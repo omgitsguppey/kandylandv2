@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-05-08T07:29:26.390Z",
+  "status": "pass",
+  "surfaces": [
+    {
+      "surface": "sql_dataconnect",
+      "product": "Cloud SQL / Firebase Data Connect",
+      "runtimeCritical": false,
+      "sidecarOnly": true,
+      "costRisk": "review",
+      "dataLossRisk": "review",
+      "currentStatus": "pass",
+      "handoffStatus": "mirror_only",
+      "owner": "server_truth",
+      "cap": "no runtime dependency without explicit approval",
+      "lastVerified": "2026-05-08T07:29:26.389Z",
+      "issueCodes": [],
+      "recommendedAction": "Keep SQL/Data Connect read models out of runtime user/creator routes."
+    },
+    {
+      "surface": "ga_optional_evidence",
+      "product": "Google Analytics GA4",
+      "runtimeCritical": false,
+      "sidecarOnly": true,
+      "costRisk": "watch",
+      "dataLossRisk": "watch",
+      "currentStatus": "pass",
+      "handoffStatus": "optional_external_evidence",
+      "owner": "analytics_governance",
+      "cap": "GA cannot be canonical product truth",
+      "lastVerified": "2026-05-08T07:29:26.390Z",
+      "issueCodes": [],
+      "recommendedAction": "Keep first-party timeline as primary and GA as optional evidence."
+    },
+    {
+      "surface": "global_cost_guardrails",
+      "product": "Cloud Run / App Hosting / Firestore / Storage / Logging",
+      "runtimeCritical": true,
+      "sidecarOnly": false,
+      "costRisk": "high",
+      "dataLossRisk": "review",
+      "currentStatus": "pass",
+      "handoffStatus": "guarded",
+      "owner": "global_cost_surfaces",
+      "cap": "route-level caps + dedupe + bounded materializers",
+      "lastVerified": "2026-05-08T07:29:26.390Z",
+      "issueCodes": [],
+      "recommendedAction": "Keep capped routes, deduped evidence, and bounded materializer runs."
+    }
+  ],
+  "criticalBlockers": [],
+  "warnings": []
+}

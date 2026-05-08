@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-05-08T07:29:19.417Z",
+  "status": "fail",
+  "score": 80,
+  "checks": [
+    {
+      "id": "home_client_dynamic",
+      "pass": true,
+      "detail": "Homepage client has lazy/suspense boundaries for non-critical modules."
+    },
+    {
+      "id": "dashboard_not_admin_importing",
+      "pass": true,
+      "detail": "Dashboard page avoids direct admin module import."
+    },
+    {
+      "id": "chat_media_lazy",
+      "pass": false,
+      "detail": "Chat avoids eager-heavy media loading."
+    },
+    {
+      "id": "single_build_listener",
+      "pass": true,
+      "detail": "Build/version listeners are not duplicated in layout shell."
+    },
+    {
+      "id": "client_speed_script",
+      "pass": true,
+      "detail": "Client speed validator wired in package scripts."
+    }
+  ],
+  "criticalBlockers": [
+    "chat_media_lazy: Chat avoids eager-heavy media loading."
+  ],
+  "warnings": []
+}

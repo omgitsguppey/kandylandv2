@@ -436,6 +436,16 @@ This repo's default branch is `main`. If the local branch is `work`, push with:
 git push origin work:main
 ```
 
+## Phase 1 Final Cleanup Lane
+
+For the final cleanup, normalization, speed, telemetry, cost, and parity pass, run targeted commands only:
+
+- `npm run scan:codebase-junk`
+- `npm run check:phase-one-final-cleanup`
+- `npm run typecheck` when TypeScript changed
+
+Do not run Playwright, Lighthouse, Cypress, full `npm run check`, deploy commands, `gcloud`, or Firebase deploys for this lane by default.
+
 ## Legacy Code Handling & Classification
 All monolithic paths or legacy pipelines must be explicitly modeled.
 - **Active Canonical**: Core pathways verified to standard.
