@@ -207,7 +207,9 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "faq_question_toggled", label: "FAQ question toggled", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
     { eventName: "dashboard_viewed", label: "Dashboard viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
     { eventName: "library_viewed", label: "Library viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content", "navigation"] },
-    { eventName: "profile_settings_viewed", label: "Profile settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+    { eventName: "user_settings_viewed", label: "User settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+    { eventName: "user_settings_creator_tools_cta_clicked", label: "User settings creator tools CTA clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
+    { eventName: "profile_settings_viewed", label: "Profile settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], aliases: ["user_settings_viewed"] },
   { eventName: "support_inbox_viewed", label: "Support inbox viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "support_ticket_created", label: "Support ticket created", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["engagement"], aliases: ["support_ticket_submitted"] },
   { eventName: "support_thread_opened", label: "Support thread opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], auditCoveredBy: ["support_reply_viewed"] },
@@ -306,8 +308,16 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "creator_profile_link_clicked", label: "Creator profile link clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
   { eventName: "creator_profile_link_missing", label: "Creator profile link missing", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation", "runtime"] },
   { eventName: "creator_rail_impression", label: "Creator rail impression", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"], aliases: ["creator_spotlight_viewed"] },
-  { eventName: "creator_settings_updated", label: "Creator settings updated", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator"] },
-  { eventName: "creator_broadcast_opened", label: "Creator broadcast opened", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "notifications"] },
+    { eventName: "creator_dashboard_settings_viewed", label: "Creator dashboard settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+    { eventName: "creator_settings_section_opened", label: "Creator settings section opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+    { eventName: "creator_broadcast_manager_viewed", label: "Creator broadcast manager viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+    { eventName: "creator_broadcast_created", label: "Creator broadcast created", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "notifications"] },
+    { eventName: "creator_broadcast_creation_failed", label: "Creator broadcast creation failed", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "notifications"] },
+    { eventName: "creator_broadcast_detail_viewed", label: "Creator broadcast detail viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+    { eventName: "creator_broadcast_empty_state_viewed", label: "Creator broadcast empty state viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+    { eventName: "creator_settings_migrated_redirect_viewed", label: "Creator settings migrated redirect viewed", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
+    { eventName: "creator_settings_updated", label: "Creator settings updated", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator"] },
+    { eventName: "creator_broadcast_opened", label: "Creator broadcast opened", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "notifications"] },
   { eventName: "creator_experience_lane_opened", label: "Creator experience lane opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_experience_lane_closed", label: "Creator experience lane closed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_experience_cta_clicked", label: "Creator experience CTA clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "commerce"] },
@@ -1172,6 +1182,41 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
       "daily_task_window_id|dailyTaskWindowId",
       "reason_code|reasonCode",
       "source_component|sourceComponent",
+    ];
+  }
+
+  if (
+    eventName === "user_settings_viewed"
+    || eventName === "user_settings_creator_tools_cta_clicked"
+    || eventName === "creator_dashboard_settings_viewed"
+    || eventName === "creator_settings_section_opened"
+    || eventName === "creator_broadcast_manager_viewed"
+    || eventName === "creator_broadcast_empty_state_viewed"
+    || eventName === "creator_settings_migrated_redirect_viewed"
+  ) {
+    return [
+      "actor_role|actorRole",
+      "creator_id|creatorId",
+      "target_creator_id|targetCreatorId",
+      "section",
+      "source_component|sourceComponent",
+      "truth_state|truthState",
+    ];
+  }
+
+  if (
+    eventName === "creator_broadcast_created"
+    || eventName === "creator_broadcast_creation_failed"
+    || eventName === "creator_broadcast_detail_viewed"
+  ) {
+    return [
+      "actor_role|actorRole",
+      "creator_id|creatorId",
+      "target_creator_id|targetCreatorId",
+      "broadcast_id|broadcastId",
+      "section",
+      "source_component|sourceComponent",
+      "truth_state|truthState",
     ];
   }
 

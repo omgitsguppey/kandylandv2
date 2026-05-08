@@ -3,7 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, LayoutDashboard, Library, Settings, X, Plus, CircleHelp, LifeBuoy, FileText, MessageSquare } from "lucide-react";
+import { LogOut, LayoutDashboard, Library, Settings, X, Plus, CircleHelp, LifeBuoy, FileText, MessageSquare, Sparkles } from "lucide-react";
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
@@ -29,6 +29,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
     const { openPurchaseModal } = useUI();
 
     const isAdmin = userProfile?.role === "admin";
+    const isCreatorAccount = userProfile?.role === "creator" || isAdmin;
 
     useEffect(() => {
         document.body.style.overflow = isOpen ? "hidden" : "unset";
@@ -137,7 +138,10 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                 </div>
                             } label="Chat" onClick={onClose} />
                             <SidebarItem href="/dashboard/library" icon={<Library className="w-5 h-5" />} label="My KandyDrops" onClick={onClose} />
-                            <SidebarItem href="/dashboard/profile" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />
+                            {isCreatorAccount ? (
+                                <SidebarItem href="/dashboard/creator" icon={<Sparkles className="w-5 h-5" />} label="Creator Dashboard" onClick={onClose} />
+                            ) : null}
+                            <SidebarItem href="/settings" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />
                         </nav>
 
                         <div className="rounded-2xl border border-white/10 bg-black/20 p-3">

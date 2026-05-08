@@ -1,0 +1,144 @@
+{
+  "generatedAt": "2026-05-08T05:59:01.983Z",
+  "status": "pass",
+  "criticalBlockers": [],
+  "warnings": [],
+  "changedFilesSinceLastSettingsCreatorDashboardSplit": [
+    "docs/agent-truth/creator-fan-experience-settings.md",
+    "docs/agent-truth/creator-lane-old-logic-cleanup.md",
+    "docs/doctrine/surfaces/creator-ui-doctrine.md",
+    "docs/doctrine/surfaces/user-ui-doctrine.md",
+    "package.json",
+    "src/app/api/creator/broadcasts/route.ts",
+    "src/app/dashboard/profile/hooks/useProfileState.tsx",
+    "src/app/dashboard/profile/page.tsx",
+    "src/components/Navigation/ProfileDropdown.tsx",
+    "src/components/Navigation/ProfileSidebar.tsx",
+    "src/lib/telemetry-catalog.ts",
+    "agent/state/settings-creator-dashboard-split.generated.json",
+    "docs/agent-truth/creator-broadcasts.md",
+    "docs/agent-truth/creator-dashboard-settings.md",
+    "docs/agent-truth/creator-dashboard.md",
+    "docs/agent-truth/user-settings-surface.md",
+    "scripts/agent/validate-settings-creator-dashboard-split.ts",
+    "src/app/account/",
+    "src/app/creator/",
+    "src/app/creators/dashboard/",
+    "src/app/dashboard/creator/",
+    "src/app/dashboard/profile/creator/",
+    "src/app/dashboard/settings/",
+    "src/app/settings/",
+    "src/components/Creators/CreatorBroadcastManager.tsx",
+    "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+    "src/components/Settings/",
+    "src/lib/creator-dashboard/",
+    "src/lib/settings/"
+  ],
+  "requiredTargetedChecks": [
+    "npm run check:settings-creator-dashboard-split",
+    "npm run typecheck",
+    "npx vitest run tests/unit/user-settings-split.spec.tsx tests/unit/creator-dashboard-settings.spec.tsx tests/unit/creator-broadcasts-route.spec.ts"
+  ],
+  "forbiddenBroadChecks": [
+    "npm run check",
+    "playwright",
+    "cypress",
+    "lighthouse",
+    "firebase deploy"
+  ],
+  "promoReadinessNotes": [
+    "Global User Settings now owns account and app preferences only.",
+    "Creator broadcasts are visible, real, and managed from the Creator Dashboard.",
+    "Legacy creator settings routes redirect or explain the move instead of simulating creator controls."
+  ],
+  "checks": [
+    {
+      "key": "user-settings-contract",
+      "label": "User settings contract exists and is user-only",
+      "ok": true,
+      "evidence": [
+        "User settings contract declares the canonical user-settings surface and blocks simulative tools."
+      ]
+    },
+    {
+      "key": "creator-settings-contract",
+      "label": "Creator dashboard settings contract exists",
+      "ok": true,
+      "evidence": [
+        "Creator dashboard tools are declared separately from global user settings."
+      ]
+    },
+    {
+      "key": "global-user-settings-clean",
+      "label": "Global user settings contain only account and app preferences",
+      "ok": true,
+      "evidence": [
+        "User settings page renders the allowed account/preferences sections and a creator-dashboard CTA only."
+      ]
+    },
+    {
+      "key": "creator-settings-hub",
+      "label": "Creator dashboard settings hub exists and is operational",
+      "ok": true,
+      "evidence": [
+        "Creator dashboard settings hub shows the operational sections and truth labels."
+      ]
+    },
+    {
+      "key": "broadcast-manager-real-data",
+      "label": "Broadcast manager reads real backend data or says not live",
+      "ok": true,
+      "evidence": [
+        "Broadcast manager renders real collection state and the route writes live broadcast records."
+      ]
+    },
+    {
+      "key": "broadcast-history-not-simulated",
+      "label": "No simulated broadcast history remains canonical",
+      "ok": true,
+      "evidence": [
+        "Legacy simulated broadcast history is blocked/deprecated and the live manager is collection-backed."
+      ]
+    },
+    {
+      "key": "route-migration-notice",
+      "label": "Old creator settings routes redirect or show migration notice",
+      "ok": true,
+      "evidence": [
+        "Legacy creator settings routes are redirected and the migration notice is explicit."
+      ]
+    },
+    {
+      "key": "ownership-and-read-only",
+      "label": "Creator writes require ownership and admin projection is read-only",
+      "ok": true,
+      "evidence": [
+        "Creator settings and broadcasts validate ownership and block admin projection writes."
+      ]
+    },
+    {
+      "key": "telemetry-events",
+      "label": "Telemetry events exist for both surfaces",
+      "ok": true,
+      "evidence": [
+        "Telemetry catalog includes the required user-settings and creator-dashboard events."
+      ]
+    },
+    {
+      "key": "docs-updated",
+      "label": "Docs were updated for the split",
+      "ok": true,
+      "evidence": [
+        "Agent-truth docs and surface doctrine reflect the split."
+      ]
+    },
+    {
+      "key": "package-script",
+      "label": "Package script is wired",
+      "ok": true,
+      "evidence": [
+        "package.json exposes the settings split validator."
+      ]
+    }
+  ]
+}

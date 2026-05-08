@@ -20,6 +20,8 @@ Default settings must be safe, not promotional:
 
 The selected creator record shows `Fan experience settings` collapsed by default. Admins can update Fan Pass, private chat, custom requests, live time, broadcasts, pricing, request menu, availability, and restrictions from that section.
 
+This creator-workflow surface now belongs to the Creator Dashboard settings hub, not global User Settings. The user-facing settings page must only link creators onward; it must not rehost these controls.
+
 ## Server Boundary
 
 Canonical route:

@@ -15,6 +15,7 @@ Creator UI prioritizes operational control, creator earnings, content visibility
 - Creator projection mode must be read-only when an admin views it.
 - Creator monetization display must defer to server truth for paid-source GumDrops, transactions, bookings, fan passes, payouts, and entitlement state.
 - Creator actions must preserve actor/target telemetry separation.
+- Creator settings belong in the Creator Dashboard and must be real, server-backed, and truth-labeled. Simulated creator controls are blocked.
 
 ## Must Not
 

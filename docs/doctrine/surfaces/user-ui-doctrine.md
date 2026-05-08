@@ -16,6 +16,7 @@ User UI prioritizes conversion, clarity, reward-loop momentum, trust, and emotio
 - Helpful states are allowed, but raw truth machinery stays behind the display layer.
 - Tracking must be invisible, consent-aware, and compliant with telemetry contracts.
 - Payment, unlock, entitlement, support, and account states must explain what the user can do next without inventing source truth.
+- Global `/settings` owns user/account preferences only. Creator broadcasts, Fan Pass, bookings, requests, availability, earnings, and monetization tools must redirect to the Creator Dashboard.
 
 ## Must Not
 

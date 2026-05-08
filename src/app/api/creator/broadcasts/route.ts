@@ -21,6 +21,7 @@ const CREATOR_BROADCAST_RECIPIENT_LIMIT = 1_000;
 const createBroadcastSchema = z.object({
     title: z.string().trim().min(2).max(80).optional(),
     message: z.string().trim().min(4).max(280),
+    target: z.enum(["all_followers"]).optional(),
 });
 
 type CreatorBroadcastRecord = Record<string, unknown> & {
@@ -165,6 +166,7 @@ async function POST_handler(request: NextRequest) {
             : "Creator";
         const creatorUsername = typeof callerRecord.username === "string" ? callerRecord.username : "";
         const now = Date.now();
+        const target = "all_followers";
         const broadcastRef = adminDb.collection(CREATOR_COLLECTIONS.broadcasts).doc();
         const batch = adminDb.batch();
         batch.set(broadcastRef, {
@@ -173,10 +175,16 @@ async function POST_handler(request: NextRequest) {
             creatorUsername,
             title: title?.trim() || `New update from ${creatorDisplayName}`,
             message,
-            audienceFollowerCount: followerIds.length,
-            audienceNotificationCount: notificationUserIds.length,
+            target,
+            status: "sent",
             createdAt: FieldValue.serverTimestamp(),
             createdAtMs: now,
+            sentAtMs: now,
+            deliveryCount: notificationUserIds.length,
+            openCount: null,
+            failureReason: null,
+            audienceFollowerCount: followerIds.length,
+            audienceNotificationCount: notificationUserIds.length,
         });
 
         if (notificationUserIds.length > 0) {
@@ -230,9 +238,15 @@ async function POST_handler(request: NextRequest) {
                 creatorUsername,
                 title: title?.trim() || `New update from ${creatorDisplayName}`,
                 message,
+                target,
+                status: "sent",
+                createdAtMs: now,
+                sentAtMs: now,
+                deliveryCount: notificationUserIds.length,
+                openCount: null,
+                failureReason: null,
                 audienceFollowerCount: followerIds.length,
                 audienceNotificationCount: notificationUserIds.length,
-                createdAtMs: now,
             },
         });
     } catch (error) {

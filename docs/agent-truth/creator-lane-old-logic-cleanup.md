@@ -66,6 +66,8 @@ The generic admin users route remains a deprecated compatibility bridge only whe
 
 Creator waitlist and older user-profile surfaces may read `users.creatorApplication` as a display projection while the server keeps it synchronized from canonical onboarding.
 
+Global User Settings no longer owns creator operations. Broadcasts, Fan Pass, bookings, requests, availability, earnings, and monetization tools must stay in Creator Dashboard surfaces only. Any old settings route that still exposes them is blocked or migration-only.
+
 ## Debug And Cleanup
 
 Admin Debug must expose projection/canonical drift. Admin Roster should show only compact operator warnings.

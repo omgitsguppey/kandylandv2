@@ -13,7 +13,6 @@ import { DEFAULT_CREATOR_SETTINGS, type CreatorSettings } from "@/lib/creator-ex
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { getClientErrorMessage, reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
-import { useAdminViewAs } from "@/context/AdminViewAsContext";
 
 export const TIMEZONE_OPTIONS = [
     "Auto",
@@ -103,7 +102,6 @@ export function buildFormState(params: any): ProfileSettingsFormState {
 export function useProfileState() {
     const { user, logout } = useAuth();
     const { userProfile } = useUserProfile();
-    const { viewAsState } = useAdminViewAs();
 
     const normalizedInitialState = useMemo(() => buildFormState({
         displayName: userProfile?.displayName ?? user?.displayName ?? null,
@@ -166,10 +164,10 @@ export function useProfileState() {
     const [creatorPayoutAmount, setCreatorPayoutAmount] = useState(100);
     const lastCreatorNoticeRef = useRef<string | null>(null);
     const browserGpcEnabled = useMemo(() => getBrowserGlobalPrivacyControl(), []);
-    const isCreatorProjectionActive = Boolean(viewAsState);
-    const projectionCreatorId = viewAsState?.adminViewingAsUserId ?? "";
-    const projectionCreatorName = viewAsState?.adminViewingAsDisplayName ?? "Creator";
-    const isCreatorAccount = userProfile?.role === "creator" || userProfile?.role === "admin" || isCreatorProjectionActive;
+    const isCreatorProjectionActive = false;
+    const projectionCreatorId = "";
+    const projectionCreatorName = "";
+    const isCreatorAccount = userProfile?.role === "creator" || userProfile?.role === "admin";
     useEffect(() => {
         setFormState(normalizedInitialState);
         lastSavedSignatureRef.current = JSON.stringify(normalizedInitialState);

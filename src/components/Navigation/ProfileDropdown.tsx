@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, LayoutDashboard, Library, Settings, ChevronDown, CircleHelp, LifeBuoy, FileText, MessageSquare } from "lucide-react";
+import { LogOut, LayoutDashboard, Library, Settings, ChevronDown, CircleHelp, LifeBuoy, FileText, MessageSquare, Sparkles } from "lucide-react";
 
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
@@ -18,6 +18,7 @@ export function ProfileDropdown() {
     const { userProfile } = useUserProfile();
     const { hasUnreadMessages } = useChatUnreadStatus();
     const isAdmin = userProfile?.role === "admin";
+    const isCreatorAccount = userProfile?.role === "creator" || isAdmin;
 
     // Close on click outside
     useEffect(() => {
@@ -90,7 +91,7 @@ export function ProfileDropdown() {
                             </p>
                             <p className="text-xs text-gray-400 truncate">{secondaryIdentity}</p>
                         </div>
-                        <Link href="/dashboard/profile" onClick={() => setIsOpen(false)} className="p-2 rounded-full bg-white/5 border border-white/10" title="Settings" aria-label="Open settings">
+                        <Link href="/settings" onClick={() => setIsOpen(false)} className="p-2 rounded-full bg-white/5 border border-white/10" title="Settings" aria-label="Open settings">
                             <Settings className="w-4 h-4 text-gray-300" />
                         </Link>
                     </div>
@@ -106,7 +107,10 @@ export function ProfileDropdown() {
                             </div>
                         } label="Chat" onClick={() => setIsOpen(false)} />
                         <DropdownItem href="/dashboard/library" icon={<Library className="w-4 h-4" />} label="My KandyDrops" onClick={() => setIsOpen(false)} />
-                        <DropdownItem href="/dashboard/profile" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setIsOpen(false)} />
+                        {isCreatorAccount ? (
+                            <DropdownItem href="/dashboard/creator" icon={<Sparkles className="w-4 h-4" />} label="Creator Dashboard" onClick={() => setIsOpen(false)} />
+                        ) : null}
+                        <DropdownItem href="/settings" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setIsOpen(false)} />
                     </nav>
 
                     <div className="mt-2 pt-2 border-t border-white/10">
