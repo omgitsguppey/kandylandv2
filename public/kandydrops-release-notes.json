@@ -1,11 +1,61 @@
 {
-  "currentVersion": "1.2.3",
-  "betaReleaseCounter": 203,
+  "currentVersion": "1.2.4",
+  "betaReleaseCounter": 204,
   "channel": "beta",
-  "generatedAt": "2026-05-07T22:13:11.677Z",
-  "generatedAtUtc": "2026-05-07T22:13:11.677Z",
-  "lastCommitSha": "6225b319e620d1e4385016b0cfebf2e7b99b2546",
+  "generatedAt": "2026-05-08T02:13:08.504Z",
+  "generatedAtUtc": "2026-05-08T02:13:08.504Z",
+  "lastCommitSha": "4b9c3f538e3d33ec2a3ee10986e2c51b345a2ee6",
   "notes": [
+    {
+      "version": "1.2.4",
+      "previousVersion": "1.2.3",
+      "betaReleaseCounter": 204,
+      "previousBetaReleaseCounter": 203,
+      "commitSha": "4b9c3f538e3d33ec2a3ee10986e2c51b345a2ee6",
+      "commitTitle": "fix(beta): finalize release notes cutover",
+      "commitCount": 10,
+      "commitShas": [
+        "7d29606a265a76f6979140e20c387783b596f5da",
+        "51cfd774a159e68147d80aa5afbe48a99d3d4947",
+        "7ed7de998f0555b54ac2cb84d3ae53b93fb0a3b9",
+        "8b6de1d711c283c80663c9bcbb23529cfd628077",
+        "2bdfa9abde198a1aa2c5f8737f880d6d26306e06",
+        "87e51414d24bc762009cdb8e95f7f24468bda955",
+        "5528ba6d262dd32644629d70f2ecb050fbedabfe",
+        "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+        "de0378d4f21050638dabffa735bc58085573094c",
+        "4b9c3f538e3d33ec2a3ee10986e2c51b345a2ee6"
+      ],
+      "committedAt": "2026-05-08T02:12:38.000Z",
+      "generatedAt": "2026-05-08T02:13:08.503Z",
+      "committedAtUtc": "2026-05-08T02:12:38.000Z",
+      "generatedAtUtc": "2026-05-08T02:13:08.503Z",
+      "category": "Beta",
+      "title": "Improved Beta updates and version visibility",
+      "updatedAtUtc": "2026-05-08T02:13:08.503Z",
+      "summary": "Bug fixes and quality-of-life improvements for Beta updates, version visibility, and behind-the-scenes release reliability.",
+      "userFacingTitle": "Improved Beta updates and version visibility",
+      "surfaceCategory": "Navigation",
+      "bullets": [
+        "Improved how the Beta drawer opens the latest accepted updates.",
+        "Reduced stale or repeated release-note copy in the visible Beta feed.",
+        "Improved behind-the-scenes release tracking without flooding public notes with internal audit churn."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 10 commits into one accepted beta release.",
+        "Includes internal reliability work that does not change the public product surface."
+      ],
+      "affectedSurfaces": [
+        "account-onboarding",
+        "admin",
+        "chat-support",
+        "navigation",
+        "privacy-security",
+        "wallet"
+      ],
+      "hiddenFromPublic": false
+    },
     {
       "version": "1.2.3",
       "previousVersion": "1.2.2",

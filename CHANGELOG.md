@@ -2,11 +2,11 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
-## [1.2.2] - 2026-05-07
+## [1.2.4] - 2026-05-08
 
 ### Navigation
 
-- Updated 2026-05-07 04:14 UTC
+- Updated 2026-05-08 02:13 UTC
 - Improved Beta updates and version visibility
 - Bug fixes and quality-of-life improvements for Beta updates, version visibility, and behind-the-scenes release reliability.
 - Improved how the Beta drawer opens the latest accepted updates.
