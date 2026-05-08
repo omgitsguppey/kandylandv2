@@ -20,6 +20,11 @@ export type CreatorSubscriptionProblemPayload = CreatorBookingProblemPayload & {
   paidBalanceGd?: unknown;
 };
 
+export type CreatorRequestProblemPayload = CreatorBookingProblemPayload & {
+  priceGd?: unknown;
+  paidBalanceGd?: unknown;
+};
+
 function normalizeReason(reason: unknown) {
   if (typeof reason === "string") {
     return reason.trim();
@@ -54,6 +59,14 @@ function readCreatorSubscriptionProblemPayload(value: unknown): CreatorSubscript
   }
 
   return value as CreatorSubscriptionProblemPayload;
+}
+
+function readCreatorRequestProblemPayload(value: unknown): CreatorRequestProblemPayload {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return value as CreatorRequestProblemPayload;
 }
 
 function normalizePositiveInteger(value: unknown) {
@@ -317,6 +330,42 @@ export function getCreatorSubscriptionProblemCopy(reason?: unknown) {
   }
 
   return "Fan Pass could not be updated. Try again or report the issue.";
+}
+
+export function getCreatorRequestProblemCopy(reason?: unknown) {
+  const payload = readCreatorRequestProblemPayload(reason);
+  const code = normalizeProblemCode(payload.code);
+  const fallbackReason = normalizeReason(payload.message) || normalizeReason(payload.error) || normalizeReason(reason);
+  const normalized = `${code} ${fallbackReason}`.toLowerCase();
+
+  if (code === "insufficient_paid_gumdrops" || normalized.includes("insufficient") && normalized.includes("purchased")) {
+    const shortfallGd = normalizePositiveInteger(payload.shortfallGd);
+    return shortfallGd > 0
+      ? `You need ${shortfallGd} more paid GD to send this request.`
+      : "You need more paid GD to send this request.";
+  }
+
+  if (code === "requests_unavailable" || normalized.includes("custom requests are unavailable")) {
+    return "Custom requests are not available for this creator right now.";
+  }
+
+  if (code === "creator_unavailable") {
+    return "This creator is unavailable right now.";
+  }
+
+  if (code === "creator_or_user_not_found") {
+    return "We could not find this creator.";
+  }
+
+  if (code === "invalid_request") {
+    return "Check the request details and try again.";
+  }
+
+  if (code === "unauthorized") {
+    return "Sign in to send a custom request.";
+  }
+
+  return "Custom request could not be sent. Try again or report the issue.";
 }
 
 export function getNotificationProblemCopy(reason?: unknown): ProblemStateCopy {

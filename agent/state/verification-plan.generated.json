@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:58:07.791Z",
+  "generatedAt": "2026-05-08T03:40:35.928Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,45 +16,26 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__functions__src__behavioral-intelligence-runtime-ts-functions__src__analytics-truth-cli-ts-scripts__rebuild-behavioral-intelligence-ts-scripts__rebuild-analytics-truth-ts-src__lib__server__admin-analytics-materializers-ts",
+  "stable_id": "verifyplan__src__app__creators__-username-__page-tsx",
   "inputPaths": [
-    "functions/src/behavioral-intelligence-runtime.ts",
-    "functions/src/analytics-truth-cli.ts",
-    "scripts/rebuild-behavioral-intelligence.ts",
-    "scripts/rebuild-analytics-truth.ts",
-    "src/lib/server/admin-analytics-materializers.ts"
+    "src/app/creators/[username]/page.tsx"
   ],
   "matchedRepoPaths": [
-    "functions/src/behavioral-intelligence-runtime.ts",
-    "functions/src/analytics-truth-cli.ts",
-    "scripts/rebuild-behavioral-intelligence.ts",
-    "scripts/rebuild-analytics-truth.ts",
-    "src/lib/server/admin-analytics-materializers.ts"
+    "src/app/creators/[username]/page.tsx"
   ],
   "unmatchedPaths": [],
   "touchedDomains": [
-    "functions",
-    "repo_tooling",
-    "shared_server_helpers"
+    "app_routes",
+    "creator_onboarding"
   ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- functions/src/behavioral-intelligence-runtime.ts",
-    "npm run agent:test -- functions/src/analytics-truth-cli.ts",
-    "npm run agent:test -- scripts/rebuild-behavioral-intelligence.ts",
-    "npm run agent:test -- scripts/rebuild-analytics-truth.ts",
-    "npm run check:telemetry",
-    "npm run check:analytics-semantics",
-    "npm --prefix functions run check",
-    "npm run check:agent-context"
+    "npm run agent:test -- src/app/creators/[username]/page.tsx",
+    "npm run check:ui:coverage",
+    "npm run check:ui:runtime"
   ],
   "signoffCommands": [
-    "npm run check:analytics:continuity",
-    "npm run check:inventory",
-    "npm run check:architecture",
-    "npm run check:agent-intelligence",
-    "npm run eval:agent-context",
-    "npm run check:continuity"
+    "npm run check:ui:audits"
   ],
   "fastSelections": [
     {
@@ -65,107 +46,38 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- functions/src/behavioral-intelligence-runtime.ts",
+      "command": "npm run agent:test -- src/app/creators/[username]/page.tsx",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- functions/src/analytics-truth-cli.ts",
+      "command": "npm run check:ui:coverage",
       "why": [
-        "Run the narrowest related contract/unit tests first."
+        "Indexed UI/admin surfaces changed."
       ],
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- scripts/rebuild-behavioral-intelligence.ts",
+      "command": "npm run check:ui:runtime",
       "why": [
-        "Run the narrowest related contract/unit tests first."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run agent:test -- scripts/rebuild-analytics-truth.ts",
-      "why": [
-        "Run the narrowest related contract/unit tests first."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run check:telemetry",
-      "why": [
-        "Telemetry or analytics semantics changed."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run check:analytics-semantics",
-      "why": [
-        "Canonical analytics naming/schema must remain aligned."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm --prefix functions run check",
-      "why": [
-        "Functions runtime/manifests changed."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run check:agent-context",
-      "why": [
-        "Repo intelligence outputs should stay internally valid."
+        "Hydration/runtime UI continuity should stay truthful."
       ],
       "lane": "fast"
     }
   ],
   "signoffSelections": [
     {
-      "command": "npm run check:analytics:continuity",
+      "command": "npm run check:ui:audits",
       "why": [
-        "Analytics continuity needs explicit signoff for behavioral/runtime changes."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run check:inventory",
-      "why": [
-        "Repo-tooling changes must preserve inventory truth."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run check:architecture",
-      "why": [
-        "Repo-tooling/shared-helper changes need architecture validation."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run check:agent-intelligence",
-      "why": [
-        "Agent indexes and helper extraction must stay coherent."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run eval:agent-context",
-      "why": [
-        "Task-context retrieval/eval fixtures changed."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run check:continuity",
-      "why": [
-        "Broad/shared/helper/tooling work requires continuity signoff."
+        "UI/admin signoff requires Playwright audit coverage."
       ],
       "lane": "signoff"
     }
   ],
   "signoffAdvisories": [
+    "Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.",
     "Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff."
   ],
   "forbiddenSurfaces": [
@@ -175,8 +87,8 @@
     "src/app/api/paypal",
     "functions/src/analytics-transactions.ts"
   ],
-  "broadWork": true,
+  "broadWork": false,
   "reasoning": [
-    "Matched 5 repo-tracked paths."
+    "Matched 1 repo-tracked paths."
   ]
 }

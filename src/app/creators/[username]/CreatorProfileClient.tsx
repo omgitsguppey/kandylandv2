@@ -19,9 +19,10 @@ import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
+    CREATOR_MESSAGE_COSTS,
     CREATOR_BOOKING_MIN_MINUTES,
 } from "@/lib/creator-experiences";
-import { getCreatorBookingProblemCopy, getCreatorSubscriptionProblemCopy } from "@/lib/problem-state-copy";
+import { getCreatorBookingProblemCopy, getCreatorRequestProblemCopy, getCreatorSubscriptionProblemCopy } from "@/lib/problem-state-copy";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { resolveCreatorPublicExperienceState } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
@@ -31,6 +32,15 @@ import { Drop, UserProfile } from "@/types/db";
 
 type CreatorExperienceView = "subscriptions" | "messages" | "requests" | "bookings";
 type ExperienceModuleKey = "relationship" | "subscriptions" | "messages" | "bookings" | "broadcasts";
+
+function readFirstName(value: string | null | undefined) {
+    const normalized = typeof value === "string" ? value.trim() : "";
+    if (!normalized) {
+        return "";
+    }
+
+    return normalized.split(/\s+/u)[0] || normalized;
+}
 
 const DEFAULT_MODULE_STATE: Record<ExperienceModuleKey, UiContinuityModuleState> = {
     relationship: { key: "relationship", label: "relationship", critical: false, status: "success", warning: null, fallbackActive: false, responseOk: true },
@@ -83,6 +93,7 @@ export default function CreatorProfileClient() {
     const [bookingServiceType, setBookingServiceType] = useState<"phone" | "video">("phone");
     const [creatingBooking, setCreatingBooking] = useState(false);
     const [moduleState, setModuleState] = useState<Record<ExperienceModuleKey, UiContinuityModuleState>>(DEFAULT_MODULE_STATE);
+    const creatorFirstName = useMemo(() => readFirstName(creator?.displayName), [creator?.displayName]);
     const lastTrackedBroadcastKeyRef = useRef<string>("");
     const handleCreatorDropPreview = useCallback((drop: Drop) => {
         router.push(`/drops/${encodeURIComponent(drop.id)}/preview?source_component=creator_profile_drop_grid`);
@@ -136,12 +147,16 @@ export default function CreatorProfileClient() {
         }
 
         trackEvent("creator_profile_viewed", {
+            viewer_actor_type: currentUser ? "user" : "guest",
+            viewer_actor_uid: currentUser?.uid ?? "",
+            target_creator_id: creator.uid,
+            target_creator_username: creator.username || username,
             creator_id: creator.uid,
             creator_username: creator.username || username,
             page_path: profileRoute,
             source_component: "creator_profile_page",
         });
-    }, [creator, profileRoute, username]);
+    }, [creator, currentUser, profileRoute, username]);
 
     useEffect(() => {
         if (!currentUser || !creator) {
@@ -332,6 +347,17 @@ export default function CreatorProfileClient() {
     ]);
     const hasExperiences = availableExperienceViews.length > 0;
     const canMessageCreator = availableExperienceViews.includes("messages");
+    const purchasedBalanceGd = currentUserProfile?.gumDropsPurchasedBalance ?? currentUserProfile?.gumDropsBalance ?? 0;
+    const chatCostGd = creatorSettings.chatFreeForSubscribers && subscriptionActive ? 0 : CREATOR_MESSAGE_COSTS.text;
+    const messageHint = currentUser
+        ? !following
+            ? `Follow ${creatorFirstName || creator?.displayName || "this creator"} to open chat, then keep paid GumDrops ready.`
+            : chatCostGd > 0 && purchasedBalanceGd < chatCostGd
+                ? `You need ${chatCostGd - purchasedBalanceGd} more paid GD to message ${creatorFirstName || creator?.displayName || "this creator"}.`
+                : creatorSettings.chatFreeForSubscribers && subscriptionActive
+                    ? `Fan Pass makes chat free with ${creatorFirstName || creator?.displayName || "this creator"}.`
+                    : `Paid GumDrops are required to message ${creatorFirstName || creator?.displayName || "this creator"}.`
+        : `Sign in, follow ${creatorFirstName || creator?.displayName || "this creator"}, and keep paid GumDrops ready to chat.`;
 
     useEffect(() => {
         if (!hasExperiences) {
@@ -385,6 +411,17 @@ export default function CreatorProfileClient() {
             return;
         }
 
+        if (!following) {
+            toast.error(`Follow ${creatorFirstName || creator.displayName || "this creator"} to start chatting.`);
+            return;
+        }
+
+        if (chatCostGd > 0 && purchasedBalanceGd < chatCostGd) {
+            openPurchaseModal(chatCostGd - purchasedBalanceGd);
+            toast.error(`You need ${chatCostGd - purchasedBalanceGd} more paid GD to message ${creatorFirstName || creator.displayName || "this creator"}.`);
+            return;
+        }
+
         trackEvent("navigation_click", {
             destination: `/dashboard/chat?creator=${creator.uid}`,
             source: "creator_profile_message_cta",
@@ -427,7 +464,7 @@ export default function CreatorProfileClient() {
                 error?: string;
             };
             if (!response.ok) {
-                throw new Error(result.error);
+                throw result;
             }
 
             const nextFollowing = result.relationship?.following === true;
@@ -466,6 +503,7 @@ export default function CreatorProfileClient() {
                     creator_id: creator.uid,
                     target_creator_id: creator.uid,
                     creator_username: creator.username,
+                    creator_first_name: creatorFirstName,
                     route: profileRoute,
                     source_component: "creator_profile_page",
                 });
@@ -475,6 +513,7 @@ export default function CreatorProfileClient() {
                     creator_id: creator.uid,
                     target_creator_id: creator.uid,
                     creator_username: creator.username,
+                    creator_first_name: creatorFirstName,
                     route: profileRoute,
                     source_component: "creator_profile_page",
                 });
@@ -491,7 +530,7 @@ export default function CreatorProfileClient() {
                 },
                 consoleLabel: "[CreatorProfile] follow action failed",
             });
-            toast.error(error.message || "Action failed.");
+            toast.error("Could not update following right now.");
         } finally {
             setFollowLoading(false);
         }
@@ -524,7 +563,7 @@ export default function CreatorProfileClient() {
                 error?: string;
             };
             if (!response.ok) {
-                throw new Error(typeof result.error === "string" ? result.error : "Action failed.");
+                throw result;
             }
 
             const nextNotificationsEnabled = result.relationship?.notificationsEnabled === true;
@@ -560,7 +599,7 @@ export default function CreatorProfileClient() {
                 },
                 consoleLabel: "[CreatorProfile] relationship action failed",
             });
-            toast.error(error.message || "Action failed.");
+            toast.error("Could not update creator alerts right now.");
         } finally {
             setRelationshipLoading(false);
         }
@@ -673,7 +712,16 @@ export default function CreatorProfileClient() {
             });
             const result = await response.json();
             if (!response.ok) {
-                throw new Error(typeof result.error === "string" ? result.error : "Request failed.");
+                const message = getCreatorRequestProblemCopy(result);
+                if (result.code === "insufficient_paid_gumdrops") {
+                    const preferredDrops = typeof result.shortfallGd === "number" && Number.isFinite(result.shortfallGd)
+                        ? result.shortfallGd
+                        : typeof result.priceGd === "number" && Number.isFinite(result.priceGd)
+                            ? result.priceGd
+                            : undefined;
+                    openPurchaseModal(preferredDrops);
+                }
+                throw new Error(message);
             }
 
             setRequestDetails("");
@@ -689,7 +737,7 @@ export default function CreatorProfileClient() {
                 },
                 consoleLabel: "[CreatorProfile] custom request failed",
             });
-            toast.error(error.message || "Request failed.");
+            toast.error(getCreatorRequestProblemCopy(error));
         } finally {
             setCreatingRequest(false);
         }
@@ -795,8 +843,8 @@ export default function CreatorProfileClient() {
         return (
             <NotFoundSurface
                 eyebrow="Creator"
-                title="Creator Unavailable"
-                detail={`@${username} is not available on KandyDrops.`}
+                title="Creator not available"
+                detail={`@${username} is not available right now.`}
                 className="min-h-[50vh]"
             />
         );
@@ -820,6 +868,7 @@ export default function CreatorProfileClient() {
                     followLoading={followLoading}
                     following={following}
                     hasGlobalAlerts={hasGlobalAlerts}
+                    messageHint={messageHint}
                     notificationsEnabled={notificationsEnabled}
                     onFollow={handleFollow}
                     onMessage={openChatExperience}
@@ -877,6 +926,7 @@ export default function CreatorProfileClient() {
                             creatingBooking={creatingBooking}
                             creatingRequest={creatingRequest}
                             creatorId={creator.uid}
+                            creatorFirstName={creatorFirstName}
                             creatorUsername={creator.username || username}
                             currentUser={currentUserProfile ?? currentUser}
                             experienceWarnings={experienceWarnings}
@@ -908,8 +958,8 @@ export default function CreatorProfileClient() {
                         <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
                             {experienceWarnings.length > 0 ? (
                                 <UiContinuityNotice
-                                    title="Creator experience modules are partially degraded"
-                                    body={experienceWarnings.map((warning) => `${warning.label}: ${warning.message}`).join(" | ")}
+                                    title="Some creator features are loading slowly"
+                                    body="Follow, chat, request, and booking actions may need a moment to refresh."
                                     tone="warning"
                                     data-testid="creator-profile-module-warning"
                                 />
@@ -925,9 +975,9 @@ export default function CreatorProfileClient() {
                                                     <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-brand-purple/30 bg-brand-purple/20">
                                                         <Lock className="h-7 w-7 text-brand-purple" />
                                                     </div>
-                                                    <h3 className="mb-2 text-xl font-black tracking-tight text-white">Members only</h3>
+                                                    <h3 className="mb-2 text-xl font-black tracking-tight text-white">Sign in to browse drops</h3>
                                                     <p className="mb-5 text-sm leading-6 text-gray-400">
-                                                        Sign in to browse drops and unlock this creator&apos;s private fan experiences.
+                                                        Sign in to browse drops, follow this creator, and unlock private fan experiences.
                                                     </p>
                                                     <button
                                                         type="button"
@@ -952,7 +1002,7 @@ export default function CreatorProfileClient() {
                                     </div>
                                 ) : (
                                     <div className="rounded-3xl border border-dashed border-white/10 bg-white/5 py-14 text-center">
-                                        <p className="text-gray-300">This creator profile is live, but the first drop has not landed yet.</p>
+                                        <p className="text-gray-300">This creator is live, but the first drop has not landed yet.</p>
                                     </div>
                                 )}
                             </section>

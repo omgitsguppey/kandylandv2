@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:57:08.166Z",
+  "generatedAt": "2026-05-08T03:39:33.297Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -281,6 +281,7 @@
         ".github/workflows/cloud-readiness-smoke.yml",
         "/agent/index/*",
         "; provider billing state is not proven from source. This surface is allowed only for agent/repo intelligence mirror use and is forbidden for user/payment/Drop/chat/support/creator runtime flows unless an explicit SQL/Data Connect ",
+        "agent/context/*.json",
         "agent/context/doctrine-cards.jsonl",
         "agent/context/doctrine-registry.json",
         "agent/context/optimized-task-context.generated.json",
@@ -292,6 +293,7 @@
         "agent/prompts/task-prompt.deep.md",
         "agent/prompts/task-prompt.short.md",
         "agent/prompts/task-prompt.standard.md",
+        "agent/state/*.generated.json",
         "agent/state/codex-auth-readiness.generated.json",
         "agent/state/sql-mirror-status.generated.json",
         "agent/state/sql-sync.payload.generated.json",
@@ -315,8 +317,11 @@
         "docs/doctrine/surfaces/user-ui-doctrine.md",
         "output/dependency-graph.json",
         "scripts/agent/sync-sql.ts",
+        "src/app",
         "src/app/admin/**",
+        "src/components",
         "src/lib/device-layout-contract.ts",
+        "src/lib/server",
         "src/lib/server/global-cost-surface-contract.ts",
         "src/lib/user-mobile-shell.ts"
       ]

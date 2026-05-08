@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:57:56.087Z",
+  "generatedAt": "2026-05-08T03:40:23.589Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,7 +15,7 @@
     "scripts/agent/**",
     "agent/context/doctrine.index.json"
   ],
-  "validatorCount": 233,
+  "validatorCount": 243,
   "surfaces": [
     "admin-debug",
     "agent-context",
@@ -40,6 +40,7 @@
   "bySurface": {
     "device-ui": [
       "check:accessibility-tap-targets",
+      "check:admin-ui-primitives-cutover",
       "check:architecture",
       "check:beta-modal-layout",
       "check:design-system-drift",
@@ -92,6 +93,7 @@
     "ai-panel": [
       "check:admin-ai-control-tower",
       "check:admin-review-badges",
+      "check:google-cost",
       "validate:behavioral-models"
     ],
     "behavioral-intelligence": [
@@ -117,6 +119,8 @@
       "check:admin-cms-workflow",
       "check:admin-copy-surface-truth",
       "check:admin-data-validation-relocation",
+      "check:admin-pages-cutover",
+      "check:admin-realtime-cutover",
       "check:admin-shell-spacing",
       "check:agent-intelligence",
       "check:code-organization",
@@ -139,13 +143,17 @@
       "check:human-readable-admin-copy",
       "check:integrity-demotions",
       "check:inventory",
+      "check:materializers-cutover",
       "check:negative-preferences",
       "check:not-found",
       "check:notification-quality",
       "check:notification-return-loop",
       "check:outdated",
+      "check:phase-one-lock",
       "check:privacy-consent-truth",
+      "check:privacy-import-export-cutover",
       "check:refresh-based-hot-cache",
+      "check:release-notes-cutover",
       "check:satisfaction-signal",
       "check:scheduler:freshness",
       "check:search-intent-truth",
@@ -181,11 +189,16 @@
       "check:fan-pass-gumdrops-truth",
       "check:synthetic-creators-view-as"
     ],
+    "moderation": [
+      "check:admin-moderation-real-risk",
+      "check:theft-risk-score"
+    ],
     "admin-debug": [
-    "check:admin-truth-badge-doctrine",
-    "check:admin-truth-replacement",
+      "check:admin-truth-badge-doctrine",
+      "check:admin-truth-replacement",
       "check:continuity",
       "check:creator-lane-debug-parity",
+      "check:debug-control-tower-cutover",
       "check:debug-evidence-pipeline",
       "check:debug-first-roadmap",
       "check:firebase-runtime",
@@ -198,10 +211,6 @@
       "check:ui:runtime",
       "score:creator-lane-debug-parity"
     ],
-    "moderation": [
-      "check:admin-moderation-real-risk",
-      "check:theft-risk-score"
-    ],
     "user-management": [
       "check:admin-user-behavior-truth",
       "check:admin-user-metrics-snapshot",
@@ -210,13 +219,16 @@
       "check:auth-outcomes-truth",
       "check:codex-auth",
       "check:codex-auth-readiness",
+      "check:generated-report-authority",
       "check:user-action-ledger-events",
       "check:user-behavior-rollup",
       "check:user-chat-shell-routing",
       "check:user-critical-path-launch",
+      "check:user-critical-path-lock",
       "check:user-engagement-score",
       "check:user-value-score",
-      "check:validator-authority"
+      "check:validator-authority",
+      "score:validator-authority"
     ],
     "agent-context": [
       "check:affected-audit-router",
@@ -258,9 +270,22 @@
       "score:hardening",
       "score:speed-security"
     ],
+    "wallet": [
+      "check:chat-paid-gumdrops-guidance",
+      "check:daily-task-reward-economy",
+      "check:gumdrop-economy",
+      "check:gumdrop-source-of-funds-truth",
+      "check:legal-payment-copy",
+      "check:payment-unlock-security",
+      "check:platform-economy-commerce-controls",
+      "check:platform-economy-treasury",
+      "check:purchase-telemetry-truth",
+      "check:wallet-density",
+      "check:wallet-single-paypal-button",
+      "score:economy"
+    ],
     "google-cost": [
       "check:cloud-cost",
-      "check:google-cost",
       "score:cloud-cost",
       "score:google-cost"
     ],
@@ -277,19 +302,6 @@
       "check:featured-carousel-polish",
       "check:unlock-telemetry-truth",
       "score:content-protection"
-    ],
-    "wallet": [
-      "check:daily-task-reward-economy",
-      "check:gumdrop-economy",
-      "check:gumdrop-source-of-funds-truth",
-      "check:legal-payment-copy",
-      "check:payment-unlock-security",
-      "check:platform-economy-commerce-controls",
-      "check:platform-economy-treasury",
-      "check:purchase-telemetry-truth",
-      "check:wallet-density",
-      "check:wallet-single-paypal-button",
-      "score:economy"
     ],
     "image-policy": [
       "check:global-loading-performance",
@@ -333,12 +345,15 @@
     "check:admin-creator-account-controls": "creator-dashboard",
     "check:admin-data-validation-relocation": "repo-governance",
     "check:admin-moderation-real-risk": "moderation",
+    "check:admin-pages-cutover": "repo-governance",
     "check:admin-projection-analytics-exclusion": "creator-dashboard",
+    "check:admin-realtime-cutover": "repo-governance",
     "check:admin-review-badges": "ai-panel",
     "check:admin-roster-decision-queue": "creator-dashboard",
     "check:admin-shell-spacing": "repo-governance",
     "check:admin-truth-badge-doctrine": "admin-debug",
     "check:admin-truth-replacement": "admin-debug",
+    "check:admin-ui-primitives-cutover": "device-ui",
     "check:admin-user-behavior-truth": "user-management",
     "check:admin-user-metrics-snapshot": "user-management",
     "check:admin-users-loading-lanes": "user-management",
@@ -368,6 +383,7 @@
     "check:beta-score": "speed-security",
     "check:beta-update-tracker": "speed-security",
     "check:beta-versioning": "speed-security",
+    "check:chat-paid-gumdrops-guidance": "wallet",
     "check:cloud-cost": "google-cost",
     "check:code-organization": "repo-governance",
     "check:codex-auth": "user-management",
@@ -400,6 +416,7 @@
     "check:daily-task-lifecycle": "behavioral-intelligence",
     "check:daily-task-reward-economy": "wallet",
     "check:daily-task-telemetry-truth": "behavioral-intelligence",
+    "check:debug-control-tower-cutover": "admin-debug",
     "check:debug-evidence-pipeline": "admin-debug",
     "check:debug-first-roadmap": "admin-debug",
     "check:dependency-truth": "repo-governance",
@@ -432,10 +449,11 @@
     "check:firebase:rules": "repo-governance",
     "check:functions": "repo-governance",
     "check:generated-artifacts": "repo-governance",
+    "check:generated-report-authority": "user-management",
     "check:global-cost": "repo-governance",
     "check:global-loading-performance": "image-policy",
     "check:global-speed-hydration-cache": "device-ui",
-    "check:google-cost": "google-cost",
+    "check:google-cost": "ai-panel",
     "check:gumdrop-economy": "wallet",
     "check:gumdrop-source-of-funds-truth": "wallet",
     "check:hardening": "speed-security",
@@ -453,6 +471,7 @@
     "check:legacy-creator-application-migration": "legacy-phaseout",
     "check:legacy-phaseout": "legacy-phaseout",
     "check:legal-payment-copy": "wallet",
+    "check:materializers-cutover": "repo-governance",
     "check:math-goal-alignment": "behavioral-intelligence",
     "check:mobile-shell-safe-area": "device-ui",
     "check:negative-preferences": "repo-governance",
@@ -464,15 +483,18 @@
     "check:orphaned-logic": "legacy-phaseout",
     "check:outdated": "repo-governance",
     "check:payment-unlock-security": "wallet",
+    "check:phase-one-lock": "repo-governance",
     "check:platform-economy-commerce-controls": "wallet",
     "check:platform-economy-treasury": "wallet",
     "check:privacy-consent-truth": "repo-governance",
+    "check:privacy-import-export-cutover": "repo-governance",
     "check:purchase-telemetry-truth": "wallet",
     "check:pwa-service-worker": "speed-security",
     "check:queue:runtime": "admin-debug",
     "check:recommendation-ranker": "behavioral-intelligence",
     "check:refresh-based-hot-cache": "repo-governance",
     "check:release-notes": "speed-security",
+    "check:release-notes-cutover": "repo-governance",
     "check:rollback-incident-response": "speed-security",
     "check:route-runtime-parity": "admin-debug",
     "check:runtime-facts-cutover": "admin-debug",
@@ -507,6 +529,7 @@
     "check:user-behavior-rollup": "user-management",
     "check:user-chat-shell-routing": "user-management",
     "check:user-critical-path-launch": "user-management",
+    "check:user-critical-path-lock": "user-management",
     "check:user-engagement-score": "user-management",
     "check:user-value-score": "user-management",
     "check:validator-authority": "user-management",
@@ -538,6 +561,7 @@
     "score:telemetry": "telemetry",
     "score:telemetry-identified-parity": "telemetry",
     "score:tracking-surface-coverage": "behavioral-intelligence",
+    "score:validator-authority": "user-management",
     "validate:behavioral-models": "ai-panel",
     "validate:behavioral-predictions": "behavioral-intelligence"
   },

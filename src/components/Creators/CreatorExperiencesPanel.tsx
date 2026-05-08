@@ -40,6 +40,7 @@ type CreatorExperiencesPanelProps = {
     creatingBooking: boolean;
     creatingRequest: boolean;
     creatorId: string;
+    creatorFirstName?: string;
     creatorUsername?: string;
     currentUser: unknown;
     experienceWarnings: Array<{ key: string; label: string; message: string }>;
@@ -86,6 +87,7 @@ export function CreatorExperiencesPanel({
     creatingBooking,
     creatingRequest,
     creatorId,
+    creatorFirstName,
     creatorUsername,
     currentUser,
     experienceWarnings,
@@ -124,6 +126,7 @@ export function CreatorExperiencesPanel({
 
     const recentMessages = messages.slice(-3).reverse();
     const hasRecentThread = messages.length > 0;
+    const creatorGuidanceName = creatorFirstName || creatorUsername || "this creator";
     
     // Fallback availabilities logic for bookings
     const availabilityWindows = settings.availabilityWindows || [];
@@ -232,15 +235,15 @@ export function CreatorExperiencesPanel({
                     }}
                     className="mt-3 flex min-h-11 w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition-colors hover:border-brand-purple/50 hover:bg-white/10"
                 >
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple/20">
-                            <Wallet className="h-4 w-4 text-brand-purple" />
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple/20">
+                                <Wallet className="h-4 w-4 text-brand-purple" />
+                            </div>
+                            <div className="text-left">
+                                <span className="block leading-none">Add Gum Drops</span>
+                                <span className="mt-1 block text-[11px] text-zinc-400">Need {deficit} paid GD to continue</span>
+                            </div>
                         </div>
-                        <div className="text-left">
-                            <span className="block leading-none">Add Gum Drops</span>
-                            <span className="mt-1 block text-[11px] text-zinc-400">Need {deficit} GD to continue</span>
-                        </div>
-                    </div>
                     <ChevronRight className="h-4 w-4 text-zinc-500" />
                 </button>
             );
@@ -379,6 +382,7 @@ export function CreatorExperiencesPanel({
                     <div className="ml-10 flex flex-col gap-1.5">
                         <h2 className="text-xl font-black text-white">Fan Pass</h2>
                         <p className="text-sm font-medium text-brand-purple-light/80">Stay closer when new access opens.</p>
+                        <p className="text-xs leading-5 text-zinc-400">Paid GumDrops only. Reward GD do not count toward Fan Pass.</p>
                     </div>
 
                     <details className="mt-4 rounded-2xl border border-white/5 bg-black/30 px-4 py-3">
@@ -448,6 +452,7 @@ export function CreatorExperiencesPanel({
                             )}
                         </div>
                         <p className="text-sm font-medium text-zinc-400">Send a private message without getting lost in comments.</p>
+                        <p className="text-xs leading-5 text-zinc-500">Follow {creatorGuidanceName} and keep paid GumDrops ready unless Fan Pass makes chat free.</p>
                     </div>
 
                     <details className="mb-4 rounded-2xl border border-white/5 bg-white/5 px-4 py-3">
@@ -499,7 +504,7 @@ export function CreatorExperiencesPanel({
                         </div>
                     ) : (
                         <div className="mb-4 rounded-xl border border-white/5 bg-white/5 p-3 text-center">
-                            <p className="text-xs text-zinc-400">No private thread yet. Start with a simple message.</p>
+                            <p className="text-xs text-zinc-400">No private thread yet. Follow {creatorGuidanceName} and start with a simple message.</p>
                         </div>
                     )}
 
@@ -524,6 +529,7 @@ export function CreatorExperiencesPanel({
                     <div className="mb-4 ml-10 flex flex-col gap-1.5">
                         <h2 className="text-xl font-black text-white">Custom Request</h2>
                         <p className="text-sm font-medium text-zinc-400">Ask for something specific, then let the creator decide what fits.</p>
+                        <p className="text-xs leading-5 text-zinc-500">If something is unavailable, you&apos;ll see a clear message and can try again.</p>
                     </div>
 
                     <div className="mb-4 flex flex-col gap-2">
@@ -588,6 +594,7 @@ export function CreatorExperiencesPanel({
                     <div className="mb-4 ml-10 flex flex-col gap-1.5">
                         <h2 className="text-xl font-black text-white">Live Time</h2>
                         <p className="text-sm font-medium text-zinc-400">Reserve real time before the window closes.</p>
+                        <p className="text-xs leading-5 text-zinc-500">If a slot is blocked, you&apos;ll see a clear message and can pick another time.</p>
                         {(settings.videoSubscriberDiscountPercent || 0) > 0 && subscriptionActive && bookingServiceType === "video" && (
                             <span className="mt-1 inline-block w-fit rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-purple-light">
                                 Subscriber {settings.videoSubscriberDiscountPercent}% Off Applied

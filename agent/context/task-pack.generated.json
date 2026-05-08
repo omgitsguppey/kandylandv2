@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:57:56.092Z",
+  "generatedAt": "2026-05-08T03:40:23.594Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -17,216 +17,216 @@
     "agent/context/validator-map.json",
     "agent/context/legacy-registry.json"
   ],
-  "taskSummary": "cut over analytics and behavioral materializers so they consume canonical runtime facts and metric facts only",
+  "taskSummary": "Finish creator public profiles as fan conversion pages",
   "changedFiles": [
-    "functions/src/analytics-truth-cli.ts",
-    "functions/src/behavioral-intelligence-runtime.ts",
-    "scripts/rebuild-analytics-truth.ts",
-    "scripts/rebuild-behavioral-intelligence.ts",
-    "src/lib/server/admin-analytics-materializers.ts"
+    "src/app/creators/[username]/page.tsx"
   ],
   "affectedSurfaces": [
-    "behavioral-intelligence",
-    "google-cost",
-    "speed-security"
+    "creator-dashboard",
+    "device-ui",
+    "image-policy"
   ],
   "loadPlan": [
     "agent/context/doctrine.index.json",
-    "agent/context/doctrine.cards.jsonl filtered to: behavioral-intelligence, google-cost, speed-security",
-    "agent/context/surface-contracts.jsonl filtered to: behavioral-intelligence, google-cost, speed-security",
+    "agent/context/doctrine.cards.jsonl filtered to: creator-dashboard, device-ui, image-policy",
+    "agent/context/surface-contracts.jsonl filtered to: creator-dashboard, device-ui, image-policy",
     "agent/context/validator-map.json",
     "agent/context/legacy-registry.json"
   ],
   "relevantCards": [
     {
-      "id": "doctrine_card__behavioral-intelligence",
-      "title": "Behavioral Intelligence Facts",
-      "surface": "behavioral-intelligence",
+      "id": "doctrine_card__creator-dashboard",
+      "title": "Creator Dashboard And Experience Truth",
+      "surface": "creator-dashboard",
       "scope": [
-        "src/lib/behavioral/**",
-        "src/lib/recommendations/**",
-        "functions/src/behavioral-intelligence-runtime.ts"
+        "src/components/Creators/**",
+        "src/app/creators/**",
+        "src/app/api/creator/**"
       ],
       "canonicalFiles": [
-        "src/lib/behavioral/event-fact-contract.ts",
-        "src/lib/behavioral/normalize-event-fact.ts",
-        "src/lib/recommendations/deterministic-ranker.ts"
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/app/api/creator/bookings/route.ts",
+        "src/app/api/creator/subscriptions/route.ts"
       ],
       "rules": [
-        "Raw events normalize into canonical event facts before scoring.",
-        "Deterministic ranking remains the safety baseline unless validation promotes ML.",
-        "Aliases must dedupe by user, entity, and time window."
+        "Creator paid experiences spend paid-source GumDrops only where required.",
+        "Expected booking and fan-pass failures return typed safe errors.",
+        "Admin projection cannot become live creator behavior."
       ],
       "blockedPatterns": [
-        "unknown event as production count",
-        "client retry counted twice",
-        "ML artifact active without validation"
+        "reward GumDrops for Fan Pass",
+        "generic internal server error for expected booking failure",
+        "projection write treated as live creator action"
       ],
       "requiredValidators": [
-        "check:event-fact-truth",
-        "check:behavioral-truth-source",
-        "check:recommendation-ranker",
-        "check:math-goal-alignment"
+        "check:creator-experience-transaction-truth",
+        "check:creator-booking-error-copy",
+        "check:fan-pass-gumdrops-truth",
+        "check:admin-projection-analytics-exclusion"
       ],
-      "lastUpdated": "2026-05-07T20:32:07.099Z",
-      "sourceDoc": "docs/agent-truth/event-fact-truth.md",
-      "priority": "critical",
-      "tokenEstimate": 247
+      "lastUpdated": "2026-05-08T01:38:50.809Z",
+      "sourceDoc": "docs/agent-truth/creator-experience-transaction-truth.md",
+      "priority": "high",
+      "tokenEstimate": 261
     },
     {
-      "id": "doctrine_card__speed-security",
-      "title": "Speed And Security Hardening",
-      "surface": "speed-security",
+      "id": "doctrine_card__device-ui",
+      "title": "Device UI And Layout Contract",
+      "surface": "device-ui",
       "scope": [
-        "src/app/api/**",
-        "src/lib/server/**",
-        "firestore.rules",
-        "storage.rules",
-        "functions/src/**"
+        "src/lib/device-*.ts",
+        "src/components/layout/**",
+        "src/app/**",
+        "src/components/**"
       ],
       "canonicalFiles": [
-        "src/lib/server/route-cache-contract.ts",
-        "src/lib/server/security-hardening-contract.ts"
+        "src/lib/device-layout-contract.ts",
+        "src/lib/user-mobile-shell.ts",
+        "src/lib/device-ui-dry-audit.ts"
       ],
       "rules": [
-        "API routes declare auth, origin, rate, idempotency, cache, cost, and failure contracts.",
-        "User/payment/support/chat/security routes stay no-store where needed.",
-        "Heavy browser audits are forbidden by default."
+        "Google owns structural breakpoints and viewport math; Apple owns cohesive shell styling.",
+        "Use shared device helpers instead of freestyle layout physics.",
+        "Device dry audits run before broad browser audits."
       ],
       "blockedPatterns": [
-        "unbounded route cost",
-        "silent catch block",
-        "full suite as first audit"
+        "raw 100vh mobile shell",
+        "duplicated mobile nav physics",
+        "unsafe area padding by guess"
       ],
       "requiredValidators": [
-        "check:speed-security",
-        "score:speed-security",
-        "check:hardening"
+        "check:device-layout-contract",
+        "check:device-ui",
+        "score:device-ui"
       ],
-      "lastUpdated": "2026-05-06T11:17:43.936Z",
-      "sourceDoc": "docs/agent-truth/speed-security-hardening.md",
+      "lastUpdated": "2026-05-05T07:22:08.564Z",
+      "sourceDoc": "docs/agent-truth/device-layout-contract.md",
       "priority": "critical",
-      "tokenEstimate": 209
+      "tokenEstimate": 211
     },
     {
-      "id": "doctrine_card__google-cost",
-      "title": "Google Cost Guardrails",
-      "surface": "google-cost",
+      "id": "doctrine_card__image-policy",
+      "title": "Image Loading And Content Safety",
+      "surface": "image-policy",
       "scope": [
-        "src/lib/server/api-cost-contract.ts",
-        "dataconnect/**",
-        "functions/src/**"
+        "src/lib/image-loading-policy.ts",
+        "src/components/**",
+        "src/app/**"
       ],
       "canonicalFiles": [
-        "src/lib/server/api-cost-contract.ts",
-        "src/lib/server/cloud-cost-contract.ts"
+        "src/lib/image-loading-policy.ts"
       ],
       "rules": [
-        "Google cost-bearing surfaces must be declared before use.",
-        "Data Connect remains an agent-context mirror unless explicitly promoted.",
-        "Provider jobs and deploy commands are documentation-only unless a human promotes them."
+        "Above-fold LCP images are eager sparingly; grids and rails are lazy.",
+        "Fill images require accurate sizes.",
+        "Locked previews never render internal content thumbnails before unlock."
       ],
       "blockedPatterns": [
-        "undocumented Cloud SQL runtime path",
-        "BigQuery mutates runtime balances",
-        "gcloud deploy from audit lane"
+        "internal thumbnail before entitlement",
+        "fill image without sizes",
+        "repeated card preload"
       ],
       "requiredValidators": [
-        "check:google-cost",
-        "score:google-cost",
-        "check:cloud-cost"
+        "check:sitewide-image-optimization",
+        "check:content-protection"
       ],
-      "lastUpdated": "2026-05-07T22:49:06.140Z",
-      "sourceDoc": "docs/agent-truth/google-cost-bleed.md",
-      "priority": "critical",
-      "tokenEstimate": 208
+      "lastUpdated": "2026-05-05T22:28:49.772Z",
+      "sourceDoc": "docs/agent-truth/sitewide-image-optimization.md",
+      "priority": "high",
+      "tokenEstimate": 187
     }
   ],
   "validators": [
-    "npm run check:admin-analytics-daily-task-pipeline",
-    "npm run check:behavioral-experiments",
-    "npm run check:behavioral-explanations",
-    "npm run check:behavioral-intelligence-confidence",
-    "npm run check:behavioral-math-calibration",
-    "npm run check:behavioral-truth-source",
-    "npm run check:daily-task-lifecycle",
-    "npm run check:daily-task-telemetry-truth",
-    "npm run check:event-fact-truth",
-    "npm run check:math-goal-alignment",
-    "npm run check:notification-pipeline",
-    "npm run check:notification-read-truth",
-    "npm run check:recommendation-ranker",
-    "npm run check:task-catalog-coverage",
-    "npm run check:tracking-surface-coverage",
-    "npm run score:tracking-surface-coverage",
-    "npm run validate:behavioral-predictions",
-    "npm run check:cloud-cost",
-    "npm run check:google-cost",
-    "npm run score:cloud-cost",
-    "npm run score:google-cost",
-    "npm run check:ast-grep-rules",
-    "npm run check:background-job-idempotency",
-    "npm run check:beta-release-notes",
-    "npm run check:beta-score",
-    "npm run check:beta-update-tracker",
-    "npm run check:beta-versioning",
-    "npm run check:environment-deployment-truth",
-    "npm run check:final-launch-readiness-report",
-    "npm run check:hardening",
-    "npm run check:launch-finalization-baseline",
-    "npm run check:launch-pr-triage",
-    "npm run check:launch-readiness-final",
-    "npm run check:pwa-service-worker",
-    "npm run check:release-notes",
-    "npm run check:rollback-incident-response",
-    "npm run check:security-role-boundaries",
-    "npm run check:speed-security",
-    "npm run score:beta",
-    "npm run score:hardening",
-    "npm run score:speed-security"
+    "npm run check:admin-creator-account-controls",
+    "npm run check:admin-projection-analytics-exclusion",
+    "npm run check:admin-roster-decision-queue",
+    "npm run check:creator-admin-action-route",
+    "npm run check:creator-agreement-document-manager",
+    "npm run check:creator-agreement-signature-ux",
+    "npm run check:creator-agreement-version-truth",
+    "npm run check:creator-audit-trail",
+    "npm run check:creator-booking-error-copy",
+    "npm run check:creator-experience-transaction-truth",
+    "npm run check:creator-experiences-copy",
+    "npm run check:creator-fan-experience-settings",
+    "npm run check:creator-identity-markers",
+    "npm run check:creator-intake-flow",
+    "npm run check:creator-lane-old-logic-removal",
+    "npm run check:creator-profile-routing",
+    "npm run check:creator-projection-normalizer",
+    "npm run check:creator-review-queue-materializer",
+    "npm run check:creator-supply-quality",
+    "npm run check:experiences-compact-layout",
+    "npm run check:fan-pass-gumdrops-truth",
+    "npm run check:synthetic-creators-view-as",
+    "npm run check:accessibility-tap-targets",
+    "npm run check:admin-ui-primitives-cutover",
+    "npm run check:architecture",
+    "npm run check:beta-modal-layout",
+    "npm run check:design-system-drift",
+    "npm run check:device-layout-contract",
+    "npm run check:device-layout-score",
+    "npm run check:device-ui",
+    "npm run check:global-speed-hydration-cache",
+    "npm run check:home-hydration",
+    "npm run check:home-mobile-hero-shell",
+    "npm run check:hydration-performance",
+    "npm run check:mobile-shell-safe-area",
+    "npm run check:ui:coverage",
+    "npm run check:ui:lighthouse",
+    "npm run check:ui:mobile-doctrine",
+    "npm run check:ui:omni",
+    "npm run score:device-ui",
+    "npm run score:hydration",
+    "npm run score:layout",
+    "npm run check:global-loading-performance",
+    "npm run check:sitewide-image-optimization"
   ],
   "validatorSurfaces": {
-    "check:admin-analytics-daily-task-pipeline": "behavioral-intelligence",
-    "check:behavioral-experiments": "behavioral-intelligence",
-    "check:behavioral-explanations": "behavioral-intelligence",
-    "check:behavioral-intelligence-confidence": "behavioral-intelligence",
-    "check:behavioral-math-calibration": "behavioral-intelligence",
-    "check:behavioral-truth-source": "behavioral-intelligence",
-    "check:daily-task-lifecycle": "behavioral-intelligence",
-    "check:daily-task-telemetry-truth": "behavioral-intelligence",
-    "check:event-fact-truth": "behavioral-intelligence",
-    "check:math-goal-alignment": "behavioral-intelligence",
-    "check:notification-pipeline": "behavioral-intelligence",
-    "check:notification-read-truth": "behavioral-intelligence",
-    "check:recommendation-ranker": "behavioral-intelligence",
-    "check:task-catalog-coverage": "behavioral-intelligence",
-    "check:tracking-surface-coverage": "behavioral-intelligence",
-    "score:tracking-surface-coverage": "behavioral-intelligence",
-    "validate:behavioral-predictions": "behavioral-intelligence",
-    "check:cloud-cost": "google-cost",
-    "check:google-cost": "google-cost",
-    "score:cloud-cost": "google-cost",
-    "score:google-cost": "google-cost",
-    "check:ast-grep-rules": "speed-security",
-    "check:background-job-idempotency": "speed-security",
-    "check:beta-release-notes": "speed-security",
-    "check:beta-score": "speed-security",
-    "check:beta-update-tracker": "speed-security",
-    "check:beta-versioning": "speed-security",
-    "check:environment-deployment-truth": "speed-security",
-    "check:final-launch-readiness-report": "speed-security",
-    "check:hardening": "speed-security",
-    "check:launch-finalization-baseline": "speed-security",
-    "check:launch-pr-triage": "speed-security",
-    "check:launch-readiness-final": "speed-security",
-    "check:pwa-service-worker": "speed-security",
-    "check:release-notes": "speed-security",
-    "check:rollback-incident-response": "speed-security",
-    "check:security-role-boundaries": "speed-security",
-    "check:speed-security": "speed-security",
-    "score:beta": "speed-security",
-    "score:hardening": "speed-security",
-    "score:speed-security": "speed-security"
+    "check:admin-creator-account-controls": "creator-dashboard",
+    "check:admin-projection-analytics-exclusion": "creator-dashboard",
+    "check:admin-roster-decision-queue": "creator-dashboard",
+    "check:creator-admin-action-route": "creator-dashboard",
+    "check:creator-agreement-document-manager": "creator-dashboard",
+    "check:creator-agreement-signature-ux": "creator-dashboard",
+    "check:creator-agreement-version-truth": "creator-dashboard",
+    "check:creator-audit-trail": "creator-dashboard",
+    "check:creator-booking-error-copy": "creator-dashboard",
+    "check:creator-experience-transaction-truth": "creator-dashboard",
+    "check:creator-experiences-copy": "creator-dashboard",
+    "check:creator-fan-experience-settings": "creator-dashboard",
+    "check:creator-identity-markers": "creator-dashboard",
+    "check:creator-intake-flow": "creator-dashboard",
+    "check:creator-lane-old-logic-removal": "creator-dashboard",
+    "check:creator-profile-routing": "creator-dashboard",
+    "check:creator-projection-normalizer": "creator-dashboard",
+    "check:creator-review-queue-materializer": "creator-dashboard",
+    "check:creator-supply-quality": "creator-dashboard",
+    "check:experiences-compact-layout": "creator-dashboard",
+    "check:fan-pass-gumdrops-truth": "creator-dashboard",
+    "check:synthetic-creators-view-as": "creator-dashboard",
+    "check:accessibility-tap-targets": "device-ui",
+    "check:admin-ui-primitives-cutover": "device-ui",
+    "check:architecture": "device-ui",
+    "check:beta-modal-layout": "device-ui",
+    "check:design-system-drift": "device-ui",
+    "check:device-layout-contract": "device-ui",
+    "check:device-layout-score": "device-ui",
+    "check:device-ui": "device-ui",
+    "check:global-speed-hydration-cache": "device-ui",
+    "check:home-hydration": "device-ui",
+    "check:home-mobile-hero-shell": "device-ui",
+    "check:hydration-performance": "device-ui",
+    "check:mobile-shell-safe-area": "device-ui",
+    "check:ui:coverage": "device-ui",
+    "check:ui:lighthouse": "device-ui",
+    "check:ui:mobile-doctrine": "device-ui",
+    "check:ui:omni": "device-ui",
+    "score:device-ui": "device-ui",
+    "score:hydration": "device-ui",
+    "score:layout": "device-ui",
+    "check:global-loading-performance": "image-policy",
+    "check:sitewide-image-optimization": "image-policy"
   },
   "legacyWarnings": [],
   "excludedByDesign": {

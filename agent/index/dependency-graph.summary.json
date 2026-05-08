@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:57:25.099Z",
+  "generatedAt": "2026-05-08T03:39:50.262Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -18,14 +18,14 @@
   "sourceKind": "local_import_graph",
   "highInboundFiles": [
     {
-      "path": "src/lib/server/rate-limit.ts",
+      "path": "src/lib/server/firebase-admin.ts",
       "inboundCount": 128,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
-      "path": "src/lib/server/firebase-admin.ts",
-      "inboundCount": 127,
+      "path": "src/lib/server/rate-limit.ts",
+      "inboundCount": 128,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
@@ -49,7 +49,7 @@
     },
     {
       "path": "src/types/db.ts",
-      "inboundCount": 109,
+      "inboundCount": 111,
       "runtimeCritical": false,
       "likelySharedHelper": false
     },
@@ -61,7 +61,7 @@
     },
     {
       "path": "src/lib/utils.ts",
-      "inboundCount": 76,
+      "inboundCount": 77,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
@@ -91,13 +91,13 @@
     },
     {
       "path": "src/lib/admin-parity.ts",
-      "inboundCount": 51,
+      "inboundCount": 52,
       "runtimeCritical": true,
       "likelySharedHelper": true
     },
     {
       "path": "src/types/admin-analytics.ts",
-      "inboundCount": 41,
+      "inboundCount": 42,
       "runtimeCritical": false,
       "likelySharedHelper": false
     },
@@ -126,27 +126,27 @@
       "likelySharedHelper": true
     },
     {
+      "path": "scripts/agent/shared.ts",
+      "inboundCount": 32,
+      "runtimeCritical": false,
+      "likelySharedHelper": true
+    },
+    {
       "path": "src/context/UIContext.tsx",
       "inboundCount": 29,
       "runtimeCritical": false,
       "likelySharedHelper": false
-    },
-    {
-      "path": "scripts/agent/shared.ts",
-      "inboundCount": 27,
-      "runtimeCritical": false,
-      "likelySharedHelper": true
     }
   ],
   "blastRadiusSurfaces": [
     {
-      "path": "src/lib/server/rate-limit.ts",
+      "path": "src/lib/server/firebase-admin.ts",
       "inboundCount": 128,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
-      "path": "src/lib/server/firebase-admin.ts",
-      "inboundCount": 127,
+      "path": "src/lib/server/rate-limit.ts",
+      "inboundCount": 128,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
@@ -171,7 +171,7 @@
     },
     {
       "path": "src/lib/utils.ts",
-      "inboundCount": 76,
+      "inboundCount": 77,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
@@ -191,7 +191,7 @@
     },
     {
       "path": "src/lib/admin-parity.ts",
-      "inboundCount": 51,
+      "inboundCount": 52,
       "reason": "Runtime-critical shared helper with multiple inbound references."
     },
     {
@@ -202,13 +202,13 @@
   ],
   "highRiskSharedHelpers": [
     {
-      "path": "src/lib/server/rate-limit.ts",
+      "path": "src/lib/server/firebase-admin.ts",
       "inboundCount": 128,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
-      "path": "src/lib/server/firebase-admin.ts",
-      "inboundCount": 127,
+      "path": "src/lib/server/rate-limit.ts",
+      "inboundCount": 128,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
@@ -233,7 +233,7 @@
     },
     {
       "path": "src/lib/utils.ts",
-      "inboundCount": 76,
+      "inboundCount": 77,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
@@ -253,7 +253,7 @@
     },
     {
       "path": "src/lib/admin-parity.ts",
-      "inboundCount": 51,
+      "inboundCount": 52,
       "reason": "Shared helper has broad inbound reach and should be treated as a reuse-first surface."
     },
     {
@@ -502,11 +502,11 @@
   ],
   "broadChangeDangerMarkers": [
     {
-      "path": "src/lib/server/rate-limit.ts",
+      "path": "src/lib/server/firebase-admin.ts",
       "marker": "high_inbound_shared_helper"
     },
     {
-      "path": "src/lib/server/firebase-admin.ts",
+      "path": "src/lib/server/rate-limit.ts",
       "marker": "high_inbound_shared_helper"
     },
     {
@@ -534,11 +534,11 @@
       "marker": "high_inbound_shared_helper"
     },
     {
-      "path": "src/lib/server/rate-limit.ts",
+      "path": "src/lib/server/firebase-admin.ts",
       "marker": "runtime_critical_blast_radius"
     },
     {
-      "path": "src/lib/server/firebase-admin.ts",
+      "path": "src/lib/server/rate-limit.ts",
       "marker": "runtime_critical_blast_radius"
     },
     {

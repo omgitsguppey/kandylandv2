@@ -1,33 +1,31 @@
 # STANDARD Task Context
 
 ## Goal
-cut over analytics and behavioral materializers so they consume canonical runtime facts and metric facts only
+Finish creator public profiles as fan conversion pages
 
-Mode: server
-Scope: broad
-Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
+Mode: user
+Scope: moderate
+Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
 
 ## Likely Entrypoints
-- functions/src/analytics-truth-cli.ts
-- functions/src/behavioral-intelligence-runtime.ts
-- src/lib/server/admin-analytics-materializers.ts
-- scripts/rebuild-analytics-truth.ts
-- scripts/rebuild-behavioral-intelligence.ts
-- src/lib/analytics/admin-metric-snapshot.ts
-- src/app/api/admin/debug/route.ts
-- src/app/api/admin/analytics/refresh/route.ts
-- src/lib/behavioral/behavioral-math-calibration.ts
-- src/lib/admin-parity.ts
+- src/app/creators/[username]/page.tsx
+- src/lib/creator-experiences.ts
+- src/lib/creator-profile-routing.ts
+- src/app/creators/[username]/CreatorProfileClient.tsx
+- src/lib/creator-onboarding.ts
+- src/components/CreatorDiscoveryRail.tsx
+- src/lib/creator-admin.ts
+- src/lib/creator-agreement-documents.ts
+- src/lib/creator-agreement-signature-ux.ts
+- src/lib/creator-agreement-version.ts
 
 ## Canonical Helpers To Reuse
-- src/lib/telemetry.ts
-- src/lib/server/auth.ts
-- src/lib/route-runtime-health.ts
-- src/lib/server/admin-panel-system-logs.ts
-- src/lib/server/request-guard.ts
+- src/lib/creator-onboarding.ts
+- src/lib/server/creator-onboarding.ts
+- src/lib/tasks/task-catalog.ts
+- src/lib/tasks/task-observability.ts
+- src/lib/telemetry-catalog.ts
 - src/lib/server/route-diagnostics.ts
-- src/lib/server/route-runtime-health.ts
-- src/lib/server/server-diagnostics.ts
 
 ## Acceptance Criteria
 - Reuse the canonical helpers before introducing new ownership paths.
@@ -35,14 +33,13 @@ Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 - Report any blocked or unverified lane explicitly instead of implying success.
 
 ## Relevant Pitfalls
-- stale_lockfile_drift
 - diagnostics_serialization_crash
-- request_json_parse_falls_into_500
 - consumed_response_stream_fallback
-- generated_artifact_cleanup_miss
-- sidecar_truth_confusion
-- route_runtime_stale_vs_unseen_confusion
 - legacy_queue_adapter_usage
+- stale_queue_scheduler_heartbeat
+- unchecked_response_ok_ui_hydration
+- creator_booking_timezone_drift
+- silent_ui_fallback_masking_failure
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -53,22 +50,22 @@ Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- functions/src/analytics-truth-cli.ts
-- npm run agent:test -- functions/src/behavioral-intelligence-runtime.ts
-- npm run agent:test -- src/lib/server/admin-analytics-materializers.ts
-- npm run agent:test -- scripts/rebuild-analytics-truth.ts
+- npm run agent:test -- src/app/creators/[username]/page.tsx
+- npm run agent:test -- src/lib/creator-experiences.ts
+- npm run agent:test -- src/lib/creator-profile-routing.ts
+- npm run agent:test -- src/app/creators/[username]/CreatorProfileClient.tsx
 - npm run check:ui:coverage
 - npm run check:ui:runtime
-- npm run check:telemetry
-- npm run check:analytics-semantics
-- npm --prefix functions run check
-- npm run check:agent-context
 
 ## Signoff Verification
 - npm run check:ui:audits
-- npm run check:analytics:continuity
-- npm run check:inventory
-- npm run check:architecture
-- npm run check:agent-intelligence
-- npm run eval:agent-context
 - npm run check:continuity
+
+## Compatibility Verification Fields
+- required: npm run check:ui:audits
+- required: npm run check:ui:coverage
+- required: npm run check:ui:runtime
+- required: npm run test:contracts
+- required: npm run trace:adjacent -- <path>
+- optional: npm run check:ui:lighthouse
+- optional: npm run check:architecture

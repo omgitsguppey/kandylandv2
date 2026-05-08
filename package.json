@@ -172,6 +172,7 @@
         "check:environment-deployment-truth": "tsx scripts/agent/validate-environment-deployment-truth.ts",
         "check:user-critical-path-launch": "tsx scripts/agent/validate-user-critical-path-launch.ts",
         "check:user-critical-path-lock": "tsx scripts/agent/validate-user-critical-path-lock.ts",
+        "check:creator-public-profile-lock": "tsx scripts/agent/validate-creator-public-profile-lock.ts",
         "check:mobile-shell-safe-area": "tsx scripts/agent/validate-mobile-shell-safe-area.ts",
         "check:device-layout-contract": "tsx scripts/agent/validate-device-layout-contract.ts",
         "score:layout": "tsx scripts/agent/score-device-layout-contract.ts",

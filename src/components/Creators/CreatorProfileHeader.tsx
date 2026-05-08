@@ -22,6 +22,7 @@ type CreatorProfileHeaderProps = {
     followLoading: boolean;
     following: boolean;
     hasGlobalAlerts: boolean;
+    messageHint?: string | null;
     notificationsEnabled: boolean;
     onFollow: () => void;
     onMessage: () => void;
@@ -37,6 +38,7 @@ export function CreatorProfileHeader({
     followLoading,
     following,
     hasGlobalAlerts,
+    messageHint,
     notificationsEnabled,
     onFollow,
     onMessage,
@@ -125,6 +127,7 @@ export function CreatorProfileHeader({
                         type="button"
                         onClick={onMessage}
                         disabled={!canMessageCreator}
+                        title={messageHint || (canMessageCreator ? undefined : "Messages are unavailable for this creator")}
                         className={cn(
                             "flex h-11 items-center justify-center gap-2 rounded-2xl border px-3 text-sm font-bold transition-all",
                             canMessageCreator
@@ -154,6 +157,10 @@ export function CreatorProfileHeader({
                         {hasGlobalAlerts ? "All alerts" : notificationsEnabled ? "Alerts on" : "Alerts"}
                     </button>
                 </div>
+
+                {messageHint ? (
+                    <p className="text-xs leading-5 text-zinc-400">{messageHint}</p>
+                ) : null}
             </div>
         </section>
     );

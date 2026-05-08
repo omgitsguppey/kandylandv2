@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:57:56.973Z",
+  "generatedAt": "2026-05-08T03:40:24.544Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -47,19 +47,23 @@
     "generatedJsonOverBudget": [
       {
         "path": "agent/index/retrieval-index.json",
-        "lines": 52147
+        "lines": 53066
       },
       {
         "path": "agent/index/repo-inventory.json",
-        "lines": 31527
+        "lines": 32071
       },
       {
         "path": "agent/index/blast-radius.json",
-        "lines": 17568
+        "lines": 17993
       },
       {
         "path": "agent/state/speed-security-hardening.generated.json",
         "lines": 9744
+      },
+      {
+        "path": "agent/context/validator-authority.json",
+        "lines": 7099
       },
       {
         "path": "agent/state/event-catalog-telemetry-audit.generated.json",
@@ -71,11 +75,11 @@
       },
       {
         "path": "agent/index/verification-commands.json",
-        "lines": 5397
+        "lines": 5601
       },
       {
         "path": "agent/index/ui-surface-coverage.json",
-        "lines": 2654
+        "lines": 2660
       },
       {
         "path": "agent/state/codebase-hardening.generated.json",
@@ -88,6 +92,10 @@
       {
         "path": "agent/state/code-organization-score.generated.json",
         "lines": 1454
+      },
+      {
+        "path": "agent/state/generated-report-authority.generated.json",
+        "lines": 1257
       },
       {
         "path": "agent/state/creator-lane-legacy-truth-inventory.generated.json",
@@ -127,7 +135,7 @@
       },
       {
         "path": "agent/context/validator-map.json",
-        "lines": 550
+        "lines": 570
       },
       {
         "path": "agent/state/security-role-boundary-audit.generated.json",
@@ -152,12 +160,12 @@
         "loc": 6361
       },
       {
-        "path": "src/app/api/admin/users/route.ts",
-        "loc": 3148
+        "path": "src/components/Chat/ChatExperience.tsx",
+        "loc": 3233
       },
       {
-        "path": "src/components/Chat/ChatExperience.tsx",
-        "loc": 2996
+        "path": "src/app/api/admin/users/route.ts",
+        "loc": 3148
       },
       {
         "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
@@ -173,7 +181,7 @@
       },
       {
         "path": "functions/src/behavioral-intelligence-runtime.ts",
-        "loc": 2347
+        "loc": 2381
       },
       {
         "path": "src/lib/creator-onboarding.ts",
@@ -197,7 +205,7 @@
       },
       {
         "path": "src/app/admin/users/page.tsx",
-        "loc": 1612
+        "loc": 1608
       },
       {
         "path": "src/app/admin/roster/page.tsx",
@@ -209,7 +217,7 @@
       },
       {
         "path": "src/app/admin/user/[userId]/page.tsx",
-        "loc": 1443
+        "loc": 1437
       },
       {
         "path": "src/types/admin-analytics.ts",
@@ -224,16 +232,16 @@
         "loc": 1363
       },
       {
+        "path": "src/lib/server/chat.ts",
+        "loc": 1360
+      },
+      {
         "path": "src/lib/telemetry-catalog.ts",
-        "loc": 1303
+        "loc": 1319
       },
       {
         "path": "src/lib/ai-drop-covers.ts",
         "loc": 1257
-      },
-      {
-        "path": "src/lib/server/chat.ts",
-        "loc": 1224
       },
       {
         "path": "scripts/agent/score-speed-security-hardening.ts",
@@ -328,6 +336,10 @@
         "loc": 966
       },
       {
+        "path": "functions/src/analytics-truth-runtime.ts",
+        "loc": 945
+      },
+      {
         "path": "src/lib/server/creator-onboarding.ts",
         "loc": 932
       },
@@ -344,12 +356,8 @@
         "loc": 888
       },
       {
-        "path": "functions/src/analytics-truth-runtime.ts",
-        "loc": 862
-      },
-      {
         "path": "src/app/api/admin/overview/route.ts",
-        "loc": 858
+        "loc": 859
       },
       {
         "path": "src/app/dashboard/profile/hooks/useProfileState.tsx",
@@ -370,6 +378,10 @@
       {
         "path": "src/lib/server/admin-analytics-historical-content.ts",
         "loc": 836
+      },
+      {
+        "path": "scripts/agent/validate-phase-one-lock.ts",
+        "loc": 827
       },
       {
         "path": "src/lib/server/analytics-metrics.ts",

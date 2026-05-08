@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-cut over analytics and behavioral materializers so they consume canonical runtime facts and metric facts only
+Finish creator public profiles as fan conversion pages
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,11 +10,7 @@ cut over analytics and behavioral materializers so they consume canonical runtim
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- functions/src/behavioral-intelligence-runtime.ts
-- functions/src/analytics-truth-cli.ts
-- scripts/rebuild-behavioral-intelligence.ts
-- scripts/rebuild-analytics-truth.ts
-- src/lib/server/admin-analytics-materializers.ts
+- src/app/creators/[username]/page.tsx
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -25,23 +21,13 @@ cut over analytics and behavioral materializers so they consume canonical runtim
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- functions/src/behavioral-intelligence-runtime.ts
-- npm run agent:test -- functions/src/analytics-truth-cli.ts
-- npm run agent:test -- scripts/rebuild-behavioral-intelligence.ts
-- npm run agent:test -- scripts/rebuild-analytics-truth.ts
-- npm run check:telemetry
-- npm run check:analytics-semantics
-- npm --prefix functions run check
-- npm run check:agent-context
+- npm run agent:test -- src/app/creators/[username]/page.tsx
+- npm run check:ui:coverage
+- npm run check:ui:runtime
 
 ## Signoff Verification
-- npm run check:analytics:continuity
-- npm run check:inventory
-- npm run check:architecture
-- npm run check:agent-intelligence
-- npm run eval:agent-context
-- npm run check:continuity
+- npm run check:ui:audits
 
 ## Notes
-- Mode: server
+- Mode: user
 - Format follow-up implementation prompts like an issue: goal, acceptance criteria, entrypoints, forbidden surfaces, and exact verification lanes.

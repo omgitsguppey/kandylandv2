@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:57:55.538Z",
+  "generatedAt": "2026-05-08T03:40:22.995Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1120,7 +1120,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778127730868:507f62effd18",
+      "recency": "1778205419584:d49009d3e003",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1144,7 +1144,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1778192066652:cab8f1478742",
+      "recency": "1778206388517:c543fede8e0e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1320,7 +1320,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1778127730866:16978be8609d",
+      "recency": "1778205409986:f74260b2f9ff",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1476,7 +1476,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778100079399:ac58bd6fb963",
+      "recency": "1778203073949:eb023b93ed48",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1502,7 +1502,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778100079401:c866ad7f172e",
+      "recency": "1778203073954:feedf3031e86",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1530,7 +1530,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778100079397:9cc3105d9249",
+      "recency": "1778203127883:ebb3413149a0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1556,7 +1556,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198091164:a22a934e4d16",
+      "recency": "1778211240665:49900da71949",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1582,7 +1582,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198091160:4fe09f241248",
+      "recency": "1778211240671:19e5a9cd4fd4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1608,7 +1608,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198091999:36be2b92d9c5",
+      "recency": "1778211240676:a80aab4f83cb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1634,7 +1634,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198091177:8234fdc6954c",
+      "recency": "1778211240680:a4f195eba11e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1660,7 +1660,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778194554081:187513338c09",
+      "recency": "1778209692801:bc9ba69a64aa",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1688,7 +1688,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198091169:2a285d12268c",
+      "recency": "1778211240686:4520f2256ea6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1740,7 +1740,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198092003:525db26cabb7",
+      "recency": "1778211240691:7026e3d2f0f1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1768,7 +1768,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778192704324:e9d312911fc6",
+      "recency": "1778209371211:dcafef89bb8a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1794,7 +1794,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198091175:26dc5109e019",
+      "recency": "1778211240698:7909cd45f556",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2342,7 +2342,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090774:b0ae48983252",
+      "recency": "1778211240720:7ef6cad32091",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2370,7 +2370,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090708:56570ad4bbda",
+      "recency": "1778211240726:20bb41c80f38",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2398,7 +2398,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090762:912d4fc4a8d7",
+      "recency": "1778211240733:6dcb1b984197",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2426,7 +2426,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090742:7d1e561976e6",
+      "recency": "1778211240738:34ca97d971b6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2454,7 +2454,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090744:5c3d1866312c",
+      "recency": "1778211240744:c97e28de3b69",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2482,7 +2482,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090731:087ca5ec9985",
+      "recency": "1778211240749:2908c9c36c37",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2510,7 +2510,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090747:cf0e4f54f66b",
+      "recency": "1778211240754:d594e58e0c68",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2538,7 +2538,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090656:d5c3b10138a8",
+      "recency": "1778211240777:988b011bf533",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2566,7 +2566,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090796:a7fb021bbb99",
+      "recency": "1778211240805:69603b00da92",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2594,7 +2594,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090751:5e9b5bfe18fa",
+      "recency": "1778211240811:3769866173b4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2622,7 +2622,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090701:da7098eb391f",
+      "recency": "1778211240815:b70afca9c3eb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2650,7 +2650,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198245092:6508977459d5",
+      "recency": "1778211590258:28b0b20e5e9d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2678,7 +2678,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090717:9a757d716931",
+      "recency": "1778211240837:89b94eb81cce",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2706,7 +2706,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198090737:06362e0438c2",
+      "recency": "1778211240846:67fb5a4a70fc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2734,7 +2734,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198207175:0e0980aa2e99",
+      "recency": "1778211240849:7453fb2cec84",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2762,7 +2762,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198103944:b1067da39811",
+      "recency": "1778211240855:c39d939853d8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2788,7 +2788,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198103936:621b65aa2d03",
+      "recency": "1778211240859:29c516b2a3d6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2814,7 +2814,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198103940:3eaf17b80266",
+      "recency": "1778211240862:0d72d9a7bb34",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2840,7 +2840,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198103977:a888dbdab9d5",
+      "recency": "1778211240867:626ea3f14e6b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3474,7 +3474,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778193646601:991e3ba86332",
+      "recency": "1778209338326:8ab191af55b7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4282,7 +4282,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198207170:b8de8c6d049f",
+      "recency": "1778211240873:56c7c41c51ad",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4311,6 +4311,34 @@
         "broad_signoff"
       ],
       "recency": "1777702799566:bd24e9edd058",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "file__agent__state__generated-report-authority-generated-json",
+      "source_type": "file",
+      "source_id": "file__agent__state__generated-report-authority-generated-json",
+      "searchable_terms": [
+        "agent/state/generated-report-authority.generated.json",
+        "agent_state",
+        "agent_intelligence"
+      ],
+      "surface_tags": [
+        "agent_intelligence",
+        "agent_state"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1778209405589:88e00335913b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4878,6 +4906,34 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "file__agent__state__phase-one-lock-generated-json",
+      "source_type": "file",
+      "source_id": "file__agent__state__phase-one-lock-generated-json",
+      "searchable_terms": [
+        "agent/state/phase-one-lock.generated.json",
+        "agent_state",
+        "agent_intelligence"
+      ],
+      "surface_tags": [
+        "agent_intelligence",
+        "agent_state"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1778210426967:72d65162ed7f",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "file__agent__state__precatch-runtime-issues-generated-json",
       "source_type": "file",
       "source_id": "file__agent__state__precatch-runtime-issues-generated-json",
@@ -5118,7 +5174,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778194280986:7539043af401",
+      "recency": "1778207960694:89b29d9793c6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5146,7 +5202,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778194280980:6a3fbd0b9e59",
+      "recency": "1778207960692:2df43c01cd1f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5202,7 +5258,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198103932:dc028da43b72",
+      "recency": "1778211240877:aee599d6017c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5436,6 +5492,34 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "file__agent__state__user-critical-path-lock-generated-json",
+      "source_type": "file",
+      "source_id": "file__agent__state__user-critical-path-lock-generated-json",
+      "searchable_terms": [
+        "agent/state/user-critical-path-lock.generated.json",
+        "agent_state",
+        "agent_intelligence"
+      ],
+      "surface_tags": [
+        "agent_intelligence",
+        "agent_state"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1778211249607:8a966c3d09f3",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "file__agent__state__verification-plan-generated-json",
       "source_type": "file",
       "source_id": "file__agent__state__verification-plan-generated-json",
@@ -5452,7 +5536,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778198103972:b4dcb5009bc7",
+      "recency": "1778211240880:23c9650965cf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -6557,7 +6641,7 @@
       "risk_tags": [
         "dataconnect"
       ],
-      "recency": "1778194146143:846f23ab7e86",
+      "recency": "1778207960681:e70cc8ee5bd5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -6583,7 +6667,7 @@
       "risk_tags": [
         "dataconnect"
       ],
-      "recency": "1778194146150:c13a909a3541",
+      "recency": "1778207960687:253ff0e343ce",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -6703,7 +6787,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1778063929419:55020a340b61",
+      "recency": "1778202555254:e63c255cea99",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -7207,7 +7291,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1778085848769:2ab2a3c1587a",
+      "recency": "1778202555258:873b8e48dfc2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -7889,6 +7973,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__docs__agent-truth__chat-paid-gumdrops-guidance-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__chat-paid-gumdrops-guidance-md",
+      "searchable_terms": [
+        "docs/agent-truth/chat-paid-gumdrops-guidance.md",
+        "other",
+        "economics"
+      ],
+      "surface_tags": [
+        "economics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1778204305869:d3590e7c87b9",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__docs__agent-truth__cloudrun-sql-bigquery-guardrails-md",
       "source_type": "file",
       "source_id": "file__docs__agent-truth__cloudrun-sql-bigquery-guardrails-md",
@@ -8191,7 +8299,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777881565491:7e1e05b92ece",
+      "recency": "1778204330809:46f333844100",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8887,7 +8995,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777702799569:4e3c1f022cdb",
+      "recency": "1778202555266:af944e58a39e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9031,7 +9139,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1778085848781:c5865900197c",
+      "recency": "1778204317819:ca8a3ab1e2e8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9151,7 +9259,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777662268288:4bffff0dcce8",
+      "recency": "1778202555269:10c9941ef4ff",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9175,7 +9283,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777863542295:5e02128e3c83",
+      "recency": "1778202555273:59779440fa53",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9416,6 +9524,30 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1778067503347:80b3d8f944a8",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__phase-one-lock-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__phase-one-lock-md",
+      "searchable_terms": [
+        "docs/agent-truth/phase-one-lock.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1778210257850:5fd26732b00c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9929,6 +10061,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__docs__agent-truth__user-critical-path-lock-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__user-critical-path-lock-md",
+      "searchable_terms": [
+        "docs/agent-truth/user-critical-path-lock.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1778211260986:0a76093e431a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__docs__agent-truth__user-engagement-score-md",
       "source_type": "file",
       "source_id": "file__docs__agent-truth__user-engagement-score-md",
@@ -10207,7 +10363,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1778194146140:832862d7135d",
+      "recency": "1778207960690:6dd37df8b03e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11356,7 +11512,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778194094689:3af6d9878f8d",
+      "recency": "1778207901738:dafbc8f15c3d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11642,7 +11798,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778194094700:71e6e716442d",
+      "recency": "1778207901736:82cef80ea039",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11694,7 +11850,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778191292411:94c611908d01",
+      "recency": "1778199158137:1725daa66587",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11772,7 +11928,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778195343171:831303acd61f",
+      "recency": "1778207901742:51aa9db45c23",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12522,7 +12678,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778197599200:379fefedf302",
+      "recency": "1778211003645:ba403900f776",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12764,7 +12920,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1778191991680:701fe81e0d4c",
+      "recency": "1778206388510:4b06c3441dc6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13996,7 +14152,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777958645189:ba2ccc96872d",
+      "recency": "1778202555243:183717cb786a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14482,7 +14638,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778192723513:01f054205697",
+      "recency": "1778202520445:07da8c7a1530",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14995,7 +15151,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778099162644:8a4a6097c189",
+      "recency": "1778202555246:6b447838e53b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15293,6 +15449,33 @@
         "broad_signoff"
       ],
       "recency": "1777928099669:1f4c543bbfaa",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__score-validator-authority-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__score-validator-authority-ts",
+      "searchable_terms": [
+        "scripts/agent/score-validator-authority.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778205391862:415e954b5a0a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15734,6 +15917,33 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__agent__validate-admin-pages-cutover-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-admin-pages-cutover-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-admin-pages-cutover.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778199920089:7c69e098bf85",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__agent__validate-admin-projection-analytics-exclusion-ts",
       "source_type": "file",
       "source_id": "file__scripts__agent__validate-admin-projection-analytics-exclusion-ts",
@@ -15752,6 +15962,33 @@
         "broad_signoff"
       ],
       "recency": "1777942866618:5d0acac68fba",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-admin-realtime-cutover-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-admin-realtime-cutover-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-admin-realtime-cutover.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778207132661:b602054812f0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15860,6 +16097,33 @@
         "broad_signoff"
       ],
       "recency": "1778193536550:9adfd5d7e9fc",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-admin-ui-primitives-cutover-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-admin-ui-primitives-cutover-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-admin-ui-primitives-cutover.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778200674150:579eae6af72a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16399,7 +16663,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778191666780:270563126427",
+      "recency": "1778206038573:013221ba46ba",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16426,7 +16690,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778191683620:9a9d8ea5f80d",
+      "recency": "1778206080494:4072ff7cb3fa",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16454,6 +16718,33 @@
         "broad_signoff"
       ],
       "recency": "1778127730861:df4dcc81c2a0",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-chat-paid-gumdrops-guidance-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-chat-paid-gumdrops-guidance-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-chat-paid-gumdrops-guidance.ts",
+        "repo_intelligence_tooling",
+        "economics"
+      ],
+      "surface_tags": [
+        "economics",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778204244287:85fb4b62787e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17219,6 +17510,33 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__agent__validate-debug-control-tower-cutover-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-debug-control-tower-cutover-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-debug-control-tower-cutover.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778201842548:54c358019bcd",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__agent__validate-debug-evidence-pipeline-ts",
       "source_type": "file",
       "source_id": "file__scripts__agent__validate-debug-evidence-pipeline-ts",
@@ -17921,6 +18239,35 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__agent__validate-generated-report-authority-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-generated-report-authority-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-generated-report-authority.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778205434516:e364c712e042",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "file__scripts__agent__validate-global-cost-surfaces-ts",
       "source_type": "file",
       "source_id": "file__scripts__agent__validate-global-cost-surfaces-ts",
@@ -18262,7 +18609,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777662268291:c88d8bc20866",
+      "recency": "1778202555248:c3924c69802f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -18398,6 +18745,33 @@
         "broad_signoff"
       ],
       "recency": "1777699206919:291d26c9c4ed",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-materializers-cutover-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-materializers-cutover-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-materializers-cutover.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778199024899:7bd87fd2b5b8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -18623,6 +18997,33 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__agent__validate-phase-one-lock-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-phase-one-lock-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-phase-one-lock.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778210418113:c2c8144755b7",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__agent__validate-platform-economy-commerce-controls-ts",
       "source_type": "file",
       "source_id": "file__scripts__agent__validate-platform-economy-commerce-controls-ts",
@@ -18704,6 +19105,33 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__agent__validate-privacy-import-export-cutover-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-privacy-import-export-cutover-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-privacy-import-export-cutover.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778208003677:4708634356ed",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__agent__validate-public-beta-changelog-ts",
       "source_type": "file",
       "source_id": "file__scripts__agent__validate-public-beta-changelog-ts",
@@ -18721,7 +19149,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778191675709:4519e13af9bb",
+      "recency": "1778206053049:9f31d5e484d7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -18857,6 +19285,33 @@
         "broad_signoff"
       ],
       "recency": "1777654550254:f657586ac7a5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-release-notes-cutover-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-release-notes-cutover-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-release-notes-cutover.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778206237405:64bb3c9db5f6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19487,6 +19942,33 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__agent__validate-user-critical-path-lock-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-user-critical-path-lock-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-user-critical-path-lock.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778211141124:04c6f3b820e0",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__agent__validate-user-engagement-score-ts",
       "source_type": "file",
       "source_id": "file__scripts__agent__validate-user-engagement-score-ts",
@@ -19558,7 +20040,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778192918788:6b3cf3d9ee0c",
+      "recency": "1778202730857:37f1a329accb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19730,6 +20212,33 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__agent__validator-authority-shared-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validator-authority-shared-ts",
+      "searchable_terms": [
+        "scripts/agent/validator-authority-shared.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778202669083:b93ec1da35dc",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__agent__verification-selector-ts",
       "source_type": "file",
       "source_id": "file__scripts__agent__verification-selector-ts",
@@ -19878,7 +20387,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778194316823:01311a5ac5b4",
+      "recency": "1778207940018:3b6c379b3e5b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20972,7 +21481,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778194094692:a5f0161eee41",
+      "recency": "1778207886432:9e168fe00a71",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20998,7 +21507,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778194094694:080bb215a57f",
+      "recency": "1778207886435:09312a92d0d3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21050,7 +21559,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1778191970781:b7f7602afa73",
+      "recency": "1778206226498:66074ce0c3e8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21946,7 +22455,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777866527162:8dafca6ca0cd",
+      "recency": "1778210882912:48612641caef",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21998,7 +22507,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778193693527:567c8809fa15",
+      "recency": "1778200785412:8723e554fd79",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22726,7 +23235,33 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778189265874:de50dc2fc711",
+      "recency": "1778201813394:abc3d154e0b6",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugcontroltowerbusinesstruth-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugcontroltowerbusinesstruth-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1778201813375:9a867fe65612",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22882,7 +23417,33 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778193627741:536b8264e1b4",
+      "recency": "1778200621986:8d2dfce811e5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugruntimeevidencegroups-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugruntimeevidencegroups-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1778201813383:b3b981b7aa05",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23038,7 +23599,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778189295547:cd4ef8519485",
+      "recency": "1778201448514:88087cd32aa5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23376,7 +23937,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778060712142:787c000a596b",
+      "recency": "1778200785419:a7b70d4fdff9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23532,7 +24093,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778195327005:05698a8fe46f",
+      "recency": "1778199920085:e1cec367b79a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23558,7 +24119,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778195396857:4fb0ab7cedd2",
+      "recency": "1778199640356:85f307a034ed",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24234,7 +24795,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777898143415:ff239c65bb81",
+      "recency": "1778201312140:1badaf0248e3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24624,7 +25185,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778186185732:8c7e00aebf2d",
+      "recency": "1778199588794:e9dfd10948f1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24962,7 +25523,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778192319253:75c264636615",
+      "recency": "1778206909173:9a685cb926f1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -26236,7 +26797,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778067436507:eec320a1e71b",
+      "recency": "1778203850742:eac8dfa61ded",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -28560,6 +29121,32 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__components__admin__adminmetriccard-tsx",
+      "source_type": "file",
+      "source_id": "file__src__components__admin__adminmetriccard-tsx",
+      "searchable_terms": [
+        "src/components/Admin/AdminMetricCard.tsx",
+        "component",
+        "ui_component"
+      ],
+      "surface_tags": [
+        "ui_component",
+        "component"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1778200532924:182d5116dc89",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__components__admin__adminmoderationconsole-tsx",
       "source_type": "file",
       "source_id": "file__src__components__admin__adminmoderationconsole-tsx",
@@ -28628,7 +29215,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778193395634:a43a25699abd",
+      "recency": "1778200586115:64f4a43774df",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -28706,7 +29293,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778193395630:a6a615b05039",
+      "recency": "1778200785409:c7c217d7f4b0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -28810,7 +29397,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777913074615:8f0ef6569c07",
+      "recency": "1778200532928:6eb0b2b93d8c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -29590,7 +30177,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1778111571369:be2c05f9baed",
+      "recency": "1778210927073:6bf90974e07f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -31332,7 +31919,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777939676010:03e7cdca30b2",
+      "recency": "1778210910990:da60e1f2ef0b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -31849,7 +32436,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1778192393005:57f9eff7b39e",
+      "recency": "1778206996891:2f6a02afc59c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -31957,7 +32544,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1778192312529:dd7b1b22e9c2",
+      "recency": "1778206894649:be77dcd9abb7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -32749,7 +33336,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778192403837:8b7a46377f05",
+      "recency": "1778206916284:8e2809d67317",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -33085,7 +33672,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778063033097:627235ecd77b",
+      "recency": "1778201299958:4dc857675672",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -33170,6 +33757,34 @@
         "broad_signoff"
       ],
       "recency": "1778042104161:89b3811ec817",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-debug__control-tower-truth-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-debug__control-tower-truth-ts",
+      "searchable_terms": [
+        "src/lib/admin-debug/control-tower-truth.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778201285709:ac85fd6eed46",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -33533,7 +34148,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778060414689:8948af71a682",
+      "recency": "1778206925691:261c29d52f4b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -33729,7 +34344,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778185927105:01692570c880",
+      "recency": "1778200785405:0abdfcec53dd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -33842,6 +34457,62 @@
         "broad_signoff"
       ],
       "recency": "1778185891584:ed159c6bb8b4",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin__admin-page-data-contract-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin__admin-page-data-contract-ts",
+      "searchable_terms": [
+        "src/lib/admin/admin-page-data-contract.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778199920070:719c0ee09cb5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin__admin-realtime-policy-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin__admin-realtime-policy-ts",
+      "searchable_terms": [
+        "src/lib/admin/admin-realtime-policy.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778206875396:c68b3844e669",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -34635,6 +35306,34 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__lib__analytics__import-export-truth-policy-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__analytics__import-export-truth-policy-ts",
+      "searchable_terms": [
+        "src/lib/analytics/import-export-truth-policy.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778207849713:8608d84c4556",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__lib__analytics__legacy-event-mapping-ts",
       "source_type": "file",
       "source_id": "file__src__lib__analytics__legacy-event-mapping-ts",
@@ -35083,6 +35782,34 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__lib__behavioral__privacy-aware-scoring-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__behavioral__privacy-aware-scoring-ts",
+      "searchable_terms": [
+        "src/lib/behavioral/privacy-aware-scoring.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778207849711:6dcb61ab47ea",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__lib__behavioral__review-badge-rules-ts",
       "source_type": "file",
       "source_id": "file__src__lib__behavioral__review-badge-rules-ts",
@@ -35521,7 +36248,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775770417308:25d2d4b0be5e",
+      "recency": "1778210887378:d34f7ae235c0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -35605,7 +36332,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775851596945:5684ef9cd914",
+      "recency": "1778203732500:3f72b839364d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -37211,6 +37938,34 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__lib__generated-reports__generated-report-contract-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__generated-reports__generated-report-contract-ts",
+      "searchable_terms": [
+        "src/lib/generated-reports/generated-report-contract.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778205335765:03dba28641e7",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__lib__gumdrop-economics-ts",
       "source_type": "file",
       "source_id": "file__src__lib__gumdrop-economics-ts",
@@ -37622,6 +38377,62 @@
         "broad_signoff"
       ],
       "recency": "1773786005481:7ca3859f3e05",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__materializers__materializer-contract-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__materializers__materializer-contract-ts",
+      "searchable_terms": [
+        "src/lib/materializers/materializer-contract.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778198762363:f073ceeef41a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__materializers__materializer-source-policy-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__materializers__materializer-source-policy-ts",
+      "searchable_terms": [
+        "src/lib/materializers/materializer-source-policy.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778198762366:965b896afed2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -38573,7 +39384,35 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778192066648:556c5cc86027",
+      "recency": "1778206388513:7ad1ea6c4b28",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__release-notes__release-note-classifier-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__release-notes__release-note-classifier-ts",
+      "searchable_terms": [
+        "src/lib/release-notes/release-note-classifier.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778205846033:d4db0e232537",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -38601,7 +39440,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778192045684:4ee5c2d01a22",
+      "recency": "1778206388528:8313c1fd64cb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -39161,7 +40000,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777568587831:add69691e8a4",
+      "recency": "1778199043320:a2097c00fd45",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -39302,6 +40141,34 @@
         "broad_signoff"
       ],
       "recency": "1778066167296:0333f36c69ab",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__server__admin-debug-control-tower-loader-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__server__admin-debug-control-tower-loader-ts",
+      "searchable_terms": [
+        "src/lib/server/admin-debug-control-tower-loader.ts",
+        "server_helper",
+        "server_runtime"
+      ],
+      "surface_tags": [
+        "server_runtime",
+        "server_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778201285714:eaf5bb04baca",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -39498,6 +40365,34 @@
         "broad_signoff"
       ],
       "recency": "1778035770362:cd7dbf888572",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__server__admin-page-data-loader-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__server__admin-page-data-loader-ts",
+      "searchable_terms": [
+        "src/lib/server/admin-page-data-loader.ts",
+        "server_helper",
+        "server_runtime"
+      ],
+      "surface_tags": [
+        "server_runtime",
+        "server_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1778199552350:d4a30133ad7e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -40169,7 +41064,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777745311914:373031742730",
+      "recency": "1778204594605:90eb72cc2eb3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -41681,7 +42576,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778195192051:e85583379abc",
+      "recency": "1778207871845:65d554b4d8b2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -41709,7 +42604,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778195204661:7966b91c23df",
+      "recency": "1778207871847:a99ce5ec9d61",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -42017,7 +42912,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778188057347:f5f9fe4f3376",
+      "recency": "1778204190519:43396af99a4e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -42073,7 +42968,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1778196221254:4816d67f8981",
+      "recency": "1778207916327:7df78fdbe829",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -43161,7 +44056,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1778026600370:91d0f4123576",
+      "recency": "1778203746364:27b53e1ddc65",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -45822,7 +46717,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777669119778:7c9bf5d54c45",
+      "recency": "1778207159618:f88d7e7e1dc8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -46696,6 +47591,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__chat-paid-gumdrops-guidance-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__chat-paid-gumdrops-guidance-spec-ts",
+      "searchable_terms": [
+        "tests/unit/chat-paid-gumdrops-guidance.spec.ts",
+        "tests",
+        "economics"
+      ],
+      "surface_tags": [
+        "economics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1778204274787:9a02c5c2e9c1",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__chat-route-shell-spec-tsx",
       "source_type": "file",
       "source_id": "file__tests__unit__chat-route-shell-spec-tsx",
@@ -46734,7 +47653,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775770429240:3c1dc7f353f1",
+      "recency": "1778210892449:0baaadf0bcdb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"

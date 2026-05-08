@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:57:56.076Z",
+  "generatedAt": "2026-05-08T03:40:23.575Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -152,7 +152,7 @@
       "surface": "admin-debug",
       "sourceDoc": "docs/agent-truth/admin-debug-control-tower.md",
       "priority": "high",
-      "tokenEstimate": 217,
+      "tokenEstimate": 220,
       "cardJsonl": "agent/context/doctrine.cards.jsonl"
     },
     {
@@ -161,7 +161,7 @@
       "surface": "ai-panel",
       "sourceDoc": "docs/agent-truth/admin-debug-control-tower.md",
       "priority": "high",
-      "tokenEstimate": 208,
+      "tokenEstimate": 212,
       "cardJsonl": "agent/context/doctrine.cards.jsonl"
     },
     {

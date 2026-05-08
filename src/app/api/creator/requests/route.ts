@@ -25,6 +25,22 @@ import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers
 
 const CREATOR_REQUESTS_READ_LIMIT = 200;
 
+type CreatorRequestProblemCode =
+    | "creator_or_user_not_found"
+    | "creator_unavailable"
+    | "requests_unavailable"
+    | "insufficient_paid_gumdrops"
+    | "invalid_request"
+    | "unauthorized";
+
+type CreatorRequestProblemContext = {
+    creatorId?: string;
+    categoryId?: string;
+    priceGd?: number;
+    paidBalanceGd?: number;
+    shortfallGd?: number;
+};
+
 type CreatorRequestRecord = Record<string, unknown> & {
     id: string;
     createdAt?: unknown;
@@ -42,6 +58,38 @@ const updateRequestSchema = z.object({
     action: z.enum(["accept", "decline", "fulfill"]),
     responseNote: z.string().trim().max(600).optional(),
 });
+
+class CreatorRequestProblem extends Error {
+    status: number;
+    code: CreatorRequestProblemCode;
+    context: CreatorRequestProblemContext;
+
+    constructor(status: number, code: CreatorRequestProblemCode, message: string, context: CreatorRequestProblemContext = {}) {
+        super(message);
+        this.name = "CreatorRequestProblem";
+        this.status = status;
+        this.code = code;
+        this.context = context;
+    }
+}
+
+function toOptionalNumber(value: unknown) {
+    return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.round(value)) : undefined;
+}
+
+function buildRequestProblemResponse(problem: CreatorRequestProblem) {
+    return NextResponse.json({
+        success: false,
+        code: problem.code,
+        error: problem.message,
+        message: problem.message,
+        creatorId: problem.context.creatorId,
+        categoryId: problem.context.categoryId,
+        priceGd: toOptionalNumber(problem.context.priceGd),
+        paidBalanceGd: toOptionalNumber(problem.context.paidBalanceGd),
+        shortfallGd: toOptionalNumber(problem.context.shortfallGd),
+    }, { status: problem.status });
+}
 
 async function GET_handler(request: NextRequest) {
     try {
@@ -94,7 +142,12 @@ async function POST_handler(request: NextRequest) {
 
         const { creatorId, categoryId, details, idempotencyKey: rawIdempotencyKey } = createRequestSchema.parse(await request.json());
         if (creatorId === caller.uid) {
-            return NextResponse.json({ error: "Custom requests are for fans only." }, { status: 400 });
+            return buildRequestProblemResponse(new CreatorRequestProblem(
+                400,
+                "invalid_request",
+                "Custom requests are for fans only.",
+                { creatorId, categoryId },
+            ));
         }
 
         const paidEventName = CREATOR_EXPERIENCE_PAID_EVENTS.custom_request;
@@ -140,13 +193,23 @@ async function POST_handler(request: NextRequest) {
             ]);
 
             if (!creatorSnap.exists || !userSnap.exists) {
-                throw new Error("Creator or user not found");
+                throw new CreatorRequestProblem(
+                    404,
+                    "creator_or_user_not_found",
+                    "We could not find this creator.",
+                    { creatorId, categoryId },
+                );
             }
 
             const creatorData = creatorSnap.data() as Record<string, unknown>;
             const userData = userSnap.data() as Record<string, unknown>;
             if (!isCreatorRole(creatorData.role) || creatorData.status === "suspended" || creatorData.status === "banned") {
-                throw new Error("Creator unavailable");
+                throw new CreatorRequestProblem(
+                    403,
+                    "creator_unavailable",
+                    "This creator is unavailable right now.",
+                    { creatorId, categoryId },
+                );
             }
 
             const creatorSettings = creatorData.creatorSettings && typeof creatorData.creatorSettings === "object"
@@ -156,7 +219,12 @@ async function POST_handler(request: NextRequest) {
                 ? creatorData.creatorRestrictions as Record<string, unknown>
                 : {};
             if (creatorSettings.customRequestsEnabled === false || creatorRestrictions.customRequestsRestricted === true) {
-                throw new Error("Custom requests are unavailable for this creator.");
+                throw new CreatorRequestProblem(
+                    409,
+                    "requests_unavailable",
+                    "Custom requests are not available for this creator right now.",
+                    { creatorId, categoryId },
+                );
             }
 
             const categories = Array.isArray(creatorSettings.requestCategories)
@@ -164,7 +232,12 @@ async function POST_handler(request: NextRequest) {
                 : [];
             const selectedCategory = categories.find((entry) => entry.id === categoryId && entry.enabled !== false);
             if (!selectedCategory) {
-                throw new Error("This custom request category is unavailable.");
+                throw new CreatorRequestProblem(
+                    400,
+                    "invalid_request",
+                    "Check the request details and try again.",
+                    { creatorId, categoryId },
+                );
             }
 
             const priceGd = typeof selectedCategory.priceGd === "number" ? Math.round(selectedCategory.priceGd) : 0;
@@ -192,7 +265,18 @@ async function POST_handler(request: NextRequest) {
             }
             const spend = spendCreatorExperienceGumdrops(balance, priceGd, "custom_request");
             if (!spend.ok) {
-                throw new Error(spend.error);
+                throw new CreatorRequestProblem(
+                    402,
+                    "insufficient_paid_gumdrops",
+                    "You need more paid GumDrops to send this request.",
+                    {
+                        creatorId,
+                        categoryId,
+                        priceGd,
+                        paidBalanceGd: balance.purchased,
+                        shortfallGd: Math.max(0, priceGd - balance.purchased),
+                    },
+                );
             }
 
             const now = Date.now();
@@ -316,6 +400,9 @@ async function POST_handler(request: NextRequest) {
             debug: result.debug,
         });
     } catch (error) {
+        if (error instanceof CreatorRequestProblem) {
+            return buildRequestProblemResponse(error);
+        }
         return handleApiError(error, "Creator.Requests.POST");
     }
 }

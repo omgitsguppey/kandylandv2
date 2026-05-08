@@ -1,29 +1,20 @@
 Verification plan
 
-Matched paths: functions/src/behavioral-intelligence-runtime.ts, functions/src/analytics-truth-cli.ts, scripts/rebuild-behavioral-intelligence.ts, scripts/rebuild-analytics-truth.ts, src/lib/server/admin-analytics-materializers.ts
-Broad work: yes
-Touched domains: functions, repo_tooling, shared_server_helpers
+Matched paths: src/app/creators/[username]/page.tsx
+Broad work: no
+Touched domains: app_routes, creator_onboarding
 
 Fast loop:
 - npm run typecheck  # TypeScript or runtime code changed.
-- npm run agent:test -- functions/src/behavioral-intelligence-runtime.ts  # Run the narrowest related contract/unit tests first.
-- npm run agent:test -- functions/src/analytics-truth-cli.ts  # Run the narrowest related contract/unit tests first.
-- npm run agent:test -- scripts/rebuild-behavioral-intelligence.ts  # Run the narrowest related contract/unit tests first.
-- npm run agent:test -- scripts/rebuild-analytics-truth.ts  # Run the narrowest related contract/unit tests first.
-- npm run check:telemetry  # Telemetry or analytics semantics changed.
-- npm run check:analytics-semantics  # Canonical analytics naming/schema must remain aligned.
-- npm --prefix functions run check  # Functions runtime/manifests changed.
-- npm run check:agent-context  # Repo intelligence outputs should stay internally valid.
+- npm run agent:test -- src/app/creators/[username]/page.tsx  # Run the narrowest related contract/unit tests first.
+- npm run check:ui:coverage  # Indexed UI/admin surfaces changed.
+- npm run check:ui:runtime  # Hydration/runtime UI continuity should stay truthful.
 
 Signoff loop:
-- npm run check:analytics:continuity  # Analytics continuity needs explicit signoff for behavioral/runtime changes.
-- npm run check:inventory  # Repo-tooling changes must preserve inventory truth.
-- npm run check:architecture  # Repo-tooling/shared-helper changes need architecture validation.
-- npm run check:agent-intelligence  # Agent indexes and helper extraction must stay coherent.
-- npm run eval:agent-context  # Task-context retrieval/eval fixtures changed.
-- npm run check:continuity  # Broad/shared/helper/tooling work requires continuity signoff.
+- npm run check:ui:audits  # UI/admin signoff requires Playwright audit coverage.
 
 Advisories:
+- Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.
 - Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff.
 
 Forbidden surfaces by default:

@@ -1,0 +1,121 @@
+{
+  "generatedAt": "2026-05-08T03:52:48.695Z",
+  "status": "pass",
+  "criticalBlockers": [],
+  "warnings": [],
+  "changedFilesSinceLastCreatorPublicProfileLock": [
+    "package.json",
+    "src/app/api/creator/requests/route.ts",
+    "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/components/Creators/CreatorExperiencesPanel.tsx",
+    "src/components/Creators/CreatorProfileHeader.tsx",
+    "src/lib/problem-state-copy.ts",
+    "scripts/agent/validate-creator-public-profile-lock.ts"
+  ],
+  "requiredTargetedChecks": [
+    "npm run check:creator-public-profile-lock",
+    "npm run typecheck"
+  ],
+  "forbiddenBroadChecks": [
+    "npm run check",
+    "playwright",
+    "cypress",
+    "lighthouse",
+    "firebase deploy"
+  ],
+  "promoReadinessNotes": [
+    "Creator public profile now guides fans through follow, browse, message, subscribe, request, and booking states.",
+    "Chat entry explains follow and paid-GD requirements before routing to the chat shell.",
+    "Fan Pass and request/booking flows now surface user copy instead of internal server text."
+  ],
+  "checks": [
+    {
+      "key": "real-creator-data",
+      "label": "Creator profile loads real creator data",
+      "ok": true,
+      "evidence": [
+        "Client fetches /api/creators/[username] and the API sanitizes public drops."
+      ]
+    },
+    {
+      "key": "clean-missing-copy",
+      "label": "Missing/unavailable states use clean copy",
+      "ok": true,
+      "evidence": [
+        "Public profile uses simple unavailable and guest-copy states."
+      ]
+    },
+    {
+      "key": "follow-cta",
+      "label": "Follow CTA is clear",
+      "ok": true,
+      "evidence": [
+        "Header exposes a follow action and the profile tracks follow/unfollow events."
+      ]
+    },
+    {
+      "key": "compact-mobile-layout",
+      "label": "Mobile layout stays compact",
+      "ok": true,
+      "evidence": [
+        "Profile and creator experience sections use compact spacing and responsive grids."
+      ]
+    },
+    {
+      "key": "chat-gating",
+      "label": "Chat CTA checks follow and paid GD",
+      "ok": true,
+      "evidence": [
+        "Profile CTA now blocks to auth, follow, or refill before opening chat."
+      ]
+    },
+    {
+      "key": "fan-pass-copy",
+      "label": "Fan Pass explains paid-only GumDrops",
+      "ok": true,
+      "evidence": [
+        "Fan Pass lane explicitly says reward GD do not count."
+      ]
+    },
+    {
+      "key": "typed-request-errors",
+      "label": "Request and booking CTAs use typed errors",
+      "ok": true,
+      "evidence": [
+        "Creator request and booking routes return typed problem payloads."
+      ]
+    },
+    {
+      "key": "no-content-leak",
+      "label": "Expired/locked drops do not leak content",
+      "ok": true,
+      "evidence": [
+        "Locked drops stay visually blocked and public API payloads are sanitized."
+      ]
+    },
+    {
+      "key": "first-name-guidance",
+      "label": "Creator name and first name are available for guidance copy",
+      "ok": true,
+      "evidence": [
+        "Chat guidance copy can address the creator by first name."
+      ]
+    },
+    {
+      "key": "telemetry-separation",
+      "label": "Route telemetry separates actor and target creator",
+      "ok": true,
+      "evidence": [
+        "Creator profile view telemetry now carries separate viewer and target fields."
+      ]
+    },
+    {
+      "key": "package-script",
+      "label": "Package script is wired",
+      "ok": true,
+      "evidence": [
+        "package.json exposes the creator public-profile lock script."
+      ]
+    }
+  ]
+}

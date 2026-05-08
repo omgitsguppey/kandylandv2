@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:59:42.149Z",
+  "generatedAt": "2026-05-08T03:40:54.073Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,60 +16,44 @@
     "scripts/trace-adjacent-surfaces.ts"
   ],
   "input": {
-    "task": "cut over analytics and behavioral materializers so they consume canonical runtime facts and metric facts only",
-    "mode": "server",
+    "task": "Finish creator public profiles as fan conversion pages",
+    "mode": "user",
     "files": [
-      "functions/src/behavioral-intelligence-runtime.ts",
-      "functions/src/analytics-truth-cli.ts",
-      "scripts/rebuild-behavioral-intelligence.ts",
-      "scripts/rebuild-analytics-truth.ts",
-      "src/lib/server/admin-analytics-materializers.ts"
+      "src/app/creators/[username]/page.tsx"
     ]
   },
-  "gitStatus": "M agent/context/doctrine.index.json\n M agent/context/file-size-budget.json\n M agent/context/legacy-registry.json\n M agent/context/task-pack.generated.json\n M agent/context/validator-map.json\n M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-issue-spec.generated.md\n M agent/state/fast-start.generated.json\n M agent/state/task-context.generated.json\n M agent/state/verification-plan.generated.json",
-  "taskContextStableId": "taskctx__server-cut-over-analytics-and-behavioral-materializers-so-they-consume-canonical-runtime-facts-and-metric-facts-only",
+  "gitStatus": "M agent/context/doctrine.cards.jsonl\n M agent/context/doctrine.index.json\n M agent/context/file-size-budget.json\n M agent/context/legacy-registry.json\n M agent/context/surface-contracts.jsonl\n M agent/context/task-pack.generated.json\n M agent/context/validator-map.json\n M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-prompt.deep.md\n M agent/prompts/task-prompt.short.md\n M agent/prompts/task-prompt.standard.md\n M agent/prompts/verification-plan.generated.md\n M agent/state/task-context.generated.json\n M agent/state/verification-plan.generated.json",
+  "taskContextStableId": "taskctx__user-finish-creator-public-profiles-as-fan-conversion-pages",
   "likelyTouchedFiles": [
-    "functions/src/analytics-truth-cli.ts",
-    "functions/src/behavioral-intelligence-runtime.ts",
-    "src/lib/server/admin-analytics-materializers.ts",
-    "scripts/rebuild-analytics-truth.ts",
-    "scripts/rebuild-behavioral-intelligence.ts",
-    "src/lib/analytics/admin-metric-snapshot.ts",
-    "src/app/api/admin/debug/route.ts",
-    "src/app/api/admin/analytics/refresh/route.ts",
-    "src/lib/behavioral/behavioral-math-calibration.ts",
-    "src/lib/admin-parity.ts",
-    "src/lib/telemetry.ts",
-    "src/lib/server/analytics.ts"
+    "src/app/creators/[username]/page.tsx",
+    "src/lib/creator-experiences.ts",
+    "src/lib/creator-profile-routing.ts",
+    "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/lib/creator-onboarding.ts",
+    "src/components/CreatorDiscoveryRail.tsx",
+    "src/lib/creator-admin.ts",
+    "src/lib/creator-agreement-documents.ts",
+    "src/lib/creator-agreement-signature-ux.ts",
+    "src/lib/creator-agreement-version.ts",
+    "src/lib/creator-application.ts",
+    "src/lib/creator-contract.ts"
   ],
   "canonicalHelpersToReuse": [
-    "src/lib/telemetry.ts",
-    "src/lib/server/auth.ts",
-    "src/lib/route-runtime-health.ts",
-    "src/lib/server/admin-panel-system-logs.ts",
-    "src/lib/server/request-guard.ts",
-    "src/lib/server/route-diagnostics.ts",
-    "src/lib/server/route-runtime-health.ts",
-    "src/lib/server/server-diagnostics.ts"
+    "src/lib/creator-onboarding.ts",
+    "src/lib/server/creator-onboarding.ts",
+    "src/lib/tasks/task-catalog.ts",
+    "src/lib/tasks/task-observability.ts",
+    "src/lib/telemetry-catalog.ts",
+    "src/lib/server/route-diagnostics.ts"
   ],
   "fastVerificationCommands": [
     "npm run typecheck",
-    "npm run agent:test -- functions/src/behavioral-intelligence-runtime.ts",
-    "npm run agent:test -- functions/src/analytics-truth-cli.ts",
-    "npm run agent:test -- scripts/rebuild-behavioral-intelligence.ts",
-    "npm run agent:test -- scripts/rebuild-analytics-truth.ts",
-    "npm run check:telemetry",
-    "npm run check:analytics-semantics",
-    "npm --prefix functions run check",
-    "npm run check:agent-context"
+    "npm run agent:test -- src/app/creators/[username]/page.tsx",
+    "npm run check:ui:coverage",
+    "npm run check:ui:runtime"
   ],
   "signoffVerificationCommands": [
-    "npm run check:analytics:continuity",
-    "npm run check:inventory",
-    "npm run check:architecture",
-    "npm run check:agent-intelligence",
-    "npm run eval:agent-context",
-    "npm run check:continuity"
+    "npm run check:ui:audits"
   ],
   "forbiddenSurfaces": [
     "src/lib/gumdrop-ledger.ts",
@@ -80,24 +64,8 @@
   ],
   "traceOutputs": [
     {
-      "path": "functions/src/behavioral-intelligence-runtime.ts",
-      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts functions/src/behavioral-intelligence-runtime.ts\n\n\nTarget: functions/src/behavioral-intelligence-runtime.ts\nSurface: firebase-function\nDirect imports:\n- None detected\nImported by:\n- None detected\nSame-directory siblings:\n- functions/src/analytics-bigquery-export.ts\n- functions/src/analytics-core.ts\n- functions/src/analytics-event-facts.ts\n- functions/src/analytics-guest-batches.ts\n- functions/src/analytics-realtime-summary.ts\n- functions/src/analytics-runtime.ts\n- functions/src/analytics-security-events.ts\n- functions/src/analytics-semantics.ts\n- functions/src/analytics-task-events.ts\n- functions/src/analytics-timeline.ts\n- functions/src/analytics-transactions.ts\n- functions/src/analytics-truth-cli.ts\n- functions/src/analytics-truth-contract.ts\n- functions/src/analytics-truth-runtime.ts\n- functions/src/analytics-truth-schedule.ts\n- functions/src/behavioral-intelligence-cli.ts\n- functions/src/daily-task-materializer.ts\n- functions/src/firebase-admin.ts\n- functions/src/firebase-runtime.ts\n- functions/src/gumdrop-economics.ts\n- functions/src/index.ts\n- functions/src/ml-feature-registry.ts\n- functions/src/orchestration-contract.ts\n- functions/src/orchestration-diagnostics.ts\n- functions/src/orchestration-engine.ts\n- functions/src/orchestration-identity.ts\n- functions/src/orchestration-parity.ts\n- functions/src/orchestration-readiness.ts\n- functions/src/orchestration-routing.ts\n- functions/src/orchestration-runtime.ts\n- functions/src/orchestration-utils.ts\n- functions/src/privacy-consent-enforcement.ts\n- functions/src/profile-builder.ts\n- functions/src/queue-runtime.ts\n- functions/src/runtime-warning-store.ts\nPotential related tests:\n- None detected\nCanonical helpers to review:\n- None detected"
-    },
-    {
-      "path": "functions/src/analytics-truth-cli.ts",
-      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts functions/src/analytics-truth-cli.ts\n\n\nTarget: functions/src/analytics-truth-cli.ts\nSurface: firebase-function\nDirect imports:\n- None detected\nImported by:\n- None detected\nSame-directory siblings:\n- functions/src/analytics-bigquery-export.ts\n- functions/src/analytics-core.ts\n- functions/src/analytics-event-facts.ts\n- functions/src/analytics-guest-batches.ts\n- functions/src/analytics-realtime-summary.ts\n- functions/src/analytics-runtime.ts\n- functions/src/analytics-security-events.ts\n- functions/src/analytics-semantics.ts\n- functions/src/analytics-task-events.ts\n- functions/src/analytics-timeline.ts\n- functions/src/analytics-transactions.ts\n- functions/src/analytics-truth-contract.ts\n- functions/src/analytics-truth-runtime.ts\n- functions/src/analytics-truth-schedule.ts\n- functions/src/behavioral-intelligence-cli.ts\n- functions/src/behavioral-intelligence-runtime.ts\n- functions/src/daily-task-materializer.ts\n- functions/src/firebase-admin.ts\n- functions/src/firebase-runtime.ts\n- functions/src/gumdrop-economics.ts\n- functions/src/index.ts\n- functions/src/ml-feature-registry.ts\n- functions/src/orchestration-contract.ts\n- functions/src/orchestration-diagnostics.ts\n- functions/src/orchestration-engine.ts\n- functions/src/orchestration-identity.ts\n- functions/src/orchestration-parity.ts\n- functions/src/orchestration-readiness.ts\n- functions/src/orchestration-routing.ts\n- functions/src/orchestration-runtime.ts\n- functions/src/orchestration-utils.ts\n- functions/src/privacy-consent-enforcement.ts\n- functions/src/profile-builder.ts\n- functions/src/queue-runtime.ts\n- functions/src/runtime-warning-store.ts\nPotential related tests:\n- None detected\nCanonical helpers to review:\n- src/lib/server/analytics-governance.ts\n- src/lib/server/analytics.ts\n- src/lib/telemetry.ts"
-    },
-    {
-      "path": "scripts/rebuild-behavioral-intelligence.ts",
-      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts scripts/rebuild-behavioral-intelligence.ts\n\n\nTarget: scripts/rebuild-behavioral-intelligence.ts\nSurface: script\nDirect imports:\n- None detected\nImported by:\n- None detected\nSame-directory siblings:\n- scripts/audit-telemetry.ts\n- scripts/backfill-analytics-parity.ts\n- scripts/bench-process-queue-drops.ts\n- scripts/check-admin-analytics-audience-snapshot.ts\n- scripts/check-admin-analytics-auth-outcome-split.ts\n- scripts/check-admin-analytics-commerce-snapshot.ts\n- scripts/check-admin-analytics-daily-task-pipeline.ts\n- scripts/check-admin-analytics-event-mix.ts\n- scripts/check-admin-analytics-guest-bounce-quality.ts\n- scripts/check-admin-analytics-journey-funnel.ts\n- scripts/check-admin-analytics-live-interaction-stream.ts\n- scripts/check-admin-analytics-live-pulse.ts\n- scripts/check-admin-analytics-onboarding-performance.ts\n- scripts/check-admin-analytics-onboarding-velocity.ts\n- scripts/check-admin-analytics-overview.ts\n- scripts/check-admin-data-validation-relocation.ts\n- scripts/check-admin-parity.ts\n- scripts/check-admin-shell-spacing.ts\n- scripts/check-admin-truth-contracts.ts\n- scripts/check-analytics-continuity.ts\n- scripts/check-analytics-semantics.ts\n- scripts/check-client-firestore-connectivity.ts\n- scripts/check-cycles.ts\n- scripts/check-firebase-runtime.ts\n- scripts/check-generated-artifacts.ts\n- scripts/check-home-hydration-performance.ts\n- scripts/check-mobile-ui-doctrine.ts\n- scripts/check-not-found-contracts.ts\n- scripts/check-notification-pipeline.ts\n- scripts/check-queue-runtime.ts\n- scripts/check-route-runtime-parity.ts\n- scripts/check-runtime-continuity.ts\n- scripts/check-scheduler-freshness.ts\n- scripts/check-telemetry-parity-contracts.ts\n- scripts/check-warnings.ts\n- scripts/debug-watch-capture-health.ts\n- scripts/export-dependency-graph.ts\n- scripts/extractChatHelpers.js\n- scripts/extractViewerHelpers.js\n- scripts/promote-admin.ts\n- scripts/rebuild-analytics-truth.ts\n- scripts/refresh-paypal-mcp-token.ts\n- scripts/remove-hovers.mjs\n- scripts/repair-viewer-watch-close-missing.ts\n- scripts/replace-colors.js\n- scripts/replace-icons.mjs\n- scripts/repo-inventory.ts\n- scripts/review-admin-panel-logs.ts\n- scripts/run-database-rules-tests.ts\n- scripts/run-firestore-rules-tests.ts\n- scripts/run-lighthouse-audits.mjs\n- scripts/run-storage-rules-tests.ts\n- scripts/runtime-admin.ts\n- scripts/trace-adjacent-surfaces.ts\n- scripts/train-behavioral-models.ts\n- scripts/train-recommendation-ranker.ts\n- scripts/validate-behavioral-models.ts\n- scripts/validate-behavioral-predictions.ts\n- scripts/verify-deployment.ts\nPotential related tests:\n- None detected\nCanonical helpers to review:\n- None detected"
-    },
-    {
-      "path": "scripts/rebuild-analytics-truth.ts",
-      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts scripts/rebuild-analytics-truth.ts\n\n\nTarget: scripts/rebuild-analytics-truth.ts\nSurface: script\nDirect imports:\n- None detected\nImported by:\n- None detected\nSame-directory siblings:\n- scripts/audit-telemetry.ts\n- scripts/backfill-analytics-parity.ts\n- scripts/bench-process-queue-drops.ts\n- scripts/check-admin-analytics-audience-snapshot.ts\n- scripts/check-admin-analytics-auth-outcome-split.ts\n- scripts/check-admin-analytics-commerce-snapshot.ts\n- scripts/check-admin-analytics-daily-task-pipeline.ts\n- scripts/check-admin-analytics-event-mix.ts\n- scripts/check-admin-analytics-guest-bounce-quality.ts\n- scripts/check-admin-analytics-journey-funnel.ts\n- scripts/check-admin-analytics-live-interaction-stream.ts\n- scripts/check-admin-analytics-live-pulse.ts\n- scripts/check-admin-analytics-onboarding-performance.ts\n- scripts/check-admin-analytics-onboarding-velocity.ts\n- scripts/check-admin-analytics-overview.ts\n- scripts/check-admin-data-validation-relocation.ts\n- scripts/check-admin-parity.ts\n- scripts/check-admin-shell-spacing.ts\n- scripts/check-admin-truth-contracts.ts\n- scripts/check-analytics-continuity.ts\n- scripts/check-analytics-semantics.ts\n- scripts/check-client-firestore-connectivity.ts\n- scripts/check-cycles.ts\n- scripts/check-firebase-runtime.ts\n- scripts/check-generated-artifacts.ts\n- scripts/check-home-hydration-performance.ts\n- scripts/check-mobile-ui-doctrine.ts\n- scripts/check-not-found-contracts.ts\n- scripts/check-notification-pipeline.ts\n- scripts/check-queue-runtime.ts\n- scripts/check-route-runtime-parity.ts\n- scripts/check-runtime-continuity.ts\n- scripts/check-scheduler-freshness.ts\n- scripts/check-telemetry-parity-contracts.ts\n- scripts/check-warnings.ts\n- scripts/debug-watch-capture-health.ts\n- scripts/export-dependency-graph.ts\n- scripts/extractChatHelpers.js\n- scripts/extractViewerHelpers.js\n- scripts/promote-admin.ts\n- scripts/rebuild-behavioral-intelligence.ts\n- scripts/refresh-paypal-mcp-token.ts\n- scripts/remove-hovers.mjs\n- scripts/repair-viewer-watch-close-missing.ts\n- scripts/replace-colors.js\n- scripts/replace-icons.mjs\n- scripts/repo-inventory.ts\n- scripts/review-admin-panel-logs.ts\n- scripts/run-database-rules-tests.ts\n- scripts/run-firestore-rules-tests.ts\n- scripts/run-lighthouse-audits.mjs\n- scripts/run-storage-rules-tests.ts\n- scripts/runtime-admin.ts\n- scripts/trace-adjacent-surfaces.ts\n- scripts/train-behavioral-models.ts\n- scripts/train-recommendation-ranker.ts\n- scripts/validate-behavioral-models.ts\n- scripts/validate-behavioral-predictions.ts\n- scripts/verify-deployment.ts\nPotential related tests:\n- None detected\nCanonical helpers to review:\n- src/lib/server/analytics-governance.ts\n- src/lib/server/analytics.ts\n- src/lib/telemetry.ts"
-    },
-    {
-      "path": "src/lib/server/admin-analytics-materializers.ts",
-      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts src/lib/server/admin-analytics-materializers.ts\n\n\nTarget: src/lib/server/admin-analytics-materializers.ts\nSurface: server-helper\nDirect imports:\n- src/lib/analytics/admin-metric-snapshot.ts\nImported by:\n- src/app/api/admin/analytics/refresh/route.ts\n- src/app/api/admin/debug/route.ts\n- tests/unit/admin-metric-snapshot.spec.ts\nSame-directory siblings:\n- src/lib/server/admin-analytics-capture-health.ts\n- src/lib/server/admin-analytics-context.ts\n- src/lib/server/admin-analytics-data.ts\n- src/lib/server/admin-analytics-historical-activity.ts\n- src/lib/server/admin-analytics-historical-content.ts\n- src/lib/server/admin-analytics-historical-engagement.ts\n- src/lib/server/admin-analytics-historical-onboarding.ts\n- src/lib/server/admin-analytics-historical-tasks.ts\n- src/lib/server/admin-analytics-historical-traffic.ts\n- src/lib/server/admin-analytics-historical-users.ts\n- src/lib/server/admin-analytics-historical-validation.ts\n- src/lib/server/admin-analytics-historical-viewer.ts\n- src/lib/server/admin-analytics-preferences.ts\n- src/lib/server/admin-analytics-shared.ts\n- src/lib/server/admin-analytics-snapshots.ts\n- src/lib/server/admin-cli-logging.ts\n- src/lib/server/admin-content-storage-safety.ts\n- src/lib/server/admin-debug-preferences.ts\n- src/lib/server/admin-debug-settings.ts\n- src/lib/server/admin-moderation.ts\n- src/lib/server/admin-ops-health.ts\n- src/lib/server/admin-orchestration-repairs.ts\n- src/lib/server/admin-orchestration.ts\n- src/lib/server/admin-overview-users.ts\n- src/lib/server/admin-panel-system-logs.ts\n- src/lib/server/admin-privacy-console.ts\n- src/lib/server/admin-source-verification.ts\n- src/lib/server/admin-ui-preferences.ts\n- src/lib/server/admin-user-metrics-snapshot.ts\n- src/lib/server/admin-user-truth-snapshot.ts\n- src/lib/server/ai-debug-assistant.ts\n- src/lib/server/ai-drop-covers-helpers.ts\n- src/lib/server/ai-drop-covers.ts\n- src/lib/server/ai-drop-descriptions.ts\n- src/lib/server/analytics-event-utils.ts\n- src/lib/server/analytics-governance.ts\n- src/lib/server/analytics-metrics.ts\n- src/lib/server/analytics-parity.ts\n- src/lib/server/analytics-pipeline-health.ts\n- src/lib/server/analytics-runtime-warning.ts\n- src/lib/server/analytics-runtime.ts\n- src/lib/server/analytics-semantics.ts\n- src/lib/server/analytics-truth-recovery.ts\n- src/lib/server/analytics.ts\n- src/lib/server/api-cost-contract.ts\n- src/lib/server/auth.ts\n- src/lib/server/behavioral-intelligence.ts\n- src/lib/server/chat.ts\n- src/lib/server/cloud-cost-contract.ts\n- src/lib/server/creator-admin-action-contract.ts\n- src/lib/server/creator-admin-actions.ts\n- src/lib/server/creator-agreement-documents.ts\n- src/lib/server/creator-agreement-templates.ts\n- src/lib/server/creator-discovery.ts\n- src/lib/server/creator-experiences.ts\n- src/lib/server/creator-onboarding-alerts.ts\n- src/lib/server/creator-onboarding-diagnostics.ts\n- src/lib/server/creator-onboarding-legacy-adapter.ts\n- src/lib/server/creator-onboarding.ts\n- src/lib/server/creator-review-queue.ts\n- src/lib/server/daily-tasks.ts\n- src/lib/server/debug-evidence-store.ts\n- src/lib/server/diagnostic-read-fallbacks.ts\n- src/lib/server/drop-mutations.ts\n- src/lib/server/drop-queue.ts\n- src/lib/server/drop-references.ts\n- src/lib/server/drop-runtime.ts\n- src/lib/server/drops.ts\n- src/lib/server/ephemeral-route-cache.ts\n- src/lib/server/event-fact-rollup.ts\n- src/lib/server/event-fact-writer.ts\n- src/lib/server/fcm-utils.ts\n- src/lib/server/firebase-admin.ts\n- src/lib/server/firestore-sanitize.ts\n- src/lib/server/framework-request-diagnostics.ts\n- src/lib/server/global-cost-surface-contract.ts\n- src/lib/server/gumdrop-ledger.ts\n- src/lib/server/metric-fact-materializer.ts\n- src/lib/server/not-found.ts\n- src/lib/server/notification-inbox.ts\n- src/lib/server/notification-runtime.ts\n- src/lib/server/onboarding-analytics.ts\n- src/lib/server/paypal.ts\n- src/lib/server/platform-economy-mutations.ts\n- src/lib/server/platform-economy.ts\n- src/lib/server/privacy-consent.ts\n- src/lib/server/process-queue-drops.ts\n- src/lib/server/push-notifications.ts\n- src/lib/server/queue-runtime.ts\n- src/lib/server/rate-limit.ts\n- src/lib/server/request-client-ip.ts\n- src/lib/server/request-guard.ts\n- src/lib/server/request-origin.ts\n- src/lib/server/route-cache-contract.ts\n- src/lib/server/route-diagnostics.ts\n- src/lib/server/route-runtime-health.ts\n- src/lib/server/runtime-warning-store.ts\n- src/lib/server/security-hardening-contract.ts\n- src/lib/server/server-diagnostics.ts\n- src/lib/server/storage-assets.ts\n- src/lib/server/support-threads.ts\n- src/lib/server/user-behavior-rollup.ts\n- src/lib/server/user-behavior-truth-rollup.ts\n- src/lib/server/user-runtime.ts\n- src/lib/server/username-suggestions.ts\n- src/lib/server/watch-time-rollup.ts\n- src/lib/server/write-runtime-fact.ts\nPotential related tests:\n- tests/mocks/server.ts\n- tests/unit/creator-onboarding-server.spec.ts\n- tests/unit/server-ai-drop-covers.spec.ts\n- tests/unit/server-analytics-active-users.spec.ts\n- tests/unit/server-chat-send.spec.ts\n- tests/unit/server-chat.spec.ts\n- tests/unit/server-creator-experience-transactions.spec.ts\n- tests/unit/server-drops.spec.ts\nCanonical helpers to review:\n- src/lib/server/analytics-governance.ts\n- src/lib/server/analytics.ts\n- src/lib/telemetry.ts"
+      "path": "src/app/creators/[username]/page.tsx",
+      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts src/app/creators/[username]/page.tsx\n\n\nTarget: src/app/creators/[username]/page.tsx\nSurface: route-or-page\nDirect imports:\n- src/app/creators/[username]/CreatorProfileClient.tsx\n- src/lib/creator-experiences.ts\n- src/lib/creator-profile-routing.ts\n- src/lib/server/firebase-admin.ts\n- src/lib/server/route-diagnostics.ts\n- src/lib/site-origin.ts\nImported by:\n- None detected\nSame-directory siblings:\n- src/app/creators/[username]/CreatorProfileClient.tsx\nPotential related tests:\n- tests/unit/admin-analytics-page.spec.tsx\n- tests/unit/creator-public-pages.spec.ts\n- tests/unit/creator-waitlist-page.spec.tsx\n- tests/unit/dashboard-viewer-page.spec.tsx\nCanonical helpers to review:\n- src/lib/creator-application.ts\n- src/lib/creator-onboarding.ts\n- src/lib/server/creator-onboarding.ts"
     }
   ]
 }

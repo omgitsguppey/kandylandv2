@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-07T23:57:08.282Z",
+  "generatedAt": "2026-05-08T03:39:33.373Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -696,6 +696,7 @@
         "tests/unit/admin-user-username-route.spec.ts",
         "tests/unit/admin-users-route.spec.ts",
         "tests/unit/admin-view-as-creator-route.spec.ts",
+        "tests/unit/chat-paid-gumdrops-guidance.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
         "tests/unit/drops-content-route.spec.ts",
         "tests/unit/drops-feedback-route.spec.ts",
@@ -986,7 +987,8 @@
       ],
       "runtime_dependencies": [
         "src/hooks/useAdminOverview.ts",
-        "src/hooks/useAdminOverviewRealtime.ts"
+        "src/lib/admin-parity.ts",
+        "src/lib/server/admin-page-data-loader.ts"
       ],
       "hydration_mode": "static",
       "criticality": "high",
@@ -1629,7 +1631,7 @@
         "src/lib/behavioral/user-value-score.ts",
         "src/lib/client-error-reporting.ts",
         "src/lib/creator-onboarding.ts",
-        "src/lib/gumdrop-economics.ts",
+        "src/lib/server/admin-page-data-loader.ts",
         "src/lib/support-readiness.ts",
         "src/lib/user-behavior-rollup-contract.ts"
       ],
@@ -1773,6 +1775,7 @@
         "src/lib/behavioral/review-badge-rules.ts",
         "src/lib/client-error-reporting.ts",
         "src/lib/security-events.ts",
+        "src/lib/server/admin-page-data-loader.ts",
         "src/lib/telemetry.ts",
         "src/lib/utils.ts"
       ],
@@ -2074,6 +2077,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/unit/chat-attachments-route.spec.ts",
+        "tests/unit/chat-paid-gumdrops-guidance.spec.ts",
         "tests/unit/chat-route-shell.spec.tsx",
         "tests/unit/chat-send-feedback.spec.ts",
         "tests/unit/chat-send-realtime.spec.ts",
@@ -2295,6 +2299,7 @@
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
+        "tests/unit/chat-paid-gumdrops-guidance.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
         "tests/unit/drops-content-route.spec.ts",
         "tests/unit/drops-feedback-route.spec.ts",
@@ -2335,6 +2340,7 @@
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
+        "tests/unit/chat-paid-gumdrops-guidance.spec.ts",
         "tests/unit/creator-drops-assets-route.spec.ts",
         "tests/unit/drops-content-route.spec.ts",
         "tests/unit/drops-feedback-route.spec.ts",
