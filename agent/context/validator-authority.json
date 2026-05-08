@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-05-08T01:57:38.534Z",
+  "updatedAt": "2026-05-08T03:02:51.184Z",
   "defaultAffectedAuditBlockedStatuses": [
     "legacy",
     "blocked"
@@ -398,18 +398,17 @@
       "reason": "scripts/agent/score-tracking-surface-coverage.ts supports canonical behavioral-intelligence contracts but does not define source truth by itself."
     },
     "scripts/agent/score-validator-authority.ts": {
-      "surface": "user-management",
+      "surface": "agent-context",
       "authority": "supporting_score",
       "status": "supporting",
       "canonicalContracts": [
-        "src/lib/admin-user-truth-contract.ts",
-        "src/lib/server/admin-user-truth-snapshot.ts",
-        "src/lib/server/user-behavior-truth-rollup.ts"
+        "agent/context/validator-authority.json",
+        "scripts/agent/plan-affected-audits.ts"
       ],
       "packageScripts": [
         "score:validator-authority"
       ],
-      "reason": "scripts/agent/score-validator-authority.ts supports canonical user-management contracts but does not define source truth by itself."
+      "reason": "scripts/agent/score-validator-authority.ts supports canonical agent-context contracts but does not define source truth by itself."
     },
     "scripts/agent/validate-accessibility-tap-targets.ts": {
       "surface": "device-ui",
@@ -633,6 +632,20 @@
       ],
       "reason": "scripts/agent/validate-admin-projection-analytics-exclusion.ts is an active canonical validator for creator-dashboard contracts."
     },
+    "scripts/agent/validate-admin-realtime-cutover.ts": {
+      "surface": "repo-governance",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "agent/context/validator-authority.json",
+        "agent/context/validator-map.json",
+        "scripts/agent/plan-affected-audits.ts"
+      ],
+      "packageScripts": [
+        "check:admin-realtime-cutover"
+      ],
+      "reason": "scripts/agent/validate-admin-realtime-cutover.ts is an active canonical validator for repo-governance contracts."
+    },
     "scripts/agent/validate-admin-review-badges.ts": {
       "surface": "ai-panel",
       "authority": "canonical_contract",
@@ -690,17 +703,18 @@
       "reason": "scripts/agent/validate-admin-truth-replacement.ts is an active canonical validator for admin-debug contracts."
     },
     "scripts/agent/validate-admin-ui-primitives-cutover.ts": {
-      "surface": "device-ui",
+      "surface": "repo-governance",
       "authority": "canonical_contract",
       "status": "canonical",
       "canonicalContracts": [
-        "src/lib/admin-truth-state.ts",
-        "src/lib/device-layout-contract.ts"
+        "agent/context/validator-authority.json",
+        "agent/context/validator-map.json",
+        "scripts/agent/plan-affected-audits.ts"
       ],
       "packageScripts": [
         "check:admin-ui-primitives-cutover"
       ],
-      "reason": "scripts/agent/validate-admin-ui-primitives-cutover.ts is an active canonical validator for device-ui contracts."
+      "reason": "scripts/agent/validate-admin-ui-primitives-cutover.ts is an active canonical validator for repo-governance contracts."
     },
     "scripts/agent/validate-admin-user-behavior-truth.ts": {
       "surface": "user-management",
@@ -1823,18 +1837,17 @@
       "reason": "scripts/agent/validate-global-speed-hydration-cache.ts is an active canonical validator for device-ui contracts."
     },
     "scripts/agent/validate-google-cost-bleed.ts": {
-      "surface": "ai-panel",
+      "surface": "google-cost",
       "authority": "canonical_contract",
       "status": "canonical",
       "canonicalContracts": [
-        "src/app/admin/ai/hooks/useAdminAiState.tsx",
-        "src/lib/admin-truth-state.ts",
-        "src/lib/server/user-behavior-truth-rollup.ts"
+        "src/lib/server/cloud-cost-contract.ts",
+        "src/lib/server/global-cost-surface-contract.ts"
       ],
       "packageScripts": [
         "check:google-cost"
       ],
-      "reason": "scripts/agent/validate-google-cost-bleed.ts is an active canonical validator for ai-panel contracts."
+      "reason": "scripts/agent/validate-google-cost-bleed.ts is an active canonical validator for google-cost contracts."
     },
     "scripts/agent/validate-gumdrop-economy.ts": {
       "surface": "wallet",
@@ -2032,18 +2045,19 @@
       "reason": "scripts/agent/validate-legal-payment-copy.ts is an active canonical validator for wallet contracts."
     },
     "scripts/agent/validate-materializers-cutover.ts": {
-      "surface": "repo-governance",
+      "surface": "telemetry",
       "authority": "canonical_contract",
       "status": "canonical",
       "canonicalContracts": [
-        "agent/context/validator-authority.json",
-        "agent/context/validator-map.json",
-        "scripts/agent/plan-affected-audits.ts"
+        "src/lib/behavioral/metric-fact-contract.ts",
+        "src/lib/runtime-facts/normalize-runtime-fact.ts",
+        "src/lib/runtime-facts/runtime-fact-contract.ts",
+        "src/lib/server/write-runtime-fact.ts"
       ],
       "packageScripts": [
         "check:materializers-cutover"
       ],
-      "reason": "scripts/agent/validate-materializers-cutover.ts is an active canonical validator for repo-governance contracts."
+      "reason": "scripts/agent/validate-materializers-cutover.ts is an active canonical validator for telemetry contracts."
     },
     "scripts/agent/validate-math-goal-alignment.ts": {
       "surface": "behavioral-intelligence",
@@ -2157,6 +2171,20 @@
       ],
       "reason": "scripts/agent/validate-payment-unlock-security.ts is an active canonical validator for wallet contracts."
     },
+    "scripts/agent/validate-phase-one-lock.ts": {
+      "surface": "repo-governance",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "agent/context/validator-authority.json",
+        "agent/context/validator-map.json",
+        "scripts/agent/plan-affected-audits.ts"
+      ],
+      "packageScripts": [
+        "check:phase-one-lock"
+      ],
+      "reason": "scripts/agent/validate-phase-one-lock.ts is an active canonical validator for repo-governance contracts."
+    },
     "scripts/agent/validate-platform-economy-commerce-controls.ts": {
       "surface": "wallet",
       "authority": "canonical_contract",
@@ -2198,6 +2226,20 @@
         "check:privacy-consent-truth"
       ],
       "reason": "scripts/agent/validate-privacy-consent-truth.ts is an active canonical validator for repo-governance contracts."
+    },
+    "scripts/agent/validate-privacy-import-export-cutover.ts": {
+      "surface": "repo-governance",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "agent/context/validator-authority.json",
+        "agent/context/validator-map.json",
+        "scripts/agent/plan-affected-audits.ts"
+      ],
+      "packageScripts": [
+        "check:privacy-import-export-cutover"
+      ],
+      "reason": "scripts/agent/validate-privacy-import-export-cutover.ts is an active canonical validator for repo-governance contracts."
     },
     "scripts/agent/validate-public-beta-changelog.ts": {
       "surface": "speed-security",
@@ -2282,6 +2324,20 @@
         "check:refresh-based-hot-cache"
       ],
       "reason": "scripts/agent/validate-refresh-based-hot-cache.ts is an active canonical validator for repo-governance contracts."
+    },
+    "scripts/agent/validate-release-notes-cutover.ts": {
+      "surface": "speed-security",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "public/kandydrops-release-notes.json",
+        "src/components/PwaRuntimeBridge.tsx",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "packageScripts": [
+        "check:release-notes-cutover"
+      ],
+      "reason": "scripts/agent/validate-release-notes-cutover.ts is an active canonical validator for speed-security contracts."
     },
     "scripts/agent/validate-rollback-incident-response.ts": {
       "surface": "speed-security",
@@ -3863,6 +3919,21 @@
       "reason": "check:admin-projection-analytics-exclusion aggregates creator-dashboard validator evidence.",
       "legacyReference": false
     },
+    "check:admin-realtime-cutover": {
+      "surface": "repo-governance",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "agent/context/validator-authority.json",
+        "agent/context/validator-map.json",
+        "scripts/agent/plan-affected-audits.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-admin-realtime-cutover.ts"
+      ],
+      "reason": "check:admin-realtime-cutover aggregates repo-governance validator evidence.",
+      "legacyReference": false
+    },
     "check:admin-review-badges": {
       "surface": "ai-panel",
       "authority": "canonical_contract",
@@ -3938,17 +4009,18 @@
       "legacyReference": false
     },
     "check:admin-ui-primitives-cutover": {
-      "surface": "device-ui",
+      "surface": "repo-governance",
       "authority": "canonical_contract",
       "status": "canonical",
       "canonicalContracts": [
-        "src/lib/admin-truth-state.ts",
-        "src/lib/device-layout-contract.ts"
+        "agent/context/validator-authority.json",
+        "agent/context/validator-map.json",
+        "scripts/agent/plan-affected-audits.ts"
       ],
       "validators": [
         "scripts/agent/validate-admin-ui-primitives-cutover.ts"
       ],
-      "reason": "check:admin-ui-primitives-cutover aggregates device-ui validator evidence.",
+      "reason": "check:admin-ui-primitives-cutover aggregates repo-governance validator evidence.",
       "legacyReference": false
     },
     "check:admin-user-behavior-truth": {
@@ -5394,18 +5466,17 @@
       "legacyReference": false
     },
     "check:google-cost": {
-      "surface": "ai-panel",
+      "surface": "google-cost",
       "authority": "canonical_contract",
       "status": "canonical",
       "canonicalContracts": [
-        "src/app/admin/ai/hooks/useAdminAiState.tsx",
-        "src/lib/admin-truth-state.ts",
-        "src/lib/server/user-behavior-truth-rollup.ts"
+        "src/lib/server/cloud-cost-contract.ts",
+        "src/lib/server/global-cost-surface-contract.ts"
       ],
       "validators": [
         "scripts/agent/validate-google-cost-bleed.ts"
       ],
-      "reason": "check:google-cost aggregates ai-panel validator evidence.",
+      "reason": "check:google-cost aggregates google-cost validator evidence.",
       "legacyReference": false
     },
     "check:gumdrop-economy": {
@@ -5662,18 +5733,19 @@
       "legacyReference": false
     },
     "check:materializers-cutover": {
-      "surface": "repo-governance",
+      "surface": "telemetry",
       "authority": "canonical_contract",
       "status": "canonical",
       "canonicalContracts": [
-        "agent/context/validator-authority.json",
-        "agent/context/validator-map.json",
-        "scripts/agent/plan-affected-audits.ts"
+        "src/lib/behavioral/metric-fact-contract.ts",
+        "src/lib/runtime-facts/normalize-runtime-fact.ts",
+        "src/lib/runtime-facts/runtime-fact-contract.ts",
+        "src/lib/server/write-runtime-fact.ts"
       ],
       "validators": [
         "scripts/agent/validate-materializers-cutover.ts"
       ],
-      "reason": "check:materializers-cutover aggregates repo-governance validator evidence.",
+      "reason": "check:materializers-cutover aggregates telemetry validator evidence.",
       "legacyReference": false
     },
     "check:math-goal-alignment": {
@@ -5826,6 +5898,21 @@
       "reason": "check:payment-unlock-security aggregates wallet validator evidence.",
       "legacyReference": false
     },
+    "check:phase-one-lock": {
+      "surface": "repo-governance",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "agent/context/validator-authority.json",
+        "agent/context/validator-map.json",
+        "scripts/agent/plan-affected-audits.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-phase-one-lock.ts"
+      ],
+      "reason": "check:phase-one-lock aggregates repo-governance validator evidence.",
+      "legacyReference": false
+    },
     "check:platform-economy-commerce-controls": {
       "surface": "wallet",
       "authority": "canonical_contract",
@@ -5869,6 +5956,21 @@
         "scripts/agent/validate-privacy-consent-truth.ts"
       ],
       "reason": "check:privacy-consent-truth aggregates repo-governance validator evidence.",
+      "legacyReference": false
+    },
+    "check:privacy-import-export-cutover": {
+      "surface": "repo-governance",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "agent/context/validator-authority.json",
+        "agent/context/validator-map.json",
+        "scripts/agent/plan-affected-audits.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-privacy-import-export-cutover.ts"
+      ],
+      "reason": "check:privacy-import-export-cutover aggregates repo-governance validator evidence.",
       "legacyReference": false
     },
     "check:purchase-telemetry-truth": {
@@ -5959,6 +6061,21 @@
         "scripts/agent/validate-public-beta-changelog.ts"
       ],
       "reason": "check:release-notes aggregates speed-security validator evidence.",
+      "legacyReference": false
+    },
+    "check:release-notes-cutover": {
+      "surface": "speed-security",
+      "authority": "canonical_contract",
+      "status": "canonical",
+      "canonicalContracts": [
+        "public/kandydrops-release-notes.json",
+        "src/components/PwaRuntimeBridge.tsx",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "validators": [
+        "scripts/agent/validate-release-notes-cutover.ts"
+      ],
+      "reason": "check:release-notes-cutover aggregates speed-security validator evidence.",
       "legacyReference": false
     },
     "check:rollback-incident-response": {
@@ -6954,26 +7071,25 @@
       "legacyReference": false
     },
     "score:validator-authority": {
-      "surface": "user-management",
+      "surface": "agent-context",
       "authority": "supporting_score",
       "status": "supporting",
       "canonicalContracts": [
-        "src/lib/admin-user-truth-contract.ts",
-        "src/lib/server/admin-user-truth-snapshot.ts",
-        "src/lib/server/user-behavior-truth-rollup.ts"
+        "agent/context/validator-authority.json",
+        "scripts/agent/plan-affected-audits.ts"
       ],
       "validators": [
         "scripts/agent/score-validator-authority.ts"
       ],
-      "reason": "score:validator-authority is supporting evidence for canonical user-management contracts.",
+      "reason": "score:validator-authority is supporting evidence for canonical agent-context contracts.",
       "legacyReference": false
     }
   },
   "summary": {
-    "validatorCount": 240,
-    "packageScriptCount": 232,
+    "validatorCount": 244,
+    "packageScriptCount": 236,
     "byStatus": {
-      "canonical": 181,
+      "canonical": 185,
       "supporting": 56,
       "legacy": 1,
       "blocked": 2

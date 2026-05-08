@@ -1,7 +1,12 @@
 {
-  "generatedAt": "2026-05-07T22:40:46.594Z",
-  "status": "pass",
-  "failures": [],
+  "generatedAt": "2026-05-08T03:02:18.323Z",
+  "status": "fail",
+  "failures": [
+    "Admin stats bar must render canonical truth badges.",
+    "Admin stats bar must resolve AdminTruthState through the canonical helper.",
+    "Admin module verification card must resolve AdminTruthState through the canonical helper.",
+    "Admin debug primitives must resolve AdminTruthState through the canonical helper."
+  ],
   "classifiedPaths": [
     "src/lib/server/admin-user-truth-snapshot.ts",
     "src/lib/server/user-behavior-truth-rollup.ts",

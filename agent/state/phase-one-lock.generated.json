@@ -1,0 +1,70 @@
+{
+  "generatedAt": "2026-05-08T03:03:48.842Z",
+  "status": "pass",
+  "requiredChecks": [
+    "check:runtime-facts-cutover",
+    "check:materializers-cutover",
+    "check:admin-pages-cutover",
+    "check:admin-ui-primitives-cutover",
+    "check:debug-control-tower-cutover",
+    "check:admin-realtime-cutover",
+    "check:generated-report-authority",
+    "check:validator-authority",
+    "check:release-notes-cutover",
+    "check:privacy-import-export-cutover",
+    "check:chat-paid-gumdrops-guidance",
+    "check:drop-asset-upload-progress"
+  ],
+  "executedChecks": [
+    {
+      "scriptName": "check:runtime-facts-cutover",
+      "ok": true
+    },
+    {
+      "scriptName": "check:materializers-cutover",
+      "ok": true
+    },
+    {
+      "scriptName": "check:admin-pages-cutover",
+      "ok": true
+    },
+    {
+      "scriptName": "check:admin-ui-primitives-cutover",
+      "ok": true
+    },
+    {
+      "scriptName": "check:debug-control-tower-cutover",
+      "ok": true
+    },
+    {
+      "scriptName": "check:admin-realtime-cutover",
+      "ok": true
+    },
+    {
+      "scriptName": "check:generated-report-authority",
+      "ok": true
+    },
+    {
+      "scriptName": "check:validator-authority",
+      "ok": true
+    },
+    {
+      "scriptName": "check:release-notes-cutover",
+      "ok": true
+    },
+    {
+      "scriptName": "check:privacy-import-export-cutover",
+      "ok": true
+    },
+    {
+      "scriptName": "check:chat-paid-gumdrops-guidance",
+      "ok": true
+    },
+    {
+      "scriptName": "check:drop-asset-upload-progress",
+      "ok": true
+    }
+  ],
+  "boundaryChecks": [],
+  "failures": []
+}

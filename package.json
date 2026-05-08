@@ -33,6 +33,7 @@
         "score:validator-authority": "tsx scripts/agent/score-validator-authority.ts",
         "check:validator-authority": "tsx scripts/agent/validate-validator-authority.ts",
         "check:generated-report-authority": "tsx scripts/agent/validate-generated-report-authority.ts",
+        "check:phase-one-lock": "tsx scripts/agent/validate-phase-one-lock.ts",
         "check:agent-context": "npm run build:agent-context && tsx scripts/agent/check-agent-context.ts && tsx scripts/agent/validate-compact-agent-context.ts",
         "eval:agent-context": "tsx scripts/agent/run-evals.ts",
         "behavioral:rebuild": "tsx scripts/rebuild-behavioral-intelligence.ts",

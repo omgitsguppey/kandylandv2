@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-08T01:57:38.337Z",
-  "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+  "generatedAt": "2026-05-08T03:03:23.876Z",
+  "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
   "status": "pass",
   "freshness": "fresh",
   "defaultStaleAfterHours": 24,
   "summary": {
-    "reportCount": 89,
+    "reportCount": 90,
     "staleCount": 65,
     "unknownFreshnessCount": 0,
     "runtimeViolationCount": 0,
@@ -15,7 +15,7 @@
     {
       "path": "agent/context/doctrine-conflicts.generated.json",
       "generatedAt": "2026-05-08T01:17:53.932Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "resolved_by_authority",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -27,8 +27,8 @@
     },
     {
       "path": "agent/context/optimized-task-context.generated.json",
-      "generatedAt": "2026-05-08T01:50:38.855Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-08T02:41:48.167Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -42,8 +42,8 @@
     },
     {
       "path": "agent/context/task-pack.generated.json",
-      "generatedAt": "2026-05-08T01:49:55.911Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:56.092Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -57,7 +57,7 @@
     {
       "path": "agent/index/analytics-truth-layer-v2.json",
       "generatedAt": "2026-04-30T00:00:00.000Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "admin_analytics_snapshot_first_migration_in_progress",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -69,8 +69,8 @@
     },
     {
       "path": "agent/index/blast-radius.json",
-      "generatedAt": "2026-05-08T01:49:52.278Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:52.667Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -83,8 +83,8 @@
     },
     {
       "path": "agent/index/canonical-helpers.json",
-      "generatedAt": "2026-05-08T01:49:14.026Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.102Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -97,8 +97,8 @@
     },
     {
       "path": "agent/index/dependency-graph.summary.json",
-      "generatedAt": "2026-05-08T01:49:27.074Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:25.099Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -111,8 +111,8 @@
     },
     {
       "path": "agent/index/governance-truth.json",
-      "generatedAt": "2026-05-08T01:49:14.071Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.169Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -125,8 +125,8 @@
     },
     {
       "path": "agent/index/known-pitfalls.json",
-      "generatedAt": "2026-05-08T01:49:14.093Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.217Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -139,8 +139,8 @@
     },
     {
       "path": "agent/index/package-manager-truth.json",
-      "generatedAt": "2026-05-08T01:49:14.046Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.132Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -153,8 +153,8 @@
     },
     {
       "path": "agent/index/recent-passes.json",
-      "generatedAt": "2026-05-08T01:49:14.102Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.229Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -167,8 +167,8 @@
     },
     {
       "path": "agent/index/repo-inventory.json",
-      "generatedAt": "2026-05-08T01:49:13.994Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.046Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -181,8 +181,8 @@
     },
     {
       "path": "agent/index/retrieval-index.json",
-      "generatedAt": "2026-05-08T01:49:55.350Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:55.538Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -195,8 +195,8 @@
     },
     {
       "path": "agent/index/runtime-observability.json",
-      "generatedAt": "2026-05-08T01:49:14.125Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.282Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -209,8 +209,8 @@
     },
     {
       "path": "agent/index/surface-map.json",
-      "generatedAt": "2026-05-08T01:49:14.026Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.100Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -223,8 +223,8 @@
     },
     {
       "path": "agent/index/ui-surface-coverage.json",
-      "generatedAt": "2026-05-08T01:49:14.125Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.282Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -237,8 +237,8 @@
     },
     {
       "path": "agent/index/verification-commands.json",
-      "generatedAt": "2026-05-08T01:49:14.043Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.126Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -251,8 +251,8 @@
     },
     {
       "path": "agent/index/workflow-guidance.json",
-      "generatedAt": "2026-05-08T01:49:14.067Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:57:08.166Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -266,7 +266,7 @@
     {
       "path": "agent/state/accessibility-tap-target-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "completed_with_targeted_fixes",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -279,7 +279,7 @@
     {
       "path": "agent/state/admin-analytics-finalization.generated.json",
       "generatedAt": "2026-05-01T00:00:00-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "launch_ready_with_targeted_warnings",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -292,7 +292,7 @@
     {
       "path": "agent/state/admin-analytics-realtime-dependency-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -306,7 +306,7 @@
     {
       "path": "agent/state/admin-cms-workflow-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -319,9 +319,9 @@
     },
     {
       "path": "agent/state/admin-truth-replacement.generated.json",
-      "generatedAt": "2026-05-07T22:40:46.594Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
-      "status": "pass",
+      "generatedAt": "2026-05-08T03:02:18.323Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
+      "status": "fail",
       "freshness": "fresh",
       "staleAfterHours": 24,
       "metadataSource": "authority_manifest",
@@ -333,7 +333,7 @@
     {
       "path": "agent/state/affected-audit-plan.generated.json",
       "generatedAt": "2026-05-05T05:17:17.720Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -347,7 +347,7 @@
     {
       "path": "agent/state/analytics-ecosystem-parity.generated.json",
       "generatedAt": "2026-04-30T17:30:27.124Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -361,7 +361,7 @@
     {
       "path": "agent/state/analytics-legacy-mapping-report.generated.json",
       "generatedAt": "2026-04-30T17:30:25.583Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -375,7 +375,7 @@
     {
       "path": "agent/state/analytics-legacy-source-inventory.generated.json",
       "generatedAt": "2026-04-30T17:27:13.830Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -389,7 +389,7 @@
     {
       "path": "agent/state/audit-runtime-summary.generated.json",
       "generatedAt": "2026-05-05T02:32:54.919Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -404,7 +404,7 @@
     {
       "path": "agent/state/background-job-idempotency-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -418,7 +418,7 @@
     {
       "path": "agent/state/behavioral-math-calibration.generated.json",
       "generatedAt": "2026-05-05T08:39:50.757Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -432,7 +432,7 @@
     {
       "path": "agent/state/behavioral-model-validation.generated.json",
       "generatedAt": "2026-05-05T11:03:21.196Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -446,7 +446,7 @@
     {
       "path": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
       "generatedAt": "2026-05-07T22:53:27.926Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "clean",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -459,7 +459,7 @@
     {
       "path": "agent/state/code-organization-score.generated.json",
       "generatedAt": "2026-05-06T20:38:43.101Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "fail",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -472,7 +472,7 @@
     {
       "path": "agent/state/codebase-hardening.generated.json",
       "generatedAt": "2026-05-06T21:29:35.974Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "beta-risk",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -485,7 +485,7 @@
     {
       "path": "agent/state/codex-auth-readiness.generated.json",
       "generatedAt": "2026-05-05T14:10:09.853Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -499,7 +499,7 @@
     {
       "path": "agent/state/content-media-pipeline-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "launch-critical public payload leak and upload validation gaps fixed; residual archival media lifecycle remains documented for post-launch hardening",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -512,7 +512,7 @@
     {
       "path": "agent/state/content-protection-score.generated.json",
       "generatedAt": "2026-05-04T06:07:14.166Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "clean",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -525,7 +525,7 @@
     {
       "path": "agent/state/creator-lane-debug-parity.generated.json",
       "generatedAt": "2026-05-06T01:10:31.738Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "review",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -538,7 +538,7 @@
     {
       "path": "agent/state/creator-lane-legacy-truth-inventory.generated.json",
       "generatedAt": "2026-05-02T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -552,7 +552,7 @@
     {
       "path": "agent/state/creator-lane-old-logic-cleanup.generated.json",
       "generatedAt": "2026-05-02T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "gate_added",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -565,7 +565,7 @@
     {
       "path": "agent/state/debug-evidence-index.generated.json",
       "generatedAt": "2026-05-06T03:11:07.505Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -579,7 +579,7 @@
     {
       "path": "agent/state/design-system-drift-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "fixed repeated launch-visible drift patterns; low-risk one-off drift documented",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -592,7 +592,7 @@
     {
       "path": "agent/state/device-layout-score.generated.json",
       "generatedAt": "2026-05-04T11:46:00.865Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "warning",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -605,7 +605,7 @@
     {
       "path": "agent/state/device-ui-dry-audit.generated.json",
       "generatedAt": "2026-05-06T20:27:20.020Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -619,7 +619,7 @@
     {
       "path": "agent/state/doctrine-retrieval-optimizer.generated.json",
       "generatedAt": "2026-05-05T07:50:00.467Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -633,7 +633,7 @@
     {
       "path": "agent/state/environment-deployment-truth-audit.generated.json",
       "generatedAt": "2026-05-01T20:35:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "passed_with_documented_warnings_after_config_cleanup",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -646,7 +646,7 @@
     {
       "path": "agent/state/eval-failures.generated.json",
       "generatedAt": "2026-04-21T15:10:08.143Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -660,7 +660,7 @@
     {
       "path": "agent/state/eval-results.generated.json",
       "generatedAt": "2026-04-21T15:10:08.143Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "pass",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -673,7 +673,7 @@
     {
       "path": "agent/state/event-catalog-telemetry-audit.generated.json",
       "generatedAt": "2026-05-03T04:03:59.518Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -687,7 +687,7 @@
     {
       "path": "agent/state/fast-start.generated.json",
       "generatedAt": "2026-05-07T23:59:42.149Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -701,7 +701,7 @@
     {
       "path": "agent/state/final-launch-readiness-report.generated.json",
       "generatedAt": "2026-05-02T01:25:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -715,7 +715,7 @@
     {
       "path": "agent/state/global-cost-surfaces.generated.json",
       "generatedAt": "2026-05-05T08:10:49.513Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "clean",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -728,7 +728,7 @@
     {
       "path": "agent/state/global-loading-performance-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -742,7 +742,7 @@
     {
       "path": "agent/state/global-speed-hydration-cache-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -756,7 +756,7 @@
     {
       "path": "agent/state/google-cost-bleed.generated.json",
       "generatedAt": "2026-05-06T21:29:35.080Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "fail",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -769,7 +769,7 @@
     {
       "path": "agent/state/gumdrop-economy-score.generated.json",
       "generatedAt": "2026-05-04T05:27:20.794Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "clean",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -782,7 +782,7 @@
     {
       "path": "agent/state/human-dev-readiness.generated.json",
       "generatedAt": "2026-05-05T06:02:56.887Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "pass",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -795,7 +795,7 @@
     {
       "path": "agent/state/hydration-performance.generated.json",
       "generatedAt": "2026-05-04T05:18:53.976Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "clean",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -808,7 +808,7 @@
     {
       "path": "agent/state/launch-finalization-baseline.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -822,7 +822,7 @@
     {
       "path": "agent/state/launch-pr-triage.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -836,7 +836,7 @@
     {
       "path": "agent/state/launch-readiness-report.generated.json",
       "generatedAt": "2026-05-01T23:45:00.000Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -850,7 +850,7 @@
     {
       "path": "agent/state/legacy-creator-application-inventory.generated.json",
       "generatedAt": "2026-05-02T16:39:34.413Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -864,7 +864,7 @@
     {
       "path": "agent/state/legacy-phaseout.generated.json",
       "generatedAt": "2026-05-06T20:26:33.620Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "warning",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -877,7 +877,7 @@
     {
       "path": "agent/state/legal-payment-copy-audit.generated.json",
       "generatedAt": "2026-05-02T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -891,7 +891,7 @@
     {
       "path": "agent/state/mobile-layout-safe-area-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -905,7 +905,7 @@
     {
       "path": "agent/state/notification-return-loop-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -919,7 +919,7 @@
     {
       "path": "agent/state/orphaned-logic-score.generated.json",
       "generatedAt": "2026-05-06T20:27:27.440Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "pass",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -932,7 +932,7 @@
     {
       "path": "agent/state/payment-unlock-security-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -946,7 +946,7 @@
     {
       "path": "agent/state/phase-1-truth-gate.generated.json",
       "generatedAt": "2026-05-06T00:00:00-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "partial",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -957,9 +957,22 @@
       ]
     },
     {
+      "path": "agent/state/phase-one-lock.generated.json",
+      "generatedAt": "2026-05-08T03:02:18.468Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
+      "status": "fail",
+      "freshness": "fresh",
+      "staleAfterHours": 24,
+      "metadataSource": "authority_manifest",
+      "missingEmbeddedFields": [
+        "sourceCommit",
+        "freshness"
+      ]
+    },
+    {
       "path": "agent/state/precatch-runtime-issues.generated.json",
       "generatedAt": "2026-05-06T03:10:58.421Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -973,7 +986,7 @@
     {
       "path": "agent/state/public-beta-score.generated.json",
       "generatedAt": "2026-05-06T20:38:38.679Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -987,7 +1000,7 @@
     {
       "path": "agent/state/pwa-service-worker-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1001,7 +1014,7 @@
     {
       "path": "agent/state/recommendation-model.generated.json",
       "generatedAt": "2026-05-04T20:20:52.670Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1015,7 +1028,7 @@
     {
       "path": "agent/state/refresh-cache-loading-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1029,7 +1042,7 @@
     {
       "path": "agent/state/rollback-incident-response.generated.json",
       "generatedAt": "2026-05-02T12:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "documented_no_runtime_changes",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1042,7 +1055,7 @@
     {
       "path": "agent/state/security-role-boundary-audit.generated.json",
       "generatedAt": "2026-05-01T19:25:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "passed_after_launch_critical_fixes",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1055,7 +1068,7 @@
     {
       "path": "agent/state/speed-security-hardening.generated.json",
       "generatedAt": "2026-05-06T21:29:33.981Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1069,7 +1082,7 @@
     {
       "path": "agent/state/sql-mirror-status.generated.json",
       "generatedAt": "2026-05-07T22:51:20.973Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -1083,7 +1096,7 @@
     {
       "path": "agent/state/sql-sync.payload.generated.json",
       "generatedAt": "2026-05-07T22:51:20.973Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -1097,7 +1110,7 @@
     {
       "path": "agent/state/support-recovery-flow-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1110,8 +1123,8 @@
     },
     {
       "path": "agent/state/task-context.generated.json",
-      "generatedAt": "2026-05-08T01:50:06.006Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:58:07.732Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
@@ -1125,7 +1138,7 @@
     {
       "path": "agent/state/telemetry-identified-parity.generated.json",
       "generatedAt": "2026-05-04T21:30:52.072Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "pass",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1138,7 +1151,7 @@
     {
       "path": "agent/state/telemetry-orphan-cleanup-audit.generated.json",
       "generatedAt": "2026-05-01T02:08:00.000Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1152,7 +1165,7 @@
     {
       "path": "agent/state/telemetry-parity-score.generated.json",
       "generatedAt": "2026-05-04T05:50:23.722Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "clean",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1165,7 +1178,7 @@
     {
       "path": "agent/state/test-fixtures-demo-audit.generated.json",
       "generatedAt": "2026-05-02T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1179,7 +1192,7 @@
     {
       "path": "agent/state/tracking-surface-coverage.generated.json",
       "generatedAt": "2026-05-04T21:07:36.960Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "pass",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1192,7 +1205,7 @@
     {
       "path": "agent/state/user-critical-path-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1206,7 +1219,7 @@
     {
       "path": "agent/state/user-critical-path-fix-report.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "stale",
       "staleAfterHours": 24,
@@ -1219,8 +1232,8 @@
     },
     {
       "path": "agent/state/verification-plan.generated.json",
-      "generatedAt": "2026-05-08T01:50:06.047Z",
-      "sourceCommit": "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
+      "generatedAt": "2026-05-07T23:58:07.791Z",
+      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
       "status": "snapshot",
       "freshness": "fresh",
       "staleAfterHours": 24,
