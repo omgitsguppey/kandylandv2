@@ -84,6 +84,20 @@ vi.mock("firebase/storage", () => ({
     mockState.uploadBytesResumable(refValue, blob, metadata),
 }));
 
+function createServerUploadResponse(file: File, prefix = "https://cdn.example") {
+  return {
+    ok: true,
+    json: async () => ({
+      file: {
+        url: `${prefix}/${file.name}`,
+        contentType: file.type,
+        size: file.size,
+        name: file.name,
+      },
+    }),
+  };
+}
+
 describe("AssetUploader", () => {
   beforeEach(() => {
     mockState.reset();
@@ -219,7 +233,7 @@ describe("AssetUploader", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Retry")).toBeTruthy();
-      expect(screen.getByText("Admin upload session expired. Sign in again.")).toBeTruthy();
+      expect(screen.getByText("Upload permission failed. Refresh your admin session and retry.")).toBeTruthy();
     });
 
     fireEvent.click(screen.getByText("Retry"));
@@ -274,6 +288,230 @@ describe("AssetUploader", () => {
         }),
       ]);
       expect(screen.getByText("Uploaded")).toBeTruthy();
+    });
+  });
+
+  it("keeps batch-selected files visible while only two uploads start", async () => {
+    const requests: Array<{
+      resolve: (response: { ok: boolean; json: () => Promise<unknown> }) => void;
+      reject: (error: unknown) => void;
+      options: RequestInit;
+    }> = [];
+
+    mockState.authFetch.mockImplementation((url: string, options: RequestInit) => new Promise((resolve, reject) => {
+      requests.push({ resolve, reject, options });
+      void url;
+    }));
+
+    render(
+      <AssetUploader
+        label="Content"
+        folder="drops/content"
+        multiple
+        aspectRatio="1:1"
+        onAspectRatioChange={() => undefined}
+        onChange={() => undefined}
+        accept="image/*,video/*,application/zip"
+        disableCrop={true}
+        serverUploadEndpoint="/api/admin/content"
+      />,
+    );
+
+    const input = document.querySelector("input[type='file']") as HTMLInputElement;
+    fireEvent.change(input, {
+      target: {
+        files: [
+          new File(["1"], "one.png", { type: "image/png" }),
+          new File(["2"], "two.png", { type: "image/png" }),
+          new File(["3"], "three.png", { type: "image/png" }),
+          new File(["4"], "four.png", { type: "image/png" }),
+          new File(["5"], "five.png", { type: "image/png" }),
+          new File(["6"], "six.png", { type: "image/png" }),
+        ],
+      },
+    });
+
+    await waitFor(() => {
+      expect(document.querySelectorAll("[data-upload-status]").length).toBe(6);
+      expect(requests).toHaveLength(2);
+    });
+
+    expect(screen.getByText("2 uploading • 4 queued", { selector: "span" })).toBeTruthy();
+    expect(screen.getByText("Queued #3")).toBeTruthy();
+  });
+
+  it("does not wipe queued drafts when parent rerenders with partial successful assets", async () => {
+    const requests: Array<{
+      resolve: (response: { ok: boolean; json: () => Promise<unknown> }) => void;
+      reject: (error: unknown) => void;
+      options: RequestInit;
+    }> = [];
+
+    mockState.authFetch.mockImplementation((url: string, options: RequestInit) => new Promise((resolve, reject) => {
+      requests.push({ resolve, reject, options });
+      void url;
+    }));
+
+    const { rerender } = render(
+      <AssetUploader
+        label="Content"
+        folder="drops/content"
+        multiple
+        aspectRatio="1:1"
+        onAspectRatioChange={() => undefined}
+        onChange={() => undefined}
+        accept="image/*,video/*,application/zip"
+        disableCrop={true}
+        serverUploadEndpoint="/api/admin/content"
+      />,
+    );
+
+    const input = document.querySelector("input[type='file']") as HTMLInputElement;
+    fireEvent.change(input, {
+      target: {
+        files: [
+          new File(["1"], "one.png", { type: "image/png" }),
+          new File(["2"], "two.png", { type: "image/png" }),
+          new File(["3"], "three.png", { type: "image/png" }),
+          new File(["4"], "four.png", { type: "image/png" }),
+          new File(["5"], "five.png", { type: "image/png" }),
+          new File(["6"], "six.png", { type: "image/png" }),
+        ],
+      },
+    });
+
+    await waitFor(() => {
+      expect(document.querySelectorAll("[data-upload-status]").length).toBe(6);
+      expect(requests).toHaveLength(2);
+    });
+
+    rerender(
+      <AssetUploader
+        label="Content"
+        folder="drops/content"
+        initialAssets={[
+          {
+            id: "persisted-only",
+            url: "https://cdn.example/persisted.png",
+            type: "image/png",
+            size: 1,
+          },
+        ]}
+        multiple
+        aspectRatio="1:1"
+        onAspectRatioChange={() => undefined}
+        onChange={() => undefined}
+        accept="image/*,video/*,application/zip"
+        disableCrop={true}
+        serverUploadEndpoint="/api/admin/content"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(document.querySelectorAll("[data-upload-status]").length).toBe(6);
+      expect(screen.getByText("Queued #3")).toBeTruthy();
+    });
+  });
+
+  it("starts the next queued asset when an upload succeeds and only emits successful assets", async () => {
+    const requests: Array<{
+      resolve: (response: { ok: boolean; json: () => Promise<unknown> }) => void;
+      reject: (error: unknown) => void;
+      options: RequestInit;
+    }> = [];
+
+    const onChange = vi.fn();
+    mockState.authFetch.mockImplementation((url: string, options: RequestInit) => new Promise((resolve, reject) => {
+      requests.push({ resolve, reject, options });
+      void url;
+    }));
+
+    render(
+      <AssetUploader
+        label="Content"
+        folder="drops/content"
+        multiple
+        aspectRatio="1:1"
+        onAspectRatioChange={() => undefined}
+        onChange={onChange}
+        accept="image/*,video/*,application/zip"
+        disableCrop={true}
+        serverUploadEndpoint="/api/admin/content"
+      />,
+    );
+
+    const input = document.querySelector("input[type='file']") as HTMLInputElement;
+    fireEvent.change(input, {
+      target: {
+        files: [
+          new File(["1"], "one.png", { type: "image/png" }),
+          new File(["2"], "two.png", { type: "image/png" }),
+          new File(["3"], "three.png", { type: "image/png" }),
+        ],
+      },
+    });
+
+    await waitFor(() => {
+      expect(requests).toHaveLength(2);
+    });
+
+    const firstFile = (requests[0].options.body as FormData).get("file") as File;
+    requests[0].resolve(createServerUploadResponse(firstFile));
+
+    await waitFor(() => {
+      expect(requests).toHaveLength(3);
+    });
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenLastCalledWith([
+        expect.objectContaining({ url: `https://cdn.example/${firstFile.name}` }),
+      ]);
+    });
+  });
+
+  it("shows a permission failure copy and retries the same file", async () => {
+    const onChange = vi.fn();
+    mockState.authFetch
+      .mockRejectedValueOnce(new Error("permission denied"))
+      .mockImplementationOnce(async (_url: string, options: RequestInit) => {
+        const file = (options.body as FormData).get("file") as File;
+        return createServerUploadResponse(file, "https://cdn.example/retry");
+      });
+
+    render(
+      <AssetUploader
+        label="Content"
+        folder="drops/content"
+        aspectRatio="1:1"
+        onAspectRatioChange={() => undefined}
+        onChange={onChange}
+        accept="application/zip"
+        disableCrop={true}
+        serverUploadEndpoint="/api/admin/content"
+      />,
+    );
+
+    const input = document.querySelector("input[type='file']") as HTMLInputElement;
+    fireEvent.change(input, {
+      target: {
+        files: [new File(["bad"], "broken.zip", { type: "application/zip" })],
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Upload permission failed. Refresh your admin session and retry.")).toBeTruthy();
+      expect(screen.getByText("Retry")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText("Retry"));
+
+    await waitFor(() => {
+      expect(mockState.authFetch).toHaveBeenCalledTimes(2);
+      const secondFile = (mockState.authFetch.mock.calls[1]?.[1] as RequestInit | undefined)?.body as FormData;
+      expect((secondFile.get("file") as File).name).toBe("broken.zip");
+      expect(onChange).toHaveBeenLastCalledWith([
+        expect.objectContaining({ url: "https://cdn.example/retry/broken.zip" }),
+      ]);
     });
   });
 });

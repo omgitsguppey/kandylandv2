@@ -19,6 +19,7 @@ export type UploadQueueAssetLike = {
   uploadProgress: number;
   uploadUrl?: string;
   queueQueuedAt?: number;
+  eligibleToStartAt?: number;
   uploadStartedAt?: number;
   lastProgressAt?: number;
 };
@@ -147,8 +148,8 @@ export function detectStalledUploads(
     }
 
     if (asset.uploadStatus === "queued" && queuedCandidates.has(asset.id)) {
-      const queuedAt = asset.queueQueuedAt ?? 0;
-      if (queuedAt > 0 && nowMs - queuedAt >= queuedStallMs) {
+      const eligibleAt = asset.eligibleToStartAt ?? 0;
+      if (eligibleAt > 0 && nowMs - eligibleAt >= queuedStallMs) {
         stalled.push({ id: asset.id, errorCode: "upload_queue_stalled" });
       }
     }

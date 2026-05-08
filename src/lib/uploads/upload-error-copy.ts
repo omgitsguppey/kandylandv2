@@ -18,7 +18,8 @@ export function getUploadErrorCopy(code: string | undefined): string {
   switch (code) {
     case "storage/unauthorized":
     case "upload_permission_denied":
-      return "You do not have permission to upload here.";
+    case "server_unauthorized":
+      return "Upload permission failed. Refresh your admin session and retry.";
     case "storage/canceled":
       return "Upload canceled.";
     case "storage/quota-exceeded":
@@ -31,8 +32,6 @@ export function getUploadErrorCopy(code: string | undefined): string {
       return "Upload stalled. Check connection and retry.";
     case "upload_queue_stalled":
       return "Upload never started. Retry this file.";
-    case "server_unauthorized":
-      return "Admin upload session expired. Sign in again.";
     default:
       return "Upload failed. Retry or report this.";
   }

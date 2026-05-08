@@ -28,8 +28,51 @@ describe("asset-upload-queue helpers", () => {
       queuedStallMs: 30_000,
       activeStallMs: 60_000,
     })).toEqual([
-      { id: "queued-image", errorCode: "upload_queue_stalled" },
       { id: "uploading-video", errorCode: "upload_stalled" },
+    ]);
+  });
+
+  it("does not stall queued assets that are still waiting behind active uploads", () => {
+    const assets: UploadQueueAssetLike[] = [
+      { id: "uploading-image", kind: "image", uploadStatus: "uploading", uploadProgress: 40, uploadStartedAt: 1, lastProgressAt: 1 },
+      { id: "queued-image", kind: "image", uploadStatus: "queued", uploadProgress: 0, queueQueuedAt: 1 },
+    ];
+
+    expect(detectStalledUploads(assets, 60_001, {
+      queuedStallMs: 30_000,
+      activeStallMs: 60_000,
+      maxConcurrent: 2,
+    })).toEqual([
+      { id: "uploading-image", errorCode: "upload_stalled" },
+    ]);
+  });
+
+  it("does not stall queued assets until they are eligible to start", () => {
+    const assets: UploadQueueAssetLike[] = [
+      { id: "uploading-image-a", kind: "image", uploadStatus: "uploading", uploadProgress: 40, uploadStartedAt: 1, lastProgressAt: 1 },
+      { id: "uploading-image-b", kind: "image", uploadStatus: "uploading", uploadProgress: 60, uploadStartedAt: 1, lastProgressAt: 1 },
+      { id: "queued-image", kind: "image", uploadStatus: "queued", uploadProgress: 0, queueQueuedAt: 1 },
+    ];
+
+    expect(detectStalledUploads(assets, 45_000, {
+      queuedStallMs: 30_000,
+      activeStallMs: 60_000,
+      maxConcurrent: 2,
+    })).toEqual([]);
+  });
+
+  it("only marks queued uploads stalled after they become eligible to start", () => {
+    const assets: UploadQueueAssetLike[] = [
+      { id: "uploading-image", kind: "image", uploadStatus: "uploading", uploadProgress: 40, uploadStartedAt: 1, lastProgressAt: 1 },
+      { id: "queued-image", kind: "image", uploadStatus: "queued", uploadProgress: 0, queueQueuedAt: 1, eligibleToStartAt: 1 },
+    ];
+
+    expect(detectStalledUploads(assets, 40_001, {
+      queuedStallMs: 30_000,
+      activeStallMs: 60_000,
+      maxConcurrent: 2,
+    })).toEqual([
+      { id: "queued-image", errorCode: "upload_queue_stalled" },
     ]);
   });
 

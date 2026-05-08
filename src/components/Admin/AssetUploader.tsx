@@ -37,6 +37,7 @@ import {
   type UploadProgressMode,
   type UploadStatus,
 } from "@/lib/uploads/asset-upload-queue";
+import { buildUploadDraftSnapshot, type UploadDraftSnapshot } from "@/lib/uploads/asset-upload-draft-contract";
 import { classifyUploadErrorCode, getUploadErrorCopy } from "@/lib/uploads/upload-error-copy";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +72,7 @@ interface AssetDraft {
   cropPixels?: Area;
   uploadProgressMode: UploadProgressMode;
   queueQueuedAt?: number;
+  eligibleToStartAt?: number;
   lastProgressAt?: number;
 }
 
@@ -82,6 +84,7 @@ interface AssetUploaderProps {
   initialAssets?: UploadedAsset[];
   initialUrl?: string;
   initialType?: string;
+  resetKey?: string;
   aspectRatio: UploadAspectRatio;
   onAspectRatioChange: (ratio: UploadAspectRatio) => void;
   onChange: (assets: UploadedAsset[]) => void;
@@ -93,6 +96,7 @@ interface AssetUploaderProps {
     failed: number;
     allComplete: boolean;
   }) => void;
+  onDraftStateChange?: (snapshot: UploadDraftSnapshot) => void;
   accept: string;
   disableCrop?: boolean;
   serverUploadEndpoint?: string;
@@ -265,10 +269,12 @@ export function AssetUploader({
   initialAssets,
   initialUrl,
   initialType,
+  resetKey,
   aspectRatio,
   onAspectRatioChange,
   onChange,
   onUploadStateChange,
+  onDraftStateChange,
   accept,
   disableCrop = false,
   serverUploadEndpoint,
@@ -280,6 +286,8 @@ export function AssetUploader({
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const inputRef = useRef<HTMLInputElement>(null);
   const initialSignatureRef = useRef("");
+  const resetKeyRef = useRef<string | undefined>(undefined);
+  const uploadSessionIdRef = useRef(generateSecureClientId());
   const assetsRef = useRef<AssetDraft[]>(assets);
   const inFlightStartsRef = useRef(new Set<string>());
   const cancelHandlesRef = useRef(new Map<string, { cancel: () => void }>());
@@ -322,20 +330,31 @@ export function AssetUploader({
       folder,
       serverUploadEndpoint: serverUploadEndpoint || "",
     });
+    const nextResetKey = resetKey ?? undefined;
+    const resetChanged = resetKeyRef.current !== nextResetKey;
+    const hasActiveDraftAssets = assetsRef.current.some((asset) => asset.uploadStatus !== "success");
 
-    if ((!initialUrl || initialUrl.length === 0) && (!initialAssets || initialAssets.length === 0)) {
-      initialSignatureRef.current = signature;
+    if (resetChanged) {
+      resetKeyRef.current = nextResetKey;
+      uploadSessionIdRef.current = generateSecureClientId();
+      initialSignatureRef.current = "";
+      cancelHandlesRef.current.forEach(({ cancel }) => cancel());
+      cancelHandlesRef.current.clear();
+      inFlightStartsRef.current.clear();
+      progressCheckpointsRef.current.clear();
+      setAssets(createInitialAssets(folder, serverUploadEndpoint, initialAssets, initialUrl, initialType));
+      return;
+    }
+
+    if (hasActiveDraftAssets) {
       return;
     }
     if (initialSignatureRef.current === signature) return;
 
-    const syncInitialAsset = window.setTimeout(() => {
-      initialSignatureRef.current = signature;
-      setAssets(createInitialAssets(folder, serverUploadEndpoint, initialAssets, initialUrl, initialType));
-    }, 0);
-
-    return () => window.clearTimeout(syncInitialAsset);
-  }, [folder, initialAssets, initialType, initialUrl, serverUploadEndpoint]);
+    initialSignatureRef.current = signature;
+    uploadSessionIdRef.current = generateSecureClientId();
+    setAssets(createInitialAssets(folder, serverUploadEndpoint, initialAssets, initialUrl, initialType));
+  }, [assetsRef, folder, initialAssets, initialType, initialUrl, resetKey, serverUploadEndpoint]);
 
   useEffect(() => {
     const uploaded = assets
@@ -367,9 +386,24 @@ export function AssetUploader({
     });
   }, [assets, onUploadStateChange]);
 
+  useEffect(() => {
+    if (!onDraftStateChange) {
+      return;
+    }
+
+    onDraftStateChange(buildUploadDraftSnapshot(uploadSessionIdRef.current, assets));
+  }, [assets, onDraftStateChange]);
+
   const updateAsset = useCallback((assetId: string, updater: (asset: AssetDraft) => AssetDraft) => {
     setAssets((current) => current.map((asset) => asset.id === assetId ? updater(asset) : asset));
   }, []);
+
+  const markAssetEligibleToStart = useCallback((assetId: string) => {
+    updateAsset(assetId, (current) => current.eligibleToStartAt ? current : {
+      ...current,
+      eligibleToStartAt: Date.now(),
+    });
+  }, [updateAsset]);
 
   const reportUploadFailure = useCallback((asset: AssetDraft, errorCode: string, uploadPath: UploadPath) => {
     const severity = errorCode === "upload_permission_denied" || errorCode === "server_unauthorized" || errorCode === "storage/unauthorized"
@@ -386,11 +420,12 @@ export function AssetUploader({
         label,
         kind: asset.kind,
         fileName: asset.fileName,
+        fileKind: asset.kind,
         uploadPath,
         uploadStatus: asset.uploadStatus,
         uploadProgress: asset.uploadProgress,
         errorCode,
-        serverUploadEndpoint: serverUploadEndpoint ? "present" : "absent",
+        serverUploadEndpoint: serverUploadEndpoint || "",
       },
       consoleLabel: "[AssetUploader] upload failed",
     });
@@ -448,11 +483,18 @@ export function AssetUploader({
     progressCheckpointsRef.current.set(asset.id, checkpoints);
 
     for (const checkpoint of [25, 50, 75, 100]) {
-      if (progress >= checkpoint && !checkpoints.has(checkpoint)) {
-        checkpoints.add(checkpoint);
-        trackEvent("asset_upload_progress_checkpoint", {
-          kind: asset.kind,
-          upload_path: asset.uploadPath,
+        if (progress >= checkpoint && !checkpoints.has(checkpoint)) {
+          checkpoints.add(checkpoint);
+          trackEvent("asset_batch_progress_updated", {
+            batch_checkpoint: checkpoint,
+            kind: asset.kind,
+            upload_path: asset.uploadPath,
+            folder,
+            source_component: "asset_uploader",
+          });
+          trackEvent("asset_upload_progress_checkpoint", {
+            kind: asset.kind,
+            upload_path: asset.uploadPath,
           progress_checkpoint: checkpoint,
           folder,
           source_component: "asset_uploader",
@@ -630,6 +672,7 @@ export function AssetUploader({
       return;
     }
 
+    markAssetEligibleToStart(assetId);
     inFlightStartsRef.current.add(assetId);
     progressCheckpointsRef.current.delete(assetId);
 
@@ -672,9 +715,13 @@ export function AssetUploader({
     });
 
     nextIds.forEach((assetId) => {
+      markAssetEligibleToStart(assetId);
+    });
+
+    nextIds.forEach((assetId) => {
       void startUpload(assetId);
     });
-  }, [assets, startUpload]);
+  }, [assets, markAssetEligibleToStart, startUpload]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -696,6 +743,24 @@ export function AssetUploader({
     return () => window.clearInterval(timer);
   }, [markAssetFailed]);
 
+  useEffect(() => {
+    const summary = buildUploadQueueStateSummary(assets);
+    if (summary.allComplete && summary.success > 0 && summary.failed === 0 && summary.blocked === 0) {
+      trackEvent("asset_batch_completed", {
+        batch_size: summary.total,
+        folder,
+        source_component: "asset_uploader",
+      });
+    }
+    if (summary.failed > 0 || summary.blocked > 0) {
+      trackEvent("asset_batch_failed", {
+        batch_size: summary.failed + summary.blocked,
+        folder,
+        source_component: "asset_uploader",
+      });
+    }
+  }, [assets, folder]);
+
   const primaryAsset = useMemo(() => assets[0] || null, [assets]);
   const showCropper = !disableCrop
     && primaryAsset?.kind === "image"
@@ -710,6 +775,15 @@ export function AssetUploader({
   const queueAssets = useCallback((selectedFiles: FileList | null) => {
     if (!selectedFiles) {
       return;
+    }
+
+    const appendToCurrentQueue = multiple;
+    if (!appendToCurrentQueue) {
+      uploadSessionIdRef.current = generateSecureClientId();
+      cancelHandlesRef.current.forEach(({ cancel }) => cancel());
+      cancelHandlesRef.current.clear();
+      inFlightStartsRef.current.clear();
+      progressCheckpointsRef.current.clear();
     }
 
     const uploadPath = resolveUploadPath(folder, serverUploadEndpoint);
@@ -740,7 +814,14 @@ export function AssetUploader({
         uploadPath,
         uploadProgressMode: uploadPath === "server" ? "indeterminate" : "measured",
         queueQueuedAt: uploadStatus === "queued" ? now + index : undefined,
+        eligibleToStartAt: undefined,
       } satisfies AssetDraft;
+    });
+
+    trackEvent("asset_batch_selected", {
+      batch_size: incoming.length,
+      folder,
+      source_component: "asset_uploader",
     });
 
     incoming.forEach((asset) => {
@@ -766,11 +847,16 @@ export function AssetUploader({
     });
 
     setAssets((current) => {
-      const next = multiple ? [...current, ...incoming].slice(0, 50) : incoming.slice(0, 1);
+      const next = appendToCurrentQueue ? [...current, ...incoming].slice(0, 50) : incoming.slice(0, 1);
       return next;
     });
     setCrop(DEFAULT_CROP);
     setZoom(DEFAULT_ZOOM);
+    trackEvent("asset_batch_queue_started", {
+      batch_size: incoming.length,
+      folder,
+      source_component: "asset_uploader",
+    });
   }, [disableCrop, folder, multiple, reportUploadFailure, serverUploadEndpoint]);
 
   const removeAsset = useCallback((assetId: string) => {
@@ -820,20 +906,25 @@ export function AssetUploader({
       return;
     }
 
-    const nextStatus: UploadStatus = !disableCrop && asset.kind === "image" && !asset.cropPixels
+    const hasFile = Boolean(asset.file);
+    const nextStatus: UploadStatus = hasFile && !disableCrop && asset.kind === "image" && !asset.cropPixels
       ? "local"
-      : "queued";
+      : hasFile
+        ? "queued"
+        : "failed";
+    const nextError = hasFile ? undefined : "Re-select file to retry.";
 
     progressCheckpointsRef.current.delete(assetId);
     updateAsset(assetId, (current) => ({
       ...current,
       uploadStatus: nextStatus,
       uploadProgress: 0,
-      uploadError: undefined,
+      uploadError: nextError,
       uploadErrorCode: undefined,
       uploadStartedAt: undefined,
       uploadCompletedAt: undefined,
-      queueQueuedAt: nextStatus === "queued" ? Date.now() : undefined,
+      queueQueuedAt: nextStatus === "queued" ? Date.now() : current.queueQueuedAt,
+      eligibleToStartAt: nextStatus === "queued" ? Date.now() : current.eligibleToStartAt,
       lastProgressAt: undefined,
     }));
 
@@ -852,10 +943,36 @@ export function AssetUploader({
         source_component: "asset_uploader",
       });
     }
+    trackEvent("asset_batch_retry_failed_clicked", {
+      kind: asset.kind,
+      upload_path: asset.uploadPath,
+      folder,
+      source_component: "asset_uploader",
+    });
   }, [disableCrop, folder, updateAsset]);
 
   const cancelAsset = useCallback((assetId: string) => {
     cancelHandlesRef.current.get(assetId)?.cancel();
+  }, []);
+
+  const clearFailedAssets = useCallback(() => {
+    setAssets((current) => current.filter((asset) => asset.uploadStatus !== "failed" && asset.uploadStatus !== "blocked"));
+  }, []);
+
+  const cancelQueuedAndUploadingAssets = useCallback(() => {
+    setAssets((current) => current.map((asset) => {
+      if (asset.uploadStatus === "queued" || asset.uploadStatus === "uploading" || asset.uploadStatus === "processing" || asset.uploadStatus === "local") {
+        cancelHandlesRef.current.get(asset.id)?.cancel();
+        return {
+          ...asset,
+          uploadStatus: "canceled",
+          uploadError: "Upload canceled.",
+          uploadErrorCode: "storage/canceled",
+          uploadCompletedAt: Date.now(),
+        };
+      }
+      return asset;
+    }));
   }, []);
 
   const renderThumbnail = (asset: AssetDraft) => {
@@ -872,21 +989,37 @@ export function AssetUploader({
     );
   };
 
+  const queueSummary = buildUploadQueueStateSummary(assets);
   const visibleAssets = assets.slice(0, MOBILE_UPLOAD_PREVIEW_LIMIT);
   const hiddenAssetCount = Math.max(0, assets.length - visibleAssets.length);
+  const batchSummaryLabel = [
+    `${queueSummary.uploading + queueSummary.processing} uploading`,
+    `${queueSummary.queued} queued`,
+    `${queueSummary.success} uploaded`,
+  ].filter((part) => !part.startsWith("0 ")).join(" • ");
+  const hasFailedAssets = queueSummary.failed > 0 || queueSummary.blocked > 0;
+  const hasRetryableFailedAssets = assets.some((asset) =>
+    asset.uploadStatus === "failed" || asset.uploadStatus === "blocked" || asset.uploadStatus === "canceled",
+  );
+  const hasCancelableAssets = assets.some((asset) =>
+    asset.uploadStatus === "queued"
+    || asset.uploadStatus === "uploading"
+    || asset.uploadStatus === "processing"
+    || asset.uploadStatus === "local",
+  );
 
   return (
     <div
       className="space-y-1.5"
       data-upload-mobile-density="compact-v2"
       data-upload-sprawl-reduction="target-50"
-      data-upload-queue-state={buildUploadQueueStateSummary(assets).allComplete ? "idle" : "active"}
+      data-upload-queue-state={queueSummary.allComplete ? "idle" : "active"}
     >
       <div className="flex items-center justify-between gap-2">
         <label className="text-sm font-semibold text-gray-200">{label}</label>
         {assets.length > 0 ? (
           <span className="rounded-full border border-white/10 bg-black/40 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-gray-400">
-            {assets.length} {assets.length === 1 ? "file" : "files"}
+            {assets.length > 1 && batchSummaryLabel ? batchSummaryLabel : `${assets.length} ${assets.length === 1 ? "file" : "files"}`}
           </span>
         ) : null}
       </div>
@@ -917,6 +1050,50 @@ export function AssetUploader({
             event.currentTarget.value = "";
           }}
         />
+
+        {assets.length > 1 ? (
+          <div className="rounded-xl border border-white/8 bg-black/25 px-3 py-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-[11px] font-semibold text-gray-200">
+                {batchSummaryLabel || "Batch active"}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearFailedAssets();
+                  }}
+                  className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-white/8"
+                  disabled={!hasFailedAssets}
+                >
+                  Clear failed
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const retryable = assetsRef.current.filter((asset) => asset.uploadStatus === "failed" || asset.uploadStatus === "canceled" || asset.uploadStatus === "blocked");
+                    retryable.forEach((asset) => retryAsset(asset.id));
+                  }}
+                  className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-brand-purple/25"
+                  disabled={!hasRetryableFailedAssets}
+                >
+                  Retry failed
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelQueuedAndUploadingAssets}
+                  className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 text-[10px] font-semibold text-gray-200 transition-colors hover:bg-white/8"
+                  disabled={!hasCancelableAssets}
+                >
+                  Cancel all
+                </button>
+              </div>
+            </div>
+            <p className="mt-1 text-[10px] text-gray-500">
+              Queued files stay visible until they upload, fail, or are removed.
+            </p>
+          </div>
+        ) : null}
 
         {showCropper && primaryAsset?.previewUrl ? (
           <div className="space-y-2 rounded-[1.2rem] border border-white/10 bg-white/[0.02] p-2.5">
@@ -1017,7 +1194,12 @@ export function AssetUploader({
 
         {assets.length > 0 ? (
           <div className={cn("grid gap-2 pt-1", multiple ? "grid-cols-4 sm:grid-cols-5" : "grid-cols-1 max-w-[180px]")}>
-            {visibleAssets.map((asset) => (
+            {visibleAssets.map((asset) => {
+              const queuedPosition = asset.uploadStatus === "queued"
+                ? assets.filter((candidate) => candidate.uploadStatus === "queued").findIndex((candidate) => candidate.id === asset.id) + 1
+                : null;
+
+              return (
               <div
                 key={asset.id}
                 className="space-y-1"
@@ -1030,7 +1212,7 @@ export function AssetUploader({
 
                   <div className="absolute left-1.5 top-1.5 flex items-center gap-1">
                     <span className={cn("rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em]", getStatusTone(asset))}>
-                      {asset.uploadStatus === "uploading" && asset.uploadProgressMode === "measured" ? `${asset.uploadProgress}%` : getStatusLabel(asset)}
+                      {asset.uploadStatus === "queued" && queuedPosition ? `Queued #${queuedPosition}` : asset.uploadStatus === "uploading" && asset.uploadProgressMode === "measured" ? `${asset.uploadProgress}%` : getStatusLabel(asset)}
                     </span>
                   </div>
 
@@ -1121,7 +1303,8 @@ export function AssetUploader({
                   </div>
                 ) : null}
               </div>
-            ))}
+              );
+            })}
 
             {hiddenAssetCount > 0 ? (
               <div className="flex aspect-square items-center justify-center rounded-xl border border-dashed border-white/10 bg-black/20 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400">

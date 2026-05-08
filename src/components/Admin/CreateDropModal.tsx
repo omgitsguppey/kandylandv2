@@ -20,6 +20,7 @@ import {
     dropFormSchema,
     type DropFormData,
 } from "@/lib/admin-drop-form";
+import type { UploadDraftSnapshot } from "@/lib/uploads/asset-upload-draft-contract";
 import {
     toggleAdminDropFormSection,
     type AdminDropFormSectionId,
@@ -27,6 +28,7 @@ import {
 import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import type { AdminAiDropCoverJobRecord } from "@/lib/ai-drop-covers";
+import { trackEvent } from "@/lib/telemetry";
 import { toast } from "sonner";
 
 const AVAILABLE_TAGS = ["Sweet", "Spicy", "RAW"];
@@ -109,6 +111,9 @@ interface FilesAndAssetsSectionProps {
     onContentAssetsChange: (assets: UploadedAsset[]) => void;
     onCoverUploadStateChange: (state: AssetUploadStateSummary) => void;
     onContentUploadStateChange: (state: AssetUploadStateSummary) => void;
+    onCoverDraftStateChange: (snapshot: UploadDraftSnapshot) => void;
+    onContentDraftStateChange: (snapshot: UploadDraftSnapshot) => void;
+    resetKey?: string;
     serverUploadEndpoint: string;
     aiPanel?: ReactNode;
     errors: FieldErrors<DropFormData>;
@@ -166,6 +171,9 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
     onContentAssetsChange,
     onCoverUploadStateChange,
     onContentUploadStateChange,
+    onCoverDraftStateChange,
+    onContentDraftStateChange,
+    resetKey,
     serverUploadEndpoint,
     aiPanel,
     errors,
@@ -209,6 +217,8 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                         initialType="image/png"
                         onChange={onCoverAssetsChange}
                         onUploadStateChange={onCoverUploadStateChange}
+                        onDraftStateChange={onCoverDraftStateChange}
+                        resetKey={resetKey}
                         serverUploadEndpoint={serverUploadEndpoint}
                     />
                     {errors.imageUrl && <p className="text-red-400 text-xs">{errors.imageUrl.message}</p>}
@@ -226,6 +236,8 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                         initialType={contentType}
                         onChange={onContentAssetsChange}
                         onUploadStateChange={onContentUploadStateChange}
+                        onDraftStateChange={onContentDraftStateChange}
+                        resetKey={resetKey}
                         disableCrop={true}
                         serverUploadEndpoint={serverUploadEndpoint}
                     />
@@ -255,6 +267,8 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const [coverAssets, setCoverAssets] = useState<UploadedAsset[]>([]);
     const [coverUploadState, setCoverUploadState] = useState<AssetUploadStateSummary | null>(null);
     const [contentUploadState, setContentUploadState] = useState<AssetUploadStateSummary | null>(null);
+    const [coverDraftState, setCoverDraftState] = useState<UploadDraftSnapshot | null>(null);
+    const [contentDraftState, setContentDraftState] = useState<UploadDraftSnapshot | null>(null);
     const [creatorOptions, setCreatorOptions] = useState<CreatorOption[]>([]);
     const [duplicateWarnings, setDuplicateWarnings] = useState<Array<{ dropId: string; title: string; duplicateFileNames: string[]; approvalStatus: string }>>([]);
     const [checkingDuplicateNames, setCheckingDuplicateNames] = useState(false);
@@ -337,10 +351,25 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
         return dropType === "promo" ? "Configure the ad button and destination." : "Configure the external destination and CTA.";
     }, [dropType]);
-    const uploadsBusy = Boolean(
-        (coverUploadState && !coverUploadState.allComplete && (coverUploadState.queued > 0 || coverUploadState.uploading > 0))
-        || (contentUploadState && !contentUploadState.allComplete && (contentUploadState.queued > 0 || contentUploadState.uploading > 0)),
+    const hasActiveUploads = Boolean(
+        (coverDraftState && (
+            coverDraftState.summary.queued > 0
+            || coverDraftState.summary.uploading > 0
+            || coverDraftState.summary.processing > 0
+            || coverDraftState.assets.some((asset) => asset.uploadStatus === "local")
+        ))
+        || (contentDraftState && (
+            contentDraftState.summary.queued > 0
+            || contentDraftState.summary.uploading > 0
+            || contentDraftState.summary.processing > 0
+            || contentDraftState.assets.some((asset) => asset.uploadStatus === "local")
+        )),
     );
+    const hasFailedDrafts = Boolean(
+        (coverDraftState && (coverDraftState.summary.failed > 0 || coverDraftState.summary.blocked > 0))
+        || (contentDraftState && (contentDraftState.summary.failed > 0 || contentDraftState.summary.blocked > 0)),
+    );
+    const uploadsBusy = hasActiveUploads;
 
     const basicsOpen = openSection === "basics";
     const uploadsOpen = openSection === "assets";
@@ -398,6 +427,8 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             setDraftSessionId(null);
             setCoverUploadState(null);
             setContentUploadState(null);
+            setCoverDraftState(null);
+            setContentDraftState(null);
             reset(createDefaultDropFormValues(creatorIdOverride));
             setDuplicateWarnings([]);
             return;
@@ -595,6 +626,21 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             if (duplicateWarnings.length > 0) {
                 toast.error("Resolve duplicate file names before saving this drop.");
                 return;
+            }
+            if (hasActiveUploads) {
+                trackEvent("asset_batch_submit_blocked_uploads_in_progress", {
+                    folder: "drops",
+                    source_component: "create_drop_modal",
+                    mode,
+                });
+                toast.error("Uploads are still finishing. Wait for all files to upload before saving this drop.");
+                return;
+            }
+            if (hasFailedDrafts) {
+                const proceed = window.confirm("Some uploads failed or were canceled. Save this drop without them?");
+                if (!proceed) {
+                    return;
+                }
             }
 
             const { dropData } = buildDropRequestPayload(data, {
@@ -895,12 +941,15 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         contentUrl={contentUrl}
                                         contentType={fileMetadata?.type}
                                         initialContentAssets={contentAssets}
-                                        onCoverAssetsChange={handleCoverAssetsChange}
-                                        onContentAssetsChange={handleContentAssetsChange}
-                                        onCoverUploadStateChange={setCoverUploadState}
-                                        onContentUploadStateChange={setContentUploadState}
-                                        serverUploadEndpoint={mode === "creator" ? "/api/creator/drops/assets" : "/api/admin/content"}
-                                        aiPanel={mode === "admin" ? (
+                                          onCoverAssetsChange={handleCoverAssetsChange}
+                                          onContentAssetsChange={handleContentAssetsChange}
+                                          onCoverUploadStateChange={setCoverUploadState}
+                                          onContentUploadStateChange={setContentUploadState}
+                                          onCoverDraftStateChange={setCoverDraftState}
+                                          onContentDraftStateChange={setContentDraftState}
+                                          resetKey={draftSessionId || dropId || undefined}
+                                          serverUploadEndpoint={mode === "creator" ? "/api/creator/drops/assets" : "/api/admin/content"}
+                                          aiPanel={mode === "admin" ? (
                                             <AiDropCoverGeneratorPanel
                                                 visible={uploadsOpen}
                                                 title={titleValue}

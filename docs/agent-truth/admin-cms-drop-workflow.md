@@ -43,8 +43,11 @@ Current media flow:
 - public feed: sanitized by `sanitizeDropForClient`
 - locked content access: `/api/drops/content`
 - `AssetUploader` queues every selected asset that needs upload and only emits server-accepted success URLs back into the CMS form.
+- `AssetUploader` also emits durable draft queue state so parent forms can keep queued, uploading, failed, and canceled files visible during re-render and draft persistence.
 - Cover crop waits in `local` state until `Use Cover`, then joins the same queue truth as other uploads.
 - Failed, blocked, or canceled assets stay visible with typed error copy and retry/remove controls instead of silently looking pending.
+- Drop save/publish must stay blocked while uploads are still active. The CMS can only submit final content from successful uploaded assets after the queue is complete or the user explicitly removes failed items.
+- Queued items waiting behind concurrency are not stalled. `Pending` is not a valid terminal state.
 
 Content Drops require at least one locked asset before publication. Promo and external Drops do not require locked assets, but they require a safe action URL.
 

@@ -49,6 +49,9 @@ Protected Drop assets require entitlement before access:
 - Explicit client states are `local`, `queued`, `uploading`, `processing`, `success`, `failed`, `canceled`, and `blocked`.
 - Direct Storage permissions must be verified against `storage.rules`; for `drops/**`, direct client upload is blocked and the uploader must use the guarded admin or creator server route.
 - Mobile upload UI keeps progress, retry, cancel, and status inside compact thumbnail overlays to cut vertical sprawl without hiding truth.
+- Drop media batch uploads use durable draft queue state. Parent forms may receive successful uploaded assets for final save, but they must also receive full upload draft state so queued, uploading, failed, or canceled files cannot disappear during re-render or partial form sync.
+- Queued files waiting behind concurrency are not stalled. Only items eligible to start may age into a queued stall failure.
+- `Pending` is not a valid terminal state for any upload surface.
 
 ## Expired And Archived Drops
 
