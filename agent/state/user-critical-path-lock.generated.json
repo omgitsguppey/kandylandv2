@@ -1,0 +1,103 @@
+{
+  "reportKey": "user-critical-path-lock",
+  "generatedAt": "2026-05-08T03:34:09.252Z",
+  "sourceCommit": "479c9466093e85346f67914e4bcbdff395ef5126",
+  "freshness": "fresh",
+  "status": "pass",
+  "summary": {
+    "sectionCount": 11,
+    "passedSectionCount": 11,
+    "failedSectionCount": 0,
+    "criticalBlockerCount": 0,
+    "warningCount": 0,
+    "changedFileCount": 8,
+    "requiredTargetedCheckCount": 3,
+    "forbiddenBroadCheckCount": 5
+  },
+  "criticalBlockers": [],
+  "warnings": [],
+  "changedFilesSinceLastUserCriticalPathLock": [
+    "agent/state/user-critical-path-lock.generated.json",
+    "package.json",
+    "scripts/agent/validate-user-critical-path-lock.ts",
+    "src/app/HomeClient.tsx",
+    "src/components/Chat/ChatExperience.tsx",
+    "src/components/Support/SupportInbox.tsx",
+    "src/lib/chat-send-feedback.ts",
+    "tests/unit/chat-send-feedback.spec.ts"
+  ],
+  "requiredTargetedChecks": [
+    "npm run check:user-critical-path-lock",
+    "npm run typecheck",
+    "npx vitest run tests/unit/chat-send-feedback.spec.ts"
+  ],
+  "forbiddenBroadChecks": [
+    "npm run check",
+    "playwright",
+    "cypress",
+    "lighthouse",
+    "firebase deploy"
+  ],
+  "promoReadinessNotes": [
+    "User-facing Phase 1 is promo-ready when the lock stays green on the current tree.",
+    "Any new user-facing copy or journey change should rerun the targeted checks before public promo.",
+    "Admin/debug surfaces remain out of scope for this lock."
+  ],
+  "validationResults": [
+    {
+      "name": "Guest home CTA leads to signup and dashboard",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Logged-in users land on dashboard",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Dashboard check-in stays compact and functional",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Drops page shows locked, affordable, and refill states",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Preview explains what to do before unlock",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Wallet opens from refill gates and preserves source-aware balances",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Unlock creates entitlement and routes to viewer/library",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Viewer opens unlocked content only",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Chat guidance and paid-GD copy are present",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "Support and bug-report escape hatches are available",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "name": "User-facing errors stay in human copy",
+      "status": "pass",
+      "failures": []
+    }
+  ]
+}

@@ -1264,7 +1264,7 @@ export function ChatExperience() {
                 throw new Error(`Chat threads returned non-JSON (${response.status}): ${rawText.slice(0, 150).trim()}`);
             }
             if (!response.ok) {
-                throw new Error(body.error || "Failed to load chat threads.");
+                throw new Error("Chat threads could not be loaded right now.");
             }
             if (threadsLoadRequestIdRef.current !== requestId) {
                 return;
@@ -1311,7 +1311,7 @@ export function ChatExperience() {
                 consoleLabel: "[Chat] thread list load failed",
             });
             if (!quiet) {
-                toast.error(error instanceof Error ? error.message : "Failed to load chat threads.");
+                toast.error("Chat threads could not be loaded right now.");
             }
         } finally {
             if (!background) {
@@ -1385,7 +1385,7 @@ export function ChatExperience() {
                 throw new Error(`Chat thread detail returned non-JSON (${response.status}): ${rawText.slice(0, 150).trim()}`);
             }
             if (!response.ok) {
-                throw new Error(body.error || "Failed to load this chat thread.");
+                throw new Error("This chat thread could not be loaded right now.");
             }
             if (threadDetailRequestIdRef.current !== requestId || selectedThreadIdRef.current !== threadId) {
                 return;
@@ -1406,7 +1406,7 @@ export function ChatExperience() {
                 setSelectedDetail(null);
             }
             if (!quiet) {
-                toast.error(error instanceof Error ? error.message : "Failed to load this chat thread.");
+                toast.error("This chat thread could not be loaded right now.");
             }
         } finally {
             if (!background) {
@@ -1873,7 +1873,7 @@ export function ChatExperience() {
                 : thread));
             exitThreadSelectionMode();
             if (failedCount > 0) {
-                toast.error(`Failed to mark ${failedCount} conversation${failedCount === 1 ? "" : "s"} as read.`);
+                toast.error(`Some conversations could not be marked as read.`);
             }
         } finally {
             setEditingThreads(false);
@@ -1897,16 +1897,16 @@ export function ChatExperience() {
             }));
             const failedCount = results.filter((result) => result.status === "rejected").length;
             if (failedCount === selectedThreadIds.length) {
-                throw new Error("Failed to delete the selected conversations.");
+                throw new Error("Selected conversations could not be deleted right now.");
             }
 
             setThreads((current) => current.filter((thread) => !selectedThreadIds.includes(thread.id)));
             exitThreadSelectionMode();
             if (failedCount > 0) {
-                toast.error(`Deleted conversations with ${failedCount} failure${failedCount === 1 ? "" : "s"}.`);
+                toast.error("Some conversations could not be deleted.");
             }
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Failed to delete the selected conversations.");
+            toast.error("Selected conversations could not be deleted right now.");
         } finally {
             setEditingThreads(false);
         }
@@ -2302,8 +2302,8 @@ export function ChatExperience() {
                 setComposerText(currentComposerText);
             }
             const message = cleanupFailed
-                ? `${error instanceof Error ? error.message : "Failed to send message."} The uploaded attachment could not be cleaned up automatically, and this was logged.`
-                : (error instanceof Error ? error.message : "Failed to send message.");
+                ? "We couldn't send your message. The uploaded attachment could not be cleaned up automatically, and this was logged."
+                : "We couldn't send your message. Try again shortly.";
             deferChatMessageSendFailedTelemetry({
                 sourceComponent: "chat_thread_composer",
                 userId: user?.uid,

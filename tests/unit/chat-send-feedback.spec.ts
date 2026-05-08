@@ -18,9 +18,9 @@ describe("chat send feedback", () => {
         );
     });
 
-    it("falls back to the server error message when no known code exists", () => {
+    it("falls back to a human-readable generic message when no known code exists", () => {
         expect(buildChatSendErrorMessage({ error: "Something specific failed." })).toBe(
-            "Something specific failed.",
+            "We couldn't send your message. Try again shortly.",
         );
     });
 

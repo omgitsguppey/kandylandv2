@@ -79,9 +79,24 @@ async function readJson<T>(url: string, init?: RequestInit): Promise<T> {
     const response = await authFetch(url, init);
     const body = await response.json().catch(() => ({})) as T & { error?: string };
     if (!response.ok) {
-        throw new Error(typeof body.error === "string" ? body.error : `Request failed for ${url}`);
+        throw new Error("Support request could not be completed right now.");
     }
     return body;
+}
+
+function getSupportProblemCopy(action: "load_list" | "load_detail" | "create" | "reply" | "status") {
+    switch (action) {
+        case "load_list":
+            return "Support tickets could not be loaded right now.";
+        case "load_detail":
+            return "This support ticket could not be loaded right now.";
+        case "create":
+            return "Support ticket could not be created right now.";
+        case "reply":
+            return "Support reply could not be sent right now.";
+        case "status":
+            return "Ticket status could not be updated right now.";
+    }
 }
 
 export function SupportInbox() {
@@ -131,11 +146,11 @@ export function SupportInbox() {
             return;
         }
 
-        reportClientIssue({
-            channel: "network",
-            severity: "warn",
-            message: "Support thread list failed to load",
-            detail: threadListError.message,
+            reportClientIssue({
+                channel: "network",
+                severity: "warn",
+                message: "Support thread list failed to load",
+                detail: threadListError.message,
         });
     }, [threadListError]);
 
@@ -144,11 +159,11 @@ export function SupportInbox() {
             return;
         }
 
-        reportClientIssue({
-            channel: "network",
-            severity: "warn",
-            message: "Support thread detail failed to load",
-            detail: selectedThreadError.message,
+            reportClientIssue({
+                channel: "network",
+                severity: "warn",
+                message: "Support thread detail failed to load",
+                detail: selectedThreadError.message,
         });
     }, [selectedThreadError]);
 
@@ -219,12 +234,12 @@ export function SupportInbox() {
             setMessage("");
             toast.success("Support ticket created.");
         } catch (error) {
-            const messageText = error instanceof Error ? error.message : "Support ticket could not be created.";
+            const messageText = getSupportProblemCopy("create");
             reportClientIssue({
                 channel: "network",
                 severity: "error",
                 message: "Support ticket creation failed",
-                detail: { message: messageText },
+                detail: { message: error instanceof Error ? error.message : messageText },
             });
             toast.error(messageText);
         } finally {
@@ -251,12 +266,12 @@ export function SupportInbox() {
             await mutateThreadList();
             toast.success("Reply sent.");
         } catch (error) {
-            const messageText = error instanceof Error ? error.message : "Reply could not be sent.";
+            const messageText = getSupportProblemCopy("reply");
             reportClientIssue({
                 channel: "network",
                 severity: "error",
                 message: "Support reply failed",
-                detail: { message: messageText },
+                detail: { message: error instanceof Error ? error.message : messageText },
             });
             trackEvent("support_thread_reply_failed", {
                 source_component: "support_inbox",
@@ -293,12 +308,12 @@ export function SupportInbox() {
             await mutateThreadList();
             toast.success(action === "resolve" ? "Ticket resolved." : "Ticket reopened.");
         } catch (error) {
-            const messageText = error instanceof Error ? error.message : "Ticket status could not be updated.";
+            const messageText = getSupportProblemCopy("status");
             reportClientIssue({
                 channel: "network",
                 severity: "error",
                 message: "Support status update failed",
-                detail: { message: messageText },
+                detail: { message: error instanceof Error ? error.message : messageText },
             });
             toast.error(messageText);
         } finally {
@@ -401,7 +416,7 @@ export function SupportInbox() {
 
                     {threadListError ? (
                         <div className="rounded-[1.2rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-                            {threadListError.message}
+                            {getSupportProblemCopy("load_list")}
                         </div>
                     ) : null}
 
@@ -475,7 +490,7 @@ export function SupportInbox() {
                         </div>
                     ) : selectedThreadError ? (
                         <div className="mt-4 rounded-[1.2rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-                            {selectedThreadError.message}
+                            {getSupportProblemCopy("load_detail")}
                         </div>
                     ) : selectedThread?.thread ? (
                         <>

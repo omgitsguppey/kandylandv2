@@ -21,7 +21,7 @@ export function buildChatSendErrorMessage(input: {
         case "empty_message":
             return "Add a message or attachment before sending.";
         default:
-            return input.error || "Failed to send message.";
+            return "We couldn't send your message. Try again shortly.";
     }
 }
 
