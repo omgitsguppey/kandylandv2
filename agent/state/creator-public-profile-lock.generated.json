@@ -1,15 +1,11 @@
 {
-  "generatedAt": "2026-05-08T03:52:48.695Z",
+  "generatedAt": "2026-05-08T04:44:05.150Z",
   "status": "pass",
   "criticalBlockers": [],
   "warnings": [],
   "changedFilesSinceLastCreatorPublicProfileLock": [
+    "agent/state/creator-public-profile-lock.generated.json",
     "package.json",
-    "src/app/api/creator/requests/route.ts",
-    "src/app/creators/[username]/CreatorProfileClient.tsx",
-    "src/components/Creators/CreatorExperiencesPanel.tsx",
-    "src/components/Creators/CreatorProfileHeader.tsx",
-    "src/lib/problem-state-copy.ts",
     "scripts/agent/validate-creator-public-profile-lock.ts"
   ],
   "requiredTargetedChecks": [

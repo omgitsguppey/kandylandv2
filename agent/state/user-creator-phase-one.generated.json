@@ -1,0 +1,286 @@
+{
+  "reportKey": "user-creator-phase-one",
+  "generatedAt": "2026-05-08T04:44:23.527Z",
+  "status": "pass",
+  "promoReadinessVerdict": "ready",
+  "criticalBlockers": [],
+  "warnings": [],
+  "surfacesAffected": [
+    "user home",
+    "signup/login",
+    "dashboard",
+    "drops",
+    "viewer/library",
+    "chat",
+    "support",
+    "creator public profile",
+    "creator fan conversion",
+    "creator chat gating",
+    "creator dashboard projection",
+    "admin view-as projection",
+    "creator monetization",
+    "chat paid-GD guidance",
+    "Fan Pass",
+    "requests",
+    "bookings",
+    "user mobile shell",
+    "creator profile mobile",
+    "chat shell",
+    "drops mobile",
+    "wallet paid/free source truth",
+    "creator monetization spend policy",
+    "wallet capture",
+    "drop unlock",
+    "viewer entitlement",
+    "low paid-GD reminder",
+    "release notes feed",
+    "public changelog",
+    "beta badge versioning",
+    "release note version contract",
+    "beta release notes drawer",
+    "last 5 public notes",
+    "beta badge modal layout"
+  ],
+  "exactValidatorsToRun": [
+    "npm run check:user-critical-path-lock",
+    "npm run check:creator-public-profile-lock",
+    "npm run check:creator-dashboard-projection-lock",
+    "npm run check:creator-monetization-gates-lock",
+    "npm run check:mobile-shell-safe-area",
+    "npm run check:gumdrop-source-of-funds-truth",
+    "npm run check:payment-unlock-security",
+    "npm run check:chat-paid-gumdrops-guidance",
+    "npm run check:release-notes-cutover",
+    "npm run check:beta-versioning",
+    "npm run check:beta-release-notes",
+    "npm run check:beta-modal-layout"
+  ],
+  "conditionalValidators": [
+    "npm run check:drop-asset-upload-progress"
+  ],
+  "skippedValidators": [
+    "npm run check:drop-asset-upload-progress"
+  ],
+  "requiredTargetedChecks": [
+    "npm run check:user-critical-path-lock",
+    "npm run check:creator-public-profile-lock",
+    "npm run check:creator-dashboard-projection-lock",
+    "npm run check:creator-monetization-gates-lock",
+    "npm run check:mobile-shell-safe-area",
+    "npm run check:gumdrop-source-of-funds-truth",
+    "npm run check:payment-unlock-security",
+    "npm run check:chat-paid-gumdrops-guidance",
+    "npm run check:release-notes-cutover",
+    "npm run check:beta-versioning",
+    "npm run check:beta-release-notes",
+    "npm run check:beta-modal-layout",
+    "npm run typecheck"
+  ],
+  "forbiddenBroadChecks": [
+    "npm run check",
+    "playwright",
+    "lighthouse",
+    "cypress",
+    "firebase deploy",
+    "admin analytics rebuilds"
+  ],
+  "changedFilesSinceLastUserCreatorPhaseOne": [
+    "agent/state/user-creator-phase-one.generated.json",
+    "docs/agent-truth/user-creator-phase-one.md",
+    "package.json",
+    "scripts/agent/validate-user-creator-phase-one.ts"
+  ],
+  "validatorResults": [
+    {
+      "script": "check:user-critical-path-lock",
+      "command": "npm run check:user-critical-path-lock",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "user home",
+        "signup/login",
+        "dashboard",
+        "drops",
+        "viewer/library",
+        "chat",
+        "support"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:user-critical-path-lock",
+        "> tsx scripts/agent/validate-user-critical-path-lock.ts",
+        "User critical path lock validation passed."
+      ]
+    },
+    {
+      "script": "check:creator-public-profile-lock",
+      "command": "npm run check:creator-public-profile-lock",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "creator public profile",
+        "creator fan conversion",
+        "creator chat gating"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:creator-public-profile-lock",
+        "> tsx scripts/agent/validate-creator-public-profile-lock.ts",
+        "status=pass criticalBlockers=0 warnings=0 changedFiles=3"
+      ]
+    },
+    {
+      "script": "check:creator-dashboard-projection-lock",
+      "command": "npm run check:creator-dashboard-projection-lock",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "creator dashboard projection",
+        "admin view-as projection"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:creator-dashboard-projection-lock",
+        "> tsx scripts/agent/validate-creator-dashboard-projection-lock.ts",
+        "status=pass criticalBlockers=0 warnings=0 changedFiles=2"
+      ]
+    },
+    {
+      "script": "check:creator-monetization-gates-lock",
+      "command": "npm run check:creator-monetization-gates-lock",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "creator monetization",
+        "chat paid-GD guidance",
+        "Fan Pass",
+        "requests",
+        "bookings"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:creator-monetization-gates-lock",
+        "> tsx scripts/agent/validate-creator-monetization-gates-lock.ts",
+        "status=pass criticalBlockers=0 warnings=0 changedFiles=3"
+      ]
+    },
+    {
+      "script": "check:mobile-shell-safe-area",
+      "command": "npm run check:mobile-shell-safe-area",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "user mobile shell",
+        "creator profile mobile",
+        "chat shell",
+        "drops mobile"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:mobile-shell-safe-area",
+        "> tsx scripts/agent/validate-mobile-shell-safe-area.ts",
+        "Mobile shell safe-area validation passed."
+      ]
+    },
+    {
+      "script": "check:gumdrop-source-of-funds-truth",
+      "command": "npm run check:gumdrop-source-of-funds-truth",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "wallet paid/free source truth",
+        "creator monetization spend policy"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:gumdrop-source-of-funds-truth",
+        "> tsx scripts/agent/validate-gumdrop-source-of-funds-truth.ts",
+        "GumDrop source-of-funds truth validation passed."
+      ]
+    },
+    {
+      "script": "check:payment-unlock-security",
+      "command": "npm run check:payment-unlock-security",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "wallet capture",
+        "drop unlock",
+        "viewer entitlement"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:payment-unlock-security",
+        "> tsx scripts/agent/validate-payment-unlock-security.ts",
+        "Payment/unlock security validation passed."
+      ]
+    },
+    {
+      "script": "check:chat-paid-gumdrops-guidance",
+      "command": "npm run check:chat-paid-gumdrops-guidance",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "chat paid-GD guidance",
+        "low paid-GD reminder"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:chat-paid-gumdrops-guidance",
+        "> tsx scripts/agent/validate-chat-paid-gumdrops-guidance.ts",
+        "Chat paid GumDrops guidance validation passed."
+      ]
+    },
+    {
+      "script": "check:release-notes-cutover",
+      "command": "npm run check:release-notes-cutover",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "release notes feed",
+        "public changelog"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:release-notes-cutover",
+        "> tsx scripts/agent/validate-release-notes-cutover.ts",
+        "Release notes cutover validation passed."
+      ]
+    },
+    {
+      "script": "check:beta-versioning",
+      "command": "npm run check:beta-versioning",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "beta badge versioning",
+        "release note version contract"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:beta-versioning",
+        "> tsx scripts/agent/validate-beta-versioning.ts",
+        "Beta odometer versioning validation passed."
+      ]
+    },
+    {
+      "script": "check:beta-release-notes",
+      "command": "npm run check:beta-release-notes",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "beta release notes drawer",
+        "last 5 public notes"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:beta-release-notes",
+        "> tsx scripts/agent/validate-beta-release-notes.ts",
+        "Beta release notes validation passed."
+      ]
+    },
+    {
+      "script": "check:beta-modal-layout",
+      "command": "npm run check:beta-modal-layout",
+      "status": "pass",
+      "exitCode": 0,
+      "surfaces": [
+        "beta badge modal layout"
+      ],
+      "output": [
+        "> kandydrops@0.1.0 check:beta-modal-layout",
+        "> tsx scripts/agent/validate-beta-modal-layout.ts",
+        "Beta modal layout validation passed."
+      ]
+    }
+  ]
+}

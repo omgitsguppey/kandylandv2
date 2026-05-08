@@ -120,7 +120,16 @@ function validate(): LockReport {
     {
       key: "chat-gating",
       label: "Chat CTA checks follow and paid GD",
-      ok: includesAll(creatorProfileClient, ["messageHint", "Follow", "paid GD", "openPurchaseModal", "toast.error(`You need"]) && includesAll(creatorProfileHeader, ["messageHint"]),
+      ok: includesAll(creatorProfileClient, [
+        "messageHint",
+        "CreatorPaidGdGuidanceCard",
+        "monetizationGuidance",
+        "openPurchaseModal(monetizationGuidance.requiredPaidGd)",
+        "reason: \"chat\"",
+        "reason: \"fan_pass\"",
+        "reason: \"request\"",
+        "reason: \"booking\"",
+      ]) && includesAll(creatorProfileHeader, ["messageHint"]),
       evidence: [
         "Profile CTA now blocks to auth, follow, or refill before opening chat.",
       ],

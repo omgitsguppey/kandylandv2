@@ -48,7 +48,7 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
             mainElement.style.height = USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
             mainElement.style.maxHeight = USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
             mainElement.style.minHeight = "0";
-            mainElement.style.paddingBottom = "0px";
+            mainElement.style.paddingBottom = "var(--user-mobile-chat-bottom-reserved-height, 0px)";
 
             if (window.scrollY !== 0) {
                 window.scrollTo(0, 0);

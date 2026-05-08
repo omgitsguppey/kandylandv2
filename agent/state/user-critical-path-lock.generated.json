@@ -1,7 +1,7 @@
 {
   "reportKey": "user-critical-path-lock",
-  "generatedAt": "2026-05-08T03:34:09.252Z",
-  "sourceCommit": "479c9466093e85346f67914e4bcbdff395ef5126",
+  "generatedAt": "2026-05-08T04:44:03.127Z",
+  "sourceCommit": "01fae23380ae2345f672983f680dadb1b88fd6b8",
   "freshness": "fresh",
   "status": "pass",
   "summary": {
@@ -10,21 +10,23 @@
     "failedSectionCount": 0,
     "criticalBlockerCount": 0,
     "warningCount": 0,
-    "changedFileCount": 8,
+    "changedFileCount": 10,
     "requiredTargetedCheckCount": 3,
     "forbiddenBroadCheckCount": 5
   },
   "criticalBlockers": [],
   "warnings": [],
   "changedFilesSinceLastUserCriticalPathLock": [
+    "agent/state/creator-dashboard-projection-lock.generated.json",
+    "agent/state/creator-monetization-gates-lock.generated.json",
+    "agent/state/creator-public-profile-lock.generated.json",
+    "agent/state/user-creator-phase-one.generated.json",
     "agent/state/user-critical-path-lock.generated.json",
+    "docs/agent-truth/user-creator-phase-one.md",
     "package.json",
-    "scripts/agent/validate-user-critical-path-lock.ts",
-    "src/app/HomeClient.tsx",
-    "src/components/Chat/ChatExperience.tsx",
-    "src/components/Support/SupportInbox.tsx",
-    "src/lib/chat-send-feedback.ts",
-    "tests/unit/chat-send-feedback.spec.ts"
+    "scripts/agent/validate-creator-public-profile-lock.ts",
+    "scripts/agent/validate-user-creator-phase-one.ts",
+    "src/components/Chat/ChatRouteShell.tsx"
   ],
   "requiredTargetedChecks": [
     "npm run check:user-critical-path-lock",
