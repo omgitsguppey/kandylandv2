@@ -217,6 +217,15 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "bug_report_submitted", label: "Bug report submitted", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["engagement"], aliases: ["feedback_submitted"] },
   { eventName: "experience_hub_viewed", label: "Experiences viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "tasks", "navigation"] },
   { eventName: "daily_checkin_claimed", label: "Daily check-in claimed", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"], aliases: ["daily_check_in_claim", "daily_reward_claimed"] },
+  { eventName: "daily_task_window_assigned", label: "Daily task window assigned", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
+  { eventName: "daily_task_window_repaired", label: "Daily task window repaired", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
+  { eventName: "daily_task_progressed", label: "Daily task progressed", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
+  { eventName: "daily_task_completed", label: "Daily task completed", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
+  { eventName: "daily_task_claimed", label: "Daily task claimed", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
+  { eventName: "daily_task_claim_duplicate_prevented", label: "Daily task claim duplicate prevented", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
+  { eventName: "daily_task_expired", label: "Daily task expired", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
+  { eventName: "daily_task_reward_normalized", label: "Daily task reward normalized", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
+  { eventName: "daily_task_state_repair_required", label: "Daily task state repair required", category: "tasks", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["tasks"] },
   { eventName: "wallet_opened", label: "Wallet opened", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "wallet_closed_incomplete", label: "Wallet closed without completion", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"], auditCoveredBy: ["wallet_opened"] },
   { eventName: "purchase_package_selected", label: "Wallet package selected", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
@@ -1150,6 +1159,33 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     return [
       "task_id|taskId|task_key|taskKey",
       "reward_gd|rewardGd|gum_drops_awarded|reward",
+    ];
+  }
+
+  if (
+    eventName === "daily_task_window_assigned"
+    || eventName === "daily_task_window_repaired"
+    || eventName === "daily_task_reward_normalized"
+    || eventName === "daily_task_state_repair_required"
+  ) {
+    return [
+      "daily_task_window_id|dailyTaskWindowId",
+      "reason_code|reasonCode",
+      "source_component|sourceComponent",
+    ];
+  }
+
+  if (
+    eventName === "daily_task_progressed"
+    || eventName === "daily_task_completed"
+    || eventName === "daily_task_claimed"
+    || eventName === "daily_task_expired"
+    || eventName === "daily_task_claim_duplicate_prevented"
+  ) {
+    return [
+      "task_id|taskId|task_key|taskKey",
+      "daily_task_window_id|dailyTaskWindowId",
+      "reward_gd|rewardGd|reward",
     ];
   }
 

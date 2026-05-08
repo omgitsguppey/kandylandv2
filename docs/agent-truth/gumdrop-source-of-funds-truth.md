@@ -39,6 +39,8 @@ Future purchase ledger rows should carry:
 - Platform Economy warnings must surface drift rather than redefining balances.
 - Creator chat affordability must compare `gumDropsPurchasedBalance` only; free/reward GumDrops never unlock creator messaging.
 - Chat low-balance reminder eligibility resets only after paid balance refills back to `100+`. Free/reward balance changes must not reset the reminder cycle.
+- Daily task rewards are reward-source GumDrops only. They may increase reward/free balance and total balance, but they must never increase purchased/paid balance.
+- Daily check-in rewards remain separate from random task rewards when pinned outside the random pool.
 
 ## Platform Economy Guard
 

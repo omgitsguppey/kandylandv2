@@ -6,6 +6,7 @@ Machine-readable report: `agent/state/user-critical-path-lock.generated.json`
 Pass.
 
 The user-facing Phase 1 journey is sealed across guest home, signup/login, dashboard check-in, drops browsing, locked preview, wallet refill, unlock, viewer handoff, chat, and support escape hatches. The current tree keeps user copy human-readable and avoids admin/debug leakage on the public path.
+Daily tasks in the dashboard follow the same rule: the assigned set stays stable for the active daily window, the reset timer is visible, and incomplete tasks do not fail or disappear before the daily reset.
 
 ## Critical Blockers
 - None.
@@ -22,6 +23,7 @@ The user-facing Phase 1 journey is sealed across guest home, signup/login, dashb
 - `src/components/Support/SupportInbox.tsx`
 - `src/lib/chat-send-feedback.ts`
 - `tests/unit/chat-send-feedback.spec.ts`
+- `src/components/Dashboard/DailyTasksModule.tsx`
 
 ## Required Targeted Checks
 - `npm run check:user-critical-path-lock`

@@ -137,6 +137,16 @@ export function DailyTasksModule() {
     [nowMs],
   );
   const nextRefreshMs = dailyTaskState?.nextRefreshMs || fallbackNextRefreshMs;
+  const resetAtLabel = useMemo(() => {
+    if (!Number.isFinite(nextRefreshMs) || nextRefreshMs <= 0) {
+      return "";
+    }
+
+    return new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(new Date(nextRefreshMs));
+  }, [nextRefreshMs]);
   const waitLabel = nowMs > 0 && nextRefreshMs > 0 ? formatCountdown(nextRefreshMs, nowMs) : "--:--:--";
   const hasCatalogInsufficientAssignment = useMemo(
     () => activeTasks.length > 0 && activeTasks.every((task) => task.reasonCode === "catalog_insufficient_eligible_tasks"),
@@ -146,7 +156,7 @@ export function DailyTasksModule() {
     ? activeTasks.length
     : DAILY_TASK_LIMIT;
   const isCompleteForToday = expectedTaskCount > 0 && completedCount >= expectedTaskCount;
-  const headerCountdownLabel = isCompleteForToday ? "Next batch in" : "Deadline in";
+  const shouldShowRepairCard = dailyTaskState?.windowState === "repair_required";
 
   useEffect(() => {
     setExpandedTaskIds((current) => (
@@ -155,7 +165,7 @@ export function DailyTasksModule() {
   }, [activeTasks]);
 
   const applyAuthoritativeTaskState = useCallback((
-    nextState: Pick<DailyTasksState, "tasks" | "nextRefreshMs"> & Partial<Pick<DailyTasksState, "lastResetMs" | "lastProgressAt" | "lastDeadlineReminderAt" | "completedTaskHistory" | "retiredTaskIds">>,
+    nextState: Pick<DailyTasksState, "tasks" | "nextRefreshMs"> & Partial<Pick<DailyTasksState, "lastResetMs" | "lastProgressAt" | "lastDeadlineReminderAt" | "completedTaskHistory" | "retiredTaskIds" | "windowState">>,
   ) => {
     const resolvedNowMs = nowMs > 0 ? nowMs : Date.now();
     const mergedState: DailyTasksState = {
@@ -164,6 +174,7 @@ export function DailyTasksModule() {
       lastDeadlineReminderAt: nextState.lastDeadlineReminderAt ?? userProfile?.dailyTasksState?.lastDeadlineReminderAt ?? localTaskState?.lastDeadlineReminderAt ?? 0,
       completedTaskHistory: nextState.completedTaskHistory ?? userProfile?.dailyTasksState?.completedTaskHistory ?? localTaskState?.completedTaskHistory ?? {},
       retiredTaskIds: nextState.retiredTaskIds ?? userProfile?.dailyTasksState?.retiredTaskIds ?? localTaskState?.retiredTaskIds ?? [],
+      windowState: nextState.windowState ?? userProfile?.dailyTasksState?.windowState ?? localTaskState?.windowState,
       tasks: nextState.tasks,
       nextRefreshMs: nextState.nextRefreshMs,
     };
@@ -594,6 +605,7 @@ export function DailyTasksModule() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-white sm:text-2xl">Daily tasks</h2>
+              <p className="mt-1 text-sm leading-6 text-gray-400">Finish these before the daily reset.</p>
             </div>
           </div>
 
@@ -603,13 +615,30 @@ export function DailyTasksModule() {
               <p className="mt-1 text-2xl font-black text-white">{completedCount}/{expectedTaskCount}</p>
             </div>
             <div className="rounded-[1.4rem] border border-white/10 bg-black/30 px-3 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">{headerCountdownLabel}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">{isCompleteForToday ? "Tasks reset at" : "Tasks reset in"}</p>
               <p className="mt-1 text-lg font-black text-brand-purple">{waitLabel}</p>
+              {resetAtLabel ? (
+                <p className="mt-1 text-[11px] font-medium text-gray-400">Tasks reset at {resetAtLabel}.</p>
+              ) : null}
             </div>
           </div>
         </div>
 
       </section>
+
+      {shouldShowRepairCard ? (
+        <div className="glass-panel rounded-[2rem] border border-amber-400/20 bg-amber-400/8 p-5">
+          <p className="text-sm font-semibold text-amber-200">Your daily tasks need a quick refresh.</p>
+          <p className="mt-2 text-sm leading-6 text-gray-300">Reload the page to restore the current task set. Your progress stays tied to this daily window.</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-4 rounded-full border border-amber-300/30 bg-amber-300/15 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-amber-300/20"
+          >
+            Reload tasks
+          </button>
+        </div>
+      ) : null}
 
       {rotating && activeTasks.length === 0 ? (
         <div className="glass-panel rounded-[2rem] border border-white/10 p-6 text-center">
@@ -715,7 +744,7 @@ export function DailyTasksModule() {
             const statusLabel = task.claimed
               ? task.oneTime
                 ? "Retired forever"
-                : "Completed today"
+                : "Reward claimed"
               : task.progress > 0
                 ? "Progress saved"
                 : "Ready now";
@@ -750,8 +779,8 @@ export function DailyTasksModule() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="mb-2 flex flex-wrap items-center gap-1.5">
-                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-gray-200">
-                              Deadline {waitLabel}
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-gray-200">
+                              Reset {waitLabel}
                             </span>
                             {task.oneTime ? (
                               <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-300">
@@ -812,7 +841,7 @@ export function DailyTasksModule() {
                       {task.claimed ? (
                         <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple px-3.5 py-2 text-xs font-bold text-white">
                           <CheckCircle2 className="h-4 w-4" />
-                          Completed
+                          Reward claimed
                         </div>
                       ) : (
                         <button

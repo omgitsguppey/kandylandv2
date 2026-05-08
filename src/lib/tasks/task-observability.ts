@@ -26,6 +26,15 @@ const GENERIC_TASK_LIFECYCLE_EVENT_NAMES = new Set([
   "task_completed",
   "daily_task_failed",
   "daily_task_deadline_reminder_sent",
+  "daily_task_window_assigned",
+  "daily_task_window_repaired",
+  "daily_task_progressed",
+  "daily_task_completed",
+  "daily_task_claimed",
+  "daily_task_claim_duplicate_prevented",
+  "daily_task_expired",
+  "daily_task_reward_normalized",
+  "daily_task_state_repair_required",
 ]);
 
 export type DailyTaskTrackingSource = "canonical" | "telemetry" | "unsupported";

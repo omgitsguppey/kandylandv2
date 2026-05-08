@@ -1,24 +1,15 @@
+import type { DailyTaskWindowState } from "@/lib/tasks/daily-task-window-contract";
+import { normalizeDailyTaskRewardVNext } from "@/lib/tasks/daily-task-reward-contract";
+
 export const DAILY_TASK_LIMIT = 3;
 export const DAILY_CHECKIN_PINNED_REWARD_OUTSIDE_RANDOM_POOL = true;
 export const DAILY_TASK_COOLDOWN_DAYS = 7;
-export const DAILY_TASK_GLOBAL_MIN_REWARD_GD = 10;
-export const DAILY_TASK_GLOBAL_MAX_REWARD_GD = 1000;
-const DAILY_TASK_RAW_MIN_REWARD = 50;
-const DAILY_TASK_RAW_MAX_REWARD = 1000;
-const DAILY_TASK_REWARD_MULTIPLIERS = {
-  2: 0.75,
-  3: 0.6,
-} as const;
+export const DAILY_TASK_GLOBAL_MIN_REWARD_GD = 30;
+export const DAILY_TASK_GLOBAL_MAX_REWARD_GD = 600;
 export const DAILY_TASK_REWARD_VERSION = 3;
-export const DAILY_TASK_REWARD_MULTIPLIER = DAILY_TASK_REWARD_MULTIPLIERS[DAILY_TASK_REWARD_VERSION];
-export const DAILY_TASK_MIN_REWARD = Math.max(
-  DAILY_TASK_GLOBAL_MIN_REWARD_GD,
-  Math.round(DAILY_TASK_RAW_MIN_REWARD * DAILY_TASK_REWARD_MULTIPLIER),
-);
-export const DAILY_TASK_MAX_REWARD = Math.min(
-  DAILY_TASK_GLOBAL_MAX_REWARD_GD,
-  Math.round(DAILY_TASK_RAW_MAX_REWARD * DAILY_TASK_REWARD_MULTIPLIER),
-);
+export const DAILY_TASK_REWARD_MULTIPLIER = 0.6;
+export const DAILY_TASK_MIN_REWARD = 30;
+export const DAILY_TASK_MAX_REWARD = 600;
 
 export type TaskRewardTier = "easy" | "medium" | "high" | "premium";
 
@@ -37,10 +28,10 @@ export type TaskRewardContract = {
 };
 
 const TASK_REWARD_TIER_BOUNDS: Record<TaskRewardTier, { minRewardGd: number; maxRewardGd: number }> = {
-  easy: { minRewardGd: 10, maxRewardGd: 100 },
+  easy: { minRewardGd: DAILY_TASK_MIN_REWARD, maxRewardGd: 100 },
   medium: { minRewardGd: 50, maxRewardGd: 300 },
-  high: { minRewardGd: 100, maxRewardGd: 700 },
-  premium: { minRewardGd: 250, maxRewardGd: 1000 },
+  high: { minRewardGd: 100, maxRewardGd: 600 },
+  premium: { minRewardGd: 250, maxRewardGd: 600 },
 };
 
 export type DailyTaskScope = "built_in" | "global" | "user";
@@ -129,7 +120,7 @@ export interface DailyTaskAssignment extends DailyTaskDefinition {
   claimedAt?: number;
   dailyTaskWindowId?: string;
   expiresAtUtc?: string;
-  status?: "assigned" | "in_progress" | "completed" | "expired" | "failed" | "skipped" | "backfilled";
+  status?: "assigned" | "in_progress" | "completed" | "claimed" | "expired" | "repair_required";
   reasonCode?: "daily_window_started" | "daily_window_expired" | "on_demand_backfill" | "user_ineligible" | "catalog_unavailable" | "materializer_retry" | "debug_repair" | "inactivity_policy" | "catalog_insufficient_eligible_tasks";
   assignmentSource?: "daily_task_materializer" | "on_demand_backfill" | "debug_repair";
 }
@@ -138,6 +129,7 @@ export interface DailyTasksState {
   lastResetMs: number;
   nextRefreshMs: number;
   tasks: DailyTaskAssignment[];
+  windowState?: DailyTaskWindowState;
   dailyTaskWindowId?: string;
   windowStartAtUtc?: string;
   windowEndAtUtc?: string;
@@ -201,22 +193,6 @@ export function isRetiredLegacyDailyTaskId(taskId: string) {
   return RETIRED_LEGACY_DAILY_TASK_IDS.includes(normalizedTaskId as typeof RETIRED_LEGACY_DAILY_TASK_IDS[number]);
 }
 
-function resolveTaskRewardTier(reward: number): TaskRewardTier {
-  if (reward <= TASK_REWARD_TIER_BOUNDS.easy.maxRewardGd) {
-    return "easy";
-  }
-
-  if (reward <= TASK_REWARD_TIER_BOUNDS.medium.maxRewardGd) {
-    return "medium";
-  }
-
-  if (reward <= TASK_REWARD_TIER_BOUNDS.high.maxRewardGd) {
-    return "high";
-  }
-
-  return "premium";
-}
-
 export function buildDailyTaskRewardContract(definition: {
   id: string;
   title: string;
@@ -225,22 +201,23 @@ export function buildDailyTaskRewardContract(definition: {
   rewardTier?: TaskRewardTier;
   maxProgress: number;
 }): TaskRewardContract {
-  const rewardGd = normalizeDailyTaskReward(definition.reward);
-  const inferredRewardTier = definition.rewardTier ?? resolveTaskRewardTier(rewardGd);
-  const bounds = TASK_REWARD_TIER_BOUNDS[inferredRewardTier];
+  const normalizedReward = normalizeDailyTaskRewardVNext({
+    rawReward: definition.reward,
+    rewardTier: definition.rewardTier,
+  });
 
   return {
     taskId: definition.id,
     title: definition.title,
     triggerEvent: definition.eventName,
-    rewardTier: inferredRewardTier,
-    rewardGd,
-    minRewardGd: bounds.minRewardGd,
-    maxRewardGd: bounds.maxRewardGd,
+    rewardTier: normalizedReward.rewardTier,
+    rewardGd: normalizedReward.rewardGd,
+    minRewardGd: TASK_REWARD_TIER_BOUNDS[normalizedReward.rewardTier].minRewardGd,
+    maxRewardGd: TASK_REWARD_TIER_BOUNDS[normalizedReward.rewardTier].maxRewardGd,
     rewardSource: "daily_task",
     payoutPolicy: "on_completion_only",
     repeatPolicy: definition.maxProgress > 1 ? "limited" : "once_per_daily_window",
-    economyRisk: inferredRewardTier === "premium" ? "high" : inferredRewardTier === "high" ? "medium" : "low",
+    economyRisk: normalizedReward.economyRisk,
   };
 }
 
@@ -268,12 +245,7 @@ function createTask(
 }
 
 export function normalizeDailyTaskReward(rawReward: number) {
-  if (!Number.isFinite(rawReward)) {
-    return DAILY_TASK_MIN_REWARD;
-  }
-
-  const nextReward = Math.round(rawReward * DAILY_TASK_REWARD_MULTIPLIER);
-  return clampDailyTaskReward(nextReward);
+  return normalizeDailyTaskRewardVNext({ rawReward }).rewardGd;
 }
 
 export function clampDailyTaskReward(reward: number) {
@@ -284,24 +256,7 @@ export function clampDailyTaskReward(reward: number) {
 }
 
 export function resolveDailyTaskReward(rawReward: unknown, rewardVersion?: unknown) {
-  const numericReward = Number(rawReward);
-  if (!Number.isFinite(numericReward)) {
-    return DAILY_TASK_MIN_REWARD;
-  }
-
-  if (rewardVersion === DAILY_TASK_REWARD_VERSION) {
-    return clampDailyTaskReward(numericReward);
-  }
-
-  const storedMultiplier = typeof rewardVersion === "number"
-    ? DAILY_TASK_REWARD_MULTIPLIERS[rewardVersion as keyof typeof DAILY_TASK_REWARD_MULTIPLIERS]
-    : undefined;
-  if (typeof storedMultiplier === "number" && storedMultiplier > 0) {
-    const rawEquivalent = numericReward / storedMultiplier;
-    return clampDailyTaskReward(rawEquivalent * DAILY_TASK_REWARD_MULTIPLIER);
-  }
-
-  return normalizeDailyTaskReward(numericReward);
+  return normalizeDailyTaskRewardVNext({ rawReward, rewardVersion }).rewardGd;
 }
 
 export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [

@@ -128,7 +128,10 @@ describe("recordDailyTaskProgressFromEvent", () => {
             { source: "canonical", receiptKey: "drop_1" },
         );
 
-        expect(mockState.transactionWrites).toEqual([]);
+        expect(mockState.transactionWrites).toHaveLength(1);
+        expect(mockState.transactionWrites[0]).toMatchObject({
+            path: "analytics_event_stats/daily_task_claim_duplicate_prevented",
+        });
         expect(mockState.documents.get("users/fan_1")).toMatchObject({
             gumDropsBalance: 100,
             gumDropsPurchasedBalance: 0,

@@ -24,6 +24,9 @@ async function POST_handler(req: NextRequest) {
       rotated: result.rotated,
       nextRefreshMs: result.nextRefreshMs,
       tasks: result.tasks,
+      windowState: result.windowState,
+      rewardTotals: result.rewardTotals,
+      repairIssues: result.repairIssues,
     });
   } catch (error) {
     return handleApiError(error, "tasks/rotate");
