@@ -61,8 +61,9 @@ function CreatorDiscoveryRailSkeleton({ compact, surface }: { compact: boolean; 
     return (
         <section
             data-home-section={surface === "home" ? "creator-spotlight" : undefined}
+            data-home-density={surface === "home" ? "compact-mobile-v1" : undefined}
             className={cn(
-                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 [content-visibility:auto] [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2 [content-visibility:auto] [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
                 compact ? "space-y-2" : "space-y-3",
             )}
         >
@@ -129,8 +130,9 @@ function CreatorDiscoveryRailEmpty({
     return (
         <section
             data-home-section={surface === "home" ? "creator-spotlight" : undefined}
+            data-home-density={surface === "home" ? "compact-mobile-v1" : undefined}
             className={cn(
-                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 [content-visibility:auto] [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2 [content-visibility:auto] [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
                 compact ? "space-y-2" : "space-y-3",
             )}
         >
@@ -138,7 +140,7 @@ function CreatorDiscoveryRailEmpty({
                 <Sparkles className="h-3.5 w-3.5" />
                 {title || "Creator spotlight"}
             </div>
-            <div className="rounded-[1.7rem] border border-dashed border-white/10 bg-black/25 px-4 py-6 text-center">
+            <div className="rounded-[1.7rem] border border-dashed border-white/10 bg-black/25 px-4 py-5 text-center sm:py-6">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400">
                     <Users className="h-6 w-6" />
                 </div>
@@ -241,8 +243,9 @@ function CreatorDiscoveryRailView({
     return (
         <section
             data-home-section={surface === "home" ? "creator-spotlight" : undefined}
+            data-home-density={surface === "home" ? "compact-mobile-v1" : undefined}
             className={cn(
-                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 [content-visibility:auto] [contain-intrinsic-size:300px] sm:rounded-[2rem] sm:p-4",
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2 [content-visibility:auto] [contain-intrinsic-size:300px] sm:rounded-[2rem] sm:p-4",
                 compact ? "space-y-2" : "space-y-3",
             )}
         >
@@ -253,7 +256,7 @@ function CreatorDiscoveryRailView({
                         {title || "Creator spotlight"}
                     </div>
                     {support ? (
-                        <p className="mt-1.5 max-w-2xl text-sm leading-6 text-gray-400">{support}</p>
+                        <p className="mt-1 max-w-2xl text-[13px] leading-5 text-gray-400 sm:mt-1.5 sm:text-sm sm:leading-6">{support}</p>
                     ) : null}
                 </div>
                 <div className="hidden shrink-0 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-right sm:block">
@@ -262,7 +265,7 @@ function CreatorDiscoveryRailView({
                 </div>
             </div>
 
-            <div className="overflow-x-auto pb-1">
+            <div className="overflow-x-auto pb-0.5 sm:pb-1">
                 <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
                     {creators.map((creator, index) => {
                         const creatorRouteInput = {
@@ -335,13 +338,13 @@ function CreatorDiscoveryRailView({
                                 ref={(node) => setCreatorCardRef(creator.uid, node)}
                                 data-creator-id={creator.uid}
                                 data-creator-rail-position={index + 1}
-                                className={cn(
-                                    "group flex shrink-0 flex-col justify-between rounded-[1.45rem] border border-white/5 bg-white/[0.03] text-center",
-                                    compact
-                                        ? "aspect-square w-[7.25rem] gap-2 px-2.5 py-2.5"
-                                        : "aspect-square w-[8.75rem] gap-2.5 px-3 py-3",
-                                )}
-                            >
+                                    className={cn(
+                                        "group flex shrink-0 flex-col justify-between rounded-[1.45rem] border border-white/5 bg-white/[0.03] text-center",
+                                        compact
+                                            ? "aspect-square w-[6.9rem] gap-1.5 px-2 py-2"
+                                            : "aspect-square w-[8.35rem] gap-2 px-2.5 py-2.5 sm:w-[8.75rem] sm:gap-2.5 sm:px-3 sm:py-3",
+                                    )}
+                                >
                                 {creatorProfileHref ? (
                                     <Link
                                         href={creatorProfileHref}

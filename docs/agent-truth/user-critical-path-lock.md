@@ -7,6 +7,7 @@ Pass.
 
 The user-facing Phase 1 journey is sealed across guest home, signup/login, dashboard check-in, drops browsing, locked preview, wallet refill, unlock, viewer handoff, chat, and support escape hatches. The current tree keeps user copy human-readable and avoids admin/debug leakage on the public path.
 Daily tasks in the dashboard follow the same rule: the assigned set stays stable for the active daily window, the reset timer is visible, and incomplete tasks do not fail or disappear before the daily reset.
+Homepage density lock: the hero remains unchanged while post-hero mobile sections may use homepage-scoped compact density markers only.
 
 ## Critical Blockers
 - None.

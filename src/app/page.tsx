@@ -25,11 +25,19 @@ export default async function HomePage() {
             >
                 <Hero activeDrops={initialActiveDrops} />
 
-                <div className="mx-auto mb-10 w-full max-w-7xl px-4 sm:mb-16 sm:px-6 lg:px-8">
+                <div
+                    className="mx-auto mb-6 w-full max-w-7xl px-4 sm:mb-16 sm:px-6 lg:px-8"
+                    data-home-section="secondary"
+                    data-home-density="compact-mobile-v1"
+                >
                     <CreatorDiscoveryRail surface="home" initialCreators={initialCreators} />
                 </div>
 
-                <div className="w-full">
+                <div
+                    className="w-full"
+                    data-home-section="third"
+                    data-home-density="compact-mobile-v1"
+                >
                     <HowItWorks activeDrops={initialActiveDrops} />
                 </div>
 
