@@ -34,11 +34,47 @@ type JunkReport = {
 const ROOT = process.cwd();
 const REPORT_PATH = "agent/state/codebase-junk-cleanup.generated.json";
 
+type ScriptReferenceIndex = Map<string, string[]>;
+
 function repoPath(relativePath: string) {
   return path.join(ROOT, relativePath);
 }
 
-function classifyFile(file: string, packageScripts: Record<string, string>): JunkRecord | null {
+function buildAgentScriptReferenceIndex(trackedFiles: string[]) {
+  const scriptFiles = trackedFiles.filter((file) => file.startsWith("scripts/agent/") && file.endsWith(".ts"));
+  const scriptSource = new Map<string, string>();
+
+  for (const file of scriptFiles) {
+    const absolutePath = repoPath(file);
+    if (!existsSync(absolutePath)) continue;
+    scriptSource.set(file, readFileSync(absolutePath, "utf8"));
+  }
+
+  const referenceIndex: ScriptReferenceIndex = new Map();
+  for (const candidate of scriptFiles) {
+    const candidateBase = candidate.replace(/^scripts\/agent\//u, "").replace(/\.ts$/u, "");
+    const candidateName = path.basename(candidate, ".ts");
+    const importedBy: string[] = [];
+    for (const [sourceFile, sourceText] of scriptSource.entries()) {
+      if (sourceFile === candidate) continue;
+      const matchesByPath = sourceText.includes(`scripts/agent/${candidateBase}.ts`);
+      const matchesByImport = sourceText.includes(`"${candidateBase}"`) || sourceText.includes(`'${candidateBase}'`);
+      const matchesByFilename = sourceText.includes(candidateName);
+      if (matchesByPath || matchesByImport || matchesByFilename) {
+        importedBy.push(sourceFile);
+      }
+    }
+    referenceIndex.set(candidate, importedBy.sort((left, right) => left.localeCompare(right)));
+  }
+
+  return referenceIndex;
+}
+
+function classifyFile(
+  file: string,
+  packageScripts: Record<string, string>,
+  scriptReferenceIndex: ScriptReferenceIndex,
+): JunkRecord | null {
   const reasons: string[] = [];
   let classification: Classification | null = null;
 
@@ -65,12 +101,15 @@ function classifyFile(file: string, packageScripts: Record<string, string>): Jun
   if (file.startsWith("scripts/agent/") && file.endsWith(".ts")) {
     const scriptBase = file.replace(/^scripts\/agent\//u, "").replace(/\.ts$/u, "");
     const isWired = Object.values(packageScripts).some((command) => command.includes(`scripts/agent/${scriptBase}.ts`));
-    if (!isWired) {
+    const importedBy = scriptReferenceIndex.get(file) ?? [];
+    if (!isWired && importedBy.length === 0) {
       classification = "orphan_candidate";
       reasons.push("Agent script is not referenced by package scripts.");
+      reasons.push("Agent script is not imported by other agent scripts.");
     } else {
       classification = classification ?? "supporting";
-      reasons.push("Agent script is referenced by package scripts.");
+      if (isWired) reasons.push("Agent script is referenced by package scripts.");
+      if (importedBy.length > 0) reasons.push(`Agent script is imported by ${importedBy.length} agent scripts.`);
     }
   }
 
@@ -96,8 +135,10 @@ function main() {
   const scripts = packageJson.scripts ?? {};
 
   const trackedFiles = listTrackedFiles();
+  const scriptReferenceIndex = buildAgentScriptReferenceIndex(trackedFiles);
   const records = trackedFiles
-    .map((file) => classifyFile(file, scripts))
+    .filter((file) => existsSync(repoPath(file)))
+    .map((file) => classifyFile(file, scripts, scriptReferenceIndex))
     .filter((record): record is JunkRecord => Boolean(record));
 
   const orphanCandidates = records.filter((record) => record.classification === "orphan_candidate").map((record) => record.file);

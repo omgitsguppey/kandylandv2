@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-08T07:40:51.263Z",
-  "status": "warning",
-  "summary": "classified=1439, orphanCandidates=12, deprecated=0, blocked=0",
+  "generatedAt": "2026-05-08T12:43:24.366Z",
+  "status": "pass",
+  "summary": "classified=1440, orphanCandidates=0, deprecated=0, blocked=0",
   "records": [
     {
       "file": "agent/context/legacy-registry.json",
@@ -1026,6 +1026,13 @@
     },
     {
       "file": "docs/agent-truth/beta-roadmap.md",
+      "classification": "supporting",
+      "reasons": [
+        "Agent truth documentation."
+      ]
+    },
+    {
+      "file": "docs/agent-truth/beta-versioning-final.md",
       "classification": "supporting",
       "reasons": [
         "Agent truth documentation."
@@ -2123,21 +2130,24 @@
       "file": "scripts/agent/build-agent-indexes.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 4 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/build-compact-agent-context.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/build-task-context.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 3 agent scripts."
       ]
     },
     {
@@ -2151,14 +2161,16 @@
       "file": "scripts/agent/build-ui-surface-coverage.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/cache-audit-result.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2172,14 +2184,8 @@
       "file": "scripts/agent/check-dependency-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
-      ]
-    },
-    {
-      "file": "scripts/agent/check-infrastructure-truth.ts",
-      "classification": "orphan_candidate",
-      "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2191,37 +2197,37 @@
     },
     {
       "file": "scripts/agent/classify-repo-files.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is imported by 6 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/extract-canonical-helpers.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/extract-governance.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/extract-runtime-observability.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/extract-workflow.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2235,77 +2241,87 @@
       "file": "scripts/agent/inject-debug-evidence.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/load-debug-evidence-for-audit.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is imported by 5 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/optimize-doctrine-context.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/plan-affected-audits.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 3 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/plan-cloud-auth-bootstrap.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/precatch-runtime-issues.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 3 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/repair-codebase-hardening-safe.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/repair-creator-lifecycle-history-gap.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/repair-device-layout-contract.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/repair-public-beta-safe.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/repair-speed-security-hardening-safe.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2319,7 +2335,8 @@
       "file": "scripts/agent/run-audit-with-ledger.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 3 agent scripts."
       ]
     },
     {
@@ -2333,7 +2350,8 @@
       "file": "scripts/agent/scan-codebase-junk.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2347,7 +2365,8 @@
       "file": "scripts/agent/score-audit-runtime.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
@@ -2361,56 +2380,64 @@
       "file": "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-code-organization.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-codebase-hardening.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 3 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-content-protection.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-creator-lane-debug-parity.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-device-layout-contract.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-device-ui-dry-audit.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-doctrine-hierarchy.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2424,7 +2451,8 @@
       "file": "scripts/agent/score-google-cost-bleed.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
@@ -2438,14 +2466,16 @@
       "file": "scripts/agent/score-gumdrop-economy.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-hydration-performance.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2453,49 +2483,56 @@
       "classification": "legacy_fallback",
       "reasons": [
         "Legacy lane detected by path naming.",
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-orphaned-logic.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-public-beta-readiness.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-speed-security-hardening.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-telemetry-identified-parity.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-telemetry-parity.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/score-tracking-surface-coverage.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2509,28 +2546,30 @@
       "file": "scripts/agent/score-validator-authority.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/shared.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is imported by 83 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/summarize-dependency-graph.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is imported by 3 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/sync-sql.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 7 agent scripts."
       ]
     },
     {
@@ -2558,7 +2597,8 @@
       "file": "scripts/agent/validate-admin-ai-control-tower.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2600,7 +2640,8 @@
       "file": "scripts/agent/validate-admin-copy-surface-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2614,7 +2655,8 @@
       "file": "scripts/agent/validate-admin-debug-control-tower.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 4 agent scripts."
       ]
     },
     {
@@ -2626,16 +2668,17 @@
     },
     {
       "file": "scripts/agent/validate-admin-moderation-security-alerts.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is referenced by package scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-admin-pages-cutover.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2649,7 +2692,8 @@
       "file": "scripts/agent/validate-admin-realtime-cutover.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2684,14 +2728,16 @@
       "file": "scripts/agent/validate-admin-ui-primitives-cutover.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-admin-user-behavior-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2705,14 +2751,16 @@
       "file": "scripts/agent/validate-admin-users-loading-lanes.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-admin-users-stats-grid.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2776,14 +2824,16 @@
       "file": "scripts/agent/validate-audit-runtime-ledger.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-auth-outcomes-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2818,7 +2868,8 @@
       "file": "scripts/agent/validate-behavioral-intelligence-confidence.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2839,18 +2890,28 @@
       "file": "scripts/agent/validate-beta-modal-layout.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-beta-release-notes.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-beta-update-tracker.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
+      ]
+    },
+    {
+      "file": "scripts/agent/validate-beta-versioning-final.ts",
       "classification": "supporting",
       "reasons": [
         "Agent script is referenced by package scripts."
@@ -2874,7 +2935,8 @@
       "file": "scripts/agent/validate-chat-paid-gumdrops-guidance.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2888,14 +2950,16 @@
       "file": "scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-code-organization.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -2923,7 +2987,8 @@
       "file": "scripts/agent/validate-compact-agent-context.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3014,14 +3079,16 @@
       "file": "scripts/agent/validate-creator-fan-experience-settings.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-creator-identity-markers.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3035,7 +3102,8 @@
       "file": "scripts/agent/validate-creator-lane-debug-parity.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3050,7 +3118,8 @@
       "file": "scripts/agent/validate-creator-lane-old-logic-removal.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3106,28 +3175,32 @@
       "file": "scripts/agent/validate-daily-task-lifecycle.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-daily-task-reward-economy.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-daily-task-telemetry-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 3 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-debug-control-tower-cutover.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3155,14 +3228,16 @@
       "file": "scripts/agent/validate-device-layout-contract.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-device-layout-score.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3204,7 +3279,8 @@
       "file": "scripts/agent/validate-drop-asset-upload-progress.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3254,7 +3330,8 @@
       "file": "scripts/agent/validate-drops-mobile-refinement.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3275,7 +3352,8 @@
       "file": "scripts/agent/validate-event-fact-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3329,16 +3407,17 @@
     },
     {
       "file": "scripts/agent/validate-functions-canonical-facts.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is referenced by package scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-generated-report-authority.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3373,7 +3452,8 @@
       "file": "scripts/agent/validate-google-cost-bleed.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3394,7 +3474,8 @@
       "file": "scripts/agent/validate-gumdrop-source-of-funds-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3487,7 +3568,8 @@
       "classification": "legacy_fallback",
       "reasons": [
         "Legacy lane detected by path naming.",
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3501,7 +3583,8 @@
       "file": "scripts/agent/validate-materializers-cutover.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3536,7 +3619,8 @@
       "file": "scripts/agent/validate-notification-read-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3550,14 +3634,16 @@
       "file": "scripts/agent/validate-orphaned-logic.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-payment-unlock-security.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
@@ -3585,28 +3671,32 @@
       "file": "scripts/agent/validate-platform-economy-treasury.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-privacy-consent-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-privacy-import-export-cutover.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-public-beta-changelog.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 2 agent scripts."
       ]
     },
     {
@@ -3620,7 +3710,8 @@
       "file": "scripts/agent/validate-purchase-telemetry-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3648,7 +3739,8 @@
       "file": "scripts/agent/validate-release-notes-cutover.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3662,7 +3754,8 @@
       "file": "scripts/agent/validate-runtime-facts-cutover.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3739,21 +3832,24 @@
       "file": "scripts/agent/validate-synthetic-creators-view-as.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-task-catalog-coverage.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-telemetry-identified-parity.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3795,14 +3891,16 @@
       "file": "scripts/agent/validate-unlock-telemetry-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-user-action-ledger-events.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -3872,70 +3970,79 @@
       "file": "scripts/agent/validate-validator-authority.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-viewer-file-tracking.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-wallet-density.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-wallet-single-paypal-button.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-watch-time-rollup-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-watch-time-truth-v2.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validate-watch-time-truth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/validator-authority-shared.ts",
-      "classification": "orphan_candidate",
+      "classification": "supporting",
       "reasons": [
-        "Agent script is not referenced by package scripts."
+        "Agent script is imported by 3 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/verification-selector.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 3 agent scripts."
       ]
     },
     {
       "file": "scripts/agent/verify-codex-native-auth.ts",
       "classification": "supporting",
       "reasons": [
-        "Agent script is referenced by package scripts."
+        "Agent script is referenced by package scripts.",
+        "Agent script is imported by 1 agent scripts."
       ]
     },
     {
@@ -10103,19 +10210,6 @@
   "removedFiles": [],
   "deprecatedFiles": [],
   "blockedLegacyPaths": [],
-  "orphanCandidates": [
-    "scripts/agent/check-infrastructure-truth.ts",
-    "scripts/agent/classify-repo-files.ts",
-    "scripts/agent/extract-canonical-helpers.ts",
-    "scripts/agent/extract-governance.ts",
-    "scripts/agent/extract-runtime-observability.ts",
-    "scripts/agent/extract-workflow.ts",
-    "scripts/agent/load-debug-evidence-for-audit.ts",
-    "scripts/agent/shared.ts",
-    "scripts/agent/summarize-dependency-graph.ts",
-    "scripts/agent/validate-admin-moderation-security-alerts.ts",
-    "scripts/agent/validate-functions-canonical-facts.ts",
-    "scripts/agent/validator-authority-shared.ts"
-  ],
+  "orphanCandidates": [],
   "safeToRemove": []
 }
