@@ -87,6 +87,21 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
   withRouteRuntimeHealth: (_name: string, handler: unknown) => handler,
 }));
 
+vi.mock("@/lib/server/behavioral-timeline-writer", () => ({
+  writeBehavioralTimelineFacts: vi.fn(async (facts: unknown[]) => ({
+    written: Array.isArray(facts) ? facts.length : 0,
+    skipped: 0,
+    reason: "",
+  })),
+}));
+
+vi.mock("@/lib/server/analytics-identity-linking", () => ({
+  upsertAnalyticsIdentityLink: vi.fn(async () => ({
+    identityLinkId: "identity_link_test",
+    created: true,
+  })),
+}));
+
 import { POST } from "@/app/api/analytics/ingest-identified/route";
 
 function buildRequest(body: unknown) {
@@ -115,7 +130,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
     expect(mockState.batch.commit).toHaveBeenCalledTimes(1);
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_alias");
@@ -164,7 +179,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_notification_opened");
     expect(eventWrite?.data).toMatchObject({
@@ -195,7 +210,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_follow");
     expect(eventWrite?.data).toMatchObject({
@@ -233,7 +248,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_fan_pass");
     expect(eventWrite?.data).toMatchObject({
@@ -265,7 +280,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_purchase_support");
     expect(eventWrite?.data).toMatchObject({
@@ -295,7 +310,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_daily_alias");
     expect(eventWrite?.data).toMatchObject({
@@ -331,7 +346,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_support_ticket_alias");
     expect(eventWrite?.data).toMatchObject({
@@ -369,7 +384,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_bug_report_alias");
     expect(eventWrite?.data).toMatchObject({
@@ -405,7 +420,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_task_completed");
     expect(eventWrite?.data).toMatchObject({
@@ -441,7 +456,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_purchase_verified");
     expect(eventWrite?.data).toMatchObject({
@@ -471,7 +486,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_drop_unwrapped");
     expect(eventWrite?.data).toMatchObject({
@@ -501,7 +516,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_unlock_support");
     expect(eventWrite?.data).toMatchObject({
@@ -532,7 +547,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_projection");
     expect(eventWrite?.data).toMatchObject({
@@ -574,7 +589,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 1, skippedUnsupported: 0 }));
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_projection_blocked");
     expect(eventWrite?.data).toMatchObject({
@@ -614,7 +629,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 0, skippedUnsupported: 1 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 0, skippedUnsupported: 1 }));
     expect(mockState.batch.set).not.toHaveBeenCalled();
     expect(mockState.batch.commit).not.toHaveBeenCalled();
     expect(mockState.recordRouteWarning).toHaveBeenCalledWith(
@@ -645,7 +660,7 @@ describe("POST /api/analytics/ingest-identified", () => {
     }));
     const payload = await response.json();
 
-    expect(payload).toEqual({ success: true, processed: 0, skippedUnsupported: 1 });
+    expect(payload).toEqual(expect.objectContaining({ success: true, processed: 0, skippedUnsupported: 1 }));
     expect(mockState.batch.set).not.toHaveBeenCalled();
     expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
       channel: "ai",

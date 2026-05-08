@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-05-08T06:15:48.463Z",
+  "status": "pass",
+  "score": 100,
+  "checks": [
+    {
+      "id": "guest_ingest_timeline",
+      "pass": true,
+      "detail": "Guest ingest writes timeline facts."
+    },
+    {
+      "id": "identified_ingest_timeline",
+      "pass": true,
+      "detail": "Identified ingest writes timeline facts."
+    },
+    {
+      "id": "identity_linked_emission",
+      "pass": true,
+      "detail": "identity_linked is emitted in server identity linking."
+    },
+    {
+      "id": "ga_demoted",
+      "pass": true,
+      "detail": "GA is policy-demoted from canonical truth."
+    },
+    {
+      "id": "confidence_caps",
+      "pass": true,
+      "detail": "Confidence caps for guest-only/legacy-only/no-outcome are present."
+    },
+    {
+      "id": "deeptracker_noise_demoted",
+      "pass": true,
+      "detail": "DeepTracker low-value noise is capped/demoted."
+    },
+    {
+      "id": "timeline_contract_present",
+      "pass": true,
+      "detail": "Behavioral timeline contract exists."
+    },
+    {
+      "id": "rollup_contract_present",
+      "pass": true,
+      "detail": "Guest/user rollup contract exists."
+    },
+    {
+      "id": "package_scripts_present",
+      "pass": true,
+      "detail": "Package scripts are wired."
+    }
+  ],
+  "criticalBlockers": [],
+  "warnings": [],
+  "exactValidatorsToRun": [
+    "npm run score:guest-user-analytics",
+    "npm run check:guest-user-analytics",
+    "npm run typecheck"
+  ],
+  "surfacesAffected": [
+    "guest analytics ingest",
+    "identified analytics ingest",
+    "behavioral timeline",
+    "behavioral confidence",
+    "admin analytics rollups"
+  ],
+  "promoReadinessVerdict": "ready_with_targeted_checks"
+}

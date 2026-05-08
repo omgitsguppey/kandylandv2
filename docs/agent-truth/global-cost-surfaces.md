@@ -14,6 +14,7 @@ KandyDrops cost control is broader than Google API, Cloud SQL, and BigQuery usag
 ## Hard Limits
 
 - No 1s telemetry ticks. Watch/session visible ticks must be 5s or slower and flush on close, pagehide, or visibility hidden.
+- Behavioral timeline ingest must cap low-value diagnostic event volume per session and prefer summary over per-interaction noise for hover/visibility/page-leave style signals.
 - Upload telemetry must checkpoint at coarse milestones only, such as 25/50/75/100, and must not emit one event per percentage point.
 - Debug evidence dedupes by fingerprint, caps event document writes per fingerprint per hour, rolls up repeats, and never blocks user flows.
 - Cloud/server logging must cap detail previews, redact sensitive fields, and avoid full request/response payload logs.

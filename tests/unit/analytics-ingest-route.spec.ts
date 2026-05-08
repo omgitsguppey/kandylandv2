@@ -5,6 +5,7 @@ const mockState = vi.hoisted(() => ({
     guardApiRequest: vi.fn(),
     recordServerDiagnostic: vi.fn(async () => undefined),
     recordAnalyticsPipelineFailure: vi.fn(async () => undefined),
+    requestAllowsAnonymousAnalytics: vi.fn(() => true),
 }));
 
 vi.mock("@/lib/server/firebase-admin", () => ({
@@ -20,7 +21,7 @@ vi.mock("@/lib/server/rate-limit", () => ({
 }));
 
 vi.mock("@/lib/server/privacy-consent", () => ({
-    requestAllowsAnonymousAnalytics: vi.fn(() => true),
+    requestAllowsAnonymousAnalytics: mockState.requestAllowsAnonymousAnalytics,
     requestHasGlobalPrivacyControl: vi.fn(() => false),
 }));
 
@@ -73,8 +74,10 @@ describe("POST /api/analytics/ingest", () => {
         mockState.guardApiRequest.mockReset();
         mockState.recordServerDiagnostic.mockReset();
         mockState.recordAnalyticsPipelineFailure.mockReset();
+        mockState.requestAllowsAnonymousAnalytics.mockReset();
         mockState.recordServerDiagnostic.mockResolvedValue(undefined);
         mockState.recordAnalyticsPipelineFailure.mockResolvedValue(undefined);
+        mockState.requestAllowsAnonymousAnalytics.mockReturnValue(true);
     });
 
     it("reports ingest failures through structured diagnostics and preserves the 503 response", async () => {
@@ -131,5 +134,30 @@ describe("POST /api/analytics/ingest", () => {
             routeName: "analytics/ingest",
             errorMessage: "rate limiter offline",
         });
+    });
+
+    it("skips metric ingestion when consent denies anonymous analytics", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: null });
+        mockState.requestAllowsAnonymousAnalytics.mockReturnValue(false);
+
+        const request = new NextRequest("http://localhost/api/analytics/ingest", {
+            method: "POST",
+            body: JSON.stringify({
+                events: [{ type: "page_view", timestamp: Date.now(), path: "/" }],
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toEqual({
+            success: true,
+            ignored: true,
+            reason: "analytics_consent_denied",
+        });
+        expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
+            message: "Guest analytics timeline skipped by consent",
+        }));
     });
 });

@@ -7,6 +7,10 @@ Last updated: 2026-04-30
 
 Analytics Truth Layer v2 is the repo contract for moving Admin Analytics away from realtime-dependent loading and toward verified, source-labeled analytics. This phase does not rewrite behavior. It maps the truth model, source hierarchy, module blast radius, and validation expectations that later phases must implement.
 
+## 2026-05-08 Guest + Identified Timeline Consolidation
+
+Guest ingest and identified ingest now both write into a canonical first-party behavioral timeline contract with actor/target separation, consent state, and source reliability. Identity linking now explicitly binds eligible anonymous lineage to user journeys under consent policy. GA4 remains optional evidence only and cannot gate product truth.
+
 ## 2026-05-01 Human-Readable Admin Copy Update
 
 Admin Analytics now has a required operator/developer copy split. Primary module copy must say plain-English states such as "Live updates are delayed. Showing last verified data.", "Guest traffic is estimated for this range.", "Purchase tracking needs review.", or "No verified data yet. Refresh to check again." Exact route names, collection names, formulas, parity deltas, raw event keys, and source paths belong in Debug technical evidence. Future agents must use `src/lib/admin-copy/admin-truth-copy.ts` and `docs/agent-truth/human-readable-admin-truth.md` before adding new Admin Analytics status copy.

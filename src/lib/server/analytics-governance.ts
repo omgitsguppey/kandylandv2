@@ -2,6 +2,8 @@ export const ANALYTICS_CANONICAL_COLLECTIONS = {
   guestBatches: "analytics_guest_batches",
   runtimeFacts: "analytics_event_facts",
   identifiedEventFacts: "analytics_event_facts",
+  behavioralTimelineFacts: "behavioral_timeline_facts",
+  identityLinks: "analytics_identity_links",
   watchObservations: "analytics_watch_observations",
   watchSessions: "analytics_watch_sessions",
   watchAssets: "analytics_watch_assets",
@@ -12,6 +14,7 @@ export const ANALYTICS_CANONICAL_COLLECTIONS = {
 
 export const ANALYTICS_OPERATIONAL_COLLECTIONS = {
   guestSessions: "analytics_sessions",
+  guestUserBehaviorRollups: "behavioral_guest_user_rollups",
   activeUsers: "analytics_active_users",
   aggregateStats: "analytics_aggregate_stats",
   exportStatus: "analytics_export_status",

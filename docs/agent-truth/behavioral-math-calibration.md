@@ -2,6 +2,17 @@
 
 KandyDrops behavioral math is source-truthed prediction math, not a vague aggregate affinity score.
 
+## 2026-05-08 Confidence v2
+
+Behavioral confidence is now explicitly source-derived and outcome-aware with hard caps:
+
+- guest-only confidence cannot exceed `0.45`
+- legacy-only confidence cannot exceed `0.30`
+- no validated outcome cannot exceed `0.60`
+- verified confidence requires server/canonical truth
+
+Privacy-limited data availability must be labeled as `privacy_limited` and must not be treated as low engagement by default.
+
 ## Source Truth
 
 Source reliability weights:

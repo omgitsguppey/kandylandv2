@@ -120,6 +120,8 @@
         "score:tracking-surface-coverage": "tsx scripts/agent/score-tracking-surface-coverage.ts",
         "check:tracking-surface-coverage": "tsx scripts/agent/validate-tracking-surface-coverage.ts",
         "check:behavioral-intelligence-confidence": "tsx scripts/agent/validate-behavioral-intelligence-confidence.ts",
+        "score:guest-user-analytics": "tsx scripts/agent/score-guest-user-analytics-cutover.ts",
+        "check:guest-user-analytics": "npm run score:guest-user-analytics && tsx scripts/agent/validate-guest-user-analytics-cutover.ts",
         "check:behavioral-explanations": "tsx scripts/agent/validate-behavioral-explanations.ts",
         "check:admin-review-badges": "tsx scripts/agent/validate-admin-review-badges.ts",
         "check:recommendation-ranker": "tsx scripts/agent/validate-recommendation-ranker.ts",

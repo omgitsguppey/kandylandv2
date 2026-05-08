@@ -8,6 +8,7 @@ export const RUNTIME_FACT_SOURCE_TRUTHS = [
   "canonical",
   "materialized",
   "legacy",
+  "ga4_optional",
   "local_projection",
 ] as const;
 

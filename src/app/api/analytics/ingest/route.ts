@@ -23,6 +23,8 @@ import {
     type RuntimeFact,
     type RuntimeFactDiagnostic,
 } from "@/lib/runtime-facts/runtime-fact-contract";
+import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
+import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -132,6 +134,15 @@ async function POST_handler(request: NextRequest) {
         }
 
         if (!requestAllowsAnonymousAnalytics(request)) {
+            await recordServerDiagnostic({
+                channel: "analytics",
+                severity: "info",
+                message: "Guest analytics timeline skipped by consent",
+                detail: {
+                    route: "analytics/ingest",
+                    reason: "analytics_consent_denied",
+                },
+            });
             return NextResponse.json({ success: true, ignored: true, reason: "analytics_consent_denied" });
         }
 
@@ -274,7 +285,21 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ success: true, deduped: true, processed: 0 });
         }
 
-        const response = NextResponse.json({ success: true, processed: events.length });
+        const timelineFacts = runtimeFacts
+            .filter((fact) => fact.metricEligible || fact.metricExclusionReason.includes("privacy"))
+            .map((fact) => mapRuntimeFactToBehavioralTimelineFact({
+                runtimeFact: fact,
+                consentState: globalPrivacyControl ? "partial" : "granted",
+            }));
+        const timelineResult = await writeBehavioralTimelineFacts(timelineFacts);
+
+        const response = NextResponse.json({
+            success: true,
+            processed: events.length,
+            timelineFactsWritten: timelineResult.written,
+            timelineFactsSkipped: timelineResult.skipped,
+            timelineWriteReason: timelineResult.reason,
+        });
         if (shouldSetCookie) {
             response.cookies.set({
                 name: SESSION_COOKIE_NAME,

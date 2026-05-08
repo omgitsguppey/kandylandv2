@@ -10,6 +10,7 @@ This doctrine defines how KandyDrops uses Google Analytics 4, BigQuery, Firebase
 - GA4 BigQuery export can stop because of billing, missing/deleted service accounts, or organization policy. KandyDrops must expose export heartbeat state in Admin Debug before treating warehouse delivery as healthy.
 - BigQuery query cache and materialized views are optimization layers, not the primary app source of truth. Materialized views are acceptable for warehouse reporting when refresh state and staleness remain visible.
 - BigQuery and GA exports are analytics evidence only. They cannot overwrite runtime balances, transactions, unlocks, purchases, subscriptions, support messages, user rollups, or legacy admin metric snapshots.
+- Guest and identified behavioral truth is first-party timeline data. GA4 absence is optional/degraded evidence and must not produce canonical analytics errors.
 - Firestore read-time aggregations are useful for small summary checks, but large admin dashboards must prefer write-time aggregates or scheduled materializers.
 - Firebase scheduled functions are the approved backend mechanism for periodic hot summaries. Scheduled functions can overlap, so they must be idempotent and write source-state metadata.
 - Cloud Run and App Hosting services that serve admin analytics must keep at least one warm instance when latency matters.

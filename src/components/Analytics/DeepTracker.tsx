@@ -45,6 +45,10 @@ interface TelemetryEvent {
 
 const GUEST_ANALYTICS_QUEUE_STORAGE_KEY = "kandydrops.analytics.guest-queue";
 const GUEST_ANALYTICS_FLUSH_INTERVAL_MS = 2_500;
+const GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION = 500;
+const GUEST_ANALYTICS_MAX_DIAGNOSTIC_EVENTS_PER_SESSION = 60;
+const GUEST_ANALYTICS_MAX_HOVER_EVENTS_PER_SESSION = 12;
+const GUEST_ANALYTICS_MAX_VISIBILITY_EVENTS_PER_SESSION = 24;
 
 function quantizeCoordinate(value: number) {
     return Math.floor(value / 24) * 24;
@@ -289,7 +293,30 @@ export function DeepTracker() {
                 return;
             }
 
-            if (eventQueue.current.length > 500) {
+            const isDiagnosticEvent = event.type === "hover" || event.type === "visibility" || event.type === "page_leave";
+            if (isDiagnosticEvent) {
+                const diagnosticCount = eventQueue.current.filter((queuedEvent) =>
+                    queuedEvent.type === "hover" || queuedEvent.type === "visibility" || queuedEvent.type === "page_leave").length;
+                if (diagnosticCount >= GUEST_ANALYTICS_MAX_DIAGNOSTIC_EVENTS_PER_SESSION) {
+                    return;
+                }
+            }
+
+            if (event.type === "hover") {
+                const hoverCount = eventQueue.current.filter((queuedEvent) => queuedEvent.type === "hover").length;
+                if (hoverCount >= GUEST_ANALYTICS_MAX_HOVER_EVENTS_PER_SESSION) {
+                    return;
+                }
+            }
+
+            if (event.type === "visibility") {
+                const visibilityCount = eventQueue.current.filter((queuedEvent) => queuedEvent.type === "visibility").length;
+                if (visibilityCount >= GUEST_ANALYTICS_MAX_VISIBILITY_EVENTS_PER_SESSION) {
+                    return;
+                }
+            }
+
+            if (eventQueue.current.length >= GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION) {
                 eventQueue.current.shift();
                 recordClientDiagnostic("telemetry", "Guest analytics queue trimmed", {
                     pagePath: pathname,

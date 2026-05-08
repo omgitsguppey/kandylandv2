@@ -382,6 +382,10 @@ export function normalizeAnonymousRuntimeFact(input: {
     };
   }
 
+  const diagnosticOnly = input.type === "hover" || input.type === "visibility" || input.type === "page_leave";
+  const metricEligible = !diagnosticOnly && (input.type === "page_view" || input.type === "click" || input.type === "scroll");
+  const metricExclusionReason = metricEligible ? "" : "diagnostic_only_event";
+
   return {
     diagnostic: null,
     fact: {
@@ -418,10 +422,10 @@ export function normalizeAnonymousRuntimeFact(input: {
       includeInUserBehavior: false,
       includeInAdminAnalytics: true,
       includeInGlobalEvents: true,
-      metricEligible: false,
-      metricExclusionReason: "guest_runtime_supporting_only",
+      metricEligible,
+      metricExclusionReason,
       sourceCollection: "analytics_guest_batches",
-      issueCodes: ["guest_runtime_supporting_only"],
+      issueCodes: metricEligible ? [] : ["guest_runtime_supporting_only", "diagnostic_only_event"],
     },
   };
 }

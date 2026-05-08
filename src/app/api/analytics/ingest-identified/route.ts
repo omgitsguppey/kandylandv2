@@ -14,6 +14,10 @@ import { buildIdentifiedActiveUserPatch } from "@/lib/behavioral/identified-metr
 import { isSearchIntentEventName, sanitizeSearchIntentParams } from "@/lib/behavioral/search-intent-profile";
 import { normalizeIdentifiedRuntimeFact } from "@/lib/runtime-facts/normalize-runtime-fact";
 import { createRuntimeFactFirestoreDocument } from "@/lib/server/write-runtime-fact";
+import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
+import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
+import { upsertAnalyticsIdentityLink } from "@/lib/server/analytics-identity-linking";
+import type { BehavioralTimelineFact } from "@/lib/behavioral/behavioral-timeline-contract";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +67,14 @@ function readEventModules(params: Record<string, unknown>) {
     }
 
     return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeIdentityLinkMethod(value: string): "login" | "signup" | "session_restore" | "admin_link" | "import" | "unknown" {
+    if (value === "login" || value === "signup" || value === "session_restore" || value === "admin_link" || value === "import") {
+        return value;
+    }
+
+    return "unknown";
 }
 
 function stableHash(input: string) {
@@ -218,6 +230,8 @@ async function POST_handler(request: NextRequest) {
         let skippedUnsupported = 0;
         const skippedUnsupportedEventNames = new Set<string>();
         let latestActiveUserPatch: Record<string, unknown> | null = null;
+        const timelineFacts: BehavioralTimelineFact[] = [];
+        let identityLinksCreated = 0;
 
         for (const rawEvent of deduplicatedEvents) {
             const telemetryEvent = resolveTrackedTelemetryEvent(rawEvent.eventName);
@@ -269,6 +283,39 @@ async function POST_handler(request: NextRequest) {
             // Using batch.set with merge: false to mimic create, but safer. Deduplication is handled by background worker if duplicate
             batch.set(ref, finalEvent, { merge: false });
             processed++;
+            const consentState = readStringParam(enrichedParams, "consent_state", "consentState") === "granted"
+                ? "granted"
+                : readStringParam(enrichedParams, "consent_state", "consentState") === "denied"
+                    ? "denied"
+                    : "unknown";
+            timelineFacts.push(mapRuntimeFactToBehavioralTimelineFact({
+                runtimeFact: runtimeFactResult.fact,
+                consentState,
+            }));
+
+            if (canonicalEventName === "identity_linked") {
+                const anonymousVisitorId = readStringParam(enrichedParams, "anonymous_visitor_id", "anonymousVisitorId");
+                const sessionId = readStringParam(enrichedParams, "session_id", "sessionId");
+                const userId = readStringParam(enrichedParams, "user_id", "userId") || caller.uid;
+                if (anonymousVisitorId && sessionId && userId) {
+                    const linkResult = await upsertAnalyticsIdentityLink({
+                        anonymousVisitorId,
+                        sessionId,
+                        userId,
+                        linkedAt: readStringParam(enrichedParams, "linked_at", "linkedAt") || new Date(timestamp).toISOString(),
+                        method: normalizeIdentityLinkMethod(readStringParam(enrichedParams, "method")),
+                        eligiblePastSessionIds: Array.isArray(enrichedParams.eligible_past_session_ids)
+                            ? (enrichedParams.eligible_past_session_ids as unknown[]).filter((value): value is string => typeof value === "string")
+                            : [sessionId],
+                        consentState,
+                        mergeAllowed: consentState === "granted",
+                        confidence: 0.9,
+                    });
+                    if (linkResult.created) {
+                        identityLinksCreated += 1;
+                    }
+                }
+            }
 
             if (runtimeFactResult.fact.includeInUserBehavior && (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0))) {
                 latestActiveUserPatch = buildIdentifiedActiveUserPatch({
@@ -330,7 +377,16 @@ async function POST_handler(request: NextRequest) {
             await batch.commit();
         }
 
-        return NextResponse.json({ success: true, processed, skippedUnsupported });
+        const timelineWrite = await writeBehavioralTimelineFacts(timelineFacts);
+
+        return NextResponse.json({
+            success: true,
+            processed,
+            skippedUnsupported,
+            timelineFactsWritten: timelineWrite.written,
+            timelineFactsSkipped: timelineWrite.skipped,
+            identityLinksCreated,
+        });
     } catch (error) {
         if (error instanceof AuthError || error instanceof RateLimitError) {
             return handleApiError(error, "Analytics.IngestIdentified.POST");
