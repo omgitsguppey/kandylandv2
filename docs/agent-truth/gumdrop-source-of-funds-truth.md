@@ -37,6 +37,8 @@ Future purchase ledger rows should carry:
 - Paid package bonus must never classify as reward/free.
 - Reward GumDrops must never satisfy paid-only creator spend restrictions.
 - Platform Economy warnings must surface drift rather than redefining balances.
+- Creator chat affordability must compare `gumDropsPurchasedBalance` only; free/reward GumDrops never unlock creator messaging.
+- Chat low-balance reminder eligibility resets only after paid balance refills back to `100+`. Free/reward balance changes must not reset the reminder cycle.
 
 ## Platform Economy Guard
 

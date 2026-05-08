@@ -4,6 +4,10 @@ import type { CreatorMessage, CreatorMessageThread } from "@/types/db";
 import {
     CHAT_COLLECTIONS,
     buildChatThreadId,
+    buildChatPaidGdGateState,
+    buildChatPaidGdLowBalanceReminderAfterPaidRefill,
+    buildChatPaidGdLowBalanceReminderAfterSend,
+    normalizeChatPaidGdLowBalanceReminderState,
     isChatThreadVisibleToViewer,
     normalizeChatMessageKind,
     parseCreatorThreadId,
@@ -16,6 +20,8 @@ import {
     type ChatThreadRecord,
     type ChatViewerRole,
 } from "@/lib/chat";
+import { buildNotificationRecord } from "@/lib/notification-contracts";
+import { buildNotificationDocumentId, buildNotificationIdempotencyKey } from "@/lib/notification-identity";
 import { buildChatSoftSealScope, softOpenChatValue, softSealChatValue } from "@/lib/chat-soft-seal";
 import {
     CREATOR_COLLECTIONS,
@@ -44,6 +50,7 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { sanitizeFirestorePayload } from "@/lib/server/firestore-sanitize";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { touchNotificationsRuntime } from "@/lib/server/notification-runtime";
 
 type UserSummary = {
     uid: string;
@@ -367,6 +374,112 @@ function buildInsufficientFundsPayload(input: {
     };
 }
 
+function readCreatorFirstName(creator: Pick<UserSummary, "displayName" | "username" | "uid">) {
+    const source = creator.displayName || creator.username || creator.uid;
+    const [firstName] = source.trim().split(/\s+/).filter(Boolean);
+    return firstName || "this creator";
+}
+
+async function maybeSendChatPaidGdLowBalanceReminder(input: {
+    userId: string;
+    creator: UserSummary;
+    purchasedBalanceGd: number;
+}) {
+    const purchasedBalanceGd = Math.max(0, Math.trunc(input.purchasedBalanceGd));
+    if (purchasedBalanceGd >= 100 || !adminDb) {
+        return false;
+    }
+
+    const userRef = adminDb.collection("users").doc(input.userId);
+    const now = Date.now();
+    const creatorFirstName = readCreatorFirstName(input.creator);
+    let reminderSent = false;
+
+    await adminDb.runTransaction(async (transaction) => {
+        const userSnap = await transaction.get(userRef);
+        if (!userSnap.exists) {
+            return;
+        }
+
+        const userData = userSnap.data() as Record<string, unknown>;
+        const reminderState = normalizeChatPaidGdLowBalanceReminderState(userData.chatPaidGdLowBalanceReminder);
+        if (!reminderState.eligibleAgain) {
+            return;
+        }
+        const notificationIdentity = buildNotificationIdempotencyKey({
+            type: "chat_paid_gd_low_balance",
+            recipientId: input.userId,
+            lifecycleEvent: "chat_paid_gd_low_balance",
+            audience: `user:${reminderState.reminderCycleId}`,
+        });
+        const notificationRef = adminDb.collection("notifications").doc(buildNotificationDocumentId(notificationIdentity));
+        const notificationSnap = await transaction.get(notificationRef);
+
+        const nextReminderState = buildChatPaidGdLowBalanceReminderAfterSend({
+            current: reminderState,
+            paidBalanceGd: purchasedBalanceGd,
+            remindedAt: now,
+        });
+
+        transaction.set(userRef, {
+            chatPaidGdLowBalanceReminder: nextReminderState,
+        }, { merge: true });
+
+        if (!notificationSnap.exists) {
+            transaction.set(notificationRef, {
+                ...buildNotificationRecord({
+                    title: "Running low on paid GumDrops",
+                    message: "Paid GumDrops let you message creators directly. Refill before your next chat.",
+                    type: "info",
+                    target: { global: false, userIds: [input.userId] },
+                    link: "/dashboard/chat",
+                    createdAtMs: now,
+                    readBy: [],
+                    targetUserId: input.userId,
+                    recipientUserId: input.userId,
+                    actorCreatorId: input.creator.uid,
+                    actorType: "creator",
+                    sourceComponent: "chat_paid_gd_low_balance_reminder",
+                    sourceEntityType: "chat_thread",
+                    sourceEntityId: buildChatThreadId(input.creator.uid, input.userId),
+                    route: "/dashboard/chat",
+                    surface: "foreground",
+                    metadata: {
+                        idempotencyKey: notificationIdentity,
+                        dedupeKey: notificationIdentity,
+                        lifecycleEvent: "chat_paid_gd_low_balance",
+                        creatorId: input.creator.uid,
+                        creatorFirstName,
+                        purchasedBalanceGd,
+                        requiredMinPaidGd: 1,
+                        ctaLabel: "Get More GumDrops",
+                    },
+                }),
+                createdAt: now,
+            });
+        }
+
+        reminderSent = true;
+    });
+
+    if (!reminderSent) {
+        return false;
+    }
+
+    await touchNotificationsRuntime(now);
+    await trackServerEvent("chat_low_paid_gd_reminder_sent", {
+        source_component: "chat_paid_gd_low_balance_reminder",
+        route: "/dashboard/chat",
+        creator_id: input.creator.uid,
+        creator_first_name: creatorFirstName,
+        paid_balance_gd: purchasedBalanceGd,
+        required_min_paid_gd: 1,
+        subscriber_free_chat_applies: false,
+    }, input.userId).catch(() => null);
+
+    return true;
+}
+
 export class ChatClientError extends Error {
     status: number;
     body: Record<string, unknown>;
@@ -609,15 +722,38 @@ export async function getChatThreadDetailForViewer(input: {
     const participantBalance = viewerRole === "user"
         ? readSourceAwareBalance(participant.raw)
         : { total: 0, purchased: 0, reward: 0 };
+    const pricing = buildChatPricingSummary({
+        purchasedBalanceGd: participantBalance.purchased,
+        subscriberFreeChatApplies,
+        subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
+    });
+    const paidGdGate = buildChatPaidGdGateState({
+        viewerRole,
+        pricing,
+    });
+
+    if (viewerRole === "user" && paidGdGate && !paidGdGate.creatorViewerBypass) {
+        await maybeSendChatPaidGdLowBalanceReminder({
+            userId: threadRecord.userId,
+            creator,
+            purchasedBalanceGd: paidGdGate.purchasedBalanceGd,
+        }).catch((error) => {
+            recordRouteWarning("chat/thread", "Chat paid GumDrops reminder degraded", error, {
+                channel: "runtime",
+                detail: {
+                    threadId: threadRecord.id,
+                    creatorId: creator.uid,
+                    userId: threadRecord.userId,
+                    purchasedBalanceGd: paidGdGate.purchasedBalanceGd,
+                },
+            });
+        });
+    }
 
     return {
         thread: threadRecord,
         messages,
-        pricing: buildChatPricingSummary({
-            purchasedBalanceGd: participantBalance.purchased,
-            subscriberFreeChatApplies,
-            subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
-        }),
+        pricing,
         threadExists,
     } satisfies ChatThreadDetail;
 }

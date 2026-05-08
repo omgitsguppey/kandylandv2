@@ -7,6 +7,7 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { SENSITIVE_WRITE } from "@/lib/server/rate-limit";
 import { deriveGumdropEconomics, getBundlePresentation } from "@/lib/gumdrop-economics";
 import { buildPaidPurchaseBalanceCredit, buildSourceAwareBalancePatch, computeNextGumdropBalance, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
+import { buildChatPaidGdLowBalanceReminderAfterPaidRefill, normalizeChatPaidGdLowBalanceReminderState } from "@/lib/chat";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
@@ -233,7 +234,23 @@ async function POST_handler(request: NextRequest) {
         rewardPromoGd: 0,
       });
 
-      transaction.update(userRef, buildSourceAwareBalancePatch(nextSourceAwareBalance));
+      const chatPaidGdReminderState = normalizeChatPaidGdLowBalanceReminderState(userData.chatPaidGdLowBalanceReminder);
+      const shouldResetChatPaidGdReminder = sourceAwareBalance.purchased < 100 && nextSourceAwareBalance.purchased >= 100;
+      const nextChatPaidGdReminderState = shouldResetChatPaidGdReminder
+        ? buildChatPaidGdLowBalanceReminderAfterPaidRefill({
+            current: chatPaidGdReminderState,
+            previousPaidBalanceGd: sourceAwareBalance.purchased,
+            nextPaidBalanceGd: nextSourceAwareBalance.purchased,
+            reminderCycleId: `paid_refill:${orderId}`,
+          })
+        : chatPaidGdReminderState;
+
+      transaction.update(userRef, {
+        ...buildSourceAwareBalancePatch(nextSourceAwareBalance),
+        ...(shouldResetChatPaidGdReminder ? {
+          chatPaidGdLowBalanceReminder: nextChatPaidGdReminderState,
+        } : {}),
+      });
       transaction.set(purchaseTransactionRef, buildCompletedGumdropTransaction({
         userId,
         type: "purchase_currency",
@@ -295,14 +312,20 @@ async function POST_handler(request: NextRequest) {
         createdAt: FieldValue.serverTimestamp(),
       });
 
-      return { duplicate: false, username, transactionId: purchaseTransactionRef.id };
+      return {
+        duplicate: false,
+        username,
+        transactionId: purchaseTransactionRef.id,
+        chatPaidGdReminderReset: shouldResetChatPaidGdReminder,
+        nextPaidBalanceGd: nextSourceAwareBalance.purchased,
+      };
     });
 
     if (result.duplicate) {
       return NextResponse.json({ success: true, drops: dropsToCredit, duplicate: true }, { status: 200 });
     }
 
-    const [analyticsResult, taskEventResult] = await Promise.allSettled([
+    const [analyticsResult, taskEventResult, chatReminderResetResult] = await Promise.allSettled([
       trackServerEvent("server_purchase_verified", {
         order_id: orderId,
         transaction_id: result.transactionId ?? orderId,
@@ -335,6 +358,16 @@ async function POST_handler(request: NextRequest) {
         order_id: orderId,
         transaction_id: result.transactionId ?? orderId,
       }),
+      result.chatPaidGdReminderReset
+        ? trackServerEvent("chat_low_paid_gd_reminder_reset", {
+            source_component: "paypal_capture_route",
+            route: "/api/paypal/capture",
+            paid_balance_gd: result.nextPaidBalanceGd,
+            required_min_paid_gd: 1,
+            subscriber_free_chat_applies: false,
+            transaction_id: result.transactionId ?? orderId,
+          }, userId)
+        : Promise.resolve(null),
     ]);
 
     if (analyticsResult.status === "rejected") {
@@ -349,6 +382,16 @@ async function POST_handler(request: NextRequest) {
     }
     if (taskEventResult.status === "rejected") {
       recordRouteWarning("paypal/capture", "Purchase completed but daily task progress sync failed", taskEventResult.reason, {
+        channel: "analytics",
+        detail: {
+          userId,
+          orderId,
+          expectedDrops: dropsToCredit,
+        },
+      });
+    }
+    if (chatReminderResetResult.status === "rejected") {
+      recordRouteWarning("paypal/capture", "Chat paid GumDrops reminder reset tracking failed", chatReminderResetResult.reason, {
         channel: "analytics",
         detail: {
           userId,

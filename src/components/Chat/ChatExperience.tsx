@@ -31,6 +31,7 @@ import { isStandalone } from "@/lib/browser-utils";
 import { resolveChatAttachmentKind } from "@/lib/chat-attachments";
 import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
 import {
+    buildChatPaidGdGateState,
     buildChatPresenceMemberPath,
     CHAT_COLLECTIONS,
     isChatThreadVisibleToViewer,
@@ -39,6 +40,7 @@ import {
     resolveChatViewerRole,
     type ChatInsufficientFundsPayload,
     type ChatMessageKind,
+    type ChatPaidGdGateState,
     type ChatThreadDetail,
     type ChatThreadRecord,
 } from "@/lib/chat";
@@ -61,6 +63,7 @@ import {
 } from "@/lib/creator-profile-routing";
 import { reportClientIssue, reportRealtimeIssue, reportStorageIssue } from "@/lib/client-error-reporting";
 import { storage, db, rtdb } from "@/lib/firebase-data";
+import { formatCompactGd } from "@/lib/gumdrop-formatting";
 import { trackEvent } from "@/lib/telemetry";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { cn } from "@/lib/utils";
@@ -96,6 +99,7 @@ type FollowedCreatorEntry = {
     bio: string;
     isVerified: boolean;
     following: boolean;
+    followerCount?: number;
 };
 
 export const CHAT_VIEWPORT_SHELL_CLASSNAME =
@@ -107,6 +111,7 @@ export const CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME =
 
 type CreatorRelationshipsListResponse = {
     followedCreators?: FollowedCreatorEntry[];
+    recommendedCreators?: FollowedCreatorEntry[];
 };
 
 type ThreadDetailResponse = {
@@ -546,6 +551,21 @@ function renderPriceSummary(detail: ThreadDetailResponse | null, viewerRole: Cha
     return `Text ${detail.pricing.textPriceGd} GD, image ${detail.pricing.imagePriceGd} GD, video ${detail.pricing.videoPriceGd} GD. Paid balance ${detail.pricing.purchasedBalanceGd} GD.`;
 }
 
+function readCreatorFirstName(label?: string | null) {
+    const trimmed = (label || "").trim();
+    if (!trimmed) {
+        return "this creator";
+    }
+
+    const [firstName] = trimmed.split(/\s+/).filter(Boolean);
+    return firstName || trimmed;
+}
+
+function resolveChatPaidGdPurchaseTarget(gate: ChatPaidGdGateState | null, fallbackShortfall?: number | null) {
+    const preferredAmount = gate?.requiredMinPaidGd ?? fallbackShortfall ?? 0;
+    return Math.max(100, preferredAmount || 100);
+}
+
 function isImageAttachment(mimeType?: string, assetUrl?: string) {
     return Boolean(mimeType?.startsWith("image/") || assetUrl?.match(/\.(png|jpg|jpeg|gif|webp)$/i));
 }
@@ -579,41 +599,74 @@ function TypingStatus({ presence, fallback }: { presence: PresenceSnapshot | nul
     return <span className="text-xs text-gray-400">{fallback}</span>;
 }
 
-function InsufficientFundsCard({
+function ChatPaidGdGuidanceCard({
+    creatorFirstName,
+    gate,
     payload,
     onClose,
     onPurchase,
+    onBrowseDrops,
+    mode,
 }: {
+    creatorFirstName: string;
+    gate: ChatPaidGdGateState | null;
     payload: ChatInsufficientFundsPayload | null;
-    onClose: () => void;
+    onClose?: () => void;
     onPurchase: () => void;
+    onBrowseDrops: () => void;
+    mode: "proactive" | "reactive";
 }) {
-    if (!payload) {
+    const activeGate = gate ?? (payload ? {
+        requiredMinPaidGd: payload.requiredPriceGd,
+        purchasedBalanceGd: payload.purchasedBalanceGd,
+        paidGdShortfall: payload.paidGdShortfall,
+        subscriberFreeChatApplies: payload.subscriberFreeChatApplies,
+        creatorViewerBypass: false,
+        gated: true,
+    } satisfies ChatPaidGdGateState : null);
+
+    if (!activeGate) {
         return null;
     }
 
     return (
-        <div className="rounded-[1.4rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-50">
+        <div className="rounded-[1.35rem] border border-brand-purple/25 bg-[linear-gradient(135deg,rgba(122,75,255,0.22),rgba(28,20,45,0.94))] px-4 py-3 text-sm text-white shadow-[0_16px_40px_rgba(56,23,112,0.28)] ring-1 ring-white/8">
             <div className="flex items-start justify-between gap-3">
-                <div>
-                    <p className="font-semibold text-white">More paid Gum Drops needed</p>
-                    <p className="mt-1 leading-6 text-amber-100">
-                        This message costs {payload.requiredPriceGd} paid GD. You currently have {payload.purchasedBalanceGd} paid GD, so you still need {payload.paidGdShortfall} more.
+                <div className="min-w-0">
+                    <p className="text-[15px] font-semibold leading-5 text-white">
+                        To message {creatorFirstName}, you&apos;ll need to get more paid GumDrops!
+                    </p>
+                    <div className="mt-2 space-y-1.5 text-[12px] leading-4 text-[#e5ddff]">
+                        <div className="flex items-start gap-2">
+                            <Circle className="mt-0.5 h-2.5 w-2.5 fill-current text-brand-purple" />
+                            <span>Free GumDrops are only for unwrapping KandyDrops.</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                            <Circle className="mt-0.5 h-2.5 w-2.5 fill-current text-brand-purple" />
+                            <span>Paid GumDrops allow you to send a text, pic, or vid straight to your favorite creator!</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                            <Circle className="mt-0.5 h-2.5 w-2.5 fill-current text-brand-purple" />
+                            <span>Every message helps support {creatorFirstName}, no chat agencies, ever.</span>
+                        </div>
+                    </div>
+                    <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-[#cdbdff]">
+                        Paid GD {formatCompactGd(activeGate.purchasedBalanceGd)} / Need {formatCompactGd(activeGate.requiredMinPaidGd)}
                     </p>
                 </div>
-                <button type="button" onClick={onClose} className="text-xs font-bold uppercase tracking-[0.14em] text-amber-200">
-                    Close
-                </button>
+                {mode === "reactive" && onClose ? (
+                    <button type="button" onClick={onClose} className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#cdbdff]">
+                        Close
+                    </button>
+                ) : null}
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
                 <Button variant="brand" size="sm" onClick={onPurchase}>
-                    Get paid Gum Drops
+                    Get More GumDrops
                 </Button>
-                {payload.subscriberFreeChatApplies ? (
-                    <span className="rounded-full border border-white/10 bg-white/10 px-3 py-2 text-[11px] font-semibold text-white">
-                        Subscriber free chat is active on this thread.
-                    </span>
-                ) : null}
+                <Button variant="ghost" size="sm" onClick={onBrowseDrops} className="border border-white/12 bg-white/6 text-white hover:bg-white/10">
+                    Go unwrap drops
+                </Button>
             </div>
         </div>
     );
@@ -636,6 +689,7 @@ export function ChatExperience() {
     const [threadLoading, setThreadLoading] = useState(false);
     const [threadSearch, setThreadSearch] = useState("");
     const [followedCreators, setFollowedCreators] = useState<FollowedCreatorEntry[]>([]);
+    const [recommendedCreators, setRecommendedCreators] = useState<FollowedCreatorEntry[]>([]);
     const [composePickerOpen, setComposePickerOpen] = useState(false);
     const [threadEditMenuOpen, setThreadEditMenuOpen] = useState(false);
     const [threadSelectionMode, setThreadSelectionMode] = useState(false);
@@ -675,6 +729,9 @@ export function ChatExperience() {
     const threadsLoadRequestIdRef = useRef(0);
     const [chatComposerHeightPx, setChatComposerHeightPx] = useState(CHAT_COMPOSER_DEFAULT_HEIGHT_PX);
     const profileRouteTelemetryKeyRef = useRef<string | null>(null);
+    const noFollowPromptViewedRef = useRef(false);
+    const paidGdGateViewedKeyRef = useRef<string | null>(null);
+    const autoResolvedThreadKeyRef = useRef<string | null>(null);
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -740,11 +797,18 @@ export function ChatExperience() {
     }, [normalizedThreadSearch, visibleThreads]);
     const showCompactThreadListOnly = isCompactViewport && !selectedThreadId;
     const canComposeFromFollowedCreators = followedCreators.length > 0;
+    const selectedThreadCreatorFirstName = selectedThread ? readCreatorFirstName(selectedThread.counterpartDisplayName) : "this creator";
+    const proactivePaidGdGate = useMemo(() => buildChatPaidGdGateState({
+        viewerRole: selectedThread?.viewerRole ?? "user",
+        pricing: selectedDetail?.pricing,
+    }), [selectedDetail?.pricing, selectedThread?.viewerRole]);
+    const proactivePaidGdGateVisible = proactivePaidGdGate?.gated === true;
+    const composerBlockedByPaidGdGate = proactivePaidGdGateVisible;
     const composerSummary = useMemo(
         () => renderPriceSummary(selectedDetail, selectedThread?.viewerRole ?? "user"),
         [selectedDetail, selectedThread?.viewerRole],
     );
-    const hasFullComposerTray = Boolean(sendErrorMessage || sendWarningMessage || insufficientFunds || composerFile);
+    const hasFullComposerTray = Boolean(sendErrorMessage || sendWarningMessage || insufficientFunds || proactivePaidGdGateVisible || composerFile);
     const hasSummaryOnlyComposerTray = Boolean(composerSummary) && !hasFullComposerTray;
     const composerPaddingMode = hasFullComposerTray ? "tray" : hasSummaryOnlyComposerTray ? "summary" : "clean";
     const chatViewportShellStyle = useMemo(() => ({
@@ -1208,6 +1272,20 @@ export function ChatExperience() {
 
             const nextThreads = Array.isArray(body.threads) ? body.threads : [];
             setThreads(nextThreads);
+            if (creatorId && body.selectedThreadId) {
+                const resolvedThread = nextThreads.find((thread) => thread.id === body.selectedThreadId) ?? null;
+                const autoResolvedKey = `${creatorId}:${body.selectedThreadId}`;
+                if (autoResolvedThreadKeyRef.current !== autoResolvedKey) {
+                    autoResolvedThreadKeyRef.current = autoResolvedKey;
+                    trackEvent("chat_thread_auto_created_or_resolved", {
+                        source_component: "chat_thread_list_loader",
+                        route: "/dashboard/chat",
+                        creator_id: creatorId,
+                        creator_first_name: resolvedThread ? readCreatorFirstName(resolvedThread.counterpartDisplayName) : undefined,
+                        thread_id: body.selectedThreadId,
+                    });
+                }
+            }
             startTransition(() => {
                 setSelectedThreadId((current) => {
                     if (current) {
@@ -1261,6 +1339,7 @@ export function ChatExperience() {
             }
 
             setFollowedCreators(Array.isArray(body.followedCreators) ? body.followedCreators : []);
+            setRecommendedCreators(Array.isArray(body.recommendedCreators) ? body.recommendedCreators : []);
         } catch (error) {
             reportClientIssue({
                 channel: "runtime",
@@ -1270,6 +1349,7 @@ export function ChatExperience() {
                 consoleLabel: "[Chat] followed creators load failed",
             });
             setFollowedCreators([]);
+            setRecommendedCreators([]);
         }
     }, [user]);
 
@@ -1362,6 +1442,47 @@ export function ChatExperience() {
 
         void loadThreadDetail(selectedThreadId);
     }, [loadThreadDetail, selectedThreadId]);
+
+    useEffect(() => {
+        if (threadsLoading || followedCreators.length > 0 || selectedThreadId) {
+            noFollowPromptViewedRef.current = false;
+            return;
+        }
+
+        if (noFollowPromptViewedRef.current) {
+            return;
+        }
+
+        noFollowPromptViewedRef.current = true;
+        trackEvent("chat_no_followed_creators_prompt_viewed", {
+            source_component: "chat_thread_list_empty_state",
+            route: "/dashboard/chat",
+        });
+    }, [followedCreators.length, selectedThreadId, threadsLoading]);
+
+    useEffect(() => {
+        if (!proactivePaidGdGateVisible || !selectedThread) {
+            paidGdGateViewedKeyRef.current = null;
+            return;
+        }
+
+        const nextKey = `${selectedThread.id}:${proactivePaidGdGate?.requiredMinPaidGd}:${proactivePaidGdGate?.purchasedBalanceGd}`;
+        if (paidGdGateViewedKeyRef.current === nextKey) {
+            return;
+        }
+
+        paidGdGateViewedKeyRef.current = nextKey;
+        trackEvent("chat_paid_gd_gate_viewed", {
+            source_component: "chat_paid_gd_guidance_card",
+            route: "/dashboard/chat",
+            creator_id: selectedThread.creatorId,
+            creator_first_name: selectedThreadCreatorFirstName,
+            thread_id: selectedThread.id,
+            paid_balance_gd: proactivePaidGdGate?.purchasedBalanceGd,
+            required_min_paid_gd: proactivePaidGdGate?.requiredMinPaidGd,
+            subscriber_free_chat_applies: proactivePaidGdGate?.subscriberFreeChatApplies,
+        });
+    }, [proactivePaidGdGate, proactivePaidGdGateVisible, selectedThread, selectedThreadCreatorFirstName]);
 
     useEffect(() => {
         if (!attachmentMenuOpen) {
@@ -1666,6 +1787,42 @@ export function ChatExperience() {
             creatorId: nextCreatorId ?? null,
         });
     }, [user?.uid]);
+
+    const openChatPaidGdPurchaseModal = useCallback((sourceComponent: string) => {
+        trackEvent("chat_paid_gd_gate_primary_clicked", {
+            source_component: sourceComponent,
+            route: "/dashboard/chat",
+            creator_id: selectedThread?.creatorId,
+            creator_first_name: selectedThreadCreatorFirstName,
+            thread_id: selectedThread?.id,
+            paid_balance_gd: proactivePaidGdGate?.purchasedBalanceGd,
+            required_min_paid_gd: proactivePaidGdGate?.requiredMinPaidGd,
+            subscriber_free_chat_applies: proactivePaidGdGate?.subscriberFreeChatApplies,
+        });
+        openPurchaseModal(resolveChatPaidGdPurchaseTarget(proactivePaidGdGate, insufficientFunds?.paidGdShortfall));
+    }, [insufficientFunds?.paidGdShortfall, openPurchaseModal, proactivePaidGdGate, selectedThread, selectedThreadCreatorFirstName]);
+
+    const goUnwrapDropsForChat = useCallback((sourceComponent: string) => {
+        trackEvent("chat_paid_gd_gate_secondary_clicked", {
+            source_component: sourceComponent,
+            route: "/dashboard/chat",
+            creator_id: selectedThread?.creatorId,
+            creator_first_name: selectedThreadCreatorFirstName,
+            thread_id: selectedThread?.id,
+            paid_balance_gd: proactivePaidGdGate?.purchasedBalanceGd,
+            required_min_paid_gd: proactivePaidGdGate?.requiredMinPaidGd,
+            subscriber_free_chat_applies: proactivePaidGdGate?.subscriberFreeChatApplies,
+        });
+        router.push("/drops");
+    }, [proactivePaidGdGate, router, selectedThread, selectedThreadCreatorFirstName]);
+
+    const handleNoFollowCreatorsCtaClick = useCallback((target: "find_creators" | "browse_drops") => {
+        trackEvent("chat_no_followed_creators_cta_clicked", {
+            source_component: "chat_thread_list_empty_state",
+            route: "/dashboard/chat",
+            cta_target: target,
+        });
+    }, []);
 
     const handleThreadSearchFocus = useCallback(() => {
         deferChatListSearchFocusedTelemetry({
@@ -1985,6 +2142,19 @@ export function ChatExperience() {
             return;
         }
 
+        if (proactivePaidGdGateVisible) {
+            setInsufficientFunds({
+                error: "You need more paid GumDrops before you can send this creator message.",
+                errorCode: "insufficient_paid_gumdrops",
+                requiredPriceGd: proactivePaidGdGate?.requiredMinPaidGd ?? 1,
+                purchasedBalanceGd: proactivePaidGdGate?.purchasedBalanceGd ?? 0,
+                paidGdShortfall: proactivePaidGdGate?.paidGdShortfall ?? 1,
+                subscriberFreeChatApplies: proactivePaidGdGate?.subscriberFreeChatApplies ?? false,
+                messageKind: composerKind,
+            });
+            return;
+        }
+
         if (!composerText.trim() && !composerFile) {
             toast.error("Add a message or attachment before sending.");
             return;
@@ -2161,7 +2331,7 @@ export function ChatExperience() {
         } finally {
             setSendingMessage(false);
         }
-    }, [composerFile, composerKind, composerText, discardUploadedAttachment, pushTypingState, selectedThread, selectedThreadId, uploadAttachment, user?.uid]);
+    }, [composerFile, composerKind, composerText, discardUploadedAttachment, proactivePaidGdGate, proactivePaidGdGateVisible, pushTypingState, selectedThread, selectedThreadId, uploadAttachment, user?.uid]);
 
     const handleComposerKeyDown = useCallback((event: KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === "Enter" && !event.shiftKey) {
@@ -2432,20 +2602,69 @@ export function ChatExperience() {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <div className="flex min-h-full flex-1 flex-col items-center justify-center text-center">
-                                                <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
-                                                    <MessageSquare className="h-8 w-8" />
+                                            <div className="flex min-h-full flex-1 flex-col justify-center">
+                                                <div className="mx-auto w-full max-w-md rounded-[1.7rem] border border-white/10 bg-[linear-gradient(160deg,rgba(31,23,52,0.96),rgba(11,11,13,0.98))] p-5 text-center shadow-[0_28px_70px_rgba(0,0,0,0.34)]">
+                                                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple/15 text-brand-purple ring-1 ring-white/8">
+                                                        <MessageSquare className="h-6 w-6" />
+                                                    </div>
+                                                    <p className="mt-4 text-xl font-black text-white">Follow creators to start chatting</p>
+                                                    <p className="mt-2 text-sm leading-6 text-[#a9a9b1]">
+                                                        Start by following a creator you want to message. Once you follow them, their chat thread will open here automatically.
+                                                    </p>
+                                                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                                                        <Link
+                                                            href="/experiences"
+                                                            onClick={() => handleNoFollowCreatorsCtaClick("find_creators")}
+                                                            className="rounded-full bg-brand-purple px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8457ff]"
+                                                        >
+                                                            Find creators
+                                                        </Link>
+                                                        <Link
+                                                            href="/drops"
+                                                            onClick={() => handleNoFollowCreatorsCtaClick("browse_drops")}
+                                                            className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                                                        >
+                                                            Browse drops
+                                                        </Link>
+                                                    </div>
+                                                    {recommendedCreators.length > 0 ? (
+                                                        <div className="mt-4 text-left">
+                                                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8f9097]">Available creators</p>
+                                                            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                                                                {recommendedCreators.slice(0, 6).map((creator) => {
+                                                                    const creatorHref = buildCreatorPublicHref({
+                                                                        uid: creator.uid,
+                                                                        creatorId: creator.uid,
+                                                                        username: creator.username,
+                                                                        creatorUsername: creator.username,
+                                                                    }) || "/experiences";
+                                                                    return (
+                                                                        <Link
+                                                                            key={creator.uid}
+                                                                            href={creatorHref}
+                                                                            className="min-w-[9.75rem] rounded-[1.2rem] border border-white/10 bg-white/[0.04] px-3 py-3 transition hover:bg-white/[0.08]"
+                                                                        >
+                                                                            <div className="flex items-center gap-3">
+                                                                                <ChatAvatar
+                                                                                    photoURL={creator.photoURL}
+                                                                                    label={creator.displayName}
+                                                                                    sizeClassName="h-10 w-10"
+                                                                                    textClassName="text-xs"
+                                                                                />
+                                                                                <div className="min-w-0">
+                                                                                    <p className="truncate text-sm font-semibold text-white">{creator.displayName}</p>
+                                                                                    <p className="truncate text-[11px] text-[#8f9097]">
+                                                                                        {creator.username ? `@${creator.username}` : creator.uid}
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </Link>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    ) : null}
                                                 </div>
-                                                <p className="mt-5 text-2xl font-black text-white">No creators followed yet</p>
-                                                <p className="mt-2 max-w-sm text-sm leading-6 text-[#8f9097]">
-                                                    Follow creators first so you can start messaging them from this inbox.
-                                                </p>
-                                                <Link
-                                                    href="/experiences"
-                                                    className="mt-5 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-[#e8e8ea]"
-                                                >
-                                                    Follow more creators
-                                                </Link>
                                             </div>
                                         )}
                                     </div>
@@ -2780,11 +2999,24 @@ export function ChatExperience() {
                                                     </div>
                                                 </div>
                                             ) : null}
-                                            {insufficientFunds ? (
-                                                <InsufficientFundsCard
+                                            {proactivePaidGdGateVisible ? (
+                                                <ChatPaidGdGuidanceCard
+                                                    creatorFirstName={selectedThreadCreatorFirstName}
+                                                    gate={proactivePaidGdGate}
+                                                    payload={null}
+                                                    mode="proactive"
+                                                    onPurchase={() => openChatPaidGdPurchaseModal("chat_paid_gd_guidance_card")}
+                                                    onBrowseDrops={() => goUnwrapDropsForChat("chat_paid_gd_guidance_card")}
+                                                />
+                                            ) : insufficientFunds ? (
+                                                <ChatPaidGdGuidanceCard
+                                                    creatorFirstName={selectedThreadCreatorFirstName}
+                                                    gate={proactivePaidGdGate}
                                                     payload={insufficientFunds}
+                                                    mode="reactive"
                                                     onClose={() => setInsufficientFunds(null)}
-                                                    onPurchase={() => openPurchaseModal(insufficientFunds?.paidGdShortfall)}
+                                                    onPurchase={() => openChatPaidGdPurchaseModal("chat_paid_gd_failure_card")}
+                                                    onBrowseDrops={() => goUnwrapDropsForChat("chat_paid_gd_failure_card")}
                                                 />
                                             ) : null}
                                             {composerFile ? (
@@ -2818,7 +3050,11 @@ export function ChatExperience() {
                                             <button
                                                 type="button"
                                                 onClick={() => setAttachmentMenuOpen((current) => !current)}
-                                                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]"
+                                                disabled={composerBlockedByPaidGdGate}
+                                                className={cn(
+                                                    "inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]",
+                                                    composerBlockedByPaidGdGate ? "cursor-not-allowed opacity-45 hover:bg-[#141417]" : "",
+                                                )}
                                                 aria-label="Add attachment"
                                                 aria-expanded={attachmentMenuOpen}
                                                 aria-haspopup="menu"
@@ -2882,17 +3118,18 @@ export function ChatExperience() {
                                                 onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
                                                 onKeyDown={handleComposerKeyDown}
                                                 rows={1}
-                                                placeholder={selectedThread.viewerRole === "creator" ? "Reply..." : "Message"}
+                                                disabled={composerBlockedByPaidGdGate}
+                                                placeholder={composerBlockedByPaidGdGate ? "Paid GumDrops required for creator messaging" : selectedThread.viewerRole === "creator" ? "Reply..." : "Message"}
                                                 className="block max-h-6 min-h-[24px] w-full resize-none self-center overflow-y-auto bg-transparent py-0 text-[16px] leading-6 text-white placeholder:text-[#5d5e66] focus:outline-none sm:text-[14px]"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => void handleSendMessage()}
-                                                disabled={sendingMessage}
+                                                disabled={sendingMessage || composerBlockedByPaidGdGate}
                                                 className={cn(
                                                     "inline-flex h-12 w-12 shrink-0 self-center items-center justify-center rounded-full transition",
-                                                    sendingMessage
-                                                        ? "bg-brand-purple/50 text-white/80"
+                                                    sendingMessage || composerBlockedByPaidGdGate
+                                                        ? "cursor-not-allowed bg-brand-purple/50 text-white/80"
                                                         : "bg-brand-purple text-white hover:bg-[#8457ff]",
                                                 )}
                                                 aria-label="Send message"

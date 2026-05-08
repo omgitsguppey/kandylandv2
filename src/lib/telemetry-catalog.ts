@@ -308,6 +308,14 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "chat_thread_opened", label: "Chat thread opened", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "chat_compose_sheet_opened", label: "Chat compose sheet opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_list_search_focused", label: "Chat list search focused", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "chat_no_followed_creators_prompt_viewed", label: "Chat no followed creators prompt viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "chat_no_followed_creators_cta_clicked", label: "Chat no followed creators CTA clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "chat_thread_auto_created_or_resolved", label: "Chat thread auto created or resolved", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "chat_paid_gd_gate_viewed", label: "Chat paid GumDrops gate viewed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
+  { eventName: "chat_paid_gd_gate_primary_clicked", label: "Chat paid GumDrops gate primary CTA clicked", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
+  { eventName: "chat_paid_gd_gate_secondary_clicked", label: "Chat paid GumDrops gate secondary CTA clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce", "navigation"] },
+  { eventName: "chat_low_paid_gd_reminder_sent", label: "Chat low paid GumDrops reminder sent", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce", "notifications"] },
+  { eventName: "chat_low_paid_gd_reminder_reset", label: "Chat low paid GumDrops reminder reset", category: "notifications", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce", "notifications"] },
   { eventName: "chat_message_send_attempted", label: "Chat message send attempted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_message_send_failed", label: "Chat message send failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "chat_message_sent", label: "Chat message sent", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
@@ -928,6 +936,14 @@ function isAuthEvent(eventName: string) {
 function isChatEvent(eventName: string) {
   return eventName === "creator_message_sent"
     || eventName === "creator_media_sent"
+    || eventName === "chat_no_followed_creators_prompt_viewed"
+    || eventName === "chat_no_followed_creators_cta_clicked"
+    || eventName === "chat_thread_auto_created_or_resolved"
+    || eventName === "chat_paid_gd_gate_viewed"
+    || eventName === "chat_paid_gd_gate_primary_clicked"
+    || eventName === "chat_paid_gd_gate_secondary_clicked"
+    || eventName === "chat_low_paid_gd_reminder_sent"
+    || eventName === "chat_low_paid_gd_reminder_reset"
     || eventName === "chat_message_send_attempted"
     || eventName === "chat_message_send_failed"
     || eventName === "chat_message_sent";

@@ -125,6 +125,8 @@ Insufficient balance must stop before paid writes:
 
 The UI can route the fan to Wallet, but the server remains the source of truth.
 
+For private chat specifically, the UI should not wait for a failed send attempt before explaining affordability. The thread detail payload is allowed to expose proactive paid-GD guidance based on `purchasedBalanceGd`, `textPriceGd`, `imagePriceGd`, `videoPriceGd`, and `subscriberFreeChatApplies`, but the server route still enforces `insufficient_paid_gumdrops` on send.
+
 ## Creator Booking Error Copy
 
 Creator booking expected failures must never surface as generic internal server errors. Availability, slot conflicts, paid-GD shortfalls, disabled bookings, and creator availability must return typed safe error codes with human-readable client copy. Only unexpected route failures should become internal server errors.

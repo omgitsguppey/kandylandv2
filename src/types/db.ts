@@ -400,6 +400,14 @@ export interface UserProfile {
         reasonCounts?: Record<string, number>;
     };
 
+    chatPaidGdLowBalanceReminder?: {
+        lastRemindedAt: number;
+        lastRemindedPaidBalanceGd: number;
+        reminderCycleId: string;
+        resetAtPaidBalanceGd?: number;
+        eligibleAgain: boolean;
+    };
+
     dailyTasksState?: DailyTasksState;
     creatorSettings?: CreatorSettings;
     creatorRestrictions?: CreatorRestrictions;

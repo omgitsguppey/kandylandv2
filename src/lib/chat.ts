@@ -57,6 +57,101 @@ export type ChatInsufficientFundsPayload = {
     messageKind: ChatMessageKind;
 };
 
+export type ChatPaidGdGateState = {
+    requiredMinPaidGd: number;
+    purchasedBalanceGd: number;
+    paidGdShortfall: number;
+    subscriberFreeChatApplies: boolean;
+    creatorViewerBypass: boolean;
+    gated: boolean;
+};
+
+export type ChatPaidGdLowBalanceReminderState = {
+    lastRemindedAt: number;
+    lastRemindedPaidBalanceGd: number;
+    reminderCycleId: string;
+    resetAtPaidBalanceGd?: number;
+    eligibleAgain: boolean;
+};
+
+const CHAT_PAID_GD_LOW_BALANCE_REMINDER_DEFAULT_CYCLE_ID = "chat_paid_gd_cycle_initial";
+
+function toFinitePositiveInteger(value: unknown) {
+    return typeof value === "number" && Number.isFinite(value)
+        ? Math.max(0, Math.trunc(value))
+        : 0;
+}
+
+export function buildChatPaidGdGateState(input: {
+    viewerRole: ChatViewerRole;
+    pricing: ChatThreadPricing | null | undefined;
+}): ChatPaidGdGateState | null {
+    if (!input.pricing) {
+        return null;
+    }
+
+    const creatorViewerBypass = input.viewerRole === "creator";
+    const subscriberFreeChatApplies = input.pricing.subscriberFreeChatApplies === true;
+    const requiredMinPaidGd = subscriberFreeChatApplies || creatorViewerBypass
+        ? 0
+        : Math.max(1, toFinitePositiveInteger(input.pricing.textPriceGd) || 1);
+    const purchasedBalanceGd = toFinitePositiveInteger(input.pricing.purchasedBalanceGd);
+    const paidGdShortfall = Math.max(0, requiredMinPaidGd - purchasedBalanceGd);
+
+    return {
+        requiredMinPaidGd,
+        purchasedBalanceGd,
+        paidGdShortfall,
+        subscriberFreeChatApplies,
+        creatorViewerBypass,
+        gated: !creatorViewerBypass && !subscriberFreeChatApplies && paidGdShortfall > 0,
+    };
+}
+
+export function normalizeChatPaidGdLowBalanceReminderState(value: unknown): ChatPaidGdLowBalanceReminderState {
+    const raw = value && typeof value === "object" ? value as Record<string, unknown> : {};
+    const reminderCycleId = typeof raw.reminderCycleId === "string" && raw.reminderCycleId.trim().length > 0
+        ? raw.reminderCycleId.trim()
+        : CHAT_PAID_GD_LOW_BALANCE_REMINDER_DEFAULT_CYCLE_ID;
+
+    return {
+        lastRemindedAt: toFinitePositiveInteger(raw.lastRemindedAt),
+        lastRemindedPaidBalanceGd: toFinitePositiveInteger(raw.lastRemindedPaidBalanceGd),
+        reminderCycleId,
+        resetAtPaidBalanceGd: raw.resetAtPaidBalanceGd == null ? undefined : toFinitePositiveInteger(raw.resetAtPaidBalanceGd),
+        eligibleAgain: raw.eligibleAgain !== false,
+    };
+}
+
+export function buildChatPaidGdLowBalanceReminderAfterSend(input: {
+    current: ChatPaidGdLowBalanceReminderState | null | undefined;
+    paidBalanceGd: number;
+    remindedAt: number;
+}): ChatPaidGdLowBalanceReminderState {
+    const current = input.current ?? normalizeChatPaidGdLowBalanceReminderState(null);
+    return {
+        ...current,
+        lastRemindedAt: toFinitePositiveInteger(input.remindedAt),
+        lastRemindedPaidBalanceGd: toFinitePositiveInteger(input.paidBalanceGd),
+        eligibleAgain: false,
+    };
+}
+
+export function buildChatPaidGdLowBalanceReminderAfterPaidRefill(input: {
+    current: ChatPaidGdLowBalanceReminderState | null | undefined;
+    previousPaidBalanceGd: number;
+    nextPaidBalanceGd: number;
+    reminderCycleId: string;
+}): ChatPaidGdLowBalanceReminderState {
+    const current = input.current ?? normalizeChatPaidGdLowBalanceReminderState(null);
+    return {
+        ...current,
+        reminderCycleId: input.reminderCycleId.trim() || CHAT_PAID_GD_LOW_BALANCE_REMINDER_DEFAULT_CYCLE_ID,
+        resetAtPaidBalanceGd: toFinitePositiveInteger(input.nextPaidBalanceGd),
+        eligibleAgain: toFinitePositiveInteger(input.previousPaidBalanceGd) < 100 && toFinitePositiveInteger(input.nextPaidBalanceGd) >= 100,
+    };
+}
+
 export function parseCreatorThreadId(threadId: string) {
     const match = /^creator_(.+)__user_(.+)$/.exec(threadId.trim());
     if (!match) {
