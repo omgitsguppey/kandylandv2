@@ -66,6 +66,7 @@ import { storage, db, rtdb } from "@/lib/firebase-data";
 import { formatCompactGd } from "@/lib/gumdrop-formatting";
 import { trackEvent } from "@/lib/telemetry";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
+import { isAndroidStandalonePwa } from "@/lib/device-layout-contract";
 import { cn } from "@/lib/utils";
 import { ref as storageRef, uploadBytes } from "firebase/storage";
 import {
@@ -796,6 +797,7 @@ export function ChatExperience() {
         });
     }, [normalizedThreadSearch, visibleThreads]);
     const showCompactThreadListOnly = isCompactViewport && !selectedThreadId;
+    const [isAndroidPwaChatShell, setIsAndroidPwaChatShell] = useState(false);
     const canComposeFromFollowedCreators = followedCreators.length > 0;
     const selectedThreadCreatorFirstName = selectedThread ? readCreatorFirstName(selectedThread.counterpartDisplayName) : "this creator";
     const proactivePaidGdGate = useMemo(() => buildChatPaidGdGateState({
@@ -811,12 +813,33 @@ export function ChatExperience() {
     const hasFullComposerTray = Boolean(sendErrorMessage || sendWarningMessage || insufficientFunds || proactivePaidGdGateVisible || composerFile);
     const hasSummaryOnlyComposerTray = Boolean(composerSummary) && !hasFullComposerTray;
     const composerPaddingMode = hasFullComposerTray ? "tray" : hasSummaryOnlyComposerTray ? "summary" : "clean";
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const syncAndroidPwaShell = () => {
+            setIsAndroidPwaChatShell(isAndroidStandalonePwa());
+        };
+
+        syncAndroidPwaShell();
+        window.addEventListener("resize", syncAndroidPwaShell, { passive: true });
+        window.addEventListener("orientationchange", syncAndroidPwaShell, { passive: true });
+
+        return () => {
+            window.removeEventListener("resize", syncAndroidPwaShell);
+            window.removeEventListener("orientationchange", syncAndroidPwaShell);
+        };
+    }, []);
+
     const chatViewportShellStyle = useMemo(() => ({
-        paddingBottom: isCompactViewport ? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET : undefined,
+        paddingBottom: isCompactViewport
+            ? (isAndroidPwaChatShell ? "var(--kd-android-pwa-bottom-nav-height, var(--user-mobile-chat-bottom-reserved-height, 0px))" : USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET)
+            : undefined,
         minHeight: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
         height: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
         maxHeight: isCompactViewport ? USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT : undefined,
-    }) satisfies CSSProperties, [isCompactViewport]);
+    }) satisfies CSSProperties, [isAndroidPwaChatShell, isCompactViewport]);
     const compactThreadListScrollStyle = useMemo(() => ({
         paddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
         scrollPaddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
@@ -2438,6 +2461,7 @@ export function ChatExperience() {
             className={CHAT_VIEWPORT_SHELL_CLASSNAME}
             style={chatViewportShellStyle}
             data-chat-shell-mode={showCompactThreadListOnly ? "list" : "thread"}
+            data-platform-shell={isAndroidPwaChatShell ? "android-pwa" : "default"}
             data-chat-bottom-nav-reserved="true"
             data-chat-composer-above-bottom-nav="true"
             data-chat-list-controls-above-bottom-nav="true"

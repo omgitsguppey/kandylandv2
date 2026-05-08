@@ -181,6 +181,26 @@ export const DEVICE_LAYOUT_SOURCE_ANCHORS = {
 
 type IOSNavigator = Navigator & { standalone?: boolean };
 
+export function isAndroidUserAgent(userAgent: string | null | undefined): boolean {
+  if (!userAgent) {
+    return false;
+  }
+
+  return /Android/i.test(userAgent);
+}
+
+export function isAndroidStandalonePwa(): boolean {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
+    return false;
+  }
+
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches
+    || (window.navigator as IOSNavigator).standalone === true;
+
+  return standalone && isAndroidUserAgent(navigator.userAgent);
+}
+
 export function resolveDeviceLayoutClass(widthPx: number): DeviceLayoutClass {
   const normalizedWidth = Number.isFinite(widthPx) ? Math.max(0, Math.floor(widthPx)) : 0;
   const matchedClass = DEVICE_LAYOUT_CLASSES.find((layoutClass) => {

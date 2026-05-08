@@ -10,7 +10,14 @@ export const USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT = USER_MOBILE_BOTTOM_NAV_RE
 export const USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET = `var(--user-mobile-chat-bottom-reserved-height, ${USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT})`;
 export const USER_MOBILE_CHAT_CONTROL_BOTTOM_OFFSET = USER_MOBILE_CHAT_CONTROL_GAP;
 export const USER_MOBILE_CHAT_VIEWPORT_HEIGHT = "var(--chat-visual-viewport-height, 100dvh)";
+export const USER_MOBILE_CHAT_ANDROID_PWA_VISUAL_HEIGHT = "var(--kd-android-pwa-visual-height, var(--chat-visual-viewport-height, 100dvh))";
+export const USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_NAV_HEIGHT = "var(--kd-android-pwa-bottom-nav-height, var(--user-mobile-chat-bottom-reserved-height, 0px))";
+export const USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_SAFE_PADDING = "var(--kd-android-pwa-bottom-safe-padding, 0px)";
+export const USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_RESERVED_HEIGHT =
+    `calc(${USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_NAV_HEIGHT} + ${USER_MOBILE_CHAT_ANDROID_PWA_BOTTOM_SAFE_PADDING})`;
 export const USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT = `calc(${USER_MOBILE_CHAT_VIEWPORT_HEIGHT} - var(--root-shell-top-spacing, ${USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT}))`;
+export const USER_MOBILE_CHAT_ANDROID_PWA_VIEWPORT_SHELL_HEIGHT =
+    `calc(${USER_MOBILE_CHAT_ANDROID_PWA_VISUAL_HEIGHT} - var(--root-shell-top-spacing, ${USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT}))`;
 export const CHAT_LIST_CONTROL_HEIGHT = "3.25rem";
 
 export const CHAT_LIST_CONTROLS_BOTTOM_OFFSET = USER_MOBILE_CHAT_CONTROL_BOTTOM_OFFSET;
