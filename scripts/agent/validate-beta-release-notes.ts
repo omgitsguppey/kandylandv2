@@ -28,11 +28,13 @@ if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(document.generatedAtU
 
 const visibleNotes = getPublicReleaseNotesVisibleNotes(document.notes);
 if (visibleNotes.length > 5) failures.push("Beta panel must expose only the last 5 updates.");
-const internalOnlyVisibleNotes = visibleNotes.filter((note) =>
-  note.surfaceCategory === "Internal reliability"
-  || note.hiddenFromPublic === true
-  || note.affectedSurfaces.length === 0,
-);
+  const internalOnlyVisibleNotes = visibleNotes.filter((note) =>
+    note.surfaceCategory === "Internal reliability"
+    || note.surfaceCategory === "Admin tools"
+    || note.audience === "admins"
+    || note.hiddenFromPublic === true
+    || note.affectedSurfaces.length === 0,
+  );
 if (internalOnlyVisibleNotes.length > 0) {
   failures.push("Visible beta notes must stay product-facing and must not be internal-reliability-only.");
 }

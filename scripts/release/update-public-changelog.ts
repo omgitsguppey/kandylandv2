@@ -10,14 +10,19 @@ import {
   PUBLIC_RELEASE_NOTES_MAX_COUNT,
   PUBLIC_RELEASE_NOTES_VISIBLE_COUNT,
   getPublicReleaseNotesVisibleNotes,
-  isReleaseGeneratedArtifactPath,
   resolveCurrentBetaReleaseCounter,
-  type PublicReleaseAudience,
   type PublicReleaseNote,
-  type PublicReleaseNoteCategory,
   type PublicReleaseNotesDocument,
-  type PublicReleaseSurfaceCategory,
 } from "../../src/lib/release-notes/release-version-contract";
+import {
+  buildReleaseBullets,
+  buildReleaseDescriptor,
+  buildReleaseSummary,
+  buildReleaseTitle,
+  buildTechnicalDetails,
+  classifyCategory,
+  ensureBulletVerb,
+} from "../../src/lib/release-notes/release-note-classifier";
 import {
   formatBetaOdometerVersion,
   getNextBetaOdometerVersion,
@@ -110,300 +115,6 @@ function getChangedFiles(sha: string) {
     .filter(Boolean);
 }
 
-function isInternalReliabilityPath(path: string, packageJsonChanged: boolean) {
-  const normalizedPath = path.replace(/\\/gu, "/");
-  if (isReleaseGeneratedArtifactPath(normalizedPath, packageJsonChanged)) {
-    return true;
-  }
-
-  return normalizedPath === "CODEX_HANDOFF.md"
-    || normalizedPath === "PHASE1_TRUTH_AUDIT.md"
-    || normalizedPath === "README.md"
-    || normalizedPath === "AGENTS.md"
-    || normalizedPath.startsWith("src/lib/release-notes/")
-    || normalizedPath.startsWith("agent/")
-    || normalizedPath.startsWith("docs/")
-    || normalizedPath.startsWith("scripts/")
-    || normalizedPath.startsWith(".github/")
-    || normalizedPath.startsWith("tests/")
-    || normalizedPath.endsWith(".md")
-    || normalizedPath.endsWith(".spec.ts")
-    || normalizedPath.endsWith(".spec.tsx")
-    || normalizedPath === "package.json";
-}
-
-function isProductFacingPath(path: string, packageJsonChanged: boolean) {
-  return !isInternalReliabilityPath(path, packageJsonChanged);
-}
-
-function getEffectiveChangedFiles(commits: CommitRecord[]) {
-  const allChangedFiles = Array.from(new Set(commits.flatMap((commit) => getChangedFiles(commit.sha))));
-  const packageJsonChanged = allChangedFiles.includes("package.json");
-  const relevantChangedFiles = allChangedFiles.filter((path) => !isReleaseGeneratedArtifactPath(path, packageJsonChanged));
-  const productFacingFiles = relevantChangedFiles.filter((path) => isProductFacingPath(path, packageJsonChanged));
-  const internalReliabilityFiles = relevantChangedFiles.filter((path) => !isProductFacingPath(path, packageJsonChanged));
-
-  return {
-    allChangedFiles,
-    relevantChangedFiles,
-    productFacingFiles,
-    internalReliabilityFiles,
-    packageJsonChanged,
-  };
-}
-
-function affectedSurfacesFor(paths: string[]) {
-  const surfaces = new Set<string>();
-  for (const path of paths) {
-    if (
-      path.includes("Navbar")
-      || path.includes("Navigation/")
-      || path.includes("ReleaseNotes/")
-      || path.includes("usePublicReleaseNotes")
-      || path.includes("release-notes/")
-    ) surfaces.add("navigation");
-    if (path.includes("wallet") || path.includes("paypal")) surfaces.add("wallet");
-    if (path.includes("chat") || path.includes("support")) surfaces.add("chat-support");
-    if (path.includes("notification")) surfaces.add("notifications");
-    if (path.includes("admin")) surfaces.add("admin");
-    if (path.includes("creator")) surfaces.add("creator");
-    if (path.includes("task") || path.includes("checkin")) surfaces.add("daily-tasks");
-    if (path.includes("viewer") || path.includes("drop")) surfaces.add("drops-viewer");
-    if (path.includes("auth") || path.includes("sign") || path.includes("onboarding") || path.includes("profile")) surfaces.add("account-onboarding");
-    if (path.includes("security") || path.includes("privacy")) surfaces.add("privacy-security");
-  }
-  return surfaces.size > 0 ? Array.from(surfaces).sort() : ["app"];
-}
-
-function resolveSurfaceCategory(surfaces: string[]): PublicReleaseSurfaceCategory {
-  if (surfaces.includes("admin")) return "Admin tools";
-  if (surfaces.includes("wallet")) return "Wallet";
-  if (surfaces.includes("chat-support")) return "Chat & support";
-  if (surfaces.includes("drops-viewer")) return "Drops & viewer";
-  if (surfaces.includes("creator")) return "Creator tools";
-  if (surfaces.includes("daily-tasks")) return "Daily tasks";
-  if (surfaces.includes("notifications")) return "Notifications";
-  if (surfaces.includes("privacy-security")) return "Privacy & security";
-  if (surfaces.includes("account-onboarding")) return "Account & onboarding";
-  if (surfaces.includes("navigation")) return "Navigation";
-  if (surfaces.includes("app")) return "App experience";
-  return "Internal reliability";
-}
-
-function resolveAudience(titles: string[], surfaces: string[]): PublicReleaseAudience {
-  const normalized = titles.join(" ").toLowerCase();
-  if (surfaces.includes("admin") || normalized.includes("admin") || normalized.includes("debug")) return "admins";
-  if (surfaces.includes("wallet") || surfaces.includes("chat-support") || surfaces.includes("navigation") || surfaces.includes("notifications") || surfaces.includes("daily-tasks") || surfaces.includes("drops-viewer") || surfaces.includes("account-onboarding")) return "users";
-  if (normalized.includes("creator")) return "creators";
-  return "all";
-}
-
-function buildReleaseTitle(
-  titles: string[],
-  surfaces: string[],
-  audience: PublicReleaseAudience,
-  surfaceCategory: PublicReleaseSurfaceCategory,
-) {
-  const normalized = titles.join(" ").toLowerCase();
-  const isBetaUpdatesLane = surfaces.includes("navigation")
-    && /beta|release note|changelog|badge|drawer/u.test(normalized);
-  if (surfaceCategory === "Internal reliability") return "Internal reliability improvements";
-  if (isBetaUpdatesLane) return "Improved Beta updates and version visibility";
-  if (audience === "admins") {
-    if (normalized.includes("viewer") || normalized.includes("watch")) return "Improved viewer analytics";
-    if (normalized.includes("transaction") || normalized.includes("commerce")) return "Improved transaction review";
-    if (normalized.includes("drop")) return "Improved drop conversion review";
-    return "Improved admin reliability and status accuracy";
-  }
-  if (surfaceCategory === "Navigation") return "Improved navigation reliability";
-  if (surfaceCategory === "Chat & support") return "Improved chat and support reliability";
-  if (surfaceCategory === "Wallet") return "Improved wallet reliability";
-  if (surfaceCategory === "Drops & viewer") return "Improved drops and viewer reliability";
-  if (surfaceCategory === "Notifications") return "Improved notification reliability";
-  if (surfaceCategory === "Daily tasks") return "Improved daily task reliability";
-  if (surfaceCategory === "Account & onboarding") return "Improved sign-in and onboarding reliability";
-  return "Bug fixes and quality-of-life improvements";
-}
-
-function buildReleaseSummary(
-  surfaceCategory: PublicReleaseSurfaceCategory,
-  audience: PublicReleaseAudience,
-  includesInternalReliability: boolean,
-  surfaces: string[],
-  titles: string[],
-) {
-  const normalized = titles.join(" ").toLowerCase();
-  const isBetaUpdatesLane = surfaces.includes("navigation")
-    && /beta|release note|changelog|badge|drawer/u.test(normalized);
-  if (surfaceCategory === "Internal reliability") {
-    return "Internal reliability updates with no user-facing product changes.";
-  }
-  if (isBetaUpdatesLane) {
-    return includesInternalReliability
-      ? "Bug fixes and quality-of-life improvements for Beta updates, version visibility, and behind-the-scenes release reliability."
-      : "Bug fixes and quality-of-life improvements for Beta updates and version visibility.";
-  }
-  if (audience === "admins") {
-    return includesInternalReliability
-      ? "Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work."
-      : "Bug fixes and quality-of-life improvements for admin review tools.";
-  }
-  if (surfaceCategory === "Navigation") return "Bug fixes and quality-of-life improvements for top-level navigation and Beta update access.";
-  if (surfaceCategory === "Chat & support") return "Bug fixes and quality-of-life improvements for chat and support.";
-  if (surfaceCategory === "Wallet") return "Bug fixes and quality-of-life improvements for wallet flows.";
-  if (surfaceCategory === "Drops & viewer") return "Bug fixes and quality-of-life improvements for drops, previews, and viewer behavior.";
-  if (surfaceCategory === "Notifications") return "Bug fixes and quality-of-life improvements for notifications.";
-  if (surfaceCategory === "Daily tasks") return "Bug fixes and quality-of-life improvements for daily tasks and check-ins.";
-  if (surfaceCategory === "Account & onboarding") return "Bug fixes and quality-of-life improvements for sign-in and onboarding.";
-  return "Bug fixes and quality-of-life improvements.";
-}
-
-function ensureBulletVerb(value: string) {
-  const trimmed = value.trim().replace(/\.$/u, "");
-  if (/^(Added|Clarified|Fixed|Improved|Reduced|Updated)\b/u.test(trimmed)) {
-    return `${trimmed}.`;
-  }
-  return `Improved ${trimmed.charAt(0).toLowerCase()}${trimmed.slice(1)}.`;
-}
-
-function buildReleaseBullets(
-  titles: string[],
-  surfaces: string[],
-  audience: PublicReleaseAudience,
-  surfaceCategory: PublicReleaseSurfaceCategory,
-  includesInternalReliability: boolean,
-) {
-  const normalized = titles.join(" ").toLowerCase();
-  const isBetaUpdatesLane = surfaces.includes("navigation")
-    && /beta|release note|changelog|badge|drawer/u.test(normalized);
-  if (surfaceCategory === "Internal reliability") {
-    return [
-      "Improved behind-the-scenes reliability for the current Beta build.",
-      "Reduced internal tooling noise so public update notes stay focused on product changes.",
-    ];
-  }
-
-  if (isBetaUpdatesLane) {
-    return [
-      "Improved how the Beta drawer opens the latest accepted updates.",
-      "Reduced stale or repeated release-note copy in the visible Beta feed.",
-      includesInternalReliability
-        ? "Improved behind-the-scenes release tracking without flooding public notes with internal audit churn."
-        : "Updated version visibility so the latest Beta notes stay easier to follow.",
-    ];
-  }
-
-  if (audience === "admins") {
-    if (normalized.includes("viewer") || normalized.includes("watch")) {
-      return [
-        "Clarified verified and estimated viewer watch time.",
-        "Improved stale and quiet viewer activity labels.",
-        "Updated viewer rows to use readable names where available.",
-      ];
-    }
-
-    if (normalized.includes("transaction") || normalized.includes("commerce")) {
-      return [
-        "Added clearer names to recent transaction rows.",
-        "Improved GumDrops transaction labels and timestamps for admin review.",
-        "Clarified unavailable commerce details instead of showing waiting states.",
-      ];
-    }
-
-    return [
-      "Fixed admin labels that could appear stuck after data loaded.",
-      "Improved how hidden, delayed, or unavailable data is labeled.",
-      includesInternalReliability
-        ? "Improved behind-the-scenes reliability without changing core admin workflows."
-        : "Reduced confusing status messages in Beta admin tools.",
-    ];
-  }
-  if (surfaceCategory === "Navigation") {
-    return [
-      "Improved how key app navigation surfaces stay in sync with the latest Beta build.",
-      "Reduced confusing status changes when opening update notes and top-level navigation lanes.",
-    ];
-  }
-  if (surfaceCategory === "Chat & support") {
-    return [
-      "Improved chat and support reliability so common actions feel more stable.",
-      "Reduced stuck or confusing states in active support and messaging flows.",
-    ];
-  }
-  if (surfaceCategory === "Wallet") {
-    return [
-      "Improved wallet flow reliability so purchase-ready surfaces stay clearer.",
-      "Reduced confusing state changes around wallet-related interactions.",
-    ];
-  }
-  if (surfaceCategory === "Drops & viewer") {
-    return [
-      "Improved drop and viewer reliability so usage states stay easier to understand.",
-      "Reduced confusing stale or delayed states across previews and viewer surfaces.",
-    ];
-  }
-
-  return [
-    "Fixed beta issues to make KandyDrops smoother to use.",
-    "Improved reliability for the latest Beta build.",
-  ];
-}
-
-function buildTechnicalDetails(
-  commitCount: number,
-  titles: string[],
-  surfaces: string[],
-  includesInternalReliability: boolean,
-) {
-  const details: string[] = [];
-
-  if (commitCount > 1) {
-    details.push(`Grouped ${commitCount} commits into one accepted beta release.`);
-  }
-
-  if (includesInternalReliability) {
-    details.push("Includes internal reliability work that does not change the public product surface.");
-  }
-
-  if (titles.join(" ").toLowerCase().includes("unlock")) {
-    details.push("Display language uses unwrap; backend entitlement fields may still use unlock.");
-  }
-
-  return details.length > 0 ? details : undefined;
-}
-
-function classifyCategory(titles: string[], surfaces: string[], surfaceCategory: PublicReleaseSurfaceCategory): PublicReleaseNoteCategory {
-  const normalized = titles.join(" ").toLowerCase();
-  if (normalized.includes("security")) return "Security";
-  if (surfaceCategory === "Internal reliability") return "Internal";
-  if (normalized.includes("feat(") || normalized.includes("feat:")) return "New";
-  if (normalized.includes("perf(") || normalized.includes("perf:")) return "Improved";
-  if (normalized.includes("admin")) return "Admin";
-  return "Fixed";
-}
-
-function deriveReleaseDescriptor(commits: CommitRecord[]) {
-  const titles = commits.map((commit) => commit.title);
-  const {
-    productFacingFiles,
-    internalReliabilityFiles,
-  } = getEffectiveChangedFiles(commits);
-  const affectedSurfaces = affectedSurfacesFor(productFacingFiles);
-  const surfaceCategory = resolveSurfaceCategory(affectedSurfaces);
-  const includesInternalReliability = internalReliabilityFiles.length > 0;
-  const audience = resolveAudience(titles, affectedSurfaces);
-  const hiddenFromPublic = productFacingFiles.length === 0;
-
-  return {
-    titles,
-    audience,
-    affectedSurfaces,
-    surfaceCategory: hiddenFromPublic ? "Internal reliability" as const : surfaceCategory,
-    includesInternalReliability,
-    hiddenFromPublic,
-  };
-}
-
 function normalizeExistingNote(
   note: PublicReleaseNote,
   index: number,
@@ -426,9 +137,13 @@ function normalizeExistingNote(
   const commits = commitShas
     .map(getCommit)
     .filter((commit): commit is CommitRecord => Boolean(commit));
-  const descriptor = deriveReleaseDescriptor(commits);
+  const descriptor = buildReleaseDescriptor(
+    commits.map((commit) => commit.title),
+    commits.flatMap((commit) => getChangedFiles(commit.sha)),
+  );
   const committedAtUtc = toUtcIso(note.committedAtUtc ?? note.committedAt);
   const generatedAtUtc = toUtcIso(note.generatedAtUtc ?? note.generatedAt);
+  const title = buildReleaseTitle(descriptor);
 
   return {
     ...note,
@@ -443,26 +158,14 @@ function normalizeExistingNote(
     committedAtUtc,
     generatedAtUtc,
     updatedAtUtc: note.updatedAtUtc || generatedAtUtc,
-    category: classifyCategory(descriptor.titles, descriptor.affectedSurfaces, descriptor.surfaceCategory),
-    title: buildReleaseTitle(descriptor.titles, descriptor.affectedSurfaces, descriptor.audience, descriptor.surfaceCategory),
-    summary: buildReleaseSummary(
-      descriptor.surfaceCategory,
-      descriptor.audience,
-      descriptor.includesInternalReliability,
-      descriptor.affectedSurfaces,
-      descriptor.titles,
-    ),
-    userFacingTitle: buildReleaseTitle(descriptor.titles, descriptor.affectedSurfaces, descriptor.audience, descriptor.surfaceCategory),
+    category: classifyCategory(descriptor),
+    title,
+    summary: buildReleaseSummary(descriptor),
+    userFacingTitle: title,
     surfaceCategory: descriptor.surfaceCategory,
-    bullets: buildReleaseBullets(
-      descriptor.titles,
-      descriptor.affectedSurfaces,
-      descriptor.audience,
-      descriptor.surfaceCategory,
-      descriptor.includesInternalReliability,
-    ).map(ensureBulletVerb).slice(0, 5),
+    bullets: buildReleaseBullets(descriptor).map(ensureBulletVerb).slice(0, 5),
     audience: descriptor.audience,
-    technicalDetails: buildTechnicalDetails(commitCount, descriptor.titles, descriptor.affectedSurfaces, descriptor.includesInternalReliability),
+    technicalDetails: buildTechnicalDetails(descriptor, commitCount),
     affectedSurfaces: descriptor.affectedSurfaces,
     hiddenFromPublic: descriptor.hiddenFromPublic,
   };
@@ -489,10 +192,13 @@ function normalizeExistingDocument(document: PublicReleaseNotesDocument): Public
 function createAggregatedNote(commits: CommitRecord[], previousCounter: number): PublicReleaseNote {
   const latestCommit = commits[commits.length - 1];
   const commitShas = commits.map((commit) => commit.sha);
-  const descriptor = deriveReleaseDescriptor(commits);
+  const descriptor = buildReleaseDescriptor(
+    commits.map((commit) => commit.title),
+    commits.flatMap((commit) => getChangedFiles(commit.sha)),
+  );
   const nextCounter = previousCounter + 1;
   const generatedAtUtc = nowUtcIso();
-  const title = buildReleaseTitle(descriptor.titles, descriptor.affectedSurfaces, descriptor.audience, descriptor.surfaceCategory);
+  const title = buildReleaseTitle(descriptor);
 
   return {
     version: getNextBetaOdometerVersion(previousCounter),
@@ -507,39 +213,22 @@ function createAggregatedNote(commits: CommitRecord[], previousCounter: number):
     generatedAt: generatedAtUtc,
     committedAtUtc: toUtcIso(latestCommit.committedAt),
     generatedAtUtc,
-    category: classifyCategory(descriptor.titles, descriptor.affectedSurfaces, descriptor.surfaceCategory),
+    category: classifyCategory(descriptor),
     title,
     updatedAtUtc: generatedAtUtc,
-    summary: buildReleaseSummary(
-      descriptor.surfaceCategory,
-      descriptor.audience,
-      descriptor.includesInternalReliability,
-      descriptor.affectedSurfaces,
-      descriptor.titles,
-    ),
+    summary: buildReleaseSummary(descriptor),
     userFacingTitle: title,
     surfaceCategory: descriptor.surfaceCategory,
-    bullets: buildReleaseBullets(
-      descriptor.titles,
-      descriptor.affectedSurfaces,
-      descriptor.audience,
-      descriptor.surfaceCategory,
-      descriptor.includesInternalReliability,
-    ).map(ensureBulletVerb).slice(0, 5),
+    bullets: buildReleaseBullets(descriptor).map(ensureBulletVerb).slice(0, 5),
     audience: descriptor.audience,
-    technicalDetails: buildTechnicalDetails(commits.length, descriptor.titles, descriptor.affectedSurfaces, descriptor.includesInternalReliability),
+    technicalDetails: buildTechnicalDetails(descriptor, commits.length),
     affectedSurfaces: descriptor.affectedSurfaces,
     hiddenFromPublic: descriptor.hiddenFromPublic,
   };
 }
 
 function renderFallbackTs(document: PublicReleaseNotesDocument) {
-  const fallbackDocument = {
-    ...document,
-    notes: getPublicReleaseNotesVisibleNotes(document.notes, PUBLIC_RELEASE_NOTES_VISIBLE_COUNT),
-  };
-
-  return `import type { PublicReleaseNotesDocument } from "./release-version-contract";\n\nexport const PUBLIC_RELEASE_NOTES_FALLBACK = ${JSON.stringify(fallbackDocument, null, 2)} satisfies PublicReleaseNotesDocument;\n\nexport const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {\n  betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,\n  appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,\n  releaseChannel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,\n} as const;\n\nexport const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion;\n`;
+  return `import type { PublicReleaseNotesDocument } from "./release-version-contract";\n\nexport const PUBLIC_RELEASE_NOTES_FALLBACK = ${JSON.stringify(document, null, 2)} satisfies PublicReleaseNotesDocument;\n\nexport const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {\n  betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,\n  appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,\n  releaseChannel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,\n} as const;\n\nexport const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion;\n`;
 }
 
 function renderChangelog(notes: PublicReleaseNote[]) {
@@ -563,6 +252,22 @@ function renderChangelog(notes: PublicReleaseNote[]) {
   return `${lines.join("\n").trim()}\n`;
 }
 
+function renderReleaseVersionContract(nextCounter: number) {
+  const source = readFileSync(join(root, "src/lib/release-notes/release-version-contract.ts"), "utf8");
+  const nextVersion = formatBetaOdometerVersion(nextCounter);
+
+  const withCounter = source.replace(
+    /export const CURRENT_BETA_RELEASE_COUNTER = \d+;/u,
+    `export const CURRENT_BETA_RELEASE_COUNTER = ${nextCounter};`,
+  );
+  const withVersion = withCounter.replace(
+    /export const CURRENT_BETA_RELEASE_VERSION = .*?;/u,
+    `export const CURRENT_BETA_RELEASE_VERSION = "${nextVersion}";`,
+  );
+
+  return withVersion;
+}
+
 function writeIfChanged(path: string, content: string) {
   mkdirSync(dirname(path), { recursive: true });
   const current = existsSync(path) ? readFileSync(path, "utf8") : "";
@@ -575,7 +280,10 @@ function main() {
   let nextDocument = normalizedExisting;
 
   if (acceptRelease && pendingCommits.length > 0) {
-    const nextDescriptor = deriveReleaseDescriptor(pendingCommits);
+    const nextDescriptor = buildReleaseDescriptor(
+      pendingCommits.map((commit) => commit.title),
+      pendingCommits.flatMap((commit) => getChangedFiles(commit.sha)),
+    );
     if (nextDescriptor.hiddenFromPublic) {
       console.log("No product-facing unreleased commits found for an accepted beta release.");
     } else {
@@ -600,6 +308,12 @@ function main() {
   writeIfChanged(publicJsonPath, `${JSON.stringify(nextDocument, null, 2)}\n`);
   writeIfChanged(fallbackTsPath, renderFallbackTs(nextDocument));
   writeIfChanged(changelogPath, renderChangelog(nextDocument.notes));
+  if (acceptRelease && nextDocument.betaReleaseCounter !== CURRENT_BETA_RELEASE_COUNTER) {
+    writeIfChanged(
+      join(root, "src/lib/release-notes/release-version-contract.ts"),
+      renderReleaseVersionContract(nextDocument.betaReleaseCounter),
+    );
+  }
   console.log(`Public release notes current at v${nextDocument.currentVersion} (counter ${nextDocument.betaReleaseCounter}).`);
 }
 

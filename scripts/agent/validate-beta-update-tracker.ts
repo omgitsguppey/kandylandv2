@@ -170,6 +170,10 @@ function firstVisibleNote(document: PublicReleaseNotesDocument | null) {
   return document ? (getPublicReleaseNotesVisibleNotes(document.notes)[0] as RawReleaseNote | undefined) ?? null : null;
 }
 
+function firstTrackedNote(document: PublicReleaseNotesDocument | null) {
+  return document ? (document.notes[0] as RawReleaseNote | undefined) ?? null : null;
+}
+
 if (!packageJsonSource.includes('"check:beta-update-tracker": "tsx scripts/agent/validate-beta-update-tracker.ts"')) {
   failures.push('package.json must expose "check:beta-update-tracker".');
 }
@@ -236,35 +240,35 @@ if (!releaseArtifacts) {
     failures.push("Current version must be 1.2.1 or newer.");
   }
 
-  const publicTopNote = firstVisibleNote(releaseArtifacts);
-  const fallbackTopNote = firstVisibleNote(PUBLIC_RELEASE_NOTES_FALLBACK);
+  const publicTopNote = firstTrackedNote(releaseArtifacts);
+  const fallbackTopNote = firstTrackedNote(PUBLIC_RELEASE_NOTES_FALLBACK);
+  const visiblePublicNote = firstVisibleNote(releaseArtifacts);
 
   if (!publicTopNote || !fallbackTopNote) {
-    failures.push("Public JSON and bundled fallback must both expose a current visible beta release entry.");
+    failures.push("Public JSON and bundled fallback must both expose a current tracked beta release entry.");
   } else {
     if (publicTopNote.commitSha !== fallbackTopNote.commitSha) {
-      failures.push("Public JSON and bundled fallback top visible release note must agree on commitSha.");
+      failures.push("Public JSON and bundled fallback top tracked release note must agree on commitSha.");
     }
     if (!compareStringArray(publicTopNote.commitShas ?? [], fallbackTopNote.commitShas ?? [])) {
-      failures.push("Public JSON and bundled fallback top visible release note must agree on commitShas.");
+      failures.push("Public JSON and bundled fallback top tracked release note must agree on commitShas.");
     }
     if ((publicTopNote.commitCount ?? 0) !== (fallbackTopNote.commitCount ?? 0)) {
-      failures.push("Public JSON and bundled fallback top visible release note must agree on commitCount.");
+      failures.push("Public JSON and bundled fallback top tracked release note must agree on commitCount.");
     }
-    const visiblePublicCopy = `${publicTopNote.title} ${publicTopNote.summary} ${(publicTopNote.bullets ?? []).join(" ")}`;
-    if (bannedVisibleJargon.test(visiblePublicCopy)) {
+    if (visiblePublicNote && bannedVisibleJargon.test(`${visiblePublicNote.title} ${visiblePublicNote.summary} ${(visiblePublicNote.bullets ?? []).join(" ")}`)) {
       failures.push("Current public release note exposes forbidden technical jargon in visible copy.");
     }
-    if (publicTopNote.surfaceCategory === "Internal reliability") {
-      failures.push("Current visible public release note must not be internal-reliability-only.");
+    if (visiblePublicNote && (visiblePublicNote.surfaceCategory === "Internal reliability" || visiblePublicNote.surfaceCategory === "Admin tools")) {
+      failures.push("Current visible public release note must stay user-facing.");
     }
   }
 }
 
 const commits = readCommitLog();
 const latestRelevantCommit = findLatestRelevantCommit(commits);
-const publicTopNote = firstVisibleNote(releaseArtifacts);
-const fallbackTopNote = firstVisibleNote(PUBLIC_RELEASE_NOTES_FALLBACK);
+const publicTopNote = firstTrackedNote(releaseArtifacts);
+const fallbackTopNote = firstTrackedNote(PUBLIC_RELEASE_NOTES_FALLBACK);
 
 if (latestRelevantCommit) {
   if (!noteCoversCommit(publicTopNote, latestRelevantCommit.sha)) {

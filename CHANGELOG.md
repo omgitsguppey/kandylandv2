@@ -2,20 +2,9 @@
 
 User-facing KandyDrops Beta updates, newest first.
 
-## [1.2.3] - 2026-05-07
-
-### Admin tools
-
-- Updated 2026-05-07 22:13 UTC
-- Improved drop conversion review
-- Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.
-- Fixed admin labels that could appear stuck after data loaded.
-- Improved how hidden, delayed, or unavailable data is labeled.
-- Improved behind-the-scenes reliability without changing core admin workflows.
-
 ## [1.2.2] - 2026-05-07
 
-### Admin tools
+### Navigation
 
 - Updated 2026-05-07 04:14 UTC
 - Improved Beta updates and version visibility
@@ -26,33 +15,10 @@ User-facing KandyDrops Beta updates, newest first.
 
 ## [1.2.0] - 2026-05-06
 
-### Admin tools
+### Drops & viewer
 
 - Updated 2026-05-06 17:11 UTC
-- Improved admin reliability and status accuracy
-- Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.
-- Fixed admin labels that could appear stuck after data loaded.
-- Improved how hidden, delayed, or unavailable data is labeled.
-- Improved behind-the-scenes reliability without changing core admin workflows.
-
-## [1.1.99] - 2026-05-06
-
-### Admin tools
-
-- Updated 2026-05-06 17:11 UTC
-- Improved viewer analytics
-- Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.
-- Clarified verified and estimated viewer watch time.
-- Improved stale and quiet viewer activity labels.
-- Updated viewer rows to use readable names where available.
-
-## [1.1.98] - 2026-05-06
-
-### Admin tools
-
-- Updated 2026-05-06 17:11 UTC
-- Improved transaction review
-- Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.
-- Added clearer names to recent transaction rows.
-- Improved GumDrops transaction labels and timestamps for admin review.
-- Clarified unavailable commerce details instead of showing waiting states.
+- Improved drops and viewer reliability
+- Bug fixes and quality-of-life improvements for drops, previews, and viewer behavior.
+- Improved drop and viewer reliability so usage states stay easier to understand.
+- Reduced confusing stale or delayed states across previews and viewer surfaces.

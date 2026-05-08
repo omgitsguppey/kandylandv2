@@ -75,7 +75,9 @@ if (document) {
     if (!Array.isArray(note.commitShas) || note.commitShas.length === 0) failures.push(`notes[${index}].commitShas must be present.`);
     if (typeof note.commitCount !== "number" || note.commitCount < 1) failures.push(`notes[${index}].commitCount must be present.`);
     if (typeof note.surfaceCategory !== "string" || note.surfaceCategory.length === 0) failures.push(`notes[${index}].surfaceCategory must be present.`);
-    if (note.surfaceCategory === "Internal reliability") failures.push(`notes[${index}] must not expose internal-reliability-only copy in the visible public feed.`);
+    if (note.surfaceCategory === "Internal reliability" || note.surfaceCategory === "Admin tools" || note.audience === "admins") {
+      failures.push(`notes[${index}] must stay user-facing in the visible public feed.`);
+    }
     if (note.version === "1.113.4") failures.push(`notes[${index}] must not keep legacy 1.113.4 as a visible version.`);
   }
 }

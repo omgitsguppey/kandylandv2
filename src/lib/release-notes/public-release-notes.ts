@@ -25,16 +25,15 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "generatedAt": "2026-05-07T22:13:11.677Z",
       "committedAtUtc": "2026-05-07T21:23:52.000Z",
       "generatedAtUtc": "2026-05-07T22:13:11.677Z",
-      "category": "Admin",
-      "title": "Improved drop conversion review",
+      "category": "Internal",
+      "title": "Internal admin reliability improvements",
       "updatedAtUtc": "2026-05-07T22:13:11.677Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.",
-      "userFacingTitle": "Improved drop conversion review",
+      "summary": "Internal reliability updates for admin-only tooling with no public app change.",
+      "userFacingTitle": "Internal admin reliability improvements",
       "surfaceCategory": "Admin tools",
       "bullets": [
-        "Fixed admin labels that could appear stuck after data loaded.",
-        "Improved how hidden, delayed, or unavailable data is labeled.",
-        "Improved behind-the-scenes reliability without changing core admin workflows."
+        "Improved behind-the-scenes reliability for the current Beta build.",
+        "Reduced internal admin tooling churn from appearing as a public app update."
       ],
       "audience": "admins",
       "technicalDetails": [
@@ -44,7 +43,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "affectedSurfaces": [
         "admin"
       ],
-      "hiddenFromPublic": false
+      "hiddenFromPublic": true
     },
     {
       "version": "1.2.2",
@@ -81,7 +80,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "generatedAt": "2026-05-07T04:14:54.576Z",
       "committedAtUtc": "2026-05-07T04:09:56.000Z",
       "generatedAtUtc": "2026-05-07T04:14:54.576Z",
-      "category": "Admin",
+      "category": "Beta",
       "title": "Improved Beta updates and version visibility",
       "updatedAtUtc": "2026-05-07T04:14:54.576Z",
       "summary": "Bug fixes and quality-of-life improvements for Beta updates, version visibility, and behind-the-scenes release reliability.",
@@ -91,7 +90,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "Reduced stale or repeated release-note copy in the visible Beta feed.",
         "Improved behind-the-scenes release tracking without flooding public notes with internal audit churn."
       ],
-      "audience": "admins",
+      "audience": "all",
       "technicalDetails": [
         "Grouped 21 commits into one accepted beta release.",
         "Includes internal reliability work that does not change the public product surface."
@@ -105,7 +104,47 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "notifications",
         "wallet"
       ],
-      "surfaceCategory": "Admin tools",
+      "surfaceCategory": "Navigation",
+      "hiddenFromPublic": false
+    },
+    {
+      "version": "1.2.1",
+      "previousVersion": "1.2.0",
+      "betaReleaseCounter": 201,
+      "previousBetaReleaseCounter": 200,
+      "commitSha": "b43f8f272fe4071e4731d9d4e24d60f416b7a902",
+      "commitTitle": "fix(beta): improve beta update notes and changelog behavior",
+      "commitCount": 4,
+      "commitShas": [
+        "8b5a6256cf5b7660590df0c4e3786a1a1875ac11",
+        "04b6e80c3f6bdd7eed4d17f2b5c337815d62cb85",
+        "b522306e5d1e92e473ee9fed14dbd852429a96a8",
+        "b43f8f272fe4071e4731d9d4e24d60f416b7a902"
+      ],
+      "committedAt": "2026-05-06T19:58:25.000Z",
+      "generatedAt": "2026-05-06T19:58:40.373Z",
+      "committedAtUtc": "2026-05-06T19:58:25.000Z",
+      "generatedAtUtc": "2026-05-06T19:58:40.373Z",
+      "category": "Beta",
+      "title": "Improved Beta updates and version visibility",
+      "updatedAtUtc": "2026-05-06T19:58:40.373Z",
+      "summary": "Bug fixes and quality-of-life improvements for Beta updates, version visibility, and behind-the-scenes release reliability.",
+      "userFacingTitle": "Improved Beta updates and version visibility",
+      "bullets": [
+        "Improved how the Beta drawer opens the latest accepted updates.",
+        "Reduced stale or repeated release-note copy in the visible Beta feed.",
+        "Improved behind-the-scenes release tracking without flooding public notes with internal audit churn."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 4 commits into one accepted beta release.",
+        "Includes internal reliability work that does not change the public product surface."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "navigation"
+      ],
+      "surfaceCategory": "Navigation",
       "hiddenFromPublic": false
     },
     {
@@ -123,17 +162,16 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "generatedAt": "2026-05-06T17:11:11.469Z",
       "committedAtUtc": "2026-05-06T17:01:38.000Z",
       "generatedAtUtc": "2026-05-06T17:11:11.469Z",
-      "category": "Admin",
-      "title": "Improved admin reliability and status accuracy",
+      "category": "Fixed",
+      "title": "Improved drops and viewer reliability",
       "updatedAtUtc": "2026-05-06T17:11:11.469Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.",
-      "userFacingTitle": "Improved admin reliability and status accuracy",
+      "summary": "Bug fixes and quality-of-life improvements for drops, previews, and viewer behavior.",
+      "userFacingTitle": "Improved drops and viewer reliability",
       "bullets": [
-        "Fixed admin labels that could appear stuck after data loaded.",
-        "Improved how hidden, delayed, or unavailable data is labeled.",
-        "Improved behind-the-scenes reliability without changing core admin workflows."
+        "Improved drop and viewer reliability so usage states stay easier to understand.",
+        "Reduced confusing stale or delayed states across previews and viewer surfaces."
       ],
-      "audience": "admins",
+      "audience": "users",
       "technicalDetails": [
         "Includes internal reliability work that does not change the public product surface."
       ],
@@ -141,7 +179,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "admin",
         "drops-viewer"
       ],
-      "surfaceCategory": "Admin tools",
+      "surfaceCategory": "Drops & viewer",
       "hiddenFromPublic": false
     },
     {
@@ -159,22 +197,21 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "generatedAt": "2026-05-06T17:11:11.313Z",
       "committedAtUtc": "2026-05-06T16:37:58.000Z",
       "generatedAtUtc": "2026-05-06T17:11:11.313Z",
-      "category": "Admin",
-      "title": "Improved viewer analytics",
+      "category": "Fixed",
+      "title": "Improved drops and viewer reliability",
       "updatedAtUtc": "2026-05-06T17:11:11.313Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.",
-      "userFacingTitle": "Improved viewer analytics",
+      "summary": "Bug fixes and quality-of-life improvements for drops, previews, and viewer behavior.",
+      "userFacingTitle": "Improved drops and viewer reliability",
       "bullets": [
-        "Clarified verified and estimated viewer watch time.",
-        "Improved stale and quiet viewer activity labels.",
-        "Updated viewer rows to use readable names where available."
+        "Improved drop and viewer reliability so usage states stay easier to understand.",
+        "Reduced confusing stale or delayed states across previews and viewer surfaces."
       ],
-      "audience": "admins",
+      "audience": "users",
       "affectedSurfaces": [
         "admin",
         "drops-viewer"
       ],
-      "surfaceCategory": "Admin tools",
+      "surfaceCategory": "Drops & viewer",
       "technicalDetails": [
         "Includes internal reliability work that does not change the public product surface."
       ],
@@ -195,15 +232,14 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "generatedAt": "2026-05-06T17:11:11.166Z",
       "committedAtUtc": "2026-05-06T16:22:45.000Z",
       "generatedAtUtc": "2026-05-06T17:11:11.166Z",
-      "category": "Admin",
-      "title": "Improved transaction review",
+      "category": "Internal",
+      "title": "Internal admin reliability improvements",
       "updatedAtUtc": "2026-05-06T17:11:11.166Z",
-      "summary": "Bug fixes and quality-of-life improvements for admin review tools, plus behind-the-scenes reliability work.",
-      "userFacingTitle": "Improved transaction review",
+      "summary": "Internal reliability updates for admin-only tooling with no public app change.",
+      "userFacingTitle": "Internal admin reliability improvements",
       "bullets": [
-        "Added clearer names to recent transaction rows.",
-        "Improved GumDrops transaction labels and timestamps for admin review.",
-        "Clarified unavailable commerce details instead of showing waiting states."
+        "Improved behind-the-scenes reliability for the current Beta build.",
+        "Reduced internal admin tooling churn from appearing as a public app update."
       ],
       "audience": "admins",
       "affectedSurfaces": [
@@ -213,6 +249,41 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "technicalDetails": [
         "Includes internal reliability work that does not change the public product surface."
       ],
+      "hiddenFromPublic": true
+    },
+    {
+      "version": "1.1.97",
+      "previousVersion": "1.1.96",
+      "betaReleaseCounter": 197,
+      "previousBetaReleaseCounter": 196,
+      "commitSha": "05ad94d6859c78ab686e479d8eab5c976631130d",
+      "commitTitle": "fix(admin): clarify top drop unwrap conversion",
+      "commitCount": 1,
+      "commitShas": [
+        "05ad94d6859c78ab686e479d8eab5c976631130d"
+      ],
+      "committedAt": "2026-05-06T16:10:11.000Z",
+      "generatedAt": "2026-05-06T17:11:11.020Z",
+      "committedAtUtc": "2026-05-06T16:10:11.000Z",
+      "generatedAtUtc": "2026-05-06T17:11:11.020Z",
+      "category": "Fixed",
+      "title": "Improved drops and viewer reliability",
+      "updatedAtUtc": "2026-05-06T17:11:11.020Z",
+      "summary": "Bug fixes and quality-of-life improvements for drops, previews, and viewer behavior.",
+      "userFacingTitle": "Improved drops and viewer reliability",
+      "bullets": [
+        "Improved drop and viewer reliability so usage states stay easier to understand.",
+        "Reduced confusing stale or delayed states across previews and viewer surfaces."
+      ],
+      "audience": "users",
+      "technicalDetails": [
+        "Includes internal reliability work that does not change the public product surface."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "drops-viewer"
+      ],
+      "surfaceCategory": "Drops & viewer",
       "hiddenFromPublic": false
     }
   ]

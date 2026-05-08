@@ -74,6 +74,7 @@
         "release:notes": "tsx scripts/release/update-public-changelog.ts",
         "release:notes:accept": "cross-env PUBLIC_BETA_ACCEPT_RELEASE=1 tsx scripts/release/update-public-changelog.ts --accept",
         "check:release-notes": "tsx scripts/agent/validate-public-beta-changelog.ts",
+        "check:release-notes-cutover": "tsx scripts/agent/validate-release-notes-cutover.ts",
         "check:beta-versioning": "tsx scripts/agent/validate-beta-versioning.ts",
         "check:beta-release-notes": "tsx scripts/agent/validate-beta-release-notes.ts",
         "check:beta-update-tracker": "tsx scripts/agent/validate-beta-update-tracker.ts",
