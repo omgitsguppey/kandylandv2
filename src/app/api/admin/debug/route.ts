@@ -4792,11 +4792,14 @@ export async function GET(request: NextRequest) {
                 .map((entry) => entry.attribution)
                 .filter((entry): entry is TaskIssueAttribution => Boolean(entry)),
         };
+        // ⚡ Bolt: Optimize O(N^2) lookups.
+        const taskInventoryMap = new Map(taskInventory.map((entry) => [entry.taskId, entry]));
+
         const unsupportedRuntimeGroupsMap = runtimeTaskAudit.unsupportedRuntimeRecords.reduce((map, record) => {
             const reason = classifyRuntimeUnsupportedReason(record);
             const source = sourceLabelForRuntimeDriftKind(record.kind);
             const taskDefinition = record.taskId ? taskDefinitionsById.get(record.taskId) : undefined;
-            const inventoryEntry = record.taskId ? taskInventory.find((entry) => entry.taskId === record.taskId) : undefined;
+            const inventoryEntry = record.taskId ? taskInventoryMap.get(record.taskId) : undefined;
             const activityScope: RuntimeUnsupportedGroup["activityScope"] = typeof record.timestamp === "number" && record.timestamp >= currentDailyTaskWindow.windowStartMs
                 ? "active"
                 : "historical";
@@ -4984,11 +4987,18 @@ export async function GET(request: NextRequest) {
                 || right.taskIds.length - left.taskIds.length
                 || left.eventName.localeCompare(right.eventName);
         });
+        // ⚡ Bolt: Optimize O(N^2) nested lookups to O(1) by building maps beforehand.
+        const runtimeTaskSourceParityMap = new Map(runtimeTaskSourceParityRows.map(row => [row.taskId, row]));
+        const sharedEventGroupMap = new Map<string, SharedTaskEventGroup>();
+        sharedEventGroups.forEach((group) => {
+            group.taskIds.forEach((taskId) => sharedEventGroupMap.set(taskId, group));
+        });
+
         const alignmentWarnings: TaskTelemetryAlignmentWarning[] = [];
         runtimeTaskAudit.distribution.forEach((entry) => {
             const definition = taskDefinitionsById.get(entry.taskId);
-            const sourceParity = runtimeTaskSourceParityRows.find((row) => row.taskId === entry.taskId);
-            const sharedGroup = sharedEventGroups.find((group) => group.taskIds.includes(entry.taskId));
+            const sourceParity = runtimeTaskSourceParityMap.get(entry.taskId);
+            const sharedGroup = sharedEventGroupMap.get(entry.taskId);
 
             if (sharedGroup && (sharedGroup.ambiguityState === "partial" || sharedGroup.ambiguityState === "unsafe_shared_event")) {
                 alignmentWarnings.push({
@@ -5092,9 +5102,21 @@ export async function GET(request: NextRequest) {
             receiptCount: number;
             assignedCount: number;
         }>());
+        // ⚡ Bolt: Optimize O(N^2) lookups.
+        const telemetryAlignmentCanonicalMap = new Map<string, DailyTaskDefinition[]>();
+        allTaskDefinitions.forEach((definition) => {
+            const canonicalEventName = buildTelemetryEventMetadata(definition.eventName).canonicalEventName;
+            if (!telemetryAlignmentCanonicalMap.has(canonicalEventName)) {
+                telemetryAlignmentCanonicalMap.set(canonicalEventName, []);
+            }
+            telemetryAlignmentCanonicalMap.get(canonicalEventName)!.push(definition);
+        });
+        const sharedEventGroupNameMap = new Map<string, SharedTaskEventGroup>();
+        sharedEventGroups.forEach((group) => sharedEventGroupNameMap.set(group.eventName, group));
+
         const taskTelemetryMappingRows: TaskTelemetryMappingRow[] = Array.from(telemetryAlignmentByCanonicalEvent.values()).map((entry) => {
-            const affectedDefinitions = allTaskDefinitions.filter((definition) => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === entry.eventName);
-            const sharedGroup = sharedEventGroups.find((group) => group.eventName === entry.eventName);
+            const affectedDefinitions: DailyTaskDefinition[] = telemetryAlignmentCanonicalMap.get(entry.eventName) || [];
+            const sharedGroup = sharedEventGroupNameMap.get(entry.eventName);
             const purpose = classifyTaskTelemetryEventPurpose(entry.eventName);
             const expectedMapping = purpose === "task_trigger"
                 || (purpose === "notification_event" && (entry.eventName === "notification_read" || entry.eventName === "notification_opened"))
