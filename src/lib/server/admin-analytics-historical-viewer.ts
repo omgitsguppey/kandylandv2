@@ -809,20 +809,19 @@ export function buildHistoricalViewerOverview(input: {
       const bounceSessionCount = Math.min(sessionCount, entry.bounceSessionCount);
       const abandonedSessionCount = Math.min(sessionCount, entry.abandonedSessionCount);
 
+      const repeatSessions = Array.from(entry.sessionCountsByUser.values()).reduce(
+        (total, value) => total + Math.max(0, value - 1),
+        0,
+      );
+
       return {
         dropId: entry.dropId,
         dropTitle: resolveDropTitle(input.dropReferences, entry.dropId, entry.dropTitle),
         viewCount: entry.viewCount,
         sessionCount,
         uniqueViewerCount: entry.uniqueViewerKeys.size,
-        repeatSessionCount: Array.from(entry.sessionCountsByUser.values()).reduce(
-          (total, value) => total + Math.max(0, value - 1),
-          0,
-        ),
-        returnSessionCount: Array.from(entry.sessionCountsByUser.values()).reduce(
-          (total, value) => total + Math.max(0, value - 1),
-          0,
-        ),
+        repeatSessionCount: repeatSessions,
+        returnSessionCount: repeatSessions,
         totalWatchSeconds: entry.totalWatchSeconds,
         avgSessionSeconds: average(entry.sessionDurations),
         avgWatchSeconds: average(entry.watchDurations),
@@ -881,21 +880,21 @@ export function buildHistoricalViewerOverview(input: {
   }, new Map<string, ViewerDropFactAccumulator>());
 
   const viewerDropInsightsFromFacts = Array.from(viewerDropFactsMap.values())
-    .map((entry) => ({
-      dropId: entry.dropId,
-      dropTitle: entry.dropTitle,
-      viewCount: entry.viewCount,
-      sessionCount: entry.sessionCount,
-      uniqueViewerCount: entry.uniqueViewerKeys.size,
-      repeatSessionCount: Array.from(entry.sessionCounts.values()).reduce(
+    .map((entry) => {
+      const repeatSessions = Array.from(entry.sessionCounts.values()).reduce(
         (total, value) => total + Math.max(0, value - 1),
         0,
-      ),
-      returnSessionCount: Array.from(entry.sessionCounts.values()).reduce(
-        (total, value) => total + Math.max(0, value - 1),
-        0,
-      ),
-      totalWatchSeconds: entry.totalWatchSeconds,
+      );
+
+      return {
+        dropId: entry.dropId,
+        dropTitle: entry.dropTitle,
+        viewCount: entry.viewCount,
+        sessionCount: entry.sessionCount,
+        uniqueViewerCount: entry.uniqueViewerKeys.size,
+        repeatSessionCount: repeatSessions,
+        returnSessionCount: repeatSessions,
+        totalWatchSeconds: entry.totalWatchSeconds,
       avgSessionSeconds: entry.sessionCount > 0 ? Math.round(entry.totalWatchSeconds / entry.sessionCount) : 0,
       avgWatchSeconds: entry.sessionCount > 0 ? Math.round(entry.totalWatchSeconds / entry.sessionCount) : 0,
       assetStarts: 0,
@@ -911,7 +910,8 @@ export function buildHistoricalViewerOverview(input: {
       downloads: 0,
       relatedClicks: 0,
       avgLoadMs: entry.loadSampleCount > 0 ? Math.round(entry.loadMsTotal / entry.loadSampleCount) : 0,
-    }))
+      };
+    })
     .sort((left, right) => right.totalWatchSeconds - left.totalWatchSeconds || right.sessionCount - left.sessionCount)
     .slice(0, 20);
 
