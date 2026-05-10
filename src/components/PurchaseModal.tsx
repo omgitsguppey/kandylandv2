@@ -510,7 +510,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                     <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
                                     {pkgEconomics.bonusGumDrops > 0 && (
                                       <span className="inline-flex items-center ml-1 rounded border border-brand-purple/30 bg-brand-purple/15 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-[#d7c4ff]">
-                                        +{pkgEconomics.bonusGumDrops} Bonus
+                                        +{pkgEconomics.bonusGumDrops} bonus
                                       </span>
                                     )}
                                   </div>
