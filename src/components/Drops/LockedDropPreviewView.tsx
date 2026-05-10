@@ -216,7 +216,7 @@ function FeedbackStrip({ selectedReaction, onReact }: Pick<LockedDropPreviewView
             <p className="mb-2 text-[10px] font-black uppercase tracking-[0.16em] text-gray-500">Vibe check</p>
             <div className="grid grid-cols-5 gap-1.5">
                 {FEEDBACK_REACTIONS.map((reaction) => (
-                    <button key={reaction.key} type="button" onClick={() => onReact(reaction.key, reaction.label)} aria-label={reaction.label} className={cn("flex min-h-11 items-center justify-center rounded-[0.9rem] border text-lg transition-colors active:scale-95", selectedReaction === reaction.key ? "border-brand-purple/50 bg-brand-purple/18" : "border-white/10 bg-black/24 hover:border-brand-purple/30")}>
+                    <button key={reaction.key} type="button" aria-pressed={selectedReaction === reaction.key} onClick={() => onReact(reaction.key, reaction.label)} aria-label={reaction.label} className={cn("flex min-h-11 items-center justify-center rounded-[0.9rem] border text-lg transition-colors active:scale-95", selectedReaction === reaction.key ? "border-brand-purple/50 bg-brand-purple/18" : "border-white/10 bg-black/24 hover:border-brand-purple/30")}>
                         <span aria-hidden="true">{reaction.emoji}</span>
                     </button>
                 ))}

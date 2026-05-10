@@ -9,3 +9,7 @@
 ## 2024-03-31 - Added ARIA label to mobile profile avatar
 **Learning:** Found a profile avatar `<button>` in the Navbar that was visually an icon-only button on mobile devices (`md:hidden`). It used an image or initial for sighted users but lacked an accessible name for screen readers.
 **Action:** Always provide an `aria-label` to avatar or profile buttons when they function as icon-only interactive elements without visible text labels.
+
+## 2024-05-10 - Added missing ARIA states to interactive toggles and selections
+**Learning:** Found several components (like CreatorDashboardSettingsHub SectionCards, CreatorBroadcastManager details, and LockedDropPreviewView vibe check reactions) that relied entirely on visual styling or conditional rendering of chevron icons to denote active/expanded states without conveying this information to screen readers. Relying purely on visual cues for interactive state changes creates an inaccessible experience for users relying on assistive technologies.
+**Action:** Always map React boolean states to corresponding ARIA attributes (`aria-expanded` for toggles that show/hide content, `aria-pressed` for toggle buttons that indicate an active state like selections or reactions) to ensure state changes are announced properly to screen readers.
