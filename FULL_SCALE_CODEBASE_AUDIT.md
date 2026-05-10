@@ -13832,3 +13832,40 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## Blocked Deliverable: Monolith File & Responsibility Boundary Audit
+
+**Candidate Files:**
+- `src/app/api/admin/debug/route.ts` (6360 lines)
+- `src/components/Chat/ChatExperience.tsx` (3485 lines)
+- `src/app/api/admin/users/route.ts` (3147 lines)
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (2864 lines)
+- `src/lib/server/ai-drop-covers.ts` (2823 lines)
+
+**Classification Labels:**
+- `src/app/api/admin/debug/route.ts`: **God-file risk**, **Mixed responsibility drift**
+- `src/components/Chat/ChatExperience.tsx`: **God-file risk**, **Mixed responsibility drift**
+- `src/app/api/admin/users/route.ts`: **God-file risk**, **Needs split for stability**
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`: **God-file risk**, **Mixed responsibility drift**
+- `src/lib/server/ai-drop-covers.ts`: **God-file risk**, **Oversized but tolerable**
+
+**Blocker Identification:**
+The files exceed the ~2000 line threshold specified in memory as too risky for automated scripting without manual human review and structural decomposition. Refactoring these monoliths risks breaking complex hydration, realtime listener orchestration, fallback rendering, and telemetry behavior. Modifying them requires splitting view rendering, fetch logic, state orchestration, telemetry, and business logic into carefully defined hooks and sub-components which is beyond the safe scope of a single agent pass without risk of regressing protected features.
+
+**Affected Components:**
+- Admin debug API and routing
+- Realtime chat architecture (Firestore listeners, UI coordination)
+- Admin user management API and queries
+- Admin analytics state mapping and cache coordination
+- AI drop cover generation backend systems
+
+**Codex Prompt for Future Manual Decomposition:**
+```markdown
+Please perform a targeted structural decomposition of the following oversized files in the KandyDrops repository to improve stability, debugging, and responsibility boundaries, without altering existing product behavior, payment/economy rules, or UI doctrine:
+1. `src/app/api/admin/debug/route.ts`: Split the God-file route handler by separating query definition, validation logic, and response formatting into smaller backend services or controller files.
+2. `src/components/Chat/ChatExperience.tsx`: Extract realtime listener hooks, compose/attachment logic, and individual view sub-components (like `ThreadList`, `MessagePane`) into separate files, keeping the main file under 300-500 lines.
+3. `src/app/api/admin/users/route.ts`: Split the route handler by separating query definition, validation logic, and response formatting into smaller backend services or controller files.
+4. `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`: Separate the complex fetch/fallback/orchestration logic into distinct specialized hooks per analytics domain (e.g., audience, commerce, ops).
+5. `src/lib/server/ai-drop-covers.ts`: Move pure utilities, prompts, and distinct capabilities into their own focused modules.
+Ensure all new boundaries conform to `/control-tower` constraints, maintain `telemetry` hooks accurately, and successfully pass `npm run check:continuity` and visual regression suites.
+```
