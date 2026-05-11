@@ -214,7 +214,11 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         if (authLoading || unlocking) return;
 
         const payload = getTelemetryPayload();
-        trackEvent("drop_preview_cta_clicked", payload);
+        trackEvent("drop_preview_cta_clicked", {
+            ...payload,
+            is_authenticated: !!user,
+            current_balance: userProfile?.gumDropsBalance ?? 0,
+        });
         const stateClickEvent = getPreviewCtaEventName(truth, "clicked");
         if (stateClickEvent) {
             trackEvent(stateClickEvent, getPreviewStateTelemetryPayload());

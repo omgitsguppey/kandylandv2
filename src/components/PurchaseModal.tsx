@@ -719,6 +719,17 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 });
                                 setError(message);
                               }}
+                              onCancel={() => {
+                                trackEvent("wallet_closed_incomplete", {
+                                  package_label: selectedPackage.label,
+                                  package_drops: selectedPackage.drops,
+                                  package_price: selectedPackage.price,
+                                  wallet_close_source: "paypal_cancel",
+                                  wallet_close_state: "paypal_overlay_closed",
+                                  ...walletDensityPayload,
+                                  source_component: "purchase_modal",
+                                });
+                              }}
                             />
                           </div>
                         )}

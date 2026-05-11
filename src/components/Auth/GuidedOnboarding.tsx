@@ -56,6 +56,7 @@ export function GuidedOnboarding() {
                     error: err,
                     detail: {
                         action: "build_onboarding_completion_storage_key",
+                    blocker_type: "tech_literacy_blocker",
                     },
                     consoleLabel: "[Onboarding] storage key generation failed",
                 });
@@ -401,6 +402,7 @@ export function GuidedOnboarding() {
                 error,
                 detail: {
                     action: "onboarding_checkin",
+                    blocker_type: "intent_alignment_blocker",
                 },
                 consoleLabel: "[Onboarding] daily check-in failed",
             });
@@ -440,6 +442,7 @@ export function GuidedOnboarding() {
                 error,
                 detail: {
                     action: "enable_notifications",
+                    blocker_type: "intent_alignment_blocker",
                 },
                 consoleLabel: "[Onboarding] notification enable failed",
             });
@@ -483,6 +486,7 @@ export function GuidedOnboarding() {
                 detail: {
                     action: "commit_step_metric",
                     scope: "apply_completed_onboarding_state",
+                    blocker_type: "missing_instrumentation",
                 },
                 consoleLabel: "[Onboarding] step metric commit failed",
             });
@@ -563,6 +567,7 @@ export function GuidedOnboarding() {
                     detail: {
                         action: "commit_step_metric",
                         scope: "complete_onboarding",
+                        blocker_type: "missing_instrumentation",
                     },
                     consoleLabel: "[Onboarding] completion metric commit failed",
                 });
@@ -588,6 +593,7 @@ export function GuidedOnboarding() {
                 error,
                 detail: {
                     action: "complete_onboarding",
+                    blocker_type: "tech_literacy_blocker",
                 },
                 consoleLabel: "[Onboarding] completion failed",
             });
@@ -625,6 +631,7 @@ export function GuidedOnboarding() {
                     error: recoveryError,
                     detail: {
                         action: "verify_onboarding_recovery",
+                        blocker_type: "tech_literacy_blocker",
                     },
                     consoleLabel: "[Onboarding] recovery verification failed",
                 });
