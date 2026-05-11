@@ -13832,3 +13832,31 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## Blocked Deliverable: Monolith File + Responsibility Boundary Audit
+
+### Candidate Files
+- `src/app/api/admin/debug/route.ts` (6360 lines)
+- `src/components/Chat/ChatExperience.tsx` (3485 lines)
+- `src/app/api/admin/users/route.ts` (3147 lines)
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (2864 lines)
+- `src/lib/server/ai-drop-covers.ts` (2823 lines)
+
+### Classification Labels
+- `src/app/api/admin/debug/route.ts`: **God-file risk**
+- `src/components/Chat/ChatExperience.tsx`: **God-file risk**, **Mixed responsibility drift**
+- `src/app/api/admin/users/route.ts`: **God-file risk**
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`: **Needs split for stability**, **Mixed responsibility drift**
+- `src/lib/server/ai-drop-covers.ts`: **God-file risk**
+
+### Blocker Identification
+Refactoring large monolithic files (>2000 lines) is too risky for automated scripting. These files deeply mix view rendering, fetch logic, state orchestration, telemetry, and runtime/listener logic. Attempting to decompose them via automated agent passes carries a high risk of introducing regressions or runtime/hydration mismatch bugs without careful manual oversight.
+
+### Affected Components/Helpers
+- Viewers/Consumers of Chat APIs (`ChatRouteShell`, `reconcileChatSendSuccess`)
+- Admin Analytics Overview, Pulse, and Snapshot modules (`AdminAnalyticsPrimitives`, `AdminAnalyticsCommerceTab`, `AdminAnalyticsAudienceTab`)
+- Background system tasks for AI integrations and admin debugging (`adminDb`, system log handlers)
+- User provisioning and profile resolution layers in Admin API routes
+
+### Precise Codex Prompt
+"Perform a targeted file decomposition on the identified god-files: `src/app/api/admin/debug/route.ts`, `src/components/Chat/ChatExperience.tsx`, `src/app/api/admin/users/route.ts`, `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`, and `src/lib/server/ai-drop-covers.ts`. Specifically, extract view rendering, fetch logic, fallback/skeleton logic, telemetry, and modal/state orchestration into distinct files with clear boundaries. Ensure normal UI files target ~300 lines or less, and orchestration files ~500 lines or less. Preserve all product behavior, telemetry hooks, and existing boundaries without creating parallel state paths. Ensure strict separation of concerns to improve runtime debugging and reduce future drift."
