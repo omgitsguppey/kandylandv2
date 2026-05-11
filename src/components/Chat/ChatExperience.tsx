@@ -87,7 +87,11 @@ const CHAT_COMPOSER_DEFAULT_HEIGHT_PX = 104;
 const CHAT_COMPOSER_CLEAN_PADDING_PX = 72;
 const CHAT_COMPOSER_SUMMARY_PADDING_PX = 92;
 const CHAT_COMPOSER_STATUS_TRAY_MAX_HEIGHT_CLASSNAME = "max-h-[min(28vh,10rem)] overflow-y-auto overscroll-y-contain";
-const CHAT_MEDIA_MAX_WIDTH_CLASSNAME = "max-w-[42%]";
+const CHAT_TRANSCRIPT_BOTTOM_GAP_PX = 14;
+const CHAT_MEDIA_PREVIEW_STYLE = {
+    maxWidth: "min(78vw, 28rem)",
+    maxHeight: "32dvh",
+} satisfies CSSProperties;
 
 type ThreadListResponse = {
     threads?: ChatThreadRecord[];
@@ -727,6 +731,7 @@ export function ChatExperience() {
     const typingResetTimerRef = useRef<number | null>(null);
     const messageListRef = useRef<HTMLDivElement | null>(null);
     const shouldStickToBottomRef = useRef(true);
+    const initialBottomAnchoredThreadRef = useRef<string | null>(null);
     const chatViewportShellRef = useRef<HTMLDivElement | null>(null);
     const compactThreadListPanelRef = useRef<HTMLElement | null>(null);
     const compactThreadListScrollRef = useRef<HTMLDivElement | null>(null);
@@ -898,8 +903,8 @@ export function ChatExperience() {
                 : `calc(${CHAT_COMPOSER_CLEAN_PADDING_PX}px + var(--chat-safe-bottom, 0px))`,
     }) as CSSProperties, [chatComposerHeightPx, composerPaddingMode, isCompactViewport]);
     const chatTranscriptStyle = useMemo(() => ({
-        paddingBottom: `max(calc(var(--chat-transcript-bottom-padding, ${CHAT_COMPOSER_CLEAN_PADDING_PX}px)), calc(${CHAT_COMPOSER_CLEAN_PADDING_PX}px + var(--chat-safe-bottom, 0px)))`,
-        scrollPaddingBottom: `max(calc(var(--chat-transcript-bottom-padding, ${CHAT_COMPOSER_CLEAN_PADDING_PX}px)), calc(${CHAT_COMPOSER_CLEAN_PADDING_PX}px + var(--chat-safe-bottom, 0px)))`,
+        paddingBottom: CHAT_TRANSCRIPT_BOTTOM_GAP_PX,
+        scrollPaddingBottom: CHAT_TRANSCRIPT_BOTTOM_GAP_PX,
     }) satisfies CSSProperties, []);
     const newMessageSheetStyle = useMemo(() => (
         isIosPwaChatShell
@@ -2581,6 +2586,7 @@ export function ChatExperience() {
 
     useEffect(() => {
         shouldStickToBottomRef.current = true;
+        initialBottomAnchoredThreadRef.current = null;
         const cleanup = restoreChatBottomAnchor("thread_open", "auto");
         return () => {
             if (typeof cleanup === "function") {
@@ -2588,6 +2594,27 @@ export function ChatExperience() {
             }
         };
     }, [restoreChatBottomAnchor, selectedThreadId]);
+
+    useEffect(() => {
+        if (!selectedThreadId || !selectedDetail?.messages.length || initialBottomAnchoredThreadRef.current === selectedThreadId) {
+            return;
+        }
+
+        initialBottomAnchoredThreadRef.current = selectedThreadId;
+        shouldStickToBottomRef.current = true;
+        let second: number | null = null;
+        const first = window.requestAnimationFrame(() => {
+            second = window.requestAnimationFrame(() => {
+                scrollMessageListToBottom("auto");
+            });
+        });
+        return () => {
+            window.cancelAnimationFrame(first);
+            if (second !== null) {
+                window.cancelAnimationFrame(second);
+            }
+        };
+    }, [scrollMessageListToBottom, selectedDetail?.messages.length, selectedThreadId]);
 
     useEffect(() => {
         if (!selectedDetail?.messages.length || !selectedThread) {
@@ -2624,7 +2651,7 @@ export function ChatExperience() {
     }, [isIosPwaChatShell, restoreChatBottomAnchor, selectedThreadId]);
 
     useEffect(() => {
-        if (!isIosPwaChatShell || !selectedThreadId) {
+        if (!selectedThreadId) {
             return;
         }
 
@@ -2642,7 +2669,7 @@ export function ChatExperience() {
         mediaNodes.forEach((mediaNode) => {
             const handleLoad = () => {
                 if (shouldStickToBottomRef.current) {
-                    restoreChatBottomAnchor("media_loaded", "auto");
+                    scrollMessageListToBottom("auto");
                 }
             };
             mediaNode.addEventListener("load", handleLoad, { passive: true });
@@ -2656,7 +2683,7 @@ export function ChatExperience() {
         return () => {
             cleanups.forEach((cleanup) => cleanup());
         };
-    }, [isIosPwaChatShell, latestMessageSnapshot, restoreChatBottomAnchor, selectedThreadId]);
+    }, [latestMessageSnapshot, scrollMessageListToBottom, selectedThreadId]);
 
     if (!user || !userProfile) {
         return null;
@@ -3118,6 +3145,7 @@ export function ChatExperience() {
                                         const isOptimistic = message.id.startsWith("optimistic-");
                                         const showTimelineMarker = shouldRenderTimelineMarker(message, previousMessage);
                                         const showStatus = isOutgoing && (isLatestOutgoing || isOptimistic);
+                                        const isAttachmentOnlyMessage = Boolean(message.assetUrl && !message.text?.trim());
                                         const readState = isOptimistic
                                             ? "Sending..."
                                             : isLatestOutgoing && selectedThread.counterpartReadAt >= message.createdAt
@@ -3134,28 +3162,37 @@ export function ChatExperience() {
                                                     </div>
                                                 ) : null}
                                                 <div className={cn("flex", isOutgoing ? "justify-end" : "justify-start")}>
-                                                    <div className="max-w-[84%] sm:max-w-[72%]" data-chat-media-density="compact-v2">
+                                                    <div
+                                                        className={cn(
+                                                            "min-w-0",
+                                                            isAttachmentOnlyMessage
+                                                                ? "w-fit max-w-[78vw] sm:max-w-[28rem]"
+                                                                : message.assetUrl
+                                                                    ? "max-w-[65%]"
+                                                                    : "max-w-[84%] sm:max-w-[72%]",
+                                                        )}
+                                                        data-chat-media-density="compact-v2"
+                                                    >
                                                         <div className={cn(
-                                                            "overflow-hidden px-4 py-2.5 text-[15px] leading-6 shadow-[0_12px_30px_rgba(0,0,0,0.22)]",
+                                                            "overflow-hidden text-[15px] leading-6 shadow-[0_12px_30px_rgba(0,0,0,0.22)]",
                                                             isOutgoing
                                                                 ? "rounded-[1.45rem] rounded-br-[0.5rem] bg-[linear-gradient(135deg,rgba(178,140,255,.96),rgba(126,87,255,.94))] text-white"
                                                                 : "rounded-[1.45rem] rounded-bl-[0.5rem] bg-[#26262a] text-white",
-                                                            message.assetUrl && !message.text ? "p-1.5" : "",
+                                                            isAttachmentOnlyMessage ? "inline-block p-1.5" : "px-4 py-2.5",
                                                             isOptimistic ? "opacity-75" : "",
                                                         )}>
                                                             {message.text ? <p className="whitespace-pre-wrap break-words">{message.text}</p> : null}
                                                             {message.assetUrl ? (
                                                                 <div className={cn(message.text ? "mt-3" : "")}>
                                                                     <div className={cn(
-                                                                        "overflow-hidden rounded-[1.15rem]",
-                                                                        CHAT_MEDIA_MAX_WIDTH_CLASSNAME,
+                                                                        "w-fit max-w-full overflow-hidden rounded-[1.15rem]",
                                                                         isOutgoing ? "bg-[#5b2fdd]" : "bg-[#1a1a1d]",
-                                                                    )}>
+                                                                    )} style={CHAT_MEDIA_PREVIEW_STYLE}>
                                                                         {isImageAttachment(message.assetMimeType, message.assetUrl) ? (
                                                                             // eslint-disable-next-line @next/next/no-img-element
-                                                                            <img src={message.assetUrl} alt="" className="h-auto w-full object-cover" data-chat-media-kind="image" />
+                                                                            <img src={message.assetUrl} alt="" className="h-auto w-auto max-w-full object-contain" style={CHAT_MEDIA_PREVIEW_STYLE} data-chat-media-kind="image" />
                                                                         ) : isVideoAttachment(message.assetMimeType, message.assetUrl) ? (
-                                                                            <video src={message.assetUrl} controls className="h-auto w-full" data-chat-media-kind="video" />
+                                                                            <video src={message.assetUrl} controls className="h-auto w-auto max-w-full object-contain" style={CHAT_MEDIA_PREVIEW_STYLE} data-chat-media-kind="video" />
                                                                         ) : (
                                                                             <a
                                                                                 href={message.assetUrl}

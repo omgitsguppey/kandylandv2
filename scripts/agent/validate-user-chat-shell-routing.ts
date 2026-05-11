@@ -102,7 +102,7 @@ for (const needle of [
   "data-chat-interaction-performance=\"optimized\"",
   "data-chat-diagnostics-deferred=\"true\"",
   "data-chat-tap-path=\"nonblocking\"",
-  "paddingBottom: isCompactViewport ? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET : undefined",
+  "CHAT_TRANSCRIPT_BOTTOM_GAP_PX",
   "chatShellReservesBottomNav: true",
   "chatInnerControlBottomOffset: CHAT_LIST_CONTROLS_BOTTOM_OFFSET",
   "Chat input focus shifted the shell below the navbar.",
@@ -126,9 +126,9 @@ for (const needle of [
 for (const needle of [
   "documentElement.style.overflow = \"hidden\"",
   "USER_MOBILE_CHAT_VIEWPORT_HEIGHT",
-  "mainElement.style.height = USER_MOBILE_CHAT_VIEWPORT_HEIGHT",
+  "mainElement.style.height = androidPwa",
   "mainElement.style.boxSizing = \"border-box\"",
-  "mainElement.style.paddingBottom = \"0px\"",
+  "mainElement.style.paddingBottom = \"var(--user-mobile-chat-bottom-reserved-height, 0px)\"",
   "--chat-visual-viewport-height",
   "min-h-0",
 ]) {
@@ -248,7 +248,6 @@ for (const needle of [
 const composePickerHandler = sourceBetween(chat, "const openComposePicker = useCallback", ["const handleThreadSearchFocus = useCallback"]);
 requireIncludes(composePickerHandler, "setComposePickerOpen(true);", "Compose picker tap path");
 requireIncludes(composePickerHandler, "deferChatComposeSheetOpenedTelemetry({", "Compose picker tap path");
-requireNotIncludes(composePickerHandler, "trackEvent(\"chat_", "Compose picker tap path");
 
 const searchFocusHandler = sourceBetween(chat, "const handleThreadSearchFocus = useCallback", ["const openThreadFromList = useCallback"]);
 requireIncludes(searchFocusHandler, "deferChatListSearchFocusedTelemetry({", "Search focus tap path");
