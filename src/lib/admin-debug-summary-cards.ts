@@ -169,7 +169,7 @@ export function buildAdminDebugSystemHealthNowModel(input: {
         },
         diagnostics: {
             value: input.activeDiagnosticCount,
-            truthState: diagnosticsDegraded ? "degraded" as AdminSurfaceState : "live" as AdminSurfaceState,
+            truthState: diagnosticsDegraded ? "degraded" as AdminSurfaceState : (input.sampledDiagnosticCount > 0 ? "live" as AdminSurfaceState : "unavailable" as AdminSurfaceState),
             tone: diagnosticsDegraded ? "warn" as const : "good" as const,
             detail: diagnosticDetail,
             clusters: input.activeDiagnosticClusters || [],
@@ -188,7 +188,7 @@ export function buildAdminDebugSystemHealthNowModel(input: {
         },
         runtimeWarnings: {
             value: input.runtimeWarningCount,
-            truthState: input.runtimeWarningCount > 0 ? "degraded" as AdminSurfaceState : "live" as AdminSurfaceState,
+            truthState: input.runtimeWarningCount > 0 ? "degraded" as AdminSurfaceState : (input.writerSampleCount > 0 || input.sampledPipelineFailureCount > 0 || input.sampledDiagnosticCount > 0 ? "live" as AdminSurfaceState : "unavailable" as AdminSurfaceState),
             tone: input.runtimeWarningCount > 0 ? "warn" as const : "good" as const,
             detail: input.runtimeWarningCount > 0
                 ? `${input.runtimeWarningCount} runtime configuration warnings are active.`
@@ -196,7 +196,7 @@ export function buildAdminDebugSystemHealthNowModel(input: {
         },
         routeFailures: {
             value: input.routeFailureCount,
-            truthState: input.routeFailureCount > 0 ? "degraded" as AdminSurfaceState : "live" as AdminSurfaceState,
+            truthState: input.routeFailureCount > 0 ? "degraded" as AdminSurfaceState : (input.sampledPipelineFailureCount > 0 ? "live" as AdminSurfaceState : "unavailable" as AdminSurfaceState),
             tone: input.routeFailureCount > 0 ? "warn" as const : "good" as const,
             emptyDetail: routeAggregateWithoutBreakdown
                 ? "No active route failures in current sample; previous active count came from stale cluster/window."
