@@ -13832,8 +13832,3 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
-
-### Audit Pass: GumDrop package metadata and source-of-funds truth
-
-- Corrected `getBundlePresentation` in `src/lib/gumdrop-economics.ts` to stop hardcoding `baseAmount` and `bonus` amounts. Now dynamically resolves them via `deriveGumdropEconomics(pkg.drops, pkg.price)` to prevent source-of-funds split discrepancies.
-- Updated `src/components/PurchaseModal.tsx` UI labels to use the calculated values correctly and match lowercase 'bonus' string convention.
