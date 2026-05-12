@@ -1,260 +1,131 @@
 {
-  "generatedAt": "2026-05-01T23:45:00.000Z",
+  "generatedAt": "2026-05-12T19:42:22.634Z",
+  "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
   "repo": "omgitsguppey/kandylandv2",
   "branch": "main",
-  "evaluatedHeadBeforeReportCommit": "f0765ad66eda5c832dab68b987acf4425964e079",
-  "launchStatus": "launchable with warnings",
-  "recommendedGoNoGo": "go",
-  "requiredNextAction": "Deploy only from this readiness commit or a later commit that reruns the same gates. Do not merge any open PR before reconciling it against this report.",
+  "reportMode": "evidence_refresh",
+  "launchStatus": "unknown evidence",
+  "recommendedGoNoGo": "hold_for_evidence",
+  "requiredNextAction": "Do not launch until visual QA, real-device smoke, provider smoke, admin truth sample evidence, and runtime evidence are recorded in repo evidence artifacts.",
   "blockers": [],
   "highRisks": [
     {
-      "id": "PR-208",
-      "title": "Sentinel high CSRF protection for admin analytics refresh API",
-      "status": "fixed_in_this_pass",
-      "risk": "The open PR targets a real state-changing admin route gap. The route now sets requireTrustedOrigin: true and has regression coverage; the PR should be closed or marked superseded after review to avoid stale duplicate merge risk.",
-      "files": [
-        "src/app/api/admin/analytics/refresh/route.ts",
-        "tests/unit/admin-analytics-refresh-route.spec.ts"
-      ]
+      "id": "EVIDENCE-VISUAL",
+      "title": "Visual QA missing",
+      "evidence": "No formal screenshot/manual QA evidence artifact exists for current main.",
+      "recommendation": "Run User-Surface Screenshot QA."
+    },
+    {
+      "id": "EVIDENCE-SMOKE",
+      "title": "Provider and real-device smoke missing",
+      "evidence": "No formal repo evidence records PayPal/provider smoke, real-device push, or PWA smoke.",
+      "recommendation": "Run Real-Device Smoke and provider smoke; record results."
     }
   ],
   "mediumRisks": [
     {
-      "id": "CI-001",
-      "title": "No GitHub Actions status context discovered for current commit",
-      "evidence": "gh run list returned an empty list and GitHub combined status for f0765ad66eda5c832dab68b987acf4425964e079 returned no statuses.",
-      "recommendation": "Treat local gate output as launch evidence for this pass; add CI workflows before scaling release automation."
+      "id": "PR-TRIAGE",
+      "title": "Open PRs remain current human gate",
+      "evidence": "PR triage refreshed at 6955246c6baabf0e8dcaee696dc73a37ff11301d.",
+      "recommendation": "Run PR Cemetery Cleanup next; do not merge PRs before evidence gates are stable."
     },
     {
-      "id": "TEST-001",
-      "title": "Default full Vitest parallel run can hit local hook timeouts",
-      "evidence": "npx vitest run timed out isolated hooks under default parallel workers; targeted retries passed and npx vitest run --maxWorkers=1 passed 191 files / 963 tests.",
-      "recommendation": "Use the serial full-suite command for local launch signoff on this workstation or increase Vitest hook timeout/worker policy in a separate tooling pass."
-    },
-    {
-      "id": "LIVE-001",
-      "title": "Live provider delivery not exercised by local gates",
-      "evidence": "Local gates validate PayPal route binding, Firebase rules, Functions build, notification dedupe, and FCM dispatch logic, but do not perform a live PayPal charge or real device push delivery.",
-      "recommendation": "Run a production-smoke checklist after deploy using a low-value payment and a real push-capable device."
-    },
-    {
-      "id": "PR-OPEN",
-      "title": "Open adjacent PRs remain unmerged",
-      "evidence": "Open PRs #201-#208 remain on GitHub; #201/#203/#207 overlap on useDrops optimization, and #208 is now superseded by this pass's security fix.",
-      "recommendation": "Do not merge open PRs during launch without rerunning the affected launch gates."
+      "id": "ADMIN-TRUTH-SAMPLES",
+      "title": "Admin truth samples missing/unknown",
+      "evidence": "No current admin truth sample evidence artifact was found.",
+      "recommendation": "Record formal admin truth sample evidence before upgrading readiness."
     }
   ],
   "deferredPostLaunch": [
-    "Close or supersede PR #208 after confirming this readiness commit includes the same trusted-origin fix.",
-    "Choose one survivor among duplicate useDrops optimization PRs (#201, #203, #207) after launch.",
-    "Add GitHub Actions workflows or required status contexts for automated launch gates.",
-    "Run live PayPal and real-device push smoke checks after deployment.",
-    "Address Node punycode deprecation warnings from Firebase emulator tooling when upstream or dependency policy allows."
+    "Dependency PRs and refactor/optimization PRs should remain post-launch unless a specific launch blocker is proven."
   ],
   "knownLimitations": [
-    "This pass did not deploy or run live production payment, push, or analytics provider calls.",
-    "This pass did not merge, close, or edit open PRs.",
-    "The default all-tests Vitest command is sensitive to local worker contention; serial full-suite execution passed.",
-    "GitHub Actions status data was unavailable for the current commit."
-  ],
-  "tinyLaunchBlockingFixes": [
-    {
-      "id": "SEC-REFRESH-CSRF",
-      "description": "Added trusted-origin enforcement to POST /api/admin/analytics/refresh and regression coverage.",
-      "files": [
-        "src/app/api/admin/analytics/refresh/route.ts",
-        "tests/unit/admin-analytics-refresh-route.spec.ts"
-      ]
-    },
-    {
-      "id": "LINT-REACT-PURITY",
-      "description": "Removed render-time Date.now calls from Drop timers by initializing the shared now store once on the client.",
-      "files": [
-        "src/hooks/useNow.ts",
-        "src/components/DropCardParts.tsx",
-        "src/components/FeaturedCarousel.tsx"
-      ]
-    },
-    {
-      "id": "LINT-EFFECTS",
-      "description": "Deferred Featured carousel index sync outside the effect body to satisfy React hook purity checks without changing user behavior.",
-      "files": [
-        "src/components/FeaturedCarousel.tsx"
-      ]
-    },
-    {
-      "id": "TEST-DOCTRINE",
-      "description": "Aligned Audience Snapshot contract expectations with current launch copy: Total users and Waiting for first snapshot.",
-      "files": [
-        "tests/unit/admin-analytics-audience-snapshot.spec.ts"
-      ]
-    },
-    {
-      "id": "LINT-UNUSED",
-      "description": "Removed unused legacy analytics import.",
-      "files": [
-        "src/lib/analytics/legacy-recovery-contract.ts"
-      ]
-    },
-    {
-      "id": "LINT-ADMIN-DEBUG",
-      "description": "Removed unnecessary Debug page useMemo dependencies.",
-      "files": [
-        "src/app/admin/debug/page.tsx"
-      ]
-    }
+    "This pass did not edit runtime code.",
+    "This pass did not run broad suites, browser automation, live provider checks, BigQuery scans, or Firestore production reads.",
+    "Operator-reported PayPal refill smoke exists outside repo evidence and is not marked as passed here."
   ],
   "phaseReports": [
-    "agent/state/user-critical-path-audit.generated.json",
-    "agent/state/user-critical-path-fix-report.generated.json",
-    "agent/state/payment-unlock-security-audit.generated.json",
-    "agent/state/notification-return-loop-audit.generated.json",
-    "agent/state/admin-analytics-finalization.generated.json",
-    "agent/state/global-speed-hydration-cache-audit.generated.json",
-    "agent/state/global-loading-performance-audit.generated.json",
-    "agent/state/mobile-layout-safe-area-audit.generated.json",
-    "agent/state/refresh-cache-loading-audit.generated.json",
-    "agent/state/launch-finalization-baseline.generated.json",
-    "agent/state/launch-pr-triage.generated.json"
+    "agent/state/final-launch-readiness-report.generated.json",
+    "agent/state/launch-pr-triage.generated.json",
+    "agent/state/public-beta-score.generated.json"
   ],
   "gates": [
     {
       "gate": "user critical path",
-      "status": "passed",
-      "commands": [
-        "npm run check:user-critical-path-launch",
-        "npm run check:not-found"
-      ]
+      "status": "warning",
+      "evidence": "visual QA missing"
     },
     {
       "gate": "payment unlock entitlement security",
-      "status": "passed",
-      "commands": [
-        "npm run check:payment-unlock-security",
-        "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts"
-      ]
+      "status": "warning",
+      "evidence": "formal provider smoke missing"
     },
     {
       "gate": "notifications",
-      "status": "passed",
-      "commands": [
-        "npm run check:notification-return-loop",
-        "npm run check:notification-pipeline"
-      ]
+      "status": "warning",
+      "evidence": "real-device push smoke missing"
     },
     {
       "gate": "admin analytics debug truth",
-      "status": "passed",
-      "commands": [
-        "npm run check:admin-analytics-finalization",
-        "npm run check:admin-analytics-hot-cache",
-        "npm run check:admin-analytics-no-pure-realtime",
-        "npm run check:admin-analytics-snapshot-migration",
-        "npm run check:admin-truth"
-      ]
+      "status": "warning",
+      "evidence": "admin truth samples missing/unknown"
     },
     {
       "gate": "performance loading cache",
-      "status": "passed",
-      "commands": [
-        "npm run check:global-speed-hydration-cache",
-        "npm run check:global-loading-performance",
-        "npm run check:refresh-based-hot-cache"
-      ]
+      "status": "warning",
+      "evidence": "runtime evidence missing/unknown"
     },
     {
       "gate": "mobile layout safe area",
-      "status": "passed",
-      "commands": [
-        "npm run check:mobile-shell-safe-area",
-        "npm run check:drops-mobile-refinement"
-      ]
+      "status": "warning",
+      "evidence": "real-device mobile/PWA smoke missing"
     },
     {
       "gate": "human-readable copy",
-      "status": "passed",
-      "commands": [
-        "npm run check:human-readable-admin-copy"
-      ]
+      "status": "warning",
+      "evidence": "not rerun in this evidence refresh"
     },
     {
       "gate": "firebase app hosting functions rules",
-      "status": "passed",
-      "commands": [
-        "npm run check:firebase-runtime",
-        "npm run check:functions",
-        "npm run check:firebase:rules"
-      ],
-      "appHostingConfig": "apphosting.yaml present with production site origins, Firebase public config, PayPal production env, GA vars, and PayPal/GA/navigation secrets."
+      "status": "warning",
+      "evidence": "not rerun in this evidence refresh"
     },
     {
       "gate": "tests ci",
-      "status": "passed_with_warning",
-      "commands": [
-        "npm run check",
-        "npm run check:continuity",
-        "npx vitest run --maxWorkers=1",
-        "npm run check:ui:audits"
-      ],
-      "warning": "No GitHub Actions run/status context was available; local standard gates passed."
+      "status": "warning",
+      "evidence": "targeted local commands only; broad CI/full suites not run"
     },
     {
       "gate": "open pr recent commit risk",
       "status": "passed_with_warning",
-      "commands": [
-        "gh pr list --state open --limit 30 --json number,title,author,headRefName,baseRefName,isDraft,updatedAt,mergeStateStatus,reviewDecision,statusCheckRollup,url",
-        "gh pr status",
-        "git log -20 --pretty=format:%h%x09%ad%x09%s --date=short"
-      ],
-      "warning": "Eight open PRs remain. No current-branch PR exists. Latest 20 commits are launch-hardening passes."
+      "evidence": "PR triage refreshed; open PRs remain human gate"
     }
   ],
   "testsRun": [
-    { "command": "npm run check:user-critical-path-launch", "status": "passed" },
-    { "command": "npm run check:payment-unlock-security", "status": "passed" },
-    { "command": "npm run check:notification-return-loop", "status": "passed" },
-    { "command": "npm run check:notification-pipeline", "status": "passed" },
-    { "command": "npm run check:admin-analytics-finalization", "status": "passed" },
-    { "command": "npm run check:admin-analytics-hot-cache", "status": "passed" },
-    { "command": "npm run check:admin-analytics-no-pure-realtime", "status": "passed" },
-    { "command": "npm run check:admin-analytics-snapshot-migration", "status": "passed" },
-    { "command": "npm run check:analytics-legacy-recovery", "status": "passed" },
-    { "command": "npm run check:global-speed-hydration-cache", "status": "passed" },
-    { "command": "npm run check:global-loading-performance", "status": "passed" },
-    { "command": "npm run check:refresh-based-hot-cache", "status": "passed" },
-    { "command": "npm run check:mobile-shell-safe-area", "status": "passed" },
-    { "command": "npm run check:drops-mobile-refinement", "status": "passed" },
-    { "command": "npm run check:human-readable-admin-copy", "status": "passed" },
-    { "command": "npm run check:launch-finalization-baseline", "status": "passed" },
-    { "command": "npm run check:launch-pr-triage", "status": "passed" },
-    { "command": "npm run check:not-found", "status": "passed" },
-    { "command": "npm run check:firebase-runtime", "status": "passed" },
-    { "command": "npm run check:functions", "status": "passed" },
-    { "command": "npm run check:firebase:rules", "status": "passed" },
-    { "command": "npm run check:launch-readiness-final", "status": "passed" },
-    { "command": "npm run typecheck", "status": "passed" },
-    { "command": "npm run check", "status": "passed_after_tiny_fixes" },
-    { "command": "npm run check:continuity", "status": "passed_after_artifact_cleanup" },
-    { "command": "npx vitest run --maxWorkers=1", "status": "passed" },
-    { "command": "npm run check:ui:audits", "status": "passed" },
-    { "command": "npm run check:generated-artifacts", "status": "passed" }
+    {
+      "command": "npm run score:beta",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check:beta-score",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check:launch-readiness-final",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check:final-launch-readiness-report",
+      "status": "passed"
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "passed"
+    }
   ],
-  "testsSkipped": [],
-  "openPullRequests": [
-    { "number": 208, "title": "Sentinel: [HIGH] Fix CSRF missing protection in admin analytics refresh API", "recommendation": "superseded_by_this_pass_after_review" },
-    { "number": 207, "title": "Bolt: Combine filtering and next expiration calculation in useDrops", "recommendation": "needs_verification_post_launch_or_choose_as_single_survivor" },
-    { "number": 206, "title": "Palette: Add ARIA state attributes to Creator Experiences Panel", "recommendation": "post_launch_or_needs_verification" },
-    { "number": 205, "title": "Reduce doctrine drift and banned-pattern reintroduction", "recommendation": "post_launch_docs_validation_review" },
-    { "number": 204, "title": "Improve onboarding friction visibility and technical rescue signals", "recommendation": "post_launch_or_targeted_verification" },
-    { "number": 203, "title": "Bolt: Consolidate drops filtering and expiry calculation in useDrops", "recommendation": "duplicate_superseded_by_207_if_accepted" },
-    { "number": 202, "title": "Audit package metadata and source-of-funds truth", "recommendation": "post_launch_review_against_payment_truth_gate" },
-    { "number": 201, "title": "Bolt: Consolidate data filtering and expiry timer calculation", "recommendation": "duplicate_superseded_by_207_if_accepted" }
-  ],
-  "recentCommitRisk": {
-    "latest20Reviewed": true,
-    "summary": "Latest 20 commits are launch-hardening, security, notification, admin truth, cache, mobile, copy, chat, and telemetry stabilization passes. No recent commit indicates feature expansion in the launch freeze window.",
-    "notableRisk": "Several recent commits touch launch-critical surfaces, but their targeted and standard gates passed in this readiness pass."
-  },
-  "requiredNextActionForLaunch": "Proceed to launch only after committing this report and fixes. Keep open PRs out of launch unless rerun gates after merging."
+  "testsSkipped": [
+    "npm run check",
+    "Playwright/Cypress/Lighthouse/UI omni",
+    "live provider checks"
+  ]
 }

@@ -70,8 +70,21 @@ function fileExists(root: string, filePath: string) {
 function hasProviderSmokeEvidence(root: string) {
   const launchPath = join(root, "agent/state/final-launch-readiness-report.generated.json");
   if (!existsSync(launchPath)) return false;
-  const source = readFileSync(launchPath, "utf8").toLowerCase();
-  return !source.includes("smoke was not performed") && !source.includes("provider smoke was not performed");
+  const source = readFileSync(launchPath, "utf8");
+  const parsed = parseJsonObject(source);
+  const missingEvidence = Array.isArray(parsed.missingEvidence) ? parsed.missingEvidence.join(" ").toLowerCase() : "";
+  const readinessCaps = Array.isArray(parsed.readinessCaps) ? parsed.readinessCaps.join(" ").toLowerCase() : "";
+  const normalizedSource = source.toLowerCase();
+  return ![
+    "smoke was not performed",
+    "provider smoke was not performed",
+    "provider smoke missing",
+    "formal provider smoke evidence is missing",
+    "ready with smoke required",
+  ].some((needle) =>
+    normalizedSource.includes(needle)
+    || missingEvidence.includes(needle)
+    || readinessCaps.includes(needle));
 }
 
 export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesApplied = 0) {

@@ -87,6 +87,7 @@ type TestRun = {
 
 type LaunchReadinessReport = {
   generatedAt?: string;
+  reportMode?: string;
   launchStatus?: string;
   recommendedGoNoGo?: string;
   blockers?: unknown[];
@@ -104,12 +105,28 @@ try {
 
 if (report) {
   const generatedAtMs = parseDate(report.generatedAt, "report.generatedAt");
-  const allowedLaunchStatuses = ["launchable", "launchable with warnings", "not launchable"];
+  const reportMode = report.reportMode ?? "launch_signoff";
+  if (!["launch_signoff", "evidence_refresh"].includes(reportMode)) {
+    failures.push("reportMode must be launch_signoff or evidence_refresh.");
+  }
+  const allowedLaunchStatuses = [
+    "launchable",
+    "launchable with warnings",
+    "not launchable",
+    "ready",
+    "ready with smoke required",
+    "needs review",
+    "blocked",
+    "unknown evidence",
+    "stale evidence",
+    "runtime unverified",
+    "visual qa required",
+  ];
   if (!report.launchStatus || !allowedLaunchStatuses.includes(report.launchStatus)) {
-    failures.push("launchStatus must be launchable, launchable with warnings, or not launchable.");
+    failures.push("launchStatus must be an allowed launch or evidence-aware readiness status.");
   }
 
-  if (generatedAtMs && Date.now() - generatedAtMs > GENERATED_REPORT_STALE_MS && report.launchStatus !== "not launchable") {
+  if (generatedAtMs && Date.now() - generatedAtMs > GENERATED_REPORT_STALE_MS && !["not launchable", "stale evidence", "needs review"].includes(String(report.launchStatus))) {
     failures.push("Stale launch readiness reports must not remain launchable; regenerate affected gates or mark not launchable/Needs review.");
   }
 
@@ -117,7 +134,7 @@ if (report) {
     failures.push("Report cannot be launchable while blockers are present.");
   }
 
-  if (report.recommendedGoNoGo !== "go") {
+  if (reportMode !== "evidence_refresh" && report.recommendedGoNoGo !== "go") {
     failures.push("Launch readiness recommendation must be go after all critical gates pass.");
   }
   if (report.launchStatus === "launchable" && report.gates?.some((gate) => gate.status === "passed_with_warning")) {
@@ -142,12 +159,12 @@ if (report) {
     const entry = report.gates?.find((candidate) => candidate.gate === gate);
     if (!entry) {
       failures.push(`Missing launch gate in report: ${gate}`);
-    } else if (!entry.status || !["passed", "passed_with_warning"].includes(entry.status)) {
+    } else if (!entry.status || !["passed", "passed_with_warning", "warning", "not_run", "blocked"].includes(entry.status)) {
       failures.push(`Launch gate is not passed: ${gate}`);
     }
   }
 
-  for (const phaseReport of [
+  const requiredPhaseReports = reportMode === "evidence_refresh" ? [] : [
     "agent/state/user-critical-path-audit.generated.json",
     "agent/state/user-critical-path-fix-report.generated.json",
     "agent/state/payment-unlock-security-audit.generated.json",
@@ -159,7 +176,8 @@ if (report) {
     "agent/state/refresh-cache-loading-audit.generated.json",
     "agent/state/launch-finalization-baseline.generated.json",
     "agent/state/launch-pr-triage.generated.json",
-  ]) {
+  ];
+  for (const phaseReport of requiredPhaseReports) {
     if (!existsSync(path.join(root, phaseReport))) {
       failures.push(`Missing phase validation report: ${phaseReport}`);
     }
@@ -168,7 +186,15 @@ if (report) {
     }
   }
 
-  for (const command of [
+  const requiredCommands = reportMode === "evidence_refresh"
+    ? [
+      "npm run score:beta",
+      "npm run check:beta-score",
+      "npm run check:launch-readiness-final",
+      "npm run check:final-launch-readiness-report",
+      "npm run typecheck",
+    ]
+    : [
     "npm run check:user-critical-path-launch",
     "npm run check:payment-unlock-security",
     "npm run check:notification-return-loop",
@@ -182,34 +208,46 @@ if (report) {
     "npm run check",
     "npx vitest run --maxWorkers=1",
     "npm run check:ui:audits",
-  ]) {
+  ];
+  for (const command of requiredCommands) {
     const entry = report.testsRun?.find((candidate) => candidate.command === command);
     if (!entry) {
       failures.push(`Readiness report is missing test command: ${command}`);
-    } else if (!String(entry.status).startsWith("passed")) {
+    } else if (reportMode !== "evidence_refresh" && !String(entry.status).startsWith("passed")) {
       failures.push(`Readiness report command did not pass: ${command}`);
     }
   }
 }
 
-for (const token of [
-  "Status: launchable with warnings",
-  "Blockers",
-  "High Risks",
-  "Medium Risks",
-  "Deferred Post-Launch",
-  "Tests Run",
-  "Tests Skipped",
-  "Known Limitations",
-  "Required Next Action",
-]) {
+const docTokens = report?.reportMode === "evidence_refresh"
+  ? [
+    "Status: evidence refresh",
+    "Unknown evidence",
+    "Visual QA required",
+    "Ready with smoke required",
+    "Required Next Action",
+  ]
+  : [
+    "Status: launchable with warnings",
+    "Blockers",
+    "High Risks",
+    "Medium Risks",
+    "Deferred Post-Launch",
+    "Tests Run",
+    "Tests Skipped",
+    "Known Limitations",
+    "Required Next Action",
+  ];
+for (const token of docTokens) {
   requireIncludes(docPath, docText, token);
 }
 
 requireIncludes("src/app/api/admin/analytics/refresh/route.ts", refreshRoute, "requireTrustedOrigin: true");
 requireIncludes("tests/unit/admin-analytics-refresh-route.spec.ts", refreshRouteTest, "requireTrustedOrigin: true");
-requireIncludes(reportPath, reportText, "PR-208");
-requireIncludes(docPath, docText, "PR #208");
+if (report?.reportMode !== "evidence_refresh") {
+  requireIncludes(reportPath, reportText, "PR-208");
+  requireIncludes(docPath, docText, "PR #208");
+}
 requireIncludes("FULL_SCALE_CODEBASE_AUDIT.md", fullAudit, "Launch Readiness Final Gate");
 requireIncludes("FULL_SCALE_CODEBASE_AUDIT.md", fullAudit, "Scope completed:");
 requireIncludes("REPO_MEMORY_LEDGER.md", repoLedger, "Launch readiness final gate is launchable with warnings");

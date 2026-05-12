@@ -1,111 +1,113 @@
 {
-  "generatedAt": "2026-05-02T01:25:00.000-05:00",
+  "generatedAt": "2026-05-12T19:42:22.634Z",
+  "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
   "reportKey": "final-launch-readiness-report",
-  "launchDecision": "LAUNCHABLE WITH WARNINGS",
-  "recommendedGoNoGo": "GO with warnings after production smoke",
-  "requiredNextAction": "Deploy only from this commit or a later commit that reruns the affected gates. Before public announcement, run live production smoke for PayPal refill, GumDrops credit, Drop unlock, protected content access, real-device push notification, PWA refresh, and App Hosting health.",
+  "reportMode": "evidence_refresh",
+  "launchDecision": "NOT LAUNCHABLE",
+  "phaseOneStatus": "Unknown evidence",
+  "readinessStatus": "Unknown evidence",
+  "readinessCaps": [
+    "Visual QA required",
+    "Ready with smoke required",
+    "Runtime unverified",
+    "Unknown evidence"
+  ],
+  "recommendedGoNoGo": "HOLD for evidence: visual QA, real-device smoke, provider smoke, admin truth samples, and runtime evidence remain missing.",
+  "requiredNextAction": "Run User-Surface Screenshot QA, Real-Device Smoke, provider smoke, and formal admin truth sample evidence recording. Do not treat operator-reported PayPal smoke as repo evidence until it is recorded.",
+  "missingEvidence": [
+    "visual QA missing",
+    "real-device smoke missing",
+    "provider smoke missing",
+    "admin truth samples missing/unknown",
+    "runtime evidence missing/unknown"
+  ],
+  "operatorNotes": [
+    "Operator-reported PayPal refill smoke exists outside repo evidence.",
+    "Repo evidence still requires formal PayPal/provider smoke recording before readiness can be upgraded."
+  ],
   "summary": {
     "gatesRequired": 21,
-    "gatesPassed": 14,
-    "gatesWarn": 7,
+    "gatesPassed": 1,
+    "gatesWarn": 20,
     "gatesFailed": 0,
     "gatesNotRun": 0,
     "unresolvedBlockerCount": 0,
-    "hardStopGatesPassed": true,
-    "runtimeCodeChanged": false,
+    "hardStopGatesPassed": false,
+    "runtimeCodeChanged": true,
     "featuresAdded": false,
-    "refactorsPerformed": false
+    "refactorsPerformed": false,
+    "prTriageCurrent": true
   },
   "hardStopRules": [
     {
-      "rule": "If payment/unlock/content entitlement fails, status is NOT LAUNCHABLE.",
-      "result": "passed",
+      "rule": "No launch readiness without current visual/manual QA evidence.",
+      "result": "missing_evidence",
       "evidence": [
-        "npm run check:payment-unlock-security",
-        "npm run check:content-media-pipeline"
+        "visual QA missing"
       ]
     },
     {
-      "rule": "If security role boundaries fail, status is NOT LAUNCHABLE.",
-      "result": "passed",
+      "rule": "No launch readiness without formal provider smoke evidence.",
+      "result": "missing_evidence",
       "evidence": [
-        "npm run check:security-role-boundaries",
-        "npm run check:firebase:rules"
+        "provider smoke missing",
+        "Operator-reported PayPal refill smoke exists outside repo evidence.",
+        "Repo evidence still requires formal PayPal/provider smoke recording before readiness can be upgraded."
       ]
     },
     {
-      "rule": "If user critical path has a blocker, status is NOT LAUNCHABLE.",
-      "result": "passed",
+      "rule": "No launch readiness without real-device smoke evidence.",
+      "result": "missing_evidence",
       "evidence": [
-        "npm run check:user-critical-path-launch"
+        "real-device smoke missing"
       ]
     }
   ],
   "overallUnresolvedBlockers": [],
   "overallUnresolvedWarnings": [
-    "Open PRs remain a human merge decision gate; do not merge them into launch without reconciling the triage report and rerunning affected gates.",
-    "Live production provider smoke was not performed locally for PayPal, FCM delivery, App Hosting deployed health, GA4/BigQuery, or real-device PWA install.",
-    "The supplemental local deployment health check `npm run check:deployment` was attempted but unavailable: first no server was running, then a temporary dev server started but `/api/health` timed out. Static deployment truth, Firebase runtime, Functions, and Firebase rules checks passed.",
-    "Several launch recovery paths intentionally require provider console action or manual DB/Storage intervention because no safe product tool exists yet.",
-    "Fixture/demo coverage is documented and locally validated, but no executable seed runner was added by default.",
-    "Rollback/incident response documents real partial levers only; no true global runtime kill switches were added for unlocks, notifications, chat, creator profiles, or analytics refresh."
+    "visual QA missing",
+    "real-device smoke missing",
+    "provider smoke missing",
+    "admin truth samples missing/unknown",
+    "runtime evidence missing/unknown",
+    "Open PRs are refreshed but remain a human merge decision gate; no PR was merged or closed.",
+    "Operator-reported PayPal refill smoke exists outside repo evidence.",
+    "Repo evidence still requires formal PayPal/provider smoke recording before readiness can be upgraded."
   ],
   "validationsRun": [
-    { "command": "npm run check:launch-finalization-baseline", "status": "pass" },
-    { "command": "npm run check:launch-pr-triage", "status": "pass" },
-    { "command": "npm run check:user-critical-path-launch", "status": "pass" },
-    { "command": "npm run check:payment-unlock-security", "status": "pass" },
-    { "command": "npm run check:notification-return-loop", "status": "pass" },
-    { "command": "npm run check:notification-pipeline", "status": "pass" },
-    { "command": "npm run check:security-role-boundaries", "status": "pass" },
-    { "command": "npm run check:environment-deployment-truth", "status": "pass" },
-    { "command": "npm run check:background-job-idempotency", "status": "pass" },
-    { "command": "npm run check:admin-analytics-finalization", "status": "pass" },
-    { "command": "npm run check:admin-analytics-hot-cache", "status": "pass" },
-    { "command": "npm run check:admin-analytics-no-pure-realtime", "status": "pass" },
-    { "command": "npm run check:admin-analytics-snapshot-migration", "status": "pass" },
-    { "command": "npm run check:analytics-legacy-recovery", "status": "pass" },
-    { "command": "npm run check:global-speed-hydration-cache", "status": "pass" },
-    { "command": "npm run check:global-loading-performance", "status": "pass" },
-    { "command": "npm run check:refresh-based-hot-cache", "status": "pass" },
-    { "command": "npm run check:mobile-shell-safe-area", "status": "pass" },
-    { "command": "npm run check:pwa-service-worker", "status": "pass" },
-    { "command": "npm run check:human-readable-admin-copy", "status": "pass" },
-    { "command": "npm run check:accessibility-tap-targets", "status": "pass" },
-    { "command": "npm run check:design-system-drift", "status": "pass" },
-    { "command": "npm run check:content-media-pipeline", "status": "pass" },
-    { "command": "npm run check:admin-cms-workflow", "status": "pass" },
-    { "command": "npm run check:event-catalog-telemetry", "status": "pass" },
-    { "command": "npm run check:support-recovery-flows", "status": "pass" },
-    { "command": "npm run check:legal-payment-copy", "status": "pass" },
-    { "command": "npm run check:test-fixtures-demo", "status": "pass" },
-    { "command": "npm run check:rollback-incident-response", "status": "pass" },
-    { "command": "npm run check:launch-readiness-final", "status": "pass" },
-    { "command": "npm run check:analytics-truth-layer-v2", "status": "pass" },
-    { "command": "npm run check:analytics-event-contract", "status": "pass" },
-    { "command": "npm run check:admin-truth", "status": "pass" },
-    { "command": "npm run check:firebase-runtime", "status": "pass" },
-    { "command": "npm run check:functions", "status": "pass" },
-    { "command": "npm run check:firebase:rules", "status": "pass" },
-    { "command": "npm run typecheck", "status": "pass" },
     {
-      "command": "npm run check:deployment",
-      "status": "warn",
-      "detail": "Unavailable in local audit. Initial run failed because no server was listening at localhost:3000. A temporary dev server reported ready, but /api/health timed out. Treat as a required production smoke item, not a code validation pass."
+      "command": "npm run score:beta",
+      "status": "pass"
+    },
+    {
+      "command": "npm run check:beta-score",
+      "status": "pass"
+    },
+    {
+      "command": "npm run check:launch-readiness-final",
+      "status": "pass"
+    },
+    {
+      "command": "npm run check:final-launch-readiness-report",
+      "status": "pass"
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "pass"
     }
   ],
   "skippedChecks": [
     {
       "command": "npm run check",
-      "reason": "Broad aggregate CI-style sweep was not required by this final targeted gate pass; targeted launch gates, typecheck, Functions, and Firebase rules were run instead."
+      "reason": "Broad suite forbidden by Launch Evidence Update scope."
     },
     {
-      "command": "npx vitest run",
-      "reason": "Full unit test sweep was not required by this final targeted gate pass; gate validators and Firebase rules tests were run."
+      "command": "Playwright/Cypress/Lighthouse/UI omni",
+      "reason": "Browser automation and broad visual suites forbidden by this evidence-refresh pass."
     },
     {
-      "command": "npm run check:ui:audits",
-      "reason": "Browser visual/a11y audits were not rerun in this docs-only report pass; mobile/PWA/a11y/design targeted validators passed and prior UI audit reports remain the browser-backed evidence."
+      "command": "live provider checks",
+      "reason": "No live provider checks were requested or performed; missing provider smoke remains visible."
     }
   ],
   "gates": [
@@ -113,17 +115,16 @@
       "gateKey": "scope-freeze",
       "status": "pass",
       "evidenceFiles": [
-        "docs/agent-truth/launch-finalization-scope.md",
-        "agent/state/launch-finalization-baseline.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:launch-finalization-baseline"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [],
-      "launchRecommendation": "Launchable. Keep launch-critical scope frozen.",
+      "launchRecommendation": "Evidence current for this refresh lane.",
       "postLaunchTasks": [
-        "Reopen deferred feature work only after launch branch stability is confirmed."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
@@ -138,392 +139,353 @@
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "Open PRs remain human merge decisions and may conflict with launch hardening if merged without rerunning gates."
+        "PR triage refreshed against current HEAD; open PRs remain a human merge gate."
       ],
-      "launchRecommendation": "Launchable with PR freeze. Do not merge open PRs into launch without triage reconciliation.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Resolve duplicate/superseded automation PRs.",
-        "Re-run affected gates before merging any security, performance, truth, or UI PR."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "user-critical-path",
-      "status": "pass",
+      "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/user-critical-path-launch.md",
-        "agent/state/user-critical-path-fix-report.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:user-critical-path-launch"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
-      "unresolvedWarnings": [],
-      "launchRecommendation": "Launchable. No unresolved user-path blocker was detected by the targeted gate.",
+      "unresolvedWarnings": [
+        "User-surface screenshot/manual QA is missing for current main."
+      ],
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Run a live mobile smoke after deployment across signup, Drops, Wallet, Unlock, Viewer, Chat, Notifications, and 404 recovery."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "payment-unlock-wallet-entitlement",
       "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/payment-wallet-unlock-entitlement.md",
-        "agent/state/payment-unlock-security-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:payment-unlock-security",
-        "npm run check:content-media-pipeline"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "Live PayPal low-value smoke was not performed locally.",
-        "Payment provider receipts remain required before any manual support credit."
+        "Formal repo PayPal/provider smoke evidence is missing. Operator-reported PayPal refill smoke is outside repo evidence."
       ],
-      "launchRecommendation": "Launchable with required production payment smoke before public announcement.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Run one low-value production PayPal refill.",
-        "Verify GumDrops credit, unlock deduction, entitlement access, and Admin commerce parity."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "notification-return-loop",
       "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/notification-pipeline.md",
-        "agent/state/notification-return-loop-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:notification-return-loop",
-        "npm run check:notification-pipeline"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "Real-device FCM delivery was not performed locally.",
-        "No global notification kill switch exists; incident plan documents pause/rollback/manual paths."
+        "Real-device push smoke is missing."
       ],
-      "launchRecommendation": "Launchable with real-device push smoke and notification volume monitoring.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Verify foreground and background push on an installed-capable device.",
-        "Monitor duplicate prevented, skipped token, permission, and preference counts after launch."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "security-rules-role-boundaries",
-      "status": "pass",
+      "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/security-role-boundaries.md",
-        "agent/state/security-role-boundary-audit.generated.json",
-        "firestore.rules",
-        "database.rules.json",
-        "storage.rules"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:security-role-boundaries",
-        "npm run check:firebase:rules"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
-      "unresolvedWarnings": [],
-      "launchRecommendation": "Launchable. Security and Firebase rules gates passed.",
+      "unresolvedWarnings": [
+        "Security/rules gates were not rerun in this evidence refresh."
+      ],
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Re-run this gate after any admin, wallet, unlock, content, chat, notification, or rules change."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "environment-deployment-truth",
       "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/environment-deployment-truth.md",
-        "agent/state/environment-deployment-truth-audit.generated.json",
-        "apphosting.yaml",
-        "firebase.json",
-        ".firebaserc"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:environment-deployment-truth",
-        "npm run check:firebase-runtime",
-        "npm run check:functions",
-        "npm run check:deployment (unavailable warning)"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "Local deployment health smoke could not complete because /api/health timed out under a temporary dev server.",
-        "Secret Manager value existence and deployed provider health were not verified locally."
+        "Live deployed health/provider smoke is missing."
       ],
-      "launchRecommendation": "Launchable with required deployed App Hosting health and provider smoke after deployment.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Run health check against the deployed production URL.",
-        "Confirm App Hosting revision, Secret Manager bindings, PayPal live mode, GA4/BigQuery config, and FCM VAPID at deploy time."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "background-jobs-idempotency",
       "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/background-jobs-idempotency.md",
-        "agent/state/background-job-idempotency-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:background-job-idempotency",
-        "npm run check:functions"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "Scheduled job behavior was validated statically and through Functions build, not by live scheduler execution."
+        "Live scheduler execution evidence is not part of this local refresh."
       ],
-      "launchRecommendation": "Launchable with scheduler monitoring after deployment.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Monitor queue heartbeats, notification dispatch outcomes, analytics refresh status, and runtime warnings during launch."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "admin-analytics-debug-truth",
       "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/admin-analytics-launch-final.md",
-        "agent/state/admin-analytics-finalization.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:admin-analytics-finalization",
-        "npm run check:admin-analytics-hot-cache",
-        "npm run check:admin-analytics-no-pure-realtime",
-        "npm run check:admin-analytics-snapshot-migration",
-        "npm run check:analytics-legacy-recovery",
-        "npm run check:admin-truth"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "Live GA4/BigQuery provider freshness was not verified locally.",
-        "Admin Analytics warnings are acceptable if user path, payment, entitlement, and security remain green."
+        "Admin truth samples are missing/unknown."
       ],
-      "launchRecommendation": "Launchable with Admin Debug monitoring after deployment.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Check Admin Debug after first production traffic for refresh status, parity warnings, and guest estimate labels."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "speed-hydration-cache",
-      "status": "pass",
+      "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/global-loading-performance.md",
-        "docs/agent-truth/refresh-based-hot-cache.md",
-        "agent/state/global-speed-hydration-cache-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:global-speed-hydration-cache",
-        "npm run check:global-loading-performance",
-        "npm run check:refresh-based-hot-cache"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
-      "unresolvedWarnings": [],
-      "launchRecommendation": "Launchable. Refresh-based cache and loading gates passed.",
+      "unresolvedWarnings": [
+        "Runtime visual/performance smoke evidence is missing."
+      ],
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Monitor first useful render metadata, refresh dedupe, and stale-but-verified labels under production traffic."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "mobile-shell-pwa",
       "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/mobile-shell-safe-area.md",
-        "docs/agent-truth/pwa-service-worker-mobile.md",
-        "agent/state/mobile-layout-safe-area-audit.generated.json",
-        "agent/state/pwa-service-worker-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:mobile-shell-safe-area",
-        "npm run check:pwa-service-worker"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "Real-device PWA install/update smoke was not performed locally."
+        "Real-device mobile/PWA smoke is missing."
       ],
-      "launchRecommendation": "Launchable with real-device mobile and PWA smoke after deployment.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Verify installed app refresh, notification click return, safe-area layout, and offline fallback on real mobile hardware."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "human-readable-copy",
-      "status": "pass",
+      "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/human-readable-admin-truth.md",
-        "docs/agent-truth/admin-copy-style-guide.md"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:human-readable-admin-copy"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
-      "unresolvedWarnings": [],
-      "launchRecommendation": "Launchable. Human-readable copy gate passed.",
+      "unresolvedWarnings": [
+        "No new copy runtime pass was run in this evidence refresh."
+      ],
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Keep raw backend diagnostics in Debug; do not pipe them back into primary UI."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "accessibility-tap-targets",
-      "status": "pass",
+      "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/accessibility-tap-targets.md",
-        "agent/state/accessibility-tap-target-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:accessibility-tap-targets"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
-      "unresolvedWarnings": [],
-      "launchRecommendation": "Launchable. Accessibility/tap-target gate passed.",
+      "unresolvedWarnings": [
+        "User-surface visual/manual accessibility QA is missing."
+      ],
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Run live browser/assistive smoke for any surface touched after this report."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "design-system-drift",
-      "status": "pass",
+      "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/design-system-drift.md",
-        "agent/state/design-system-drift-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:design-system-drift"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
-      "unresolvedWarnings": [],
-      "launchRecommendation": "Launchable. Design drift gate passed.",
+      "unresolvedWarnings": [
+        "No new visual design audit was run in this evidence refresh."
+      ],
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Do not merge UI-only PRs that reintroduce fake chips, old icons, or badge drift without rerunning this gate."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "content-media-pipeline",
-      "status": "pass",
+      "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/content-media-pipeline.md",
-        "agent/state/content-media-pipeline-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:content-media-pipeline",
-        "npm run check:firebase:rules"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
-      "unresolvedWarnings": [],
-      "launchRecommendation": "Launchable. Content/media entitlement and Storage rules passed.",
+      "unresolvedWarnings": [
+        "Protected content provider smoke is missing."
+      ],
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Keep protected asset URLs out of public payloads and monitor content proxy errors after launch."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "admin-cms-workflow",
-      "status": "pass",
+      "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/admin-cms-drop-workflow.md",
-        "agent/state/admin-cms-workflow-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:admin-cms-workflow"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
-      "unresolvedWarnings": [],
-      "launchRecommendation": "Launchable. Admin CMS workflow gate passed.",
+      "unresolvedWarnings": [
+        "No new admin CMS runtime smoke was run in this evidence refresh."
+      ],
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Do not bypass server publish validation for new creator/admin Drop write paths."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "event-catalog-telemetry",
-      "status": "pass",
+      "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/event-catalog-telemetry.md",
-        "agent/state/event-catalog-telemetry-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:event-catalog-telemetry",
-        "npm run check:analytics-truth-layer-v2",
-        "npm run check:analytics-event-contract"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
-      "unresolvedWarnings": [],
-      "launchRecommendation": "Launchable. Event catalog and payload contracts passed.",
+      "unresolvedWarnings": [
+        "Runtime telemetry/debug evidence is empty/unknown."
+      ],
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Catalog any new event before emit and rerun telemetry gates."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "support-recovery",
       "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/support-recovery-flows.md",
-        "agent/state/support-recovery-flow-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:support-recovery-flows"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "Some recovery paths intentionally require manual DB/provider intervention because guarded product tools do not exist yet."
+        "Manual provider/DB support recovery remains operator-run only."
       ],
-      "launchRecommendation": "Launchable with operator awareness of manual recovery limits.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Add guarded/audited admin tools for high-frequency manual recovery paths after launch."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "legal-payment-copy",
       "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/legal-payment-user-trust-copy.md",
-        "agent/state/legal-payment-copy-audit.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:legal-payment-copy"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "This is product-copy clarity, not legal advice.",
-        "Public 404 support contact remains a documented policy decision; signed-in support and FAQ support paths exist."
+        "No legal/product copy review was recorded in repo evidence."
       ],
-      "launchRecommendation": "Launchable with legal/product review before any policy wording changes.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Review Terms/Privacy/support wording with product/legal owners before scaling paid traffic."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "test-fixtures-demo",
       "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/test-fixtures-demo-accounts.md",
-        "agent/state/test-fixtures-demo-audit.generated.json",
-        "tests/fixtures/launch-demo-fixtures.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:test-fixtures-demo"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "Fixture contract is documented and locally validated, but no executable seed runner exists by default."
+        "No executable seed/smoke fixture evidence was added."
       ],
-      "launchRecommendation": "Launchable. QA/demo states are mapped; seed automation can remain post-launch.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Build an emulator/staging-only dry-run seed runner if repeatable demo provisioning becomes necessary."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     },
     {
       "gateKey": "rollback-incident-response",
       "status": "warn",
       "evidenceFiles": [
-        "docs/agent-truth/rollback-incident-response.md",
-        "agent/state/rollback-incident-response.generated.json"
+        "agent/state/final-launch-readiness-report.generated.json"
       ],
       "validationsRun": [
-        "npm run check:rollback-incident-response"
+        "not rerun in evidence_refresh"
       ],
       "unresolvedBlockers": [],
       "unresolvedWarnings": [
-        "No risky runtime kill switches were added; true global switches remain future work and must be designed safely before use.",
-        "Several incident categories require provider console or manual DB/Storage intervention."
+        "Incident-response readiness still depends on operator/provider actions."
       ],
-      "launchRecommendation": "Launchable with operator incident-response readiness.",
+      "launchRecommendation": "Not ready until missing evidence is recorded or the affected gate is rerun.",
       "postLaunchTasks": [
-        "Design audited runtime kill switches only for repeated operational needs and test them before relying on them."
+        "Rerun or record gate-specific evidence before public launch readiness is claimed."
       ]
     }
   ]

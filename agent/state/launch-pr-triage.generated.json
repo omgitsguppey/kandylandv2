@@ -1,784 +1,1478 @@
 {
-  "generatedAt": "2026-05-01T00:00:00.000-05:00",
-  "task": "launch-pr-and-recent-commit-triage",
+  "generatedAt": "2026-05-12T19:42:22.634Z",
+  "task": "phase-one-launch-evidence-refresh-stale-reports",
   "repository": "omgitsguppey/kandylandv2",
   "branch": "main",
-  "headCommitAtTriage": "9b435162",
+  "headCommitAtTriage": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
   "automaticMergePerformed": false,
   "automaticClosePerformed": false,
-  "openPrNumbersAtTriage": [208, 207, 206, 205, 204, 203, 202, 201],
+  "openPrNumbersAtTriage": [
+    245,
+    244,
+    243,
+    242,
+    241,
+    240,
+    239,
+    238,
+    237,
+    236,
+    235,
+    234,
+    233,
+    232,
+    231,
+    229,
+    228,
+    227,
+    226,
+    225,
+    224,
+    223,
+    221,
+    219,
+    218,
+    217,
+    216
+  ],
   "classificationLegend": [
-    "merge candidate",
-    "needs verification",
-    "duplicate/superseded",
-    "launch blocker",
+    "close/superseded",
+    "needs rebase",
+    "still worth merging",
     "post-launch",
-    "risky/needs human review"
+    "ignore/no launch relevance"
   ],
   "summary": {
-    "openPrCount": 8,
+    "openPrCount": 27,
     "latestCommitCount": 20,
-    "mergeCandidates": [208, 206],
-    "needsVerification": [207, 204, 202],
-    "duplicateOrSuperseded": [203, 201],
-    "launchBlockers": [208],
-    "postLaunch": [205],
-    "riskyNeedsHumanReview": [205, 204, 202],
-    "highestPriority": "PR 208 should be reviewed first because it protects a state-mutating admin analytics refresh POST route.",
-    "doNotAutoMerge": "No merge, close, or rebase action was performed during triage."
+    "closeOrSuperseded": [
+      240,
+      239,
+      238,
+      235,
+      233,
+      232,
+      231,
+      229
+    ],
+    "needsRebase": [
+      241,
+      236,
+      227
+    ],
+    "stillWorthMerging": [],
+    "postLaunch": [
+      245,
+      244,
+      243,
+      242,
+      237,
+      234,
+      228,
+      226,
+      225,
+      224,
+      223,
+      221,
+      219,
+      218,
+      217,
+      216
+    ],
+    "ignoreNoLaunchRelevance": [],
+    "launchBlockers": [],
+    "highestPriority": "Do not merge open PRs until launch evidence, visual QA, and smoke evidence are current.",
+    "doNotAutoMerge": "No PR was merged, closed, rebased, or edited during this pass."
   },
   "openPullRequests": [
     {
-      "number": 208,
-      "title": "Sentinel: [HIGH] Fix CSRF missing protection in admin analytics refresh API",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/208",
-      "headRef": "sentinel-csrf-protection-admin-refresh-13148400785392851418",
-      "baseRef": "main",
+      "number": 245,
+      "title": "🎨 Palette: [Accessibility] Add aria-expanded to Creator Broadcast toggle",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/245",
+      "author": "omgitsguppey",
+      "headRefName": "palette-a11y-creator-broadcast-toggle-10023325052228689712",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-12T14:36:39Z",
       "mergeStateStatus": "CLEAN",
-      "classification": "launch blocker",
-      "secondaryClassification": "merge candidate",
-      "filesTouched": [
-        ".jules/sentinel.md",
-        "src/app/api/admin/analytics/refresh/route.ts"
-      ],
-      "systemArea": "admin analytics refresh route protection",
-      "riskLevel": "high",
-      "launchRelevance": "P0 security/admin route protection. The POST route is state-mutating and currently lacks requireTrustedOrigin in main.",
-      "likelyConflicts": [
-        "Recent hot-cache and refresh-route commits touched src/app/api/admin/analytics/refresh/route.ts.",
-        "No textual merge conflict reported by GitHub at triage, but behavior must be checked against refresh preservation and admin auth."
-      ],
-      "requiredTests": [
-        "npm run check:refresh-based-hot-cache",
-        "npm run check:global-loading-performance",
-        "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts",
-        "npm run typecheck -- --pretty false"
-      ],
-      "recommendation": "Review and merge first after targeted route tests pass. This is launch-critical security hardening.",
-      "touchesSourceOfTruthDocsOrValidators": true,
-      "sourceOfTruthDocsOrValidators": [".jules/sentinel.md"],
-      "notes": "The product code change is one guardApiRequest option: requireTrustedOrigin: true."
-    },
-    {
-      "number": 207,
-      "title": "Bolt: Combine filtering and next expiration calculation in useDrops",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/207",
-      "headRef": "bolt-usedrops-perf-10856231722249031227",
-      "baseRef": "main",
-      "mergeStateStatus": "CLEAN",
-      "classification": "needs verification",
-      "secondaryClassification": "merge candidate",
-      "filesTouched": [
-        ".jules/bolt.md",
-        "FULL_SCALE_CODEBASE_AUDIT.md",
-        "src/hooks/useDrops.ts"
-      ],
-      "systemArea": "Drops discovery performance and runtime expiry refresh",
-      "riskLevel": "medium",
-      "launchRelevance": "P1 launch performance for Drops discovery. It is not a blocker unless current Drops loading remains slow.",
-      "likelyConflicts": [
-        "Duplicates PR 203 and PR 201 on src/hooks/useDrops.ts.",
-        "Overlaps recent Drops mobile and countdown commits that changed useDrops timing and first-render behavior."
-      ],
-      "requiredTests": [
-        "npm run check:drops-mobile-refinement",
-        "npx vitest run tests/unit/drops-route.spec.ts tests/unit/drop-status.spec.ts tests/unit/drop-countdown.spec.ts",
-        "npm run typecheck -- --pretty false"
-      ],
-      "recommendation": "If one useDrops optimization is accepted, prefer PR 207 because it is newest and clean. Do not merge PR 203 or PR 201 afterward.",
-      "touchesSourceOfTruthDocsOrValidators": true,
-      "sourceOfTruthDocsOrValidators": ["FULL_SCALE_CODEBASE_AUDIT.md", ".jules/bolt.md"],
-      "notes": "Keep only one useDrops optimization path. Validate active/scheduled filters and expiry refresh timing carefully."
-    },
-    {
-      "number": 206,
-      "title": "Palette: Add ARIA state attributes to Creator Experiences Panel",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/206",
-      "headRef": "jules-palette-a11y-creator-experiences-1996611093100102888",
-      "baseRef": "main",
-      "mergeStateStatus": "CLEAN",
-      "classification": "merge candidate",
-      "secondaryClassification": "needs verification",
+      "reviewDecision": null,
+      "isDraft": false,
       "filesTouched": [
         ".Jules/palette.md",
-        "src/components/Creators/CreatorExperiencesPanel.tsx"
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "src/components/Creators/CreatorBroadcastManager.tsx"
       ],
-      "systemArea": "creator profile accessibility",
+      "systemArea": "accessibility/ui polish",
       "riskLevel": "low",
-      "launchRelevance": "P1 creator profile routing/accessibility surface. Small UI-only accessibility improvement.",
-      "likelyConflicts": [
-        "No current textual conflict reported by GitHub.",
-        "Must not convert static chips into fake interactive controls or change creator commerce behavior."
-      ],
-      "requiredTests": [
-        "npm run typecheck -- --pretty false",
-        "targeted CreatorExperiencesPanel accessibility/render test if present",
-        "npm run check:ui:runtime only if broader creator UI is touched during rebase"
-      ],
-      "recommendation": "Safe merge candidate after a quick accessibility and TypeScript check.",
-      "touchesSourceOfTruthDocsOrValidators": true,
-      "sourceOfTruthDocsOrValidators": [".Jules/palette.md"],
-      "notes": "Adds aria-expanded and aria-pressed attributes; no product logic change detected."
-    },
-    {
-      "number": 205,
-      "title": "Reduce doctrine drift and banned-pattern reintroduction",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/205",
-      "headRef": "fix/doctrine-banned-patterns-drift-5368082492759323947",
-      "baseRef": "main",
-      "mergeStateStatus": "DIRTY",
+      "launchRelevance": "Useful accessibility polish, but still changes UI and requires screenshot/manual QA.",
       "classification": "post-launch",
-      "secondaryClassification": "risky/needs human review",
-      "filesTouched": [
-        "pnpm-lock.yaml",
-        "src/app/admin/debug/components/DebugMonitoringRoutes.tsx",
-        "src/app/admin/debug/components/DebugNowDiagnostics.tsx",
-        "src/app/admin/debug/components/DebugTabNow.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/app/admin/user/[userId]/page.tsx",
-        "src/components/Dashboard/OwnedDropGalleryCard.tsx",
-        "src/components/DropCard.tsx",
-        "src/components/InsufficientBalanceModal.tsx"
-      ],
-      "systemArea": "doctrine copy, admin debug truth, Drop cards, wallet modal UI",
-      "riskLevel": "high",
-      "launchRelevance": "Touches launch-critical admin truth, Drop cards, owned gallery, and wallet UI, but is dirty and adds a pnpm lockfile to an npm/package-lock repo.",
-      "likelyConflicts": [
-        "Dirty against current main.",
-        "Likely conflicts with recent DropCard split/countdown typography work.",
-        "Likely conflicts with human-readable admin truth copy changes.",
-        "Adds pnpm-lock.yaml, which conflicts with current package-manager truth."
-      ],
+      "likelyConflicts": [],
       "requiredTests": [
-        "npm run check:human-readable-admin-copy",
-        "npm run check:drops-mobile-refinement",
-        "npm run check:admin-truth",
-        "npm run typecheck -- --pretty false"
+        "npm run check:accessibility-tap-targets",
+        "npm run typecheck",
+        "targeted visual QA"
       ],
-      "recommendation": "Do not merge as-is for launch. If any doctrine fixes are still wanted, cherry-pick narrowly after removing pnpm-lock.yaml and revalidating admin/drop/wallet copy.",
-      "touchesSourceOfTruthDocsOrValidators": false,
-      "sourceOfTruthDocsOrValidators": [],
-      "notes": "Some intent is valid, but the PR predates newer admin copy and DropCard fixes."
+      "recommendation": "Review after User-Surface Screenshot QA is complete.",
+      "touchesSourceOfTruthDocsOrValidators": false
     },
     {
-      "number": 204,
-      "title": "Improve onboarding friction visibility and technical rescue signals",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/204",
-      "headRef": "fix-onboarding-friction-tracking-700452895546873993",
-      "baseRef": "main",
-      "mergeStateStatus": "DIRTY",
-      "classification": "risky/needs human review",
-      "secondaryClassification": "needs verification",
-      "filesTouched": [
-        "EVERY_FILE_FUNCTION_CHECKLIST.md",
-        "FULL_SCALE_CODEBASE_AUDIT.md",
-        "src/components/DropPreviewModal.tsx",
-        "src/components/PurchaseModal.tsx",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/telemetry.ts"
-      ],
-      "systemArea": "onboarding friction telemetry, purchase/drop preview telemetry",
-      "riskLevel": "high",
-      "launchRelevance": "Touches P0 purchase modal and P1 drop preview telemetry. Could improve launch diagnostics but expands telemetry during scope freeze.",
-      "likelyConflicts": [
-        "Dirty against current main.",
-        "Overlaps recent telemetry orphan cleanup, analytics event contract, purchase/source-of-funds, and DropPreview changes.",
-        "May need catalog, ingest, admin analytics, and Debug parity updates to avoid orphan telemetry."
-      ],
-      "requiredTests": [
-        "npm run check:telemetry",
-        "npm run check:analytics-event-contract",
-        "npm run check:human-readable-admin-copy if admin/debug copy is affected",
-        "targeted PurchaseModal and DropPreviewModal tests if present",
-        "npm run typecheck -- --pretty false"
-      ],
-      "recommendation": "Do not merge during launch freeze unless onboarding friction telemetry is declared launch-critical. Rebase manually and prove no telemetry orphan or purchase-flow regression.",
-      "touchesSourceOfTruthDocsOrValidators": true,
-      "sourceOfTruthDocsOrValidators": [
-        "EVERY_FILE_FUNCTION_CHECKLIST.md",
-        "FULL_SCALE_CODEBASE_AUDIT.md",
-        "src/lib/telemetry-catalog.ts"
-      ],
-      "notes": "The added event wallet_closed_incomplete needs full telemetry/admin truth handling before launch acceptance."
-    },
-    {
-      "number": 203,
-      "title": "Bolt: Consolidate drops filtering and expiry calculation in useDrops",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/203",
-      "headRef": "bolt-consolidate-usedrops-11715125348505162295",
-      "baseRef": "main",
+      "number": 244,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/244",
+      "author": "omgitsguppey",
+      "headRefName": "reduce-monolith-risk-10686099813637248175",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-12T05:32:45Z",
       "mergeStateStatus": "CLEAN",
-      "classification": "duplicate/superseded",
-      "secondaryClassification": "post-launch",
+      "reviewDecision": null,
+      "isDraft": false,
       "filesTouched": [
-        ".jules/bolt.md",
-        "src/hooks/useDrops.ts"
+        "FULL_SCALE_CODEBASE_AUDIT.md"
       ],
-      "systemArea": "Drops discovery performance and runtime expiry refresh",
+      "systemArea": "repo organization",
       "riskLevel": "medium",
-      "launchRelevance": "Same P1 Drops performance area as PR 207 and PR 201.",
-      "likelyConflicts": [
-        "Duplicates PR 207 and PR 201.",
-        "Would conflict semantically if more than one useDrops optimization PR is merged."
-      ],
+      "launchRelevance": "Not a Phase 1 blocker. Large organization work can disturb evidence baselines.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
       "requiredTests": [
-        "Same as PR 207 if selected instead: npm run check:drops-mobile-refinement, targeted drop tests, npm run typecheck -- --pretty false"
+        "npm run check:code-organization",
+        "npm run typecheck"
       ],
-      "recommendation": "Supersede with PR 207. Do not merge after PR 207.",
-      "touchesSourceOfTruthDocsOrValidators": true,
-      "sourceOfTruthDocsOrValidators": [".jules/bolt.md"],
-      "notes": "Older variant of the same single-pass useDrops optimization."
+      "recommendation": "Keep for post-launch review after evidence gates are current.",
+      "touchesSourceOfTruthDocsOrValidators": false
     },
     {
-      "number": 202,
-      "title": "Audit package metadata and source-of-funds truth",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/202",
-      "headRef": "audit-package-metadata-967361559244833178",
-      "baseRef": "main",
-      "mergeStateStatus": "DIRTY",
-      "classification": "risky/needs human review",
-      "secondaryClassification": "needs verification",
+      "number": 243,
+      "title": "chore(deps): bump the functions-npm-minor-patch group across 1 directory with 5 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/243",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/npm_and_yarn/functions/functions-npm-minor-patch-80816a6830",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-11T22:34:58Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
       "filesTouched": [
-        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "functions/package-lock.json",
+        "functions/package.json",
+        "functions/pnpm-lock.yaml"
+      ],
+      "systemArea": "dependency tooling",
+      "riskLevel": "medium",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 242,
+      "title": "chore(deps): bump the npm-minor-patch group across 1 directory with 44 updates",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/242",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/npm_and_yarn/npm-minor-patch-96ba349a27",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-11T22:19:27Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "package-lock.json",
+        "package.json"
+      ],
+      "systemArea": "dependency tooling",
+      "riskLevel": "medium",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 241,
+      "title": "🧭 Improve onboarding friction visibility and technical rescue signals",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/241",
+      "author": "omgitsguppey",
+      "headRefName": "improve-onboarding-friction-tracking-9992373435474481664",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-11T06:36:32Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "src/components/Auth/GuidedOnboarding.tsx",
+        "src/components/Drops/LockedDropPreviewClient.tsx",
         "src/components/PurchaseModal.tsx"
       ],
-      "systemArea": "wallet purchase UI and source-of-funds truth",
-      "riskLevel": "high",
-      "launchRelevance": "P0 wallet/purchase truth. It fixes visible paid-vs-bonus GumDrops copy, but purchase UI semantics are frozen during launch unless manually verified.",
-      "likelyConflicts": [
-        "Dirty against current main.",
-        "Overlaps PR 204 on PurchaseModal.",
-        "Potentially conflicts with current package loading and purchase telemetry."
-      ],
+      "systemArea": "telemetry/onboarding",
+      "riskLevel": "medium",
+      "launchRelevance": "Touches telemetry visibility after guest analytics hardening; not launch-critical without fresh contract review.",
+      "classification": "needs rebase",
+      "likelyConflicts": [],
       "requiredTests": [
-        "targeted PurchaseModal render/economics tests if present",
-        "npm run typecheck -- --pretty false",
-        "payment/wallet launch smoke check",
-        "npm run check:human-readable-admin-copy only if admin copy is touched during rebase"
+        "npm run check:analytics-event-contract",
+        "npm run check:guest-analytics-lock",
+        "npm run typecheck"
       ],
-      "recommendation": "Human review required. If the visible source-of-funds mismatch still exists, apply as a narrow launch fix after rebase and wallet verification.",
-      "touchesSourceOfTruthDocsOrValidators": true,
-      "sourceOfTruthDocsOrValidators": ["FULL_SCALE_CODEBASE_AUDIT.md"],
-      "notes": "Current main still displays pkg.drops in PurchaseModal package rows at triage, so the issue may remain real even though the PR is dirty."
+      "recommendation": "Rebase and review after launch evidence update; do not merge during this pass.",
+      "touchesSourceOfTruthDocsOrValidators": false
     },
     {
-      "number": 201,
-      "title": "Bolt: Consolidate data filtering and expiry timer calculation",
-      "url": "https://github.com/omgitsguppey/kandylandv2/pull/201",
-      "headRef": "bolt-use-drops-optimization-7385381609184839189",
-      "baseRef": "main",
+      "number": 240,
+      "title": "🧪 Harden admin truth surfaces and remove false healthy states",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/240",
+      "author": "omgitsguppey",
+      "headRefName": "fix/harden-admin-truth-surfaces-10194919590297466632",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-11T06:04:34Z",
       "mergeStateStatus": "CLEAN",
-      "classification": "duplicate/superseded",
-      "secondaryClassification": "post-launch",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "src/lib/admin-debug-summary-cards.ts"
+      ],
+      "systemArea": "admin truth",
+      "riskLevel": "medium",
+      "launchRelevance": "Likely superseded by guest analytics Stage 4/5 admin truth corrections on main.",
+      "classification": "close/superseded",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run check:admin-analytics-live-pulse",
+        "npm run check:guest-analytics-lock",
+        "npm run typecheck"
+      ],
+      "recommendation": "Close or manually diff after evidence gates; do not merge raw.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 239,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/239",
+      "author": "omgitsguppey",
+      "headRefName": "blocked-monolith-audit-17261040419638974473",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-11T05:43:43Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "FULL_SCALE_CODEBASE_AUDIT.md"
+      ],
+      "systemArea": "repo organization",
+      "riskLevel": "medium",
+      "launchRelevance": "Not a Phase 1 blocker. Large organization work can disturb evidence baselines.",
+      "classification": "close/superseded",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run check:code-organization",
+        "npm run typecheck"
+      ],
+      "recommendation": "Close or supersede with the newest monolith-risk PR #244.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 238,
+      "title": "🎨 Palette: Add accessible ARIA states to interactive toggles",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/238",
+      "author": "omgitsguppey",
+      "headRefName": "palette/aria-states-toggles-14870325101177041272",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-10T14:16:53Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        ".Jules/palette.md",
+        "src/components/Creators/CreatorBroadcastManager.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Drops/LockedDropPreviewView.tsx"
+      ],
+      "systemArea": "accessibility/ui polish",
+      "riskLevel": "low",
+      "launchRelevance": "Useful accessibility polish, but still changes UI and requires screenshot/manual QA.",
+      "classification": "close/superseded",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run check:accessibility-tap-targets",
+        "npm run typecheck",
+        "targeted visual QA"
+      ],
+      "recommendation": "Close or supersede with the newest targeted accessibility PR #245 if still needed.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 237,
+      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/237",
+      "author": "omgitsguppey",
+      "headRefName": "fix/duplicate-aggregation-historical-viewer-1189831909620507524",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-10T06:12:51Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "src/lib/server/admin-analytics-historical-viewer.ts"
+      ],
+      "systemArea": "performance/aggregation",
+      "riskLevel": "medium",
+      "launchRelevance": "Optimization only; not a blocker while evidence refresh is incomplete.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted performance/domain validator"
+      ],
+      "recommendation": "Defer until after launch evidence and screenshot QA; rebase if still useful.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 236,
+      "title": "💸 Audit package metadata and source-of-funds truth",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/236",
+      "author": "omgitsguppey",
+      "headRefName": "audit-gumdrop-package-metadata-9292058367358044819",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-10T05:57:12Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "src/components/PurchaseModal.tsx",
+        "src/lib/gumdrop-economics.ts"
+      ],
+      "systemArea": "wallet/economy truth",
+      "riskLevel": "high",
+      "launchRelevance": "High-blast-radius economy truth; current main has source-of-funds hardening and must remain authoritative.",
+      "classification": "needs rebase",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run check:gumdrop-economy",
+        "npm run check:payment-unlock-security",
+        "npm run typecheck"
+      ],
+      "recommendation": "Manually review after evidence refresh; do not merge raw.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 235,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/235",
+      "author": "omgitsguppey",
+      "headRefName": "jules-2569856562111535379-4c086a2b",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-10T05:18:33Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "FULL_SCALE_CODEBASE_AUDIT.md"
+      ],
+      "systemArea": "repo organization",
+      "riskLevel": "medium",
+      "launchRelevance": "Not a Phase 1 blocker. Large organization work can disturb evidence baselines.",
+      "classification": "close/superseded",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run check:code-organization",
+        "npm run typecheck"
+      ],
+      "recommendation": "Close or supersede with the newest monolith-risk PR #244.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 234,
+      "title": "⚡ Bolt: Optimize O(N^2) nested lookups in admin debug route",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/234",
+      "author": "omgitsguppey",
+      "headRefName": "bolt-admin-debug-route-opt-6644680577498257019",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-09T14:58:06Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "systemArea": "performance/aggregation",
+      "riskLevel": "medium",
+      "launchRelevance": "Optimization only; not a blocker while evidence refresh is incomplete.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted performance/domain validator"
+      ],
+      "recommendation": "Defer until after launch evidence and screenshot QA; rebase if still useful.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 233,
+      "title": "🎨 Palette: Add aria-busy to Button component for loading states",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/233",
+      "author": "omgitsguppey",
+      "headRefName": "jules-11736098201254036361-381f253f",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-09T14:09:39Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        ".Jules/palette.md",
+        "src/components/ui/Button.tsx"
+      ],
+      "systemArea": "accessibility/ui polish",
+      "riskLevel": "low",
+      "launchRelevance": "Useful accessibility polish, but still changes UI and requires screenshot/manual QA.",
+      "classification": "close/superseded",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run check:accessibility-tap-targets",
+        "npm run typecheck",
+        "targeted visual QA"
+      ],
+      "recommendation": "Close or supersede with the newest targeted accessibility PR #245 if still needed.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 232,
+      "title": "🎨 Palette: Add proper aria-expanded states to creator dashboard components",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/232",
+      "author": "omgitsguppey",
+      "headRefName": "palette-aria-expanded-10598634236849225391",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-08T14:44:03Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        ".Jules/palette.md",
+        "src/components/Creators/CreatorBroadcastManager.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx"
+      ],
+      "systemArea": "accessibility/ui polish",
+      "riskLevel": "low",
+      "launchRelevance": "Useful accessibility polish, but still changes UI and requires screenshot/manual QA.",
+      "classification": "close/superseded",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run check:accessibility-tap-targets",
+        "npm run typecheck",
+        "targeted visual QA"
+      ],
+      "recommendation": "Close or supersede with the newest targeted accessibility PR #245 if still needed.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 231,
+      "title": "🧱 Reduce monolith file risk and clarify responsibility boundaries",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/231",
+      "author": "omgitsguppey",
+      "headRefName": "audit/reduce-monolith-risk-16080680140723310942",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-08T06:47:54Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "FULL_SCALE_CODEBASE_AUDIT.md"
+      ],
+      "systemArea": "repo organization",
+      "riskLevel": "medium",
+      "launchRelevance": "Not a Phase 1 blocker. Large organization work can disturb evidence baselines.",
+      "classification": "close/superseded",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run check:code-organization",
+        "npm run typecheck"
+      ],
+      "recommendation": "Close or supersede with the newest monolith-risk PR #244.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 229,
+      "title": "💸 Audit package metadata and source-of-funds truth",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/229",
+      "author": "omgitsguppey",
+      "headRefName": "audit-package-metadata-truth-10722491545142269439",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-07T05:55:35Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "src/components/PurchaseModal.tsx",
+        "tests/unit/purchase-modal-source-of-funds-static.spec.ts"
+      ],
+      "systemArea": "wallet/economy truth",
+      "riskLevel": "high",
+      "launchRelevance": "High-blast-radius economy truth; current main has source-of-funds hardening and must remain authoritative.",
+      "classification": "close/superseded",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run check:gumdrop-economy",
+        "npm run check:payment-unlock-security",
+        "npm run typecheck"
+      ],
+      "recommendation": "Close or supersede with newer package metadata audit #236 if still needed.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 228,
+      "title": "⚡ Bolt: Optimize LibraryClient Drop and Category filtering",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/228",
+      "author": "omgitsguppey",
+      "headRefName": "bolt-library-client-optimization-15554337628144357504",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-06T15:18:04Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
       "filesTouched": [
         ".jules/bolt.md",
-        "src/hooks/useDrops.ts"
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "src/app/dashboard/library/LibraryClient.tsx"
       ],
-      "systemArea": "Drops discovery performance and runtime expiry refresh",
+      "systemArea": "performance/aggregation",
       "riskLevel": "medium",
-      "launchRelevance": "Same P1 Drops performance area as PR 207 and PR 203.",
-      "likelyConflicts": [
-        "Duplicates PR 207 and PR 203.",
-        "Oldest useDrops optimization variant."
-      ],
+      "launchRelevance": "Optimization only; not a blocker while evidence refresh is incomplete.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
       "requiredTests": [
-        "Same as PR 207 if selected instead: npm run check:drops-mobile-refinement, targeted drop tests, npm run typecheck -- --pretty false"
+        "npm run typecheck",
+        "targeted performance/domain validator"
       ],
-      "recommendation": "Supersede with PR 207. Do not merge after PR 207.",
-      "touchesSourceOfTruthDocsOrValidators": true,
-      "sourceOfTruthDocsOrValidators": [".jules/bolt.md"],
-      "notes": "Oldest duplicate implementation."
+      "recommendation": "Defer until after launch evidence and screenshot QA; rebase if still useful.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 227,
+      "title": "⚙️ Reduce duplicate computation in high-ROI aggregation hotspot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/227",
+      "author": "omgitsguppey",
+      "headRefName": "fix/duplicate-computation-reduce-admin-user-page-783291292123592092",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-06T06:05:35Z",
+      "mergeStateStatus": "DIRTY",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "src/app/admin/user/[userId]/page.tsx"
+      ],
+      "systemArea": "performance/aggregation",
+      "riskLevel": "medium",
+      "launchRelevance": "Optimization only; not a blocker while evidence refresh is incomplete.",
+      "classification": "needs rebase",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted performance/domain validator"
+      ],
+      "recommendation": "Defer until after launch evidence and screenshot QA; rebase if still useful.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 226,
+      "title": "chore(deps): bump knip from 5.88.1 to 6.11.0",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/226",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/npm_and_yarn/knip-6.11.0",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-05T06:14:14Z",
+      "mergeStateStatus": "UNSTABLE",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "package-lock.json",
+        "package.json"
+      ],
+      "systemArea": "dependency tooling",
+      "riskLevel": "low",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 225,
+      "title": "chore(deps): bump npm-check-updates from 19.6.6 to 22.1.0",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/225",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/npm_and_yarn/npm-check-updates-22.1.0",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-05T06:13:58Z",
+      "mergeStateStatus": "UNSTABLE",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "package-lock.json",
+        "package.json"
+      ],
+      "systemArea": "dependency tooling",
+      "riskLevel": "low",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 224,
+      "title": "chore(deps): bump syncpack from 14.3.0 to 15.0.0",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/224",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/npm_and_yarn/syncpack-15.0.0",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-05T06:13:42Z",
+      "mergeStateStatus": "UNSTABLE",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "package-lock.json",
+        "package.json"
+      ],
+      "systemArea": "dependency tooling",
+      "riskLevel": "low",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 223,
+      "title": "chore(deps): bump lucide-react from 0.563.0 to 1.14.0",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/223",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/npm_and_yarn/lucide-react-1.14.0",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-05T06:13:28Z",
+      "mergeStateStatus": "UNSTABLE",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "package-lock.json",
+        "package.json"
+      ],
+      "systemArea": "dependency tooling",
+      "riskLevel": "low",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 221,
+      "title": "chore(deps): bump typescript from 5.9.3 to 6.0.3 in /functions",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/221",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/npm_and_yarn/functions/typescript-6.0.3",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-05T06:06:53Z",
+      "mergeStateStatus": "UNSTABLE",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        "functions/package-lock.json",
+        "functions/package.json",
+        "functions/pnpm-lock.yaml"
+      ],
+      "systemArea": "dependency tooling",
+      "riskLevel": "medium",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 219,
+      "title": "chore(actions): bump actions/setup-node from 4 to 6",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/219",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/github_actions/actions/setup-node-6",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-05T07:05:26Z",
+      "mergeStateStatus": "UNSTABLE",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/public-release-notes.yml"
+      ],
+      "systemArea": "ci/dependency tooling",
+      "riskLevel": "low",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 218,
+      "title": "chore(actions): bump actions/upload-artifact from 4 to 7",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/218",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/github_actions/actions/upload-artifact-7",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-07T01:11:09Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        ".github/workflows/cloud-readiness-smoke.yml",
+        ".github/workflows/openssf-scorecard.yml"
+      ],
+      "systemArea": "ci/dependency tooling",
+      "riskLevel": "low",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 217,
+      "title": "chore(actions): bump actions/checkout from 4 to 6",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/217",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/github_actions/actions/checkout-6",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-07T01:10:23Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/cloud-readiness-smoke.yml",
+        ".github/workflows/dependency-review.yml",
+        ".github/workflows/openssf-scorecard.yml",
+        ".github/workflows/public-release-notes.yml"
+      ],
+      "systemArea": "ci/dependency tooling",
+      "riskLevel": "low",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "number": 216,
+      "title": "chore(actions): bump ossf/scorecard-action from 2.4.2 to 2.4.3 in the github-actions-minor-patch group across 1 directory",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/216",
+      "author": "app/dependabot",
+      "headRefName": "dependabot/github_actions/github-actions-minor-patch-6ca8c082f8",
+      "baseRefName": "main",
+      "updatedAt": "2026-05-11T22:58:05Z",
+      "mergeStateStatus": "CLEAN",
+      "reviewDecision": null,
+      "isDraft": false,
+      "filesTouched": [
+        ".github/workflows/openssf-scorecard.yml"
+      ],
+      "systemArea": "ci/dependency tooling",
+      "riskLevel": "low",
+      "launchRelevance": "Not launch-critical. Dependency updates need isolated CI/security review after Phase 1 evidence is current.",
+      "classification": "post-launch",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted dependency lane after lockfile review"
+      ],
+      "recommendation": "Post-launch dependency maintenance; do not merge during evidence refresh.",
+      "touchesSourceOfTruthDocsOrValidators": false
     }
   ],
   "duplicateGroups": [
     {
-      "key": "useDrops-single-pass-filter-and-expiry",
-      "prs": [207, 203, 201],
-      "sharedFiles": ["src/hooks/useDrops.ts", ".jules/bolt.md"],
-      "survivorRecommendation": 207,
-      "reason": "All three PRs consolidate drop filtering and next-expiry calculation. Keeping more than one would duplicate or conflict semantically."
+      "id": "monolith-risk-duplicates",
+      "prs": [
+        244,
+        239,
+        235,
+        231
+      ],
+      "survivor": 244,
+      "recommendation": "Use #244 as the freshest post-launch review candidate; close/supersede older monolith-risk duplicates."
+    },
+    {
+      "id": "accessibility-toggle-duplicates",
+      "prs": [
+        245,
+        238,
+        233,
+        232
+      ],
+      "survivor": 245,
+      "recommendation": "Use #245 as the freshest accessibility review candidate after screenshot QA; close/supersede older duplicates."
+    },
+    {
+      "id": "source-of-funds-audit-duplicates",
+      "prs": [
+        236,
+        229
+      ],
+      "survivor": 236,
+      "recommendation": "Do not merge raw. If still needed, manually review #236 against current wallet/economy truth."
     }
   ],
   "latest20Commits": [
     {
-      "sha": "9b4351629889c66a2cb217afa0b7be8adf2b9319",
-      "shortSha": "9b435162",
-      "date": "2026-05-01",
-      "title": "docs(launch): define finalization scope and gates",
-      "classification": "merge candidate",
-      "currentState": "already_on_main",
+      "shortSha": "6955246c",
+      "title": "fix(readiness): add evidence-aware phase one scoring",
       "filesTouched": [
-        "EVERY_FILE_FUNCTION_CHECKLIST.md",
-        "FULL_SCALE_CODEBASE_AUDIT.md",
-        "REPO_MEMORY_LEDGER.md",
-        "agent/state/launch-finalization-baseline.generated.json",
-        "docs/agent-truth/launch-finalization-scope.md",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/final-launch-readiness-report.md",
+        "docs/agent-truth/public-beta-score.md",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-final-launch-readiness-report.ts",
+        "scripts/agent/validate-launch-pr-triage.ts",
+        "scripts/agent/validate-launch-readiness-final.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/agent-score/public-beta-scanner.ts",
+        "src/lib/agent-score/reporting.ts",
+        "src/lib/agent-score/weights.ts",
+        "tests/unit/public-beta-score.spec.ts"
+      ],
+      "systemArea": "phase one governance",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "e2b270f7",
+      "title": "test(analytics): lock guest analytics truth contracts",
+      "filesTouched": [
+        "docs/agent-truth/guest-user-analytics-cutover.md",
         "package.json",
-        "scripts/agent/validate-launch-finalization-baseline.ts"
+        "scripts/agent/validate-admin-analytics-hot-cache.ts",
+        "scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
+        "scripts/agent/validate-analytics-event-contract.ts",
+        "scripts/agent/validate-guest-user-analytics-cutover.ts",
+        "scripts/check-admin-analytics-guest-bounce-quality.ts",
+        "scripts/check-admin-analytics-live-pulse.ts"
       ],
-      "systemArea": "launch governance",
-      "riskLevel": "low",
-      "launchRelevance": "Defines current launch scope freeze and validation gates.",
-      "likelyConflicts": ["PR 205 doctrine ledger changes may conflict with current governance docs."],
-      "requiredTests": ["npm run check:launch-finalization-baseline"],
-      "recommendation": "Keep as launch baseline.",
+      "systemArea": "analytics/admin truth",
+      "riskLevel": "high",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
       "touchesSourceOfTruthDocsOrValidators": true
     },
     {
-      "sha": "371b80cf42c03cd824e6f38e170b37b14fd54103",
-      "shortSha": "371b80cf",
-      "date": "2026-05-01",
-      "title": "refactor(admin): add human-readable truth copy layer",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
+      "shortSha": "7529d006",
+      "title": "fix(analytics): correct guest admin truth states",
       "filesTouched": [
-        "docs/agent-truth/admin-copy-style-guide.md",
-        "docs/agent-truth/human-readable-admin-truth.md",
-        "scripts/agent/validate-human-readable-admin-copy.ts",
-        "src/lib/admin-copy/admin-copy-registry.ts",
-        "src/lib/admin-copy/admin-truth-copy.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/components/Admin/AdminStatusBadge.tsx",
-        "tests/unit/admin-truth-copy.spec.ts"
-      ],
-      "systemArea": "admin truth copy and debug translation",
-      "riskLevel": "medium",
-      "launchRelevance": "P2 admin operator trust. Prevents raw technical jargon in launch admin surfaces.",
-      "likelyConflicts": ["PR 205 changes older admin Debug labels and could partially contradict this layer."],
-      "requiredTests": ["npm run check:human-readable-admin-copy", "targeted admin copy mapper tests"],
-      "recommendation": "Keep. Reject older admin-copy changes that bypass the copy layer.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "9936fd46aced8c5e16b23f72a6640f1573d87654",
-      "shortSha": "9936fd46",
-      "date": "2026-05-01",
-      "title": "refactor(cache): make analytics refresh-based hot cache first",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/lib/cache/refresh-cache-contract.ts",
-        "src/lib/analytics/admin-metric-snapshot.ts",
-        "src/lib/server/admin-analytics-snapshots.ts",
-        "src/lib/server/ephemeral-route-cache.ts",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/debug/route.ts",
-        "docs/agent-truth/refresh-based-hot-cache.md",
-        "scripts/agent/validate-refresh-based-hot-cache.ts",
-        "tests/unit/refresh-cache-contract.spec.ts"
-      ],
-      "systemArea": "refresh-based hot cache and Admin Analytics",
-      "riskLevel": "medium",
-      "launchRelevance": "P2 admin loading truth and operator confidence.",
-      "likelyConflicts": ["Any older analytics PR that treats realtime/time expiry as first-render truth."],
-      "requiredTests": ["npm run check:refresh-based-hot-cache", "npm run check:global-loading-performance"],
-      "recommendation": "Keep. Do not merge older analytics changes that blank verified snapshots.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "b69bf4cd0f83cbfc6bf1bfd3b91f59eb23df66a2",
-      "shortSha": "b69bf4cd",
-      "date": "2026-05-01",
-      "title": "fix(perf): audit loading paths and preserve hot cache first render",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/loading.tsx",
-        "src/app/api/admin/analytics/refresh/route.ts",
-        "src/hooks/useAdminAnalyticsSnapshot.ts",
-        "src/hooks/useAdminAnalyticsSnapshotRegistry.ts",
-        "src/lib/analytics/admin-analytics-loading-state.ts",
-        "docs/agent-truth/global-loading-performance.md",
-        "scripts/agent/validate-global-loading-performance.ts"
-      ],
-      "systemArea": "Admin Analytics loading performance",
-      "riskLevel": "medium",
-      "launchRelevance": "P2 admin first useful paint and no fake waiting.",
-      "likelyConflicts": ["PR 208 touches the refresh route and should be tested against this behavior."],
-      "requiredTests": ["npm run check:global-loading-performance", "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts"],
-      "recommendation": "Keep and preserve snapshot-first loading during PR 208 merge.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "715766c241ddab55265fb4cce15f76c33e1357e4",
-      "shortSha": "715766c2",
-      "date": "2026-05-01",
-      "title": "fix(drops): simplify final-day countdown typography",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/lib/drop-countdown.ts",
-        "src/components/DropCard.tsx",
-        "src/components/DropPreviewModal.tsx",
-        "src/hooks/useDrops.ts",
-        "tests/unit/drop-countdown.spec.ts",
-        "scripts/agent/validate-drops-mobile-refinement.ts"
-      ],
-      "systemArea": "Drops cards, timers, mobile performance",
-      "riskLevel": "medium",
-      "launchRelevance": "P1 Drops discovery and card truth.",
-      "likelyConflicts": ["PR 207/203/201 touch useDrops; PR 205 touches DropCard."],
-      "requiredTests": ["npm run check:drops-mobile-refinement", "npx vitest run tests/unit/drop-countdown.spec.ts"],
-      "recommendation": "Keep. Any useDrops PR must be checked against this timer behavior.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "5a83af7b6c8bfb53a2dd9ae705abeb1a290f329b",
-      "shortSha": "5a83af7b",
-      "date": "2026-04-30",
-      "title": "fix(admin-moderation): harden security alert truth",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/app/api/security/log-attempt/route.ts",
-        "src/components/Admin/AdminModerationConsole.tsx",
-        "src/components/Admin/AdminModerationSecurityAlerts.tsx",
-        "src/lib/admin-moderation-security-alerts.ts",
-        "tests/unit/admin-moderation-security-alerts.spec.ts"
-      ],
-      "systemArea": "admin moderation and security alert truth",
-      "riskLevel": "medium",
-      "launchRelevance": "P0/P2 security visibility and admin protection.",
-      "likelyConflicts": ["Potential conceptual overlap with PR 208 security hardening."],
-      "requiredTests": ["npm run check:admin-truth", "targeted admin moderation security alert tests"],
-      "recommendation": "Keep. Security truth should not be softened by later copy-only PRs.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "9b75aea2a8ff49a7ad306f655320402934e21924",
-      "shortSha": "9b75aea2",
-      "date": "2026-04-30",
-      "title": "fix(admin-analytics): audit realtime dependencies and prefer hot cache",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/lib/analytics/admin-analytics-display-state.ts",
-        "src/lib/admin-analytics-live-pulse.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/api/admin/debug/route.ts",
-        "docs/agent-truth/admin-analytics-realtime-to-hot-cache-audit.md",
-        "scripts/agent/validate-admin-analytics-no-pure-realtime.ts"
-      ],
-      "systemArea": "Admin Analytics realtime dependency correction",
-      "riskLevel": "medium",
-      "launchRelevance": "P2 admin truth; prevents realtime failure from blanking snapshots.",
-      "likelyConflicts": ["Older analytics PRs that make realtime first-render required."],
-      "requiredTests": ["npm run check:admin-analytics-no-pure-realtime", "npm run check:admin-analytics-live-pulse"],
-      "recommendation": "Keep and use as guardrail for any analytics PR.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "afdf74c7e284db8ac7299b6f99cc253435bf308b",
-      "shortSha": "afdf74c7",
-      "date": "2026-04-30",
-      "title": "fix(chat): enforce messages list bottom nav spacing",
-      "classification": "merge candidate",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/components/Chat/ChatExperience.tsx",
-        "src/components/Chat/ChatRouteShell.tsx",
-        "src/lib/user-mobile-shell.ts",
-        "docs/agent-truth/user-chat-shell-routing.md",
-        "scripts/agent/validate-user-chat-shell-routing.ts",
-        "tests/unit/chat-route-shell.spec.tsx"
-      ],
-      "systemArea": "chat/messages mobile shell",
-      "riskLevel": "medium",
-      "launchRelevance": "P1 chat/messages and bottom-nav safe-area.",
-      "likelyConflicts": ["Any future mobile shell PR touching user-mobile-shell or ChatRouteShell."],
-      "requiredTests": ["npm run check:user-chat-shell-routing"],
-      "recommendation": "Keep as current chat mobile baseline.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "05343a4a7e91976b0bf76c00cdd11d18c4c92c81",
-      "shortSha": "05343a4a",
-      "date": "2026-04-30",
-      "title": "fix(chat): align message shell and repair profile routing",
-      "classification": "merge candidate",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/components/CreatorDiscoveryRail.tsx",
-        "docs/agent-truth/user-chat-shell-routing.md",
-        "scripts/agent/validate-user-chat-shell-routing.ts"
-      ],
-      "systemArea": "creator routing and chat shell",
-      "riskLevel": "medium",
-      "launchRelevance": "P1 creator profile routing and chat recovery.",
-      "likelyConflicts": ["Potential conceptual overlap with creator accessibility PR 206."],
-      "requiredTests": ["npm run check:user-chat-shell-routing"],
-      "recommendation": "Keep; use PR 206 only if it does not change routing behavior.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "14baa004386cd0d3443d6f959ade235a827a7c61",
-      "shortSha": "14baa004",
-      "date": "2026-04-30",
-      "title": "fix(notifications): suppress duplicate drop push dispatch",
-      "classification": "merge candidate",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/lib/server/push-notifications.ts",
-        "tests/launch-qa.spec.ts",
-        "tests/unit/push-notifications.spec.ts",
-        "FULL_SCALE_CODEBASE_AUDIT.md",
-        "REPO_MEMORY_LEDGER.md"
-      ],
-      "systemArea": "notifications duplicate dispatch",
-      "riskLevel": "medium",
-      "launchRelevance": "P1 notifications.",
-      "likelyConflicts": ["Any notification PR touching duplicate prevention or FCM dispatch."],
-      "requiredTests": ["npm run check:notification-pipeline", "targeted push notification tests"],
-      "recommendation": "Keep; launch notifications must not send duplicate pushes.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "cba49efdc270439b3ab4a718f7ada5a29c557455",
-      "shortSha": "cba49efd",
-      "date": "2026-04-30",
-      "title": "fix(chat): align message shell and repair profile routing",
-      "classification": "merge candidate",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/components/Chat/ChatExperience.tsx",
-        "src/components/Navigation/MobileBottomBar.tsx",
-        "src/components/ui/NotFoundSurface.tsx",
-        "src/lib/creator-public-pages.ts",
-        "src/lib/user-mobile-shell.ts",
-        "tests/unit/creator-public-pages.spec.ts",
-        "tests/unit/not-found-surface.spec.tsx"
-      ],
-      "systemArea": "chat, creator routing, not-found recovery, mobile shell",
-      "riskLevel": "medium",
-      "launchRelevance": "P1 launch navigation and recovery.",
-      "likelyConflicts": ["Any PR touching mobile bottom bar, creator public pages, or not-found behavior."],
-      "requiredTests": ["npm run check:user-chat-shell-routing", "npm run check:not-found"],
-      "recommendation": "Keep as launch navigation baseline.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "ddac551278a5b000c06174f70fe99ec5da8f22c7",
-      "shortSha": "ddac5512",
-      "date": "2026-04-30",
-      "title": "refactor(admin-analytics): migrate to verified hot cache truth layer",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/hooks/useAdminAnalyticsSnapshotRegistry.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
         "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
         "src/app/admin/analytics/page.tsx",
         "src/app/api/admin/debug/route.ts",
-        "docs/agent-truth/admin-analytics-hot-cache.md",
-        "scripts/agent/validate-admin-analytics-snapshot-migration.ts",
-        "tests/unit/admin-analytics-page.spec.tsx"
+        "src/lib/admin-analytics-live-pulse.ts",
+        "tests/unit/admin-analytics-live-pulse.spec.ts"
       ],
-      "systemArea": "Admin Analytics snapshot migration",
-      "riskLevel": "medium",
-      "launchRelevance": "P2 admin analytics truth and snapshot-first display.",
-      "likelyConflicts": ["Older analytics PRs that bypass snapshot registry."],
-      "requiredTests": ["npm run check:admin-analytics-snapshot-migration", "npm run check:admin-analytics-hot-cache"],
-      "recommendation": "Keep; do not merge older analytics changes that contradict snapshot registry.",
-      "touchesSourceOfTruthDocsOrValidators": true
+      "systemArea": "analytics/admin truth",
+      "riskLevel": "high",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": false
     },
     {
-      "sha": "9c0b63d2780c5f9c829255d36818b4cdd93da83c",
-      "shortSha": "9c0b63d2",
-      "date": "2026-04-30",
-      "title": "feat(analytics): add legacy recovery and ecosystem parity checks",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
+      "shortSha": "4fbe03dc",
+      "title": "fix(analytics): materialize guest analytics snapshot",
       "filesTouched": [
-        "src/lib/analytics/legacy-recovery-contract.ts",
-        "src/lib/analytics/legacy-event-mapping.ts",
+        "functions/src/analytics-realtime-summary.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/api/admin/analytics/realtime/route.ts",
         "src/app/api/admin/debug/route.ts",
-        "scripts/analytics/inventory-legacy-sources.ts",
-        "scripts/analytics/map-legacy-events.ts",
-        "scripts/analytics/check-analytics-ecosystem-parity.ts",
-        "scripts/agent/validate-analytics-legacy-recovery.ts",
-        "docs/agent-truth/analytics-legacy-recovery.md"
+        "src/lib/admin-analytics-guest-bounce-quality.ts",
+        "src/types/admin-analytics.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts"
       ],
-      "systemArea": "analytics legacy recovery and parity",
+      "systemArea": "analytics/admin truth",
+      "riskLevel": "high",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "shortSha": "26072525",
+      "title": "fix(analytics): dedupe guest batches and preserve semantic parity",
+      "filesTouched": [
+        "src/app/api/analytics/ingest/route.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "tests/unit/analytics-ingest-route.spec.ts",
+        "tests/unit/guest-analytics-identity.spec.ts"
+      ],
+      "systemArea": "analytics/admin truth",
+      "riskLevel": "high",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "shortSha": "c3d7cd6c",
+      "title": "fix(analytics): normalize guest anonymous identity",
+      "filesTouched": [
+        "src/app/api/analytics/ingest/route.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "tests/unit/analytics-ingest-route.spec.ts",
+        "tests/unit/guest-analytics-identity.spec.ts"
+      ],
+      "systemArea": "analytics/admin truth",
+      "riskLevel": "high",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": false
+    },
+    {
+      "shortSha": "66405da6",
+      "title": "fix(hardening): close phase one audit cost findings",
+      "filesTouched": [
+        "agent/context/code-organization.index.json",
+        "agent/state/4xx-cost-guardrails.generated.json",
+        "agent/state/billing-spike-radar.generated.json",
+        "agent/state/client-loading-speed.generated.json",
+        "agent/state/code-organization-score.generated.json",
+        "agent/state/codebase-hardening.generated.json",
+        "agent/state/codebase-junk-cleanup.generated.json",
+        "agent/state/event-timeline-management.generated.json",
+        "agent/state/global-cost-surfaces.generated.json",
+        "agent/state/google-cloud-cost-data-handoff.generated.json",
+        "agent/state/google-cost-bleed.generated.json",
+        "agent/state/guest-user-analytics-cutover.generated.json",
+        "agent/state/legacy-phaseout.generated.json",
+        "agent/state/orphaned-logic-score.generated.json",
+        "agent/state/phase-one-final-cleanup.generated.json",
+        "agent/state/server-loading-speed.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "agent/state/user-creator-feature-parity.generated.json",
+        "agent/state/user-tracking-index-cutover.generated.json",
+        "scripts/agent/score-google-cost-bleed.ts",
+        "src/app/api/admin/ai/drop-covers/feedback/route.ts",
+        "src/app/api/admin/ai/drop-covers/generate/route.ts",
+        "src/app/api/admin/ai/drop-covers/prompt-policy/route.ts",
+        "src/app/api/admin/ai/drop-covers/references/route.ts",
+        "src/app/api/admin/ai/drop-covers/review-gallery/route.ts",
+        "src/app/api/admin/ai/drop-covers/route.ts",
+        "src/app/api/admin/ai/drop-covers/template/route.ts",
+        "src/app/api/admin/ai/drop-descriptions/feedback/route.ts",
+        "src/app/api/admin/ai/drop-descriptions/generate/route.ts",
+        "src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts"
+      ],
+      "systemArea": "phase one governance",
       "riskLevel": "medium",
-      "launchRelevance": "P2 admin analytics truth. Dry-run only.",
-      "likelyConflicts": ["Older telemetry PRs that introduce catalog events without parity handling."],
-      "requiredTests": ["npm run check:analytics-legacy-recovery", "targeted legacy recovery tests"],
-      "recommendation": "Keep dry-run. Do not run destructive recovery during launch freeze.",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
       "touchesSourceOfTruthDocsOrValidators": true
     },
     {
-      "sha": "4637276ea2057f571ac246d1fb95536d70b1cdcf",
-      "shortSha": "4637276e",
-      "date": "2026-04-30",
-      "title": "feat(analytics): add verified hot cache snapshots and refresh pipeline",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
+      "shortSha": "537e5c7d",
+      "title": "feat(ai-cover): add learning cutover and prompt optimization guardrails",
       "filesTouched": [
-        "src/app/api/admin/analytics/refresh/route.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/hooks/useAdminAnalyticsSnapshot.ts",
-        "src/lib/analytics/admin-metric-snapshot.ts",
-        "src/lib/server/admin-analytics-materializers.ts",
-        "src/lib/server/admin-analytics-snapshots.ts",
-        "scripts/agent/validate-admin-analytics-hot-cache.ts",
-        "tests/unit/admin-analytics-refresh-route.spec.ts"
+        "agent/context/optimized-task-context.generated.json",
+        "agent/state/ai-cover-learning-cutover.generated.json",
+        "docs/agent-truth/admin-ai-control-tower.md",
+        "docs/agent-truth/ai-cover-learning-cutover.md",
+        "docs/agent-truth/ai-cover-prompt-compiler.md",
+        "package.json",
+        "scripts/agent/score-ai-cover-learning.ts",
+        "scripts/agent/validate-ai-cover-hard-cutover-v2.ts",
+        "scripts/agent/validate-ai-cover-learning-cutover.ts",
+        "src/app/admin/ai/components/AdminAiRecentgenerationsSection.tsx",
+        "src/app/admin/ai/page.tsx",
+        "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
+        "src/lib/ai-cover/cover-debug-summary.ts",
+        "src/lib/ai-cover/cover-feedback-normalizer.ts",
+        "src/lib/ai-cover/cover-generation-preflight.ts",
+        "src/lib/ai-cover/cover-improvement-score.ts",
+        "src/lib/ai-cover/cover-layout-dna.ts",
+        "src/lib/ai-cover/cover-learning-contract.ts",
+        "src/lib/ai-cover/cover-learning-ledger.ts",
+        "src/lib/ai-cover/cover-learning-utils.ts",
+        "src/lib/ai-cover/cover-negative-memory.ts",
+        "src/lib/ai-cover/cover-optimizer-guard.ts",
+        "src/lib/ai-cover/cover-prompt-compiler.ts",
+        "src/lib/ai-cover/cover-prompt-delta-engine.ts",
+        "src/lib/ai-cover/cover-reference-eligibility.ts",
+        "src/lib/ai-cover/cover-reference-policy.ts",
+        "src/lib/ai-cover/cover-reference-selector.ts",
+        "src/lib/ai-cover/cover-semantic-brief.ts",
+        "src/lib/ai-cover/cover-semantic-ontology.ts",
+        "src/lib/ai-cover/cover-title-parser.ts"
       ],
-      "systemArea": "Admin Analytics hot cache snapshots",
+      "systemArea": "ai cover/admin ai",
       "riskLevel": "medium",
-      "launchRelevance": "P2 admin analytics hot-cache baseline; security route hardening PR 208 builds on it.",
-      "likelyConflicts": ["PR 208 touches refresh route security on top of this pipeline."],
-      "requiredTests": ["npm run check:admin-analytics-hot-cache", "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts"],
-      "recommendation": "Keep; merge PR 208 only with this behavior preserved.",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
       "touchesSourceOfTruthDocsOrValidators": true
     },
     {
-      "sha": "829bd86976f34f683b369094b19253b5b9338ac2",
-      "shortSha": "829bd869",
-      "date": "2026-04-30",
-      "title": "feat(analytics): add canonical event contract and identity lanes",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
+      "shortSha": "30a146f5",
+      "title": "fix(chat): constrain mobile attachments and transcript bottom gap",
       "filesTouched": [
-        "src/lib/analytics/analytics-event-contract.ts",
-        "src/lib/analytics/legacy-event-mapping.ts",
-        "src/lib/client-session.ts",
+        "scripts/agent/validate-user-chat-shell-routing.ts",
+        "src/components/Chat/ChatExperience.tsx"
+      ],
+      "systemArea": "chat/user surface",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "265d0957",
+      "title": "fix(ai): allow category-safe cover enrichment",
+      "filesTouched": [
+        "scripts/agent/validate-cover-prompt-compiler.ts",
+        "src/lib/ai-cover/cover-prompt-compiler.ts",
+        "src/lib/ai-cover/cover-title-parser.ts",
+        "src/lib/ai-cover/flavor-ontology.ts"
+      ],
+      "systemArea": "ai cover/admin ai",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "430c42eb",
+      "title": "chore(phase-one): normalize orphan candidate cleanup",
+      "filesTouched": [
+        "agent/state/codebase-junk-cleanup.generated.json",
+        "package.json",
+        "scripts/agent/check-infrastructure-truth.ts",
+        "scripts/agent/scan-codebase-junk.ts"
+      ],
+      "systemArea": "phase one governance",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "99e24e1c",
+      "title": "chore(phase-one): cleanup speed cost and beta versioning",
+      "filesTouched": [
+        ".github/workflows/public-release-notes.yml",
+        "AGENTS.md",
+        "CHANGELOG.md",
+        "README.md",
+        "REPO_MEMORY_LEDGER.md",
+        "agent/state/4xx-cost-guardrails.generated.json",
+        "agent/state/billing-spike-radar.generated.json",
+        "agent/state/client-loading-speed.generated.json",
+        "agent/state/codebase-junk-cleanup.generated.json",
+        "agent/state/event-timeline-management.generated.json",
+        "agent/state/google-cloud-cost-data-handoff.generated.json",
+        "agent/state/guest-user-analytics-cutover.generated.json",
+        "agent/state/phase-one-final-cleanup.generated.json",
+        "agent/state/server-loading-speed.generated.json",
+        "agent/state/user-creator-feature-parity.generated.json",
+        "agent/state/user-tracking-index-cutover.generated.json",
+        "docs/agent-truth/beta-versioning-final.md",
+        "docs/agent-truth/phase-one-final-cleanup.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-beta-versioning-final.ts",
+        "scripts/agent/validate-client-loading-speed.ts",
+        "scripts/agent/validate-phase-one-final-cleanup.ts",
+        "scripts/agent/validate-user-creator-feature-parity.ts",
+        "scripts/release/update-public-changelog.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-note-classifier.ts",
+        "src/lib/release-notes/release-version-contract.ts"
+      ],
+      "systemArea": "phase one governance",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "f56b3cdc",
+      "title": "chore(phase-one): cleanup speed and cost hardening",
+      "filesTouched": [
+        "AGENTS.md",
+        "README.md",
+        "REPO_MEMORY_LEDGER.md",
+        "agent/state/4xx-cost-guardrails.generated.json",
+        "agent/state/billing-spike-radar.generated.json",
+        "agent/state/client-loading-speed.generated.json",
+        "agent/state/codebase-junk-cleanup.generated.json",
+        "agent/state/event-timeline-management.generated.json",
+        "agent/state/google-cloud-cost-data-handoff.generated.json",
+        "agent/state/guest-user-analytics-cutover.generated.json",
+        "agent/state/phase-one-final-cleanup.generated.json",
+        "agent/state/server-loading-speed.generated.json",
+        "agent/state/user-creator-feature-parity.generated.json",
+        "agent/state/user-tracking-index-cutover.generated.json",
+        "docs/agent-truth/client-loading-speed.md",
+        "docs/agent-truth/codebase-junk-cleanup.md",
+        "docs/agent-truth/event-timeline-management.md",
+        "docs/agent-truth/google-cloud-cost-data-handoff.md",
+        "docs/agent-truth/phase-one-final-cleanup.md",
+        "docs/agent-truth/server-loading-speed.md",
+        "docs/agent-truth/user-creator-feature-parity.md",
+        "package.json",
+        "scripts/agent/scan-codebase-junk.ts",
+        "scripts/agent/validate-client-loading-speed.ts",
+        "scripts/agent/validate-codebase-junk-cleanup.ts",
+        "scripts/agent/validate-event-timeline-management.ts",
+        "scripts/agent/validate-google-cloud-cost-data-handoff.ts",
+        "scripts/agent/validate-phase-one-final-cleanup.ts",
+        "scripts/agent/validate-server-loading-speed.ts",
+        "scripts/agent/validate-user-creator-feature-parity.ts"
+      ],
+      "systemArea": "phase one governance",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "cabf2e2d",
+      "title": "fix(home): reduce mobile section sprawl",
+      "filesTouched": [
+        "docs/agent-truth/homepage-mobile-density.md",
+        "docs/agent-truth/user-critical-path-lock.md",
+        "package.json",
+        "scripts/agent/validate-homepage-mobile-density.ts",
+        "src/app/page.tsx",
+        "src/components/CreatorDiscoveryRail.tsx",
+        "src/components/Landing/HowItWorks.tsx"
+      ],
+      "systemArea": "launch baseline",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "7dc85c6f",
+      "title": "fix(chat): refine ios pwa shell and media limits",
+      "filesTouched": [
+        "docs/agent-truth/chat-media-limits.md",
+        "docs/agent-truth/chat-shell-stability.md",
+        "docs/agent-truth/creator-fan-experience-settings.md",
+        "docs/agent-truth/user-creator-mobile-lock.md",
+        "package.json",
+        "scripts/agent/validate-ios-pwa-chat-refinements.ts",
+        "src/app/api/chat/attachments/complete/route.ts",
+        "src/app/api/chat/attachments/prepare/route.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/components/Chat/ChatRouteShell.tsx",
+        "src/components/CoreLayoutWrapper.tsx",
+        "src/components/Navigation/MobileBottomBar.tsx",
+        "src/lib/chat-send-feedback.ts",
+        "src/lib/chat.ts",
+        "src/lib/chat/chat-media-limits.ts",
+        "src/lib/device-layout-contract.ts",
+        "src/lib/server/chat-media-limit-policy.ts",
+        "src/lib/server/chat.ts",
         "src/lib/telemetry-catalog.ts",
-        "scripts/agent/validate-analytics-event-contract.ts",
-        "tests/unit/analytics-event-contract.spec.ts"
+        "src/lib/user-mobile-shell.ts",
+        "tests/unit/chat-ios-pwa-detection.spec.ts",
+        "tests/unit/chat-media-limits.spec.ts"
       ],
-      "systemArea": "telemetry identity lanes and event contract",
+      "systemArea": "chat/user surface",
       "riskLevel": "medium",
-      "launchRelevance": "P2 admin analytics truth and telemetry integrity.",
-      "likelyConflicts": ["PR 204 adds telemetry events and must satisfy this contract."],
-      "requiredTests": ["npm run check:analytics-event-contract", "npm run check:telemetry"],
-      "recommendation": "Keep; block orphan telemetry additions.",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
       "touchesSourceOfTruthDocsOrValidators": true
     },
     {
-      "sha": "3386ab9a173c0b447cd660f957432e680eaea610",
-      "shortSha": "3386ab9a",
-      "date": "2026-04-30",
-      "title": "docs(analytics): map truth layer v2 doctrine and blast radius",
-      "classification": "post-launch",
-      "currentState": "already_on_main",
+      "shortSha": "5fe5dcb9",
+      "title": "fix(pwa): stabilize android chat sizing and silence stale build banner",
       "filesTouched": [
+        "agent/context/optimized-task-context.generated.json",
+        "docs/agent-truth/chat-shell-stability.md",
+        "docs/agent-truth/pwa-build-freshness.md",
+        "docs/agent-truth/user-creator-mobile-lock.md",
+        "package.json",
+        "scripts/agent/validate-android-pwa-chat-and-build-banner.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/components/Chat/ChatRouteShell.tsx",
+        "src/components/PwaRuntimeBridge.tsx",
+        "src/lib/device-layout-contract.ts",
+        "src/lib/user-mobile-shell.ts"
+      ],
+      "systemArea": "chat/user surface",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "13297da6",
+      "title": "refactor(ai): compact drop creation and deterministic compilers",
+      "filesTouched": [
+        "docs/agent-truth/admin-ai-control-tower.md",
+        "docs/agent-truth/ai-cover-prompt-compiler.md",
+        "docs/agent-truth/content-media-pipeline.md",
+        "docs/agent-truth/creator-fan-experience-settings.md",
+        "docs/agent-truth/drop-description-compiler.md",
+        "docs/agent-truth/payment-unlock-entitlement.md",
+        "package.json",
+        "scripts/agent/validate-ai-drop-creation-compact-cutover.ts",
+        "scripts/agent/validate-cover-prompt-compiler.ts",
+        "scripts/agent/validate-drop-description-compiler.ts",
+        "scripts/agent/validate-fan-pass-unlock-entitlement.ts",
+        "src/app/admin/ai/page.tsx",
+        "src/app/api/admin/ai/drop-covers/prompt-policy/route.ts",
+        "src/app/api/admin/ai/drop-descriptions/generate/route.ts",
+        "src/app/api/drops/unlock/route.ts",
+        "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
+        "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx",
+        "src/components/Admin/AssetUploader.tsx",
+        "src/components/Admin/CollapsibleDropSection.tsx",
+        "src/components/Admin/CompactAiActionButton.tsx",
+        "src/components/Admin/CompactAiModuleCard.tsx",
+        "src/components/Admin/CompactAiStatusChip.tsx",
+        "src/lib/ai-cover/cover-feedback-weights.ts",
+        "src/lib/ai-cover/cover-layout-dna.ts",
+        "src/lib/ai-cover/cover-prompt-compiler.ts",
+        "src/lib/ai-cover/cover-title-parser.ts",
+        "src/lib/ai-cover/creator-brand-resolver.ts",
+        "src/lib/ai-cover/flavor-ontology.ts",
+        "src/lib/ai-cover/model-prompt-adapters.ts",
+        "src/lib/ai-drop-covers.ts"
+      ],
+      "systemArea": "ai cover/admin ai",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "ecdc8c17",
+      "title": "feat(cost): add billing spike radar",
+      "filesTouched": [
+        "agent/state/billing-spike-radar.generated.json",
+        "docs/agent-truth/billing-spike-radar.md",
+        "package.json",
+        "scripts/agent/score-billing-spike-radar.ts",
+        "scripts/agent/validate-billing-spike-radar.ts",
+        "src/lib/cost/billing-spike-contract.ts",
+        "src/lib/cost/billing-spike-risk-score.ts"
+      ],
+      "systemArea": "launch baseline",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "a8b4970a",
+      "title": "feat(cost): normalize 4xx guardrails",
+      "filesTouched": [
+        "agent/state/4xx-cost-guardrails.generated.json",
+        "docs/agent-truth/4xx-cost-guardrails.md",
+        "docs/agent-truth/cloudrun-sql-bigquery-guardrails.md",
+        "docs/agent-truth/content-protection-score.md",
+        "docs/agent-truth/global-cost-surfaces.md",
+        "docs/agent-truth/speed-security-hardening.md",
+        "middleware.ts",
+        "package.json",
+        "scripts/agent/score-4xx-cost-guardrails.ts",
+        "scripts/agent/validate-4xx-cost-guardrails.ts",
+        "src/app/api/analytics/ingest-identified/route.ts",
+        "src/app/api/analytics/ingest/route.ts",
+        "src/lib/server/cheap-4xx-response.ts",
+        "src/lib/server/http-error-cost-contract.ts",
+        "src/lib/server/request-guard.ts",
+        "src/lib/server/route-4xx-classifier.ts",
+        "src/lib/server/route-4xx-dedupe.ts",
+        "tests/unit/4xx-cost-guardrails.spec.ts"
+      ],
+      "systemArea": "ai cover/admin ai",
+      "riskLevel": "medium",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
+      ],
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "shortSha": "806753ae",
+      "title": "refactor(analytics): cut over user tracking indexes",
+      "filesTouched": [
+        "agent/state/user-tracking-index-cutover.generated.json",
         "docs/agent-truth/analytics-truth-layer-v2.md",
-        "docs/agent-truth/analytics-source-hierarchy.md",
-        "docs/agent-truth/analytics-actor-taxonomy.md",
-        "docs/agent-truth/analytics-module-map.md",
-        "docs/agent-truth/analytics-file-inventory.md",
-        "scripts/agent/validate-analytics-truth-layer-v2.ts"
+        "docs/agent-truth/behavioral-math-calibration.md",
+        "docs/agent-truth/guest-user-analytics-cutover.md",
+        "docs/agent-truth/user-tracking-indexes.md",
+        "package.json",
+        "scripts/agent/score-user-tracking-indexes.ts",
+        "scripts/agent/validate-user-tracking-index-cutover.ts",
+        "src/app/api/analytics/ingest-identified/route.ts",
+        "src/app/api/analytics/ingest/route.ts",
+        "src/lib/server/analytics-governance.ts",
+        "src/lib/server/analytics-identity-linking.ts",
+        "src/lib/server/user-index-materializer.ts",
+        "src/lib/server/user-index-reader.ts",
+        "src/lib/server/user-index-writer.ts",
+        "src/lib/user-indexes/user-index-legacy-registry.ts",
+        "src/lib/user-indexes/user-index-normalizer.ts",
+        "src/lib/user-indexes/user-tracking-index-contract.ts",
+        "tests/unit/analytics-ingest-identified-route.spec.ts",
+        "tests/unit/user-index-normalizer.spec.ts"
       ],
-      "systemArea": "analytics doctrine and validation",
-      "riskLevel": "low",
-      "launchRelevance": "P2 admin truth doctrine.",
-      "likelyConflicts": ["PR 205 doctrine changes may overlap governance wording."],
-      "requiredTests": ["npm run check:analytics-truth-layer-v2"],
-      "recommendation": "Keep as analytics doctrine baseline.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "ef6d78397b62737f594cd8ad6b505441f417c3dd",
-      "shortSha": "ef6d7839",
-      "date": "2026-04-30",
-      "title": "fix(admin-shell): reserve console spacing and stop content overlap",
-      "classification": "merge candidate",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/app/admin/layout.tsx",
-        "src/app/globals.css",
-        "src/lib/admin-shell-spacing.ts",
-        "docs/agent-truth/admin-shell-spacing.md",
-        "scripts/check-admin-shell-spacing.ts"
+      "systemArea": "analytics/admin truth",
+      "riskLevel": "high",
+      "launchRelevance": "Current main baseline commit; do not overwrite with stale PR code without rerunning affected gates.",
+      "likelyConflicts": [],
+      "requiredTests": [
+        "npm run typecheck",
+        "targeted validators for touched surface"
       ],
-      "systemArea": "admin shell layout",
-      "riskLevel": "medium",
-      "launchRelevance": "P2 admin usability; prevents overlap.",
-      "likelyConflicts": ["Any UI-only admin shell layout PR."],
-      "requiredTests": ["npm run check:admin-shell-spacing", "npm run check:ui:runtime if admin shell changes again"],
-      "recommendation": "Keep as admin spacing baseline.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "30d8fcd4e1e93ee9944255a3e3f82158cdb49b3f",
-      "shortSha": "30d8fcd4",
-      "date": "2026-04-30",
-      "title": "fix(notifications): dedupe pwa alerts and compact funnel truth",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "public/firebase-messaging-sw.js",
-        "src/app/api/notifications/route.ts",
-        "src/components/Notifications/NotificationRuntimeBridge.tsx",
-        "src/hooks/useNotifications.ts",
-        "src/lib/server/fcm-utils.ts",
-        "src/lib/server/push-notifications.ts",
-        "scripts/check-notification-pipeline.ts",
-        "tests/unit/notifications-route.spec.ts"
-      ],
-      "systemArea": "notifications and PWA alerts",
-      "riskLevel": "medium",
-      "launchRelevance": "P1 notifications.",
-      "likelyConflicts": ["Any notification pipeline PR touching FCM, browser display, or duplicate prevention."],
-      "requiredTests": ["npm run check:notification-pipeline", "targeted notifications tests"],
-      "recommendation": "Keep; use as notification truth baseline.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "099f365db45ca56f9a9ddf13483c12c48aebfc27",
-      "shortSha": "099f365d",
-      "date": "2026-04-30",
-      "title": "fix(admin-analytics): fold task leaderboard into pipeline parity",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx",
-        "src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx",
-        "src/lib/admin-task-leaderboard.ts",
-        "src/lib/admin-task-pipeline.ts",
-        "src/lib/server/admin-analytics-historical-tasks.ts",
-        "scripts/check-admin-analytics-daily-task-pipeline.ts",
-        "tests/unit/admin-task-pipeline.spec.ts"
-      ],
-      "systemArea": "Admin Analytics daily task pipeline",
-      "riskLevel": "medium",
-      "launchRelevance": "P2 admin truth.",
-      "likelyConflicts": ["Admin Analytics module PRs that predate pipeline parity."],
-      "requiredTests": ["npm run check:admin-analytics-daily-task-pipeline", "targeted task pipeline tests"],
-      "recommendation": "Keep; do not regress task parity copy or Debug evidence.",
-      "touchesSourceOfTruthDocsOrValidators": true
-    },
-    {
-      "sha": "15dfa9b9671eaaa5dc46ecd44183fd859261544f",
-      "shortSha": "15dfa9b9",
-      "date": "2026-04-30",
-      "title": "fix(admin-analytics): fold task speed into pipeline truth",
-      "classification": "needs verification",
-      "currentState": "already_on_main",
-      "filesTouched": [
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx",
-        "src/lib/admin-task-pipeline.ts",
-        "scripts/check-admin-analytics-daily-task-pipeline.ts",
-        "tests/unit/admin-task-pipeline.spec.ts"
-      ],
-      "systemArea": "Admin Analytics daily task pipeline",
-      "riskLevel": "medium",
-      "launchRelevance": "P2 admin truth.",
-      "likelyConflicts": ["Admin Analytics route or task pipeline PRs that predate hot-cache migration."],
-      "requiredTests": ["npm run check:admin-analytics-daily-task-pipeline", "npm run check:refresh-based-hot-cache"],
-      "recommendation": "Keep; protect from older admin analytics changes.",
+      "recommendation": "Treat as current source-of-truth baseline for PR triage.",
       "touchesSourceOfTruthDocsOrValidators": true
     }
   ],
   "triageDecisions": [
-    "Do not auto-merge or auto-close any PR.",
-    "Treat PR 208 as the first manual review candidate and only launch-blocking open PR at triage.",
-    "Keep only one useDrops optimization PR; prefer PR 207 if accepted and supersede PR 203 and PR 201.",
-    "Do not merge PR 205 as-is because it is dirty, adds pnpm-lock.yaml, and predates current admin copy and DropCard work.",
-    "Treat PR 204 and PR 202 as human-review items because they touch purchase/drop telemetry or source-of-funds truth during scope freeze.",
-    "Protect recent analytics truth/hot-cache commits from older PRs that would reintroduce realtime-first, fake waiting, or raw backend copy."
+    "Current PR triage is refreshed against HEAD 6955246c6baabf0e8dcaee696dc73a37ff11301d.",
+    "Open PRs are evidence only; no merge, close, or rebase action was performed.",
+    "Most PRs are post-launch, need rebase, or superseded by current main work.",
+    "No open PR is classified as a launch blocker in this evidence refresh."
   ]
 }

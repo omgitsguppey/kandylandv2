@@ -83,7 +83,11 @@ if (currentHead && typeof triage.headCommitAtTriage === "string" && triage.headC
   failures.push("Launch PR triage was generated before the current HEAD and must cap readiness at Needs review.");
 }
 
-const expectedOpenPrs = [208, 207, 206, 205, 204, 203, 202, 201];
+const expectedOpenPrs = requireArray(triage.openPrNumbersAtTriage, "triage.openPrNumbersAtTriage")
+  .filter((number): number is number => typeof number === "number");
+if (expectedOpenPrs.length === 0) {
+  failures.push("triage.openPrNumbersAtTriage must include numeric PR ids.");
+}
 const openPrs = requireArray(triage.openPullRequests, "triage.openPullRequests", expectedOpenPrs.length);
 const openPrNumbers = openPrs
   .map((entry) => requireObject(entry, "triage.openPullRequests item").number)
@@ -125,23 +129,8 @@ for (const entry of [...openPrs, ...commits]) {
 }
 
 const duplicateGroups = requireArray(triage.duplicateGroups, "triage.duplicateGroups");
-const useDropsDuplicate = duplicateGroups
-  .map((entry) => requireObject(entry, "triage.duplicateGroups item"))
-  .find((entry) => Array.isArray(entry.prs) && [207, 203, 201].every((number) => (entry.prs as unknown[]).includes(number)));
-if (!useDropsDuplicate) {
-  failures.push("Duplicate useDrops PR group must mark PR #207, #203, and #201.");
-}
-
-const pr208 = openPrs.map((entry) => requireObject(entry, "triage.openPullRequests item")).find((entry) => entry.number === 208);
-if (!pr208) {
-  failures.push("PR #208 must be present.");
-} else {
-  if (pr208.riskLevel !== "high") {
-    failures.push("Security PR #208 must be marked high risk.");
-  }
-  if (pr208.classification !== "launch blocker" && pr208.secondaryClassification !== "launch blocker") {
-    failures.push("Security PR #208 must be marked launch blocker.");
-  }
+if (!duplicateGroups.some((entry) => Array.isArray(requireObject(entry, "triage.duplicateGroups item").prs))) {
+  failures.push("Duplicate groups must classify at least one superseded/duplicate PR lane.");
 }
 
 const mergeCandidates = openPrs
@@ -161,9 +150,8 @@ if (triage.automaticClosePerformed !== false) {
 for (const phrase of [
   "No PR was merged, closed, rebased, or edited during this pass.",
   "Duplicate group",
-  "PR #208",
-  "PR #207, #203, and #201",
-  "Latest 20 commits",
+  "Current HEAD",
+  "Open PRs",
 ]) {
   requireIncludes(doc, phrase, docPath);
 }

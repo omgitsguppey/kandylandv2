@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-12T18:12:15.652Z",
+  "generatedAt": "2026-05-12T19:57:56.767Z",
   "scannerScore": 100,
   "scannerStatus": "clean",
-  "overallScore": 25,
-  "overallStatus": "beta-risk",
-  "readinessStatus": "Stale evidence",
-  "readinessStatusReason": "3 required generated report(s) are older than the freshness window.",
-  "evidenceScore": 25,
+  "overallScore": 35,
+  "overallStatus": "warning",
+  "readinessStatus": "Unknown evidence",
+  "readinessStatusReason": "No fresh targeted behavior test evidence was supplied to the score.",
+  "evidenceScore": 35,
   "evidenceGates": [
     {
       "id": "sourceSafety",
@@ -65,13 +65,14 @@
       "id": "freshnessIntegrity",
       "label": "Freshness, PR, and HEAD integrity",
       "weight": 10,
-      "score": 0,
-      "status": "Stale evidence",
-      "detail": "3 required generated report(s) are older than the freshness window.",
+      "score": 10,
+      "status": "Ready",
+      "detail": "Required generated reports are fresh for deterministic scoring.",
       "evidence": [
-        "agent/state/final-launch-readiness-report.generated.json (251.79h old)",
-        "agent/state/launch-readiness-report.generated.json (258.45h old)",
-        "agent/state/launch-pr-triage.generated.json (277.2h old)"
+        "agent/state/final-launch-readiness-report.generated.json",
+        "agent/state/launch-readiness-report.generated.json",
+        "agent/state/launch-pr-triage.generated.json",
+        "agent/state/generated-report-authority.generated.json"
       ],
       "recommendedAction": "Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current."
     },
@@ -91,7 +92,6 @@
     "Visual QA required: Visual/manual smoke",
     "Ready with smoke required: Runtime/provider smoke",
     "Unknown evidence: Admin truth/sample evidence",
-    "Stale evidence: Freshness, PR, and HEAD integrity",
     "Unknown evidence: Debug/runtime evidence"
   ],
   "evidenceWeights": {
@@ -177,7 +177,6 @@
     "Visual QA required: Record targeted manual or screenshot evidence for user-critical surfaces before calling the score ready.",
     "Ready with smoke required: Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
     "Unknown evidence: Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
-    "Stale evidence: Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current.",
     "Unknown evidence: Do not treat empty debug evidence as proof that no runtime issue exists.",
     "Keep using `npm run score:beta` and targeted tests before public beta UI/economy changes."
   ],
@@ -210,7 +209,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta readiness score 25/100 (Stale evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 6 evidence cap(s) applied.",
+  "summary": "Public beta readiness score 35/100 (Unknown evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 5 evidence cap(s) applied.",
   "debugEvidence": {
     "layout": [],
     "hydration": [],

@@ -67,6 +67,25 @@ const REQUIRED_COMMANDS = [
   "npm run check:firebase:rules",
 ];
 
+const EVIDENCE_REFRESH_COMMANDS = [
+  "npm run score:beta",
+  "npm run check:beta-score",
+  "npm run check:launch-readiness-final",
+  "npm run check:final-launch-readiness-report",
+  "npm run typecheck",
+];
+
+const HONEST_READINESS_STATUSES = [
+  "Ready",
+  "Ready with smoke required",
+  "Needs review",
+  "Blocked",
+  "Unknown evidence",
+  "Stale evidence",
+  "Runtime unverified",
+  "Visual QA required",
+];
+
 function readRequired(relativePath: string) {
   const fullPath = join(root, relativePath);
   if (!existsSync(fullPath)) {
@@ -169,6 +188,16 @@ const launchDecision = report.launchDecision;
 if (!["LAUNCHABLE", "LAUNCHABLE WITH WARNINGS", "NOT LAUNCHABLE"].includes(String(launchDecision))) {
   failures.push("launchDecision must be one of LAUNCHABLE, LAUNCHABLE WITH WARNINGS, NOT LAUNCHABLE.");
 }
+const reportMode = String(report.reportMode ?? "launch_signoff");
+if (!["launch_signoff", "evidence_refresh"].includes(reportMode)) {
+  failures.push("reportMode must be launch_signoff or evidence_refresh.");
+}
+if (reportMode === "evidence_refresh" && launchDecision !== "NOT LAUNCHABLE") {
+  failures.push("Evidence refresh reports with missing smoke/visual evidence must use NOT LAUNCHABLE until evidence is recorded.");
+}
+if (reportMode === "evidence_refresh" && !HONEST_READINESS_STATUSES.includes(String(report.phaseOneStatus ?? report.readinessStatus))) {
+  failures.push("Evidence refresh reports must expose an honest phaseOneStatus/readinessStatus.");
+}
 
 const generatedAtMs = parseDate(report.generatedAt, "report.generatedAt");
 if (generatedAtMs && Date.now() - generatedAtMs > GENERATED_REPORT_STALE_MS && launchDecision !== "NOT LAUNCHABLE") {
@@ -230,37 +259,47 @@ if (String(report.requiredNextAction ?? "").toLowerCase().includes("smoke") && l
   failures.push("Required production smoke must cap launch at warnings/smoke-required, not LAUNCHABLE.");
 }
 
-const validationsRun = requireArray(report.validationsRun, "report.validationsRun", REQUIRED_COMMANDS.length).map(asRecord);
+const requiredCommands = reportMode === "evidence_refresh" ? EVIDENCE_REFRESH_COMMANDS : REQUIRED_COMMANDS;
+const validationsRun = requireArray(report.validationsRun, "report.validationsRun", requiredCommands.length).map(asRecord);
 const commandSet = new Set(validationsRun.map((entry) => String(entry.command)));
-for (const command of REQUIRED_COMMANDS) {
+for (const command of requiredCommands) {
   if (!commandSet.has(command)) {
     failures.push(`validationsRun must include ${command}.`);
   }
 }
 
 const deploymentCheck = validationsRun.find((entry) => entry.command === "npm run check:deployment");
-if (!deploymentCheck || deploymentCheck.status !== "warn" || !String(deploymentCheck.detail ?? "").toLowerCase().includes("unavailable")) {
+if (reportMode !== "evidence_refresh" && (!deploymentCheck || deploymentCheck.status !== "warn" || !String(deploymentCheck.detail ?? "").toLowerCase().includes("unavailable"))) {
   failures.push("Report must record npm run check:deployment as an unavailable warning.");
 }
 
-if (!report.summary || summary.hardStopGatesPassed !== true) {
+if (!report.summary || (launchDecision !== "NOT LAUNCHABLE" && summary.hardStopGatesPassed !== true)) {
   failures.push("summary.hardStopGatesPassed must be true for this launch decision.");
 }
-if (summary.runtimeCodeChanged !== false || summary.featuresAdded !== false) {
+if (launchDecision !== "NOT LAUNCHABLE" && (summary.runtimeCodeChanged !== false || summary.featuresAdded !== false)) {
   failures.push("summary must record no runtime code changes and no features added.");
 }
 if (generatedAtMs && summary.runtimeCodeChanged === false && latestRuntimeModifiedMs() > generatedAtMs) {
   failures.push("runtimeCodeChanged:false is stale because runtime files were modified after report.generatedAt.");
 }
 
-for (const expected of [
-  "LAUNCHABLE WITH WARNINGS",
-  "User critical path passed",
-  "Payment, wallet, unlock, and content entitlement passed",
-  "Security role boundaries and Firebase rules passed",
-  "npm run check:deployment",
-  "GO WITH WARNINGS",
-]) {
+const docExpectations = reportMode === "evidence_refresh"
+  ? [
+    "Evidence-Aware Readiness Rule",
+    "Visual QA required",
+    "Ready with smoke required",
+    "Unknown evidence",
+    "NOT LAUNCHABLE",
+  ]
+  : [
+    "LAUNCHABLE WITH WARNINGS",
+    "User critical path passed",
+    "Payment, wallet, unlock, and content entitlement passed",
+    "Security role boundaries and Firebase rules passed",
+    "npm run check:deployment",
+    "GO WITH WARNINGS",
+  ];
+for (const expected of docExpectations) {
   requireIncludes(doc, expected, "Final launch readiness doc");
 }
 
