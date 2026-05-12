@@ -23,10 +23,11 @@ export async function GET(request: NextRequest) {
     };
 
     try {
-        await guardApiRequest(request, {
-            routeName: "creator/discovery",
-            rateLimit: RELAXED,
-        });
+    await guardApiRequest(request, {
+        routeName: "creator/discovery",
+        rateLimit: RELAXED,
+        rateLimitStorage: "local",
+    });
 
         const surface = (request.nextUrl.searchParams.get("surface")?.trim() || "drops") as CreatorDiscoverySurface;
         const creators = await listCreatorDiscoveryProfiles(surface);

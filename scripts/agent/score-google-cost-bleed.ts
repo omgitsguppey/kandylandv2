@@ -371,7 +371,9 @@ function scanRouteContracts(findings: GoogleCostFinding[], routes: RouteSummary[
       route.contract.authRequired === "none" &&
       ["free_read", "firestore_read"].includes(route.contract.costClass) &&
       route.hasRateGuard &&
-      source.includes("guardApiRequest(");
+      source.includes("guardApiRequest(") &&
+      !source.includes('rateLimitStorage: "local"') &&
+      !source.includes("rateLimitStorage: 'local'");
     if (cheapPublicGet) {
       addFinding(findings, {
         severity: "major",

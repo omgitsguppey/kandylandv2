@@ -36,6 +36,7 @@ async function POST_handler(request: NextRequest) {
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
+            maxBodyBytes: MAX_TEMPLATE_SIZE_BYTES,
         });
 
         const formData = await request.formData();
@@ -88,6 +89,7 @@ async function DELETE_handler(request: NextRequest) {
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
+            maxBodyBytes: MAX_TEMPLATE_SIZE_BYTES,
         });
 
         const settings = await removeAdminAiDropCoverTemplate({

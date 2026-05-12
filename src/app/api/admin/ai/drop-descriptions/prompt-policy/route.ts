@@ -10,6 +10,7 @@ import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+const MAX_ADMIN_AI_JSON_BODY_BYTES = 128_000;
 
 function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextResponse, error?: unknown) {
     void recordRouteRuntimeSample({
@@ -30,6 +31,7 @@ async function PUT_handler(request: NextRequest) {
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
+            maxBodyBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
         });
 
         const body = await request.json() as {

@@ -69,7 +69,7 @@ import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { isAndroidStandalonePwa, isIosStandalonePwa } from "@/lib/device-layout-contract";
 import { cn } from "@/lib/utils";
 import { ref as storageRef, uploadBytes } from "firebase/storage";
-import { CHAT_MEDIA_LIMIT_BYTES_DEFAULT, CHAT_MEDIA_LIMIT_BYTES_FAN_PASS, formatChatMediaLimitMb } from "@/lib/chat/chat-media-limits";
+import { CHAT_MEDIA_LIMIT_BYTES_DEFAULT, CHAT_MEDIA_LIMIT_BYTES_FAN_PASS } from "@/lib/chat/chat-media-limits";
 import {
     CHAT_LIST_CONTROL_HEIGHT,
     CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET,

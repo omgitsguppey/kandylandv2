@@ -14,6 +14,7 @@ async function GET_handler(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "settings/landing",
             rateLimit: RELAXED,
+            rateLimitStorage: "local",
         });
         const { searchParams } = new URL(request.url);
         const key = searchParams.get("key");

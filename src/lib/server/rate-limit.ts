@@ -171,6 +171,7 @@ export class RateLimitError extends Error {
 
 interface RateLimitOptions {
     scopeId?: string | null;
+    storage?: "remote" | "local";
 }
 
 function isAdaptiveRateLimitConfig(config: RateLimitPolicy): config is AdaptiveRateLimitConfig {
@@ -286,7 +287,7 @@ export async function checkRateLimit(
 ): Promise<void> {
     const resolvedConfig = await resolveRateLimitConfig(config);
 
-    if (!adminDb) {
+    if (!adminDb || options?.storage === "local") {
         checkRateLimitLocally(request, routeName, resolvedConfig, options);
         return;
     }

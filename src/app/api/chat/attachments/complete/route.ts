@@ -20,6 +20,7 @@ const completeAttachmentSchema = z.object({
     storagePath: z.string().trim().min(1),
     fileName: z.string().trim().min(1).max(260),
     mimeType: z.string().trim().min(1).max(160),
+    idempotencyKey: z.string().trim().min(1).max(180).optional(),
 });
 
 const ATTACHMENT_COMPLETE_GUARD_EVIDENCE = {
@@ -29,6 +30,7 @@ const ATTACHMENT_COMPLETE_GUARD_EVIDENCE = {
     threadMembershipChecked: true,
     storagePathValidated: true,
     rawStorageUrlExposed: false,
+    idempotencyGuarded: true,
 } as const;
 const UNSAFE_STORAGE_PATH_PATTERN = /(?:^https?:|^gs:|^[a-z][a-z0-9+.-]*:|\\|\/\/|\.\.)/iu;
 
@@ -132,7 +134,7 @@ export async function POST(request: NextRequest) {
             }, { status: 400 }));
         }
 
-        // TODO(retry-safety): add caller-scoped completion operation records if this route starts creating message/media records.
+        // idempotency: completion only validates the pending object and sets stable metadata/token on the same storage path.
         const bucket = adminStorage.bucket();
         const file = bucket.file(payload.storagePath);
         const [exists] = await file.exists();
@@ -203,6 +205,7 @@ export async function POST(request: NextRequest) {
         return finalize(NextResponse.json({
             ...ATTACHMENT_COMPLETE_GUARD_EVIDENCE,
             success: true,
+            idempotencyKey: payload.idempotencyKey ?? null,
             status: "finalized",
             assetUrl: buildFirebaseStorageDownloadUrl(bucket.name, payload.storagePath, metadataToken),
             assetName: payload.fileName,

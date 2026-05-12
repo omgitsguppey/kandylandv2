@@ -11,6 +11,7 @@ async function GET_handler(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: "user/check-username",
             rateLimit: RELAXED,
+            rateLimitStorage: "local",
         });
         const username = request.nextUrl.searchParams.get("username");
         const displayName = request.nextUrl.searchParams.get("displayName");

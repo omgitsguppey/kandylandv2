@@ -22,6 +22,7 @@ async function GET_handler(
         await guardApiRequest(request, {
             routeName: "creators/profile",
             rateLimit: RELAXED,
+            rateLimitStorage: "local",
         });
         const { username } = await context.params;
         const normalizedUsername = username.trim().toLowerCase();

@@ -67,6 +67,7 @@ export async function GET(request: NextRequest) {
         await guardApiRequest(request, {
             routeName: DROPS_FEED_ROUTE_NAME,
             rateLimit: STANDARD,
+            rateLimitStorage: "local",
         });
 
         const { searchParams } = new URL(request.url);

@@ -39,6 +39,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         }
 
         const { threadId } = await context.params;
+        // idempotency: marking read is a merge patch that clears unread state for this caller/thread.
         const result = await safeMarkChatThreadReadForViewer({
             viewerUid: caller.uid,
             threadId,

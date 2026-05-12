@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-08T12:43:24.366Z",
+  "generatedAt": "2026-05-12T00:55:27.385Z",
   "status": "pass",
-  "summary": "classified=1440, orphanCandidates=0, deprecated=0, blocked=0",
+  "summary": "classified=1460, orphanCandidates=0, deprecated=0, blocked=0",
   "records": [
     {
       "file": "agent/context/legacy-registry.json",
@@ -61,6 +61,13 @@
     },
     {
       "file": "agent/state/affected-audit-plan.generated.json",
+      "classification": "generated_snapshot",
+      "reasons": [
+        "Generated state snapshot; evidence only."
+      ]
+    },
+    {
+      "file": "agent/state/ai-cover-learning-cutover.generated.json",
       "classification": "generated_snapshot",
       "reasons": [
         "Generated state snapshot; evidence only."
@@ -906,6 +913,13 @@
     },
     {
       "file": "docs/agent-truth/affected-audit-router.md",
+      "classification": "supporting",
+      "reasons": [
+        "Agent truth documentation."
+      ]
+    },
+    {
+      "file": "docs/agent-truth/ai-cover-learning-cutover.md",
       "classification": "supporting",
       "reasons": [
         "Agent truth documentation."
@@ -2362,6 +2376,13 @@
       ]
     },
     {
+      "file": "scripts/agent/score-ai-cover-learning.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
       "file": "scripts/agent/score-audit-runtime.ts",
       "classification": "supporting",
       "reasons": [
@@ -2772,6 +2793,20 @@
     },
     {
       "file": "scripts/agent/validate-agent-indexes.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
+      "file": "scripts/agent/validate-ai-cover-hard-cutover-v2.ts",
+      "classification": "supporting",
+      "reasons": [
+        "Agent script is referenced by package scripts."
+      ]
+    },
+    {
+      "file": "scripts/agent/validate-ai-cover-learning-cutover.ts",
       "classification": "supporting",
       "reasons": [
         "Agent script is referenced by package scripts."
@@ -7532,7 +7567,35 @@
       ]
     },
     {
+      "file": "src/lib/ai-cover/cover-debug-summary.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-feedback-normalizer.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
       "file": "src/lib/ai-cover/cover-feedback-weights.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-generation-preflight.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-improvement-score.ts",
       "classification": "canonical",
       "reasons": [
         "Runtime/configuration surface."
@@ -7546,7 +7609,84 @@
       ]
     },
     {
+      "file": "src/lib/ai-cover/cover-learning-contract.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-learning-ledger.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-learning-utils.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-negative-memory.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-optimizer-guard.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
       "file": "src/lib/ai-cover/cover-prompt-compiler.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-prompt-delta-engine.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-reference-eligibility.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-reference-policy.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-reference-selector.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-semantic-brief.ts",
+      "classification": "canonical",
+      "reasons": [
+        "Runtime/configuration surface."
+      ]
+    },
+    {
+      "file": "src/lib/ai-cover/cover-semantic-ontology.ts",
       "classification": "canonical",
       "reasons": [
         "Runtime/configuration surface."

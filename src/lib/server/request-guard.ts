@@ -13,6 +13,7 @@ interface RequestGuardOptions {
   preAuthRouteName?: string;
   preAuthRateLimit?: RateLimitPolicy;
   rateLimit?: RateLimitPolicy;
+  rateLimitStorage?: "remote" | "local";
   requireTrustedOrigin?: boolean;
   auth?: RequestGuardAuthMode;
   scopeToCaller?: boolean;
@@ -69,7 +70,10 @@ export async function guardApiRequest(
       request,
       preAuthRouteName,
       options.preAuthRateLimit,
-      options.preAuthScopeId ? { scopeId: options.preAuthScopeId } : undefined,
+      {
+        ...(options.preAuthScopeId ? { scopeId: options.preAuthScopeId } : {}),
+        ...(options.rateLimitStorage ? { storage: options.rateLimitStorage } : {}),
+      },
     );
   }
 
@@ -90,7 +94,10 @@ export async function guardApiRequest(
       request,
       options.routeName,
       options.rateLimit,
-      scopeId ? { scopeId } : undefined,
+      {
+        ...(scopeId ? { scopeId } : {}),
+        ...(options.rateLimitStorage ? { storage: options.rateLimitStorage } : {}),
+      },
     );
   }
 

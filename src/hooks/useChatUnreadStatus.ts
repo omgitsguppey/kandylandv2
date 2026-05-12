@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { collection, limit, onSnapshot, query, where } from "firebase/firestore";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
@@ -13,6 +13,8 @@ import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } 
 import { db } from "@/lib/firebase-data";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { createAutoHealingObserver } from "@/lib/self-healing";
+
+const CHAT_UNREAD_THREAD_LISTENER_LIMIT = 100;
 
 export function useChatUnreadStatus() {
     const { user, userProfile } = useAuth();
@@ -42,7 +44,11 @@ export function useChatUnreadStatus() {
         const observerControl = createAutoHealingObserver(
             () => {
                 return onSnapshot(
-                    query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid)),
+                    query(
+                        collection(db, CHAT_COLLECTIONS.threads),
+                        where(viewerField, "==", user.uid),
+                        limit(CHAT_UNREAD_THREAD_LISTENER_LIMIT),
+                    ),
                     (snapshot) => {
                         if (cancelled) return;
                         let unreadCount = 0;

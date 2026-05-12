@@ -92,6 +92,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         }
 
         const { threadId } = await context.params;
+        // idempotency: hiding a thread is a caller-scoped merge patch; duplicate DELETEs keep the thread hidden.
         const result = await safeHideChatThreadForViewer({
             viewerUid: caller.uid,
             threadId,

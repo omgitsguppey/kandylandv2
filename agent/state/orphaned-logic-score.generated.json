@@ -1,7 +1,7 @@
 {
   "score": 90,
   "status": "pass",
-  "generatedAt": "2026-05-06T20:27:27.440Z",
+  "generatedAt": "2026-05-12T01:20:55.475Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
   "findings": [
     {
@@ -25,7 +25,7 @@
       "category": "telemetry_duplicate_intent",
       "title": "Potential duplicate telemetry intent group is present",
       "filePath": "src/lib/telemetry-catalog.ts",
-      "line": 237,
+      "line": 248,
       "excerpt": "{ eventName: \"drop_preview_opened\", label: \"Drop preview opened\", category: \"content\", sources: DEFAULT_CLIENT_SOURCES, modules: [\"content\"] },",
       "suggestedFix": "Keep both only if event-catalog docs define distinct lifecycle moments or audit coverage aliases.",
       "escalation": "Do not rename telemetry events automatically; analytics history and validators must be updated together.",
@@ -33,7 +33,7 @@
         "drop_preview_opened",
         "drop_preview_page_viewed"
       ],
-      "id": "orphaned-logic-jqzsum",
+      "id": "orphaned-logic-fkhhcg",
       "scoreImpact": 0,
       "canAutofix": false
     }
@@ -41,7 +41,7 @@
   "criticalCount": 0,
   "majorCount": 1,
   "safeAutofixesAvailable": 0,
-  "scannedFileCount": 1219,
+  "scannedFileCount": 1414,
   "checkedFiles": [
     "src/app/drops/[id]/preview/page.tsx",
     "src/app/drops/DropsClient.tsx",

@@ -1,114 +1,11 @@
 {
-  "score": 40,
-  "status": "fail",
-  "generatedAt": "2026-05-06T21:29:35.080Z",
+  "score": 100,
+  "status": "clean",
+  "generatedAt": "2026-05-12T01:20:46.247Z",
   "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
-  "findings": [
-    {
-      "severity": "major",
-      "category": "rate_limit",
-      "title": "Public cheap GET likely pays Firestore writes for remote rate limiting",
-      "filePath": "src/app/api/creator/discovery/route.ts",
-      "routePath": "/api/creator/discovery",
-      "costClass": "firestore_read",
-      "suggestedFix": "Review whether this cheap public GET should use cache/edge-friendly throttling instead of Firestore-backed rate-limit writes.",
-      "escalation": "Rate-limit storage migration changes abuse controls and must be reviewed.",
-      "evidence": [
-        "guardApiRequest",
-        "RELAXED"
-      ],
-      "id": "google-cost-1kwab4w",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "rate_limit",
-      "title": "Public cheap GET likely pays Firestore writes for remote rate limiting",
-      "filePath": "src/app/api/creators/[username]/route.ts",
-      "routePath": "/api/creators/[username]",
-      "costClass": "firestore_read",
-      "suggestedFix": "Review whether this cheap public GET should use cache/edge-friendly throttling instead of Firestore-backed rate-limit writes.",
-      "escalation": "Rate-limit storage migration changes abuse controls and must be reviewed.",
-      "evidence": [
-        "guardApiRequest",
-        "RELAXED"
-      ],
-      "id": "google-cost-yvwyr4",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "rate_limit",
-      "title": "Public cheap GET likely pays Firestore writes for remote rate limiting",
-      "filePath": "src/app/api/drops/route.ts",
-      "routePath": "/api/drops",
-      "costClass": "firestore_read",
-      "suggestedFix": "Review whether this cheap public GET should use cache/edge-friendly throttling instead of Firestore-backed rate-limit writes.",
-      "escalation": "Rate-limit storage migration changes abuse controls and must be reviewed.",
-      "evidence": [
-        "guardApiRequest",
-        "RELAXED"
-      ],
-      "id": "google-cost-xkdh54",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "rate_limit",
-      "title": "Public cheap GET likely pays Firestore writes for remote rate limiting",
-      "filePath": "src/app/api/settings/landing/route.ts",
-      "routePath": "/api/settings/landing",
-      "costClass": "firestore_read",
-      "suggestedFix": "Review whether this cheap public GET should use cache/edge-friendly throttling instead of Firestore-backed rate-limit writes.",
-      "escalation": "Rate-limit storage migration changes abuse controls and must be reviewed.",
-      "evidence": [
-        "guardApiRequest",
-        "RELAXED"
-      ],
-      "id": "google-cost-s1ehig",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "rate_limit",
-      "title": "Public cheap GET likely pays Firestore writes for remote rate limiting",
-      "filePath": "src/app/api/user/check-username/route.ts",
-      "routePath": "/api/user/check-username",
-      "costClass": "firestore_read",
-      "suggestedFix": "Review whether this cheap public GET should use cache/edge-friendly throttling instead of Firestore-backed rate-limit writes.",
-      "escalation": "Rate-limit storage migration changes abuse controls and must be reviewed.",
-      "evidence": [
-        "guardApiRequest",
-        "STANDARD"
-      ],
-      "id": "google-cost-48iwjs",
-      "scoreImpact": -10,
-      "canAutofix": false
-    },
-    {
-      "severity": "major",
-      "category": "rate_limit",
-      "title": "Public cheap GET likely pays Firestore writes for remote rate limiting",
-      "filePath": "src/app/api/wallet/packages/route.ts",
-      "routePath": "/api/wallet/packages",
-      "costClass": "free_read",
-      "suggestedFix": "Review whether this cheap public GET should use cache/edge-friendly throttling instead of Firestore-backed rate-limit writes.",
-      "escalation": "Rate-limit storage migration changes abuse controls and must be reviewed.",
-      "evidence": [
-        "guardApiRequest",
-        "STANDARD"
-      ],
-      "id": "google-cost-hjk0fw",
-      "scoreImpact": -10,
-      "canAutofix": false
-    }
-  ],
+  "findings": [],
   "criticalCount": 0,
-  "majorCount": 6,
+  "majorCount": 0,
   "routeContracts": [
     {
       "routePattern": "/api/health",
@@ -5150,7 +5047,7 @@
     },
     {
       "filePath": "src/app/api/admin/overview/route.ts",
-      "line": 26,
+      "line": 27,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5186,7 +5083,7 @@
     },
     {
       "filePath": "src/app/api/admin/users/realtime/route.ts",
-      "line": 3,
+      "line": 4,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5246,19 +5143,19 @@
     },
     {
       "filePath": "src/app/api/chat/attachments/complete/route.ts",
-      "line": 9,
+      "line": 11,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
       "filePath": "src/app/api/chat/attachments/complete/route.ts",
-      "line": 9,
+      "line": 11,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "admin-storage"
     },
     {
       "filePath": "src/app/api/chat/attachments/prepare/route.ts",
-      "line": 7,
+      "line": 11,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
@@ -5534,14 +5431,14 @@
     },
     {
       "filePath": "src/app/api/user/data/route.ts",
-      "line": 5,
-      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "line": 2,
+      "excerpt": "import { FieldPath } from \"firebase-admin/firestore\";",
       "kind": "firebase-admin"
     },
     {
       "filePath": "src/app/api/user/delete/route.ts",
-      "line": 4,
-      "excerpt": "import { adminDb, adminAuth } from \"@/lib/server/firebase-admin\";",
+      "line": 2,
+      "excerpt": "import { FieldPath } from \"firebase-admin/firestore\";",
       "kind": "firebase-admin"
     },
     {
@@ -5678,7 +5575,7 @@
     },
     {
       "filePath": "src/lib/admin-debug-control-tower.ts",
-      "line": 133,
+      "line": 154,
       "excerpt": "{ id: \"sql-mirror\", label: \"Data Connect Mirror\", section: \"money_cost\", fileName: \"sql-mirror-status.generated.json\", command: \"npm run agent:sync-sql\" },",
       "kind": "data-connect"
     },
@@ -5692,6 +5589,24 @@
       "filePath": "src/lib/agent-audit/affected-surface-router.ts",
       "line": 229,
       "excerpt": "why: \"Data Connect mirror changes affect Cloud SQL/Google cost guardrails.\",",
+      "kind": "cloud-sql"
+    },
+    {
+      "filePath": "src/lib/ai-cover/cover-learning-ledger.ts",
+      "line": 4,
+      "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/cost/billing-spike-contract.ts",
+      "line": 414,
+      "excerpt": "billingProducts: [\"Cloud SQL\", \"Data Connect\", \"BigQuery jobs\", \"Firestore import/export operations\"],",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "src/lib/cost/billing-spike-contract.ts",
+      "line": 414,
+      "excerpt": "billingProducts: [\"Cloud SQL\", \"Data Connect\", \"BigQuery jobs\", \"Firestore import/export operations\"],",
       "kind": "cloud-sql"
     },
     {
@@ -5746,6 +5661,18 @@
       "filePath": "src/lib/server/admin-analytics-snapshots.ts",
       "line": 3,
       "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/server/admin-creator-projection.ts",
+      "line": 3,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/server/admin-debug-control-tower-loader.ts",
+      "line": 3,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
@@ -5810,7 +5737,7 @@
     },
     {
       "filePath": "src/lib/server/ai-drop-covers.ts",
-      "line": 59,
+      "line": 66,
       "excerpt": "import { adminDb, adminStorage } from \"@/lib/server/firebase-admin\";",
       "kind": "admin-storage"
     },
@@ -5825,6 +5752,12 @@
       "line": 3,
       "excerpt": "import { GoogleAuth } from \"google-auth-library\";",
       "kind": "google-auth"
+    },
+    {
+      "filePath": "src/lib/server/analytics-identity-linking.ts",
+      "line": 4,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "kind": "firebase-admin"
     },
     {
       "filePath": "src/lib/server/analytics-pipeline-health.ts",
@@ -5863,20 +5796,38 @@
       "kind": "firebase-admin"
     },
     {
+      "filePath": "src/lib/server/behavioral-timeline-reader.ts",
+      "line": 3,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/server/behavioral-timeline-writer.ts",
+      "line": 3,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/server/chat-media-limit-policy.ts",
+      "line": 6,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
       "filePath": "src/lib/server/chat.ts",
-      "line": 42,
+      "line": 48,
       "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
       "kind": "firebase-admin"
     },
     {
       "filePath": "src/lib/server/cloud-cost-contract.ts",
-      "line": 144,
+      "line": 146,
       "excerpt": "notes: \"Data Connect is allowed only for the agent-context mirror unless explicitly promoted.\",",
       "kind": "data-connect"
     },
     {
       "filePath": "src/lib/server/cloud-cost-contract.ts",
-      "line": 179,
+      "line": 181,
       "excerpt": "notes: \"Firebase Data Connect is Cloud SQL-backed and is only approved for the agent-context mirror in this repo.\",",
       "kind": "cloud-sql"
     },
@@ -6067,6 +6018,24 @@
       "kind": "firebase-admin"
     },
     {
+      "filePath": "src/lib/server/user-index-materializer.ts",
+      "line": 3,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/server/user-index-reader.ts",
+      "line": 3,
+      "excerpt": "import { adminDb } from \"@/lib/server/firebase-admin\";",
+      "kind": "firebase-admin"
+    },
+    {
+      "filePath": "src/lib/server/user-index-writer.ts",
+      "line": 3,
+      "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
+      "kind": "firebase-admin"
+    },
+    {
       "filePath": "src/lib/server/user-runtime.ts",
       "line": 3,
       "excerpt": "import { FieldValue } from \"firebase-admin/firestore\";",
@@ -6229,12 +6198,6 @@
       "kind": "data-connect"
     },
     {
-      "filePath": "scripts/agent/check-infrastructure-truth.ts",
-      "line": 48,
-      "excerpt": "verifyDep(\"firebase-admin\");",
-      "kind": "firebase-admin"
-    },
-    {
       "filePath": "scripts/agent/inject-debug-evidence.ts",
       "line": 15,
       "excerpt": "const admin = await import(\"firebase-admin\");",
@@ -6254,19 +6217,19 @@
     },
     {
       "filePath": "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
-      "line": 336,
+      "line": 340,
       "excerpt": "{ label: \"postgres\", pattern: /from\\s+[\"']postgres[\"']|require\\([\"']postgres[\"']\\)/u },",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
-      "line": 339,
+      "line": 343,
       "excerpt": "{ label: \"prisma\", pattern: /@prisma\\/client|new\\s+PrismaClient\\s*\\(/u },",
       "kind": "prisma"
     },
     {
       "filePath": "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
-      "line": 337,
+      "line": 341,
       "excerpt": "{ label: \"mysql\", pattern: /from\\s+[\"']mysql[\"']|require\\([\"']mysql[\"']\\)/u },",
       "kind": "mysql"
     },
@@ -6314,67 +6277,67 @@
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 402,
+      "line": 404,
       "excerpt": "{ kind: \"firebase-admin\", needle: \"firebase-admin\" },",
       "kind": "firebase-admin"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 403,
+      "line": 405,
       "excerpt": "{ kind: \"firestore-client\", needle: \"firebase/firestore\" },",
       "kind": "firestore-client"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 404,
+      "line": 406,
       "excerpt": "{ kind: \"vertex-ai\", needle: \"@google-cloud/vertexai\" },",
       "kind": "vertex-ai"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 405,
+      "line": 407,
       "excerpt": "{ kind: \"google-auth\", needle: \"google-auth-library\" },",
       "kind": "google-auth"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 406,
+      "line": 408,
       "excerpt": "{ kind: \"ga-data-api\", needle: \"@google-analytics/data\" },",
       "kind": "ga-data-api"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 407,
+      "line": 409,
       "excerpt": "{ kind: \"admin-storage\", needle: \"adminStorage\" },",
       "kind": "admin-storage"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 408,
+      "line": 410,
       "excerpt": "{ kind: \"data-connect\", needle: \"Data Connect\" },",
       "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 409,
+      "line": 411,
       "excerpt": "{ kind: \"cloud-sql\", needle: \"Cloud SQL\" },",
       "kind": "cloud-sql"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 410,
+      "line": 412,
       "excerpt": "{ kind: \"postgres\", needle: \"postgres\" },",
       "kind": "postgres"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 411,
+      "line": 413,
       "excerpt": "{ kind: \"prisma\", needle: \"PrismaClient\" },",
       "kind": "prisma"
     },
     {
       "filePath": "scripts/agent/score-google-cost-bleed.ts",
-      "line": 412,
+      "line": 414,
       "excerpt": "{ kind: \"mysql\", needle: \"mysql\" },",
       "kind": "mysql"
     },
@@ -6415,8 +6378,20 @@
       "kind": "mysql"
     },
     {
+      "filePath": "scripts/agent/validate-billing-spike-radar.ts",
+      "line": 131,
+      "excerpt": "fail(\"Cloud SQL/Data Connect must remain sidecar-only unless explicitly approved.\");",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-billing-spike-radar.ts",
+      "line": 131,
+      "excerpt": "fail(\"Cloud SQL/Data Connect must remain sidecar-only unless explicitly approved.\");",
+      "kind": "cloud-sql"
+    },
+    {
       "filePath": "scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts",
-      "line": 128,
+      "line": 130,
       "excerpt": "requireIncludes(dataconnect, expected, \"Data Connect config\");",
       "kind": "data-connect"
     },
@@ -6451,6 +6426,18 @@
       "kind": "cloud-sql"
     },
     {
+      "filePath": "scripts/agent/validate-google-cloud-cost-data-handoff.ts",
+      "line": 37,
+      "excerpt": "product: \"Cloud SQL / Firebase Data Connect\",",
+      "kind": "data-connect"
+    },
+    {
+      "filePath": "scripts/agent/validate-google-cloud-cost-data-handoff.ts",
+      "line": 37,
+      "excerpt": "product: \"Cloud SQL / Firebase Data Connect\",",
+      "kind": "cloud-sql"
+    },
+    {
       "filePath": "scripts/agent/validate-google-cost-bleed.ts",
       "line": 304,
       "excerpt": "\"Data Connect\",",
@@ -6467,6 +6454,12 @@
       "line": 121,
       "excerpt": "[\"Data Connect/Cloud SQL\", [\"/dataconnect/\", \"/src/lib/server/api-cost-contract.ts\"]],",
       "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/agent/validate-privacy-import-export-cutover.ts",
+      "line": 89,
+      "excerpt": "requireIncludes(dataconnectAgentContext, \"transactions, unlocks, purchases, subscriptions, support messages\", \"Data Connect agent context\");",
+      "kind": "data-connect"
     },
     {
       "filePath": "scripts/agent/validate-recommendation-ranker.ts",
@@ -6509,6 +6502,12 @@
       "line": 388,
       "excerpt": "surface: \"Cloud SQL / Data Connect\",",
       "kind": "cloud-sql"
+    },
+    {
+      "filePath": "scripts/analytics/validate-canonical-import-export.ts",
+      "line": 109,
+      "excerpt": "requireIncludes(dataconnectAgentContext, \"never as runtime product truth\", \"Data Connect agent-context schema\");",
+      "kind": "data-connect"
     },
     {
       "filePath": "scripts/backfill-analytics-parity.ts",
@@ -6607,6 +6606,13 @@
       "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
     },
     {
+      "filePath": "dataconnect/schema/structured_profiles.gql",
+      "kind": "sql_dataconnect_agent_context_mirror",
+      "costClass": "sql_dataconnect_agent_context_mirror",
+      "classification": "sql_dataconnect_agent_context_mirror",
+      "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
+    },
+    {
       "filePath": "scripts/agent/sync-sql.ts",
       "kind": "sql_dataconnect_agent_context_mirror",
       "costClass": "sql_dataconnect_agent_context_mirror",
@@ -6614,9 +6620,7 @@
       "notes": "Allowed only for agent/repo intelligence mirror use; forbidden for user/payment/drop/chat/support/creator runtime flows unless explicitly approved."
     }
   ],
-  "requiredFixes": [
-    "Review whether this cheap public GET should use cache/edge-friendly throttling instead of Firestore-backed rate-limit writes."
-  ],
+  "requiredFixes": [],
   "safeAutofixSuggestions": [],
   "minimalVerificationCommands": [
     "npm run score:google-cost",
@@ -6637,5 +6641,5 @@
       "broad UI audits"
     ]
   },
-  "summary": "Detected 6 Google API cost/rate-limit finding(s); no business logic was auto-fixed."
+  "summary": "No deterministic Google API cost-bleed findings were detected."
 }

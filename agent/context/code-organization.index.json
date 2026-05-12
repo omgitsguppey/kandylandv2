@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T20:38:43.101Z",
+  "generatedAt": "2026-05-12T00:56:39.265Z",
   "version": 1,
   "surface": "code-organization",
   "researchBasis": [
@@ -251,43 +251,43 @@
     "topRefactorTargets": [
       {
         "filePath": "src/app/api/admin/debug/route.ts",
-        "lines": 6348,
-        "classification": "routeHandler",
-        "severity": "critical"
-      },
-      {
-        "filePath": "src/app/api/admin/users/route.ts",
-        "lines": 3118,
+        "lines": 6361,
         "classification": "routeHandler",
         "severity": "critical"
       },
       {
         "filePath": "src/components/Chat/ChatExperience.tsx",
-        "lines": 2923,
+        "lines": 3523,
         "classification": "component",
         "severity": "critical"
       },
       {
-        "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "lines": 2827,
-        "classification": "component",
+        "filePath": "src/app/api/admin/users/route.ts",
+        "lines": 3148,
+        "classification": "routeHandler",
         "severity": "critical"
       },
       {
         "filePath": "src/lib/server/ai-drop-covers.ts",
-        "lines": 2824,
+        "lines": 2874,
         "classification": "serverHelper",
         "severity": "critical"
       },
       {
+        "filePath": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "lines": 2865,
+        "classification": "component",
+        "severity": "critical"
+      },
+      {
         "filePath": "scripts/agent/validate-admin-debug-control-tower.ts",
-        "lines": 2559,
+        "lines": 2581,
         "classification": "validator",
         "severity": "critical"
       },
       {
         "filePath": "functions/src/behavioral-intelligence-runtime.ts",
-        "lines": 2241,
+        "lines": 2381,
         "classification": "serverHelper",
         "severity": "critical"
       },
@@ -299,7 +299,7 @@
       },
       {
         "filePath": "src/lib/server/daily-tasks.ts",
-        "lines": 1875,
+        "lines": 1867,
         "classification": "serverHelper",
         "severity": "critical"
       },

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { FieldPath } from "firebase-admin/firestore";
 
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb, adminAuth } from "@/lib/server/firebase-admin";
@@ -8,6 +9,8 @@ import { creatorDocumentCleanupWrites } from "@/lib/server/creator-experiences";
 import { releaseUsernameReservationForUser } from "@/lib/server/username-suggestions";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+
+const USER_DELETE_PAGE_SIZE = 250;
 
 type DeletedDataSummary = {
     userDocumentTree: number;
@@ -42,10 +45,26 @@ async function deleteDocumentTree(
     const collections = await docRef.listCollections();
 
     const collectionPromises = collections.map(async (collection) => {
-        const snapshot = await collection.get();
-        const docPromises = snapshot.docs.map((doc) => deleteDocumentTree(doc.ref, bulkWriter));
-        const counts = await Promise.all(docPromises);
-        return counts.reduce((acc, count) => acc + count, 0);
+        let deletedInCollection = 0;
+        let lastDoc: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | null = null;
+
+        while (true) {
+            // cost-bound: Firestore query is limited to 250 records per page for account deletion.
+            let pageQuery = collection.orderBy(FieldPath.documentId()).limit(USER_DELETE_PAGE_SIZE);
+            if (lastDoc) {
+                pageQuery = pageQuery.startAfter(lastDoc);
+            }
+            const snapshot = await pageQuery.get();
+            if (snapshot.empty) break;
+
+            const docPromises = snapshot.docs.map((doc) => deleteDocumentTree(doc.ref, bulkWriter));
+            const counts = await Promise.all(docPromises);
+            deletedInCollection += counts.reduce((acc, count) => acc + count, 0);
+            lastDoc = snapshot.docs[snapshot.docs.length - 1] ?? null;
+            if (snapshot.size < USER_DELETE_PAGE_SIZE || !lastDoc) break;
+        }
+
+        return deletedInCollection;
     });
 
     const counts = await Promise.all(collectionPromises);
@@ -59,9 +78,25 @@ async function deleteQueryMatches(
     query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>,
     bulkWriter: FirebaseFirestore.BulkWriter,
 ) {
-    const snapshot = await query.get();
-    snapshot.docs.forEach((doc) => bulkWriter.delete(doc.ref));
-    return snapshot.size;
+    let deletedCount = 0;
+    let lastDoc: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | null = null;
+
+    while (true) {
+        // cost-bound: Firestore query is limited to 250 records per page for account deletion.
+        let pageQuery = query.orderBy(FieldPath.documentId()).limit(USER_DELETE_PAGE_SIZE);
+        if (lastDoc) {
+            pageQuery = pageQuery.startAfter(lastDoc);
+        }
+        const snapshot = await pageQuery.get();
+        if (snapshot.empty) break;
+
+        snapshot.docs.forEach((doc) => bulkWriter.delete(doc.ref));
+        deletedCount += snapshot.size;
+        lastDoc = snapshot.docs[snapshot.docs.length - 1] ?? null;
+        if (snapshot.size < USER_DELETE_PAGE_SIZE || !lastDoc) break;
+    }
+
+    return deletedCount;
 }
 
 async function DELETE_handler(request: NextRequest) {

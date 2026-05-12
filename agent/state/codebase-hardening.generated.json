@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-06T21:29:35.974Z",
-  "overallScore": 94,
+  "generatedAt": "2026-05-12T01:51:32.984Z",
+  "overallScore": 97,
   "status": "beta-risk",
   "domainScores": {
     "routeCachingAndDataCost": {
@@ -21,11 +21,11 @@
     },
     "apiRateLimitAndCloudCost": {
       "weight": 14,
-      "score": 70,
+      "score": 90,
       "status": "beta-risk",
-      "findingCount": 3,
+      "findingCount": 1,
       "criticalCount": 0,
-      "majorCount": 3
+      "majorCount": 1
     },
     "paymentWalletAndEconomyTruth": {
       "weight": 12,
@@ -78,62 +78,6 @@
   },
   "findings": [
     {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/user/data/route.ts",
-      "line": 41,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_19hnv27",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/user/delete/route.ts",
-      "line": 45,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1b84zyw",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
       "domain": "contentProtectionAndEntitlements",
       "severity": "major",
       "filePath": "src/app/dashboard/viewer/page.tsx",
@@ -192,7 +136,7 @@
       "domain": "routeCachingAndDataCost",
       "severity": "moderate",
       "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
-      "line": 99,
+      "line": 117,
       "title": "Public route or page uses no-store caching without source-level policy evidence",
       "evidence": [
         "Stable public or server-seeded data should use static, SWR, Data Cache, or hot-cache when safe."
@@ -203,7 +147,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Classify the route as static, SWR, hot_cache, or no_store and update fetch/cache behavior only after verifying freshness needs.",
       "humanReadableEscalation": "Route caching must be reviewed against source-of-truth freshness before changing runtime behavior.",
-      "id": "hardening_eebnbc",
+      "id": "hardening_193i311",
       "blockedBroadCommands": [
         "npm run check",
         "npm run check:ui:audits",
@@ -220,62 +164,6 @@
   "criticalFindings": [],
   "topFindings": [
     {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/user/data/route.ts",
-      "line": 41,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 1 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_19hnv27",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
-      "domain": "apiRateLimitAndCloudCost",
-      "severity": "major",
-      "filePath": "src/app/api/user/delete/route.ts",
-      "line": 45,
-      "title": "Firestore collection reads may be unbounded",
-      "evidence": [
-        "Found 2 .get() call(s) without nearby limit/pagination evidence."
-      ],
-      "expectedRule": "Firestore collection reads in routes must be bounded, paginated, cached, or explicitly allowlisted.",
-      "actualPattern": ".get() without nearby limit",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add a limit/pagination contract or move heavy reads behind a hot-cache/admin refresh path.",
-      "humanReadableEscalation": "Firestore cost behavior needs source-specific review before changing query shape.",
-      "id": "hardening_1b84zyw",
-      "blockedBroadCommands": [
-        "npm run check",
-        "npm run check:ui:audits",
-        "npm run check:ui:continuity",
-        "npm run check:ui:omni",
-        "npm run check:ui:lighthouse",
-        "playwright",
-        "cypress",
-        "lighthouse",
-        "test:gate:signoff"
-      ]
-    },
-    {
       "domain": "contentProtectionAndEntitlements",
       "severity": "major",
       "filePath": "src/app/dashboard/viewer/page.tsx",
@@ -334,7 +222,7 @@
       "domain": "routeCachingAndDataCost",
       "severity": "moderate",
       "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
-      "line": 99,
+      "line": 117,
       "title": "Public route or page uses no-store caching without source-level policy evidence",
       "evidence": [
         "Stable public or server-seeded data should use static, SWR, Data Cache, or hot-cache when safe."
@@ -345,7 +233,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Classify the route as static, SWR, hot_cache, or no_store and update fetch/cache behavior only after verifying freshness needs.",
       "humanReadableEscalation": "Route caching must be reviewed against source-of-truth freshness before changing runtime behavior.",
-      "id": "hardening_eebnbc",
+      "id": "hardening_193i311",
       "blockedBroadCommands": [
         "npm run check",
         "npm run check:ui:audits",
@@ -408,16 +296,6 @@
     "maxCommands": 6
   },
   "filesMostAtRisk": [
-    {
-      "filePath": "src/app/api/user/data/route.ts",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
-    {
-      "filePath": "src/app/api/user/delete/route.ts",
-      "findingCount": 1,
-      "highestSeverity": "major"
-    },
     {
       "filePath": "src/app/dashboard/viewer/page.tsx",
       "findingCount": 1,
@@ -1636,5 +1514,5 @@
   "legacyCleanupPlan": [
     "No legacy cleanup blockers found by the deterministic hardening scan."
   ],
-  "summary": "KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic. Current report found 5 findings across 9 domains."
+  "summary": "KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic. Current report found 3 findings across 9 domains."
 }

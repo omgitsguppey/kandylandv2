@@ -19,6 +19,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const MAX_REFERENCE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_ADMIN_AI_JSON_BODY_BYTES = 128_000;
 
 function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextResponse, error?: unknown) {
     void recordRouteRuntimeSample({
@@ -69,6 +70,7 @@ async function POST_handler(request: NextRequest) {
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
+            maxBodyBytes: MAX_REFERENCE_SIZE_BYTES,
         });
 
         const formData = await request.formData();
@@ -120,6 +122,7 @@ async function PUT_handler(request: NextRequest) {
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
+            maxBodyBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
         });
 
         const body = await request.json() as {
@@ -167,6 +170,7 @@ async function DELETE_handler(request: NextRequest) {
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
+            maxBodyBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
         });
 
         const body = await request.json().catch(() => ({})) as {

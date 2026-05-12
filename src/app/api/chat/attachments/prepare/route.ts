@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -18,7 +20,10 @@ const prepareAttachmentSchema = z.object({
     fileName: z.string().trim().min(1).max(260),
     mimeType: z.string().trim().min(1).max(160),
     sizeBytes: z.number().int().positive(),
+    idempotencyKey: z.string().trim().min(1).max(180).optional(),
 });
+
+const CLIENT_IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{1,180}$/u;
 
 function sanitizeFileName(fileName: string) {
     const normalized = fileName
@@ -26,6 +31,17 @@ function sanitizeFileName(fileName: string) {
         .replace(/\s+/g, " ")
         .trim();
     return normalized.length > 0 ? normalized : "attachment";
+}
+
+function hashAttachmentPreparePart(value: string) {
+    return createHash("sha256").update(value).digest("hex").slice(0, 32);
+}
+
+function getClientIdempotencyKey(request: NextRequest, bodyKey?: string) {
+    return bodyKey
+        ?? request.headers.get("idempotency-key")?.trim()
+        ?? request.headers.get("x-idempotency-key")?.trim()
+        ?? undefined;
 }
 
 export async function POST(request: NextRequest) {
@@ -70,6 +86,13 @@ export async function POST(request: NextRequest) {
         }
 
         const payload = parsedPayload.data;
+        const clientIdempotencyKey = getClientIdempotencyKey(request, payload.idempotencyKey);
+        if (clientIdempotencyKey && !CLIENT_IDEMPOTENCY_KEY_PATTERN.test(clientIdempotencyKey)) {
+            return finalize(NextResponse.json({
+                error: "Invalid idempotency key.",
+                errorCode: "invalid_idempotency_key",
+            }, { status: 400 }));
+        }
         const mediaLimitPolicy = await resolveServerChatMediaLimitPolicy({
             threadId: payload.threadId,
             actorUid: caller.uid,
@@ -114,10 +137,15 @@ export async function POST(request: NextRequest) {
         }
 
         const safeName = sanitizeFileName(payload.fileName);
-        const storagePath = `creator/messages/${caller.uid}/${payload.threadId}/${Date.now()}_${safeName}`;
+        const pathNonce = clientIdempotencyKey
+            // idempotency: a caller-provided key deterministically reuses the same pending upload path.
+            ? hashAttachmentPreparePart(`${caller.uid}:${payload.threadId}:${clientIdempotencyKey}:${safeName}:${payload.mimeType}:${payload.sizeBytes}`)
+            : `${Date.now()}_${hashAttachmentPreparePart(`${safeName}:${payload.mimeType}:${payload.sizeBytes}`)}`;
+        const storagePath = `creator/messages/${caller.uid}/${payload.threadId}/${pathNonce}_${safeName}`;
 
         return finalize(NextResponse.json({
             success: true,
+            idempotencyKey: clientIdempotencyKey ?? null,
             threadId: payload.threadId,
             storagePath,
             fileName: safeName,

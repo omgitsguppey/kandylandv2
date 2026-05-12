@@ -14,6 +14,7 @@ import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/r
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+const MAX_ADMIN_AI_JSON_BODY_BYTES = 128_000;
 
 async function POST_handler(request: NextRequest) {
     const startedAt = Date.now();
@@ -34,6 +35,7 @@ async function POST_handler(request: NextRequest) {
             requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
+            maxBodyBytes: MAX_ADMIN_AI_JSON_BODY_BYTES,
         });
 
         const settings = await getAdminAiDropCoverSettings();

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { FieldPath } from "firebase-admin/firestore";
 
 import { handleApiError } from "@/lib/server/auth";
 import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
@@ -6,6 +7,8 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+
+const USER_DATA_EXPORT_PAGE_SIZE = 250;
 
 function serializeForExport(value: unknown): unknown {
     if (value === null || value === undefined) {
@@ -38,11 +41,27 @@ function serializeForExport(value: unknown): unknown {
 }
 
 async function exportQueryDocs(query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>) {
-    const snapshot = await query.get();
-    return snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...(serializeForExport(doc.data()) as Record<string, unknown>),
-    }));
+    const docs: Record<string, unknown>[] = [];
+    let lastDoc: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | null = null;
+
+    while (true) {
+        // cost-bound: Firestore query is limited to 250 records per page for user data export.
+        let pageQuery = query.orderBy(FieldPath.documentId()).limit(USER_DATA_EXPORT_PAGE_SIZE);
+        if (lastDoc) {
+            pageQuery = pageQuery.startAfter(lastDoc);
+        }
+        const snapshot = await pageQuery.get();
+        if (snapshot.empty) break;
+
+        docs.push(...snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...(serializeForExport(doc.data()) as Record<string, unknown>),
+        })));
+        lastDoc = snapshot.docs[snapshot.docs.length - 1] ?? null;
+        if (snapshot.size < USER_DATA_EXPORT_PAGE_SIZE || !lastDoc) break;
+    }
+
+    return docs;
 }
 
 async function GET_handler(request: NextRequest) {
@@ -98,7 +117,9 @@ async function GET_handler(request: NextRequest) {
             creatorPayoutRequests,
         ] = await Promise.all([
             userRef.get(),
+            // cost-bound: single Firestore document read scoped to the authenticated user's profile export.
             userRef.collection("profile").doc("default").get(),
+            // cost-bound: single Firestore document read scoped to the authenticated user's economy export.
             userRef.collection("economy").doc("balance").get(),
             exportQueryDocs(userRef.collection("unlocked_drops")),
             exportQueryDocs(adminDb.collection("transactions").where("userId", "==", uid)),

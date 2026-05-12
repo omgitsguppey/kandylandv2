@@ -13,6 +13,7 @@ async function GET_handler(request: NextRequest) {
         const check = await guardApiRequest(request, {
             routeName: "wallet/packages",
             rateLimit: STANDARD,
+            rateLimitStorage: "local",
             auth: "none",
         });
 

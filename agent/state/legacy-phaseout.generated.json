@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-05-06T20:26:33.620Z",
+  "generatedAt": "2026-05-12T00:56:56.267Z",
   "registryVersion": "legacy-phaseout-v1",
   "reportPath": "agent/state/legacy-phaseout.generated.json",
   "docsPath": "docs/agent-truth/legacy-phaseout.md",
-  "legacyDebtScore": 101,
+  "legacyDebtScore": 131,
   "healthScore": 10,
   "status": "warning",
   "registryCount": 9,
   "blockedReferenceCount": 0,
-  "overdueCount": 0,
+  "overdueCount": 4,
   "items": [
     {
       "id": "drop-preview-modal-fallback",
@@ -155,11 +155,11 @@
       ],
       "stagePenalty": 3,
       "riskWeight": 5,
-      "overdueMultiplier": 1,
-      "debtScore": 15,
+      "overdueMultiplier": 1.5,
+      "debtScore": 22.5,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
-      "overdueState": "current"
+      "overdueState": "review_overdue"
     },
     {
       "id": "admin-users-realtime-route",
@@ -224,11 +224,11 @@
       ],
       "stagePenalty": 3,
       "riskWeight": 5,
-      "overdueMultiplier": 1,
-      "debtScore": 15,
+      "overdueMultiplier": 1.5,
+      "debtScore": 22.5,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
-      "overdueState": "current"
+      "overdueState": "review_overdue"
     },
     {
       "id": "old-green-bonus-chips",
@@ -257,11 +257,11 @@
       ],
       "stagePenalty": 3,
       "riskWeight": 5,
-      "overdueMultiplier": 1,
-      "debtScore": 15,
+      "overdueMultiplier": 1.5,
+      "debtScore": 22.5,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
-      "overdueState": "current"
+      "overdueState": "review_overdue"
     },
     {
       "id": "notification-opened-read-score-split",
@@ -302,11 +302,11 @@
       ],
       "stagePenalty": 3,
       "riskWeight": 5,
-      "overdueMultiplier": 1,
-      "debtScore": 15,
+      "overdueMultiplier": 1.5,
+      "debtScore": 22.5,
       "referenceCount": 0,
       "blockedReferenceCount": 0,
-      "overdueState": "current"
+      "overdueState": "review_overdue"
     },
     {
       "id": "admin-support-realtime-queue",
@@ -347,6 +347,10 @@
   ],
   "findings": [],
   "nextActions": [
+    "Review overdue legacy item old-moderation-screenshot-certainty; replacement is Evidence-weighted theft-risk and scrape-risk scoring.",
+    "Review overdue legacy item old-wallet-total-only-balance-chip; replacement is Source-aware split balance chip showing free GD and paid GD.",
+    "Review overdue legacy item old-green-bonus-chips; replacement is Brand-purple bonus chip theme.",
+    "Review overdue legacy item notification-opened-read-score-split; replacement is Canonical behavioral action notification_read; opened/clicked remain UI diagnostics only.",
     "Phase out old-moderation-screenshot-certainty by 2026-06-05; owner surface admin_moderation_real_risk.",
     "Phase out old-wallet-total-only-balance-chip by 2026-06-05; owner surface wallet_density.",
     "Phase out old-green-bonus-chips by 2026-06-05; owner surface wallet_density.",
