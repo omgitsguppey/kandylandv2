@@ -1,8 +1,14 @@
 # Changelog
 
-What’s new in KandyDrops Beta (latest first).
+What's new in KandyDrops Beta (latest first).
 
 Showing the last 18 public updates in pages of 5.
+
+## 1.2.21 - 2026-05-12
+- Bug fixes and general improvements
+- Improved chat media sizing and message-thread scrolling.
+- Improved guest analytics and admin truth checks behind the scenes.
+- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
 
 ## 1.18.0 - 2026-05-08
 - Bug fixes and quality-of-life improvements
@@ -85,12 +91,6 @@ Showing the last 18 public updates in pages of 5.
 - Reduced confusing trust and permission states in key app flows.
 
 ## 1.2.4 - 2026-05-08
-- Improved Beta updates and version visibility
-- Improved how the Beta drawer opens the latest accepted updates.
-- Reduced stale or repeated release-note copy in the visible Beta feed.
-- Improved behind-the-scenes release tracking without flooding public notes with internal audit churn.
-
-## 1.2.2 - 2026-05-07
 - Improved Beta updates and version visibility
 - Improved how the Beta drawer opens the latest accepted updates.
 - Reduced stale or repeated release-note copy in the visible Beta feed.

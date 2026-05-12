@@ -98,10 +98,11 @@ if ((lastFivePublicCopy.match(/internal reliability/gu) ?? []).length > 1) {
 }
 
 requireIncludes(fallback, `\"currentVersion\": \"${document.currentVersion}\"`, "bundled fallback");
-requireIncludes(drawer, "App-style Beta notes with the latest user-facing fixes and improvements.", "beta release notes drawer");
+requireIncludes(drawer, "What&apos;s new in Beta", "beta release notes drawer");
+requireIncludes(drawer, "data-beta-release-notes-freshness", "beta release notes drawer");
 const newestVisibleNote = visibleNotes[0];
 if (newestVisibleNote) {
-  requireIncludes(changelog, `## [${newestVisibleNote.version}]`, "CHANGELOG.md");
+  requireIncludes(changelog, `## ${newestVisibleNote.version}`, "CHANGELOG.md");
 }
 
 if (failures.length > 0) {

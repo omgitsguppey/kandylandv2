@@ -9,6 +9,11 @@ import {
   getPublicReleaseNotesVisibleNotes,
   type PublicReleaseNotesDocument,
 } from "../../src/lib/release-notes/release-version-contract";
+import { formatBetaOdometerVersion } from "../../src/lib/release-notes/beta-odometer-version";
+import {
+  getEffectiveChangedFiles,
+  isUserFacingReleaseSurfaceCategory,
+} from "../../src/lib/release-notes/release-note-classifier";
 import {
   migrateLegacyVersionToBetaCounter,
   parseBetaOdometerVersion,
@@ -16,6 +21,9 @@ import {
 
 const root = process.cwd();
 const failures: string[] = [];
+const PHASE_ONE_BADGE_FRESHNESS_MS = 24 * 60 * 60 * 1000;
+const SAFE_INTERNAL_COPY = /\b(Bug fixes and general improvements|Bug fixes and performance improvements|Improved internal beta reliability)\b/iu;
+const FORBIDDEN_UNPROVEN_EVIDENCE_CLAIM = /\b(smoke|provider|production|screenshot|real-device|manual qa)\b.{0,32}\b(pass|passed|verified|complete|completed|green)\b/iu;
 
 function readRequired(relativePath: string) {
   const fullPath = join(root, relativePath);
@@ -58,6 +66,7 @@ if (document) {
   if (document.channel !== PUBLIC_RELEASE_CHANNEL) failures.push("public release notes channel must remain beta.");
   if (document.currentVersion !== CURRENT_BETA_RELEASE_VERSION) failures.push(`currentVersion must match canonical version ${CURRENT_BETA_RELEASE_VERSION}.`);
   if (document.betaReleaseCounter !== CURRENT_BETA_RELEASE_COUNTER) failures.push(`betaReleaseCounter must match canonical counter ${CURRENT_BETA_RELEASE_COUNTER}.`);
+  if (document.currentVersion !== formatBetaOdometerVersion(document.betaReleaseCounter)) failures.push("currentVersion must match the odometer value for betaReleaseCounter.");
   if ((parseBetaOdometerVersion(document.currentVersion)?.counter ?? -1) < (migrateLegacyVersionToBetaCounter("1.113.4") ?? 201)) {
     failures.push("currentVersion must be 1.2.1 or newer after legacy migration.");
   }
@@ -69,6 +78,9 @@ if (document) {
   if (visibleNotes.length > PUBLIC_RELEASE_NOTES_VISIBLE_COUNT) {
     failures.push(`visible notes must stay at or below ${PUBLIC_RELEASE_NOTES_VISIBLE_COUNT}.`);
   }
+  if (visibleNotes.length === 0) {
+    failures.push("Beta badge must expose at least one visible note.");
+  }
 
   for (const [index, note] of visibleNotes.entries()) {
     if (typeof note.betaReleaseCounter !== "number") failures.push(`notes[${index}].betaReleaseCounter must be present.`);
@@ -79,7 +91,53 @@ if (document) {
       failures.push(`notes[${index}] must stay user-facing in the visible public feed.`);
     }
     if (note.version === "1.113.4") failures.push(`notes[${index}] must not keep legacy 1.113.4 as a visible version.`);
+    if (FORBIDDEN_UNPROVEN_EVIDENCE_CLAIM.test(`${note.title} ${note.summary} ${note.bullets.join(" ")}`)) {
+      failures.push(`notes[${index}] must not claim smoke/provider/manual QA passed without repo evidence.`);
+    }
   }
+
+  const latestVisible = visibleNotes[0];
+  if (latestVisible) {
+    const latestTimestamp = Date.parse(latestVisible.updatedAtUtc || latestVisible.generatedAtUtc || latestVisible.committedAtUtc);
+    if (!Number.isFinite(latestTimestamp)) {
+      failures.push("latest visible Beta note must include a valid UTC timestamp.");
+    } else if ((Date.now() - latestTimestamp) > PHASE_ONE_BADGE_FRESHNESS_MS) {
+      failures.push("latest visible Beta note is stale for the Phase 1 badge freshness rule.");
+    }
+
+    if (latestVisible.betaReleaseCounter !== document.betaReleaseCounter) {
+      failures.push("latest visible Beta note must carry the document betaReleaseCounter.");
+    }
+    if (latestVisible.version !== document.currentVersion) {
+      failures.push("latest visible Beta note must carry the document currentVersion.");
+    }
+    if (latestVisible.previousBetaReleaseCounter !== null && latestVisible.betaReleaseCounter !== latestVisible.previousBetaReleaseCounter + 1) {
+      failures.push("latest visible Beta note must advance betaReleaseCounter by exactly 1 for the accepted patch batch.");
+    }
+    if (latestVisible.version !== formatBetaOdometerVersion(latestVisible.betaReleaseCounter)) {
+      failures.push("latest visible Beta note version must match its odometer counter.");
+    }
+
+    const changedFiles = latestVisible.changedFiles ?? [];
+    const { productFacingFiles } = getEffectiveChangedFiles(changedFiles);
+    const publicCopy = `${latestVisible.title} ${latestVisible.summary} ${latestVisible.bullets.join(" ")}`;
+    if (productFacingFiles.length === 0 && !SAFE_INTERNAL_COPY.test(publicCopy)) {
+      failures.push("internal-only accepted patches must use safe generic bug-fix/improvement copy.");
+    }
+    if (productFacingFiles.length > 0 && !isUserFacingReleaseSurfaceCategory(latestVisible.surfaceCategory)) {
+      failures.push("user-facing accepted patches must use a user-facing surface category.");
+    }
+    if (productFacingFiles.length > 0 && /^Bug fixes and general improvements\.?$/iu.test(latestVisible.summary.trim())) {
+      failures.push("user-facing accepted patches must not use generic-only release-note copy.");
+    }
+  }
+}
+
+if (document) {
+  requireIncludes(fallback, `"currentVersion": "${document.currentVersion}"`, "bundled fallback");
+  requireIncludes(fallback, `"betaReleaseCounter": ${document.betaReleaseCounter}`, "bundled fallback");
+  requireIncludes(fallback, `"generatedAtUtc": "${document.generatedAtUtc}"`, "bundled fallback");
+  requireIncludes(fallback, `"lastCommitSha": "${document.lastCommitSha}"`, "bundled fallback");
 }
 
 for (const source of [docs, readme, agents]) {
@@ -98,6 +156,9 @@ for (const expected of [
   "1.2.1",
   "1.2.2",
   "lose-our-minds overflow rule",
+  "Beta badge is the operator's manual stale-version detector",
+  "every accepted patch batch must create or update a Beta badge-visible release note",
+  "badge version counter must advance by exactly 1 per accepted patch batch",
 ]) {
   requireIncludes(docs, expected, "release note doctrine");
 }
@@ -140,7 +201,8 @@ for (const expected of [
   "betaReleaseCounter",
   "surfaceCategory",
   "No product-facing unreleased commits found for an accepted beta release.",
-  "currentVersion: CURRENT_BETA_RELEASE_VERSION",
+  "renderReleaseVersionContract",
+  "getAcceptedPatchCommits",
 ]) {
   requireIncludes(releaseScript, expected, "release notes generator");
 }
