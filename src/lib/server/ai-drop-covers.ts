@@ -53,6 +53,13 @@ import {
     type AdminAiDropCoverVisualSignalSummary,
 } from "@/lib/ai-drop-covers";
 import { selectAllowedCoverReferences } from "@/lib/ai-cover-reference-policy";
+import { buildCoverSemanticBrief } from "@/lib/ai-cover/cover-semantic-brief";
+import { buildCoverGenerationPreflight } from "@/lib/ai-cover/cover-generation-preflight";
+import { buildCoverFeedbackNormalization } from "@/lib/ai-cover/cover-feedback-normalizer";
+import { buildCoverNegativeMemory, buildCoverNegativePromptLine } from "@/lib/ai-cover/cover-negative-memory";
+import { buildCoverPromptDeltaEngine } from "@/lib/ai-cover/cover-prompt-delta-engine";
+import { appendCoverLearningRecord, buildCoverLearningRecord, listCoverLearningRecords } from "@/lib/ai-cover/cover-learning-ledger";
+import { buildCoverReferencePolicy } from "@/lib/ai-cover/cover-reference-policy";
 import { getFiniteDropTimestamp } from "@/lib/drop-status";
 import { FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET } from "@/lib/firebase-runtime";
 import { trackServerEvent } from "@/lib/server/analytics";
@@ -518,8 +525,18 @@ function buildReferenceValidationWarnings(input: {
     referenceAssets: AdminAiDropCoverReferenceAsset[];
 }) {
     const warnings: string[] = [];
-    if (input.requestedCount > input.maxReferenceInputs) {
-        warnings.push(`Requested ${input.requestedCount} references, but the selected model only accepts ${input.maxReferenceInputs}.`);
+    const referencePolicy = buildCoverReferencePolicy({
+        modelId: ADMIN_AI_DROP_COVER_MODEL,
+        maxReferences: input.maxReferenceInputs,
+        requestedReferenceCount: input.requestedCount,
+        selectedReferenceCount: input.usedCount,
+        brief: buildCoverSemanticBrief({
+            title: "Reference policy",
+            creatorSelectedName: null,
+        }),
+    });
+    if (referencePolicy.referencePoolTrimmed) {
+        warnings.push(referencePolicy.note);
     }
     const duplicateIds = new Set<string>();
     let duplicateFound = false;
@@ -1025,52 +1042,68 @@ async function optimizeAdminAiDropCoverPromptPolicy(input: {
     actorEmail?: string | undefined;
 }) {
     const existingPolicy = await getAdminAiDropCoverPromptPolicy();
-    const settings = await getAdminAiDropCoverSettings();
     const categoryKey = input.job.consistencyRecipe?.subjectCategory || "other";
     const categoryPerformance = updatePromptPolicyPerformance(existingPolicy.categoryPerformance, categoryKey, input.action);
-    const ruleBasedPrompt = buildRuleBasedMutablePrompt({
-        existingPolicy,
-        job: input.job,
+    const semanticBrief = buildCoverSemanticBrief({
+        title: input.job.title,
+        creatorSelectedName: input.job.creatorName,
+        creatorBrandName: input.job.creatorName,
+        creatorPublicName: input.job.creatorName,
+        creatorDisplayName: input.job.creatorName,
+    });
+    const normalizedFeedback = buildCoverFeedbackNormalization({
         action: input.action,
+        title: input.job.title,
+        creatorId: input.job.creatorId,
+        creatorName: input.job.creatorName,
+        dropId: input.job.dropId,
+        feedback: input.job.feedback,
+        accepted: input.job.accepted,
+        workingPrompt: input.job.workingPrompt,
+        optimizerAdjustedPrompt: input.job.optimizerAdjustedPrompt,
+        providerEnhancedPrompt: input.job.providerEnhancedPrompt,
+        referenceAssets: input.job.referenceAssets,
+        semanticBrief,
+    });
+    const learningRecord = buildCoverLearningRecord({
+        job: input.job,
+        brief: semanticBrief,
+        feedbackKind: normalizedFeedback.feedbackKind,
+        referenceEligibility: normalizedFeedback.referenceEligibility,
+        failureTags: normalizedFeedback.failureTags,
+        positiveTags: normalizedFeedback.positiveTags,
     });
 
-    let optimizedPrompt = ruleBasedPrompt;
-    let optimizerStatus: AdminAiDropCoverPromptOptimizerStatus = "ready";
-    let optimizerNote = "Rules and Gemini prompt optimizer both succeeded.";
-    let optimizerProposal = ruleBasedPrompt;
+    await appendCoverLearningRecord(learningRecord);
 
-    if (settings.optimizerEnabled && existingPolicy.autoOptimize) {
-        try {
-            const baseRuntime = resolveAdminAiDropCoverRuntime(settings, settings.model);
-            const runtime: AdminAiDropCoverRuntime = {
-                ...baseRuntime,
-                model: settings.optimizerModel || ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL,
-            };
-            const accessToken = await getVertexAccessToken(runtime.project);
-            const geminiPrompt = await generateGeminiText(runtime, accessToken, buildPromptOptimizerInstruction({
-                policy: existingPolicy,
-                job: input.job,
-                action: input.action,
-                ruleBasedPrompt,
-            }));
-            if (geminiPrompt.trim().length > 0) {
-                optimizedPrompt = geminiPrompt.trim();
-                optimizerProposal = geminiPrompt.trim();
-            } else {
-                optimizerStatus = "degraded";
-                optimizerNote = "Gemini optimizer returned no text; rules-based prompt refinement was used instead.";
-            }
-        } catch (error) {
-            optimizerStatus = "degraded";
-            optimizerNote = error instanceof Error
-                ? `Gemini optimizer degraded to rules-only mode: ${error.message}`
-                : "Gemini optimizer degraded to rules-only mode.";
-            optimizerProposal = ruleBasedPrompt;
-        }
-    } else {
-        optimizerStatus = "degraded";
-        optimizerNote = "Prompt optimizer is disabled, so rules-only refinement is active.";
-    }
+    const recentLearningRecords = await listCoverLearningRecords({
+        creatorId: input.job.creatorId || null,
+        semanticCategory: semanticBrief.semanticCategory,
+        limit: 24,
+    });
+    const negativeMemory = buildCoverNegativeMemory({
+        brief: semanticBrief,
+        records: recentLearningRecords,
+    });
+    const delta = buildCoverPromptDeltaEngine({
+        brief: semanticBrief,
+        negativeMemory,
+        feedback: normalizedFeedback,
+        optimizerSuggestion: existingPolicy.currentMutablePrompt,
+    });
+
+    const optimizedPrompt = delta.acceptedSuggestions
+        .filter((line) => !line.startsWith("Forbid semantic drift toward:"))
+        .join(" ");
+    const optimizerStatus: AdminAiDropCoverPromptOptimizerStatus = delta.blockGeneration || delta.rejectedSuggestions.length > 0
+        ? "degraded"
+        : "ready";
+    const optimizerNote = delta.blockGeneration
+        ? "Deterministic learning rules blocked unsafe refinement."
+        : delta.rejectedSuggestions.length > 0
+            ? "Deterministic learning rules trimmed unsafe refinement."
+            : buildCoverNegativePromptLine(negativeMemory) || "Deterministic learning rules updated.";
+    const optimizerProposal = optimizedPrompt;
 
     const nextPolicy = normalizePromptPolicy({
         ...existingPolicy,
@@ -2284,11 +2317,28 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
     const recipe = buildAdminAiDropCoverConsistencyRecipe(promptInput);
     const promptPolicy = await getAdminAiDropCoverPromptPolicy();
     const referenceContext = await buildReferenceContext(settings, recipe, runtime.model, input.dropId);
-    const prompt = buildAdminAiDropCoverPrompt(promptInput, {
-        referenceGuided: referenceContext.generationMode === "reference_guided",
-        recipe,
-        promptPolicy,
+    const preflight = buildCoverGenerationPreflight({
+        title,
+        creatorSelectedName: input.creatorName,
+        creatorBrandName: input.creatorName,
+        creatorPublicName: input.creatorName,
+        creatorDisplayName: input.creatorName,
+        imageModel: runtime.model,
+        optimizerPrompt: promptPolicy.currentMutablePrompt || null,
+        requestedReferenceCount: referenceContext.requestedReferenceCount,
+        selectedReferenceCount: referenceContext.usedReferenceCount,
+        maxReferenceCount: referenceContext.maxReferenceCount,
     });
+    if (!preflight.ok) {
+        throw createAdminAiDropCoverError(
+            "validation_failed",
+            400,
+            "Generation blocked: prompt conflicted with title semantics.",
+            preflight.debugSummary.compactNote || preflight.blockedReason || "Collapsed debug details are available in the admin AI panel.",
+        );
+    }
+
+    const prompt = preflight.prompt.prompt;
     const recipeLabel = getAdminAiDropCoverRecipeLabel(recipe);
 
     try {
@@ -2306,7 +2356,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             promptEditSource: "optimizer",
             promptPolicyVersion: promptPolicy.version,
             workingPrompt: prompt,
-            optimizerAdjustedPrompt: promptPolicy.currentMutablePrompt,
+            optimizerAdjustedPrompt: preflight.optimizerGuard.acceptedText || null,
             recipeLabel,
             consistencyRecipe: recipe,
             status: "running",
@@ -2541,7 +2591,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             referenceAssets: referenceContext.referenceAssets,
             promptPolicyVersion: promptPolicy.version,
             workingPrompt: prompt,
-            optimizerAdjustedPrompt: promptPolicy.currentMutablePrompt,
+                optimizerAdjustedPrompt: preflight.optimizerGuard.acceptedText || null,
             providerEnhancedPrompt: generated.enhancedPrompt || null,
         });
     } catch (error) {

@@ -25,8 +25,7 @@ Actual image-generation routing must remain unchanged for cover generation. Do n
   - `usedReferenceCount`
   - `maxReferenceCount`
   - `droppedReferenceCount`
-- Admin UI copy must explain:
-  - "This model uses up to 2 references. We'll use the first 2 selected."
+- Admin UI copy must keep reference-cap details collapsed by default. The primary create flow should use the compact note "Reference pool trimmed to model limit." and avoid exposing raw requested-vs-selected counts unless the user expands debug details.
 
 ## Page-Load Cost Guard
 
@@ -107,5 +106,7 @@ npm run check:google-cost
 
 - `cover_prompt_refinement` is blocked for active cover prompt generation.
 - Cover prompt source is deterministic compiler output (`data-cover-prompt-source="deterministic-compiler"`).
+- Cover learning is deterministic: accepted or liked covers may influence future layout/style only, dislikes become negative constraints, and neutral/generated covers are excluded from positive references.
 - Description source is deterministic patterns with optional polish (`data-description-ai-polish="optional"`).
 - Admin AI layout marker for compact mode: `data-ai-dashboard-density="compact-v2"`.
+- Cover results should surface only the compact result card in the main flow; prompt provenance, reference metadata, and optimizer notes remain collapsed debug details.

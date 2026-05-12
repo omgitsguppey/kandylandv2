@@ -19,6 +19,7 @@ import {
 import { authFetch } from "@/lib/authFetch";
 import { generateSecureClientId } from "@/lib/client-random";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { buildCoverFeedbackNormalization } from "@/lib/ai-cover/cover-feedback-normalizer";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 import { CompactAiActionButton } from "@/components/Admin/CompactAiActionButton";
@@ -290,9 +291,6 @@ export function AiDropCoverGeneratorPanel({
             }
 
             setJobs((current) => [result.job!, ...current.filter((job) => job.id !== result.job!.id)].slice(0, 6));
-            if (result.referenceLimitApplied) {
-                toast.info(`This model uses up to ${result.maxReferenceCount || selectedModelOption.maxReferenceInputs} references. We'll use the first ${(result.usedReferenceCount || result.job.referenceImageCount || selectedModelOption.maxReferenceInputs)} selected.`);
-            }
             toast.success(previousJobId ? "Cover regenerated" : "Cover generated");
             void refreshDashboard();
         } catch (error) {
@@ -320,6 +318,7 @@ export function AiDropCoverGeneratorPanel({
     }, [creatorId, creatorName, draftSessionId, dropId, dropType, generating, refreshDashboard, selectedModel, selectedModelOption.maxReferenceInputs, tags, title, titleReady]);
 
     const handleFeedback = useCallback(async (jobId: string, action: "like" | "dislike" | "accept") => {
+        const sourceJob = jobs.find((job) => job.id === jobId) || null;
         setFeedbackingJobId(jobId);
         try {
             const response = await authFetch("/api/admin/ai/drop-covers/feedback", {
@@ -340,7 +339,22 @@ export function AiDropCoverGeneratorPanel({
             } else if (action === "like") {
                 toast.success("Generation liked");
             } else {
-                toast.success("Generation disliked");
+                const inferred = sourceJob
+                    ? buildCoverFeedbackNormalization({
+                        action: "dislike",
+                        title: sourceJob.title,
+                        creatorId: sourceJob.creatorId || undefined,
+                        creatorName: sourceJob.creatorName || undefined,
+                        dropId: sourceJob.dropId || undefined,
+                        feedback: sourceJob.feedback,
+                        accepted: sourceJob.accepted,
+                        workingPrompt: sourceJob.workingPrompt,
+                        optimizerAdjustedPrompt: sourceJob.optimizerAdjustedPrompt,
+                        providerEnhancedPrompt: sourceJob.providerEnhancedPrompt,
+                        referenceAssets: sourceJob.referenceAssets,
+                    })
+                    : null;
+                toast.success(inferred?.nextToastMessage || "Generation disliked");
             }
 
             void refreshDashboard();
@@ -360,7 +374,7 @@ export function AiDropCoverGeneratorPanel({
         } finally {
             setFeedbackingJobId(null);
         }
-    }, [onApplyCover, onSelectedJobChange, refreshDashboard]);
+    }, [jobs, onApplyCover, onSelectedJobChange, refreshDashboard]);
 
     const clearHistory = useCallback(() => {
         const nowMs = Date.now();
@@ -392,7 +406,7 @@ export function AiDropCoverGeneratorPanel({
         <CompactAiModuleCard
             title="Cover"
             defaultOpen
-            statusChip={<CompactAiStatusChip label={dashboard?.runtime.status === "ready" ? "live" : "degraded"} tone={dashboard?.runtime.status === "ready" ? "good" : "warn"} />}
+            statusChip={<CompactAiStatusChip label={dashboard?.runtime.status === "ready" ? "Ready" : "Needs review"} tone={dashboard?.runtime.status === "ready" ? "good" : "warn"} />}
             className="border-brand-purple/15 bg-brand-purple/[0.04]"
         >
         <div data-cover-prompt-source="deterministic-compiler" data-cover-title-source="title-prefix">
@@ -501,9 +515,14 @@ export function AiDropCoverGeneratorPanel({
             ) : null}
 
             {featureEnabled && runtimeReady && referenceGuided ? (
-                <p className="mt-2 text-[11px] text-gray-400">
-                    This model uses up to {selectedModelOption.maxReferenceInputs} references. We&apos;ll use the first {selectedModelOption.maxReferenceInputs} selected.
-                </p>
+                <details className="mt-2 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black/20">
+                    <summary className="cursor-pointer list-none px-3 py-2 text-[11px] font-semibold text-gray-300 hover:bg-white/[0.02]">
+                        Debug notes
+                    </summary>
+                    <div className="border-t border-white/10 px-3 py-2 text-[11px] text-gray-400">
+                        Reference pool trimmed to model limit.
+                    </div>
+                </details>
             ) : null}
 
             {loadingDashboard && !dashboard ? (
@@ -568,9 +587,6 @@ export function AiDropCoverGeneratorPanel({
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
                                             <p className="truncate text-sm font-semibold text-white">{job.title}</p>
-                                            <p className="mt-1 text-[11px] text-gray-400">
-                                                {job.latencyMs ? `${job.latencyMs} ms` : "Pending"} | {formatAdminAiUsd(job.estimatedCostUsd || 0)}
-                                            </p>
                                             <p className="mt-1 text-[11px] text-gray-500">
                                                 {getAdminAiDropCoverModelOption(job.model)?.label || job.model}
                                             </p>

@@ -8,21 +8,20 @@ export function mapCoverModelAdapter(model: string): CoverPromptAdapterModel {
 }
 
 export function adaptCoverPromptForModel(model: CoverPromptAdapterModel, basePrompt: string, avoidList: string[]) {
-  const avoidLine = avoidList.length > 0 ? ` Avoid ${avoidList.join(", ")}.` : "";
   if (model === "image_2_5") {
     return {
-      prompt: `${basePrompt} Keep strict edit-style layout consistency.${avoidLine}`,
+      prompt: `${basePrompt} Keep strict edit-style layout consistency.`,
       negativePrompt: avoidList.join(", "),
     };
   }
   if (model === "image_3_pro_preview") {
     return {
-      prompt: `${basePrompt} Use premium art-direction detail while preserving layout DNA.${avoidLine}`,
+      prompt: `${basePrompt} Use premium art-direction detail while preserving layout DNA.`,
       negativePrompt: avoidList.join(", "),
     };
   }
   return {
-    prompt: `${basePrompt}${avoidLine}`,
+    prompt: basePrompt,
     negativePrompt: avoidList.join(", "),
   };
 }

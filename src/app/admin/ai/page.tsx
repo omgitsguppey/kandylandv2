@@ -125,12 +125,12 @@ export default function AIAdminPage() {
                     <MetricCard
                         label="Reference Pool"
                         value={state.data?.visualSignals.totalReusableReferenceCount || 0}
-                        meta={`${state.referencePreview.length}/${state.referenceCap} queued`}
+                        meta={`${state.referencePreview.length}/${state.referenceCap} selected`}
                         tone={state.referencePreview.length > 0 ? "good" : "warn"}
                         truthState={dashboardTruthState}
                     />
                     <MetricCard
-                        label="Rejected Gallery"
+                        label="Review Gallery"
                         value={state.data?.reviewGallery.length || 0}
                         meta={state.data?.aggregate.generationCount ? `${Math.round(((state.data.aggregate.failedGenerationCount + state.data.reviewGallery.length) / Math.max(1, state.data.aggregate.generationCount)) * 100)}% not accepted` : "No history"}
                         truthState={dashboardTruthState}

@@ -4,8 +4,12 @@ import {
     getAdminAiModelAlias,
     getAiModelReferenceLimit,
 } from "@/lib/admin-ai-models";
+import { buildCoverSemanticBrief } from "@/lib/ai-cover/cover-semantic-brief";
 import { compileCoverPrompt } from "@/lib/ai-cover/cover-prompt-compiler";
 import { parseCoverTitle } from "@/lib/ai-cover/cover-title-parser";
+import { selectDeterministicCoverReferences } from "@/lib/ai-cover/cover-reference-selector";
+import { resolveCoverReferenceEligibility } from "@/lib/ai-cover/cover-reference-eligibility";
+import type { CoverFeedbackKind } from "@/lib/ai-cover/cover-learning-contract";
 
 export const ADMIN_AI_DROP_COVER_SETTINGS_DOC = "aiDropCovers";
 export const ADMIN_AI_DROP_COVER_JOBS_COLLECTION = "admin_ai_drop_cover_jobs";
@@ -789,11 +793,11 @@ const SUBJECT_CATEGORY_RULES: Array<{
     category: AdminAiDropCoverSubjectCategory;
     keywords: string[];
 }> = [
-    { category: "drink", keywords: ["slushy", "soda", "juice", "cola", "drink", "tea", "boba", "punch", "spritz"] },
+    { category: "drink", keywords: ["slushy", "soda", "juice", "cola", "drink", "tea", "boba", "punch", "spritz", "lemonade"] },
     { category: "frozen", keywords: ["ice", "sorbet", "gelato", "frozen", "float", "snow", "freeze"] },
     { category: "fruit", keywords: ["apple", "berry", "cherry", "grape", "mango", "pineapple", "banana", "peach", "melon", "orange", "lime", "lemon"] },
     { category: "candy", keywords: ["candy", "gummy", "taffy", "lollipop", "bubblegum", "cotton"] },
-    { category: "baked", keywords: ["pie", "cake", "brownie", "cookie", "cobbler", "pastry", "donut"] },
+    { category: "baked", keywords: ["pie", "cake", "brownie", "cookie", "cobbler", "pastry", "donut", "muffin", "bakery"] },
     { category: "cream", keywords: ["cream", "custard", "shake", "milkshake", "sundae", "cheesecake", "vanilla"] },
     { category: "chocolate", keywords: ["chocolate", "cocoa", "fudge"] },
     { category: "coffee", keywords: ["coffee", "espresso", "latte", "cappuccino", "mocha"] },
@@ -939,8 +943,17 @@ export function inferAdminAiDropCoverFlavorFamily(input: AdminAiDropCoverPromptI
 
 export function buildAdminAiDropCoverConsistencyRecipe(input: AdminAiDropCoverPromptInput): AdminAiDropCoverConsistencyRecipe {
     const parsedTitle = parseAdminAiDropCoverTitle(input.title, input.creatorName);
-    const normalizedFlavorTitle = normalizeAdminAiDropCoverFlavorTitle(input.title, input.creatorName);
-    const focusTerms = getAdminAiDropCoverFocusTerms(input.title, input.creatorName).slice(0, 5);
+    const semanticBrief = buildCoverSemanticBrief({
+        title: input.title,
+        creatorSelectedName: input.creatorName,
+        creatorDisplayName: input.creatorName,
+    });
+    const normalizedFlavorTitle = semanticBrief.flavorTitle;
+    const focusTerms = Array.from(new Set([
+        ...semanticBrief.requiredTokens,
+        ...semanticBrief.allowedIngredientTokens,
+        ...semanticBrief.allowedTextureTokens,
+    ].map((term) => term.trim().toLowerCase()))).slice(0, 5);
     const family = inferAdminAiDropCoverFlavorFamily(input);
     const familyRule = getFlavorFamilyRule(family);
     const subjectCategory = inferAdminAiDropCoverSubjectCategory(input);
@@ -954,7 +967,7 @@ export function buildAdminAiDropCoverConsistencyRecipe(input: AdminAiDropCoverPr
         normalizedFlavorTitle,
         subjectCategory,
         focusTerms,
-        heroSubject: `Center one unmistakable ${subjectLabel} inspired only by "${normalizedFlavorTitle}". Choose the object that best expresses this requested flavor, make it large and immediately readable, and only use pie, cake, pastry, candy, chocolate, drink, fruit, marshmallow, cream, or other ingredient forms when the requested title explicitly names them.`,
+        heroSubject: `Center one unmistakable ${subjectLabel} inspired only by "${normalizedFlavorTitle}". Choose the object that best expresses this requested flavor, make it large and immediately readable, and only use pie, cake, pastry, candy, chocolate, drink, fruit, marshmallow, cream, muffin, or other ingredient forms when the requested title explicitly names them.`,
         paletteDirection: `${familyRule?.paletteDirection || "Use one dominant flavor palette with premium contrast, glossy highlights, and restrained accent color drift."} ${getColorDirection(focusTerms)}`,
         lightingDirection: familyRule?.lightingDirection || "Use polished product lighting with tactile highlights, depth, and a premium editorial finish.",
         backgroundDirection: familyRule?.backgroundDirection || "Create a soft glowing bokeh background with flavor-led atmosphere, depth, and minimal distracting props.",
@@ -1026,32 +1039,64 @@ export function selectAdminAiDropCoverReferenceAssets(
     recipe: AdminAiDropCoverConsistencyRecipe,
     limit: number,
 ) {
-    return assets
-        .filter((asset) => asset.feedback !== "disliked" && asset.reusable !== false)
-        .map((asset) => {
-            const selection = scoreAdminAiDropCoverReferenceAsset(asset, recipe);
-            return {
-                asset: {
-                    ...asset,
-                    selectionScore: selection.score,
-                    selectionReasons: selection.reasons,
-                },
-                score: selection.score,
-            };
-        })
-        .sort((left, right) => {
-            if (right.score !== left.score) {
-                return right.score - left.score;
-            }
-            const leftAccepted = left.asset.retentionReason === "accepted" ? 1 : 0;
-            const rightAccepted = right.asset.retentionReason === "accepted" ? 1 : 0;
-            if (rightAccepted !== leftAccepted) {
-                return rightAccepted - leftAccepted;
-            }
-            return (left.asset.title || "").localeCompare(right.asset.title || "");
-        })
-        .slice(0, Math.max(0, limit))
-        .map((entry) => adminAiDropCoverReferenceAssetSchema.parse(entry.asset));
+    const semanticBrief = buildCoverSemanticBrief({
+        title: recipe.normalizedFlavorTitle,
+        creatorSelectedName: recipe.creatorName,
+        creatorBrandName: recipe.creatorName,
+        creatorPublicName: recipe.creatorName,
+        creatorDisplayName: recipe.creatorDisplayName || recipe.creatorName,
+    });
+    const candidates = assets.map((asset) => {
+        const primaryLayout = asset.primary === true || asset.pinned === true || asset.source === "template";
+        const feedbackKind: CoverFeedbackKind = asset.feedback === "liked"
+            ? "liked"
+            : asset.accepted === true || asset.retentionReason === "accepted"
+                ? "accepted_as_cover"
+                : asset.feedback === "disliked"
+                    ? "disliked"
+                    : primaryLayout
+                        ? "ignored"
+                        : "generated";
+        return {
+            id: asset.id,
+            title: asset.title || null,
+            creatorId: asset.creatorId || null,
+            creatorName: asset.creatorName || null,
+            semanticCategory: recipe.subjectCategory,
+            semanticFamily: recipe.family,
+            feedbackKind,
+            referenceEligibility: primaryLayout ? "debug_only" : resolveCoverReferenceEligibility(feedbackKind, {
+                accepted: asset.accepted,
+                liked: asset.feedback === "liked",
+            }),
+            retentionReason: asset.retentionReason || null,
+            accepted: asset.accepted === true,
+            liked: asset.feedback === "liked",
+            selectedAsPrimaryLayout: primaryLayout,
+            selectionOrder: primaryLayout ? 0 : null,
+            selectionScore: asset.selectionScore || null,
+        };
+    });
+    const selection = selectDeterministicCoverReferences({
+        brief: semanticBrief,
+        modelId: ADMIN_AI_DROP_COVER_MODEL,
+        maxReferenceCount: limit,
+        requestedReferenceCount: candidates.length,
+        candidates,
+        explicitPrimaryLayoutReferenceId: candidates.find((candidate) => candidate.selectedAsPrimaryLayout)?.id || null,
+    });
+
+    return selection.selectedReferences.map((entry) => {
+        const asset = assets.find((candidate) => candidate.id === entry.candidate.id);
+        if (!asset) {
+            return null;
+        }
+        return adminAiDropCoverReferenceAssetSchema.parse({
+            ...asset,
+            selectionScore: Math.max(0, 100 - Math.round(entry.semanticConflictScore * 100)),
+            selectionReasons: entry.reasons,
+        });
+    }).filter((asset): asset is AdminAiDropCoverReferenceAsset => Boolean(asset));
 }
 
 export function buildAdminAiDropCoverPrompt(
@@ -1069,6 +1114,7 @@ export function buildAdminAiDropCoverPrompt(
         creatorDisplayName: input.creatorName,
         imageModel: ADMIN_AI_DROP_COVER_MODEL,
         referenceCoverStyleId: options?.referenceGuided ? "reference_guided" : "standard",
+        optimizerPrompt: options?.promptPolicy?.currentMutablePrompt || null,
     });
     return compiled.prompt;
 }

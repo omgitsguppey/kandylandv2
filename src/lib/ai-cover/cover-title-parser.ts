@@ -1,4 +1,4 @@
-import { FLAVOR_ONTOLOGY, normalizeFlavorKey } from "./flavor-ontology";
+import { buildCoverSemanticBrief } from "./cover-semantic-brief";
 
 export type ParsedCoverTitle = {
   creatorBrandFromTitle: string | null;
@@ -18,23 +18,22 @@ function tokenizeFlavor(value: string) {
     .filter((token) => token.length >= 2);
 }
 
-export function parseCoverTitle(inputTitle: string): ParsedCoverTitle {
+function parseCreatorBrandFromTitle(inputTitle: string) {
   const title = inputTitle.trim();
   const possessiveMatch = title.match(/^([^|]+?['’]s)\s+(.+)$/u);
-  const creatorBrandFromTitle = possessiveMatch ? possessiveMatch[1].trim() : null;
-  const flavorTitle = possessiveMatch ? possessiveMatch[2].trim() : title;
-  const normalizedFlavorTokens = tokenizeFlavor(flavorTitle);
-  const flavorKey = normalizeFlavorKey(normalizedFlavorTokens);
-  const ontology = FLAVOR_ONTOLOGY[flavorKey] ?? FLAVOR_ONTOLOGY.cherry_crush;
+  return possessiveMatch ? possessiveMatch[1].trim() : null;
+}
 
+export function parseCoverTitle(inputTitle: string): ParsedCoverTitle {
+  const brief = buildCoverSemanticBrief({ title: inputTitle });
   return {
-    creatorBrandFromTitle,
-    flavorTitle,
-    normalizedFlavorTokens,
-    primaryFlavorCategory: ontology.category,
-    heroObject: ontology.heroObject,
-    supportingProps: ontology.supportingProps,
-    palette: ontology.palette,
-    avoidObjects: ontology.forbiddenSourceObjects,
+    creatorBrandFromTitle: parseCreatorBrandFromTitle(inputTitle),
+    flavorTitle: brief.flavorTitle,
+    normalizedFlavorTokens: tokenizeFlavor(brief.flavorTitle),
+    primaryFlavorCategory: brief.semanticCategory,
+    heroObject: brief.heroObject,
+    supportingProps: [...brief.allowedIngredientTokens, ...brief.allowedTextureTokens].slice(0, 4),
+    palette: brief.allowedPaletteTokens,
+    avoidObjects: brief.forbiddenTokens,
   };
 }

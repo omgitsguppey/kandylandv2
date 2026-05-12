@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-05-12T00:31:18.976Z",
+  "files": {
+    "learningContract": true,
+    "referenceEligibility": true,
+    "negativeMemory": true,
+    "improvementScore": true,
+    "promptDeltaEngine": true,
+    "referenceSelector": true,
+    "learningLedger": true,
+    "feedbackNormalizer": true
+  },
+  "selector": {
+    "selectedIds": [
+      "primary",
+      "accepted"
+    ],
+    "rejectedIds": [
+      "neutral",
+      "disliked"
+    ],
+    "neutralRejected": true,
+    "dislikedRejected": true
+  },
+  "learning": {
+    "negativeConstraint": "negative_constraint",
+    "promptInstruction": "Force the title semantics exactly: creator brand Jessi Ray's; flavor title Pink Lemonade; semantic category pink_lemonade_beverage; hero object pink lemonade with lemon slices and pink citrus sparkle. Allow enrichment only within the same category using ingredients, garnish, texture, props, plating, palette, and atmosphere cues from: lemon slices, lemonade, pink citrus, sugar crystals, ice, raspberries, strawberries, lemonade glass, pitcher, sparkle, glow, fresh. Treat references as layout-only unless a reference is explicitly accepted for style and still remains category-safe.",
+    "rejectedSuggestions": [
+      "Use chocolate mountain peaks and copper serving pedestal with cherry crush candy drink.",
+      "Forbid semantic drift toward: cherry crush, cherry, chocolate, fudge, milk chocolate, honeycomb, apple pie, muffin, blueberry slush, cake slice."
+    ],
+    "blockStrength": 0.53,
+    "repeatedFailureTags": [
+      {
+        "tag": "optimizer_contamination",
+        "count": 2
+      }
+    ]
+  },
+  "preflight": {
+    "ok": false,
+    "blockedReason": "Prompt blocked before generation because it still conflicts with the title.",
+    "readinessScore": 0.57
+  },
+  "scores": {
+    "goodReadiness": 0.9999999999999999,
+    "blueberryConflict": 0.7999999999999999
+  },
+  "optimizerBlocked": {
+    "noGeminiInOptimizePath": true
+  },
+  "uiMarkers": {
+    "compactMarker": true,
+    "collapsedNotes": true
+  },
+  "references": {
+    "acceptedOnly": true,
+    "primarySelected": true,
+    "referenceCapApplied": true,
+    "pinkBriefCategory": "pink_lemonade_beverage",
+    "blueBriefCategory": "bakery_muffin"
+  }
+}

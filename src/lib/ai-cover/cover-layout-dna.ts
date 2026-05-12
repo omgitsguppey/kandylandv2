@@ -10,6 +10,6 @@ export function getDefaultCoverLayoutDna(): CoverLayoutDna {
     topBrandSlot: "small creator brand at top",
     mainTitleSlot: "large main flavor title center",
     heroSlot: "single hero object center frame",
-    bottomBarText: "UNWRAP BEFORE IT’S GONE",
+    bottomBarText: "UNWRAP BEFORE IT'S GONE",
   };
 }
