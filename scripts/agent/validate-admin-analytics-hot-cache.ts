@@ -25,6 +25,8 @@ const refreshRoute = readRequired("src/app/api/admin/analytics/refresh/route.ts"
 const registry = readRequired("src/lib/server/admin-analytics-materializers.ts");
 const hook = readRequired("src/hooks/useAdminAnalyticsSnapshot.ts");
 const debugRoute = readRequired("src/app/api/admin/debug/route.ts");
+const realtimeRoute = readRequired("src/app/api/admin/analytics/realtime/route.ts");
+const realtimeSummary = readRequired("functions/src/analytics-realtime-summary.ts");
 const hotCacheDoc = readRequired("docs/agent-truth/admin-analytics-hot-cache.md");
 const truthDoc = readRequired("docs/agent-truth/analytics-truth-layer-v2.md");
 const sourceDoc = readRequired("docs/agent-truth/analytics-source-hierarchy.md");
@@ -151,6 +153,22 @@ requireIncludes(truthDoc, "Phase 3 Verified Hot-Cache Snapshots", "Analytics tru
 requireIncludes(sourceDoc, "Phase 3 Hot-Cache Snapshot Placement", "Analytics source hierarchy doc");
 requireIncludes(contract, "Metric ${key} renders a zero while unavailable.", "Fake zero prevention validation");
 requireIncludes(hotCacheDoc, "A blank loading screen is allowed only when no verified snapshot exists.", "No blank loading doctrine");
+
+for (const guestSnapshotNeedle of [
+  "guestAnalyticsSnapshot",
+  "sourceSampleCounts",
+  "guestSamplesAvailable",
+  "guestTruthState",
+  "uniqueAnonymousVisitorCount",
+  "analytics_guest_batches",
+]) {
+  requireIncludes(realtimeRoute + realtimeSummary, guestSnapshotNeedle, "Guest analytics hot-cache snapshot contract");
+}
+
+requireIncludes(realtimeRoute, "normalizeGuestAnalyticsSnapshotFromCache", "Realtime route snapshot-first guest mapping");
+requireIncludes(realtimeRoute, "cacheState === \"stale\"", "Stale guest snapshot truth mapping");
+requireIncludes(realtimeRoute, "!guestSamplesAvailable", "Missing guest sample evidence guard");
+requireIncludes(realtimeRoute, "? \"unavailable\"", "Missing guest sample evidence must not be live zero");
 
 if (failures.length > 0) {
   console.error("Admin analytics hot-cache validation failed:");

@@ -58,6 +58,9 @@ assertIncludes("AdminAnalyticsOperationsTab", component, "Surface detail has no 
 assertIncludes("AdminAnalyticsOperationsTab", component, "displayLabel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "topWarningDetail");
 assertIncludes("AdminAnalyticsOperationsTab", component, "guestEstimateState");
+assertIncludes("AdminAnalyticsOperationsTab", component, "guestSnapshotTruthState");
+assertIncludes("AdminAnalyticsOperationsTab", component, "guestSnapshotSourceLabel");
+assertIncludes("AdminAnalyticsOperationsTab", component, "guestSnapshotReason");
 assertIncludes("AdminAnalyticsOperationsTab", component, "graphSourceLabel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "graphLegendLabel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "purposeLabel");
@@ -103,6 +106,11 @@ assertIncludes("live pulse helper", helper, "delayed_snapshot");
 assertIncludes("live pulse helper", helper, "guestEstimateState");
 assertIncludes("live pulse helper", helper, "guestEstimateConfidence");
 assertIncludes("live pulse helper", helper, "guestMixLabel");
+assertIncludes("live pulse helper", helper, "resolveGuestSnapshotDisplay");
+assertIncludes("live pulse helper", helper, "guestSamplesAvailable");
+assertIncludes("live pulse helper", helper, "sourceSampleCounts.analytics_guest_batches");
+assertIncludes("live pulse helper", helper, "Guest unavailable");
+assertIncludes("live pulse helper", helper, "Guest snapshot stale");
 assertIncludes("live pulse helper", helper, "Identity linked");
 assertIncludes("live pulse helper", helper, "graphSourceLabel");
 assertIncludes("live pulse helper", helper, "graphLegendLabel");
@@ -122,6 +130,9 @@ assertIncludes("useAdminAnalyticsRealtime", realtimeHook, "includeMetadataChange
 assertIncludes("MetricCard primitive", primitives, "max-w-[5.75rem]");
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsLivePulse");
 assertIncludes("AdminDebugRoute", debugRoute, "rawIdentityIdsLocation");
+assertIncludes("AdminDebugRoute", debugRoute, "guestSnapshotTruthState");
+assertIncludes("AdminDebugRoute", debugRoute, "guestSnapshotSourceLabel");
+assertIncludes("AdminDebugRoute", debugRoute, "guestSnapshotReason");
 assertIncludes("agent truth doc", doc, "Backend or polled data remains snapshot/stale truth");
 assertIncludes("agent truth doc", doc, "event/action");
 

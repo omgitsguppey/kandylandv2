@@ -32,6 +32,7 @@ const operationsTab = readRequired("src/app/admin/analytics/components/AdminAnal
 const stateHook = readRequired("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
 const livePulseModel = readRequired("src/lib/admin-analytics-live-pulse.ts");
 const debugRoute = readRequired("src/app/api/admin/debug/route.ts");
+const realtimeRoute = readRequired("src/app/api/admin/analytics/realtime/route.ts");
 const auditReport = readRequired("agent/state/admin-analytics-realtime-dependency-audit.generated.json");
 const auditDoc = readRequired("docs/agent-truth/admin-analytics-realtime-to-hot-cache-audit.md");
 const hotCacheDoc = readRequired("docs/agent-truth/admin-analytics-hot-cache.md");
@@ -115,6 +116,21 @@ for (const debugNeedle of [
 ]) {
   requireIncludes(debugRoute + livePulseModel, debugNeedle, "Admin Debug realtime dependency metadata");
 }
+
+for (const guestSnapshotNeedle of [
+  "guestAnalyticsSnapshot",
+  "normalizeGuestAnalyticsSnapshotFromCache",
+  "guestSamplesAvailable",
+  "sourceSampleCounts",
+  "guestTruthState",
+]) {
+  requireIncludes(realtimeRoute + livePulseModel, guestSnapshotNeedle, "Admin guest snapshot-first display metadata");
+}
+
+requireIncludes(livePulseModel, "Guest unavailable", "Admin guest display unavailable state");
+requireIncludes(livePulseModel, "Guest snapshot stale", "Admin guest display stale state");
+requireIncludes(livePulseModel, "guestSnapshotTruthState", "Admin guest display truth state");
+requireIncludes(debugRoute, "guestSnapshotTruthState", "Admin debug guest snapshot truth field");
 
 for (const docNeedle of [
   "Realtime is an upgrade",

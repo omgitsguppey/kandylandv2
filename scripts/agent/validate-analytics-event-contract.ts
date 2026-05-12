@@ -22,11 +22,14 @@ function requireIncludes(source: string, needle: string, label: string) {
 const contract = readRequired("src/lib/analytics/analytics-event-contract.ts");
 const legacyMapper = readRequired("src/lib/analytics/legacy-event-mapping.ts");
 const clientSession = readRequired("src/lib/client-session.ts");
+const telemetrySafety = readRequired("src/lib/telemetry-safety.ts");
+const telemetry = readRequired("src/lib/telemetry.ts");
 const catalog = readRequired("src/lib/telemetry-catalog.ts");
 const legacyDoc = readRequired("docs/agent-truth/analytics-legacy-recovery.md");
 const truthDoc = readRequired("docs/agent-truth/analytics-truth-layer-v2.md");
 const actorDoc = readRequired("docs/agent-truth/analytics-actor-taxonomy.md");
 const sourceDoc = readRequired("docs/agent-truth/analytics-source-hierarchy.md");
+const guestDoc = readRequired("docs/agent-truth/guest-user-analytics-cutover.md");
 
 for (const field of [
   "eventId",
@@ -163,6 +166,28 @@ requireIncludes(truthDoc, "Phase 2 Canonical Event Spine", "Analytics truth laye
 requireIncludes(truthDoc, "identity_linked", "Analytics truth layer doc");
 requireIncludes(sourceDoc, "Phase 2 Dedupe and Idempotency Rule", "Analytics source hierarchy doc");
 requireIncludes(sourceDoc, "Random browser ids can remain `eventId`, but they must not be the only idempotency control", "Analytics source hierarchy doc");
+
+for (const hygieneNeedle of [
+  "sanitizeTelemetryParamsForGa4",
+  "sanitizeTelemetryParamsForBackend",
+  "value === null || typeof value === \"undefined\"",
+]) {
+  requireIncludes(telemetrySafety, hygieneNeedle, "Telemetry sanitizer hygiene");
+}
+
+for (const guestHygieneNeedle of [
+  "GA4 user_id hygiene",
+  "Never send `user_id` for never-signed-in guests.",
+  "Never send blank, whitespace, `\"null\"`, `\"NULL\"`, `\"undefined\"`, or `\"UNDEFINED\"` as `user_id`.",
+]) {
+  requireIncludes(guestDoc, guestHygieneNeedle, "Guest analytics GA4 user_id doctrine");
+}
+
+requireIncludes(telemetry, "syncIdentifiedTelemetryOwnership(userId: string | null)", "Telemetry ownership reset");
+requireIncludes(telemetry, "if (!userId)", "Telemetry signout ownership clear");
+requireIncludes(telemetry, "telemetryQueueUserId = null", "Telemetry signout ownership clear");
+requireIncludes(telemetry, "anonymous_visitor_id: identityLink.anonymousVisitorId ?? \"\"", "Identity link preserves guest lineage as backend param");
+requireIncludes(telemetry, "user_id: identityLink.userId", "Identity link uses real assigned user id");
 
 if (failures.length > 0) {
   console.error("Analytics event contract validation failed:");

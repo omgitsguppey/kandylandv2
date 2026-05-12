@@ -70,12 +70,15 @@ assertIncludes("guest quality helper", helper, "Signed-in bounce has no valid vi
 assertIncludes("guest quality helper", helper, "fakeZeroPrevented");
 assertIncludes("guest quality helper", helper, "chartCollapsedBecauseEmpty");
 assertIncludes("guest quality helper", helper, "GA total views - identified first-party views");
+assertIncludes("guest quality helper", helper, "guestEstimateClamped");
+assertIncludes("guest quality helper", helper, "Math.max(0, rawGuestViewsValue)");
 
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsGuestBounceQuality");
 assertIncludes("AdminDebugRoute", debugRoute, "guestEstimateRule");
 assertIncludes("AdminDebugRoute", debugRoute, "signedInBounceRule");
 assertIncludes("AdminDebugRoute", debugRoute, "chartRule");
 assertIncludes("AdminDebugRoute", debugRoute, "consentedGuestBatchStatus");
+assertIncludes("AdminDebugRoute", debugRoute, "guestEstimateRule");
 
 assertIncludes("agent truth doc", doc, "Guest views may be estimated");
 assertIncludes("agent truth doc", doc, "`GA total views - identified first-party views`");

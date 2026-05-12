@@ -136,6 +136,7 @@
         "check:behavioral-intelligence-confidence": "tsx scripts/agent/validate-behavioral-intelligence-confidence.ts",
         "score:guest-user-analytics": "tsx scripts/agent/score-guest-user-analytics-cutover.ts",
         "check:guest-user-analytics": "npm run score:guest-user-analytics && tsx scripts/agent/validate-guest-user-analytics-cutover.ts",
+        "check:guest-analytics-lock": "npm run check:guest-user-analytics && npm run check:analytics-event-contract && npm run check:admin-analytics-hot-cache && npm run check:admin-analytics-no-pure-realtime && npm run check:admin-analytics-guest-bounce-quality && npm run check:admin-analytics-live-pulse",
         "check:behavioral-explanations": "tsx scripts/agent/validate-behavioral-explanations.ts",
         "check:admin-review-badges": "tsx scripts/agent/validate-admin-review-badges.ts",
         "check:recommendation-ranker": "tsx scripts/agent/validate-recommendation-ranker.ts",
