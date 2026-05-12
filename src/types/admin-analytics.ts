@@ -1071,6 +1071,23 @@ export interface RealtimeAnalyticsResponse {
   activeUsers?: RealtimeActiveUserItem[];
   surfaceMix?: SurfaceMixItem[];
   watchCaptureHealth?: WatchCaptureHealthItem;
+  guestAnalyticsSnapshot?: {
+    generatedAtMs: number;
+    refreshedAtMs: number;
+    sourceWindowMs: number;
+    sourceWindowLabel: string;
+    guestBatchCount: number;
+    guestEventCount: number;
+    guestSessionCount: number;
+    uniqueAnonymousVisitorCount: number;
+    guestBounceCount: number;
+    guestBounceRate: number | null;
+    guestSamplesAvailable: boolean;
+    guestTruthState: "live" | "stale" | "unavailable" | "needs_review";
+    sourceCollectionsUsed: string[];
+    sourceSampleCounts: Record<string, number>;
+    notes: string[];
+  } | null;
 }
 
 export interface AnalyticsPreferencesResponse {

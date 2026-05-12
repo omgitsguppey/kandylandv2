@@ -65,6 +65,9 @@ const mockState = vi.hoisted(() => {
                     clauses.push({ field, operator, value });
                     return this;
                 },
+                limit() {
+                    return this;
+                },
                 async get() {
                     if (name === "analytics_event_facts" && clauses.some((clause) => clause.field === "eventName")) {
                         throw new Error("composite index required");
@@ -159,6 +162,29 @@ vi.mock("@/lib/server/analytics-runtime-warning", () => ({
 
 import { GET } from "@/app/api/admin/analytics/realtime/route";
 
+function buildCachedGuestSnapshot(generatedAtMs: number, overrides: Record<string, unknown> = {}) {
+    return {
+        generatedAtMs,
+        refreshedAtMs: generatedAtMs,
+        sourceWindowMs: 30 * 60 * 1000,
+        sourceWindowLabel: "last_30_minutes",
+        guestBatchCount: 2,
+        guestEventCount: 7,
+        guestSessionCount: 2,
+        uniqueAnonymousVisitorCount: 2,
+        guestBounceCount: 1,
+        guestBounceRate: 0.5,
+        guestSamplesAvailable: true,
+        guestTruthState: "live",
+        sourceCollectionsUsed: ["analytics_guest_batches"],
+        sourceSampleCounts: {
+            analytics_guest_batches: 2,
+        },
+        notes: [],
+        ...overrides,
+    };
+}
+
 describe("GET /api/admin/analytics/realtime", () => {
     beforeEach(() => {
         mockState.reset();
@@ -196,6 +222,7 @@ describe("GET /api/admin/analytics/realtime", () => {
                     data: [],
                     activeUsers: [],
                     surfaceMix: [],
+                    guestAnalyticsSnapshot: buildCachedGuestSnapshot(generatedAtMs),
                     watchCaptureHealth: { sessionCount: 0, warnings: [] },
                     issues: [],
                 }),
@@ -215,6 +242,13 @@ describe("GET /api/admin/analytics/realtime", () => {
             totalActive: 12,
             deepTrackerActive: 8,
             liveTruthLabel: "live",
+            guestAnalyticsSnapshot: {
+                guestTruthState: "live",
+                guestSamplesAvailable: true,
+                guestBatchCount: 2,
+                guestEventCount: 7,
+                uniqueAnonymousVisitorCount: 2,
+            },
         });
         expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
     });
@@ -236,6 +270,7 @@ describe("GET /api/admin/analytics/realtime", () => {
                     data: [],
                     activeUsers: [],
                     surfaceMix: [],
+                    guestAnalyticsSnapshot: buildCachedGuestSnapshot(generatedAtMs),
                     watchCaptureHealth: { sessionCount: 0, warnings: [] },
                     issues: [],
                 }),
@@ -255,9 +290,63 @@ describe("GET /api/admin/analytics/realtime", () => {
             deepTrackerActive: 3,
             liveTruthLabel: "stale",
             activeUsersTruthLabel: "stale",
+            guestAnalyticsSnapshot: {
+                guestTruthState: "stale",
+                guestSamplesAvailable: true,
+                guestBatchCount: 2,
+            },
         });
         expect(payload.issues).toContain("Serving stale admin realtime analytics hot cache while the scheduled materializer catches up.");
         expect(payload.verification.status).toBe("stale");
+        expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
+    });
+
+    it("does not normalize missing guest snapshot evidence into live zero counts", async () => {
+        const generatedAtMs = Date.now() - 1_000;
+        mockState.collections.set("analytics_aggregate_stats", [
+            {
+                id: "realtime_summary",
+                data: () => ({
+                    success: true,
+                    generatedAtMs,
+                    totalActive: 2,
+                    deepTrackerActive: 1,
+                    liveTruthLabel: "live",
+                    liveSourceLabel: "analytics_aggregate_stats/realtime_summary",
+                    activeUsersTruthLabel: "live",
+                    activeUsersSourceLabel: "analytics_active_users",
+                    data: [],
+                    activeUsers: [],
+                    surfaceMix: [],
+                    guestAnalyticsSnapshot: buildCachedGuestSnapshot(generatedAtMs, {
+                        guestBatchCount: 0,
+                        guestEventCount: 0,
+                        guestSessionCount: 0,
+                        uniqueAnonymousVisitorCount: 0,
+                        guestBounceCount: 0,
+                        guestBounceRate: null,
+                        guestSamplesAvailable: true,
+                        sourceSampleCounts: {
+                            analytics_guest_batches: 0,
+                        },
+                    }),
+                    watchCaptureHealth: { sessionCount: 0, warnings: [] },
+                    issues: [],
+                }),
+            },
+        ]);
+
+        const request = new NextRequest("http://localhost/api/admin/analytics/realtime");
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload.guestAnalyticsSnapshot).toMatchObject({
+            guestTruthState: "unavailable",
+            guestSamplesAvailable: false,
+            guestBatchCount: 0,
+            uniqueAnonymousVisitorCount: 0,
+        });
         expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
     });
 

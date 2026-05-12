@@ -65,6 +65,7 @@ export type AdminAnalyticsGuestBounceQualityModel = {
   };
   guestViewsEstimated: boolean;
   guestEstimateFormula: string | null;
+  guestEstimateClamped: boolean;
   guestBounce: AdminAnalyticsGuestLegacyMetric;
   guestEngaged: AdminAnalyticsGuestLegacyMetric;
   chartCollapsedBecauseEmpty: boolean;
@@ -141,9 +142,11 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     : null;
   const globalSemantic = findSemantic(input.semanticCategories, "global");
   const userSemantic = findSemantic(input.semanticCategories, "user");
-  const guestViewsValue = input.guestTraffic?.truthLabel === "estimated"
-    ? Math.max(0, input.guestTraffic?.estimatedGuestViews ?? 0)
-    : Math.max(0, input.guestTraffic?.exactGuestViews ?? globalSemantic?.viewCount ?? 0);
+  const rawGuestViewsValue = input.guestTraffic?.truthLabel === "estimated"
+    ? input.guestTraffic?.estimatedGuestViews ?? 0
+    : input.guestTraffic?.exactGuestViews ?? globalSemantic?.viewCount ?? 0;
+  const guestEstimateClamped = rawGuestViewsValue < 0;
+  const guestViewsValue = Math.max(0, rawGuestViewsValue);
   const estimatedFreshness = deriveFreshnessState({
     stale,
     lastUpdatedAtUtc: diagnostics.estimatedLastUpdatedAtUtc ?? generatedAtUtc,
@@ -260,6 +263,7 @@ export function buildAdminAnalyticsGuestBounceQualityModel(input: {
     },
     guestViewsEstimated: input.guestTraffic?.truthLabel === "estimated",
     guestEstimateFormula: input.guestTraffic?.truthLabel === "estimated" ? "GA total views - identified first-party views" : null,
+    guestEstimateClamped,
     guestBounce: {
       value: guestBounceValue,
       source: guestQualityAvailable ? "first_party_semantic_batches" : "unavailable",

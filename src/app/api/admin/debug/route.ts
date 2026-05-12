@@ -6034,6 +6034,7 @@ export async function GET(request: NextRequest) {
                 ],
                 guestEstimateRule: "Estimated guest views may use GA total views minus identified first-party views only when definitions and ranges are compatible.",
                 guestQualityRule: "Guest bounce and engagement are unavailable without consented guest quality batches.",
+                consentedGuestBatchStatus: "Guest quality is live only when consented guest batches are present for the selected analytics range.",
                 signedInBounceRule: "Signed-in bounce cannot render 0% unless signed-in visit denominator is server-confirmed and non-zero.",
                 chartRule: "Collapse the chart when quality series are empty or guest quality is unavailable.",
                 badgeLabels: ["LIVE", "EST", "STALE", "WAIT", "PARTIAL", "ERROR", "NO SAMPLE"],

@@ -67,6 +67,24 @@ type RealtimeIdentity = {
   sessionKey?: string;
 }
 
+type GuestAnalyticsSnapshot = {
+  generatedAtMs: number;
+  refreshedAtMs: number;
+  sourceWindowMs: number;
+  sourceWindowLabel: string;
+  guestBatchCount: number;
+  guestEventCount: number;
+  guestSessionCount: number;
+  uniqueAnonymousVisitorCount: number;
+  guestBounceCount: number;
+  guestBounceRate: number | null;
+  guestSamplesAvailable: boolean;
+  guestTruthState: "live" | "stale" | "unavailable" | "needs_review";
+  sourceCollectionsUsed: string[];
+  sourceSampleCounts: Record<string, number>;
+  notes: string[];
+}
+
 function buildEmptyLiveBuckets() {
   return Array.from({length: 30}, (_, minute) => ({
     minute,
@@ -523,6 +541,80 @@ function buildLimitIssues(input: {
   return issues
 }
 
+function buildGuestAnalyticsSnapshot(input: {
+  nowMs: number;
+  guestBatchDocs: QueryDocumentSnapshot[];
+  guestBatchLimit: number;
+}): GuestAnalyticsSnapshot {
+  const anonymousVisitorIds = new Set<string>()
+  const sessionKeys = new Set<string>()
+  let guestEventCount = 0
+  let pageLeaveCount = 0
+  let guestBounceCount = 0
+
+  input.guestBatchDocs.forEach((doc) => {
+    const data = doc.data() as Record<string, unknown>
+    const anonymousVisitorId = readString(data.anonymousVisitorId)
+      || readString(data.sessionKey)
+      || readString(data.clientSessionId)
+      || doc.id
+    const sessionKey = readString(data.sessionKey)
+      || readString(data.serverSessionKey)
+      || readString(data.clientSessionId)
+      || doc.id
+    if (anonymousVisitorId) anonymousVisitorIds.add(anonymousVisitorId)
+    if (sessionKey) sessionKeys.add(sessionKey)
+
+    const events = Array.isArray(data.events) ? data.events as Array<Record<string, unknown>> : []
+    guestEventCount += Math.max(readNumber(data.eventCount), events.length)
+
+    events.forEach((event) => {
+      const eventType = readString(event.type)
+      if (eventType === "page_leave") {
+        pageLeaveCount += 1
+        if (readString(event.exitIntent) === "bounce") {
+          guestBounceCount += 1
+        }
+      }
+    })
+  })
+
+  const notes: string[] = []
+  if (input.guestBatchDocs.length === 0) {
+    notes.push("No guest analytics batches were materialized in the realtime source window.")
+  }
+  if (input.guestBatchDocs.length >= input.guestBatchLimit) {
+    notes.push("Guest analytics snapshot hit the bounded source sample cap and needs review.")
+  }
+
+  const guestSamplesAvailable = input.guestBatchDocs.length > 0
+  const guestTruthState = !guestSamplesAvailable
+    ? "unavailable"
+    : input.guestBatchDocs.length >= input.guestBatchLimit
+      ? "needs_review"
+      : "live"
+
+  return {
+    generatedAtMs: input.nowMs,
+    refreshedAtMs: input.nowMs,
+    sourceWindowMs: REALTIME_WINDOW_MS,
+    sourceWindowLabel: "last_30_minutes",
+    guestBatchCount: input.guestBatchDocs.length,
+    guestEventCount,
+    guestSessionCount: sessionKeys.size,
+    uniqueAnonymousVisitorCount: anonymousVisitorIds.size,
+    guestBounceCount,
+    guestBounceRate: pageLeaveCount > 0 ? Number((guestBounceCount / pageLeaveCount).toFixed(4)) : null,
+    guestSamplesAvailable,
+    guestTruthState,
+    sourceCollectionsUsed: ["analytics_guest_batches"],
+    sourceSampleCounts: {
+      analytics_guest_batches: input.guestBatchDocs.length,
+    },
+    notes,
+  }
+}
+
 async function readRecentDocs(
   collectionName: string,
   timestampField: string,
@@ -572,6 +664,14 @@ export async function rebuildAdminAnalyticsRealtimeSummary(nowMs = Date.now()) {
     watchSessionCount: watchSessionDocs.length,
     watchAssetCount: watchAssetDocs.length,
   })
+  const guestAnalyticsSnapshot = buildGuestAnalyticsSnapshot({
+    nowMs,
+    guestBatchDocs,
+    guestBatchLimit: GUEST_BATCH_LIMIT,
+  })
+  if (guestAnalyticsSnapshot.guestTruthState === "needs_review") {
+    issues.push("Guest analytics snapshot hit its bounded sample cap and needs review.")
+  }
 
   if (firstPartyLive.totalActive === 0 && eventFactDocs.length === 0 && guestBatchDocs.length === 0) {
     issues.push("No first-party realtime analytics facts matched the hot summary window.")
@@ -593,6 +693,7 @@ export async function rebuildAdminAnalyticsRealtimeSummary(nowMs = Date.now()) {
     issues,
     totalActive: firstPartyLive.totalActive,
     deepTrackerActive: firstPartyLive.deepTrackerActive,
+    guestAnalyticsSnapshot,
     data: firstPartyLive.data,
     activeUsers,
     surfaceMix: buildSurfaceMix(activeUsers),

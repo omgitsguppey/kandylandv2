@@ -65,6 +65,24 @@ type RealtimeIdentity = {
   sourceTruth?: "presence" | "event_fact" | "snapshot" | "estimated";
 };
 
+type GuestAnalyticsSnapshot = {
+  generatedAtMs: number;
+  refreshedAtMs: number;
+  sourceWindowMs: number;
+  sourceWindowLabel: string;
+  guestBatchCount: number;
+  guestEventCount: number;
+  guestSessionCount: number;
+  uniqueAnonymousVisitorCount: number;
+  guestBounceCount: number;
+  guestBounceRate: number | null;
+  guestSamplesAvailable: boolean;
+  guestTruthState: "live" | "stale" | "unavailable" | "needs_review";
+  sourceCollectionsUsed: string[];
+  sourceSampleCounts: Record<string, number>;
+  notes: string[];
+};
+
 function buildEmptyLiveBuckets() {
   return Array.from({ length: 30 }, (_, minute) => ({
     minute,
@@ -214,6 +232,122 @@ function buildFirstPartyLiveData(input: {
   return finalizeRealtimeBuckets(buckets);
 }
 
+function buildGuestAnalyticsSnapshot(input: {
+  nowMs: number;
+  guestBatchDocs: FirebaseFirestore.QueryDocumentSnapshot[];
+  guestBatchLimit: number;
+}): GuestAnalyticsSnapshot {
+  const anonymousVisitorIds = new Set<string>();
+  const sessionKeys = new Set<string>();
+  let guestEventCount = 0;
+  let pageLeaveCount = 0;
+  let guestBounceCount = 0;
+
+  input.guestBatchDocs.forEach((doc) => {
+    const data = doc.data() as Record<string, unknown>;
+    const anonymousVisitorId = toStringValue(data.anonymousVisitorId)
+      || toStringValue(data.sessionKey)
+      || toStringValue(data.clientSessionId)
+      || doc.id;
+    const sessionKey = toStringValue(data.sessionKey)
+      || toStringValue(data.serverSessionKey)
+      || toStringValue(data.clientSessionId)
+      || doc.id;
+    if (anonymousVisitorId) anonymousVisitorIds.add(anonymousVisitorId);
+    if (sessionKey) sessionKeys.add(sessionKey);
+
+    const events = Array.isArray(data.events) ? data.events as Array<Record<string, unknown>> : [];
+    guestEventCount += Math.max(toNumber(data.eventCount), events.length);
+    events.forEach((event) => {
+      if (toStringValue(event.type) === "page_leave") {
+        pageLeaveCount += 1;
+        if (toStringValue(event.exitIntent) === "bounce") {
+          guestBounceCount += 1;
+        }
+      }
+    });
+  });
+
+  const notes: string[] = [];
+  if (input.guestBatchDocs.length === 0) {
+    notes.push("No guest analytics batches were materialized in the realtime source window.");
+  }
+  if (input.guestBatchDocs.length >= input.guestBatchLimit) {
+    notes.push("Guest analytics snapshot hit the bounded source sample cap and needs review.");
+  }
+
+  const guestSamplesAvailable = input.guestBatchDocs.length > 0;
+  const guestTruthState = !guestSamplesAvailable
+    ? "unavailable"
+    : input.guestBatchDocs.length >= input.guestBatchLimit
+      ? "needs_review"
+      : "live";
+
+  return {
+    generatedAtMs: input.nowMs,
+    refreshedAtMs: input.nowMs,
+    sourceWindowMs: 30 * 60 * 1000,
+    sourceWindowLabel: "last_30_minutes",
+    guestBatchCount: input.guestBatchDocs.length,
+    guestEventCount,
+    guestSessionCount: sessionKeys.size,
+    uniqueAnonymousVisitorCount: anonymousVisitorIds.size,
+    guestBounceCount,
+    guestBounceRate: pageLeaveCount > 0 ? Number((guestBounceCount / pageLeaveCount).toFixed(4)) : null,
+    guestSamplesAvailable,
+    guestTruthState,
+    sourceCollectionsUsed: [ANALYTICS_CANONICAL_COLLECTIONS.guestBatches],
+    sourceSampleCounts: {
+      [ANALYTICS_CANONICAL_COLLECTIONS.guestBatches]: input.guestBatchDocs.length,
+    },
+    notes,
+  };
+}
+
+function normalizeGuestAnalyticsSnapshotFromCache(
+  value: unknown,
+  cacheState: NonNullable<RealtimeAnalyticsResponse["cacheState"]>,
+): GuestAnalyticsSnapshot | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const snapshot = value as Record<string, unknown>;
+  const sourceSampleCounts = safeParams(snapshot.sourceSampleCounts);
+  const guestBatchSamples = toNumber(sourceSampleCounts[ANALYTICS_CANONICAL_COLLECTIONS.guestBatches]);
+  const guestSamplesAvailable = snapshot.guestSamplesAvailable === true && guestBatchSamples > 0;
+  const cachedTruthState = toStringValue(snapshot.guestTruthState);
+  const guestTruthState: GuestAnalyticsSnapshot["guestTruthState"] = cacheState === "stale"
+    ? "stale"
+    : !guestSamplesAvailable
+      ? "unavailable"
+      : cachedTruthState === "needs_review"
+        ? "needs_review"
+        : "live";
+
+  return {
+    generatedAtMs: toNumber(snapshot.generatedAtMs),
+    refreshedAtMs: toNumber(snapshot.refreshedAtMs),
+    sourceWindowMs: toNumber(snapshot.sourceWindowMs),
+    sourceWindowLabel: toStringValue(snapshot.sourceWindowLabel) || "last_30_minutes",
+    guestBatchCount: toNumber(snapshot.guestBatchCount),
+    guestEventCount: toNumber(snapshot.guestEventCount),
+    guestSessionCount: toNumber(snapshot.guestSessionCount),
+    uniqueAnonymousVisitorCount: toNumber(snapshot.uniqueAnonymousVisitorCount),
+    guestBounceCount: toNumber(snapshot.guestBounceCount),
+    guestBounceRate: typeof snapshot.guestBounceRate === "number" ? snapshot.guestBounceRate : null,
+    guestSamplesAvailable,
+    guestTruthState,
+    sourceCollectionsUsed: Array.isArray(snapshot.sourceCollectionsUsed)
+      ? snapshot.sourceCollectionsUsed.filter((entry): entry is string => typeof entry === "string")
+      : [ANALYTICS_CANONICAL_COLLECTIONS.guestBatches],
+    sourceSampleCounts: {
+      [ANALYTICS_CANONICAL_COLLECTIONS.guestBatches]: guestBatchSamples,
+    },
+    notes: readIssueList(snapshot.notes),
+  };
+}
+
 function buildFallbackActiveUsers(input: {
   activeUserDocs: FirebaseFirestore.QueryDocumentSnapshot[];
   eventFactDocs: FirebaseFirestore.QueryDocumentSnapshot[];
@@ -333,6 +467,10 @@ function buildHotCachePayload(input: {
   const cacheState: NonNullable<RealtimeAnalyticsResponse["cacheState"]> =
     cacheAgeMs < ADMIN_ANALYTICS_REALTIME_HOT_CACHE_FRESH_MS ? "fresh" : "stale";
   const aggregateIssues = readIssueList(input.aggregateData.issues);
+  const guestAnalyticsSnapshot = normalizeGuestAnalyticsSnapshotFromCache(
+    input.aggregateData.guestAnalyticsSnapshot,
+    cacheState,
+  );
   const staleIssue = cacheState === "stale"
     ? ["Serving stale admin realtime analytics hot cache while the scheduled materializer catches up."]
     : [];
@@ -350,6 +488,7 @@ function buildHotCachePayload(input: {
     activeUsersTruthLabel: cacheState === "stale"
       ? "stale"
       : normalizeRealtimeTruthLabel(input.aggregateData.activeUsersTruthLabel, "live"),
+    guestAnalyticsSnapshot,
     issues: [...input.issues, ...aggregateIssues, ...staleIssue],
   };
 }
@@ -570,6 +709,14 @@ async function GET_handler(request: NextRequest) {
           guestBatchDocs: recentGuestBatchesSnapshot.docs,
           watchSessionDocs: watchSessionsSnapshot.docs,
         });
+        const guestAnalyticsSnapshot = buildGuestAnalyticsSnapshot({
+          nowMs,
+          guestBatchDocs: recentGuestBatchesSnapshot.docs,
+          guestBatchLimit: ADMIN_ANALYTICS_REALTIME_SAMPLE_LIMIT,
+        });
+        if (guestAnalyticsSnapshot.guestTruthState === "needs_review") {
+          issues.push("Guest analytics snapshot hit its bounded sample cap and needs review.");
+        }
         const gaTotalActive = parseInt(totalActiveResponse.rows?.[0]?.metricValues?.[0]?.value || "0", 10);
         const useFirstPartyFallback = Boolean(totalActiveResponse.fallbackUsed || intervalResponse.fallbackUsed)
           || (gaTotalActive <= 0 && activeUsers.length > 0);
@@ -593,6 +740,7 @@ async function GET_handler(request: NextRequest) {
           issues,
           totalActive,
           deepTrackerActive: activeUsers.length,
+          guestAnalyticsSnapshot,
           liveTruthLabel: activeUsersSourceIsPrimary || !useFirstPartyFallback ? "live" : "fallback",
           liveSourceLabel: useFirstPartyFallback
             ? activeUsersSourceIsPrimary

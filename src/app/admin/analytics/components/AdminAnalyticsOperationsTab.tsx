@@ -777,6 +777,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               <div
                 className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between"
                 data-guest-quality-state={guestBounceQualityModel.guestQuality.state}
+                data-guest-quality-chart-collapsed-because-empty={guestBounceQualityModel.chartCollapsedBecauseEmpty}
               >
                 <div className="min-w-0">
                   <p>{guestBounceQualityModel.visibleCopy}</p>
