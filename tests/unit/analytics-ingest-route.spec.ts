@@ -270,4 +270,31 @@ describe("POST /api/analytics/ingest", () => {
             anonymousVisitorIds: ["subject_existing-client"],
         }));
     });
+
+    it("ignores malformed guest semantic payloads without writing arbitrary event names", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: null });
+
+        const request = new NextRequest("http://localhost/api/analytics/ingest", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                anonymousVisitorId: "subject_existing-client",
+                sessionId: "sess_existing-session",
+                events: [{
+                    type: "page_view",
+                    timestamp: Date.now(),
+                    path: "/",
+                    semanticEventName: "wallet_purchase_faked",
+                }],
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toEqual({ success: true, ignored: true });
+        expect(mockState.transactionCreate).not.toHaveBeenCalled();
+        expect(mockState.materializeUserTrackingIndexes).not.toHaveBeenCalled();
+    });
 });

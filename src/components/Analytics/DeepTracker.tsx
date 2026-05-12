@@ -11,8 +11,15 @@ import { canUseAnonymousAnalytics, readPrivacySettingsSnapshot, subscribeToPriva
 import { trackEvent } from "@/lib/telemetry";
 
 type TelemetryEventType = "click" | "hover" | "scroll" | "visibility" | "page_view" | "page_leave";
+type GuestSemanticEventName =
+    | "semantic_page_viewed"
+    | "semantic_target_clicked"
+    | "semantic_page_engaged"
+    | "semantic_page_passive"
+    | "semantic_page_bounced"
+    | "semantic_page_exited";
 
-interface TelemetryEvent {
+export interface TelemetryEvent {
     type: TelemetryEventType;
     timestamp: number;
     path: string;
@@ -41,6 +48,8 @@ interface TelemetryEvent {
     semanticScopeLabel?: string;
     semanticSurfaceKey?: string;
     semanticSurfaceLabel?: string;
+    semanticEventName?: GuestSemanticEventName;
+    semanticExitEventName?: GuestSemanticEventName;
 }
 
 const GUEST_ANALYTICS_QUEUE_STORAGE_KEY = "kandydrops.analytics.guest-queue";
@@ -49,16 +58,53 @@ const GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION = 500;
 const GUEST_ANALYTICS_MAX_DIAGNOSTIC_EVENTS_PER_SESSION = 60;
 const GUEST_ANALYTICS_MAX_HOVER_EVENTS_PER_SESSION = 12;
 const GUEST_ANALYTICS_MAX_VISIBILITY_EVENTS_PER_SESSION = 24;
+const GUEST_ANALYTICS_MAX_EVENTS_PER_FLUSH = 200;
 
-export function buildGuestAnalyticsIngestPayload(events: TelemetryEvent[]) {
+export type StableGuestAnalyticsBatch = {
+    signature: string;
+    batchId: string;
+};
+
+export function buildGuestAnalyticsBatchSignature(events: TelemetryEvent[]) {
+    const first = events[0];
+    const last = events[events.length - 1];
+    return [
+        events.length,
+        first?.timestamp ?? 0,
+        first?.type ?? "",
+        first?.path ?? "",
+        last?.timestamp ?? 0,
+        last?.type ?? "",
+        last?.path ?? "",
+    ].join("|");
+}
+
+export function buildGuestAnalyticsIngestPayload(
+    events: TelemetryEvent[],
+    stableBatch?: StableGuestAnalyticsBatch | null,
+) {
     const identity = getClientAnalyticsIdentitySnapshot("granted");
+    const signature = buildGuestAnalyticsBatchSignature(events);
+    const batchId = stableBatch?.signature === signature
+        ? stableBatch.batchId
+        : createAnalyticsBatchId(identity.sessionId);
 
     return {
-        batchId: createAnalyticsBatchId(identity.sessionId),
-        anonymousVisitorId: identity.anonymousVisitorId ?? undefined,
-        sessionId: identity.sessionId,
-        events,
+        stableBatch: { signature, batchId },
+        payload: {
+            batchId,
+            anonymousVisitorId: identity.anonymousVisitorId ?? undefined,
+            sessionId: identity.sessionId,
+            events,
+        },
     };
+}
+
+export function clearStableGuestAnalyticsBatchAfterSuccess(
+    stableBatch: StableGuestAnalyticsBatch | null,
+    completedSignature: string,
+) {
+    return stableBatch?.signature === completedSignature ? null : stableBatch;
 }
 
 function quantizeCoordinate(value: number) {
@@ -179,6 +225,7 @@ export function DeepTracker() {
     const hoverStart = useRef<Record<string, number>>({});
     const pageEnteredAt = useRef<number>(0);
     const viewerBackgroundTrackedRef = useRef(false);
+    const stableGuestBatchRef = useRef<StableGuestAnalyticsBatch | null>(null);
 
     useEffect(() => {
         return subscribeToPrivacySettings(() => {
@@ -244,8 +291,9 @@ export function DeepTracker() {
                 return;
             }
 
-            const queuedEvents = [...eventQueue.current];
-            const payload = buildGuestAnalyticsIngestPayload(queuedEvents);
+            const queuedEvents = eventQueue.current.slice(0, GUEST_ANALYTICS_MAX_EVENTS_PER_FLUSH);
+            const { payload, stableBatch } = buildGuestAnalyticsIngestPayload(queuedEvents, stableGuestBatchRef.current);
+            stableGuestBatchRef.current = stableBatch;
 
             guestFlushInFlightRef.current = (async () => {
                 const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
@@ -267,6 +315,10 @@ export function DeepTracker() {
                     }
 
                     eventQueue.current = eventQueue.current.slice(queuedEvents.length);
+                    stableGuestBatchRef.current = clearStableGuestAnalyticsBatchAfterSuccess(
+                        stableGuestBatchRef.current,
+                        stableBatch.signature,
+                    );
                     persistGuestQueue(eventQueue.current);
                 } catch (error) {
                     persistGuestQueue(eventQueue.current);
@@ -350,6 +402,8 @@ export function DeepTracker() {
 
             pushEvent({
                 type: "page_leave",
+                semanticEventName: engaged ? "semantic_page_engaged" : "semantic_page_passive",
+                semanticExitEventName: exitIntent === "bounce" ? "semantic_page_bounced" : "semantic_page_exited",
                 timestamp: Date.now(),
                 path: pathname,
                 durationMs,
@@ -391,6 +445,7 @@ export function DeepTracker() {
 
         pushEvent({
             type: "page_view",
+            semanticEventName: "semantic_page_viewed",
             timestamp: Date.now(),
             path: pathname,
             ...rawSemanticFields,
@@ -418,6 +473,7 @@ export function DeepTracker() {
 
             pushEvent({
                 type: "click",
+                semanticEventName: "semantic_target_clicked",
                 timestamp: Date.now(),
                 path: pathname,
                 targetId: interactiveTarget.id || undefined,

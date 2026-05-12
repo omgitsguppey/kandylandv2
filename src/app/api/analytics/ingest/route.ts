@@ -35,6 +35,14 @@ const ANALYTICS_SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 90;
 const ANALYTICS_GUEST_BATCH_TTL_MS = 1000 * 60 * 60 * 24 * 180;
 const SESSION_KEY_PATTERN = /^anon_[A-Za-z0-9-]{8,128}$/u;
 const CLIENT_ANALYTICS_ID_PATTERN = /^(?:sess|subject)_[A-Za-z0-9_-]{4,150}$/u;
+const GuestSemanticEventNameSchema = z.enum([
+    "semantic_page_viewed",
+    "semantic_target_clicked",
+    "semantic_page_engaged",
+    "semantic_page_passive",
+    "semantic_page_bounced",
+    "semantic_page_exited",
+]);
 
 const TelemetryEventSchema = z.object({
     type: z.enum(["click", "hover", "scroll", "visibility", "page_view", "page_leave"]),
@@ -60,6 +68,8 @@ const TelemetryEventSchema = z.object({
     semanticScopeLabel: z.string().max(100).optional(),
     semanticSurfaceKey: z.string().max(120).optional(),
     semanticSurfaceLabel: z.string().max(120).optional(),
+    semanticEventName: GuestSemanticEventNameSchema.optional(),
+    semanticExitEventName: GuestSemanticEventNameSchema.optional(),
     referrerHost: z.string().max(120).optional(),
     viewportWidth: z.number().optional(),
     viewportHeight: z.number().optional(),
