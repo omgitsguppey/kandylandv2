@@ -1,6 +1,32 @@
 import { describe, expect, it } from "vitest";
 
 import { buildAdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pulse";
+import type { RealtimeAnalyticsResponse } from "@/types/admin-analytics";
+
+function guestSnapshot(
+  overrides: Partial<NonNullable<RealtimeAnalyticsResponse["guestAnalyticsSnapshot"]>> = {},
+): NonNullable<RealtimeAnalyticsResponse["guestAnalyticsSnapshot"]> {
+  return {
+    generatedAtMs: 1_771_000_000_000,
+    refreshedAtMs: 1_771_000_000_000,
+    sourceWindowMs: 30 * 60 * 1000,
+    sourceWindowLabel: "last_30_minutes",
+    guestBatchCount: 2,
+    guestEventCount: 6,
+    guestSessionCount: 2,
+    uniqueAnonymousVisitorCount: 2,
+    guestBounceCount: 1,
+    guestBounceRate: 0.5,
+    guestSamplesAvailable: true,
+    guestTruthState: "live",
+    sourceCollectionsUsed: ["analytics_guest_batches"],
+    sourceSampleCounts: {
+      analytics_guest_batches: 2,
+    },
+    notes: [],
+    ...overrides,
+  };
+}
 
 describe("buildAdminAnalyticsLivePulseModel", () => {
   it("derives graph points from presence when chart source is empty", () => {
@@ -56,7 +82,7 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     expect(model.graphDerivedFromPresence).toBe(true);
     expect(model.graphHydrated).toBe(true);
     expect(model.graphPointCount).toBeGreaterThan(0);
-    expect(model.activeIdentities[0].displayLabel).toBe("User • jferR2");
+    expect(model.activeIdentities[0].displayLabel).toBe("jferR2");
     expect(model.activeIdentities[0].displayLabel).not.toContain("B7WciP8I1Qbtk9CevdfpZTjferR2");
     expect(model.rawIdentityIds).toContain("B7WciP8I1Qbtk9CevdfpZTjferR2");
     expect(model.guestCount.value).toBe(1);
@@ -135,5 +161,62 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     expect(model.realtimeBlocksFirstRender).toBe(false);
     expect(model.fallbackSnapshotUsed).toBe(true);
     expect(model.laneFailures).toEqual(["listener failed"]);
+  });
+
+  it("uses the materialized guest snapshot instead of GA estimates for the guest mix", () => {
+    const nowMs = 1_771_000_000_000;
+    const model = buildAdminAnalyticsLivePulseModel({
+      activeUsers: [],
+      surfaceMix: [],
+      liveSeries: [],
+      feedStatus: "polled",
+      feedDetail: "Snapshot available.",
+      truthState: "cached",
+      activeUsersTruthState: "cached",
+      nowMs,
+      liveLoading: false,
+      guestEstimateState: "estimated",
+      guestEstimateSourceLabel: "ga_estimate",
+      guestEstimateConfidence: 0.55,
+      guestAnalyticsSnapshot: guestSnapshot({
+        uniqueAnonymousVisitorCount: 3,
+      }),
+    });
+
+    expect(model.guestSnapshotTruthState).toBe("live");
+    expect(model.guestMixLabel).toBe("Auth 0 · Guest 3");
+    expect(model.topWarningDetail).toBeNull();
+    expect(model.guestSnapshotSourceLabel).toBe("analytics_guest_batches");
+  });
+
+  it("does not display missing guest snapshot evidence as a live zero", () => {
+    const nowMs = 1_771_000_000_000;
+    const model = buildAdminAnalyticsLivePulseModel({
+      activeUsers: [],
+      surfaceMix: [],
+      liveSeries: [],
+      feedStatus: "polled",
+      feedDetail: "Snapshot available.",
+      truthState: "cached",
+      activeUsersTruthState: "cached",
+      nowMs,
+      liveLoading: false,
+      guestAnalyticsSnapshot: guestSnapshot({
+        guestBatchCount: 0,
+        guestEventCount: 0,
+        guestSessionCount: 0,
+        uniqueAnonymousVisitorCount: 0,
+        guestSamplesAvailable: false,
+        guestTruthState: "unavailable",
+        sourceSampleCounts: {
+          analytics_guest_batches: 0,
+        },
+        notes: ["No guest analytics batches were materialized in the realtime source window."],
+      }),
+    });
+
+    expect(model.guestSnapshotTruthState).toBe("unavailable");
+    expect(model.guestMixLabel).toBe("Auth 0 · Guest unavailable");
+    expect(model.topWarningDetail).toBe("No guest analytics batches were materialized in the realtime source window.");
   });
 });

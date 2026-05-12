@@ -1567,6 +1567,7 @@ const { user } = useAuth();
         ? 1
         : null,
     guestEstimateSourceLabel: livePulseGuestTraffic?.sourceLabel ?? null,
+    guestAnalyticsSnapshot: effectiveLiveResponse?.guestAnalyticsSnapshot ?? null,
   });
   const historicalOverviewTruthState: AdminSurfaceState | undefined =
     resolvedHistoricalOverviewTruthState;

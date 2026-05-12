@@ -72,6 +72,24 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     ? liveLoading ? firstSnapshotLabel : noSnapshotLabel
     : formatCompactNumber(livePulseModel.activeCount.value);
   const guestAuthMixValue = livePulseModel.guestMixLabel;
+  const guestMixTruthState: AdminSurfaceState =
+    livePulseModel.guestSnapshotTruthState === "live"
+      ? activeUsersTruthState
+      : livePulseModel.guestSnapshotTruthState === "stale"
+        ? "stale"
+        : "degraded";
+  const guestMixBadgeLabel =
+    livePulseModel.guestSnapshotTruthState === "live"
+      ? livePulseBadgeLabel
+      : livePulseModel.guestSnapshotTruthState === "stale"
+        ? "STALE"
+        : livePulseModel.guestSnapshotTruthState === "needs_review"
+          ? "REVIEW"
+          : "NO SAMPLE";
+  const guestMixHint =
+    livePulseModel.guestSnapshotTruthState === "live"
+      ? `Guest snapshot from ${livePulseModel.guestSnapshotSourceLabel}`
+      : livePulseModel.guestSnapshotReason ?? "Guest samples unavailable";
   const topSurfaceValue = livePulseModel.topSurface.value ?? (liveLoading ? firstSnapshotLabel : noSnapshotLabel);
   const lastUpdateValue = liveResponse?.generatedAtMs
     ? formatRelativeTime(liveResponse.generatedAtMs, nowMs)
@@ -217,16 +235,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label="Guest / Auth"
                   value={guestAuthMixValue}
-                  hint={livePulseModel.guestEstimateState === "estimated"
-                    ? `Estimated from ${livePulseModel.guestEstimateSourceLabel ?? "event facts"}`
-                    : livePulseModel.guestEstimateState === "not_observed"
-                      ? "Guest not observed in this window"
-                      : livePulseModel.adminCount.value !== null && livePulseModel.adminCount.value > 0
-                        ? `Admin included in auth count (${livePulseModel.adminCount.value})`
-                        : "Presence mix"}
+                  hint={guestMixHint}
                   icon={Sparkles}
-                  truthState={activeUsersTruthState}
-                  statusBadgeLabel={livePulseModel.guestEstimateState === "estimated" ? "REVIEW" : livePulseBadgeLabel}
+                  truthState={guestMixTruthState}
+                  statusBadgeLabel={guestMixBadgeLabel}
                   className={compactLiveMetricClass}
                   valueClassName={compactLiveMetricValueClass}
                 />
@@ -797,6 +809,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   data-guest-estimated-views={guestBounceQualityModel.estimatedGuestViews.value}
                   data-guest-estimate-source-truth={guestBounceQualityModel.estimatedGuestViews.sourceTruth}
                   data-guest-estimate-formula-state={guestBounceQualityModel.estimatedGuestViews.formulaState}
+                  data-guest-estimate-state={livePulseModel.guestEstimateState}
                 >
                   <MetricCard
                     label={guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}

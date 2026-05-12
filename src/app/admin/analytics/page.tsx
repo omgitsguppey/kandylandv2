@@ -49,7 +49,19 @@ const AdminTaskAndNotificationModules = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, liveGuestActiveCount, historicalTruthState, historicalSourceLabel, liveActiveDisplay, liveActiveTruthState, analyticsOverviewCards } = state;
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalTruthState, historicalSourceLabel, liveActiveDisplay, liveActiveTruthState, analyticsOverviewCards } = state;
+  const liveGuestSnapshot = liveResponse?.guestAnalyticsSnapshot ?? null;
+  const liveGuestHint = liveGuestSnapshot?.guestTruthState === "live" && liveGuestSnapshot.guestSamplesAvailable
+    ? `${formatCompactNumber(liveGuestSnapshot.uniqueAnonymousVisitorCount)} guests - live snapshot`
+    : liveGuestSnapshot?.guestTruthState === "stale"
+      ? "Guest snapshot stale"
+      : liveGuestSnapshot?.guestTruthState === "needs_review"
+        ? "Guest identity link evidence needs review"
+        : liveFeedStatus === "realtime"
+          ? "Guest samples unavailable"
+          : liveResponse?.liveTruthLabel === "fallback"
+            ? "30 min window - last verified"
+            : "30 min window";
   useEffect(() => {
     (window as typeof window & {
       __KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__?: unknown;
@@ -108,11 +120,7 @@ export default function AdminAnalyticsPage() {
         <MetricCard
           label="Live Active"
           value={liveActiveDisplay}
-          hint={liveFeedStatus === "realtime"
-            ? `${formatCompactNumber(liveGuestActiveCount ?? 0)} guests - live`
-            : liveResponse?.liveTruthLabel === "fallback"
-              ? "30 min window - last verified"
-              : "30 min window"}
+          hint={liveGuestHint}
           icon={Activity}
           truthState={liveActiveTruthState}
           dictionaryTooltip="Current active users on the platform. If live updates are delayed, this card shows the last verified short-window count."

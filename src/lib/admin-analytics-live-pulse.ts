@@ -2,6 +2,7 @@ import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { AdminAnalyticsDisplayState } from "@/lib/analytics/admin-analytics-display-state";
 import type {
   RealtimeActiveUserItem,
+  RealtimeAnalyticsResponse,
   RealtimePoint,
   SurfaceMixItem,
 } from "@/types/admin-analytics";
@@ -24,6 +25,9 @@ type LivePulseSource =
   | "ga_intraday"
   | "waiting"
   | "unavailable";
+
+type GuestAnalyticsSnapshot = NonNullable<RealtimeAnalyticsResponse["guestAnalyticsSnapshot"]>;
+type GuestSnapshotDisplayState = "live" | "stale" | "unavailable" | "needs_review";
 
 export type AdminAnalyticsLivePulseIdentity = {
   rawId: string;
@@ -60,6 +64,9 @@ export type AdminAnalyticsLivePulseModel = {
   guestEstimateState: "observed" | "estimated" | "not_observed" | "unknown";
   guestEstimateConfidence: number | null;
   guestEstimateSourceLabel: string | null;
+  guestSnapshotTruthState: GuestSnapshotDisplayState;
+  guestSnapshotSourceLabel: string;
+  guestSnapshotReason: string | null;
   guestMixLabel: string;
   topWarning: string;
   topWarningDetail: string | null;
@@ -243,6 +250,64 @@ function resolveFirestoreFromCache(listenerDebugMeta?: AnalyticsRealtimeDebugMet
   return entries.some((entry) => entry.fromCache);
 }
 
+function resolveGuestSnapshotDisplay(snapshot?: GuestAnalyticsSnapshot | null): {
+  state: GuestSnapshotDisplayState;
+  count: number | null;
+  sourceLabel: string;
+  reason: string | null;
+  sampleEvidence: boolean;
+} {
+  if (!snapshot) {
+    return {
+      state: "unavailable",
+      count: null,
+      sourceLabel: "guest snapshot missing",
+      reason: "Guest samples unavailable",
+      sampleEvidence: false,
+    };
+  }
+
+  const sampledBatchCount = snapshot.sourceSampleCounts.analytics_guest_batches ?? 0;
+  const sampleEvidence = snapshot.guestSamplesAvailable === true || sampledBatchCount > 0;
+  if (!sampleEvidence) {
+    return {
+      state: "unavailable",
+      count: null,
+      sourceLabel: snapshot.sourceCollectionsUsed.join(", ") || "guest snapshot",
+      reason: snapshot.notes[0] ?? "Guest samples unavailable",
+      sampleEvidence,
+    };
+  }
+
+  if (snapshot.guestTruthState === "needs_review") {
+    return {
+      state: "needs_review",
+      count: snapshot.uniqueAnonymousVisitorCount,
+      sourceLabel: snapshot.sourceCollectionsUsed.join(", ") || "guest snapshot",
+      reason: snapshot.notes[0] ?? "Guest identity link evidence needs review",
+      sampleEvidence,
+    };
+  }
+
+  if (snapshot.guestTruthState === "stale") {
+    return {
+      state: "stale",
+      count: snapshot.uniqueAnonymousVisitorCount,
+      sourceLabel: snapshot.sourceCollectionsUsed.join(", ") || "guest snapshot",
+      reason: "Guest snapshot stale",
+      sampleEvidence,
+    };
+  }
+
+  return {
+    state: snapshot.guestTruthState === "live" ? "live" : "unavailable",
+    count: snapshot.guestTruthState === "live" ? snapshot.uniqueAnonymousVisitorCount : null,
+    sourceLabel: snapshot.sourceCollectionsUsed.join(", ") || "guest snapshot",
+    reason: snapshot.guestTruthState === "live" ? null : snapshot.notes[0] ?? "Guest samples unavailable",
+    sampleEvidence,
+  };
+}
+
 export function buildAdminAnalyticsLivePulseModel(input: {
   activeUsers: RealtimeActiveUserItem[];
   surfaceMix: SurfaceMixItem[];
@@ -262,6 +327,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   guestEstimateState?: "observed" | "estimated" | "not_observed" | "unknown";
   guestEstimateConfidence?: number | null;
   guestEstimateSourceLabel?: string | null;
+  guestAnalyticsSnapshot?: GuestAnalyticsSnapshot | null;
 }): AdminAnalyticsLivePulseModel {
   const firestoreFromCache = resolveFirestoreFromCache(input.listenerDebugMeta);
   const hasPresenceRows = input.activeUsers.length > 0;
@@ -331,6 +397,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   const guestEstimateState = input.guestEstimateState ?? "unknown";
   const guestEstimateConfidence = input.guestEstimateConfidence ?? null;
   const guestEstimateSourceLabel = input.guestEstimateSourceLabel ?? null;
+  const guestSnapshotDisplay = resolveGuestSnapshotDisplay(input.guestAnalyticsSnapshot);
   const graphHydrated = graphPointCount > 0;
   const hasServerConfirmation = Object.values(input.listenerDebugMeta?.listeners ?? {}).some(
     (entry) => entry.lastServerConfirmedAtMs !== null,
@@ -380,13 +447,27 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   const topWarning = mode === "delayed_snapshot"
     ? "Live updates are delayed. Showing last verified snapshot."
     : visibleCopy;
-  const topWarningDetail = guestEstimateState === "estimated"
+  const topWarningDetail = guestSnapshotDisplay.state === "unavailable"
+    ? guestSnapshotDisplay.reason
+    : guestSnapshotDisplay.state === "stale"
+      ? "Guest snapshot stale. Showing last verified guest sample."
+      : guestSnapshotDisplay.state === "needs_review"
+        ? guestSnapshotDisplay.reason
+        : guestEstimateState === "estimated" && !guestSnapshotDisplay.sampleEvidence
     ? `Guest traffic is estimated from ${guestEstimateSourceLabel ?? "event facts"}${guestEstimateConfidence !== null ? ` (${Math.round(guestEstimateConfidence * 100)}% confidence)` : ""}.`
     : adminCount > 0
       ? `Admin activity is labeled separately and included in auth count (${adminCount}).`
       : null;
   const guestMixLabel =
-    guestEstimateState === "estimated"
+    guestSnapshotDisplay.state === "unavailable"
+      ? `Auth ${authCount} · Guest unavailable`
+      : guestSnapshotDisplay.state === "stale"
+        ? `Auth ${authCount} · Guest stale ${guestSnapshotDisplay.count ?? "unknown"}`
+        : guestSnapshotDisplay.state === "needs_review"
+          ? `Auth ${authCount} · Guest review ${guestSnapshotDisplay.count ?? "unknown"}`
+          : guestSnapshotDisplay.sampleEvidence
+            ? `Auth ${authCount} · Guest ${guestSnapshotDisplay.count ?? "unknown"}`
+            : guestEstimateState === "estimated"
       ? `Auth ${authCount} · Guest estimate ${guestCount}`
       : guestEstimateState === "not_observed"
         ? `Auth ${authCount} · Guest not observed`
@@ -418,6 +499,9 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     guestEstimateState,
     guestEstimateConfidence,
     guestEstimateSourceLabel,
+    guestSnapshotTruthState: guestSnapshotDisplay.state,
+    guestSnapshotSourceLabel: guestSnapshotDisplay.sourceLabel,
+    guestSnapshotReason: guestSnapshotDisplay.reason,
     guestMixLabel,
     topWarning,
     topWarningDetail,
