@@ -8,6 +8,36 @@ import {
 } from "@/lib/agent-score/core";
 import { assertAutofixGate, type PublicBetaAutofixPlan } from "@/lib/agent-score/autofix";
 import { buildPublicBetaCommandBudget } from "@/lib/agent-score/reporting";
+import type { DebugEvidenceAuditSummary } from "@/lib/debug-evidence-contract";
+
+const freshEvidence = {
+    requiredReports: [
+        {
+            path: "agent/state/final-launch-readiness-report.generated.json",
+            generatedAt: new Date().toISOString(),
+            freshness: "fresh" as const,
+        },
+    ],
+    debugEvidence: {
+        layout: [{
+            id: "debug-1",
+            fingerprint: "debug-1",
+            source: "audit",
+            severity: "info",
+            category: "layout",
+            message: "sample",
+            humanMessage: "sample",
+            occurrenceCount: 1,
+            firstSeenAt: Date.now(),
+            lastSeenAt: Date.now(),
+        } satisfies DebugEvidenceAuditSummary],
+    },
+    hasTargetedBehaviorEvidence: true,
+    hasVisualManualEvidence: true,
+    hasProviderSmokeEvidence: true,
+    hasAdminTruthSampleEvidence: true,
+    openPrTriageFresh: true,
+};
 
 describe("public beta scoring math", () => {
     it("applies severity, confidence, blast radius, and recency multipliers", () => {
@@ -46,10 +76,95 @@ describe("public beta scoring math", () => {
             docsBasis: ["repo"],
         }], {
             commandBudget: buildPublicBetaCommandBudget(),
+            evidence: freshEvidence,
         });
 
         expect(report.overallStatus).toBe("fail");
         expect(report.domainScores.contentProtection.status).toBe("fail");
+    });
+
+    it("does not report clean when scanners find nothing but evidence is missing", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+        });
+
+        expect(report.scannerScore).toBe(100);
+        expect(report.scannerStatus).toBe("clean");
+        expect(report.overallStatus).not.toBe("clean");
+        expect(report.readinessStatus).not.toBe("Ready");
+        expect(report.overallScore).toBeLessThan(100);
+        expect(report.evidenceCapsApplied.length).toBeGreaterThan(0);
+    });
+
+    it("downgrades stale generated reports", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                requiredReports: [{
+                    path: "agent/state/final-launch-readiness-report.generated.json",
+                    generatedAt: "2026-05-01T00:00:00.000Z",
+                    freshness: "stale",
+                    ageHours: 48,
+                }],
+            },
+        });
+
+        expect(report.readinessStatus).toBe("Stale evidence");
+        expect(report.overallStatus).toBe("beta-risk");
+        expect(report.overallScore).toBeLessThan(100);
+    });
+
+    it("marks empty debug evidence as unknown", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                debugEvidence: { layout: [] },
+            },
+        });
+
+        expect(report.evidenceGates).toEqual(expect.arrayContaining([
+            expect.objectContaining({ id: "debugRuntimeEvidence", status: "Unknown evidence" }),
+        ]));
+        expect(report.readinessStatus).toBe("Unknown evidence");
+    });
+
+    it("caps missing visual evidence at Visual QA required", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                hasVisualManualEvidence: false,
+            },
+        });
+
+        expect(report.readinessStatus).toBe("Visual QA required");
+        expect(report.overallStatus).toBe("warning");
+    });
+
+    it("caps missing provider smoke as smoke required", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                hasProviderSmokeEvidence: false,
+            },
+        });
+
+        expect(report.readinessStatus).toBe("Ready with smoke required");
+        expect(report.overallScore).toBeLessThan(100);
+    });
+
+    it("allows ready only when scanner and evidence gates are fresh", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: freshEvidence,
+        });
+
+        expect(report.overallScore).toBe(100);
+        expect(report.overallStatus).toBe("clean");
+        expect(report.readinessStatus).toBe("Ready");
     });
 
     it("dedupes duplicate findings and keeps the strongest evidence", () => {

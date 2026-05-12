@@ -20,6 +20,30 @@ KandyDrops debug evidence is structured, fingerprinted, stored, and injected int
 
 Each domain starts at 100. Findings apply severity, confidence, blast-radius, and optional recency multipliers. Critical findings with confidence at or above 0.85 force the affected domain and overall status to `fail`; lower-confidence criticals become major escalations unless they are hardcoded content/security leaks.
 
+Scanner cleanliness is not readiness by itself. The score now also records evidence-aware readiness gates:
+
+- source safety
+- targeted behavior tests
+- visual/manual smoke evidence
+- runtime/provider smoke evidence
+- admin truth/sample evidence
+- generated report freshness, open PR, and current HEAD integrity
+
+The report keeps the scanner score separately from the evidence-aware readiness score. Zero scanner findings plus missing evidence must not produce `clean`, `Ready`, or 100/100.
+
+Honest readiness statuses:
+
+- `Ready`
+- `Ready with smoke required`
+- `Needs review`
+- `Blocked`
+- `Unknown evidence`
+- `Stale evidence`
+- `Runtime unverified`
+- `Visual QA required`
+
+If manual/screenshot evidence is absent, readiness is capped at `Visual QA required`. If provider smoke is absent, readiness is capped at `Ready with smoke required`. If generated reports are older than 24 hours, readiness is capped at `Stale evidence` or `Needs review`. Empty debug evidence is `Unknown evidence`, not proof of health.
+
 Domain weights:
 
 - layout: 18
@@ -38,6 +62,17 @@ Default status thresholds:
 - 80-89: warning
 - 70-79: beta-risk
 - 0-69: fail
+
+Evidence-weighted readiness model:
+
+- Source safety: 25
+- Targeted behavior tests: 20
+- User-critical visual/manual smoke evidence: 20
+- Runtime/provider smoke state: 15
+- Admin truth/sample evidence: 10
+- Freshness/open-PR/source-commit integrity: 10
+
+Generated reports are evidence snapshots, not doctrine. Reports older than 24 hours must be regenerated or treated as stale evidence before a readiness claim is trusted.
 
 ## Autofix Policy
 

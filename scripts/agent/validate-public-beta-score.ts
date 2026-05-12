@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { assertAutofixGate, type PublicBetaAutofixPlan } from "../../src/lib/agent-score/autofix";
-import type { PublicBetaFinding, PublicBetaScoreReport } from "../../src/lib/agent-score/core";
+import type { PublicBetaEvidenceGate, PublicBetaFinding, PublicBetaScoreReport } from "../../src/lib/agent-score/core";
 import { PUBLIC_BETA_SCORE_REPORT_PATH } from "../../src/lib/agent-score/reporting";
 
 const root = process.cwd();
@@ -48,6 +48,31 @@ function requireNumber(value: unknown, label: string, min = Number.NEGATIVE_INFI
   }
 }
 
+function validateEvidenceGate(gate: PublicBetaEvidenceGate, index: number) {
+  for (const key of ["id", "label", "status", "detail", "recommendedAction"] as const) {
+    if (typeof gate[key] !== "string" || gate[key].trim().length === 0) {
+      failures.push(`evidenceGates[${index}].${key} must be a non-empty string.`);
+    }
+  }
+  if (![
+    "Ready",
+    "Ready with smoke required",
+    "Needs review",
+    "Blocked",
+    "Unknown evidence",
+    "Stale evidence",
+    "Runtime unverified",
+    "Visual QA required",
+  ].includes(gate.status)) {
+    failures.push(`evidenceGates[${index}].status is invalid.`);
+  }
+  requireNumber(gate.weight, `evidenceGates[${index}].weight`, 0, 100);
+  requireNumber(gate.score, `evidenceGates[${index}].score`, 0, 100);
+  if (!Array.isArray(gate.evidence)) {
+    failures.push(`evidenceGates[${index}].evidence must be an array.`);
+  }
+}
+
 function validateFinding(finding: PublicBetaFinding, index: number) {
   for (const key of ["id", "domain", "category", "title", "severity", "filePath", "escalation"] as const) {
     if (typeof finding[key] !== "string" || finding[key].trim().length === 0) {
@@ -71,9 +96,45 @@ function validateFinding(finding: PublicBetaFinding, index: number) {
 
 const report = readReport();
 if (report) {
+  requireNumber(report.scannerScore, "scannerScore", 0, 100);
+  if (!["clean", "pass", "warning", "beta-risk", "fail"].includes(report.scannerStatus)) {
+    failures.push("scannerStatus must be a valid public beta status.");
+  }
   requireNumber(report.overallScore, "overallScore", 0, 100);
   if (!["clean", "pass", "warning", "beta-risk", "fail"].includes(report.overallStatus)) {
     failures.push("overallStatus must be a valid public beta status.");
+  }
+  if (![
+    "Ready",
+    "Ready with smoke required",
+    "Needs review",
+    "Blocked",
+    "Unknown evidence",
+    "Stale evidence",
+    "Runtime unverified",
+    "Visual QA required",
+  ].includes(report.readinessStatus)) {
+    failures.push("readinessStatus must be an honest evidence-aware readiness status.");
+  }
+  if (typeof report.readinessStatusReason !== "string" || report.readinessStatusReason.trim().length === 0) {
+    failures.push("readinessStatusReason must be non-empty.");
+  }
+  requireNumber(report.evidenceScore, "evidenceScore", 0, 100);
+  if (!Array.isArray(report.evidenceGates) || report.evidenceGates.length === 0) {
+    failures.push("evidenceGates must be a non-empty array.");
+  } else {
+    report.evidenceGates.forEach(validateEvidenceGate);
+  }
+  if (!Array.isArray(report.evidenceCapsApplied)) {
+    failures.push("evidenceCapsApplied must be an array.");
+  }
+  if (!report.evidenceWeights || typeof report.evidenceWeights !== "object") {
+    failures.push("evidenceWeights must be present.");
+  }
+  if (report.scannerScore === 100 && report.findings?.length === 0 && report.evidenceCapsApplied.length > 0) {
+    if (report.overallScore >= 100 || report.overallStatus === "clean" || report.readinessStatus === "Ready") {
+      failures.push("Zero scanner findings with missing evidence must not produce clean/Ready/100.");
+    }
   }
   if (!report.domainScores || typeof report.domainScores !== "object") {
     failures.push("domainScores must be present.");
@@ -86,6 +147,16 @@ if (report) {
     if (hasCritical && report.overallStatus !== "fail") {
       failures.push("critical findings with confidence >= 0.85 must force overallStatus fail.");
     }
+  }
+  if (report.readinessStatus !== "Ready" && report.summary.includes("(clean)")) {
+    failures.push("summary must not present evidence-capped readiness as clean.");
+  }
+  const hasEmptyDebugGate = report.evidenceGates?.some((gate) =>
+    gate.id === "debugRuntimeEvidence" && gate.status === "Unknown evidence");
+  const debugEvidence = report.debugEvidence ?? {};
+  const debugEvidenceEmpty = Object.values(debugEvidence).every((entries) => Array.isArray(entries) && entries.length === 0);
+  if (debugEvidenceEmpty && !hasEmptyDebugGate) {
+    failures.push("Empty debugEvidence must be represented as Unknown evidence.");
   }
   requireNumber(report.dedupedFindingCount, "dedupedFindingCount", 0, 10_000);
   requireNumber(report.safeAutofixesAvailable, "safeAutofixesAvailable", 0, 10_000);
@@ -120,10 +191,13 @@ const auditLedger = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
 
 for (const expected of [
   "PUBLIC_BETA_DOMAIN_WEIGHTS",
+  "PUBLIC_BETA_EVIDENCE_WEIGHTS",
   "PUBLIC_BETA_SEVERITY_PENALTIES",
   "PUBLIC_BETA_BLAST_RADIUS_MULTIPLIERS",
   "buildPublicBetaScoreReport",
+  "buildPublicBetaEvidenceGates",
   "dedupePublicBetaFindings",
+  "readinessStatus",
   "critical",
 ]) {
   requireIncludes(core + weights, expected, "Public beta score math core");
@@ -205,6 +279,7 @@ for (const expected of [
   requireIncludes(packageJson, expected, "package scripts");
 }
 requireIncludes(validatorScript, "commandBudget.forbiddenCommands", "Public beta score validator");
+requireIncludes(validatorScript, "Zero scanner findings with missing evidence", "Public beta evidence-aware validator");
 
 if (failures.length > 0) {
   console.error("Public beta score validation failed:");

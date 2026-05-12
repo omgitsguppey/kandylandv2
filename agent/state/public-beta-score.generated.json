@@ -1,7 +1,107 @@
 {
-  "generatedAt": "2026-05-06T20:38:38.679Z",
-  "overallScore": 100,
-  "overallStatus": "clean",
+  "generatedAt": "2026-05-12T18:12:15.652Z",
+  "scannerScore": 100,
+  "scannerStatus": "clean",
+  "overallScore": 25,
+  "overallStatus": "beta-risk",
+  "readinessStatus": "Stale evidence",
+  "readinessStatusReason": "3 required generated report(s) are older than the freshness window.",
+  "evidenceScore": 25,
+  "evidenceGates": [
+    {
+      "id": "sourceSafety",
+      "label": "Source safety",
+      "weight": 25,
+      "score": 25,
+      "status": "Ready",
+      "detail": "Deterministic source scanners did not find a critical blocker.",
+      "evidence": [
+        "scannerStatus=clean",
+        "scannerScore=100"
+      ],
+      "recommendedAction": "Keep source scanner lane in the fast loop."
+    },
+    {
+      "id": "targetedBehaviorTests",
+      "label": "Targeted behavior tests",
+      "weight": 20,
+      "score": 0,
+      "status": "Unknown evidence",
+      "detail": "No fresh targeted behavior test evidence was supplied to the score.",
+      "evidence": [],
+      "recommendedAction": "Run the targeted validators for the changed surface and regenerate the score with fresh evidence metadata."
+    },
+    {
+      "id": "visualManualSmoke",
+      "label": "Visual/manual smoke",
+      "weight": 20,
+      "score": 0,
+      "status": "Visual QA required",
+      "detail": "No screenshot or manual user-critical-path visual evidence was supplied.",
+      "evidence": [],
+      "recommendedAction": "Record targeted manual or screenshot evidence for user-critical surfaces before calling the score ready."
+    },
+    {
+      "id": "runtimeProviderSmoke",
+      "label": "Runtime/provider smoke",
+      "weight": 15,
+      "score": 0,
+      "status": "Ready with smoke required",
+      "detail": "No live provider smoke evidence was supplied.",
+      "evidence": [],
+      "recommendedAction": "Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded."
+    },
+    {
+      "id": "adminTruthSamples",
+      "label": "Admin truth/sample evidence",
+      "weight": 10,
+      "score": 0,
+      "status": "Unknown evidence",
+      "detail": "No admin truth sample evidence was supplied.",
+      "evidence": [],
+      "recommendedAction": "Require first-party sample evidence before rendering zero/live/healthy as launch truth."
+    },
+    {
+      "id": "freshnessIntegrity",
+      "label": "Freshness, PR, and HEAD integrity",
+      "weight": 10,
+      "score": 0,
+      "status": "Stale evidence",
+      "detail": "3 required generated report(s) are older than the freshness window.",
+      "evidence": [
+        "agent/state/final-launch-readiness-report.generated.json (251.79h old)",
+        "agent/state/launch-readiness-report.generated.json (258.45h old)",
+        "agent/state/launch-pr-triage.generated.json (277.2h old)"
+      ],
+      "recommendedAction": "Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current."
+    },
+    {
+      "id": "debugRuntimeEvidence",
+      "label": "Debug/runtime evidence",
+      "weight": 0,
+      "score": 0,
+      "status": "Unknown evidence",
+      "detail": "Debug evidence is empty, so absence of runtime issues is unknown.",
+      "evidence": [],
+      "recommendedAction": "Do not treat empty debug evidence as proof that no runtime issue exists."
+    }
+  ],
+  "evidenceCapsApplied": [
+    "Unknown evidence: Targeted behavior tests",
+    "Visual QA required: Visual/manual smoke",
+    "Ready with smoke required: Runtime/provider smoke",
+    "Unknown evidence: Admin truth/sample evidence",
+    "Stale evidence: Freshness, PR, and HEAD integrity",
+    "Unknown evidence: Debug/runtime evidence"
+  ],
+  "evidenceWeights": {
+    "sourceSafety": 25,
+    "targetedBehaviorTests": 20,
+    "visualManualSmoke": 20,
+    "runtimeProviderSmoke": 15,
+    "adminTruthSamples": 10,
+    "freshnessIntegrity": 10
+  },
   "domainScores": {
     "layout": {
       "weight": 18,
@@ -73,6 +173,12 @@
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
   "recommendedNextActions": [
+    "Unknown evidence: Run the targeted validators for the changed surface and regenerate the score with fresh evidence metadata.",
+    "Visual QA required: Record targeted manual or screenshot evidence for user-critical surfaces before calling the score ready.",
+    "Ready with smoke required: Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
+    "Unknown evidence: Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
+    "Stale evidence: Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current.",
+    "Unknown evidence: Do not treat empty debug evidence as proof that no runtime issue exists.",
     "Keep using `npm run score:beta` and targeted tests before public beta UI/economy changes."
   ],
   "minimalVerificationCommands": [
@@ -104,7 +210,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta deterministic score 100/100 (clean) with 0 deduped finding(s) and 0 safe autofix(es) available.",
+  "summary": "Public beta readiness score 25/100 (Stale evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 6 evidence cap(s) applied.",
   "debugEvidence": {
     "layout": [],
     "hydration": [],

@@ -31,6 +31,22 @@ Before public announcement, run live production smoke:
 - deployed App Hosting `/api/health`
 - Admin Debug/Analytics snapshot visibility after first real traffic
 
+## Evidence-Aware Readiness Rule
+
+This report is a generated evidence snapshot, not launch doctrine. A `LAUNCHABLE WITH WARNINGS` snapshot is not the same thing as `Ready`.
+
+Launch readiness must be downgraded when:
+
+- the generated report is older than 24 hours
+- runtime files changed after the report timestamp
+- warning gates remain
+- live provider smoke is still absent
+- real-device mobile/PWA smoke is still absent
+- open PR triage is stale
+- summary gate counts disagree with the gate list
+
+Allowed honest states for operators are `Ready`, `Ready with smoke required`, `Needs review`, `Blocked`, `Unknown evidence`, `Stale evidence`, `Runtime unverified`, and `Visual QA required`. Missing smoke or missing visual/manual evidence must stay visible as a readiness cap; it cannot be hidden behind launchable wording.
+
 ## Gate Summary
 
 | Gate | Status | Launch Recommendation |

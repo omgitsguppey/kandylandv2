@@ -1,6 +1,8 @@
 import {
   PUBLIC_BETA_BLAST_RADIUS_MULTIPLIERS,
   PUBLIC_BETA_DOMAIN_WEIGHTS,
+  PUBLIC_BETA_EVIDENCE_SCORE_CAPS,
+  PUBLIC_BETA_EVIDENCE_WEIGHTS,
   PUBLIC_BETA_SEVERITY_PENALTIES,
   PUBLIC_BETA_STATUS_THRESHOLDS,
 } from "./weights";
@@ -10,7 +12,48 @@ export type PublicBetaDomain = keyof typeof PUBLIC_BETA_DOMAIN_WEIGHTS;
 export type PublicBetaSeverity = keyof typeof PUBLIC_BETA_SEVERITY_PENALTIES;
 export type PublicBetaBlastRadius = keyof typeof PUBLIC_BETA_BLAST_RADIUS_MULTIPLIERS;
 export type PublicBetaStatus = "clean" | "pass" | "warning" | "beta-risk" | "fail";
+export type PublicBetaReadinessStatus =
+  | "Ready"
+  | "Ready with smoke required"
+  | "Needs review"
+  | "Blocked"
+  | "Unknown evidence"
+  | "Stale evidence"
+  | "Runtime unverified"
+  | "Visual QA required";
 export type PublicBetaDocsBasis = "google" | "apple" | "kandydrops" | "repo";
+
+export type PublicBetaGeneratedReportEvidence = {
+  path: string;
+  generatedAt?: string;
+  sourceCommit?: string;
+  freshness?: "fresh" | "stale" | "unknown" | "missing";
+  ageHours?: number;
+  currentHead?: string;
+};
+
+export type PublicBetaEvidenceInput = {
+  requiredReports?: PublicBetaGeneratedReportEvidence[];
+  debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
+  hasTargetedBehaviorEvidence?: boolean;
+  hasVisualManualEvidence?: boolean;
+  hasProviderSmokeEvidence?: boolean;
+  hasAdminTruthSampleEvidence?: boolean;
+  openPrTriageFresh?: boolean;
+  runtimeCodeChangedSinceReport?: boolean;
+  launchWarningCount?: number;
+};
+
+export type PublicBetaEvidenceGate = {
+  id: keyof typeof PUBLIC_BETA_EVIDENCE_WEIGHTS | "debugRuntimeEvidence";
+  label: string;
+  weight: number;
+  score: number;
+  status: PublicBetaReadinessStatus;
+  detail: string;
+  evidence: string[];
+  recommendedAction: string;
+};
 
 export type PublicBetaFinding = {
   id: string;
@@ -35,8 +78,16 @@ export type PublicBetaFinding = {
 
 export type PublicBetaScoreReport = {
   generatedAt: string;
+  scannerScore: number;
+  scannerStatus: PublicBetaStatus;
   overallScore: number;
   overallStatus: PublicBetaStatus;
+  readinessStatus: PublicBetaReadinessStatus;
+  readinessStatusReason: string;
+  evidenceScore: number;
+  evidenceGates: PublicBetaEvidenceGate[];
+  evidenceCapsApplied: string[];
+  evidenceWeights: typeof PUBLIC_BETA_EVIDENCE_WEIGHTS;
   domainScores: Record<PublicBetaDomain, {
     weight: number;
     score: number;
@@ -71,6 +122,7 @@ export type PublicBetaScoreOptions = {
   recommendedNextActions?: string[];
   minimalVerificationCommands?: string[];
   commandBudget: PublicBetaScoreReport["commandBudget"];
+  evidence?: PublicBetaEvidenceInput;
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -115,6 +167,251 @@ export function resolvePublicBetaStatus(score: number, hasCritical = false): Pub
     return "beta-risk";
   }
   return "fail";
+}
+
+const READINESS_STATUS_RANK: Record<PublicBetaReadinessStatus, number> = {
+  Ready: 0,
+  "Ready with smoke required": 1,
+  "Runtime unverified": 2,
+  "Visual QA required": 3,
+  "Unknown evidence": 4,
+  "Needs review": 5,
+  "Stale evidence": 6,
+  Blocked: 7,
+};
+
+function mostSevereReadinessStatus(statuses: PublicBetaReadinessStatus[]) {
+  return statuses.reduce<PublicBetaReadinessStatus>((current, status) =>
+    READINESS_STATUS_RANK[status] > READINESS_STATUS_RANK[current] ? status : current, "Ready");
+}
+
+function readinessStatusToLegacyStatus(status: PublicBetaReadinessStatus, score: number, hasCritical: boolean): PublicBetaStatus {
+  if (status === "Blocked" || hasCritical) return "fail";
+  if (status === "Stale evidence" || status === "Needs review") return "beta-risk";
+  if (status === "Unknown evidence" || status === "Visual QA required" || status === "Runtime unverified") return "warning";
+  if (status === "Ready with smoke required") return score >= PUBLIC_BETA_STATUS_THRESHOLDS.pass ? "pass" : "warning";
+  return resolvePublicBetaStatus(score, hasCritical);
+}
+
+function capForReadinessStatus(status: PublicBetaReadinessStatus) {
+  switch (status) {
+    case "Ready with smoke required":
+      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.readyWithSmokeRequired;
+    case "Runtime unverified":
+      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.runtimeUnverified;
+    case "Visual QA required":
+      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.visualQaRequired;
+    case "Unknown evidence":
+      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.unknownEvidence;
+    case "Needs review":
+      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.needsReview;
+    case "Stale evidence":
+      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.staleEvidence;
+    case "Blocked":
+      return PUBLIC_BETA_EVIDENCE_SCORE_CAPS.blocked;
+    case "Ready":
+      return 100;
+  }
+}
+
+function hasDebugEvidence(debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>) {
+  if (!debugEvidence) return false;
+  return Object.values(debugEvidence).some((entries) => Array.isArray(entries) && entries.length > 0);
+}
+
+function summarizeRequiredReportEvidence(reports: PublicBetaGeneratedReportEvidence[] | undefined) {
+  const requiredReports = reports ?? [];
+  const missingReports = requiredReports.filter((report) => report.freshness === "missing");
+  const staleReports = requiredReports.filter((report) => report.freshness === "stale");
+  const unknownReports = requiredReports.filter((report) => report.freshness === "unknown" || !report.freshness);
+  const commitMismatches = requiredReports.filter((report) =>
+    report.sourceCommit && report.currentHead && report.sourceCommit !== report.currentHead);
+
+  if (missingReports.length > 0) {
+    return {
+      status: "Needs review" as const,
+      score: 0,
+      detail: `${missingReports.length} required generated report(s) are missing.`,
+      evidence: missingReports.map((report) => report.path),
+    };
+  }
+  if (staleReports.length > 0) {
+    return {
+      status: "Stale evidence" as const,
+      score: 0,
+      detail: `${staleReports.length} required generated report(s) are older than the freshness window.`,
+      evidence: staleReports.map((report) =>
+        `${report.path}${typeof report.ageHours === "number" ? ` (${roundScore(report.ageHours)}h old)` : ""}`),
+    };
+  }
+  if (commitMismatches.length > 0) {
+    return {
+      status: "Needs review" as const,
+      score: 0,
+      detail: `${commitMismatches.length} generated report(s) were created before the current HEAD.`,
+      evidence: commitMismatches.map((report) => report.path),
+    };
+  }
+  if (unknownReports.length > 0) {
+    return {
+      status: "Unknown evidence" as const,
+      score: 0,
+      detail: `${unknownReports.length} required generated report(s) have unknown freshness.`,
+      evidence: unknownReports.map((report) => report.path),
+    };
+  }
+  if (requiredReports.length === 0) {
+    return {
+      status: "Unknown evidence" as const,
+      score: 0,
+      detail: "No generated report freshness evidence was supplied.",
+      evidence: [],
+    };
+  }
+  return {
+    status: "Ready" as const,
+    score: PUBLIC_BETA_EVIDENCE_WEIGHTS.freshnessIntegrity,
+    detail: requiredReports.length > 0
+      ? "Required generated reports are fresh for deterministic scoring."
+      : "No required generated report freshness evidence was provided.",
+    evidence: requiredReports.map((report) => report.path),
+  };
+}
+
+export function buildPublicBetaEvidenceGates(input: {
+  scannerScore: number;
+  scannerStatus: PublicBetaStatus;
+  hasCritical: boolean;
+  evidence?: PublicBetaEvidenceInput;
+}) {
+  const evidence = input.evidence ?? {};
+  const reportEvidence = summarizeRequiredReportEvidence(evidence.requiredReports);
+  const debugEvidenceAvailable = hasDebugEvidence(evidence.debugEvidence);
+  const freshnessStatus = mostSevereReadinessStatus([
+    reportEvidence.status,
+    evidence.openPrTriageFresh === false || evidence.runtimeCodeChangedSinceReport ? "Needs review" : "Ready",
+  ]);
+  const freshnessDetail = freshnessStatus === reportEvidence.status && reportEvidence.status !== "Ready"
+    ? reportEvidence.detail
+    : evidence.runtimeCodeChangedSinceReport
+      ? "Runtime code changed after the readiness report was generated."
+      : evidence.openPrTriageFresh === false
+        ? "Open PR triage is stale or not tied to current HEAD."
+        : reportEvidence.detail;
+
+  const gates: PublicBetaEvidenceGate[] = [
+    {
+      id: "sourceSafety",
+      label: "Source safety",
+      weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.sourceSafety,
+      score: input.hasCritical ? 0 : roundScore((input.scannerScore / 100) * PUBLIC_BETA_EVIDENCE_WEIGHTS.sourceSafety),
+      status: input.hasCritical ? "Blocked" : "Ready",
+      detail: input.hasCritical
+        ? "High-confidence critical scanner findings remain."
+        : "Deterministic source scanners did not find a critical blocker.",
+      evidence: [`scannerStatus=${input.scannerStatus}`, `scannerScore=${input.scannerScore}`],
+      recommendedAction: input.hasCritical ? "Fix critical scanner findings before scoring readiness." : "Keep source scanner lane in the fast loop.",
+    },
+    {
+      id: "targetedBehaviorTests",
+      label: "Targeted behavior tests",
+      weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.targetedBehaviorTests,
+      score: evidence.hasTargetedBehaviorEvidence ? PUBLIC_BETA_EVIDENCE_WEIGHTS.targetedBehaviorTests : 0,
+      status: evidence.hasTargetedBehaviorEvidence ? "Ready" : "Unknown evidence",
+      detail: evidence.hasTargetedBehaviorEvidence
+        ? "Targeted behavior evidence was supplied."
+        : "No fresh targeted behavior test evidence was supplied to the score.",
+      evidence: [],
+      recommendedAction: "Run the targeted validators for the changed surface and regenerate the score with fresh evidence metadata.",
+    },
+    {
+      id: "visualManualSmoke",
+      label: "Visual/manual smoke",
+      weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.visualManualSmoke,
+      score: evidence.hasVisualManualEvidence ? PUBLIC_BETA_EVIDENCE_WEIGHTS.visualManualSmoke : 0,
+      status: evidence.hasVisualManualEvidence ? "Ready" : "Visual QA required",
+      detail: evidence.hasVisualManualEvidence
+        ? "Visual/manual smoke evidence was supplied."
+        : "No screenshot or manual user-critical-path visual evidence was supplied.",
+      evidence: [],
+      recommendedAction: "Record targeted manual or screenshot evidence for user-critical surfaces before calling the score ready.",
+    },
+    {
+      id: "runtimeProviderSmoke",
+      label: "Runtime/provider smoke",
+      weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.runtimeProviderSmoke,
+      score: evidence.hasProviderSmokeEvidence ? PUBLIC_BETA_EVIDENCE_WEIGHTS.runtimeProviderSmoke : 0,
+      status: evidence.hasProviderSmokeEvidence ? "Ready" : "Ready with smoke required",
+      detail: evidence.hasProviderSmokeEvidence
+        ? "Provider/runtime smoke evidence was supplied."
+        : "No live provider smoke evidence was supplied.",
+      evidence: [],
+      recommendedAction: "Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
+    },
+    {
+      id: "adminTruthSamples",
+      label: "Admin truth/sample evidence",
+      weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.adminTruthSamples,
+      score: evidence.hasAdminTruthSampleEvidence ? PUBLIC_BETA_EVIDENCE_WEIGHTS.adminTruthSamples : 0,
+      status: evidence.hasAdminTruthSampleEvidence ? "Ready" : "Unknown evidence",
+      detail: evidence.hasAdminTruthSampleEvidence
+        ? "Admin truth/sample evidence was supplied."
+        : "No admin truth sample evidence was supplied.",
+      evidence: [],
+      recommendedAction: "Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
+    },
+    {
+      id: "freshnessIntegrity",
+      label: "Freshness, PR, and HEAD integrity",
+      weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.freshnessIntegrity,
+      score: freshnessStatus === "Ready" ? reportEvidence.score : 0,
+      status: freshnessStatus,
+      detail: freshnessDetail,
+      evidence: reportEvidence.evidence,
+      recommendedAction: "Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current.",
+    },
+    {
+      id: "debugRuntimeEvidence",
+      label: "Debug/runtime evidence",
+      weight: 0,
+      score: 0,
+      status: debugEvidenceAvailable ? "Ready" : "Unknown evidence",
+      detail: debugEvidenceAvailable
+        ? "Runtime debug evidence is present in the score input."
+        : "Debug evidence is empty, so absence of runtime issues is unknown.",
+      evidence: [],
+      recommendedAction: "Do not treat empty debug evidence as proof that no runtime issue exists.",
+    },
+  ];
+
+  if ((evidence.launchWarningCount ?? 0) > 0) {
+    gates.push({
+      id: "runtimeProviderSmoke",
+      label: "Launch warning confidence",
+      weight: 0,
+      score: 0,
+      status: "Ready with smoke required",
+      detail: `${evidence.launchWarningCount} launch warning(s) remain recorded.`,
+      evidence: [],
+      recommendedAction: "Keep launch warnings visible and out of perfect readiness scoring.",
+    });
+  }
+
+  const evidenceScore = roundScore(gates.reduce((sum, gate) => sum + gate.score, 0));
+  const readinessStatus = mostSevereReadinessStatus(gates.map((gate) => gate.status));
+  const caps = gates
+    .filter((gate) => gate.status !== "Ready")
+    .map((gate) => `${gate.status}: ${gate.label}`);
+  const readinessCap = capForReadinessStatus(readinessStatus);
+
+  return {
+    evidenceScore,
+    readinessStatus,
+    readinessStatusReason: gates.find((gate) => gate.status === readinessStatus)?.detail ?? "Evidence gates passed.",
+    evidenceGates: gates,
+    evidenceCapsApplied: caps,
+    cappedScore: readinessStatus === "Ready" ? input.scannerScore : Math.min(input.scannerScore, readinessCap, evidenceScore),
+  };
 }
 
 export function isCriticalAutoFail(finding: Pick<PublicBetaFinding, "severity" | "confidence" | "domain" | "category">) {
@@ -258,14 +555,30 @@ export function buildPublicBetaScoreReport(
     };
   }
 
-  const overallScore = roundScore(weightTotal > 0 ? weightedScoreTotal / weightTotal : 100);
+  const scannerScore = roundScore(weightTotal > 0 ? weightedScoreTotal / weightTotal : 100);
   const safeAutofixesAvailable = findings.filter((finding) => finding.canAutofix && finding.autofixConfidence >= 0.95).length;
-  const summaryStatus = resolvePublicBetaStatus(overallScore, criticalAutoFail);
+  const scannerStatus = resolvePublicBetaStatus(scannerScore, criticalAutoFail);
+  const evidenceReadiness = buildPublicBetaEvidenceGates({
+    scannerScore,
+    scannerStatus,
+    hasCritical: criticalAutoFail,
+    evidence: options.evidence,
+  });
+  const overallScore = roundScore(evidenceReadiness.cappedScore);
+  const summaryStatus = readinessStatusToLegacyStatus(evidenceReadiness.readinessStatus, overallScore, criticalAutoFail);
 
   return {
     generatedAt: options.generatedAt ?? new Date().toISOString(),
+    scannerScore,
+    scannerStatus,
     overallScore,
     overallStatus: summaryStatus,
+    readinessStatus: evidenceReadiness.readinessStatus,
+    readinessStatusReason: evidenceReadiness.readinessStatusReason,
+    evidenceScore: evidenceReadiness.evidenceScore,
+    evidenceGates: evidenceReadiness.evidenceGates,
+    evidenceCapsApplied: evidenceReadiness.evidenceCapsApplied,
+    evidenceWeights: PUBLIC_BETA_EVIDENCE_WEIGHTS,
     domainScores,
     findings,
     dedupedFindingCount: findings.length,
@@ -274,6 +587,6 @@ export function buildPublicBetaScoreReport(
     recommendedNextActions: options.recommendedNextActions ?? [],
     minimalVerificationCommands: options.minimalVerificationCommands ?? [],
     commandBudget: options.commandBudget,
-    summary: `Public beta deterministic score ${overallScore}/100 (${summaryStatus}) with ${findings.length} deduped finding(s) and ${safeAutofixesAvailable} safe autofix(es) available.`,
+    summary: `Public beta readiness score ${overallScore}/100 (${evidenceReadiness.readinessStatus}; scanner ${scannerScore}/100 ${scannerStatus}) with ${findings.length} deduped finding(s), ${safeAutofixesAvailable} safe autofix(es), and ${evidenceReadiness.evidenceCapsApplied.length} evidence cap(s) applied.`,
   };
 }

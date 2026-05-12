@@ -1,8 +1,10 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
 const failures: string[] = [];
+const GENERATED_REPORT_STALE_MS = 24 * 60 * 60 * 1000;
 
 function readRequired(relativePath: string) {
   const fullPath = join(root, relativePath);
@@ -42,6 +44,22 @@ function requireObject(value: unknown, label: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
+function readCurrentHead() {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+  } catch {
+    return null;
+  }
+}
+
+function parseDate(value: unknown, label: string) {
+  if (typeof value !== "string" || Number.isNaN(Date.parse(value))) {
+    failures.push(`${label} must be a valid generatedAt timestamp.`);
+    return null;
+  }
+  return Date.parse(value);
+}
+
 const triagePath = "agent/state/launch-pr-triage.generated.json";
 const docPath = "docs/agent-truth/launch-pr-triage.md";
 const triageSource = readRequired(triagePath);
@@ -54,6 +72,15 @@ try {
   triage = JSON.parse(triageSource) as Record<string, unknown>;
 } catch (error) {
   failures.push(`${triagePath} must be valid JSON: ${(error as Error).message}`);
+}
+
+const triageGeneratedAtMs = parseDate(triage.generatedAt, "triage.generatedAt");
+if (triageGeneratedAtMs && Date.now() - triageGeneratedAtMs > GENERATED_REPORT_STALE_MS) {
+  failures.push("Launch PR triage is stale; open PR/current HEAD integrity must be refreshed before launch readiness can be trusted.");
+}
+const currentHead = readCurrentHead();
+if (currentHead && typeof triage.headCommitAtTriage === "string" && triage.headCommitAtTriage !== currentHead) {
+  failures.push("Launch PR triage was generated before the current HEAD and must cap readiness at Needs review.");
 }
 
 const expectedOpenPrs = [208, 207, 206, 205, 204, 203, 202, 201];

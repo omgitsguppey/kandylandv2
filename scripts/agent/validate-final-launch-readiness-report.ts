@@ -1,8 +1,12 @@
-import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
 const failures: string[] = [];
+const GENERATED_REPORT_STALE_MS = 24 * 60 * 60 * 1000;
+const RUNTIME_ROOTS = ["src/app", "src/components", "src/lib/server", "functions/src"];
+const RUNTIME_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"];
 
 const REQUIRED_GATES = [
   "scope-freeze",
@@ -109,6 +113,51 @@ function requireIncludes(source: string, needle: string, label: string) {
   }
 }
 
+function parseDate(value: unknown, label: string) {
+  if (typeof value !== "string" || Number.isNaN(Date.parse(value))) {
+    failures.push(`${label} must be a valid generatedAt timestamp.`);
+    return null;
+  }
+  return Date.parse(value);
+}
+
+function walkRuntimeFiles(relativePath: string, output: string[] = []) {
+  const fullPath = join(root, relativePath);
+  if (!existsSync(fullPath)) return output;
+  for (const entry of readdirSync(fullPath)) {
+    const child = join(relativePath, entry).replace(/\\/gu, "/");
+    const stats = statSync(join(root, child));
+    if (stats.isDirectory()) {
+      walkRuntimeFiles(child, output);
+      continue;
+    }
+    if (RUNTIME_EXTENSIONS.some((extension) => child.endsWith(extension))) {
+      output.push(child);
+    }
+  }
+  return output;
+}
+
+function latestRuntimeModifiedMs() {
+  try {
+    const latestCommitDate = execFileSync("git", ["log", "-1", "--format=%cI", "--", ...RUNTIME_ROOTS], {
+      cwd: root,
+      encoding: "utf8",
+    }).trim();
+    if (latestCommitDate && !Number.isNaN(Date.parse(latestCommitDate))) {
+      return Date.parse(latestCommitDate);
+    }
+  } catch {
+    // Fall back to filesystem mtimes when git metadata is unavailable.
+  }
+  const runtimeFiles = RUNTIME_ROOTS.flatMap((runtimeRoot) => walkRuntimeFiles(runtimeRoot));
+  return runtimeFiles.reduce((latest, filePath) => Math.max(latest, statSync(join(root, filePath)).mtimeMs), 0);
+}
+
+function countGatesByStatus(gates: Array<Record<string, unknown>>, status: string) {
+  return gates.filter((gate) => gate.status === status).length;
+}
+
 const report = parseJson("agent/state/final-launch-readiness-report.generated.json");
 const doc = readRequired("docs/agent-truth/final-launch-readiness-report.md");
 const packageJson = readRequired("package.json");
@@ -121,8 +170,17 @@ if (!["LAUNCHABLE", "LAUNCHABLE WITH WARNINGS", "NOT LAUNCHABLE"].includes(Strin
   failures.push("launchDecision must be one of LAUNCHABLE, LAUNCHABLE WITH WARNINGS, NOT LAUNCHABLE.");
 }
 
+const generatedAtMs = parseDate(report.generatedAt, "report.generatedAt");
+if (generatedAtMs && Date.now() - generatedAtMs > GENERATED_REPORT_STALE_MS && launchDecision !== "NOT LAUNCHABLE") {
+  failures.push("Stale final launch readiness reports must not remain launchable; regenerate affected gates or mark NOT LAUNCHABLE/Needs review.");
+}
+
 const gates = requireArray(report.gates, "report.gates", REQUIRED_GATES.length).map(asRecord);
 const gateByKey = new Map(gates.map((gate) => [String(gate.gateKey), gate]));
+const passCount = countGatesByStatus(gates, "pass");
+const warnCount = countGatesByStatus(gates, "warn");
+const failCount = countGatesByStatus(gates, "fail");
+const notRunCount = countGatesByStatus(gates, "not run");
 
 for (const gateKey of REQUIRED_GATES) {
   const gate = gateByKey.get(gateKey);
@@ -161,6 +219,17 @@ if (overallBlockers.length > 0 && launchDecision !== "NOT LAUNCHABLE") {
   failures.push("Any overall unresolved blocker requires NOT LAUNCHABLE.");
 }
 
+const summary = asRecord(report.summary);
+if (summary.gatesPassed !== passCount || summary.gatesWarn !== warnCount || summary.gatesFailed !== failCount || summary.gatesNotRun !== notRunCount) {
+  failures.push("summary gate counts must match the gate list; inconsistent launch summaries require Needs review.");
+}
+if (warnCount > 0 && launchDecision === "LAUNCHABLE") {
+  failures.push("Launch warnings must reduce readiness confidence; LAUNCHABLE is not allowed while warning gates remain.");
+}
+if (String(report.requiredNextAction ?? "").toLowerCase().includes("smoke") && launchDecision === "LAUNCHABLE") {
+  failures.push("Required production smoke must cap launch at warnings/smoke-required, not LAUNCHABLE.");
+}
+
 const validationsRun = requireArray(report.validationsRun, "report.validationsRun", REQUIRED_COMMANDS.length).map(asRecord);
 const commandSet = new Set(validationsRun.map((entry) => String(entry.command)));
 for (const command of REQUIRED_COMMANDS) {
@@ -174,11 +243,14 @@ if (!deploymentCheck || deploymentCheck.status !== "warn" || !String(deploymentC
   failures.push("Report must record npm run check:deployment as an unavailable warning.");
 }
 
-if (!report.summary || asRecord(report.summary).hardStopGatesPassed !== true) {
+if (!report.summary || summary.hardStopGatesPassed !== true) {
   failures.push("summary.hardStopGatesPassed must be true for this launch decision.");
 }
-if (asRecord(report.summary).runtimeCodeChanged !== false || asRecord(report.summary).featuresAdded !== false) {
+if (summary.runtimeCodeChanged !== false || summary.featuresAdded !== false) {
   failures.push("summary must record no runtime code changes and no features added.");
+}
+if (generatedAtMs && summary.runtimeCodeChanged === false && latestRuntimeModifiedMs() > generatedAtMs) {
+  failures.push("runtimeCodeChanged:false is stale because runtime files were modified after report.generatedAt.");
 }
 
 for (const expected of [

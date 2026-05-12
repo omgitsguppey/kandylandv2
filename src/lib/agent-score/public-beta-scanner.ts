@@ -3,9 +3,11 @@ import { join } from "node:path";
 
 import {
   buildPublicBetaScoreReport,
+  type PublicBetaEvidenceInput,
   type PublicBetaFindingInput,
   type PublicBetaScoreReport,
 } from "./core";
+import type { DebugEvidenceAuditSummary } from "../debug-evidence-contract";
 import {
   buildMinimalVerificationCommands,
   buildPublicBetaCommandBudget,
@@ -591,6 +593,8 @@ export function buildPublicBetaReadinessReport(input: {
   root?: string;
   safeAutofixesApplied?: number;
   generatedAt?: string;
+  debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
+  evidence?: PublicBetaEvidenceInput;
 } = {}): PublicBetaScoreReport {
   const root = input.root ?? process.cwd();
   const rawFindings = collectPublicBetaFindings(root);
@@ -600,10 +604,15 @@ export function buildPublicBetaReadinessReport(input: {
     safeAutofixesApplied: input.safeAutofixesApplied ?? 0,
     commandBudget: buildPublicBetaCommandBudget(),
     minimalVerificationCommands: buildMinimalVerificationCommands(true),
+    evidence: {
+      ...input.evidence,
+      debugEvidence: input.debugEvidence ?? input.evidence?.debugEvidence,
+    },
   });
 
   return {
     ...preliminary,
-    recommendedNextActions: buildRecommendedNextActions(preliminary.findings),
+    debugEvidence: input.debugEvidence,
+    recommendedNextActions: buildRecommendedNextActions(preliminary.findings, preliminary.evidenceGates),
   };
 }

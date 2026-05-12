@@ -1,8 +1,12 @@
-import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
 const failures: string[] = [];
+const GENERATED_REPORT_STALE_MS = 24 * 60 * 60 * 1000;
+const RUNTIME_ROOTS = ["src/app", "src/components", "src/lib/server", "functions/src"];
+const RUNTIME_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"];
 
 function readRequired(relativePath: string) {
   const absolutePath = path.join(root, relativePath);
@@ -18,6 +22,48 @@ function requireIncludes(file: string, content: string, token: string) {
   if (!content.includes(token)) {
     failures.push(`${file} is missing required token: ${token}`);
   }
+}
+
+function parseDate(value: unknown, label: string) {
+  if (typeof value !== "string" || Number.isNaN(Date.parse(value))) {
+    failures.push(`${label} must be a valid generatedAt timestamp.`);
+    return null;
+  }
+  return Date.parse(value);
+}
+
+function walkRuntimeFiles(relativePath: string, output: string[] = []) {
+  const absolutePath = path.join(root, relativePath);
+  if (!existsSync(absolutePath)) return output;
+  for (const entry of readdirSync(absolutePath)) {
+    const child = path.join(relativePath, entry).replace(/\\/gu, "/");
+    const stats = statSync(path.join(root, child));
+    if (stats.isDirectory()) {
+      walkRuntimeFiles(child, output);
+      continue;
+    }
+    if (RUNTIME_EXTENSIONS.some((extension) => child.endsWith(extension))) {
+      output.push(child);
+    }
+  }
+  return output;
+}
+
+function latestRuntimeModifiedMs() {
+  try {
+    const latestCommitDate = execFileSync("git", ["log", "-1", "--format=%cI", "--", ...RUNTIME_ROOTS], {
+      cwd: root,
+      encoding: "utf8",
+    }).trim();
+    if (latestCommitDate && !Number.isNaN(Date.parse(latestCommitDate))) {
+      return Date.parse(latestCommitDate);
+    }
+  } catch {
+    // Fall back to filesystem mtimes when git metadata is unavailable.
+  }
+  return RUNTIME_ROOTS
+    .flatMap((runtimeRoot) => walkRuntimeFiles(runtimeRoot))
+    .reduce((latest, filePath) => Math.max(latest, statSync(path.join(root, filePath)).mtimeMs), 0);
 }
 
 const reportPath = "agent/state/launch-readiness-report.generated.json";
@@ -40,6 +86,7 @@ type TestRun = {
 };
 
 type LaunchReadinessReport = {
+  generatedAt?: string;
   launchStatus?: string;
   recommendedGoNoGo?: string;
   blockers?: unknown[];
@@ -56,9 +103,14 @@ try {
 }
 
 if (report) {
+  const generatedAtMs = parseDate(report.generatedAt, "report.generatedAt");
   const allowedLaunchStatuses = ["launchable", "launchable with warnings", "not launchable"];
   if (!report.launchStatus || !allowedLaunchStatuses.includes(report.launchStatus)) {
     failures.push("launchStatus must be launchable, launchable with warnings, or not launchable.");
+  }
+
+  if (generatedAtMs && Date.now() - generatedAtMs > GENERATED_REPORT_STALE_MS && report.launchStatus !== "not launchable") {
+    failures.push("Stale launch readiness reports must not remain launchable; regenerate affected gates or mark not launchable/Needs review.");
   }
 
   if (report.launchStatus !== "not launchable" && Array.isArray(report.blockers) && report.blockers.length > 0) {
@@ -67,6 +119,12 @@ if (report) {
 
   if (report.recommendedGoNoGo !== "go") {
     failures.push("Launch readiness recommendation must be go after all critical gates pass.");
+  }
+  if (report.launchStatus === "launchable" && report.gates?.some((gate) => gate.status === "passed_with_warning")) {
+    failures.push("Warnings must reduce launch readiness confidence; launchable is not allowed while warning gates remain.");
+  }
+  if (generatedAtMs && latestRuntimeModifiedMs() > generatedAtMs) {
+    failures.push("Launch readiness report is older than later runtime file changes and cannot be treated as current.");
   }
 
   for (const gate of [

@@ -33,6 +33,27 @@ export const PUBLIC_BETA_STATUS_THRESHOLDS = {
   betaRisk: 70,
 } as const;
 
+export const PUBLIC_BETA_EVIDENCE_WEIGHTS = {
+  sourceSafety: 25,
+  targetedBehaviorTests: 20,
+  visualManualSmoke: 20,
+  runtimeProviderSmoke: 15,
+  adminTruthSamples: 10,
+  freshnessIntegrity: 10,
+} as const;
+
+export const PUBLIC_BETA_EVIDENCE_SCORE_CAPS = {
+  readyWithSmokeRequired: 94,
+  runtimeUnverified: 89,
+  visualQaRequired: 89,
+  unknownEvidence: 84,
+  needsReview: 79,
+  staleEvidence: 79,
+  blocked: 69,
+} as const;
+
+export const PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS = 24;
+
 export const PUBLIC_BETA_ALLOWED_COMMANDS = [
   "npm run score:beta",
   "npm run check:beta-score",
