@@ -13832,3 +13832,45 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2026-05-12] Blocked Deliverable: Monolith File + Responsibility Boundary Audit
+
+Scope started:
+- Inspecting the repo for oversized multi-responsibility files and unclear ownership boundaries.
+
+Blocked Deliverable:
+1. Candidate Files:
+   - `src/components/Chat/ChatExperience.tsx` (>3500 lines)
+   - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (>2800 lines)
+   - `src/lib/server/ai-drop-covers.ts` (>2800 lines)
+   - `src/app/api/admin/users/route.ts` (>3100 lines)
+   - `src/app/api/admin/debug/route.ts` (>6300 lines)
+
+2. Classification Labels:
+   - `src/components/Chat/ChatExperience.tsx`: **God-file risk**, **Mixed responsibility drift**, **Needs split for stability**
+   - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`: **God-file risk**, **Mixed responsibility drift**, **Needs split for stability**
+   - `src/lib/server/ai-drop-covers.ts`: **God-file risk**, **Oversized but tolerable**
+   - `src/app/api/admin/users/route.ts`: **God-file risk**, **Needs split for stability**
+   - `src/app/api/admin/debug/route.ts`: **God-file risk**, **Needs split for stability**
+
+3. Exact Blocker:
+   - Automated file decomposition of massive monolithic files exceeding 2000 lines carries significant behavioral regression risk. Per memory doctrine, refactoring files of this magnitude requires careful manual decomposition and is prohibited for automated scripting passes without explicit human-led structural rewrites. The sheer volume of mixed view, telemetry, state orchestration, and runtime logic makes automated splitting unsafe without deep component test coverage specifically for these boundaries.
+
+4. Affected Files/Components/Helpers:
+   - Chat realtime transport (`chat-realtime.ts`) and telemetry.
+   - Admin Analytics realtime and historical hooks/models.
+   - AI generation logic and prompt policy helpers.
+   - Admin user management and deep deletion pipelines.
+
+5. Precise Codex Prompt:
+   ```markdown
+   Please initiate a targeted, multi-stage manual decomposition of the following oversized files, starting with `src/components/Chat/ChatExperience.tsx`.
+
+   Your goal is to extract discrete responsibilities (telemetry, realtime listener orchestration, fallback/skeleton logic, sub-views) into smaller files (`~300` lines for normal UI, `~500` for orchestration).
+
+   Constraints:
+   - Do NOT change product behavior or economy checks.
+   - Maintain the existing `createAutoHealingObserver` and realtime retry logic.
+   - Create distinct hooks for state (e.g., `useChatRealtimeSync.ts`, `useChatTelemetryTracker.ts`) and pure view subcomponents.
+   - Provide a plan for human review before moving code.
+   ```
