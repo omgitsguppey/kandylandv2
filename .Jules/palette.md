@@ -9,3 +9,6 @@
 ## 2024-03-31 - Added ARIA label to mobile profile avatar
 **Learning:** Found a profile avatar `<button>` in the Navbar that was visually an icon-only button on mobile devices (`md:hidden`). It used an image or initial for sighted users but lacked an accessible name for screen readers.
 **Action:** Always provide an `aria-label` to avatar or profile buttons when they function as icon-only interactive elements without visible text labels.
+## 2025-05-12 - Ensure aria-expanded aligns with component structure
+**Learning:** Found an accessibility opportunity where the expanded state of a broadcast detail module wasn't effectively conveyed to screen reader users because the `<button>` responsible for toggling its visibility lacked an `aria-expanded` property. Adding this correctly maps the underlying boolean state to the UI structure.
+**Action:** Always verify that interactive elements controlling layout or related component visibility have appropriate boolean states bound to `aria-expanded` instead of relying purely on visual cues.

@@ -13832,3 +13832,10 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+## [2024-05-12 #palette-a11y-aria-expanded-creator-broadcast] PRE: Audit scope for accessibility on CreatorBroadcastManager
+- Performing an accessibility pass on `src/components/Creators/CreatorBroadcastManager.tsx` to identify missing attributes.
+- Will verify changes with `npx vitest run` and `pnpm run typecheck`.
+
+## [2024-05-12 #palette-a11y-aria-expanded-creator-broadcast] POST: Added aria-expanded to detail toggle
+- Added `aria-expanded={expanded}` to the toggle `<button>` inside `CreatorBroadcastManager`.
+- Test suite and type checking passed. Lockfiles safely restored.
