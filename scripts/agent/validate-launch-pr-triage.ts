@@ -5,6 +5,20 @@ import { join } from "node:path";
 const root = process.cwd();
 const failures: string[] = [];
 const GENERATED_REPORT_STALE_MS = 24 * 60 * 60 * 1000;
+const EVIDENCE_REFRESH_ONLY_PATHS = new Set([
+  "agent/state/final-launch-readiness-report.generated.json",
+  "agent/state/generated-report-authority.generated.json",
+  "agent/state/launch-pr-triage.generated.json",
+  "agent/state/launch-readiness-report.generated.json",
+  "agent/state/public-beta-score.generated.json",
+  "docs/agent-truth/final-launch-readiness-report.md",
+  "docs/agent-truth/launch-pr-triage.md",
+  "docs/agent-truth/launch-readiness-final.md",
+  "scripts/agent/score-public-beta-readiness.ts",
+  "scripts/agent/validate-final-launch-readiness-report.ts",
+  "scripts/agent/validate-launch-pr-triage.ts",
+  "scripts/agent/validate-launch-readiness-final.ts",
+]);
 
 function readRequired(relativePath: string) {
   const fullPath = join(root, relativePath);
@@ -52,6 +66,17 @@ function readCurrentHead() {
   }
 }
 
+function readChangedPathsSince(baseHead: string, currentHead: string) {
+  try {
+    return execFileSync("git", ["diff", "--name-only", `${baseHead}..${currentHead}`], { cwd: root, encoding: "utf8" })
+      .split(/\r?\n/u)
+      .map((path) => path.trim())
+      .filter(Boolean);
+  } catch {
+    return null;
+  }
+}
+
 function parseDate(value: unknown, label: string) {
   if (typeof value !== "string" || Number.isNaN(Date.parse(value))) {
     failures.push(`${label} must be a valid generatedAt timestamp.`);
@@ -80,7 +105,11 @@ if (triageGeneratedAtMs && Date.now() - triageGeneratedAtMs > GENERATED_REPORT_S
 }
 const currentHead = readCurrentHead();
 if (currentHead && typeof triage.headCommitAtTriage === "string" && triage.headCommitAtTriage !== currentHead) {
-  failures.push("Launch PR triage was generated before the current HEAD and must cap readiness at Needs review.");
+  const changedPathsSinceTriage = readChangedPathsSince(triage.headCommitAtTriage, currentHead);
+  const nonEvidenceRefreshChanges = changedPathsSinceTriage?.filter((path) => !EVIDENCE_REFRESH_ONLY_PATHS.has(path)) ?? null;
+  if (!changedPathsSinceTriage || (nonEvidenceRefreshChanges && nonEvidenceRefreshChanges.length > 0)) {
+    failures.push("Launch PR triage was generated before the current HEAD and must cap readiness at Needs review.");
+  }
 }
 
 const expectedOpenPrs = requireArray(triage.openPrNumbersAtTriage, "triage.openPrNumbersAtTriage")
