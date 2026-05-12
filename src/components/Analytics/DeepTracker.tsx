@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { createAnalyticsBatchId } from "@/lib/analytics-identifiers";
-import { getClientSessionId } from "@/lib/client-session";
+import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
 import { canUseAnonymousAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
@@ -49,6 +49,17 @@ const GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION = 500;
 const GUEST_ANALYTICS_MAX_DIAGNOSTIC_EVENTS_PER_SESSION = 60;
 const GUEST_ANALYTICS_MAX_HOVER_EVENTS_PER_SESSION = 12;
 const GUEST_ANALYTICS_MAX_VISIBILITY_EVENTS_PER_SESSION = 24;
+
+export function buildGuestAnalyticsIngestPayload(events: TelemetryEvent[]) {
+    const identity = getClientAnalyticsIdentitySnapshot("granted");
+
+    return {
+        batchId: createAnalyticsBatchId(identity.sessionId),
+        anonymousVisitorId: identity.anonymousVisitorId ?? undefined,
+        sessionId: identity.sessionId,
+        events,
+    };
+}
 
 function quantizeCoordinate(value: number) {
     return Math.floor(value / 24) * 24;
@@ -234,11 +245,7 @@ export function DeepTracker() {
             }
 
             const queuedEvents = [...eventQueue.current];
-            const payload = {
-                batchId: createAnalyticsBatchId(getClientSessionId()),
-                sessionId: getClientSessionId(),
-                events: queuedEvents,
-            };
+            const payload = buildGuestAnalyticsIngestPayload(queuedEvents);
 
             guestFlushInFlightRef.current = (async () => {
                 const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });

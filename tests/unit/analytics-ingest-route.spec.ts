@@ -1,19 +1,33 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mockState = vi.hoisted(() => ({
-    guardApiRequest: vi.fn(),
-    recordServerDiagnostic: vi.fn(async () => undefined),
-    recordAnalyticsPipelineFailure: vi.fn(async () => undefined),
-    requestAllowsAnonymousAnalytics: vi.fn(() => true),
-}));
+const mockState = vi.hoisted(() => {
+    const transactionSet = vi.fn();
+    const transactionCreate = vi.fn();
+
+    return {
+        guardApiRequest: vi.fn(),
+        recordServerDiagnostic: vi.fn(async () => undefined),
+        recordAnalyticsPipelineFailure: vi.fn(async () => undefined),
+        requestAllowsAnonymousAnalytics: vi.fn(() => true),
+        transactionSet,
+        transactionCreate,
+        adminDb: {
+            collection: vi.fn((collectionName: string) => ({
+                doc: vi.fn((docId: string) => ({ collectionName, docId })),
+            })),
+            runTransaction: vi.fn(async (callback: (transaction: unknown) => Promise<unknown>) => callback({
+                get: vi.fn(async () => ({ exists: false, data: () => ({}) })),
+                set: transactionSet,
+                create: transactionCreate,
+            })),
+        },
+        materializeUserTrackingIndexes: vi.fn(async () => undefined),
+    };
+});
 
 vi.mock("@/lib/server/firebase-admin", () => ({
-    adminDb: {
-        collection() {
-            throw new Error("adminDb should not be used when guardApiRequest rejects early");
-        },
-    },
+    adminDb: mockState.adminDb,
 }));
 
 vi.mock("@/lib/server/rate-limit", () => ({
@@ -55,6 +69,31 @@ vi.mock("@/lib/analytics-identifiers", () => ({
     createAnalyticsStorageKey: vi.fn(() => "guest_batch_key"),
 }));
 
+vi.mock("@/lib/runtime-facts/normalize-runtime-fact", () => ({
+    normalizeAnonymousRuntimeFact: vi.fn((input: Record<string, unknown>) => ({
+        fact: {
+            eventId: input.eventId,
+            anonymousVisitorId: input.anonymousVisitorId,
+            metricEligible: true,
+            metricExclusionReason: "",
+            normalizedAction: "page_viewed",
+        },
+        diagnostic: null,
+    })),
+}));
+
+vi.mock("@/lib/server/behavioral-timeline-mapper", () => ({
+    mapRuntimeFactToBehavioralTimelineFact: vi.fn((input: { runtimeFact: unknown }) => input.runtimeFact),
+}));
+
+vi.mock("@/lib/server/behavioral-timeline-writer", () => ({
+    writeBehavioralTimelineFacts: vi.fn(async () => ({ written: 1, skipped: 0, reason: "written" })),
+}));
+
+vi.mock("@/lib/server/user-index-materializer", () => ({
+    materializeUserTrackingIndexes: mockState.materializeUserTrackingIndexes,
+}));
+
 vi.mock("@/lib/server/analytics-governance", () => ({
     ANALYTICS_CANONICAL_COLLECTIONS: {
         guestBatches: "analytics_guest_batches",
@@ -67,7 +106,7 @@ vi.mock("@/lib/server/analytics-governance", () => ({
     },
 }));
 
-import { POST } from "@/app/api/analytics/ingest/route";
+import { POST, resolveCanonicalGuestAnonymousVisitorId } from "@/app/api/analytics/ingest/route";
 
 describe("POST /api/analytics/ingest", () => {
     beforeEach(() => {
@@ -75,9 +114,20 @@ describe("POST /api/analytics/ingest", () => {
         mockState.recordServerDiagnostic.mockReset();
         mockState.recordAnalyticsPipelineFailure.mockReset();
         mockState.requestAllowsAnonymousAnalytics.mockReset();
+        mockState.transactionSet.mockReset();
+        mockState.transactionCreate.mockReset();
+        mockState.adminDb.collection.mockClear();
+        mockState.adminDb.runTransaction.mockClear();
+        mockState.materializeUserTrackingIndexes.mockReset();
         mockState.recordServerDiagnostic.mockResolvedValue(undefined);
         mockState.recordAnalyticsPipelineFailure.mockResolvedValue(undefined);
         mockState.requestAllowsAnonymousAnalytics.mockReturnValue(true);
+        mockState.adminDb.runTransaction.mockImplementation(async (callback: (transaction: unknown) => Promise<unknown>) => callback({
+            get: vi.fn(async () => ({ exists: false, data: () => ({}) })),
+            set: mockState.transactionSet,
+            create: mockState.transactionCreate,
+        }));
+        mockState.materializeUserTrackingIndexes.mockResolvedValue(undefined);
     });
 
     it("reports ingest failures through structured diagnostics and preserves the 503 response", async () => {
@@ -158,6 +208,66 @@ describe("POST /api/analytics/ingest", () => {
         });
         expect(mockState.recordServerDiagnostic).toHaveBeenCalledWith(expect.objectContaining({
             message: "Guest analytics timeline skipped by consent",
+        }));
+    });
+
+    it("prefers a valid client anonymous visitor id for canonical guest continuity", () => {
+        expect(resolveCanonicalGuestAnonymousVisitorId({
+            clientAnonymousVisitorId: "subject_secure-client-id_123",
+            sessionKey: "anon_server-cookie-id",
+        })).toBe("subject_secure-client-id_123");
+    });
+
+    it("falls back to the server session key when client anonymous visitor id is invalid", () => {
+        expect(resolveCanonicalGuestAnonymousVisitorId({
+            clientAnonymousVisitorId: "user_not-a-guest-identity",
+            sessionKey: "anon_server-cookie-id",
+        })).toBe("anon_server-cookie-id");
+    });
+
+    it("uses the client anonymous visitor id for canonical facts while preserving the server session key for storage", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: null });
+
+        const request = new NextRequest("http://localhost/api/analytics/ingest", {
+            method: "POST",
+            headers: {
+                cookie: "kandydrops_sid=anon_server-cookie-id",
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                anonymousVisitorId: "subject_existing-client",
+                sessionId: "sess_existing-session",
+                batchId: "batch_existing-session_123456",
+                events: [{ type: "page_view", timestamp: Date.now(), path: "/" }],
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload.success).toBe(true);
+        expect(mockState.transactionSet).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                sessionKey: "anon_server-cookie-id",
+                serverSessionKey: "anon_server-cookie-id",
+                anonymousVisitorId: "subject_existing-client",
+                clientSessionId: "sess_existing-session",
+            }),
+            { merge: true },
+        );
+        expect(mockState.transactionCreate).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                sessionKey: "anon_server-cookie-id",
+                serverSessionKey: "anon_server-cookie-id",
+                anonymousVisitorId: "subject_existing-client",
+                clientSessionId: "sess_existing-session",
+            }),
+        );
+        expect(mockState.materializeUserTrackingIndexes).toHaveBeenCalledWith(expect.objectContaining({
+            anonymousVisitorIds: ["subject_existing-client"],
         }));
     });
 });

@@ -34,7 +34,7 @@ const MAX_ANALYTICS_BODY_BYTES = 64 * 1024;
 const ANALYTICS_SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 90;
 const ANALYTICS_GUEST_BATCH_TTL_MS = 1000 * 60 * 60 * 24 * 180;
 const SESSION_KEY_PATTERN = /^anon_[A-Za-z0-9-]{8,128}$/u;
-const CLIENT_SESSION_PATTERN = /^[A-Za-z0-9-]{8,128}$/u;
+const CLIENT_ANALYTICS_ID_PATTERN = /^(?:sess|subject)_[A-Za-z0-9_-]{4,150}$/u;
 
 const TelemetryEventSchema = z.object({
     type: z.enum(["click", "hover", "scroll", "visibility", "page_view", "page_leave"]),
@@ -68,10 +68,23 @@ const TelemetryEventSchema = z.object({
 });
 
 const PayloadSchema = z.object({
-    sessionId: z.string().min(8).max(100).regex(CLIENT_SESSION_PATTERN).optional(),
+    anonymousVisitorId: z.string().max(160).optional(),
+    sessionId: z.string().min(8).max(160).regex(CLIENT_ANALYTICS_ID_PATTERN).optional(),
     batchId: z.string().regex(ANALYTICS_BATCH_ID_PATTERN).optional(),
     events: z.array(TelemetryEventSchema).max(200), // Cap events to 200 per payload
 });
+
+export function resolveCanonicalGuestAnonymousVisitorId(input: {
+    clientAnonymousVisitorId?: string | null;
+    sessionKey: string;
+}) {
+    const candidate = input.clientAnonymousVisitorId?.trim();
+    if (candidate && CLIENT_ANALYTICS_ID_PATTERN.test(candidate)) {
+        return candidate;
+    }
+
+    return input.sessionKey;
+}
 
 function getOrCreateSessionKey(request: NextRequest) {
     const existing = request.cookies.get(SESSION_COOKIE_NAME)?.value?.trim();
@@ -165,6 +178,10 @@ async function POST_handler(request: NextRequest) {
 
         const { sessionId, events } = parsed.data;
         const { sessionKey, shouldSetCookie } = getOrCreateSessionKey(request);
+        const canonicalAnonymousVisitorId = resolveCanonicalGuestAnonymousVisitorId({
+            clientAnonymousVisitorId: parsed.data.anonymousVisitorId,
+            sessionKey,
+        });
         const nowMs = Date.now();
         const timeKeys = buildAnalyticsTimeKeys(nowMs);
         const globalPrivacyControl = requestHasGlobalPrivacyControl(request);
@@ -179,7 +196,7 @@ async function POST_handler(request: NextRequest) {
             eventId: `${batchId}:${index}`,
             timestampMs: event.timestamp,
             sessionId: sessionId || sessionKey,
-            anonymousVisitorId: sessionKey,
+            anonymousVisitorId: canonicalAnonymousVisitorId,
             path: event.path,
             dropId: event.dropId,
             type: event.type,
@@ -234,6 +251,8 @@ async function POST_handler(request: NextRequest) {
 
             transaction.set(docRef, {
                 sessionKey,
+                serverSessionKey: sessionKey,
+                anonymousVisitorId: canonicalAnonymousVisitorId,
                 clientSessionId: sessionId || null,
                 minuteBucket,
                 consentMode: "anonymous",
@@ -256,6 +275,8 @@ async function POST_handler(request: NextRequest) {
                 sessionDocId: docId,
                 source: "guest",
                 sessionKey,
+                serverSessionKey: sessionKey,
+                anonymousVisitorId: canonicalAnonymousVisitorId,
                 clientSessionId: sessionId || null,
                 minuteBucket,
                 consentMode: "anonymous",
@@ -297,7 +318,7 @@ async function POST_handler(request: NextRequest) {
             }));
         const timelineResult = await writeBehavioralTimelineFacts(timelineFacts);
         await materializeUserTrackingIndexes({
-            anonymousVisitorIds: [sessionKey],
+            anonymousVisitorIds: [canonicalAnonymousVisitorId],
             maxUsers: 1,
             maxFacts: 500,
             runtimeCapMs: 1500,
