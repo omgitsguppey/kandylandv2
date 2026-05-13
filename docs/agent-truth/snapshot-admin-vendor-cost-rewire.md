@@ -117,6 +117,12 @@ The first runtime collapse pass applies this contract to `/api/admin/analytics/r
 
 The second runtime collapse pass applies the same source-order rule to compact `/api/admin/analytics/historical` sections. Historical display requests now check `analytics_admin_metric_snapshots` before GA/vendor/raw sources. If a verified snapshot payload is missing or lacks display evidence, the route returns an unavailable state and labels raw collections as `admin_debug_raw_evidence_only` instead of rebuilding compact display truth from `analytics_event_facts`, `analytics_guest_batches`, `analytics_sessions`, or watch/session logs. Admin Debug exposes the historical route authority metadata, fallback reason, vendor boundary, and recovery metadata rule, but it still does not surface recovered data as Admin Analytics truth.
 
+## Phase 7 Debug Recovery Evidence Note
+
+The Debug-first recovery pass adds an `adminAnalyticsRecoveryEvidence` payload to `/api/admin/debug` and renders it in the existing Admin Debug evidence stack. The payload reads the local Phase 3 dry-run report, lists required recovery lane keys, source paths, source truth labels, source confidence, consent requirements, blockers, mapping warnings, and promotion state. Every lane keeps `productionAllowedNow=false` and `adminAnalyticsPromotedNow=false`.
+
+This downgrades the recovery-surfacing issue only to partial/Debug-landed status. It does not promote recovered values into compact Admin Analytics, does not backfill production data, and does not prove any lane is ready for canonical display. Later phases still need module-level vendor/source label review, confidence validation, snapshot promotion rules, and cost simplification.
+
 ## What This Report Must Not Be Used For
 
 This report must not be used to claim production data was recovered, to approve a production backfill, to prove provider smoke, to mark screenshots complete, to change Admin UI, to alter API behavior, to add Firebase reads/listeners, or to run BigQuery/provider work. It is a local static planning contract and validator input only.

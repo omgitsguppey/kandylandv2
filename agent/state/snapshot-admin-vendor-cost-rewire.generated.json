@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-13T21:04:29.008Z",
+  "generatedAtUtc": "2026-05-13T21:45:33.872Z",
   "reportKey": "snapshot-admin-vendor-cost-rewire",
-  "currentHead": "2d49900a63ead7f0ab50e0e3dd1057988d47c610",
+  "currentHead": "40deef5fa21a3cc8044d37757ad731fe1c003947",
   "sourceReports": {
     "phaseOneInventory": {
       "path": "agent/state/analytics-rewire-phase-one.generated.json",
-      "generatedAtUtc": "2026-05-13T21:04:06.798Z",
-      "currentHead": "2d49900a63ead7f0ab50e0e3dd1057988d47c610",
+      "generatedAtUtc": "2026-05-13T21:45:08.769Z",
+      "currentHead": "40deef5fa21a3cc8044d37757ad731fe1c003947",
       "laneCount": 25,
       "duplicateAuthorityCount": 5,
       "rawDisplayFallbackCount": 2,
@@ -14,15 +14,15 @@
     },
     "phaseTwoIdentityPrivacy": {
       "path": "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-      "generatedAtUtc": "2026-05-13T21:04:18.227Z",
-      "currentHead": "2d49900a63ead7f0ab50e0e3dd1057988d47c610",
+      "generatedAtUtc": "2026-05-13T21:45:21.375Z",
+      "currentHead": "40deef5fa21a3cc8044d37757ad731fe1c003947",
       "privacyRuleCount": 3,
       "recoveryEligibilityRuleCount": 12
     },
     "phaseThreeRecoveryDryRun": {
       "path": "agent/state/lost-data-recovery-dry-run.generated.json",
-      "generatedAtUtc": "2026-05-13T21:04:23.225Z",
-      "currentHead": "2d49900a63ead7f0ab50e0e3dd1057988d47c610",
+      "generatedAtUtc": "2026-05-13T21:45:27.772Z",
+      "currentHead": "40deef5fa21a3cc8044d37757ad731fe1c003947",
       "recoverableLaneCount": 15,
       "debugFirstCount": 12,
       "adminAnalyticsEligibleCount": 3,
@@ -46,7 +46,7 @@
     "adminAnalyticsEligibleRecoveryCount": 3,
     "issueCount": 5,
     "p0Count": 0,
-    "p1Count": 5
+    "p1Count": 4
   },
   "snapshotAuthorities": [
     {
@@ -711,16 +711,16 @@
     },
     {
       "issueKey": "admin-debug-recovery-surfacing-required",
-      "severity": "P1",
-      "title": "Recovered analytics evidence must surface in Debug before Admin Analytics",
-      "description": "Admin Debug now carries historical route authority/source metadata, but recovered analytics lane rows still need a dedicated Debug surfacing pass before Admin Analytics promotion.",
+      "severity": "P2",
+      "title": "Admin Debug recovery evidence surfacing partially landed",
+      "description": "Admin Debug now exposes Phase 3 recovery lanes with source, confidence, consent, blocker, productionAllowedNow=false, and no Admin Analytics promotion metadata. A later pass still needs module-level review before any compact Admin Analytics promotion.",
       "files": [
         "agent/state/lost-data-recovery-dry-run.generated.json",
         "src/app/admin/debug/**"
       ],
-      "blocksRuntimeSimplification": true,
+      "blocksRuntimeSimplification": false,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "Implement the next Debug recovery evidence pass without promoting recovered data into compact Admin Analytics."
+      "recommendedAction": "Use the Debug recovery evidence payload to drive the next module-level vendor/source label and recovery promotion review."
     },
     {
       "issueKey": "cost-simplification-runtime-pass-required",

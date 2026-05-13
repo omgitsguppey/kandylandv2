@@ -3251,6 +3251,192 @@ function buildAnalyticsLegacyParityDebugMetadata() {
     };
 }
 
+const REQUIRED_ADMIN_DEBUG_RECOVERY_LANES = [
+    "analytics_identity_links",
+    "guest_tracking_indexes",
+    "user_journey_indexes",
+    "behavioral_timeline_facts",
+    "notification_facts",
+    "support_recovery_facts",
+    "analytics_legacy_recovered_events",
+    "analytics_pipeline_daily",
+    "analytics_export_status",
+    "analytics_guest_batches",
+    "analytics_sessions",
+    "analytics_event_facts",
+] as const;
+
+const ADMIN_DEBUG_RECOVERY_REQUIRED_LABELS = [
+    "debug_only",
+    "needs_review",
+    "recovery_evidence_debug_first",
+    "source_confidence",
+    "mapping_warning",
+    "consent_required",
+    "eligible_if_minimized",
+    "required_operational_only",
+    "production_backfill_disabled",
+] as const;
+
+type RecoveryConsentRequirement = "required_operational_only" | "eligible_if_minimized" | "consent_required" | "needs_review";
+type RecoverySurfaceTarget = "Admin Debug" | "Admin Analytics" | "archive_only" | "needs_review";
+
+function normalizeRecoveryConsentRequirement(value: unknown): RecoveryConsentRequirement {
+    if (
+        value === "required_operational_only"
+        || value === "eligible_if_minimized"
+        || value === "consent_required"
+        || value === "needs_review"
+    ) {
+        return value;
+    }
+    return "needs_review";
+}
+
+function normalizeRecoverySurfaceTarget(value: unknown): RecoverySurfaceTarget {
+    if (value === "Admin Debug" || value === "Admin Analytics" || value === "archive_only" || value === "needs_review") {
+        return value;
+    }
+    return "Admin Debug";
+}
+
+function sourceTruthLabelForRecoveryLane(laneKey: string) {
+    if (laneKey === "purchase_facts") return "required_operational_transaction_truth";
+    if (laneKey === "unlock_facts") return "required_operational_entitlement_truth";
+    if (laneKey === "analytics_watch_sessions") return "watch_session_rollup_debug_review";
+    if (laneKey === "analytics_legacy_recovered_events") return "legacy_mapped_debug_only";
+    if (laneKey === "analytics_export_status") return "vendor_evidence_export_only";
+    if (laneKey === "analytics_pipeline_daily") return "pipeline_status_debug_only";
+    if (["analytics_event_facts", "analytics_guest_batches", "analytics_sessions"].includes(laneKey)) return "raw_ledger_debug_only";
+    return "recovery_evidence_debug_first";
+}
+
+function buildRecoveryLaneDebugMetadata(laneKey: string, rawLane?: Record<string, unknown>) {
+    const sourcePath = toOptionalString(rawLane?.sourcePath) || laneKey;
+    const confidence = toOptionalString(rawLane?.confidence) || toOptionalString(rawLane?.fallbackConfidence) || "unknown";
+    const consentRequirement = normalizeRecoveryConsentRequirement(rawLane?.consentRequirement);
+    const canSurfaceInAdminAnalytics = rawLane?.canSurfaceInAdminAnalytics === true;
+    const canSurfaceInAdminDebug = rawLane ? rawLane.canSurfaceInAdminDebug !== false : false;
+    const canBackfillLater = rawLane?.canBackfillLater === true;
+    const firstSurfaceTarget = normalizeRecoverySurfaceTarget(rawLane?.firstSurfaceTarget);
+    const oldFields = normalizeStringArray(rawLane?.oldFields);
+    const canonicalFields = normalizeStringArray(rawLane?.canonicalFields);
+    const mappingWarnings = [
+        ...(oldFields.length > 0 ? [`mapping_warning: ${oldFields.slice(0, 3).join(", ")} must map to ${canonicalFields.slice(0, 3).join(", ") || "canonical fields"}`] : []),
+        ...(laneKey === "analytics_legacy_recovered_events" ? ["mapping_warning: legacy recovered events remain debug_only and needs_review."] : []),
+    ];
+    const blockedBy = normalizeStringArray(rawLane?.blockedBy);
+    const normalizedBlockedBy = rawLane
+        ? blockedBy.length > 0
+            ? blockedBy
+            : canSurfaceInAdminAnalytics
+                ? ["debug evidence validation before Admin Analytics promotion"]
+                : ["Admin Debug source evidence and consent labels before promotion"]
+        : ["missing Phase 3 recovery dry-run lane evidence"];
+    const labels = new Set<string>([
+        "debug_only",
+        "recovery_evidence_debug_first",
+        "source_confidence",
+        "production_backfill_disabled",
+        consentRequirement,
+    ]);
+    if (consentRequirement === "needs_review" || normalizedBlockedBy.length > 0 || laneKey === "analytics_legacy_recovered_events") {
+        labels.add("needs_review");
+    }
+    if (mappingWarnings.length > 0) {
+        labels.add("mapping_warning");
+    }
+    if (canSurfaceInAdminAnalytics) {
+        labels.add("admin_analytics_candidate_later");
+    }
+
+    return {
+        laneKey,
+        title: toOptionalString(rawLane?.title) || laneKey.replaceAll("_", " "),
+        sourcePath,
+        firstSurfaceTarget,
+        sourceTruthLabel: sourceTruthLabelForRecoveryLane(laneKey),
+        sourceConfidence: confidence,
+        confidenceLabel: `source_confidence:${confidence}`,
+        consentRequirement,
+        blockedBy: normalizedBlockedBy,
+        recommendedAction: toOptionalString(rawLane?.recommendedAction) || "Keep this lane in Admin Debug until source, identity, and consent evidence is proven.",
+        canSurfaceInAdminAnalytics,
+        canSurfaceInAdminDebug,
+        canBackfillLater,
+        productionAllowedNow: false,
+        productionBackfillAllowed: false,
+        adminAnalyticsPromotedNow: false,
+        adminAnalyticsPromotionState: laneKey === "analytics_legacy_recovered_events"
+            ? "debug_only_needs_review"
+            : canSurfaceInAdminAnalytics
+                ? "eligible_later_snapshot_required_not_promoted"
+                : "recovery_evidence_debug_first_blocked",
+        labels: Array.from(labels),
+        mappingWarnings,
+    };
+}
+
+function buildAdminAnalyticsRecoveryEvidenceDebugMetadata() {
+    const report = readGeneratedAnalyticsStateFile("lost-data-recovery-dry-run.generated.json");
+    const recoveryLanes = toRecordArray(report?.recoveryLanes);
+    const dryRunBackfillPlan = toRecordArray(report?.dryRunBackfillPlan).map((step) => ({
+        stepKey: toOptionalString(step.stepKey) || "unknown",
+        title: toOptionalString(step.title) || "Recovery dry-run step",
+        allowedMode: toOptionalString(step.allowedMode) || "manual_approval_required",
+        productionAllowedNow: false,
+        costRisk: toOptionalString(step.costRisk) || "unknown",
+        targetPathOrSnapshot: toOptionalString(step.targetPathOrSnapshot) || "unavailable",
+    }));
+    const lanesByKey = new Map<string, Record<string, unknown>>();
+    for (const lane of recoveryLanes) {
+        const laneKey = toOptionalString(lane.laneKey);
+        if (laneKey) {
+            lanesByKey.set(laneKey, lane);
+        }
+    }
+
+    const laneKeys = Array.from(new Set([
+        ...recoveryLanes.map((lane) => toOptionalString(lane.laneKey)).filter((laneKey): laneKey is string => Boolean(laneKey)),
+        ...REQUIRED_ADMIN_DEBUG_RECOVERY_LANES,
+    ]));
+    const lanes = laneKeys.map((laneKey) => buildRecoveryLaneDebugMetadata(laneKey, lanesByKey.get(laneKey)));
+    const requiredLaneKeys = new Set<string>(REQUIRED_ADMIN_DEBUG_RECOVERY_LANES);
+    const requiredLanesPresent = lanes.filter((lane) => requiredLaneKeys.has(lane.laneKey) && lanesByKey.has(lane.laneKey)).length;
+    const requiredLanesMissing = REQUIRED_ADMIN_DEBUG_RECOVERY_LANES.filter((laneKey) => !lanesByKey.has(laneKey));
+
+    return {
+        surface: "admin-debug-analytics-recovery-evidence",
+        evidenceState: report ? "available" : "missing_phase_three_report",
+        sourceReport: {
+            path: "agent/state/lost-data-recovery-dry-run.generated.json",
+            generatedAtUtc: toOptionalString(report?.generatedAtUtc) || null,
+            currentHead: toOptionalString(report?.currentHead) || null,
+        },
+        summary: {
+            laneCount: lanes.length,
+            requiredLaneCount: REQUIRED_ADMIN_DEBUG_RECOVERY_LANES.length,
+            requiredLanesPresent,
+            requiredLanesMissing,
+            debugFirstCount: lanes.filter((lane) => lane.firstSurfaceTarget === "Admin Debug" || lane.canSurfaceInAdminAnalytics === false).length,
+            adminAnalyticsEligibleLaterCount: lanes.filter((lane) => lane.canSurfaceInAdminAnalytics).length,
+            adminAnalyticsPromotedNowCount: lanes.filter((lane) => lane.adminAnalyticsPromotedNow).length,
+            backfillEligibleLaterCount: lanes.filter((lane) => lane.canBackfillLater).length,
+            productionAllowedNow: false,
+            productionBackfillAllowed: false,
+        },
+        requiredLabels: [...ADMIN_DEBUG_RECOVERY_REQUIRED_LABELS],
+        lanes,
+        dryRunBackfillPlan,
+        truthRules: [
+            "Recovered analytics evidence is Admin Debug evidence before any compact Admin Analytics promotion.",
+            "productionAllowedNow=false for every recovery lane and dry-run backfill step.",
+            "Admin Analytics promotion requires a later verified snapshot/source-sample pass.",
+            "Legacy recovered events remain debug_only and needs_review.",
+        ],
+    };
+}
+
 function normalizeTaskIds(rawTasks: unknown) {
     if (!Array.isArray(rawTasks)) {
         return [];
@@ -5691,6 +5877,7 @@ export async function GET(request: NextRequest) {
                 ],
             },
             adminAnalyticsLegacyParity: buildAnalyticsLegacyParityDebugMetadata(),
+            adminAnalyticsRecoveryEvidence: buildAdminAnalyticsRecoveryEvidenceDebugMetadata(),
             adminAnalyticsOverview: {
                 surface: "admin-analytics-overview",
                 pageId: "admin/analytics",

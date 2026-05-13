@@ -45,6 +45,7 @@ function lineCount(source: string) {
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string>; dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
 const helper = readRequired("src/lib/admin-debug-control-tower.ts");
 const apiRoute = readRequired("src/app/api/admin/debug/control-tower/route.ts");
+const controlTowerLoader = readRequired("src/lib/server/admin-debug-control-tower-loader.ts");
 const adminDebugRoute = readRequired("src/app/api/admin/debug/route.ts");
 const analyticsIngestIdentifiedRoute = readRequired("src/app/api/analytics/ingest-identified/route.ts");
 const debugEvidenceContract = readRequired("src/lib/debug-evidence-contract.ts");
@@ -82,8 +83,10 @@ const debugAdvancedTruth = readRequired("src/app/admin/debug/components/DebugAdv
 const debugPanelStatus = readRequired("src/app/admin/debug/components/DebugPanelStatusBySection.tsx");
 const debugCreatorLane = readRequired("src/app/admin/debug/components/DebugCreatorLane.tsx");
 const debugPrimitives = readRequired("src/app/admin/debug/components/DebugPrimitives.tsx");
+const debugRuntimeEvidenceGroups = readRequired("src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx");
 const debugPage = readRequired("src/app/admin/debug/page.tsx");
 const controlTower = readRequired("src/app/admin/debug/components/DebugControlTower.tsx");
+const controlTowerBusinessTruth = readRequired("src/app/admin/debug/components/DebugControlTowerBusinessTruth.tsx");
 const controlTowerCards = readRequired("src/app/admin/debug/components/DebugControlTowerCards.tsx");
 const adminPanelSystemLogs = readRequired("src/lib/server/admin-panel-system-logs.ts");
 const analyticsHistoricalRoute = readRequired("src/app/api/admin/analytics/historical/route.ts");
@@ -321,14 +324,21 @@ for (const expected of [
 for (const expected of [
   "guardApiRequest",
   "auth: \"admin\"",
-  "listRecentDebugEvidence",
-  "buildAdminDebugControlTowerModel",
+  "loadAdminDebugControlTower",
   "Cache-Control",
   "private, max-age=30",
   "withRouteRuntimeHealth",
   "recordRouteRuntimeSample",
 ]) {
   requireIncludes(apiRoute, expected, "Admin debug control tower API route");
+}
+for (const expected of [
+  "listRecentDebugEvidence",
+  "buildAdminDebugControlTowerModel",
+  "debugEvidenceSource:",
+  "\"firestore\"",
+]) {
+  requireIncludes(controlTowerLoader, expected, "Admin debug control tower loader");
 }
 for (const expected of [
   "readAdminUserTruthSnapshot",
@@ -350,7 +360,7 @@ for (const expected of [
   "do not inherit ops-health status",
   "businessSnapshot.issues.length > 0",
 ]) {
-  requireIncludes(controlTower, expected, "Debug Control Tower must render canonical business truth separately from ops health");
+  requireIncludes(controlTowerBusinessTruth, expected, "Debug Control Tower business truth card must render canonical business truth separately from ops health");
 }
 for (const expected of [
   "Debug reports and ops health cannot mark these business metrics healthy.",
@@ -1708,6 +1718,45 @@ for (const expected of [
 requireNotIncludes(debugAdvancedBehavior, "WAIT", "Behavioral intelligence panel must not show WAIT for loaded values");
 
 for (const expected of [
+  "adminAnalyticsRecoveryEvidence",
+  "buildAdminAnalyticsRecoveryEvidenceDebugMetadata",
+  "REQUIRED_ADMIN_DEBUG_RECOVERY_LANES",
+  "analytics_identity_links",
+  "guest_tracking_indexes",
+  "user_journey_indexes",
+  "behavioral_timeline_facts",
+  "notification_facts",
+  "support_recovery_facts",
+  "analytics_legacy_recovered_events",
+  "analytics_pipeline_daily",
+  "analytics_export_status",
+  "analytics_guest_batches",
+  "analytics_sessions",
+  "analytics_event_facts",
+  "productionAllowedNow: false",
+  "production_backfill_disabled",
+  "adminAnalyticsPromotedNow: false",
+  "recovery_evidence_debug_first",
+  "source_confidence",
+  "mapping_warning",
+]) {
+  requireIncludes(adminDebugRoute, expected, "Admin Debug recovery evidence route payload");
+}
+
+for (const expected of [
+  "DebugRecoveryEvidenceSummary",
+  "data-admin-debug-recovery-evidence",
+  "data-admin-debug-recovery-production-allowed",
+  "data-admin-debug-recovery-lane-key",
+  "productionAllowedNow=false",
+  "adminAnalyticsPromotedNow",
+  "sourceTruthLabel",
+]) {
+  requireIncludes(debugRuntimeEvidenceGroups, expected, "Admin Debug recovery evidence visual summary");
+}
+requireIncludes(debugTabNow, "<DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />", "Admin Debug Right Now tab");
+
+for (const expected of [
   "Human-readable rollout state, current beta relation, and sample actor resolution.",
   "Configured",
   "Active experiments",
@@ -2180,7 +2229,7 @@ requireIncludes(deterministicTruth, "\"<0.1%\"", "Deterministic top-drop rate pr
     "data-library-viewer-live-pulse-state",
     "label=\"Total Watch\"",
     "Verified ${formatDuration(verifiedWatchSeconds)}; estimated ${formatDuration(estimatedWatchSeconds)}",
-    "Monitor live - no recent viewer sessions.",
+    "Last recent viewer session: none.",
     "data-library-viewer-user-session-count",
     "Last viewer session unavailable",
     "earlyExitFormula",
@@ -2350,6 +2399,7 @@ try {
     /^src\/app\/admin\/debug\/components\/DebugPanelStatusBySection\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabMonitoring\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugMonitoringRoutes\.tsx$/u,
+    /^src\/app\/admin\/debug\/components\/DebugRuntimeEvidenceGroups\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugPrimitives\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabNow\.tsx$/u,
     /^src\/app\/admin\/debug\/components\/DebugTabActions\.tsx$/u,
@@ -2445,12 +2495,14 @@ try {
     /^scripts\/check-notification-pipeline\.ts$/u,
     /^scripts\/agent\/repair-creator-lifecycle-history-gap\.ts$/u,
     /^scripts\/agent\/score-creator-lane-debug-parity\.ts$/u,
+    /^scripts\/agent\/snapshot-admin-vendor-cost-rewire\.ts$/u,
     /^scripts\/agent\/validate-creator-fan-experience-settings\.ts$/u,
     /^scripts\/agent\/validate-creator-lane-debug-parity\.ts$/u,
     /^scripts\/agent\/validate-creator-lane-old-logic-removal\.ts$/u,
     /^scripts\/agent\/validate-creator-identity-markers\.ts$/u,
     /^scripts\/agent\/validate-synthetic-creators-view-as\.ts$/u,
     /^scripts\/agent\/validate-admin-debug-control-tower\.ts$/u,
+    /^scripts\/agent\/validate-admin-truth\.ts$/u,
     /^scripts\/agent\/validate-notification-read-truth\.ts$/u,
     /^scripts\/agent\/validate-purchase-telemetry-truth\.ts$/u,
     /^scripts\/agent\/validate-unlock-telemetry-truth\.ts$/u,
@@ -2483,6 +2535,7 @@ try {
     /^src\/lib\/release-notes\/public-release-notes\.ts$/u,
     /^src\/lib\/release-notes\/release-version-contract\.ts$/u,
     /^tests\/unit\/admin-debug-control-tower(?:-component)?\.spec\.tsx?$/u,
+    /^tests\/unit\/snapshot-admin-vendor-cost-rewire\.spec\.ts$/u,
     /^tests\/unit\/admin-data-validation\.spec\.ts$/u,
     /^tests\/unit\/admin-debug-summary-cards\.spec\.ts$/u,
     /^tests\/unit\/admin-panel-system-logs\.spec\.ts$/u,
@@ -2504,6 +2557,10 @@ try {
     /^tests\/unit\/synthetic-creators-view-as\.spec\.ts$/u,
     /^tests\/unit\/task-observability\.spec\.ts$/u,
     /^agent\/state\/debug-evidence-index\.generated\.json$/u,
+    /^agent\/state\/analytics-rewire-phase-one\.generated\.json$/u,
+    /^agent\/state\/identity-privacy-raw-ledger-rewire\.generated\.json$/u,
+    /^agent\/state\/lost-data-recovery-dry-run\.generated\.json$/u,
+    /^agent\/state\/snapshot-admin-vendor-cost-rewire\.generated\.json$/u,
     /^agent\/state\/precatch-runtime-issues\.generated\.json$/u,
     /^agent\/state\/speed-security-hardening\.generated\.json$/u,
     /^agent\/state\/google-cost-bleed\.generated\.json$/u,
@@ -2534,6 +2591,8 @@ try {
     /^docs\/agent-truth\/gumdrop-source-of-funds-truth\.md$/u,
     /^docs\/agent-truth\/platform-economy-treasury\.md$/u,
     /^docs\/agent-truth\/watch-time-truth\.md$/u,
+    /^docs\/agent-truth\/lost-data-recovery-dry-run\.md$/u,
+    /^docs\/agent-truth\/snapshot-admin-vendor-cost-rewire\.md$/u,
     /^docs\/doctrine\/surfaces\/admin-analytics-doctrine\.md$/u,
     /^docs\/doctrine\/surfaces\/admin-debug-control-tower-doctrine\.md$/u,
     /^docs\/doctrine\/surfaces\/admin-platform-economy-doctrine\.md$/u,

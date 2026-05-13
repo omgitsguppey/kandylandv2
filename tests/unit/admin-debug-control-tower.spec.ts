@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
@@ -166,5 +166,50 @@ describe("admin debug control tower model", () => {
         expect(model.liveIssues[0]?.truthState).toBe("live");
         expect(model.liveIssues[0]?.nonActionableThirdParty).toBe(true);
         expect(model.liveIssues[0]?.sourceSurface).toBe("admin");
+    });
+
+    it("surfaces analytics recovery evidence in Admin Debug without promotion or production backfill", () => {
+        const root = process.cwd();
+        const route = readFileSync(join(root, "src/app/api/admin/debug/route.ts"), "utf8");
+        const runtimeEvidence = readFileSync(join(root, "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx"), "utf8");
+        const debugNow = readFileSync(join(root, "src/app/admin/debug/components/DebugTabNow.tsx"), "utf8");
+
+        expect(route).toContain("adminAnalyticsRecoveryEvidence");
+        expect(route).toContain("buildAdminAnalyticsRecoveryEvidenceDebugMetadata");
+        expect(route).toContain("productionAllowedNow: false");
+        expect(route).toContain("adminAnalyticsPromotedNow: false");
+        for (const laneKey of [
+            "analytics_identity_links",
+            "guest_tracking_indexes",
+            "user_journey_indexes",
+            "behavioral_timeline_facts",
+            "notification_facts",
+            "support_recovery_facts",
+            "analytics_legacy_recovered_events",
+            "analytics_pipeline_daily",
+            "analytics_export_status",
+            "analytics_guest_batches",
+            "analytics_sessions",
+            "analytics_event_facts",
+        ]) {
+            expect(route).toContain(laneKey);
+        }
+        for (const label of [
+            "debug_only",
+            "needs_review",
+            "recovery_evidence_debug_first",
+            "source_confidence",
+            "mapping_warning",
+            "production_backfill_disabled",
+        ]) {
+            expect(route).toContain(label);
+        }
+
+        expect(runtimeEvidence).toContain("DebugRecoveryEvidenceSummary");
+        expect(runtimeEvidence).toContain("data-admin-debug-recovery-evidence");
+        expect(runtimeEvidence).toContain("data-admin-debug-recovery-production-allowed");
+        expect(runtimeEvidence).toContain("productionAllowedNow=false");
+        expect(runtimeEvidence).toContain("adminAnalyticsPromotedNow");
+        expect(debugNow).toContain("<DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />");
     });
 });

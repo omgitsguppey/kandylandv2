@@ -7,6 +7,7 @@ import { Pill, Section } from "./DebugPrimitives";
 import { DebugCreatorLane } from "./DebugCreatorLane";
 import { DebugControlTower } from "./DebugControlTower";
 import { DebugNowDiagnostics } from "./DebugNowDiagnostics";
+import { DebugRecoveryEvidenceSummary } from "./DebugRuntimeEvidenceGroups";
 
 /* ─── Helpers ─── */
 function formatRelative(timestamp?: number) {
@@ -116,6 +117,7 @@ export function DebugTabNow({
     return (
         <div className="space-y-4">
             <DebugControlTower businessSnapshot={adminUserTruthSnapshot} />
+            <DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />
 
             <div
                 data-debug-health-freshness={healthFreshnessState}

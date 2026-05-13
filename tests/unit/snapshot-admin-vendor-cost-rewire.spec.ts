@@ -120,4 +120,12 @@ describe("snapshot/admin/vendor/cost rewire", () => {
     ]));
     expect(validateSnapshotAdminVendorCostRewireReport(REPORT)).toEqual([]);
   });
+
+  it("downgrades Debug recovery surfacing after the Admin Debug evidence payload lands", () => {
+    const issue = REPORT.issues.find((entry) => entry.issueKey === "admin-debug-recovery-surfacing-required");
+
+    expect(issue?.severity).toBe("P2");
+    expect(issue?.title).toContain("partially landed");
+    expect(issue?.description).toContain("productionAllowedNow=false");
+  });
 });

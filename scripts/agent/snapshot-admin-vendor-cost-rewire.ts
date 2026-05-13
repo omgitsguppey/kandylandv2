@@ -614,6 +614,13 @@ function buildRuntimeAwareIssues(root: string) {
   const debugMetadataPresent = debugRoute.includes("historicalRouteAuthority")
     && debugRoute.includes("admin_debug_raw_evidence_only")
     && debugRoute.includes("compactRawDisplayFallbackRemoved");
+  const debugRecoveryEvidencePresent = debugRoute.includes("adminAnalyticsRecoveryEvidence")
+    && debugRoute.includes("buildAdminAnalyticsRecoveryEvidenceDebugMetadata")
+    && debugRoute.includes("REQUIRED_ADMIN_DEBUG_RECOVERY_LANES")
+    && debugRoute.includes("productionAllowedNow: false")
+    && debugRoute.includes("adminAnalyticsPromotedNow: false")
+    && debugRoute.includes("analytics_legacy_recovered_events")
+    && debugRoute.includes("recovery_evidence_debug_first");
 
   return BASE_ISSUES.map((issue) => {
     if (issue.issueKey === "duplicate-snapshot-authority-collapse-needed" && realtimeCollapsed && historicalCollapsed) {
@@ -640,6 +647,17 @@ function buildRuntimeAwareIssues(root: string) {
       return {
         ...issue,
         description: `${issue.description} Realtime and historical route authority checks now block vendor override in compact display paths; remaining vendor estimate labels still need module-level review.`,
+      };
+    }
+
+    if (issue.issueKey === "admin-debug-recovery-surfacing-required" && debugRecoveryEvidencePresent) {
+      return {
+        ...issue,
+        severity: "P2" as const,
+        title: "Admin Debug recovery evidence surfacing partially landed",
+        description: "Admin Debug now exposes Phase 3 recovery lanes with source, confidence, consent, blocker, productionAllowedNow=false, and no Admin Analytics promotion metadata. A later pass still needs module-level review before any compact Admin Analytics promotion.",
+        blocksRuntimeSimplification: false,
+        recommendedAction: "Use the Debug recovery evidence payload to drive the next module-level vendor/source label and recovery promotion review.",
       };
     }
 

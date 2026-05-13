@@ -112,6 +112,12 @@ No stage permits production work in this prompt.
 
 Phase 4 uses this dry-run report to decide how recovered lanes should move through snapshot authority, Admin Debug, Admin Analytics, and vendor evidence boundaries. It should keep high-value recovery Debug-first, make `analytics_admin_metric_snapshots` the recommended compact display authority, demote raw and vendor lanes to evidence/fallback roles, and record cost simplification candidates without changing runtime UI/routes.
 
+## Phase 7 Debug Surfacing Handoff
+
+The first Debug surfacing pass should use this report as local evidence only. Admin Debug may list recovery lanes, source paths, source/confidence labels, consent requirements, mapping warnings, blockers, and later promotion eligibility. It must keep `productionAllowedNow=false`, keep `adminAnalyticsPromotedNow=false`, and leave legacy recovered events as Debug-only/needs review.
+
+This handoff still does not allow production reads, backfills, migrations, deletes, vendor calls, or compact Admin Analytics promotion.
+
 ## Future Phases
 
 Next phases should:

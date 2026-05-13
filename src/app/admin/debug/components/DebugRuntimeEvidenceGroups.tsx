@@ -2,6 +2,47 @@
 
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import type { AdminDebugRuntimeEvidenceGroup } from "@/lib/admin-debug-control-tower";
+import { Pill, Section } from "./DebugPrimitives";
+
+type AdminAnalyticsRecoveryEvidenceLane = {
+  laneKey: string;
+  title?: string;
+  sourcePath?: string;
+  firstSurfaceTarget?: string;
+  sourceTruthLabel?: string;
+  sourceConfidence?: string;
+  confidenceLabel?: string;
+  consentRequirement?: string;
+  blockedBy?: string[];
+  recommendedAction?: string;
+  canSurfaceInAdminAnalytics?: boolean;
+  canSurfaceInAdminDebug?: boolean;
+  canBackfillLater?: boolean;
+  productionAllowedNow?: boolean;
+  adminAnalyticsPromotedNow?: boolean;
+  adminAnalyticsPromotionState?: string;
+  labels?: string[];
+  mappingWarnings?: string[];
+};
+
+type AdminAnalyticsRecoveryEvidence = {
+  evidenceState?: string;
+  sourceReport?: {
+    path?: string;
+    generatedAtUtc?: string | null;
+    currentHead?: string | null;
+  };
+  summary?: {
+    laneCount?: number;
+    requiredLanesMissing?: string[];
+    debugFirstCount?: number;
+    adminAnalyticsEligibleLaterCount?: number;
+    adminAnalyticsPromotedNowCount?: number;
+    productionAllowedNow?: boolean;
+  };
+  lanes?: AdminAnalyticsRecoveryEvidenceLane[];
+  requiredLabels?: string[];
+};
 
 function formatRelative(value?: number | null) {
   if (!value) return "Not generated";
@@ -71,6 +112,90 @@ export function DebugRuntimeEvidenceGroups({
           </details>
         ))}
       </div>
+    </div>
+  );
+}
+
+export function DebugRecoveryEvidenceSummary({
+  recoveryEvidence,
+}: {
+  recoveryEvidence?: AdminAnalyticsRecoveryEvidence | null;
+}) {
+  const lanes = recoveryEvidence?.lanes ?? [];
+  const summary = recoveryEvidence?.summary;
+  const missingRequired = summary?.requiredLanesMissing ?? [];
+  const productionAllowedNow = summary?.productionAllowedNow === true;
+  const promotedNow = summary?.adminAnalyticsPromotedNowCount ?? 0;
+  const truthState = recoveryEvidence?.evidenceState === "available" ? "stale" : "unavailable";
+
+  return (
+    <div
+      data-admin-debug-recovery-evidence="recovery_evidence_debug_first"
+      data-admin-debug-recovery-production-allowed={String(productionAllowedNow)}
+      data-admin-debug-recovery-promoted-now={promotedNow}
+    >
+      <Section
+        title="Analytics recovery evidence"
+        subtitle="Debug-first recovery lanes, source labels, blockers, and promotion state."
+        defaultOpen={false}
+        summary={(
+          <>
+            <Pill label="Lanes" value={summary?.laneCount ?? lanes.length} tone="neutral" truthState={truthState} badgeLabel={truthState === "stale" ? "DEBUG" : "UNAVAILABLE"} />
+            <Pill label="Debug-first" value={summary?.debugFirstCount ?? 0} tone="warn" truthState="stale" badgeLabel="REVIEW" />
+            <Pill label="Eligible later" value={summary?.adminAnalyticsEligibleLaterCount ?? 0} tone="neutral" truthState="stale" badgeLabel="LATER" />
+            <Pill label="Promoted now" value={promotedNow} tone={promotedNow ? "bad" : "good"} truthState={promotedNow ? "failed" : "stale"} badgeLabel={promotedNow ? "BAD" : "NONE"} />
+            <Pill label="Backfill" value="productionAllowedNow=false" tone={productionAllowedNow ? "bad" : "good"} truthState={productionAllowedNow ? "failed" : "stale"} badgeLabel={productionAllowedNow ? "BAD" : "OFF"} />
+          </>
+        )}
+      >
+        <div className="space-y-3 text-sm text-gray-300">
+          <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs">
+            <p className="font-semibold text-white">Source report</p>
+            <p>{recoveryEvidence?.sourceReport?.path ?? "agent/state/lost-data-recovery-dry-run.generated.json"}</p>
+            <p>generatedAtUtc {recoveryEvidence?.sourceReport?.generatedAtUtc ?? "unavailable"}</p>
+            <p>Required labels: {(recoveryEvidence?.requiredLabels ?? []).join(", ") || "unavailable"}</p>
+            {missingRequired.length > 0 ? <p className="text-amber-100">Missing required lanes: {missingRequired.join(", ")}</p> : null}
+          </div>
+
+          <div className="grid gap-2">
+            {lanes.slice(0, 12).map((lane) => (
+              <details
+                key={lane.laneKey}
+                className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2"
+                data-admin-debug-recovery-lane-key={lane.laneKey}
+                data-admin-debug-recovery-admin-analytics-promotion={lane.adminAnalyticsPromotedNow ? "promoted" : "not_promoted"}
+              >
+                <summary className="cursor-pointer list-none">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-white">{lane.title ?? lane.laneKey}</p>
+                      <p className="text-xs text-gray-400">{lane.sourcePath ?? lane.laneKey} | {lane.sourceTruthLabel ?? "debug_only"}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="rounded-full border border-white/10 bg-black/25 px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-gray-100">
+                        {lane.consentRequirement ?? "needs_review"}
+                      </span>
+                      <span className="rounded-full border border-white/10 bg-black/25 px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-gray-100">
+                        {lane.sourceConfidence ?? "unknown"}
+                      </span>
+                    </div>
+                  </div>
+                </summary>
+                <div className="mt-2 space-y-1.5 border-t border-white/10 pt-2 text-xs text-gray-300">
+                  <p>First surface: {lane.firstSurfaceTarget ?? "Admin Debug"}</p>
+                  <p>Promotion state: {lane.adminAnalyticsPromotionState ?? "recovery_evidence_debug_first_blocked"}</p>
+                  <p>Admin Analytics later: {String(lane.canSurfaceInAdminAnalytics === true)} | Debug: {String(lane.canSurfaceInAdminDebug !== false)} | Backfill later: {String(lane.canBackfillLater === true)}</p>
+                  <p>productionAllowedNow=false | adminAnalyticsPromotedNow={String(lane.adminAnalyticsPromotedNow === true)}</p>
+                  <p>Labels: {(lane.labels ?? []).join(", ") || "debug_only, needs_review, recovery_evidence_debug_first"}</p>
+                  {(lane.mappingWarnings ?? []).length ? <p>Mapping warnings: {(lane.mappingWarnings ?? []).join(" | ")}</p> : null}
+                  <p>Blocked by: {(lane.blockedBy ?? ["Admin Debug source evidence before promotion"]).join(" | ")}</p>
+                  <p>{lane.recommendedAction ?? "Keep recovery evidence in Debug until a later promotion pass."}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </Section>
     </div>
   );
 }
