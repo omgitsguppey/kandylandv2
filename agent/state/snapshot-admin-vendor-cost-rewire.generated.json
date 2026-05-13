@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-13T22:47:55.932Z",
+  "generatedAtUtc": "2026-05-13T23:36:52.019Z",
   "reportKey": "snapshot-admin-vendor-cost-rewire",
-  "currentHead": "99a2704bc1b3479dc5568f16c9c938620738d46b",
+  "currentHead": "ba09df5af947b33bb98d1cdf50876c25eac6bf96",
   "sourceReports": {
     "phaseOneInventory": {
       "path": "agent/state/analytics-rewire-phase-one.generated.json",
-      "generatedAtUtc": "2026-05-13T22:46:54.612Z",
-      "currentHead": "99a2704bc1b3479dc5568f16c9c938620738d46b",
+      "generatedAtUtc": "2026-05-13T23:36:24.898Z",
+      "currentHead": "ba09df5af947b33bb98d1cdf50876c25eac6bf96",
       "laneCount": 25,
       "duplicateAuthorityCount": 5,
       "rawDisplayFallbackCount": 2,
@@ -14,15 +14,15 @@
     },
     "phaseTwoIdentityPrivacy": {
       "path": "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-      "generatedAtUtc": "2026-05-13T22:47:21.995Z",
-      "currentHead": "99a2704bc1b3479dc5568f16c9c938620738d46b",
+      "generatedAtUtc": "2026-05-13T23:36:25.088Z",
+      "currentHead": "ba09df5af947b33bb98d1cdf50876c25eac6bf96",
       "privacyRuleCount": 3,
       "recoveryEligibilityRuleCount": 12
     },
     "phaseThreeRecoveryDryRun": {
       "path": "agent/state/lost-data-recovery-dry-run.generated.json",
-      "generatedAtUtc": "2026-05-13T22:47:38.044Z",
-      "currentHead": "99a2704bc1b3479dc5568f16c9c938620738d46b",
+      "generatedAtUtc": "2026-05-13T23:36:26.912Z",
+      "currentHead": "ba09df5af947b33bb98d1cdf50876c25eac6bf96",
       "recoverableLaneCount": 15,
       "debugFirstCount": 12,
       "adminAnalyticsEligibleCount": 3,
@@ -46,7 +46,7 @@
     "adminAnalyticsEligibleRecoveryCount": 3,
     "issueCount": 5,
     "p0Count": 0,
-    "p1Count": 3
+    "p1Count": 0
   },
   "snapshotAuthorities": [
     {
@@ -670,30 +670,30 @@
   "issues": [
     {
       "issueKey": "duplicate-snapshot-authority-collapse-needed",
-      "severity": "P1",
-      "title": "Duplicate snapshot authority collapse partially landed for realtime and historical routes",
-      "description": "Realtime and historical Admin Analytics routes now prefer analytics_admin_metric_snapshots and demote legacy/raw sources; broader materializer/module cleanup remains.",
+      "severity": "P2",
+      "title": "Duplicate snapshot authority collapse landed for display routes and materializer labels",
+      "description": "Realtime and historical Admin Analytics routes prefer analytics_admin_metric_snapshots, realtime_summary is labeled fallback/live-pulse evidence, and materializer metadata marks raw sources as input or Debug evidence rather than compact display authority.",
       "files": [
         "src/lib/server/admin-analytics-snapshots.ts",
         "functions/src/analytics-realtime-summary.ts"
       ],
-      "blocksRuntimeSimplification": true,
+      "blocksRuntimeSimplification": false,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "Keep analytics_admin_metric_snapshots canonical, then collapse remaining module/materializer authority conflicts in later runtime passes."
+      "recommendedAction": "Keep the authority labels locked while later materializer work replaces remaining placeholder snapshot writers."
     },
     {
       "issueKey": "raw-display-fallback-runtime-simplification-needed",
-      "severity": "P1",
-      "title": "Raw display fallback collapse partially landed for realtime and historical routes",
-      "description": "Realtime and historical compact display paths no longer rebuild display truth from raw analytics logs when verified snapshots are unavailable; Debug/raw recovery surfacing remains future work.",
+      "severity": "P2",
+      "title": "Raw display fallback collapse landed for compact Admin Analytics routes and client live path",
+      "description": "Realtime and historical compact display routes avoid raw fallback rebuilds, and the Admin Analytics state hook no longer mounts raw Firestore realtime listeners for display truth. Raw collections remain materializer input or Admin Debug evidence only.",
       "files": [
         "src/app/api/admin/analytics/realtime/route.ts",
         "src/app/api/admin/analytics/historical/route.ts",
         "src/app/admin/analytics/**"
       ],
-      "blocksRuntimeSimplification": true,
+      "blocksRuntimeSimplification": false,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "Audit remaining Admin Analytics modules and Debug recovery lanes for any raw display fallbacks outside the realtime/historical route arteries."
+      "recommendedAction": "Keep raw collection usage behind materializers or Debug evidence while later modules add verified snapshots."
     },
     {
       "issueKey": "vendor-boundary-runtime-labeling-needed",
@@ -724,17 +724,17 @@
     },
     {
       "issueKey": "cost-simplification-runtime-pass-required",
-      "severity": "P1",
-      "title": "Cost simplification needs a separate runtime pass",
-      "description": "This static contract identifies cost-risk patterns but does not remove raw reads, listeners, duplicate materializers, or broad fallback work.",
+      "severity": "P2",
+      "title": "Cost simplification runtime pass reduced the remaining compact display risks",
+      "description": "Admin Analytics display now stays on snapshot-first API payloads, direct raw Firestore listeners are disabled for compact display, materializer metadata labels raw ledgers as input/Debug evidence, and realtime_summary is fallback/live-pulse evidence only. Later work may still replace placeholder materializers with verified snapshot writers.",
       "files": [
         "src/app/api/admin/analytics/**",
         "src/app/admin/analytics/**",
         "functions/src/*analytics*"
       ],
-      "blocksRuntimeSimplification": true,
+      "blocksRuntimeSimplification": false,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "Use the costSimplificationCandidates list as the scope for the next runtime simplification prompt."
+      "recommendedAction": "Move to validator locks and final evidence refresh before considering any new recovery promotion or materializer buildout."
     }
   ]
 }

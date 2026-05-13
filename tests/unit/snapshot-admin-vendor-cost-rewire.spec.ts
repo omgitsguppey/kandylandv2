@@ -116,9 +116,28 @@ describe("snapshot/admin/vendor/cost rewire", () => {
     expect(REPORT.issues.map((issue) => issue.issueKey)).toEqual(expect.arrayContaining([
       "duplicate-snapshot-authority-collapse-needed",
       "raw-display-fallback-runtime-simplification-needed",
+      "cost-simplification-runtime-pass-required",
       "vendor-boundary-runtime-labeling-needed",
     ]));
     expect(validateSnapshotAdminVendorCostRewireReport(REPORT)).toEqual([]);
+  });
+
+  it("downgrades duplicate authority, raw fallback, and cost issues after the cost runtime pass", () => {
+    const duplicate = REPORT.issues.find((entry) => entry.issueKey === "duplicate-snapshot-authority-collapse-needed");
+    const rawFallback = REPORT.issues.find((entry) => entry.issueKey === "raw-display-fallback-runtime-simplification-needed");
+    const cost = REPORT.issues.find((entry) => entry.issueKey === "cost-simplification-runtime-pass-required");
+
+    expect(duplicate?.severity).toBe("P2");
+    expect(duplicate?.description).toContain("materializer metadata marks raw sources as input or Debug evidence");
+    expect(duplicate?.blocksRuntimeSimplification).toBe(false);
+
+    expect(rawFallback?.severity).toBe("P2");
+    expect(rawFallback?.description).toContain("no longer mounts raw Firestore realtime listeners");
+    expect(rawFallback?.blocksRuntimeSimplification).toBe(false);
+
+    expect(cost?.severity).toBe("P2");
+    expect(cost?.description).toContain("direct raw Firestore listeners are disabled");
+    expect(cost?.blocksRuntimeSimplification).toBe(false);
   });
 
   it("downgrades Debug recovery surfacing after the Admin Debug evidence payload lands", () => {

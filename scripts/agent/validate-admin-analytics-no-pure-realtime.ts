@@ -92,9 +92,15 @@ for (const codeNeedle of [
   "realtimeBlocksFirstRender: false",
   "displayStatePolicyApplied: true",
   "pureRealtimeDependencyRemoved: true",
+  "ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST",
+  "rawDisplayFallbackDisabled: true",
+  "sourceUse: \"snapshot_first_route\"",
 ]) {
   requireIncludes(stateHook + livePulseModel, codeNeedle, "Admin Analytics Live Pulse source-order policy");
 }
+
+requireNotIncludes(stateHook, "from \"./useAdminAnalyticsRealtime\"", "Admin Analytics state hook");
+requireNotIncludes(stateHook, "useAdminAnalyticsRealtime(", "Admin Analytics state hook");
 
 for (const livePulseNeedle of [
   "Graph awaiting live upgrade.",

@@ -33,6 +33,10 @@ export type AdminAnalyticsMaterializerStatus =
   | "placeholder_unavailable"
   | "deprecated_debug_only";
 
+export const ADMIN_ANALYTICS_CANONICAL_DISPLAY_AUTHORITY = "analytics_admin_metric_snapshots";
+export const ADMIN_ANALYTICS_RAW_SOURCE_USE_POLICY = "materializer_input_debug_evidence_only";
+export const ADMIN_ANALYTICS_LEGACY_SUMMARY_USE_POLICY = "fallback_live_pulse_evidence_only";
+
 export interface AdminAnalyticsMaterializerContext {
   moduleKey: AdminAnalyticsSnapshotModuleKey;
   rangeKey: AdminMetricSnapshotRange;
@@ -45,6 +49,10 @@ export interface AdminAnalyticsMaterializerEntry {
   label: string;
   supportedRanges: AdminMetricSnapshotRange[];
   canonicalSources: string[];
+  displayAuthority: typeof ADMIN_ANALYTICS_CANONICAL_DISPLAY_AUTHORITY;
+  rawSourceUse: typeof ADMIN_ANALYTICS_RAW_SOURCE_USE_POLICY;
+  legacySummaryUse: typeof ADMIN_ANALYTICS_LEGACY_SUMMARY_USE_POLICY | "not_applicable";
+  costSimplificationRuntimeNote: string;
   sourcePolicy: MaterializerSourcePolicy;
   parityChecksRequired: string[];
   legacySupportStatus: "none" | "directional" | "supported" | "debug_only";
@@ -67,13 +75,29 @@ function unavailableRefresh(reason: string) {
     });
 }
 
-function buildEntry(input: Omit<AdminAnalyticsMaterializerEntry, "supportedRanges" | "refresh" | "sourcePolicy"> & {
+function buildEntry(input: Omit<
+  AdminAnalyticsMaterializerEntry,
+  | "supportedRanges"
+  | "refresh"
+  | "sourcePolicy"
+  | "displayAuthority"
+  | "rawSourceUse"
+  | "legacySummaryUse"
+  | "costSimplificationRuntimeNote"
+> & {
   sourcePolicy?: MaterializerSourcePolicy;
   supportedRanges?: AdminMetricSnapshotRange[];
   unavailableReason: string;
 }): AdminAnalyticsMaterializerEntry {
   return {
     ...input,
+    displayAuthority: ADMIN_ANALYTICS_CANONICAL_DISPLAY_AUTHORITY,
+    rawSourceUse: ADMIN_ANALYTICS_RAW_SOURCE_USE_POLICY,
+    legacySummaryUse: input.canonicalSources.some((source) => source.includes("analytics_aggregate_stats/realtime_summary"))
+      ? ADMIN_ANALYTICS_LEGACY_SUMMARY_USE_POLICY
+      : "not_applicable",
+    costSimplificationRuntimeNote:
+      "Compact Admin Analytics display reads analytics_admin_metric_snapshots first; raw ledgers are materializer input or Debug evidence only.",
     sourcePolicy: input.sourcePolicy ?? buildCanonicalMaterializerSourcePolicy(),
     supportedRanges: input.supportedRanges ?? [...ADMIN_METRIC_SNAPSHOT_RANGES],
     refresh: unavailableRefresh(input.unavailableReason),

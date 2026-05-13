@@ -113,6 +113,10 @@ for (const moduleKey of [
 for (const registryNeedle of [
   "supportedRanges",
   "canonicalSources",
+  "displayAuthority",
+  "ADMIN_ANALYTICS_CANONICAL_DISPLAY_AUTHORITY",
+  "ADMIN_ANALYTICS_RAW_SOURCE_USE_POLICY",
+  "ADMIN_ANALYTICS_LEGACY_SUMMARY_USE_POLICY",
   "parityChecksRequired",
   "legacySupportStatus",
   "currentImplementationStatus",
@@ -179,6 +183,8 @@ requireIncludes(realtimeRoute, "? \"unavailable\"", "Missing guest sample eviden
 requireIncludes(realtimeRoute, "getLatestVerifiedSnapshot", "Realtime route canonical snapshot authority");
 requireIncludes(realtimeRoute, "ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_SOURCE_LABEL", "Realtime route canonical snapshot authority");
 requireIncludes(realtimeRoute, "ADMIN_ANALYTICS_REALTIME_LEGACY_SUMMARY_SOURCE_LABEL", "Realtime route legacy fallback label");
+requireIncludes(realtimeRoute + realtimeSummary, "fallback_live_pulse_evidence", "Realtime summary fallback evidence label");
+requireIncludes(realtimeSummary, "sourceAuthority: \"fallback_live_pulse_evidence_only\"", "Realtime summary fallback evidence label");
 requireIncludes(realtimeRoute, "raw analytics collections are debug-only", "Realtime route raw fallback demotion");
 requireIncludes(realtimeRoute, "analytics_admin_metric_snapshots/unavailable", "Realtime route missing snapshot unavailable state");
 requireNotIncludes(realtimeRoute, "cold_route_refresh", "Realtime route compact display fallback");

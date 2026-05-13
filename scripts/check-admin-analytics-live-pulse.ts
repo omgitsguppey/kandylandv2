@@ -126,6 +126,11 @@ assertIncludes("useAdminAnalyticsState", hook, "listenerDebugMeta: liveRealtime.
 assertIncludes("useAdminAnalyticsState", hook, "resolveAdminAnalyticsDisplayState");
 assertIncludes("useAdminAnalyticsState", hook, "guestEstimateSourceLabel");
 assertIncludes("useAdminAnalyticsState", hook, "guestEstimateConfidence");
+assertIncludes("useAdminAnalyticsState", hook, "ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST");
+assertIncludes("useAdminAnalyticsState", hook, "rawDisplayFallbackDisabled: true");
+assertIncludes("useAdminAnalyticsState", hook, "sourceUse: \"snapshot_first_route\"");
+assertNotIncludes("useAdminAnalyticsState", hook, "from \"./useAdminAnalyticsRealtime\"");
+assertNotIncludes("useAdminAnalyticsState", hook, "useAdminAnalyticsRealtime(");
 assertIncludes("useAdminAnalyticsRealtime", realtimeHook, "includeMetadataChanges: true");
 assertIncludes("MetricCard primitive", primitives, "max-w-[5.75rem]");
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsLivePulse");

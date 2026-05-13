@@ -33,7 +33,7 @@ const ADMIN_ANALYTICS_REALTIME_HOT_CACHE_DOC_ID = "realtime_summary";
 const ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_MODULE_KEY = "live_pulse";
 const ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_RANGE = "24h";
 const ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_SOURCE_LABEL = "analytics_admin_metric_snapshots/live_pulse:24h";
-const ADMIN_ANALYTICS_REALTIME_LEGACY_SUMMARY_SOURCE_LABEL = "analytics_aggregate_stats/realtime_summary:fallback_evidence";
+const ADMIN_ANALYTICS_REALTIME_LEGACY_SUMMARY_SOURCE_LABEL = "analytics_aggregate_stats/realtime_summary:fallback_live_pulse_evidence";
 
 type AdminRealtimePayload = RealtimeAnalyticsResponse & Record<string, unknown>;
 

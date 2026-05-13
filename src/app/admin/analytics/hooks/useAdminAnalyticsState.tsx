@@ -21,6 +21,10 @@ import {
   type AdminAnalyticsDisplaySnapshotState,
   type AdminAnalyticsDisplayState,
 } from "@/lib/analytics/admin-analytics-display-state";
+import type {
+  AdminAnalyticsLiveActor,
+  AdminAnalyticsLiveSignals,
+} from "@/lib/admin-analytics-live-runtime";
 import {
   normalizeAdminSnapshotRatio,
   readAdminSnapshotNumberValue,
@@ -96,7 +100,6 @@ import {
   isRecentViolation,
   useHistoricalSectionOverride,
 } from "../AnalyticsHelpers";
-import { useAdminAnalyticsRealtime } from "./useAdminAnalyticsRealtime";
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
@@ -106,12 +109,49 @@ const ADMIN_ANALYTICS_STORAGE_PREFIX = `kandydrops.admin.analytics.${ADMIN_ANALY
 const ADMIN_ANALYTICS_OVERVIEW_SNAPSHOT_STORAGE_PREFIX =
   "kandydrops.admin.analytics.overview.lastValidatedBackendSnapshot";
 const EMPTY_TASK_LEADERBOARD: TaskLeaderboardItem[] = [];
+const ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST =
+  "ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST";
+const ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_DETAIL =
+  "Raw Firestore realtime listeners are disabled for compact Admin Analytics display; using the snapshot-first realtime route and Admin Debug raw evidence instead.";
+const ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_SOURCE_LABEL =
+  "analytics_admin_metric_snapshots:snapshot_first_route";
+const ADMIN_ANALYTICS_RAW_REALTIME_COLLECTIONS = {
+  eventFacts: "analytics_event_facts",
+  guestBatches: "analytics_guest_batches",
+  guestSessions: "analytics_sessions",
+  watchSessions: "analytics_watch_sessions",
+} as const;
 
 type AdminAnalyticsOverviewMetricKey =
   | "liveActive"
   | "mobileShare"
   | "revenue"
   | "purchases";
+
+type AdminAnalyticsCostDemotedListenerDebugEntry = {
+  collection: string;
+  status: "waiting";
+  fromCache: false;
+  mountedAtMs: number | null;
+  lastEventAtMs: null;
+  lastServerConfirmedAtMs: null;
+  errorMessage: null;
+  sourceUse: "debug_only";
+  costRisk: "reduced";
+  fallbackReason: string;
+};
+
+type AdminAnalyticsCostDemotedRealtimeState = AdminAnalyticsLiveSignals & {
+  listenerDebugMeta: {
+    mountedAtMs: number | null;
+    listeners: Record<string, AdminAnalyticsCostDemotedListenerDebugEntry>;
+    sourceUse: "snapshot_first_route";
+    rawDisplayFallbackDisabled: true;
+    costRisk: "reduced";
+    fallbackReason: string;
+    policyMarker: typeof ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST;
+  };
+};
 
 type AnalyticsOverviewCardViewModel = AnalyticsOverviewCard & {
   displayValue: string;
@@ -179,6 +219,109 @@ const SNAPSHOT_SOURCE_LABELS: Record<string, string> = {
 
 function isSnapshotSectionKey(value: string): value is AdminAnalyticsSnapshotSectionKey {
   return SNAPSHOT_SECTION_KEYS.has(value);
+}
+
+function normalizeSnapshotFirstLiveTruthLabel(
+  label: RealtimeAnalyticsResponse["liveTruthLabel"] | RealtimeAnalyticsResponse["activeUsersTruthLabel"],
+): AdminAnalyticsLiveSignals["liveTruthLabel"] {
+  if (label === "live" || label === "partial" || label === "failed") {
+    return label;
+  }
+
+  return "fallback";
+}
+
+function normalizeSnapshotFirstActiveUser(
+  item: NonNullable<RealtimeAnalyticsResponse["activeUsers"]>[number],
+  sourceLabel: string,
+): AdminAnalyticsLiveActor {
+  return {
+    ...item,
+    actorType: item.actorType === "guest" ? "guest" : "identified",
+    sourceLabel: item.sourceLabel ?? sourceLabel,
+    truthLabel: item.truthLabel ?? "fallback",
+  };
+}
+
+function buildCostDemotedRealtimeListenerDebugMeta(nowMs: number): AdminAnalyticsCostDemotedRealtimeState["listenerDebugMeta"] {
+  const buildEntry = (collection: string): AdminAnalyticsCostDemotedListenerDebugEntry => ({
+    collection,
+    status: "waiting",
+    fromCache: false,
+    mountedAtMs: nowMs,
+    lastEventAtMs: null,
+    lastServerConfirmedAtMs: null,
+    errorMessage: null,
+    sourceUse: "debug_only",
+    costRisk: "reduced",
+    fallbackReason: ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_DETAIL,
+  });
+
+  return {
+    mountedAtMs: nowMs,
+    sourceUse: "snapshot_first_route",
+    rawDisplayFallbackDisabled: true,
+    costRisk: "reduced",
+    fallbackReason: ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_DETAIL,
+    policyMarker: ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST,
+    listeners: {
+      eventFacts: buildEntry(ADMIN_ANALYTICS_RAW_REALTIME_COLLECTIONS.eventFacts),
+      guestBatches: buildEntry(ADMIN_ANALYTICS_RAW_REALTIME_COLLECTIONS.guestBatches),
+      guestSessions: buildEntry(ADMIN_ANALYTICS_RAW_REALTIME_COLLECTIONS.guestSessions),
+      watchSessions: buildEntry(ADMIN_ANALYTICS_RAW_REALTIME_COLLECTIONS.watchSessions),
+    },
+  };
+}
+
+function buildSnapshotFirstRealtimeState(input: {
+  liveResponse?: RealtimeAnalyticsResponse;
+  nowMs: number;
+}): AdminAnalyticsCostDemotedRealtimeState {
+  const sourceLabel =
+    input.liveResponse?.liveSourceLabel ??
+    input.liveResponse?.cacheSourceLabel ??
+    ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_SOURCE_LABEL;
+  const activeUsers = (input.liveResponse?.activeUsers ?? []).map((item) =>
+    normalizeSnapshotFirstActiveUser(item, sourceLabel),
+  );
+
+  if (!input.liveResponse) {
+    return {
+      feedStatus: "failed",
+      feedDetail: "No verified snapshot-first realtime payload is available yet.",
+      generatedAtMs: null,
+      totalActive: 0,
+      deepTrackerActive: 0,
+      guestActive: 0,
+      data: [],
+      activeUsers,
+      surfaceMix: [],
+      issues: ["Snapshot-first realtime route has no verified payload; raw listener fallback is disabled for cost control."],
+      liveTruthLabel: "failed",
+      liveSourceLabel: sourceLabel,
+      activeUsersTruthLabel: "failed",
+      activeUsersSourceLabel: sourceLabel,
+      listenerDebugMeta: buildCostDemotedRealtimeListenerDebugMeta(input.nowMs),
+    };
+  }
+
+  return {
+    feedStatus: "polled",
+    feedDetail: ADMIN_ANALYTICS_SNAPSHOT_FIRST_REALTIME_DETAIL,
+    generatedAtMs: input.liveResponse.generatedAtMs ?? null,
+    totalActive: input.liveResponse.totalActive ?? 0,
+    deepTrackerActive: input.liveResponse.deepTrackerActive ?? 0,
+    guestActive: activeUsers.filter((item) => item.actorType === "guest").length,
+    data: input.liveResponse.data ?? [],
+    activeUsers,
+    surfaceMix: input.liveResponse.surfaceMix ?? [],
+    issues: [],
+    liveTruthLabel: normalizeSnapshotFirstLiveTruthLabel(input.liveResponse.liveTruthLabel),
+    liveSourceLabel: sourceLabel,
+    activeUsersTruthLabel: normalizeSnapshotFirstLiveTruthLabel(input.liveResponse.activeUsersTruthLabel),
+    activeUsersSourceLabel: input.liveResponse.activeUsersSourceLabel ?? sourceLabel,
+    listenerDebugMeta: buildCostDemotedRealtimeListenerDebugMeta(input.nowMs),
+  };
 }
 
 function SnapshotRefreshControl(props: { snapshotModule: AdminAnalyticsSnapshotModuleState | null }) {
@@ -869,7 +1012,10 @@ const { user } = useAuth();
       </div>
     );
   };
-  const liveRealtime = useAdminAnalyticsRealtime(nowMs);
+  const liveRealtime = useMemo(
+    () => buildSnapshotFirstRealtimeState({ liveResponse, nowMs }),
+    [liveResponse, nowMs],
+  );
   const effectiveLiveResponse = useMemo<RealtimeAnalyticsResponse | undefined>(
     () => {
       if (liveRealtime.feedStatus === "failed" && liveResponse) {

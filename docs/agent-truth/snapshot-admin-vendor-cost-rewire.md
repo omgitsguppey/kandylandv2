@@ -129,6 +129,12 @@ The module label pass applies the vendor/source boundary to existing Admin Analy
 
 This does not add new charts, promote recovered data, query providers, or prove production recovery. It only makes module-level labels match the route authority collapse so GA4/PostHog/BigQuery and raw/recovered evidence cannot look like compact product truth.
 
+## Phase 9 Cost Simplification Note
+
+The cost simplification runtime pass disables the compact Admin Analytics client path that mounted raw Firestore realtime listeners over `analytics_event_facts`, `analytics_guest_batches`, `analytics_sessions`, and `analytics_watch_sessions`. Admin Analytics now uses the snapshot-first realtime API payload for display state, while the raw listener metadata remains represented as Debug-only/cost-reduced evidence.
+
+Materializer metadata now names `analytics_admin_metric_snapshots` as compact display authority and labels raw sources as materializer input or Debug evidence only. `analytics_aggregate_stats/realtime_summary` remains available as fallback/live-pulse evidence, not canonical display truth. This pass does not delete the legacy writer, change schedule frequency, backfill data, call vendors, scan BigQuery, or promote recovered data into Admin Analytics.
+
 ## What This Report Must Not Be Used For
 
 This report must not be used to claim production data was recovered, to approve a production backfill, to prove provider smoke, to mark screenshots complete, to change Admin UI, to alter API behavior, to add Firebase reads/listeners, or to run BigQuery/provider work. It is a local static planning contract and validator input only.

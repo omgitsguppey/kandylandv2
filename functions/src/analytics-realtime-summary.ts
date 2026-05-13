@@ -13,6 +13,8 @@ const EVENT_FACT_LIMIT = 1000
 const GUEST_BATCH_LIMIT = 500
 const WATCH_SESSION_LIMIT = 500
 const WATCH_ASSET_LIMIT = 500
+const REALTIME_SUMMARY_FALLBACK_EVIDENCE_SOURCE_LABEL =
+  "analytics_aggregate_stats/realtime_summary:fallback_live_pulse_evidence"
 
 const PAGE_VIEW_EVENT_NAMES = new Set([
   "dashboard_viewed",
@@ -683,9 +685,10 @@ export async function rebuildAdminAnalyticsRealtimeSummary(nowMs = Date.now()) {
     windowStartMs,
     windowMs: REALTIME_WINDOW_MS,
     writer: "functions/refreshAdminAnalyticsRealtimeSummary",
-    cacheSourceLabel: "analytics_aggregate_stats/realtime_summary",
+    cacheSourceLabel: REALTIME_SUMMARY_FALLBACK_EVIDENCE_SOURCE_LABEL,
     liveTruthLabel: "live",
-    liveSourceLabel: "analytics_aggregate_stats/realtime_summary",
+    liveSourceLabel: REALTIME_SUMMARY_FALLBACK_EVIDENCE_SOURCE_LABEL,
+    sourceAuthority: "fallback_live_pulse_evidence_only",
     activeUsersTruthLabel: activeUserDocs.length > 0 ? "live" : "partial",
     activeUsersSourceLabel: activeUserDocs.length > 0
       ? "analytics_active_users"

@@ -606,6 +606,9 @@ function buildRuntimeAwareIssues(root: string) {
   const operationsTab = readText(root, "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
   const commerceTab = readText(root, "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
   const displayStateHelper = readText(root, "src/lib/analytics/admin-analytics-display-state.ts");
+  const stateHook = readText(root, "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
+  const materializerRegistry = readText(root, "src/lib/server/admin-analytics-materializers.ts");
+  const realtimeSummaryFunction = readText(root, "functions/src/analytics-realtime-summary.ts");
 
   const realtimeCollapsed = realtimeRoute.includes("ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_SOURCE_LABEL")
     && realtimeRoute.includes("raw analytics collections are debug-only")
@@ -636,8 +639,37 @@ function buildRuntimeAwareIssues(root: string) {
     && commerceTab.includes("data-admin-analytics-vendor-source-label=\"vendor_evidence\"")
     && commerceTab.includes("stays supporting evidence, not product truth")
     && commerceTab.includes("data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"");
+  const rawRealtimeListenersDemoted = stateHook.includes("ADMIN_ANALYTICS_RAW_REALTIME_LISTENERS_DISABLED_FOR_COST")
+    && stateHook.includes("rawDisplayFallbackDisabled: true")
+    && stateHook.includes("sourceUse: \"snapshot_first_route\"")
+    && stateHook.includes("Snapshot-first realtime route has no verified payload; raw listener fallback is disabled for cost control.")
+    && !stateHook.includes("from \"./useAdminAnalyticsRealtime\"")
+    && !stateHook.includes("useAdminAnalyticsRealtime(");
+  const materializerAuthorityLabeled = materializerRegistry.includes("ADMIN_ANALYTICS_CANONICAL_DISPLAY_AUTHORITY")
+    && materializerRegistry.includes("ADMIN_ANALYTICS_RAW_SOURCE_USE_POLICY")
+    && materializerRegistry.includes("ADMIN_ANALYTICS_LEGACY_SUMMARY_USE_POLICY")
+    && materializerRegistry.includes("Compact Admin Analytics display reads analytics_admin_metric_snapshots first; raw ledgers are materializer input or Debug evidence only.");
+  const legacyRealtimeSummaryLabeled = realtimeRoute.includes("fallback_live_pulse_evidence")
+    && realtimeSummaryFunction.includes("REALTIME_SUMMARY_FALLBACK_EVIDENCE_SOURCE_LABEL")
+    && realtimeSummaryFunction.includes("sourceAuthority: \"fallback_live_pulse_evidence_only\"");
+  const costRuntimeReduced = realtimeCollapsed
+    && historicalCollapsed
+    && rawRealtimeListenersDemoted
+    && materializerAuthorityLabeled
+    && legacyRealtimeSummaryLabeled;
 
   return BASE_ISSUES.map((issue) => {
+    if (issue.issueKey === "duplicate-snapshot-authority-collapse-needed" && realtimeCollapsed && historicalCollapsed && materializerAuthorityLabeled && legacyRealtimeSummaryLabeled) {
+      return {
+        ...issue,
+        severity: "P2" as const,
+        title: "Duplicate snapshot authority collapse landed for display routes and materializer labels",
+        description: "Realtime and historical Admin Analytics routes prefer analytics_admin_metric_snapshots, realtime_summary is labeled fallback/live-pulse evidence, and materializer metadata marks raw sources as input or Debug evidence rather than compact display authority.",
+        blocksRuntimeSimplification: false,
+        recommendedAction: "Keep the authority labels locked while later materializer work replaces remaining placeholder snapshot writers.",
+      };
+    }
+
     if (issue.issueKey === "duplicate-snapshot-authority-collapse-needed" && realtimeCollapsed && historicalCollapsed) {
       return {
         ...issue,
@@ -648,6 +680,17 @@ function buildRuntimeAwareIssues(root: string) {
       };
     }
 
+    if (issue.issueKey === "raw-display-fallback-runtime-simplification-needed" && realtimeCollapsed && historicalCollapsed && rawRealtimeListenersDemoted) {
+      return {
+        ...issue,
+        severity: "P2" as const,
+        title: "Raw display fallback collapse landed for compact Admin Analytics routes and client live path",
+        description: "Realtime and historical compact display routes avoid raw fallback rebuilds, and the Admin Analytics state hook no longer mounts raw Firestore realtime listeners for display truth. Raw collections remain materializer input or Admin Debug evidence only.",
+        blocksRuntimeSimplification: false,
+        recommendedAction: "Keep raw collection usage behind materializers or Debug evidence while later modules add verified snapshots.",
+      };
+    }
+
     if (issue.issueKey === "raw-display-fallback-runtime-simplification-needed" && realtimeCollapsed && historicalCollapsed) {
       return {
         ...issue,
@@ -655,6 +698,17 @@ function buildRuntimeAwareIssues(root: string) {
         title: "Raw display fallback collapse partially landed for realtime and historical routes",
         description: "Realtime and historical compact display paths no longer rebuild display truth from raw analytics logs when verified snapshots are unavailable; Debug/raw recovery surfacing remains future work.",
         recommendedAction: "Audit remaining Admin Analytics modules and Debug recovery lanes for any raw display fallbacks outside the realtime/historical route arteries.",
+      };
+    }
+
+    if (issue.issueKey === "cost-simplification-runtime-pass-required" && costRuntimeReduced) {
+      return {
+        ...issue,
+        severity: "P2" as const,
+        title: "Cost simplification runtime pass reduced the remaining compact display risks",
+        description: "Admin Analytics display now stays on snapshot-first API payloads, direct raw Firestore listeners are disabled for compact display, materializer metadata labels raw ledgers as input/Debug evidence, and realtime_summary is fallback/live-pulse evidence only. Later work may still replace placeholder materializers with verified snapshot writers.",
+        blocksRuntimeSimplification: false,
+        recommendedAction: "Move to validator locks and final evidence refresh before considering any new recovery promotion or materializer buildout.",
       };
     }
 
