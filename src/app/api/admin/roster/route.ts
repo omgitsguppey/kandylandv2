@@ -728,21 +728,36 @@ async function GET_handler(request: NextRequest) {
             : [];
 
         const creatorOpsValues = creatorUsers.map((entry) => creatorOpsByUser.get(entry.uid) ?? buildEmptyCreatorOpsAggregate());
+        const creatorOpsTotals = creatorOpsValues.reduce((acc, entry) => {
+            acc.totalFollowers += entry.followerCount;
+            acc.totalAlertOptIns += entry.notificationsEnabledCount;
+            acc.activeSubscriptions += entry.activeSubscribers;
+            acc.openRequests += entry.openRequests;
+            acc.bookedCalls += entry.bookedCalls;
+            acc.pendingPayouts += entry.pendingPayouts;
+            acc.openThreads += entry.openThreads;
+            acc.pendingDropSubmissions += entry.pendingDropSubmissions;
+            acc.totalAccruedGd += entry.totalAccruedGd;
+            acc.pendingCashoutGd += entry.pendingCashoutGd;
+            return acc;
+        }, {
+            totalFollowers: 0,
+            totalAlertOptIns: 0,
+            activeSubscriptions: 0,
+            openRequests: 0,
+            bookedCalls: 0,
+            pendingPayouts: 0,
+            openThreads: 0,
+            pendingDropSubmissions: 0,
+            totalAccruedGd: 0,
+            pendingCashoutGd: 0,
+        });
+
         const summary = {
             creatorCount: creatorUsers.length,
             verifiedCreatorCount: creatorUsers.filter((entry) => entry.isVerified).length,
             activeCreatorCount: creatorUsers.filter((entry) => entry.status === "active").length,
-            totalFollowers: creatorOpsValues.reduce((sum, entry) => sum + entry.followerCount, 0),
-
-            totalAlertOptIns: creatorOpsValues.reduce((sum, entry) => sum + entry.notificationsEnabledCount, 0),
-            activeSubscriptions: creatorOpsValues.reduce((sum, entry) => sum + entry.activeSubscribers, 0),
-            openRequests: creatorOpsValues.reduce((sum, entry) => sum + entry.openRequests, 0),
-            bookedCalls: creatorOpsValues.reduce((sum, entry) => sum + entry.bookedCalls, 0),
-            pendingPayouts: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingPayouts, 0),
-            openThreads: creatorOpsValues.reduce((sum, entry) => sum + entry.openThreads, 0),
-            pendingDropSubmissions: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingDropSubmissions, 0),
-            totalAccruedGd: creatorOpsValues.reduce((sum, entry) => sum + entry.totalAccruedGd, 0),
-            pendingCashoutGd: creatorOpsValues.reduce((sum, entry) => sum + entry.pendingCashoutGd, 0),
+            ...creatorOpsTotals,
             reviewQueueCount: creatorReviewQueue.length,
             readyForApprovalCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "ready_for_approval").length,
             waitingOnIdCount: creatorReviewQueue.filter((entry) => entry.queueBucket === "waiting_on_id").length,

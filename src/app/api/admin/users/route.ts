@@ -2336,23 +2336,39 @@ async function GET_handler(request: NextRequest) {
       metricsSnapshot: userMetricsSnapshot,
       truthSnapshot: userTruthSnapshot,
     };
+    const creatorOpsValues = Array.from(creatorOpsByUser.values());
     const summary: UsersSummary = {
       ...summaryBase,
       kpiCards: buildAdminUsersKpiCards({ summary: summaryBase }),
-      creatorOps: {
-        creatorsWithFollowers: Array.from(creatorOpsByUser.values()).filter((entry) => entry.followerCount > 0).length,
-        totalFollowers: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.followerCount, 0),
-
-        totalAlertOptIns: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.notificationsEnabledCount, 0),
-        activeSubscriptions: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.activeSubscribers, 0),
-        openRequests: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.openRequests, 0),
-        bookedCalls: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.bookedCalls, 0),
-        pendingPayouts: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.pendingPayouts, 0),
-        openThreads: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.openThreads, 0),
-        pendingDropSubmissions: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.pendingDropSubmissions, 0),
-        totalAccruedGd: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.totalAccruedGd, 0),
-        pendingCashoutGd: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.pendingCashoutGd, 0),
-      },
+      creatorOps: creatorOpsValues.reduce(
+        (acc, entry) => {
+          if (entry.followerCount > 0) acc.creatorsWithFollowers++;
+          acc.totalFollowers += entry.followerCount;
+          acc.totalAlertOptIns += entry.notificationsEnabledCount;
+          acc.activeSubscriptions += entry.activeSubscribers;
+          acc.openRequests += entry.openRequests;
+          acc.bookedCalls += entry.bookedCalls;
+          acc.pendingPayouts += entry.pendingPayouts;
+          acc.openThreads += entry.openThreads;
+          acc.pendingDropSubmissions += entry.pendingDropSubmissions;
+          acc.totalAccruedGd += entry.totalAccruedGd;
+          acc.pendingCashoutGd += entry.pendingCashoutGd;
+          return acc;
+        },
+        {
+          creatorsWithFollowers: 0,
+          totalFollowers: 0,
+          totalAlertOptIns: 0,
+          activeSubscriptions: 0,
+          openRequests: 0,
+          bookedCalls: 0,
+          pendingPayouts: 0,
+          openThreads: 0,
+          pendingDropSubmissions: 0,
+          totalAccruedGd: 0,
+          pendingCashoutGd: 0,
+        }
+      ),
     };
 
     const behaviorLeaderboard = buildBehaviorLeaderboardPanel({

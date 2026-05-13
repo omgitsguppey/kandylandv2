@@ -4711,17 +4711,38 @@ export async function GET(request: NextRequest) {
                 && toNumber(entry.timestampMs) >= weekAgoMs;
         });
 
+        const creatorSpendParityTotals = creatorSpendTransactions7d.reduce((acc, entry) => {
+            acc.totalPurchasedSpent += toNumber(entry.purchasedAmountSpent);
+            const rewardSpent = toNumber(entry.rewardAmountSpent);
+            acc.totalRewardSpent += rewardSpent;
+
+            const ledgerSource = toStringValue(entry.ledgerSource);
+            if (!ledgerSource) acc.missingLedgerSourceCount++;
+
+            if (rewardSpent > 0 || ledgerSource === "reward" || ledgerSource === "mixed") {
+                acc.restrictedSpendViolationCount++;
+            }
+
+            const spendTotal = toNumber(entry.purchasedAmountSpent) + rewardSpent;
+            if (spendTotal > 0 && spendTotal !== Math.abs(toNumber(entry.amount))) {
+                acc.amountMismatchCount++;
+            }
+
+            if (!toStringValue(entry.creatorAccrualId)) acc.missingCreatorAccrualCount++;
+
+            return acc;
+        }, {
+            totalPurchasedSpent: 0,
+            totalRewardSpent: 0,
+            missingLedgerSourceCount: 0,
+            restrictedSpendViolationCount: 0,
+            amountMismatchCount: 0,
+            missingCreatorAccrualCount: 0,
+        });
+
         const creatorSpendParity = {
             trackedTransactions: creatorSpendTransactions7d.length,
-            totalPurchasedSpent: creatorSpendTransactions7d.reduce((sum, entry) => sum + toNumber(entry.purchasedAmountSpent), 0),
-            totalRewardSpent: creatorSpendTransactions7d.reduce((sum, entry) => sum + toNumber(entry.rewardAmountSpent), 0),
-            missingLedgerSourceCount: creatorSpendTransactions7d.filter((entry) => !toStringValue(entry.ledgerSource)).length,
-            restrictedSpendViolationCount: creatorSpendTransactions7d.filter((entry) => toNumber(entry.rewardAmountSpent) > 0 || toStringValue(entry.ledgerSource) === "reward" || toStringValue(entry.ledgerSource) === "mixed").length,
-            amountMismatchCount: creatorSpendTransactions7d.filter((entry) => {
-                const spendTotal = toNumber(entry.purchasedAmountSpent) + toNumber(entry.rewardAmountSpent);
-                return spendTotal > 0 && spendTotal !== Math.abs(toNumber(entry.amount));
-            }).length,
-            missingCreatorAccrualCount: creatorSpendTransactions7d.filter((entry) => !toStringValue(entry.creatorAccrualId)).length,
+            ...creatorSpendParityTotals,
             byType: Array.from(creatorSpendTransactions7d.reduce((map, entry) => {
                 const key = toStringValue(entry.type) || "unknown";
                 const current = map.get(key) || {
@@ -5248,15 +5269,21 @@ export async function GET(request: NextRequest) {
                     ? "review"
                     : "live",
         };
+        const unsupportedRuntimeTotals = unsupportedRuntimeGroups.reduce((acc, group) => {
+            acc.unsupportedRuntimeCount += group.count;
+            if (group.source === "assignment" && (group.activityScope === "active" || group.activityScope === "mixed")) {
+                acc.unsupportedActiveAssignments += group.count;
+            }
+            return acc;
+        }, { unsupportedRuntimeCount: 0, unsupportedActiveAssignments: 0 });
+
         const taskTelemetryMappingSummary: TaskTelemetryMappingSummary = {
             generatedAtUtc: new Date(nowMs).toISOString(),
             alignmentWarningCount: dedupedAlignmentWarnings.length,
             sharedEventCount: sharedEventGroups.length,
-            unsupportedRuntimeCount: unsupportedRuntimeGroups.reduce((sum, group) => sum + group.count, 0),
+            unsupportedRuntimeCount: unsupportedRuntimeTotals.unsupportedRuntimeCount,
             unsafeSharedEventCount: sharedEventGroups.filter((group) => group.ambiguityState !== "safe_with_criteria").length,
-            unsupportedActiveAssignments: unsupportedRuntimeGroups
-                .filter((group) => group.source === "assignment" && (group.activityScope === "active" || group.activityScope === "mixed"))
-                .reduce((sum, group) => sum + group.count, 0),
+            unsupportedActiveAssignments: unsupportedRuntimeTotals.unsupportedActiveAssignments,
             taskTriggerReadyCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "ready").length,
             taskTriggerPartialCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && (row.mappingState === "needs_criteria" || row.mappingState === "shared_receipts")).length,
             taskTriggerMissingCount: taskTelemetryMappingRows.filter((row) => row.eventPurpose === "task_trigger" && row.mappingState === "needs_task_mapping").length,
