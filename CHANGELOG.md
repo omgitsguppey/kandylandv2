@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 21 public updates in pages of 5.
+Showing the last 22 public updates in pages of 5.
+
+## 1.2.27 - 2026-05-13
+- Bug fixes and general improvements
+- Improved historical Admin Analytics source handling behind the scenes.
+- Reduced raw analytics fallback behavior when verified snapshots are unavailable.
+- Kept source, fallback, and vendor evidence labels clearer for debugging.
 
 ## 1.2.26 - 2026-05-13
 - Bug fixes and general improvements

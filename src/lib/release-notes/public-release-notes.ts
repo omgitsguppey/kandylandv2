@@ -1,13 +1,58 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.26",
-  "betaReleaseCounter": 226,
+  "currentVersion": "1.2.27",
+  "betaReleaseCounter": 227,
   "channel": "beta",
-  "generatedAt": "2026-05-13T19:55:34.184Z",
-  "generatedAtUtc": "2026-05-13T19:55:34.184Z",
-  "lastCommitSha": "e84b0c602becea2704f2acf5149f52a5a99a3e22",
+  "generatedAt": "2026-05-13T21:10:13.286Z",
+  "generatedAtUtc": "2026-05-13T21:10:13.286Z",
+  "lastCommitSha": "e5c7da278b19e5e7a48285ea1aebffe7ac562934",
   "notes": [
+    {
+      "version": "1.2.27",
+      "previousVersion": "1.2.26",
+      "betaReleaseCounter": 227,
+      "previousBetaReleaseCounter": 226,
+      "commitSha": "e5c7da278b19e5e7a48285ea1aebffe7ac562934",
+      "commitTitle": "fix(analytics): collapse historical snapshot fallback authority",
+      "commitCount": 1,
+      "commitShas": [
+        "e5c7da278b19e5e7a48285ea1aebffe7ac562934"
+      ],
+      "committedAt": "2026-05-13T21:08:52.000Z",
+      "generatedAt": "2026-05-13T21:10:13.280Z",
+      "committedAtUtc": "2026-05-13T21:08:52.000Z",
+      "generatedAtUtc": "2026-05-13T21:10:13.280Z",
+      "updatedAtUtc": "2026-05-13T21:10:13.280Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved historical Admin Analytics source handling behind the scenes.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved historical Admin Analytics source handling behind the scenes.",
+        "Reduced raw analytics fallback behavior when verified snapshots are unavailable.",
+        "Kept source, fallback, and vendor evidence labels clearer for debugging."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "scripts/agent/validate-admin-analytics-hot-cache.ts",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/api/admin/debug/route.ts",
+        "tests/unit/admin-analytics-historical-traffic.spec.ts"
+      ],
+      "sourceCommit": "e5c7da278b19e5e7a48285ea1aebffe7ac562934"
+    },
     {
       "version": "1.2.26",
       "previousVersion": "1.2.25",
@@ -1482,48 +1527,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 153,
       "bumpType": "none",
       "sourceCommit": "479c9466093e85346f67914e4bcbdff395ef5126"
-    },
-    {
-      "version": "1.3.0",
-      "previousVersion": "1.3.0",
-      "betaReleaseCounter": 205,
-      "previousBetaReleaseCounter": 205,
-      "commitSha": "2e54dfa75999e5ca82299120ee948e2acd3a73e9",
-      "commitTitle": "chore(agent): add phase one lock check",
-      "commitCount": 1,
-      "commitShas": [
-        "2e54dfa75999e5ca82299120ee948e2acd3a73e9"
-      ],
-      "committedAt": "2026-05-08T03:06:11.000Z",
-      "generatedAt": "2026-05-08T07:36:18.841Z",
-      "committedAtUtc": "2026-05-08T03:06:11.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:18.841Z",
-      "updatedAtUtc": "2026-05-08T07:36:18.841Z",
-      "category": "Internal Reliability",
-      "title": "Internal reliability improvements",
-      "summary": "Internal reliability updates with no user-facing product changes.",
-      "userFacingTitle": "Internal reliability improvements",
-      "surfaceCategory": "Internal reliability",
-      "bullets": [
-        "Improved behind-the-scenes reliability."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": true,
-      "changedFiles": [
-        "agent/context/validator-authority.json",
-        "agent/state/admin-truth-replacement.generated.json",
-        "agent/state/generated-report-authority.generated.json",
-        "agent/state/phase-one-lock.generated.json",
-        "package.json",
-        "scripts/agent/validate-phase-one-lock.ts"
-      ],
-      "effectiveChangeCount": 390,
-      "excludedGeneratedChangeCount": 318,
-      "bumpType": "none",
-      "sourceCommit": "2e54dfa75999e5ca82299120ee948e2acd3a73e9"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
