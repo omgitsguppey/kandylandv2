@@ -123,6 +123,12 @@ The Debug-first recovery pass adds an `adminAnalyticsRecoveryEvidence` payload t
 
 This downgrades the recovery-surfacing issue only to partial/Debug-landed status. It does not promote recovered values into compact Admin Analytics, does not backfill production data, and does not prove any lane is ready for canonical display. Later phases still need module-level vendor/source label review, confidence validation, snapshot promotion rules, and cost simplification.
 
+## Phase 8 Module Label Note
+
+The module label pass applies the vendor/source boundary to existing Admin Analytics module copy and data attributes. Audience, operations, and commerce modules now label first-party snapshot display as verified snapshot data, vendor-derived GA evidence as estimated/supporting evidence, and recovery evidence as Debug-only/review-only before promotion.
+
+This does not add new charts, promote recovered data, query providers, or prove production recovery. It only makes module-level labels match the route authority collapse so GA4/PostHog/BigQuery and raw/recovered evidence cannot look like compact product truth.
+
 ## What This Report Must Not Be Used For
 
 This report must not be used to claim production data was recovered, to approve a production backfill, to prove provider smoke, to mark screenshots complete, to change Admin UI, to alter API behavior, to add Firebase reads/listeners, or to run BigQuery/provider work. It is a local static planning contract and validator input only.

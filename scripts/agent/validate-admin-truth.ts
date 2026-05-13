@@ -31,6 +31,10 @@ const debugPrimitives = read("src/app/admin/debug/components/DebugPrimitives.tsx
 const adminDebugRoute = read("src/app/api/admin/debug/route.ts");
 const recoveryEvidenceComponent = read("src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx");
 const debugNow = read("src/app/admin/debug/components/DebugTabNow.tsx");
+const audienceTab = read("src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
+const operationsTab = read("src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+const commerceTab = read("src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+const displayStateHelper = read("src/lib/analytics/admin-analytics-display-state.ts");
 
 requireIncludes(packageJson, "\"check:admin-truth\"", "package.json");
 requireIncludes(truthBadge, "data-admin-truth-state", "AdminTruthBadge");
@@ -65,6 +69,30 @@ for (const expected of [
 requireIncludes(debugNow, "<DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />", "Admin Debug Right Now tab");
 requireNotIncludes(adminDebugRoute, "adminAnalyticsPromotedNow: true", "Admin Debug recovery truth payload");
 requireNotIncludes(adminDebugRoute, "productionAllowedNow: true", "Admin Debug recovery truth payload");
+
+for (const expected of [
+  "Verified snapshot",
+  "Stale verified snapshot",
+  "Estimated from vendor analytics",
+  "Debug-only recovery evidence",
+  "Needs review before promotion",
+]) {
+  requireIncludes(displayStateHelper, expected, "Admin Analytics source label helper");
+}
+
+for (const [label, source] of [
+  ["Admin Analytics Audience module", audienceTab],
+  ["Admin Analytics Operations module", operationsTab],
+  ["Admin Analytics Commerce module", commerceTab],
+] as const) {
+  requireIncludes(source, "data-admin-analytics-snapshot-priority=\"analytics_admin_metric_snapshots\"", label);
+  requireIncludes(source, "data-admin-analytics-vendor-source-label=\"vendor_evidence\"", label);
+  requireIncludes(source, "data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"", label);
+}
+
+requireIncludes(audienceTab, "supporting evidence, not product truth", "Admin Analytics Audience module");
+requireIncludes(operationsTab, "supports comparison only", "Admin Analytics Operations module");
+requireIncludes(commerceTab, "stays supporting evidence, not product truth", "Admin Analytics Commerce module");
 
 if (failures.length > 0) {
   console.error("Admin truth validation failed:");

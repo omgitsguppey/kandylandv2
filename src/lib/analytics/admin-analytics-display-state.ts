@@ -9,6 +9,16 @@ export type AdminAnalyticsVisibleValueSource =
   | "realtime_upgrade"
   | "unavailable";
 
+export type AdminAnalyticsEvidenceSourceKind =
+  | AdminAnalyticsVisibleValueSource
+  | AdminMetricSnapshotSourceMode
+  | "vendor_evidence"
+  | "debug_parity"
+  | "export_only"
+  | "debug_only"
+  | "recovery_review_only"
+  | "needs_review";
+
 export type AdminAnalyticsDisplaySnapshotState = {
   exists: boolean;
   sourceMode?: AdminMetricSnapshotSourceMode | null;
@@ -62,6 +72,39 @@ export type AdminAnalyticsDisplayState = {
   realtimeBlocksFirstRender: boolean;
   graphMissingButSnapshotRendered: boolean;
 };
+
+export function formatAdminAnalyticsEvidenceSourceLabel(
+  sourceKind: AdminAnalyticsEvidenceSourceKind | string | null | undefined,
+) {
+  switch (sourceKind) {
+    case "verified_snapshot":
+    case "verified_cache":
+    case "live":
+    case "intraday":
+      return "Verified snapshot";
+    case "stale_cache":
+      return "Stale verified snapshot";
+    case "estimated":
+    case "vendor_evidence":
+      return "Estimated from vendor analytics";
+    case "debug_parity":
+      return "Vendor debug parity";
+    case "export_only":
+      return "Export-only evidence";
+    case "fallback":
+    case "mixed":
+    case "realtime_upgrade":
+      return "Fallback evidence";
+    case "debug_only":
+      return "Debug-only recovery evidence";
+    case "recovery_review_only":
+    case "needs_review":
+      return "Needs review before promotion";
+    case "unavailable":
+    default:
+      return "Unavailable until source samples exist";
+  }
+}
 
 function isRefreshRunning(status: AdminAnalyticsDisplayRefreshState["status"]) {
   return status === "refreshing" || status === "queued" || status === "running";

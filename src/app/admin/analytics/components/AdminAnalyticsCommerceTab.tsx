@@ -12,6 +12,7 @@ import {
   resolveAdminAnalyticsContentConversionRowTruthState,
   resolveAdminAnalyticsTopDropIdentityTruthState,
 } from "@/lib/admin-analytics-contracts";
+import { formatAdminAnalyticsEvidenceSourceLabel } from "@/lib/analytics/admin-analytics-display-state";
 import { coerceAdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -63,6 +64,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     waitingLabel = "No verified snapshot yet",
   ) => (typeof value === "number" && Number.isFinite(value) ? formatter(value) : waitingLabel);
   const commerceBadgeLabel = resolveAdminAnalyticsCommerceBadgeLabel(commerceSnapshotModel);
+  const verifiedSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot");
+  const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
+  const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
+  const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
   const compactMetricClass = "rounded-[1rem] p-2";
   const compactMetricValueClass = "text-lg leading-6 md:text-xl";
   const commerceConversionLabel =
@@ -155,10 +160,22 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
               defaultExpanded
               rightSlot={renderSectionRangeControl("commerceSnapshot")}
             >
-              <div className="mb-2.5 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300">
+              <div
+                className="mb-2.5 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                data-admin-analytics-snapshot-priority="analytics_admin_metric_snapshots"
+                data-admin-analytics-vendor-source-label="vendor_evidence"
+                data-admin-analytics-raw-ledger-display="debug_only"
+                data-admin-analytics-recovery-promotion="debug_only_not_promoted"
+              >
                 {commerceSnapshotModel.visibleCopy.map((line) => (
                   <p key={line}>{line}</p>
                 ))}
+                <p className="text-gray-400">
+                  Source label: {verifiedSnapshotLabel}. {vendorEvidenceLabel} stays supporting evidence, not product truth.
+                </p>
+                <p className="text-gray-400">
+                  Recovery label: {debugRecoveryLabel}; {recoveryReviewLabel}.
+                </p>
               </div>
 
               <div className="mb-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:grid-cols-2 xl:grid-cols-4">

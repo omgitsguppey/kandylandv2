@@ -128,4 +128,13 @@ describe("snapshot/admin/vendor/cost rewire", () => {
     expect(issue?.title).toContain("partially landed");
     expect(issue?.description).toContain("productionAllowedNow=false");
   });
+
+  it("downgrades vendor boundary issue after module source labels land", () => {
+    const issue = REPORT.issues.find((entry) => entry.issueKey === "vendor-boundary-runtime-labeling-needed");
+
+    expect(issue?.severity).toBe("P2");
+    expect(issue?.title).toContain("module level");
+    expect(issue?.description).toContain("label vendor evidence");
+    expect(issue?.blocksRuntimeSimplification).toBe(false);
+  });
 });

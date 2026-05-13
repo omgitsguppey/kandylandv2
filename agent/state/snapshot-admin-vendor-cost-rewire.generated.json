@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-13T21:45:33.872Z",
+  "generatedAtUtc": "2026-05-13T22:47:55.932Z",
   "reportKey": "snapshot-admin-vendor-cost-rewire",
-  "currentHead": "40deef5fa21a3cc8044d37757ad731fe1c003947",
+  "currentHead": "99a2704bc1b3479dc5568f16c9c938620738d46b",
   "sourceReports": {
     "phaseOneInventory": {
       "path": "agent/state/analytics-rewire-phase-one.generated.json",
-      "generatedAtUtc": "2026-05-13T21:45:08.769Z",
-      "currentHead": "40deef5fa21a3cc8044d37757ad731fe1c003947",
+      "generatedAtUtc": "2026-05-13T22:46:54.612Z",
+      "currentHead": "99a2704bc1b3479dc5568f16c9c938620738d46b",
       "laneCount": 25,
       "duplicateAuthorityCount": 5,
       "rawDisplayFallbackCount": 2,
@@ -14,15 +14,15 @@
     },
     "phaseTwoIdentityPrivacy": {
       "path": "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-      "generatedAtUtc": "2026-05-13T21:45:21.375Z",
-      "currentHead": "40deef5fa21a3cc8044d37757ad731fe1c003947",
+      "generatedAtUtc": "2026-05-13T22:47:21.995Z",
+      "currentHead": "99a2704bc1b3479dc5568f16c9c938620738d46b",
       "privacyRuleCount": 3,
       "recoveryEligibilityRuleCount": 12
     },
     "phaseThreeRecoveryDryRun": {
       "path": "agent/state/lost-data-recovery-dry-run.generated.json",
-      "generatedAtUtc": "2026-05-13T21:45:27.772Z",
-      "currentHead": "40deef5fa21a3cc8044d37757ad731fe1c003947",
+      "generatedAtUtc": "2026-05-13T22:47:38.044Z",
+      "currentHead": "99a2704bc1b3479dc5568f16c9c938620738d46b",
       "recoverableLaneCount": 15,
       "debugFirstCount": 12,
       "adminAnalyticsEligibleCount": 3,
@@ -46,7 +46,7 @@
     "adminAnalyticsEligibleRecoveryCount": 3,
     "issueCount": 5,
     "p0Count": 0,
-    "p1Count": 4
+    "p1Count": 3
   },
   "snapshotAuthorities": [
     {
@@ -697,17 +697,17 @@
     },
     {
       "issueKey": "vendor-boundary-runtime-labeling-needed",
-      "severity": "P1",
-      "title": "Vendor evidence must stay labeled and non-authoritative",
-      "description": "GA4, PostHog, and BigQuery can support estimates/export/debug parity, but first-party snapshots must win display truth. Realtime and historical route authority checks now block vendor override in compact display paths; remaining vendor estimate labels still need module-level review.",
+      "severity": "P2",
+      "title": "Vendor/source labeling partially landed at module level",
+      "description": "Realtime and historical route authority checks now block vendor override in compact display paths, and Admin Analytics modules label vendor evidence, verified snapshots, raw Debug-only evidence, and recovery review-only state. Broader cost and materializer simplification remains future work.",
       "files": [
         "src/lib/analytics/**",
         "src/app/admin/analytics/**",
         "src/app/admin/debug/**"
       ],
-      "blocksRuntimeSimplification": true,
+      "blocksRuntimeSimplification": false,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "Add or verify source/confidence labels in later Admin Analytics/Admin Debug runtime passes."
+      "recommendedAction": "Keep vendor labels locked while the next cost simplification runtime pass removes remaining duplicate/raw materializer cost risks."
     },
     {
       "issueKey": "admin-debug-recovery-surfacing-required",

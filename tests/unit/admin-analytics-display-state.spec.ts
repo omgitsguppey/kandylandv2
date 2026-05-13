@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveAdminAnalyticsDisplayState } from "@/lib/analytics/admin-analytics-display-state";
+import {
+  formatAdminAnalyticsEvidenceSourceLabel,
+  resolveAdminAnalyticsDisplayState,
+} from "@/lib/analytics/admin-analytics-display-state";
 import {
   normalizeAdminSnapshotRatio,
   readAdminSnapshotNumberValue,
@@ -185,5 +188,14 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(normalizeAdminSnapshotRatio(42)).toBe(0.42);
     expect(normalizeAdminSnapshotRatio(0.42)).toBe(0.42);
     expect(normalizeAdminSnapshotRatio(null)).toBeNull();
+  });
+
+  it("formats source evidence labels without promoting vendor or recovery evidence", () => {
+    expect(formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot")).toBe("Verified snapshot");
+    expect(formatAdminAnalyticsEvidenceSourceLabel("stale_cache")).toBe("Stale verified snapshot");
+    expect(formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence")).toBe("Estimated from vendor analytics");
+    expect(formatAdminAnalyticsEvidenceSourceLabel("debug_only")).toBe("Debug-only recovery evidence");
+    expect(formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only")).toBe("Needs review before promotion");
+    expect(formatAdminAnalyticsEvidenceSourceLabel("missing")).toBe("Unavailable until source samples exist");
   });
 });

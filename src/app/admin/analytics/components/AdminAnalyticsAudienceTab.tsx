@@ -8,6 +8,7 @@ import {
   buildAdminAnalyticsReturnCadenceBuckets,
   resolveAdminAnalyticsGuestEstimateBadgeLabel,
 } from "@/lib/admin-analytics-contracts";
+import { formatAdminAnalyticsEvidenceSourceLabel } from "@/lib/analytics/admin-analytics-display-state";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 
 export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
@@ -58,6 +59,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const guestBadgeLabel = resolveAdminAnalyticsGuestEstimateBadgeLabel(
     audienceSnapshotModel.guestEstimateFormulaUsed,
   );
+  const verifiedSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot");
+  const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
+  const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
+  const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
   const returnCadenceBuckets = buildAdminAnalyticsReturnCadenceBuckets(returnCadenceModel);
   const continuityLabel = audienceSnapshotModel.continuity.gapSeverity === "error"
     ? "Traffic gap detected"
@@ -171,7 +176,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
 <>
             <SectionCard
               title="Audience Snapshot"
-              subtitle="GA totals and first-party activity for the selected range."
+              subtitle="Vendor estimates and first-party snapshot context for the selected range."
               icon={Users}
               defaultExpanded
               rightSlot={renderSectionRangeControl("audienceSnapshot")}
@@ -186,6 +191,10 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 data-audience-recovery-mode={audienceSnapshotModel.recovery.mode}
                 data-audience-estimated-share={String(audienceSnapshotModel.recovery.estimatedSharePct)}
                 data-audience-generated-at-utc={audienceSnapshotModel.generatedAtUtc}
+                data-admin-analytics-snapshot-priority="analytics_admin_metric_snapshots"
+                data-admin-analytics-vendor-source-label="vendor_evidence"
+                data-admin-analytics-raw-ledger-display="debug_only"
+                data-admin-analytics-recovery-promotion="debug_only_not_promoted"
               >
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300">
                   {audienceSnapshotModel.visibleCopy.map((line) => (
@@ -203,6 +212,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                       ? "Unavailable"
                       : formatRelativeTime(Date.parse(audienceSnapshotModel.generatedAtUtc), nowMs)}
                     {" | "}Source: {audienceSnapshotModel.sourceState}
+                  </p>
+                  <p className="text-gray-500">
+                    Source labels: {verifiedSnapshotLabel} wins; {vendorEvidenceLabel} is supporting evidence, not product truth.
                   </p>
                 </div>
 
@@ -241,14 +253,17 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   <p className="font-semibold text-white">{continuityLabel}</p>
                   <p>{audienceSnapshotModel.continuitySummary}</p>
                   <p className="text-gray-500">
-                    Users source: GA4 site users | Views source: mixed GA + first-party | Recovery: {audienceSnapshotModel.recovery.mode}
+                    Users source: {vendorEvidenceLabel} (GA4 site users) | Views source: vendor evidence + first-party snapshot | Recovery: {audienceSnapshotModel.recovery.mode}
+                  </p>
+                  <p className="text-gray-500">
+                    Recovery label: {debugRecoveryLabel}; {recoveryReviewLabel}.
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
                 <MetricCard
-                  label="GA4 Users"
+                  label="GA4 Users (estimated)"
                   value={formatAudienceValue(
                     audienceSnapshotModel.totalUsers.value,
                     formatCompactNumber,
@@ -257,7 +272,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   hint={audienceSnapshotModel.totalUsers.label}
                   icon={Users}
                   truthState={audienceSnapshotModel.totalUsers.truthState}
-                  dictionaryTooltip="GA4 users for the selected range. This is site traffic, not authenticated KandyDrops accounts."
+                  dictionaryTooltip="GA4 users for the selected range are vendor evidence only. They are site traffic estimates, not authenticated KandyDrops accounts or product truth."
                 />
                 <MetricCard
                   label="Guest Visits"
@@ -309,6 +324,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
               <div className="mt-3 grid gap-2.5 lg:grid-cols-3">
                 <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
                   <p className="font-semibold text-white">Guest estimate</p>
+                  <p>Label: {vendorEvidenceLabel}</p>
                   <p>Source: {audienceSnapshotModel.guestEstimateMetadata.sourceTruth}</p>
                   <p>Formula: {audienceSnapshotModel.guestEstimateMetadata.formula ?? "Unavailable"}</p>
                   <p>Freshness: {audienceSnapshotModel.guestEstimateMetadata.freshnessState}</p>
@@ -346,7 +362,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
               </div>
 
               <p className="mt-2 text-[11px] text-gray-500">
-                Chart source: GA users plus GA views. First-party continuity gaps stay labeled above and do not become verified first-party traffic.
+                Chart source: vendor evidence plus first-party continuity context. Vendor analytics are supporting evidence, not product truth, and continuity gaps do not become verified first-party traffic.
               </p>
 
               <div className={`mt-2.5 ${audienceSnapshotModel.chartHeightClass} w-full`}>

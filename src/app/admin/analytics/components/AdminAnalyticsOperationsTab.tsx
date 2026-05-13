@@ -10,6 +10,7 @@ import {
   formatAdminAnalyticsJourneyDenominatorMode,
   resolveAdminAnalyticsLivePulseBadgeLabel,
 } from "@/lib/admin-analytics-contracts";
+import { formatAdminAnalyticsEvidenceSourceLabel } from "@/lib/analytics/admin-analytics-display-state";
 import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
@@ -66,6 +67,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const compactLiveMetricClass = "rounded-[1rem] p-2";
   const compactLiveMetricValueClass = "text-lg leading-6 md:text-xl";
   const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
+  const verifiedSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot");
+  const staleSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("stale_cache");
+  const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
+  const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
+  const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
   const firstSnapshotLabel = "Waiting for first snapshot";
   const noSnapshotLabel = "No verified snapshot yet";
   const activeNowValue = livePulseModel.activeCount.value === null
@@ -202,12 +208,21 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               defaultExpanded
               rightSlot={renderSectionRangeControl("livePulse")}
             >
-              <div className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
+              <div
+                className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between"
+                data-admin-analytics-snapshot-priority="analytics_admin_metric_snapshots"
+                data-admin-analytics-vendor-source-label="vendor_evidence"
+                data-admin-analytics-raw-ledger-display="debug_only"
+                data-admin-analytics-recovery-promotion="debug_only_not_promoted"
+              >
                 <div className="min-w-0">
                   <p>{livePulseModel.topWarning}</p>
                   {livePulseModel.topWarningDetail ? (
                     <p className="mt-1 text-[10px] text-gray-400">{livePulseModel.topWarningDetail}</p>
                   ) : null}
+                  <p className="mt-1 text-[10px] text-gray-400">
+                    {verifiedSnapshotLabel} or {staleSnapshotLabel} drives display; raw logs stay {debugRecoveryLabel}.
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
@@ -796,6 +811,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <p className="mt-1 text-[10px] text-gray-400">
                     {guestBounceQualityModel.summaryFacts.join(" · ")}
                   </p>
+                  <p className="mt-1 text-[10px] text-gray-400">
+                    {vendorEvidenceLabel} supports comparison only; recovery evidence remains {debugRecoveryLabel} and {recoveryReviewLabel}.
+                  </p>
                 </div>
                 <AdminStatusBadge
                   state={guestBounceQualityModel.truthState}
@@ -810,6 +828,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   data-guest-estimate-source-truth={guestBounceQualityModel.estimatedGuestViews.sourceTruth}
                   data-guest-estimate-formula-state={guestBounceQualityModel.estimatedGuestViews.formulaState}
                   data-guest-estimate-state={livePulseModel.guestEstimateState}
+                  data-admin-analytics-vendor-source-label="vendor_evidence"
+                  data-admin-analytics-recovery-promotion="debug_only_not_promoted"
                 >
                   <MetricCard
                     label={guestBounceQualityModel.overallState === "verified" ? "Guest Views" : "Estimated Guest Views"}

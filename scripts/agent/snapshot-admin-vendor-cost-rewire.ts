@@ -602,6 +602,10 @@ function buildRuntimeAwareIssues(root: string) {
   const realtimeRoute = readText(root, "src/app/api/admin/analytics/realtime/route.ts");
   const historicalRoute = readText(root, "src/app/api/admin/analytics/historical/route.ts");
   const debugRoute = readText(root, "src/app/api/admin/debug/route.ts");
+  const audienceTab = readText(root, "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx");
+  const operationsTab = readText(root, "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx");
+  const commerceTab = readText(root, "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx");
+  const displayStateHelper = readText(root, "src/lib/analytics/admin-analytics-display-state.ts");
 
   const realtimeCollapsed = realtimeRoute.includes("ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_SOURCE_LABEL")
     && realtimeRoute.includes("raw analytics collections are debug-only")
@@ -621,6 +625,17 @@ function buildRuntimeAwareIssues(root: string) {
     && debugRoute.includes("adminAnalyticsPromotedNow: false")
     && debugRoute.includes("analytics_legacy_recovered_events")
     && debugRoute.includes("recovery_evidence_debug_first");
+  const moduleVendorLabelsPresent = displayStateHelper.includes("Estimated from vendor analytics")
+    && displayStateHelper.includes("Debug-only recovery evidence")
+    && audienceTab.includes("data-admin-analytics-vendor-source-label=\"vendor_evidence\"")
+    && audienceTab.includes("Vendor analytics are supporting evidence, not product truth")
+    && audienceTab.includes("data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"")
+    && operationsTab.includes("data-admin-analytics-vendor-source-label=\"vendor_evidence\"")
+    && operationsTab.includes("supports comparison only")
+    && operationsTab.includes("data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"")
+    && commerceTab.includes("data-admin-analytics-vendor-source-label=\"vendor_evidence\"")
+    && commerceTab.includes("stays supporting evidence, not product truth")
+    && commerceTab.includes("data-admin-analytics-recovery-promotion=\"debug_only_not_promoted\"");
 
   return BASE_ISSUES.map((issue) => {
     if (issue.issueKey === "duplicate-snapshot-authority-collapse-needed" && realtimeCollapsed && historicalCollapsed) {
@@ -640,6 +655,17 @@ function buildRuntimeAwareIssues(root: string) {
         title: "Raw display fallback collapse partially landed for realtime and historical routes",
         description: "Realtime and historical compact display paths no longer rebuild display truth from raw analytics logs when verified snapshots are unavailable; Debug/raw recovery surfacing remains future work.",
         recommendedAction: "Audit remaining Admin Analytics modules and Debug recovery lanes for any raw display fallbacks outside the realtime/historical route arteries.",
+      };
+    }
+
+    if (issue.issueKey === "vendor-boundary-runtime-labeling-needed" && realtimeCollapsed && historicalCollapsed && moduleVendorLabelsPresent) {
+      return {
+        ...issue,
+        severity: "P2" as const,
+        title: "Vendor/source labeling partially landed at module level",
+        description: "Realtime and historical route authority checks now block vendor override in compact display paths, and Admin Analytics modules label vendor evidence, verified snapshots, raw Debug-only evidence, and recovery review-only state. Broader cost and materializer simplification remains future work.",
+        blocksRuntimeSimplification: false,
+        recommendedAction: "Keep vendor labels locked while the next cost simplification runtime pass removes remaining duplicate/raw materializer cost risks.",
       };
     }
 

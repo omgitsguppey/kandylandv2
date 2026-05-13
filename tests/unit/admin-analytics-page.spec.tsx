@@ -18,6 +18,26 @@ const mockState = vi.hoisted(() => {
       mobileUsers: 25,
       commerce: { revenueUsd: 125 },
       funnel: { purchases: 3, checkoutStarts: 6 },
+      analyticsOverviewCards: {
+        mobileShare: {
+          displayValue: "50%",
+          hint: "25 mobile users",
+          truthState: "live",
+          statusBadgeLabel: "LIVE",
+        },
+        revenue: {
+          displayValue: "$125",
+          hint: "server transactions",
+          truthState: "live",
+          statusBadgeLabel: "LIVE",
+        },
+        purchases: {
+          displayValue: "3",
+          hint: "server transactions",
+          truthState: "live",
+          statusBadgeLabel: "LIVE",
+        },
+      },
       analyticsWarmState: "Polling enabled",
       liveSnapshotLabel: "[live]",
       historicalSnapshotLabel: "[historical]",
