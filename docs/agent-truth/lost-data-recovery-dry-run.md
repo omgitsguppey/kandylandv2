@@ -108,6 +108,10 @@ Stage F: production backfill only after manual approval.
 
 No stage permits production work in this prompt.
 
+## Next Phase: Snapshot/Admin/Vendor/Cost Rewire
+
+Phase 4 uses this dry-run report to decide how recovered lanes should move through snapshot authority, Admin Debug, Admin Analytics, and vendor evidence boundaries. It should keep high-value recovery Debug-first, make `analytics_admin_metric_snapshots` the recommended compact display authority, demote raw and vendor lanes to evidence/fallback roles, and record cost simplification candidates without changing runtime UI/routes.
+
 ## Future Phases
 
 Next phases should:

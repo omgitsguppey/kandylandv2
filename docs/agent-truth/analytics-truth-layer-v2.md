@@ -13,6 +13,8 @@ Analytics Truth Layer v2 is the repo contract for moving Admin Analytics away fr
 
 Prompt 2 extends that foundation in `docs/agent-truth/identity-privacy-raw-ledger-rewire.md` and `agent/state/identity-privacy-raw-ledger-rewire.generated.json`. It defines identity actor lanes, privacy-off measurement modes, pseudonymous id handling, raw ledger expectations, and consent-aware recovery eligibility before any backfill or runtime surfacing work is allowed.
 
+Prompt 4 records the snapshot/admin/vendor/cost simplification contract in `docs/agent-truth/snapshot-admin-vendor-cost-rewire.md` and `agent/state/snapshot-admin-vendor-cost-rewire.generated.json`. It recommends `analytics_admin_metric_snapshots` as the compact Admin Analytics display authority, demotes `analytics_aggregate_stats/realtime_summary` to fallback/live-pulse/evidence, keeps raw and recovered lanes Debug-first unless promoted by source truth, and preserves GA4/PostHog/BigQuery as evidence/export/estimate lanes.
+
 ## 2026-05-08 Guest + Identified Timeline Consolidation
 
 Guest ingest and identified ingest now both write into a canonical first-party behavioral timeline contract with actor/target separation, consent state, and source reliability. Identity linking now explicitly binds eligible anonymous lineage to user journeys under consent policy. GA4 remains optional evidence only and cannot gate product truth.
