@@ -1,13 +1,64 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.29",
-  "betaReleaseCounter": 229,
+  "currentVersion": "1.2.30",
+  "betaReleaseCounter": 230,
   "channel": "beta",
-  "generatedAt": "2026-05-13T22:57:19.745Z",
-  "generatedAtUtc": "2026-05-13T22:57:19.745Z",
-  "lastCommitSha": "914b0307cf4deec56ef0bbdeaf95e59812ae6dc4",
+  "generatedAt": "2026-05-13T23:42:05.076Z",
+  "generatedAtUtc": "2026-05-13T23:42:05.076Z",
+  "lastCommitSha": "737f2f8cf3254231ce5dfe8e7964756387ef0403",
   "notes": [
+    {
+      "version": "1.2.30",
+      "previousVersion": "1.2.29",
+      "betaReleaseCounter": 230,
+      "previousBetaReleaseCounter": 229,
+      "commitSha": "737f2f8cf3254231ce5dfe8e7964756387ef0403",
+      "commitTitle": "fix(analytics): reduce admin analytics cost paths",
+      "commitCount": 1,
+      "commitShas": [
+        "737f2f8cf3254231ce5dfe8e7964756387ef0403"
+      ],
+      "committedAt": "2026-05-13T23:41:43.000Z",
+      "generatedAt": "2026-05-13T23:42:05.072Z",
+      "committedAtUtc": "2026-05-13T23:41:43.000Z",
+      "generatedAtUtc": "2026-05-13T23:42:05.072Z",
+      "updatedAtUtc": "2026-05-13T23:42:05.072Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Reduced remaining Admin Analytics cost-risk paths behind the scenes.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Reduced remaining Admin Analytics cost-risk paths behind the scenes.",
+        "Kept raw analytics logs routed toward Debug evidence instead of display truth.",
+        "Improved snapshot-first analytics behavior without changing public app surfaces."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
+        "functions/src/analytics-realtime-summary.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "scripts/agent/validate-admin-analytics-hot-cache.ts",
+        "scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "scripts/check-admin-analytics-live-pulse.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "src/lib/server/admin-analytics-materializers.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
+      ],
+      "sourceCommit": "737f2f8cf3254231ce5dfe8e7964756387ef0403"
+    },
     {
       "version": "1.2.29",
       "previousVersion": "1.2.28",
@@ -1466,81 +1517,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 829,
       "bumpType": "minor",
       "sourceCommit": "e06a455b8856ec1e6656857736803f6b55fd1680"
-    },
-    {
-      "version": "1.5.0",
-      "previousVersion": "1.4.0",
-      "betaReleaseCounter": 207,
-      "previousBetaReleaseCounter": 206,
-      "commitSha": "73aa7213efd05290a0504106a15eaa290a7cc654",
-      "commitTitle": "fix(creator): lock public creator profile",
-      "commitCount": 1,
-      "commitShas": [
-        "73aa7213efd05290a0504106a15eaa290a7cc654"
-      ],
-      "committedAt": "2026-05-08T03:54:17.000Z",
-      "generatedAt": "2026-05-08T07:36:19.703Z",
-      "committedAtUtc": "2026-05-08T03:54:17.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:19.703Z",
-      "updatedAtUtc": "2026-05-08T07:36:19.703Z",
-      "category": "Fixed",
-      "title": "Improved creator messaging and support tools",
-      "summary": "Bug fixes and quality-of-life improvements for creator-facing experiences.",
-      "userFacingTitle": "Improved creator messaging and support tools",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Improved creator-facing communication and support flows.",
-        "Reduced confusing states around creator experience updates."
-      ],
-      "audience": "creators",
-      "affectedSurfaces": [
-        "creator"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/context/doctrine.cards.jsonl",
-        "agent/context/doctrine.index.json",
-        "agent/context/file-size-budget.json",
-        "agent/context/legacy-registry.json",
-        "agent/context/surface-contracts.jsonl",
-        "agent/context/task-pack.generated.json",
-        "agent/context/validator-map.json",
-        "agent/index/blast-radius.json",
-        "agent/index/canonical-helpers.json",
-        "agent/index/dependency-graph.summary.json",
-        "agent/index/governance-truth.json",
-        "agent/index/known-pitfalls.json",
-        "agent/index/package-manager-truth.json",
-        "agent/index/recent-passes.json",
-        "agent/index/repo-inventory.json",
-        "agent/index/retrieval-index.json",
-        "agent/index/runtime-observability.json",
-        "agent/index/surface-map.json",
-        "agent/index/ui-surface-coverage.json",
-        "agent/index/verification-commands.json",
-        "agent/index/workflow-guidance.json",
-        "agent/prompts/task-issue-spec.generated.md",
-        "agent/prompts/task-prompt.deep.md",
-        "agent/prompts/task-prompt.short.md",
-        "agent/prompts/task-prompt.standard.md",
-        "agent/prompts/verification-plan.generated.md",
-        "agent/state/creator-public-profile-lock.generated.json",
-        "agent/state/fast-start.generated.json",
-        "agent/state/task-context.generated.json",
-        "agent/state/verification-plan.generated.json",
-        "docs/agent-truth/creator-public-profile-lock.md",
-        "package.json",
-        "scripts/agent/validate-creator-public-profile-lock.ts",
-        "src/app/api/creator/requests/route.ts",
-        "src/app/creators/[username]/CreatorProfileClient.tsx",
-        "src/components/Creators/CreatorExperiencesPanel.tsx",
-        "src/components/Creators/CreatorProfileHeader.tsx",
-        "src/lib/problem-state-copy.ts"
-      ],
-      "effectiveChangeCount": 3598,
-      "excludedGeneratedChangeCount": 1115,
-      "bumpType": "minor",
-      "sourceCommit": "73aa7213efd05290a0504106a15eaa290a7cc654"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
