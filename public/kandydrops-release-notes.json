@@ -1,11 +1,61 @@
 {
-  "currentVersion": "1.2.28",
-  "betaReleaseCounter": 228,
+  "currentVersion": "1.2.29",
+  "betaReleaseCounter": 229,
   "channel": "beta",
-  "generatedAt": "2026-05-13T21:49:36.503Z",
-  "generatedAtUtc": "2026-05-13T21:49:36.503Z",
-  "lastCommitSha": "ea13680adb018ac9c94db8c5b5be18ed7bdd9112",
+  "generatedAt": "2026-05-13T22:57:19.745Z",
+  "generatedAtUtc": "2026-05-13T22:57:19.745Z",
+  "lastCommitSha": "914b0307cf4deec56ef0bbdeaf95e59812ae6dc4",
   "notes": [
+    {
+      "version": "1.2.29",
+      "previousVersion": "1.2.28",
+      "betaReleaseCounter": 229,
+      "previousBetaReleaseCounter": 228,
+      "commitSha": "914b0307cf4deec56ef0bbdeaf95e59812ae6dc4",
+      "commitTitle": "fix(analytics): label admin source evidence",
+      "commitCount": 1,
+      "commitShas": [
+        "914b0307cf4deec56ef0bbdeaf95e59812ae6dc4"
+      ],
+      "committedAt": "2026-05-13T22:55:55.000Z",
+      "generatedAt": "2026-05-13T22:57:19.742Z",
+      "committedAtUtc": "2026-05-13T22:55:55.000Z",
+      "generatedAtUtc": "2026-05-13T22:57:19.742Z",
+      "updatedAtUtc": "2026-05-13T22:57:19.742Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved Admin Analytics source labels behind the scenes.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved Admin Analytics source labels behind the scenes.",
+        "Kept vendor analytics marked as supporting evidence instead of product truth.",
+        "Kept recovery evidence review-only before any Admin Analytics promotion."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "scripts/agent/validate-admin-truth.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/lib/analytics/admin-analytics-display-state.ts",
+        "tests/unit/admin-analytics-display-state.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
+        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
+      ],
+      "sourceCommit": "914b0307cf4deec56ef0bbdeaf95e59812ae6dc4"
+    },
     {
       "version": "1.2.28",
       "previousVersion": "1.2.27",
@@ -1489,52 +1539,6 @@
       "excludedGeneratedChangeCount": 1115,
       "bumpType": "minor",
       "sourceCommit": "73aa7213efd05290a0504106a15eaa290a7cc654"
-    },
-    {
-      "version": "1.4.0",
-      "previousVersion": "1.3.0",
-      "betaReleaseCounter": 206,
-      "previousBetaReleaseCounter": 205,
-      "commitSha": "75fd7d6e5b2d6cdcdd03a035aa8945311752b4f3",
-      "commitTitle": "fix(user): lock public critical path",
-      "commitCount": 1,
-      "commitShas": [
-        "75fd7d6e5b2d6cdcdd03a035aa8945311752b4f3"
-      ],
-      "committedAt": "2026-05-08T03:35:22.000Z",
-      "generatedAt": "2026-05-08T07:36:19.290Z",
-      "committedAtUtc": "2026-05-08T03:35:22.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:19.290Z",
-      "updatedAtUtc": "2026-05-08T07:36:19.290Z",
-      "category": "Fixed",
-      "title": "Improved chat and support reliability",
-      "summary": "Bug fixes and quality-of-life improvements for chat and support.",
-      "userFacingTitle": "Improved chat and support reliability",
-      "surfaceCategory": "Chat & support",
-      "bullets": [
-        "Improved chat and support reliability so common actions feel more stable.",
-        "Reduced stuck or confusing states in active support and messaging flows."
-      ],
-      "audience": "users",
-      "affectedSurfaces": [
-        "chat-support"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/user-critical-path-lock.generated.json",
-        "docs/agent-truth/user-critical-path-lock.md",
-        "package.json",
-        "scripts/agent/validate-user-critical-path-lock.ts",
-        "src/app/HomeClient.tsx",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/components/Support/SupportInbox.tsx",
-        "src/lib/chat-send-feedback.ts",
-        "tests/unit/chat-send-feedback.spec.ts"
-      ],
-      "effectiveChangeCount": 481,
-      "excludedGeneratedChangeCount": 103,
-      "bumpType": "minor",
-      "sourceCommit": "75fd7d6e5b2d6cdcdd03a035aa8945311752b4f3"
     }
   ]
 }

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 23 public updates in pages of 5.
 
+## 1.2.29 - 2026-05-13
+- Bug fixes and general improvements
+- Improved Admin Analytics source labels behind the scenes.
+- Kept vendor analytics marked as supporting evidence instead of product truth.
+- Kept recovery evidence review-only before any Admin Analytics promotion.
+
 ## 1.2.28 - 2026-05-13
 - Bug fixes and general improvements
 - Added clearer Debug evidence for analytics recovery lanes.
@@ -121,8 +127,3 @@ Showing the last 23 public updates in pages of 5.
 - Improved creator messaging and support tools
 - Improved creator-facing communication and support flows.
 - Reduced confusing states around creator experience updates.
-
-## 1.4.0 - 2026-05-08
-- Improved chat and support reliability
-- Improved chat and support reliability so common actions feel more stable.
-- Reduced stuck or confusing states in active support and messaging flows.
