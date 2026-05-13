@@ -7,6 +7,10 @@ Last updated: 2026-04-30
 
 Analytics Truth Layer v2 is the repo contract for moving Admin Analytics away from realtime-dependent loading and toward verified, source-labeled analytics. This phase does not rewrite behavior. It maps the truth model, source hierarchy, module blast radius, and validation expectations that later phases must implement.
 
+## 2026-05-12 Rewire Phase One Inventory
+
+`docs/agent-truth/analytics-rewire-phase-one.md` and `agent/state/analytics-rewire-phase-one.generated.json` now define the static/local rewire inventory contract. That report maps truth lanes, duplicate authorities, raw display fallback risks, stale generated-report risks, and lost-data recovery candidates before runtime consolidation begins. It is evidence, not doctrine, and must not be treated as production data proof.
+
 ## 2026-05-08 Guest + Identified Timeline Consolidation
 
 Guest ingest and identified ingest now both write into a canonical first-party behavioral timeline contract with actor/target separation, consent state, and source reliability. Identity linking now explicitly binds eligible anonymous lineage to user journeys under consent policy. GA4 remains optional evidence only and cannot gate product truth.
