@@ -13832,3 +13832,19 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## Blocked Deliverable: Oversized Monolith Files (>2000 lines)
+- **Candidate Files:**
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+  - `src/app/api/admin/debug/route.ts`
+  - `src/app/api/admin/users/route.ts`
+  - `src/lib/server/ai-drop-covers.ts`
+- **Classification Label:** God-file risk
+- **Blocker Identification:** These monolithic files exceed 2000 lines, making automated scripting too risky. They mix multiple responsibilities including rendering, complex state orchestration, data fetching, transformation, and telemetry. Manual decomposition is required to avoid breaking core behaviors.
+- **Affected Components:**
+  - Chat realtime listeners, degraded chat fallbacks, unread status logic.
+  - Admin analytics snapshot and polling state.
+  - Admin debugging endpoints and user management endpoints.
+  - AI drop cover generation backend logic.
+- **Precise Codex Prompt:** "Please perform a manual decomposition of this file. Identify distinct boundaries (e.g., separate UI components from state orchestration hooks, extract API logic into separate utility functions, and move shared constants/telemetry to separate files). Create smaller modules (<500 lines) and ensure the main file acts only as a container or orchestrator without changing the underlying product behavior."

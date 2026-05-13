@@ -1,5 +1,7 @@
 "use client";
 
+import { TaskFeedbackModal } from "./TaskFeedbackModal";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -18,7 +20,6 @@ import {
   Sparkles,
   Wallet,
 } from "lucide-react";
-import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
@@ -50,10 +51,7 @@ import {
   writeTaskGuidancePendingAction,
   type TaskGuidancePendingAction,
 } from "@/lib/task-guidance";
-import { dispatchActivitySync } from "@/lib/activity-sync";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-
-type FeedbackCategory = "general" | "feature_request" | "bug_report" | "creator_request";
 
 const ICONS: Record<DailyTaskIconName, typeof Gift> = {
   bell: Bell,
@@ -67,13 +65,6 @@ const ICONS: Record<DailyTaskIconName, typeof Gift> = {
   eye: Eye,
   layers: Layers3,
 };
-
-const FEEDBACK_CATEGORY_OPTIONS: Array<{ value: FeedbackCategory; label: string }> = [
-  { value: "general", label: "General idea" },
-  { value: "feature_request", label: "Feature request" },
-  { value: "bug_report", label: "Bug report" },
-  { value: "creator_request", label: "Creator feedback" },
-];
 const TASK_CARD_EXPANDED_EVENT = TASK_GUIDANCE_EVENT_NAMES[4];
 const TASK_HELP_OPENED_EVENT = TASK_GUIDANCE_EVENT_NAMES[5];
 
@@ -93,10 +84,6 @@ export function DailyTasksModule() {
   const { executeTaskGuidanceAction } = useTaskGuidanceActions();
   const [rotating, setRotating] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [feedbackCategory, setFeedbackCategory] = useState<FeedbackCategory>("general");
-  const [feedbackRating, setFeedbackRating] = useState<number>(5);
-  const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [notificationLoading, setNotificationLoading] = useState(false);
   const nowMs = useNow({ intervalMs: 1_000 });
   const [localTaskState, setLocalTaskState] = useState<DailyTasksState | null>(null);
@@ -119,7 +106,9 @@ export function DailyTasksModule() {
   }, [userProfile?.uid]);
 
   useEffect(() => {
-    setLocalTaskState(userProfile?.dailyTasksState ?? null);
+    queueMicrotask(() => {
+      setLocalTaskState(userProfile?.dailyTasksState ?? null);
+    });
   }, [userProfile?.dailyTasksState]);
 
   const dailyTaskState = localTaskState ?? userProfile?.dailyTasksState ?? null;
@@ -159,9 +148,11 @@ export function DailyTasksModule() {
   const shouldShowRepairCard = dailyTaskState?.windowState === "repair_required";
 
   useEffect(() => {
-    setExpandedTaskIds((current) => (
-      current.filter((taskId) => activeTasks.some((task) => task.id === taskId && !task.claimed))
-    ));
+    queueMicrotask(() => {
+      setExpandedTaskIds((current) => (
+        current.filter((taskId) => activeTasks.some((task) => task.id === taskId && !task.claimed))
+      ));
+    });
   }, [activeTasks]);
 
   const applyAuthoritativeTaskState = useCallback((
@@ -188,7 +179,7 @@ export function DailyTasksModule() {
         }
         : currentProfile
     ));
-  }, [localTaskState, nowMs, setUserProfile, userProfile?.dailyTasksState?.lastDeadlineReminderAt, userProfile?.dailyTasksState?.lastProgressAt, userProfile?.dailyTasksState?.lastResetMs, userProfile?.dailyTasksState?.retiredTaskIds, userProfile?.dailyTasksState?.completedTaskHistory]);
+  }, [localTaskState, nowMs, setUserProfile, userProfile?.dailyTasksState?.lastDeadlineReminderAt, userProfile?.dailyTasksState?.lastProgressAt, userProfile?.dailyTasksState?.lastResetMs, userProfile?.dailyTasksState?.retiredTaskIds, userProfile?.dailyTasksState?.completedTaskHistory, userProfile?.dailyTasksState?.windowState]);
 
   const rotateTasks = useCallback(async () => {
     setRotating(true);
@@ -454,57 +445,7 @@ export function DailyTasksModule() {
     }
   };
 
-  const submitFeedback = async () => {
-    if (!feedbackMessage.trim()) {
-      toast.error("Share a quick note before submitting.");
-      return;
-    }
 
-    setFeedbackLoading(true);
-    try {
-      const response = await authFetch("/api/tasks/feedback", {
-        method: "POST",
-        body: JSON.stringify({
-          message: feedbackMessage.trim(),
-          category: feedbackCategory,
-          rating: feedbackRating,
-        }),
-      });
-
-      if (!response.ok) {
-        const result = await response.json().catch(() => ({}));
-        throw new Error(result.error || "Feedback failed");
-      }
-
-      trackEvent("feedback_submitted", {
-        category: feedbackCategory,
-        rating: feedbackRating,
-        source_component: "daily_tasks_module",
-      });
-
-      setShowFeedbackModal(false);
-      setFeedbackMessage("");
-      setFeedbackCategory("general");
-      setFeedbackRating(5);
-      dispatchActivitySync();
-      toast.success("Thanks for the feedback.");
-    } catch (error) {
-      reportClientIssue({
-        channel: "feedback",
-        message: "Daily tasks feedback submission failed",
-        error,
-        detail: {
-          component: "DailyTasksModule",
-          feedbackCategory,
-          feedbackRating,
-        },
-        consoleLabel: "[DailyTasks] feedback submission failed",
-      });
-      toast.error(error instanceof Error ? error.message : "Feedback failed");
-    } finally {
-      setFeedbackLoading(false);
-    }
-  };
 
   if (!userProfile) {
     return null;
@@ -512,89 +453,7 @@ export function DailyTasksModule() {
 
   return (
     <div className="space-y-4">
-      {showFeedbackModal ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-          <div className="glass-panel w-full max-w-md rounded-[2rem] border border-white/10 p-5">
-            <h2 className="text-xl font-bold text-white">Share feedback</h2>
-            <p className="mt-1 text-sm leading-6 text-gray-400">Tell us what would make daily tasks more useful.</p>
-
-            <div className="mt-4 space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Category</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {FEEDBACK_CATEGORY_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setFeedbackCategory(option.value)}
-                      aria-pressed={feedbackCategory === option.value}
-                      className={cn(
-                        "rounded-2xl border px-3 py-3 text-left text-sm font-semibold transition-colors",
-                        feedbackCategory === option.value
-                          ? "border-brand-purple bg-brand-purple/15 text-white"
-                          : "border-white/10 bg-white/5 text-gray-300",
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Rating</label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((rating) => (
-                    <button
-                      key={rating}
-                      type="button"
-                      onClick={() => setFeedbackRating(rating)}
-                      aria-pressed={feedbackRating === rating}
-                      aria-label={`Rate ${rating} out of 5 stars`}
-                      className={cn(
-                        "flex h-11 w-11 items-center justify-center rounded-2xl border text-sm font-bold transition-colors",
-                        feedbackRating === rating
-                          ? "border-brand-purple bg-brand-purple text-white"
-                          : "border-white/10 bg-white/5 text-gray-300",
-                      )}
-                    >
-                      {rating}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Message</label>
-                <textarea
-                  value={feedbackMessage}
-                  onChange={(event) => setFeedbackMessage(event.target.value)}
-                  className="h-32 w-full rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple"
-                  placeholder="What should we improve?"
-                />
-              </div>
-            </div>
-
-            <div className="mt-5 flex gap-3">
-              <button
-                type="button"
-                onClick={() => setShowFeedbackModal(false)}
-                className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={submitFeedback}
-                disabled={feedbackLoading}
-                className="flex-1 rounded-full border border-brand-purple bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-              >
-                {feedbackLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Send feedback"}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <TaskFeedbackModal isOpen={showFeedbackModal} onClose={() => setShowFeedbackModal(false)} />
 
       <section id="daily-tasks" className="glass-panel rounded-[2rem] border border-white/10 p-4 sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
