@@ -1,13 +1,59 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.24",
-  "betaReleaseCounter": 224,
+  "currentVersion": "1.2.25",
+  "betaReleaseCounter": 225,
   "channel": "beta",
-  "generatedAt": "2026-05-13T03:16:49.961Z",
-  "generatedAtUtc": "2026-05-13T03:16:49.961Z",
-  "lastCommitSha": "17aad2136900861a00072446be7a0ff12e890888",
+  "generatedAt": "2026-05-13T18:52:48.913Z",
+  "generatedAtUtc": "2026-05-13T18:52:48.913Z",
+  "lastCommitSha": "4f730c3a001440d4f50075be1204b124ae63353e",
   "notes": [
+    {
+      "version": "1.2.25",
+      "previousVersion": "1.2.24",
+      "betaReleaseCounter": 225,
+      "previousBetaReleaseCounter": 224,
+      "commitSha": "4f730c3a001440d4f50075be1204b124ae63353e",
+      "commitTitle": "chore(analytics): add snapshot admin vendor cost contract",
+      "commitCount": 1,
+      "commitShas": [
+        "4f730c3a001440d4f50075be1204b124ae63353e"
+      ],
+      "committedAt": "2026-05-13T18:51:35.000Z",
+      "generatedAt": "2026-05-13T18:52:48.910Z",
+      "committedAtUtc": "2026-05-13T18:51:35.000Z",
+      "generatedAtUtc": "2026-05-13T18:52:48.910Z",
+      "updatedAtUtc": "2026-05-13T18:52:48.910Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and general improvements.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added clearer rules for which analytics snapshots should power Admin Analytics.",
+        "Prepared safer Debug-first handling for recovered analytics data.",
+        "Improved internal checks that keep vendor analytics and raw logs from being treated as product truth."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
+        "docs/agent-truth/analytics-truth-layer-v2.md",
+        "docs/agent-truth/lost-data-recovery-dry-run.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
+        "package.json",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "scripts/agent/validate-snapshot-admin-vendor-cost-rewire.ts",
+        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
+      ],
+      "sourceCommit": "4f730c3a001440d4f50075be1204b124ae63353e"
+    },
     {
       "version": "1.2.24",
       "previousVersion": "1.2.23",
@@ -1491,51 +1537,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 6,
       "bumpType": "minor",
       "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6"
-    },
-    {
-      "version": "1.2.4",
-      "previousVersion": "1.2.4",
-      "betaReleaseCounter": 204,
-      "previousBetaReleaseCounter": 204,
-      "commitSha": "359888d14fcc491412568517a61b2231729dd96c",
-      "commitTitle": "refactor(admin): cut over realtime metrics to snapshot truth",
-      "commitCount": 1,
-      "commitShas": [
-        "359888d14fcc491412568517a61b2231729dd96c"
-      ],
-      "committedAt": "2026-05-08T02:28:33.000Z",
-      "generatedAt": "2026-05-08T07:36:18.394Z",
-      "committedAtUtc": "2026-05-08T02:28:33.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:18.394Z",
-      "updatedAtUtc": "2026-05-08T07:36:18.394Z",
-      "category": "Internal Reliability",
-      "title": "Internal admin reliability improvements",
-      "summary": "Internal reliability updates for admin-only tooling with no public app change.",
-      "userFacingTitle": "Internal admin reliability improvements",
-      "surfaceCategory": "Admin tools",
-      "bullets": [
-        "Improved behind-the-scenes reliability."
-      ],
-      "audience": "admins",
-      "affectedSurfaces": [
-        "admin"
-      ],
-      "hiddenFromPublic": true,
-      "changedFiles": [
-        "package.json",
-        "scripts/agent/validate-admin-realtime-cutover.ts",
-        "src/app/api/admin/users/realtime/route.ts",
-        "src/hooks/useAdminOverviewRealtime.ts",
-        "src/hooks/useAdminUsersRealtime.ts",
-        "src/lib/admin-analytics-live-runtime.ts",
-        "src/lib/admin-overview.ts",
-        "src/lib/admin/admin-realtime-policy.ts",
-        "tests/unit/admin-overview-truth.spec.ts"
-      ],
-      "effectiveChangeCount": 416,
-      "excludedGeneratedChangeCount": 0,
-      "bumpType": "none",
-      "sourceCommit": "359888d14fcc491412568517a61b2231729dd96c"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

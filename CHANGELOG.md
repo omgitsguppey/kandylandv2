@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 20 public updates in pages of 5.
+Showing the last 21 public updates in pages of 5.
+
+## 1.2.25 - 2026-05-13
+- Bug fixes and general improvements
+- Added clearer rules for which analytics snapshots should power Admin Analytics.
+- Prepared safer Debug-first handling for recovered analytics data.
+- Improved internal checks that keep vendor analytics and raw logs from being treated as product truth.
 
 ## 1.2.24 - 2026-05-13
 - Bug fixes and general improvements
