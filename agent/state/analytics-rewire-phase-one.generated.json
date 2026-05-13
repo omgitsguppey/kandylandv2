@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-13T01:22:02.291Z",
+  "generatedAtUtc": "2026-05-13T02:56:41.343Z",
   "reportKey": "analytics-rewire-phase-one",
-  "currentHead": "6205b1621874240d89747d2ba523a4a67cb10f49",
+  "currentHead": "757c4c31d6e87720749a913408a6f39e8e3ab4cd",
   "phasesCovered": [
     "0. Rewire Inventory Contract",
     "1. Truth-Lane Inventory Implementation",
@@ -14,7 +14,7 @@
     "issueCount": 9,
     "duplicateAuthorityCount": 5,
     "rawDisplayFallbackCount": 2,
-    "staleAuthorityReportCount": 74,
+    "staleAuthorityReportCount": 86,
     "orphanCandidateCount": 15,
     "vendorTruthBoundaryIssueCount": 1,
     "recommendedBlockers": 3
@@ -48,13 +48,13 @@
       ],
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/validate-admin-debug-control-tower.ts",
         "scripts/agent/validate-analytics-event-contract.ts",
         "scripts/agent/validate-analytics-legacy-recovery.ts",
         "scripts/agent/validate-analytics-truth-layer-v2.ts",
         "scripts/agent/validate-event-catalog-telemetry.ts",
-        "scripts/agent/validate-google-cloud-cost-data-handoff.ts",
-        "scripts/agent/validate-google-cost-bleed.ts"
+        "scripts/agent/validate-google-cloud-cost-data-handoff.ts"
       ]
     },
     {
@@ -86,6 +86,7 @@
       ],
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/validate-global-cost-surfaces.ts",
         "scripts/agent/validate-human-dev-readiness.ts",
         "scripts/agent/validate-hydration-performance.ts",
@@ -123,12 +124,12 @@
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/build-compact-agent-context.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/score-4xx-cost-guardrails.ts",
         "scripts/agent/score-global-cost-surfaces.ts",
         "scripts/agent/score-guest-user-analytics-cutover.ts",
         "scripts/agent/score-speed-security-hardening.ts",
-        "scripts/agent/score-telemetry-identified-parity.ts",
-        "scripts/agent/score-user-tracking-indexes.ts"
+        "scripts/agent/score-telemetry-identified-parity.ts"
       ]
     },
     {
@@ -271,13 +272,13 @@
       ],
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/score-guest-user-analytics-cutover.ts",
         "scripts/agent/score-telemetry-identified-parity.ts",
         "scripts/agent/validate-analytics-event-contract.ts",
         "scripts/agent/validate-guest-user-analytics-cutover.ts",
         "scripts/agent/validate-identity-link-continuity.ts",
-        "scripts/agent/validate-telemetry-identified-parity.ts",
-        "tests/unit/analytics-event-contract.spec.ts"
+        "scripts/agent/validate-telemetry-identified-parity.ts"
       ]
     },
     {
@@ -309,12 +310,12 @@
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/extract-runtime-observability.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
         "scripts/agent/sync-sql.ts",
         "scripts/agent/validate-admin-debug-control-tower.ts",
         "scripts/agent/validate-analytics-event-contract.ts",
-        "scripts/agent/validate-analytics-legacy-recovery.ts",
-        "scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts"
+        "scripts/agent/validate-analytics-legacy-recovery.ts"
       ]
     },
     {
@@ -345,13 +346,13 @@
       ],
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/validate-admin-analytics-hot-cache.ts",
         "scripts/agent/validate-analytics-event-contract.ts",
         "scripts/agent/validate-analytics-legacy-recovery.ts",
         "scripts/agent/validate-guest-user-analytics-cutover.ts",
         "scripts/analytics/inventory-legacy-sources.ts",
-        "scripts/analytics/map-legacy-events.ts",
-        "scripts/check-admin-analytics-live-pulse.ts"
+        "scripts/analytics/map-legacy-events.ts"
       ]
     },
     {
@@ -380,6 +381,7 @@
       ],
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/check-analytics-continuity.ts",
         "tests/firebase/firestore.rules.spec.ts",
         "tests/unit/admin-analytics-historical-traffic.spec.ts",
@@ -411,6 +413,7 @@
       ],
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "tests/unit/analytics-rewire-phase-one.spec.ts"
       ]
     },
@@ -434,7 +437,8 @@
         "docs/agent-truth/user-tracking-indexes.md"
       ],
       "validators": [
-        "scripts/agent/analytics-rewire-phase-one.ts"
+        "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts"
       ]
     },
     {
@@ -457,7 +461,8 @@
         "docs/agent-truth/user-tracking-indexes.md"
       ],
       "validators": [
-        "scripts/agent/analytics-rewire-phase-one.ts"
+        "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts"
       ]
     },
     {
@@ -488,12 +493,12 @@
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/extract-runtime-observability.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/validate-admin-user-behavior-truth.ts",
         "scripts/agent/validate-analytics-legacy-recovery.ts",
         "scripts/agent/validate-watch-time-rollup-truth.ts",
         "scripts/analytics/inventory-legacy-sources.ts",
-        "scripts/analytics/validate-canonical-import-export.ts",
-        "scripts/check-analytics-continuity.ts"
+        "scripts/analytics/validate-canonical-import-export.ts"
       ]
     },
     {
@@ -525,12 +530,12 @@
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/build-compact-agent-context.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/precatch-runtime-issues.ts",
         "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
         "scripts/agent/score-code-organization.ts",
         "scripts/agent/score-codebase-hardening.ts",
-        "scripts/agent/score-doctrine-hierarchy.ts",
-        "scripts/agent/score-gumdrop-economy.ts"
+        "scripts/agent/score-doctrine-hierarchy.ts"
       ]
     },
     {
@@ -677,8 +682,8 @@
         "scripts/agent/build-ui-surface-coverage.ts",
         "scripts/agent/extract-canonical-helpers.ts",
         "scripts/agent/extract-runtime-observability.ts",
-        "scripts/agent/validate-accessibility-tap-targets.ts",
-        "scripts/agent/validate-admin-ai-control-tower.ts"
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
+        "scripts/agent/validate-accessibility-tap-targets.ts"
       ]
     },
     {
@@ -771,11 +776,11 @@
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/build-compact-agent-context.ts",
         "scripts/agent/extract-runtime-observability.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
         "scripts/agent/score-doctrine-hierarchy.ts",
         "scripts/agent/score-speed-security-hardening.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-analytics-event-contract.ts"
+        "scripts/agent/validate-admin-debug-control-tower.ts"
       ]
     },
     {
@@ -968,6 +973,7 @@
       "files": [
         "docs/agent-truth/user-tracking-indexes.md",
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "src/lib/server/analytics-governance.ts",
         "src/lib/user-indexes/user-tracking-index-contract.ts"
       ],
@@ -1018,16 +1024,16 @@
       "issueKey": "stale-generated-report-authority",
       "severity": "P1",
       "title": "Generated report evidence has stale authority risk",
-      "description": "74 generated report(s) are older than 24 hours or have no parseable generatedAtUtc. Generated reports are snapshots, not doctrine.",
+      "description": "86 generated report(s) are older than 24 hours or have no parseable generatedAtUtc. Generated reports are snapshots, not doctrine.",
       "files": [
+        "agent/state/4xx-cost-guardrails.generated.json",
         "agent/state/accessibility-tap-target-audit.generated.json",
         "agent/state/admin-analytics-finalization.generated.json",
         "agent/state/admin-analytics-realtime-dependency-audit.generated.json",
         "agent/state/admin-cms-workflow-audit.generated.json",
         "agent/state/admin-truth-replacement.generated.json",
         "agent/state/affected-audit-plan.generated.json",
-        "agent/state/ai-cover-learning-cutover.generated.json",
-        "agent/state/analytics-ecosystem-parity.generated.json"
+        "agent/state/ai-cover-learning-cutover.generated.json"
       ],
       "recommendedOwner": "readiness score/evidence",
       "recommendedAction": "Keep stale reports capped as stale/unknown evidence until their owning generator refreshes them.",
@@ -1055,10 +1061,10 @@
       ],
       "validatorFiles": [
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/score-guest-user-analytics-cutover.ts",
         "scripts/agent/score-telemetry-identified-parity.ts",
-        "scripts/agent/validate-analytics-event-contract.ts",
-        "scripts/agent/validate-guest-user-analytics-cutover.ts"
+        "scripts/agent/validate-analytics-event-contract.ts"
       ],
       "recoveryValue": "high",
       "recommendedAction": "surface"
@@ -1073,7 +1079,8 @@
         "docs/agent-truth/user-tracking-indexes.md"
       ],
       "validatorFiles": [
-        "scripts/agent/analytics-rewire-phase-one.ts"
+        "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts"
       ],
       "recoveryValue": "high",
       "recommendedAction": "surface"
@@ -1088,7 +1095,8 @@
         "docs/agent-truth/user-tracking-indexes.md"
       ],
       "validatorFiles": [
-        "scripts/agent/analytics-rewire-phase-one.ts"
+        "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts"
       ],
       "recoveryValue": "high",
       "recommendedAction": "surface"
@@ -1133,7 +1141,8 @@
         "docs/agent-truth/user-tracking-indexes.md"
       ],
       "validatorFiles": [
-        "scripts/agent/analytics-rewire-phase-one.ts"
+        "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts"
       ],
       "recoveryValue": "medium",
       "recommendedAction": "debug_only"
@@ -1167,6 +1176,7 @@
       ],
       "validatorFiles": [
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "tests/unit/analytics-rewire-phase-one.spec.ts"
       ],
       "recoveryValue": "high",
@@ -1184,7 +1194,8 @@
         "src/lib/analytics/legacy-recovery-contract.ts"
       ],
       "validatorFiles": [
-        "scripts/agent/analytics-rewire-phase-one.ts"
+        "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts"
       ],
       "recoveryValue": "high",
       "recommendedAction": "needs_review"
@@ -1206,6 +1217,7 @@
       ],
       "validatorFiles": [
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "tests/unit/admin-ops-health.spec.ts"
       ],
       "recoveryValue": "medium",
@@ -1225,6 +1237,7 @@
       "validatorFiles": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/extract-runtime-observability.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
         "scripts/check-analytics-continuity.ts"
       ],
@@ -1274,7 +1287,8 @@
         "src/app/api/admin/user/[userId]/route.ts"
       ],
       "validatorFiles": [
-        "scripts/agent/analytics-rewire-phase-one.ts"
+        "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts"
       ],
       "recoveryValue": "medium",
       "recommendedAction": "debug_only"
@@ -1321,10 +1335,10 @@
       ],
       "validatorFiles": [
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/check-analytics-continuity.ts",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
-        "tests/unit/admin-ops-health.spec.ts",
-        "tests/unit/viewer-watch-session-route.spec.ts"
+        "tests/unit/admin-ops-health.spec.ts"
       ],
       "recoveryValue": "medium",
       "recommendedAction": "surface"
@@ -1410,6 +1424,7 @@
       "files": [
         "docs/agent-truth/user-tracking-indexes.md",
         "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "src/lib/server/analytics-governance.ts",
         "src/lib/user-indexes/user-tracking-index-contract.ts"
       ]

@@ -150,6 +150,10 @@ Future phases should use this report to:
 - lock runtime raw ledger fields in narrow follow-up patches
 - prevent optional analytics from running when privacy settings are off
 
+## Next Phase: Lost Data Recovery Dry Run
+
+Prompt 3 is `docs/agent-truth/lost-data-recovery-dry-run.md` and `agent/state/lost-data-recovery-dry-run.generated.json`. It uses this identity/privacy foundation and the Phase One inventory to classify recoverable lanes, legacy field mappings, Debug-first surfacing, Admin Analytics gates, and dry-run backfill stages. It does not approve production reads, production backfills, migrations, or runtime behavior changes.
+
 ## What This Report Must Not Be Used For
 
 This report must not be used to:

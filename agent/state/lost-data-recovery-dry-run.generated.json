@@ -1,0 +1,844 @@
+{
+  "generatedAtUtc": "2026-05-13T03:10:37.441Z",
+  "reportKey": "lost-data-recovery-dry-run",
+  "currentHead": "757c4c31d6e87720749a913408a6f39e8e3ab4cd",
+  "sourceReports": {
+    "phaseOneInventory": {
+      "path": "agent/state/analytics-rewire-phase-one.generated.json",
+      "generatedAtUtc": "2026-05-13T02:56:41.343Z",
+      "currentHead": "757c4c31d6e87720749a913408a6f39e8e3ab4cd",
+      "laneCount": 25,
+      "orphanCandidateCount": 15,
+      "duplicateAuthorityCount": 5
+    },
+    "phaseTwoIdentityPrivacy": {
+      "path": "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+      "generatedAtUtc": "2026-05-13T02:57:20.316Z",
+      "currentHead": "757c4c31d6e87720749a913408a6f39e8e3ab4cd",
+      "identityLaneCount": 8,
+      "recoveryEligibilityRuleCount": 12
+    }
+  },
+  "phasesCovered": [
+    "6. Legacy Recovery Mapper",
+    "14. Data Retention, Archive, And Cleanup Policy Planning",
+    "17. Recovery Surfacing Planning"
+  ],
+  "summary": {
+    "recoverableLaneCount": 15,
+    "debugFirstCount": 12,
+    "adminAnalyticsEligibleCount": 3,
+    "backfillEligibleCount": 10,
+    "consentReviewCount": 1,
+    "highValueRecoveryCount": 9,
+    "orphanCandidateCount": 15,
+    "issueCount": 2,
+    "p0Count": 0,
+    "p1Count": 0
+  },
+  "recoveryLanes": [
+    {
+      "laneKey": "analytics_identity_links",
+      "title": "Analytics identity links",
+      "sourcePath": "analytics_identity_links",
+      "sourceType": "identity_graph",
+      "identityKeys": [
+        "anonymousVisitorId",
+        "sessionId",
+        "userId"
+      ],
+      "oldFields": [
+        "subject_*",
+        "anon_*",
+        "legacy anonymous/session ids"
+      ],
+      "canonicalFields": [
+        "anonymousVisitorId",
+        "sessionId",
+        "userId",
+        "identity_linked"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "high",
+      "fallbackRecoveryValue": "high",
+      "costRisk": "low",
+      "recommendedAction": "Use Debug-first lineage evidence to recover guest-to-user continuity without rewriting old guest facts.",
+      "blockedBy": [
+        "identity/consent proof before Admin Analytics surfacing"
+      ],
+      "validatorsNeeded": [
+        "npm run check:identity-privacy-raw-ledger-rewire",
+        "npm run check:guest-user-analytics"
+      ],
+      "confidence": "high",
+      "recoveryValue": "high"
+    },
+    {
+      "laneKey": "guest_tracking_indexes",
+      "title": "Guest tracking indexes",
+      "sourcePath": "guest_tracking_indexes",
+      "sourceType": "identity_graph",
+      "identityKeys": [
+        "anonymousVisitorId",
+        "sessionId"
+      ],
+      "oldFields": [
+        "legacy guest id",
+        "legacy session key"
+      ],
+      "canonicalFields": [
+        "anonymousVisitorId",
+        "sessionId",
+        "sourceConfidence"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "high",
+      "fallbackRecoveryValue": "high",
+      "costRisk": "medium",
+      "recommendedAction": "Recover guest continuity as Debug evidence before promoting any journey totals.",
+      "blockedBy": [
+        "guest sample evidence",
+        "privacy minimization labels"
+      ],
+      "validatorsNeeded": [
+        "npm run check:guest-user-analytics"
+      ],
+      "confidence": "high",
+      "recoveryValue": "high"
+    },
+    {
+      "laneKey": "user_journey_indexes",
+      "title": "User journey indexes",
+      "sourcePath": "user_journey_indexes",
+      "sourceType": "identity_graph",
+      "identityKeys": [
+        "userId",
+        "anonymousVisitorId",
+        "sessionId"
+      ],
+      "oldFields": [
+        "legacy ordered route/event fields"
+      ],
+      "canonicalFields": [
+        "userId",
+        "anonymousVisitorId",
+        "sessionId",
+        "journeyStep",
+        "sourceConfidence"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "high",
+      "fallbackRecoveryValue": "high",
+      "costRisk": "medium",
+      "recommendedAction": "Keep journey recovery Debug-first until ordered journey snapshots prove the display model.",
+      "blockedBy": [
+        "ordered journey snapshot contract",
+        "identity link evidence"
+      ],
+      "validatorsNeeded": [
+        "npm run check:identity-privacy-raw-ledger-rewire"
+      ],
+      "confidence": "high",
+      "recoveryValue": "high"
+    },
+    {
+      "laneKey": "behavioral_timeline_facts",
+      "title": "Behavioral timeline facts",
+      "sourcePath": "behavioral_timeline_facts",
+      "sourceType": "raw_ledger",
+      "identityKeys": [
+        "actorType",
+        "anonymousVisitorId",
+        "sessionId",
+        "userId"
+      ],
+      "oldFields": [
+        "legacy event params",
+        "legacy actor fields"
+      ],
+      "canonicalFields": [
+        "actorType",
+        "occurredAt",
+        "receivedAt",
+        "source",
+        "consentState",
+        "sourceConfidence"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "high",
+      "fallbackRecoveryValue": "high",
+      "costRisk": "medium",
+      "recommendedAction": "Treat as raw behavior spine; display only through indexes or snapshots with consent labels.",
+      "blockedBy": [
+        "snapshot/index display model",
+        "fake-zero protection"
+      ],
+      "validatorsNeeded": [
+        "npm run check:analytics-event-contract",
+        "npm run check:event-fact-truth"
+      ],
+      "confidence": "high",
+      "recoveryValue": "high"
+    },
+    {
+      "laneKey": "analytics_watch_sessions",
+      "title": "Watch sessions",
+      "sourcePath": "analytics_watch_sessions / analytics_watch_assets",
+      "sourceType": "raw_ledger",
+      "identityKeys": [
+        "sessionId",
+        "anonymousVisitorId",
+        "userId"
+      ],
+      "oldFields": [
+        "legacy page duration",
+        "legacy route duration",
+        "legacy watch timestamps"
+      ],
+      "canonicalFields": [
+        "watchSessionId",
+        "assetId",
+        "startedAt",
+        "completedAt",
+        "watchScoreSource"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": true,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "firstSurfaceTarget": "Admin Analytics",
+      "fallbackConfidence": "medium",
+      "fallbackRecoveryValue": "medium",
+      "costRisk": "medium",
+      "recommendedAction": "Surface through watch-session rollups/snapshots; legacy page duration remains fallback only.",
+      "blockedBy": [
+        "watch-session rollup snapshot"
+      ],
+      "validatorsNeeded": [
+        "npm run check:watch-time-rollup-truth"
+      ],
+      "confidence": "medium",
+      "recoveryValue": "medium"
+    },
+    {
+      "laneKey": "notification_facts",
+      "title": "Notification facts",
+      "sourcePath": "notification records / user_notification_indexes",
+      "sourceType": "raw_ledger",
+      "identityKeys": [
+        "userId",
+        "sessionId"
+      ],
+      "oldFields": [
+        "recipientId",
+        "token/browser state",
+        "push runtime logs"
+      ],
+      "canonicalFields": [
+        "userId",
+        "notificationId",
+        "sentAt",
+        "openedAt",
+        "readAt",
+        "deliveryStatus"
+      ],
+      "consentRequirement": "required_operational_only",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": false,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "medium",
+      "fallbackRecoveryValue": "medium",
+      "costRisk": "medium",
+      "recommendedAction": "Use for delivery/support integrity first; avoid optional engagement profiling when privacy is off.",
+      "blockedBy": [
+        "delivery/read source labels"
+      ],
+      "validatorsNeeded": [
+        "npm run check:notification-pipeline"
+      ],
+      "confidence": "medium",
+      "recoveryValue": "medium"
+    },
+    {
+      "laneKey": "support_recovery_facts",
+      "title": "Support and recovery facts",
+      "sourcePath": "support / platform_feedback / recovery records",
+      "sourceType": "debug_evidence",
+      "identityKeys": [
+        "userId",
+        "sessionId",
+        "supportThreadId"
+      ],
+      "oldFields": [
+        "legacy support thread ids",
+        "feedback ids"
+      ],
+      "canonicalFields": [
+        "userId",
+        "supportThreadId",
+        "recoveryReason",
+        "sourceConfidence"
+      ],
+      "consentRequirement": "required_operational_only",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": false,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "medium",
+      "fallbackRecoveryValue": "medium",
+      "costRisk": "low",
+      "recommendedAction": "Keep as support recovery evidence, not behavioral personalization.",
+      "blockedBy": [
+        "support purpose label"
+      ],
+      "validatorsNeeded": [
+        "npm run check:support-recovery-flows"
+      ],
+      "confidence": "medium",
+      "recoveryValue": "medium"
+    },
+    {
+      "laneKey": "purchase_facts",
+      "title": "Purchase facts",
+      "sourcePath": "transactions / analytics_commerce_rollup",
+      "sourceType": "raw_ledger",
+      "identityKeys": [
+        "userId",
+        "transactionId"
+      ],
+      "oldFields": [
+        "payment/customer ids",
+        "orderId",
+        "capturedAt"
+      ],
+      "canonicalFields": [
+        "userId",
+        "transactionId",
+        "completedAt",
+        "amount",
+        "sourceTruth"
+      ],
+      "consentRequirement": "required_operational_only",
+      "canSurfaceInAdminAnalytics": true,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "firstSurfaceTarget": "Admin Analytics",
+      "fallbackConfidence": "high",
+      "fallbackRecoveryValue": "high",
+      "costRisk": "low",
+      "recommendedAction": "Recover only from server/payment/transaction truth; vendor ecommerce remains evidence only.",
+      "blockedBy": [
+        "server/payment truth proof"
+      ],
+      "validatorsNeeded": [
+        "npm run check:purchase-telemetry-truth"
+      ],
+      "confidence": "high",
+      "recoveryValue": "high"
+    },
+    {
+      "laneKey": "unlock_facts",
+      "title": "Unlock facts",
+      "sourcePath": "unlock / entitlement / GumDrop ledger facts",
+      "sourceType": "raw_ledger",
+      "identityKeys": [
+        "userId",
+        "dropId",
+        "entitlementId"
+      ],
+      "oldFields": [
+        "unlockId",
+        "ledger entry",
+        "unlockedAt"
+      ],
+      "canonicalFields": [
+        "userId",
+        "dropId",
+        "entitlementId",
+        "sourceTruth"
+      ],
+      "consentRequirement": "required_operational_only",
+      "canSurfaceInAdminAnalytics": true,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "firstSurfaceTarget": "Admin Analytics",
+      "fallbackConfidence": "high",
+      "fallbackRecoveryValue": "high",
+      "costRisk": "low",
+      "recommendedAction": "Recover only from entitlement/server facts; telemetry-only unlock events are not entitlement truth.",
+      "blockedBy": [
+        "entitlement/server truth proof"
+      ],
+      "validatorsNeeded": [
+        "npm run check:unlock-telemetry-truth"
+      ],
+      "confidence": "high",
+      "recoveryValue": "high"
+    },
+    {
+      "laneKey": "analytics_legacy_recovered_events",
+      "title": "Legacy recovered events",
+      "sourcePath": "analytics_legacy_recovered_events",
+      "sourceType": "legacy_recovered",
+      "identityKeys": [
+        "legacyId",
+        "anonymousVisitorId",
+        "sessionId",
+        "userId"
+      ],
+      "oldFields": [
+        "legacy_event_name",
+        "legacy timestamp",
+        "legacy actor/object params"
+      ],
+      "canonicalFields": [
+        "eventName",
+        "legacySource",
+        "legacyConfidence",
+        "mappingWarnings"
+      ],
+      "consentRequirement": "needs_review",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": false,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "unknown",
+      "fallbackRecoveryValue": "high",
+      "costRisk": "unknown",
+      "recommendedAction": "Keep Debug-only until mapping confidence and consent review pass.",
+      "blockedBy": [
+        "mapping confidence",
+        "consent review",
+        "manual backfill approval"
+      ],
+      "validatorsNeeded": [
+        "npm run check:analytics-legacy-recovery"
+      ],
+      "confidence": "high",
+      "recoveryValue": "high"
+    },
+    {
+      "laneKey": "analytics_pipeline_daily",
+      "title": "Analytics pipeline daily",
+      "sourcePath": "analytics_pipeline_daily",
+      "sourceType": "debug_evidence",
+      "identityKeys": [
+        "date",
+        "pipelineKey"
+      ],
+      "oldFields": [
+        "legacy pipeline status"
+      ],
+      "canonicalFields": [
+        "pipelineKey",
+        "date",
+        "status",
+        "lastValidatedAt"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": false,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "medium",
+      "fallbackRecoveryValue": "medium",
+      "costRisk": "low",
+      "recommendedAction": "Use as pipeline health evidence, not user behavior truth.",
+      "blockedBy": [
+        "Debug source label"
+      ],
+      "validatorsNeeded": [
+        "npm run check:debug-evidence-pipeline"
+      ],
+      "confidence": "medium",
+      "recoveryValue": "medium"
+    },
+    {
+      "laneKey": "analytics_export_status",
+      "title": "Analytics export status",
+      "sourcePath": "analytics_export_status",
+      "sourceType": "vendor_evidence",
+      "identityKeys": [
+        "exportKey",
+        "date"
+      ],
+      "oldFields": [
+        "legacy export status fields"
+      ],
+      "canonicalFields": [
+        "exportKey",
+        "date",
+        "status",
+        "sourceLabel"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": false,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "medium",
+      "fallbackRecoveryValue": "medium",
+      "costRisk": "low",
+      "recommendedAction": "Use as BigQuery/export evidence only; never user behavior truth.",
+      "blockedBy": [
+        "vendor evidence label"
+      ],
+      "validatorsNeeded": [
+        "npm run check:analytics-import-export"
+      ],
+      "confidence": "medium",
+      "recoveryValue": "medium"
+    },
+    {
+      "laneKey": "analytics_guest_batches",
+      "title": "Guest batches",
+      "sourcePath": "analytics_guest_batches",
+      "sourceType": "raw_ledger",
+      "identityKeys": [
+        "anonymousVisitorId",
+        "sessionId",
+        "serverSessionKey"
+      ],
+      "oldFields": [
+        "anon_*",
+        "legacy guest batch id",
+        "legacy session key"
+      ],
+      "canonicalFields": [
+        "anonymousVisitorId",
+        "sessionId",
+        "batchId",
+        "consentState"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "medium",
+      "fallbackRecoveryValue": "high",
+      "costRisk": "medium",
+      "recommendedAction": "Keep raw source only; recover through guest snapshots/indexes with fake-zero protection.",
+      "blockedBy": [
+        "guest snapshot",
+        "sample evidence"
+      ],
+      "validatorsNeeded": [
+        "npm run check:guest-user-analytics"
+      ],
+      "confidence": "medium",
+      "recoveryValue": "high"
+    },
+    {
+      "laneKey": "analytics_sessions",
+      "title": "Analytics sessions",
+      "sourcePath": "analytics_sessions",
+      "sourceType": "raw_ledger",
+      "identityKeys": [
+        "sessionId",
+        "anonymousVisitorId",
+        "userId"
+      ],
+      "oldFields": [
+        "kandy_session_id",
+        "legacy session fact fields"
+      ],
+      "canonicalFields": [
+        "sessionId",
+        "anonymousVisitorId",
+        "startedAt",
+        "lastEventAt"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "medium",
+      "fallbackRecoveryValue": "medium",
+      "costRisk": "medium",
+      "recommendedAction": "Use for session continuity only after the session definition is declared.",
+      "blockedBy": [
+        "session definition",
+        "snapshot display model"
+      ],
+      "validatorsNeeded": [
+        "npm run check:identity-privacy-raw-ledger-rewire"
+      ],
+      "confidence": "medium",
+      "recoveryValue": "medium"
+    },
+    {
+      "laneKey": "analytics_event_facts",
+      "title": "Analytics event facts",
+      "sourcePath": "analytics_event_facts",
+      "sourceType": "raw_ledger",
+      "identityKeys": [
+        "actorType",
+        "anonymousVisitorId",
+        "sessionId",
+        "userId",
+        "creatorId",
+        "adminId"
+      ],
+      "oldFields": [
+        "legacy_event_name",
+        "timestamp",
+        "eventTimestamp",
+        "createdAt"
+      ],
+      "canonicalFields": [
+        "eventId",
+        "eventName",
+        "occurredAt",
+        "receivedAt",
+        "actorType",
+        "consentState"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "firstSurfaceTarget": "Admin Debug",
+      "fallbackConfidence": "high",
+      "fallbackRecoveryValue": "high",
+      "costRisk": "high",
+      "recommendedAction": "Keep raw source only; display through snapshots/indexes and source-labeled Debug evidence.",
+      "blockedBy": [
+        "snapshot authority collapse",
+        "raw admin display fallback removal"
+      ],
+      "validatorsNeeded": [
+        "npm run check:analytics-event-contract",
+        "npm run check:analytics-rewire-phase-one"
+      ],
+      "confidence": "high",
+      "recoveryValue": "high"
+    }
+  ],
+  "legacyFieldMappings": [
+    {
+      "mappingKey": "legacy-page-duration",
+      "sourcePath": "page/session rollups",
+      "oldField": "pageDuration / routeDuration",
+      "canonicalField": "watchScoreSource = legacy_page_duration",
+      "confidence": "medium",
+      "mappingWarnings": [
+        "Fallback only; not watch_session_rollup.",
+        "Must not replace analytics_watch_sessions."
+      ],
+      "recommendedAction": "Use only when no watch-session rollup exists and label the source as legacy fallback."
+    },
+    {
+      "mappingKey": "legacy-guest-session-ids",
+      "sourcePath": "analytics_guest_batches / analytics_sessions",
+      "oldField": "subject_* / anon_* / kandy_session_id",
+      "canonicalField": "anonymousVisitorId / sessionId",
+      "confidence": "medium",
+      "mappingWarnings": [
+        "Pseudonymous identifier; consent-aware only.",
+        "Do not rewrite old guest facts into user facts."
+      ],
+      "recommendedAction": "Map as identity evidence with mappingWarnings and original legacy fields retained."
+    },
+    {
+      "mappingKey": "legacy-event-name",
+      "sourcePath": "analytics_event_facts",
+      "oldField": "legacy_event_name",
+      "canonicalField": "eventName with legacy_event_name metadata",
+      "confidence": "high",
+      "mappingWarnings": [
+        "Only accepted when canonical catalog alias exists."
+      ],
+      "recommendedAction": "Store canonical eventName and retain the original legacy_event_name in metadata."
+    },
+    {
+      "mappingKey": "ga-current-day",
+      "sourcePath": "GA4 / BigQuery intraday",
+      "oldField": "current-day provider metrics",
+      "canonicalField": "vendor_evidence / estimated",
+      "confidence": "medium",
+      "mappingWarnings": [
+        "Not canonical product truth.",
+        "Intraday/current-day exports are incomplete."
+      ],
+      "recommendedAction": "Use as Debug parity evidence only and label as estimated/intraday."
+    },
+    {
+      "mappingKey": "realtime-summary-fallback",
+      "sourcePath": "analytics_aggregate_stats/realtime_summary",
+      "oldField": "legacy realtime summary fields",
+      "canonicalField": "analytics_admin_metric_snapshots fallback/evidence",
+      "confidence": "medium",
+      "mappingWarnings": [
+        "Duplicate snapshot authority exists.",
+        "Must not outrank analytics_admin_metric_snapshots."
+      ],
+      "recommendedAction": "Use as legacy/fallback/evidence unless the route explicitly owns the live-pulse bridge."
+    },
+    {
+      "mappingKey": "legacy-timestamps",
+      "sourcePath": "legacy analytics sources",
+      "oldField": "timestamp / eventTimestamp / createdAt / updatedAt",
+      "canonicalField": "occurredAt / receivedAt",
+      "confidence": "medium",
+      "mappingWarnings": [
+        "Timestamp meaning must be source-specific.",
+        "Missing timestamp lowers mapping confidence."
+      ],
+      "recommendedAction": "Prefer occurredAt when available; otherwise mark the recovered candidate with mappingWarnings."
+    }
+  ],
+  "dryRunBackfillPlan": [
+    {
+      "stepKey": "stage-a-static-inventory",
+      "title": "Stage A: static inventory of recoverable lanes",
+      "purpose": "Keep recovery planning local and source-based before any data access.",
+      "sourcePaths": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json"
+      ],
+      "targetPathOrSnapshot": "agent/state/lost-data-recovery-dry-run.generated.json",
+      "allowedMode": "static_only",
+      "productionAllowedNow": false,
+      "costRisk": "low",
+      "requiredValidators": [
+        "npm run check:lost-data-recovery-dry-run"
+      ],
+      "rollbackNote": "Remove the generated dry-run report and validator if the inventory contract is wrong."
+    },
+    {
+      "stepKey": "stage-b-emulator-mapper-validation",
+      "title": "Stage B: emulator-only mapper validation",
+      "purpose": "Validate legacy mappers with fixture or emulator data before any production source is touched.",
+      "sourcePaths": [
+        "legacy fixture samples",
+        "emulator-only exports"
+      ],
+      "targetPathOrSnapshot": "emulator analytics_legacy_recovered_events candidates",
+      "allowedMode": "emulator_only",
+      "productionAllowedNow": false,
+      "costRisk": "low",
+      "requiredValidators": [
+        "npm run check:analytics-legacy-recovery"
+      ],
+      "rollbackNote": "Drop emulator outputs; no production records should exist."
+    },
+    {
+      "stepKey": "stage-c-dry-run-recovery-snapshot",
+      "title": "Stage C: dry-run recovery snapshot generation",
+      "purpose": "Produce candidate recovery snapshots with source labels, consent requirements, and confidence metadata.",
+      "sourcePaths": [
+        "analytics_identity_links",
+        "guest_tracking_indexes",
+        "behavioral_timeline_facts",
+        "analytics_watch_sessions"
+      ],
+      "targetPathOrSnapshot": "dry-run recovery snapshot artifact",
+      "allowedMode": "manual_approval_required",
+      "productionAllowedNow": false,
+      "costRisk": "medium",
+      "requiredValidators": [
+        "npm run check:identity-privacy-raw-ledger-rewire",
+        "npm run check:lost-data-recovery-dry-run"
+      ],
+      "rollbackNote": "Discard dry-run snapshots and keep raw sources unchanged."
+    },
+    {
+      "stepKey": "stage-d-admin-debug-surfacing",
+      "title": "Stage D: Admin Debug surfacing",
+      "purpose": "Surface recovery source, confidence, blockers, and mapping warnings in Debug before Analytics.",
+      "sourcePaths": [
+        "dry-run recovery snapshot artifact"
+      ],
+      "targetPathOrSnapshot": "Admin Debug recovery evidence panel",
+      "allowedMode": "manual_approval_required",
+      "productionAllowedNow": false,
+      "costRisk": "low",
+      "requiredValidators": [
+        "npm run check:debug-evidence-pipeline"
+      ],
+      "rollbackNote": "Hide the Debug recovery panel and keep dry-run evidence available for review."
+    },
+    {
+      "stepKey": "stage-e-admin-analytics-surfacing",
+      "title": "Stage E: Admin Analytics surfacing after Debug confidence",
+      "purpose": "Promote only eligible lanes into compact Admin Analytics snapshots after Debug confidence proves source truth.",
+      "sourcePaths": [
+        "Admin Debug reviewed recovery evidence",
+        "analytics_admin_metric_snapshots"
+      ],
+      "targetPathOrSnapshot": "analytics_admin_metric_snapshots",
+      "allowedMode": "manual_approval_required",
+      "productionAllowedNow": false,
+      "costRisk": "medium",
+      "requiredValidators": [
+        "npm run check:admin-analytics-hot-cache",
+        "npm run check:admin-analytics-no-pure-realtime"
+      ],
+      "rollbackNote": "Demote recovered values back to Debug-only and preserve verified snapshots."
+    },
+    {
+      "stepKey": "stage-f-production-backfill-approval",
+      "title": "Stage F: production backfill only after manual approval",
+      "purpose": "Allow a future reviewed production write plan only after dry-run, Debug, privacy, and validator evidence pass.",
+      "sourcePaths": [
+        "approved source-specific production paths"
+      ],
+      "targetPathOrSnapshot": "versioned recovery collection or approved snapshot path",
+      "allowedMode": "manual_approval_required",
+      "productionAllowedNow": false,
+      "costRisk": "high",
+      "requiredValidators": [
+        "npm run check:lost-data-recovery-dry-run",
+        "npm run check:analytics-legacy-recovery",
+        "npm run typecheck"
+      ],
+      "rollbackNote": "Stop the backfill, retain original source records, and remove only versioned recovery outputs from the approved target."
+    }
+  ],
+  "issues": [
+    {
+      "issueKey": "production-backfill-disabled",
+      "severity": "P2",
+      "title": "Production recovery backfill remains disabled",
+      "description": "This phase builds dry-run recovery planning only. No production read, write, migration, or deletion is approved.",
+      "files": [
+        "docs/agent-truth/lost-data-recovery-dry-run.md",
+        "agent/state/lost-data-recovery-dry-run.generated.json"
+      ],
+      "blocksRecovery": false,
+      "blocksPhaseOneFreeze": false,
+      "recommendedAction": "Run static and emulator-only stages before requesting manual production approval."
+    },
+    {
+      "issueKey": "debug-first-recovery-required",
+      "severity": "P2",
+      "title": "High-value recovered data must surface in Debug before Admin Analytics",
+      "description": "Guest continuity, journey, legacy, and raw ledger recovery require Debug source/confidence evidence before compact operator metrics.",
+      "files": [
+        "docs/agent-truth/lost-data-recovery-dry-run.md"
+      ],
+      "blocksRecovery": false,
+      "blocksPhaseOneFreeze": false,
+      "recommendedAction": "Build Admin Debug recovery evidence before any Admin Analytics surfacing."
+    }
+  ]
+}

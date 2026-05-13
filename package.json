@@ -171,6 +171,7 @@
         "check:analytics-truth-layer-v2": "tsx scripts/agent/validate-analytics-truth-layer-v2.ts",
         "check:analytics-rewire-phase-one": "tsx scripts/agent/validate-analytics-rewire-phase-one.ts",
         "check:identity-privacy-raw-ledger-rewire": "tsx scripts/agent/validate-identity-privacy-raw-ledger-rewire.ts",
+        "check:lost-data-recovery-dry-run": "tsx scripts/agent/validate-lost-data-recovery-dry-run.ts",
         "check:analytics-event-contract": "tsx scripts/agent/validate-analytics-event-contract.ts",
         "check:actor-target-telemetry": "tsx scripts/agent/validate-actor-target-telemetry.ts",
         "check:purchase-telemetry-truth": "tsx scripts/agent/validate-purchase-telemetry-truth.ts",
