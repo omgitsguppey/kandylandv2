@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-13T18:47:06.673Z",
+  "generatedAtUtc": "2026-05-13T19:49:10.800Z",
   "reportKey": "analytics-rewire-phase-one",
-  "currentHead": "ff1c30a9d1014f5a1a21fda5b499b20fcd1467c2",
+  "currentHead": "12d3215703bf7cc40b37b26feb1adbf47ef6daa6",
   "phasesCovered": [
     "0. Rewire Inventory Contract",
     "1. Truth-Lane Inventory Implementation",
@@ -14,7 +14,7 @@
     "issueCount": 9,
     "duplicateAuthorityCount": 5,
     "rawDisplayFallbackCount": 2,
-    "staleAuthorityReportCount": 86,
+    "staleAuthorityReportCount": 89,
     "orphanCandidateCount": 15,
     "vendorTruthBoundaryIssueCount": 1,
     "recommendedBlockers": 3
@@ -43,18 +43,17 @@
       "readers": [
         "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
         "src/app/admin/analytics/page.tsx",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts"
+        "src/app/api/admin/analytics/historical/route.ts"
       ],
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "scripts/agent/validate-admin-analytics-hot-cache.ts",
         "scripts/agent/validate-admin-debug-control-tower.ts",
         "scripts/agent/validate-analytics-event-contract.ts",
-        "scripts/agent/validate-analytics-legacy-recovery.ts",
-        "scripts/agent/validate-analytics-truth-layer-v2.ts",
-        "scripts/agent/validate-event-catalog-telemetry.ts"
+        "scripts/agent/validate-analytics-legacy-recovery.ts"
       ]
     },
     {
@@ -87,11 +86,12 @@
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "scripts/agent/validate-global-cost-surfaces.ts",
         "scripts/agent/validate-human-dev-readiness.ts",
         "scripts/agent/validate-hydration-performance.ts",
-        "scripts/agent/verify-codex-native-auth.ts",
-        "tests/unit/analytics-rewire-phase-one.spec.ts"
+        "scripts/agent/validate-snapshot-admin-vendor-cost-rewire.ts",
+        "scripts/agent/verify-codex-native-auth.ts"
       ]
     },
     {
@@ -276,9 +276,9 @@
         "scripts/agent/lost-data-recovery-dry-run.ts",
         "scripts/agent/score-guest-user-analytics-cutover.ts",
         "scripts/agent/score-telemetry-identified-parity.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "scripts/agent/validate-analytics-event-contract.ts",
-        "scripts/agent/validate-guest-user-analytics-cutover.ts",
-        "scripts/agent/validate-identity-link-continuity.ts"
+        "scripts/agent/validate-guest-user-analytics-cutover.ts"
       ]
     },
     {
@@ -313,9 +313,9 @@
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
         "scripts/agent/score-cloudrun-sql-bigquery-guardrails.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "scripts/agent/sync-sql.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-analytics-event-contract.ts"
+        "scripts/agent/validate-admin-debug-control-tower.ts"
       ]
     },
     {
@@ -348,11 +348,11 @@
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "scripts/agent/validate-admin-analytics-hot-cache.ts",
         "scripts/agent/validate-analytics-event-contract.ts",
         "scripts/agent/validate-analytics-legacy-recovery.ts",
-        "scripts/agent/validate-guest-user-analytics-cutover.ts",
-        "scripts/analytics/inventory-legacy-sources.ts"
+        "scripts/agent/validate-guest-user-analytics-cutover.ts"
       ]
     },
     {
@@ -375,14 +375,15 @@
         "docs/agent-truth/admin-analytics-live-pulse.md",
         "docs/agent-truth/analytics-legacy-recovery.md",
         "docs/agent-truth/analytics-source-hierarchy.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
         "src/lib/server/admin-analytics-data.ts",
-        "src/lib/server/admin-analytics-historical-traffic.ts",
-        "src/lib/server/admin-analytics-materializers.ts"
+        "src/lib/server/admin-analytics-historical-traffic.ts"
       ],
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "scripts/check-analytics-continuity.ts",
         "tests/firebase/firestore.rules.spec.ts",
         "tests/unit/admin-analytics-historical-traffic.spec.ts",
@@ -407,6 +408,7 @@
       "writers": [],
       "readers": [
         "docs/agent-truth/guest-user-analytics-cutover.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
         "src/lib/server/analytics-governance.ts",
         "src/lib/server/behavioral-timeline-reader.ts",
         "src/lib/server/behavioral-timeline-writer.ts",
@@ -416,8 +418,10 @@
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "tests/unit/analytics-rewire-phase-one.spec.ts",
-        "tests/unit/lost-data-recovery-dry-run.spec.ts"
+        "tests/unit/lost-data-recovery-dry-run.spec.ts",
+        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ]
     },
     {
@@ -443,7 +447,9 @@
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
-        "tests/unit/lost-data-recovery-dry-run.spec.ts"
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "tests/unit/lost-data-recovery-dry-run.spec.ts",
+        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ]
     },
     {
@@ -468,7 +474,9 @@
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
-        "scripts/agent/lost-data-recovery-dry-run.ts"
+        "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ]
     },
     {
@@ -491,9 +499,9 @@
       "readers": [
         "docs/agent-truth/admin-analytics-live-pulse.md",
         "docs/agent-truth/analytics-legacy-recovery.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
         "docs/agent-truth/watch-time-truth.md",
         "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
         "src/app/api/admin/debug/assistant/route.ts"
       ],
       "validators": [
@@ -501,10 +509,10 @@
         "scripts/agent/extract-runtime-observability.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "scripts/agent/validate-admin-user-behavior-truth.ts",
         "scripts/agent/validate-analytics-legacy-recovery.ts",
-        "scripts/agent/validate-watch-time-rollup-truth.ts",
-        "scripts/analytics/inventory-legacy-sources.ts"
+        "scripts/agent/validate-watch-time-rollup-truth.ts"
       ]
     },
     {
@@ -717,7 +725,8 @@
         "tests/unit/admin-analytics-live-pulse.spec.ts",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-truth-copy.spec.ts",
-        "tests/unit/analytics-rewire-phase-one.spec.ts"
+        "tests/unit/analytics-rewire-phase-one.spec.ts",
+        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ]
     },
     {
@@ -746,9 +755,11 @@
       "validators": [
         "scripts/agent/validate-admin-analytics-hot-cache.ts",
         "tests/unit/admin-analytics-display-state.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-refresh-route.spec.ts",
         "tests/unit/admin-metric-snapshot.spec.ts",
-        "tests/unit/analytics-rewire-phase-one.spec.ts"
+        "tests/unit/analytics-rewire-phase-one.spec.ts",
+        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ]
     },
     {
@@ -907,7 +918,6 @@
       "description": "Snapshot-first display exists, but route/helper fallback paths still mention raw analytics collections.",
       "files": [
         "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
         "src/app/api/admin/debug/route.ts",
         "src/lib/admin-analytics-live-pulse.ts",
         "src/lib/admin-analytics-live-runtime.ts"
@@ -964,7 +974,7 @@
         "docs/agent-truth/analytics-rewire-phase-one.md",
         "docs/agent-truth/analytics-source-hierarchy.md",
         "docs/agent-truth/guest-user-analytics-cutover.md",
-        "functions/src/analytics-guest-batches.ts"
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md"
       ],
       "recommendedOwner": "admin metric snapshot",
       "recommendedAction": "Demote GA-derived estimates, raw guest envelopes to evidence/fallback/debug paths.",
@@ -981,8 +991,8 @@
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
-        "src/lib/server/analytics-governance.ts",
-        "src/lib/user-indexes/user-tracking-index-contract.ts"
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "src/lib/server/analytics-governance.ts"
       ],
       "recommendedOwner": "admin metric snapshot",
       "recommendedAction": "Demote raw event ratios, GA funnel evidence to evidence/fallback/debug paths.",
@@ -997,10 +1007,10 @@
       "files": [
         "docs/agent-truth/admin-analytics-live-pulse.md",
         "docs/agent-truth/analytics-legacy-recovery.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
         "docs/agent-truth/watch-time-truth.md",
         "functions/src/analytics-realtime-summary.ts",
-        "functions/src/analytics-truth-cli.ts",
-        "functions/src/analytics-truth-runtime.ts"
+        "functions/src/analytics-truth-cli.ts"
       ],
       "recommendedOwner": "admin metric snapshot",
       "recommendedAction": "Demote GA/page duration to evidence/fallback/debug paths.",
@@ -1031,7 +1041,7 @@
       "issueKey": "stale-generated-report-authority",
       "severity": "P1",
       "title": "Generated report evidence has stale authority risk",
-      "description": "86 generated report(s) are older than 24 hours or have no parseable generatedAtUtc. Generated reports are snapshots, not doctrine.",
+      "description": "89 generated report(s) are older than 24 hours or have no parseable generatedAtUtc. Generated reports are snapshots, not doctrine.",
       "files": [
         "agent/state/4xx-cost-guardrails.generated.json",
         "agent/state/accessibility-tap-target-audit.generated.json",
@@ -1089,6 +1099,7 @@
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "tests/unit/lost-data-recovery-dry-run.spec.ts"
       ],
       "recoveryValue": "high",
@@ -1106,7 +1117,9 @@
       "validatorFiles": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
-        "scripts/agent/lost-data-recovery-dry-run.ts"
+        "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ],
       "recoveryValue": "high",
       "recommendedAction": "surface"
@@ -1183,14 +1196,15 @@
         "src/lib/server/user-index-materializer.ts"
       ],
       "consumerFiles": [
-        "docs/agent-truth/guest-user-analytics-cutover.md"
+        "docs/agent-truth/guest-user-analytics-cutover.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md"
       ],
       "validatorFiles": [
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
-        "tests/unit/analytics-rewire-phase-one.spec.ts",
-        "tests/unit/lost-data-recovery-dry-run.spec.ts"
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "tests/unit/analytics-rewire-phase-one.spec.ts"
       ],
       "recoveryValue": "high",
       "recommendedAction": "surface"
@@ -1210,6 +1224,7 @@
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "tests/unit/lost-data-recovery-dry-run.spec.ts"
       ],
       "recoveryValue": "high",
@@ -1234,6 +1249,7 @@
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
         "tests/unit/admin-ops-health.spec.ts"
       ],
       "recoveryValue": "medium",
@@ -1355,7 +1371,7 @@
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
         "scripts/check-analytics-continuity.ts",
-        "tests/unit/admin-analytics-realtime-route.spec.ts"
+        "tests/unit/admin-ops-health.spec.ts"
       ],
       "recoveryValue": "medium",
       "recommendedAction": "surface"
@@ -1423,7 +1439,7 @@
         "docs/agent-truth/analytics-rewire-phase-one.md",
         "docs/agent-truth/analytics-source-hierarchy.md",
         "docs/agent-truth/guest-user-analytics-cutover.md",
-        "functions/src/analytics-guest-batches.ts"
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md"
       ]
     },
     {
@@ -1443,8 +1459,8 @@
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/lost-data-recovery-dry-run.ts",
-        "src/lib/server/analytics-governance.ts",
-        "src/lib/user-indexes/user-tracking-index-contract.ts"
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "src/lib/server/analytics-governance.ts"
       ]
     },
     {
@@ -1461,10 +1477,10 @@
       "files": [
         "docs/agent-truth/admin-analytics-live-pulse.md",
         "docs/agent-truth/analytics-legacy-recovery.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
         "docs/agent-truth/watch-time-truth.md",
         "functions/src/analytics-realtime-summary.ts",
-        "functions/src/analytics-truth-cli.ts",
-        "functions/src/analytics-truth-runtime.ts"
+        "functions/src/analytics-truth-cli.ts"
       ]
     }
   ]

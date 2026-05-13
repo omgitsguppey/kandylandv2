@@ -185,6 +185,82 @@ function buildCachedGuestSnapshot(generatedAtMs: number, overrides: Record<strin
     };
 }
 
+function buildCanonicalMetricSnapshot(generatedAtMs: number, overrides: Record<string, unknown> = {}) {
+    const generatedAt = new Date(generatedAtMs).toISOString();
+    return {
+        schemaVersion: "admin_metric_snapshot_v1",
+        cacheKey: "admin_analytics:live_pulse:24h",
+        surfaceKey: "admin_analytics",
+        moduleKey: "live_pulse",
+        rangeKey: "24h",
+        values: {
+            totalActive: {
+                value: 9,
+                available: true,
+                source: "verified_snapshot",
+                sourceMode: "verified_cache",
+                serverConfirmed: true,
+                stale: false,
+                estimated: false,
+                fallback: false,
+                fakeZeroPrevented: false,
+            },
+            deepTrackerActive: {
+                value: 6,
+                available: true,
+                source: "verified_snapshot",
+                sourceMode: "verified_cache",
+                serverConfirmed: true,
+                stale: false,
+                estimated: false,
+                fallback: false,
+                fakeZeroPrevented: false,
+            },
+            uniqueAnonymousVisitorCount: {
+                value: 3,
+                available: true,
+                source: "verified_snapshot",
+                sourceMode: "verified_cache",
+                serverConfirmed: true,
+                stale: false,
+                estimated: false,
+                fallback: false,
+                fakeZeroPrevented: false,
+            },
+        },
+        sourceBreakdown: {
+            sourceSampleCounts: {
+                analytics_guest_batches: 2,
+            },
+        },
+        formulas: {},
+        confidence: 0.94,
+        truthState: "verified",
+        sourceMode: "verified_cache",
+        generatedAt,
+        lastVerifiedAt: generatedAt,
+        expiresAt: new Date(generatedAtMs + 5 * 60_000).toISOString(),
+        maxAgeMs: 5 * 60_000,
+        warnings: [],
+        parity: [],
+        legacyIncluded: false,
+        legacyConfidence: null,
+        debugPath: "/admin/debug?tab=advanced#analytics-snapshots/live_pulse/24h",
+        refreshStatus: "completed",
+        refreshStartedAt: null,
+        refreshCompletedAt: generatedAt,
+        duplicateRefreshPrevented: false,
+        lastRefreshRequestedAt: generatedAt,
+        lastRefreshStartedAt: generatedAt,
+        lastRefreshCompletedAt: generatedAt,
+        refreshVersion: 1,
+        sourceVersion: generatedAt,
+        estimatedFlags: {},
+        legacyFlags: {},
+        ...overrides,
+    };
+}
+
 describe("GET /api/admin/analytics/realtime", () => {
     beforeEach(() => {
         mockState.reset();
@@ -205,7 +281,65 @@ describe("GET /api/admin/analytics/realtime", () => {
             });
     });
 
-    it("serves fresh realtime hot cache without cold GA or Firestore reads", async () => {
+    it("serves canonical admin metric snapshot before legacy realtime summary", async () => {
+        const generatedAtMs = Date.now() - 1_000;
+        mockState.collections.set("analytics_admin_metric_snapshots", [
+            {
+                id: "live_pulse:24h",
+                data: () => buildCanonicalMetricSnapshot(generatedAtMs),
+            },
+        ]);
+        mockState.collections.set("analytics_aggregate_stats", [
+            {
+                id: "realtime_summary",
+                data: () => ({
+                    success: true,
+                    generatedAtMs,
+                    totalActive: 12,
+                    deepTrackerActive: 8,
+                    liveTruthLabel: "live",
+                    liveSourceLabel: "analytics_aggregate_stats/realtime_summary",
+                    activeUsersTruthLabel: "live",
+                    activeUsersSourceLabel: "analytics_active_users",
+                    data: [],
+                    activeUsers: [],
+                    surfaceMix: [],
+                    guestAnalyticsSnapshot: buildCachedGuestSnapshot(generatedAtMs),
+                    watchCaptureHealth: { sessionCount: 0, warnings: [] },
+                    issues: [],
+                }),
+            },
+        ]);
+
+        const request = new NextRequest("http://localhost/api/admin/analytics/realtime");
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({
+            success: true,
+            generatedAtMs,
+            cacheState: "fresh",
+            cacheSourceLabel: "analytics_admin_metric_snapshots/live_pulse:24h",
+            totalActive: 9,
+            deepTrackerActive: 6,
+            liveTruthLabel: "cached",
+            verification: {
+                canonicalSource: "analytics_admin_metric_snapshots",
+                fallbackSource: null,
+                status: "cached",
+            },
+            guestAnalyticsSnapshot: {
+                guestTruthState: "live",
+                guestSamplesAvailable: true,
+                guestBatchCount: 2,
+                uniqueAnonymousVisitorCount: 3,
+            },
+        });
+        expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
+    });
+
+    it("serves fresh realtime_summary only as fallback evidence when canonical snapshot is missing", async () => {
         const generatedAtMs = Date.now() - 1_000;
         mockState.collections.set("analytics_aggregate_stats", [
             {
@@ -238,18 +372,18 @@ describe("GET /api/admin/analytics/realtime", () => {
             success: true,
             generatedAtMs,
             cacheState: "fresh",
-            cacheSourceLabel: "analytics_aggregate_stats/realtime_summary",
+            cacheSourceLabel: "analytics_aggregate_stats/realtime_summary:fallback_evidence",
             totalActive: 12,
             deepTrackerActive: 8,
-            liveTruthLabel: "live",
-            guestAnalyticsSnapshot: {
-                guestTruthState: "live",
-                guestSamplesAvailable: true,
-                guestBatchCount: 2,
-                guestEventCount: 7,
-                uniqueAnonymousVisitorCount: 2,
+            liveTruthLabel: "cached",
+            activeUsersTruthLabel: "cached",
+            verification: {
+                canonicalSource: "analytics_admin_metric_snapshots",
+                fallbackSource: "analytics_aggregate_stats/realtime_summary",
+                status: "cached",
             },
         });
+        expect(payload.issues).toContain("Using legacy realtime_summary fallback evidence because canonical admin metric snapshot is unavailable.");
         expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
     });
 
@@ -286,6 +420,7 @@ describe("GET /api/admin/analytics/realtime", () => {
             success: true,
             generatedAtMs,
             cacheState: "stale",
+            cacheSourceLabel: "analytics_aggregate_stats/realtime_summary:fallback_evidence",
             totalActive: 4,
             deepTrackerActive: 3,
             liveTruthLabel: "stale",
@@ -296,8 +431,10 @@ describe("GET /api/admin/analytics/realtime", () => {
                 guestBatchCount: 2,
             },
         });
+        expect(payload.issues).toContain("Using legacy realtime_summary fallback evidence because canonical admin metric snapshot is unavailable.");
         expect(payload.issues).toContain("Serving stale admin realtime analytics hot cache while the scheduled materializer catches up.");
         expect(payload.verification.status).toBe("stale");
+        expect(payload.verification.fallbackSource).toBe("analytics_aggregate_stats/realtime_summary");
         expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
     });
 
@@ -350,7 +487,7 @@ describe("GET /api/admin/analytics/realtime", () => {
         expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
     });
 
-    it("loads realtime onboarding stats without the index-sensitive event-name filter", async () => {
+    it("does not use raw collection or provider fallback when no snapshot authority exists", async () => {
         const nowMs = Date.now();
         mockState.collections.set("analytics_active_users", [
             {
@@ -363,63 +500,6 @@ describe("GET /api/admin/analytics/realtime", () => {
                 }),
             },
         ]);
-        mockState.collections.set("analytics_event_facts", [
-            {
-                id: "start_1",
-                data: () => ({
-                    eventName: "guided_onboarding_started",
-                    timestamp: nowMs - 60_000,
-                    userId: "fan_1",
-                    params: {
-                        overall_started_at_ms: nowMs - 60_000,
-                        source: "onboarding_progress_route",
-                    },
-                }),
-            },
-            {
-                id: "complete_1",
-                data: () => ({
-                    eventName: "guided_onboarding_completed",
-                    timestamp: nowMs - 30_000,
-                    userId: "fan_1",
-                    durationMs: 30_000,
-                    params: {
-                        started_at_ms: nowMs - 60_000,
-                        duration_ms: 30_000,
-                        source: "complete_onboarding_route",
-                    },
-                }),
-            },
-        ]);
-        mockState.collections.set("analytics_watch_sessions", [
-            {
-                id: "watch_1",
-                data: () => ({
-                    lastSeenAtMs: nowMs - 2_000,
-                    captureTransport: "fetch",
-                    replayRecovered: false,
-                    replayRecoveredCount: 0,
-                    flushFailureCount: 0,
-                    gapCount: 0,
-                    hiddenDurationSeconds: 2,
-                    isClosed: true,
-                    closeReason: "manual_close",
-                }),
-            },
-        ]);
-        mockState.collections.set("analytics_watch_assets", [
-            {
-                id: "asset_1",
-                data: () => ({
-                    watchSessionId: "watch_1",
-                    lastSeenAtMs: nowMs - 2_000,
-                    waitingDurationSeconds: 3,
-                    seekCount: 1,
-                    playbackRateAverage: 1,
-                    mutedSampleCount: 0,
-                }),
-            },
-        ]);
 
         const request = new NextRequest("http://localhost/api/admin/analytics/realtime");
         const response = await GET(request);
@@ -428,42 +508,31 @@ describe("GET /api/admin/analytics/realtime", () => {
         expect(response.status).toBe(200);
         expect(payload).toMatchObject({
             success: true,
-            issues: [],
-            totalActive: 7,
-            deepTrackerActive: 1,
-            onboardingStats: {
-                starts: 1,
-                completions: 1,
-                startSource: "tracked",
-            },
-            watchCaptureHealth: {
-                sessionCount: 1,
-                fullCaptureCount: 1,
-                degradedSessionCount: 0,
-                closeMissingCount: 0,
+            cacheState: "miss",
+            cacheSourceLabel: "analytics_admin_metric_snapshots/unavailable",
+            liveTruthLabel: "failed",
+            activeUsersTruthLabel: "failed",
+            verification: {
+                canonicalSource: "analytics_admin_metric_snapshots",
+                fallbackSource: null,
+                status: "failed",
             },
         });
+        expect(payload.totalActive).toBeUndefined();
+        expect(payload.issues).toContain("No verified admin metric snapshot is available; raw analytics collections are debug-only and were not used as compact display fallback.");
+        expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
         expect(mockState.handleApiError).not.toHaveBeenCalled();
     });
 
-    it("treats analytics_active_users as the primary live lane when GA realtime is empty", async () => {
-        const nowMs = Date.now();
-        mockState.safeRunRealtimeReport.mockReset();
-        mockState.safeRunRealtimeReport
-            .mockResolvedValueOnce({
-                rows: [{ metricValues: [{ value: "0" }] }],
-            })
-            .mockResolvedValueOnce({
-                rows: [],
-            });
-        mockState.collections.set("analytics_active_users", [
+    it("labels stale canonical snapshots as stale cache instead of live", async () => {
+        const generatedAtMs = Date.now() - 40 * 60_000;
+        mockState.collections.set("analytics_admin_metric_snapshots", [
             {
-                id: "fan_1",
-                data: () => ({
-                    username: "fan_1",
-                    lastSeenAt: nowMs - 5_000,
-                    lastEventName: "home_page_viewed",
-                    lastPagePath: "/",
+                id: "live_pulse:24h",
+                data: () => buildCanonicalMetricSnapshot(generatedAtMs, {
+                    sourceMode: "stale_cache",
+                    truthState: "stale",
+                    expiresAt: new Date(generatedAtMs - 1_000).toISOString(),
                 }),
             },
         ]);
@@ -473,12 +542,12 @@ describe("GET /api/admin/analytics/realtime", () => {
         const payload = await response.json();
 
         expect(response.status).toBe(200);
-        expect(payload.liveTruthLabel).toBe("live");
-        expect(payload.liveSourceLabel).toBe("analytics_active_users");
-        expect(payload.activeUsersTruthLabel).toBe("live");
-        expect(payload.activeUsersSourceLabel).toBe("analytics_active_users");
-        expect(payload.issues).not.toContain("Live identity lane fell back from analytics_active_users to recent event facts and watch sessions.");
-        expect(payload.issues).not.toContain("GA realtime returned no active users; live pulse is using first-party fallback counts.");
-        expect(payload.data.find((point: { minute: number; users: number }) => point.minute === 0)?.users).toBe(1);
+        expect(payload.cacheSourceLabel).toBe("analytics_admin_metric_snapshots/live_pulse:24h");
+        expect(payload.liveTruthLabel).toBe("stale");
+        expect(payload.activeUsersTruthLabel).toBe("stale");
+        expect(payload.staleButVerified).toBe(true);
+        expect(payload.verification.status).toBe("stale");
+        expect(payload.issues).toContain("Serving stale canonical admin metric snapshot; realtime_summary remains fallback evidence only.");
+        expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
     });
 });

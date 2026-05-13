@@ -1,11 +1,11 @@
 {
-  "generatedAtUtc": "2026-05-13T18:47:34.684Z",
+  "generatedAtUtc": "2026-05-13T19:49:27.908Z",
   "reportKey": "identity-privacy-raw-ledger-rewire",
-  "currentHead": "ff1c30a9d1014f5a1a21fda5b499b20fcd1467c2",
+  "currentHead": "12d3215703bf7cc40b37b26feb1adbf47ef6daa6",
   "sourceInventoryReport": {
     "path": "agent/state/analytics-rewire-phase-one.generated.json",
-    "generatedAtUtc": "2026-05-13T18:47:06.673Z",
-    "currentHead": "ff1c30a9d1014f5a1a21fda5b499b20fcd1467c2",
+    "generatedAtUtc": "2026-05-13T19:49:10.800Z",
+    "currentHead": "12d3215703bf7cc40b37b26feb1adbf47ef6daa6",
     "laneCount": 25,
     "issueCount": 9,
     "orphanCandidateCount": 15

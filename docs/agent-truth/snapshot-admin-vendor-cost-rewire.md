@@ -109,6 +109,10 @@ Use `agent/state/snapshot-admin-vendor-cost-rewire.generated.json` to scope late
 4. add or verify source/confidence/freshness labels;
 5. lock fake-zero and vendor-boundary behavior with validators.
 
+## Phase 5 Runtime Collapse Note
+
+The first runtime collapse pass applies this contract to `/api/admin/analytics/realtime`: it reads `analytics_admin_metric_snapshots/live_pulse:24h` before `analytics_aggregate_stats/realtime_summary`, labels `realtime_summary` as fallback evidence, and no longer rebuilds compact display truth from GA realtime or raw analytics collections when no verified snapshot exists. Broader historical-route and recovery-surfacing consolidation remains future work.
+
 ## What This Report Must Not Be Used For
 
 This report must not be used to claim production data was recovered, to approve a production backfill, to prove provider smoke, to mark screenshots complete, to change Admin UI, to alter API behavior, to add Firebase reads/listeners, or to run BigQuery/provider work. It is a local static planning contract and validator input only.

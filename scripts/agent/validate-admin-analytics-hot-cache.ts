@@ -19,6 +19,12 @@ function requireIncludes(source: string, needle: string, label: string) {
   }
 }
 
+function requireNotIncludes(source: string, needle: string, label: string) {
+  if (source.includes(needle)) {
+    failures.push(`${label} must not include "${needle}".`);
+  }
+}
+
 const contract = readRequired("src/lib/analytics/admin-metric-snapshot.ts");
 const helper = readRequired("src/lib/server/admin-analytics-snapshots.ts");
 const refreshRoute = readRequired("src/app/api/admin/analytics/refresh/route.ts");
@@ -169,6 +175,16 @@ requireIncludes(realtimeRoute, "normalizeGuestAnalyticsSnapshotFromCache", "Real
 requireIncludes(realtimeRoute, "cacheState === \"stale\"", "Stale guest snapshot truth mapping");
 requireIncludes(realtimeRoute, "!guestSamplesAvailable", "Missing guest sample evidence guard");
 requireIncludes(realtimeRoute, "? \"unavailable\"", "Missing guest sample evidence must not be live zero");
+requireIncludes(realtimeRoute, "getLatestVerifiedSnapshot", "Realtime route canonical snapshot authority");
+requireIncludes(realtimeRoute, "ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_SOURCE_LABEL", "Realtime route canonical snapshot authority");
+requireIncludes(realtimeRoute, "ADMIN_ANALYTICS_REALTIME_LEGACY_SUMMARY_SOURCE_LABEL", "Realtime route legacy fallback label");
+requireIncludes(realtimeRoute, "raw analytics collections are debug-only", "Realtime route raw fallback demotion");
+requireIncludes(realtimeRoute, "analytics_admin_metric_snapshots/unavailable", "Realtime route missing snapshot unavailable state");
+requireNotIncludes(realtimeRoute, "cold_route_refresh", "Realtime route compact display fallback");
+requireNotIncludes(realtimeRoute, "ga_realtime", "Realtime route compact display fallback");
+requireNotIncludes(realtimeRoute, "first_party_realtime", "Realtime route compact display fallback");
+requireNotIncludes(realtimeRoute, "Falling back to cold reads", "Realtime route compact display fallback");
+requireNotIncludes(realtimeRoute, "rebuilding from GA4 and first-party sources", "Realtime route compact display fallback");
 
 if (failures.length > 0) {
   console.error("Admin analytics hot-cache validation failed:");
