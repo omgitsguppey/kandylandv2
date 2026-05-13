@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.21",
-  "betaReleaseCounter": 221,
+  "currentVersion": "1.2.22",
+  "betaReleaseCounter": 222,
   "channel": "beta",
-  "generatedAt": "2026-05-12T22:41:08.932Z",
-  "generatedAtUtc": "2026-05-12T22:41:08.932Z",
-  "lastCommitSha": "c2a5d322b8f3bb8bef95ed355ec701d3e36f90f3",
+  "generatedAt": "2026-05-13T00:43:40.633Z",
+  "generatedAtUtc": "2026-05-13T00:43:40.633Z",
+  "lastCommitSha": "a3618a39794e4fa3e98a4a5020980a9ac323171b",
   "notes": [
+    {
+      "version": "1.2.22",
+      "previousVersion": "1.2.21",
+      "betaReleaseCounter": 222,
+      "previousBetaReleaseCounter": 221,
+      "commitSha": "a3618a39794e4fa3e98a4a5020980a9ac323171b",
+      "commitTitle": "chore(analytics): add truth lane rewire inventory",
+      "commitCount": 2,
+      "commitShas": [
+        "cd63341797090ac4934d190a4694af7e2f2441c7",
+        "a3618a39794e4fa3e98a4a5020980a9ac323171b"
+      ],
+      "committedAt": "2026-05-13T00:42:13.000Z",
+      "generatedAt": "2026-05-13T00:43:40.627Z",
+      "committedAtUtc": "2026-05-13T00:42:13.000Z",
+      "generatedAtUtc": "2026-05-13T00:43:40.627Z",
+      "updatedAtUtc": "2026-05-13T00:43:40.627Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and reliability improvements for chat, Beta readiness, and behind-the-scenes analytics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved chat media sizing and message-thread scrolling.",
+        "Improved guest analytics and admin truth checks behind the scenes.",
+        "Updated Beta readiness evidence so stale or missing launch evidence stays visible."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 2 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "docs/agent-truth/analytics-rewire-phase-one.md",
+        "docs/agent-truth/analytics-truth-layer-v2.md",
+        "docs/agent-truth/public-beta-release-notes.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/analytics-rewire-phase-one.ts",
+        "scripts/agent/validate-analytics-rewire-phase-one.ts",
+        "scripts/agent/validate-public-beta-changelog.ts",
+        "scripts/agent/validate-release-notes-cutover.ts",
+        "scripts/release/update-public-changelog.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/analytics-rewire-phase-one.spec.ts"
+      ],
+      "sourceCommit": "a3618a39794e4fa3e98a4a5020980a9ac323171b"
+    },
     {
       "version": "1.2.21",
       "previousVersion": "1.2.20",
@@ -1486,43 +1540,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "wallet"
       ],
       "hiddenFromPublic": false
-    },
-    {
-      "version": "1.2.3",
-      "previousVersion": "1.2.2",
-      "betaReleaseCounter": 203,
-      "previousBetaReleaseCounter": 202,
-      "commitSha": "6225b319e620d1e4385016b0cfebf2e7b99b2546",
-      "commitTitle": "fix(admin): rebuild drop asset upload progress",
-      "commitCount": 3,
-      "commitShas": [
-        "6beb73fd97782acb9d51b79ddafc1898b14c2a19",
-        "623500cbab6d4f75c0dee0d8d93b4281fbdfe8b6",
-        "6225b319e620d1e4385016b0cfebf2e7b99b2546"
-      ],
-      "committedAt": "2026-05-07T21:23:52.000Z",
-      "generatedAt": "2026-05-07T22:13:11.677Z",
-      "committedAtUtc": "2026-05-07T21:23:52.000Z",
-      "generatedAtUtc": "2026-05-07T22:13:11.677Z",
-      "category": "Internal",
-      "title": "Internal admin reliability improvements",
-      "updatedAtUtc": "2026-05-07T22:13:11.677Z",
-      "summary": "Internal reliability updates for admin-only tooling with no public app change.",
-      "userFacingTitle": "Internal admin reliability improvements",
-      "surfaceCategory": "Admin tools",
-      "bullets": [
-        "Improved behind-the-scenes reliability for the current Beta build.",
-        "Reduced internal admin tooling churn from appearing as a public app update."
-      ],
-      "audience": "admins",
-      "technicalDetails": [
-        "Grouped 3 commits into one accepted beta release.",
-        "Includes internal reliability work that does not change the public product surface."
-      ],
-      "affectedSurfaces": [
-        "admin"
-      ],
-      "hiddenFromPublic": true
     }
   ]
 } satisfies PublicReleaseNotesDocument;
