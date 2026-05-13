@@ -1,13 +1,57 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.23",
-  "betaReleaseCounter": 223,
+  "currentVersion": "1.2.24",
+  "betaReleaseCounter": 224,
   "channel": "beta",
-  "generatedAt": "2026-05-13T01:26:38.340Z",
-  "generatedAtUtc": "2026-05-13T01:26:38.340Z",
-  "lastCommitSha": "5dfefd62b0c1f282015745cf0dd7ec08c0040c79",
+  "generatedAt": "2026-05-13T03:16:49.961Z",
+  "generatedAtUtc": "2026-05-13T03:16:49.961Z",
+  "lastCommitSha": "17aad2136900861a00072446be7a0ff12e890888",
   "notes": [
+    {
+      "version": "1.2.24",
+      "previousVersion": "1.2.23",
+      "betaReleaseCounter": 224,
+      "previousBetaReleaseCounter": 223,
+      "commitSha": "17aad2136900861a00072446be7a0ff12e890888",
+      "commitTitle": "chore(analytics): add lost data recovery dry run",
+      "commitCount": 1,
+      "commitShas": [
+        "17aad2136900861a00072446be7a0ff12e890888"
+      ],
+      "committedAt": "2026-05-13T03:15:13.000Z",
+      "generatedAt": "2026-05-13T03:16:49.956Z",
+      "committedAtUtc": "2026-05-13T03:15:13.000Z",
+      "generatedAtUtc": "2026-05-13T03:16:49.956Z",
+      "updatedAtUtc": "2026-05-13T03:16:49.956Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and general improvements.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Prepared a dry-run recovery map for analytics data that may exist but has not surfaced yet.",
+        "Added safer rules for which recovered data can appear in Admin Debug or Admin Analytics.",
+        "Kept recovery planning local-only, with no production reads or backfills."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "docs/agent-truth/identity-privacy-raw-ledger-rewire.md",
+        "docs/agent-truth/lost-data-recovery-dry-run.md",
+        "package.json",
+        "scripts/agent/lost-data-recovery-dry-run.ts",
+        "scripts/agent/validate-lost-data-recovery-dry-run.ts",
+        "tests/unit/lost-data-recovery-dry-run.spec.ts"
+      ],
+      "sourceCommit": "17aad2136900861a00072446be7a0ff12e890888"
+    },
     {
       "version": "1.2.23",
       "previousVersion": "1.2.22",
@@ -1492,48 +1536,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 0,
       "bumpType": "none",
       "sourceCommit": "359888d14fcc491412568517a61b2231729dd96c"
-    },
-    {
-      "version": "1.2.4",
-      "previousVersion": "1.2.4",
-      "betaReleaseCounter": 204,
-      "previousBetaReleaseCounter": 204,
-      "commitSha": "3b28ea3b63be3716bfaf4e6bf64575dd3f8177ae",
-      "commitTitle": "chore(release): accept beta release 1.2.4 [skip release-notes]",
-      "commitCount": 1,
-      "commitShas": [
-        "3b28ea3b63be3716bfaf4e6bf64575dd3f8177ae"
-      ],
-      "committedAt": "2026-05-08T02:14:59.000Z",
-      "generatedAt": "2026-05-08T07:36:18.181Z",
-      "committedAtUtc": "2026-05-08T02:14:59.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:18.181Z",
-      "updatedAtUtc": "2026-05-08T07:36:18.181Z",
-      "category": "Fixed",
-      "title": "Improved Beta updates and version visibility",
-      "summary": "Bug fixes and quality-of-life improvements for Beta updates and version visibility.",
-      "userFacingTitle": "Improved Beta updates and version visibility",
-      "surfaceCategory": "Navigation",
-      "bullets": [
-        "Improved how the Beta drawer opens the latest accepted updates.",
-        "Reduced stale or repeated release-note copy in the visible Beta feed.",
-        "Updated version visibility so the latest Beta notes stay easier to follow."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "navigation"
-      ],
-      "hiddenFromPublic": true,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts"
-      ],
-      "effectiveChangeCount": 4,
-      "excludedGeneratedChangeCount": 124,
-      "bumpType": "none",
-      "sourceCommit": "3b28ea3b63be3716bfaf4e6bf64575dd3f8177ae"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
