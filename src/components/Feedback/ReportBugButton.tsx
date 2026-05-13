@@ -306,6 +306,7 @@ export function ReportBugButton({
                   <button
                     type="button"
                     onClick={() => setShowAutoContext((current) => !current)}
+                    aria-expanded={showAutoContext}
                     className="flex w-full items-center justify-between gap-3 text-left"
                   >
                     <div>

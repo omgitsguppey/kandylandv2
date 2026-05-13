@@ -9,3 +9,6 @@
 ## 2024-03-31 - Added ARIA label to mobile profile avatar
 **Learning:** Found a profile avatar `<button>` in the Navbar that was visually an icon-only button on mobile devices (`md:hidden`). It used an image or initial for sighted users but lacked an accessible name for screen readers.
 **Action:** Always provide an `aria-label` to avatar or profile buttons when they function as icon-only interactive elements without visible text labels.
+## 2026-05-13 - Add aria-expanded to visibility toggle buttons
+**Learning:** Screen readers need explicit mapping between a toggle button and the panel it controls. When a button solely visually changes state to indicate an open/closed panel, `aria-expanded` properly announces the asynchronous loading or visibility toggling state.
+**Action:** Always map boolean visibility states (e.g., `expanded`, `isOpen`) directly to the `aria-expanded` attribute on their respective `<button>` toggle triggers.

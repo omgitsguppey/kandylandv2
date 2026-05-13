@@ -69,7 +69,7 @@ function SectionCard({
 }) {
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-5">
-      <button type="button" onClick={onToggle} className="flex w-full items-start justify-between gap-3 text-left">
+      <button type="button" onClick={onToggle} aria-expanded={expanded} className="flex w-full items-start justify-between gap-3 text-left">
         <div className="flex min-w-0 items-start gap-3">
           <div className={cn("mt-0.5 rounded-2xl border p-2", sectionTone(state))}>{icon}</div>
           <div className="min-w-0">
