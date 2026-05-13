@@ -1,11 +1,54 @@
 {
-  "currentVersion": "1.2.25",
-  "betaReleaseCounter": 225,
+  "currentVersion": "1.2.26",
+  "betaReleaseCounter": 226,
   "channel": "beta",
-  "generatedAt": "2026-05-13T18:52:48.913Z",
-  "generatedAtUtc": "2026-05-13T18:52:48.913Z",
-  "lastCommitSha": "4f730c3a001440d4f50075be1204b124ae63353e",
+  "generatedAt": "2026-05-13T19:55:34.184Z",
+  "generatedAtUtc": "2026-05-13T19:55:34.184Z",
+  "lastCommitSha": "e84b0c602becea2704f2acf5149f52a5a99a3e22",
   "notes": [
+    {
+      "version": "1.2.26",
+      "previousVersion": "1.2.25",
+      "betaReleaseCounter": 226,
+      "previousBetaReleaseCounter": 225,
+      "commitSha": "e84b0c602becea2704f2acf5149f52a5a99a3e22",
+      "commitTitle": "fix(analytics): collapse admin snapshot display authority",
+      "commitCount": 1,
+      "commitShas": [
+        "e84b0c602becea2704f2acf5149f52a5a99a3e22"
+      ],
+      "committedAt": "2026-05-13T19:54:18.000Z",
+      "generatedAt": "2026-05-13T19:55:34.179Z",
+      "committedAtUtc": "2026-05-13T19:54:18.000Z",
+      "generatedAtUtc": "2026-05-13T19:55:34.179Z",
+      "updatedAtUtc": "2026-05-13T19:55:34.179Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved Admin Analytics snapshot authority and source labeling behind the scenes.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved how Admin Analytics chooses verified snapshot data behind the scenes.",
+        "Reduced reliance on raw analytics logs as display truth.",
+        "Kept vendor analytics labeled as supporting evidence instead of product truth."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
+        "scripts/agent/validate-admin-analytics-hot-cache.ts",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts"
+      ],
+      "sourceCommit": "e84b0c602becea2704f2acf5149f52a5a99a3e22"
+    },
     {
       "version": "1.2.25",
       "previousVersion": "1.2.24",
@@ -1479,62 +1522,6 @@
       "excludedGeneratedChangeCount": 318,
       "bumpType": "none",
       "sourceCommit": "2e54dfa75999e5ca82299120ee948e2acd3a73e9"
-    },
-    {
-      "version": "1.3.0",
-      "previousVersion": "1.2.4",
-      "betaReleaseCounter": 205,
-      "previousBetaReleaseCounter": 204,
-      "commitSha": "dcb7ff006a735371ec6ca4f64f73e525570467c6",
-      "commitTitle": "refactor(analytics): cut over privacy and import truth",
-      "commitCount": 1,
-      "commitShas": [
-        "dcb7ff006a735371ec6ca4f64f73e525570467c6"
-      ],
-      "committedAt": "2026-05-08T02:42:32.000Z",
-      "generatedAt": "2026-05-08T07:36:18.618Z",
-      "committedAtUtc": "2026-05-08T02:42:32.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:18.618Z",
-      "updatedAtUtc": "2026-05-08T07:36:18.618Z",
-      "category": "Improved",
-      "title": "Improved privacy and security reliability",
-      "summary": "Bug fixes and quality-of-life improvements for privacy and security.",
-      "userFacingTitle": "Improved privacy and security reliability",
-      "surfaceCategory": "Privacy & security",
-      "bullets": [
-        "Improved privacy and security reliability behind the scenes.",
-        "Reduced confusing trust and permission states in key app flows."
-      ],
-      "audience": "users",
-      "affectedSurfaces": [
-        "account-onboarding",
-        "privacy-security"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/sql-mirror-status.generated.json",
-        "agent/state/sql-sync.payload.generated.json",
-        "dataconnect/schema/agent-context.gql",
-        "dataconnect/schema/structured_profiles.gql",
-        "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md",
-        "functions/src/analytics-bigquery-export.ts",
-        "functions/src/analytics-truth-cli.ts",
-        "functions/src/behavioral-intelligence-runtime.ts",
-        "package.json",
-        "scripts/agent/validate-privacy-import-export-cutover.ts",
-        "scripts/analytics/validate-canonical-import-export.ts",
-        "scripts/rebuild-analytics-truth.ts",
-        "scripts/rebuild-behavioral-intelligence.ts",
-        "src/lib/analytics/import-export-truth-policy.ts",
-        "src/lib/behavioral/privacy-aware-scoring.ts",
-        "src/lib/server/user-behavior-rollup.ts",
-        "src/lib/server/user-behavior-truth-rollup.ts",
-        "src/lib/telemetry.ts"
-      ],
-      "effectiveChangeCount": 375,
-      "excludedGeneratedChangeCount": 6,
-      "bumpType": "minor",
-      "sourceCommit": "dcb7ff006a735371ec6ca4f64f73e525570467c6"
     }
   ]
 }

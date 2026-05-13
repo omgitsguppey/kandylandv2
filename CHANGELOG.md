@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 21 public updates in pages of 5.
 
+## 1.2.26 - 2026-05-13
+- Bug fixes and general improvements
+- Improved how Admin Analytics chooses verified snapshot data behind the scenes.
+- Reduced reliance on raw analytics logs as display truth.
+- Kept vendor analytics labeled as supporting evidence instead of product truth.
+
 ## 1.2.25 - 2026-05-13
 - Bug fixes and general improvements
 - Added clearer rules for which analytics snapshots should power Admin Analytics.
@@ -108,8 +114,3 @@ Showing the last 21 public updates in pages of 5.
 - Improved chat and support reliability
 - Improved chat and support reliability so common actions feel more stable.
 - Reduced stuck or confusing states in active support and messaging flows.
-
-## 1.3.0 - 2026-05-08
-- Improved privacy and security reliability
-- Improved privacy and security reliability behind the scenes.
-- Reduced confusing trust and permission states in key app flows.
