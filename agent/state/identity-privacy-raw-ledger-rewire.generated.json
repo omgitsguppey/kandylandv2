@@ -1,0 +1,687 @@
+{
+  "generatedAtUtc": "2026-05-13T01:22:02.970Z",
+  "reportKey": "identity-privacy-raw-ledger-rewire",
+  "currentHead": "6205b1621874240d89747d2ba523a4a67cb10f49",
+  "sourceInventoryReport": {
+    "path": "agent/state/analytics-rewire-phase-one.generated.json",
+    "generatedAtUtc": "2026-05-13T01:14:13.212Z",
+    "currentHead": "6205b1621874240d89747d2ba523a4a67cb10f49",
+    "laneCount": 25,
+    "issueCount": 9,
+    "orphanCandidateCount": 15
+  },
+  "phasesCovered": [
+    "3. Identity Graph Consolidation",
+    "4. Privacy, Consent, Data Rights, And Privacy-Off Measurement Gate",
+    "5. Raw Ledger Consolidation",
+    "6. Legacy Recovery Mapper Eligibility Scaffolding"
+  ],
+  "summary": {
+    "identityLaneCount": 8,
+    "privacyRuleCount": 3,
+    "rawLedgerRuleCount": 4,
+    "recoveryEligibilityRuleCount": 12,
+    "issueCount": 2,
+    "p0Count": 0,
+    "p1Count": 0,
+    "consentOffModeIssues": 0,
+    "pseudonymousIdentityIssues": 0,
+    "rawLedgerContractIssues": 1,
+    "recoveryEligibilityIssues": 1
+  },
+  "identityLanes": [
+    {
+      "laneKey": "guest_identity_lane",
+      "actorType": "guest",
+      "canonicalKeys": [
+        "anonymousVisitorId"
+      ],
+      "fallbackKeys": [
+        "sessionId",
+        "kandy_session_id"
+      ],
+      "mustPreserveHistory": true,
+      "mustNotRewriteOldFacts": true,
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/client-session.ts"
+      ],
+      "consumerFiles": [
+        "docs/agent-truth/admin-analytics-audience-snapshot.md",
+        "docs/agent-truth/admin-analytics-guest-bounce-quality.md",
+        "docs/agent-truth/admin-analytics-launch-final.md",
+        "docs/agent-truth/admin-analytics-live-interaction-stream.md",
+        "docs/agent-truth/admin-analytics-live-pulse.md",
+        "docs/agent-truth/admin-analytics-overview.md"
+      ],
+      "recommendedOwner": "identity graph",
+      "recommendedAction": "Preserve actor lineage and use links/indexes without rewriting older facts."
+    },
+    {
+      "laneKey": "anonymous_visitor_identity_lane",
+      "actorType": "anonymous_visitor",
+      "canonicalKeys": [
+        "anonymousVisitorId"
+      ],
+      "fallbackKeys": [
+        "subject_*",
+        "anon_*"
+      ],
+      "mustPreserveHistory": true,
+      "mustNotRewriteOldFacts": true,
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "src/lib/client-session.ts"
+      ],
+      "consumerFiles": [
+        "docs/agent-truth/analytics-actor-taxonomy.md",
+        "docs/agent-truth/analytics-truth-layer-v2.md",
+        "docs/agent-truth/behavioral-experiments.md",
+        "docs/agent-truth/creator-experiences-copy.md",
+        "docs/agent-truth/creator-identity-markers.md",
+        "docs/agent-truth/creator-intake-flow.md"
+      ],
+      "recommendedOwner": "identity graph",
+      "recommendedAction": "Preserve actor lineage and use links/indexes without rewriting older facts."
+    },
+    {
+      "laneKey": "session_identity_lane",
+      "actorType": "session",
+      "canonicalKeys": [
+        "sessionId"
+      ],
+      "fallbackKeys": [
+        "kandy_session_id",
+        "serverSessionKey"
+      ],
+      "mustPreserveHistory": true,
+      "mustNotRewriteOldFacts": true,
+      "sourceFiles": [
+        "src/app/api/analytics/ingest/route.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/client-session.ts"
+      ],
+      "consumerFiles": [
+        "docs/agent-truth/admin-analytics-daily-task-pipeline.md",
+        "docs/agent-truth/admin-analytics-live-pulse.md",
+        "docs/agent-truth/analytics-actor-taxonomy.md",
+        "docs/agent-truth/analytics-legacy-recovery.md",
+        "docs/agent-truth/analytics-source-hierarchy.md",
+        "docs/agent-truth/analytics-truth-layer-v2.md"
+      ],
+      "recommendedOwner": "identity graph",
+      "recommendedAction": "Preserve actor lineage and use links/indexes without rewriting older facts."
+    },
+    {
+      "laneKey": "authenticated_user_identity_lane",
+      "actorType": "authenticated_user",
+      "canonicalKeys": [
+        "userId"
+      ],
+      "fallbackKeys": [
+        "identity_linked",
+        "analytics_identity_links"
+      ],
+      "mustPreserveHistory": true,
+      "mustNotRewriteOldFacts": true,
+      "sourceFiles": [
+        "src/app/api/analytics/ingest-identified/route.ts",
+        "src/lib/server/analytics-identity-linking.ts"
+      ],
+      "consumerFiles": [
+        "docs/agent-truth/admin-activity.md",
+        "docs/agent-truth/admin-analytics-daily-task-pipeline.md",
+        "docs/agent-truth/admin-creator-account-controls.md",
+        "docs/agent-truth/admin-debug-control-tower.md",
+        "docs/agent-truth/admin-recent-transactions.md",
+        "docs/agent-truth/admin-roster-decision-queue.md"
+      ],
+      "recommendedOwner": "identity graph",
+      "recommendedAction": "Preserve actor lineage and use links/indexes without rewriting older facts."
+    },
+    {
+      "laneKey": "creator_identity_lane",
+      "actorType": "creator",
+      "canonicalKeys": [
+        "creatorId"
+      ],
+      "fallbackKeys": [
+        "targetCreatorId"
+      ],
+      "mustPreserveHistory": false,
+      "mustNotRewriteOldFacts": true,
+      "sourceFiles": [
+        "src/lib/analytics/analytics-event-contract.ts",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "consumerFiles": [
+        "docs/agent-truth/accessibility-tap-targets.md",
+        "docs/agent-truth/admin-activity.md",
+        "docs/agent-truth/admin-analytics-launch-final.md",
+        "docs/agent-truth/admin-analytics-live-interaction-stream.md",
+        "docs/agent-truth/admin-analytics-live-pulse.md",
+        "docs/agent-truth/admin-cms-drop-workflow.md"
+      ],
+      "recommendedOwner": "identity graph",
+      "recommendedAction": "Keep creator operations separate from fan behavior unless the module explicitly labels a creator/fan comparison."
+    },
+    {
+      "laneKey": "admin_identity_lane",
+      "actorType": "admin",
+      "canonicalKeys": [
+        "adminId"
+      ],
+      "fallbackKeys": [
+        "actorAdminId",
+        "owner_admin"
+      ],
+      "mustPreserveHistory": false,
+      "mustNotRewriteOldFacts": true,
+      "sourceFiles": [
+        "src/app/api/admin/ai/drop-covers/feedback/route.ts",
+        "src/app/api/admin/ai/drop-covers/generate/route.ts",
+        "src/app/api/admin/ai/drop-covers/prompt-policy/route.ts",
+        "src/app/api/admin/ai/drop-covers/references/route.ts",
+        "src/app/api/admin/ai/drop-covers/review-gallery/route.ts",
+        "src/app/api/admin/ai/drop-covers/route.ts"
+      ],
+      "consumerFiles": [
+        "docs/agent-truth/accessibility-tap-targets.md",
+        "docs/agent-truth/admin-activity.md",
+        "docs/agent-truth/admin-ai-control-tower.md",
+        "docs/agent-truth/admin-analytics-audience-snapshot.md",
+        "docs/agent-truth/admin-analytics-auth-outcome-split.md",
+        "docs/agent-truth/admin-analytics-commerce-snapshot.md"
+      ],
+      "recommendedOwner": "admin/debug actor separation",
+      "recommendedAction": "Exclude from ordinary user/guest behavior by default and expose excluded lane counts in Debug."
+    },
+    {
+      "laneKey": "system_identity_lane",
+      "actorType": "system",
+      "canonicalKeys": [
+        "systemActor",
+        "source"
+      ],
+      "fallbackKeys": [
+        "system_job"
+      ],
+      "mustPreserveHistory": false,
+      "mustNotRewriteOldFacts": true,
+      "sourceFiles": [
+        "functions/src/analytics-runtime.ts",
+        "functions/src/orchestration-contract.ts",
+        "functions/src/orchestration-identity.ts",
+        "functions/src/orchestration-parity.ts",
+        "functions/src/orchestration-readiness.ts",
+        "functions/src/orchestration-routing.ts"
+      ],
+      "consumerFiles": [
+        "docs/agent-truth/admin-activity.md",
+        "docs/agent-truth/admin-analytics-auth-outcome-split.md",
+        "docs/agent-truth/admin-analytics-launch-final.md",
+        "docs/agent-truth/admin-analytics-live-interaction-stream.md",
+        "docs/agent-truth/admin-debug-control-tower.md",
+        "docs/agent-truth/admin-moderation-security-alerts.md"
+      ],
+      "recommendedOwner": "admin/debug actor separation",
+      "recommendedAction": "Exclude from ordinary user/guest behavior by default and expose excluded lane counts in Debug."
+    },
+    {
+      "laneKey": "unknown_identity_lane",
+      "actorType": "unknown",
+      "canonicalKeys": [
+        "actorType=unknown"
+      ],
+      "fallbackKeys": [
+        "unclassified source evidence"
+      ],
+      "mustPreserveHistory": false,
+      "mustNotRewriteOldFacts": true,
+      "sourceFiles": [
+        "src/lib/analytics/analytics-event-contract.ts"
+      ],
+      "consumerFiles": [
+        "docs/agent-truth/admin-activity.md",
+        "docs/agent-truth/admin-analytics-audience-snapshot.md",
+        "docs/agent-truth/admin-analytics-guest-bounce-quality.md",
+        "docs/agent-truth/admin-analytics-live-interaction-stream.md",
+        "docs/agent-truth/admin-creator-account-controls.md",
+        "docs/agent-truth/admin-data-validation.md"
+      ],
+      "recommendedOwner": "identity graph",
+      "recommendedAction": "Preserve actor lineage and use links/indexes without rewriting older facts."
+    }
+  ],
+  "privacyModes": [
+    {
+      "modeKey": "required_operational",
+      "allowedWhenPrivacyOff": true,
+      "allowedDestinations": [
+        "first-party operational ledger",
+        "security/debug evidence",
+        "support recovery records"
+      ],
+      "forbiddenDestinations": [
+        "ads personalization",
+        "cross-site marketing",
+        "session replay for behavior profiling"
+      ],
+      "examples": [
+        "payment/refill integrity",
+        "unlock/entitlement integrity",
+        "abuse/security/rate limit",
+        "error diagnostics",
+        "support recovery",
+        "consent records"
+      ],
+      "requiredLabels": [
+        "required_operational",
+        "purpose-labeled",
+        "minimized",
+        "retention-limited"
+      ],
+      "retentionExpectation": "Retention-limited to service, security, support, or legal necessity.",
+      "notes": [
+        "Privacy-off does not mean the product records no operational facts."
+      ]
+    },
+    {
+      "modeKey": "limited_consent_off_measurement",
+      "allowedWhenPrivacyOff": true,
+      "allowedDestinations": [
+        "first-party/publisher measurement",
+        "aggregate technical performance snapshots"
+      ],
+      "forbiddenDestinations": [
+        "cross-site tracking",
+        "ads or marketing personalization",
+        "identity-tied session replay",
+        "vendor behavioral profiling unless explicitly configured and labeled for limited measurement"
+      ],
+      "examples": [
+        "aggregate performance",
+        "navigation issue detection",
+        "capacity/technical optimization"
+      ],
+      "requiredLabels": [
+        "limited_measurement",
+        "aggregate_or_minimized",
+        "no_ads",
+        "no_cross_site_tracking"
+      ],
+      "retentionExpectation": "Short, aggregate, or minimized retention aligned to technical measurement.",
+      "notes": [
+        "Allowed only when configured and documented to meet applicable consent-exemption rules."
+      ]
+    },
+    {
+      "modeKey": "optional_analytics_personalization",
+      "allowedWhenPrivacyOff": false,
+      "allowedDestinations": [
+        "consented analytics",
+        "consented personalization",
+        "consented vendor measurement"
+      ],
+      "forbiddenDestinations": [
+        "privacy-off users",
+        "denied-consent identity graphs",
+        "unlabeled vendor behavioral exports"
+      ],
+      "examples": [
+        "optional GA4/PostHog analytics",
+        "session replay",
+        "personalized behavioral tracking",
+        "marketing-style analytics"
+      ],
+      "requiredLabels": [
+        "consent_required",
+        "optional",
+        "personalization_or_vendor"
+      ],
+      "retentionExpectation": "Only after consent/opt-in and according to privacy policy.",
+      "notes": [
+        "Privacy-off must block optional analytics and personalization."
+      ]
+    }
+  ],
+  "rawLedgerRules": [
+    {
+      "ruleKey": "canonical-event-shape",
+      "appliesTo": [
+        "analytics_event_facts",
+        "behavioral_timeline_facts",
+        "recovered legacy candidates"
+      ],
+      "requiredFields": [
+        "eventId",
+        "eventName",
+        "occurredAt",
+        "receivedAt",
+        "actorType",
+        "source",
+        "consentState",
+        "dedupeKey"
+      ],
+      "recommendedFields": [
+        "eventVersion",
+        "schemaVersion",
+        "sourceConfidence",
+        "sourceReliability"
+      ],
+      "forbiddenConfusions": [
+        "raw event count as unique user count",
+        "raw event ratio as ordered funnel",
+        "telemetry event as entitlement truth"
+      ],
+      "validators": [
+        "npm run check:analytics-event-contract",
+        "npm run check:event-fact-truth"
+      ],
+      "recommendedAction": "Keep raw facts as product behavior inputs and require snapshots/indexes for display metrics."
+    },
+    {
+      "ruleKey": "actor-target-separation",
+      "appliesTo": [
+        "analytics_event_facts",
+        "identity_linked",
+        "creator/user/admin events"
+      ],
+      "requiredFields": [
+        "actorType",
+        "userId",
+        "creatorId",
+        "adminId",
+        "target/object fields"
+      ],
+      "recommendedFields": [
+        "targetUserId",
+        "targetCreatorId",
+        "objectType",
+        "objectId",
+        "performedAs"
+      ],
+      "forbiddenConfusions": [
+        "target_creator_id forcing actorType=creator",
+        "admin projection as user behavior",
+        "creator operations as fan behavior"
+      ],
+      "validators": [
+        "npm run check:analytics-event-contract",
+        "npm run check:admin-projection-analytics-exclusion"
+      ],
+      "recommendedAction": "Preserve actor lane first, then attach target/object context."
+    },
+    {
+      "ruleKey": "identity-lineage-preservation",
+      "appliesTo": [
+        "analytics_identity_links",
+        "identity_linked",
+        "guest_tracking_indexes",
+        "user_journey_indexes"
+      ],
+      "requiredFields": [
+        "anonymousVisitorId",
+        "sessionId",
+        "userId",
+        "occurredAt",
+        "source",
+        "consentState"
+      ],
+      "recommendedFields": [
+        "linkMethod",
+        "eligiblePastSessionIds",
+        "legacyConfidence",
+        "mappingWarnings"
+      ],
+      "forbiddenConfusions": [
+        "rewriting old guest facts into user facts",
+        "reviving denied-consent history",
+        "dropping original guest/session lineage"
+      ],
+      "validators": [
+        "npm run check:guest-user-analytics",
+        "npm run check:identity-link-continuity"
+      ],
+      "recommendedAction": "Use links as relationship evidence and keep old facts in their original actor lane."
+    },
+    {
+      "ruleKey": "legacy-recovery-marking",
+      "appliesTo": [
+        "analytics_legacy_recovered_events",
+        "legacy field mappers",
+        "dry-run recovery snapshots"
+      ],
+      "requiredFields": [
+        "legacySource",
+        "legacyConfidence",
+        "mappingWarnings",
+        "source",
+        "consentState"
+      ],
+      "recommendedFields": [
+        "legacyId",
+        "selectedRange",
+        "sourcePath",
+        "sourceConfidence"
+      ],
+      "forbiddenConfusions": [
+        "legacy-derived record as current server-confirmed event",
+        "silent overwrite of stronger canonical facts"
+      ],
+      "validators": [
+        "npm run check:analytics-legacy-recovery",
+        "npm run check:analytics-rewire-phase-one"
+      ],
+      "recommendedAction": "Keep legacy recovery as dry-run/debug evidence until a reviewed backfill plan exists."
+    }
+  ],
+  "recoveryEligibility": [
+    {
+      "laneKey": "analytics_identity_links",
+      "sourcePath": "analytics_identity_links",
+      "identityKeys": [
+        "anonymousVisitorId",
+        "sessionId",
+        "userId"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "recommendedAction": "Use in Debug first to prove guest-to-user lineage before Admin Analytics journey recovery.",
+      "confidence": "high"
+    },
+    {
+      "laneKey": "guest_tracking_indexes",
+      "sourcePath": "guest_tracking_indexes",
+      "identityKeys": [
+        "anonymousVisitorId",
+        "sessionId"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "recommendedAction": "Use as guest continuity read model after consent-aware lineage checks.",
+      "confidence": "high"
+    },
+    {
+      "laneKey": "user_journey_indexes",
+      "sourcePath": "user_journey_indexes",
+      "identityKeys": [
+        "userId",
+        "anonymousVisitorId",
+        "sessionId"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "recommendedAction": "Keep Debug-only until journey metrics prove actor/consent-safe derivation.",
+      "confidence": "high"
+    },
+    {
+      "laneKey": "behavioral_timeline_facts",
+      "sourcePath": "behavioral_timeline_facts",
+      "identityKeys": [
+        "actorType",
+        "anonymousVisitorId",
+        "sessionId",
+        "userId"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "recommendedAction": "Use as raw behavior spine only through indexes/snapshots with consent labels.",
+      "confidence": "high"
+    },
+    {
+      "laneKey": "analytics_watch_sessions",
+      "sourcePath": "analytics_watch_sessions",
+      "identityKeys": [
+        "sessionId",
+        "anonymousVisitorId",
+        "userId"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": true,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "recommendedAction": "Surface through watch-session rollups, not page-duration fallbacks.",
+      "confidence": "medium"
+    },
+    {
+      "laneKey": "notification_facts",
+      "sourcePath": "notification records / user_notification_indexes",
+      "identityKeys": [
+        "userId",
+        "sessionId"
+      ],
+      "consentRequirement": "required_operational_only",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": false,
+      "recommendedAction": "Keep delivery/support diagnostics Debug-first and avoid optional engagement profiling when privacy-off.",
+      "confidence": "medium"
+    },
+    {
+      "laneKey": "support_recovery_facts",
+      "sourcePath": "support / platform_feedback / recovery records",
+      "identityKeys": [
+        "userId",
+        "sessionId",
+        "supportThreadId"
+      ],
+      "consentRequirement": "required_operational_only",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": false,
+      "recommendedAction": "Use for support recovery and Debug evidence, not behavioral personalization.",
+      "confidence": "medium"
+    },
+    {
+      "laneKey": "purchase_facts",
+      "sourcePath": "transactions / analytics_commerce_rollup",
+      "identityKeys": [
+        "userId",
+        "transactionId"
+      ],
+      "consentRequirement": "required_operational_only",
+      "canSurfaceInAdminAnalytics": true,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "recommendedAction": "Commerce truth can surface as operational purchase metrics; GA ecommerce remains evidence only.",
+      "confidence": "high"
+    },
+    {
+      "laneKey": "unlock_facts",
+      "sourcePath": "unlock / entitlement / GumDrop ledger facts",
+      "identityKeys": [
+        "userId",
+        "dropId",
+        "entitlementId"
+      ],
+      "consentRequirement": "required_operational_only",
+      "canSurfaceInAdminAnalytics": true,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": true,
+      "recommendedAction": "Unlock truth can surface through entitlement-backed snapshots only.",
+      "confidence": "high"
+    },
+    {
+      "laneKey": "analytics_legacy_recovered_events",
+      "sourcePath": "analytics_legacy_recovered_events",
+      "identityKeys": [
+        "legacyId",
+        "anonymousVisitorId",
+        "sessionId",
+        "userId"
+      ],
+      "consentRequirement": "needs_review",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": false,
+      "recommendedAction": "Keep dry-run/debug only until consent and mapping confidence are reviewed.",
+      "confidence": "high"
+    },
+    {
+      "laneKey": "analytics_pipeline_daily",
+      "sourcePath": "analytics_pipeline_daily",
+      "identityKeys": [
+        "date",
+        "pipelineKey"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": false,
+      "recommendedAction": "Use as pipeline health evidence, not user behavior truth.",
+      "confidence": "medium"
+    },
+    {
+      "laneKey": "analytics_export_status",
+      "sourcePath": "analytics_export_status",
+      "identityKeys": [
+        "exportKey",
+        "date"
+      ],
+      "consentRequirement": "eligible_if_minimized",
+      "canSurfaceInAdminAnalytics": false,
+      "canSurfaceInAdminDebug": true,
+      "canBackfillLater": false,
+      "recommendedAction": "Use as BigQuery/export health evidence only.",
+      "confidence": "medium"
+    }
+  ],
+  "issues": [
+    {
+      "issueKey": "recovery-eligibility-debug-first",
+      "severity": "P2",
+      "title": "Recovery candidates must stay Debug-first until consent and identity rules are proven",
+      "description": "Prompt 2 defines eligibility only. No production backfill or Admin Analytics surfacing is approved yet.",
+      "files": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "docs/agent-truth/identity-privacy-raw-ledger-rewire.md"
+      ],
+      "blocksRecovery": false,
+      "blocksPhaseOneFreeze": false,
+      "recommendedAction": "Use a dry-run recovery inventory before any materialized recovery snapshot."
+    },
+    {
+      "issueKey": "raw-ledger-contract-foundation-only",
+      "severity": "P2",
+      "title": "Raw ledger contract is a foundation, not a runtime pass/fail gate yet",
+      "description": "The repo may not have every recommended raw ledger field on every writer. Later runtime phases must fix gaps deliberately.",
+      "files": [
+        "src/lib/analytics/analytics-event-contract.ts",
+        "docs/agent-truth/identity-privacy-raw-ledger-rewire.md"
+      ],
+      "blocksRecovery": false,
+      "blocksPhaseOneFreeze": false,
+      "recommendedAction": "Record gaps in validators first, then patch emitters/routes in narrow runtime phases."
+    }
+  ]
+}

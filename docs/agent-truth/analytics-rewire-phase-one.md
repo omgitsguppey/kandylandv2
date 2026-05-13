@@ -100,6 +100,10 @@ Future phases should use the report to:
 - add validator locks before runtime consolidation
 - keep release/version evidence current after accepted patches
 
+## Next Phase Handoff
+
+Prompt 2 is `docs/agent-truth/identity-privacy-raw-ledger-rewire.md` and `agent/state/identity-privacy-raw-ledger-rewire.generated.json`. It uses this Phase One inventory as input, then adds identity actor lanes, privacy-off measurement modes, raw ledger field expectations, and consent-aware recovery eligibility before any runtime recovery or consolidation work begins.
+
 ## What It Must Not Do
 
 The report must not:
@@ -113,4 +117,3 @@ The report must not:
 - rewrite event emitters
 - change Admin Analytics runtime behavior
 - override higher-authority doctrine or verified runtime code
-
