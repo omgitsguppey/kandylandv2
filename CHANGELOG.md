@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 22 public updates in pages of 5.
+Showing the last 23 public updates in pages of 5.
+
+## 1.2.28 - 2026-05-13
+- Bug fixes and general improvements
+- Added clearer Debug evidence for analytics recovery lanes.
+- Kept recovered analytics data labeled as review-only before any Admin Analytics promotion.
+- Improved internal visibility into source, confidence, and recovery blockers.
 
 ## 1.2.27 - 2026-05-13
 - Bug fixes and general improvements

@@ -1,13 +1,63 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.27",
-  "betaReleaseCounter": 227,
+  "currentVersion": "1.2.28",
+  "betaReleaseCounter": 228,
   "channel": "beta",
-  "generatedAt": "2026-05-13T21:10:13.286Z",
-  "generatedAtUtc": "2026-05-13T21:10:13.286Z",
-  "lastCommitSha": "e5c7da278b19e5e7a48285ea1aebffe7ac562934",
+  "generatedAt": "2026-05-13T21:49:36.503Z",
+  "generatedAtUtc": "2026-05-13T21:49:36.503Z",
+  "lastCommitSha": "ea13680adb018ac9c94db8c5b5be18ed7bdd9112",
   "notes": [
+    {
+      "version": "1.2.28",
+      "previousVersion": "1.2.27",
+      "betaReleaseCounter": 228,
+      "previousBetaReleaseCounter": 227,
+      "commitSha": "ea13680adb018ac9c94db8c5b5be18ed7bdd9112",
+      "commitTitle": "fix(analytics): surface recovery evidence in admin debug",
+      "commitCount": 1,
+      "commitShas": [
+        "ea13680adb018ac9c94db8c5b5be18ed7bdd9112"
+      ],
+      "committedAt": "2026-05-13T21:48:45.000Z",
+      "generatedAt": "2026-05-13T21:49:36.500Z",
+      "committedAtUtc": "2026-05-13T21:48:45.000Z",
+      "generatedAtUtc": "2026-05-13T21:49:36.500Z",
+      "updatedAtUtc": "2026-05-13T21:49:36.500Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added clearer Debug evidence for analytics recovery lanes.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added clearer Debug evidence for analytics recovery lanes.",
+        "Kept recovered analytics data labeled as review-only before any Admin Analytics promotion.",
+        "Improved internal visibility into source, confidence, and recovery blockers."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
+        "docs/agent-truth/lost-data-recovery-dry-run.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
+        "package.json",
+        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "scripts/agent/validate-admin-truth.ts",
+        "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx",
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/app/api/admin/debug/route.ts",
+        "tests/unit/admin-debug-control-tower.spec.ts",
+        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
+      ],
+      "sourceCommit": "ea13680adb018ac9c94db8c5b5be18ed7bdd9112"
+    },
     {
       "version": "1.2.27",
       "previousVersion": "1.2.26",
@@ -1487,46 +1537,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 103,
       "bumpType": "minor",
       "sourceCommit": "75fd7d6e5b2d6cdcdd03a035aa8945311752b4f3"
-    },
-    {
-      "version": "1.3.0",
-      "previousVersion": "1.3.0",
-      "betaReleaseCounter": 205,
-      "previousBetaReleaseCounter": 205,
-      "commitSha": "479c9466093e85346f67914e4bcbdff395ef5126",
-      "commitTitle": "chore(phase-one): add lock gate",
-      "commitCount": 1,
-      "commitShas": [
-        "479c9466093e85346f67914e4bcbdff395ef5126"
-      ],
-      "committedAt": "2026-05-08T03:20:58.000Z",
-      "generatedAt": "2026-05-08T07:36:19.061Z",
-      "committedAtUtc": "2026-05-08T03:20:58.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:19.061Z",
-      "updatedAtUtc": "2026-05-08T07:36:19.061Z",
-      "category": "Internal Reliability",
-      "title": "Internal reliability improvements",
-      "summary": "Internal reliability updates with no user-facing product changes.",
-      "userFacingTitle": "Internal reliability improvements",
-      "surfaceCategory": "Internal reliability",
-      "bullets": [
-        "Improved behind-the-scenes reliability."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": true,
-      "changedFiles": [
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/phase-one-lock.generated.json",
-        "docs/agent-truth/phase-one-lock.md",
-        "scripts/agent/validate-phase-one-lock.ts"
-      ],
-      "effectiveChangeCount": 993,
-      "excludedGeneratedChangeCount": 153,
-      "bumpType": "none",
-      "sourceCommit": "479c9466093e85346f67914e4bcbdff395ef5126"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
