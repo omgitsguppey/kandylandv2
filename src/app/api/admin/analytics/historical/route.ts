@@ -34,6 +34,16 @@ import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
 import { buildHistoricalAnalyticsContext } from "@/lib/server/admin-analytics-context";
 import { getDropViewCount } from "@/lib/drop-engagement";
 import {
+    type AdminMetricSnapshot,
+    type AdminMetricSnapshotRange,
+    normalizeAdminMetricSnapshotRange,
+    resolveAdminMetricSnapshotSourceMode,
+} from "@/lib/analytics/admin-metric-snapshot";
+import {
+    type AdminAnalyticsSnapshotModuleKey,
+} from "@/lib/server/admin-analytics-materializers";
+import { getLatestVerifiedSnapshot } from "@/lib/server/admin-analytics-snapshots";
+import {
     AUTHENTICATED_PAGE_VIEW_EVENT_NAMES,
     RegistrationFactRecord,
     TaskLifecycleLog,
@@ -64,6 +74,43 @@ const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
 const ADMIN_ANALYTICS_HISTORICAL_RESPONSE_CACHE_TTL_MS = 45_000;
 const ADMIN_ANALYTICS_HISTORICAL_RESPONSE_STALE_TTL_MS = 5 * 60_000;
+const ADMIN_ANALYTICS_HISTORICAL_CANONICAL_SNAPSHOT_SOURCE = "analytics_admin_metric_snapshots";
+const ADMIN_ANALYTICS_HISTORICAL_RAW_DEBUG_SOURCE = "admin_debug_raw_evidence_only";
+const ADMIN_ANALYTICS_HISTORICAL_UNAVAILABLE_SOURCE = "analytics_admin_metric_snapshots/unavailable";
+
+const HISTORICAL_SECTION_TO_SNAPSHOT_MODULE: Record<string, AdminAnalyticsSnapshotModuleKey> = {
+    stationSnapshot: "platform_pulse",
+    livePulse: "live_pulse",
+    journeyFunnel: "journey_funnel",
+    authOutcomeSplit: "auth_outcomes",
+    onboardingVelocity: "onboarding_performance",
+    onboardingStepFlow: "onboarding_performance",
+    eventMix: "event_mix",
+    liveInteractionStream: "live_interaction_stream",
+    audienceSnapshot: "audience_snapshot",
+    returnCadence: "audience_snapshot",
+    navigationDestinations: "audience_snapshot",
+    deviceMix: "audience_snapshot",
+    topPaths: "audience_snapshot",
+    regions: "audience_snapshot",
+    commerceSnapshot: "commerce_snapshot",
+    packagePerformance: "commerce_snapshot",
+    contentConversion: "commerce_snapshot",
+    notificationFunnel: "notification_funnel",
+    dailyTaskPipeline: "daily_task_pipeline",
+} satisfies Record<string, AdminAnalyticsSnapshotModuleKey>;
+
+const HISTORICAL_DEBUG_EVIDENCE_SECTIONS = new Set<string>([
+    "dataValidation",
+    "serverTelemetryHealth",
+    "coverageEngine",
+]);
+
+type HistoricalSnapshotAuthorityTarget = {
+    moduleKey: AdminAnalyticsSnapshotModuleKey;
+    rangeKey: AdminMetricSnapshotRange;
+    section: string | null;
+};
 
 function toTimestampNumber(value: unknown) {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -338,6 +385,270 @@ function validateHistoricalAnalyticsCachePayload(value: HistoricalAnalyticsRespo
     return issues;
 }
 
+function resolveHistoricalSnapshotAuthorityTarget(
+    section: string | null,
+    range: string | null,
+): HistoricalSnapshotAuthorityTarget | null {
+    if (section && HISTORICAL_DEBUG_EVIDENCE_SECTIONS.has(section)) {
+        return null;
+    }
+
+    const moduleKey = section
+        ? HISTORICAL_SECTION_TO_SNAPSHOT_MODULE[section]
+        : "platform_pulse";
+    if (!moduleKey) {
+        return null;
+    }
+
+    return {
+        moduleKey,
+        rangeKey: normalizeAdminMetricSnapshotRange(range),
+        section,
+    };
+}
+
+function readSnapshotNumber(
+    snapshot: AdminMetricSnapshot,
+    keys: string[],
+) {
+    for (const key of keys) {
+        const metric = snapshot.values[key];
+        const value = metric?.value;
+        if (metric?.available && typeof value === "number" && Number.isFinite(value)) {
+            return value;
+        }
+    }
+
+    return null;
+}
+
+function buildSnapshotTotals(snapshot: AdminMetricSnapshot): HistoricalAnalyticsResponse["totals"] | null {
+    const users = readSnapshotNumber(snapshot, ["users", "totalUsers", "activeUsers", "classifiedUsers"]);
+    const views = readSnapshotNumber(snapshot, ["views", "totalViews", "pageViews", "identifiedViews"]);
+    const sessions = readSnapshotNumber(snapshot, ["sessions", "totalSessions", "sessionCount"]);
+    const newUsers = readSnapshotNumber(snapshot, ["newUsers", "newUserCount"]);
+
+    if (users === null || views === null || sessions === null || newUsers === null) {
+        return null;
+    }
+
+    return {
+        users,
+        views,
+        sessions,
+        newUsers,
+        avgSessionDuration: readSnapshotNumber(snapshot, ["avgSessionDuration", "averageSessionDuration", "avgSessionSeconds"]) ?? 0,
+        engagementRate: readSnapshotNumber(snapshot, ["engagementRate", "engagedSessionRate"]) ?? 0,
+    };
+}
+
+function buildSnapshotDevices(snapshot: AdminMetricSnapshot): HistoricalAnalyticsResponse["devices"] | null {
+    const rows = [
+        ["mobile", readSnapshotNumber(snapshot, ["mobileUsers", "mobileUserCount"])],
+        ["desktop", readSnapshotNumber(snapshot, ["desktopUsers", "desktopUserCount"])],
+        ["tablet", readSnapshotNumber(snapshot, ["tabletUsers", "tabletUserCount"])],
+        ["unknown", readSnapshotNumber(snapshot, ["unknownDeviceUsers", "unclassifiedUsers"])],
+    ]
+        .filter((entry): entry is [string, number] => entry[1] !== null)
+        .map(([device, users]) => ({
+            device,
+            users,
+            sessions: 0,
+            engagementRate: 0,
+        }));
+
+    return rows.length > 0 ? rows : null;
+}
+
+function buildSnapshotCommerce(snapshot: AdminMetricSnapshot): HistoricalAnalyticsResponse["commerce"] | null {
+    const revenueUsd = readSnapshotNumber(snapshot, ["revenueUsd", "revenue", "totalRevenueUsd", "grossRevenueUsd"]);
+    const gdSpent = readSnapshotNumber(snapshot, ["gdSpent", "gumDropsSpent", "paidGdSpent"]);
+    if (revenueUsd === null || gdSpent === null) {
+        return null;
+    }
+
+    return {
+        revenueUsd,
+        gdSpent,
+        feed: [],
+    };
+}
+
+function buildSnapshotFunnel(snapshot: AdminMetricSnapshot): HistoricalAnalyticsResponse["funnel"] | null {
+    const purchases = readSnapshotNumber(snapshot, ["purchases", "purchaseCount", "purchaseCompletions", "completedPurchases"]);
+    const authModalOpens = readSnapshotNumber(snapshot, ["authModalOpens"]);
+    const authSignIns = readSnapshotNumber(snapshot, ["authSignIns", "signIns"]);
+    const authSignUps = readSnapshotNumber(snapshot, ["authSignUps", "signUps"]);
+
+    if (purchases === null && authModalOpens === null && authSignIns === null && authSignUps === null) {
+        return null;
+    }
+
+    return {
+        authModalOpens: authModalOpens ?? 0,
+        authSignIns: authSignIns ?? 0,
+        authSignUps: authSignUps ?? 0,
+        previewOpens: readSnapshotNumber(snapshot, ["previewOpens"]) ?? 0,
+        viewerOpens: readSnapshotNumber(snapshot, ["viewerOpens"]) ?? 0,
+        assetSwitches: readSnapshotNumber(snapshot, ["assetSwitches"]) ?? 0,
+        unlocks: readSnapshotNumber(snapshot, ["unlocks", "unlockCount"]) ?? 0,
+        shares: readSnapshotNumber(snapshot, ["shares", "shareCount"]) ?? 0,
+        walletOpens: readSnapshotNumber(snapshot, ["walletOpens"]) ?? 0,
+        checkoutStarts: readSnapshotNumber(snapshot, ["checkoutStarts"]) ?? 0,
+        purchases: purchases ?? 0,
+        checkIns: readSnapshotNumber(snapshot, ["checkIns"]) ?? 0,
+        experienceViews: readSnapshotNumber(snapshot, ["experienceViews"]) ?? 0,
+    };
+}
+
+function snapshotHasDisplayEvidence(payload: Partial<HistoricalAnalyticsResponse>) {
+    return Boolean(
+        payload.totals
+        || payload.commerce
+        || payload.funnel
+        || (payload.devices && payload.devices.length > 0)
+    );
+}
+
+function buildHistoricalSnapshotAuthorityPayload(
+    snapshot: AdminMetricSnapshot,
+    target: HistoricalSnapshotAuthorityTarget,
+): HistoricalAnalyticsResponse | null {
+    const sourceMode = resolveAdminMetricSnapshotSourceMode(snapshot);
+    const generatedAtMs = Date.parse(snapshot.generatedAt);
+    const freshnessTimestamp = Date.parse(snapshot.lastVerifiedAt ?? snapshot.generatedAt);
+    const payload: Partial<HistoricalAnalyticsResponse> = {
+        totals: ["platform_pulse", "audience_snapshot"].includes(target.moduleKey)
+            ? buildSnapshotTotals(snapshot) ?? undefined
+            : undefined,
+        devices: target.moduleKey === "audience_snapshot"
+            ? buildSnapshotDevices(snapshot) ?? undefined
+            : undefined,
+        commerce: target.moduleKey === "commerce_snapshot"
+            ? buildSnapshotCommerce(snapshot) ?? undefined
+            : undefined,
+        funnel: ["commerce_snapshot", "journey_funnel", "auth_outcomes", "onboarding_performance", "platform_pulse"].includes(target.moduleKey)
+            ? buildSnapshotFunnel(snapshot) ?? undefined
+            : undefined,
+    };
+
+    if (!snapshotHasDisplayEvidence(payload)) {
+        return null;
+    }
+
+    const stale = sourceMode === "stale_cache";
+    const sourceLabel = `${ADMIN_ANALYTICS_HISTORICAL_CANONICAL_SNAPSHOT_SOURCE}/${target.moduleKey}:${target.rangeKey}`;
+    const issues = [
+        stale
+            ? "Serving stale canonical admin metric snapshot; raw analytics collections remain debug-only."
+            : null,
+        ...snapshot.warnings.map((warning) => warning.message),
+    ].filter((issue): issue is string => Boolean(issue));
+
+    return {
+        success: true,
+        generatedAtMs: Number.isFinite(generatedAtMs) ? generatedAtMs : Date.now(),
+        cacheState: stale ? "stale" : "fresh",
+        cacheAgeMs: Number.isFinite(freshnessTimestamp) ? Math.max(0, Date.now() - freshnessTimestamp) : undefined,
+        cacheSourceLabel: sourceLabel,
+        staleButVerified: stale,
+        cacheValidationIssues: [],
+        cacheRevalidating: false,
+        retainedBeyondStaleTtl: false,
+        issues,
+        verification: buildServerAdminModuleVerification({
+            module: "admin_analytics_historical",
+            canonicalSource: ADMIN_ANALYTICS_HISTORICAL_CANONICAL_SNAPSHOT_SOURCE,
+            fallbackSource: null,
+            freshnessTimestamp: Number.isFinite(freshnessTimestamp) ? freshnessTimestamp : null,
+            status: stale ? "stale" : "cached",
+            degradedReason: stale ? "Canonical admin metric snapshot is stale." : null,
+            countComposition: {
+                snapshotAvailable: 1,
+                rawDisplayFallbackUsed: 0,
+                vendorOverrideUsed: 0,
+            },
+        }),
+        ...payload,
+    } satisfies HistoricalAnalyticsResponse;
+}
+
+function buildHistoricalSnapshotUnavailablePayload(
+    target: HistoricalSnapshotAuthorityTarget,
+    reason: string,
+): HistoricalAnalyticsResponse {
+    return {
+        success: false,
+        generatedAtMs: Date.now(),
+        cacheState: "miss",
+        cacheSourceLabel: ADMIN_ANALYTICS_HISTORICAL_UNAVAILABLE_SOURCE,
+        staleButVerified: false,
+        cacheValidationIssues: [reason],
+        cacheRevalidating: false,
+        retainedBeyondStaleTtl: false,
+        error: reason,
+        issues: [
+            reason,
+            "Raw analytics collections are debug-only and were not used as compact historical display fallback.",
+        ],
+        verification: buildServerAdminModuleVerification({
+            module: "admin_analytics_historical",
+            canonicalSource: ADMIN_ANALYTICS_HISTORICAL_CANONICAL_SNAPSHOT_SOURCE,
+            fallbackSource: ADMIN_ANALYTICS_HISTORICAL_RAW_DEBUG_SOURCE,
+            freshnessTimestamp: null,
+            status: "unavailable",
+            degradedReason: reason,
+            countComposition: {
+                snapshotAvailable: 0,
+                rawDisplayFallbackUsed: 0,
+                vendorOverrideUsed: 0,
+            },
+            sources: [
+                {
+                    key: `${target.moduleKey}:${target.rangeKey}`,
+                    label: ADMIN_ANALYTICS_HISTORICAL_CANONICAL_SNAPSHOT_SOURCE,
+                    role: "canonical",
+                    status: "unavailable",
+                    detail: reason,
+                },
+                {
+                    key: ADMIN_ANALYTICS_HISTORICAL_RAW_DEBUG_SOURCE,
+                    label: "Raw analytics collections",
+                    role: "debug",
+                    status: "unavailable",
+                    detail: "Raw collections remain available only through Admin Debug/source evidence, not compact Admin Analytics display truth.",
+                },
+            ],
+        }),
+    } satisfies HistoricalAnalyticsResponse;
+}
+
+async function readHistoricalSnapshotAuthorityPayload(
+    target: HistoricalSnapshotAuthorityTarget,
+) {
+    const snapshot = await getLatestVerifiedSnapshot(target.moduleKey, target.rangeKey);
+    const reason = `No verified admin metric snapshot display payload is available for ${target.moduleKey}:${target.rangeKey}.`;
+    if (!snapshot) {
+        return {
+            payload: buildHistoricalSnapshotUnavailablePayload(target, reason),
+            status: 503,
+        };
+    }
+
+    const payload = buildHistoricalSnapshotAuthorityPayload(snapshot, target);
+    if (!payload) {
+        return {
+            payload: buildHistoricalSnapshotUnavailablePayload(target, reason),
+            status: 503,
+        };
+    }
+
+    return {
+        payload,
+        status: 200,
+    };
+}
+
 function annotateHistoricalCacheState(
     result: StaleWhileRevalidateCacheResult<HistoricalAnalyticsResponse>,
 ) {
@@ -590,6 +901,12 @@ async function GET_handler(request: NextRequest) {
         const period = searchParams.get("period"); // "24h", "7d", "30d", "all"
         const viewerUser = searchParams.get("viewerUser")?.trim() || "";
         const section = searchParams.get("section")?.trim() || null;
+        const snapshotAuthorityTarget = resolveHistoricalSnapshotAuthorityTarget(section, period);
+
+        if (snapshotAuthorityTarget && !viewerUser) {
+            const snapshotAuthorityResult = await readHistoricalSnapshotAuthorityPayload(snapshotAuthorityTarget);
+            return finalize(NextResponse.json(snapshotAuthorityResult.payload, { status: snapshotAuthorityResult.status }));
+        }
 
         if (!propertyId) {
             return NextResponse.json({

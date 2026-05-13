@@ -519,6 +519,11 @@ function readJson<T>(root: string, repoPath: string): T | null {
   }
 }
 
+function readText(root: string, repoPath: string) {
+  const fullPath = path.join(root, repoPath);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
 function currentHead(root: string) {
   try {
     return execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
@@ -593,6 +598,63 @@ function buildSourceFreshnessIssues(root: string, phaseOne: PhaseOneReport | nul
   return issues;
 }
 
+function buildRuntimeAwareIssues(root: string) {
+  const realtimeRoute = readText(root, "src/app/api/admin/analytics/realtime/route.ts");
+  const historicalRoute = readText(root, "src/app/api/admin/analytics/historical/route.ts");
+  const debugRoute = readText(root, "src/app/api/admin/debug/route.ts");
+
+  const realtimeCollapsed = realtimeRoute.includes("ADMIN_ANALYTICS_REALTIME_CANONICAL_SNAPSHOT_SOURCE_LABEL")
+    && realtimeRoute.includes("raw analytics collections are debug-only")
+    && !realtimeRoute.includes("cold_route_refresh")
+    && !realtimeRoute.includes("ga_realtime");
+  const historicalCollapsed = historicalRoute.includes("readHistoricalSnapshotAuthorityPayload")
+    && historicalRoute.includes("ADMIN_ANALYTICS_HISTORICAL_CANONICAL_SNAPSHOT_SOURCE")
+    && historicalRoute.includes("Raw analytics collections are debug-only and were not used as compact historical display fallback.")
+    && historicalRoute.includes("rawDisplayFallbackUsed: 0");
+  const debugMetadataPresent = debugRoute.includes("historicalRouteAuthority")
+    && debugRoute.includes("admin_debug_raw_evidence_only")
+    && debugRoute.includes("compactRawDisplayFallbackRemoved");
+
+  return BASE_ISSUES.map((issue) => {
+    if (issue.issueKey === "duplicate-snapshot-authority-collapse-needed" && realtimeCollapsed && historicalCollapsed) {
+      return {
+        ...issue,
+        severity: "P1" as const,
+        title: "Duplicate snapshot authority collapse partially landed for realtime and historical routes",
+        description: "Realtime and historical Admin Analytics routes now prefer analytics_admin_metric_snapshots and demote legacy/raw sources; broader materializer/module cleanup remains.",
+        recommendedAction: "Keep analytics_admin_metric_snapshots canonical, then collapse remaining module/materializer authority conflicts in later runtime passes.",
+      };
+    }
+
+    if (issue.issueKey === "raw-display-fallback-runtime-simplification-needed" && realtimeCollapsed && historicalCollapsed) {
+      return {
+        ...issue,
+        severity: "P1" as const,
+        title: "Raw display fallback collapse partially landed for realtime and historical routes",
+        description: "Realtime and historical compact display paths no longer rebuild display truth from raw analytics logs when verified snapshots are unavailable; Debug/raw recovery surfacing remains future work.",
+        recommendedAction: "Audit remaining Admin Analytics modules and Debug recovery lanes for any raw display fallbacks outside the realtime/historical route arteries.",
+      };
+    }
+
+    if (issue.issueKey === "vendor-boundary-runtime-labeling-needed" && realtimeCollapsed && historicalCollapsed) {
+      return {
+        ...issue,
+        description: `${issue.description} Realtime and historical route authority checks now block vendor override in compact display paths; remaining vendor estimate labels still need module-level review.`,
+      };
+    }
+
+    if (issue.issueKey === "admin-debug-recovery-surfacing-required" && debugMetadataPresent) {
+      return {
+        ...issue,
+        description: "Admin Debug now carries historical route authority/source metadata, but recovered analytics lane rows still need a dedicated Debug surfacing pass before Admin Analytics promotion.",
+        recommendedAction: "Implement the next Debug recovery evidence pass without promoting recovered data into compact Admin Analytics.",
+      };
+    }
+
+    return issue;
+  });
+}
+
 function sourceTruthLabelForLane(laneKey: string) {
   if (laneKey === "purchase_facts") return "required_operational_transaction_truth";
   if (laneKey === "unlock_facts") return "required_operational_entitlement_truth";
@@ -649,7 +711,7 @@ export function buildSnapshotAdminVendorCostRewireReport(options: BuildOptions =
   const phaseTwo = readJson<PhaseTwoReport>(root, PHASE_TWO_REPORT_PATH);
   const phaseThree = readJson<PhaseThreeReport>(root, PHASE_THREE_REPORT_PATH);
   const recoverySurfacingPlan = buildRecoverySurfacingPlan(phaseThree);
-  const issues = [...BASE_ISSUES, ...buildSourceFreshnessIssues(root, phaseOne, phaseTwo, phaseThree)];
+  const issues = [...buildRuntimeAwareIssues(root), ...buildSourceFreshnessIssues(root, phaseOne, phaseTwo, phaseThree)];
 
   return {
     generatedAtUtc: now.toISOString(),

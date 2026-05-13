@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-13T19:49:44.614Z",
+  "generatedAtUtc": "2026-05-13T21:04:29.008Z",
   "reportKey": "snapshot-admin-vendor-cost-rewire",
-  "currentHead": "12d3215703bf7cc40b37b26feb1adbf47ef6daa6",
+  "currentHead": "2d49900a63ead7f0ab50e0e3dd1057988d47c610",
   "sourceReports": {
     "phaseOneInventory": {
       "path": "agent/state/analytics-rewire-phase-one.generated.json",
-      "generatedAtUtc": "2026-05-13T19:49:10.800Z",
-      "currentHead": "12d3215703bf7cc40b37b26feb1adbf47ef6daa6",
+      "generatedAtUtc": "2026-05-13T21:04:06.798Z",
+      "currentHead": "2d49900a63ead7f0ab50e0e3dd1057988d47c610",
       "laneCount": 25,
       "duplicateAuthorityCount": 5,
       "rawDisplayFallbackCount": 2,
@@ -14,15 +14,15 @@
     },
     "phaseTwoIdentityPrivacy": {
       "path": "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-      "generatedAtUtc": "2026-05-13T19:49:27.908Z",
-      "currentHead": "12d3215703bf7cc40b37b26feb1adbf47ef6daa6",
+      "generatedAtUtc": "2026-05-13T21:04:18.227Z",
+      "currentHead": "2d49900a63ead7f0ab50e0e3dd1057988d47c610",
       "privacyRuleCount": 3,
       "recoveryEligibilityRuleCount": 12
     },
     "phaseThreeRecoveryDryRun": {
       "path": "agent/state/lost-data-recovery-dry-run.generated.json",
-      "generatedAtUtc": "2026-05-13T19:49:37.063Z",
-      "currentHead": "12d3215703bf7cc40b37b26feb1adbf47ef6daa6",
+      "generatedAtUtc": "2026-05-13T21:04:23.225Z",
+      "currentHead": "2d49900a63ead7f0ab50e0e3dd1057988d47c610",
       "recoverableLaneCount": 15,
       "debugFirstCount": 12,
       "adminAnalyticsEligibleCount": 3,
@@ -45,8 +45,8 @@
     "adminDebugFirstRecoveryCount": 12,
     "adminAnalyticsEligibleRecoveryCount": 3,
     "issueCount": 5,
-    "p0Count": 2,
-    "p1Count": 3
+    "p0Count": 0,
+    "p1Count": 5
   },
   "snapshotAuthorities": [
     {
@@ -670,22 +670,22 @@
   "issues": [
     {
       "issueKey": "duplicate-snapshot-authority-collapse-needed",
-      "severity": "P0",
-      "title": "Duplicate snapshot authorities need runtime collapse",
-      "description": "analytics_admin_metric_snapshots should own compact Admin Analytics display truth while realtime_summary becomes fallback/live-pulse/evidence.",
+      "severity": "P1",
+      "title": "Duplicate snapshot authority collapse partially landed for realtime and historical routes",
+      "description": "Realtime and historical Admin Analytics routes now prefer analytics_admin_metric_snapshots and demote legacy/raw sources; broader materializer/module cleanup remains.",
       "files": [
         "src/lib/server/admin-analytics-snapshots.ts",
         "functions/src/analytics-realtime-summary.ts"
       ],
       "blocksRuntimeSimplification": true,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "In a later runtime phase, make module display reads snapshot-first through analytics_admin_metric_snapshots."
+      "recommendedAction": "Keep analytics_admin_metric_snapshots canonical, then collapse remaining module/materializer authority conflicts in later runtime passes."
     },
     {
       "issueKey": "raw-display-fallback-runtime-simplification-needed",
-      "severity": "P0",
-      "title": "Raw display fallback risks need runtime simplification",
-      "description": "Raw event, guest, session, watch, and behavioral facts must not be compact Admin Analytics display truth.",
+      "severity": "P1",
+      "title": "Raw display fallback collapse partially landed for realtime and historical routes",
+      "description": "Realtime and historical compact display paths no longer rebuild display truth from raw analytics logs when verified snapshots are unavailable; Debug/raw recovery surfacing remains future work.",
       "files": [
         "src/app/api/admin/analytics/realtime/route.ts",
         "src/app/api/admin/analytics/historical/route.ts",
@@ -693,13 +693,13 @@
       ],
       "blocksRuntimeSimplification": true,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "Replace raw display fallback with unavailable/stale/needs_review or bounded labeled fallback after the contract is accepted."
+      "recommendedAction": "Audit remaining Admin Analytics modules and Debug recovery lanes for any raw display fallbacks outside the realtime/historical route arteries."
     },
     {
       "issueKey": "vendor-boundary-runtime-labeling-needed",
       "severity": "P1",
       "title": "Vendor evidence must stay labeled and non-authoritative",
-      "description": "GA4, PostHog, and BigQuery can support estimates/export/debug parity, but first-party snapshots must win display truth.",
+      "description": "GA4, PostHog, and BigQuery can support estimates/export/debug parity, but first-party snapshots must win display truth. Realtime and historical route authority checks now block vendor override in compact display paths; remaining vendor estimate labels still need module-level review.",
       "files": [
         "src/lib/analytics/**",
         "src/app/admin/analytics/**",
@@ -713,14 +713,14 @@
       "issueKey": "admin-debug-recovery-surfacing-required",
       "severity": "P1",
       "title": "Recovered analytics evidence must surface in Debug before Admin Analytics",
-      "description": "Phase 3 high-value lanes require Debug-first evidence, mapping warnings, consent labels, and confidence before compact rollup promotion.",
+      "description": "Admin Debug now carries historical route authority/source metadata, but recovered analytics lane rows still need a dedicated Debug surfacing pass before Admin Analytics promotion.",
       "files": [
         "agent/state/lost-data-recovery-dry-run.generated.json",
         "src/app/admin/debug/**"
       ],
       "blocksRuntimeSimplification": true,
       "blocksPhaseOneFreeze": false,
-      "recommendedAction": "Implement Debug-first recovery evidence in a later runtime phase before Admin Analytics promotion."
+      "recommendedAction": "Implement the next Debug recovery evidence pass without promoting recovered data into compact Admin Analytics."
     },
     {
       "issueKey": "cost-simplification-runtime-pass-required",

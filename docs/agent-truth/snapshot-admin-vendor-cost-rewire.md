@@ -113,6 +113,10 @@ Use `agent/state/snapshot-admin-vendor-cost-rewire.generated.json` to scope late
 
 The first runtime collapse pass applies this contract to `/api/admin/analytics/realtime`: it reads `analytics_admin_metric_snapshots/live_pulse:24h` before `analytics_aggregate_stats/realtime_summary`, labels `realtime_summary` as fallback evidence, and no longer rebuilds compact display truth from GA realtime or raw analytics collections when no verified snapshot exists. Broader historical-route and recovery-surfacing consolidation remains future work.
 
+## Phase 6 Historical Route Note
+
+The second runtime collapse pass applies the same source-order rule to compact `/api/admin/analytics/historical` sections. Historical display requests now check `analytics_admin_metric_snapshots` before GA/vendor/raw sources. If a verified snapshot payload is missing or lacks display evidence, the route returns an unavailable state and labels raw collections as `admin_debug_raw_evidence_only` instead of rebuilding compact display truth from `analytics_event_facts`, `analytics_guest_batches`, `analytics_sessions`, or watch/session logs. Admin Debug exposes the historical route authority metadata, fallback reason, vendor boundary, and recovery metadata rule, but it still does not surface recovered data as Admin Analytics truth.
+
 ## What This Report Must Not Be Used For
 
 This report must not be used to claim production data was recovered, to approve a production backfill, to prove provider smoke, to mark screenshots complete, to change Admin UI, to alter API behavior, to add Firebase reads/listeners, or to run BigQuery/provider work. It is a local static planning contract and validator input only.

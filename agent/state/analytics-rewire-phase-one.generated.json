@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-13T19:49:10.800Z",
+  "generatedAtUtc": "2026-05-13T21:04:06.798Z",
   "reportKey": "analytics-rewire-phase-one",
-  "currentHead": "12d3215703bf7cc40b37b26feb1adbf47ef6daa6",
+  "currentHead": "2d49900a63ead7f0ab50e0e3dd1057988d47c610",
   "phasesCovered": [
     "0. Rewire Inventory Contract",
     "1. Truth-Lane Inventory Implementation",
@@ -14,7 +14,7 @@
     "issueCount": 9,
     "duplicateAuthorityCount": 5,
     "rawDisplayFallbackCount": 2,
-    "staleAuthorityReportCount": 89,
+    "staleAuthorityReportCount": 91,
     "orphanCandidateCount": 15,
     "vendorTruthBoundaryIssueCount": 1,
     "recommendedBlockers": 3
@@ -43,7 +43,8 @@
       "readers": [
         "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
         "src/app/admin/analytics/page.tsx",
-        "src/app/api/admin/analytics/historical/route.ts"
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/api/admin/debug/route.ts"
       ],
       "validators": [
         "scripts/agent/analytics-rewire-phase-one.ts",
@@ -87,11 +88,11 @@
         "scripts/agent/analytics-rewire-phase-one.ts",
         "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
         "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
+        "scripts/agent/validate-admin-analytics-hot-cache.ts",
         "scripts/agent/validate-global-cost-surfaces.ts",
         "scripts/agent/validate-human-dev-readiness.ts",
         "scripts/agent/validate-hydration-performance.ts",
-        "scripts/agent/validate-snapshot-admin-vendor-cost-rewire.ts",
-        "scripts/agent/verify-codex-native-auth.ts"
+        "scripts/agent/validate-snapshot-admin-vendor-cost-rewire.ts"
       ]
     },
     {
@@ -755,6 +756,7 @@
       "validators": [
         "scripts/agent/validate-admin-analytics-hot-cache.ts",
         "tests/unit/admin-analytics-display-state.spec.ts",
+        "tests/unit/admin-analytics-historical-traffic.spec.ts",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-refresh-route.spec.ts",
         "tests/unit/admin-metric-snapshot.spec.ts",
@@ -1041,7 +1043,7 @@
       "issueKey": "stale-generated-report-authority",
       "severity": "P1",
       "title": "Generated report evidence has stale authority risk",
-      "description": "89 generated report(s) are older than 24 hours or have no parseable generatedAtUtc. Generated reports are snapshots, not doctrine.",
+      "description": "91 generated report(s) are older than 24 hours or have no parseable generatedAtUtc. Generated reports are snapshots, not doctrine.",
       "files": [
         "agent/state/4xx-cost-guardrails.generated.json",
         "agent/state/accessibility-tap-target-audit.generated.json",

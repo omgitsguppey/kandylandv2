@@ -32,6 +32,7 @@ const registry = readRequired("src/lib/server/admin-analytics-materializers.ts")
 const hook = readRequired("src/hooks/useAdminAnalyticsSnapshot.ts");
 const debugRoute = readRequired("src/app/api/admin/debug/route.ts");
 const realtimeRoute = readRequired("src/app/api/admin/analytics/realtime/route.ts");
+const historicalRoute = readRequired("src/app/api/admin/analytics/historical/route.ts");
 const realtimeSummary = readRequired("functions/src/analytics-realtime-summary.ts");
 const hotCacheDoc = readRequired("docs/agent-truth/admin-analytics-hot-cache.md");
 const truthDoc = readRequired("docs/agent-truth/analytics-truth-layer-v2.md");
@@ -185,6 +186,29 @@ requireNotIncludes(realtimeRoute, "ga_realtime", "Realtime route compact display
 requireNotIncludes(realtimeRoute, "first_party_realtime", "Realtime route compact display fallback");
 requireNotIncludes(realtimeRoute, "Falling back to cold reads", "Realtime route compact display fallback");
 requireNotIncludes(realtimeRoute, "rebuilding from GA4 and first-party sources", "Realtime route compact display fallback");
+
+for (const historicalNeedle of [
+  "resolveHistoricalSnapshotAuthorityTarget",
+  "readHistoricalSnapshotAuthorityPayload",
+  "ADMIN_ANALYTICS_HISTORICAL_CANONICAL_SNAPSHOT_SOURCE",
+  "ADMIN_ANALYTICS_HISTORICAL_RAW_DEBUG_SOURCE",
+  "ADMIN_ANALYTICS_HISTORICAL_UNAVAILABLE_SOURCE",
+  "Raw analytics collections are debug-only and were not used as compact historical display fallback.",
+  "rawDisplayFallbackUsed: 0",
+  "vendorOverrideUsed: 0",
+]) {
+  requireIncludes(historicalRoute, historicalNeedle, "Historical route canonical snapshot authority");
+}
+
+for (const debugNeedle of [
+  "historicalRouteAuthority",
+  "admin_debug_raw_evidence_only",
+  "compactRawDisplayFallbackRemoved",
+  "Missing verified snapshots return unavailable",
+  "GA4, PostHog, and BigQuery remain labeled vendor evidence",
+]) {
+  requireIncludes(debugRoute, debugNeedle, "Admin Debug historical authority metadata");
+}
 
 if (failures.length > 0) {
   console.error("Admin analytics hot-cache validation failed:");
