@@ -1,13 +1,57 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.22",
-  "betaReleaseCounter": 222,
+  "currentVersion": "1.2.23",
+  "betaReleaseCounter": 223,
   "channel": "beta",
-  "generatedAt": "2026-05-13T00:43:40.633Z",
-  "generatedAtUtc": "2026-05-13T00:43:40.633Z",
-  "lastCommitSha": "a3618a39794e4fa3e98a4a5020980a9ac323171b",
+  "generatedAt": "2026-05-13T01:26:38.340Z",
+  "generatedAtUtc": "2026-05-13T01:26:38.340Z",
+  "lastCommitSha": "5dfefd62b0c1f282015745cf0dd7ec08c0040c79",
   "notes": [
+    {
+      "version": "1.2.23",
+      "previousVersion": "1.2.22",
+      "betaReleaseCounter": 223,
+      "previousBetaReleaseCounter": 222,
+      "commitSha": "5dfefd62b0c1f282015745cf0dd7ec08c0040c79",
+      "commitTitle": "chore(analytics): add identity privacy raw ledger contract",
+      "commitCount": 1,
+      "commitShas": [
+        "5dfefd62b0c1f282015745cf0dd7ec08c0040c79"
+      ],
+      "committedAt": "2026-05-13T01:25:52.000Z",
+      "generatedAt": "2026-05-13T01:26:38.338Z",
+      "committedAtUtc": "2026-05-13T01:25:52.000Z",
+      "generatedAtUtc": "2026-05-13T01:26:38.338Z",
+      "updatedAtUtc": "2026-05-13T01:26:38.338Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and general improvements.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved internal analytics reliability and privacy-aware data handling behind the scenes.",
+        "Added clearer rules for what telemetry can be used when privacy settings are off.",
+        "Prepared recovery rules for data that exists but has not surfaced in the app yet."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+        "docs/agent-truth/analytics-rewire-phase-one.md",
+        "docs/agent-truth/analytics-truth-layer-v2.md",
+        "docs/agent-truth/identity-privacy-raw-ledger-rewire.md",
+        "package.json",
+        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
+        "scripts/agent/validate-identity-privacy-raw-ledger-rewire.ts",
+        "tests/unit/identity-privacy-raw-ledger-rewire.spec.ts"
+      ],
+      "sourceCommit": "5dfefd62b0c1f282015745cf0dd7ec08c0040c79"
+    },
     {
       "version": "1.2.22",
       "previousVersion": "1.2.21",
@@ -1490,56 +1534,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 124,
       "bumpType": "none",
       "sourceCommit": "3b28ea3b63be3716bfaf4e6bf64575dd3f8177ae"
-    },
-    {
-      "version": "1.2.4",
-      "previousVersion": "1.2.3",
-      "betaReleaseCounter": 204,
-      "previousBetaReleaseCounter": 203,
-      "commitSha": "4b9c3f538e3d33ec2a3ee10986e2c51b345a2ee6",
-      "commitTitle": "fix(beta): finalize release notes cutover",
-      "commitCount": 10,
-      "commitShas": [
-        "7d29606a265a76f6979140e20c387783b596f5da",
-        "51cfd774a159e68147d80aa5afbe48a99d3d4947",
-        "7ed7de998f0555b54ac2cb84d3ae53b93fb0a3b9",
-        "8b6de1d711c283c80663c9bcbb23529cfd628077",
-        "2bdfa9abde198a1aa2c5f8737f880d6d26306e06",
-        "87e51414d24bc762009cdb8e95f7f24468bda955",
-        "5528ba6d262dd32644629d70f2ecb050fbedabfe",
-        "e8b7b3ef2626e27a431e25a07d6fe5db5f5f0bc4",
-        "de0378d4f21050638dabffa735bc58085573094c",
-        "4b9c3f538e3d33ec2a3ee10986e2c51b345a2ee6"
-      ],
-      "committedAt": "2026-05-08T02:12:38.000Z",
-      "generatedAt": "2026-05-08T02:13:08.503Z",
-      "committedAtUtc": "2026-05-08T02:12:38.000Z",
-      "generatedAtUtc": "2026-05-08T02:13:08.503Z",
-      "category": "Beta",
-      "title": "Improved Beta updates and version visibility",
-      "updatedAtUtc": "2026-05-08T02:13:08.503Z",
-      "summary": "Bug fixes and quality-of-life improvements for Beta updates, version visibility, and behind-the-scenes release reliability.",
-      "userFacingTitle": "Improved Beta updates and version visibility",
-      "surfaceCategory": "Navigation",
-      "bullets": [
-        "Improved how the Beta drawer opens the latest accepted updates.",
-        "Reduced stale or repeated release-note copy in the visible Beta feed.",
-        "Improved behind-the-scenes release tracking without flooding public notes with internal audit churn."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 10 commits into one accepted beta release.",
-        "Includes internal reliability work that does not change the public product surface."
-      ],
-      "affectedSurfaces": [
-        "account-onboarding",
-        "admin",
-        "chat-support",
-        "navigation",
-        "privacy-security",
-        "wallet"
-      ],
-      "hiddenFromPublic": false
     }
   ]
 } satisfies PublicReleaseNotesDocument;

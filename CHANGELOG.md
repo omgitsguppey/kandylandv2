@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 19 public updates in pages of 5.
 
+## 1.2.23 - 2026-05-13
+- Bug fixes and general improvements
+- Improved internal analytics reliability and privacy-aware data handling behind the scenes.
+- Added clearer rules for what telemetry can be used when privacy settings are off.
+- Prepared recovery rules for data that exists but has not surfaced in the app yet.
+
 ## 1.2.22 - 2026-05-13
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
@@ -95,9 +101,3 @@ Showing the last 19 public updates in pages of 5.
 - Improved privacy and security reliability
 - Improved privacy and security reliability behind the scenes.
 - Reduced confusing trust and permission states in key app flows.
-
-## 1.2.4 - 2026-05-08
-- Improved Beta updates and version visibility
-- Improved how the Beta drawer opens the latest accepted updates.
-- Reduced stale or repeated release-note copy in the visible Beta feed.
-- Improved behind-the-scenes release tracking without flooding public notes with internal audit churn.
