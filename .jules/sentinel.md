@@ -30,3 +30,7 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
 **Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.
+## 2025-02-14 - Fix raw 500 error exposure in wallet packages route
+**Vulnerability:** The API endpoint `src/app/api/wallet/packages/route.ts` was manually returning a `500` response using `NextResponse.json({ error: ... }, { status: 500 })` rather than delegating to the standardized `handleApiError` utility.
+**Learning:** This repo has a specific centralized error handler (`handleApiError` from `@/lib/server/auth`) that must be used across all API endpoints to ensure uniform server error sanitization and prevent accidental data leakage (even though the string itself was safe in this instance, it's a structural vulnerability pattern).
+**Prevention:** Always delegate to `handleApiError` for API exceptions. Furthermore, always verify if a route is `GET` vs `POST` when auditing for missing CSRF protection to avoid false positives.

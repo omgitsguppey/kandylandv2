@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -34,7 +35,7 @@ async function GET_handler(request: NextRequest) {
         });
     } catch (error) {
         recordRouteWarning("wallet/packages", "Error fetching packages", error);
-        return NextResponse.json({ error: "Failed to fetch packages" }, { status: 500 });
+        return handleApiError(error, "wallet/packages");
     }
 }
 
