@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 23 public updates in pages of 5.
 
+## 1.2.31 - 2026-05-14
+- Bug fixes and general improvements
+- Simplified the Admin Debug panel so recovery evidence is easier to review.
+- Reduced redundant nested scrolling in Debug views.
+- Refreshed analytics rewire evidence after the cost-reduction pass.
+
 ## 1.2.30 - 2026-05-13
 - Bug fixes and general improvements
 - Reduced remaining Admin Analytics cost-risk paths behind the scenes.
@@ -120,11 +126,6 @@ Showing the last 23 public updates in pages of 5.
 - Improved reliability for the latest Beta build.
 
 ## 1.7.0 - 2026-05-08
-- Improved chat and support reliability
-- Improved chat and support reliability so common actions feel more stable.
-- Reduced stuck or confusing states in active support and messaging flows.
-
-## 1.6.0 - 2026-05-08
 - Improved chat and support reliability
 - Improved chat and support reliability so common actions feel more stable.
 - Reduced stuck or confusing states in active support and messaging flows.
