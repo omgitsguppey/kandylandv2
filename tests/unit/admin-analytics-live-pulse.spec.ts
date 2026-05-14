@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { buildAdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pulse";
@@ -218,5 +221,17 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     expect(model.guestSnapshotTruthState).toBe("unavailable");
     expect(model.guestMixLabel).toBe("Auth 0 · Guest unavailable");
     expect(model.topWarningDetail).toBe("No guest analytics batches were materialized in the realtime source window.");
+  });
+  it("keeps detailed source doctrine out of primary Live Pulse copy", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("defaultExpanded={false}");
+    expect(source).toContain('data-admin-analytics-live-pulse-default-expanded="false"');
+    expect(source).not.toContain("raw logs stay");
+    expect(source).toContain("livePulseCompactStatusLine");
+    expect(source).toContain("livePulseCompactIssueLine");
   });
 });

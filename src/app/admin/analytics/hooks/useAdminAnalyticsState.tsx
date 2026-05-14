@@ -18,8 +18,11 @@ import { authFetch } from "@/lib/authFetch";
 import { reportStorageIssue } from "@/lib/client-error-reporting";
 import {
   resolveAdminAnalyticsDisplayState,
+  resolveAdminAnalyticsOverviewMetricState,
   type AdminAnalyticsDisplaySnapshotState,
   type AdminAnalyticsDisplayState,
+  type AdminAnalyticsOverviewDisplayState,
+  type AdminAnalyticsOverviewExactness,
 } from "@/lib/analytics/admin-analytics-display-state";
 import type {
   AdminAnalyticsLiveActor,
@@ -158,6 +161,20 @@ type AnalyticsOverviewCardViewModel = AnalyticsOverviewCard & {
   hint: string;
   truthState: AdminSurfaceState;
   statusBadgeLabel?: string;
+};
+
+type AdminAnalyticsOverviewDisplayMetric = {
+  id: "liveActive" | "mobileShare" | "revenue" | "purchases";
+  label: string;
+  displayValue: string;
+  primaryValue: number | null;
+  displayState: AdminAnalyticsOverviewDisplayState;
+  exactness: AdminAnalyticsOverviewExactness;
+  compactFreshnessLine: string;
+  debugReason: string;
+  debugSource: string;
+  badgeLabel?: string;
+  showBadgeInPrimary: boolean;
 };
 
 type AnalyticsOverviewHydrationMarks = {
@@ -606,6 +623,77 @@ function mapOverviewFreshnessState(
     default:
       return "unknown";
   }
+}
+
+function isUnavailableOverviewDisplayLabel(value: string | null) {
+  return Boolean(value && /unavailable|waiting|snapshot pending|source missing/i.test(value));
+}
+
+function toOverviewPrimaryNumber(value: string | number | null) {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function formatOverviewGeneratedAtLine(
+  generatedAtUtc: string | null,
+  nowMs: number,
+  fallback: string,
+) {
+  if (!generatedAtUtc) {
+    return fallback;
+  }
+
+  const generatedAtMs = Date.parse(generatedAtUtc);
+  if (!Number.isFinite(generatedAtMs)) {
+    return fallback;
+  }
+
+  return `Updated ${formatRelativeTime(generatedAtMs, nowMs)}`;
+}
+
+function buildAdminAnalyticsOverviewDisplayMetric(input: {
+  id: AdminAnalyticsOverviewDisplayMetric["id"];
+  label: string;
+  displayValue: string;
+  primaryValue: number | null;
+  truthState: AdminSurfaceState;
+  sourceTruth: AnalyticsOverviewCard["sourceTruth"];
+  generatedAtUtc: string | null;
+  nowMs: number;
+  debugReason: string;
+  debugSource: string;
+  compactFreshnessLine?: string;
+  unavailableLine?: string;
+  loading?: boolean;
+  badgeLabel?: string;
+  showBadgeInPrimary?: boolean;
+}): AdminAnalyticsOverviewDisplayMetric {
+  const { displayState, exactness } = resolveAdminAnalyticsOverviewMetricState({
+    primaryValue: input.primaryValue,
+    truthState: input.truthState,
+    sourceTruth: input.sourceTruth,
+    loading: input.loading,
+  });
+  const compactFreshnessLine =
+    input.compactFreshnessLine ??
+    (displayState === "unavailable"
+      ? input.unavailableLine ?? "Unavailable"
+      : displayState === "loading"
+        ? "No verified snapshot yet."
+        : formatOverviewGeneratedAtLine(input.generatedAtUtc, input.nowMs, "Last verified data"));
+
+  return {
+    id: input.id,
+    label: input.label,
+    displayValue: input.displayValue,
+    primaryValue: input.primaryValue,
+    displayState,
+    exactness,
+    compactFreshnessLine,
+    debugReason: input.debugReason,
+    debugSource: input.debugSource,
+    badgeLabel: input.badgeLabel,
+    showBadgeInPrimary: input.showBadgeInPrimary ?? false,
+  };
 }
 
 
@@ -1266,7 +1354,8 @@ const { user } = useAuth();
       ? overviewRevenueMetric.current30dValue / 100
       : null;
   const overviewFallbackRevenueDisplay =
-    typeof overviewRevenueMetric?.primaryValue === "string"
+    typeof overviewRevenueMetric?.primaryValue === "string" &&
+    !isUnavailableOverviewDisplayLabel(overviewRevenueMetric.primaryValue)
       ? overviewRevenueMetric.primaryValue
       : overviewFallbackRevenueUsd !== null
         ? formatMoney(overviewFallbackRevenueUsd)
@@ -1278,7 +1367,8 @@ const { user } = useAuth();
   const overviewFallbackPurchasesDisplay =
     typeof overviewPurchasesMetric?.primaryValue === "number"
       ? formatCompactNumber(overviewPurchasesMetric.primaryValue)
-      : typeof overviewPurchasesMetric?.primaryValue === "string"
+      : typeof overviewPurchasesMetric?.primaryValue === "string" &&
+        !isUnavailableOverviewDisplayLabel(overviewPurchasesMetric.primaryValue)
         ? overviewPurchasesMetric.primaryValue
         : overviewFallbackPurchasesValue !== null
           ? formatCompactNumber(overviewFallbackPurchasesValue)
@@ -1372,7 +1462,6 @@ const { user } = useAuth();
       ? historicalError.message
       : commerceSnapshotModule.error ?? audienceSnapshotModule.error,
   });
-  const historicalOverviewWaitingLabel = historicalOverviewWaitingState.label ?? "No verified snapshot yet";
   const resolvedHistoricalOverviewTruthState: AdminSurfaceState =
     historicalTruthState === "live" ? "live"
     : historicalTruthState === "cached" ? "cached"
@@ -1416,6 +1505,7 @@ const { user } = useAuth();
   const sharedFallbackExplanation = analyticsSnapshotPending
     ? "Analytics snapshot pending; showing canonical fallback truth."
     : "Realtime analytics snapshot missing; showing canonical fallback truth.";
+  const overviewUnavailableDisplay = historicalLoading ? "No snapshot yet" : "Unavailable";
 
   const revenueCard: AnalyticsOverviewCardViewModel = historicalOverviewResponse
     ? {
@@ -1473,15 +1563,15 @@ const { user } = useAuth();
         id: "revenue",
         label: "Revenue",
         primaryValue: null,
-        displayValue: historicalOverviewWaitingLabel,
+        displayValue: overviewUnavailableDisplay,
         state: historicalLoading ? "waiting" : "unavailable",
         truthState: historicalLoading ? "loading" : "unavailable",
         sourceTruth: "missing",
         freshnessState: "unknown",
         windowLabel: range.toUpperCase(),
         generatedAtUtc: null,
-        explanation: "Waiting for the first analytics snapshot or a canonical commerce fallback.",
-        hint: historicalOverviewSourceLabel,
+        explanation: "No verified revenue snapshot or accepted commerce fallback is available.",
+        hint: historicalLoading ? "No verified snapshot yet." : "No verified revenue snapshot.",
         warnings: ["missing_revenue_snapshot"],
       };
 
@@ -1543,15 +1633,15 @@ const { user } = useAuth();
         id: "purchases",
         label: "Purchases",
         primaryValue: null,
-        displayValue: historicalOverviewWaitingLabel,
+        displayValue: overviewUnavailableDisplay,
         state: historicalLoading ? "waiting" : "unavailable",
         truthState: historicalLoading ? "loading" : "unavailable",
         sourceTruth: "missing",
         freshnessState: "unknown",
         windowLabel: range.toUpperCase(),
         generatedAtUtc: null,
-        explanation: "Waiting for the first analytics snapshot or a canonical purchase fallback.",
-        hint: historicalOverviewSourceLabel,
+        explanation: "No verified purchase snapshot or accepted transaction fallback is available.",
+        hint: historicalLoading ? "No verified snapshot yet." : "No verified purchase snapshot.",
         warnings: ["missing_purchase_snapshot"],
       };
 
@@ -1715,6 +1805,110 @@ const { user } = useAuth();
     guestEstimateSourceLabel: livePulseGuestTraffic?.sourceLabel ?? null,
     guestAnalyticsSnapshot: effectiveLiveResponse?.guestAnalyticsSnapshot ?? null,
   });
+  const liveActivePrimaryValue =
+    effectiveLiveResponse?.totalActive ?? snapshotLiveActiveValue ?? null;
+  const analyticsOverviewDisplayMetrics: Record<
+    AdminAnalyticsOverviewDisplayMetric["id"],
+    AdminAnalyticsOverviewDisplayMetric
+  > = {
+    liveActive: buildAdminAnalyticsOverviewDisplayMetric({
+      id: "liveActive",
+      label: "Live Active",
+      displayValue:
+        liveActiveWaitingState.reason === "first_snapshot_pending" &&
+        liveActiveDisplay === liveActiveWaitingState.label
+          ? "No snapshot yet"
+          : liveActiveDisplay,
+      primaryValue: liveActivePrimaryValue,
+      truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
+      sourceTruth: effectiveLiveResponse
+        ? "realtime_snapshot"
+        : snapshotLiveActiveValue !== null
+          ? "last_verified_snapshot"
+          : "missing",
+      generatedAtUtc: effectiveLiveResponse?.generatedAtMs
+        ? new Date(effectiveLiveResponse.generatedAtMs).toISOString()
+        : livePulseLatestVerifiedSnapshot?.lastVerifiedAt
+          ? new Date(livePulseLatestVerifiedSnapshot.lastVerifiedAt).toISOString()
+          : null,
+      nowMs,
+      debugReason: livePulseDisplayState.debugReason,
+      debugSource: livePulseDisplayState.visibleValueSource,
+      compactFreshnessLine:
+        liveActivePrimaryValue === null
+          ? "Unavailable"
+          : effectiveLiveResponse?.generatedAtMs
+            ? `Updated ${formatRelativeTime(effectiveLiveResponse.generatedAtMs, nowMs)}`
+            : "Last verified data",
+      unavailableLine: "Unavailable",
+      loading: liveLoading && liveActivePrimaryValue === null,
+      badgeLabel: liveActiveTruthState ? ANALYTICS_OVERVIEW_BADGE_LABELS[liveActiveTruthState] : undefined,
+    }),
+    mobileShare: buildAdminAnalyticsOverviewDisplayMetric({
+      id: "mobileShare",
+      label: "Mobile Share",
+      displayValue: mobileShareCard.displayValue,
+      primaryValue: toOverviewPrimaryNumber(mobileShareCard.primaryValue),
+      truthState: mobileShareCard.truthState,
+      sourceTruth: mobileShareCard.sourceTruth,
+      generatedAtUtc: mobileShareCard.generatedAtUtc,
+      nowMs,
+      debugReason: mobileShareCard.explanation,
+      debugSource: mobileShareCard.sourceTruth,
+      compactFreshnessLine:
+        mobileShareCard.primaryValue === null
+          ? "No classified traffic sample."
+          : formatOverviewGeneratedAtLine(mobileShareCard.generatedAtUtc, nowMs, "Last verified device sample"),
+      unavailableLine: "No classified traffic sample.",
+      badgeLabel: mobileShareCard.statusBadgeLabel,
+    }),
+    revenue: buildAdminAnalyticsOverviewDisplayMetric({
+      id: "revenue",
+      label: "Revenue",
+      displayValue: revenueCard.displayValue,
+      primaryValue: toOverviewPrimaryNumber(revenueCard.primaryValue),
+      truthState: revenueCard.truthState,
+      sourceTruth: revenueCard.sourceTruth,
+      generatedAtUtc: revenueCard.generatedAtUtc,
+      nowMs,
+      debugReason: revenueCard.explanation,
+      debugSource: revenueFallbackAvailable && !historicalOverviewResponse
+        ? "server_transaction_fallback"
+        : revenueCard.sourceTruth,
+      compactFreshnessLine:
+        revenueFallbackAvailable && !historicalOverviewResponse
+          ? "From confirmed transactions - updated 30d"
+          : revenueCard.primaryValue === null
+            ? "No verified snapshot yet."
+            : formatOverviewGeneratedAtLine(revenueCard.generatedAtUtc, nowMs, historicalOverviewSourceLabel),
+      unavailableLine: "No verified snapshot yet.",
+      loading: historicalLoading && revenueCard.primaryValue === null,
+      badgeLabel: revenueCard.statusBadgeLabel,
+    }),
+    purchases: buildAdminAnalyticsOverviewDisplayMetric({
+      id: "purchases",
+      label: "Purchases",
+      displayValue: purchasesCard.displayValue,
+      primaryValue: toOverviewPrimaryNumber(purchasesCard.primaryValue),
+      truthState: purchasesCard.truthState,
+      sourceTruth: purchasesCard.sourceTruth,
+      generatedAtUtc: purchasesCard.generatedAtUtc,
+      nowMs,
+      debugReason: purchasesCard.explanation,
+      debugSource: purchasesFallbackAvailable && !historicalOverviewResponse
+        ? "server_transaction_fallback"
+        : purchasesCard.sourceTruth,
+      compactFreshnessLine:
+        purchasesFallbackAvailable && !historicalOverviewResponse
+          ? "Confirmed purchases - fallback"
+          : purchasesCard.primaryValue === null
+            ? "No verified snapshot yet."
+            : formatOverviewGeneratedAtLine(purchasesCard.generatedAtUtc, nowMs, historicalOverviewSourceLabel),
+      unavailableLine: "No verified snapshot yet.",
+      loading: historicalLoading && purchasesCard.primaryValue === null,
+      badgeLabel: purchasesCard.statusBadgeLabel,
+    }),
+  };
   const historicalOverviewTruthState: AdminSurfaceState | undefined =
     resolvedHistoricalOverviewTruthState;
 
@@ -2996,7 +3190,7 @@ const { user } = useAuth();
     liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, livePulseModel, journeyFunnelMetrics, journeyFunnelModel,
     liveFeedStatus: liveRealtime.feedStatus, liveFeedDetail: liveRealtime.feedDetail, liveGuestActiveCount: liveRealtime.guestActive
 ,
-    revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta, overviewCheckoutStarts,
+    revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta, overviewCheckoutStarts, analyticsOverviewDisplayMetrics,
     analyticsOverviewCards: {
       mobileShare: mobileShareCard,
       revenue: revenueCard,

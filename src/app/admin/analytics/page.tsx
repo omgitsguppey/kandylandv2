@@ -28,12 +28,37 @@ import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
 import {
   TAB_OPTIONS,
-  formatCompactNumber,
 } from "./AnalyticsHelpers";
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
 import { useAdminAnalyticsState } from "./hooks/useAdminAnalyticsState";
+
+type OverviewDisplayState = "ready" | "stale" | "partial" | "unavailable" | "loading";
+
+function mapOverviewDisplayStateToTruthState(displayState: OverviewDisplayState) {
+  switch (displayState) {
+    case "ready":
+      return "live";
+    case "stale":
+      return "stale";
+    case "partial":
+      return "degraded";
+    case "loading":
+      return "loading";
+    case "unavailable":
+    default:
+      return "unavailable";
+  }
+}
+
+function isKnownOverviewSnapshotUnavailable(error: { message?: string } | null | undefined) {
+  const message = error?.message ?? "";
+  return (
+    message.includes("No verified admin metric snapshot display payload") ||
+    message.includes("platform_pulse")
+  );
+}
 
 const AdminAnalyticsOperationsTab = dynamic(
   () => import("./components/AdminAnalyticsOperationsTab").then((module) => module.AdminAnalyticsOperationsTab),
@@ -49,19 +74,14 @@ const AdminTaskAndNotificationModules = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalTruthState, historicalSourceLabel, liveActiveDisplay, liveActiveTruthState, analyticsOverviewCards } = state;
-  const liveGuestSnapshot = liveResponse?.guestAnalyticsSnapshot ?? null;
-  const liveGuestHint = liveGuestSnapshot?.guestTruthState === "live" && liveGuestSnapshot.guestSamplesAvailable
-    ? `${formatCompactNumber(liveGuestSnapshot.uniqueAnonymousVisitorCount)} guests - live snapshot`
-    : liveGuestSnapshot?.guestTruthState === "stale"
-      ? "Guest snapshot stale"
-      : liveGuestSnapshot?.guestTruthState === "needs_review"
-        ? "Guest identity link evidence needs review"
-        : liveFeedStatus === "realtime"
-          ? "Guest samples unavailable"
-          : liveResponse?.liveTruthLabel === "fallback"
-            ? "30 min window - last verified"
-            : "30 min window";
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, historicalTruthState, historicalSourceLabel, analyticsOverviewDisplayMetrics } = state;
+  const overviewSnapshotUnavailable = isKnownOverviewSnapshotUnavailable(blockingAnalyticsError);
+  const primaryBlockingAnalyticsError = overviewSnapshotUnavailable ? null : blockingAnalyticsError;
+  const visibleOverviewDegradedCopy = (visibleDegradedCopy ?? []).filter(
+    (copy) =>
+      !copy.includes("platform_pulse") &&
+      !copy.includes("No verified admin metric snapshot display payload"),
+  );
   useEffect(() => {
     (window as typeof window & {
       __KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__?: unknown;
@@ -119,42 +139,51 @@ export default function AdminAnalyticsPage() {
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         <MetricCard
           label="Live Active"
-          value={liveActiveDisplay}
-          hint={liveGuestHint}
+          value={analyticsOverviewDisplayMetrics.liveActive.displayValue}
+          hint={analyticsOverviewDisplayMetrics.liveActive.compactFreshnessLine}
           icon={Activity}
-          truthState={liveActiveTruthState}
+          truthState={mapOverviewDisplayStateToTruthState(analyticsOverviewDisplayMetrics.liveActive.displayState)}
+          statusBadgeLabel={analyticsOverviewDisplayMetrics.liveActive.badgeLabel}
+          badgePlacement={analyticsOverviewDisplayMetrics.liveActive.showBadgeInPrimary ? "footer" : "hidden"}
+          compactPrimary
           dictionaryTooltip="Current active users on the platform. If live updates are delayed, this card shows the last verified short-window count."
         />
         <MetricCard
           label="Mobile Share"
-          value={analyticsOverviewCards.mobileShare.displayValue}
-          hint={analyticsOverviewCards.mobileShare.hint}
+          value={analyticsOverviewDisplayMetrics.mobileShare.displayValue}
+          hint={analyticsOverviewDisplayMetrics.mobileShare.compactFreshnessLine}
           icon={Smartphone}
-          truthState={analyticsOverviewCards.mobileShare.truthState}
-          statusBadgeLabel={analyticsOverviewCards.mobileShare.statusBadgeLabel}
+          truthState={mapOverviewDisplayStateToTruthState(analyticsOverviewDisplayMetrics.mobileShare.displayState)}
+          statusBadgeLabel={analyticsOverviewDisplayMetrics.mobileShare.badgeLabel}
+          badgePlacement={analyticsOverviewDisplayMetrics.mobileShare.showBadgeInPrimary ? "footer" : "hidden"}
+          compactPrimary
           dictionaryTooltip="Percentage of visitors in this time range who are on mobile devices. Essential for guiding responsive design priority."
         />
         <MetricCard
           label="Revenue"
-          value={analyticsOverviewCards.revenue.displayValue}
-          hint={analyticsOverviewCards.revenue.hint}
+          value={analyticsOverviewDisplayMetrics.revenue.displayValue}
+          hint={analyticsOverviewDisplayMetrics.revenue.compactFreshnessLine}
           icon={DollarSign}
-          truthState={analyticsOverviewCards.revenue.truthState}
-          statusBadgeLabel={analyticsOverviewCards.revenue.statusBadgeLabel}
+          truthState={mapOverviewDisplayStateToTruthState(analyticsOverviewDisplayMetrics.revenue.displayState)}
+          statusBadgeLabel={analyticsOverviewDisplayMetrics.revenue.badgeLabel}
+          badgePlacement={analyticsOverviewDisplayMetrics.revenue.showBadgeInPrimary ? "footer" : "hidden"}
+          compactPrimary
           dictionaryTooltip="Total top-line revenue measured in USD across all confirmed transactions within the range. Does not subtract platform fees."
         />
         <MetricCard
           label="Purchases"
-          value={analyticsOverviewCards.purchases.displayValue}
-          hint={analyticsOverviewCards.purchases.hint}
+          value={analyticsOverviewDisplayMetrics.purchases.displayValue}
+          hint={analyticsOverviewDisplayMetrics.purchases.compactFreshnessLine}
           icon={ShoppingBag}
-          truthState={analyticsOverviewCards.purchases.truthState}
-          statusBadgeLabel={analyticsOverviewCards.purchases.statusBadgeLabel}
+          truthState={mapOverviewDisplayStateToTruthState(analyticsOverviewDisplayMetrics.purchases.displayState)}
+          statusBadgeLabel={analyticsOverviewDisplayMetrics.purchases.badgeLabel}
+          badgePlacement={analyticsOverviewDisplayMetrics.purchases.showBadgeInPrimary ? "footer" : "hidden"}
+          compactPrimary
           dictionaryTooltip="Number of distinct successful purchases completed. Compare to checkout starts to monitor conversion dropout."
         />
       </div>
 
-      <div className="sticky top-[8.6rem] z-20 space-y-2.5 rounded-[1.4rem] border border-white/10 bg-black/65 p-2.5 backdrop-blur-xl md:top-24">
+      <div className="z-20 space-y-2 rounded-[1.1rem] border border-white/10 bg-black/65 p-2 backdrop-blur-xl md:sticky md:top-24 md:space-y-2.5 md:rounded-[1.4rem] md:p-2.5">
         
 
         
@@ -199,26 +228,35 @@ export default function AdminAnalyticsPage() {
         ) : null}
       </div>
 
-      {blockingAnalyticsError && (
+      {overviewSnapshotUnavailable ? (
+        <div
+          className="rounded-[1.1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-gray-300"
+          data-admin-analytics-overview-status="snapshot-unavailable"
+        >
+          Overview snapshot unavailable. Showing available confirmed metrics.
+        </div>
+      ) : null}
+
+      {primaryBlockingAnalyticsError && (
         <div className="rounded-[1.8rem] border border-red-500/20 bg-red-500/10 p-4">
           <p className="text-sm font-medium text-red-300">
-            {blockingAnalyticsError.message || "Analytics request failed."}
+            {primaryBlockingAnalyticsError.message || "Analytics request failed."}
           </p>
         </div>
       )}
 
-      {backgroundAnalyticsIssues.length > 0 && !blockingAnalyticsError ? (
+      {backgroundAnalyticsIssues.length > 0 && !primaryBlockingAnalyticsError ? (
         <div className="flex items-start gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
-          <div
-            className="min-w-0 space-y-0.5 text-xs text-amber-200"
-            title={backgroundAnalyticsIssues.join(" | ")}
-          >
+            <div
+              className="min-w-0 space-y-0.5 text-xs text-amber-200"
+              title={visibleOverviewDegradedCopy.join(" | ")}
+            >
             <p>
               <span className="font-semibold">Needs attention:</span>{" "}
-              {visibleDegradedCopy[0] ?? "Analytics is delayed. Showing last verified data."}
+              {visibleOverviewDegradedCopy[0] ?? "Analytics is delayed. Showing last verified data."}
             </p>
-            {visibleDegradedCopy[1] ? <p>{visibleDegradedCopy[1]}</p> : null}
+            {visibleOverviewDegradedCopy[1] ? <p>{visibleOverviewDegradedCopy[1]}</p> : null}
           </div>
         </div>
       ) : null}

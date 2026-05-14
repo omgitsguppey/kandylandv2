@@ -38,6 +38,60 @@ const mockState = vi.hoisted(() => {
           statusBadgeLabel: "LIVE",
         },
       },
+      analyticsOverviewDisplayMetrics: {
+        liveActive: {
+          id: "liveActive",
+          label: "Live Active",
+          displayValue: "12",
+          primaryValue: 12,
+          displayState: "ready",
+          exactness: "exact",
+          compactFreshnessLine: "Updated 1m ago",
+          debugReason: "live response loaded",
+          debugSource: "realtime_snapshot",
+          badgeLabel: "LIVE",
+          showBadgeInPrimary: false,
+        },
+        mobileShare: {
+          id: "mobileShare",
+          label: "Mobile Share",
+          displayValue: "50%",
+          primaryValue: 0.5,
+          displayState: "ready",
+          exactness: "derived",
+          compactFreshnessLine: "Updated 1m ago",
+          debugReason: "device sample loaded",
+          debugSource: "device_sample",
+          badgeLabel: "LIVE",
+          showBadgeInPrimary: false,
+        },
+        revenue: {
+          id: "revenue",
+          label: "Revenue",
+          displayValue: "$125",
+          primaryValue: 125,
+          displayState: "partial",
+          exactness: "derived",
+          compactFreshnessLine: "From confirmed transactions - updated 30d",
+          debugReason: "server transaction fallback",
+          debugSource: "server_transaction_fallback",
+          badgeLabel: "PARTIAL",
+          showBadgeInPrimary: false,
+        },
+        purchases: {
+          id: "purchases",
+          label: "Purchases",
+          displayValue: "3",
+          primaryValue: 3,
+          displayState: "partial",
+          exactness: "derived",
+          compactFreshnessLine: "Confirmed purchases - fallback",
+          debugReason: "server transaction fallback",
+          debugSource: "server_transaction_fallback",
+          badgeLabel: "PARTIAL",
+          showBadgeInPrimary: false,
+        },
+      },
       analyticsWarmState: "Polling enabled",
       liveSnapshotLabel: "[live]",
       historicalSnapshotLabel: "[historical]",
@@ -56,6 +110,7 @@ const mockState = vi.hoisted(() => {
       isPrimingAnalytics: false,
       liveResponse: { totalActive: 12, liveTruthLabel: "live" },
       backgroundAnalyticsIssues: [],
+      visibleDegradedCopy: [],
       analyticsOverviewDebugMeta: { metrics: [] },
       analyticsSnapshotMigrationDebug: {
         snapshotFirstMigrationEnabled: true,
@@ -99,9 +154,20 @@ vi.mock("@/components/Admin/AdminPageHeader", () => ({
 }));
 
 vi.mock("@/components/Admin/Analytics/AdminAnalyticsPrimitives", () => ({
-  MetricCard: ({ label, value }: { label: string; value: string | number }) => (
-    <div>
+  MetricCard: ({
+    label,
+    value,
+    hint,
+    badgePlacement,
+  }: {
+    label: string;
+    value: string | number;
+    hint?: string;
+    badgePlacement?: string;
+  }) => (
+    <div data-badge-placement={badgePlacement}>
       {label}:{String(value)}
+      {hint ? <span>{hint}</span> : null}
     </div>
   ),
 }));
@@ -147,6 +213,8 @@ describe("AdminAnalyticsPage", () => {
       showHistoricalEmptyState: false,
       blockingAnalyticsError: null,
       backgroundAnalyticsIssues: [],
+      visibleDegradedCopy: [],
+      analyticsOverviewDebugMeta: { metrics: [] },
     };
     mockState.reportClientIssue.mockReset();
     delete (window as typeof window & {
@@ -239,5 +307,95 @@ describe("AdminAnalyticsPage", () => {
         manualRefreshEnabled: true,
       }),
     );
+  });
+
+  it("keeps raw platform_pulse snapshot keys out of the primary overview", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      blockingAnalyticsError: {
+        message:
+          "No verified admin metric snapshot display payload is available for platform_pulse:30d.",
+      },
+      analyticsOverviewDebugMeta: {
+        metrics: {
+          liveActive: {
+            cacheKey: "platform_pulse:30d",
+          },
+        },
+      },
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).toContain(
+      "Overview snapshot unavailable. Showing available confirmed metrics.",
+    );
+    expect(container.textContent).not.toContain("platform_pulse:30d");
+    expect(container.textContent).not.toContain(
+      "No verified admin metric snapshot display payload",
+    );
+    expect(
+      (window as typeof window & {
+        __KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__?: {
+          metrics?: {
+            liveActive?: {
+              cacheKey?: string;
+            };
+          };
+        };
+      }).__KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__?.metrics?.liveActive?.cacheKey,
+    ).toBe("platform_pulse:30d");
+  });
+
+  it("renders compact overview metrics without giant waiting values or header badges", async () => {
+    mockState.analyticsState = {
+      ...mockState.analyticsState,
+      analyticsOverviewDisplayMetrics: {
+        ...(mockState.analyticsState as {
+          analyticsOverviewDisplayMetrics: Record<string, unknown>;
+        }).analyticsOverviewDisplayMetrics,
+        revenue: {
+          id: "revenue",
+          label: "Revenue",
+          displayValue: "Unavailable",
+          primaryValue: null,
+          displayState: "unavailable",
+          exactness: "unavailable",
+          compactFreshnessLine: "No verified snapshot yet.",
+          debugReason: "missing revenue snapshot",
+          debugSource: "commerce_snapshot",
+          badgeLabel: "UNAVAILABLE",
+          showBadgeInPrimary: false,
+        },
+        purchases: {
+          id: "purchases",
+          label: "Purchases",
+          displayValue: "No snapshot yet",
+          primaryValue: null,
+          displayState: "loading",
+          exactness: "unavailable",
+          compactFreshnessLine: "No verified snapshot yet.",
+          debugReason: "missing purchase snapshot",
+          debugSource: "commerce_snapshot",
+          badgeLabel: "WAIT",
+          showBadgeInPrimary: false,
+        },
+      },
+    };
+
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(container.textContent).toContain("Revenue:Unavailable");
+    expect(container.textContent).toContain("Purchases:No snapshot yet");
+    expect(container.textContent).not.toContain("Waiting for first snapshot");
+    expect(
+      Array.from(container.querySelectorAll("[data-badge-placement]")).every(
+        (node) => node.getAttribute("data-badge-placement") === "hidden",
+      ),
+    ).toBe(true);
   });
 });

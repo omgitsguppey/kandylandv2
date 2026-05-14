@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatAdminAnalyticsEvidenceSourceLabel,
   resolveAdminAnalyticsDisplayState,
+  resolveAdminAnalyticsOverviewMetricState,
 } from "@/lib/analytics/admin-analytics-display-state";
 import {
   normalizeAdminSnapshotRatio,
@@ -197,5 +198,38 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(formatAdminAnalyticsEvidenceSourceLabel("debug_only")).toBe("Debug-only recovery evidence");
     expect(formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only")).toBe("Needs review before promotion");
     expect(formatAdminAnalyticsEvidenceSourceLabel("missing")).toBe("Unavailable until source samples exist");
+  });
+
+  it("maps missing overview snapshots to unavailable compact state", () => {
+    expect(resolveAdminAnalyticsOverviewMetricState({
+      primaryValue: null,
+      truthState: "unavailable",
+      sourceTruth: "missing",
+    })).toEqual({
+      displayState: "unavailable",
+      exactness: "unavailable",
+    });
+  });
+
+  it("labels confirmed transaction fallback as partial derived, not exact snapshot truth", () => {
+    expect(resolveAdminAnalyticsOverviewMetricState({
+      primaryValue: 7,
+      truthState: "degraded",
+      sourceTruth: "server_transactions",
+    })).toEqual({
+      displayState: "partial",
+      exactness: "derived",
+    });
+  });
+
+  it("does not treat missing values as fake zero or live overview truth", () => {
+    const state = resolveAdminAnalyticsOverviewMetricState({
+      primaryValue: null,
+      truthState: "live",
+      sourceTruth: "realtime_snapshot",
+    });
+
+    expect(state.displayState).toBe("unavailable");
+    expect(state.exactness).toBe("unavailable");
   });
 });

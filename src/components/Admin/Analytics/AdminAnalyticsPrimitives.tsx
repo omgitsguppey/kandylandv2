@@ -44,6 +44,8 @@ export interface MetricCardProps {
     truthState?: AdminSurfaceState;
     dictionaryTooltip?: string;
     statusBadgeLabel?: string;
+    compactPrimary?: boolean;
+    badgePlacement?: "header" | "footer" | "hidden";
 }
 
 export function AnalyticsTooltip({
@@ -152,8 +154,17 @@ export function MetricCard({
     truthState,
     dictionaryTooltip,
     statusBadgeLabel,
+    compactPrimary = false,
+    badgePlacement = "header",
 }: MetricCardProps) {
     const resolvedTruthState = truthState ? coerceAdminSurfaceState(truthState) : undefined;
+    const statusBadge = resolvedTruthState ? (
+        <AdminStatusBadge
+            state={resolvedTruthState}
+            label={statusBadgeLabel ?? resolveAdminAnalyticsBadgeLabel(resolvedTruthState)}
+            className="max-w-full min-w-0 truncate whitespace-nowrap rounded px-1.5 py-0.5 text-[9px] leading-4 tracking-[0.08em]"
+        />
+    ) : null;
 
     return (
         <div
@@ -161,11 +172,17 @@ export function MetricCard({
                 "overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/30 p-2.5",
                 className,
             )}
+            data-admin-analytics-truth-state={resolvedTruthState}
         >
-            <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+            <div
+                className={cn(
+                    "mb-1.5 grid items-start gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500",
+                    badgePlacement === "header" ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
+                )}
+            >
                 <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
                     <Icon className="h-3.5 w-3.5 shrink-0 text-brand-purple" />
-                    <span className="min-w-0 truncate">{label}</span>
+                    <span className={cn("min-w-0", compactPrimary ? "whitespace-normal leading-4" : "truncate")}>{label}</span>
                     {dictionaryTooltip && (
                         <div className="group relative ml-1 flex shrink-0 items-center">
                             <Info className="h-3 w-3 text-gray-400 hover:text-white transition-colors cursor-help" />
@@ -178,13 +195,9 @@ export function MetricCard({
                         </div>
                     )}
                 </div>
-                {resolvedTruthState ? (
+                {badgePlacement === "header" && statusBadge ? (
                     <div className="min-w-0 max-w-[5.75rem] justify-self-end overflow-hidden">
-                        <AdminStatusBadge
-                            state={resolvedTruthState}
-                            label={statusBadgeLabel ?? resolveAdminAnalyticsBadgeLabel(resolvedTruthState)}
-                            className="max-w-full min-w-0 truncate whitespace-nowrap rounded px-1.5 py-0.5 text-[9px] leading-4 tracking-[0.08em]"
-                        />
+                        {statusBadge}
                     </div>
                 ) : null}
             </div>
@@ -197,6 +210,11 @@ export function MetricCard({
                 {value}
             </div>
             {hint ? <p className="mt-1 text-[11px] text-gray-400">{hint}</p> : null}
+            {badgePlacement === "footer" && statusBadge ? (
+                <div className="mt-1.5 flex justify-start">
+                    {statusBadge}
+                </div>
+            ) : null}
         </div>
     );
 }

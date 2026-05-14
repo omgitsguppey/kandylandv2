@@ -73,6 +73,73 @@ export type AdminAnalyticsDisplayState = {
   graphMissingButSnapshotRendered: boolean;
 };
 
+export type AdminAnalyticsOverviewDisplayState =
+  | "ready"
+  | "stale"
+  | "partial"
+  | "unavailable"
+  | "loading";
+
+export type AdminAnalyticsOverviewExactness =
+  | "exact"
+  | "derived"
+  | "estimated"
+  | "unavailable";
+
+export function resolveAdminAnalyticsOverviewMetricState(input: {
+  primaryValue: number | null;
+  truthState: string | null | undefined;
+  sourceTruth: string | null | undefined;
+  loading?: boolean;
+}): {
+  displayState: AdminAnalyticsOverviewDisplayState;
+  exactness: AdminAnalyticsOverviewExactness;
+} {
+  if (input.loading) {
+    return {
+      displayState: "loading",
+      exactness: "unavailable",
+    };
+  }
+
+  if (input.primaryValue === null || input.truthState === "unavailable" || input.truthState === "failed") {
+    return {
+      displayState: "unavailable",
+      exactness: "unavailable",
+    };
+  }
+
+  if (input.truthState === "stale") {
+    return {
+      displayState: "stale",
+      exactness: input.sourceTruth === "server_transactions" ? "derived" : "exact",
+    };
+  }
+
+  if (
+    input.truthState === "degraded" ||
+    input.truthState === "fallback" ||
+    input.sourceTruth === "server_transactions"
+  ) {
+    return {
+      displayState: "partial",
+      exactness: input.sourceTruth === "estimated" ? "estimated" : "derived",
+    };
+  }
+
+  if (input.sourceTruth === "device_sample" || input.sourceTruth === "telemetry_sample") {
+    return {
+      displayState: "ready",
+      exactness: "derived",
+    };
+  }
+
+  return {
+    displayState: "ready",
+    exactness: "exact",
+  };
+}
+
 export function formatAdminAnalyticsEvidenceSourceLabel(
   sourceKind: AdminAnalyticsEvidenceSourceKind | string | null | undefined,
 ) {

@@ -67,8 +67,6 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const compactLiveMetricClass = "rounded-[1rem] p-2";
   const compactLiveMetricValueClass = "text-lg leading-6 md:text-xl";
   const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
-  const verifiedSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("verified_snapshot");
-  const staleSnapshotLabel = formatAdminAnalyticsEvidenceSourceLabel("stale_cache");
   const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
   const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
   const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
@@ -100,6 +98,21 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const lastUpdateValue = liveResponse?.generatedAtMs
     ? formatRelativeTime(liveResponse.generatedAtMs, nowMs)
     : livePulseModel.activeIdentities[0]?.lastSeenLabel ?? (liveLoading ? firstSnapshotLabel : noSnapshotLabel);
+  const livePulseCompactStatusLine = liveResponse?.generatedAtMs
+    ? `Updated ${formatRelativeTime(liveResponse.generatedAtMs, nowMs)}`
+    : livePulseModel.refreshState === "refreshing"
+      ? "Refreshing"
+      : livePulseModel.mode === "unavailable"
+        ? "Snapshot unavailable"
+        : livePulseModel.latestVerifiedSnapshotExists
+          ? "Last verified data"
+          : "No verified snapshot yet";
+  const livePulseCompactIssueLine =
+    livePulseModel.guestSnapshotTruthState === "unavailable"
+      ? "Guest samples unavailable"
+      : livePulseModel.mode === "delayed_snapshot"
+        ? "Live updates delayed"
+        : null;
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -205,7 +218,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               title="Live Pulse"
               subtitle="First-party realtime presence and graph health."
               icon={Activity}
-              defaultExpanded
+              defaultExpanded={false}
               rightSlot={renderSectionRangeControl("livePulse")}
             >
               <div
@@ -214,15 +227,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 data-admin-analytics-vendor-source-label="vendor_evidence"
                 data-admin-analytics-raw-ledger-display="debug_only"
                 data-admin-analytics-recovery-promotion="debug_only_not_promoted"
+                data-admin-analytics-live-pulse-default-expanded="false"
+                title={livePulseModel.topWarningDetail ?? livePulseModel.topWarning}
               >
                 <div className="min-w-0">
-                  <p>{livePulseModel.topWarning}</p>
-                  {livePulseModel.topWarningDetail ? (
-                    <p className="mt-1 text-[10px] text-gray-400">{livePulseModel.topWarningDetail}</p>
+                  <p>{livePulseCompactStatusLine}</p>
+                  {livePulseCompactIssueLine ? (
+                    <p className="mt-1 text-[10px] text-gray-400">{livePulseCompactIssueLine}</p>
                   ) : null}
-                  <p className="mt-1 text-[10px] text-gray-400">
-                    {verifiedSnapshotLabel} or {staleSnapshotLabel} drives display; raw logs stay {debugRecoveryLabel}.
-                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
