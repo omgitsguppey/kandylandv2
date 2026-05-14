@@ -53,6 +53,79 @@ describe("admin debug control tower model", () => {
         expect(publicBeta?.topFindings[0]?.title).toContain("older than 72 hours");
     });
 
+    it("reads canonical public beta score and cap reasons separately from report averages", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAt: "2026-05-04T00:00:00.000Z",
+            overallScore: 25,
+            overallStatus: "beta-risk",
+            readinessStatus: "Stale evidence",
+            readinessStatusReason: "3 required generated report(s) are older than the freshness window.",
+            evidenceScore: 25,
+            evidenceCapDetails: [
+                "Runtime unverified: Runtime/provider smoke - Run formal deployed runtime smoke later.",
+                "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot.",
+                "Stale evidence: Freshness, PR, and HEAD integrity - 3 required generated report(s) are older than the freshness window.",
+            ],
+            sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            currentHead: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            findings: [],
+        });
+        writeReport(root, "speed-security-hardening.generated.json", {
+            generatedAt: "2026-05-04T00:00:00.000Z",
+            overallScore: 75,
+            overallStatus: "warning",
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
+
+        expect(model.canonicalPublicBetaScore).toBe(25);
+        expect(model.canonicalPublicBetaStatus).toBe("beta-risk");
+        expect(model.canonicalPublicBetaReadinessStatus).toBe("Stale evidence");
+        expect(model.canonicalPublicBetaReadinessReason).toContain("3 required generated report");
+        expect(model.canonicalPublicBetaEvidenceScore).toBe(25);
+        expect(model.canonicalPublicBetaCapDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Runtime unverified"),
+            expect.stringContaining("Admin truth/sample evidence"),
+        ]));
+        expect(model.reportAggregateScore).toBe(50);
+        expect(model.reportAggregateSummary).toContain("Required generated report average");
+        expect(model.overallScore).toBe(25);
+    });
+
+    it("marks generated report source commit drift as stale instead of live", () => {
+        const root = createTempRoot();
+        writeReport(root, "public-beta-score.generated.json", {
+            generatedAt: "2026-05-04T00:00:00.000Z",
+            overallScore: 99,
+            overallStatus: "clean",
+            sourceCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            currentHead: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            findings: [],
+        });
+
+        const model = buildAdminDebugControlTowerModel({ rootDir: root, nowMs: Date.UTC(2026, 4, 4) });
+        const publicBeta = model.reports.find((report) => report.id === "public-beta-score");
+
+        expect(publicBeta?.truthState).toBe("stale");
+        expect(publicBeta?.sourceDrift).toBe("stale");
+        expect(publicBeta?.topFindings[0]?.title).toContain("source commit needs review");
+    });
+
+    it("wires the compact UI to canonical beta score fields instead of aggregate score", () => {
+        const root = process.cwd();
+        const component = readFileSync(join(root, "src/app/admin/debug/components/DebugControlTower.tsx"), "utf8");
+
+        expect(component).toContain("canonicalPublicBetaScore");
+        expect(component).toContain("canonicalPublicBetaReadinessReason");
+        expect(component).toContain("canonicalPublicBetaEvidenceScore");
+        expect(component).toContain("canonicalPublicBetaCapDetails.slice(0, 3)");
+        expect(component).toContain("Report evidence summary");
+        expect(component).toContain("reportAggregateScore");
+        expect(component).not.toContain("model?.overallScore ?? \"--\"");
+    });
+
     it("surfaces critical findings and next actions first", () => {
         const root = createTempRoot();
         writeReport(root, "public-beta-score.generated.json", {

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 
 import type { DebugEvidenceAuditSummary } from "@/lib/debug-evidence-contract";
 import type { AdminTruthState } from "@/lib/admin-truth-state";
@@ -34,6 +34,9 @@ export type AdminDebugReportCard = {
     criticalCount: number;
     majorCount: number;
     required: boolean;
+    sourceCommit: string | null;
+    currentHead: string | null;
+    sourceDrift: "current" | "stale" | "unknown";
     topFindings: AdminDebugFindingCard[];
 };
 
@@ -101,6 +104,18 @@ export type AdminDebugControlTowerModel = {
     subtitle: "Public beta truth, live evidence, and next actions.";
     overallScore: number | null;
     overallStatus: string;
+    canonicalPublicBetaScore: number | null;
+    canonicalPublicBetaStatus: string;
+    canonicalPublicBetaReadinessStatus: string;
+    canonicalPublicBetaReadinessReason: string;
+    canonicalPublicBetaEvidenceScore: number | null;
+    canonicalPublicBetaCapDetails: string[];
+    canonicalPublicBetaGeneratedAtUtc: string | null;
+    canonicalPublicBetaSourceCommit: string | null;
+    canonicalPublicBetaCurrentHead: string | null;
+    reportAggregateScore: number | null;
+    reportAggregateTruthState: AdminDebugTruthState;
+    reportAggregateSummary: string;
     truthState: AdminDebugTruthState;
     criticalCount: number;
     staleReportCount: number;
@@ -174,6 +189,118 @@ function toNumber(value: unknown): number | null {
 
 function toStringValue(value: unknown, fallback = "") {
     return typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
+}
+
+function toStringArray(value: unknown) {
+    return Array.isArray(value) ? value.map((entry) => String(entry)).filter((entry) => entry.trim().length > 0) : [];
+}
+
+function normalizeCommit(value: unknown) {
+    return typeof value === "string" && /^[a-f0-9]{7,40}$/iu.test(value.trim())
+        ? value.trim()
+        : null;
+}
+
+function commitsMatch(left: string | null, right: string | null) {
+    if (!left || !right) {
+        return false;
+    }
+    return left === right || left.startsWith(right) || right.startsWith(left);
+}
+
+function resolveGitDir(rootDir: string) {
+    const gitPath = join(rootDir, ".git");
+    if (!existsSync(gitPath)) {
+        return null;
+    }
+
+    const gitStat = statSync(gitPath);
+    if (gitStat.isDirectory()) {
+        return gitPath;
+    }
+
+    const gitDirLine = readFileSync(gitPath, "utf8").trim();
+    if (!gitDirLine.startsWith("gitdir:")) {
+        return null;
+    }
+
+    const gitDir = gitDirLine.slice("gitdir:".length).trim();
+    return isAbsolute(gitDir) ? gitDir : join(rootDir, gitDir);
+}
+
+function readCurrentHead(rootDir: string) {
+    try {
+        const gitDir = resolveGitDir(rootDir);
+        if (!gitDir) {
+            return null;
+        }
+
+        const head = readFileSync(join(gitDir, "HEAD"), "utf8").trim();
+        if (!head.startsWith("ref:")) {
+            return normalizeCommit(head);
+        }
+
+        const ref = head.slice("ref:".length).trim();
+        const refPath = join(gitDir, ref);
+        if (existsSync(refPath)) {
+            return normalizeCommit(readFileSync(refPath, "utf8").trim());
+        }
+    } catch {
+        return null;
+    }
+
+    return null;
+}
+
+function readReportCommitState(raw: Record<string, unknown>, repoCurrentHead: string | null) {
+    const sourceCommit = normalizeCommit(raw.sourceCommit);
+    const currentHead = normalizeCommit(raw.currentHead);
+    const sourceCommitMismatch = Boolean(sourceCommit && currentHead && !commitsMatch(sourceCommit, currentHead));
+    const currentHeadLag = Boolean(currentHead && repoCurrentHead && !commitsMatch(currentHead, repoCurrentHead));
+    const sourceDrift: AdminDebugReportCard["sourceDrift"] = sourceCommitMismatch || currentHeadLag
+        ? "stale"
+        : sourceCommit || currentHead
+            ? "current"
+            : "unknown";
+
+    return {
+        sourceCommit,
+        currentHead,
+        sourceDrift,
+        sourceCommitMismatch,
+        currentHeadLag,
+        repoCurrentHead,
+    };
+}
+
+function buildSourceDriftFinding(
+    definition: ReportDefinition,
+    relativePath: string,
+    commitState: ReturnType<typeof readReportCommitState>,
+): AdminDebugFindingCard[] {
+    if (commitState.sourceDrift !== "stale") {
+        return [];
+    }
+
+    const evidence = [
+        commitState.sourceCommit ? `sourceCommit=${commitState.sourceCommit}` : null,
+        commitState.currentHead ? `reportCurrentHead=${commitState.currentHead}` : null,
+        commitState.repoCurrentHead ? `repoCurrentHead=${commitState.repoCurrentHead}` : null,
+    ].filter((entry): entry is string => Boolean(entry));
+
+    return [{
+        id: `${definition.id}-source-drift`,
+        reportId: definition.id,
+        section: definition.section,
+        severity: "moderate",
+        title: `${definition.label} source commit needs review`,
+        domain: definition.section,
+        filePath: relativePath,
+        humanReadableWarning: "Generated report commit metadata does not match the current repo head and cannot be treated as live.",
+        suggestedValidator: definition.command,
+        evidence,
+        truthState: "stale",
+    }];
 }
 
 function normalizeSeverity(value: unknown): AdminDebugSeverity {
@@ -253,7 +380,7 @@ function normalizeFinding(
     };
 }
 
-function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowMs: number): AdminDebugReportCard {
+function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowMs: number, repoCurrentHead: string | null): AdminDebugReportCard {
     const relativePath = join("agent", "state", definition.fileName).replaceAll("\\", "/");
     const fullPath = join(rootDir, "agent", "state", definition.fileName);
     if (!existsSync(fullPath)) {
@@ -275,6 +402,9 @@ function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowM
             criticalCount: definition.required ? 1 : 0,
             majorCount: 0,
             required: definition.required === true,
+            sourceCommit: null,
+            currentHead: null,
+            sourceDrift: "unknown",
             topFindings: definition.required
                 ? [{
                     id: `${definition.id}-missing`,
@@ -310,6 +440,7 @@ function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowM
                 : "fresh";
         const score = toNumber(raw.overallScore ?? raw.score);
         const status = statusFromScore(score, toStringValue(raw.overallStatus ?? raw.status, "unknown"));
+        const commitState = readReportCommitState(raw, repoCurrentHead);
         const allFindings = collectFindings(raw);
         const normalizedFindings = allFindings
             .map((finding, index) => normalizeFinding(definition.id, definition.section, definition.command, index, finding))
@@ -337,7 +468,11 @@ function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowM
                 truthState: "stale",
             }]
             : [];
-        const truthState = truthStateFromStatus(status, freshness, definition.required === true);
+        const sourceDriftFinding = buildSourceDriftFinding(definition, relativePath, commitState);
+        const baseTruthState = truthStateFromStatus(status, freshness, definition.required === true);
+        const truthState = commitState.sourceDrift === "stale" && !["failed", "missing"].includes(baseTruthState)
+            ? "stale"
+            : baseTruthState;
 
         return {
             id: definition.id,
@@ -354,9 +489,12 @@ function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowM
             ageHours: Number(ageHours.toFixed(1)),
             findingCount: Math.max(Number(raw.findingCount) || 0, Number(raw.dedupedFindingCount) || 0, normalizedFindings.length),
             criticalCount,
-            majorCount: majorCount + staleFinding.length,
+            majorCount: majorCount + staleFinding.length + sourceDriftFinding.length,
             required: definition.required === true,
-            topFindings: [...staleFinding, ...normalizedFindings].slice(0, 5),
+            sourceCommit: commitState.sourceCommit,
+            currentHead: commitState.currentHead,
+            sourceDrift: commitState.sourceDrift,
+            topFindings: [...staleFinding, ...sourceDriftFinding, ...normalizedFindings].slice(0, 5),
         };
     } catch (error) {
         return {
@@ -376,6 +514,9 @@ function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowM
             criticalCount: definition.required ? 1 : 0,
             majorCount: definition.required ? 0 : 1,
             required: definition.required === true,
+            sourceCommit: null,
+            currentHead: null,
+            sourceDrift: "unknown",
             topFindings: [{
                 id: `${definition.id}-parse-failed`,
                 reportId: definition.id,
@@ -389,6 +530,50 @@ function readGeneratedReport(rootDir: string, definition: ReportDefinition, nowM
                 evidence: [error instanceof Error ? error.message : "Unknown parse error"],
                 truthState: "failed",
             }],
+        };
+    }
+}
+
+function readCanonicalPublicBetaScore(rootDir: string) {
+    const fullPath = join(rootDir, "agent", "state", "public-beta-score.generated.json");
+    if (!existsSync(fullPath)) {
+        return {
+            canonicalPublicBetaScore: null,
+            canonicalPublicBetaStatus: "missing",
+            canonicalPublicBetaReadinessStatus: "missing",
+            canonicalPublicBetaReadinessReason: "Canonical public beta score artifact is missing.",
+            canonicalPublicBetaEvidenceScore: null,
+            canonicalPublicBetaCapDetails: [],
+            canonicalPublicBetaGeneratedAtUtc: null,
+            canonicalPublicBetaSourceCommit: null,
+            canonicalPublicBetaCurrentHead: null,
+        };
+    }
+
+    try {
+        const raw = JSON.parse(readFileSync(fullPath, "utf8")) as Record<string, unknown>;
+        return {
+            canonicalPublicBetaScore: toNumber(raw.overallScore),
+            canonicalPublicBetaStatus: toStringValue(raw.overallStatus ?? raw.status, "unknown"),
+            canonicalPublicBetaReadinessStatus: toStringValue(raw.readinessStatus, "unknown"),
+            canonicalPublicBetaReadinessReason: toStringValue(raw.readinessStatusReason, "No readiness status reason was supplied."),
+            canonicalPublicBetaEvidenceScore: toNumber(raw.evidenceScore),
+            canonicalPublicBetaCapDetails: toStringArray(raw.evidenceCapDetails).slice(0, 12),
+            canonicalPublicBetaGeneratedAtUtc: toStringValue(raw.generatedAtUtc ?? raw.generatedAt, "") || null,
+            canonicalPublicBetaSourceCommit: normalizeCommit(raw.sourceCommit),
+            canonicalPublicBetaCurrentHead: normalizeCommit(raw.currentHead),
+        };
+    } catch {
+        return {
+            canonicalPublicBetaScore: null,
+            canonicalPublicBetaStatus: "failed",
+            canonicalPublicBetaReadinessStatus: "failed",
+            canonicalPublicBetaReadinessReason: "Canonical public beta score artifact could not be parsed.",
+            canonicalPublicBetaEvidenceScore: null,
+            canonicalPublicBetaCapDetails: [],
+            canonicalPublicBetaGeneratedAtUtc: null,
+            canonicalPublicBetaSourceCommit: null,
+            canonicalPublicBetaCurrentHead: null,
         };
     }
 }
@@ -472,7 +657,9 @@ export function buildAdminDebugControlTowerModel(options?: {
 }): AdminDebugControlTowerModel {
     const rootDir = options?.rootDir ?? process.cwd();
     const nowMs = options?.nowMs ?? Date.now();
-    const reports = ADMIN_DEBUG_CONTROL_TOWER_REPORTS.map((definition) => readGeneratedReport(rootDir, definition, nowMs));
+    const repoCurrentHead = readCurrentHead(rootDir);
+    const reports = ADMIN_DEBUG_CONTROL_TOWER_REPORTS.map((definition) => readGeneratedReport(rootDir, definition, nowMs, repoCurrentHead));
+    const canonicalPublicBeta = readCanonicalPublicBetaScore(rootDir);
     const allFindings = reports.flatMap((report) => report.topFindings);
     const sortedFindings = [...allFindings].sort((left, right) => SEVERITY_RANK[right.severity] - SEVERITY_RANK[left.severity]);
     const generatedEvidence = options?.debugEvidence?.length ? [] : readGeneratedDebugEvidence(rootDir);
@@ -492,7 +679,7 @@ export function buildAdminDebugControlTowerModel(options?: {
     const scoreValues = reports
         .filter((report) => report.required && Number.isFinite(report.score ?? Number.NaN))
         .map((report) => report.score as number);
-    const overallScore = scoreValues.length > 0
+    const reportAggregateScore = scoreValues.length > 0
         ? Number((scoreValues.reduce((total, score) => total + score, 0) / scoreValues.length).toFixed(1))
         : null;
     const truthState: AdminDebugTruthState = criticalCount > 0
@@ -502,6 +689,9 @@ export function buildAdminDebugControlTowerModel(options?: {
             : staleReportCount > 0
                 ? "stale"
                 : "live";
+    const reportAggregateSummary = reportAggregateScore === null
+        ? "No required report scores are available."
+        : `Required generated report average is ${reportAggregateScore}/100 across ${scoreValues.length} scored report(s).`;
     const nextActions: AdminDebugNextAction[] = sortedFindings.slice(0, 10).map((finding, index) => ({
         id: `next-${finding.id}-${index}`,
         action: finding.humanReadableWarning,
@@ -515,8 +705,12 @@ export function buildAdminDebugControlTowerModel(options?: {
         generatedAt: new Date(nowMs).toISOString(),
         title: "Control Tower",
         subtitle: "Public beta truth, live evidence, and next actions.",
-        overallScore,
+        overallScore: canonicalPublicBeta.canonicalPublicBetaScore,
         overallStatus: truthState === "failed" ? "failed" : truthState === "stale" ? "stale" : truthState === "missing" ? "missing" : "live",
+        ...canonicalPublicBeta,
+        reportAggregateScore,
+        reportAggregateTruthState: truthState,
+        reportAggregateSummary,
         truthState,
         criticalCount,
         staleReportCount,

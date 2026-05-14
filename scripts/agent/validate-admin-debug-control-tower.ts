@@ -175,6 +175,16 @@ for (const expected of [
   "nonActionableThirdParty?: boolean",
   "sourceSurface?: string",
   "browserFrameOwner?: string",
+  "canonicalPublicBetaScore",
+  "canonicalPublicBetaReadinessReason",
+  "canonicalPublicBetaCapDetails",
+  "evidenceCapDetails",
+  "readCanonicalPublicBetaScore",
+  "reportAggregateScore",
+  "reportAggregateTruthState",
+  "reportAggregateSummary",
+  "readReportCommitState",
+  "sourceDrift",
   "ADMIN_DEBUG_CONTROL_TOWER_REPORTS",
   "public-beta-score.generated.json",
   "speed-security-hardening.generated.json",
@@ -197,6 +207,21 @@ for (const expected of [
 ]) {
   requireIncludes(helper, expected, "Admin debug control tower model helper");
 }
+requireNotIncludes(helper, "const overallScore = scoreValues", "Admin debug control tower model helper must not compute the primary score from report averages");
+for (const expected of [
+  "model?.canonicalPublicBetaScore ?? \"--\"",
+  "canonicalPublicBetaReadinessReason",
+  "canonicalPublicBetaEvidenceScore",
+  "canonicalPublicBetaCapDetails.slice(0, 3)",
+  "Report evidence summary",
+  "reportAggregateSummary",
+  "reportAggregateScore",
+  "data-debug-canonical-public-beta-score",
+]) {
+  requireIncludes(controlTower, expected, "Admin Debug Control Tower canonical beta score card");
+}
+requireNotIncludes(controlTower, "model?.overallScore ?? \"--\"", "Admin Debug Control Tower primary score must not render report aggregate overallScore");
+requireNotIncludes(controlTower, "reportAggregateScore ?? \"clean\"", "Admin Debug Control Tower report aggregate must not be labeled clean/ready");
 for (const expected of [
   "\"browser_security_boundary\"",
   "technicalSummary?:",

@@ -98,6 +98,10 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
     const controlTowerBadgeState = controlTruthState === "missing" || controlTruthState === "unknown"
         ? "unavailable"
         : controlTruthState;
+    const canonicalBetaCapDetails = Array.isArray(model?.canonicalPublicBetaCapDetails)
+        ? model.canonicalPublicBetaCapDetails.slice(0, 3)
+        : [];
+    const runtimeEvidenceGroups = Array.isArray(model?.runtimeEvidenceGroups) ? model.runtimeEvidenceGroups : [];
 
     return (
         <section
@@ -109,6 +113,7 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
             data-debug-truth-state={controlTruthState}
             data-debug-critical-count={model?.criticalCount ?? 0}
             data-debug-next-action-count={model?.nextActions.length ?? 0}
+            data-debug-canonical-public-beta-score={model?.canonicalPublicBetaScore ?? "unavailable"}
         >
             <div className="rounded-[1.35rem] border border-white/10 bg-black/35 p-4 shadow-xl shadow-black/20 backdrop-blur-xl">
                 <div className="flex items-start justify-between gap-4">
@@ -128,10 +133,37 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                     </div>
                     <div className="shrink-0 text-right">
                         <AdminTruthBadge state={controlTowerBadgeState} className="mb-2" />
-                        <p className="text-3xl font-black text-white">{model?.overallScore ?? "--"}</p>
+                        <p className="text-3xl font-black text-white">{model?.canonicalPublicBetaScore ?? "--"}</p>
+                        <p className="text-[11px] font-semibold text-gray-300">{model?.canonicalPublicBetaReadinessStatus ?? "Score unavailable"}</p>
                         <p className="text-[11px] text-gray-400">{loading ? "Loading" : model ? formatRelative(Date.parse(model.generatedAt)) : "Unavailable"}</p>
                     </div>
                 </div>
+                {model ? (
+                    <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3" data-debug-report-source="agent/state/public-beta-score.generated.json">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Canonical public beta score</p>
+                                <p className="mt-1 text-sm font-semibold text-white">{model.canonicalPublicBetaReadinessReason}</p>
+                                <p className="mt-1 text-xs text-gray-400">Status {model.canonicalPublicBetaStatus} | evidence {model.canonicalPublicBetaEvidenceScore ?? "--"}/100</p>
+                            </div>
+                            <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] text-gray-300">
+                                {model.canonicalPublicBetaGeneratedAtUtc ?? "No generatedAtUtc"}
+                            </span>
+                        </div>
+                        {canonicalBetaCapDetails.length > 0 ? (
+                            <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-gray-300">
+                                {canonicalBetaCapDetails.map((capDetail, index) => (
+                                    <li key={`canonical-beta-cap-${index}`}>{capDetail}</li>
+                                ))}
+                            </ul>
+                        ) : null}
+                        <details className="mt-2 rounded-xl border border-white/10 bg-black/20 px-2 py-1 text-xs text-gray-300">
+                            <summary className="min-h-9 cursor-pointer pt-2 font-semibold text-gray-100">Report evidence summary</summary>
+                            <p className="mt-1 text-gray-300">{model.reportAggregateSummary}</p>
+                            <p className="mt-1 text-gray-500">Report average {model.reportAggregateScore ?? "--"} | {model.reportAggregateTruthState}</p>
+                        </details>
+                    </div>
+                ) : null}
                 <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                     <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
                         <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Critical</p>
@@ -159,9 +191,9 @@ export function DebugControlTower({ businessSnapshot }: { businessSnapshot?: Adm
                 />
             ) : null}
 
-            {model && model.runtimeEvidenceGroups.length > 0 ? (
+            {model && runtimeEvidenceGroups.length > 0 ? (
                 <DebugRuntimeEvidenceGroups
-                    groups={model.runtimeEvidenceGroups}
+                    groups={runtimeEvidenceGroups}
                     debugEvidenceSource={model.debugEvidenceSource}
                 />
             ) : null}
