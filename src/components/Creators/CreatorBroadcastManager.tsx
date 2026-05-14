@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Loader2, Megaphone, RefreshCw, Send } from "lucide-react";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -66,7 +66,17 @@ function statusLabel(status?: string) {
   return (status || "draft").replaceAll("_", " ");
 }
 
-export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId: string; creatorName: string; }) {
+export function CreatorBroadcastManager({
+  creatorId,
+  creatorName,
+  broadcastsEnabled = true,
+  broadcastsRestricted = false,
+}: {
+  creatorId: string;
+  creatorName: string;
+  broadcastsEnabled?: boolean;
+  broadcastsRestricted?: boolean;
+}) {
   const { userProfile } = useAuth();
   const { viewAsState } = useAdminViewAs();
   const [broadcasts, setBroadcasts] = useState<BroadcastRecord[]>([]);
@@ -76,13 +86,27 @@ export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId:
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const loadRequestIdRef = useRef(0);
 
   const query = useMemo(() => (viewAsState?.adminViewingAsUserId ? `?creatorId=${encodeURIComponent(viewAsState.adminViewingAsUserId)}` : ""), [viewAsState?.adminViewingAsUserId]);
   const readOnly = Boolean(viewAsState);
   const actorRole = userProfile?.role || "creator";
+  const canReadBroadcasts = Boolean(creatorId) && broadcastsEnabled !== false && broadcastsRestricted !== true;
+  const canSendBroadcast = canReadBroadcasts && !readOnly;
+  const blockedTruthState = broadcastsRestricted ? "blocked" : broadcastsEnabled === false ? "not_configured" : "unavailable";
 
   const loadBroadcasts = useCallback(async () => {
+    if (!canReadBroadcasts) {
+      setBroadcasts([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    const requestId = loadRequestIdRef.current + 1;
+    loadRequestIdRef.current = requestId;
     setLoading(true);
+    setError(null);
     try {
       const response = await authFetch(`/api/creator/broadcasts${query}`);
       const body = await response.json().catch(() => ({})) as BroadcastManagerResponse;
@@ -90,6 +114,7 @@ export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId:
         throw new Error(body.error || "Broadcast history could not be loaded.");
       }
       const nextBroadcasts = Array.isArray(body.broadcasts) ? body.broadcasts : [];
+      if (loadRequestIdRef.current !== requestId) return;
       setBroadcasts(nextBroadcasts);
       if (nextBroadcasts.length === 0) {
         trackEvent("creator_broadcast_empty_state_viewed", {
@@ -102,17 +127,28 @@ export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId:
         });
       }
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Broadcast history could not be loaded.");
+      if (loadRequestIdRef.current === requestId) {
+        setError(loadError instanceof Error ? loadError.message : "Broadcast history could not be loaded.");
+      }
     } finally {
-      setLoading(false);
+      if (loadRequestIdRef.current === requestId) {
+        setLoading(false);
+      }
     }
-  }, [creatorId, query, userProfile?.role]);
+  }, [actorRole, canReadBroadcasts, creatorId, query]);
 
   useEffect(() => {
     void loadBroadcasts();
   }, [loadBroadcasts]);
 
   const handleSend = useCallback(async () => {
+    if (!canSendBroadcast) {
+      setError(readOnly ? "Read-only projection. Broadcast creation is disabled." : "Broadcasts are unavailable for this creator.");
+      return;
+    }
+    if (sending) {
+      return;
+    }
     if (message.trim().length < 4) {
       setError("Write a short message before sending a broadcast.");
       return;
@@ -171,7 +207,7 @@ export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId:
     } finally {
       setSending(false);
     }
-  }, [creatorId, message, title, userProfile?.role]);
+  }, [actorRole, canSendBroadcast, creatorId, message, readOnly, sending, title]);
 
   return (
       <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-5">
@@ -183,7 +219,7 @@ export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId:
           target_creator_id: creatorId,
           section: "broadcasts",
           source_component: "CreatorBroadcastManager",
-          truth_state: readOnly ? "blocked" : "live",
+          truth_state: readOnly ? "blocked" : canReadBroadcasts ? "live" : blockedTruthState,
         }}
       />
       <div className="flex items-center justify-between gap-3">
@@ -194,6 +230,7 @@ export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId:
         <button
           type="button"
           onClick={() => void loadBroadcasts()}
+          disabled={!canReadBroadcasts}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-white"
         >
           <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
@@ -213,7 +250,7 @@ export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId:
             placeholder="Optional title"
             className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white outline-none placeholder:text-white/30"
             maxLength={80}
-            disabled={readOnly}
+            disabled={!canSendBroadcast}
           />
           <textarea
             value={message}
@@ -222,14 +259,14 @@ export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId:
             rows={3}
             className="w-full resize-none rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white outline-none placeholder:text-white/30"
             maxLength={280}
-            disabled={readOnly}
+            disabled={!canSendBroadcast}
           />
           <div className="flex items-center justify-between gap-3">
             <p className="text-[11px] text-gray-500">{message.length}/280</p>
             <button
               type="button"
               onClick={() => void handleSend()}
-              disabled={sending || readOnly || message.trim().length < 4}
+              disabled={sending || !canSendBroadcast || message.trim().length < 4}
               className="inline-flex items-center gap-2 rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
@@ -237,6 +274,7 @@ export function CreatorBroadcastManager({ creatorId, creatorName }: { creatorId:
             </button>
           </div>
           {readOnly ? <p className="text-xs text-gray-400">Read-only projection. Broadcast creation is disabled.</p> : null}
+          {!readOnly && !canReadBroadcasts ? <p className="text-xs text-gray-400">Broadcasts are unavailable for this creator.</p> : null}
           {error ? <p className="text-xs text-red-200">{error}</p> : null}
         </div>
       </div>

@@ -1,0 +1,172 @@
+{
+  "generatedAtUtc": "2026-05-14T14:32:09.068Z",
+  "reportKey": "user-facing-feature-connection-audit",
+  "currentHead": "2ce388f048a43eaa2c1523902004557f1e6c2971",
+  "summary": {
+    "surfacesScanned": 9,
+    "connectedSurfaces": 3,
+    "disconnectedSurfaces": 6,
+    "fakeLiveRisks": 0,
+    "raceConditionRisks": 0,
+    "costBleedRisks": 0,
+    "selfLoopLinks": 0,
+    "p0Count": 0,
+    "p1Count": 2,
+    "p2Count": 1
+  },
+  "surfaces": [
+    {
+      "key": "public_profile",
+      "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "route": "/dashboard/creator",
+      "expectedSource": "creator profile route and creator settings identity",
+      "actualSource": "buildCreatorPublicHref + /api/creators/[username]",
+      "sourceMetadataPresent": true,
+      "actionTarget": "/creators/[username] or /dashboard/profile",
+      "targetExists": true,
+      "status": "connected",
+      "issues": [],
+      "recommendedAction": "Keep public profile target tied to creator profile routing."
+    },
+    {
+      "key": "broadcasts",
+      "component": "src/components/Creators/CreatorBroadcastManager.tsx",
+      "route": "/dashboard/creator",
+      "expectedSource": "creator_broadcasts route and collection",
+      "actualSource": "/api/creator/broadcasts",
+      "sourceMetadataPresent": true,
+      "actionTarget": "/api/creator/broadcasts",
+      "targetExists": true,
+      "status": "connected_with_race_guard",
+      "issues": [],
+      "recommendedAction": "Keep broadcasts disabled for restricted/read-only projection states."
+    },
+    {
+      "key": "fan_pass",
+      "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "route": "/dashboard/creator",
+      "expectedSource": "creator settings + creator_subscriptions count",
+      "actualSource": "/api/creator/settings statsEvidence.sources.subscriptions",
+      "sourceMetadataPresent": true,
+      "actionTarget": null,
+      "targetExists": true,
+      "status": "source_connected_guidance_only",
+      "issues": [
+        {
+          "severity": "P2",
+          "title": "Fan Pass dashboard card is guidance/configuration only",
+          "evidence": [
+            "No dashboard purchase target is rendered from CreatorDashboardSettingsHub."
+          ],
+          "recommendedAction": "Keep purchase actions on the public creator experience flow unless a dedicated creator-dashboard route is built."
+        }
+      ],
+      "recommendedAction": "Do not mark Fan Pass as purchase/action connected from this dashboard card."
+    },
+    {
+      "key": "messages",
+      "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "route": "/dashboard/creator",
+      "expectedSource": "creator settings + /dashboard/chat route",
+      "actualSource": "messagingEnabled/messagingRestricted + /dashboard/chat",
+      "sourceMetadataPresent": true,
+      "actionTarget": "/dashboard/chat",
+      "targetExists": true,
+      "status": "route_connected",
+      "issues": [],
+      "recommendedAction": "Keep chat internals unchanged and only link when messaging is enabled and unrestricted."
+    },
+    {
+      "key": "requests",
+      "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "route": "/dashboard/creator",
+      "expectedSource": "creator_custom_requests aggregate count",
+      "actualSource": "/api/creator/settings statsEvidence.sources.customRequests",
+      "sourceMetadataPresent": true,
+      "actionTarget": null,
+      "targetExists": true,
+      "status": "source_connected_inline_only",
+      "issues": [
+        {
+          "severity": "P1",
+          "title": "Requests have no dedicated dashboard management target",
+          "evidence": [
+            "The fake /dashboard/creator self-loop was removed."
+          ],
+          "recommendedAction": "Add a dedicated request management destination before rendering an Open section link."
+        }
+      ],
+      "recommendedAction": "Keep the section inline-only until a real route exists."
+    },
+    {
+      "key": "bookings",
+      "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "route": "/dashboard/creator",
+      "expectedSource": "creator_call_bookings aggregate count + availability windows",
+      "actualSource": "/api/creator/settings statsEvidence.sources.callBookings",
+      "sourceMetadataPresent": true,
+      "actionTarget": null,
+      "targetExists": true,
+      "status": "source_connected_configuration_only",
+      "issues": [
+        {
+          "severity": "P1",
+          "title": "Bookings have no dedicated dashboard management target",
+          "evidence": [
+            "The fake /dashboard/creator self-loop was removed."
+          ],
+          "recommendedAction": "Add a dedicated booking management destination before rendering an Open section link."
+        }
+      ],
+      "recommendedAction": "Keep bookings source-backed and configuration-only in this dashboard."
+    },
+    {
+      "key": "availability",
+      "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "route": "/dashboard/creator",
+      "expectedSource": "creator settings document",
+      "actualSource": "/api/creator/settings creatorSettings.availabilityWindows",
+      "sourceMetadataPresent": true,
+      "actionTarget": null,
+      "targetExists": true,
+      "status": "configuration_only",
+      "issues": [],
+      "recommendedAction": "Do not render a self-loop Open section link until a dedicated settings editor target exists."
+    },
+    {
+      "key": "earnings",
+      "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "route": "/dashboard/creator",
+      "expectedSource": "creator_ledger_accruals and creator_payout_requests",
+      "actualSource": "/api/creator/settings statsEvidence ledgerAccruals/pendingPayouts",
+      "sourceMetadataPresent": true,
+      "actionTarget": null,
+      "targetExists": true,
+      "status": "source_connected_inline_only",
+      "issues": [],
+      "recommendedAction": "Keep zero earnings as needs review until sum-only aggregates have a sample count or positive value."
+    },
+    {
+      "key": "audience",
+      "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "route": "/dashboard/creator",
+      "expectedSource": "creator_relationships_ops and user profile",
+      "actualSource": "/api/creator/settings statsEvidence relationshipsOps/userProfile",
+      "sourceMetadataPresent": true,
+      "actionTarget": null,
+      "targetExists": true,
+      "status": "source_connected_inline_only",
+      "issues": [],
+      "recommendedAction": "Keep audience metrics tied to source evidence metadata."
+    }
+  ],
+  "raceConditionFindings": [],
+  "costBleedFindings": [],
+  "selfLoopLinkFindings": [],
+  "recommendedFixOrder": [
+    "Keep statsEvidence as the dashboard source-state contract.",
+    "Build dedicated request and booking management destinations before restoring Open section links.",
+    "Keep broadcast fetches disabled when broadcasts are blocked, unavailable, or read-only.",
+    "Run focused creator dashboard and settings route tests after creator-facing connection changes."
+  ]
+}

@@ -7,6 +7,7 @@ const mockState = vi.hoisted(() => ({
   readProjection: vi.fn(),
   update: vi.fn(),
   doc: vi.fn(),
+  collection: vi.fn(),
 }));
 
 vi.mock("firebase-admin/firestore", () => ({
@@ -42,9 +43,7 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
 
 vi.mock("@/lib/server/firebase-admin", () => ({
   adminDb: {
-    collection: vi.fn(() => ({
-      doc: mockState.doc,
-    })),
+    collection: (...args: unknown[]) => mockState.collection(...args),
   },
 }));
 
@@ -69,7 +68,7 @@ vi.mock("@/lib/identity/actor-markers", () => ({
 }));
 
 const route = await import("@/app/api/creator/settings/route");
-const { PUT } = route;
+const { GET, PUT } = route;
 
 describe("creator settings route", () => {
   beforeEach(() => {
@@ -78,6 +77,7 @@ describe("creator settings route", () => {
     mockState.readProjection.mockReset();
     mockState.update.mockReset();
     mockState.doc.mockReset();
+    mockState.collection.mockReset();
     mockState.guardApiRequest.mockResolvedValue({
       uid: "creator_1",
       email: "creator@example.com",
@@ -91,6 +91,7 @@ describe("creator settings route", () => {
         exists: true,
         data: () => ({
           role: "creator",
+          profileViewsCount: 8,
           creatorSettings: { broadcastsEnabled: true },
           creatorRestrictions: {},
         }),
@@ -98,6 +99,72 @@ describe("creator settings route", () => {
       update: mockState.update,
       id,
     }));
+    mockState.collection.mockImplementation((collectionName: string) => {
+      if (collectionName === "users") {
+        return { doc: mockState.doc };
+      }
+      if (collectionName === "creator_relationships_ops") {
+        return {
+          doc: vi.fn(() => ({
+            get: vi.fn(async () => ({
+              exists: true,
+              data: () => ({ followerCount: 4 }),
+            })),
+          })),
+        };
+      }
+      const counts: Record<string, number> = {
+        creator_subscriptions: 0,
+        creator_custom_requests: 0,
+        creator_call_bookings: 2,
+        drops: 0,
+      };
+      const sums: Record<string, Record<string, number>> = {
+        creator_ledger_accruals: { totalEarnings: 0 },
+        creator_payout_requests: { totalPending: 50 },
+      };
+      const queryBuilder = {
+        where: vi.fn(() => queryBuilder),
+        aggregate: vi.fn(() => ({
+          get: vi.fn(async () => ({
+            data: () => sums[collectionName] ?? {},
+          })),
+        })),
+        count: vi.fn(() => ({
+          get: vi.fn(async () => ({
+            data: () => ({ count: counts[collectionName] ?? 0 }),
+          })),
+        })),
+      };
+      return queryBuilder;
+    });
+  });
+
+  it("returns statsEvidence derived from existing settings aggregate reads", async () => {
+    const response = await GET(new NextRequest("http://localhost/api/creator/settings"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.stats).toMatchObject({
+      earningsGd: 0,
+      pendingCashoutGd: 50,
+      followerCount: 4,
+      profileViewsCount: 8,
+      activeSubscribers: 0,
+      openRequests: 0,
+      bookedCalls: 2,
+    });
+    expect(body.statsEvidence).toMatchObject({
+      sourceTruth: "partial",
+      sourceFreshness: "fresh",
+      zeroValuesAreProven: false,
+      readOnlyProjection: false,
+    });
+    expect(body.statsEvidence.generatedAtUtc).toEqual(expect.any(String));
+    expect(body.statsEvidence.sources.subscriptions.state).toBe("queried_zero");
+    expect(body.statsEvidence.sources.callBookings.state).toBe("verified_sample");
+    expect(body.statsEvidence.sources.ledgerAccruals.state).toBe("partial");
+    expect(body.statsEvidence.sources.pendingPayouts.state).toBe("verified_sample");
   });
 
   it("updates the creator's own settings through the canonical route", async () => {

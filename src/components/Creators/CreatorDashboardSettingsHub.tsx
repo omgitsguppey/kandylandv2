@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, BellRing, BookOpenText, CalendarClock, DollarSign, Loader2, Megaphone, MessageSquare, ShieldCheck, Users, Wallet } from "lucide-react";
 
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
@@ -23,16 +23,52 @@ type CreatorDashboardStats = {
   bookedCalls: number;
 };
 
+type CreatorStatsEvidenceState =
+  | "verified_sample"
+  | "queried_zero"
+  | "partial"
+  | "missing_source"
+  | "needs_review"
+  | "unavailable";
+
+type CreatorStatsEvidenceSource = {
+  state: CreatorStatsEvidenceState;
+  value: number;
+  sampleKnown: boolean;
+  collection: string;
+};
+
+type CreatorStatsEvidence = {
+  generatedAtUtc: string;
+  sourceTruth: "canonical" | "partial" | "needs_review" | "unavailable";
+  sourceFreshness: "fresh" | "stale" | "unknown" | "unavailable";
+  sampleCount: number;
+  zeroValuesAreProven: boolean;
+  readOnlyProjection: boolean;
+  sources: {
+    ledgerAccruals: CreatorStatsEvidenceSource;
+    pendingPayouts: CreatorStatsEvidenceSource;
+    subscriptions: CreatorStatsEvidenceSource;
+    customRequests: CreatorStatsEvidenceSource;
+    callBookings: CreatorStatsEvidenceSource;
+    relationshipsOps: CreatorStatsEvidenceSource;
+    drops: CreatorStatsEvidenceSource;
+    userProfile: CreatorStatsEvidenceSource;
+  };
+  issues: string[];
+};
+
 type CreatorSettingsResponse = {
   success?: boolean;
   creatorSettings?: Record<string, unknown> | null;
   creatorRestrictions?: Record<string, unknown> | null;
   stats?: CreatorDashboardStats | null;
+  statsEvidence?: CreatorStatsEvidence | null;
   projection?: { readOnly?: boolean; targetCreatorId?: string } | null;
   error?: string;
 };
 
-type SectionState = "live" | "unavailable" | "not_configured" | "blocked" | "needs_setup" | "error";
+type SectionState = "live" | "unavailable" | "not_configured" | "blocked" | "needs_setup" | "needs_review" | "error";
 
 function sectionTone(state: SectionState) {
   switch (state) {
@@ -42,6 +78,7 @@ function sectionTone(state: SectionState) {
     case "blocked":
       return "border-red-400/20 bg-red-500/10 text-red-100";
     case "needs_setup":
+    case "needs_review":
       return "border-amber-400/20 bg-amber-500/10 text-amber-100";
     default:
       return "border-white/10 bg-white/5 text-gray-200";
@@ -49,26 +86,41 @@ function sectionTone(state: SectionState) {
 }
 
 function SectionCard({
+  id,
   title,
   state,
   summary,
   detail,
   href,
   icon,
+  sourceTruth,
+  sourceFreshness,
+  sampleCount,
   expanded,
   onToggle,
 }: {
+  id: string;
   title: string;
   state: SectionState;
   summary: string;
   detail: string;
   href?: string;
   icon: React.ReactNode;
+  sourceTruth?: string;
+  sourceFreshness?: string;
+  sampleCount?: number;
   expanded: boolean;
   onToggle: () => void;
 }) {
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-5">
+    <section
+      className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-5"
+      data-creator-section-key={id}
+      data-creator-section-state={state}
+      data-creator-stats-source-truth={sourceTruth ?? "not_applicable"}
+      data-creator-stats-source-freshness={sourceFreshness ?? "not_applicable"}
+      data-creator-stats-sample-count={sampleCount ?? 0}
+    >
       <button type="button" onClick={onToggle} className="flex w-full items-start justify-between gap-3 text-left">
         <div className="flex min-w-0 items-start gap-3">
           <div className={cn("mt-0.5 rounded-2xl border p-2", sectionTone(state))}>{icon}</div>
@@ -99,6 +151,28 @@ function SectionCard({
   );
 }
 
+function creatorSectionStateFromEvidence(source: CreatorStatsEvidenceSource | undefined, fallbackValue = 0): SectionState {
+  if (!source) return "unavailable";
+  if (source.state === "verified_sample" || source.state === "queried_zero") return "live";
+  if (source.state === "unavailable") return "unavailable";
+  if (source.state === "partial" || source.state === "missing_source" || source.state === "needs_review") return "needs_review";
+  return fallbackValue > 0 ? "needs_review" : "unavailable";
+}
+
+function combineEvidenceState(...states: SectionState[]): SectionState {
+  if (states.includes("unavailable")) return "unavailable";
+  if (states.includes("needs_review")) return "needs_review";
+  return states.every((state) => state === "live") ? "live" : "needs_review";
+}
+
+function formatSourceEvidenceDetail(statsEvidence: CreatorStatsEvidence | null) {
+  if (!statsEvidence) {
+    return "Source metadata unavailable.";
+  }
+
+  return `Source truth: ${statsEvidence.sourceTruth}. Freshness: ${statsEvidence.sourceFreshness}. Samples: ${statsEvidence.sampleCount}.`;
+}
+
 export function CreatorDashboardSettingsHub() {
   const { userProfile } = useUserProfile();
   const { viewAsState } = useAdminViewAs();
@@ -107,36 +181,44 @@ export function CreatorDashboardSettingsHub() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openSection, setOpenSection] = useState<string | null>("broadcasts");
+  const dashboardRequestIdRef = useRef(0);
 
   const creatorId = viewAsState?.adminViewingAsUserId || userProfile?.uid || "";
   const creatorName = viewAsState?.adminViewingAsDisplayName || userProfile?.displayName || "Creator";
   const query = useMemo(() => (viewAsState?.adminViewingAsUserId ? `?creatorId=${encodeURIComponent(viewAsState.adminViewingAsUserId)}` : ""), [viewAsState?.adminViewingAsUserId]);
   const isCreatorOrProjection = Boolean(viewAsState || userProfile?.role === "creator" || userProfile?.role === "admin");
+  const canLoadCreatorDashboard = Boolean(user?.uid && creatorId && isCreatorOrProjection);
 
   useEffect(() => {
-    if (!isCreatorOrProjection) {
+    if (!canLoadCreatorDashboard) {
+      setSettings(null);
+      setError(null);
       setLoading(false);
       return;
     }
 
     let cancelled = false;
+    const requestId = dashboardRequestIdRef.current + 1;
+    dashboardRequestIdRef.current = requestId;
     async function load() {
       try {
         setLoading(true);
+        setError(null);
+        setSettings(null);
         const response = await authFetch(`/api/creator/settings${query}`);
         const body = await response.json().catch(() => ({})) as CreatorSettingsResponse;
         if (!response.ok) {
           throw new Error(body.error || "Creator dashboard could not be loaded.");
         }
-        if (!cancelled) {
+        if (!cancelled && dashboardRequestIdRef.current === requestId) {
           setSettings(body);
         }
       } catch (loadError) {
-        if (!cancelled) {
+        if (!cancelled && dashboardRequestIdRef.current === requestId) {
           setError(loadError instanceof Error ? loadError.message : "Creator dashboard could not be loaded.");
         }
       } finally {
-        if (!cancelled) {
+        if (!cancelled && dashboardRequestIdRef.current === requestId) {
           setLoading(false);
         }
       }
@@ -146,7 +228,7 @@ export function CreatorDashboardSettingsHub() {
     return () => {
       cancelled = true;
     };
-  }, [isCreatorOrProjection, query]);
+  }, [canLoadCreatorDashboard, creatorId, query]);
 
   useEffect(() => {
     if (!isCreatorOrProjection) {
@@ -164,10 +246,23 @@ export function CreatorDashboardSettingsHub() {
   }, [creatorId, isCreatorOrProjection, settings?.projection?.readOnly, userProfile?.role]);
 
   const stats = settings?.stats ?? null;
+  const statsEvidence = settings?.statsEvidence ?? null;
   const creatorSettings = (settings?.creatorSettings ?? {}) as Record<string, unknown>;
   const creatorRestrictions = (settings?.creatorRestrictions ?? {}) as Record<string, unknown>;
   const availabilityWindows = Array.isArray(creatorSettings.availabilityWindows) ? creatorSettings.availabilityWindows : [];
   const subscriptionPriceGd = typeof creatorSettings.subscriptionPriceGd === "number" ? creatorSettings.subscriptionPriceGd : 0;
+  const requestsState = creatorSectionStateFromEvidence(statsEvidence?.sources.customRequests, stats?.openRequests ?? 0);
+  const bookingsSourceState = creatorSectionStateFromEvidence(statsEvidence?.sources.callBookings, stats?.bookedCalls ?? 0);
+  const subscriptionsState = creatorSectionStateFromEvidence(statsEvidence?.sources.subscriptions, stats?.activeSubscribers ?? 0);
+  const earningsState = combineEvidenceState(
+    creatorSectionStateFromEvidence(statsEvidence?.sources.ledgerAccruals, stats?.earningsGd ?? 0),
+    creatorSectionStateFromEvidence(statsEvidence?.sources.pendingPayouts, stats?.pendingCashoutGd ?? 0),
+  );
+  const audienceState = combineEvidenceState(
+    creatorSectionStateFromEvidence(statsEvidence?.sources.relationshipsOps, stats?.followerCount ?? 0),
+    creatorSectionStateFromEvidence(statsEvidence?.sources.userProfile, stats?.profileViewsCount ?? 0),
+  );
+  const messageSectionHref = creatorRestrictions.messagingRestricted === true || creatorSettings.messagingEnabled !== true ? undefined : "/dashboard/chat";
   const publicProfileHref = buildCreatorPublicHref({
     creatorId,
     creatorUsername: typeof userProfile?.username === "string" ? userProfile.username : "",
@@ -182,6 +277,9 @@ export function CreatorDashboardSettingsHub() {
     detail: string;
     href?: string;
     icon: React.ReactNode;
+    sourceTruth?: string;
+    sourceFreshness?: string;
+    sampleCount?: number;
   }> = [
     {
       id: "public_profile",
@@ -210,6 +308,8 @@ export function CreatorDashboardSettingsHub() {
           ? "Broadcasts are live and manageable."
           : "Broadcasts are not configured yet.",
       detail: "Use the broadcast manager to review delivery history and send new fan updates.",
+      sourceTruth: creatorSettings.broadcastsEnabled === true && creatorRestrictions.broadcastsRestricted !== true ? "canonical" : "unavailable",
+      sourceFreshness: creatorSettings.broadcastsEnabled === true && creatorRestrictions.broadcastsRestricted !== true ? "fresh" : "unavailable",
       icon: <Megaphone className="h-4 w-4" />,
     },
     {
@@ -218,16 +318,21 @@ export function CreatorDashboardSettingsHub() {
       state: creatorRestrictions.subscriptionsRestricted === true
         ? "blocked"
         : creatorSettings.subscriptionsEnabled === true && subscriptionPriceGd > 0
-          ? "live"
+          ? subscriptionsState
           : creatorSettings.subscriptionsEnabled === false
             ? "needs_setup"
             : "not_configured",
       summary: creatorRestrictions.subscriptionsRestricted === true
         ? "Fan Pass is blocked."
-        : creatorSettings.subscriptionsEnabled === true && subscriptionPriceGd > 0
+        : creatorSettings.subscriptionsEnabled === true && subscriptionPriceGd > 0 && subscriptionsState === "live"
           ? "Fan Pass pricing is active."
+          : creatorSettings.subscriptionsEnabled === true && subscriptionPriceGd > 0
+            ? "Fan Pass source sample needs review."
           : "Fan Pass needs setup.",
-      detail: `Subscription price: ${subscriptionPriceGd.toLocaleString()} GD.`,
+      detail: `Subscription price: ${subscriptionPriceGd.toLocaleString()} GD. ${formatSourceEvidenceDetail(statsEvidence)}`,
+      sourceTruth: statsEvidence?.sourceTruth,
+      sourceFreshness: statsEvidence?.sourceFreshness,
+      sampleCount: statsEvidence?.sampleCount,
       icon: <Wallet className="h-4 w-4" />,
     },
     {
@@ -246,7 +351,7 @@ export function CreatorDashboardSettingsHub() {
           ? "Paid chat is live."
           : "Paid chat needs setup.",
       detail: "Message pricing and paid-GD guidance stay tied to server truth.",
-      href: "/dashboard/chat",
+      href: messageSectionHref,
       icon: <MessageSquare className="h-4 w-4" />,
     },
     {
@@ -255,13 +360,17 @@ export function CreatorDashboardSettingsHub() {
       state: creatorRestrictions.customRequestsRestricted === true
         ? "blocked"
         : creatorSettings.customRequestsEnabled === true
-          ? "live"
+          ? requestsState
           : creatorSettings.customRequestsEnabled === false
             ? "needs_setup"
             : "not_configured",
-      summary: (stats?.openRequests ?? 0) > 0 ? `${stats?.openRequests} open request${(stats?.openRequests ?? 0) === 1 ? "" : "s"}.` : "No open requests.",
-      detail: "Custom request pricing and status come from the creator request collection.",
-      href: "/dashboard/creator",
+      summary: requestsState === "live"
+        ? ((stats?.openRequests ?? 0) > 0 ? `${stats?.openRequests} open request${(stats?.openRequests ?? 0) === 1 ? "" : "s"}.` : "No open requests.")
+        : "Request source sample needs review.",
+      detail: `Custom request pricing and status come from the creator request collection. ${formatSourceEvidenceDetail(statsEvidence)}`,
+      sourceTruth: statsEvidence?.sourceTruth,
+      sourceFreshness: statsEvidence?.sourceFreshness,
+      sampleCount: statsEvidence?.sampleCount,
       icon: <Users className="h-4 w-4" />,
     },
     {
@@ -270,13 +379,17 @@ export function CreatorDashboardSettingsHub() {
       state: creatorRestrictions.bookingsRestricted === true
         ? "blocked"
         : creatorSettings.bookingsEnabled === true && availabilityWindows.length > 0
-          ? "live"
+          ? bookingsSourceState
           : creatorSettings.bookingsEnabled === false
             ? "needs_setup"
             : "not_configured",
-      summary: (stats?.bookedCalls ?? 0) > 0 ? `${stats?.bookedCalls} bookings in flight.` : "No live bookings yet.",
-      detail: "Booking windows, rates, and availability are backed by the creator booking route.",
-      href: "/dashboard/creator",
+      summary: bookingsSourceState === "live"
+        ? ((stats?.bookedCalls ?? 0) > 0 ? `${stats?.bookedCalls} bookings in flight.` : "No live bookings yet.")
+        : "Booking source sample needs review.",
+      detail: `Booking windows, rates, and availability are backed by the creator booking route. ${formatSourceEvidenceDetail(statsEvidence)}`,
+      sourceTruth: statsEvidence?.sourceTruth,
+      sourceFreshness: statsEvidence?.sourceFreshness,
+      sampleCount: statsEvidence?.sampleCount,
       icon: <CalendarClock className="h-4 w-4" />,
     },
     {
@@ -285,27 +398,32 @@ export function CreatorDashboardSettingsHub() {
       state: availabilityWindows.length > 0 ? "live" : "not_configured",
       summary: availabilityWindows.length > 0 ? "Availability windows are configured." : "Availability is not configured yet.",
       detail: "Availability windows come from the creator settings document.",
-      href: "/dashboard/creator",
+      sourceTruth: settings?.creatorSettings ? "canonical" : "unavailable",
+      sourceFreshness: settings?.creatorSettings ? "fresh" : "unavailable",
       icon: <BookOpenText className="h-4 w-4" />,
     },
     {
       id: "earnings",
       title: "Earnings / payout",
-      state: stats ? "live" : "unavailable",
-      summary: stats ? `${stats.earningsGd.toLocaleString()} GD earned, ${stats.pendingCashoutGd.toLocaleString()} GD pending.` : "Earnings are unavailable.",
+      state: earningsState,
+      summary: earningsState === "live" && stats ? `${stats.earningsGd.toLocaleString()} GD earned, ${stats.pendingCashoutGd.toLocaleString()} GD pending.` : "Earnings need source review.",
       detail: stats
-        ? `Followers: ${stats.followerCount.toLocaleString()} | Active subscribers: ${stats.activeSubscribers.toLocaleString()}`
+        ? `${formatSourceEvidenceDetail(statsEvidence)} Followers: ${stats.followerCount.toLocaleString()} | Active subscribers: ${stats.activeSubscribers.toLocaleString()}`
         : "Earnings roll up from the ledger and payout collections.",
-      href: "/dashboard/creator",
+      sourceTruth: statsEvidence?.sourceTruth,
+      sourceFreshness: statsEvidence?.sourceFreshness,
+      sampleCount: statsEvidence?.sampleCount,
       icon: <DollarSign className="h-4 w-4" />,
     },
     {
       id: "audience",
       title: "Notifications / audience",
-      state: stats ? "live" : "unavailable",
-      summary: stats ? `${stats.followerCount.toLocaleString()} followers | ${stats.profileViewsCount.toLocaleString()} profile views.` : "Audience metrics unavailable.",
-      detail: "Audience visibility and follower state come from the creator relationship collections.",
-      href: "/dashboard/creator",
+      state: audienceState,
+      summary: audienceState === "live" && stats ? `${stats.followerCount.toLocaleString()} followers | ${stats.profileViewsCount.toLocaleString()} profile views.` : "Audience source sample needs review.",
+      detail: `Audience visibility and follower state come from the creator relationship collections. ${formatSourceEvidenceDetail(statsEvidence)}`,
+      sourceTruth: statsEvidence?.sourceTruth,
+      sourceFreshness: statsEvidence?.sourceFreshness,
+      sampleCount: statsEvidence?.sampleCount,
       icon: <BellRing className="h-4 w-4" />,
     },
   ];
@@ -348,12 +466,16 @@ export function CreatorDashboardSettingsHub() {
         {sections.map((section) => (
           <SectionCard
             key={section.id}
+            id={section.id}
             title={section.title}
             state={section.state}
             summary={section.summary}
             detail={section.detail}
             href={section.href}
             icon={section.icon}
+            sourceTruth={section.sourceTruth}
+            sourceFreshness={section.sourceFreshness}
+            sampleCount={section.sampleCount}
             expanded={openSection === section.id}
             onToggle={() => {
               setOpenSection((current) => current === section.id ? null : section.id);
@@ -370,7 +492,12 @@ export function CreatorDashboardSettingsHub() {
         ))}
       </div>
 
-      <CreatorBroadcastManager creatorId={creatorId} creatorName={creatorName} />
+      <CreatorBroadcastManager
+        creatorId={creatorId}
+        creatorName={creatorName}
+        broadcastsEnabled={creatorSettings.broadcastsEnabled === true}
+        broadcastsRestricted={creatorRestrictions.broadcastsRestricted === true}
+      />
     </div>
   );
 }

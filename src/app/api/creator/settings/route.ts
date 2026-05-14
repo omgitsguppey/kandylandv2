@@ -16,6 +16,119 @@ import {
     buildActorMarker,
 } from "@/lib/identity/actor-markers";
 
+type CreatorStatsEvidenceState =
+    | "verified_sample"
+    | "queried_zero"
+    | "partial"
+    | "missing_source"
+    | "needs_review"
+    | "unavailable";
+
+type CreatorStatsEvidenceSource = {
+    state: CreatorStatsEvidenceState;
+    value: number;
+    sampleKnown: boolean;
+    collection: string;
+};
+
+type CreatorStatsEvidence = {
+    generatedAtUtc: string;
+    sourceTruth: "canonical" | "partial" | "needs_review" | "unavailable";
+    sourceFreshness: "fresh" | "stale" | "unknown" | "unavailable";
+    sampleCount: number;
+    zeroValuesAreProven: boolean;
+    readOnlyProjection: boolean;
+    sources: {
+        ledgerAccruals: CreatorStatsEvidenceSource;
+        pendingPayouts: CreatorStatsEvidenceSource;
+        subscriptions: CreatorStatsEvidenceSource;
+        customRequests: CreatorStatsEvidenceSource;
+        callBookings: CreatorStatsEvidenceSource;
+        relationshipsOps: CreatorStatsEvidenceSource;
+        drops: CreatorStatsEvidenceSource;
+        userProfile: CreatorStatsEvidenceSource;
+    };
+    issues: string[];
+};
+
+function toFiniteNumber(value: unknown): number {
+    return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function evidenceStateForCount(value: number, queried: boolean): CreatorStatsEvidenceState {
+    if (!queried) return "missing_source";
+    return value > 0 ? "verified_sample" : "queried_zero";
+}
+
+function evidenceSource(collection: string, value: number, state: CreatorStatsEvidenceState, sampleKnown: boolean): CreatorStatsEvidenceSource {
+    return {
+        collection,
+        value,
+        state,
+        sampleKnown,
+    };
+}
+
+function evidenceStateForSum(value: number): CreatorStatsEvidenceState {
+    return value > 0 ? "verified_sample" : "partial";
+}
+
+function buildCreatorStatsEvidence(input: {
+    generatedAtUtc: string;
+    earningsGd: number;
+    pendingCashoutGd: number;
+    activeSubscribers: number;
+    openRequests: number;
+    bookedCalls: number;
+    followerCount: number;
+    liveDropsCount: number;
+    profileViewsCount: number;
+    relationshipsOpsKnown: boolean;
+    userProfileKnown: boolean;
+    readOnlyProjection: boolean;
+}): CreatorStatsEvidence {
+    const sources: CreatorStatsEvidence["sources"] = {
+        ledgerAccruals: evidenceSource("creator_ledger_accruals", input.earningsGd, evidenceStateForSum(input.earningsGd), input.earningsGd > 0),
+        pendingPayouts: evidenceSource("creator_payout_requests", input.pendingCashoutGd, evidenceStateForSum(input.pendingCashoutGd), input.pendingCashoutGd > 0),
+        subscriptions: evidenceSource("creator_subscriptions", input.activeSubscribers, evidenceStateForCount(input.activeSubscribers, true), true),
+        customRequests: evidenceSource("creator_custom_requests", input.openRequests, evidenceStateForCount(input.openRequests, true), true),
+        callBookings: evidenceSource("creator_call_bookings", input.bookedCalls, evidenceStateForCount(input.bookedCalls, true), true),
+        relationshipsOps: evidenceSource("creator_relationships_ops", input.followerCount, evidenceStateForCount(input.followerCount, input.relationshipsOpsKnown), input.relationshipsOpsKnown),
+        drops: evidenceSource("drops", input.liveDropsCount, evidenceStateForCount(input.liveDropsCount, true), true),
+        userProfile: evidenceSource("users", input.profileViewsCount, evidenceStateForCount(input.profileViewsCount, input.userProfileKnown), input.userProfileKnown),
+    };
+    const sourceList = Object.entries(sources);
+    const sampleCount = sourceList.filter(([, source]) => source.sampleKnown).length;
+    const partialSources = sourceList.filter(([, source]) => source.state === "partial");
+    const needsReviewSources = sourceList.filter(([, source]) => source.state === "needs_review");
+    const missingSources = sourceList.filter(([, source]) => source.state === "missing_source" || source.state === "unavailable");
+    const zeroValuesAreProven = sourceList.every(([, source]) => source.value !== 0 || source.sampleKnown);
+    const issues = [
+        ...partialSources.map(([key]) => `${key}_sample_count_unknown`),
+        ...needsReviewSources.map(([key]) => `${key}_needs_review`),
+        ...missingSources.map(([key]) => `${key}_missing_source`),
+        ...(zeroValuesAreProven ? [] : ["zero_values_not_fully_proven"]),
+    ];
+    const sourceTruth: CreatorStatsEvidence["sourceTruth"] = sampleCount === 0
+        ? "unavailable"
+        : needsReviewSources.length > 0
+            ? "needs_review"
+            : partialSources.length > 0 || missingSources.length > 0
+                ? "partial"
+                : "canonical";
+
+    return {
+        generatedAtUtc: input.generatedAtUtc,
+        sourceTruth,
+        sourceFreshness: sampleCount > 0 ? "fresh" : "unavailable",
+        sampleCount,
+        zeroValuesAreProven,
+        readOnlyProjection: input.readOnlyProjection,
+        sources,
+        issues,
+    };
+}
+
 async function requireCreator(uid: string) {
     if (!adminDb) {
         throw new AuthError("Creator settings database unavailable", 503);
@@ -93,15 +206,33 @@ async function GET_handler(request: NextRequest) {
                 .get(),
         ]);
 
-        const earningsGd = ledgerSnap.data().totalEarnings || 0;
-        const pendingCashoutGd = payoutSnap.data().totalPending || 0;
+        const earningsGd = toFiniteNumber(ledgerSnap.data().totalEarnings);
+        const pendingCashoutGd = toFiniteNumber(payoutSnap.data().totalPending);
 
         const followerCount = relationshipsOpsSnap.exists 
-            ? (relationshipsOpsSnap.data() as { followerCount?: number }).followerCount || 0
+            ? toFiniteNumber((relationshipsOpsSnap.data() as { followerCount?: number }).followerCount)
             : 0;
             
-        const profileViewsCount = typeof data.profileViewsCount === "number" ? data.profileViewsCount : 0;
-        const liveDropsCount = dropsSnap.data().count;
+        const profileViewsCount = toFiniteNumber(data.profileViewsCount);
+        const liveDropsCount = toFiniteNumber(dropsSnap.data().count);
+        const activeSubscribers = toFiniteNumber(subscriptionSnap.data().count);
+        const openRequests = toFiniteNumber(requestSnap.data().count);
+        const bookedCalls = toFiniteNumber(bookingSnap.data().count);
+        const generatedAtUtc = new Date().toISOString();
+        const statsEvidence = buildCreatorStatsEvidence({
+            generatedAtUtc,
+            earningsGd,
+            pendingCashoutGd,
+            activeSubscribers,
+            openRequests,
+            bookedCalls,
+            followerCount,
+            liveDropsCount,
+            profileViewsCount,
+            relationshipsOpsKnown: relationshipsOpsSnap.exists,
+            userProfileKnown: true,
+            readOnlyProjection: Boolean(projection),
+        });
 
         return NextResponse.json({
             success: true,
@@ -122,10 +253,11 @@ async function GET_handler(request: NextRequest) {
                 followerCount,
                 profileViewsCount,
                 liveDropsCount,
-                activeSubscribers: subscriptionSnap.data().count,
-                openRequests: requestSnap.data().count,
-                bookedCalls: bookingSnap.data().count,
+                activeSubscribers,
+                openRequests,
+                bookedCalls,
             },
+            statsEvidence,
         });
     } catch (error) {
         return handleApiError(error, "Creator.Settings.GET");
