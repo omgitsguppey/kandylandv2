@@ -1,13 +1,57 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.36",
-  "betaReleaseCounter": 236,
+  "currentVersion": "1.2.37",
+  "betaReleaseCounter": 237,
   "channel": "beta",
-  "generatedAt": "2026-05-14T06:10:04.986Z",
-  "generatedAtUtc": "2026-05-14T06:10:04.986Z",
-  "lastCommitSha": "ff66bf7f60ffee9308663e69c59509b328d75117",
+  "generatedAt": "2026-05-14T13:53:26.055Z",
+  "generatedAtUtc": "2026-05-14T13:53:26.055Z",
+  "lastCommitSha": "470ce04ab355dd9a21afc4f57118b1e46311ea3c",
   "notes": [
+    {
+      "version": "1.2.37",
+      "previousVersion": "1.2.36",
+      "betaReleaseCounter": 237,
+      "previousBetaReleaseCounter": 236,
+      "commitSha": "470ce04ab355dd9a21afc4f57118b1e46311ea3c",
+      "commitTitle": "fix(analytics): lock watch time truth contract",
+      "commitCount": 1,
+      "commitShas": [
+        "470ce04ab355dd9a21afc4f57118b1e46311ea3c"
+      ],
+      "committedAt": "2026-05-14T13:53:03.000Z",
+      "generatedAt": "2026-05-14T13:53:26.053Z",
+      "committedAtUtc": "2026-05-14T13:53:03.000Z",
+      "generatedAtUtc": "2026-05-14T13:53:26.053Z",
+      "updatedAtUtc": "2026-05-14T13:53:26.053Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked watch-time reporting to verified watch-session data.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked watch-time reporting to verified watch-session data.",
+        "Kept legacy watch duration labeled as fallback instead of product truth.",
+        "Updated tests so diagnostic estimates cannot become canonical watch time."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "docs/agent-truth/watch-time-rollup-truth.md",
+        "scripts/agent/validate-watch-time-rollup-truth.ts",
+        "src/app/admin/user/[userId]/page.tsx",
+        "src/app/api/admin/user/[userId]/route.ts",
+        "src/app/api/admin/users/route.ts",
+        "src/lib/server/admin-user-metrics-snapshot.ts",
+        "src/lib/server/user-behavior-rollup.ts",
+        "tests/unit/admin-user-metrics.spec.ts",
+        "tests/unit/watch-time-rollup.spec.ts"
+      ],
+      "sourceCommit": "470ce04ab355dd9a21afc4f57118b1e46311ea3c"
+    },
     {
       "version": "1.2.36",
       "previousVersion": "1.2.35",
@@ -1345,72 +1389,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 84,
       "bumpType": "minor",
       "sourceCommit": "806753aee0f5fb8e62824be5acb0cf8609c3d0a8"
-    },
-    {
-      "version": "1.11.0",
-      "previousVersion": "1.10.0",
-      "betaReleaseCounter": 213,
-      "previousBetaReleaseCounter": 212,
-      "commitSha": "91a9ccbafc5c595a02b1f2b50fe4450fd2eeb030",
-      "commitTitle": "refactor(analytics): consolidate guest user tracking",
-      "commitCount": 1,
-      "commitShas": [
-        "91a9ccbafc5c595a02b1f2b50fe4450fd2eeb030"
-      ],
-      "committedAt": "2026-05-08T06:18:01.000Z",
-      "generatedAt": "2026-05-08T07:36:21.139Z",
-      "committedAtUtc": "2026-05-08T06:18:01.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:21.139Z",
-      "updatedAtUtc": "2026-05-08T07:36:21.139Z",
-      "category": "Improved",
-      "title": "Bug fixes and quality-of-life improvements",
-      "summary": "Bug fixes and quality-of-life improvements.",
-      "userFacingTitle": "Bug fixes and quality-of-life improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Fixed beta issues to make KandyDrops smoother to use.",
-        "Improved reliability for the latest Beta build."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/guest-user-analytics-cutover.generated.json",
-        "docs/agent-truth/analytics-truth-layer-v2.md",
-        "docs/agent-truth/behavioral-math-calibration.md",
-        "docs/agent-truth/global-cost-surfaces.md",
-        "docs/agent-truth/guest-user-analytics-cutover.md",
-        "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md",
-        "package.json",
-        "scripts/agent/score-guest-user-analytics-cutover.ts",
-        "scripts/agent/validate-guest-user-analytics-cutover.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/components/Analytics/DeepTracker.tsx",
-        "src/lib/analytics/google-analytics-source-policy.ts",
-        "src/lib/analytics/identity-link-contract.ts",
-        "src/lib/behavioral/behavioral-confidence-v2.ts",
-        "src/lib/behavioral/behavioral-timeline-contract.ts",
-        "src/lib/behavioral/guest-user-behavior-contract.ts",
-        "src/lib/runtime-facts/normalize-runtime-fact.ts",
-        "src/lib/runtime-facts/runtime-fact-contract.ts",
-        "src/lib/server/analytics-governance.ts",
-        "src/lib/server/analytics-identity-linking.ts",
-        "src/lib/server/behavioral-timeline-mapper.ts",
-        "src/lib/server/behavioral-timeline-reader.ts",
-        "src/lib/server/behavioral-timeline-writer.ts",
-        "src/lib/server/guest-user-behavior-rollup.ts",
-        "tests/unit/analytics-ingest-identified-route.spec.ts",
-        "tests/unit/analytics-ingest-route.spec.ts",
-        "tests/unit/behavioral-confidence-v2.spec.ts"
-      ],
-      "effectiveChangeCount": 1076,
-      "excludedGeneratedChangeCount": 69,
-      "bumpType": "minor",
-      "sourceCommit": "91a9ccbafc5c595a02b1f2b50fe4450fd2eeb030"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
