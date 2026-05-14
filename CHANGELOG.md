@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 24 public updates in pages of 5.
 
+## 1.2.41 - 2026-05-14
+- Bug fixes and general improvements
+- Added a Debug-panel triage map for stale, missing, and refreshable evidence.
+- Kept stale evidence visible instead of treating it as live truth.
+- Made Debug output clearer about which issues block Phase 1.
+
 ## 1.2.40 - 2026-05-14
 - Bug fixes and general improvements
 - Checked creator-facing feature connections without changing the UI design.
@@ -138,8 +144,3 @@ Showing the last 24 public updates in pages of 5.
 - Bug fixes and quality-of-life improvements
 - Fixed beta issues to make KandyDrops smoother to use.
 - Improved reliability for the latest Beta build.
-
-## 1.15.0 - 2026-05-08
-- Improved drops and viewer reliability
-- Improved drop and viewer reliability so usage states stay easier to understand.
-- Reduced confusing stale or delayed states across previews and viewer surfaces.

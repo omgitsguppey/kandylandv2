@@ -1,11 +1,51 @@
 {
-  "currentVersion": "1.2.40",
-  "betaReleaseCounter": 240,
+  "currentVersion": "1.2.41",
+  "betaReleaseCounter": 241,
   "channel": "beta",
-  "generatedAt": "2026-05-14T14:37:32.865Z",
-  "generatedAtUtc": "2026-05-14T14:37:32.865Z",
-  "lastCommitSha": "fee10e6a65174a7d7ac85448991f98eb3a3e6300",
+  "generatedAt": "2026-05-14T17:04:39.077Z",
+  "generatedAtUtc": "2026-05-14T17:04:39.077Z",
+  "lastCommitSha": "af8d35aea6c2695f0403023e3801f43ca7929ee8",
   "notes": [
+    {
+      "version": "1.2.41",
+      "previousVersion": "1.2.40",
+      "betaReleaseCounter": 241,
+      "previousBetaReleaseCounter": 240,
+      "commitSha": "af8d35aea6c2695f0403023e3801f43ca7929ee8",
+      "commitTitle": "chore(debug): triage panel evidence output",
+      "commitCount": 1,
+      "commitShas": [
+        "af8d35aea6c2695f0403023e3801f43ca7929ee8"
+      ],
+      "committedAt": "2026-05-14T17:04:21.000Z",
+      "generatedAt": "2026-05-14T17:04:39.072Z",
+      "committedAtUtc": "2026-05-14T17:04:21.000Z",
+      "generatedAtUtc": "2026-05-14T17:04:39.072Z",
+      "updatedAtUtc": "2026-05-14T17:04:39.072Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added a Debug-panel triage map for stale, missing, and refreshable evidence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added a Debug-panel triage map for stale, missing, and refreshable evidence.",
+        "Kept stale evidence visible instead of treating it as live truth.",
+        "Made Debug output clearer about which issues block Phase 1."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/debug-panel-output-triage.generated.json",
+        "docs/agent-truth/debug-panel-output-triage.md",
+        "package.json",
+        "scripts/agent/validate-debug-panel-output-triage.ts",
+        "tests/unit/debug-panel-output-triage.spec.ts"
+      ],
+      "sourceCommit": "af8d35aea6c2695f0403023e3801f43ca7929ee8"
+    },
     {
       "version": "1.2.40",
       "previousVersion": "1.2.39",
@@ -1286,79 +1326,6 @@
       "excludedGeneratedChangeCount": 2,
       "bumpType": "minor",
       "sourceCommit": "5fe5dcb9a006b7a3b2603142acd03d5153146842"
-    },
-    {
-      "version": "1.15.0",
-      "previousVersion": "1.14.0",
-      "betaReleaseCounter": 217,
-      "previousBetaReleaseCounter": 216,
-      "commitSha": "13297da6e291942128d4157c8d8f4bf8501c0e5e",
-      "commitTitle": "refactor(ai): compact drop creation and deterministic compilers",
-      "commitCount": 1,
-      "commitShas": [
-        "13297da6e291942128d4157c8d8f4bf8501c0e5e"
-      ],
-      "committedAt": "2026-05-08T06:55:36.000Z",
-      "generatedAt": "2026-05-08T07:36:21.871Z",
-      "committedAtUtc": "2026-05-08T06:55:36.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:21.871Z",
-      "updatedAtUtc": "2026-05-08T07:36:21.871Z",
-      "category": "Improved",
-      "title": "Improved drops and viewer reliability",
-      "summary": "Bug fixes and quality-of-life improvements for drops, previews, and viewer behavior.",
-      "userFacingTitle": "Improved drops and viewer reliability",
-      "surfaceCategory": "Drops & viewer",
-      "bullets": [
-        "Improved drop and viewer reliability so usage states stay easier to understand.",
-        "Reduced confusing stale or delayed states across previews and viewer surfaces."
-      ],
-      "audience": "users",
-      "affectedSurfaces": [
-        "admin",
-        "creator",
-        "drops-viewer"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "docs/agent-truth/admin-ai-control-tower.md",
-        "docs/agent-truth/ai-cover-prompt-compiler.md",
-        "docs/agent-truth/content-media-pipeline.md",
-        "docs/agent-truth/creator-fan-experience-settings.md",
-        "docs/agent-truth/drop-description-compiler.md",
-        "docs/agent-truth/payment-unlock-entitlement.md",
-        "package.json",
-        "scripts/agent/validate-ai-drop-creation-compact-cutover.ts",
-        "scripts/agent/validate-cover-prompt-compiler.ts",
-        "scripts/agent/validate-drop-description-compiler.ts",
-        "scripts/agent/validate-fan-pass-unlock-entitlement.ts",
-        "src/app/admin/ai/page.tsx",
-        "src/app/api/admin/ai/drop-covers/prompt-policy/route.ts",
-        "src/app/api/admin/ai/drop-descriptions/generate/route.ts",
-        "src/app/api/drops/unlock/route.ts",
-        "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
-        "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx",
-        "src/components/Admin/AssetUploader.tsx",
-        "src/components/Admin/CollapsibleDropSection.tsx",
-        "src/components/Admin/CompactAiActionButton.tsx",
-        "src/components/Admin/CompactAiModuleCard.tsx",
-        "src/components/Admin/CompactAiStatusChip.tsx",
-        "src/lib/ai-cover/cover-feedback-weights.ts",
-        "src/lib/ai-cover/cover-layout-dna.ts",
-        "src/lib/ai-cover/cover-prompt-compiler.ts",
-        "src/lib/ai-cover/cover-title-parser.ts",
-        "src/lib/ai-cover/creator-brand-resolver.ts",
-        "src/lib/ai-cover/flavor-ontology.ts",
-        "src/lib/ai-cover/model-prompt-adapters.ts",
-        "src/lib/ai-drop-covers.ts",
-        "src/lib/drop-descriptions/drop-description-compiler.ts",
-        "src/lib/drop-descriptions/drop-description-feedback.ts",
-        "src/lib/drop-descriptions/drop-description-memory.ts",
-        "src/lib/drop-descriptions/drop-description-patterns.ts"
-      ],
-      "effectiveChangeCount": 961,
-      "excludedGeneratedChangeCount": 0,
-      "bumpType": "minor",
-      "sourceCommit": "13297da6e291942128d4157c8d8f4bf8501c0e5e"
     }
   ]
 }
