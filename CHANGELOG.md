@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 24 public updates in pages of 5.
 
+## 1.2.42 - 2026-05-14
+- Bug fixes and general improvements
+- Consolidated the current operator doctrine for full-loop fixes.
+- Clarified source-of-truth, metric cadence, and no fake realtime rules.
+- Marked old generated reports and stale doctrine as evidence instead of live authority.
+
 ## 1.2.41 - 2026-05-14
 - Bug fixes and general improvements
 - Added a Debug-panel triage map for stale, missing, and refreshable evidence.
@@ -139,8 +145,3 @@ Showing the last 24 public updates in pages of 5.
 - Improved navigation reliability
 - Improved how key app navigation surfaces stay in sync with the latest Beta build.
 - Reduced confusing status changes when opening update notes and top-level navigation lanes.
-
-## 1.16.0 - 2026-05-08
-- Bug fixes and quality-of-life improvements
-- Fixed beta issues to make KandyDrops smoother to use.
-- Improved reliability for the latest Beta build.

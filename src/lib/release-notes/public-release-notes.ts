@@ -1,13 +1,70 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.41",
-  "betaReleaseCounter": 241,
+  "currentVersion": "1.2.42",
+  "betaReleaseCounter": 242,
   "channel": "beta",
-  "generatedAt": "2026-05-14T17:04:39.077Z",
-  "generatedAtUtc": "2026-05-14T17:04:39.077Z",
-  "lastCommitSha": "af8d35aea6c2695f0403023e3801f43ca7929ee8",
+  "generatedAt": "2026-05-14T17:40:14.470Z",
+  "generatedAtUtc": "2026-05-14T17:40:14.470Z",
+  "lastCommitSha": "2b582f1e47844f9ded9b5ff0f9f5c0112f4d8944",
   "notes": [
+    {
+      "version": "1.2.42",
+      "previousVersion": "1.2.41",
+      "betaReleaseCounter": 242,
+      "previousBetaReleaseCounter": 241,
+      "commitSha": "2b582f1e47844f9ded9b5ff0f9f5c0112f4d8944",
+      "commitTitle": "docs(repo): consolidate current operator doctrine",
+      "commitCount": 1,
+      "commitShas": [
+        "2b582f1e47844f9ded9b5ff0f9f5c0112f4d8944"
+      ],
+      "committedAt": "2026-05-14T17:40:04.000Z",
+      "generatedAt": "2026-05-14T17:40:14.469Z",
+      "committedAtUtc": "2026-05-14T17:40:04.000Z",
+      "generatedAtUtc": "2026-05-14T17:40:14.469Z",
+      "updatedAtUtc": "2026-05-14T17:40:14.469Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Bug fixes and general improvements.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Consolidated the current operator doctrine for full-loop fixes.",
+        "Clarified source-of-truth, metric cadence, and no fake realtime rules.",
+        "Marked old generated reports and stale doctrine as evidence instead of live authority."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "AGENTS.md",
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "README.md",
+        "REPO_MEMORY_LEDGER.md",
+        "agent/state/repo-doctrine-reset.generated.json",
+        "docs/agent-truth/admin-analytics-truth.md",
+        "docs/agent-truth/admin-debug-control-tower.md",
+        "docs/agent-truth/analytics-truth-layer-v2.md",
+        "docs/agent-truth/creator-dashboard-projection-lock.md",
+        "docs/agent-truth/creator-dashboard-settings.md",
+        "docs/agent-truth/current-operator-doctrine.md",
+        "docs/agent-truth/firebase-owned-repo-automation.md",
+        "docs/agent-truth/phase-one-score-ui-triage.md",
+        "docs/agent-truth/public-beta-release-notes.md",
+        "docs/agent-truth/public-beta-score.md",
+        "docs/agent-truth/repo-spring-cleaning-rewire.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
+        "docs/agent-truth/user-facing-feature-connection-audit.md",
+        "docs/agent-truth/watch-time-rollup-truth.md",
+        "package.json",
+        "scripts/agent/validate-repo-doctrine-reset.ts",
+        "tests/unit/repo-doctrine-reset.spec.ts"
+      ],
+      "sourceCommit": "2b582f1e47844f9ded9b5ff0f9f5c0112f4d8944"
+    },
     {
       "version": "1.2.41",
       "previousVersion": "1.2.40",
@@ -1280,54 +1337,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 0,
       "bumpType": "minor",
       "sourceCommit": "7dc85c6fef07f8e373215ff3437721e35deb596e"
-    },
-    {
-      "version": "1.16.0",
-      "previousVersion": "1.15.0",
-      "betaReleaseCounter": 218,
-      "previousBetaReleaseCounter": 217,
-      "commitSha": "5fe5dcb9a006b7a3b2603142acd03d5153146842",
-      "commitTitle": "fix(pwa): stabilize android chat sizing and silence stale build banner",
-      "commitCount": 1,
-      "commitShas": [
-        "5fe5dcb9a006b7a3b2603142acd03d5153146842"
-      ],
-      "committedAt": "2026-05-08T07:02:53.000Z",
-      "generatedAt": "2026-05-08T07:36:22.051Z",
-      "committedAtUtc": "2026-05-08T07:02:53.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:22.051Z",
-      "updatedAtUtc": "2026-05-08T07:36:22.051Z",
-      "category": "Fixed",
-      "title": "Bug fixes and quality-of-life improvements",
-      "summary": "Bug fixes and quality-of-life improvements.",
-      "userFacingTitle": "Bug fixes and quality-of-life improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Fixed beta issues to make KandyDrops smoother to use.",
-        "Improved reliability for the latest Beta build."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/context/optimized-task-context.generated.json",
-        "docs/agent-truth/chat-shell-stability.md",
-        "docs/agent-truth/pwa-build-freshness.md",
-        "docs/agent-truth/user-creator-mobile-lock.md",
-        "package.json",
-        "scripts/agent/validate-android-pwa-chat-and-build-banner.ts",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/components/Chat/ChatRouteShell.tsx",
-        "src/components/PwaRuntimeBridge.tsx",
-        "src/lib/device-layout-contract.ts",
-        "src/lib/user-mobile-shell.ts"
-      ],
-      "effectiveChangeCount": 314,
-      "excludedGeneratedChangeCount": 2,
-      "bumpType": "minor",
-      "sourceCommit": "5fe5dcb9a006b7a3b2603142acd03d5153146842"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
