@@ -1,5 +1,22 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-14 #172] Repo Spring Cleaning Rewire Inventory
+
+Scope started:
+- Added a source-only spring-cleaning inventory for stale generated reports, conflicting docs, overlapping validators, legacy lanes, fake-authority risks, disconnected UI surfaces, and cleanup candidates.
+- This pass is inventory-only: no runtime files were deleted, moved, or refactored, and no providers, production reads, browser audits, deploys, BigQuery jobs, Firebase rules, Cloud Functions runtime, payment/wallet runtime, chat, or AI cover files were touched.
+
+Scope completed:
+- Added `scripts/agent/validate-repo-spring-cleaning-rewire.ts`, `agent/state/repo-spring-cleaning-rewire.generated.json`, `docs/agent-truth/repo-spring-cleaning-rewire.md`, package script `check:repo-spring-cleaning-rewire`, and targeted unit coverage.
+- The inventory records generated report freshness/owner/consumer metadata, doctrine and validator conflicts, fake-authority risks, disconnected UI source metadata gaps, cleanup candidate types, severity counts, and a ranked follow-up order.
+
+Verification:
+- `npm run check:repo-spring-cleaning-rewire` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/repo-spring-cleaning-rewire.spec.ts` passed.
+- `npm run check:phase-one-score-ui-triage` passed.
+- `npm run check:beta-score` passed.
+- `npm run typecheck` passed.
+
 ## [2026-05-06 #171] FULL AUDIT: Deterministic Codebase Findings Pass
 
 Scope started:

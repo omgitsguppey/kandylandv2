@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-14 Repo spring-cleaning rewire inventory
+
+KandyDrops now has a strict repo spring-cleaning and rewire inventory lane. `scripts/agent/validate-repo-spring-cleaning-rewire.ts` writes `agent/state/repo-spring-cleaning-rewire.generated.json`, documenting generated report freshness and ownership, doctrine conflicts, validator conflicts, legacy lanes, fake-authority risks, disconnected UI surfaces, cleanup candidates, severity counts, recommended sections, and a ranked follow-up order. `docs/agent-truth/repo-spring-cleaning-rewire.md`, package script `check:repo-spring-cleaning-rewire`, and `tests/unit/repo-spring-cleaning-rewire.spec.ts` validate the lane. This pass is inventory-only and does not delete files, move files, refactor runtime code, run providers, or perform production reads.
+
 ## 2026-05-08 Phase 1 final cleanup gate
 
 Added a targeted final cleanup lane for Phase 1 hardening: `scan:codebase-junk`, `check:codebase-junk-cleanup`, `check:client-loading-speed`, `check:server-loading-speed`, `check:user-creator-feature-parity`, `check:event-timeline-management`, `check:google-cloud-cost-data-handoff`, `check:beta-versioning-final`, and `check:phase-one-final-cleanup`. New generated reports are written to `agent/state/*-generated.json` for junk classification, loading-speed checks, feature parity, event timeline management, cloud-cost/data handoff, and final gate orchestration. Beta release notes now enforce compact user-facing pagination (last 25, 5 per page), remove public technical dropdowns, and rely on automatic release-note sync workflow with `[skip release-notes]` loop protection.

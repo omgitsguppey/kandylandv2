@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-14 Repo Spring Cleaning Rewire Inventory Coverage
+
+- [x] `scripts/agent/validate-repo-spring-cleaning-rewire.ts`, package script `check:repo-spring-cleaning-rewire`, and `tests/unit/repo-spring-cleaning-rewire.spec.ts` define and validate the source-only spring-cleaning inventory lane.
+- [x] `agent/state/repo-spring-cleaning-rewire.generated.json` inventories generated report freshness/ownership/consumers, doctrine conflicts, validator conflicts, legacy lanes, fake-authority risks, disconnected UI surfaces, cleanup candidates, severity counts, and recommended fix order.
+- [x] `docs/agent-truth/repo-spring-cleaning-rewire.md`, `FULL_SCALE_CODEBASE_AUDIT.md`, and `REPO_MEMORY_LEDGER.md` document that this pass is inventory-only and does not delete, move, refactor runtime code, run providers, or perform production reads.
+
 ## 2026-05-06 Platform Economy Commerce Control Center Coverage
 
 - [x] `src/lib/platform-economy.ts`, `src/lib/server/platform-economy.ts`, and `src/lib/server/platform-economy-mutations.ts` now own the canonical admin GumDrops package, promo, offer, redemption, warning, drift, treasury, and source-of-funds control contract.
