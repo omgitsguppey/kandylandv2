@@ -30,6 +30,7 @@ Do not add Playwright, Lighthouse, Cypress, deploy commands, or full `npm run ch
 The lane:
 
 - skips commits containing `[skip release-notes]`
+- skips release artifact-only commits that touch only `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, `src/lib/release-notes/release-version-contract.ts`, and `CHANGELOG.md`
 - runs `npm run release:notes`
 - runs `npm run check:release-notes`
 - commits `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, and `CHANGELOG.md`

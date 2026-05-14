@@ -22,9 +22,25 @@ steps:
       - |
         set -euo pipefail
         title="$(git log -1 --format=%s)"
+        changed_files="$(git diff-tree --no-commit-id --name-only -r HEAD)"
         if echo "$title" | grep -qi '\[skip release-notes\]'; then
           touch /workspace/.skip-release-notes
           echo "Release-note generation skipped by commit marker."
+          exit 0
+        fi
+        release_only="true"
+        for path in $changed_files; do
+          case "$path" in
+            public/kandydrops-release-notes.json|src/lib/release-notes/public-release-notes.ts|src/lib/release-notes/release-version-contract.ts|CHANGELOG.md)
+              ;;
+            *)
+              release_only="false"
+              ;;
+          esac
+        done
+        if [ "$release_only" = "true" ]; then
+          touch /workspace/.skip-release-notes
+          echo "Release-note generation skipped for release artifact-only commit."
         fi
 
   - id: "install-root-dependencies"

@@ -58,6 +58,7 @@ const fallback = readRequired("src/lib/release-notes/public-release-notes.ts");
 const contract = readRequired("src/lib/release-notes/release-version-contract.ts");
 const helper = readRequired("src/lib/release-notes/beta-odometer-version.ts");
 const releaseScript = readRequired("scripts/release/update-public-changelog.ts");
+const releaseWorkflow = readRequired(".github/workflows/public-release-notes.yml");
 const docs = readRequired("docs/agent-truth/public-beta-release-notes.md");
 const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
@@ -205,6 +206,18 @@ for (const expected of [
   "getAcceptedPatchCommits",
 ]) {
   requireIncludes(releaseScript, expected, "release notes generator");
+}
+
+for (const expected of [
+  "paths-ignore:",
+  "\"public/kandydrops-release-notes.json\"",
+  "\"src/lib/release-notes/public-release-notes.ts\"",
+  "\"src/lib/release-notes/release-version-contract.ts\"",
+  "\"CHANGELOG.md\"",
+  "github.event_name == 'workflow_dispatch'",
+  "!contains(github.event.head_commit.message, '[skip release-notes]')",
+]) {
+  requireIncludes(releaseWorkflow, expected, "public-release-notes workflow");
 }
 
 for (const forbidden of [

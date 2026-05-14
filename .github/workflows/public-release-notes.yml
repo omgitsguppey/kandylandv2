@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "public/kandydrops-release-notes.json"
+      - "src/lib/release-notes/public-release-notes.ts"
+      - "src/lib/release-notes/release-version-contract.ts"
+      - "CHANGELOG.md"
   workflow_dispatch:
 
 # Keep release notes synchronized automatically after each main commit.
@@ -14,6 +19,7 @@ permissions:
 jobs:
   update-release-notes:
     name: Update Public Beta Release Notes
+    if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[skip release-notes]') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -49,6 +49,8 @@ KandyDrops Beta release notes are user-facing and track accepted public beta rel
 - `npm run release:notes` may normalize the public changelog without creating a new accepted release.
 - `npm run release:notes:accept` publishes the next accepted public beta patch batch and increments `betaReleaseCounter` by exactly 1.
 - Cloud and GitHub release-note automation must not create a new public beta release unless acceptance is explicit.
+- GitHub release-note automation must not run for commits that only touch `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, `src/lib/release-notes/release-version-contract.ts`, and `CHANGELOG.md`.
+- GitHub release-note automation must skip commits containing `[skip release-notes]`; this avoids failed no-op runs and release-note recursion while hosted-runner billing is unavailable.
 - `.github/workflows/ci.yml` runs `npm run check:release-notes` so stale or invalid release notes fail lightweight CI.
 
 ## Copy Rules
