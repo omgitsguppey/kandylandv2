@@ -85,13 +85,62 @@ describe("admin user metric source truth", () => {
       pushEnabledUsers: 1,
       trackedUnwraps: 4,
       trackedPurchases: 2,
-      watchTimeMs: 90_000,
+      watchTimeMs: 0,
+      watchTimeSource: "unavailable",
+      watchTimeIssues: expect.arrayContaining([
+        expect.objectContaining({ code: "watch_time_missing_despite_views" }),
+      ]),
+      watchTimeDiagnosticEstimate: expect.objectContaining({
+        source: "diagnostic_estimate",
+      }),
       onboardedUsers: 1,
       totalRevenueUsd: 20,
       payingUsers: 1,
       source: "hot_cache",
-      freshnessState: "stale",
+      freshnessState: "degraded",
     });
+  });
+
+  it("uses valid watch-session rollups as canonical watch time", () => {
+    const generatedAt = 1_700_000_000_000;
+    const snapshot = buildAdminUserMetricsSnapshot({
+      generatedAt,
+      users: [
+        {
+          uid: "user_1",
+          status: "active",
+          isVerified: true,
+          onboardingCompleted: true,
+          notificationSettings: { browserPushEnabled: true },
+        },
+      ],
+      analyticsByUser: {
+        user_1: {
+          lastSeenAt: generatedAt - 60_000,
+          unwrapCount: 1,
+          purchaseCount: 0,
+          watchSecondsTotal: 120,
+          grossRevenueUsd: 0,
+        },
+      },
+      watchSessionsByUser: {
+        user_1: [
+          {
+            userId: "user_1",
+            validWatchMs: 90_000,
+            lastSeenAtMs: generatedAt - 30_000,
+            watchScoreSource: "watch_session_rollup",
+          },
+        ],
+      },
+      commerceSummaryRaw: {},
+      commerceSummaryExists: false,
+      source: "live_fallback",
+    }).snapshot;
+
+    expect(snapshot.watchTimeMs).toBe(90_000);
+    expect(snapshot.watchTimeSource).toBe("watch_session_rollup");
+    expect(snapshot.watchTimeIssues).toEqual([]);
   });
 
   it("flags capped rollup events for raw fact recovery", () => {

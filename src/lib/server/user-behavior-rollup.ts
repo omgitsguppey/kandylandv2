@@ -122,9 +122,13 @@ export function buildUserBehaviorRollup(input: {
   sourceIssues?: Array<string | { code?: string; message: string; severity?: "info" | "warn" | "fail"; evidence?: Record<string, unknown> }>;
 }): UserBehaviorRollup {
   const views = Math.max(0, Math.round(readNumber(input.views)));
+  const explicitWatchTimeMs = readNumber(input.watchTimeMs);
+  const labeledLegacyWatchTimeMs = input.hasLegacyPageDuration === true
+    ? readNumber(input.watchSecondsTotal) * 1000
+    : 0;
   const watchTimeMs = Math.max(
     0,
-    Math.round(readNumber(input.watchTimeMs) || readNumber(input.watchSecondsTotal) * 1000),
+    Math.round(explicitWatchTimeMs > 0 ? explicitWatchTimeMs : labeledLegacyWatchTimeMs),
   );
   const authEvents = Math.max(0, Math.round(readNumber(input.authEvents)));
   const privacyAvailabilityReason = resolveBehaviorPrivacyAvailability({

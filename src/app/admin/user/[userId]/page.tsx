@@ -514,7 +514,7 @@ export default function AdminUserAnalyticsPage() {
     const metricReviewDecision = buildAdminReviewBadge({
         truthState: metricTruthState,
         missingRequiredData: !analytics,
-        viewsExistButWatchMissing: Boolean((behaviorRollup?.views ?? analytics?.viewCount ?? 0) > 0 && !(behaviorRollup?.watchTimeMs ?? analytics?.watchSecondsTotal)),
+        viewsExistButWatchMissing: Boolean((behaviorRollup?.views ?? analytics?.viewCount ?? 0) > 0 && !(behaviorRollup?.watchTimeMs ?? 0)),
         onboardedMissingAuthStats: Boolean((behaviorRollup?.onboardingCompleted || targetUser?.onboardingCompleted) && !(behaviorRollup?.authEvents ?? analytics?.authSuccessCount)),
         reviewSummary: analytics?.metricIntegrityFailures?.[0],
     });
@@ -534,7 +534,7 @@ export default function AdminUserAnalyticsPage() {
     });
 
     const watchTimeLabel = useMemo(() => {
-        const watchTimeMs = behaviorRollup?.watchTimeMs ?? ((analytics?.watchSecondsTotal ?? 0) * 1000);
+        const watchTimeMs = behaviorRollup?.watchTimeMs ?? 0;
         if (!watchTimeMs) {
             return "0m";
         }
@@ -545,7 +545,7 @@ export default function AdminUserAnalyticsPage() {
         }
 
         return `${Math.max(1, Math.round(watchSecondsTotal / 60))}m`;
-    }, [analytics?.watchSecondsTotal, behaviorRollup?.watchTimeMs]);
+    }, [behaviorRollup?.watchTimeMs]);
 
     const securityReasonOptions = useMemo(() => (
         Array.from(new Map(

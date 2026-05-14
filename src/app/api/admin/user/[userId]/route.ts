@@ -779,7 +779,12 @@ async function GET_handler(
             totalActions: normalizedActionCount,
             views: normalizedViewCount,
             unwraps: normalizedUnlockCount,
-            watchSecondsTotal: normalizedWatchSeconds,
+            watchTimeMs: watchTimeRollup.source === "watch_session_rollup"
+                ? watchTimeRollup.watchTimeMs
+                : undefined,
+            watchSecondsTotal: watchTimeRollup.source === "legacy_page_duration"
+                ? normalizedWatchSeconds
+                : undefined,
             purchasesCount: normalizedPurchaseCount,
             revenueUsd: commerceMetrics.grossRevenueUsd,
             paidGdPurchased: commerceMetrics.paidGumDrops,

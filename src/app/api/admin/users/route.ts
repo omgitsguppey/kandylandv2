@@ -2193,7 +2193,12 @@ async function GET_handler(request: NextRequest) {
         totalActions: metricSnapshot.eventCount,
         views: metricSnapshot.viewCount,
         unwraps: metricSnapshot.unwrapCount,
-        watchSecondsTotal: metricSnapshot.watchSecondsTotal,
+        watchTimeMs: analytics.watchTimeSource === "watch_session_rollup"
+          ? metricSnapshot.watchSecondsTotal * 1000
+          : undefined,
+        watchSecondsTotal: analytics.watchTimeSource === "legacy_page_duration"
+          ? metricSnapshot.watchSecondsTotal
+          : undefined,
         purchasesCount: metricSnapshot.purchaseCount,
         revenueUsd: metricSnapshot.grossRevenueUsd,
         paidGdPurchased: analytics.paidGumDrops,

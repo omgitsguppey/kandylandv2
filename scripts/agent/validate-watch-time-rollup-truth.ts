@@ -9,10 +9,15 @@ const scoring = readFileSync(join(repoRoot, "src/lib/watch-time-scoring.ts"), "u
 const rollupContract = readFileSync(join(repoRoot, "src/lib/watch-time-rollup-contract.ts"), "utf8");
 const rollupHelper = readFileSync(join(repoRoot, "src/lib/server/watch-time-rollup.ts"), "utf8");
 const userMetricsSnapshot = readFileSync(join(repoRoot, "src/lib/server/admin-user-metrics-snapshot.ts"), "utf8");
+const userBehaviorRollup = readFileSync(join(repoRoot, "src/lib/server/user-behavior-rollup.ts"), "utf8");
 const adminUsersRoute = readFileSync(join(repoRoot, "src/app/api/admin/users/route.ts"), "utf8");
 const adminUserRoute = readFileSync(join(repoRoot, "src/app/api/admin/user/[userId]/route.ts"), "utf8");
+const adminUserPage = readFileSync(join(repoRoot, "src/app/admin/user/[userId]/page.tsx"), "utf8");
 const behaviorRuntime = readFileSync(join(repoRoot, "functions/src/behavioral-intelligence-runtime.ts"), "utf8");
 const analyticsMetrics = readFileSync(join(repoRoot, "src/lib/server/analytics-metrics.ts"), "utf8");
+const adminMetricsTest = readFileSync(join(repoRoot, "tests/unit/admin-user-metrics.spec.ts"), "utf8");
+const watchRollupTest = readFileSync(join(repoRoot, "tests/unit/watch-time-rollup.spec.ts"), "utf8");
+const docs = readFileSync(join(repoRoot, "docs/agent-truth/watch-time-rollup-truth.md"), "utf8");
 
 const failures: string[] = [];
 
@@ -37,9 +42,12 @@ requireIncludes(rollupContract, "legacy_page_duration", "Watch rollup contract m
 requireIncludes(rollupHelper, "validWatchMs", "Watch rollup helper must aggregate validWatchMs.");
 requireIncludes(rollupHelper, "watchScoreSource", "Watch rollup helper must inspect watch score source.");
 requireIncludes(rollupHelper, "watch_time_missing_despite_views", "Watch rollup helper must flag views without valid watch sessions.");
+requireIncludes(rollupHelper, "input.allowLegacyFallback === true", "Legacy page duration must require an explicit allowLegacyFallback guard.");
+requireIncludes(rollupHelper, "diagnosticEstimate", "Watch rollup helper must return diagnostic estimates separately.");
 
 requireIncludes(userMetricsSnapshot, "analytics_watch_sessions", "Global admin user metrics snapshot must read watch-session rollups.");
 requireIncludes(userMetricsSnapshot, "watchRollup.watchTimeMs", "Global Watch Time must come from canonical watch rollup.");
+requireIncludes(userMetricsSnapshot, "diagnostic context only", "Admin user metrics must label analytics watchSecondsTotal as diagnostic context.");
 requireIncludes(adminUsersRoute, "buildWatchTimeRollupFromRecords", "Admin users route must use canonical watch rollup.");
 requireIncludes(adminUserRoute, "buildWatchTimeRollupFromRecords", "Admin user detail route must use canonical watch rollup.");
 requireIncludes(adminUsersRoute, "watchTimeRollup.watchTimeMs", "User Management detail lane must derive watch time from watch sessions.");
@@ -48,9 +56,39 @@ requireIncludes(behaviorRuntime, "readNumber(session.validWatchMs)", "Behavioral
 requireIncludes(behaviorRuntime, "watchScoreSource === \"watch_session_rollup\"", "Behavioral intelligence must not treat legacy page duration as primary watch time.");
 requireIncludes(analyticsMetrics, "fact.validWatchMs", "Analytics metrics must use valid watch time.");
 requireIncludes(analyticsMetrics, "legacy_page_duration", "Analytics metrics must label legacy page duration fallback.");
+requireIncludes(adminUsersRoute, "legacy page-duration fallback", "Admin users route copy must distinguish legacy page-duration fallback.");
+requireIncludes(adminUsersRoute, "watch_session_rollup", "Admin users route must preserve watch_session_rollup source labels.");
+requireIncludes(adminUserRoute, "watchTimeRollup.source === \"legacy_page_duration\"", "Admin user detail must preserve legacy fallback labels.");
+requireIncludes(adminMetricsTest, "watchTimeSource: \"unavailable\"", "Admin metrics tests must keep watchSecondsTotal non-canonical without watch sessions.");
+requireIncludes(adminMetricsTest, "watchSessionsByUser", "Admin metrics tests must include a valid watch-session source sample.");
+requireIncludes(adminMetricsTest, "validWatchMs: 90_000", "Admin metrics tests must prove valid watch sessions award canonical watch time.");
+requireIncludes(watchRollupTest, "diagnostic estimates separate", "Watch rollup tests must prove diagnostic estimates do not increase watchTimeMs.");
+requireIncludes(watchRollupTest, "allowLegacyFallback: true", "Watch rollup tests must prove legacy fallback requires explicit opt-in.");
+requireIncludes(docs, "analytics_watch_sessions.validWatchMs", "Watch-time doctrine must name the canonical watch-session field.");
+requireIncludes(docs, "`watchSecondsTotal` is diagnostic", "Watch-time doctrine must demote watchSecondsTotal to diagnostic context.");
 
 if (adminUserRoute.includes("Math.max(rollupWatchSeconds, completedSessionWatchSeconds, sessionFactWatchSeconds)")) {
   failures.push("Admin user detail must not use legacy/page-duration watch seconds as primary watch time.");
+}
+
+if (userMetricsSnapshot.includes("allowLegacyFallback: true")) {
+  failures.push("Admin user metrics snapshot must not enable legacy watch fallback by default.");
+}
+
+if (userBehaviorRollup.includes("readNumber(input.watchTimeMs) || readNumber(input.watchSecondsTotal)")) {
+  failures.push("Behavior rollup must not convert unlabeled watchSecondsTotal into canonical watchTimeMs.");
+}
+
+if (adminMetricsTest.includes("watchTimeMs: 90_000,")) {
+  failures.push("Admin metrics tests must not encode watchSecondsTotal as a watchTimeMs object-literal expectation.");
+}
+
+if (rollupHelper.includes("watchTimeMs += diagnosticEstimate") || rollupHelper.includes("watchTimeMs = diagnosticEstimate")) {
+  failures.push("Diagnostic watch estimates must not be added to canonical watchTimeMs.");
+}
+
+if (adminUserPage.includes("behaviorRollup?.watchTimeMs ?? ((analytics?.watchSecondsTotal ?? 0) * 1000)")) {
+  failures.push("Admin user detail page must not display analytics watchSecondsTotal as canonical watch time.");
 }
 
 if (adminUsersRoute.includes("current.watchSecondsTotal += watchSeconds;") && !adminUsersRoute.includes("const watchSeconds = 0;")) {

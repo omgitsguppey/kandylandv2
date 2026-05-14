@@ -42,6 +42,31 @@ describe("buildWatchTimeRollupFromRecords", () => {
     });
   });
 
+  it("ignores non-rollup sources and non-positive watch samples", () => {
+    expect(buildWatchTimeRollupFromRecords({
+      records: [
+        { validWatchMs: 9000, watchScoreSource: "legacy_page_duration" },
+        { validWatchMs: 0, watchScoreSource: "watch_session_rollup", visibleMs: 2000 },
+        { validWatchMs: -4000, watchScoreSource: "watch_session_rollup" },
+        { validWatchMs: 6000, watchScoreSource: "diagnostic_estimate" },
+      ],
+      views: 2,
+      viewerOpenMs: 14000,
+      pageDurationMs: 20000,
+      viewedFileCount: 2,
+    })).toMatchObject({
+      watchTimeMs: 0,
+      source: "unavailable",
+      validSessionCount: 0,
+      diagnosticEstimate: expect.objectContaining({
+        source: "diagnostic_estimate",
+      }),
+      issues: expect.arrayContaining([
+        expect.objectContaining({ code: "watch_time_missing_despite_views" }),
+      ]),
+    });
+  });
+
   it("labels legacy page duration fallback when allowed", () => {
     expect(buildWatchTimeRollupFromRecords({
       records: [],
@@ -80,5 +105,19 @@ describe("buildWatchTimeRollupFromRecords", () => {
         expect.objectContaining({ code: "watch_time_missing_despite_views" }),
       ]),
     });
+  });
+
+  it("keeps diagnostic estimates separate from canonical watch time", () => {
+    const rollup = buildWatchTimeRollupFromRecords({
+      records: [],
+      views: 1,
+      viewerOpenMs: 25000,
+      pageDurationMs: 25000,
+      viewedFileCount: 1,
+    });
+
+    expect(rollup.diagnosticEstimate?.estimatedWatchMs).toBeGreaterThan(0);
+    expect(rollup.watchTimeMs).toBe(0);
+    expect(rollup.source).toBe("unavailable");
   });
 });
