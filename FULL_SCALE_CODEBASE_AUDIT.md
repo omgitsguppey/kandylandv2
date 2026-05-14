@@ -13832,3 +13832,62 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## Blocked Deliverable: Monolith File + Responsibility Boundary Audit
+
+### Candidate Files
+- `src/app/api/admin/debug/route.ts`
+- `src/components/Chat/ChatExperience.tsx`
+- `src/app/api/admin/users/route.ts`
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/app/api/admin/analytics/historical/route.ts`
+- `src/lib/creator-onboarding.ts`
+- `src/lib/server/daily-tasks.ts`
+- `src/lib/server/admin-analytics-historical-validation.ts`
+
+### Classification Labels
+- `src/app/api/admin/debug/route.ts` - **God-file risk**
+- `src/components/Chat/ChatExperience.tsx` - **God-file risk**
+- `src/app/api/admin/users/route.ts` - **God-file risk**
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` - **God-file risk**
+- `src/lib/server/ai-drop-covers.ts` - **God-file risk**
+- `src/app/api/admin/analytics/historical/route.ts` - **God-file risk**
+- `src/lib/creator-onboarding.ts` - **Mixed responsibility drift**
+- `src/lib/server/daily-tasks.ts` - **Needs split for stability**
+- `src/lib/server/admin-analytics-historical-validation.ts` - **Needs split for stability**
+
+### Blocker Identification
+Automated structural refactoring of massive monolithic files exceeding 2000 lines is too risky for scripting without human intervention. These files heavily mix routing, orchestration, fetch logic, view rendering, and transformation logic. Attempting to split them automatically runs a high risk of breaking product behavior, hydration, or causing runtime regressions across protected admin and creator surfaces.
+
+### Affected Components
+- Admin Debug Route API
+- Chat UI Components and real-time synchronization
+- Admin Users Data API
+- Admin Analytics Global State hooks
+- AI Drop Covers server logic
+- Admin Analytics Historical API
+- Creator Onboarding workflows and components
+- Server-side Daily Tasks management
+- Admin Analytics Historical Validation utilities
+
+### Precise Codex Prompt
+```text
+You are a structural decomposition expert acting as a maintainability-and-stability boundary agent for KandyDrops.
+Your task is to manually decompose the oversized God-file at `{FILE_PATH}` into smaller, responsibility-segregated modules without changing any runtime product behavior, existing endpoints, or state structure.
+
+Target normal UI components to be ~300 lines or less, and orchestration/container files to be ~500 lines or less.
+
+For UI and Hook files:
+- Extract data fetching and mutation logic into discrete `*-api.ts` or `*-adapter.ts` files.
+- Extract complex UI state orchestration, fallback logic, and modal handling into `*-orchestration.ts` or `use*State.ts` custom hooks.
+- Extract pure transformation, calculation, and telemetry logic into pure `*-utils.ts` files.
+- Separate view rendering into distinct sub-components.
+
+For Server and API Route files:
+- Extract endpoint validation, input sanitization, and heavy parsing logic.
+- Move core business logic, database integrations, and admin orchestration into separated `lib/server/*` controller files.
+- Maintain strict adherence to existing `route-runtime-health.ts` targets and telemetry event formats.
+
+Strictly avoid speculative abstraction and changes to product behavior. Ensure boundaries between components, hooks, adapters, and helpers are distinct. Verify your decomposition by running `npm run typecheck`, running the test suite, and confirming adjacent traces pass.
+```
