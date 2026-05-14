@@ -126,3 +126,16 @@ If a finding needs one of those commands, record the escalation reason in the re
 - Safe repairs: `src/lib/agent-score/autofix.ts`
 - CLI entrypoints: `scripts/agent/score-public-beta-readiness.ts`, `scripts/agent/repair-public-beta-safe.ts`, `scripts/agent/validate-public-beta-score.ts`
 - Debug evidence injection: `scripts/agent/inject-debug-evidence.ts`, `scripts/agent/load-debug-evidence-for-audit.ts`, `scripts/agent/precatch-runtime-issues.ts`
+
+## 2026-05-14 Phase 1 Evidence Refresh
+
+Current HEAD for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
+
+`npm run score:beta` refreshed `agent/state/public-beta-score.generated.json` at `2026-05-14T01:23:25.919Z`.
+
+- Public beta score: 25/100.
+- Evidence score: 25/100.
+- Scanner-only score: 100/100 clean.
+- Current Phase 1 status: `Stale evidence`.
+
+The score still applies caps for targeted behavior evidence, visual/manual smoke, runtime/provider smoke, admin truth/sample evidence, freshness/PR/HEAD integrity, and empty Debug/runtime evidence. This is an evidence-blocked state, not a proven runtime code blocker.

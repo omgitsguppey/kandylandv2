@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-14T00:31:31.649Z",
+  "generatedAtUtc": "2026-05-14T01:37:39.159Z",
   "reportKey": "snapshot-admin-vendor-cost-rewire",
-  "currentHead": "a5a3797e5db2c0703ecf09f6c57ec694e3ebfa29",
+  "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
   "sourceReports": {
     "phaseOneInventory": {
       "path": "agent/state/analytics-rewire-phase-one.generated.json",
-      "generatedAtUtc": "2026-05-14T00:29:32.542Z",
-      "currentHead": "a5a3797e5db2c0703ecf09f6c57ec694e3ebfa29",
+      "generatedAtUtc": "2026-05-14T01:18:08.752Z",
+      "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
       "laneCount": 25,
       "duplicateAuthorityCount": 5,
       "rawDisplayFallbackCount": 2,
@@ -14,15 +14,15 @@
     },
     "phaseTwoIdentityPrivacy": {
       "path": "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-      "generatedAtUtc": "2026-05-14T00:30:23.844Z",
-      "currentHead": "a5a3797e5db2c0703ecf09f6c57ec694e3ebfa29",
+      "generatedAtUtc": "2026-05-14T01:19:23.361Z",
+      "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
       "privacyRuleCount": 3,
       "recoveryEligibilityRuleCount": 12
     },
     "phaseThreeRecoveryDryRun": {
       "path": "agent/state/lost-data-recovery-dry-run.generated.json",
-      "generatedAtUtc": "2026-05-14T00:31:00.179Z",
-      "currentHead": "a5a3797e5db2c0703ecf09f6c57ec694e3ebfa29",
+      "generatedAtUtc": "2026-05-14T01:20:03.324Z",
+      "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
       "recoverableLaneCount": 15,
       "debugFirstCount": 12,
       "adminAnalyticsEligibleCount": 3,

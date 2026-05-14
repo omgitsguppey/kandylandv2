@@ -56,3 +56,28 @@ The operator reported that PayPal refill was manually tested yesterday. Because 
 ## Required Next Action
 
 Run User-Surface Screenshot QA, Real-Device Smoke, and formal provider smoke evidence recording before upgrading readiness.
+
+## 2026-05-14 Fresh Evidence Refresh
+
+Current HEAD for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
+
+Analytics rewire is closed for Phase 1 blocker purposes unless validators regress: the snapshot/admin/vendor/cost report now shows `p0Count=0`, `p1Count=0`, and only P2 follow-up items.
+
+Phase 1 is still not ready to exit beta. `npm run score:beta` reports 25/100 overall, 25/100 evidence score, and 100/100 scanner-only score. The honest status remains `Stale evidence`.
+
+Current missing evidence:
+
+- Visual QA.
+- Real-device smoke.
+- Provider smoke.
+- PayPal smoke evidence artifact.
+- Admin truth samples.
+- Runtime evidence.
+- PR triage freshness.
+
+Validator status from this refresh:
+
+- Passed: analytics rewire checks, Admin Debug/Truth checks, Admin Analytics hot-cache/no-pure-realtime/guest-bounce/live-pulse checks, `npm run check:beta-score`, `npm run check:final-launch-readiness-report`, `npm run check:release-notes`, and `npm run typecheck`.
+- Failed: `npm run check:launch-readiness-final` and `npm run check:launch-pr-triage` due stale readiness/PR evidence.
+
+Exact next step: Provider Smoke Evidence, then Real-Device Smoke, then Screenshot QA. If those pass and are recorded, run Launch Evidence Update.

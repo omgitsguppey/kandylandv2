@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-14T00:29:32.542Z",
+  "generatedAtUtc": "2026-05-14T01:18:08.752Z",
   "reportKey": "analytics-rewire-phase-one",
-  "currentHead": "a5a3797e5db2c0703ecf09f6c57ec694e3ebfa29",
+  "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
   "phasesCovered": [
     "0. Rewire Inventory Contract",
     "1. Truth-Lane Inventory Implementation",

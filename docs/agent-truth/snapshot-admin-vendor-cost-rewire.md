@@ -141,6 +141,12 @@ The analytics rewire runtime lane has now landed its realtime route collapse, hi
 
 Remaining P2 items are non-blocking follow-up evidence and validator-watch items. They should not trigger more analytics runtime surgery unless a validator regresses, a raw display path reappears, or a provider/export lane starts overriding first-party snapshot truth. The next Phase 1 work should move to evidence refresh, smoke, and screenshot QA rather than continuing the analytics rewire by default.
 
+### 2026-05-14 Evidence Refresh
+
+Current HEAD for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
+
+`npm run check:snapshot-admin-vendor-cost-rewire` refreshed `agent/state/snapshot-admin-vendor-cost-rewire.generated.json` from current HEAD. The report remains at `p0Count=0` and `p1Count=0`; all five remaining issues are P2/non-blocking. Treat analytics rewire as closed for Phase 1 blocker purposes unless a validator regresses.
+
 ## What This Report Must Not Be Used For
 
 This report must not be used to claim production data was recovered, to approve a production backfill, to prove provider smoke, to mark screenshots complete, to change Admin UI, to alter API behavior, to add Firebase reads/listeners, or to run BigQuery/provider work. It is a local static planning contract and validator input only.

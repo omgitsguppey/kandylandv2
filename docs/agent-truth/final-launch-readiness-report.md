@@ -71,3 +71,18 @@ The only current pass is scope-freeze evidence for this refresh lane. All other 
 ## Current Recommendation
 
 Next stage: User-Surface Screenshot QA and Real-Device Smoke after PR Cemetery Cleanup planning. Do not merge open PRs or claim launch readiness before evidence is current.
+
+## 2026-05-14 Fresh Evidence Refresh
+
+Current HEAD for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
+
+The analytics rewire closeout report was refreshed from current HEAD and still reports `p0Count=0` and `p1Count=0`; the remaining analytics rewire findings are P2/non-blocking validator-watch items.
+
+The refreshed public beta score remains 25/100 with scanner-only score 100/100 clean and evidence score 25/100. Phase 1 remains `Stale evidence` because visual QA, real-device smoke, provider smoke, PayPal smoke artifact, admin truth sample evidence, runtime evidence, and PR triage freshness are still not fully recorded in current repo evidence.
+
+Failed focused validators in this refresh:
+
+- `npm run check:launch-readiness-final`: stale launch readiness report relative to later runtime file changes.
+- `npm run check:launch-pr-triage`: PR triage was generated before current HEAD and must cap readiness at Needs review.
+
+These failures require evidence refresh and smoke capture, not a runtime code change proven by this pass. Provider smoke, real-device smoke, and screenshot QA must still be recorded before readiness can be upgraded.

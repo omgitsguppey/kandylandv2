@@ -64,3 +64,11 @@ Launch PR triage is a manual decision gate. `agent/state/launch-pr-triage.genera
 ## Required Next Action
 
 Run PR Cemetery Cleanup after launch evidence is current. This pass intentionally performed no PR merge, close, rebase, or edit.
+
+## 2026-05-14 Fresh Evidence Refresh Note
+
+Current HEAD for this evidence refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
+
+`npm run check:launch-pr-triage` failed during the fresh Phase 1 evidence refresh because the machine-readable PR triage artifact was generated before current HEAD. This means PR triage freshness remains a beta-exit evidence gap and must cap readiness at Needs review.
+
+No PR was merged, closed, rebased, or edited during this evidence refresh. The next PR action should be a dedicated fresh PR triage pass, not a stale branch merge.
