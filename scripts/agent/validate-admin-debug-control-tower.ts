@@ -363,12 +363,12 @@ for (const expected of [
   requireIncludes(controlTowerBusinessTruth, expected, "Debug Control Tower business truth card must render canonical business truth separately from ops health");
 }
 for (const expected of [
-  "Debug reports and ops health cannot mark these business metrics healthy.",
   "const adminUserTruthSnapshot = data?.adminUserTruthSnapshot;",
   "<DebugControlTower businessSnapshot={adminUserTruthSnapshot} />",
 ]) {
   requireIncludes(debugTabNow, expected, "Debug tab now must pass canonical business truth into the control tower lane");
 }
+requireNotIncludes(debugTabNow, "title=\"Business truth now\"", "Debug tab now must not duplicate business truth already rendered in Control Tower");
 for (const expected of [
   "adminUserTruthSnapshot?: AdminUserTruthSnapshot",
   "overview.business_truth_snapshot",
@@ -1747,14 +1747,22 @@ for (const expected of [
   "DebugRecoveryEvidenceSummary",
   "data-admin-debug-recovery-evidence",
   "data-admin-debug-recovery-production-allowed",
+  "data-admin-debug-recovery-summary-compact=\"true\"",
+  "data-admin-debug-recovery-details-default=\"collapsed\"",
+  "data-admin-debug-recovery-no-scrollwrap=\"true\"",
+  "data-admin-debug-recovery-details=\"collapsed_by_default\"",
   "data-admin-debug-recovery-lane-key",
+  "data-admin-debug-recovery-lane-detail-default=\"collapsed\"",
   "productionAllowedNow=false",
   "adminAnalyticsPromotedNow",
   "sourceTruthLabel",
 ]) {
   requireIncludes(debugRuntimeEvidenceGroups, expected, "Admin Debug recovery evidence visual summary");
 }
+requireNotIncludes(debugRuntimeEvidenceGroups, "ScrollWrap", "Admin Debug recovery evidence visual summary");
+requireNotIncludes(debugRuntimeEvidenceGroups, "overflow-auto", "Admin Debug recovery evidence visual summary");
 requireIncludes(debugTabNow, "<DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />", "Admin Debug Right Now tab");
+requireNotIncludes(debugTabNow, "title=\"Business truth now\"", "Admin Debug Right Now tab");
 
 for (const expected of [
   "Human-readable rollout state, current beta relation, and sample actor resolution.",

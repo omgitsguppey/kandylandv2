@@ -127,16 +127,21 @@ export function DebugRecoveryEvidenceSummary({
   const productionAllowedNow = summary?.productionAllowedNow === true;
   const promotedNow = summary?.adminAnalyticsPromotedNowCount ?? 0;
   const truthState = recoveryEvidence?.evidenceState === "available" ? "stale" : "unavailable";
+  const sourceReportPath = recoveryEvidence?.sourceReport?.path ?? "agent/state/lost-data-recovery-dry-run.generated.json";
+  const sourceGeneratedAt = recoveryEvidence?.sourceReport?.generatedAtUtc ?? "unavailable";
+  const detailRows = lanes.slice(0, 12);
 
   return (
     <div
       data-admin-debug-recovery-evidence="recovery_evidence_debug_first"
       data-admin-debug-recovery-production-allowed={String(productionAllowedNow)}
       data-admin-debug-recovery-promoted-now={promotedNow}
+      data-admin-debug-recovery-summary-compact="true"
+      data-admin-debug-recovery-details-default="collapsed"
     >
       <Section
         title="Analytics recovery evidence"
-        subtitle="Debug-first recovery lanes, source labels, blockers, and promotion state."
+        subtitle="Compact Debug-first recovery status. Details stay collapsed until review is needed."
         defaultOpen={false}
         summary={(
           <>
@@ -148,52 +153,52 @@ export function DebugRecoveryEvidenceSummary({
           </>
         )}
       >
-        <div className="space-y-3 text-sm text-gray-300">
-          <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs">
-            <p className="font-semibold text-white">Source report</p>
-            <p>{recoveryEvidence?.sourceReport?.path ?? "agent/state/lost-data-recovery-dry-run.generated.json"}</p>
-            <p>generatedAtUtc {recoveryEvidence?.sourceReport?.generatedAtUtc ?? "unavailable"}</p>
-            <p>Required labels: {(recoveryEvidence?.requiredLabels ?? []).join(", ") || "unavailable"}</p>
-            {missingRequired.length > 0 ? <p className="text-amber-100">Missing required lanes: {missingRequired.join(", ")}</p> : null}
+        <div className="space-y-3 text-sm text-gray-300" data-admin-debug-recovery-no-scrollwrap="true">
+          <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+            Generated recovery evidence is a Debug snapshot, not live product truth. Keep recovered values review-only until a later promotion pass.
           </div>
 
-          <div className="grid gap-2">
-            {lanes.slice(0, 12).map((lane) => (
-              <details
-                key={lane.laneKey}
-                className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2"
-                data-admin-debug-recovery-lane-key={lane.laneKey}
-                data-admin-debug-recovery-admin-analytics-promotion={lane.adminAnalyticsPromotedNow ? "promoted" : "not_promoted"}
-              >
-                <summary className="cursor-pointer list-none">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <p className="font-semibold text-white">{lane.title ?? lane.laneKey}</p>
-                      <p className="text-xs text-gray-400">{lane.sourcePath ?? lane.laneKey} | {lane.sourceTruthLabel ?? "debug_only"}</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full border border-white/10 bg-black/25 px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-gray-100">
-                        {lane.consentRequirement ?? "needs_review"}
-                      </span>
-                      <span className="rounded-full border border-white/10 bg-black/25 px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-gray-100">
-                        {lane.sourceConfidence ?? "unknown"}
-                      </span>
-                    </div>
-                  </div>
-                </summary>
-                <div className="mt-2 space-y-1.5 border-t border-white/10 pt-2 text-xs text-gray-300">
-                  <p>First surface: {lane.firstSurfaceTarget ?? "Admin Debug"}</p>
-                  <p>Promotion state: {lane.adminAnalyticsPromotionState ?? "recovery_evidence_debug_first_blocked"}</p>
-                  <p>Admin Analytics later: {String(lane.canSurfaceInAdminAnalytics === true)} | Debug: {String(lane.canSurfaceInAdminDebug !== false)} | Backfill later: {String(lane.canBackfillLater === true)}</p>
-                  <p>productionAllowedNow=false | adminAnalyticsPromotedNow={String(lane.adminAnalyticsPromotedNow === true)}</p>
-                  <p>Labels: {(lane.labels ?? []).join(", ") || "debug_only, needs_review, recovery_evidence_debug_first"}</p>
-                  {(lane.mappingWarnings ?? []).length ? <p>Mapping warnings: {(lane.mappingWarnings ?? []).join(" | ")}</p> : null}
-                  <p>Blocked by: {(lane.blockedBy ?? ["Admin Debug source evidence before promotion"]).join(" | ")}</p>
-                  <p>{lane.recommendedAction ?? "Keep recovery evidence in Debug until a later promotion pass."}</p>
-                </div>
-              </details>
-            ))}
+          <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs">
+            <p className="font-semibold text-white">Source report</p>
+            <p>{sourceReportPath}</p>
+            <p>generatedAtUtc {sourceGeneratedAt}</p>
+            {missingRequired.length > 0 ? <p className="mt-2 text-amber-100">Missing required lanes: {missingRequired.join(", ")}</p> : null}
           </div>
+
+          <details
+            className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2"
+            data-admin-debug-recovery-details="collapsed_by_default"
+          >
+            <summary className="cursor-pointer text-sm font-semibold text-white">
+              Recovery details ({detailRows.length} lanes)
+            </summary>
+            <div className="mt-3 divide-y divide-white/10 text-xs text-gray-300">
+              {detailRows.map((lane) => {
+                const blockerCount = lane.blockedBy?.length ?? 0;
+                const promotionState = lane.adminAnalyticsPromotedNow
+                  ? "promoted"
+                  : lane.adminAnalyticsPromotionState ?? "not_promoted";
+
+                return (
+                  <div
+                    key={lane.laneKey}
+                    className="grid gap-2 py-2 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+                    data-admin-debug-recovery-lane-key={lane.laneKey}
+                    data-admin-debug-recovery-admin-analytics-promotion={lane.adminAnalyticsPromotedNow ? "promoted" : "not_promoted"}
+                    data-admin-debug-recovery-lane-detail-default="collapsed"
+                  >
+                    <p className="font-semibold text-white">{lane.laneKey}</p>
+                    <p>{lane.sourceTruthLabel ?? "debug_only"}</p>
+                    <p>{lane.consentRequirement ?? "needs_review"}</p>
+                    <p className="text-gray-400">{promotionState} | blockers {blockerCount}</p>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-3 text-xs text-gray-500">
+              Full labels, mapping warnings, recommended actions, and source metadata remain in the Admin Debug API payload.
+            </p>
+          </details>
         </div>
       </Section>
     </div>

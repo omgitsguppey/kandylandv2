@@ -1,20 +1,20 @@
 {
-  "generatedAtUtc": "2026-05-13T23:36:26.912Z",
+  "generatedAtUtc": "2026-05-14T00:31:00.179Z",
   "reportKey": "lost-data-recovery-dry-run",
-  "currentHead": "ba09df5af947b33bb98d1cdf50876c25eac6bf96",
+  "currentHead": "a5a3797e5db2c0703ecf09f6c57ec694e3ebfa29",
   "sourceReports": {
     "phaseOneInventory": {
       "path": "agent/state/analytics-rewire-phase-one.generated.json",
-      "generatedAtUtc": "2026-05-13T23:23:27.824Z",
-      "currentHead": "ba09df5af947b33bb98d1cdf50876c25eac6bf96",
+      "generatedAtUtc": "2026-05-14T00:29:32.542Z",
+      "currentHead": "a5a3797e5db2c0703ecf09f6c57ec694e3ebfa29",
       "laneCount": 25,
       "orphanCandidateCount": 15,
       "duplicateAuthorityCount": 5
     },
     "phaseTwoIdentityPrivacy": {
       "path": "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-      "generatedAtUtc": "2026-05-13T23:23:52.932Z",
-      "currentHead": "ba09df5af947b33bb98d1cdf50876c25eac6bf96",
+      "generatedAtUtc": "2026-05-14T00:30:23.844Z",
+      "currentHead": "a5a3797e5db2c0703ecf09f6c57ec694e3ebfa29",
       "identityLaneCount": 8,
       "recoveryEligibilityRuleCount": 12
     }

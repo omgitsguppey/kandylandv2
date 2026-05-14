@@ -135,6 +135,12 @@ The cost simplification runtime pass disables the compact Admin Analytics client
 
 Materializer metadata now names `analytics_admin_metric_snapshots` as compact display authority and labels raw sources as materializer input or Debug evidence only. `analytics_aggregate_stats/realtime_summary` remains available as fallback/live-pulse evidence, not canonical display truth. This pass does not delete the legacy writer, change schedule frequency, backfill data, call vendors, scan BigQuery, or promote recovered data into Admin Analytics.
 
+## Phase 10 Closeout Note
+
+The analytics rewire runtime lane has now landed its realtime route collapse, historical route collapse, Admin Debug recovery evidence, module-level source labels, and cost-path reduction. The expected closeout state is `p0Count=0` and `p1Count=0` in `agent/state/snapshot-admin-vendor-cost-rewire.generated.json`.
+
+Remaining P2 items are non-blocking follow-up evidence and validator-watch items. They should not trigger more analytics runtime surgery unless a validator regresses, a raw display path reappears, or a provider/export lane starts overriding first-party snapshot truth. The next Phase 1 work should move to evidence refresh, smoke, and screenshot QA rather than continuing the analytics rewire by default.
+
 ## What This Report Must Not Be Used For
 
 This report must not be used to claim production data was recovered, to approve a production backfill, to prove provider smoke, to mark screenshots complete, to change Admin UI, to alter API behavior, to add Firebase reads/listeners, or to run BigQuery/provider work. It is a local static planning contract and validator input only.

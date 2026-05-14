@@ -113,6 +113,8 @@ describe("snapshot/admin/vendor/cost rewire", () => {
   });
 
   it("keeps runtime risks as report issues instead of validator failures", () => {
+    expect(REPORT.summary.p0Count).toBe(0);
+    expect(REPORT.summary.p1Count).toBe(0);
     expect(REPORT.issues.map((issue) => issue.issueKey)).toEqual(expect.arrayContaining([
       "duplicate-snapshot-authority-collapse-needed",
       "raw-display-fallback-runtime-simplification-needed",

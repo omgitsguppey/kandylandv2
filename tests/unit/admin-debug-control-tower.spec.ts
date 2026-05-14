@@ -208,8 +208,16 @@ describe("admin debug control tower model", () => {
         expect(runtimeEvidence).toContain("DebugRecoveryEvidenceSummary");
         expect(runtimeEvidence).toContain("data-admin-debug-recovery-evidence");
         expect(runtimeEvidence).toContain("data-admin-debug-recovery-production-allowed");
+        expect(runtimeEvidence).toContain("data-admin-debug-recovery-summary-compact=\"true\"");
+        expect(runtimeEvidence).toContain("data-admin-debug-recovery-details-default=\"collapsed\"");
+        expect(runtimeEvidence).toContain("data-admin-debug-recovery-no-scrollwrap=\"true\"");
+        expect(runtimeEvidence).toContain("data-admin-debug-recovery-details=\"collapsed_by_default\"");
         expect(runtimeEvidence).toContain("productionAllowedNow=false");
         expect(runtimeEvidence).toContain("adminAnalyticsPromotedNow");
+        expect(runtimeEvidence).toContain("data-admin-debug-recovery-lane-detail-default=\"collapsed\"");
+        expect(runtimeEvidence).not.toContain("ScrollWrap");
+        expect(runtimeEvidence).not.toContain("overflow-auto");
         expect(debugNow).toContain("<DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />");
+        expect(debugNow).not.toContain("title=\"Business truth now\"");
     });
 });
