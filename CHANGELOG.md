@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 23 public updates in pages of 5.
 
+## 1.2.33 - 2026-05-14
+- Bug fixes and general improvements
+- Added formal tracking for remaining smoke evidence.
+- Kept PayPal/provider smoke marked as incomplete until repo evidence exists.
+- Kept beta exit blockers visible instead of marking launch readiness complete.
+
 ## 1.2.32 - 2026-05-14
 - Bug fixes and general improvements
 - Refreshed Phase 1 beta readiness evidence.
@@ -125,8 +131,3 @@ Showing the last 23 public updates in pages of 5.
 - Improved daily task reliability
 - Improved daily task reliability so check-ins and task progress stay clearer.
 - Reduced confusing refresh states around daily rewards and task completion.
-
-## 1.8.0 - 2026-05-08
-- Bug fixes and quality-of-life improvements
-- Fixed beta issues to make KandyDrops smoother to use.
-- Improved reliability for the latest Beta build.

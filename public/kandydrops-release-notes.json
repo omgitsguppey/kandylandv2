@@ -1,11 +1,61 @@
 {
-  "currentVersion": "1.2.32",
-  "betaReleaseCounter": 232,
+  "currentVersion": "1.2.33",
+  "betaReleaseCounter": 233,
   "channel": "beta",
-  "generatedAt": "2026-05-14T01:42:37.161Z",
-  "generatedAtUtc": "2026-05-14T01:42:37.161Z",
-  "lastCommitSha": "c318d90a84bac8e24596c9be4a6376406e179f8c",
+  "generatedAt": "2026-05-14T02:43:59.305Z",
+  "generatedAtUtc": "2026-05-14T02:43:59.305Z",
+  "lastCommitSha": "d1dd8a050d59f8e0261c8515c9cecc24def290a0",
   "notes": [
+    {
+      "version": "1.2.33",
+      "previousVersion": "1.2.32",
+      "betaReleaseCounter": 233,
+      "previousBetaReleaseCounter": 232,
+      "commitSha": "d1dd8a050d59f8e0261c8515c9cecc24def290a0",
+      "commitTitle": "docs(phase-one): add formal smoke evidence tracking",
+      "commitCount": 1,
+      "commitShas": [
+        "d1dd8a050d59f8e0261c8515c9cecc24def290a0"
+      ],
+      "committedAt": "2026-05-14T02:42:48.000Z",
+      "generatedAt": "2026-05-14T02:43:59.301Z",
+      "committedAtUtc": "2026-05-14T02:42:48.000Z",
+      "generatedAtUtc": "2026-05-14T02:43:59.301Z",
+      "updatedAtUtc": "2026-05-14T02:43:59.301Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added formal tracking for remaining smoke evidence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added formal tracking for remaining smoke evidence.",
+        "Kept PayPal/provider smoke marked as incomplete until repo evidence exists.",
+        "Kept beta exit blockers visible instead of marking launch readiness complete."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/admin-truth-sample-evidence.generated.json",
+        "agent/state/provider-smoke-evidence.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/runtime-smoke-evidence.generated.json",
+        "docs/agent-truth/admin-truth-sample-evidence.md",
+        "docs/agent-truth/final-launch-readiness-report.md",
+        "docs/agent-truth/launch-readiness-final.md",
+        "docs/agent-truth/paypal-smoke-evidence.md",
+        "docs/agent-truth/provider-smoke-evidence.md",
+        "docs/agent-truth/public-beta-score.md",
+        "docs/agent-truth/runtime-smoke-evidence.md",
+        "package.json",
+        "scripts/agent/validate-admin-truth-sample-evidence.ts",
+        "scripts/agent/validate-provider-smoke-evidence.ts",
+        "scripts/agent/validate-runtime-smoke-evidence.ts"
+      ],
+      "sourceCommit": "d1dd8a050d59f8e0261c8515c9cecc24def290a0"
+    },
     {
       "version": "1.2.32",
       "previousVersion": "1.2.31",
@@ -1421,53 +1471,6 @@
       "excludedGeneratedChangeCount": 2,
       "bumpType": "none",
       "sourceCommit": "62d7e69a60420dd25175123378fc51aca5f905c3"
-    },
-    {
-      "version": "1.8.0",
-      "previousVersion": "1.7.0",
-      "betaReleaseCounter": 210,
-      "previousBetaReleaseCounter": 209,
-      "commitSha": "d98c3265883d906f60ad8218b1863184935ca438",
-      "commitTitle": "chore(phase-one): gate user creator readiness",
-      "commitCount": 1,
-      "commitShas": [
-        "d98c3265883d906f60ad8218b1863184935ca438"
-      ],
-      "committedAt": "2026-05-08T04:44:40.000Z",
-      "generatedAt": "2026-05-08T07:36:20.376Z",
-      "committedAtUtc": "2026-05-08T04:44:40.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:20.376Z",
-      "updatedAtUtc": "2026-05-08T07:36:20.376Z",
-      "category": "Fixed",
-      "title": "Bug fixes and quality-of-life improvements",
-      "summary": "Bug fixes and quality-of-life improvements.",
-      "userFacingTitle": "Bug fixes and quality-of-life improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Fixed beta issues to make KandyDrops smoother to use.",
-        "Improved reliability for the latest Beta build."
-      ],
-      "audience": "creators",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/creator-dashboard-projection-lock.generated.json",
-        "agent/state/creator-monetization-gates-lock.generated.json",
-        "agent/state/creator-public-profile-lock.generated.json",
-        "agent/state/user-creator-phase-one.generated.json",
-        "agent/state/user-critical-path-lock.generated.json",
-        "docs/agent-truth/user-creator-phase-one.md",
-        "package.json",
-        "scripts/agent/validate-creator-public-profile-lock.ts",
-        "scripts/agent/validate-user-creator-phase-one.ts",
-        "src/components/Chat/ChatRouteShell.tsx"
-      ],
-      "effectiveChangeCount": 341,
-      "excludedGeneratedChangeCount": 351,
-      "bumpType": "minor",
-      "sourceCommit": "d98c3265883d906f60ad8218b1863184935ca438"
     }
   ]
 }
