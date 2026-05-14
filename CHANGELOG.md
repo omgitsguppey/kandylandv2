@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 24 public updates in pages of 5.
 
+## 1.2.39 - 2026-05-14
+- Bug fixes and general improvements
+- Added formal targeted behavior evidence for Phase 1 validators.
+- Refreshed launch readiness evidence without claiming visual or provider smoke.
+- Kept remaining beta exit evidence gaps visible.
+
 ## 1.2.38 - 2026-05-14
 - Bug fixes and general improvements
 - Connected Admin Debug to the canonical beta readiness score.
@@ -133,11 +139,6 @@ Showing the last 24 public updates in pages of 5.
 - Reduced confusing stale or delayed states across previews and viewer surfaces.
 
 ## 1.14.0 - 2026-05-08
-- Bug fixes and quality-of-life improvements
-- Fixed beta issues to make KandyDrops smoother to use.
-- Improved reliability for the latest Beta build.
-
-## 1.13.0 - 2026-05-08
 - Bug fixes and quality-of-life improvements
 - Fixed beta issues to make KandyDrops smoother to use.
 - Improved reliability for the latest Beta build.

@@ -1,13 +1,57 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.38",
-  "betaReleaseCounter": 238,
+  "currentVersion": "1.2.39",
+  "betaReleaseCounter": 239,
   "channel": "beta",
-  "generatedAt": "2026-05-14T14:05:59.631Z",
-  "generatedAtUtc": "2026-05-14T14:05:59.631Z",
-  "lastCommitSha": "4f313a98a68ca04b4aab6fa5f6012c34212cb889",
+  "generatedAt": "2026-05-14T14:16:20.000Z",
+  "generatedAtUtc": "2026-05-14T14:16:20.000Z",
+  "lastCommitSha": "c6ce135ddaadbc2ce5843c4762e4d51076f4da82",
   "notes": [
+    {
+      "version": "1.2.39",
+      "previousVersion": "1.2.38",
+      "betaReleaseCounter": 239,
+      "previousBetaReleaseCounter": 238,
+      "commitSha": "c6ce135ddaadbc2ce5843c4762e4d51076f4da82",
+      "commitTitle": "docs(phase-one): add targeted behavior evidence",
+      "commitCount": 1,
+      "commitShas": [
+        "c6ce135ddaadbc2ce5843c4762e4d51076f4da82"
+      ],
+      "committedAt": "2026-05-14T14:16:05.000Z",
+      "generatedAt": "2026-05-14T14:16:19.998Z",
+      "committedAtUtc": "2026-05-14T14:16:05.000Z",
+      "generatedAtUtc": "2026-05-14T14:16:19.998Z",
+      "updatedAtUtc": "2026-05-14T14:16:19.998Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added formal targeted behavior evidence for Phase 1 validators.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added formal targeted behavior evidence for Phase 1 validators.",
+        "Refreshed launch readiness evidence without claiming visual or provider smoke.",
+        "Kept remaining beta exit evidence gaps visible."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/targeted-behavior-evidence.generated.json",
+        "docs/agent-truth/final-launch-readiness-report.md",
+        "docs/agent-truth/launch-pr-triage.md",
+        "docs/agent-truth/launch-readiness-final.md",
+        "docs/agent-truth/public-beta-score.md",
+        "docs/agent-truth/targeted-behavior-evidence.md",
+        "package.json",
+        "scripts/agent/validate-targeted-behavior-evidence.ts"
+      ],
+      "sourceCommit": "c6ce135ddaadbc2ce5843c4762e4d51076f4da82"
+    },
     {
       "version": "1.2.38",
       "previousVersion": "1.2.37",
@@ -1316,61 +1360,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 1943,
       "bumpType": "minor",
       "sourceCommit": "ecdc8c1737d6d6bb810da5fd218cc54fcbfa35b4"
-    },
-    {
-      "version": "1.13.0",
-      "previousVersion": "1.12.0",
-      "betaReleaseCounter": 215,
-      "previousBetaReleaseCounter": 214,
-      "commitSha": "a8b4970a94030a87372763b8ea4292c7c79d8820",
-      "commitTitle": "feat(cost): normalize 4xx guardrails",
-      "commitCount": 1,
-      "commitShas": [
-        "a8b4970a94030a87372763b8ea4292c7c79d8820"
-      ],
-      "committedAt": "2026-05-08T06:35:35.000Z",
-      "generatedAt": "2026-05-08T07:36:21.504Z",
-      "committedAtUtc": "2026-05-08T06:35:35.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:21.504Z",
-      "updatedAtUtc": "2026-05-08T07:36:21.504Z",
-      "category": "New",
-      "title": "Bug fixes and quality-of-life improvements",
-      "summary": "Bug fixes and quality-of-life improvements.",
-      "userFacingTitle": "Bug fixes and quality-of-life improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Fixed beta issues to make KandyDrops smoother to use.",
-        "Improved reliability for the latest Beta build."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/4xx-cost-guardrails.generated.json",
-        "docs/agent-truth/4xx-cost-guardrails.md",
-        "docs/agent-truth/cloudrun-sql-bigquery-guardrails.md",
-        "docs/agent-truth/content-protection-score.md",
-        "docs/agent-truth/global-cost-surfaces.md",
-        "docs/agent-truth/speed-security-hardening.md",
-        "middleware.ts",
-        "package.json",
-        "scripts/agent/score-4xx-cost-guardrails.ts",
-        "scripts/agent/validate-4xx-cost-guardrails.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/lib/server/cheap-4xx-response.ts",
-        "src/lib/server/http-error-cost-contract.ts",
-        "src/lib/server/request-guard.ts",
-        "src/lib/server/route-4xx-classifier.ts",
-        "src/lib/server/route-4xx-dedupe.ts",
-        "tests/unit/4xx-cost-guardrails.spec.ts"
-      ],
-      "effectiveChangeCount": 623,
-      "excludedGeneratedChangeCount": 84,
-      "bumpType": "minor",
-      "sourceCommit": "a8b4970a94030a87372763b8ea4292c7c79d8820"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
