@@ -76,6 +76,7 @@
         "repair:beta": "tsx scripts/agent/repair-public-beta-safe.ts",
         "check:beta-score": "tsx scripts/agent/validate-public-beta-score.ts",
         "check:phase-one-score-ui-triage": "tsx scripts/agent/validate-phase-one-score-ui-triage.ts",
+        "check:targeted-behavior-evidence": "tsx scripts/agent/validate-targeted-behavior-evidence.ts",
         "score:hardening": "tsx scripts/agent/score-codebase-hardening.ts",
         "check:hardening": "tsx scripts/agent/validate-codebase-hardening.ts",
         "repair:hardening": "tsx scripts/agent/repair-codebase-hardening-safe.ts",

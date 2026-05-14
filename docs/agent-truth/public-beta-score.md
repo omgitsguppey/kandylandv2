@@ -173,3 +173,24 @@ The score no longer awards provider smoke from final launch readiness report tex
 After this ingestion fix, `npm run score:beta` still reports 25/100 overall, 25/100 evidence score, and 100/100 scanner-only score. The score remains capped because the formal artifacts still say targeted behavior is missing, visual/manual smoke is missing, provider smoke is missing with PayPal only operator-reported, runtime smoke is `runtime_unverified`, admin truth samples are `missing_or_unknown`, and required generated reports are stale.
 
 `evidenceCapDetails` now records every active cap with the gate label and detail so operators can see which formal artifact is blocking each gate.
+
+## 2026-05-14 Targeted Behavior Evidence Bridge
+
+`agent/state/targeted-behavior-evidence.generated.json` now records focused Phase 1 validator evidence from current HEAD.
+
+`npm run score:beta` now reports:
+
+- Public beta score: 45/100.
+- Evidence score: 45/100.
+- Scanner-only score: 100/100 clean.
+- Current Phase 1 status: `Stale evidence`.
+
+The targeted behavior gate is now backed by a formal artifact and can pass. This does not clear visual/manual QA, provider smoke, PayPal smoke, real-device smoke, deployed runtime smoke, admin truth samples, or launch/PR freshness.
+
+Remaining active caps:
+
+- `Visual QA required`: no valid visual/manual evidence artifact exists.
+- `Runtime unverified`: provider smoke remains `missing_formal_evidence` and runtime smoke remains `runtime_unverified`.
+- `Unknown evidence`: admin truth sample evidence remains `missing_or_unknown`.
+- `Stale evidence`: final launch readiness, launch readiness, and PR triage reports are older than the freshness window.
+- `Unknown evidence`: debug/runtime evidence is empty.

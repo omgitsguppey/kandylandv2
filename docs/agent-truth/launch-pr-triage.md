@@ -72,3 +72,11 @@ Current HEAD for this evidence refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b83
 `npm run check:launch-pr-triage` failed during the fresh Phase 1 evidence refresh because the machine-readable PR triage artifact was generated before current HEAD. This means PR triage freshness remains a beta-exit evidence gap and must cap readiness at Needs review.
 
 No PR was merged, closed, rebased, or edited during this evidence refresh. The next PR action should be a dedicated fresh PR triage pass, not a stale branch merge.
+
+## 2026-05-14 Targeted Evidence Bridge Note
+
+Current HEAD for this targeted evidence bridge: `6b964e0e91f288a68da7a7e2ff0fce38d6343338`.
+
+`agent/state/targeted-behavior-evidence.generated.json` records focused validator evidence only. It does not refresh open PR classifications and does not authorize any PR merge, close, rebase, or edit.
+
+`npm run check:launch-pr-triage` still fails because `agent/state/launch-pr-triage.generated.json` was generated before current HEAD and no narrower PR triage generator exists in the current package scripts. Keep PR triage freshness as a beta-exit gap until a dedicated current-head PR triage pass is run.

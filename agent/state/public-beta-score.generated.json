@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-14T06:03:48.461Z",
+  "generatedAt": "2026-05-14T14:14:43.772Z",
   "scannerScore": 100,
   "scannerStatus": "clean",
-  "overallScore": 25,
+  "overallScore": 45,
   "overallStatus": "beta-risk",
   "readinessStatus": "Stale evidence",
   "readinessStatusReason": "3 required generated report(s) are older than the freshness window.",
-  "evidenceScore": 25,
+  "evidenceScore": 45,
   "evidenceGates": [
     {
       "id": "sourceSafety",
@@ -25,15 +25,17 @@
       "id": "targetedBehaviorTests",
       "label": "Targeted behavior tests",
       "weight": 20,
-      "score": 0,
-      "status": "Unknown evidence",
-      "detail": "No formal targeted behavior evidence artifact was supplied.",
+      "score": 20,
+      "status": "Ready",
+      "detail": "Focused Phase 1 validators passed from current HEAD. This is targeted behavior evidence only and does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "evidence": [
         "artifactPath=agent/state/targeted-behavior-evidence.generated.json",
-        "artifactStatus=missing_formal_evidence",
-        "artifactPassed=false",
-        "artifactDetail=No formal targeted behavior evidence artifact was supplied.",
-        "artifactExists=false"
+        "artifactStatus=passed",
+        "artifactPassed=true",
+        "generatedAtUtc=2026-05-14T14:11:47.684Z",
+        "sourceCommit=6b964e0e91f288a68da7a7e2ff0fce38d6343338",
+        "artifactDetail=Focused Phase 1 validators passed from current HEAD. This is targeted behavior evidence only and does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
+        "artifactExists=true"
       ],
       "recommendedAction": "Run the targeted validators for the changed surface and regenerate the score with fresh evidence metadata."
     },
@@ -118,9 +120,9 @@
       "status": "Stale evidence",
       "detail": "3 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/final-launch-readiness-report.generated.json (34.36h old)",
-        "agent/state/launch-readiness-report.generated.json (34.36h old)",
-        "agent/state/launch-pr-triage.generated.json (34.36h old)"
+        "agent/state/final-launch-readiness-report.generated.json (42.54h old)",
+        "agent/state/launch-readiness-report.generated.json (42.54h old)",
+        "agent/state/launch-pr-triage.generated.json (42.54h old)"
       ],
       "recommendedAction": "Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current."
     },
@@ -136,7 +138,6 @@
     }
   ],
   "evidenceCapsApplied": [
-    "Unknown evidence: Targeted behavior tests",
     "Visual QA required: Visual/manual smoke",
     "Runtime unverified: Runtime/provider smoke",
     "Unknown evidence: Admin truth/sample evidence",
@@ -144,7 +145,6 @@
     "Unknown evidence: Debug/runtime evidence"
   ],
   "evidenceCapDetails": [
-    "Unknown evidence: Targeted behavior tests - No formal targeted behavior evidence artifact was supplied.",
     "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
     "Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
     "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
@@ -230,7 +230,6 @@
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
   "recommendedNextActions": [
-    "Unknown evidence: Run the targeted validators for the changed surface and regenerate the score with fresh evidence metadata.",
     "Visual QA required: Record targeted manual or screenshot evidence for user-critical surfaces before calling the score ready.",
     "Runtime unverified: Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
     "Unknown evidence: Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
@@ -267,7 +266,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta readiness score 25/100 (Stale evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 6 evidence cap(s) applied.",
+  "summary": "Public beta readiness score 45/100 (Stale evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 5 evidence cap(s) applied.",
   "debugEvidence": {
     "layout": [],
     "hydration": [],

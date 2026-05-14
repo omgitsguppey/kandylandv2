@@ -1,0 +1,78 @@
+{
+  "generatedAtUtc": "2026-05-14T14:11:47.684Z",
+  "reportKey": "targeted-behavior-evidence",
+  "currentHead": "6b964e0e91f288a68da7a7e2ff0fce38d6343338",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "bigQueryCallsPerformed": false,
+  "visualQaPerformed": false,
+  "realDeviceSmokePerformed": false,
+  "overallStatus": "passed",
+  "passed": true,
+  "detail": "Focused Phase 1 validators passed from current HEAD. This is targeted behavior evidence only and does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
+  "summary": "Focused Phase 1 targeted behavior validators passed without production reads, providers, BigQuery, visual QA, or real-device smoke.",
+  "commands": [
+    {
+      "command": "npm run check:beta-score",
+      "status": "pass",
+      "proves": "Public beta score contract validates schema-backed evidence gates, cap details, and no stale boolean/string-derived score truth.",
+      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:provider-smoke-evidence",
+      "status": "pass",
+      "proves": "Provider smoke evidence artifact remains honest about missing formal provider evidence and operator-reported PayPal.",
+      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:runtime-smoke-evidence",
+      "status": "pass",
+      "proves": "Runtime smoke evidence artifact keeps local validators separate from deployed runtime smoke.",
+      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:admin-truth-sample-evidence",
+      "status": "pass",
+      "proves": "Admin truth sample evidence artifact remains missing_or_unknown until a formal sample exists.",
+      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:phase-one-score-ui-triage",
+      "status": "pass",
+      "proves": "Phase 1 score/UI triage validator identifies remaining score, UI, creator, watch-time, and admin cleanup risks.",
+      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:settings-creator-dashboard-split",
+      "status": "pass",
+      "proves": "Creator settings/dashboard split validator passes for the current source contract.",
+      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:watch-time-rollup-truth",
+      "status": "pass",
+      "proves": "Watch-time contract validator keeps canonical watch time tied to valid watch-session rollups.",
+      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:admin-debug-control-tower",
+      "status": "pass",
+      "proves": "Admin Debug Control Tower validator passes with canonical beta score wiring and report aggregate separation.",
+      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    },
+    {
+      "command": "npm run check:admin-truth",
+      "status": "pass",
+      "proves": "Static admin truth contract validator passes for the current source.",
+      "doesNotProve": "Does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples."
+    }
+  ],
+  "readinessImpact": {
+    "targetedBehaviorGatePassed": true,
+    "notes": [
+      "Focused Phase 1 validators passed from current HEAD.",
+      "This artifact is targeted behavior evidence only.",
+      "It cannot replace visual QA, provider smoke, real-device smoke, deployed runtime smoke, or production admin truth samples."
+    ]
+  }
+}

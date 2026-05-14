@@ -98,3 +98,11 @@ Current status after recording:
 - Admin truth sample evidence: `missing_or_unknown`.
 
 This pass did not run live providers, production reads, BigQuery, GA4/PostHog, deploys, Playwright, Cypress, or Lighthouse. It does not make Phase 1 ready. It makes the remaining smoke evidence gaps explicit in repo artifacts.
+
+## 2026-05-14 Targeted Evidence Bridge Note
+
+Current HEAD for this targeted evidence bridge: `6b964e0e91f288a68da7a7e2ff0fce38d6343338`.
+
+`agent/state/targeted-behavior-evidence.generated.json` now records focused validator evidence and allows the targeted behavior score gate to pass. This bridge did not run visual QA, providers, BigQuery, production reads, real-device smoke, or deployed runtime smoke.
+
+`npm run check:launch-readiness-final` still fails because `agent/state/launch-readiness-report.generated.json` was generated before current HEAD and no narrower launch-readiness generator exists in the current package scripts. Do not fake `currentHead`; keep launch readiness capped until a dedicated fresh launch evidence update regenerates the report.

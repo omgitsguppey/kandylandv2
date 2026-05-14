@@ -98,3 +98,11 @@ Formal tracking artifacts were added for provider, runtime, and admin truth samp
 This reduces ambiguity around operator-reported evidence, but it does not upgrade launch readiness. PayPal remains operator-reported without attached repo artifact/log/screenshot. Provider smoke remains missing formal evidence. Runtime smoke remains unverified beyond local static validators. Admin truth samples remain missing or unknown.
 
 `npm run check:launch-readiness-final` still fails because the older launch readiness report is stale relative to later runtime changes. The next readiness work is evidence capture, not runtime code changes.
+
+## 2026-05-14 Targeted Evidence Bridge Note
+
+Current HEAD for this targeted evidence bridge: `6b964e0e91f288a68da7a7e2ff0fce38d6343338`.
+
+The targeted behavior evidence artifact now exists and passes focused validator checks. The final launch readiness report remains `NOT LAUNCHABLE` / evidence-refresh truth because visual QA, provider smoke, real-device smoke, deployed runtime smoke, admin truth samples, launch readiness freshness, and PR triage freshness remain incomplete.
+
+`npm run check:final-launch-readiness-report` passes because the report honestly records missing evidence. `npm run check:launch-readiness-final` and `npm run check:launch-pr-triage` still fail because their generated artifacts predate current HEAD and no existing narrow generator refreshed them in this pass.
