@@ -35,6 +35,34 @@ const ANALYTICS_SEMANTIC_CATEGORY_LABELS: Record<AnalyticsSemanticCategory, stri
   drop: "KandyDrop",
 }
 
+const GUEST_SEMANTIC_ROLLUP_MAX_EVENTS = 250
+const GUEST_SEMANTIC_ROLLUP_CONCURRENCY = 8
+
+// cost-bound: guest semantic rollups use bounded worker pool instead of unbounded Promise.all.
+export async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const limit = Math.max(1, Math.floor(concurrency))
+  const results = new Array<R>(items.length)
+  let nextIndex = 0
+
+  async function runWorker() {
+    while (nextIndex < items.length) {
+      const index = nextIndex
+      nextIndex += 1
+      results[index] = await worker(items[index], index)
+    }
+  }
+
+  await Promise.all(
+    Array.from({length: Math.min(limit, items.length)}, () => runWorker()),
+  )
+
+  return results
+}
+
 function humanizeAnalyticsKey(value: string | null | undefined) {
   if (!value) {
     return "Unknown"
@@ -504,7 +532,12 @@ export async function recordSemanticRollupFromGuestBatch(input: {
 }) {
   const timestamp = asNumber(input.batch.receivedAtMs) || Date.now()
   const events = Array.isArray(input.batch.events) ? input.batch.events as GuestBatchEvent[] : []
-  await Promise.all(events.map(async (event) => {
+  const boundedEvents = events.slice(0, GUEST_SEMANTIC_ROLLUP_MAX_EVENTS)
+  if (events.length > boundedEvents.length) {
+    console.warn(`[Analytics] Guest semantic rollup capped ${events.length} events to ${boundedEvents.length}.`)
+  }
+
+  await mapWithConcurrency(boundedEvents, GUEST_SEMANTIC_ROLLUP_CONCURRENCY, async (event) => {
     const delta = buildGuestSemanticDelta(event as unknown as Record<string, unknown>)
     if (!delta) {
       return
@@ -524,5 +557,5 @@ export async function recordSemanticRollupFromGuestBatch(input: {
       semanticSurfaceLabel: asString((event as unknown as Record<string, unknown>).semanticSurfaceLabel),
       sourceKey: input.sourceKey,
     })
-  }))
+  })
 }

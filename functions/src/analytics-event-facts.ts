@@ -24,6 +24,35 @@ type IdentifiedAnalyticsBatchEvent = {
   eventParams?: unknown;
 }
 
+const IDENTIFIED_ANALYTICS_MAX_BATCH_EVENTS = 100
+const IDENTIFIED_ANALYTICS_EVENT_WRITE_CONCURRENCY = 8
+const ANALYTICS_EVENT_FACT_SIDE_EFFECT_CONCURRENCY = 2
+
+// cost-bound: bounded Promise.all worker pool; never fan out more than the supplied concurrency.
+export async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const limit = Math.max(1, Math.floor(concurrency))
+  const results = new Array<R>(items.length)
+  let nextIndex = 0
+
+  async function runWorker() {
+    while (nextIndex < items.length) {
+      const index = nextIndex
+      nextIndex += 1
+      results[index] = await worker(items[index], index)
+    }
+  }
+
+  await Promise.all(
+    Array.from({length: Math.min(limit, items.length)}, () => runWorker()),
+  )
+
+  return results
+}
+
 function buildSessionFactId(event: AnalyticsEventFact) {
   const sessionKey = encodeKeyFragment(readString(event.sessionId) || readString(event.userId) || readString(event.minuteKey))
   const dropKey = encodeKeyFragment(readString(event.dropId) || "site")
@@ -140,8 +169,11 @@ export const ingestAnalyticsEvent = onCall(
       }
     }
     const deduplicatedEvents = Array.from(uniqueEvents.values());
+    if (deduplicatedEvents.length > IDENTIFIED_ANALYTICS_MAX_BATCH_EVENTS) {
+      throw new HttpsError("invalid-argument", "Too many analytics events in one batch.")
+    }
 
-    const results = await Promise.all(deduplicatedEvents.map(async (rawEvent) => {
+    const results = await mapWithConcurrency(deduplicatedEvents, IDENTIFIED_ANALYTICS_EVENT_WRITE_CONCURRENCY, async (rawEvent) => {
       const normalizedEvent = normalizeAnalyticsEventFact({
         rawEvent,
         userId,
@@ -181,7 +213,7 @@ export const ingestAnalyticsEvent = onCall(
         status: "success",
         anonymized: enforcement.anonymized,
       }
-    }))
+    })
 
     return {
       status: "success",
@@ -390,12 +422,12 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
 
     await batch.commit()
 
-    await Promise.all([
-      recordSemanticRollupFromEventFact({
+    await mapWithConcurrency([
+      () => recordSemanticRollupFromEventFact({
         eventFact: data,
         sourceKey: "analytics_event_facts",
       }),
-      touchAnalyticsRuntime(timestamp),
-    ])
+      () => touchAnalyticsRuntime(timestamp),
+    ], ANALYTICS_EVENT_FACT_SIDE_EFFECT_CONCURRENCY, async (sideEffect) => sideEffect())
   },
 )

@@ -52,6 +52,9 @@ export type AdminDebugFindingCard = {
     suggestedValidator: string;
     evidence: string[];
     truthState: AdminDebugTruthState;
+    speedSecurityFindingKind?: "backend_work_fanout" | "request_body_cap";
+    speedSecuritySourceState?: "current" | "stale" | "evidence-only";
+    speedSecurityRefreshCommand?: "npm run check:speed-security";
 };
 
 export type AdminDebugLiveIssueCard = {
@@ -349,6 +352,51 @@ function collectFindings(raw: Record<string, unknown>): unknown[] {
     return candidates.flatMap((candidate) => Array.isArray(candidate) ? candidate : []);
 }
 
+function translateSpeedSecurityFinding(
+    reportId: string,
+    title: string,
+    warning: string,
+): {
+    title: string;
+    warning: string;
+    kind?: AdminDebugFindingCard["speedSecurityFindingKind"];
+    evidence: string[];
+} {
+    if (reportId !== "speed-security-hardening") {
+        return { title, warning, evidence: [] };
+    }
+
+    if (title === "Potential unbounded Promise.all fanout") {
+        return {
+            title: "Backend work cap needed",
+            warning: "Backend work can fan out too much at once.",
+            kind: "backend_work_fanout",
+            evidence: [
+                "data-debug-speed-security-finding-kind=backend_work_fanout",
+                "data-debug-speed-security-source-state=evidence-only",
+                "data-debug-speed-security-refresh-command=npm run check:speed-security",
+                warning,
+            ],
+        };
+    }
+
+    if (title === "Mutating route has body limit contract but no source-visible cap") {
+        return {
+            title: "Request body cap needed",
+            warning: "API route needs a visible payload size cap before JSON parsing.",
+            kind: "request_body_cap",
+            evidence: [
+                "data-debug-speed-security-finding-kind=request_body_cap",
+                "data-debug-speed-security-source-state=evidence-only",
+                "data-debug-speed-security-refresh-command=npm run check:speed-security",
+                warning,
+            ],
+        };
+    }
+
+    return { title, warning, evidence: [] };
+}
+
 function normalizeFinding(
     reportId: string,
     section: AdminDebugControlTowerSection,
@@ -358,12 +406,16 @@ function normalizeFinding(
 ): AdminDebugFindingCard {
     const raw = isRecord(rawFinding) ? rawFinding : { title: String(rawFinding) };
     const severity = normalizeSeverity(raw.severity ?? raw.status ?? raw.level);
-    const title = toStringValue(raw.title ?? raw.message ?? raw.humanReadableWarning, "Generated report finding");
+    const rawTitle = toStringValue(raw.title ?? raw.message ?? raw.humanReadableWarning, "Generated report finding");
+    const rawWarning = toStringValue(raw.humanReadableWarning ?? raw.escalation ?? raw.suggestedAction ?? raw.suggestedFix, rawTitle);
+    const translation = translateSpeedSecurityFinding(reportId, rawTitle, rawWarning);
+    const title = translation.title;
     const evidence = Array.isArray(raw.evidence)
         ? raw.evidence.slice(0, 4).map((entry) => String(entry).slice(0, 220))
         : raw.excerpt
             ? [String(raw.excerpt).slice(0, 220)]
             : [];
+    const translatedEvidence = [...translation.evidence, ...evidence].slice(0, 4);
 
     return {
         id: toStringValue(raw.id, `${reportId}-${index}`),
@@ -373,10 +425,13 @@ function normalizeFinding(
         title,
         domain: toStringValue(raw.domain ?? raw.category ?? raw.routeOrSurface, section),
         filePath: toStringValue(raw.filePath ?? raw.routePath ?? raw.surface, "unknown"),
-        humanReadableWarning: toStringValue(raw.humanReadableWarning ?? raw.escalation ?? raw.suggestedAction ?? raw.suggestedFix, title),
+        humanReadableWarning: translation.warning,
         suggestedValidator: toStringValue(raw.validator, command),
-        evidence,
+        evidence: translatedEvidence,
         truthState: severity === "critical" ? "failed" : severity === "major" ? "stale" : "live",
+        speedSecurityFindingKind: translation.kind,
+        speedSecuritySourceState: translation.kind ? "evidence-only" : undefined,
+        speedSecurityRefreshCommand: translation.kind ? "npm run check:speed-security" : undefined,
     };
 }
 

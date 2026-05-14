@@ -9,6 +9,7 @@ import {
     saveAdminAnalyticsModuleRange,
 } from "@/lib/server/admin-analytics-preferences";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
@@ -16,6 +17,8 @@ import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/r
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const ADMIN_ANALYTICS_PREFERENCES_BODY_LIMIT_BYTES = 64_000;
 
 async function GET_handler(request: NextRequest) {
     const startedAt = Date.now();
@@ -76,10 +79,14 @@ async function PUT_handler(request: NextRequest) {
             return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
-        const body = await request.json() as {
+        const body = await readBoundedJsonBody<{
             section?: unknown;
             range?: unknown;
-        };
+        }>(request, {
+            maxBytes: ADMIN_ANALYTICS_PREFERENCES_BODY_LIMIT_BYTES,
+            routeName: "admin/analytics/preferences",
+            allowEmpty: false,
+        });
         const section = typeof body.section === "string" ? body.section.trim() : "";
         const range = body.range;
 
@@ -99,6 +106,13 @@ async function PUT_handler(request: NextRequest) {
             }),
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(NextResponse.json({
+                success: false,
+                error: error.message,
+                code: error.code,
+            }, { status: error.status }), error);
+        }
         return finalize(handleApiError(error, "admin/analytics/preferences"), error);
     }
 }

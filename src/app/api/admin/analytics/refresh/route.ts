@@ -22,6 +22,7 @@ import {
   runSnapshotRefreshWithDedupe,
 } from "@/lib/server/admin-analytics-snapshots";
 import { handleApiError } from "@/lib/server/auth";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ADMIN_ANALYTICS } from "@/lib/server/rate-limit";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -31,6 +32,8 @@ type RefreshRequestBody = {
   rangeKey?: string;
   force?: boolean;
 };
+
+const ADMIN_ANALYTICS_REFRESH_BODY_LIMIT_BYTES = 64_000;
 
 const ADMIN_ANALYTICS_PRIVATE_CACHE_HEADERS = {
   "Cache-Control": "private, no-store",
@@ -132,7 +135,11 @@ async function POST_handler(request: NextRequest) {
       requireTrustedOrigin: true,
     });
 
-    const body = await request.json().catch(() => ({} as RefreshRequestBody)) as RefreshRequestBody;
+    const body = await readBoundedJsonBody<RefreshRequestBody>(request, {
+      maxBytes: ADMIN_ANALYTICS_REFRESH_BODY_LIMIT_BYTES,
+      routeName: "admin/analytics/refresh",
+      allowEmpty: true,
+    });
     const parsed = readModuleAndRange(request, body);
     if (!parsed.ok) {
       return parsed.response;
@@ -204,6 +211,13 @@ async function POST_handler(request: NextRequest) {
       }, { status: snapshot ? 200 : 500 });
     }
   } catch (error) {
+    if (isBoundedJsonBodyError(error)) {
+      return adminAnalyticsJson({
+        success: false,
+        error: error.message,
+        code: error.code,
+      }, { status: error.status });
+    }
     return handleApiError(error, "Admin.Analytics.Refresh.POST");
   }
 }

@@ -45,6 +45,7 @@ Shows support admin thread/message access, support route failures, creator booki
 - Beta-critical reports older than 72 hours create a major next action.
 - Required beta-critical reports that are missing create critical findings.
 - Missing, stale, failed, unavailable, and unknown states must never render as healthy/live.
+- Speed/security findings may translate scanner titles into operator language, but active backend guardrail findings stay visible with source path and refresh command; stale generated speed/security output is evidence-only until `npm run score:speed-security` and `npm run check:speed-security` refresh it.
 - Recent diagnostics and downstream writers must separate `currentWindow`, `recentWindow`, `loadedSample`, and `freshnessState`. Current 0 errors / 0 warnings cannot render as ERROR unless the source itself failed.
 - Loaded sample errors and warnings are historical sample context. They must be labeled as "Loaded sample history" and may move a channel to review, but they must not mark the current window as ERROR.
 - Stale channel sources must show stale or expired freshness even when current counts are clean. Commerce diagnostics that were last seen days ago must not render as fully live unless a documented no-traffic rule is also shown.

@@ -274,8 +274,13 @@ function hasIdempotencyEvidence(source: string) {
   return /idempotenc|transactionId|duplicatePrevented|orderId|captureId|eventId|requestId|lockId|already(?:Unlocked|Active|Processed)/iu.test(source);
 }
 
-function hasBodyLimitEvidence(source: string) {
-  return /bodyLimit|MAX_[A-Z0-9_]*BYTES|payloadTooLarge|content-length|Content-Length|safeParseJson|parseJsonBody|requestBodyLimit|MAX_PAYLOAD/u.test(source);
+export function hasBodyLimitEvidence(source: string) {
+  return /bodyLimit|MAX_[A-Z0-9_]*BYTES|payloadTooLarge|content-length|Content-Length|safeParseJson|parseJsonBody|requestBodyLimit|MAX_PAYLOAD|readBoundedJsonBody|BoundedJsonBodyError|payload_too_large|content-length guard/u.test(source);
+}
+
+export function hasBoundedPromiseAllEvidence(source: string, promiseAllIndex: number) {
+  const nearby = source.slice(Math.max(0, promiseAllIndex - 720), Math.min(source.length, promiseAllIndex + 720));
+  return /mapWithConcurrency|bounded worker pool|cost-bound:\s*bounded Promise\.all|fixed-size Promise\.all|Array\.from\(\{\s*length:\s*Math\.min\(limit,\s*items\.length\)/u.test(nearby);
 }
 
 function hasBoundedFirestoreGetEvidence(source: string, getIndex: number) {
@@ -942,12 +947,15 @@ function scanCostRunawayWork(root: string, findings: SpeedSecurityFindingInput[]
       });
     }
 
-    if (/Promise\.all\(\s*[^)]*\.map\(/u.test(source)) {
+    for (const match of source.matchAll(/Promise\.all\(\s*[^)]*\.map\(/gu)) {
+      if (hasBoundedPromiseAllEvidence(source, match.index ?? 0)) {
+        continue;
+      }
       pushFinding(findings, {
         domain: "costRunawayWorkControls",
         severity: "major",
         filePath,
-        line: lineOf(source, "Promise.all"),
+        line: lineOfIndex(source, match.index ?? 0),
         title: "Potential unbounded Promise.all fanout",
         evidence: ["Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."],
         expectedRule: "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",

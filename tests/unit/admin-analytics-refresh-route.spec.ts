@@ -141,6 +141,66 @@ describe("/api/admin/analytics/refresh", () => {
     });
   });
 
+  it("returns 413 payload_too_large before parsing an oversized POST body", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/analytics/refresh", {
+      method: "POST",
+      body: "x".repeat(64_001),
+      headers: {
+        "content-type": "application/json",
+        "content-length": "64001",
+      },
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload).toMatchObject({
+      success: false,
+      code: "payload_too_large",
+      error: "Request payload is too large.",
+    });
+    expect(mockState.markSnapshotRefreshStarted).not.toHaveBeenCalled();
+  });
+
+  it("allows an empty POST body and reads module/range from query params", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/analytics/refresh?moduleKey=commerce_snapshot&rangeKey=30d", {
+      method: "POST",
+      body: "",
+      headers: {
+        "content-type": "application/json",
+      },
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.success).toBe(true);
+    expect(payload.moduleKey).toBe("commerce_snapshot");
+    expect(payload.rangeKey).toBe("30d");
+    expect(mockState.markSnapshotRefreshStarted).toHaveBeenCalledWith(expect.objectContaining({
+      moduleKey: "commerce_snapshot",
+      rangeKey: "30d",
+      force: false,
+    }));
+  });
+
+  it("returns 400 invalid_json for malformed JSON", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/analytics/refresh", {
+      method: "POST",
+      body: "{bad",
+      headers: {
+        "content-type": "application/json",
+      },
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({
+      success: false,
+      code: "invalid_json",
+      error: "Invalid JSON body.",
+    });
+    expect(mockState.markSnapshotRefreshStarted).not.toHaveBeenCalled();
+  });
+
   it("prevents duplicate refresh storms and returns existing metadata", async () => {
     const existing = createUnavailableAdminMetricSnapshot({
       moduleKey: "event_mix",
