@@ -1,0 +1,44 @@
+{
+  "generatedAtUtc": "2026-05-14T02:00:00.000Z",
+  "reportKey": "provider-smoke-evidence",
+  "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
+  "scope": "local_static_evidence_recording",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "bigQueryCallsPerformed": false,
+  "ga4PosthogCallsPerformed": false,
+  "deploymentPerformed": false,
+  "overallStatus": "missing_formal_evidence",
+  "paypalRefillSmoke": {
+    "status": "operator_reported_not_formal_provider_smoke",
+    "operatorReportedAtLocalDate": "2026-05-13",
+    "note": "Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached.",
+    "formalRepoArtifactAttached": false,
+    "machineEvidenceFiles": [],
+    "passed": false,
+    "recommendedAction": "Attach a screenshot/log or run formal provider smoke later before marking PayPal/provider smoke passed."
+  },
+  "providerSmoke": {
+    "status": "missing_formal_evidence",
+    "formalRepoArtifactAttached": false,
+    "machineEvidenceFiles": [],
+    "passed": false,
+    "requiredEvidence": [
+      "provider name and environment",
+      "timestamped smoke action",
+      "request/response or screenshot/log artifact with secrets redacted",
+      "operator identity or test actor",
+      "result and failure copy if applicable"
+    ],
+    "recommendedAction": "Run formal provider smoke or attach existing redacted evidence before upgrading readiness."
+  },
+  "readinessImpact": {
+    "providerSmokeGatePassed": false,
+    "paypalSmokeGatePassed": false,
+    "phaseOneStatusCap": "Ready with smoke required",
+    "notes": [
+      "This artifact reduces outside-chat ambiguity by recording the operator report inside repo evidence.",
+      "It does not prove provider smoke passed."
+    ]
+  }
+}

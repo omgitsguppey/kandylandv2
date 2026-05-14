@@ -81,3 +81,20 @@ Validator status from this refresh:
 - Failed: `npm run check:launch-readiness-final` and `npm run check:launch-pr-triage` due stale readiness/PR evidence.
 
 Exact next step: Provider Smoke Evidence, then Real-Device Smoke, then Screenshot QA. If those pass and are recorded, run Launch Evidence Update.
+
+## 2026-05-14 Formal Smoke Evidence Tracking
+
+Added repo evidence tracking for:
+
+- PayPal/provider smoke: `agent/state/provider-smoke-evidence.generated.json`.
+- Runtime smoke: `agent/state/runtime-smoke-evidence.generated.json`.
+- Admin truth samples: `agent/state/admin-truth-sample-evidence.generated.json`.
+
+Current status after recording:
+
+- PayPal refill: `operator_reported_not_formal_provider_smoke`.
+- Provider smoke: `missing_formal_evidence`.
+- Runtime smoke: `runtime_unverified`.
+- Admin truth sample evidence: `missing_or_unknown`.
+
+This pass did not run live providers, production reads, BigQuery, GA4/PostHog, deploys, Playwright, Cypress, or Lighthouse. It does not make Phase 1 ready. It makes the remaining smoke evidence gaps explicit in repo artifacts.

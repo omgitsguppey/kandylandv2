@@ -1,0 +1,36 @@
+{
+  "generatedAtUtc": "2026-05-14T02:00:00.000Z",
+  "reportKey": "admin-truth-sample-evidence",
+  "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
+  "scope": "local_static_evidence_recording",
+  "productionReadsPerformed": false,
+  "providerCallsPerformed": false,
+  "bigQueryCallsPerformed": false,
+  "deploymentPerformed": false,
+  "overallStatus": "missing_or_unknown",
+  "sampleCount": 0,
+  "freshAdminTruthSampleAttached": false,
+  "sampleEvidenceFiles": [],
+  "adminTruthCommandEvidence": [
+    {
+      "command": "npm run check:admin-truth",
+      "status": "pass",
+      "proves": "Static admin truth contract validation only; does not prove current production sample values."
+    }
+  ],
+  "requiredNextArtifact": {
+    "description": "Admin truth screenshot or JSON sample with source freshness and sample count.",
+    "requiredFields": [
+      "source freshness",
+      "sample count",
+      "unavailable/stale/needs_review states when no data exists",
+      "redacted source payload or screenshot",
+      "timestamp"
+    ]
+  },
+  "readinessImpact": {
+    "adminTruthSampleGatePassed": false,
+    "phaseOneStatusCap": "Unknown evidence",
+    "recommendedAction": "Record a fresh admin truth screenshot or JSON sample before upgrading readiness."
+  }
+}

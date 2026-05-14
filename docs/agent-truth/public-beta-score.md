@@ -131,7 +131,7 @@ If a finding needs one of those commands, record the escalation reason in the re
 
 Current HEAD for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
 
-`npm run score:beta` refreshed `agent/state/public-beta-score.generated.json` at `2026-05-14T01:23:25.919Z`.
+`npm run score:beta` refreshed `agent/state/public-beta-score.generated.json` at `2026-05-14T02:36:22.302Z`.
 
 - Public beta score: 25/100.
 - Evidence score: 25/100.
@@ -139,3 +139,15 @@ Current HEAD for this refresh: `142bba579d7a2f0b73610b0b5f0498a26e19b836`.
 - Current Phase 1 status: `Stale evidence`.
 
 The score still applies caps for targeted behavior evidence, visual/manual smoke, runtime/provider smoke, admin truth/sample evidence, freshness/PR/HEAD integrity, and empty Debug/runtime evidence. This is an evidence-blocked state, not a proven runtime code blocker.
+
+## 2026-05-14 Formal Smoke Evidence Tracking
+
+Formal local evidence artifacts now exist for the remaining smoke lanes:
+
+- `agent/state/provider-smoke-evidence.generated.json`
+- `agent/state/runtime-smoke-evidence.generated.json`
+- `agent/state/admin-truth-sample-evidence.generated.json`
+
+These artifacts intentionally do not clear provider, PayPal, deployed runtime, real-device, visual QA, or admin truth sample gates. PayPal refill remains `operator_reported_not_formal_provider_smoke`; provider smoke remains `missing_formal_evidence`; runtime remains `runtime_unverified`; admin truth samples remain `missing_or_unknown`.
+
+After this evidence tracking pass, `npm run score:beta` still reports 25/100 overall, 25/100 evidence score, and 100/100 scanner-only score. The honest status remains `Stale evidence`.

@@ -86,3 +86,15 @@ Failed focused validators in this refresh:
 - `npm run check:launch-pr-triage`: PR triage was generated before current HEAD and must cap readiness at Needs review.
 
 These failures require evidence refresh and smoke capture, not a runtime code change proven by this pass. Provider smoke, real-device smoke, and screenshot QA must still be recorded before readiness can be upgraded.
+
+## 2026-05-14 Formal Smoke Evidence Tracking
+
+Formal tracking artifacts were added for provider, runtime, and admin truth sample evidence:
+
+- `agent/state/provider-smoke-evidence.generated.json`
+- `agent/state/runtime-smoke-evidence.generated.json`
+- `agent/state/admin-truth-sample-evidence.generated.json`
+
+This reduces ambiguity around operator-reported evidence, but it does not upgrade launch readiness. PayPal remains operator-reported without attached repo artifact/log/screenshot. Provider smoke remains missing formal evidence. Runtime smoke remains unverified beyond local static validators. Admin truth samples remain missing or unknown.
+
+`npm run check:launch-readiness-final` still fails because the older launch readiness report is stale relative to later runtime changes. The next readiness work is evidence capture, not runtime code changes.
