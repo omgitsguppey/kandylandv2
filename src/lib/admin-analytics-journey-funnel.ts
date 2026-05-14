@@ -10,6 +10,7 @@ import type {
 type FunnelMode = EventChainPanelState["mode"];
 type DenominatorMode = EventChainPanelState["denominatorMode"];
 type JourneySource = "first_party_event_counts" | "mixed_first_party_payment" | "waiting" | "unavailable";
+export type EventChainHydrationState = "ready" | "waiting" | "no_sample" | "unavailable" | "error";
 
 type FunnelFlags = {
   stale: boolean;
@@ -50,7 +51,22 @@ export type AdminAnalyticsJourneyFunnelModel = FunnelFlags & Omit<EventChainPane
   selectedRange: RangeOption;
   funnelMode: FunnelMode;
   denominatorMode: DenominatorMode;
-  modeLabel: "UPDATED" | "PARTIAL" | "WAIT" | "ERROR" | "DELAYED";
+  modeLabel:
+    | "UPDATED"
+    | "PARTIAL"
+    | "WAIT"
+    | "UNAVAILABLE"
+    | "NO SAMPLE"
+    | "ERROR"
+    | "DELAYED";
+  hydrationState: EventChainHydrationState;
+  hasUsableEventSample: boolean;
+  canRenderStepDetails: boolean;
+  exactUserFunnelAvailable: boolean;
+  measurementMode: "event_volume_only" | "ordered_actor_session_funnel" | "unavailable";
+  unavailableReason: string | null;
+  manualWorkaround: string | null;
+  algorithmRecommendation: string | null;
   visibleTitle: "Event Chain" | "Journey Funnel";
   visibleHelperCopy: string;
   steps: AdminAnalyticsJourneyFunnelStep[];
@@ -132,6 +148,8 @@ function buildStep(input: {
   flags: FunnelFlags;
   fakeZeroPrevented: boolean;
 }): AdminAnalyticsJourneyFunnelStep {
+  const missingCount = input.count === null;
+  const missingPriorSample = input.priorStep !== null && input.priorValue === null;
   const displayedPercent =
     input.count !== null && input.priorValue !== null && input.priorValue > 0
       ? input.count / input.priorValue
@@ -150,13 +168,17 @@ function buildStep(input: {
           ? "partial"
           : "live";
   const explanation =
-    input.priorStep === null
+    missingCount
+      ? `${input.visibleLabel} has no verified event sample for this range.`
+      : input.priorStep === null
       ? `${input.visibleLabel} sets the base event count for this repeated activity chain.`
+      : missingPriorSample
+        ? "Prior-step sample unavailable. Ratio not computed."
       : input.stepKey === "purchases" && input.priorStep === "checkoutStarts"
-        ? `${input.count ?? 0} purchase events are compared against ${input.priorValue ?? 0} checkout start events. This is closest to a checkout conversion proxy only if actor/session matching exists; otherwise it is still an event ratio.`
+        ? `${input.count} purchase events are compared against ${input.priorValue} checkout start events. This is closest to a checkout conversion proxy only if actor/session matching exists; otherwise it is still an event ratio.`
       : displayedPercent !== null && displayedPercent > 1
         ? `${input.visibleLabel} has more events than ${input.priorStepLabel ?? input.priorStep} because this is repeated event volume, not a sequential conversion funnel.`
-        : `${input.count ?? 0} ${input.visibleLabel.toLowerCase()} events are compared against ${input.priorValue ?? 0} ${input.priorStepLabel?.toLowerCase() ?? input.priorStep} events as an event-volume ratio only.`;
+        : `${input.count} ${input.visibleLabel.toLowerCase()} events are compared against ${input.priorValue} ${input.priorStepLabel?.toLowerCase() ?? input.priorStep} events as an event-volume ratio only.`;
 
   return {
     stepId: input.stepKey,
@@ -183,7 +205,7 @@ function buildStep(input: {
     denominatorLabel: input.priorStepLabel ? `vs ${input.priorStepLabel}` : "Base events",
     source: input.source,
     truthState: input.truthState,
-    fakeZeroPrevented: input.fakeZeroPrevented,
+    fakeZeroPrevented: input.fakeZeroPrevented || missingCount || missingPriorSample,
     ...input.flags,
   };
 }
@@ -244,6 +266,28 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
   const rawCounts = new Map<FunnelKey, number | null>(
     [...MAIN_STEPS, ...SUPPORTING_STEPS].map((step) => [step.stepKey, readCount(input.funnel, step.stepKey)]),
   );
+  const hasUsableEventSample = hasResponse && MAIN_STEPS.some((step) => rawCounts.get(step.stepKey) !== null);
+  const canRenderStepDetails = hasUsableEventSample;
+  const exactUserFunnelAvailable = false;
+  const measurementMode: AdminAnalyticsJourneyFunnelModel["measurementMode"] = hasUsableEventSample
+    ? "event_volume_only"
+    : "unavailable";
+  const hydrationState: EventChainHydrationState = input.error
+    ? "error"
+    : !hasResponse && input.loading
+      ? "waiting"
+      : !hasResponse
+        ? "no_sample"
+        : hasUsableEventSample
+          ? "ready"
+          : "no_sample";
+  const unavailableReason = hasUsableEventSample
+    ? null
+    : "No first-party event-count snapshot is available for this range.";
+  const manualWorkaround = hasUsableEventSample
+    ? null
+    : "Generate sample activity in the selected range, refresh analytics snapshots, or inspect Debug/raw evidence before treating this lane as measured.";
+  const algorithmRecommendation = "Build an ordered actor/session funnel by grouping events by canonical actor/session, sorting by event timestamp, keeping the first occurrence of each step per actor/session/window, then computing step_i_reached / step_(i-1)_reached. Aggregate event counts alone remain event-volume ratios, not conversion.";
   const nonSequentialSteps = MAIN_STEPS.slice(1)
     .filter((step, index) => {
       const current = rawCounts.get(step.stepKey) ?? null;
@@ -321,11 +365,11 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     ...nonSequentialSteps.map((step) => `${step} exceeds its prior-step event count because actions are not sequentially deduped.`),
     ...sourceMismatchSteps.map((step) => `${step} exceeds its prior-step event count because the source differs or checkout telemetry is incomplete.`),
   ];
-  const visibleHelperCopy = hasResponse
+  const visibleHelperCopy = hasUsableEventSample
     ? "This is event volume, not a sequential conversion funnel. Counts can exceed earlier steps when users repeat actions."
     : input.loading
       ? "Waiting for first snapshot."
-      : "Event-volume chain data is unavailable.";
+      : "No event sample yet.";
   const generatedAtUtc = input.response?.generatedAtMs
     ? new Date(input.response.generatedAtMs).toISOString()
     : new Date().toISOString();
@@ -343,7 +387,25 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     selectedRange: input.selectedRange,
     funnelMode,
     denominatorMode,
-    modeLabel: !hasResponse ? input.loading ? "WAIT" : "ERROR" : flags.stale ? "DELAYED" : sourceMismatchSteps.length > 0 || nonSequentialSteps.length > 0 ? "PARTIAL" : "UPDATED",
+    modeLabel: input.error
+      ? "ERROR"
+      : !hasResponse
+        ? input.loading ? "WAIT" : "NO SAMPLE"
+        : !hasUsableEventSample
+          ? "NO SAMPLE"
+          : flags.stale
+            ? "DELAYED"
+            : sourceMismatchSteps.length > 0 || nonSequentialSteps.length > 0
+              ? "PARTIAL"
+              : "UPDATED",
+    hydrationState,
+    hasUsableEventSample,
+    canRenderStepDetails,
+    exactUserFunnelAvailable,
+    measurementMode,
+    unavailableReason,
+    manualWorkaround,
+    algorithmRecommendation,
     visibleTitle: "Event Chain",
     visibleHelperCopy,
     steps,
@@ -364,7 +426,9 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     },
     biggestDropoffStep: biggestDropoff ? (steps.find((step) => step.stepKey === biggestDropoff.step)?.visibleLabel ?? biggestDropoff.step) : null,
     biggestDropoffPercent: biggestDropoff ? biggestDropoff.dropoff : null,
-    recommendation: sourceMismatchSteps.length > 0
+    recommendation: !hasUsableEventSample
+      ? "No event sample yet. Generate sample activity, refresh snapshots, or inspect Debug before treating this lane as measured."
+      : sourceMismatchSteps.length > 0
       ? "True user funnel unavailable until unique actor/session chain is computed. Current ratios are event-volume only."
       : largestEventVolumeDecreaseLabel
         ? `Largest event-volume decrease: ${largestEventVolumeDecreaseLabel}. Not a conversion rate.`

@@ -64,9 +64,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       : liveResponse?.liveTruthLabel === "fallback"
         ? "Showing last verified data"
         : "Live updates";
-  const compactLiveMetricClass = "rounded-[1rem] p-2";
-  const compactLiveMetricValueClass = "text-lg leading-6 md:text-xl";
+  const compactLiveMetricClass = "rounded-[1rem] p-2 min-h-[4.75rem]";
+  const compactLiveMetricValueClass = "text-[1.05rem] leading-5 md:text-lg";
   const livePulseBadgeLabel = resolveAdminAnalyticsLivePulseBadgeLabel(livePulseModel);
+  const mobileVisibleLiveSurfaces = livePulseModel.surfaces.slice(0, livePulseModel.mobileSurfaceRowsLimit);
+  const hiddenLiveSurfaceCount = Math.max(0, livePulseModel.surfaces.length - mobileVisibleLiveSurfaces.length);
   const vendorEvidenceLabel = formatAdminAnalyticsEvidenceSourceLabel("vendor_evidence");
   const debugRecoveryLabel = formatAdminAnalyticsEvidenceSourceLabel("debug_only");
   const recoveryReviewLabel = formatAdminAnalyticsEvidenceSourceLabel("recovery_review_only");
@@ -125,9 +127,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   }, [livePulseModel]);
   const journeyFunnelBadgeLabel = journeyFunnelModel.modeLabel;
   const journeyPercentLabel = (value: number | null) =>
-    value === null ? firstSnapshotLabel : formatPercent(value);
+    value === null ? journeyFunnelModel.hydrationState === "waiting" ? firstSnapshotLabel : "Unavailable" : formatPercent(value);
   const journeyCountLabel = (value: number | null) =>
-    value === null ? firstSnapshotLabel : formatCompactNumber(value);
+    value === null ? journeyFunnelModel.hydrationState === "waiting" ? firstSnapshotLabel : "Unavailable" : formatCompactNumber(value);
+  const eventChainHasUsableSample = journeyFunnelModel.hasUsableEventSample;
+  const eventChainCanRenderDetails = journeyFunnelModel.canRenderStepDetails;
   const biggestDropoffLabel =
     journeyFunnelModel.biggestDropoffStep && journeyFunnelModel.biggestDropoffPercent !== null
       ? `${journeyFunnelModel.biggestDropoffStep} ${formatPercent(journeyFunnelModel.biggestDropoffPercent)}`
@@ -201,6 +205,134 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const formatLiveStreamRelativeUtc = (timestamp: number | null) =>
     timestamp ? formatRelativeTime(timestamp, nowMs) : "unknown";
 
+  const renderLiveSurfaceRow = (item: typeof livePulseModel.surfaces[number]) => (
+    <div
+      key={item.key}
+      className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-2.5 py-2 min-h-[3.25rem] md:px-3"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="truncate text-xs font-semibold text-white">
+          {item.label}
+        </p>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-brand-purple">
+            {item.activeUsers}
+          </span>
+          <AdminStatusBadge
+            state={item.freshness}
+            label={item.freshness === "live" ? "LIVE" : item.freshness === "degraded" ? "DELAYED" : "STALE"}
+            className="max-w-[4.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+          />
+        </div>
+      </div>
+      <div className="mt-1.5 hidden h-1 overflow-hidden rounded-full bg-white/10 md:block">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+          style={{
+            width: `${Math.max(8, (item.activeUsers / Math.max(1, livePulseModel.surfaces[0]?.activeUsers || 1)) * 100)}%`,
+          }}
+        />
+      </div>
+      <p className="mt-1 text-[10px] text-gray-500">
+        Seen {formatRelativeTime(item.lastSeenAt, nowMs)}
+      </p>
+    </div>
+  );
+
+  const renderActiveIdentityRow = (item: typeof livePulseModel.activeIdentities[number]) => (
+    <div
+      key={item.rawId}
+      title={item.fullDebugId}
+      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
+    >
+      <div className="min-w-0">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <p className="truncate text-xs font-semibold text-white">
+            {item.displayLabel}
+          </p>
+          <span className="shrink-0 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-bold text-gray-300">
+            {item.actorBadgeLabel}
+          </span>
+          <span className="shrink-0 rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] font-bold text-gray-300">
+            {item.purposeLabel}
+          </span>
+        </div>
+        <p className="mt-1 truncate text-[10px] text-gray-500">
+          {item.routeLabel} · {item.actionLabel}
+        </p>
+        <p className="mt-1 truncate text-[10px] text-gray-500">
+          {item.shortUserId} · {item.sourceTruth}
+        </p>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-300">
+          {item.lastSeenLabel}
+        </span>
+        <AdminStatusBadge
+          state={item.truthState}
+          label={item.statusLabel}
+          className="max-w-[4.5rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+        />
+      </div>
+    </div>
+  );
+
+  const renderJourneyStepRow = (step: typeof journeyFunnelModel.steps[number]) => {
+    const percentLabel = step.denominatorStep ? journeyPercentLabel(step.displayedPercent) : "Base";
+    const barWidth = step.displayedPercent === null
+      ? 0
+      : Math.max(6, Math.min(100, step.displayedPercent * 100));
+    const rowDiffers = journeyFunnelModel.sourceMismatchSteps.includes(step.stepKey);
+
+    return (
+      <div
+        key={step.stepKey}
+        className="rounded-[0.9rem] border border-white/10 bg-black/30 px-2.5 py-2 md:px-3"
+      >
+        <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+          <div className="min-w-0">
+            <p className="truncate text-xs font-semibold text-white">
+              {step.visibleLabel}
+            </p>
+            <p className="mt-0.5 truncate text-[10px] text-gray-500">
+              {journeyCountLabel(step.displayedCount)} tracked events - {step.denominatorLabel}
+            </p>
+            <p className="mt-0.5 line-clamp-2 text-[10px] leading-4 text-gray-400 md:line-clamp-none">
+              {step.explanation}
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-200">
+              {percentLabel}
+            </span>
+            {step.displayedPercent !== null ? (
+              <span className="hidden rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-[10px] font-semibold text-brand-purple md:inline-flex">
+                {step.ratioMeaning === "event_volume_ratio"
+                  ? "Event ratio"
+                  : step.ratioMeaning === "not_comparable"
+                    ? "Base"
+                    : step.ratioMeaning}
+              </span>
+            ) : null}
+            {rowDiffers ? (
+              <AdminStatusBadge
+                state="degraded"
+                label="PARTIAL"
+                className="max-w-[4.5rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+              />
+            ) : null}
+          </div>
+        </div>
+        <div className="h-1 overflow-hidden rounded-full bg-white/10">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+            style={{ width: `${barWidth}%` }}
+          />
+        </div>
+      </div>
+    );
+  };
+
   React.useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -218,6 +350,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               title="Live Pulse"
               subtitle="First-party realtime presence and graph health."
               icon={Activity}
+              density="compact"
               defaultExpanded={false}
               rightSlot={renderSectionRangeControl("livePulse")}
             >
@@ -330,7 +463,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               </div>
 
               <div className="mt-2 grid gap-2 xl:grid-cols-[0.9fr_1.1fr]">
-                <div className="rounded-[1rem] border border-white/10 bg-black/30 p-3">
+                <div className="rounded-[1rem] border border-white/10 bg-black/30 p-2.5 md:p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
                       Realtime surfaces
@@ -339,41 +472,26 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       {livePulseModel.surfaces.length} lanes
                     </span>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 md:hidden">
                     {livePulseModel.surfaces.length > 0 ? (
-                      livePulseModel.surfaces.map((item) => (
-                        <div
-                          key={item.key}
-                          className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
-                        >
-                          <div className="mb-1.5 flex items-center justify-between gap-3">
-                          <p className="truncate text-xs font-semibold text-white">
-                              {item.label}
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-brand-purple">
-                                {item.activeUsers}
-                              </span>
-                              <AdminStatusBadge
-                                state={item.freshness}
-                                label={item.freshness === "live" ? "LIVE" : item.freshness === "degraded" ? "DELAYED" : "STALE"}
-                                className="max-w-[4.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
-                              />
-                            </div>
+                      <>
+                        {mobileVisibleLiveSurfaces.map(renderLiveSurfaceRow)}
+                        {hiddenLiveSurfaceCount > 0 ? (
+                          <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 px-2.5 py-2 text-[11px] text-gray-400">
+                            +{hiddenLiveSurfaceCount} more in Debug
                           </div>
-                          <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                            <div
-                              className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
-                              style={{
-                                width: `${Math.max(8, (item.activeUsers / Math.max(1, livePulseModel.surfaces[0]?.activeUsers || 1)) * 100)}%`,
-                              }}
-                            />
-                          </div>
-                          <p className="mt-1.5 text-[10px] text-gray-500">
-                            Seen {formatRelativeTime(item.lastSeenAt, nowMs)} · {item.source}
-                          </p>
-                        </div>
-                      ))
+                        ) : null}
+                      </>
+                    ) : (
+                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                        <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
+                        Surface detail has no verified live upgrade yet.
+                      </div>
+                    )}
+                  </div>
+                  <div className="hidden space-y-2 md:block">
+                    {livePulseModel.surfaces.length > 0 ? (
+                      livePulseModel.surfaces.map(renderLiveSurfaceRow)
                     ) : (
                       <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
@@ -383,7 +501,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   </div>
                 </div>
 
-                <div className="rounded-[1rem] border border-white/10 bg-black/30 p-3">
+                <div className="rounded-[1rem] border border-white/10 bg-black/30 p-2.5 md:p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
                       Active identities
@@ -392,45 +510,15 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       {livePulseModel.activeIdentities.length} shown
                     </span>
                   </div>
-                  <div className="space-y-1.5">
+                  <div
+                    className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] text-gray-300 md:hidden"
+                    data-admin-analytics-mobile-can-show-identity-details={String(livePulseModel.mobileCanShowIdentityDetails)}
+                  >
+                    {livePulseModel.mobilePrimaryIdentitySummary}
+                  </div>
+                  <div className="hidden space-y-1.5 md:block">
                     {livePulseModel.activeIdentities.length > 0 ? (
-                      livePulseModel.activeIdentities.map((item) => (
-                        <div
-                          key={item.rawId}
-                          title={item.fullDebugId}
-                          className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
-                        >
-                          <div className="min-w-0">
-                            <div className="flex min-w-0 items-center gap-1.5">
-                              <p className="truncate text-xs font-semibold text-white">
-                                {item.displayLabel}
-                              </p>
-                              <span className="shrink-0 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-bold text-gray-300">
-                                {item.actorBadgeLabel}
-                              </span>
-                              <span className="shrink-0 rounded border border-white/10 bg-black/30 px-1.5 py-0.5 text-[9px] font-bold text-gray-300">
-                                {item.purposeLabel}
-                              </span>
-                            </div>
-                            <p className="mt-1 truncate text-[10px] text-gray-500">
-                              {item.routeLabel} · {item.actionLabel}
-                            </p>
-                            <p className="mt-1 truncate text-[10px] text-gray-500">
-                              {item.shortUserId} · {item.sourceTruth}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-300">
-                              {item.lastSeenLabel}
-                            </span>
-                            <AdminStatusBadge
-                              state={item.truthState}
-                              label={item.statusLabel}
-                              className="max-w-[4.5rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
-                            />
-                          </div>
-                        </div>
-                      ))
+                      livePulseModel.activeIdentities.map(renderActiveIdentityRow)
                     ) : (
                       <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={activeUsersTruthState} className="mb-2" />
@@ -448,9 +536,17 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               title={journeyFunnelModel.visibleTitle}
               subtitle="Repeated event-volume chain. Not a unique-user funnel."
               icon={Eye}
+              density="compact"
               rightSlot={renderSectionRangeControl("journeyFunnel")}
             >
-              <div className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
+              <div
+                className="mb-2 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-4 text-gray-300 md:flex-row md:items-center md:justify-between"
+                data-admin-analytics-hydration-state={journeyFunnelModel.hydrationState}
+                data-admin-analytics-measurement-mode={journeyFunnelModel.measurementMode}
+                data-admin-analytics-exact-user-funnel-available={String(journeyFunnelModel.exactUserFunnelAvailable)}
+                data-admin-analytics-manual-workaround={journeyFunnelModel.manualWorkaround ?? ""}
+                title={journeyFunnelModel.algorithmRecommendation ?? journeyFunnelModel.recommendation}
+              >
                 <span>{journeyFunnelModel.visibleHelperCopy}</span>
                 <AdminStatusBadge
                   state={historicalMetricTruthState}
@@ -459,137 +555,122 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-                <MetricCard
-                  label="Mode"
-                  value={journeyFunnelModel.modeLabel}
-                  hint={formatAdminAnalyticsJourneyDenominatorMode(journeyFunnelModel.denominatorMode)}
-                  icon={Route}
-                  truthState={historicalMetricTruthState}
-                  statusBadgeLabel={journeyFunnelBadgeLabel}
-                  className="rounded-[1rem] p-2"
-                  valueClassName="text-lg leading-6 md:text-xl"
-                />
-                <MetricCard
-                  label="Base"
-                  value={journeyCountLabel(journeyFunnelModel.steps[0]?.displayedCount ?? null)}
-                  hint="Auth modal events"
-                  icon={Users}
-                  truthState={historicalMetricTruthState}
-                  statusBadgeLabel={journeyFunnelBadgeLabel}
-                  className="rounded-[1rem] p-2"
-                  valueClassName="text-lg leading-6 md:text-xl"
-                />
-                <MetricCard
-                  label="Largest Event-Volume Decrease"
-                  value={biggestDropoffLabel}
-                  hint="Largest prior-step event gap"
-                  icon={AlertTriangle}
-                  truthState={historicalMetricTruthState}
-                  statusBadgeLabel={journeyFunnelBadgeLabel}
-                  className="rounded-[1rem] p-2"
-                  valueClassName="truncate text-base leading-6 md:text-lg"
-                />
-                <MetricCard
-                  label="Attention"
-                  value={journeyFunnelModel.nonSequentialSteps.length.toLocaleString()}
-                  hint="Non-sequential steps"
-                  icon={CheckCircle2}
-                  truthState={historicalMetricTruthState}
-                  statusBadgeLabel={journeyFunnelBadgeLabel}
-                  className="rounded-[1rem] p-2"
-                  valueClassName="text-lg leading-6 md:text-xl"
-                />
-              </div>
-
-              {journeyFunnelModel.visibleDegradedCopy ? (
-                <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                  {journeyFunnelModel.visibleDegradedCopy}
-                </p>
-              ) : null}
-
-              <div className="mt-2 space-y-1.5">
-                {journeyFunnelModel.steps.map((step) => {
-                  const percentLabel = step.denominatorStep ? journeyPercentLabel(step.displayedPercent) : "Base";
-                  const barWidth = step.displayedPercent === null
-                    ? 0
-                    : Math.max(6, Math.min(100, step.displayedPercent * 100));
-                  const rowDiffers = journeyFunnelModel.sourceMismatchSteps.includes(step.stepKey);
-                  return (
-                    <div
-                      key={step.stepKey}
-                      className="rounded-[0.9rem] border border-white/10 bg-black/30 px-3 py-2"
-                    >
-                      <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                        <div className="min-w-0">
-                          <p className="truncate text-xs font-semibold text-white">
-                            {step.visibleLabel}
-                          </p>
-                          <p className="mt-0.5 truncate text-[10px] text-gray-500">
-                            {journeyCountLabel(step.displayedCount)} tracked events - {step.denominatorLabel}
-                          </p>
-                          <p className="mt-0.5 text-[10px] leading-4 text-gray-400">
-                            {step.explanation}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-200">
-                            {percentLabel}
-                          </span>
-                          <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-[10px] font-semibold text-brand-purple">
-                            {step.ratioMeaning === "event_volume_ratio"
-                              ? "Event ratio"
-                              : step.ratioMeaning === "not_comparable"
-                                ? "Base"
-                                : step.ratioMeaning}
-                          </span>
-                          {rowDiffers ? (
-                            <AdminStatusBadge
-                              state="degraded"
-                              label="PARTIAL"
-                              className="max-w-[4.5rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
-                            />
-                          ) : null}
-                        </div>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
-                          style={{ width: `${barWidth}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 p-3">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                    Supporting Events
+              {!eventChainHasUsableSample ? (
+                <div className="max-h-[8.75rem] space-y-2 overflow-hidden rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-semibold text-white">
+                      {journeyFunnelModel.hydrationState === "unavailable" ? "Event chain unavailable" : "No event sample yet"}
+                    </p>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-300">
+                      {journeyFunnelModel.modeLabel}
+                    </span>
+                  </div>
+                  <p>{journeyFunnelModel.unavailableReason}</p>
+                  <p className="text-[10px] text-gray-400">
+                    Manual workaround: generate sample activity, refresh snapshots, or inspect Debug.
                   </p>
-                  <span className="text-[10px] text-gray-500">Separate from the chain</span>
+                  <p className="text-[10px] text-gray-500" title={journeyFunnelModel.algorithmRecommendation ?? undefined}>
+                    Exact funnel unavailable until ordered actor/session transitions exist.
+                  </p>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {journeyFunnelModel.supportingEvents.map((item) => (
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                     <MetricCard
-                      key={item.stepKey}
-                      label={item.visibleLabel}
-                      value={journeyCountLabel(item.count)}
-                      hint={item.explanation}
-                      icon={item.stepKey === "shares" ? Share2 : CheckCircle2}
+                      label="Mode"
+                      value={journeyFunnelModel.modeLabel}
+                      hint={formatAdminAnalyticsJourneyDenominatorMode(journeyFunnelModel.denominatorMode)}
+                      icon={Route}
                       truthState={historicalMetricTruthState}
                       statusBadgeLabel={journeyFunnelBadgeLabel}
-                      className="rounded-[1rem] p-2"
-                      valueClassName="text-lg leading-6 md:text-xl"
+                      className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                      valueClassName="text-[1.05rem] leading-5 md:text-lg"
                     />
-                  ))}
-                </div>
-              </div>
+                    <MetricCard
+                      label="Base"
+                      value={journeyCountLabel(journeyFunnelModel.steps[0]?.displayedCount ?? null)}
+                      hint="Auth modal events"
+                      icon={Users}
+                      truthState={historicalMetricTruthState}
+                      statusBadgeLabel={journeyFunnelBadgeLabel}
+                      className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                      valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                    />
+                    <MetricCard
+                      label="Largest Event-Volume Decrease"
+                      value={biggestDropoffLabel}
+                      hint="Largest prior-step event gap"
+                      icon={AlertTriangle}
+                      truthState={historicalMetricTruthState}
+                      statusBadgeLabel={journeyFunnelBadgeLabel}
+                      className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                      valueClassName="truncate text-[1.05rem] leading-5 md:text-lg"
+                    />
+                    <MetricCard
+                      label="Attention"
+                      value={journeyFunnelModel.nonSequentialSteps.length.toLocaleString()}
+                      hint="Non-sequential steps"
+                      icon={CheckCircle2}
+                      truthState={historicalMetricTruthState}
+                      statusBadgeLabel={journeyFunnelBadgeLabel}
+                      className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                      valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                    />
+                  </div>
 
-              <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                {journeyFunnelModel.recommendation}
-              </p>
+                  {journeyFunnelModel.visibleDegradedCopy ? (
+                    <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                      {journeyFunnelModel.visibleDegradedCopy}
+                    </p>
+                  ) : null}
+
+                  {eventChainCanRenderDetails ? (
+                    <>
+                      <details className="mt-2 space-y-1.5 md:hidden">
+                        <summary className="cursor-pointer rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-semibold text-gray-300">
+                          Step details
+                        </summary>
+                        <div className="mt-2 space-y-1.5">
+                          {journeyFunnelModel.steps.map(renderJourneyStepRow)}
+                        </div>
+                      </details>
+                      <div className="mt-2 hidden space-y-1.5 md:block">
+                        {journeyFunnelModel.steps.map(renderJourneyStepRow)}
+                      </div>
+                    </>
+                  ) : null}
+
+                  {eventChainHasUsableSample ? (
+                    <div className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 p-2.5 md:p-3">
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                          Supporting Events
+                        </p>
+                        <span className="text-[10px] text-gray-500">Separate from the chain</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {journeyFunnelModel.supportingEvents.map((item) => (
+                          <MetricCard
+                            key={item.stepKey}
+                            label={item.visibleLabel}
+                            value={journeyCountLabel(item.count)}
+                            hint={item.explanation}
+                            icon={item.stepKey === "shares" ? Share2 : CheckCircle2}
+                            truthState={historicalMetricTruthState}
+                            statusBadgeLabel={journeyFunnelBadgeLabel}
+                            className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                            valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                    {journeyFunnelModel.recommendation}
+                  </p>
+                </>
+              )}
             </SectionCard>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">

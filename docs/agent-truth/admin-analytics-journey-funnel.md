@@ -16,6 +16,8 @@ The current compact Event Chain uses prior-step event ratios. The base row is th
 
 Repeated event ratios are event-volume ratios, not user conversion. Operator copy must say "event volume" or "activity volume" unless ordered actor/session proof exists.
 
+Aggregate event counts are event-volume only. They cannot become unique-user conversion math until an ordered actor/session transition dataset exists for the selected range.
+
 If a later step exceeds a prior step, the mode must not be ordered. This is allowed for repeated event counts, but the UI must say that some steps need review and Debug must list `nonSequentialSteps`.
 
 Purchases can exceed checkout starts when purchase records come from a different source, repeated purchases are included, checkout starts are missing, or ranges/sources disagree. That must be exposed as `sourceMismatchSteps`.
@@ -34,11 +36,24 @@ Approved operator copy:
 - "Largest event-volume decrease"
 - "True user funnel unavailable until unique actor/session chain is computed."
 
-Approved visible labels: LIVE, UPDATED, REFRESHING, DELAYED, EST, PARTIAL, WAIT, REVIEW, ERROR, SNAP.
+Approved visible labels: LIVE, UPDATED, REFRESHING, DELAYED, EST, PARTIAL, WAIT, NO SAMPLE, UNAVAILABLE, REVIEW, ERROR, SNAP.
 
-Fake zeros are forbidden. When the source is unavailable, show Waiting for first snapshot, No verified data yet, or Unavailable instead of zero.
+Fake zeros are forbidden. When the source is unavailable, show one compact no-sample/unavailable state instead of rows full of zero comparisons.
 
 Future agents must not display raw event ratios as ordered conversion or primary operator copy.
+
+## Exact Future Formula
+
+Exact funnel math requires ordered actor/session transitions:
+
+1. Group events by canonical actor or session.
+2. Sort each group by event timestamp inside the selected window.
+3. Keep the first occurrence of each funnel step per actor/session/window.
+4. Count `reached_i` for every step.
+5. Compute `conversion_i = reached_i / reached_(i-1)`.
+6. Require sufficient samples and timestamp ordering before labeling the result exact.
+
+If only aggregate counts exist, display event-volume ratios only. If no event sample exists, primary UI shows compact no-sample state and Debug/manual workaround carries the detailed source explanation.
 
 Official references:
 - [Firebase Analytics DebugView](https://firebase.google.com/docs/analytics/debugview)

@@ -24,5 +24,7 @@ Rules:
 - Tables with more available rows than shown use pagination or label top-N snapshot.
 - Every displayed metric must carry metricKey, canonicalSource, formula, unit, timeWindow, refreshCadence, lastRefreshedAt, freshnessTolerance, exactness, fallbackPolicy, zeroPolicy, and debugSourceDetail.
 - Primary Analytics UI shows the number and one compact freshness line. Admin Debug owns detailed formula, source, cadence, fallback, confidence, and legacy warnings.
+- Event Chain is event-volume only unless ordered actor/session transition data exists. Aggregated event counts cannot become unique-user funnel math.
+- When no Event Chain sample exists, primary UI shows a compact no-sample state, the manual workaround, and Debug/source metadata instead of zero rows or long source doctrine.
 
 Canonical helper: `src/lib/deterministic-admin-truth.ts`.

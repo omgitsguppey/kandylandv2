@@ -32,6 +32,7 @@ export interface SectionCardProps {
     rightSlot?: ReactNode;
     defaultExpanded?: boolean;
     collapsible?: boolean;
+    density?: "default" | "compact";
 }
 
 export interface MetricCardProps {
@@ -97,33 +98,42 @@ export function SectionCard({
     rightSlot,
     defaultExpanded = false,
     collapsible = true,
+    density = "default",
 }: SectionCardProps) {
     const [expanded, setExpanded] = useState(defaultExpanded);
+    const compact = density === "compact";
 
     return (
         <section
             className={cn(
-                "glass-panel rounded-[1.4rem] border border-white/10 p-3 md:p-4",
+                compact
+                    ? "glass-panel rounded-[1.2rem] border border-white/10 p-2.5 md:rounded-[1.4rem] md:p-4"
+                    : "glass-panel rounded-[1.4rem] border border-white/10 p-3 md:p-4",
                 className,
             )}
         >
-            <div className="mb-2.5 flex items-start justify-between gap-2">
+            <div className={cn("flex items-start justify-between gap-2", compact ? "mb-2" : "mb-2.5")}>
                 <div className="min-w-0">
                     <div className="mb-1 flex items-center gap-2">
-                        <div className="flex h-7.5 w-7.5 items-center justify-center rounded-[0.9rem] border border-white/10 bg-white/5 text-brand-purple">
+                        <div
+                            className={cn(
+                                "flex items-center justify-center border border-white/10 bg-white/5 text-brand-purple",
+                                compact ? "h-7 w-7 rounded-[0.8rem]" : "h-7.5 w-7.5 rounded-[0.9rem]",
+                            )}
+                        >
                             <Icon className="h-3.5 w-3.5" />
                         </div>
-                        <h2 className="text-[15px] font-bold text-white md:text-base">
+                        <h2 className={cn("font-bold text-white", compact ? "text-[14px] md:text-base" : "text-[15px] md:text-base")}>
                             {title}
                         </h2>
                     </div>
                     {subtitle ? (
-                        <p className="text-[11px] leading-5 text-gray-400 md:text-xs">
+                        <p className={cn("text-[11px] text-gray-400 md:text-xs", compact ? "leading-4" : "leading-5")}>
                             {subtitle}
                         </p>
                     ) : null}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
                     {rightSlot}
                     {collapsible ? (
                         <button

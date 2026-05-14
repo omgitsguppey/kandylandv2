@@ -98,7 +98,10 @@ export type AdminAnalyticsLivePulseModel = {
   fakeZeroPrevented: boolean;
   duplicateRefreshPrevented: boolean;
   hydrationBudgetExceeded: boolean;
-  compactChartHeightClass: "h-36 md:h-56";
+  compactChartHeightClass: "h-28 md:h-56";
+  mobilePrimaryIdentitySummary: string;
+  mobileCanShowIdentityDetails: boolean;
+  mobileSurfaceRowsLimit: 2;
   visibleCopy: string;
   displayStatePolicyApplied: true;
   pureRealtimeDependencyRemoved: true;
@@ -472,6 +475,9 @@ export function buildAdminAnalyticsLivePulseModel(input: {
       : guestEstimateState === "not_observed"
         ? `Auth ${authCount} · Guest not observed`
         : `Auth ${authCount} · Guest ${guestCount}`;
+  const mobilePrimaryIdentitySummary = identities.length === 0
+    ? "No verified active identities"
+    : `${identities.length} active ${identities.length === 1 ? "identity" : "identities"}`;
 
   return {
     generatedAtUtc: new Date(input.nowMs).toISOString(),
@@ -555,7 +561,10 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     fakeZeroPrevented: input.displayState?.fakeZeroPrevented ?? (!hasPresenceRows && !hasServerConfirmation),
     duplicateRefreshPrevented: Boolean(input.cacheRevalidating),
     hydrationBudgetExceeded: graphSourceMismatch || (!graphHydrated && hasPresenceRows && GRAPH_HYDRATION_BUDGET_MS > 0),
-    compactChartHeightClass: "h-36 md:h-56",
+    compactChartHeightClass: "h-28 md:h-56",
+    mobilePrimaryIdentitySummary,
+    mobileCanShowIdentityDetails: identities.length > 0 && mode !== "unavailable",
+    mobileSurfaceRowsLimit: 2,
     visibleCopy,
     displayStatePolicyApplied: true,
     pureRealtimeDependencyRemoved: true,

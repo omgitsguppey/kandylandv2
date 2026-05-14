@@ -90,6 +90,10 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     expect(model.rawIdentityIds).toContain("B7WciP8I1Qbtk9CevdfpZTjferR2");
     expect(model.guestCount.value).toBe(1);
     expect(model.authenticatedCount.value).toBe(1);
+    expect(model.compactChartHeightClass).toBe("h-28 md:h-56");
+    expect(model.mobilePrimaryIdentitySummary).toBe("2 active identities");
+    expect(model.mobileCanShowIdentityDetails).toBe(true);
+    expect(model.mobileSurfaceRowsLimit).toBe(2);
   });
 
   it("prevents fake zero when presence has not loaded", () => {
@@ -110,6 +114,9 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     expect(model.graphHydrated).toBe(false);
     expect(model.presenceSourceStatus).toBe("partial");
     expect(model.includeMetadataChanges).toBe(true);
+    expect(model.compactChartHeightClass).toBe("h-28 md:h-56");
+    expect(model.mobilePrimaryIdentitySummary).toBe("No verified active identities");
+    expect(model.mobileCanShowIdentityDetails).toBe(false);
   });
 
   it("keeps backend snapshot values visible when realtime presence is delayed", () => {

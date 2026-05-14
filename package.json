@@ -157,6 +157,7 @@
         "check:theft-risk-score": "tsx scripts/agent/validate-theft-risk-score.ts",
         "check:admin-analytics-overview": "tsx scripts/check-admin-analytics-overview.ts",
         "check:admin-analytics-mobile-overview": "tsx scripts/agent/validate-admin-analytics-mobile-overview.ts",
+        "check:admin-analytics-operations-mobile": "tsx scripts/agent/validate-admin-analytics-operations-mobile.ts",
         "check:admin-analytics-audience-snapshot": "tsx scripts/check-admin-analytics-audience-snapshot.ts",
         "check:admin-analytics-commerce-snapshot": "tsx scripts/check-admin-analytics-commerce-snapshot.ts",
         "check:admin-analytics-live-pulse": "tsx scripts/check-admin-analytics-live-pulse.ts",
