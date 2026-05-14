@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.47 - 2026-05-14
+- Bug fixes and general improvements
+- Connected creator request management to the Creator Dashboard.
+- Added request body size guards to creator operation routes.
+- Marked Fan Pass, bookings, and chat actions honestly based on connected routes.
+
 ## 1.2.46 - 2026-05-14
 - Bug fixes and general improvements
 - Added backend work caps for analytics processing.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Improved internal analytics reliability and privacy-aware data handling behind the scenes.
 - Added clearer rules for what telemetry can be used when privacy settings are off.
 - Prepared recovery rules for data that exists but has not surfaced in the app yet.
-
-## 1.2.22 - 2026-05-13
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
