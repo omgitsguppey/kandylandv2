@@ -1,13 +1,58 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.31",
-  "betaReleaseCounter": 231,
+  "currentVersion": "1.2.32",
+  "betaReleaseCounter": 232,
   "channel": "beta",
-  "generatedAt": "2026-05-14T00:53:30.043Z",
-  "generatedAtUtc": "2026-05-14T00:53:30.043Z",
-  "lastCommitSha": "d405169db235fe67cb9729077752f91ab45aef7c",
+  "generatedAt": "2026-05-14T01:42:37.161Z",
+  "generatedAtUtc": "2026-05-14T01:42:37.161Z",
+  "lastCommitSha": "c318d90a84bac8e24596c9be4a6376406e179f8c",
   "notes": [
+    {
+      "version": "1.2.32",
+      "previousVersion": "1.2.31",
+      "betaReleaseCounter": 232,
+      "previousBetaReleaseCounter": 231,
+      "commitSha": "c318d90a84bac8e24596c9be4a6376406e179f8c",
+      "commitTitle": "docs(phase-one): refresh beta exit evidence",
+      "commitCount": 1,
+      "commitShas": [
+        "c318d90a84bac8e24596c9be4a6376406e179f8c"
+      ],
+      "committedAt": "2026-05-14T01:40:36.000Z",
+      "generatedAt": "2026-05-14T01:42:37.150Z",
+      "committedAtUtc": "2026-05-14T01:40:36.000Z",
+      "generatedAtUtc": "2026-05-14T01:42:37.150Z",
+      "updatedAtUtc": "2026-05-14T01:42:37.150Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Refreshed Phase 1 beta readiness evidence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refreshed Phase 1 beta readiness evidence.",
+        "Confirmed analytics rewire blockers remain cleared after the Debug panel cleanup.",
+        "Kept remaining launch evidence gaps visible instead of marking them complete."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-rewire-phase-one.generated.json",
+        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
+        "agent/state/lost-data-recovery-dry-run.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
+        "docs/agent-truth/final-launch-readiness-report.md",
+        "docs/agent-truth/launch-pr-triage.md",
+        "docs/agent-truth/launch-readiness-final.md",
+        "docs/agent-truth/public-beta-score.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md"
+      ],
+      "sourceCommit": "c318d90a84bac8e24596c9be4a6376406e179f8c"
+    },
     {
       "version": "1.2.31",
       "previousVersion": "1.2.30",
@@ -1425,53 +1470,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 351,
       "bumpType": "minor",
       "sourceCommit": "d98c3265883d906f60ad8218b1863184935ca438"
-    },
-    {
-      "version": "1.7.0",
-      "previousVersion": "1.6.0",
-      "betaReleaseCounter": 209,
-      "previousBetaReleaseCounter": 208,
-      "commitSha": "01fae23380ae2345f672983f680dadb1b88fd6b8",
-      "commitTitle": "fix(creator): guide monetization access",
-      "commitCount": 1,
-      "commitShas": [
-        "01fae23380ae2345f672983f680dadb1b88fd6b8"
-      ],
-      "committedAt": "2026-05-08T04:34:46.000Z",
-      "generatedAt": "2026-05-08T07:36:20.196Z",
-      "committedAtUtc": "2026-05-08T04:34:46.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:20.196Z",
-      "updatedAtUtc": "2026-05-08T07:36:20.196Z",
-      "category": "Fixed",
-      "title": "Improved chat and support reliability",
-      "summary": "Bug fixes and quality-of-life improvements for chat and support.",
-      "userFacingTitle": "Improved chat and support reliability",
-      "surfaceCategory": "Chat & support",
-      "bullets": [
-        "Improved chat and support reliability so common actions feel more stable.",
-        "Reduced stuck or confusing states in active support and messaging flows."
-      ],
-      "audience": "users",
-      "affectedSurfaces": [
-        "chat-support",
-        "creator"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/creator-monetization-gates-lock.generated.json",
-        "docs/agent-truth/creator-monetization-gates-lock.md",
-        "package.json",
-        "scripts/agent/validate-creator-monetization-gates-lock.ts",
-        "src/app/creators/[username]/CreatorProfileClient.tsx",
-        "src/components/Creators/CreatorExperiencesPanel.tsx",
-        "src/components/Creators/CreatorPaidGdGuidanceCard.tsx",
-        "src/lib/chat-send-feedback.ts",
-        "src/lib/problem-state-copy.ts"
-      ],
-      "effectiveChangeCount": 613,
-      "excludedGeneratedChangeCount": 107,
-      "bumpType": "minor",
-      "sourceCommit": "01fae23380ae2345f672983f680dadb1b88fd6b8"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

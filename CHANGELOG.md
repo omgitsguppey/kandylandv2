@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 23 public updates in pages of 5.
 
+## 1.2.32 - 2026-05-14
+- Bug fixes and general improvements
+- Refreshed Phase 1 beta readiness evidence.
+- Confirmed analytics rewire blockers remain cleared after the Debug panel cleanup.
+- Kept remaining launch evidence gaps visible instead of marking them complete.
+
 ## 1.2.31 - 2026-05-14
 - Bug fixes and general improvements
 - Simplified the Admin Debug panel so recovery evidence is easier to review.
@@ -124,8 +130,3 @@ Showing the last 23 public updates in pages of 5.
 - Bug fixes and quality-of-life improvements
 - Fixed beta issues to make KandyDrops smoother to use.
 - Improved reliability for the latest Beta build.
-
-## 1.7.0 - 2026-05-08
-- Improved chat and support reliability
-- Improved chat and support reliability so common actions feel more stable.
-- Reduced stuck or confusing states in active support and messaging flows.
