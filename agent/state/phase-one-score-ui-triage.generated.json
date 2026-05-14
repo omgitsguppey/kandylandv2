@@ -1,0 +1,493 @@
+{
+  "generatedAtUtc": "2026-05-14T03:29:04.409Z",
+  "reportKey": "phase-one-score-ui-triage",
+  "currentHead": "da10e87dea2a9d578bff641b09e25f8534d31e27",
+  "summary": {
+    "scoreIngestionIssues": 7,
+    "scoreMathIssues": 4,
+    "uiConnectionIssues": 3,
+    "watchTimeIssues": 3,
+    "adminDashboardIssues": 3,
+    "creatorDashboardIssues": 3,
+    "p0Count": 1,
+    "p1Count": 11,
+    "p2Count": 11
+  },
+  "scoreIngestionFindings": [
+    {
+      "findingKey": "provider-smoke-evidence-not-ingested",
+      "severity": "P1",
+      "title": "Provider smoke evidence artifact is not read by the public beta score",
+      "description": "Formal provider smoke tracking exists, but the score runner still infers provider smoke from final launch readiness report text.",
+      "files": [
+        "scripts/agent/score-public-beta-readiness.ts",
+        "agent/state/provider-smoke-evidence.generated.json"
+      ],
+      "evidence": [
+        "agent/state/provider-smoke-evidence.generated.json exists=true",
+        "agent/state/provider-smoke-evidence.generated.json status=missing_formal_evidence",
+        "scoreReadsIt=false"
+      ],
+      "currentStatus": "missing_formal_evidence but not directly scored",
+      "evidenceFileExists": true,
+      "scoreReadsIt": false,
+      "scoreTrustsItCorrectly": false,
+      "scoreGateAffected": "runtimeProviderSmoke",
+      "recommendedFix": "Wire this formal artifact into score input as an honest gate input without converting missing/operator-reported evidence into a pass."
+    },
+    {
+      "findingKey": "runtime-smoke-evidence-not-ingested",
+      "severity": "P1",
+      "title": "Runtime smoke evidence artifact is not read by the public beta score",
+      "description": "Runtime smoke tracking exists, but the score gate has no direct runtime evidence artifact input.",
+      "files": [
+        "scripts/agent/score-public-beta-readiness.ts",
+        "agent/state/runtime-smoke-evidence.generated.json"
+      ],
+      "evidence": [
+        "agent/state/runtime-smoke-evidence.generated.json exists=true",
+        "agent/state/runtime-smoke-evidence.generated.json status=runtime_unverified",
+        "scoreReadsIt=false"
+      ],
+      "currentStatus": "runtime_unverified but not directly scored",
+      "evidenceFileExists": true,
+      "scoreReadsIt": false,
+      "scoreTrustsItCorrectly": false,
+      "scoreGateAffected": "runtimeProviderSmoke",
+      "recommendedFix": "Wire this formal artifact into score input as an honest gate input without converting missing/operator-reported evidence into a pass."
+    },
+    {
+      "findingKey": "admin-truth-sample-evidence-not-ingested",
+      "severity": "P1",
+      "title": "Admin truth sample evidence artifact is not read by the public beta score",
+      "description": "The score derives admin truth sample evidence from debug entries instead of the formal admin truth sample artifact.",
+      "files": [
+        "scripts/agent/score-public-beta-readiness.ts",
+        "agent/state/admin-truth-sample-evidence.generated.json"
+      ],
+      "evidence": [
+        "agent/state/admin-truth-sample-evidence.generated.json exists=true",
+        "agent/state/admin-truth-sample-evidence.generated.json status=missing_or_unknown",
+        "scoreReadsIt=false"
+      ],
+      "currentStatus": "missing_or_unknown but not directly scored",
+      "evidenceFileExists": true,
+      "scoreReadsIt": false,
+      "scoreTrustsItCorrectly": false,
+      "scoreGateAffected": "adminTruthSamples",
+      "recommendedFix": "Wire this formal artifact into score input as an honest gate input without converting missing/operator-reported evidence into a pass."
+    },
+    {
+      "findingKey": "targeted-behavior-evidence-hardcoded-false",
+      "severity": "P1",
+      "title": "Targeted behavior evidence is hardcoded false",
+      "description": "The beta score cannot improve from targeted validator evidence because the score input always supplies false.",
+      "files": [
+        "scripts/agent/score-public-beta-readiness.ts"
+      ],
+      "evidence": [
+        "score input contains hasTargetedBehaviorEvidence: false"
+      ],
+      "currentStatus": "hardcoded false",
+      "evidenceFileExists": false,
+      "scoreReadsIt": true,
+      "scoreTrustsItCorrectly": false,
+      "scoreGateAffected": "targetedBehaviorTests",
+      "recommendedFix": "Add a local evidence contract for focused validators and require freshness/schema validation before awarding credit."
+    },
+    {
+      "findingKey": "provider-smoke-derived-from-final-report-text",
+      "severity": "P1",
+      "title": "Provider smoke is derived from launch report text parsing",
+      "description": "Provider smoke status should come from formal provider/runtime evidence artifacts, not inverted string matching in the final launch report.",
+      "files": [
+        "scripts/agent/score-public-beta-readiness.ts",
+        "agent/state/final-launch-readiness-report.generated.json"
+      ],
+      "evidence": [
+        "hasProviderSmokeEvidence reads final-launch-readiness-report and searches for missing-smoke phrases."
+      ],
+      "currentStatus": "string-derived smoke gate",
+      "evidenceFileExists": true,
+      "scoreReadsIt": true,
+      "scoreTrustsItCorrectly": false,
+      "scoreGateAffected": "runtimeProviderSmoke",
+      "recommendedFix": "Make provider smoke an explicit schema-driven input that can represent missing, operator-reported, failed, and passed states."
+    },
+    {
+      "findingKey": "visual-evidence-file-existence-only",
+      "severity": "P2",
+      "title": "Visual evidence is based on file existence only",
+      "description": "A visual/manual evidence file can unlock the visual gate without schema, timestamp, route, viewport, or result validation.",
+      "files": [
+        "scripts/agent/score-public-beta-readiness.ts"
+      ],
+      "evidence": [
+        "VISUAL_EVIDENCE_FILES.some(filePath => fileExists(root, filePath))"
+      ],
+      "currentStatus": "file-existence gate",
+      "evidenceFileExists": false,
+      "scoreReadsIt": true,
+      "scoreTrustsItCorrectly": false,
+      "scoreGateAffected": "visualManualSmoke",
+      "recommendedFix": "Require a formal visual evidence schema before scoring visual/manual smoke."
+    },
+    {
+      "findingKey": "admin-truth-sample-derived-from-debug-entries",
+      "severity": "P1",
+      "title": "Admin truth sample scoring is derived from debug entries",
+      "description": "Debug evidence presence is not the same as a fresh admin truth sample with source freshness and sample count.",
+      "files": [
+        "scripts/agent/score-public-beta-readiness.ts",
+        "agent/state/admin-truth-sample-evidence.generated.json"
+      ],
+      "evidence": [
+        "score input uses Object.values(debugEvidence).some(entries => entries.length > 0)"
+      ],
+      "currentStatus": "debug-entry-derived",
+      "evidenceFileExists": true,
+      "scoreReadsIt": false,
+      "scoreTrustsItCorrectly": false,
+      "scoreGateAffected": "adminTruthSamples",
+      "recommendedFix": "Read admin-truth-sample-evidence.generated.json and preserve missing_or_unknown as non-passing evidence."
+    }
+  ],
+  "scoreMathFindings": [
+    {
+      "findingKey": "score-stuck-at-source-safety-only",
+      "severity": "P1",
+      "title": "Score remains at source-safety-only despite formal tracking artifacts",
+      "description": "The score is 25/100 because only the source safety gate scores; formal evidence tracking exists but is not modeled as gate input.",
+      "files": [
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/provider-smoke-evidence.generated.json",
+        "agent/state/runtime-smoke-evidence.generated.json",
+        "agent/state/admin-truth-sample-evidence.generated.json"
+      ],
+      "evidence": [
+        "overallScore=25",
+        "readinessStatus=Stale evidence",
+        "evidenceScore=25"
+      ],
+      "currentStatus": "25/100 source safety only",
+      "recommendedFix": "Keep missing evidence non-passing, but ingest formal artifact statuses so operators can see which gates are tracked, missing, operator-reported, or passed."
+    },
+    {
+      "findingKey": "stale-report-cap-has-no-independent-refresh-lane",
+      "severity": "P1",
+      "title": "Stale launch/PR reports cap readiness without an independent freshness lane",
+      "description": "A stale required generated report can dominate readiness even after narrower evidence artifacts are refreshed.",
+      "files": [
+        "src/lib/agent-score/core.ts",
+        "src/lib/agent-score/weights.ts",
+        "agent/state/final-launch-readiness-report.generated.json",
+        "agent/state/launch-pr-triage.generated.json"
+      ],
+      "evidence": [
+        "final launch report ageHours=31.6",
+        "freshnessIntegrity status outranks unknown/visual/smoke gates through mostSevereReadinessStatus."
+      ],
+      "currentStatus": "stale evidence cap active",
+      "recommendedFix": "Add a focused launch/PR freshness refresh path or make the score reason expose stale reports as one cap among multiple blockers."
+    },
+    {
+      "findingKey": "readiness-status-reason-only-shows-one-cap",
+      "severity": "P2",
+      "title": "Readiness status reason reports only one cap",
+      "description": "The public beta score has several active caps, but readinessStatusReason selects a single gate detail.",
+      "files": [
+        "src/lib/agent-score/core.ts"
+      ],
+      "evidence": [
+        "readinessStatusReason uses gates.find(...) for the most severe status."
+      ],
+      "currentStatus": "single cap reason",
+      "recommendedFix": "Expose all active cap reasons in the report and keep the single status as a summary only."
+    },
+    {
+      "findingKey": "evidence-gates-are-mostly-boolean",
+      "severity": "P2",
+      "title": "Evidence gates are booleans instead of status enums",
+      "description": "The score cannot distinguish missing, operator-reported, failed, stale, and passed formal evidence for several gates.",
+      "files": [
+        "src/lib/agent-score/core.ts"
+      ],
+      "evidence": [
+        "PublicBetaEvidenceInput uses boolean fields for targeted, visual, provider, and admin truth evidence."
+      ],
+      "currentStatus": "boolean evidence gates",
+      "recommendedFix": "Introduce schema-backed status inputs while keeping only real evidence eligible for score credit."
+    }
+  ],
+  "uiConnectionFindings": [
+    {
+      "findingKey": "control-tower-score-is-report-average-not-public-beta-score",
+      "severity": "P1",
+      "title": "Admin Debug Control Tower displays an aggregate score instead of the canonical public beta score",
+      "description": "The Control Tower reads public-beta-score.generated.json, but its visible overallScore is an average of required report scores.",
+      "files": [
+        "src/lib/admin-debug-control-tower.ts",
+        "src/app/admin/debug/components/DebugControlTower.tsx",
+        "agent/state/public-beta-score.generated.json"
+      ],
+      "evidence": [
+        "overallScore is computed from required report scoreValues, while the component renders model.overallScore."
+      ],
+      "currentStatus": "connected to generated reports but not canonical beta score",
+      "recommendedFix": "Show the canonical public beta score and cap reason separately from any Control Tower aggregate score."
+    },
+    {
+      "findingKey": "control-tower-freshness-does-not-check-current-head",
+      "severity": "P2",
+      "title": "Admin Debug report freshness does not validate currentHead",
+      "description": "Generated report cards are aged by generatedAt or file mtime, but source commit/currentHead drift is not represented.",
+      "files": [
+        "src/lib/admin-debug-control-tower.ts"
+      ],
+      "evidence": [
+        "readGeneratedReport reads generatedAt and mtime, but does not compare currentHead/sourceCommit."
+      ],
+      "currentStatus": "timestamp-only freshness",
+      "recommendedFix": "Add currentHead/sourceCommit mismatch handling for generated report cards."
+    },
+    {
+      "findingKey": "control-tower-score-cap-reason-not-visible",
+      "severity": "P2",
+      "title": "Admin Debug score display does not show why the beta score is capped",
+      "description": "The primary score display shows a number and stale/missing counts, but not the public beta readinessStatusReason.",
+      "files": [
+        "src/app/admin/debug/components/DebugControlTower.tsx"
+      ],
+      "evidence": [
+        "DebugControlTower renders model.overallScore and report counts, not readinessStatusReason."
+      ],
+      "currentStatus": "cap reason indirect",
+      "recommendedFix": "Surface the public beta score cap reason from the canonical report without adding new broad panels."
+    }
+  ],
+  "watchTimeFindings": [
+    {
+      "findingKey": "watch-time-contract-canonical-but-needs-ui-lock",
+      "severity": "P2",
+      "title": "Watch-time rollup contract is canonical, but UI locks need to enforce it",
+      "description": "The rollup keeps diagnostic estimates out of watchTimeMs unless legacy fallback is explicitly allowed; UI validators still need to prove every panel preserves that distinction.",
+      "files": [
+        "src/lib/server/watch-time-rollup.ts",
+        "src/lib/watch-time-rollup-contract.ts"
+      ],
+      "evidence": [
+        "source=watch_session_rollup is canonical; legacy_page_duration is a labeled fallback; diagnostic_estimate does not count as verified watch time."
+      ],
+      "currentStatus": "contract present, UI-wide enforcement incomplete",
+      "recommendedFix": "Add an Admin UI/source validator that forbids diagnostic estimates or legacy duration from rendering as canonical watch time."
+    },
+    {
+      "findingKey": "admin-user-metrics-feeds-legacy-watch-seconds-into-diagnostics",
+      "severity": "P2",
+      "title": "Admin user metrics still feeds legacy watchSecondsTotal into diagnostics",
+      "description": "Legacy aggregate watchSecondsTotal is passed as viewer/page duration context. It is diagnostics-only today, but this path needs a validator lock.",
+      "files": [
+        "src/lib/server/admin-user-metrics-snapshot.ts"
+      ],
+      "evidence": [
+        "viewerOpenMs and pageDurationMs are derived from analytics.watchSecondsTotal."
+      ],
+      "currentStatus": "diagnostic-only but fragile",
+      "recommendedFix": "Keep watchSecondsTotal labeled as diagnostics or legacy context and ensure it cannot populate validWatchTimeMs without valid sessions."
+    },
+    {
+      "findingKey": "admin-user-metrics-test-expects-legacy-watch-seconds-as-watch-time",
+      "severity": "P1",
+      "title": "Admin user metrics test expects legacy watchSecondsTotal as canonical watch time",
+      "description": "A unit test still expects watchTimeMs from analytics watchSecondsTotal even when no valid watch sessions are supplied.",
+      "files": [
+        "tests/unit/admin-user-metrics.spec.ts",
+        "src/lib/server/admin-user-metrics-snapshot.ts",
+        "src/lib/server/watch-time-rollup.ts"
+      ],
+      "evidence": [
+        "tests/unit/admin-user-metrics.spec.ts expects watchTimeMs: 90_000 in a fixture without watchSessionsByUser."
+      ],
+      "currentStatus": "test contract conflicts with watch-session rollup doctrine",
+      "recommendedFix": "Realign the test and any dependent UI copy so nonzero canonical watch time requires valid watch sessions or labeled legacy fallback."
+    }
+  ],
+  "adminDashboardFindings": [
+    {
+      "findingKey": "debug-now-still-stacks-control-tower-health-recovery-creator-diagnostics",
+      "severity": "P2",
+      "title": "Admin Debug Now still stacks several truth panels in one view",
+      "description": "The panel was reduced, but it still renders Control Tower, System Health, Recovery, Creator Lane, and Diagnostics together.",
+      "files": [
+        "src/app/admin/debug/components/DebugTabNow.tsx"
+      ],
+      "evidence": [
+        "DebugTabNow renders Control Tower, System health now, Recovery Evidence, Creator Lane, and Now Diagnostics."
+      ],
+      "currentStatus": "clutter reduced but still dense",
+      "recommendedFix": "Keep Control Tower and compact summaries open; collapse System Health detail, Creator Lane detail, and diagnostics by default."
+    },
+    {
+      "findingKey": "control-tower-duplicates-reports-across-sections",
+      "severity": "P2",
+      "title": "Control Tower duplicates generated reports across sections",
+      "description": "Several report cards are pushed into beta readiness and their native sections, which increases repeated truth panels.",
+      "files": [
+        "src/lib/admin-debug-control-tower.ts"
+      ],
+      "evidence": [
+        "buildSections duplicates device, content, cost, and telemetry reports into beta_readiness."
+      ],
+      "currentStatus": "intentional duplication but clutter risk",
+      "recommendedFix": "Keep a single primary placement and use section summary pills for cross-surface relevance."
+    },
+    {
+      "findingKey": "recovery-panel-compact-contract-present",
+      "severity": "P2",
+      "title": "Recovery evidence is compact but still needs validator coverage in this triage lane",
+      "description": "The compact recovery contract exists; this triage should lock it so future evidence additions do not reopen the panel by default.",
+      "files": [
+        "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx"
+      ],
+      "evidence": [
+        "Recovery evidence summary has compact and collapsed default data markers."
+      ],
+      "currentStatus": "compact contract present",
+      "recommendedFix": "Keep the existing Admin Debug validator checking compact recovery defaults and no nested scroll in the summary."
+    }
+  ],
+  "creatorDashboardFindings": [
+    {
+      "findingKey": "creator-dashboard-stats-can-render-live-without-source-samples",
+      "severity": "P0",
+      "title": "Creator dashboard stats can render live without source sample metadata",
+      "description": "The creator settings API returns a stats object without source freshness/sample metadata, while the UI marks earnings and audience live whenever stats exists.",
+      "files": [
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/app/api/creator/settings/route.ts"
+      ],
+      "evidence": [
+        "CreatorDashboardSettingsHub uses state: stats ? \"live\" : \"unavailable\" for earnings/audience sections.",
+        "/api/creator/settings returns stats counts without sourceFreshness, sampleCount, or unavailable reason fields."
+      ],
+      "currentStatus": "fake-live risk when aggregate counts are zero or missing",
+      "recommendedFix": "Add source/sample metadata to the creator settings response and map zero/missing stats to unavailable or needs_review until samples exist."
+    },
+    {
+      "findingKey": "creator-dashboard-section-links-self-loop",
+      "severity": "P1",
+      "title": "Creator dashboard section links loop back to the same dashboard route",
+      "description": "Several operational sections expose an Open section link that points to /dashboard/creator instead of a dedicated connected destination.",
+      "files": [
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx"
+      ],
+      "evidence": [
+        "/dashboard/creator href count=5"
+      ],
+      "currentStatus": "self-loop links",
+      "recommendedFix": "Either route each section to a real connected destination or remove the Open section link for inline-only sections."
+    },
+    {
+      "findingKey": "creator-settings-get-route-lacks-focused-unit-test",
+      "severity": "P2",
+      "title": "Creator settings GET route lacks a focused unit test",
+      "description": "The route test covers PUT ownership/projection behavior, but not GET stats shape, projection payload, or source metadata.",
+      "files": [
+        "src/app/api/creator/settings/route.ts",
+        "tests/unit/creator-settings-route.spec.ts"
+      ],
+      "evidence": [
+        "tests/unit/creator-settings-route.spec.ts imports and exercises PUT only."
+      ],
+      "currentStatus": "GET path validator gap",
+      "recommendedFix": "Add GET tests before changing creator dashboard stats semantics."
+    }
+  ],
+  "recommendedFixOrder": [
+    {
+      "stepKey": "score-evidence-ingestion",
+      "severity": "P1",
+      "title": "Wire formal smoke/admin truth evidence artifacts into public beta scoring",
+      "targetFiles": [
+        "scripts/agent/score-public-beta-readiness.ts",
+        "src/lib/agent-score/core.ts",
+        "src/lib/agent-score/reporting.ts",
+        "tests/unit/public-beta-score.spec.ts"
+      ],
+      "validators": [
+        "npm run score:beta",
+        "npm run check:beta-score",
+        "npm run check:provider-smoke-evidence",
+        "npm run check:runtime-smoke-evidence",
+        "npm run check:admin-truth-sample-evidence"
+      ],
+      "rationale": "This explains why the score remains 25/100 after formal tracking artifacts were added."
+    },
+    {
+      "stepKey": "creator-dashboard-source-sample-contract",
+      "severity": "P0",
+      "title": "Add creator dashboard source/sample metadata before showing stats as live",
+      "targetFiles": [
+        "src/app/api/creator/settings/route.ts",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "tests/unit/creator-settings-route.spec.ts",
+        "tests/unit/creator-dashboard-settings.spec.tsx"
+      ],
+      "validators": [
+        "npm run check:settings-creator-dashboard-split",
+        "npx vitest run tests/unit/creator-settings-route.spec.ts tests/unit/creator-dashboard-settings.spec.tsx",
+        "npm run typecheck"
+      ],
+      "rationale": "This is the clearest UI truth risk: stats can be live without source sample proof."
+    },
+    {
+      "stepKey": "admin-debug-beta-score-connection",
+      "severity": "P1",
+      "title": "Show canonical public beta score and cap reason in Admin Debug",
+      "targetFiles": [
+        "src/lib/admin-debug-control-tower.ts",
+        "src/app/admin/debug/components/DebugControlTower.tsx",
+        "tests/unit/admin-debug-control-tower.spec.ts"
+      ],
+      "validators": [
+        "npm run check:admin-debug-control-tower",
+        "npm run check:admin-truth",
+        "npm run typecheck"
+      ],
+      "rationale": "The current Control Tower score can drift from public-beta-score.generated.json."
+    },
+    {
+      "stepKey": "watch-time-contract-lock",
+      "severity": "P1",
+      "title": "Realign admin user metrics tests with watch-session rollup truth",
+      "targetFiles": [
+        "src/lib/server/admin-user-metrics-snapshot.ts",
+        "tests/unit/admin-user-metrics.spec.ts",
+        "tests/unit/watch-time-rollup.spec.ts"
+      ],
+      "validators": [
+        "npm run check:watch-time-rollup-truth",
+        "npx vitest run tests/unit/watch-time-rollup.spec.ts tests/unit/admin-user-metrics.spec.ts",
+        "npm run typecheck"
+      ],
+      "rationale": "Tests still encode legacy watchSecondsTotal as canonical watch time in one fixture."
+    },
+    {
+      "stepKey": "admin-dashboard-scope-followup",
+      "severity": "P2",
+      "title": "Collapse repeated Admin Debug truth panels without changing data behavior",
+      "targetFiles": [
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/lib/admin-debug-control-tower.ts",
+        "tests/unit/admin-debug-control-tower.spec.ts"
+      ],
+      "validators": [
+        "npm run check:admin-debug-control-tower",
+        "npm run check:admin-truth",
+        "npm run typecheck"
+      ],
+      "rationale": "This is clutter and operator comprehension work after the truth defects are locked."
+    }
+  ],
+  "nextPromptRecommendation": "CODE MODE. Execute Phase 1 Score Evidence Ingestion Fix.\nGoal: update the public beta score to read provider-smoke-evidence, runtime-smoke-evidence, and admin-truth-sample-evidence artifacts as schema-backed evidence states without marking missing/operator-reported evidence as passed.\nScope: score-public-beta-readiness.ts, agent-score core/reporting/tests, public-beta-score docs/state only. No runtime UI changes, no provider calls, no production reads.\nRequired checks: npm run score:beta, npm run check:beta-score, npm run check:provider-smoke-evidence, npm run check:runtime-smoke-evidence, npm run check:admin-truth-sample-evidence, npm run typecheck."
+}
