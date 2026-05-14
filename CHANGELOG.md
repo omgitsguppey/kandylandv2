@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 24 public updates in pages of 5.
 
+## 1.2.36 - 2026-05-14
+- Bug fixes and general improvements
+- Improved how beta readiness reads formal smoke evidence.
+- Kept operator-reported PayPal testing tracked without marking the provider smoke lane as done.
+- Made beta score gates explain which evidence artifacts are still missing.
+
 ## 1.2.35 - 2026-05-14
 - Bug fixes and general improvements
 - Added a spring-cleaning inventory for stale reports, docs, validators, and disconnected UI lanes.
@@ -133,8 +139,3 @@ Showing the last 24 public updates in pages of 5.
 - Bug fixes and quality-of-life improvements
 - Fixed beta issues to make KandyDrops smoother to use.
 - Improved reliability for the latest Beta build.
-
-## 1.10.0 - 2026-05-08
-- Improved navigation reliability
-- Improved how key app navigation surfaces stay in sync with the latest Beta build.
-- Reduced confusing status changes when opening update notes and top-level navigation lanes.

@@ -1,13 +1,54 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.35",
-  "betaReleaseCounter": 235,
+  "currentVersion": "1.2.36",
+  "betaReleaseCounter": 236,
   "channel": "beta",
-  "generatedAt": "2026-05-14T05:46:42.284Z",
-  "generatedAtUtc": "2026-05-14T05:46:42.284Z",
-  "lastCommitSha": "99658a428a64299ff4206c58c21a758032e26ecb",
+  "generatedAt": "2026-05-14T06:10:04.986Z",
+  "generatedAtUtc": "2026-05-14T06:10:04.986Z",
+  "lastCommitSha": "ff66bf7f60ffee9308663e69c59509b328d75117",
   "notes": [
+    {
+      "version": "1.2.36",
+      "previousVersion": "1.2.35",
+      "betaReleaseCounter": 236,
+      "previousBetaReleaseCounter": 235,
+      "commitSha": "ff66bf7f60ffee9308663e69c59509b328d75117",
+      "commitTitle": "fix(score): read formal beta evidence artifacts",
+      "commitCount": 1,
+      "commitShas": [
+        "ff66bf7f60ffee9308663e69c59509b328d75117"
+      ],
+      "committedAt": "2026-05-14T06:09:23.000Z",
+      "generatedAt": "2026-05-14T06:10:04.981Z",
+      "committedAtUtc": "2026-05-14T06:09:23.000Z",
+      "generatedAtUtc": "2026-05-14T06:10:04.981Z",
+      "updatedAtUtc": "2026-05-14T06:10:04.981Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved how beta readiness reads formal smoke evidence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved how beta readiness reads formal smoke evidence.",
+        "Kept operator-reported PayPal testing tracked without marking the provider smoke lane as done.",
+        "Made beta score gates explain which evidence artifacts are still missing."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/public-beta-score.md",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "src/lib/agent-score/core.ts",
+        "tests/unit/public-beta-score.spec.ts"
+      ],
+      "sourceCommit": "ff66bf7f60ffee9308663e69c59509b328d75117"
+    },
     {
       "version": "1.2.35",
       "previousVersion": "1.2.34",
@@ -1370,84 +1411,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 69,
       "bumpType": "minor",
       "sourceCommit": "91a9ccbafc5c595a02b1f2b50fe4450fd2eeb030"
-    },
-    {
-      "version": "1.10.0",
-      "previousVersion": "1.9.0",
-      "betaReleaseCounter": 212,
-      "previousBetaReleaseCounter": 211,
-      "commitSha": "ba9015d2c2c589e1fb9420e1ae316ed9ad1c28e8",
-      "commitTitle": "refactor(settings): split creator dashboard settings",
-      "commitCount": 1,
-      "commitShas": [
-        "ba9015d2c2c589e1fb9420e1ae316ed9ad1c28e8"
-      ],
-      "committedAt": "2026-05-08T06:00:52.000Z",
-      "generatedAt": "2026-05-08T07:36:20.948Z",
-      "committedAtUtc": "2026-05-08T06:00:52.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:20.948Z",
-      "updatedAtUtc": "2026-05-08T07:36:20.948Z",
-      "category": "Improved",
-      "title": "Improved navigation reliability",
-      "summary": "Bug fixes and quality-of-life improvements for top-level navigation and Beta update access.",
-      "userFacingTitle": "Improved navigation reliability",
-      "surfaceCategory": "Navigation",
-      "bullets": [
-        "Improved how key app navigation surfaces stay in sync with the latest Beta build.",
-        "Reduced confusing status changes when opening update notes and top-level navigation lanes."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "account-onboarding",
-        "creator",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/context/optimized-task-context.generated.json",
-        "agent/state/settings-creator-dashboard-split.generated.json",
-        "docs/agent-truth/creator-broadcasts.md",
-        "docs/agent-truth/creator-dashboard-settings.md",
-        "docs/agent-truth/creator-dashboard.md",
-        "docs/agent-truth/creator-fan-experience-settings.md",
-        "docs/agent-truth/creator-lane-old-logic-cleanup.md",
-        "docs/agent-truth/user-settings-surface.md",
-        "docs/doctrine/surfaces/creator-ui-doctrine.md",
-        "docs/doctrine/surfaces/user-ui-doctrine.md",
-        "package.json",
-        "scripts/agent/validate-settings-creator-dashboard-split.ts",
-        "src/app/account/page.tsx",
-        "src/app/api/creator/broadcasts/route.ts",
-        "src/app/creator/page.tsx",
-        "src/app/creators/dashboard/page.tsx",
-        "src/app/dashboard/creator/page.tsx",
-        "src/app/dashboard/profile/creator/page.tsx",
-        "src/app/dashboard/profile/hooks/useProfileState.tsx",
-        "src/app/dashboard/profile/page.tsx",
-        "src/app/dashboard/settings/page.tsx",
-        "src/app/profile/settings/page.tsx",
-        "src/app/settings/page.tsx",
-        "src/components/Creators/CreatorBroadcastManager.tsx",
-        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "src/components/Navigation/ProfileDropdown.tsx",
-        "src/components/Navigation/ProfileSidebar.tsx",
-        "src/components/Settings/UserSettingsPage.tsx",
-        "src/lib/creator-dashboard/creator-settings-contract.ts",
-        "src/lib/creator-dashboard/creator-settings-legacy-registry.ts",
-        "src/lib/settings/settings-surface-policy.ts",
-        "src/lib/settings/user-settings-contract.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/creator-broadcast-manager.spec.tsx",
-        "tests/unit/creator-broadcasts-route.spec.ts",
-        "tests/unit/creator-dashboard-settings.spec.tsx",
-        "tests/unit/creator-settings-migration-page.spec.tsx",
-        "tests/unit/creator-settings-route.spec.ts",
-        "tests/unit/user-settings-split.spec.tsx"
-      ],
-      "effectiveChangeCount": 2629,
-      "excludedGeneratedChangeCount": 146,
-      "bumpType": "minor",
-      "sourceCommit": "ba9015d2c2c589e1fb9420e1ae316ed9ad1c28e8"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
