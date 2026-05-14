@@ -1,11 +1,56 @@
 {
-  "currentVersion": "1.2.39",
-  "betaReleaseCounter": 239,
+  "currentVersion": "1.2.40",
+  "betaReleaseCounter": 240,
   "channel": "beta",
-  "generatedAt": "2026-05-14T14:16:20.000Z",
-  "generatedAtUtc": "2026-05-14T14:16:20.000Z",
-  "lastCommitSha": "c6ce135ddaadbc2ce5843c4762e4d51076f4da82",
+  "generatedAt": "2026-05-14T14:37:32.865Z",
+  "generatedAtUtc": "2026-05-14T14:37:32.865Z",
+  "lastCommitSha": "fee10e6a65174a7d7ac85448991f98eb3a3e6300",
   "notes": [
+    {
+      "version": "1.2.40",
+      "previousVersion": "1.2.39",
+      "betaReleaseCounter": 240,
+      "previousBetaReleaseCounter": 239,
+      "commitSha": "fee10e6a65174a7d7ac85448991f98eb3a3e6300",
+      "commitTitle": "chore(ui): audit creator feature connections",
+      "commitCount": 1,
+      "commitShas": [
+        "fee10e6a65174a7d7ac85448991f98eb3a3e6300"
+      ],
+      "committedAt": "2026-05-14T14:37:19.000Z",
+      "generatedAt": "2026-05-14T14:37:32.863Z",
+      "committedAtUtc": "2026-05-14T14:37:19.000Z",
+      "generatedAtUtc": "2026-05-14T14:37:32.863Z",
+      "updatedAtUtc": "2026-05-14T14:37:32.863Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Checked creator-facing feature connections without changing the UI design.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Checked creator-facing feature connections without changing the UI design.",
+        "Mapped Fan Pass, calls, requests, chat, and broadcasts for source truth and route wiring.",
+        "Added guards for race conditions and cost-bleed risks in creator-facing surfaces."
+      ],
+      "audience": "creators",
+      "affectedSurfaces": [
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/user-facing-feature-connection-audit.generated.json",
+        "docs/agent-truth/user-facing-feature-connection-audit.md",
+        "package.json",
+        "scripts/agent/validate-user-facing-feature-connection-audit.ts",
+        "src/app/api/creator/settings/route.ts",
+        "src/components/Creators/CreatorBroadcastManager.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "tests/unit/creator-dashboard-settings.spec.tsx",
+        "tests/unit/creator-settings-route.spec.ts",
+        "tests/unit/user-facing-feature-connection-audit.spec.ts"
+      ],
+      "sourceCommit": "fee10e6a65174a7d7ac85448991f98eb3a3e6300"
+    },
     {
       "version": "1.2.39",
       "previousVersion": "1.2.38",
@@ -1314,50 +1359,6 @@
       "excludedGeneratedChangeCount": 0,
       "bumpType": "minor",
       "sourceCommit": "13297da6e291942128d4157c8d8f4bf8501c0e5e"
-    },
-    {
-      "version": "1.14.0",
-      "previousVersion": "1.13.0",
-      "betaReleaseCounter": 216,
-      "previousBetaReleaseCounter": 215,
-      "commitSha": "ecdc8c1737d6d6bb810da5fd218cc54fcbfa35b4",
-      "commitTitle": "feat(cost): add billing spike radar",
-      "commitCount": 1,
-      "commitShas": [
-        "ecdc8c1737d6d6bb810da5fd218cc54fcbfa35b4"
-      ],
-      "committedAt": "2026-05-08T06:42:22.000Z",
-      "generatedAt": "2026-05-08T07:36:21.680Z",
-      "committedAtUtc": "2026-05-08T06:42:22.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:21.680Z",
-      "updatedAtUtc": "2026-05-08T07:36:21.680Z",
-      "category": "New",
-      "title": "Bug fixes and quality-of-life improvements",
-      "summary": "Bug fixes and quality-of-life improvements.",
-      "userFacingTitle": "Bug fixes and quality-of-life improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Fixed beta issues to make KandyDrops smoother to use.",
-        "Improved reliability for the latest Beta build."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/billing-spike-radar.generated.json",
-        "docs/agent-truth/billing-spike-radar.md",
-        "package.json",
-        "scripts/agent/score-billing-spike-radar.ts",
-        "scripts/agent/validate-billing-spike-radar.ts",
-        "src/lib/cost/billing-spike-contract.ts",
-        "src/lib/cost/billing-spike-risk-score.ts"
-      ],
-      "effectiveChangeCount": 989,
-      "excludedGeneratedChangeCount": 1943,
-      "bumpType": "minor",
-      "sourceCommit": "ecdc8c1737d6d6bb810da5fd218cc54fcbfa35b4"
     }
   ]
 }
