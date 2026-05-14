@@ -10,11 +10,14 @@ import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjection
 import { buildCreatorUpdateMerge, sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from "@/lib/server/creator-experiences";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import {
     actorMarkerToTelemetryPayload,
     assertKnownActor,
     buildActorMarker,
 } from "@/lib/identity/actor-markers";
+
+const CREATOR_SETTINGS_BODY_LIMIT_BYTES = 32_768;
 
 type CreatorStatsEvidenceState =
     | "verified_sample"
@@ -285,10 +288,14 @@ async function PUT_handler(request: NextRequest) {
         }
 
         const { data } = await requireCreator(caller.uid);
-        const payload = await request.json() as {
+        const payload = await readBoundedJsonBody<{
             creatorSettings?: Record<string, unknown>;
             creatorRestrictions?: Record<string, unknown>;
-        };
+        }>(request, {
+            maxBytes: CREATOR_SETTINGS_BODY_LIMIT_BYTES,
+            routeName: "creator/settings",
+            allowEmpty: false,
+        });
 
         const update: Record<string, unknown> = {};
         if (payload.creatorSettings) {
@@ -332,6 +339,9 @@ async function PUT_handler(request: NextRequest) {
         }, caller.uid).catch(() => undefined);
         return NextResponse.json({ success: true });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({ success: false, error: error.message, code: error.code }, { status: error.status });
+        }
         return handleApiError(error, "Creator.Settings.PUT");
     }
 }

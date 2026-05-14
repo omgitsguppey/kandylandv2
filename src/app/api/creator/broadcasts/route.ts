@@ -14,9 +14,11 @@ import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildNotificationQualityMetadata } from "@/lib/notifications/notification-quality-score";
 import { buildNotificationRecord } from "@/lib/notification-contracts";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 const CREATOR_BROADCASTS_READ_LIMIT = 100;
 const CREATOR_BROADCAST_RECIPIENT_LIMIT = 1_000;
+const CREATOR_BROADCAST_BODY_LIMIT_BYTES = 32_768;
 
 const createBroadcastSchema = z.object({
     title: z.string().trim().min(2).max(80).optional(),
@@ -81,6 +83,7 @@ async function GET_handler(request: NextRequest) {
             return NextResponse.json({ success: true, broadcasts: [] });
         }
 
+        // cost-bound: broadcast history query is capped by CREATOR_BROADCASTS_READ_LIMIT.
         const broadcastsSnap = await adminDb.collection(CREATOR_COLLECTIONS.broadcasts)
             .where("creatorId", "==", creatorId)
             .limit(CREATOR_BROADCASTS_READ_LIMIT)
@@ -140,7 +143,13 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Broadcasts are unavailable for this creator." }, { status: 403 });
         }
 
-        const { title, message } = createBroadcastSchema.parse(await request.json());
+        const body = await readBoundedJsonBody<z.infer<typeof createBroadcastSchema>>(request, {
+            maxBytes: CREATOR_BROADCAST_BODY_LIMIT_BYTES,
+            routeName: "creator/broadcasts",
+            allowEmpty: false,
+        });
+        const { title, message } = createBroadcastSchema.parse(body);
+        // cost-bound: follower broadcast recipient query is capped by CREATOR_BROADCAST_RECIPIENT_LIMIT.
         const relationshipsSnap = await adminDb.collection(CREATOR_COLLECTIONS.relationships)
             .where("creatorId", "==", caller.uid)
             .limit(CREATOR_BROADCAST_RECIPIENT_LIMIT)
@@ -250,6 +259,9 @@ async function POST_handler(request: NextRequest) {
             },
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({ success: false, error: error.message, code: error.code }, { status: error.status });
+        }
         return handleApiError(error, "Creator.Broadcasts.POST");
     }
 }

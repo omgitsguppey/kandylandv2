@@ -44,6 +44,23 @@ vi.mock("@/components/Creators/CreatorBroadcastManager", () => ({
   CreatorBroadcastManager: () => <div data-testid="broadcast-manager" />,
 }));
 
+vi.mock("@/components/Creators/CreatorRequestsManager", () => ({
+  CreatorRequestsManager: (props: {
+    enabled: boolean;
+    restricted: boolean;
+    readOnly: boolean;
+    sourceState: string;
+  }) => (
+    <div
+      data-testid="requests-manager"
+      data-enabled={String(props.enabled)}
+      data-restricted={String(props.restricted)}
+      data-read-only={String(props.readOnly)}
+      data-source-state={props.sourceState}
+    />
+  ),
+}));
+
 import { CreatorDashboardSettingsHub } from "@/components/Creators/CreatorDashboardSettingsHub";
 
 function source(value: number, state = value > 0 ? "verified_sample" : "queried_zero", sampleKnown = true) {
@@ -137,8 +154,22 @@ describe("CreatorDashboardSettingsHub", () => {
       expect(screen.getByText("Availability")).toBeTruthy();
       expect(screen.getByText("Earnings / payout")).toBeTruthy();
       expect(screen.getByText("Notifications / audience")).toBeTruthy();
+      expect(screen.getByTestId("requests-manager")).toBeTruthy();
       expect(screen.getByTestId("broadcast-manager")).toBeTruthy();
     });
+  });
+
+  it("connects the requests manager when custom requests are enabled", async () => {
+    const { container } = render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("requests-manager").dataset.enabled).toBe("true");
+      expect(screen.getByTestId("requests-manager").dataset.restricted).toBe("false");
+      expect(screen.getByTestId("requests-manager").dataset.readOnly).toBe("false");
+      expect(screen.getByTestId("requests-manager").dataset.sourceState).toBe("live");
+    });
+    fireEvent.click(screen.getByText("Requests"));
+    expect(section(container, "requests").textContent).toContain("Manage pending custom requests below.");
   });
 
   it("does not mark Fan Pass live when restricted or price is not configured", async () => {
@@ -173,6 +204,7 @@ describe("CreatorDashboardSettingsHub", () => {
 
     await waitFor(() => {
       expect(section(container, "fan_pass").dataset.creatorSectionState).toBe("blocked");
+      expect(section(container, "fan_pass").dataset.creatorFanPassManagementState).toBe("configuration_only");
     });
   });
 
@@ -220,6 +252,7 @@ describe("CreatorDashboardSettingsHub", () => {
 
     await waitFor(() => {
       expect(section(container, "bookings").dataset.creatorSectionState).toBe("live");
+      expect(section(container, "bookings").dataset.creatorBookingsManagementState).toBe("not_connected");
       expect(section(container, "earnings").dataset.creatorSectionState).toBe("needs_review");
       expect(screen.getByText("Earnings need source review.")).toBeTruthy();
     });
@@ -271,6 +304,7 @@ describe("CreatorDashboardSettingsHub", () => {
 
     await waitFor(() => {
       expect(section(container, "messages").dataset.creatorSectionState).toBe("blocked");
+      expect(section(container, "messages").dataset.creatorChatRouteConnected).toBe("false");
     });
 
     fireEvent.click(screen.getByText("Messages"));

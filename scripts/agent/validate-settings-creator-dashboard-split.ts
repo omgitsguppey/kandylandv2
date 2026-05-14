@@ -35,6 +35,7 @@ const files = {
   userSettingsPage: join(repoRoot, "src", "components", "Settings", "UserSettingsPage.tsx"),
   creatorDashboardHub: join(repoRoot, "src", "components", "Creators", "CreatorDashboardSettingsHub.tsx"),
   creatorBroadcastManager: join(repoRoot, "src", "components", "Creators", "CreatorBroadcastManager.tsx"),
+  creatorRequestsManager: join(repoRoot, "src", "components", "Creators", "CreatorRequestsManager.tsx"),
   creatorBroadcastRoute: join(repoRoot, "src", "app", "api", "creator", "broadcasts", "route.ts"),
   creatorSettingsRoute: join(repoRoot, "src", "app", "api", "creator", "settings", "route.ts"),
   profileSidebar: join(repoRoot, "src", "components", "Navigation", "ProfileSidebar.tsx"),
@@ -96,6 +97,7 @@ function collectChangedFiles() {
       "src/components/Navigation/ProfileDropdown.tsx",
       "src/app/api/creator/broadcasts/",
       "src/app/api/creator/settings/route.ts",
+      "src/app/api/creator/requests/route.ts",
       "src/app/dashboard/profile/hooks/useProfileState.tsx",
       "src/lib/creator-dashboard/",
       "src/lib/settings/",
@@ -121,6 +123,7 @@ function validate(): SplitReport {
   const userSettingsPage = read(files.userSettingsPage);
   const creatorDashboardHub = read(files.creatorDashboardHub);
   const creatorBroadcastManager = read(files.creatorBroadcastManager);
+  const creatorRequestsManager = read(files.creatorRequestsManager);
   const creatorBroadcastRoute = read(files.creatorBroadcastRoute);
   const creatorSettingsRoute = read(files.creatorSettingsRoute);
   const profileSidebar = read(files.profileSidebar);
@@ -199,8 +202,27 @@ function validate(): SplitReport {
         "Earnings / payout",
         "Notifications / audience",
         "Read-only projection",
+        "CreatorRequestsManager",
+        "statsEvidence",
       ]),
       evidence: ["Creator dashboard settings hub shows the operational sections and truth labels."],
+    },
+    {
+      key: "creator-requests-manager-real-data",
+      label: "Creator request manager reads real backend data or says not connected",
+      ok: includesAll(creatorDashboardHub, [
+        "CreatorRequestsManager",
+        "readOnly={settings?.projection?.readOnly === true}",
+        "data-creator-fan-pass-management-state",
+        "data-creator-bookings-management-state",
+      ]) && includesAll(creatorRequestsManager, [
+        "/api/creator/requests",
+        "loadRequestIdRef",
+        "pendingActionId",
+        "Read-only projection",
+        "No open requests",
+      ]) && !includesAny(creatorRequestsManager, ["setInterval", "onSnapshot"]),
+      evidence: ["Creator request management is wired to the existing request route with request-id and pending guards."],
     },
     {
       key: "broadcast-manager-real-data",
@@ -251,6 +273,8 @@ function validate(): SplitReport {
         "requireCreator(caller.uid)",
         "buildAdminCreatorProjectionReadOnlyResponse",
         "readAdminCreatorProjectionContext",
+        "readBoundedJsonBody",
+        "CREATOR_SETTINGS_BODY_LIMIT_BYTES",
       ]) && includesAll(creatorBroadcastRoute, [
         "caller.uid",
         "isCreatorRole",

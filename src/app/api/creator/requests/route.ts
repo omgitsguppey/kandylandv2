@@ -23,8 +23,10 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 const CREATOR_REQUESTS_READ_LIMIT = 200;
+const CREATOR_REQUEST_BODY_LIMIT_BYTES = 32_768;
 
 type CreatorRequestProblemCode =
     | "creator_or_user_not_found"
@@ -92,6 +94,15 @@ function buildRequestProblemResponse(problem: CreatorRequestProblem) {
     }, { status: problem.status });
 }
 
+function buildBoundedRequestBodyResponse(error: { status: 400 | 413; code: string; message: string }) {
+    return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+        message: error.message,
+    }, { status: error.status });
+}
+
 async function GET_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
@@ -152,7 +163,12 @@ async function POST_handler(request: NextRequest) {
             return buildAdminCreatorProjectionReadOnlyResponse();
         }
 
-        const { creatorId, categoryId, details, idempotencyKey: rawIdempotencyKey } = createRequestSchema.parse(await request.json());
+        const body = await readBoundedJsonBody<z.infer<typeof createRequestSchema>>(request, {
+            maxBytes: CREATOR_REQUEST_BODY_LIMIT_BYTES,
+            routeName: "creator/requests:POST",
+            allowEmpty: false,
+        });
+        const { creatorId, categoryId, details, idempotencyKey: rawIdempotencyKey } = createRequestSchema.parse(body);
         if (creatorId === caller.uid) {
             return buildRequestProblemResponse(new CreatorRequestProblem(
                 400,
@@ -412,6 +428,9 @@ async function POST_handler(request: NextRequest) {
             debug: result.debug,
         });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return buildBoundedRequestBodyResponse(error);
+        }
         if (error instanceof CreatorRequestProblem) {
             return buildRequestProblemResponse(error);
         }
@@ -439,7 +458,12 @@ async function PUT_handler(request: NextRequest) {
             return buildAdminCreatorProjectionReadOnlyResponse();
         }
 
-        const { requestId, action, responseNote } = updateRequestSchema.parse(await request.json());
+        const body = await readBoundedJsonBody<z.infer<typeof updateRequestSchema>>(request, {
+            maxBytes: CREATOR_REQUEST_BODY_LIMIT_BYTES,
+            routeName: "creator/requests:PUT",
+            allowEmpty: false,
+        });
+        const { requestId, action, responseNote } = updateRequestSchema.parse(body);
         const isAdmin = callerData?.role === "admin";
 
         const requestRef = adminDb.collection(CREATOR_COLLECTIONS.requests).doc(requestId);
@@ -471,6 +495,9 @@ async function PUT_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true, status: nextStatus });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return buildBoundedRequestBodyResponse(error);
+        }
         return handleApiError(error, "Creator.Requests.PUT");
     }
 }

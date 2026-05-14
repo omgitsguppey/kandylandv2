@@ -11,6 +11,7 @@ import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 import { CreatorBroadcastManager } from "@/components/Creators/CreatorBroadcastManager";
+import { CreatorRequestsManager } from "@/components/Creators/CreatorRequestsManager";
 
 type CreatorDashboardStats = {
   earningsGd: number;
@@ -96,6 +97,9 @@ function SectionCard({
   sourceTruth,
   sourceFreshness,
   sampleCount,
+  fanPassManagementState,
+  bookingsManagementState,
+  chatRouteConnected,
   expanded,
   onToggle,
 }: {
@@ -109,6 +113,9 @@ function SectionCard({
   sourceTruth?: string;
   sourceFreshness?: string;
   sampleCount?: number;
+  fanPassManagementState?: "configuration_only" | "connected";
+  bookingsManagementState?: "not_connected" | "connected";
+  chatRouteConnected?: boolean;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -120,6 +127,9 @@ function SectionCard({
       data-creator-stats-source-truth={sourceTruth ?? "not_applicable"}
       data-creator-stats-source-freshness={sourceFreshness ?? "not_applicable"}
       data-creator-stats-sample-count={sampleCount ?? 0}
+      data-creator-fan-pass-management-state={fanPassManagementState}
+      data-creator-bookings-management-state={bookingsManagementState}
+      data-creator-chat-route-connected={chatRouteConnected === undefined ? undefined : String(chatRouteConnected)}
     >
       <button type="button" onClick={onToggle} className="flex w-full items-start justify-between gap-3 text-left">
         <div className="flex min-w-0 items-start gap-3">
@@ -263,6 +273,8 @@ export function CreatorDashboardSettingsHub() {
     creatorSectionStateFromEvidence(statsEvidence?.sources.userProfile, stats?.profileViewsCount ?? 0),
   );
   const messageSectionHref = creatorRestrictions.messagingRestricted === true || creatorSettings.messagingEnabled !== true ? undefined : "/dashboard/chat";
+  const requestsEnabled = creatorSettings.customRequestsEnabled === true;
+  const requestsRestricted = creatorRestrictions.customRequestsRestricted === true;
   const publicProfileHref = buildCreatorPublicHref({
     creatorId,
     creatorUsername: typeof userProfile?.username === "string" ? userProfile.username : "",
@@ -280,6 +292,9 @@ export function CreatorDashboardSettingsHub() {
     sourceTruth?: string;
     sourceFreshness?: string;
     sampleCount?: number;
+    fanPassManagementState?: "configuration_only" | "connected";
+    bookingsManagementState?: "not_connected" | "connected";
+    chatRouteConnected?: boolean;
   }> = [
     {
       id: "public_profile",
@@ -329,10 +344,11 @@ export function CreatorDashboardSettingsHub() {
           : creatorSettings.subscriptionsEnabled === true && subscriptionPriceGd > 0
             ? "Fan Pass source sample needs review."
           : "Fan Pass needs setup.",
-      detail: `Subscription price: ${subscriptionPriceGd.toLocaleString()} GD. ${formatSourceEvidenceDetail(statsEvidence)}`,
+      detail: `Subscription price: ${subscriptionPriceGd.toLocaleString()} GD. Fan Pass pricing is configured. Subscriber management is not connected in this dashboard yet. ${formatSourceEvidenceDetail(statsEvidence)}`,
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
       sampleCount: statsEvidence?.sampleCount,
+      fanPassManagementState: "configuration_only",
       icon: <Wallet className="h-4 w-4" />,
     },
     {
@@ -350,8 +366,9 @@ export function CreatorDashboardSettingsHub() {
         : creatorSettings.messagingEnabled === true
           ? "Paid chat is live."
           : "Paid chat needs setup.",
-      detail: "Message pricing and paid-GD guidance stay tied to server truth.",
+      detail: messageSectionHref ? "Opens the existing chat dashboard." : "Chat opens only when messaging is enabled and unrestricted.",
       href: messageSectionHref,
+      chatRouteConnected: Boolean(messageSectionHref),
       icon: <MessageSquare className="h-4 w-4" />,
     },
     {
@@ -359,15 +376,23 @@ export function CreatorDashboardSettingsHub() {
       title: "Requests",
       state: creatorRestrictions.customRequestsRestricted === true
         ? "blocked"
-        : creatorSettings.customRequestsEnabled === true
+        : requestsEnabled
           ? requestsState
           : creatorSettings.customRequestsEnabled === false
             ? "needs_setup"
             : "not_configured",
-      summary: requestsState === "live"
+      summary: requestsRestricted
+        ? "Custom requests are blocked."
+        : requestsEnabled && requestsState === "live"
         ? ((stats?.openRequests ?? 0) > 0 ? `${stats?.openRequests} open request${(stats?.openRequests ?? 0) === 1 ? "" : "s"}.` : "No open requests.")
-        : "Request source sample needs review.",
-      detail: `Custom request pricing and status come from the creator request collection. ${formatSourceEvidenceDetail(statsEvidence)}`,
+        : requestsEnabled
+          ? "Request source sample needs review."
+          : "Custom requests are not enabled.",
+      detail: requestsRestricted
+        ? "Custom requests are blocked for this creator."
+        : requestsEnabled
+          ? `Manage pending custom requests below. ${formatSourceEvidenceDetail(statsEvidence)}`
+          : "Configuration-only until custom requests are enabled.",
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
       sampleCount: statsEvidence?.sampleCount,
@@ -386,10 +411,11 @@ export function CreatorDashboardSettingsHub() {
       summary: bookingsSourceState === "live"
         ? ((stats?.bookedCalls ?? 0) > 0 ? `${stats?.bookedCalls} bookings in flight.` : "No live bookings yet.")
         : "Booking source sample needs review.",
-      detail: `Booking windows, rates, and availability are backed by the creator booking route. ${formatSourceEvidenceDetail(statsEvidence)}`,
+      detail: `Booking windows, rates, and availability are configuration/count-only in this dashboard until booking management is connected. ${formatSourceEvidenceDetail(statsEvidence)}`,
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
       sampleCount: statsEvidence?.sampleCount,
+      bookingsManagementState: "not_connected",
       icon: <CalendarClock className="h-4 w-4" />,
     },
     {
@@ -476,6 +502,9 @@ export function CreatorDashboardSettingsHub() {
             sourceTruth={section.sourceTruth}
             sourceFreshness={section.sourceFreshness}
             sampleCount={section.sampleCount}
+            fanPassManagementState={section.fanPassManagementState}
+            bookingsManagementState={section.bookingsManagementState}
+            chatRouteConnected={section.chatRouteConnected}
             expanded={openSection === section.id}
             onToggle={() => {
               setOpenSection((current) => current === section.id ? null : section.id);
@@ -491,6 +520,15 @@ export function CreatorDashboardSettingsHub() {
           />
         ))}
       </div>
+
+      <CreatorRequestsManager
+        creatorId={creatorId}
+        creatorName={creatorName}
+        enabled={requestsEnabled}
+        restricted={requestsRestricted}
+        readOnly={settings?.projection?.readOnly === true}
+        sourceState={requestsState}
+      />
 
       <CreatorBroadcastManager
         creatorId={creatorId}

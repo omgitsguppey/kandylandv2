@@ -173,7 +173,7 @@ vi.mock("@/lib/server/analytics", () => ({
     trackServerEvent: mockState.trackServerEvent,
 }));
 
-import { POST } from "@/app/api/creator/requests/route";
+import { POST, PUT } from "@/app/api/creator/requests/route";
 
 describe("creator requests route transaction truth", () => {
     beforeEach(() => {
@@ -220,6 +220,54 @@ describe("creator requests route transaction truth", () => {
         });
     });
 
+    it("rejects oversized create-request payloads before parsing JSON", async () => {
+        const oversizedBody = JSON.stringify({
+            creatorId: "creator_1",
+            categoryId: "photo",
+            details: "x".repeat(33_000),
+        });
+        const response = await POST(new NextRequest("http://localhost/api/creator/requests", {
+            method: "POST",
+            body: oversizedBody,
+            headers: {
+                "Content-Type": "application/json",
+                "content-length": String(oversizedBody.length),
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({ success: false, code: "payload_too_large" });
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
+    });
+
+    it("rejects oversized creator request updates before parsing JSON", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "creator_1", email: "creator@example.com" });
+        mockState.setDocument("creator_custom_requests", "request_1", {
+            creatorId: "creator_1",
+            userId: "fan_1",
+            status: "pending",
+        });
+        const oversizedBody = JSON.stringify({
+            requestId: "request_1",
+            action: "decline",
+            responseNote: "x".repeat(33_000),
+        });
+        const response = await PUT(new NextRequest("http://localhost/api/creator/requests", {
+            method: "PUT",
+            body: oversizedBody,
+            headers: {
+                "Content-Type": "application/json",
+                "content-length": String(oversizedBody.length),
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({ success: false, code: "payload_too_large" });
+        expect(mockState.documents.get("creator_custom_requests/request_1")).toMatchObject({ status: "pending" });
+    });
+
     it("prevents duplicate custom request charges for the same idempotency key", async () => {
         const payload = {
             creatorId: "creator_1",
@@ -258,8 +306,9 @@ describe("creator requests route transaction truth", () => {
         }));
         const body = await response.json();
 
-        expect(response.status).toBe(500);
-        expect(body.error).toContain("Insufficient purchased balance");
+        expect(response.status).toBe(402);
+        expect(body.code).toBe("insufficient_paid_gumdrops");
+        expect(body.error).toContain("more paid GumDrops");
         expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
         expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("creator_ledger_accruals/"))).toHaveLength(0);
     });

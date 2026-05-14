@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-05-14T14:32:09.068Z",
+  "generatedAtUtc": "2026-05-14T23:25:19.096Z",
   "reportKey": "user-facing-feature-connection-audit",
-  "currentHead": "2ce388f048a43eaa2c1523902004557f1e6c2971",
+  "currentHead": "b5909742ab4990a21d65d7031abc544f43ffc215",
   "summary": {
     "surfacesScanned": 9,
-    "connectedSurfaces": 3,
-    "disconnectedSurfaces": 6,
+    "connectedSurfaces": 4,
+    "disconnectedSurfaces": 5,
     "fakeLiveRisks": 0,
     "raceConditionRisks": 0,
     "costBleedRisks": 0,
     "selfLoopLinks": 0,
     "p0Count": 0,
-    "p1Count": 2,
+    "p1Count": 1,
     "p2Count": 1
   },
   "surfaces": [
@@ -81,22 +81,13 @@
       "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
       "route": "/dashboard/creator",
       "expectedSource": "creator_custom_requests aggregate count",
-      "actualSource": "/api/creator/settings statsEvidence.sources.customRequests",
+      "actualSource": "/api/creator/settings statsEvidence.sources.customRequests + /api/creator/requests GET/PUT",
       "sourceMetadataPresent": true,
-      "actionTarget": null,
+      "actionTarget": "/api/creator/requests",
       "targetExists": true,
-      "status": "source_connected_inline_only",
-      "issues": [
-        {
-          "severity": "P1",
-          "title": "Requests have no dedicated dashboard management target",
-          "evidence": [
-            "The fake /dashboard/creator self-loop was removed."
-          ],
-          "recommendedAction": "Add a dedicated request management destination before rendering an Open section link."
-        }
-      ],
-      "recommendedAction": "Keep the section inline-only until a real route exists."
+      "status": "connected_management_panel",
+      "issues": [],
+      "recommendedAction": "Keep request management tied to the existing creator request GET/PUT route with read-only and pending guards."
     },
     {
       "key": "bookings",
@@ -165,7 +156,8 @@
   "selfLoopLinkFindings": [],
   "recommendedFixOrder": [
     "Keep statsEvidence as the dashboard source-state contract.",
-    "Build dedicated request and booking management destinations before restoring Open section links.",
+    "Keep CreatorRequestsManager wired to /api/creator/requests and disabled in read-only projection mode.",
+    "Build a dedicated booking management panel before marking bookings connected.",
     "Keep broadcast fetches disabled when broadcasts are blocked, unavailable, or read-only.",
     "Run focused creator dashboard and settings route tests after creator-facing connection changes."
   ]

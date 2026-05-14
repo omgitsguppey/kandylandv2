@@ -185,6 +185,38 @@ describe("creator settings route", () => {
     expect(mockState.update).toHaveBeenCalled();
   });
 
+  it("rejects oversized creator settings updates before parsing JSON", async () => {
+    const oversizedBody = JSON.stringify({ creatorSettings: { bio: "x".repeat(33_000) } });
+    const response = await PUT(new NextRequest("http://localhost/api/creator/settings", {
+      method: "PUT",
+      body: oversizedBody,
+      headers: {
+        "Content-Type": "application/json",
+        "content-length": String(oversizedBody.length),
+      },
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(body).toMatchObject({ success: false, code: "payload_too_large" });
+    expect(mockState.update).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid creator settings JSON with a typed safe error", async () => {
+    const response = await PUT(new NextRequest("http://localhost/api/creator/settings", {
+      method: "PUT",
+      body: "{bad",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({ success: false, code: "invalid_json" });
+    expect(mockState.update).not.toHaveBeenCalled();
+  });
+
   it("blocks admin projection writes on creator settings", async () => {
     mockState.readProjection.mockReturnValue({
       active: true,

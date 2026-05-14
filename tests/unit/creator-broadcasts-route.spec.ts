@@ -240,6 +240,27 @@ describe("creator broadcasts route", () => {
     }));
   });
 
+  it("rejects oversized broadcast payloads before parsing JSON", async () => {
+    const oversizedBody = JSON.stringify({
+      title: "Weekly update",
+      message: "x".repeat(33_000),
+      target: "all_followers",
+    });
+    const response = await POST(new NextRequest("http://localhost/api/creator/broadcasts", {
+      method: "POST",
+      body: oversizedBody,
+      headers: {
+        "Content-Type": "application/json",
+        "content-length": String(oversizedBody.length),
+      },
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(body).toMatchObject({ success: false, code: "payload_too_large" });
+    expect(mockState.batchSet).not.toHaveBeenCalled();
+  });
+
   it("blocks admin projection writes", async () => {
     mockState.readProjection.mockReturnValue({
       active: true,

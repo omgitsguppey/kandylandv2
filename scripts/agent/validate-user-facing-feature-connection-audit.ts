@@ -33,6 +33,7 @@ const failures: string[] = [];
 const files = {
   hub: "src/components/Creators/CreatorDashboardSettingsHub.tsx",
   broadcasts: "src/components/Creators/CreatorBroadcastManager.tsx",
+  requestsManager: "src/components/Creators/CreatorRequestsManager.tsx",
   guidance: "src/components/Creators/CreatorPaidGdGuidanceCard.tsx",
   settingsRoute: "src/app/api/creator/settings/route.ts",
   chatPage: "src/app/dashboard/chat/page.tsx",
@@ -111,9 +112,11 @@ function requireNotIncludes(source: string, forbidden: string, label: string) {
 
 const hub = read(files.hub);
 const broadcasts = read(files.broadcasts);
+const requestsManager = read(files.requestsManager);
 const guidance = read(files.guidance);
 const settingsRoute = read(files.settingsRoute);
 const broadcastRoute = read(files.creatorBroadcastRoute);
+const requestsRoute = read(files.creatorRequestsRoute);
 const doc = read(files.doc);
 const packageJson = read(files.packageJson);
 const creatorFiles = walkFiles("src/components/Creators");
@@ -182,15 +185,13 @@ const surfaces: SurfaceReport[] = [
     component: files.hub,
     route: "/dashboard/creator",
     expectedSource: "creator_custom_requests aggregate count",
-    actualSource: "/api/creator/settings statsEvidence.sources.customRequests",
-    sourceMetadataPresent: hub.includes("statsEvidence?.sources.customRequests"),
-    actionTarget: null,
+    actualSource: "/api/creator/settings statsEvidence.sources.customRequests + /api/creator/requests GET/PUT",
+    sourceMetadataPresent: hub.includes("statsEvidence?.sources.customRequests") && requestsManager.includes("/api/creator/requests"),
+    actionTarget: "/api/creator/requests",
     targetExists: routeExists(files.creatorRequestsRoute),
-    status: "source_connected_inline_only",
-    issues: [
-      issue("P1", "Requests have no dedicated dashboard management target", ["The fake /dashboard/creator self-loop was removed."], "Add a dedicated request management destination before rendering an Open section link."),
-    ],
-    recommendedAction: "Keep the section inline-only until a real route exists.",
+    status: "connected_management_panel",
+    issues: [],
+    recommendedAction: "Keep request management tied to the existing creator request GET/PUT route with read-only and pending guards.",
   },
   {
     key: "bookings",
@@ -278,6 +279,15 @@ if (hub.includes('href: "/dashboard/creator"') || hub.includes('href="/dashboard
 if (hub.includes('state: stats ? "live" : "unavailable"')) {
   failures.push("CreatorDashboardSettingsHub must not use stats object presence alone as a live source.");
 }
+if (settingsRoute.includes("request.json()")) {
+  failures.push("creator/settings PUT must use readBoundedJsonBody instead of request.json().");
+}
+if (broadcastRoute.includes("request.json()")) {
+  failures.push("creator/broadcasts POST must use readBoundedJsonBody instead of request.json().");
+}
+if (requestsRoute.includes("request.json()")) {
+  failures.push("creator/requests POST and PUT must use readBoundedJsonBody instead of request.json().");
+}
 if (selfLoopLinkFindings.length > 0) {
   failures.push("CreatorDashboardSettingsHub must not keep /dashboard/creator self-loop Open section links.");
 }
@@ -287,8 +297,29 @@ if (!hub.includes("creatorSectionStateFromEvidence") || !hub.includes("statsEvid
 if (!hub.includes("messageSectionHref") || !hub.includes('"/dashboard/chat"')) {
   failures.push("Messages must link to /dashboard/chat only through a restricted-aware target.");
 }
+if (!hub.includes("CreatorRequestsManager") || !hub.includes("<CreatorRequestsManager")) {
+  failures.push("Requests section is connected only when CreatorRequestsManager is imported and rendered.");
+}
+if (!requestsManager.includes("readOnly") || !requestsManager.includes("Read-only projection")) {
+  failures.push("CreatorRequestsManager must guard creator request mutations in read-only projection mode.");
+}
+if (!requestsManager.includes("pendingActionId")) {
+  failures.push("CreatorRequestsManager must include a pendingActionId double-submit guard.");
+}
+if (/\b(setInterval|onSnapshot)\b/u.test(requestsManager)) {
+  failures.push("CreatorRequestsManager must not introduce setInterval or onSnapshot.");
+}
+if (!hub.includes("data-creator-chat-route-connected") || !hub.includes("messageSectionHref ?")) {
+  failures.push("Messages must expose route connection truth and hide the chat link when disabled or restricted.");
+}
 if (!hub.includes("subscriptionPriceGd > 0") || !hub.includes("creatorRestrictions.subscriptionsRestricted === true")) {
   failures.push("Fan Pass state must require unrestricted settings and positive price.");
+}
+if (hub.includes('data-creator-fan-pass-management-state="connected"') || hub.includes('fanPassManagementState: "connected"')) {
+  failures.push("Fan Pass management must not be marked connected without a proven subscriber management flow.");
+}
+if (hub.includes('data-creator-bookings-management-state="connected"') || hub.includes('bookingsManagementState: "connected"')) {
+  failures.push("Bookings management must not be marked connected without a proven booking management panel.");
 }
 if (!broadcasts.includes("canReadBroadcasts") || !broadcasts.includes("canSendBroadcast")) {
   failures.push("CreatorBroadcastManager must gate fetch/send by enabled, restricted, read-only, and creator id state.");
@@ -348,7 +379,8 @@ const report = {
   selfLoopLinkFindings,
   recommendedFixOrder: [
     "Keep statsEvidence as the dashboard source-state contract.",
-    "Build dedicated request and booking management destinations before restoring Open section links.",
+    "Keep CreatorRequestsManager wired to /api/creator/requests and disabled in read-only projection mode.",
+    "Build a dedicated booking management panel before marking bookings connected.",
     "Keep broadcast fetches disabled when broadcasts are blocked, unavailable, or read-only.",
     "Run focused creator dashboard and settings route tests after creator-facing connection changes.",
   ],

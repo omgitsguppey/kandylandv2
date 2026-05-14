@@ -34,16 +34,22 @@ describe("user-facing feature connection audit", () => {
     expect(hub).toContain("creatorSectionStateFromEvidence");
     expect(hub).toContain("dashboardRequestIdRef");
     expect(hub).toContain("messageSectionHref");
+    expect(hub).toContain("CreatorRequestsManager");
+    expect(hub).toContain("data-creator-fan-pass-management-state");
+    expect(hub).toContain("data-creator-bookings-management-state");
+    expect(hub).toContain("data-creator-chat-route-connected");
     expect(hub).not.toContain('state: stats ? "live" : "unavailable"');
     expect(hub).not.toContain('href: "/dashboard/creator"');
     expect(hub).not.toContain('href="/dashboard/creator"');
   });
 
-  it("keeps broadcast fetch/send guarded without polling or realtime listeners", () => {
+  it("keeps creator managers guarded without polling or realtime listeners", () => {
     const manager = read("src/components/Creators/CreatorBroadcastManager.tsx");
+    const requestsManager = read("src/components/Creators/CreatorRequestsManager.tsx");
     const creatorSources = [
       read("src/components/Creators/CreatorDashboardSettingsHub.tsx"),
       manager,
+      requestsManager,
     ].join("\n");
 
     expect(manager).toContain("canReadBroadcasts");
@@ -51,8 +57,21 @@ describe("user-facing feature connection audit", () => {
     expect(manager).toContain("loadRequestIdRef");
     expect(manager).toContain("if (!canSendBroadcast)");
     expect(manager).toContain("if (sending)");
+    expect(requestsManager).toContain("/api/creator/requests");
+    expect(requestsManager).toContain("readOnly");
+    expect(requestsManager).toContain("pendingActionId");
+    expect(requestsManager).toContain("loadRequestIdRef");
     expect(creatorSources).not.toMatch(/\bsetInterval\b/u);
     expect(creatorSources).not.toMatch(/\bonSnapshot\b/u);
+  });
+
+  it("keeps creator operation routes behind the bounded JSON parser", () => {
+    expect(read("src/app/api/creator/settings/route.ts")).toContain("readBoundedJsonBody");
+    expect(read("src/app/api/creator/settings/route.ts")).not.toContain("request.json()");
+    expect(read("src/app/api/creator/broadcasts/route.ts")).toContain("readBoundedJsonBody");
+    expect(read("src/app/api/creator/broadcasts/route.ts")).not.toContain("request.json()");
+    expect(read("src/app/api/creator/requests/route.ts")).toContain("readBoundedJsonBody");
+    expect(read("src/app/api/creator/requests/route.ts")).not.toContain("request.json()");
   });
 
   it("keeps paid-GD guidance paid-source only", () => {
