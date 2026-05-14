@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 23 public updates in pages of 5.
+Showing the last 24 public updates in pages of 5.
+
+## 1.2.34 - 2026-05-14
+- Bug fixes and general improvements
+- Added a triage pass for beta score math and evidence wiring.
+- Reviewed watch-time, Admin dashboard, and creator dashboard truth connections.
+- Kept readiness evidence honest while identifying what needs a focused fix.
 
 ## 1.2.33 - 2026-05-14
 - Bug fixes and general improvements

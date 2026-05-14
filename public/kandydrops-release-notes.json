@@ -1,11 +1,51 @@
 {
-  "currentVersion": "1.2.33",
-  "betaReleaseCounter": 233,
+  "currentVersion": "1.2.34",
+  "betaReleaseCounter": 234,
   "channel": "beta",
-  "generatedAt": "2026-05-14T02:43:59.305Z",
-  "generatedAtUtc": "2026-05-14T02:43:59.305Z",
-  "lastCommitSha": "d1dd8a050d59f8e0261c8515c9cecc24def290a0",
+  "generatedAt": "2026-05-14T04:08:00.713Z",
+  "generatedAtUtc": "2026-05-14T04:08:00.713Z",
+  "lastCommitSha": "2570b5dda615c39a02af5260f5f3760ba3f0192f",
   "notes": [
+    {
+      "version": "1.2.34",
+      "previousVersion": "1.2.33",
+      "betaReleaseCounter": 234,
+      "previousBetaReleaseCounter": 233,
+      "commitSha": "2570b5dda615c39a02af5260f5f3760ba3f0192f",
+      "commitTitle": "chore(phase-one): triage score and dashboard truth wiring",
+      "commitCount": 1,
+      "commitShas": [
+        "2570b5dda615c39a02af5260f5f3760ba3f0192f"
+      ],
+      "committedAt": "2026-05-14T04:04:42.000Z",
+      "generatedAt": "2026-05-14T04:08:00.701Z",
+      "committedAtUtc": "2026-05-14T04:04:42.000Z",
+      "generatedAtUtc": "2026-05-14T04:08:00.701Z",
+      "updatedAtUtc": "2026-05-14T04:08:00.701Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added a triage pass for beta score math and evidence wiring.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added a triage pass for beta score math and evidence wiring.",
+        "Reviewed watch-time, Admin dashboard, and creator dashboard truth connections.",
+        "Kept readiness evidence honest while identifying what needs a focused fix."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/phase-one-score-ui-triage.generated.json",
+        "docs/agent-truth/phase-one-score-ui-triage.md",
+        "package.json",
+        "scripts/agent/validate-phase-one-score-ui-triage.ts",
+        "tests/unit/phase-one-score-ui-triage.spec.ts"
+      ],
+      "sourceCommit": "2570b5dda615c39a02af5260f5f3760ba3f0192f"
+    },
     {
       "version": "1.2.33",
       "previousVersion": "1.2.32",
@@ -1421,56 +1461,6 @@
       "excludedGeneratedChangeCount": 2,
       "bumpType": "minor",
       "sourceCommit": "4c66907a1bacb3e1c65e1e9b862fe8674b7c0f6d"
-    },
-    {
-      "version": "1.8.0",
-      "previousVersion": "1.8.0",
-      "betaReleaseCounter": 210,
-      "previousBetaReleaseCounter": 210,
-      "commitSha": "62d7e69a60420dd25175123378fc51aca5f905c3",
-      "commitTitle": "fix(admin): stabilize batch drop uploads",
-      "commitCount": 1,
-      "commitShas": [
-        "62d7e69a60420dd25175123378fc51aca5f905c3"
-      ],
-      "committedAt": "2026-05-08T05:04:04.000Z",
-      "generatedAt": "2026-05-08T07:36:20.567Z",
-      "committedAtUtc": "2026-05-08T05:04:04.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:20.567Z",
-      "updatedAtUtc": "2026-05-08T07:36:20.567Z",
-      "category": "Internal Reliability",
-      "title": "Internal reliability improvements",
-      "summary": "Internal reliability updates with no user-facing product changes.",
-      "userFacingTitle": "Internal reliability improvements",
-      "surfaceCategory": "Internal reliability",
-      "bullets": [
-        "Improved behind-the-scenes reliability."
-      ],
-      "audience": "admins",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": true,
-      "changedFiles": [
-        "agent/context/optimized-task-context.generated.json",
-        "docs/agent-truth/admin-cms-drop-workflow.md",
-        "docs/agent-truth/content-media-pipeline.md",
-        "package.json",
-        "scripts/agent/validate-batch-upload-stability.ts",
-        "src/components/Admin/AssetUploader.tsx",
-        "src/components/Admin/CreateDropModal.tsx",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/uploads/asset-upload-draft-contract.ts",
-        "src/lib/uploads/asset-upload-queue.ts",
-        "src/lib/uploads/upload-error-copy.ts",
-        "tests/unit/asset-upload-queue.spec.ts",
-        "tests/unit/asset-uploader.spec.tsx",
-        "tests/unit/create-drop-modal-upload-block.spec.tsx"
-      ],
-      "effectiveChangeCount": 942,
-      "excludedGeneratedChangeCount": 2,
-      "bumpType": "none",
-      "sourceCommit": "62d7e69a60420dd25175123378fc51aca5f905c3"
     }
   ]
 }
