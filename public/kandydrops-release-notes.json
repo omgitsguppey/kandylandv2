@@ -1,11 +1,58 @@
 {
-  "currentVersion": "1.2.44",
-  "betaReleaseCounter": 244,
+  "currentVersion": "1.2.45",
+  "betaReleaseCounter": 245,
   "channel": "beta",
-  "generatedAt": "2026-05-14T19:56:39.581Z",
-  "generatedAtUtc": "2026-05-14T19:56:39.581Z",
-  "lastCommitSha": "d75e1f4cf4276ee9e649fc412be344f121adffd6",
+  "generatedAt": "2026-05-14T21:14:56.790Z",
+  "generatedAtUtc": "2026-05-14T21:14:56.790Z",
+  "lastCommitSha": "f43a78682114342113f5bc83dc5c89fe439de096",
   "notes": [
+    {
+      "version": "1.2.45",
+      "previousVersion": "1.2.44",
+      "betaReleaseCounter": 245,
+      "previousBetaReleaseCounter": 244,
+      "commitSha": "f43a78682114342113f5bc83dc5c89fe439de096",
+      "commitTitle": "fix(admin): simplify auth outcomes mobile panel",
+      "commitCount": 1,
+      "commitShas": [
+        "f43a78682114342113f5bc83dc5c89fe439de096"
+      ],
+      "committedAt": "2026-05-14T21:14:47.000Z",
+      "generatedAt": "2026-05-14T21:14:56.788Z",
+      "committedAtUtc": "2026-05-14T21:14:47.000Z",
+      "generatedAtUtc": "2026-05-14T21:14:56.788Z",
+      "updatedAtUtc": "2026-05-14T21:14:56.788Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Made Auth Outcomes simpler and clearer on mobile.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Made Auth Outcomes simpler and clearer on mobile.",
+        "Separated email/password and Google login attempt tracking.",
+        "Stopped missing auth samples from showing as errors or repeated snapshot waits."
+      ],
+      "audience": "users",
+      "affectedSurfaces": [
+        "account-onboarding",
+        "admin"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "docs/agent-truth/admin-analytics-auth-outcomes.md",
+        "docs/agent-truth/admin-analytics-truth.md",
+        "package.json",
+        "scripts/agent/validate-admin-analytics-auth-outcomes-mobile.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts",
+        "src/types/admin-analytics.ts",
+        "tests/unit/admin-analytics-auth-outcome-split.spec.ts",
+        "tests/unit/admin-analytics-auth-outcomes-mobile.spec.tsx",
+        "tests/unit/admin-analytics-historical-engagement.spec.ts"
+      ],
+      "sourceCommit": "f43a78682114342113f5bc83dc5c89fe439de096"
+    },
     {
       "version": "1.2.44",
       "previousVersion": "1.2.43",
@@ -1256,72 +1303,6 @@
         "tests/unit/public-beta-score.spec.ts"
       ],
       "sourceCommit": "c2a5d322b8f3bb8bef95ed355ec701d3e36f90f3"
-    },
-    {
-      "version": "1.18.0",
-      "previousVersion": "1.18.0",
-      "betaReleaseCounter": 220,
-      "previousBetaReleaseCounter": 220,
-      "commitSha": "f56b3cdcede051a7a9d3be6a7f878bcdc7f702b8",
-      "commitTitle": "chore(phase-one): cleanup speed and cost hardening",
-      "commitCount": 1,
-      "commitShas": [
-        "f56b3cdcede051a7a9d3be6a7f878bcdc7f702b8"
-      ],
-      "committedAt": "2026-05-08T07:30:49.000Z",
-      "generatedAt": "2026-05-08T07:36:22.617Z",
-      "committedAtUtc": "2026-05-08T07:30:49.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:22.617Z",
-      "updatedAtUtc": "2026-05-08T07:36:22.617Z",
-      "category": "Internal Reliability",
-      "title": "Internal reliability improvements",
-      "summary": "Internal reliability updates with no user-facing product changes.",
-      "userFacingTitle": "Internal reliability improvements",
-      "surfaceCategory": "Internal reliability",
-      "bullets": [
-        "Improved behind-the-scenes reliability."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": true,
-      "changedFiles": [
-        "AGENTS.md",
-        "README.md",
-        "REPO_MEMORY_LEDGER.md",
-        "agent/state/4xx-cost-guardrails.generated.json",
-        "agent/state/billing-spike-radar.generated.json",
-        "agent/state/client-loading-speed.generated.json",
-        "agent/state/codebase-junk-cleanup.generated.json",
-        "agent/state/event-timeline-management.generated.json",
-        "agent/state/google-cloud-cost-data-handoff.generated.json",
-        "agent/state/guest-user-analytics-cutover.generated.json",
-        "agent/state/phase-one-final-cleanup.generated.json",
-        "agent/state/server-loading-speed.generated.json",
-        "agent/state/user-creator-feature-parity.generated.json",
-        "agent/state/user-tracking-index-cutover.generated.json",
-        "docs/agent-truth/client-loading-speed.md",
-        "docs/agent-truth/codebase-junk-cleanup.md",
-        "docs/agent-truth/event-timeline-management.md",
-        "docs/agent-truth/google-cloud-cost-data-handoff.md",
-        "docs/agent-truth/phase-one-final-cleanup.md",
-        "docs/agent-truth/server-loading-speed.md",
-        "docs/agent-truth/user-creator-feature-parity.md",
-        "package.json",
-        "scripts/agent/scan-codebase-junk.ts",
-        "scripts/agent/validate-client-loading-speed.ts",
-        "scripts/agent/validate-codebase-junk-cleanup.ts",
-        "scripts/agent/validate-event-timeline-management.ts",
-        "scripts/agent/validate-google-cloud-cost-data-handoff.ts",
-        "scripts/agent/validate-phase-one-final-cleanup.ts",
-        "scripts/agent/validate-server-loading-speed.ts",
-        "scripts/agent/validate-user-creator-feature-parity.ts"
-      ],
-      "effectiveChangeCount": 847,
-      "excludedGeneratedChangeCount": 10455,
-      "bumpType": "none",
-      "sourceCommit": "f56b3cdcede051a7a9d3be6a7f878bcdc7f702b8"
     }
   ]
 }

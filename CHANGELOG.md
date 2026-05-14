@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 24 public updates in pages of 5.
+Showing the last 25 public updates in pages of 5.
+
+## 1.2.45 - 2026-05-14
+- Bug fixes and general improvements
+- Made Auth Outcomes simpler and clearer on mobile.
+- Separated email/password and Google login attempt tracking.
+- Stopped missing auth samples from showing as errors or repeated snapshot waits.
 
 ## 1.2.44 - 2026-05-14
 - Bug fixes and general improvements
