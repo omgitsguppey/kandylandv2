@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.46 - 2026-05-14
+- Bug fixes and general improvements
+- Added backend work caps for analytics processing.
+- Added request body size guards for Admin Analytics routes.
+- Made Debug speed and security findings easier to understand.
+
 ## 1.2.45 - 2026-05-14
 - Bug fixes and general improvements
 - Made Auth Outcomes simpler and clearer on mobile.
@@ -143,12 +149,6 @@ Showing the last 25 public updates in pages of 5.
 - Prepared recovery rules for data that exists but has not surfaced in the app yet.
 
 ## 1.2.22 - 2026-05-13
-- Bug fixes and general improvements
-- Improved chat media sizing and message-thread scrolling.
-- Improved guest analytics and admin truth checks behind the scenes.
-- Updated Beta readiness evidence so stale or missing launch evidence stays visible.
-
-## 1.2.21 - 2026-05-12
 - Bug fixes and general improvements
 - Improved chat media sizing and message-thread scrolling.
 - Improved guest analytics and admin truth checks behind the scenes.
