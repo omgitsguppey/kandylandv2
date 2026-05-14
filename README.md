@@ -20,6 +20,10 @@ Read in this order:
 
 KandyDrops doctrine retrieval is an optimization problem. Agents should generate or read the smallest sufficient context pack first, route files through the surface-specific doctrine map, then read relevant surface doctrine and feature cards. Full historical Markdown is only for unresolved uncertainty.
 
+## Current Operator Doctrine
+
+Current Phase 1 operator doctrine lives at [docs/agent-truth/current-operator-doctrine.md](./docs/agent-truth/current-operator-doctrine.md). Future agents must follow it over older stale docs: no backend-only or UI-only fixes, no extra measurement limbs before tracing the current source path, no fake live/ready/zero states, and no generated-report snapshot treated as live authority. Release-note-only commits must use `[skip release-notes]` and must not create another Beta badge loop. GitHub hosted-runner billing lock is external infrastructure status, not app failure.
+
 ## Authority Summary
 
 - Level 1: Product Constitution.

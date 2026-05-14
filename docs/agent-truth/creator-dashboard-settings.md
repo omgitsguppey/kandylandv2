@@ -1,5 +1,8 @@
 # Creator Dashboard Settings
 
+Authority: Supporting doctrine for creator dashboard settings state and section truth.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.
+
 Status: launch-hardening truth note
 
 Creator Dashboard owns creator operations.

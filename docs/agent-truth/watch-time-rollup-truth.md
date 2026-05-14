@@ -1,5 +1,8 @@
 # Watch-Time Rollup Truth
 
+Authority: Current authority for watch-time math.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.
+
 Canonical watch time comes from `analytics_watch_sessions.validWatchMs` records whose `watchScoreSource` is `watch_session_rollup`.
 
 `watchSecondsTotal` is diagnostic context for older analytics rollups. It can support missing-watch diagnostics, but it must not populate canonical `watchTimeMs` unless a caller explicitly opts into and labels `legacy_page_duration`.

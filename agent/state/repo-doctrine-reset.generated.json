@@ -1,0 +1,212 @@
+{
+  "generatedAtUtc": "2026-05-14T17:39:25.526Z",
+  "reportKey": "repo-doctrine-reset",
+  "currentHead": "d315c420f128a39f452f823217ea5fdda294b5f6",
+  "summary": {
+    "docsScanned": 16,
+    "docsUpdated": 16,
+    "activeAuthorityDocs": 8,
+    "supportingDocs": 8,
+    "supersededDocs": 1,
+    "evidenceArchiveDocs": 1,
+    "staleDoctrineHits": 10,
+    "releaseNoteConflictsFixed": 1,
+    "measurementDoctrineConflictsFixed": 1,
+    "fullLoopDoctrineCoverage": true,
+    "p0Count": 0,
+    "p1Count": 3,
+    "p2Count": 7
+  },
+  "doctrineAuthorities": [
+    {
+      "lane": "operator workflow",
+      "authorityDoc": "docs/agent-truth/current-operator-doctrine.md",
+      "supportingDocs": [
+        "AGENTS.md",
+        "README.md"
+      ],
+      "supersededDocs": [],
+      "validator": "npm run check:repo-doctrine-reset"
+    },
+    {
+      "lane": "public beta score",
+      "authorityDoc": "docs/agent-truth/public-beta-score.md",
+      "supportingDocs": [
+        "docs/agent-truth/current-operator-doctrine.md"
+      ],
+      "supersededDocs": [
+        "docs/agent-truth/phase-one-score-ui-triage.md"
+      ],
+      "validator": "npm run check:beta-score"
+    },
+    {
+      "lane": "release notes",
+      "authorityDoc": "docs/agent-truth/public-beta-release-notes.md",
+      "supportingDocs": [
+        "docs/agent-truth/firebase-owned-repo-automation.md",
+        "docs/agent-truth/current-operator-doctrine.md"
+      ],
+      "supersededDocs": [],
+      "validator": "npm run check:release-notes"
+    },
+    {
+      "lane": "admin debug",
+      "authorityDoc": "docs/agent-truth/admin-debug-control-tower.md",
+      "supportingDocs": [
+        "docs/agent-truth/debug-panel-output-triage.md",
+        "docs/agent-truth/current-operator-doctrine.md"
+      ],
+      "supersededDocs": [],
+      "validator": "npm run check:admin-debug-control-tower"
+    },
+    {
+      "lane": "admin analytics",
+      "authorityDoc": "docs/agent-truth/admin-analytics-truth.md",
+      "supportingDocs": [
+        "docs/agent-truth/analytics-truth-layer-v2.md",
+        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
+        "docs/agent-truth/current-operator-doctrine.md"
+      ],
+      "supersededDocs": [],
+      "validator": "npm run check:admin-truth"
+    },
+    {
+      "lane": "watch time",
+      "authorityDoc": "docs/agent-truth/watch-time-rollup-truth.md",
+      "supportingDocs": [
+        "docs/agent-truth/current-operator-doctrine.md"
+      ],
+      "supersededDocs": [
+        "docs/agent-truth/phase-one-score-ui-triage.md"
+      ],
+      "validator": "npm run check:watch-time-rollup-truth"
+    },
+    {
+      "lane": "creator feature connections",
+      "authorityDoc": "docs/agent-truth/user-facing-feature-connection-audit.md",
+      "supportingDocs": [
+        "docs/agent-truth/creator-dashboard-projection-lock.md",
+        "docs/agent-truth/creator-dashboard-settings.md",
+        "docs/agent-truth/current-operator-doctrine.md"
+      ],
+      "supersededDocs": [
+        "docs/agent-truth/phase-one-score-ui-triage.md"
+      ],
+      "validator": "npm run check:user-facing-feature-connection-audit"
+    },
+    {
+      "lane": "repo cleanup inventory",
+      "authorityDoc": "docs/agent-truth/repo-spring-cleaning-rewire.md",
+      "supportingDocs": [
+        "docs/agent-truth/current-operator-doctrine.md"
+      ],
+      "supersededDocs": [],
+      "validator": "npm run check:repo-spring-cleaning-rewire"
+    }
+  ],
+  "staleDoctrineFindings": [
+    {
+      "key": "phase-one-triage-score-ingestion-stale",
+      "severity": "P2",
+      "file": "docs/agent-truth/phase-one-score-ui-triage.md",
+      "oldText": "the score runner does not directly ingest those artifacts yet",
+      "action": "Marked the triage doc evidence/archive only and added current-state notes.",
+      "replacementOrReference": "docs/agent-truth/public-beta-score.md and docs/agent-truth/current-operator-doctrine.md"
+    },
+    {
+      "key": "phase-one-triage-creator-stats-stale",
+      "severity": "P2",
+      "file": "docs/agent-truth/phase-one-score-ui-triage.md",
+      "oldText": "The UI marks several sections as live whenever stats exists.",
+      "action": "Marked as historical and pointed to statsEvidence/source metadata.",
+      "replacementOrReference": "docs/agent-truth/user-facing-feature-connection-audit.md"
+    },
+    {
+      "key": "repo-spring-current-lanes-stale",
+      "severity": "P2",
+      "file": "docs/agent-truth/repo-spring-cleaning-rewire.md",
+      "oldText": "Public beta score evidence artifacts exist but score still uses old boolean/string-derived logic.",
+      "action": "Rewrote current lanes into historical findings and kept the lane as cleanup inventory authority.",
+      "replacementOrReference": "docs/agent-truth/current-operator-doctrine.md"
+    },
+    {
+      "key": "release-note-skip-rule-fragmented",
+      "severity": "P1",
+      "file": "AGENTS.md, README.md, docs/agent-truth/public-beta-release-notes.md",
+      "oldText": "release-note skip behavior lived in workflow/docs but not in the main operator gateway.",
+      "action": "Added release-note-only [skip release-notes] and no-second-badge-loop language to active gateways.",
+      "replacementOrReference": "docs/agent-truth/current-operator-doctrine.md"
+    },
+    {
+      "key": "measurement-cadence-fragmented",
+      "severity": "P1",
+      "file": "docs/agent-truth/admin-analytics-truth.md",
+      "oldText": "metrics had source/range rules but lacked one consolidated metric cadence contract.",
+      "action": "Added metricKey/source/formula/unit/window/cadence/freshness/exactness/fallback/zero/debug detail doctrine.",
+      "replacementOrReference": "docs/agent-truth/current-operator-doctrine.md"
+    },
+    {
+      "key": "generated-report-authority-fragmented",
+      "severity": "P1",
+      "file": "docs/agent-truth/repo-spring-cleaning-rewire.md",
+      "oldText": "generated reports could support cleanup without a single demote/archive-before-delete rule.",
+      "action": "Added explicit snapshot, freshness, demote-first, archive-before-delete doctrine.",
+      "replacementOrReference": "docs/agent-truth/current-operator-doctrine.md"
+    },
+    {
+      "key": "cleanup-grep-paypal-pass-safe-negative-hits",
+      "severity": "P2",
+      "file": "docs/agent-truth/final-launch-readiness-report.md, docs/agent-truth/launch-readiness-final.md",
+      "oldText": "operator reported PayPal ... does not mark provider/PayPal smoke as passed",
+      "action": "Left as safe negative evidence language; it reinforces that operator-reported PayPal is not formal provider smoke.",
+      "replacementOrReference": "docs/agent-truth/current-operator-doctrine.md"
+    },
+    {
+      "key": "cleanup-grep-fake-zero-hits-are-guards",
+      "severity": "P2",
+      "file": "docs/agent-truth/*, scripts/agent/*, tests/unit/*",
+      "oldText": "fake zero / fake live / missing data is not zero",
+      "action": "Remaining matches are forbidden examples, validators, or tests that prevent fake live/zero regressions.",
+      "replacementOrReference": "docs/agent-truth/current-operator-doctrine.md"
+    },
+    {
+      "key": "cleanup-grep-new-metric-hits-are-forbidden-examples",
+      "severity": "P2",
+      "file": "docs/agent-truth/current-operator-doctrine.md",
+      "oldText": "Do not add a new measurement lane",
+      "action": "Kept as current forbidden-example doctrine.",
+      "replacementOrReference": "docs/agent-truth/current-operator-doctrine.md"
+    },
+    {
+      "key": "cleanup-grep-realtime-live-required-hits-are-contextual",
+      "severity": "P2",
+      "file": "docs/agent-truth/accessibility-tap-targets.md, docs/agent-truth/admin-overview.md, docs/agent-truth/creator-lane-debug-parity.md",
+      "oldText": "realtime required / live required",
+      "action": "Remaining matches describe accessibility metadata, Debug metadata, or creator live eligibility context; current doctrine still forbids fake realtime as a metric default.",
+      "replacementOrReference": "docs/agent-truth/current-operator-doctrine.md"
+    }
+  ],
+  "requiredFuturePromptRules": [
+    "exact symptom or code defect",
+    "exact files to inspect before editing",
+    "exact stale logic to remove/demote",
+    "exact canonical source to connect",
+    "surrounding callers/routes/UI/tests to inspect",
+    "grep cleanup checks",
+    "targeted validators/tests",
+    "allowed files",
+    "forbidden files",
+    "release-note rule",
+    "commit message"
+  ],
+  "validationCommands": [
+    "npm run check:repo-doctrine-reset",
+    "npm run check:repo-spring-cleaning-rewire",
+    "npm run check:beta-score",
+    "npm run check:release-notes",
+    "npm run check:watch-time-rollup-truth",
+    "npm run check:user-facing-feature-connection-audit",
+    "npm run typecheck",
+    "npx vitest run tests/unit/repo-doctrine-reset.spec.ts"
+  ]
+}

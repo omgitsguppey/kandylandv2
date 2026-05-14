@@ -37,6 +37,7 @@
         "scan:codebase-junk": "tsx scripts/agent/scan-codebase-junk.ts",
         "check:codebase-junk-cleanup": "tsx scripts/agent/validate-codebase-junk-cleanup.ts",
         "check:repo-spring-cleaning-rewire": "tsx scripts/agent/validate-repo-spring-cleaning-rewire.ts",
+        "check:repo-doctrine-reset": "tsx scripts/agent/validate-repo-doctrine-reset.ts",
         "check:client-loading-speed": "tsx scripts/agent/validate-client-loading-speed.ts",
         "check:server-loading-speed": "tsx scripts/agent/validate-server-loading-speed.ts",
         "check:user-creator-feature-parity": "tsx scripts/agent/validate-user-creator-feature-parity.ts",

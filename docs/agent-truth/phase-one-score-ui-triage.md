@@ -1,5 +1,7 @@
 # Phase One Score UI Triage
 
+Authority: Evidence/archive only. Superseded by `docs/agent-truth/current-operator-doctrine.md` plus the focused Phase 1 fix docs for score ingestion, creator source evidence, watch-time truth, and Admin Debug canonical score connection.
+
 ## Purpose
 
 This triage explains why Phase 1 beta readiness can remain stuck at `25/100` even after analytics rewire and smoke-evidence tracking work. It also records source-level UI connection risks for Admin Debug, Admin Analytics watch-time truth, and Creator Dashboard state.
@@ -8,7 +10,7 @@ This is a local/static audit. It does not prove production data, provider smoke,
 
 ## Scope
 
-The triage report is generated at:
+The triage report is historical local evidence generated at:
 
 - `agent/state/phase-one-score-ui-triage.generated.json`
 
@@ -20,7 +22,9 @@ The validator reads source files and local generated evidence only. It must not 
 
 ## Key Findings
 
-The current beta score is source-safety-only. Formal tracking artifacts exist for provider smoke, runtime smoke, and admin truth samples, but the score runner does not directly ingest those artifacts yet.
+Historical finding: the beta score was source-safety-only when this triage ran. Formal tracking artifacts existed for provider smoke, runtime smoke, and admin truth samples, but the score runner did not directly ingest those artifacts yet.
+
+Current state: score evidence ingestion has since been fixed. `npm run score:beta` now reads formal evidence artifacts directly. This triage remains archive evidence and must not be used as current authority for score wiring.
 
 The score runner still has these source-level issues:
 
@@ -33,7 +37,9 @@ The score math is honest about missing evidence, but it is too coarse for operat
 
 ## UI Connection Findings
 
-Admin Debug Control Tower reads generated reports, including the public beta score, but its visible overall score is an aggregate of required report scores. That can drift from the canonical public beta score and hide why the public beta score is capped.
+Historical finding: Admin Debug Control Tower read generated reports, including the public beta score, but its visible overall score could look like an aggregate of required report scores.
+
+Current state: Admin Debug now exposes the canonical public beta score separately from the aggregate report summary. This doc remains evidence only.
 
 Admin Debug also still has dense panel stacking. The recovery evidence panel is compact by default, but Control Tower, System Health, Recovery Evidence, Creator Lane, and diagnostics are still presented together in the Now view.
 
@@ -49,7 +55,9 @@ The rollup contract keeps diagnostic estimates out of canonical watch time. Howe
 
 ## Creator Dashboard Truth
 
-The Creator Dashboard settings route returns a `stats` object without source freshness, sample count, or unavailable reason metadata. The UI marks several sections as `live` whenever `stats` exists. That creates a fake-live risk when aggregates are zero, missing, or stale.
+Historical finding: the Creator Dashboard settings route returned a `stats` object without source freshness, sample count, or unavailable reason metadata, and the UI could mark sections as `live` whenever `stats` existed.
+
+Current state: `/api/creator/settings` now returns `statsEvidence`; the UI must use that source metadata instead of object presence.
 
 The next focused fix should add source/sample metadata before showing creator stats as live. It should not touch payment, wallet, chat, AI cover, public UI, or creator monetization behavior beyond source labels and state mapping.
 

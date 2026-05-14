@@ -1,5 +1,7 @@
 # Admin Debug Control Tower
 
+Authority: Current authority for the Admin Debug control room and generated evidence display truth.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.  
 Status: public beta admin debug doctrine  
 Recorded: 2026-05-04  
 Primary UI: `src/app/admin/debug/components/DebugControlTower.tsx`  
@@ -8,7 +10,7 @@ API: `GET /api/admin/debug/control-tower`
 
 ## Doctrine
 
-Admin Debug v2 is the mobile-first Control Tower. It surfaces generated public-beta reports, live debug evidence, stale/missing state truth, cost/security/device/telemetry/economy/watch-time/support findings, and deterministic next actions. Missing or stale data must never be shown as healthy. Heavy raw JSON stays collapsed. Existing ops health and creator lane parity remain, but they no longer define the whole debug truth.
+Admin Debug v2 is the mobile-first Control Tower. It surfaces generated public-beta reports, live debug evidence, stale/missing state truth, cost/security/device/telemetry/economy/watch-time/support findings, and deterministic next actions. Missing or stale data must never be shown as healthy. Stale shown as stale is honest, not a bug; stale shown as live/current is a bug. Heavy raw JSON stays collapsed. Existing ops health and creator lane parity remain, but they no longer define the whole debug truth.
 
 ## Information Architecture
 

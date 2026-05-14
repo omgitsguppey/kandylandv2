@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-14 Repo doctrine reset and source-truth cleanup
+
+KandyDrops now has a current operator doctrine consolidation lane. `docs/agent-truth/current-operator-doctrine.md` is the Phase 1 operator workflow authority for direct fix mode, screenshot-first source-rooted debugging, full source-to-UI loop closure, no additive patch stacking, UI/button/action closure, measurement source-of-truth tracing, metric cadence/math precision, watch-time truth, creator feature connection truth, Admin Debug/Admin Analytics separation, public beta score evidence truth, release-note skip-loop behavior, cost/race guardrails, and required future Codex prompt structure. `scripts/agent/validate-repo-doctrine-reset.ts`, `agent/state/repo-doctrine-reset.generated.json`, package script `check:repo-doctrine-reset`, and `tests/unit/repo-doctrine-reset.spec.ts` validate the lane. Older Phase 1 triage docs are kept as evidence/archive where focused fixes have already superseded them.
+
 ## 2026-05-14 Repo spring-cleaning rewire inventory
 
 KandyDrops now has a strict repo spring-cleaning and rewire inventory lane. `scripts/agent/validate-repo-spring-cleaning-rewire.ts` writes `agent/state/repo-spring-cleaning-rewire.generated.json`, documenting generated report freshness and ownership, doctrine conflicts, validator conflicts, legacy lanes, fake-authority risks, disconnected UI surfaces, cleanup candidates, severity counts, recommended sections, and a ranked follow-up order. `docs/agent-truth/repo-spring-cleaning-rewire.md`, package script `check:repo-spring-cleaning-rewire`, and `tests/unit/repo-spring-cleaning-rewire.spec.ts` validate the lane. This pass is inventory-only and does not delete files, move files, refactor runtime code, run providers, or perform production reads.

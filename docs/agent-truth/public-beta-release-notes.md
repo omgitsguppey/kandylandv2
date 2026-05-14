@@ -1,5 +1,8 @@
 # Public Beta Release Notes
 
+Authority: Current authority for Beta badge release-note automation and skip-loop behavior.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.
+
 KandyDrops Beta release notes are user-facing and track accepted public beta releases, not raw commits. The Beta badge beside the top nav title opens the last 5 app-style updates. Versioning uses odometer format `1.<block>.<release>`, where `1` is the Beta V1 product era, `block` is `floor(betaReleaseCounter / 100)`, and `release` is `betaReleaseCounter % 100`. Each accepted public beta release increments one `betaReleaseCounter` by exactly 1. Changelog copy must explain what changed for users, not dump technical commit noise.
 
 ## Phase 1 Patch Acceptance
@@ -51,6 +54,9 @@ KandyDrops Beta release notes are user-facing and track accepted public beta rel
 - Cloud and GitHub release-note automation must not create a new public beta release unless acceptance is explicit.
 - GitHub release-note automation must not run for commits that only touch `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, `src/lib/release-notes/release-version-contract.ts`, and `CHANGELOG.md`.
 - GitHub release-note automation must skip commits containing `[skip release-notes]`; this avoids failed no-op runs and release-note recursion while hosted-runner billing is unavailable.
+- Release-note-only commits must include `[skip release-notes]` and must not create another Beta badge commit.
+- A skipped Public Beta Release Notes workflow is not a failure when the commit only touches release-note artifacts.
+- GitHub Actions hosted-runner billing lock is external infrastructure status, not app failure. Firebase App Hosting rollout status, local validators, and GitHub runner billing status are separate signals.
 - `.github/workflows/ci.yml` runs `npm run check:release-notes` so stale or invalid release notes fail lightweight CI.
 
 ## Copy Rules

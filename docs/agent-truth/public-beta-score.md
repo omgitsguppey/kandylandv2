@@ -1,5 +1,7 @@
 # Public Beta Score
 
+Authority: Current authority for beta score math and evidence-gate truth.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.  
 Status: deterministic source-truth audit guard  
 Recorded: 2026-05-03
 
@@ -8,7 +10,7 @@ Validator: `npm run check:beta-score`
 
 ## Doctrine
 
-KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a finding explicitly escalates to runtime visual verification.
+KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a finding explicitly escalates to runtime visual verification. The current operator doctrine controls the full-loop fix pattern for any score/readiness change.
 
 KandyDrops hardening is deterministic first. Agents must score and target the affected domain before broad verification. No full-suite terminal marathons by default. The repo must protect cost surfaces, source-of-truth layers, privacy/telemetry, payments, locked content, chat/support reliability, image/device performance, and legacy cleanup without rewriting stable business logic.
 
@@ -170,7 +172,7 @@ After this evidence tracking pass, `npm run score:beta` still reports 25/100 ove
 
 The score no longer awards provider smoke from final launch readiness report text, targeted behavior from a hardcoded boolean, admin truth samples from debug-entry presence, or visual/manual evidence from file existence alone.
 
-After this ingestion fix, `npm run score:beta` still reports 25/100 overall, 25/100 evidence score, and 100/100 scanner-only score. The score remains capped because the formal artifacts still say targeted behavior is missing, visual/manual smoke is missing, provider smoke is missing with PayPal only operator-reported, runtime smoke is `runtime_unverified`, admin truth samples are `missing_or_unknown`, and required generated reports are stale.
+At the time of this ingestion fix, `npm run score:beta` still reported 25/100 overall, 25/100 evidence score, and 100/100 scanner-only score. That historical result remains evidence only. Later targeted behavior evidence can raise the score, but the score remains capped whenever visual/manual smoke, provider smoke, runtime smoke, admin truth samples, or required generated report freshness remain missing or stale.
 
 `evidenceCapDetails` now records every active cap with the gate label and detail so operators can see which formal artifact is blocking each gate.
 

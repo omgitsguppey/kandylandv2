@@ -1,5 +1,8 @@
 # Snapshot/Admin/Vendor/Cost Rewire
 
+Authority: Supporting doctrine for analytics simplification planning. This is not endless runtime surgery authority.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.
+
 This Phase 4 contract turns the earlier analytics rewire maps into a simplification authority plan. It is static/local only: it reads the Phase 1 truth-lane inventory, Phase 2 identity/privacy/raw-ledger report, and Phase 3 lost-data recovery dry run. It does not prove production data, change runtime behavior, query Firebase, scan BigQuery, call GA4/PostHog, or deploy anything.
 
 ## Why This Exists

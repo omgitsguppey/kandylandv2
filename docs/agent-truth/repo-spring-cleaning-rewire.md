@@ -1,5 +1,7 @@
 # Repo Spring Cleaning Rewire
 
+Authority: Current authority for cleanup inventory classification. Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.
+
 This lane inventories stale, duplicate, conflicting, legacy, fake-authority, disconnected, and cleanup-needed repo areas without deleting, moving, or refactoring runtime code.
 
 ## Scope
@@ -13,6 +15,8 @@ This lane inventories stale, duplicate, conflicting, legacy, fake-authority, dis
 ## Doctrine
 
 Generated reports are snapshots. They may support score, Admin Debug, launch readiness, and cleanup decisions, but they do not override runtime code or explicit source-of-truth contracts. A report older than 24 hours is stale unless its own contract says otherwise.
+
+Old generated reports are not authority unless they are consumed by the current score, Debug, or readiness path and are fresh for that lane. Stale archive candidates should not be surfaced as live. Cleanup should demote first and delete later only with human approval and static usage evidence.
 
 This inventory must not claim a file is unused from its filename alone. Cleanup candidates require static evidence from imports, package script ownership, docs references, generated report ownership, validator ownership, or UI/API consumers.
 
@@ -35,13 +39,16 @@ Phase 1 blocker fixes remain separate from this spring-cleaning lane. The report
 - `P2`: clutter, duplicated docs, duplicate validators, archive candidates, and cleanup grouping work.
 - `P3`: naming and organization cleanup, old reports that appear unconsumed, and lanes kept as current authority.
 
-## Current Required Lanes
+## Historical Required Lanes
 
-- Public beta score evidence artifacts exist but score still uses old boolean/string-derived logic.
-- Creator dashboard settings can mark stats live from object presence without source/sample metadata.
-- Watch-time tests still preserve legacy duration as canonical-looking watch time.
-- Admin Debug Control Tower can drift from canonical public beta score and stale generated report state.
-- Admin analytics and dashboard links need source/destination mapping before cleanup.
+The original inventory identified several Phase 1 blocker-adjacent lanes. Some have since been fixed by focused patches:
+
+- Public beta score evidence ingestion now reads formal artifacts directly.
+- Creator dashboard settings now expose `statsEvidence` and must not mark stats live from object presence.
+- Watch-time tests now lock canonical watch time to valid watch-session rollups.
+- Admin Debug now separates canonical public beta score from report aggregates.
+
+The remaining spring-cleaning role is inventory and demotion: keep stale reports, duplicate docs, legacy validators, and disconnected surfaces classified until a focused fix removes, merges, or archives them with static evidence.
 
 ## Validation
 

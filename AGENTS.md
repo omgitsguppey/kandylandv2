@@ -12,6 +12,10 @@ Do not read every Markdown file by default. Load doctrine in this order:
 
 Doctrine retrieval is an optimization problem. Agents must load the smallest sufficient context pack based on changed files, task intent, risk, authority, conflicts, legacy warnings, and validator coverage. Full Markdown is fallback evidence, not the default context source.
 
+## Current Operator Doctrine
+
+Current Phase 1 operator doctrine lives at `docs/agent-truth/current-operator-doctrine.md` and wins over older stale docs when they conflict. Future agents must close full source-to-UI loops instead of backend-only or UI-only patches, trace existing measurement paths before adding metrics/events/snapshots, demote stale generated reports to evidence unless fresh and explicitly consumed, and keep missing data distinct from zero. Release-note-only commits must use `[skip release-notes]` and must not create another Beta badge commit. GitHub hosted-runner billing lock is external infrastructure status, not app failure; Firebase App Hosting rollout status and local validators are separate.
+
 ## Surface Doctrine Routing
 
 Before editing UI, copy, telemetry, state, admin truth, or server/backend truth, read `agent/context/surface-doctrine-map.json` and `docs/doctrine/03-surface-hierarchy.md`. Resolve exactly one primary surface first, then load the matching doctrine:

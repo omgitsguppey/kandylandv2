@@ -1,5 +1,8 @@
 # User-Facing Feature Connection Audit
 
+Authority: Current authority for creator-facing feature connection audit and no-orphan-action rules.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.
+
 Artifact: `agent/state/user-facing-feature-connection-audit.generated.json`  
 Validator: `npm run check:user-facing-feature-connection-audit`
 
@@ -41,4 +44,4 @@ No new collection scans were added.
 - Bookings are source-backed and configuration-only until a dedicated dashboard booking management target exists.
 - Fan Pass in Creator Dashboard is guidance/configuration only; the purchase flow remains on the public creator experience path.
 
-Do not restore `/dashboard/creator` self-loop "Open section" links for inline-only cards. Add real destinations first.
+Do not restore `/dashboard/creator` self-loop "Open section" links for inline-only cards. Add real destinations first. No orphan button, fake CTA, or placeholder action may appear live without a real route/action, permission guard, pending guard, and unavailable/error state.

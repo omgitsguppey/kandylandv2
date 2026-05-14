@@ -1,5 +1,8 @@
 # Creator Dashboard Projection Lock
 
+Authority: Supporting doctrine for creator dashboard read-only projection and source-state safety.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.
+
 This lock covers the creator dashboard surfaces that an admin can review through read-only projection without logging into the creator account.
 
 ## Locked Surface
@@ -40,4 +43,3 @@ This lock covers the creator dashboard surfaces that an admin can review through
 - `lighthouse`
 - `cypress`
 - `firebase deploy`
-

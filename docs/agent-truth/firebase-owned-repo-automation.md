@@ -1,5 +1,8 @@
 # Firebase-Owned Repo Automation
 
+Authority: Supporting doctrine for the Cloud Build, Firebase App Hosting, and GitHub Actions split.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.
+
 GitHub is the source repository. GitHub-hosted Actions are not the source of deployment truth for KandyDrops because they can fail before checkout when hosted-runner billing is locked.
 
 ## Authority Split

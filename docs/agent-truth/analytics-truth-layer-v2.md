@@ -1,5 +1,8 @@
 # Analytics Truth Layer v2
 
+Authority: Supporting current doctrine for raw ledger, snapshot, vendor, and Debug boundaries.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.
+
 Status: Phase 1 doctrine and discovery contract
 Last updated: 2026-04-30
 

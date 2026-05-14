@@ -1,5 +1,8 @@
 # Admin Analytics Truth
 
+Authority: Supporting current doctrine for Admin Analytics display truth and metric cadence.  
+Current operator doctrine: `docs/agent-truth/current-operator-doctrine.md`.
+
 Status: deterministic hardening doctrine
 Recorded: 2026-05-06
 
@@ -19,5 +22,7 @@ Rules:
 - Display language uses unwrap/unwrapped/unwraps; backend entitlement code may still use unlock.
 - Internal/admin/operator/test traffic is excluded or labeled before being called demand.
 - Tables with more available rows than shown use pagination or label top-N snapshot.
+- Every displayed metric must carry metricKey, canonicalSource, formula, unit, timeWindow, refreshCadence, lastRefreshedAt, freshnessTolerance, exactness, fallbackPolicy, zeroPolicy, and debugSourceDetail.
+- Primary Analytics UI shows the number and one compact freshness line. Admin Debug owns detailed formula, source, cadence, fallback, confidence, and legacy warnings.
 
 Canonical helper: `src/lib/deterministic-admin-truth.ts`.

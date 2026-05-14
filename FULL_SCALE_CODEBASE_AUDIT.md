@@ -1,5 +1,27 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-14 #173] Repo Doctrine Reset + Source-of-Truth Cleanup
+
+Scope started:
+- Consolidating current Phase 1 operator doctrine into `docs/agent-truth/current-operator-doctrine.md` so future agents use direct fix mode, screenshot-first source-rooted debugging, full source-to-UI loop closure, metric cadence/math precision, no additive patch stacking, release-note skip-loop rules, and generated-report snapshot boundaries.
+- This pass is doctrine/source-of-truth cleanup only: no runtime app behavior, UI redesign, payment/wallet/PayPal runtime, chat internals, AI cover runtime, Firebase rules, Cloud Functions runtime, BigQuery jobs, providers, production reads, Playwright, Cypress, Lighthouse, or full `npm run check`.
+
+Scope completed:
+- Added `docs/agent-truth/current-operator-doctrine.md` as the current Phase 1 operator doctrine for direct fix mode, screenshot-first source-rooted debugging, full-loop closure, metric cadence/math precision, no additive patch stacking, release-note skip-loop rules, generated-report snapshot boundaries, creator/watch/admin/debug/score truth, cost/race guards, and required future prompt structure.
+- Updated `AGENTS.md`, `README.md`, and active agent-truth docs with current/supporting/evidence authority markers and cross-links to the current operator doctrine.
+- Added `scripts/agent/validate-repo-doctrine-reset.ts`, `tests/unit/repo-doctrine-reset.spec.ts`, package script `check:repo-doctrine-reset`, and `agent/state/repo-doctrine-reset.generated.json`.
+
+Verification:
+- `npm run check:repo-doctrine-reset` passed.
+- `npm run check:repo-spring-cleaning-rewire` passed.
+- `npm run check:beta-score` passed.
+- `npm run check:release-notes` passed.
+- `npm run check:watch-time-rollup-truth` passed.
+- `npm run check:user-facing-feature-connection-audit` passed.
+- `npm run typecheck` passed.
+- `npx vitest run tests/unit/repo-doctrine-reset.spec.ts` passed.
+- Playwright, Cypress, Lighthouse, providers, BigQuery, production reads, deploys, and full `npm run check` were not run.
+
 ## [2026-05-14 #172] Repo Spring Cleaning Rewire Inventory
 
 Scope started:
