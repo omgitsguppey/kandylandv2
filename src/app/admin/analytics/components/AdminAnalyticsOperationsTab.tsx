@@ -148,12 +148,24 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   }, [journeyFunnelModel]);
   const authOutcomeBadgeLabel = authOutcomeModel.modeLabel;
   const authCountLabel = (value: number | null) =>
-    value === null ? firstSnapshotLabel : formatCompactNumber(value);
+    value === null ? "Unavailable" : formatCompactNumber(value);
   const authPercentLabel = (value: number | null) =>
-    value === null ? firstSnapshotLabel : formatPercent(value);
+    value === null ? "Unavailable" : formatPercent(value);
   const authFinishLabel = authOutcomeModel.avgFinish.value === null
     ? "Unavailable"
     : formatDuration(authOutcomeModel.avgFinish.value / 1000);
+  const authHasUsableSample = authOutcomeModel.hasUsableAuthSample;
+  const authCanRenderDetails = authOutcomeModel.canRenderMethodDetails;
+  const formatAuthFailureReason = (failureCode: string | null | undefined) =>
+    !failureCode || failureCode === "failure_code_unavailable"
+      ? "Failure reason not captured"
+      : failureCode;
+  const authGroupValue = (group: typeof authOutcomeModel.methodGroups.emailPassword) =>
+    group.attempts === null ? "Unavailable" : `${formatCompactNumber(group.attempts)} attempts`;
+  const authGroupHint = (group: typeof authOutcomeModel.methodGroups.emailPassword) =>
+    group.attempts === null
+      ? "No tracked attempts"
+      : `${formatCompactNumber(group.failures ?? 0)} failed · ${formatCompactNumber(group.successes ?? 0)} succeeded`;
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -678,18 +690,33 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 title="Auth Outcomes"
                 subtitle="Source-truthed auth attempts, lifecycle outcomes, and finish timing."
                 icon={Users}
+                density="compact"
                 rightSlot={renderSectionRangeControl("authOutcomeSplit")}
               >
-                <div className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
+                <div
+                  className="mb-2 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-4 text-gray-300 md:flex-row md:items-center md:justify-between"
+                  data-admin-analytics-auth-hydration-state={authOutcomeModel.hydrationState}
+                  data-admin-analytics-auth-measurement-mode={authOutcomeModel.measurementMode}
+                  data-admin-analytics-auth-exact-chain-available={String(authOutcomeModel.trackingCapability.exactAttemptChainAvailable)}
+                  data-admin-analytics-auth-failure-reasons-available={String(authOutcomeModel.trackingCapability.failureReasonsAvailable)}
+                  data-admin-analytics-auth-manual-workaround={authOutcomeModel.trackingCapability.manualWorkaround}
+                  title={authOutcomeModel.algorithmRecommendation ?? undefined}
+                >
                   <div className="min-w-0">
-                    <p>{authOutcomeModel.recommendation}</p>
-                    <p className="mt-1 text-[10px] text-gray-400">
-                      Generated {authOutcomeModel.generatedAtUtc ?? "Unavailable"} · Last auth event {authOutcomeModel.lastAuthEventAtUtc ?? "Unavailable"}
-                    </p>
+                    <p className="font-semibold text-white">{authOutcomeModel.primarySummary}</p>
+                    {authOutcomeModel.mobileCompactDetail ? (
+                      <p className="mt-1 text-[10px] text-gray-400">{authOutcomeModel.mobileCompactDetail}</p>
+                    ) : null}
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
-                      {authOutcomeModel.timingState === "available" ? "Timing ready" : "Timing review"}
+                      {authOutcomeModel.measurementMode === "canonical_attempt_chain"
+                        ? "Attempt chain"
+                        : authOutcomeModel.measurementMode === "legacy_event_counts"
+                          ? "Legacy counts"
+                          : authOutcomeModel.hydrationState === "waiting"
+                            ? "Loading"
+                            : "No sample"}
                     </span>
                     <AdminStatusBadge
                       state={historicalMetricTruthState}
@@ -699,173 +726,248 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-                  <MetricCard
-                    label="Attempts"
-                    value={authCountLabel(authOutcomeModel.attempts.value)}
-                    hint="Auth attempts"
-                    icon={Users}
-                    truthState={historicalMetricTruthState}
-                    statusBadgeLabel={authOutcomeBadgeLabel}
-                    className="rounded-[1rem] p-2"
-                    valueClassName="text-lg leading-6 md:text-xl"
-                  />
-                  <MetricCard
-                    label="Successes"
-                    value={authCountLabel(authOutcomeModel.successes.value)}
-                    hint="Terminal successes"
-                    icon={CheckCircle2}
-                    truthState={historicalMetricTruthState}
-                    statusBadgeLabel={authOutcomeBadgeLabel}
-                    className="rounded-[1rem] p-2"
-                    valueClassName="text-lg leading-6 md:text-xl"
-                  />
-                  <MetricCard
-                    label="Failures"
-                    value={authCountLabel(authOutcomeModel.failures.value)}
-                    hint="Failed outcomes"
-                    icon={AlertTriangle}
-                    truthState={historicalMetricTruthState}
-                    statusBadgeLabel={authOutcomeBadgeLabel}
-                    className="rounded-[1rem] p-2"
-                    valueClassName="text-lg leading-6 md:text-xl"
-                  />
-                  <MetricCard
-                    label="Success Rate"
-                    value={authPercentLabel(authOutcomeModel.successRate.value)}
-                    hint={authOutcomeModel.successRate.formula}
-                    icon={Sparkles}
-                    truthState={historicalMetricTruthState}
-                    statusBadgeLabel={authOutcomeBadgeLabel}
-                    className="rounded-[1rem] p-2"
-                    valueClassName="text-lg leading-6 md:text-xl"
-                  />
-                  <MetricCard
-                    label="Avg Finish"
-                    value={authFinishLabel}
-                    hint={authOutcomeModel.timingAvailable ? "Completed attempts with start/end timestamps" : "Timing unavailable"}
-                    icon={Clock3}
-                    truthState={historicalMetricTruthState}
-                    statusBadgeLabel={authOutcomeBadgeLabel}
-                    className="rounded-[1rem] p-2"
-                    valueClassName="truncate text-base leading-6 md:text-lg"
-                  />
-                </div>
-
-                <div className="mt-2 grid gap-2 md:grid-cols-3">
-                  <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                    <span className="font-semibold text-white">Weakest:</span>{" "}
-                    {authOutcomeModel.weakestMethod
-                      ? `${authOutcomeModel.weakestMethod.visibleLabel}${authOutcomeModel.weakestMethod.weakestReason ? ` · ${authOutcomeModel.weakestMethod.weakestReason}` : ""}`
-                      : "Unavailable"}
-                  </div>
-                  <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                    <span className="font-semibold text-white">Most failed:</span>{" "}
-                    {authOutcomeModel.mostFailuresMethod
-                      ? `${authOutcomeModel.mostFailuresMethod.visibleLabel} · ${authOutcomeModel.mostFailuresMethod.failureBreakdown[0]?.failureCode ?? "failure_code_unavailable"}`
-                      : "Unavailable"}
-                  </div>
-                  <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                    <span className="font-semibold text-white">Most unfinished:</span>{" "}
-                    {authOutcomeModel.mostUnfinishedMethod?.visibleLabel ?? "Unavailable"}
-                  </div>
-                </div>
-
-                {authOutcomeModel.timingMissingReason ? (
-                  <p className="mt-2 rounded-[1rem] border border-amber-400/25 bg-amber-500/10 px-3 py-2 text-[11px] leading-5 text-amber-100">
-                    {authOutcomeModel.timingMissingReason}
-                  </p>
-                ) : null}
-
-                <div className="mt-2 rounded-[1rem] border border-white/10 bg-black/30 p-3">
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                      Method split
+                {!authHasUsableSample ? (
+                  <div className="max-h-[8.75rem] space-y-2 overflow-hidden rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-semibold text-white">
+                        {authOutcomeModel.hydrationState === "unavailable" ? "Auth outcomes unavailable" : "No auth sample yet"}
+                      </p>
+                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-300">
+                        {authOutcomeModel.modeLabel}
+                      </span>
+                    </div>
+                    <p>{authOutcomeModel.unavailableReason}</p>
+                    <p className="text-[10px] text-gray-400">
+                      Manual: run email/password and Google login attempts, then refresh.
                     </p>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
-                      {authOutcomeModel.methodBreakdown.length} methods
-                    </span>
                   </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-2 md:hidden">
+                      <MetricCard
+                        label="Email/password"
+                        value={authGroupValue(authOutcomeModel.methodGroups.emailPassword)}
+                        hint={authGroupHint(authOutcomeModel.methodGroups.emailPassword)}
+                        icon={Users}
+                        truthState={historicalMetricTruthState}
+                        statusBadgeLabel={authOutcomeBadgeLabel}
+                        className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                        valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                      />
+                      <MetricCard
+                        label="Google"
+                        value={authGroupValue(authOutcomeModel.methodGroups.google)}
+                        hint={authGroupHint(authOutcomeModel.methodGroups.google)}
+                        icon={Sparkles}
+                        truthState={historicalMetricTruthState}
+                        statusBadgeLabel={authOutcomeBadgeLabel}
+                        className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                        valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                      />
+                    </div>
 
-                  <div className="space-y-1.5">
-                    {authOutcomeModel.methodBreakdown.length > 0 ? (
-                      authOutcomeModel.methodBreakdown.map((item) => {
-                        const attempts = Math.max(1, item.attempts ?? 0);
-                        const successShare = item.successes === null ? 0 : item.successes / attempts;
-                        const failureShare = item.failures === null ? 0 : item.failures / attempts;
-                        const unfinishedShare = item.unfinished === null ? 0 : item.unfinished / attempts;
+                    <div className="hidden grid-cols-2 gap-2 md:grid lg:grid-cols-5">
+                      <MetricCard
+                        label="Attempts"
+                        value={authCountLabel(authOutcomeModel.attempts.value)}
+                        hint="Auth attempts"
+                        icon={Users}
+                        truthState={historicalMetricTruthState}
+                        statusBadgeLabel={authOutcomeBadgeLabel}
+                        className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                        valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                      />
+                      <MetricCard
+                        label="Successes"
+                        value={authCountLabel(authOutcomeModel.successes.value)}
+                        hint="Terminal successes"
+                        icon={CheckCircle2}
+                        truthState={historicalMetricTruthState}
+                        statusBadgeLabel={authOutcomeBadgeLabel}
+                        className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                        valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                      />
+                      <MetricCard
+                        label="Failures"
+                        value={authCountLabel(authOutcomeModel.failures.value)}
+                        hint="Failed outcomes"
+                        icon={AlertTriangle}
+                        truthState={historicalMetricTruthState}
+                        statusBadgeLabel={authOutcomeBadgeLabel}
+                        className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                        valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                      />
+                      <MetricCard
+                        label="Success Rate"
+                        value={authPercentLabel(authOutcomeModel.successRate.value)}
+                        hint={authOutcomeModel.successRate.formula}
+                        icon={Sparkles}
+                        truthState={historicalMetricTruthState}
+                        statusBadgeLabel={authOutcomeBadgeLabel}
+                        className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                        valueClassName="text-[1.05rem] leading-5 md:text-lg"
+                      />
+                      <MetricCard
+                        label="Avg Finish"
+                        value={authFinishLabel}
+                        hint={authOutcomeModel.timingAvailable ? "Completed attempts with start/end timestamps" : "Timing unavailable"}
+                        icon={Clock3}
+                        truthState={historicalMetricTruthState}
+                        statusBadgeLabel={authOutcomeBadgeLabel}
+                        className="rounded-[1rem] p-2 min-h-[4.75rem]"
+                        valueClassName="truncate text-[1.05rem] leading-5 md:text-lg"
+                      />
+                    </div>
 
-                        return (
-                          <div
-                            key={item.methodKey}
-                            className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
-                          >
-                            <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                              <div className="min-w-0">
-                                <p className="truncate text-xs font-semibold text-white">
-                                  {item.visibleLabel}
+                    <div className="mt-2 grid gap-2 md:grid-cols-3">
+                      <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                        <span className="font-semibold text-white">Email/password failure:</span>{" "}
+                        {formatAuthFailureReason(authOutcomeModel.methodGroups.emailPassword.topFailureCode)}
+                      </div>
+                      <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                        <span className="font-semibold text-white">Google failure:</span>{" "}
+                        {formatAuthFailureReason(authOutcomeModel.methodGroups.google.topFailureCode)}
+                      </div>
+                      <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-4 text-gray-300">
+                        <span className="font-semibold text-white">Most unfinished:</span>{" "}
+                        {authOutcomeModel.mostUnfinishedMethod?.visibleLabel ?? "Unavailable"}
+                      </div>
+                    </div>
+
+                    {authOutcomeModel.timingMissingReason ? (
+                      <p className="mt-2 rounded-[1rem] border border-amber-400/25 bg-amber-500/10 px-3 py-2 text-[11px] leading-4 text-amber-100">
+                        {authOutcomeModel.timingMissingReason}
+                      </p>
+                    ) : null}
+
+                    {authCanRenderDetails ? (
+                      <>
+                        <details className="mt-2 md:hidden">
+                          <summary className="cursor-pointer rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-semibold text-gray-300">
+                            Method details
+                          </summary>
+                          <div className="mt-2 space-y-1.5">
+                            {authOutcomeModel.methodBreakdown.map((item) => {
+                              const attempts = Math.max(1, item.attempts ?? 0);
+                              const successShare = item.successes === null ? 0 : item.successes / attempts;
+                              const failureShare = item.failures === null ? 0 : item.failures / attempts;
+                              const unfinishedShare = item.unfinished === null ? 0 : item.unfinished / attempts;
+
+                              return (
+                                <div
+                                  key={item.methodKey}
+                                  className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-2.5 py-2"
+                                >
+                                  <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                                    <div className="min-w-0">
+                                      <p className="truncate text-xs font-semibold text-white">{item.visibleLabel}</p>
+                                      <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                                        {authCountLabel(item.attempts)} attempts · {authCountLabel(item.failures)} failures
+                                      </p>
+                                    </div>
+                                    <span className="rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 text-[10px] font-bold text-brand-purple">
+                                      {formatPercent(item.successRatePct / 100)}
+                                    </span>
+                                  </div>
+                                  <div className="flex h-1 overflow-hidden rounded-full bg-white/10">
+                                    <div className="h-full bg-brand-purple" style={{ width: `${successShare * 100}%` }} />
+                                    <div className="h-full bg-rose-400" style={{ width: `${failureShare * 100}%` }} />
+                                    <div className="h-full bg-slate-500" style={{ width: `${unfinishedShare * 100}%` }} />
+                                  </div>
+                                  {item.failureBreakdown[0] ? (
+                                    <p className="mt-1 text-[10px] text-gray-400">
+                                      Top failure: {formatAuthFailureReason(item.failureBreakdown[0].failureCode)}
+                                    </p>
+                                  ) : null}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </details>
+
+                        <div className="mt-2 hidden rounded-[1rem] border border-white/10 bg-black/30 p-2.5 md:block md:p-3">
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                              Method split
+                            </p>
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                              {authOutcomeModel.methodBreakdown.length} methods
+                            </span>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            {authOutcomeModel.methodBreakdown.map((item) => {
+                              const attempts = Math.max(1, item.attempts ?? 0);
+                              const successShare = item.successes === null ? 0 : item.successes / attempts;
+                              const failureShare = item.failures === null ? 0 : item.failures / attempts;
+                              const unfinishedShare = item.unfinished === null ? 0 : item.unfinished / attempts;
+
+                              return (
+                                <div
+                                  key={item.methodKey}
+                                  className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
+                                >
+                                  <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                                    <div className="min-w-0">
+                                      <p className="truncate text-xs font-semibold text-white">
+                                        {item.visibleLabel}
+                                      </p>
+                                      <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                                        {authCountLabel(item.attempts)} attempts · {authCountLabel(item.successes)} successes · {authCountLabel(item.failures)} failures · {authCountLabel(item.unfinished)} unfinished
+                                      </p>
+                                    </div>
+                                    <span className="rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 text-[10px] font-bold text-brand-purple">
+                                      {formatPercent(item.successRatePct / 100)}
+                                    </span>
+                                  </div>
+                                  <div className="flex h-1 overflow-hidden rounded-full bg-white/10">
+                                    <div className="h-full bg-brand-purple" style={{ width: `${successShare * 100}%` }} />
+                                    <div className="h-full bg-rose-400" style={{ width: `${failureShare * 100}%` }} />
+                                    <div className="h-full bg-slate-500" style={{ width: `${unfinishedShare * 100}%` }} />
+                                  </div>
+                                  <div className="mt-1.5 flex flex-wrap gap-2 text-[10px] text-gray-400">
+                                    <span>State: {item.state}</span>
+                                    <span>Avg finish: {item.avgFinishMs ? formatDuration(item.avgFinishMs / 1000) : "Unavailable"}</span>
+                                    {item.failureBreakdown[0] ? <span>Top failure: {formatAuthFailureReason(item.failureBreakdown[0].failureCode)}</span> : null}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="mt-2 hidden rounded-[1rem] border border-white/10 bg-black/25 p-2.5 md:block md:p-3">
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                              Auth lifecycle outcomes
+                            </p>
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                              {authOutcomeModel.lifecycleOutcomes.length} rows
+                            </span>
+                          </div>
+                          <div className="space-y-1.5">
+                            {authOutcomeModel.lifecycleOutcomes.map((item) => (
+                              <div
+                                key={item.name}
+                                className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
+                              >
+                                <p className="text-xs font-semibold text-white">
+                                  {item.name === "registration_completed" ? "Registration completed" : "Navigation session established"}
                                 </p>
                                 <p className="mt-0.5 truncate text-[10px] text-gray-500">
-                                  {authCountLabel(item.attempts)} attempts · {authCountLabel(item.successes)} successes · {authCountLabel(item.failures)} failures · {authCountLabel(item.unfinished)} unfinished
+                                  {authCountLabel(item.count)} outcomes · {item.state}
+                                </p>
+                                <p className="mt-0.5 text-[10px] leading-4 text-gray-400">
+                                  {item.explanation}
                                 </p>
                               </div>
-                              <span className="rounded-full border border-brand-purple/25 bg-brand-purple/10 px-2 py-1 text-[10px] font-bold text-brand-purple">
-                                {formatPercent(item.successRatePct / 100)}
-                              </span>
-                            </div>
-                            <div className="flex h-1.5 overflow-hidden rounded-full bg-white/10">
-                              <div className="h-full bg-brand-purple" style={{ width: `${successShare * 100}%` }} />
-                              <div className="h-full bg-rose-400" style={{ width: `${failureShare * 100}%` }} />
-                              <div className="h-full bg-slate-500" style={{ width: `${unfinishedShare * 100}%` }} />
-                            </div>
-                            <div className="mt-1.5 flex flex-wrap gap-2 text-[10px] text-gray-400">
-                              <span>State: {item.state}</span>
-                              <span>Avg finish: {item.avgFinishMs ? formatDuration(item.avgFinishMs / 1000) : "Unavailable"}</span>
-                              {item.failureBreakdown[0] ? <span>Top failure: {item.failureBreakdown[0].failureCode}</span> : null}
-                            </div>
+                            ))}
                           </div>
-                        );
-                      })
-                    ) : (
-                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                        Auth method detail needs tracked attempts.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 p-3">
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                      Auth lifecycle outcomes
-                    </p>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
-                      {authOutcomeModel.lifecycleOutcomes.length} rows
-                    </span>
-                  </div>
-                  <div className="space-y-1.5">
-                    {authOutcomeModel.lifecycleOutcomes.length > 0 ? authOutcomeModel.lifecycleOutcomes.map((item) => (
-                      <div
-                        key={item.name}
-                        className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300"
-                      >
-                        <p className="text-xs font-semibold text-white">
-                          {item.name === "registration_completed" ? "Registration completed" : "Navigation session established"}
-                        </p>
-                        <p className="mt-0.5 truncate text-[10px] text-gray-500">
-                          {authCountLabel(item.count)} outcomes · {item.state}
-                        </p>
-                        <p className="mt-0.5 text-[10px] leading-4 text-gray-400">
-                          {item.explanation}
-                        </p>
-                      </div>
-                    )) : (
-                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                        Lifecycle outcomes need tracked auth events.
-                      </div>
-                    )}
-                  </div>
-                </div>
+                        </div>
+                      </>
+                    ) : null}
+                  </>
+                )}
               </SectionCard>
 
               <AdminOnboardingAnalyticsModules

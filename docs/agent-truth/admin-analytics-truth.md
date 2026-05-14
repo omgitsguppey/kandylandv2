@@ -26,5 +26,9 @@ Rules:
 - Primary Analytics UI shows the number and one compact freshness line. Admin Debug owns detailed formula, source, cadence, fallback, confidence, and legacy warnings.
 - Event Chain is event-volume only unless ordered actor/session transition data exists. Aggregated event counts cannot become unique-user funnel math.
 - When no Event Chain sample exists, primary UI shows a compact no-sample state, the manual workaround, and Debug/source metadata instead of zero rows or long source doctrine.
+- Auth Outcomes canonical source is first-party auth_attempt_* telemetry grouped by authAttemptId, method/provider, timestamps, outcome, duration, and safe failure code.
+- Missing auth samples render as no-sample or unavailable, not ERROR. Email/password and Google login method groups should render only after a canonical or legacy auth sample exists.
+- Legacy auth sign-in/sign-up/Google count events are partial fallback only. They do not prove exact auth attempt chains or failure timing.
+- Failure reasons must use safe error-code fields. If unavailable, primary UI says "Failure reason not captured" and Debug/source metadata carries the missing piece.
 
 Canonical helper: `src/lib/deterministic-admin-truth.ts`.

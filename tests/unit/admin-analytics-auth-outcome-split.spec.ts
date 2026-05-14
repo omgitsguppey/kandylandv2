@@ -63,6 +63,8 @@ describe("buildAdminAnalyticsAuthOutcomeModel", () => {
     expect(model.lifecycleOutcomes[0]?.name).toBe("registration_completed");
     expect(model.timingState).toBe("missing_starts");
     expect(model.timingMissingReason).toContain("start timestamps");
+    expect(model.hasUsableAuthSample).toBe(true);
+    expect(model.measurementMode).toBe("canonical_attempt_chain");
   });
 
   it("uses canonical method summary with failure breakdown and explicit successes", () => {
@@ -135,6 +137,17 @@ describe("buildAdminAnalyticsAuthOutcomeModel", () => {
     expect(model.weakestMethod?.visibleLabel).toBe("Email sign-in");
     expect(model.mostFailuresMethod?.failureBreakdown[0]?.failureCode).toBe("auth/invalid-credential");
     expect(model.mostUnfinishedMethod?.visibleLabel).toBe("Google sign-in");
+    expect(model.methodGroups.emailPassword.attempts).toBe(14);
+    expect(model.methodGroups.emailPassword.successes).toBe(8);
+    expect(model.methodGroups.emailPassword.failures).toBe(4);
+    expect(model.methodGroups.emailPassword.topFailureCode).toBe("auth/invalid-credential");
+    expect(model.methodGroups.google.attempts).toBe(17);
+    expect(model.methodGroups.google.failures).toBe(4);
+    expect(model.methodGroups.google.topFailureCode).toBe("auth/popup-closed-by-user");
+    expect(model.trackingCapability.emailPasswordTracked).toBe(true);
+    expect(model.trackingCapability.googleTracked).toBe(true);
+    expect(model.trackingCapability.failureReasonsAvailable).toBe(true);
+    expect(model.trackingCapability.exactAttemptChainAvailable).toBe(true);
   });
 
   it("does not render fake zeros when no validated source exists", () => {
@@ -148,5 +161,108 @@ describe("buildAdminAnalyticsAuthOutcomeModel", () => {
     expect(model.successRate.value).toBeNull();
     expect(model.fakeZeroPrevented).toBe(true);
     expect(model.modeLabel).toBe("WAIT");
+  });
+
+  it("does not map missing non-loading auth data to error", () => {
+    const model = buildAdminAnalyticsAuthOutcomeModel({
+      selectedRange: "24h",
+      authBreakdown: [],
+      loading: false,
+    });
+
+    expect(model.hydrationState).toBe("no_sample");
+    expect(model.modeLabel).not.toBe("ERROR");
+    expect(model.modeLabel).toBe("NO SAMPLE");
+    expect(model.hasUsableAuthSample).toBe(false);
+    expect(model.canRenderMethodDetails).toBe(false);
+    expect(model.attempts.value).toBeNull();
+    expect(model.successRate.value).toBeNull();
+    expect(model.timingMissingReason).toBeNull();
+    expect(model.manualWorkaround).toContain("email/password");
+  });
+
+  it("keeps actual auth route errors distinct from no sample", () => {
+    const model = buildAdminAnalyticsAuthOutcomeModel({
+      selectedRange: "24h",
+      authBreakdown: [],
+      loading: false,
+      error: new Error("historical auth failed"),
+    });
+
+    expect(model.hydrationState).toBe("error");
+    expect(model.modeLabel).toBe("ERROR");
+  });
+
+  it("labels legacy auth count fallback as partial, not exact attempt chain", () => {
+    const model = buildAdminAnalyticsAuthOutcomeModel({
+      selectedRange: "30d",
+      response: {
+        success: true,
+        cacheState: "fresh",
+        authBreakdown: [
+          { method: "Email sign in", attempts: 3, successes: 1, failures: 2, avgDurationMs: 0, successRate: 1 / 3 },
+          { method: "Google sign in", attempts: 2, successes: 2, failures: 0, avgDurationMs: 0, successRate: 1 },
+        ],
+      } as HistoricalAnalyticsResponse,
+      authBreakdown: [
+        { method: "Email sign in", attempts: 3, successes: 1, failures: 2, avgDurationMs: 0, successRate: 1 / 3 },
+        { method: "Google sign in", attempts: 2, successes: 2, failures: 0, avgDurationMs: 0, successRate: 1 },
+      ],
+      loading: false,
+      overviewTruthState: "live",
+    });
+
+    expect(model.modeLabel).toBe("PARTIAL");
+    expect(model.hydrationState).toBe("legacy_fallback");
+    expect(model.measurementMode).toBe("legacy_event_counts");
+    expect(model.hasLegacyAuthSample).toBe(true);
+    expect(model.hasCanonicalAuthAttemptSample).toBe(false);
+    expect(model.methodGroups.emailPassword.topFailureCode).toBe("failure_code_unavailable");
+    expect(model.trackingCapability.failureReasonsAvailable).toBe(false);
+  });
+
+  it("surfaces unavailable failure reasons without treating them as errors", () => {
+    const model = buildAdminAnalyticsAuthOutcomeModel({
+      selectedRange: "7d",
+      response: response({
+        generatedAtUtc: "2026-05-06T12:00:00.000Z",
+        range: "7d",
+        sourceMode: "canonical_attempt_chain",
+        attempts: 1,
+        successes: 0,
+        failures: 1,
+        unfinished: 0,
+        successRatePct: 0,
+        avgFinishMs: null,
+        timingState: "missing_starts",
+        lastAuthEventAtUtc: "2026-05-06T11:58:00.000Z",
+        methods: [
+          {
+            method: "email_sign_in",
+            attempts: 1,
+            successes: 0,
+            failures: 1,
+            unfinished: 0,
+            successRatePct: 0,
+            avgFinishMs: null,
+            weakestReason: "failure_code_unavailable",
+            failureBreakdown: [{
+              failureCode: "failure_code_unavailable",
+              count: 1,
+              explanation: "Failure telemetry was recorded without a normalized safe code.",
+            }],
+            state: "review",
+          },
+        ],
+        lifecycleOutcomes: [],
+      }),
+      authBreakdown: [],
+      loading: false,
+      overviewTruthState: "live",
+    });
+
+    expect(model.methodGroups.emailPassword.topFailureCode).toBe("failure_code_unavailable");
+    expect(model.trackingCapability.failureReasonsAvailable).toBe(false);
+    expect(model.trackingCapability.missingPieces).toContain("No safe failureCode captured for failed email/password attempts");
   });
 });

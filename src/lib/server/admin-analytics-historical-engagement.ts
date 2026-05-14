@@ -710,8 +710,43 @@ function normalizeAttemptMethod(record: TelemetryLogRecord): AuthMethodKey | nul
     case "google_sign_in":
       return explicitMethod;
     default:
-      return null;
+      break;
   }
+
+  const provider = (
+    getTelemetryParamString(record, "provider") ||
+    getTelemetryParamString(record, "authProvider") ||
+    getTelemetryParamString(record, "auth_provider")
+  ).toLowerCase();
+  const methodHint = `${explicitMethod} ${getTelemetryParamString(record, "authMethod")} ${getTelemetryParamString(record, "auth_method")}`.toLowerCase();
+
+  if (provider.includes("google") || methodHint.includes("google")) {
+    return "google_sign_in";
+  }
+
+  if (
+    provider.includes("password") ||
+    provider.includes("email") ||
+    methodHint.includes("password") ||
+    methodHint.includes("email")
+  ) {
+    return methodHint.includes("sign_up") || methodHint.includes("signup") || methodHint.includes("register")
+      ? "email_sign_up"
+      : "email_sign_in";
+  }
+
+  return null;
+}
+
+function readAuthFailureCode(record: TelemetryLogRecord) {
+  return (
+    getTelemetryParamString(record, "failureCode") ||
+    getTelemetryParamString(record, "failure_code") ||
+    getTelemetryParamString(record, "errorCode") ||
+    getTelemetryParamString(record, "error_code") ||
+    getTelemetryParamString(record, "reasonCode") ||
+    getTelemetryParamString(record, "reason_code")
+  );
 }
 
 function buildAuthOutcomeSummary(input: {
@@ -799,6 +834,7 @@ function buildAuthOutcomeSummary(input: {
     const failures = methods.reduce((sum, method) => sum + method.failures, 0);
     const attempts = methods.reduce((sum, method) => sum + method.attempts, 0);
     const unfinishedCount = methods.reduce((sum, method) => sum + method.unfinished, 0);
+    const hasLegacyAuthSample = methods.some((method) => method.attempts > 0 || method.successes > 0 || method.failures > 0);
     const lifecycleOutcomes: AuthLifecycleOutcome[] = [
       {
         name: "registration_completed",
@@ -822,6 +858,7 @@ function buildAuthOutcomeSummary(input: {
       authOutcomeSummary: {
         generatedAtUtc: input.generatedAtUtc,
         range: input.range,
+        sourceMode: hasLegacyAuthSample ? "legacy_event_counts" : "unavailable",
         attempts,
         successes,
         failures,
@@ -849,7 +886,7 @@ function buildAuthOutcomeSummary(input: {
     const startedAtUtc = getTelemetryParamString(record, "startedAtUtc");
     const finishedAtUtc = getTelemetryParamString(record, "finishedAtUtc");
     const durationMs = getTelemetryParamNumber(record, "durationMs") || getTelemetryParamNumber(record, "duration_ms");
-    const failureCode = getTelemetryParamString(record, "failureCode") || getTelemetryParamString(record, "failure_code");
+    const failureCode = readAuthFailureCode(record);
     const next: AttemptAggregate = existing ?? {
       authAttemptId,
       method,
@@ -976,10 +1013,11 @@ function buildAuthOutcomeSummary(input: {
 
   return {
     authBreakdown,
-    authOutcomeSummary: {
-      generatedAtUtc: input.generatedAtUtc,
-      range: input.range,
-      attempts,
+      authOutcomeSummary: {
+        generatedAtUtc: input.generatedAtUtc,
+        range: input.range,
+        sourceMode: "canonical_attempt_chain",
+        attempts,
       successes,
       failures,
       unfinished: unfinishedCount,

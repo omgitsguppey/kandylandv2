@@ -372,6 +372,7 @@ export interface AuthLifecycleOutcome {
 export interface AuthOutcomeSummary {
   generatedAtUtc: string;
   range: string;
+  sourceMode?: "canonical_attempt_chain" | "legacy_event_counts" | "unavailable";
   attempts: number;
   successes: number;
   failures: number;
