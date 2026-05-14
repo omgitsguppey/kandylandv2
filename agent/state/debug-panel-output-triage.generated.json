@@ -1,0 +1,829 @@
+{
+  "generatedAtUtc": "2026-05-14T17:01:23.863Z",
+  "reportKey": "debug-panel-output-triage",
+  "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+  "summary": {
+    "debugItemsScanned": 35,
+    "staleItems": 24,
+    "missingItems": 8,
+    "falseLiveRisks": 0,
+    "refreshableItems": 13,
+    "nonBlockingArchiveItems": 5,
+    "blockingItems": 8,
+    "p0Count": 0,
+    "p1Count": 26,
+    "p2Count": 5
+  },
+  "debugItems": [
+    {
+      "key": "public_beta_score",
+      "label": "Public beta score",
+      "sourceArtifact": "agent/state/public-beta-score.generated.json",
+      "sourceGeneratedAt": "2026-05-14T14:14:43.772Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "fresh",
+      "canonicality": "canonical",
+      "owningValidator": "npm run check:beta-score",
+      "refreshCommand": "npm run score:beta",
+      "blocksPhaseOne": true,
+      "uiTruthState": "needs_review",
+      "issue": "Debug source status is beta-risk.",
+      "recommendedAction": "Use the canonical beta score and cap reasons as the primary Phase 1 queue."
+    },
+    {
+      "key": "score_cap_reasons",
+      "label": "Score cap reasons",
+      "sourceArtifact": "agent/state/public-beta-score.generated.json",
+      "sourceGeneratedAt": "2026-05-14T14:14:43.772Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "fresh",
+      "canonicality": "canonical",
+      "owningValidator": "npm run check:beta-score",
+      "refreshCommand": "npm run score:beta",
+      "blocksPhaseOne": true,
+      "uiTruthState": "blocked",
+      "issue": "5 beta score cap reason(s) remain visible.",
+      "recommendedAction": "Work the visible cap reasons in order instead of hiding them in Debug."
+    },
+    {
+      "key": "provider_smoke",
+      "label": "Provider smoke",
+      "sourceArtifact": "agent/state/provider-smoke-evidence.generated.json",
+      "sourceGeneratedAt": "2026-05-14T02:00:00.000Z",
+      "sourceCommit": null,
+      "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:provider-smoke-evidence",
+      "refreshCommand": "npm run check:provider-smoke-evidence",
+      "blocksPhaseOne": true,
+      "uiTruthState": "stale",
+      "issue": "Operator-reported PayPal smoke is tracked but is not formal provider smoke evidence.",
+      "recommendedAction": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass."
+    },
+    {
+      "key": "runtime_evidence",
+      "label": "Runtime evidence",
+      "sourceArtifact": "agent/state/runtime-smoke-evidence.generated.json",
+      "sourceGeneratedAt": "2026-05-14T02:00:00.000Z",
+      "sourceCommit": null,
+      "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:runtime-smoke-evidence",
+      "refreshCommand": "npm run check:runtime-smoke-evidence",
+      "blocksPhaseOne": true,
+      "uiTruthState": "stale",
+      "issue": "Runtime smoke is unverified; local validators remain diagnostic only.",
+      "recommendedAction": "Run formal deployed runtime smoke before marking runtime/provider smoke complete."
+    },
+    {
+      "key": "admin_truth_samples",
+      "label": "Admin truth samples",
+      "sourceArtifact": "agent/state/admin-truth-sample-evidence.generated.json",
+      "sourceGeneratedAt": "2026-05-14T02:00:00.000Z",
+      "sourceCommit": null,
+      "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:admin-truth-sample-evidence",
+      "refreshCommand": "npm run check:admin-truth-sample-evidence",
+      "blocksPhaseOne": true,
+      "uiTruthState": "stale",
+      "issue": "Admin truth sample evidence is missing or unknown; Debug must not render it healthy.",
+      "recommendedAction": "Attach a fresh first-party admin truth sample before upgrading this gate."
+    },
+    {
+      "key": "targeted_behavior_evidence",
+      "label": "Targeted behavior evidence",
+      "sourceArtifact": "agent/state/targeted-behavior-evidence.generated.json",
+      "sourceGeneratedAt": "2026-05-14T14:11:47.684Z",
+      "sourceCommit": null,
+      "currentHead": "6b964e0e91f288a68da7a7e2ff0fce38d6343338",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:targeted-behavior-evidence",
+      "refreshCommand": "npm run check:targeted-behavior-evidence",
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Targeted behavior evidence only proves focused validators; it does not prove visual/provider/runtime/admin sample evidence.",
+      "recommendedAction": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate."
+    },
+    {
+      "key": "creator_connection_audit",
+      "label": "Creator connection audit",
+      "sourceArtifact": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "sourceGeneratedAt": "2026-05-14T14:32:09.068Z",
+      "sourceCommit": null,
+      "currentHead": "2ce388f048a43eaa2c1523902004557f1e6c2971",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:user-facing-feature-connection-audit",
+      "refreshCommand": "npm run check:user-facing-feature-connection-audit",
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Source drift: currentHead 2ce388f048a43eaa2c1523902004557f1e6c2971 does not match repo HEAD 104e5c038d45fd2edc8f7925076e45e84f39e6d5.",
+      "recommendedAction": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed."
+    },
+    {
+      "key": "repo_spring_cleaning",
+      "label": "Repo spring cleaning",
+      "sourceArtifact": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "sourceGeneratedAt": "2026-05-14T05:44:18.561Z",
+      "sourceCommit": null,
+      "currentHead": "6dfd82f8cace655910a9e18a47cb654adb6baa56",
+      "freshness": "stale",
+      "canonicality": "archive_candidate",
+      "owningValidator": "npm run check:repo-spring-cleaning-rewire",
+      "refreshCommand": "npm run check:repo-spring-cleaning-rewire",
+      "blocksPhaseOne": false,
+      "uiTruthState": "archive",
+      "issue": "Source drift: currentHead 6dfd82f8cace655910a9e18a47cb654adb6baa56 does not match repo HEAD 104e5c038d45fd2edc8f7925076e45e84f39e6d5.",
+      "recommendedAction": "Run npm run check:repo-spring-cleaning-rewire when this stale warning must be refreshed."
+    },
+    {
+      "key": "analytics_rewire",
+      "label": "Analytics rewire",
+      "sourceArtifact": "agent/state/analytics-rewire-phase-one.generated.json",
+      "sourceGeneratedAt": "2026-05-14T01:18:08.752Z",
+      "sourceCommit": null,
+      "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:analytics-rewire-phase-one",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 104e5c038d45fd2edc8f7925076e45e84f39e6d5.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "recovery_evidence",
+      "label": "Recovery evidence",
+      "sourceArtifact": "agent/state/lost-data-recovery-dry-run.generated.json",
+      "sourceGeneratedAt": "2026-05-14T01:20:03.324Z",
+      "sourceCommit": null,
+      "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:lost-data-recovery-dry-run",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Source drift: currentHead 142bba579d7a2f0b73610b0b5f0498a26e19b836 does not match repo HEAD 104e5c038d45fd2edc8f7925076e45e84f39e6d5.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "system_health",
+      "label": "System health",
+      "sourceArtifact": "agent/state/admin-truth.generated.json",
+      "sourceGeneratedAt": null,
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "missing",
+      "canonicality": "missing",
+      "owningValidator": "npm run check:admin-truth",
+      "refreshCommand": "npm run check:admin-truth",
+      "blocksPhaseOne": false,
+      "uiTruthState": "missing",
+      "issue": "Source artifact is missing from the Debug source chain.",
+      "recommendedAction": "Run npm run check:admin-truth if that command owns the missing artifact; otherwise keep the Debug state missing."
+    },
+    {
+      "key": "final_launch_readiness",
+      "label": "Final launch readiness",
+      "sourceArtifact": "agent/state/final-launch-readiness-report.generated.json",
+      "sourceGeneratedAt": "2026-05-12T19:42:22.634Z",
+      "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:final-launch-readiness-report",
+      "refreshCommand": "npm run check:final-launch-readiness-report",
+      "blocksPhaseOne": true,
+      "uiTruthState": "stale",
+      "issue": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 104e5c038d45fd2edc8f7925076e45e84f39e6d5.",
+      "recommendedAction": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed."
+    },
+    {
+      "key": "launch_readiness",
+      "label": "Launch readiness",
+      "sourceArtifact": "agent/state/launch-readiness-report.generated.json",
+      "sourceGeneratedAt": "2026-05-12T19:42:22.634Z",
+      "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:launch-readiness-final",
+      "refreshCommand": "npm run check:launch-readiness-final",
+      "blocksPhaseOne": true,
+      "uiTruthState": "stale",
+      "issue": "Source drift: sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 104e5c038d45fd2edc8f7925076e45e84f39e6d5.",
+      "recommendedAction": "Run npm run check:launch-readiness-final when this stale warning must be refreshed."
+    },
+    {
+      "key": "launch_pr_triage",
+      "label": "Launch PR triage",
+      "sourceArtifact": "agent/state/launch-pr-triage.generated.json",
+      "sourceGeneratedAt": "2026-05-12T19:42:22.634Z",
+      "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
+      "currentHead": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:launch-pr-triage",
+      "refreshCommand": "npm run check:launch-pr-triage",
+      "blocksPhaseOne": true,
+      "uiTruthState": "stale",
+      "issue": "Source drift: currentHead 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 104e5c038d45fd2edc8f7925076e45e84f39e6d5; sourceCommit 6955246c6baabf0e8dcaee696dc73a37ff11301d does not match repo HEAD 104e5c038d45fd2edc8f7925076e45e84f39e6d5.",
+      "recommendedAction": "Run npm run check:launch-pr-triage when this stale warning must be refreshed."
+    },
+    {
+      "key": "report_public_beta_score",
+      "label": "Generated report freshness: public beta score",
+      "sourceArtifact": "agent/state/public-beta-score.generated.json",
+      "sourceGeneratedAt": "2026-05-14T14:14:43.772Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "fresh",
+      "canonicality": "evidence_only",
+      "owningValidator": "npm run check:beta-score",
+      "refreshCommand": "npm run score:beta",
+      "blocksPhaseOne": false,
+      "uiTruthState": "needs_review",
+      "issue": "Debug source status is beta-risk.",
+      "recommendedAction": "Run npm run score:beta when this stale warning must be refreshed."
+    },
+    {
+      "key": "report_speed_security",
+      "label": "Generated report freshness: speed/security hardening",
+      "sourceArtifact": "agent/state/speed-security-hardening.generated.json",
+      "sourceGeneratedAt": "2026-05-12T01:51:14.631Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:speed-security",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_codebase_hardening",
+      "label": "Generated report freshness: codebase hardening",
+      "sourceArtifact": "agent/state/codebase-hardening.generated.json",
+      "sourceGeneratedAt": "2026-05-12T01:51:32.984Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:hardening",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_device_ui",
+      "label": "Generated report freshness: device UI dry audit",
+      "sourceArtifact": "agent/state/device-ui-dry-audit.generated.json",
+      "sourceGeneratedAt": "2026-05-06T20:27:20.020Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:device-ui",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_device_layout",
+      "label": "Generated report freshness: device layout score",
+      "sourceArtifact": "agent/state/device-layout-score.generated.json",
+      "sourceGeneratedAt": "2026-05-04T11:46:00.865Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:device-layout-score",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_hydration",
+      "label": "Generated report freshness: hydration performance",
+      "sourceArtifact": "agent/state/hydration-performance.generated.json",
+      "sourceGeneratedAt": "2026-05-04T05:18:53.976Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:hydration-performance",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_sitewide_image",
+      "label": "Generated report freshness: sitewide image optimization",
+      "sourceArtifact": "agent/state/sitewide-image-optimization.generated.json",
+      "sourceGeneratedAt": null,
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "missing",
+      "canonicality": "missing",
+      "owningValidator": "npm run check:sitewide-image-optimization",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "missing",
+      "issue": "Source artifact is missing from the Debug source chain.",
+      "recommendedAction": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "key": "report_content_protection",
+      "label": "Generated report freshness: content protection",
+      "sourceArtifact": "agent/state/content-protection.generated.json",
+      "sourceGeneratedAt": null,
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "missing",
+      "canonicality": "missing",
+      "owningValidator": "npm run check:content-protection",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "missing",
+      "issue": "Source artifact is missing from the Debug source chain.",
+      "recommendedAction": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "key": "report_gumdrop_economy",
+      "label": "Generated report freshness: GumDrop economy",
+      "sourceArtifact": "agent/state/gumdrop-economy.generated.json",
+      "sourceGeneratedAt": null,
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "missing",
+      "canonicality": "missing",
+      "owningValidator": "npm run check:gumdrop-economy",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "missing",
+      "issue": "Source artifact is missing from the Debug source chain.",
+      "recommendedAction": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "key": "report_google_cost",
+      "label": "Generated report freshness: Google cost",
+      "sourceArtifact": "agent/state/google-cost-bleed.generated.json",
+      "sourceGeneratedAt": "2026-05-12T01:20:46.247Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:google-cost",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_cloud_cost",
+      "label": "Generated report freshness: Cloud cost",
+      "sourceArtifact": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
+      "sourceGeneratedAt": "2026-05-07T22:53:27.926Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:cloud-cost",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_sql_mirror",
+      "label": "Generated report freshness: SQL mirror",
+      "sourceArtifact": "agent/state/sql-mirror-status.generated.json",
+      "sourceGeneratedAt": "2026-05-07T22:51:20.973Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "archive_candidate",
+      "owningValidator": "npm run check:generated-report-authority",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_telemetry_parity",
+      "label": "Generated report freshness: telemetry parity",
+      "sourceArtifact": "agent/state/telemetry-parity-score.generated.json",
+      "sourceGeneratedAt": "2026-05-04T05:50:23.722Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:telemetry-parity-score",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_event_catalog",
+      "label": "Generated report freshness: event catalog",
+      "sourceArtifact": "agent/state/event-catalog-telemetry.generated.json",
+      "sourceGeneratedAt": null,
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "missing",
+      "canonicality": "missing",
+      "owningValidator": "npm run check:event-catalog-telemetry",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "missing",
+      "issue": "Source artifact is missing from the Debug source chain.",
+      "recommendedAction": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "key": "report_watch_time_truth",
+      "label": "Generated report freshness: watch-time truth",
+      "sourceArtifact": "agent/state/watch-time-rollup-truth.generated.json",
+      "sourceGeneratedAt": null,
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "missing",
+      "canonicality": "missing",
+      "owningValidator": "npm run check:watch-time-rollup-truth",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "missing",
+      "issue": "Source artifact is missing from the Debug source chain.",
+      "recommendedAction": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "key": "report_debug_evidence",
+      "label": "Generated report freshness: debug evidence pipeline",
+      "sourceArtifact": "agent/state/debug-evidence-pipeline.generated.json",
+      "sourceGeneratedAt": null,
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "missing",
+      "canonicality": "missing",
+      "owningValidator": "npm run check:debug-evidence-pipeline",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "missing",
+      "issue": "Source artifact is missing from the Debug source chain.",
+      "recommendedAction": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "key": "report_precatch_runtime",
+      "label": "Generated report freshness: precatch runtime issues",
+      "sourceArtifact": "agent/state/precatch-runtime-issues.generated.json",
+      "sourceGeneratedAt": "2026-05-06T03:10:58.421Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "archive_candidate",
+      "owningValidator": "npm run precheck:runtime-issues",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_support_recovery",
+      "label": "Generated report freshness: support recovery",
+      "sourceArtifact": "agent/state/support-recovery-flows.generated.json",
+      "sourceGeneratedAt": null,
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "missing",
+      "canonicality": "missing",
+      "owningValidator": "npm run check:support-recovery-flows",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "missing",
+      "issue": "Source artifact is missing from the Debug source chain.",
+      "recommendedAction": "Keep missing state visible until an owning generator is identified."
+    },
+    {
+      "key": "report_creator_lane",
+      "label": "Generated report freshness: creator lane parity",
+      "sourceArtifact": "agent/state/creator-lane-debug-parity.generated.json",
+      "sourceGeneratedAt": "2026-05-06T01:10:31.738Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "archive_candidate",
+      "owningValidator": "npm run check:creator-lane-debug-parity",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_creator_lane_legacy",
+      "label": "Generated report freshness: creator lane legacy",
+      "sourceArtifact": "agent/state/creator-lane-legacy-truth-inventory.generated.json",
+      "sourceGeneratedAt": "2026-05-02T00:00:00.000-05:00",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "archive_candidate",
+      "owningValidator": "npm run check:creator-lane-legacy-truth-inventory",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "key": "report_orphaned_logic",
+      "label": "Generated report freshness: orphaned logic",
+      "sourceArtifact": "agent/state/orphaned-logic-score.generated.json",
+      "sourceGeneratedAt": "2026-05-12T01:20:55.475Z",
+      "sourceCommit": null,
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "freshness": "stale",
+      "canonicality": "stale_evidence",
+      "owningValidator": "npm run check:orphaned-logic",
+      "refreshCommand": null,
+      "blocksPhaseOne": false,
+      "uiTruthState": "stale",
+      "issue": "Generated report is older than the 24 hour freshness window.",
+      "recommendedAction": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    }
+  ],
+  "refreshAttempts": [
+    {
+      "command": "npm run score:beta",
+      "status": "pass",
+      "artifact": "agent/state/public-beta-score.generated.json",
+      "effect": "Refreshed the canonical beta score locally; score stayed 45/100 with the same evidence caps.",
+      "note": "Generated artifact diff was not staged because this Debug triage patch only allows the triage artifact."
+    },
+    {
+      "command": "npm run check:beta-score",
+      "status": "pass",
+      "artifact": "agent/state/public-beta-score.generated.json",
+      "effect": "Validated the canonical beta score and cap details.",
+      "note": "No beta readiness cap was cleared."
+    },
+    {
+      "command": "npm run check:provider-smoke-evidence",
+      "status": "pass",
+      "artifact": "agent/state/provider-smoke-evidence.generated.json",
+      "effect": "Validated provider smoke evidence without converting operator-reported PayPal into a pass.",
+      "note": "Provider smoke remains formal-evidence missing."
+    },
+    {
+      "command": "npm run check:runtime-smoke-evidence",
+      "status": "pass",
+      "artifact": "agent/state/runtime-smoke-evidence.generated.json",
+      "effect": "Validated runtime smoke evidence.",
+      "note": "Runtime smoke remains runtime_unverified."
+    },
+    {
+      "command": "npm run check:admin-truth-sample-evidence",
+      "status": "pass",
+      "artifact": "agent/state/admin-truth-sample-evidence.generated.json",
+      "effect": "Validated admin truth sample evidence.",
+      "note": "Admin truth sample remains missing_or_unknown."
+    },
+    {
+      "command": "npm run check:targeted-behavior-evidence",
+      "status": "pass",
+      "artifact": "agent/state/targeted-behavior-evidence.generated.json",
+      "effect": "Validated targeted behavior evidence.",
+      "note": "Targeted behavior still does not prove visual QA, provider smoke, runtime smoke, or admin truth samples."
+    },
+    {
+      "command": "npm run check:user-facing-feature-connection-audit",
+      "status": "pass",
+      "artifact": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "effect": "Validated creator-facing feature connection audit.",
+      "note": "Generated artifact diff was not staged because this Debug triage patch only allows the triage artifact."
+    },
+    {
+      "command": "npm run check:repo-spring-cleaning-rewire",
+      "status": "pass",
+      "artifact": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "effect": "Validated repo spring-cleaning rewire inventory.",
+      "note": "Generated artifact diff was not staged because this Debug triage patch only allows the triage artifact."
+    },
+    {
+      "command": "npm run check:admin-debug-control-tower",
+      "status": "pass",
+      "artifact": "src/lib/admin-debug-control-tower.ts",
+      "effect": "Validated canonical Debug score connection after generated refresh diffs were restored.",
+      "note": "The first run correctly failed on unrelated generated artifact diffs; the rerun passed."
+    },
+    {
+      "command": "npm run check:admin-truth",
+      "status": "pass",
+      "artifact": "src/lib/admin-debug-control-tower.ts",
+      "effect": "Validated admin truth contracts.",
+      "note": "No production reads were performed."
+    },
+    {
+      "command": "npm run check:launch-pr-triage",
+      "status": "validator_only_stale",
+      "artifact": "agent/state/launch-pr-triage.generated.json",
+      "effect": "Confirmed launch PR triage is stale and generated before current HEAD.",
+      "note": "Validator does not regenerate the artifact; stale Debug state remains honest."
+    },
+    {
+      "command": "npm run check:launch-readiness-final",
+      "status": "validator_only_stale",
+      "artifact": "agent/state/launch-readiness-report.generated.json",
+      "effect": "Confirmed launch readiness report is stale relative to later runtime file changes.",
+      "note": "Validator does not regenerate the artifact; stale Debug state remains honest."
+    },
+    {
+      "command": "npm run check:final-launch-readiness-report",
+      "status": "pass",
+      "artifact": "agent/state/final-launch-readiness-report.generated.json",
+      "effect": "Validated final launch readiness report contract.",
+      "note": "This did not claim missing visual, provider, runtime, or admin sample evidence."
+    }
+  ],
+  "fixQueue": [
+    {
+      "priority": "P1",
+      "itemKey": "public_beta_score",
+      "action": "Use the canonical beta score and cap reasons as the primary Phase 1 queue."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "score_cap_reasons",
+      "action": "Work the visible cap reasons in order instead of hiding them in Debug."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "provider_smoke",
+      "action": "Attach or generate formal provider smoke evidence; do not convert operator-reported PayPal into a pass."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "runtime_evidence",
+      "action": "Run formal deployed runtime smoke before marking runtime/provider smoke complete."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "admin_truth_samples",
+      "action": "Attach a fresh first-party admin truth sample before upgrading this gate."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "targeted_behavior_evidence",
+      "action": "Use targeted behavior as one gate only; keep visual, provider, runtime, and admin sample caps separate."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "creator_connection_audit",
+      "action": "Run npm run check:user-facing-feature-connection-audit when this stale warning must be refreshed."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "repo_spring_cleaning",
+      "action": "Run npm run check:repo-spring-cleaning-rewire when this stale warning must be refreshed."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "analytics_rewire",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "recovery_evidence",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "final_launch_readiness",
+      "action": "Run npm run check:final-launch-readiness-report when this stale warning must be refreshed."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "launch_readiness",
+      "action": "Run npm run check:launch-readiness-final when this stale warning must be refreshed."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "launch_pr_triage",
+      "action": "Run npm run check:launch-pr-triage when this stale warning must be refreshed."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_speed_security",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_codebase_hardening",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_device_ui",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_device_layout",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_hydration",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_google_cost",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_cloud_cost",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_sql_mirror",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_telemetry_parity",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_precatch_runtime",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_creator_lane",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_creator_lane_legacy",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P1",
+      "itemKey": "report_orphaned_logic",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P2",
+      "itemKey": "repo_spring_cleaning",
+      "action": "Run npm run check:repo-spring-cleaning-rewire when this stale warning must be refreshed."
+    },
+    {
+      "priority": "P2",
+      "itemKey": "report_sql_mirror",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P2",
+      "itemKey": "report_precatch_runtime",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P2",
+      "itemKey": "report_creator_lane",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    },
+    {
+      "priority": "P2",
+      "itemKey": "report_creator_lane_legacy",
+      "action": "Leave the item labeled as evidence or archive until a focused refresh command exists."
+    }
+  ]
+}

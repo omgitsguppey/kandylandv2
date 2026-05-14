@@ -147,6 +147,7 @@
         "check:math-goal-alignment": "tsx scripts/agent/validate-math-goal-alignment.ts",
         "legacy:admin-truth-contracts": "tsx scripts/check-admin-truth-contracts.ts",
         "check:admin-debug-control-tower": "tsx scripts/agent/validate-admin-debug-control-tower.ts",
+        "check:debug-panel-output-triage": "tsx scripts/agent/validate-debug-panel-output-triage.ts",
         "legacy:admin-debug-control-tower": "tsx scripts/agent/validate-admin-debug-control-tower.ts",
         "check:debug-control-tower-cutover": "tsx scripts/agent/validate-debug-control-tower-cutover.ts",
         "check:admin-ai-control-tower": "tsx scripts/agent/validate-admin-ai-control-tower.ts",
