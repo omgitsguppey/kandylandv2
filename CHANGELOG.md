@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 24 public updates in pages of 5.
 
+## 1.2.43 - 2026-05-14
+- Bug fixes and general improvements
+- Cleaned up the mobile Admin Analytics overview.
+- Moved technical snapshot details out of primary overview cards.
+- Made Live Pulse less noisy on mobile while keeping Debug details available.
+
 ## 1.2.42 - 2026-05-14
 - Bug fixes and general improvements
 - Consolidated the current operator doctrine for full-loop fixes.
@@ -140,8 +146,3 @@ Showing the last 24 public updates in pages of 5.
 - Bug fixes and quality-of-life improvements
 - Fixed beta issues to make KandyDrops smoother to use.
 - Improved reliability for the latest Beta build.
-
-## 1.17.0 - 2026-05-08
-- Improved navigation reliability
-- Improved how key app navigation surfaces stay in sync with the latest Beta build.
-- Reduced confusing status changes when opening update notes and top-level navigation lanes.

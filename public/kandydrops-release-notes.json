@@ -1,11 +1,56 @@
 {
-  "currentVersion": "1.2.42",
-  "betaReleaseCounter": 242,
+  "currentVersion": "1.2.43",
+  "betaReleaseCounter": 243,
   "channel": "beta",
-  "generatedAt": "2026-05-14T17:40:14.470Z",
-  "generatedAtUtc": "2026-05-14T17:40:14.470Z",
-  "lastCommitSha": "2b582f1e47844f9ded9b5ff0f9f5c0112f4d8944",
+  "generatedAt": "2026-05-14T19:07:42.736Z",
+  "generatedAtUtc": "2026-05-14T19:07:42.736Z",
+  "lastCommitSha": "f081f93010b8a6399b09626102b1dfd635ee73c7",
   "notes": [
+    {
+      "version": "1.2.43",
+      "previousVersion": "1.2.42",
+      "betaReleaseCounter": 243,
+      "previousBetaReleaseCounter": 242,
+      "commitSha": "f081f93010b8a6399b09626102b1dfd635ee73c7",
+      "commitTitle": "fix(admin): simplify mobile analytics overview",
+      "commitCount": 1,
+      "commitShas": [
+        "f081f93010b8a6399b09626102b1dfd635ee73c7"
+      ],
+      "committedAt": "2026-05-14T19:07:29.000Z",
+      "generatedAt": "2026-05-14T19:07:42.734Z",
+      "committedAtUtc": "2026-05-14T19:07:29.000Z",
+      "generatedAtUtc": "2026-05-14T19:07:42.734Z",
+      "updatedAtUtc": "2026-05-14T19:07:42.734Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Cleaned up the mobile Admin Analytics overview.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Cleaned up the mobile Admin Analytics overview.",
+        "Moved technical snapshot details out of primary overview cards.",
+        "Made Live Pulse less noisy on mobile while keeping Debug details available."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "package.json",
+        "scripts/agent/validate-admin-analytics-mobile-overview.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
+        "src/lib/analytics/admin-analytics-display-state.ts",
+        "tests/unit/admin-analytics-display-state.spec.ts",
+        "tests/unit/admin-analytics-live-pulse.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx"
+      ],
+      "sourceCommit": "f081f93010b8a6399b09626102b1dfd635ee73c7"
+    },
     {
       "version": "1.2.42",
       "previousVersion": "1.2.41",
@@ -1275,66 +1320,6 @@
       "excludedGeneratedChangeCount": 0,
       "bumpType": "minor",
       "sourceCommit": "cabf2e2d75570710d622b508955f5b92d3881fa8"
-    },
-    {
-      "version": "1.17.0",
-      "previousVersion": "1.16.0",
-      "betaReleaseCounter": 219,
-      "previousBetaReleaseCounter": 218,
-      "commitSha": "7dc85c6fef07f8e373215ff3437721e35deb596e",
-      "commitTitle": "fix(chat): refine ios pwa shell and media limits",
-      "commitCount": 1,
-      "commitShas": [
-        "7dc85c6fef07f8e373215ff3437721e35deb596e"
-      ],
-      "committedAt": "2026-05-08T07:18:44.000Z",
-      "generatedAt": "2026-05-08T07:36:22.243Z",
-      "committedAtUtc": "2026-05-08T07:18:44.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:22.243Z",
-      "updatedAtUtc": "2026-05-08T07:36:22.243Z",
-      "category": "Fixed",
-      "title": "Improved navigation reliability",
-      "summary": "Bug fixes and quality-of-life improvements for top-level navigation and Beta update access.",
-      "userFacingTitle": "Improved navigation reliability",
-      "surfaceCategory": "Navigation",
-      "bullets": [
-        "Improved how key app navigation surfaces stay in sync with the latest Beta build.",
-        "Reduced confusing status changes when opening update notes and top-level navigation lanes."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "chat-support",
-        "navigation"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "docs/agent-truth/chat-media-limits.md",
-        "docs/agent-truth/chat-shell-stability.md",
-        "docs/agent-truth/creator-fan-experience-settings.md",
-        "docs/agent-truth/user-creator-mobile-lock.md",
-        "package.json",
-        "scripts/agent/validate-ios-pwa-chat-refinements.ts",
-        "src/app/api/chat/attachments/complete/route.ts",
-        "src/app/api/chat/attachments/prepare/route.ts",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/components/Chat/ChatRouteShell.tsx",
-        "src/components/CoreLayoutWrapper.tsx",
-        "src/components/Navigation/MobileBottomBar.tsx",
-        "src/lib/chat-send-feedback.ts",
-        "src/lib/chat.ts",
-        "src/lib/chat/chat-media-limits.ts",
-        "src/lib/device-layout-contract.ts",
-        "src/lib/server/chat-media-limit-policy.ts",
-        "src/lib/server/chat.ts",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/user-mobile-shell.ts",
-        "tests/unit/chat-ios-pwa-detection.spec.ts",
-        "tests/unit/chat-media-limits.spec.ts"
-      ],
-      "effectiveChangeCount": 830,
-      "excludedGeneratedChangeCount": 0,
-      "bumpType": "minor",
-      "sourceCommit": "7dc85c6fef07f8e373215ff3437721e35deb596e"
     }
   ]
 }
