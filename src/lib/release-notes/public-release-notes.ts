@@ -1,13 +1,59 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.43",
-  "betaReleaseCounter": 243,
+  "currentVersion": "1.2.44",
+  "betaReleaseCounter": 244,
   "channel": "beta",
-  "generatedAt": "2026-05-14T19:07:42.736Z",
-  "generatedAtUtc": "2026-05-14T19:07:42.736Z",
-  "lastCommitSha": "f081f93010b8a6399b09626102b1dfd635ee73c7",
+  "generatedAt": "2026-05-14T19:56:39.581Z",
+  "generatedAtUtc": "2026-05-14T19:56:39.581Z",
+  "lastCommitSha": "d75e1f4cf4276ee9e649fc412be344f121adffd6",
   "notes": [
+    {
+      "version": "1.2.44",
+      "previousVersion": "1.2.43",
+      "betaReleaseCounter": 244,
+      "previousBetaReleaseCounter": 243,
+      "commitSha": "d75e1f4cf4276ee9e649fc412be344f121adffd6",
+      "commitTitle": "fix(admin): compact analytics operations mobile panels",
+      "commitCount": 1,
+      "commitShas": [
+        "d75e1f4cf4276ee9e649fc412be344f121adffd6"
+      ],
+      "committedAt": "2026-05-14T19:56:27.000Z",
+      "generatedAt": "2026-05-14T19:56:39.575Z",
+      "committedAtUtc": "2026-05-14T19:56:27.000Z",
+      "generatedAtUtc": "2026-05-14T19:56:39.575Z",
+      "updatedAtUtc": "2026-05-14T19:56:39.575Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Made Admin Analytics operation panels more compact on mobile.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Made Admin Analytics operation panels more compact on mobile.",
+        "Stopped unavailable event-chain data from showing as errors or fake zero math.",
+        "Added clearer tracking explanations when a metric cannot be measured exactly yet."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "docs/agent-truth/admin-analytics-journey-funnel.md",
+        "docs/agent-truth/admin-analytics-truth.md",
+        "package.json",
+        "scripts/agent/validate-admin-analytics-operations-mobile.ts",
+        "scripts/check-admin-analytics-live-pulse.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/admin-analytics-live-pulse.ts",
+        "tests/unit/admin-analytics-journey-funnel.spec.ts",
+        "tests/unit/admin-analytics-live-pulse.spec.ts"
+      ],
+      "sourceCommit": "d75e1f4cf4276ee9e649fc412be344f121adffd6"
+    },
     {
       "version": "1.2.43",
       "previousVersion": "1.2.42",
@@ -1278,50 +1324,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 10455,
       "bumpType": "none",
       "sourceCommit": "f56b3cdcede051a7a9d3be6a7f878bcdc7f702b8"
-    },
-    {
-      "version": "1.18.0",
-      "previousVersion": "1.17.0",
-      "betaReleaseCounter": 220,
-      "previousBetaReleaseCounter": 219,
-      "commitSha": "cabf2e2d75570710d622b508955f5b92d3881fa8",
-      "commitTitle": "fix(home): reduce mobile section sprawl",
-      "commitCount": 1,
-      "commitShas": [
-        "cabf2e2d75570710d622b508955f5b92d3881fa8"
-      ],
-      "committedAt": "2026-05-08T07:22:06.000Z",
-      "generatedAt": "2026-05-08T07:36:22.419Z",
-      "committedAtUtc": "2026-05-08T07:22:06.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:22.419Z",
-      "updatedAtUtc": "2026-05-08T07:36:22.419Z",
-      "category": "Fixed",
-      "title": "Bug fixes and quality-of-life improvements",
-      "summary": "Bug fixes and quality-of-life improvements.",
-      "userFacingTitle": "Bug fixes and quality-of-life improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Fixed beta issues to make KandyDrops smoother to use.",
-        "Improved reliability for the latest Beta build."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "docs/agent-truth/homepage-mobile-density.md",
-        "docs/agent-truth/user-critical-path-lock.md",
-        "package.json",
-        "scripts/agent/validate-homepage-mobile-density.ts",
-        "src/app/page.tsx",
-        "src/components/CreatorDiscoveryRail.tsx",
-        "src/components/Landing/HowItWorks.tsx"
-      ],
-      "effectiveChangeCount": 182,
-      "excludedGeneratedChangeCount": 0,
-      "bumpType": "minor",
-      "sourceCommit": "cabf2e2d75570710d622b508955f5b92d3881fa8"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

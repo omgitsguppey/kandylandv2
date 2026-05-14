@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 24 public updates in pages of 5.
 
+## 1.2.44 - 2026-05-14
+- Bug fixes and general improvements
+- Made Admin Analytics operation panels more compact on mobile.
+- Stopped unavailable event-chain data from showing as errors or fake zero math.
+- Added clearer tracking explanations when a metric cannot be measured exactly yet.
+
 ## 1.2.43 - 2026-05-14
 - Bug fixes and general improvements
 - Cleaned up the mobile Admin Analytics overview.
@@ -141,8 +147,3 @@ Showing the last 24 public updates in pages of 5.
 - Improved chat media sizing and message-thread scrolling.
 - Improved guest analytics and admin truth checks behind the scenes.
 - Updated Beta readiness evidence so stale or missing launch evidence stays visible.
-
-## 1.18.0 - 2026-05-08
-- Bug fixes and quality-of-life improvements
-- Fixed beta issues to make KandyDrops smoother to use.
-- Improved reliability for the latest Beta build.
