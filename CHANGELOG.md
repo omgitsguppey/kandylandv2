@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 24 public updates in pages of 5.
 
+## 1.2.35 - 2026-05-14
+- Bug fixes and general improvements
+- Added a spring-cleaning inventory for stale reports, docs, validators, and disconnected UI lanes.
+- Mapped cleanup candidates without deleting runtime code.
+- Kept Phase 1 blocker fixes separate from repo cleanup work.
+
 ## 1.2.34 - 2026-05-14
 - Bug fixes and general improvements
 - Added a triage pass for beta score math and evidence wiring.
@@ -132,8 +138,3 @@ Showing the last 24 public updates in pages of 5.
 - Improved navigation reliability
 - Improved how key app navigation surfaces stay in sync with the latest Beta build.
 - Reduced confusing status changes when opening update notes and top-level navigation lanes.
-
-## 1.9.0 - 2026-05-08
-- Improved daily task reliability
-- Improved daily task reliability so check-ins and task progress stay clearer.
-- Reduced confusing refresh states around daily rewards and task completion.

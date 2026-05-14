@@ -1,13 +1,56 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.34",
-  "betaReleaseCounter": 234,
+  "currentVersion": "1.2.35",
+  "betaReleaseCounter": 235,
   "channel": "beta",
-  "generatedAt": "2026-05-14T04:08:00.713Z",
-  "generatedAtUtc": "2026-05-14T04:08:00.713Z",
-  "lastCommitSha": "2570b5dda615c39a02af5260f5f3760ba3f0192f",
+  "generatedAt": "2026-05-14T05:46:42.284Z",
+  "generatedAtUtc": "2026-05-14T05:46:42.284Z",
+  "lastCommitSha": "99658a428a64299ff4206c58c21a758032e26ecb",
   "notes": [
+    {
+      "version": "1.2.35",
+      "previousVersion": "1.2.34",
+      "betaReleaseCounter": 235,
+      "previousBetaReleaseCounter": 234,
+      "commitSha": "99658a428a64299ff4206c58c21a758032e26ecb",
+      "commitTitle": "chore(repo): add spring cleaning rewire inventory",
+      "commitCount": 1,
+      "commitShas": [
+        "99658a428a64299ff4206c58c21a758032e26ecb"
+      ],
+      "committedAt": "2026-05-14T05:45:28.000Z",
+      "generatedAt": "2026-05-14T05:46:42.281Z",
+      "committedAtUtc": "2026-05-14T05:45:28.000Z",
+      "generatedAtUtc": "2026-05-14T05:46:42.281Z",
+      "updatedAtUtc": "2026-05-14T05:46:42.281Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added a spring-cleaning inventory for stale reports, docs, validators, and disconnected UI lanes.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added a spring-cleaning inventory for stale reports, docs, validators, and disconnected UI lanes.",
+        "Mapped cleanup candidates without deleting runtime code.",
+        "Kept Phase 1 blocker fixes separate from repo cleanup work."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "EVERY_FILE_FUNCTION_CHECKLIST.md",
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "REPO_MEMORY_LEDGER.md",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "docs/agent-truth/repo-spring-cleaning-rewire.md",
+        "package.json",
+        "scripts/agent/validate-repo-spring-cleaning-rewire.ts",
+        "tests/unit/repo-spring-cleaning-rewire.spec.ts"
+      ],
+      "sourceCommit": "99658a428a64299ff4206c58c21a758032e26ecb"
+    },
     {
       "version": "1.2.34",
       "previousVersion": "1.2.33",
@@ -1405,64 +1448,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 146,
       "bumpType": "minor",
       "sourceCommit": "ba9015d2c2c589e1fb9420e1ae316ed9ad1c28e8"
-    },
-    {
-      "version": "1.9.0",
-      "previousVersion": "1.8.0",
-      "betaReleaseCounter": 211,
-      "previousBetaReleaseCounter": 210,
-      "commitSha": "4c66907a1bacb3e1c65e1e9b862fe8674b7c0f6d",
-      "commitTitle": "refactor(tasks): replace daily task engine",
-      "commitCount": 1,
-      "commitShas": [
-        "4c66907a1bacb3e1c65e1e9b862fe8674b7c0f6d"
-      ],
-      "committedAt": "2026-05-08T05:34:18.000Z",
-      "generatedAt": "2026-05-08T07:36:20.763Z",
-      "committedAtUtc": "2026-05-08T05:34:18.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:20.763Z",
-      "updatedAtUtc": "2026-05-08T07:36:20.763Z",
-      "category": "Improved",
-      "title": "Improved daily task reliability",
-      "summary": "Bug fixes and quality-of-life improvements for daily tasks and check-ins.",
-      "userFacingTitle": "Improved daily task reliability",
-      "surfaceCategory": "Daily tasks",
-      "bullets": [
-        "Improved daily task reliability so check-ins and task progress stay clearer.",
-        "Reduced confusing refresh states around daily rewards and task completion."
-      ],
-      "audience": "users",
-      "affectedSurfaces": [
-        "account-onboarding",
-        "daily-tasks"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/context/optimized-task-context.generated.json",
-        "docs/agent-truth/daily-task-engine.md",
-        "docs/agent-truth/daily-task-pipeline.md",
-        "docs/agent-truth/gumdrop-source-of-funds-truth.md",
-        "docs/agent-truth/user-critical-path-lock.md",
-        "package.json",
-        "scripts/agent/validate-daily-task-engine-rewrite.ts",
-        "src/app/api/tasks/rotate/route.ts",
-        "src/components/Dashboard/DailyTasksModule.tsx",
-        "src/lib/server/daily-task-runtime.ts",
-        "src/lib/server/daily-tasks.ts",
-        "src/lib/tasks/daily-task-assignment-engine.ts",
-        "src/lib/tasks/daily-task-legacy-registry.ts",
-        "src/lib/tasks/daily-task-reward-contract.ts",
-        "src/lib/tasks/daily-task-window-contract.ts",
-        "src/lib/tasks/task-catalog.ts",
-        "src/lib/tasks/task-observability.ts",
-        "src/lib/telemetry-catalog.ts",
-        "tests/unit/daily-task-engine.spec.ts",
-        "tests/unit/daily-tasks-idempotency.spec.ts"
-      ],
-      "effectiveChangeCount": 1923,
-      "excludedGeneratedChangeCount": 2,
-      "bumpType": "minor",
-      "sourceCommit": "4c66907a1bacb3e1c65e1e9b862fe8674b7c0f6d"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
