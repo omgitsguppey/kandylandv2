@@ -1,13 +1,52 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.37",
-  "betaReleaseCounter": 237,
+  "currentVersion": "1.2.38",
+  "betaReleaseCounter": 238,
   "channel": "beta",
-  "generatedAt": "2026-05-14T13:53:26.055Z",
-  "generatedAtUtc": "2026-05-14T13:53:26.055Z",
-  "lastCommitSha": "470ce04ab355dd9a21afc4f57118b1e46311ea3c",
+  "generatedAt": "2026-05-14T14:05:59.631Z",
+  "generatedAtUtc": "2026-05-14T14:05:59.631Z",
+  "lastCommitSha": "4f313a98a68ca04b4aab6fa5f6012c34212cb889",
   "notes": [
+    {
+      "version": "1.2.38",
+      "previousVersion": "1.2.37",
+      "betaReleaseCounter": 238,
+      "previousBetaReleaseCounter": 237,
+      "commitSha": "4f313a98a68ca04b4aab6fa5f6012c34212cb889",
+      "commitTitle": "fix(admin): show canonical beta score in debug",
+      "commitCount": 1,
+      "commitShas": [
+        "4f313a98a68ca04b4aab6fa5f6012c34212cb889"
+      ],
+      "committedAt": "2026-05-14T14:05:35.000Z",
+      "generatedAt": "2026-05-14T14:05:59.628Z",
+      "committedAtUtc": "2026-05-14T14:05:35.000Z",
+      "generatedAtUtc": "2026-05-14T14:05:59.628Z",
+      "updatedAtUtc": "2026-05-14T14:05:59.628Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Connected Admin Debug to the canonical beta readiness score.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Connected Admin Debug to the canonical beta readiness score.",
+        "Separated report averages from the real public beta score.",
+        "Made score cap reasons easier to see in Debug."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "scripts/agent/validate-admin-debug-control-tower.ts",
+        "src/app/admin/debug/components/DebugControlTower.tsx",
+        "src/lib/admin-debug-control-tower.ts",
+        "tests/unit/admin-debug-control-tower.spec.ts"
+      ],
+      "sourceCommit": "4f313a98a68ca04b4aab6fa5f6012c34212cb889"
+    },
     {
       "version": "1.2.37",
       "previousVersion": "1.2.36",
@@ -1332,63 +1371,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "excludedGeneratedChangeCount": 84,
       "bumpType": "minor",
       "sourceCommit": "a8b4970a94030a87372763b8ea4292c7c79d8820"
-    },
-    {
-      "version": "1.12.0",
-      "previousVersion": "1.11.0",
-      "betaReleaseCounter": 214,
-      "previousBetaReleaseCounter": 213,
-      "commitSha": "806753aee0f5fb8e62824be5acb0cf8609c3d0a8",
-      "commitTitle": "refactor(analytics): cut over user tracking indexes",
-      "commitCount": 1,
-      "commitShas": [
-        "806753aee0f5fb8e62824be5acb0cf8609c3d0a8"
-      ],
-      "committedAt": "2026-05-08T06:28:31.000Z",
-      "generatedAt": "2026-05-08T07:36:21.323Z",
-      "committedAtUtc": "2026-05-08T06:28:31.000Z",
-      "generatedAtUtc": "2026-05-08T07:36:21.323Z",
-      "updatedAtUtc": "2026-05-08T07:36:21.323Z",
-      "category": "Improved",
-      "title": "Bug fixes and quality-of-life improvements",
-      "summary": "Bug fixes and quality-of-life improvements.",
-      "userFacingTitle": "Bug fixes and quality-of-life improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Fixed beta issues to make KandyDrops smoother to use.",
-        "Improved reliability for the latest Beta build."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/user-tracking-index-cutover.generated.json",
-        "docs/agent-truth/analytics-truth-layer-v2.md",
-        "docs/agent-truth/behavioral-math-calibration.md",
-        "docs/agent-truth/guest-user-analytics-cutover.md",
-        "docs/agent-truth/user-tracking-indexes.md",
-        "package.json",
-        "scripts/agent/score-user-tracking-indexes.ts",
-        "scripts/agent/validate-user-tracking-index-cutover.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/lib/server/analytics-governance.ts",
-        "src/lib/server/analytics-identity-linking.ts",
-        "src/lib/server/user-index-materializer.ts",
-        "src/lib/server/user-index-reader.ts",
-        "src/lib/server/user-index-writer.ts",
-        "src/lib/user-indexes/user-index-legacy-registry.ts",
-        "src/lib/user-indexes/user-index-normalizer.ts",
-        "src/lib/user-indexes/user-tracking-index-contract.ts",
-        "tests/unit/analytics-ingest-identified-route.spec.ts",
-        "tests/unit/user-index-normalizer.spec.ts"
-      ],
-      "effectiveChangeCount": 988,
-      "excludedGeneratedChangeCount": 84,
-      "bumpType": "minor",
-      "sourceCommit": "806753aee0f5fb8e62824be5acb0cf8609c3d0a8"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

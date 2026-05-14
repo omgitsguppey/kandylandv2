@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 24 public updates in pages of 5.
 
+## 1.2.38 - 2026-05-14
+- Bug fixes and general improvements
+- Connected Admin Debug to the canonical beta readiness score.
+- Separated report averages from the real public beta score.
+- Made score cap reasons easier to see in Debug.
+
 ## 1.2.37 - 2026-05-14
 - Bug fixes and general improvements
 - Locked watch-time reporting to verified watch-session data.
@@ -132,11 +138,6 @@ Showing the last 24 public updates in pages of 5.
 - Improved reliability for the latest Beta build.
 
 ## 1.13.0 - 2026-05-08
-- Bug fixes and quality-of-life improvements
-- Fixed beta issues to make KandyDrops smoother to use.
-- Improved reliability for the latest Beta build.
-
-## 1.12.0 - 2026-05-08
 - Bug fixes and quality-of-life improvements
 - Fixed beta issues to make KandyDrops smoother to use.
 - Improved reliability for the latest Beta build.
