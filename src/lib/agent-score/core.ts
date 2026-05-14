@@ -32,9 +32,36 @@ export type PublicBetaGeneratedReportEvidence = {
   currentHead?: string;
 };
 
+export type PublicBetaEvidenceStatus =
+  | "missing_formal_evidence"
+  | "operator_reported_not_formal_provider_smoke"
+  | "runtime_unverified"
+  | "missing_or_unknown"
+  | "passed"
+  | "failed"
+  | "stale"
+  | "unavailable"
+  | "needs_review"
+  | "tracked_not_passing";
+
+export type PublicBetaEvidenceArtifact = {
+  path: string;
+  status: PublicBetaEvidenceStatus | string;
+  passed: boolean;
+  detail: string;
+  evidence: string[];
+  generatedAtUtc?: string;
+  sourceCommit?: string;
+};
+
 export type PublicBetaEvidenceInput = {
   requiredReports?: PublicBetaGeneratedReportEvidence[];
   debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
+  targetedBehaviorEvidence?: PublicBetaEvidenceArtifact;
+  visualManualEvidence?: PublicBetaEvidenceArtifact;
+  providerSmokeEvidence?: PublicBetaEvidenceArtifact;
+  runtimeSmokeEvidence?: PublicBetaEvidenceArtifact;
+  adminTruthSampleEvidence?: PublicBetaEvidenceArtifact;
   hasTargetedBehaviorEvidence?: boolean;
   hasVisualManualEvidence?: boolean;
   hasProviderSmokeEvidence?: boolean;
@@ -87,6 +114,7 @@ export type PublicBetaScoreReport = {
   evidenceScore: number;
   evidenceGates: PublicBetaEvidenceGate[];
   evidenceCapsApplied: string[];
+  evidenceCapDetails: string[];
   evidenceWeights: typeof PUBLIC_BETA_EVIDENCE_WEIGHTS;
   domainScores: Record<PublicBetaDomain, {
     weight: number;
@@ -214,9 +242,59 @@ function capForReadinessStatus(status: PublicBetaReadinessStatus) {
   }
 }
 
+const NON_PASSING_EVIDENCE_STATUSES = new Set<string>([
+  "missing_formal_evidence",
+  "operator_reported_not_formal_provider_smoke",
+  "runtime_unverified",
+  "missing_or_unknown",
+  "failed",
+  "stale",
+  "unavailable",
+  "needs_review",
+  "tracked_not_passing",
+]);
+
+export function evidenceArtifactPassed(
+  artifact: PublicBetaEvidenceArtifact | undefined,
+  fallbackBoolean?: boolean,
+) {
+  if (!artifact) return fallbackBoolean === true;
+  return artifact.passed === true && !NON_PASSING_EVIDENCE_STATUSES.has(String(artifact.status));
+}
+
+export function evidenceArtifactStatus(
+  artifact: PublicBetaEvidenceArtifact | undefined,
+  fallbackStatus = "missing_formal_evidence",
+) {
+  return artifact?.status ?? fallbackStatus;
+}
+
+export function evidenceArtifactDetail(
+  artifact: PublicBetaEvidenceArtifact | undefined,
+  fallbackDetail: string,
+) {
+  return artifact?.detail || fallbackDetail;
+}
+
+export function evidenceArtifactEvidence(artifact: PublicBetaEvidenceArtifact | undefined) {
+  if (!artifact) return [];
+  return Array.from(new Set([
+    `artifactPath=${artifact.path}`,
+    `artifactStatus=${artifact.status}`,
+    `artifactPassed=${artifact.passed}`,
+    ...(artifact.generatedAtUtc ? [`generatedAtUtc=${artifact.generatedAtUtc}`] : []),
+    ...(artifact.sourceCommit ? [`sourceCommit=${artifact.sourceCommit}`] : []),
+    `artifactDetail=${artifact.detail}`,
+    ...artifact.evidence,
+  ]));
+}
+
 function hasDebugEvidence(debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>) {
   if (!debugEvidence) return false;
-  return Object.values(debugEvidence).some((entries) => Array.isArray(entries) && entries.length > 0);
+  for (const entries of Object.values(debugEvidence)) {
+    if (Array.isArray(entries) && entries.length > 0) return true;
+  }
+  return false;
 }
 
 function summarizeRequiredReportEvidence(reports: PublicBetaGeneratedReportEvidence[] | undefined) {
@@ -298,6 +376,81 @@ export function buildPublicBetaEvidenceGates(input: {
       : evidence.openPrTriageFresh === false
         ? "Open PR triage is stale or not tied to current HEAD."
         : reportEvidence.detail;
+  const targetedBehaviorPassed = evidenceArtifactPassed(
+    evidence.targetedBehaviorEvidence,
+    evidence.hasTargetedBehaviorEvidence,
+  );
+  const targetedBehaviorDetail = evidenceArtifactDetail(
+    evidence.targetedBehaviorEvidence,
+    targetedBehaviorPassed
+      ? "Targeted behavior evidence was supplied."
+      : "No formal targeted behavior evidence artifact was supplied.",
+  );
+  const targetedBehaviorEvidence = evidence.targetedBehaviorEvidence
+    ? evidenceArtifactEvidence(evidence.targetedBehaviorEvidence)
+    : ["targetedBehaviorArtifactStatus=missing_formal_evidence"];
+
+  const visualManualPassed = evidenceArtifactPassed(evidence.visualManualEvidence, evidence.hasVisualManualEvidence);
+  const visualManualDetail = evidenceArtifactDetail(
+    evidence.visualManualEvidence,
+    visualManualPassed
+      ? "Visual/manual smoke evidence was supplied."
+      : "No valid visual/manual evidence artifact was supplied.",
+  );
+  const visualManualEvidence = evidence.visualManualEvidence
+    ? evidenceArtifactEvidence(evidence.visualManualEvidence)
+    : ["visualManualArtifactStatus=missing_formal_evidence"];
+
+  const artifactBackedSmoke = Boolean(evidence.providerSmokeEvidence || evidence.runtimeSmokeEvidence);
+  const providerSmokePassed = evidenceArtifactPassed(
+    evidence.providerSmokeEvidence,
+    artifactBackedSmoke ? false : evidence.hasProviderSmokeEvidence,
+  );
+  const runtimeSmokePassed = evidenceArtifactPassed(
+    evidence.runtimeSmokeEvidence,
+    artifactBackedSmoke ? false : evidence.hasProviderSmokeEvidence,
+  );
+  const providerSmokeStatus = String(evidenceArtifactStatus(evidence.providerSmokeEvidence));
+  const runtimeSmokeStatus = String(evidenceArtifactStatus(evidence.runtimeSmokeEvidence, "runtime_unverified"));
+  const runtimeProviderSmokePassed = providerSmokePassed && runtimeSmokePassed;
+  const runtimeProviderSmokeStatus: PublicBetaReadinessStatus = runtimeProviderSmokePassed
+    ? "Ready"
+    : runtimeSmokeStatus === "runtime_unverified"
+      ? "Runtime unverified"
+      : "Ready with smoke required";
+  const providerSmokeDetail = evidenceArtifactDetail(
+    evidence.providerSmokeEvidence,
+    providerSmokePassed ? "Provider smoke evidence was supplied." : "No formal provider smoke evidence artifact was supplied.",
+  );
+  const runtimeSmokeDetail = evidenceArtifactDetail(
+    evidence.runtimeSmokeEvidence,
+    runtimeSmokePassed ? "Runtime smoke evidence was supplied." : "No formal runtime smoke evidence artifact was supplied.",
+  );
+  const runtimeProviderSmokeDetail = runtimeProviderSmokePassed
+    ? "Provider and runtime smoke artifacts passed."
+    : `Provider smoke: ${providerSmokeDetail} Runtime smoke: ${runtimeSmokeDetail}`;
+  const runtimeProviderSmokeEvidence = Array.from(new Set([
+    `providerArtifactStatus=${providerSmokeStatus}`,
+    `runtimeArtifactStatus=${runtimeSmokeStatus}`,
+    ...evidenceArtifactEvidence(evidence.providerSmokeEvidence),
+    ...evidenceArtifactEvidence(evidence.runtimeSmokeEvidence),
+  ]));
+
+  const adminTruthSamplePassed = evidenceArtifactPassed(
+    evidence.adminTruthSampleEvidence,
+    evidence.hasAdminTruthSampleEvidence,
+  );
+  const adminTruthSampleStatus = String(evidenceArtifactStatus(evidence.adminTruthSampleEvidence, "missing_or_unknown"));
+  const adminTruthSampleDetail = evidenceArtifactDetail(
+    evidence.adminTruthSampleEvidence,
+    adminTruthSamplePassed
+      ? "Admin truth/sample evidence was supplied."
+      : "No admin truth sample evidence artifact was supplied.",
+  );
+  const adminTruthSampleEvidence = Array.from(new Set([
+    `adminTruthSampleArtifactStatus=${adminTruthSampleStatus}`,
+    ...evidenceArtifactEvidence(evidence.adminTruthSampleEvidence),
+  ]));
 
   const gates: PublicBetaEvidenceGate[] = [
     {
@@ -316,48 +469,40 @@ export function buildPublicBetaEvidenceGates(input: {
       id: "targetedBehaviorTests",
       label: "Targeted behavior tests",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.targetedBehaviorTests,
-      score: evidence.hasTargetedBehaviorEvidence ? PUBLIC_BETA_EVIDENCE_WEIGHTS.targetedBehaviorTests : 0,
-      status: evidence.hasTargetedBehaviorEvidence ? "Ready" : "Unknown evidence",
-      detail: evidence.hasTargetedBehaviorEvidence
-        ? "Targeted behavior evidence was supplied."
-        : "No fresh targeted behavior test evidence was supplied to the score.",
-      evidence: [],
+      score: targetedBehaviorPassed ? PUBLIC_BETA_EVIDENCE_WEIGHTS.targetedBehaviorTests : 0,
+      status: targetedBehaviorPassed ? "Ready" : "Unknown evidence",
+      detail: targetedBehaviorDetail,
+      evidence: targetedBehaviorEvidence,
       recommendedAction: "Run the targeted validators for the changed surface and regenerate the score with fresh evidence metadata.",
     },
     {
       id: "visualManualSmoke",
       label: "Visual/manual smoke",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.visualManualSmoke,
-      score: evidence.hasVisualManualEvidence ? PUBLIC_BETA_EVIDENCE_WEIGHTS.visualManualSmoke : 0,
-      status: evidence.hasVisualManualEvidence ? "Ready" : "Visual QA required",
-      detail: evidence.hasVisualManualEvidence
-        ? "Visual/manual smoke evidence was supplied."
-        : "No screenshot or manual user-critical-path visual evidence was supplied.",
-      evidence: [],
+      score: visualManualPassed ? PUBLIC_BETA_EVIDENCE_WEIGHTS.visualManualSmoke : 0,
+      status: visualManualPassed ? "Ready" : "Visual QA required",
+      detail: visualManualDetail,
+      evidence: visualManualEvidence,
       recommendedAction: "Record targeted manual or screenshot evidence for user-critical surfaces before calling the score ready.",
     },
     {
       id: "runtimeProviderSmoke",
       label: "Runtime/provider smoke",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.runtimeProviderSmoke,
-      score: evidence.hasProviderSmokeEvidence ? PUBLIC_BETA_EVIDENCE_WEIGHTS.runtimeProviderSmoke : 0,
-      status: evidence.hasProviderSmokeEvidence ? "Ready" : "Ready with smoke required",
-      detail: evidence.hasProviderSmokeEvidence
-        ? "Provider/runtime smoke evidence was supplied."
-        : "No live provider smoke evidence was supplied.",
-      evidence: [],
+      score: runtimeProviderSmokePassed ? PUBLIC_BETA_EVIDENCE_WEIGHTS.runtimeProviderSmoke : 0,
+      status: runtimeProviderSmokeStatus,
+      detail: runtimeProviderSmokeDetail,
+      evidence: runtimeProviderSmokeEvidence,
       recommendedAction: "Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
     },
     {
       id: "adminTruthSamples",
       label: "Admin truth/sample evidence",
       weight: PUBLIC_BETA_EVIDENCE_WEIGHTS.adminTruthSamples,
-      score: evidence.hasAdminTruthSampleEvidence ? PUBLIC_BETA_EVIDENCE_WEIGHTS.adminTruthSamples : 0,
-      status: evidence.hasAdminTruthSampleEvidence ? "Ready" : "Unknown evidence",
-      detail: evidence.hasAdminTruthSampleEvidence
-        ? "Admin truth/sample evidence was supplied."
-        : "No admin truth sample evidence was supplied.",
-      evidence: [],
+      score: adminTruthSamplePassed ? PUBLIC_BETA_EVIDENCE_WEIGHTS.adminTruthSamples : 0,
+      status: adminTruthSamplePassed ? "Ready" : "Unknown evidence",
+      detail: adminTruthSampleDetail,
+      evidence: adminTruthSampleEvidence,
       recommendedAction: "Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
     },
     {
@@ -402,6 +547,9 @@ export function buildPublicBetaEvidenceGates(input: {
   const caps = gates
     .filter((gate) => gate.status !== "Ready")
     .map((gate) => `${gate.status}: ${gate.label}`);
+  const evidenceCapDetails = gates
+    .filter((gate) => gate.status !== "Ready")
+    .map((gate) => `${gate.status}: ${gate.label} - ${gate.detail}`);
   const readinessCap = capForReadinessStatus(readinessStatus);
 
   return {
@@ -410,6 +558,7 @@ export function buildPublicBetaEvidenceGates(input: {
     readinessStatusReason: gates.find((gate) => gate.status === readinessStatus)?.detail ?? "Evidence gates passed.",
     evidenceGates: gates,
     evidenceCapsApplied: caps,
+    evidenceCapDetails,
     cappedScore: readinessStatus === "Ready" ? input.scannerScore : Math.min(input.scannerScore, readinessCap, evidenceScore),
   };
 }
@@ -578,6 +727,7 @@ export function buildPublicBetaScoreReport(
     evidenceScore: evidenceReadiness.evidenceScore,
     evidenceGates: evidenceReadiness.evidenceGates,
     evidenceCapsApplied: evidenceReadiness.evidenceCapsApplied,
+    evidenceCapDetails: evidenceReadiness.evidenceCapDetails,
     evidenceWeights: PUBLIC_BETA_EVIDENCE_WEIGHTS,
     domainScores,
     findings,

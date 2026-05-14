@@ -74,6 +74,12 @@ Evidence-weighted readiness model:
 
 Generated reports are evidence snapshots, not doctrine. Reports older than 24 hours must be regenerated or treated as stale evidence before a readiness claim is trusted.
 
+## Formal Evidence Artifact Doctrine
+
+The beta score must read formal evidence artifacts directly. Provider smoke no longer comes from final launch report string parsing. Operator-reported PayPal is tracked, not passing. Local static validators are not runtime smoke. Admin truth sample evidence comes from `agent/state/admin-truth-sample-evidence.generated.json`, not debug entries. Targeted behavior evidence needs its own artifact; absence remains non-passing. Visual/manual evidence needs schema validation; file existence is not enough.
+
+Score may remain low after artifact ingestion because missing evidence is still missing. The score must explain which artifact was read, the artifact status, and why each evidence gate is ready or blocked.
+
 ## Autofix Policy
 
 `repair:beta` is dry-run by default. `repair:beta -- --apply` may only apply fixes that pass the shared gate in `src/lib/agent-score/autofix.ts`.
@@ -151,3 +157,19 @@ Formal local evidence artifacts now exist for the remaining smoke lanes:
 These artifacts intentionally do not clear provider, PayPal, deployed runtime, real-device, visual QA, or admin truth sample gates. PayPal refill remains `operator_reported_not_formal_provider_smoke`; provider smoke remains `missing_formal_evidence`; runtime remains `runtime_unverified`; admin truth samples remain `missing_or_unknown`.
 
 After this evidence tracking pass, `npm run score:beta` still reports 25/100 overall, 25/100 evidence score, and 100/100 scanner-only score. The honest status remains `Stale evidence`.
+
+## 2026-05-14 Score Evidence Ingestion Fix
+
+`npm run score:beta` now reads formal evidence artifacts directly:
+
+- `agent/state/provider-smoke-evidence.generated.json`
+- `agent/state/runtime-smoke-evidence.generated.json`
+- `agent/state/admin-truth-sample-evidence.generated.json`
+- `agent/state/targeted-behavior-evidence.generated.json`
+- visual/manual evidence artifacts when a valid schema-backed artifact exists
+
+The score no longer awards provider smoke from final launch readiness report text, targeted behavior from a hardcoded boolean, admin truth samples from debug-entry presence, or visual/manual evidence from file existence alone.
+
+After this ingestion fix, `npm run score:beta` still reports 25/100 overall, 25/100 evidence score, and 100/100 scanner-only score. The score remains capped because the formal artifacts still say targeted behavior is missing, visual/manual smoke is missing, provider smoke is missing with PayPal only operator-reported, runtime smoke is `runtime_unverified`, admin truth samples are `missing_or_unknown`, and required generated reports are stale.
+
+`evidenceCapDetails` now records every active cap with the gate label and detail so operators can see which formal artifact is blocking each gate.

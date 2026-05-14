@@ -128,6 +128,11 @@ if (report) {
   if (!Array.isArray(report.evidenceCapsApplied)) {
     failures.push("evidenceCapsApplied must be an array.");
   }
+  if (!Array.isArray(report.evidenceCapDetails)) {
+    failures.push("evidenceCapDetails must be an array.");
+  } else if (report.evidenceCapDetails.length < report.evidenceCapsApplied.length) {
+    failures.push("evidenceCapDetails must include at least every active evidence cap.");
+  }
   if (!report.evidenceWeights || typeof report.evidenceWeights !== "object") {
     failures.push("evidenceWeights must be present.");
   }
@@ -157,6 +162,46 @@ if (report) {
   const debugEvidenceEmpty = Object.values(debugEvidence).every((entries) => Array.isArray(entries) && entries.length === 0);
   if (debugEvidenceEmpty && !hasEmptyDebugGate) {
     failures.push("Empty debugEvidence must be represented as Unknown evidence.");
+  }
+  const runtimeProviderSmokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+  if (!runtimeProviderSmokeGate) {
+    failures.push("runtimeProviderSmoke gate must be present.");
+  } else {
+    const runtimeProviderEvidence = runtimeProviderSmokeGate.evidence.join("\n");
+    requireIncludes(runtimeProviderEvidence, "providerArtifactStatus=", "runtimeProviderSmoke evidence");
+    requireIncludes(runtimeProviderEvidence, "runtimeArtifactStatus=", "runtimeProviderSmoke evidence");
+    if (
+      runtimeProviderSmokeGate.status === "Ready"
+      && /providerArtifactStatus=(operator_reported_not_formal_provider_smoke|missing_formal_evidence)/u.test(runtimeProviderEvidence)
+    ) {
+      failures.push("Provider smoke gate cannot be Ready when provider artifact is missing or operator-reported.");
+    }
+    if (
+      runtimeProviderSmokeGate.status === "Ready"
+      && /runtimeArtifactStatus=runtime_unverified/u.test(runtimeProviderEvidence)
+    ) {
+      failures.push("Runtime smoke gate cannot be Ready when runtime artifact is runtime_unverified.");
+    }
+  }
+  const adminTruthSamplesGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
+  if (!adminTruthSamplesGate) {
+    failures.push("adminTruthSamples gate must be present.");
+  } else {
+    const adminTruthEvidence = adminTruthSamplesGate.evidence.join("\n");
+    requireIncludes(adminTruthEvidence, "adminTruthSampleArtifactStatus=", "adminTruthSamples evidence");
+    if (
+      adminTruthSamplesGate.status === "Ready"
+      && /adminTruthSampleArtifactStatus=missing_or_unknown/u.test(adminTruthEvidence)
+    ) {
+      failures.push("Admin truth samples cannot be Ready when artifact status is missing_or_unknown.");
+    }
+  }
+  const targetedBehaviorGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
+  if (
+    targetedBehaviorGate?.status === "Ready"
+    && targetedBehaviorGate.evidence.join("\n").includes("targetedBehaviorArtifactStatus=missing_formal_evidence")
+  ) {
+    failures.push("Targeted behavior tests cannot be Ready when targeted artifact is missing.");
   }
   requireNumber(report.dedupedFindingCount, "dedupedFindingCount", 0, 10_000);
   requireNumber(report.safeAutofixesAvailable, "safeAutofixesAvailable", 0, 10_000);
@@ -188,6 +233,29 @@ const packageJson = readRequired("package.json");
 const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
 const auditLedger = readRequired("FULL_SCALE_CODEBASE_AUDIT.md");
+
+for (const expected of [
+  "agent/state/provider-smoke-evidence.generated.json",
+  "agent/state/runtime-smoke-evidence.generated.json",
+  "agent/state/admin-truth-sample-evidence.generated.json",
+  "agent/state/targeted-behavior-evidence.generated.json",
+]) {
+  requireIncludes(scoreScript, expected, "score-public-beta-readiness evidence artifact readers");
+}
+const staleScoreTruthPatterns = [
+  ["hasTargetedBehaviorEvidence:", " false"].join(""),
+  ["function ", "hasProviderSmokeEvidence"].join(""),
+  ["provider smoke", " missing"].join(""),
+  ["formal provider smoke evidence", " is missing"].join(""),
+  ["hasAdminTruthSampleEvidence: ", "Object.values(debugEvidence)", ".some"].join(""),
+  ["VISUAL_EVIDENCE_FILES", ".some"].join(""),
+];
+for (const forbidden of staleScoreTruthPatterns) {
+  requireNotIncludes(scoreScript, forbidden, "score-public-beta-readiness stale score truth");
+}
+requireIncludes(core, "PublicBetaEvidenceArtifact", "Public beta score core");
+requireIncludes(core, "evidenceArtifactPassed", "Public beta score core");
+requireIncludes(core, "evidenceCapDetails", "Public beta score core");
 
 for (const expected of [
   "PUBLIC_BETA_DOMAIN_WEIGHTS",

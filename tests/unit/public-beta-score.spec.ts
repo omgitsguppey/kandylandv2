@@ -32,11 +32,74 @@ const freshEvidence = {
             lastSeenAt: Date.now(),
         } satisfies DebugEvidenceAuditSummary],
     },
-    hasTargetedBehaviorEvidence: true,
-    hasVisualManualEvidence: true,
-    hasProviderSmokeEvidence: true,
-    hasAdminTruthSampleEvidence: true,
+    targetedBehaviorEvidence: {
+        path: "agent/state/targeted-behavior-evidence.generated.json",
+        status: "passed",
+        passed: true,
+        detail: "Targeted behavior validators passed.",
+        evidence: ["targetedBehavior.status=passed"],
+    },
+    visualManualEvidence: {
+        path: "agent/state/manual-smoke-evidence.generated.json",
+        status: "passed",
+        passed: true,
+        detail: "Manual visual smoke passed.",
+        evidence: ["visualManual.status=passed"],
+    },
+    providerSmokeEvidence: {
+        path: "agent/state/provider-smoke-evidence.generated.json",
+        status: "passed",
+        passed: true,
+        detail: "Formal provider smoke passed.",
+        evidence: ["providerArtifactStatus=passed"],
+    },
+    runtimeSmokeEvidence: {
+        path: "agent/state/runtime-smoke-evidence.generated.json",
+        status: "passed",
+        passed: true,
+        detail: "Formal runtime smoke passed.",
+        evidence: ["runtimeArtifactStatus=passed"],
+    },
+    adminTruthSampleEvidence: {
+        path: "agent/state/admin-truth-sample-evidence.generated.json",
+        status: "passed",
+        passed: true,
+        detail: "Fresh admin truth sample attached.",
+        evidence: ["adminTruthSampleArtifactStatus=passed", "sampleCount=1"],
+    },
     openPrTriageFresh: true,
+};
+
+const missingTargetedBehaviorEvidence = {
+    path: "agent/state/targeted-behavior-evidence.generated.json",
+    status: "missing_formal_evidence",
+    passed: false,
+    detail: "No formal targeted behavior evidence artifact was supplied.",
+    evidence: ["targetedBehaviorArtifactStatus=missing_formal_evidence"],
+};
+
+const missingProviderSmokeEvidence = {
+    path: "agent/state/provider-smoke-evidence.generated.json",
+    status: "missing_formal_evidence",
+    passed: false,
+    detail: "Operator reported PayPal refill was tested but no screenshot/log attached.",
+    evidence: ["providerArtifactStatus=missing_formal_evidence", "paypalRefillSmoke.status=operator_reported_not_formal_provider_smoke"],
+};
+
+const runtimeUnverifiedEvidence = {
+    path: "agent/state/runtime-smoke-evidence.generated.json",
+    status: "runtime_unverified",
+    passed: false,
+    detail: "No deployed runtime smoke.",
+    evidence: ["runtimeArtifactStatus=runtime_unverified", "runtimeDeploymentSmokePassed=false"],
+};
+
+const missingAdminTruthEvidence = {
+    path: "agent/state/admin-truth-sample-evidence.generated.json",
+    status: "missing_or_unknown",
+    passed: false,
+    detail: "No fresh admin truth sample.",
+    evidence: ["adminTruthSampleArtifactStatus=missing_or_unknown", "sampleCount=0"],
 };
 
 describe("public beta scoring math", () => {
@@ -135,7 +198,13 @@ describe("public beta scoring math", () => {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
                 ...freshEvidence,
-                hasVisualManualEvidence: false,
+                visualManualEvidence: {
+                    path: "agent/state/manual-smoke-evidence.generated.json",
+                    status: "missing_formal_evidence",
+                    passed: false,
+                    detail: "No valid visual/manual evidence artifact was supplied.",
+                    evidence: ["visualManualArtifactStatus=missing_formal_evidence"],
+                },
             },
         });
 
@@ -148,12 +217,150 @@ describe("public beta scoring math", () => {
             commandBudget: buildPublicBetaCommandBudget(),
             evidence: {
                 ...freshEvidence,
-                hasProviderSmokeEvidence: false,
+                providerSmokeEvidence: missingProviderSmokeEvidence,
             },
         });
 
         expect(report.readinessStatus).toBe("Ready with smoke required");
         expect(report.overallScore).toBeLessThan(100);
+    });
+
+    it("keeps operator-reported PayPal out of provider smoke credit", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                providerSmokeEvidence: {
+                    path: "agent/state/provider-smoke-evidence.generated.json",
+                    status: "operator_reported_not_formal_provider_smoke",
+                    passed: false,
+                    detail: "Operator reported PayPal refill was tested but no artifact attached.",
+                    evidence: ["paypalRefillSmoke.status=operator_reported_not_formal_provider_smoke"],
+                },
+                runtimeSmokeEvidence: runtimeUnverifiedEvidence,
+            },
+        });
+
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+        expect(smokeGate?.status).not.toBe("Ready");
+        expect(smokeGate?.score).toBe(0);
+        expect(smokeGate?.evidence.join("\n")).toContain("providerArtifactStatus=operator_reported_not_formal_provider_smoke");
+        expect(smokeGate?.evidence.join("\n")).toContain("runtimeArtifactStatus=runtime_unverified");
+    });
+
+    it("keeps runtime_unverified out of runtime smoke credit", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                runtimeSmokeEvidence: runtimeUnverifiedEvidence,
+            },
+        });
+
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+        expect(smokeGate?.status).toBe("Runtime unverified");
+        expect(smokeGate?.score).toBe(0);
+        expect(smokeGate?.evidence.join("\n")).toContain("runtimeArtifactStatus=runtime_unverified");
+    });
+
+    it("awards smoke credit only when provider and runtime artifacts pass", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: freshEvidence,
+        });
+
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+        expect(smokeGate?.status).toBe("Ready");
+        expect(smokeGate?.score).toBe(15);
+    });
+
+    it("keeps missing_or_unknown admin truth from passing", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                adminTruthSampleEvidence: missingAdminTruthEvidence,
+            },
+        });
+
+        const adminGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
+        expect(adminGate?.status).toBe("Unknown evidence");
+        expect(adminGate?.score).toBe(0);
+        expect(adminGate?.evidence.join("\n")).toContain("adminTruthSampleArtifactStatus=missing_or_unknown");
+    });
+
+    it("awards admin truth credit when the artifact passes", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: freshEvidence,
+        });
+
+        const adminGate = report.evidenceGates.find((gate) => gate.id === "adminTruthSamples");
+        expect(adminGate?.status).toBe("Ready");
+        expect(adminGate?.score).toBe(10);
+    });
+
+    it("keeps missing targeted behavior artifact non-passing without hardcoded false", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                targetedBehaviorEvidence: missingTargetedBehaviorEvidence,
+            },
+        });
+
+        const targetedGate = report.evidenceGates.find((gate) => gate.id === "targetedBehaviorTests");
+        expect(targetedGate?.status).toBe("Unknown evidence");
+        expect(targetedGate?.score).toBe(0);
+        expect(targetedGate?.detail).toContain("No formal targeted behavior evidence artifact");
+        expect(targetedGate?.evidence.join("\n")).toContain("artifactStatus=missing_formal_evidence");
+    });
+
+    it("exposes all active cap details", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                targetedBehaviorEvidence: missingTargetedBehaviorEvidence,
+                visualManualEvidence: {
+                    path: "agent/state/manual-smoke-evidence.generated.json",
+                    status: "missing_formal_evidence",
+                    passed: false,
+                    detail: "No valid visual/manual evidence artifact was supplied.",
+                    evidence: ["visualManualArtifactStatus=missing_formal_evidence"],
+                },
+                providerSmokeEvidence: missingProviderSmokeEvidence,
+                runtimeSmokeEvidence: runtimeUnverifiedEvidence,
+                adminTruthSampleEvidence: missingAdminTruthEvidence,
+            },
+        });
+
+        expect(report.evidenceCapDetails.length).toBeGreaterThan(3);
+        expect(report.evidenceCapDetails).toEqual(expect.arrayContaining([
+            expect.stringContaining("Targeted behavior tests - No formal targeted behavior evidence artifact was supplied."),
+            expect.stringContaining("Runtime/provider smoke - Provider smoke:"),
+            expect.stringContaining("Admin truth/sample evidence - No fresh admin truth sample."),
+        ]));
+    });
+
+    it("does not use final launch report text as provider smoke truth", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                requiredReports: [{
+                    path: "agent/state/final-launch-readiness-report.generated.json",
+                    generatedAt: new Date().toISOString(),
+                    freshness: "fresh" as const,
+                }],
+                providerSmokeEvidence: missingProviderSmokeEvidence,
+            },
+        });
+
+        const smokeGate = report.evidenceGates.find((gate) => gate.id === "runtimeProviderSmoke");
+        expect(smokeGate?.status).toBe("Ready with smoke required");
+        expect(smokeGate?.score).toBe(0);
+        expect(smokeGate?.evidence.join("\n")).toContain("providerArtifactStatus=missing_formal_evidence");
     });
 
     it("allows ready only when scanner and evidence gates are fresh", () => {

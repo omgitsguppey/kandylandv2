@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-14T02:36:22.302Z",
+  "generatedAt": "2026-05-14T06:03:48.461Z",
   "scannerScore": 100,
   "scannerStatus": "clean",
   "overallScore": 25,
@@ -27,8 +27,14 @@
       "weight": 20,
       "score": 0,
       "status": "Unknown evidence",
-      "detail": "No fresh targeted behavior test evidence was supplied to the score.",
-      "evidence": [],
+      "detail": "No formal targeted behavior evidence artifact was supplied.",
+      "evidence": [
+        "artifactPath=agent/state/targeted-behavior-evidence.generated.json",
+        "artifactStatus=missing_formal_evidence",
+        "artifactPassed=false",
+        "artifactDetail=No formal targeted behavior evidence artifact was supplied.",
+        "artifactExists=false"
+      ],
       "recommendedAction": "Run the targeted validators for the changed surface and regenerate the score with fresh evidence metadata."
     },
     {
@@ -37,8 +43,17 @@
       "weight": 20,
       "score": 0,
       "status": "Visual QA required",
-      "detail": "No screenshot or manual user-critical-path visual evidence was supplied.",
-      "evidence": [],
+      "detail": "No valid visual/manual evidence artifact was supplied.",
+      "evidence": [
+        "artifactPath=agent/state/manual-smoke-evidence.generated.json,agent/state/visual-smoke-evidence.generated.json,agent/state/screenshot-evidence.generated.json",
+        "artifactStatus=missing_formal_evidence",
+        "artifactPassed=false",
+        "artifactDetail=No valid visual/manual evidence artifact was supplied.",
+        "visualManualArtifactStatus=missing_formal_evidence",
+        "agent/state/manual-smoke-evidence.generated.json:missing",
+        "agent/state/visual-smoke-evidence.generated.json:missing",
+        "agent/state/screenshot-evidence.generated.json:missing"
+      ],
       "recommendedAction": "Record targeted manual or screenshot evidence for user-critical surfaces before calling the score ready."
     },
     {
@@ -46,9 +61,31 @@
       "label": "Runtime/provider smoke",
       "weight": 15,
       "score": 0,
-      "status": "Ready with smoke required",
-      "detail": "No live provider smoke evidence was supplied.",
-      "evidence": [],
+      "status": "Runtime unverified",
+      "detail": "Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
+      "evidence": [
+        "providerArtifactStatus=missing_formal_evidence",
+        "runtimeArtifactStatus=runtime_unverified",
+        "artifactPath=agent/state/provider-smoke-evidence.generated.json",
+        "artifactStatus=missing_formal_evidence",
+        "artifactPassed=false",
+        "generatedAtUtc=2026-05-14T02:00:00.000Z",
+        "sourceCommit=4958214e1e6ed79d3be73853dc7ba896524068eb",
+        "artifactDetail=Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness.",
+        "providerSmoke.status=missing_formal_evidence",
+        "providerSmoke.passed=false",
+        "readinessImpact.providerSmokeGatePassed=false",
+        "paypalRefillSmoke.status=operator_reported_not_formal_provider_smoke",
+        "paypalRefillSmoke.note=Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached.",
+        "paypalRefillSmoke.formalRepoArtifactAttached=false",
+        "artifactPath=agent/state/runtime-smoke-evidence.generated.json",
+        "artifactStatus=runtime_unverified",
+        "artifactDetail=Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
+        "runtimeDeploymentSmokePassed=false",
+        "readinessImpact.runtimeGatePassed=false",
+        "runtimeEvidenceItems[0]=typecheck | npm run typecheck | pass | TypeScript compile safety only; does not prove deployed runtime behavior.",
+        "runtimeEvidenceItems[1]=release_notes | npm run check:release-notes | pass | Beta badge evidence consistency only; does not prove deployed runtime behavior."
+      ],
       "recommendedAction": "Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded."
     },
     {
@@ -57,8 +94,20 @@
       "weight": 10,
       "score": 0,
       "status": "Unknown evidence",
-      "detail": "No admin truth sample evidence was supplied.",
-      "evidence": [],
+      "detail": "Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
+      "evidence": [
+        "adminTruthSampleArtifactStatus=missing_or_unknown",
+        "artifactPath=agent/state/admin-truth-sample-evidence.generated.json",
+        "artifactStatus=missing_or_unknown",
+        "artifactPassed=false",
+        "generatedAtUtc=2026-05-14T02:00:00.000Z",
+        "sourceCommit=4958214e1e6ed79d3be73853dc7ba896524068eb",
+        "artifactDetail=Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
+        "freshAdminTruthSampleAttached=false",
+        "readinessImpact.adminTruthSampleGatePassed=false",
+        "sampleCount=0",
+        "adminTruthCommandEvidence[0]=npm run check:admin-truth | pass | Static admin truth contract validation only; does not prove current production sample values."
+      ],
       "recommendedAction": "Require first-party sample evidence before rendering zero/live/healthy as launch truth."
     },
     {
@@ -69,9 +118,9 @@
       "status": "Stale evidence",
       "detail": "3 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/final-launch-readiness-report.generated.json (30.9h old)",
-        "agent/state/launch-readiness-report.generated.json (30.9h old)",
-        "agent/state/launch-pr-triage.generated.json (30.9h old)"
+        "agent/state/final-launch-readiness-report.generated.json (34.36h old)",
+        "agent/state/launch-readiness-report.generated.json (34.36h old)",
+        "agent/state/launch-pr-triage.generated.json (34.36h old)"
       ],
       "recommendedAction": "Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current."
     },
@@ -89,10 +138,18 @@
   "evidenceCapsApplied": [
     "Unknown evidence: Targeted behavior tests",
     "Visual QA required: Visual/manual smoke",
-    "Ready with smoke required: Runtime/provider smoke",
+    "Runtime unverified: Runtime/provider smoke",
     "Unknown evidence: Admin truth/sample evidence",
     "Stale evidence: Freshness, PR, and HEAD integrity",
     "Unknown evidence: Debug/runtime evidence"
+  ],
+  "evidenceCapDetails": [
+    "Unknown evidence: Targeted behavior tests - No formal targeted behavior evidence artifact was supplied.",
+    "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
+    "Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
+    "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
+    "Stale evidence: Freshness, PR, and HEAD integrity - 3 required generated report(s) are older than the freshness window.",
+    "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
   ],
   "evidenceWeights": {
     "sourceSafety": 25,
@@ -175,7 +232,7 @@
   "recommendedNextActions": [
     "Unknown evidence: Run the targeted validators for the changed surface and regenerate the score with fresh evidence metadata.",
     "Visual QA required: Record targeted manual or screenshot evidence for user-critical surfaces before calling the score ready.",
-    "Ready with smoke required: Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
+    "Runtime unverified: Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
     "Unknown evidence: Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
     "Stale evidence: Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current.",
     "Unknown evidence: Do not treat empty debug evidence as proof that no runtime issue exists.",

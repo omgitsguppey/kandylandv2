@@ -11,7 +11,7 @@ import {
   PUBLIC_BETA_REQUIRED_REPORT_STALE_HOURS,
 } from "../../src/lib/agent-score/weights";
 import { loadDebugEvidenceForAuditDomains } from "./load-debug-evidence-for-audit";
-import type { PublicBetaGeneratedReportEvidence } from "../../src/lib/agent-score/core";
+import type { PublicBetaEvidenceArtifact, PublicBetaGeneratedReportEvidence } from "../../src/lib/agent-score/core";
 
 const REQUIRED_EVIDENCE_REPORTS = [
   "agent/state/final-launch-readiness-report.generated.json",
@@ -20,7 +20,11 @@ const REQUIRED_EVIDENCE_REPORTS = [
   "agent/state/generated-report-authority.generated.json",
 ] as const;
 
-const VISUAL_EVIDENCE_FILES = [
+const PROVIDER_SMOKE_EVIDENCE_PATH = "agent/state/provider-smoke-evidence.generated.json";
+const RUNTIME_SMOKE_EVIDENCE_PATH = "agent/state/runtime-smoke-evidence.generated.json";
+const ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH = "agent/state/admin-truth-sample-evidence.generated.json";
+const TARGETED_BEHAVIOR_EVIDENCE_PATH = "agent/state/targeted-behavior-evidence.generated.json";
+const VISUAL_MANUAL_EVIDENCE_PATHS = [
   "agent/state/manual-smoke-evidence.generated.json",
   "agent/state/visual-smoke-evidence.generated.json",
   "agent/state/screenshot-evidence.generated.json",
@@ -33,6 +37,81 @@ function parseJsonObject(source: string): Record<string, unknown> {
   } catch {
     return {};
   }
+}
+
+function readJsonFile(root: string, filePath: string) {
+  const fullPath = join(root, filePath);
+  if (!existsSync(fullPath)) return null;
+  return parseJsonObject(readFileSync(fullPath, "utf8"));
+}
+
+function readRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function readString(value: unknown) {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function readBoolean(value: unknown) {
+  return typeof value === "boolean" ? value : undefined;
+}
+
+function readNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function evidenceLinesFromArray(value: unknown, prefix: string) {
+  if (!Array.isArray(value)) return [];
+  return value.map((entry, index) => {
+    if (entry && typeof entry === "object") {
+      const record = entry as Record<string, unknown>;
+      const parts = [
+        readString(record.key),
+        readString(record.command),
+        readString(record.status),
+        readString(record.proves),
+      ].filter(Boolean);
+      return parts.length > 0 ? `${prefix}[${index}]=${parts.join(" | ")}` : `${prefix}[${index}]=object`;
+    }
+    return `${prefix}[${index}]=${String(entry)}`;
+  });
+}
+
+function readEvidenceArtifact(
+  root: string,
+  filePath: string,
+  fallbackStatus: string,
+  fallbackDetail: string,
+): PublicBetaEvidenceArtifact {
+  const parsed = readJsonFile(root, filePath);
+  if (!parsed) {
+    return {
+      path: filePath,
+      status: fallbackStatus,
+      passed: false,
+      detail: fallbackDetail,
+      evidence: [`artifactPath=${filePath}`, `artifactStatus=${fallbackStatus}`, "artifactExists=false"],
+    };
+  }
+
+  const status = readString(parsed.status) ?? readString(parsed.overallStatus) ?? fallbackStatus;
+  return {
+    path: filePath,
+    status,
+    passed: readBoolean(parsed.passed) === true,
+    detail: readString(parsed.detail)
+      ?? readString(parsed.summary)
+      ?? readString(parsed.recommendedAction)
+      ?? fallbackDetail,
+    evidence: [
+      `artifactPath=${filePath}`,
+      `artifactStatus=${status}`,
+      `artifactExists=true`,
+    ],
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
 }
 
 function collectGeneratedReportEvidence(root: string, now = Date.now()): PublicBetaGeneratedReportEvidence[] {
@@ -63,28 +142,175 @@ function collectGeneratedReportEvidence(root: string, now = Date.now()): PublicB
   });
 }
 
-function fileExists(root: string, filePath: string) {
-  return existsSync(join(root, filePath));
+function readProviderSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
+  const parsed = readJsonFile(root, PROVIDER_SMOKE_EVIDENCE_PATH);
+  if (!parsed) {
+    return readEvidenceArtifact(
+      root,
+      PROVIDER_SMOKE_EVIDENCE_PATH,
+      "missing_formal_evidence",
+      "No formal provider smoke evidence artifact was supplied.",
+    );
+  }
+
+  const providerSmoke = readRecord(parsed.providerSmoke);
+  const paypalRefillSmoke = readRecord(parsed.paypalRefillSmoke);
+  const readinessImpact = readRecord(parsed.readinessImpact);
+  const providerStatus = readString(providerSmoke.status) ?? readString(parsed.overallStatus) ?? "missing_formal_evidence";
+  const paypalStatus = readString(paypalRefillSmoke.status);
+  const status = providerStatus;
+  const providerGatePassed = readBoolean(providerSmoke.passed) === true
+    || readBoolean(readinessImpact.providerSmokeGatePassed) === true;
+  const passed = providerGatePassed
+    && status !== "missing_formal_evidence"
+    && status !== "operator_reported_not_formal_provider_smoke"
+    && paypalStatus !== "operator_reported_not_formal_provider_smoke";
+  const paypalNote = readString(paypalRefillSmoke.note);
+  const providerRecommendedAction = readString(providerSmoke.recommendedAction);
+
+  return {
+    path: PROVIDER_SMOKE_EVIDENCE_PATH,
+    status,
+    passed,
+    detail: [
+      passed ? "Formal provider smoke evidence passed." : "Formal provider smoke evidence is missing.",
+      paypalNote,
+      providerRecommendedAction,
+    ].filter(Boolean).join(" "),
+    evidence: [
+      `providerArtifactStatus=${status}`,
+      `providerSmoke.status=${providerStatus}`,
+      `providerSmoke.passed=${readBoolean(providerSmoke.passed) === true}`,
+      `readinessImpact.providerSmokeGatePassed=${readBoolean(readinessImpact.providerSmokeGatePassed) === true}`,
+      ...(paypalStatus ? [`paypalRefillSmoke.status=${paypalStatus}`] : []),
+      ...(paypalNote ? [`paypalRefillSmoke.note=${paypalNote}`] : []),
+      `paypalRefillSmoke.formalRepoArtifactAttached=${readBoolean(paypalRefillSmoke.formalRepoArtifactAttached) === true}`,
+    ],
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
 }
 
-function hasProviderSmokeEvidence(root: string) {
-  const launchPath = join(root, "agent/state/final-launch-readiness-report.generated.json");
-  if (!existsSync(launchPath)) return false;
-  const source = readFileSync(launchPath, "utf8");
-  const parsed = parseJsonObject(source);
-  const missingEvidence = Array.isArray(parsed.missingEvidence) ? parsed.missingEvidence.join(" ").toLowerCase() : "";
-  const readinessCaps = Array.isArray(parsed.readinessCaps) ? parsed.readinessCaps.join(" ").toLowerCase() : "";
-  const normalizedSource = source.toLowerCase();
-  return ![
-    "smoke was not performed",
-    "provider smoke was not performed",
-    "provider smoke missing",
-    "formal provider smoke evidence is missing",
-    "ready with smoke required",
-  ].some((needle) =>
-    normalizedSource.includes(needle)
-    || missingEvidence.includes(needle)
-    || readinessCaps.includes(needle));
+function readRuntimeSmokeEvidence(root: string): PublicBetaEvidenceArtifact {
+  const parsed = readJsonFile(root, RUNTIME_SMOKE_EVIDENCE_PATH);
+  if (!parsed) {
+    return readEvidenceArtifact(
+      root,
+      RUNTIME_SMOKE_EVIDENCE_PATH,
+      "runtime_unverified",
+      "No formal runtime smoke evidence artifact was supplied.",
+    );
+  }
+
+  const readinessImpact = readRecord(parsed.readinessImpact);
+  const status = readString(parsed.overallStatus) ?? readString(parsed.status) ?? "runtime_unverified";
+  const runtimeGatePassed = readBoolean(parsed.runtimeDeploymentSmokePassed) === true
+    || readBoolean(readinessImpact.runtimeGatePassed) === true;
+  const passed = runtimeGatePassed && status !== "runtime_unverified" && status !== "missing_formal_evidence";
+
+  return {
+    path: RUNTIME_SMOKE_EVIDENCE_PATH,
+    status,
+    passed,
+    detail: readString(readinessImpact.recommendedAction)
+      ?? (passed ? "Formal deployed runtime smoke passed." : "No deployed runtime smoke evidence was supplied."),
+    evidence: [
+      `runtimeArtifactStatus=${status}`,
+      `runtimeDeploymentSmokePassed=${readBoolean(parsed.runtimeDeploymentSmokePassed) === true}`,
+      `readinessImpact.runtimeGatePassed=${readBoolean(readinessImpact.runtimeGatePassed) === true}`,
+      ...evidenceLinesFromArray(parsed.evidenceItems, "runtimeEvidenceItems"),
+    ],
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
+}
+
+function readAdminTruthSampleEvidence(root: string): PublicBetaEvidenceArtifact {
+  const parsed = readJsonFile(root, ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH);
+  if (!parsed) {
+    return readEvidenceArtifact(
+      root,
+      ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH,
+      "missing_or_unknown",
+      "No formal admin truth sample evidence artifact was supplied.",
+    );
+  }
+
+  const readinessImpact = readRecord(parsed.readinessImpact);
+  const status = readString(parsed.overallStatus) ?? readString(parsed.status) ?? "missing_or_unknown";
+  const sampleCount = readNumber(parsed.sampleCount) ?? 0;
+  const freshSampleAttached = readBoolean(parsed.freshAdminTruthSampleAttached) === true;
+  const adminGatePassed = readBoolean(readinessImpact.adminTruthSampleGatePassed) === true;
+  const passed = freshSampleAttached && adminGatePassed && sampleCount > 0 && status !== "missing_or_unknown";
+
+  return {
+    path: ADMIN_TRUTH_SAMPLE_EVIDENCE_PATH,
+    status,
+    passed,
+    detail: readString(readinessImpact.recommendedAction)
+      ?? (passed ? "Fresh admin truth sample evidence passed." : "No fresh admin truth sample evidence was supplied."),
+    evidence: [
+      `adminTruthSampleArtifactStatus=${status}`,
+      `freshAdminTruthSampleAttached=${freshSampleAttached}`,
+      `readinessImpact.adminTruthSampleGatePassed=${adminGatePassed}`,
+      `sampleCount=${sampleCount}`,
+      ...evidenceLinesFromArray(parsed.adminTruthCommandEvidence, "adminTruthCommandEvidence"),
+    ],
+    generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+    sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+  };
+}
+
+function readTargetedBehaviorEvidence(root: string): PublicBetaEvidenceArtifact {
+  return readEvidenceArtifact(
+    root,
+    TARGETED_BEHAVIOR_EVIDENCE_PATH,
+    "missing_formal_evidence",
+    "No formal targeted behavior evidence artifact was supplied.",
+  );
+}
+
+function readVisualManualEvidence(root: string): PublicBetaEvidenceArtifact {
+  const inspected: string[] = [];
+  for (const evidencePath of VISUAL_MANUAL_EVIDENCE_PATHS) {
+    const parsed = readJsonFile(root, evidencePath);
+    if (!parsed) {
+      inspected.push(`${evidencePath}:missing`);
+      continue;
+    }
+
+    const status = readString(parsed.status) ?? readString(parsed.overallStatus) ?? "missing_or_unknown";
+    const passed = (status === "passed" || status === "usable") && readBoolean(parsed.passed) !== false;
+    inspected.push(`${evidencePath}:status=${status}:passed=${passed}`);
+    if (passed) {
+      return {
+        path: evidencePath,
+        status,
+        passed: true,
+        detail: readString(parsed.detail)
+          ?? readString(parsed.summary)
+          ?? "Schema-backed visual/manual evidence passed.",
+        evidence: [
+          `visualManualArtifactStatus=${status}`,
+          `visualManualArtifactPath=${evidencePath}`,
+          ...evidenceLinesFromArray(parsed.evidence, "visualManualEvidence"),
+        ],
+        generatedAtUtc: readString(parsed.generatedAtUtc) ?? readString(parsed.generatedAt),
+        sourceCommit: readString(parsed.sourceCommit) ?? readString(parsed.currentHead),
+      };
+    }
+  }
+
+  return {
+    path: VISUAL_MANUAL_EVIDENCE_PATHS.join(","),
+    status: "missing_formal_evidence",
+    passed: false,
+    detail: "No valid visual/manual evidence artifact was supplied.",
+    evidence: [
+      "visualManualArtifactStatus=missing_formal_evidence",
+      ...inspected,
+    ],
+  };
 }
 
 export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesApplied = 0) {
@@ -98,10 +324,11 @@ export function runPublicBetaReadinessScore(root = process.cwd(), safeAutofixesA
     debugEvidence,
     evidence: {
       requiredReports: collectGeneratedReportEvidence(root),
-      hasTargetedBehaviorEvidence: false,
-      hasVisualManualEvidence: VISUAL_EVIDENCE_FILES.some((filePath) => fileExists(root, filePath)),
-      hasProviderSmokeEvidence: hasProviderSmokeEvidence(root),
-      hasAdminTruthSampleEvidence: Object.values(debugEvidence).some((entries) => entries.length > 0),
+      targetedBehaviorEvidence: readTargetedBehaviorEvidence(root),
+      visualManualEvidence: readVisualManualEvidence(root),
+      providerSmokeEvidence: readProviderSmokeEvidence(root),
+      runtimeSmokeEvidence: readRuntimeSmokeEvidence(root),
+      adminTruthSampleEvidence: readAdminTruthSampleEvidence(root),
       openPrTriageFresh: collectGeneratedReportEvidence(root).find((reportEvidence) =>
         reportEvidence.path === "agent/state/launch-pr-triage.generated.json")?.freshness === "fresh",
     },
