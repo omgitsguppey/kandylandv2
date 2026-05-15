@@ -210,7 +210,7 @@ export function CreatorBroadcastManager({
   }, [actorRole, canSendBroadcast, creatorId, message, readOnly, sending, title]);
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-5">
+    <section className="rounded-3xl border border-white/10 bg-black/45 p-4 sm:p-5">
       <PageViewEvent
         eventName="creator_broadcast_manager_viewed"
         eventParams={{
@@ -222,9 +222,10 @@ export function CreatorBroadcastManager({
           truth_state: readOnly ? "blocked" : canReadBroadcasts ? "live" : blockedTruthState,
         }}
       />
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-black uppercase tracking-[0.18em] text-white">Broadcasts</h3>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">Broadcasts</p>
+          <h2 className="mt-1 text-lg font-black text-white">Manage follower broadcasts</h2>
           <p className="mt-1 text-sm text-gray-400">Review what {creatorName} sent, see delivery status, and send a new update.</p>
         </div>
         <button

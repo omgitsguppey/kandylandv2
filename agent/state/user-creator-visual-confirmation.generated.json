@@ -1,0 +1,367 @@
+{
+  "generatedAtUtc": "2026-05-15T19:28:21.390Z",
+  "reportKey": "user-creator-visual-confirmation",
+  "currentHead": "99996794671c2a0cbe406c53340194c2cf2b0329",
+  "summary": {
+    "routesChecked": 12,
+    "screenshotEvidenceAttached": false,
+    "sourceOnlyRoutes": 12,
+    "visualIssuesFound": 0,
+    "visualIssuesFixed": 3,
+    "deferredManualChecks": 12,
+    "forbiddenAdminBackendDrift": 0,
+    "forbiddenPaymentRuntimeDrift": 0,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "routes": [
+    {
+      "route": "/",
+      "surface": "user",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/app/page.tsx",
+        "src/app/HomeClient.tsx",
+        "src/components/Navigation/ProfileDropdown.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "/drops",
+      "surface": "user",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/app/drops/DropsClient.tsx",
+        "src/components/Drops/LockedDropPreviewView.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "/drops/[id]/preview",
+      "surface": "user",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/components/Drops/LockedDropPreviewView.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "/dashboard",
+      "surface": "user",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/app/dashboard/layout.tsx",
+        "src/components/Navigation/ProfileSidebar.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "/dashboard/creator",
+      "surface": "creator",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Creators/CreatorBroadcastManager.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "/dashboard/profile",
+      "surface": "user",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/app/dashboard/profile/components/ProfileProfileSection.tsx",
+        "src/app/dashboard/profile/components/ProfilePrimitives.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "/dashboard/settings",
+      "surface": "user",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/app/dashboard/settings/page.tsx",
+        "src/components/Navigation/ProfileSidebar.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "/dashboard/library",
+      "surface": "user",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/app/dashboard/library/LibraryClient.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "/dashboard/chat",
+      "surface": "shared_shell",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/components/Chat/ChatExperience.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "/creators/[username]",
+      "surface": "creator",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/components/Creators/CreatorExperiencesPanel.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "Beta release notes drawer",
+      "surface": "release_notes",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    },
+    {
+      "route": "Mobile nav/sidebar/profile dropdown",
+      "surface": "shared_shell",
+      "confirmationMode": "source_only",
+      "evidencePaths": [],
+      "sourceFiles": [
+        "src/components/Navigation/ProfileSidebar.tsx",
+        "src/components/Navigation/ProfileDropdown.tsx"
+      ],
+      "status": "source_confirmed_pending_screenshot"
+    }
+  ],
+  "fixesApplied": [
+    {
+      "key": "creator_broadcast_manager_density",
+      "severity": "P2",
+      "title": "Aligned the Broadcast manager shell/header density with other Creator Dashboard managers.",
+      "fileOrSurface": "src/components/Creators/CreatorBroadcastManager.tsx",
+      "status": "fixed",
+      "ownerLane": "creator-ui",
+      "evidence": [
+        "bg-black/45",
+        "Manage follower broadcasts"
+      ],
+      "exactNextAction": "Keep active manager panels visually consistent when adding creator tools."
+    },
+    {
+      "key": "creator_agreement_tap_targets",
+      "severity": "P2",
+      "title": "Raised creator agreement PDF and table-of-contents controls to mobile-safe tap targets.",
+      "fileOrSurface": "src/components/Creators/CreatorAgreementFullText.tsx",
+      "status": "fixed",
+      "ownerLane": "creator-ui",
+      "evidence": [
+        "min-h-11",
+        "py-2.5"
+      ],
+      "exactNextAction": "Keep legal agreement controls tappable while preserving the approved bounded scroll region."
+    },
+    {
+      "key": "source_only_visual_confirmation_lock",
+      "severity": "P2",
+      "title": "Added a source-only visual confirmation artifact because screenshots were not attached in this run.",
+      "fileOrSurface": "agent/state/user-creator-visual-confirmation.generated.json",
+      "status": "fixed",
+      "ownerLane": "user-creator-ui",
+      "evidence": [
+        "screenshotEvidenceAttached=false",
+        "sourceOnlyRoutes"
+      ],
+      "exactNextAction": "Attach manual screenshots in the next visual QA pass before closing visual QA."
+    }
+  ],
+  "deferredManualChecks": [
+    {
+      "key": "manual_screenshot_home",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for /.",
+      "fileOrSurface": "/",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_drops",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for /drops.",
+      "fileOrSurface": "/drops",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_drops_id_preview",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for /drops/[id]/preview.",
+      "fileOrSurface": "/drops/[id]/preview",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_dashboard",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for /dashboard.",
+      "fileOrSurface": "/dashboard",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_dashboard_creator",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for /dashboard/creator.",
+      "fileOrSurface": "/dashboard/creator",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_dashboard_profile",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for /dashboard/profile.",
+      "fileOrSurface": "/dashboard/profile",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_dashboard_settings",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for /dashboard/settings.",
+      "fileOrSurface": "/dashboard/settings",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_dashboard_library",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for /dashboard/library.",
+      "fileOrSurface": "/dashboard/library",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_dashboard_chat",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for /dashboard/chat.",
+      "fileOrSurface": "/dashboard/chat",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_creators_username",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for /creators/[username].",
+      "fileOrSurface": "/creators/[username]",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_beta_release_notes_drawer",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for Beta release notes drawer.",
+      "fileOrSurface": "Beta release notes drawer",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    },
+    {
+      "key": "manual_screenshot_mobile_nav_sidebar_profile_dropdown",
+      "severity": "P2",
+      "title": "Manual screenshot confirmation remains for Mobile nav/sidebar/profile dropdown.",
+      "fileOrSurface": "Mobile nav/sidebar/profile dropdown",
+      "status": "deferred",
+      "ownerLane": "visual-qa",
+      "evidence": [
+        "source-confirmed",
+        "no screenshot evidence attached"
+      ],
+      "exactNextAction": "Capture mobile screenshot evidence for this route and update the visual confirmation artifact with evidence paths."
+    }
+  ],
+  "forbiddenDriftCheck": [
+    {
+      "key": "admin_backend_drift",
+      "status": "clean",
+      "files": [],
+      "exactNextAction": "No admin/backend drift detected."
+    },
+    {
+      "key": "payment_runtime_drift",
+      "status": "clean",
+      "files": [],
+      "exactNextAction": "No payment/runtime drift detected."
+    }
+  ],
+  "nextFixOrder": [
+    "Capture manual mobile screenshots for /, /drops, locked preview, dashboard, creator dashboard, profile, settings, library, chat shell, creator profile, release drawer, and mobile navigation.",
+    "Convert any screenshot-confirmed issue into a route-specific microfix without touching admin backend or payment runtime.",
+    "Keep screenshotEvidenceAttached=false until real screenshot evidence paths are attached."
+  ]
+}

@@ -25,7 +25,7 @@ export function CreatorAgreementFullText({
                     </p>
                 </div>
                 {hasUploadedAgreementDocument ? (
-                    <a href="/api/creator/onboarding/agreement-document" target="_blank" rel="noreferrer" className="inline-flex rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-white/20">
+                    <a href="/api/creator/onboarding/agreement-document" target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center rounded-full border border-white/10 bg-black/25 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:border-white/20">
                         View/download PDF
                     </a>
                 ) : null}
@@ -37,7 +37,7 @@ export function CreatorAgreementFullText({
                         key={`toc-${section.heading}`}
                         type="button"
                         onClick={() => onToggleSection(section.heading)}
-                        className="rounded-2xl border border-white/10 bg-black/20 px-3 py-2 text-left text-xs font-semibold text-gray-200 transition-colors hover:border-brand-purple/40 hover:text-white"
+                        className="min-h-11 rounded-2xl border border-white/10 bg-black/20 px-3 py-2.5 text-left text-xs font-semibold text-gray-200 transition-colors hover:border-brand-purple/40 hover:text-white"
                     >
                         {section.heading}
                     </button>
