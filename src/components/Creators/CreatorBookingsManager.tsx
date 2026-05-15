@@ -203,7 +203,7 @@ export function CreatorBookingsManager({
           type="button"
           onClick={() => void loadBookings()}
           disabled={!canLoadBookings || loading}
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2.5 text-xs font-bold text-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
           Refresh
@@ -249,7 +249,7 @@ export function CreatorBookingsManager({
                         {status.replaceAll("_", " ")}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm text-gray-300">{formatDate(booking.startAt)} · {duration}</p>
+                    <p className="mt-1 text-sm text-gray-300">{formatDate(booking.startAt)} - {duration}</p>
                     <p className="mt-1 text-xs text-gray-500">{price}</p>
                   </div>
                 </div>
@@ -260,7 +260,7 @@ export function CreatorBookingsManager({
                         type="button"
                         disabled={actionDisabled}
                         onClick={() => void handleAction(booking, "complete")}
-                        className="rounded-full border border-emerald-300/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="min-h-11 rounded-full border border-emerald-300/20 bg-emerald-500/10 px-3 py-2.5 text-xs font-bold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Complete
                       </button>
@@ -270,7 +270,7 @@ export function CreatorBookingsManager({
                         type="button"
                         disabled={actionDisabled}
                         onClick={() => void handleAction(booking, "cancel")}
-                        className="rounded-full border border-red-300/20 bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="min-h-11 rounded-full border border-red-300/20 bg-red-500/10 px-3 py-2.5 text-xs font-bold text-red-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Cancel
                       </button>

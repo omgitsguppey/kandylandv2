@@ -189,7 +189,7 @@ export function CreatorRequestsManager({
           type="button"
           onClick={() => void loadRequests()}
           disabled={!canLoadRequests || loading}
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2.5 text-xs font-bold text-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
           Refresh
@@ -244,7 +244,7 @@ export function CreatorRequestsManager({
                           type="button"
                           disabled={actionDisabled}
                           onClick={() => void handleAction(request, "accept")}
-                          className="rounded-full border border-emerald-300/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="min-h-11 rounded-full border border-emerald-300/20 bg-emerald-500/10 px-3 py-2.5 text-xs font-bold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Accept
                         </button>
@@ -252,7 +252,7 @@ export function CreatorRequestsManager({
                           type="button"
                           disabled={actionDisabled}
                           onClick={() => void handleAction(request, "decline")}
-                          className="rounded-full border border-red-300/20 bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="min-h-11 rounded-full border border-red-300/20 bg-red-500/10 px-3 py-2.5 text-xs font-bold text-red-100 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Decline
                         </button>
@@ -263,7 +263,7 @@ export function CreatorRequestsManager({
                         type="button"
                         disabled={actionDisabled}
                         onClick={() => void handleAction(request, "fulfill")}
-                        className="rounded-full border border-sky-300/20 bg-sky-500/10 px-3 py-1.5 text-xs font-bold text-sky-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="min-h-11 rounded-full border border-sky-300/20 bg-sky-500/10 px-3 py-2.5 text-xs font-bold text-sky-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Fulfill
                       </button>

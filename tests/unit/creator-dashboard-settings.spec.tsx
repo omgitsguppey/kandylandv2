@@ -393,6 +393,22 @@ describe("CreatorDashboardSettingsHub", () => {
     const creatorSelfLinks = Array.from(container.querySelectorAll("a"))
       .filter((anchor) => anchor.getAttribute("href") === "/dashboard/creator");
     expect(creatorSelfLinks).toHaveLength(0);
+    expect(container.textContent).not.toContain("Open section");
+  });
+
+  it("uses specific route labels and keeps source detail out of primary card copy", async () => {
+    const { container } = render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Public Profile")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText("Public Profile"));
+    expect(screen.getByText("Open profile")).toBeTruthy();
+    fireEvent.click(screen.getByText("Messages"));
+    expect(screen.getByText("Open chat")).toBeTruthy();
+    expect(container.textContent).not.toContain("Dashboard data connected.");
+    expect(container.textContent).not.toContain("Dashboard data unavailable.");
   });
 
   it("only links messages to chat when messaging is enabled and unrestricted", async () => {

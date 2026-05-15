@@ -210,7 +210,7 @@ export function CreatorBroadcastManager({
   }, [actorRole, canSendBroadcast, creatorId, message, readOnly, sending, title]);
 
   return (
-      <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-5">
+    <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-5">
       <PageViewEvent
         eventName="creator_broadcast_manager_viewed"
         eventParams={{
@@ -231,7 +231,7 @@ export function CreatorBroadcastManager({
           type="button"
           onClick={() => void loadBroadcasts()}
           disabled={!canReadBroadcasts}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-white"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
           Refresh
@@ -267,7 +267,7 @@ export function CreatorBroadcastManager({
               type="button"
               onClick={() => void handleSend()}
               disabled={sending || !canSendBroadcast || message.trim().length < 4}
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-purple px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               Create broadcast

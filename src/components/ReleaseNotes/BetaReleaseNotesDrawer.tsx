@@ -177,7 +177,7 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
               type="button"
               onClick={() => setPage((current) => Math.max(1, current - 1))}
               disabled={pagination.page <= 1}
-              className="rounded border border-white/15 px-2 py-1 text-white/70 disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-11 rounded border border-white/15 px-3 py-2.5 text-white/70 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Previous
             </button>
@@ -188,7 +188,7 @@ export function BetaReleaseNotesDrawer({ isOpen, onClose }: BetaReleaseNotesDraw
               type="button"
               onClick={() => setPage((current) => Math.min(pagination.totalPages, current + 1))}
               disabled={pagination.page >= pagination.totalPages}
-              className="rounded border border-white/15 px-2 py-1 text-white/70 disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-11 rounded border border-white/15 px-3 py-2.5 text-white/70 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next
             </button>

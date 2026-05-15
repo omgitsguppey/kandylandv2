@@ -102,6 +102,7 @@ function SectionCard({
   fanPassManagementState,
   bookingsManagementState,
   chatRouteConnected,
+  actionLabel,
   expanded,
   onToggle,
 }: {
@@ -118,6 +119,7 @@ function SectionCard({
   fanPassManagementState?: "subscriber_visibility" | "configuration_only" | "blocked";
   bookingsManagementState?: "connected" | "configuration_only" | "blocked" | "not_configured";
   chatRouteConnected?: boolean;
+  actionLabel?: string;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -152,8 +154,8 @@ function SectionCard({
         <div className="mt-3 border-t border-white/10 pt-3 text-sm text-gray-400">
           <p>{detail}</p>
           {href ? (
-            <Link href={href} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-brand-purple">
-              Open section
+            <Link href={href} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/10 px-3 py-2.5 text-sm font-semibold text-brand-purple transition hover:bg-brand-purple/15">
+              {actionLabel ?? "Open"}
               <ArrowRight className="h-4 w-4" />
             </Link>
           ) : null}
@@ -175,14 +177,6 @@ function combineEvidenceState(...states: SectionState[]): SectionState {
   if (states.includes("unavailable")) return "unavailable";
   if (states.includes("needs_review")) return "needs_review";
   return states.every((state) => state === "live") ? "live" : "needs_review";
-}
-
-function formatSourceEvidenceDetail(statsEvidence: CreatorStatsEvidence | null) {
-  if (!statsEvidence) {
-    return "Dashboard data unavailable.";
-  }
-
-  return "Dashboard data connected.";
 }
 
 export function CreatorDashboardSettingsHub() {
@@ -308,6 +302,7 @@ export function CreatorDashboardSettingsHub() {
     summary: string;
     detail: string;
     href?: string;
+    actionLabel?: string;
     icon: React.ReactNode;
     sourceTruth?: string;
     sourceFreshness?: string;
@@ -325,6 +320,7 @@ export function CreatorDashboardSettingsHub() {
         ? `Fans can find ${creatorName} at ${publicProfileHref}.`
         : "Set a username and display name, then publish the profile from creator settings.",
       href: publicProfileHref || "/dashboard/profile",
+      actionLabel: publicProfileHref ? "Open profile" : "Open profile settings",
       icon: <ShieldCheck className="h-4 w-4" />,
     },
     {
@@ -367,7 +363,7 @@ export function CreatorDashboardSettingsHub() {
       detail: fanPassRestricted
         ? "Fan Pass is restricted for this creator."
         : fanPassEnabled && subscriptionPriceGd > 0
-          ? `Subscriber visibility is connected below. Public creator pages own Fan Pass membership changes. ${formatSourceEvidenceDetail(statsEvidence)}`
+          ? "Subscriber visibility is connected below. Public creator pages own Fan Pass membership changes."
           : "Fan Pass subscriber visibility is configuration-only until pricing is enabled.",
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
@@ -392,6 +388,7 @@ export function CreatorDashboardSettingsHub() {
           : "Paid chat needs setup.",
       detail: messageSectionHref ? "Opens the existing chat dashboard." : "Chat is not enabled for this creator.",
       href: messageSectionHref,
+      actionLabel: "Open chat",
       chatRouteConnected: Boolean(messageSectionHref),
       icon: <MessageSquare className="h-4 w-4" />,
     },
@@ -415,7 +412,7 @@ export function CreatorDashboardSettingsHub() {
       detail: requestsRestricted
         ? "Custom requests are blocked for this creator."
         : requestsEnabled
-          ? `Manage pending custom requests below. ${formatSourceEvidenceDetail(statsEvidence)}`
+          ? "Manage pending custom requests below."
           : "Configuration-only until custom requests are enabled.",
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
@@ -442,7 +439,7 @@ export function CreatorDashboardSettingsHub() {
       detail: bookingsRestricted
         ? "Bookings are restricted for this creator."
         : bookingsEnabled && bookingsAvailabilityConfigured
-          ? `Manage booked live-time sessions below. ${formatSourceEvidenceDetail(statsEvidence)}`
+          ? "Manage booked live-time sessions below."
           : bookingsEnabled
             ? "Configure availability before accepting bookings."
             : "Bookings are configuration-only until enabled.",
@@ -468,7 +465,7 @@ export function CreatorDashboardSettingsHub() {
       state: earningsState,
       summary: earningsState === "live" && stats ? `${stats.earningsGd.toLocaleString()} GD earned, ${stats.pendingCashoutGd.toLocaleString()} GD pending.` : "Earnings need source review.",
       detail: stats
-        ? `${formatSourceEvidenceDetail(statsEvidence)} Followers: ${stats.followerCount.toLocaleString()} | Active subscribers: ${stats.activeSubscribers.toLocaleString()}`
+        ? `Ledger and payout totals are connected for review. Followers: ${stats.followerCount.toLocaleString()} | Active subscribers: ${stats.activeSubscribers.toLocaleString()}`
         : "Earnings roll up from the ledger and payout collections.",
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
@@ -480,7 +477,7 @@ export function CreatorDashboardSettingsHub() {
       title: "Notifications / audience",
       state: audienceState,
       summary: audienceState === "live" && stats ? `${stats.followerCount.toLocaleString()} followers | ${stats.profileViewsCount.toLocaleString()} profile views.` : "Audience source sample needs review.",
-      detail: `Audience visibility and follower state come from the creator relationship collections. ${formatSourceEvidenceDetail(statsEvidence)}`,
+      detail: "Audience visibility and follower state come from creator relationship records.",
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
       sampleCount: statsEvidence?.sampleCount,
@@ -569,6 +566,7 @@ export function CreatorDashboardSettingsHub() {
             summary={section.summary}
             detail={section.detail}
             href={section.href}
+            actionLabel={section.actionLabel}
             icon={section.icon}
             sourceTruth={section.sourceTruth}
             sourceFreshness={section.sourceFreshness}

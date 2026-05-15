@@ -1,0 +1,819 @@
+{
+  "generatedAtUtc": "2026-05-15T17:41:10.992Z",
+  "reportKey": "user-creator-ui-parity",
+  "currentHead": "d8ba11bc29a0400ed8633afa6709e374c649968e",
+  "summary": {
+    "surfacesScanned": 71,
+    "fakeActionsFound": 0,
+    "fakeActionsFixed": 1,
+    "mobileParityRisks": 0,
+    "mobileParityFixed": 2,
+    "routeParityRisks": 0,
+    "routeParityFixed": 1,
+    "eagerFetchRisks": 0,
+    "eagerFetchFixed": 0,
+    "deferredAdminBackend": 1,
+    "deferredPaymentRuntime": 1,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "surfaces": [
+    {
+      "path": "src/app/HomeClient.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/creators/[username]/page.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/creators/apply/page.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/creators/dashboard/page.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/creators/waitlist/page.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/DashboardClient.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/chat/layout.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/chat/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/creator/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/layout.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/library/LibraryClient.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/library/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/components/ProfileAccountSection.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/components/ProfileCreatorEarningsSection.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/components/ProfileCreatorToolsSection.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/components/ProfileNotificationsSection.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/components/ProfilePrimitives.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/components/ProfileProfileSection.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/creator/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/hooks/useProfileState.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/profile/profile-page-types.ts",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/settings/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/support/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/ViewerClient.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/ViewerHelpers.ts",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/components/DropInfoOverlay.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/components/MediaViewer.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/components/ThumbnailsSlider.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/components/ViewerSkeleton.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/hooks/useViewerFeedback.ts",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/hooks/useViewerSecurity.ts",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/hooks/useViewerState.ts",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/viewer/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/drops/DropsClient.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/drops/[id]/opengraph-image.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/drops/[id]/preview/loading.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/drops/[id]/preview/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/drops/loading.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/drops/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Chat/ChatExperience.tsx",
+      "classification": "shared_user_shell",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorAgreementFullText.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorAgreementReview.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorAgreementSignatureSection.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorBookingsManager.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorBroadcastManager.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorFanPassManager.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorPaidGdGuidanceCard.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorProfileHeader.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorRequestsManager.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorUpdatesFeed.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Drops/LockedDropPreviewClient.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Drops/LockedDropPreviewView.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Navigation/AdminDropdown.tsx",
+      "classification": "shared_user_shell",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Navigation/AnimateBalance.tsx",
+      "classification": "shared_user_shell",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Navigation/AutoScrollToTop.tsx",
+      "classification": "shared_user_shell",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Navigation/MobileBottomBar.tsx",
+      "classification": "shared_user_shell",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Navigation/NotificationBell.tsx",
+      "classification": "shared_user_shell",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Navigation/ProfileDropdown.tsx",
+      "classification": "shared_user_shell",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Navigation/ProfileSidebar.tsx",
+      "classification": "shared_user_shell",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Navigation/ScrollToTop.tsx",
+      "classification": "shared_user_shell",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/ReleaseNotes/BetaBadge.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    }
+  ],
+  "fixesApplied": [
+    {
+      "key": "creator_dashboard_specific_actions",
+      "severity": "P2",
+      "title": "Replaced generic creator card route copy with specific profile/chat affordances.",
+      "fileOrSurface": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "status": "fixed",
+      "ownerLane": "creator-ui",
+      "evidence": [
+        "actionLabel",
+        "Open profile",
+        "Open chat"
+      ],
+      "exactNextAction": "Keep route labels specific when adding dashboard card actions."
+    },
+    {
+      "key": "creator_primary_source_copy_demoted",
+      "severity": "P2",
+      "title": "Removed source-evidence helper copy from primary creator dashboard card details.",
+      "fileOrSurface": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "status": "fixed",
+      "ownerLane": "creator-ui",
+      "evidence": [
+        "data-creator-stats-source-truth",
+        "card detail copy"
+      ],
+      "exactNextAction": "Keep source truth in data attributes or debug/detail surfaces."
+    },
+    {
+      "key": "creator_manager_mobile_hit_targets",
+      "severity": "P2",
+      "title": "Raised creator manager refresh and mutation controls to mobile-safe hit targets.",
+      "fileOrSurface": "src/components/Creators/*Manager.tsx",
+      "status": "fixed",
+      "ownerLane": "creator-ui",
+      "evidence": [
+        "min-h-11",
+        "py-2.5"
+      ],
+      "exactNextAction": "Require min-h-11 or py-2.5 for future manager actions."
+    },
+    {
+      "key": "creator_agreement_scroll_approved",
+      "severity": "P2",
+      "title": "Marked the creator agreement text scroll region as an explicit approved nested scroll.",
+      "fileOrSurface": "src/components/Creators/CreatorAgreementFullText.tsx",
+      "status": "fixed",
+      "ownerLane": "creator-ui",
+      "evidence": [
+        "data-ui-nested-scroll=\"approved\""
+      ],
+      "exactNextAction": "Use approval data attrs only for intentionally bounded legal text regions."
+    }
+  ],
+  "deferredFindings": [
+    {
+      "key": "admin_backend_backlog_forbidden_today",
+      "severity": "P2",
+      "title": "Admin backend/debug/analytics backlog remains out of scope for this pass.",
+      "fileOrSurface": "admin-backend",
+      "status": "deferred",
+      "ownerLane": "admin-backend",
+      "evidence": [
+        "Forbidden by selected issue scope"
+      ],
+      "exactNextAction": "Handle in an admin-backend-specific issue with admin validators."
+    },
+    {
+      "key": "payment_runtime_forbidden_today",
+      "severity": "P2",
+      "title": "Payment, wallet, PayPal, and unlock runtime were not modified.",
+      "fileOrSurface": "payment-wallet-paypal",
+      "status": "deferred",
+      "ownerLane": "payment-runtime",
+      "evidence": [
+        "Forbidden by selected issue scope"
+      ],
+      "exactNextAction": "Handle only in a payment-runtime issue with payment guardrails."
+    }
+  ],
+  "nextFixOrder": [
+    "Run screenshot QA on user and creator mobile routes now that source parity is locked.",
+    "Run focused chat shell visual confirmation without changing message persistence.",
+    "Handle admin/debug/backend P2 backlog only in an admin-scoped issue.",
+    "Handle payment/wallet/PayPal parity only in a payment-scoped issue."
+  ]
+}

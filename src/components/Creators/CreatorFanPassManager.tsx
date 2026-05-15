@@ -172,7 +172,7 @@ export function CreatorFanPassManager({
           type="button"
           onClick={() => void loadSubscribers()}
           disabled={!canLoadSubscribers || loading}
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2.5 text-xs font-bold text-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
           Refresh
@@ -216,7 +216,7 @@ export function CreatorFanPassManager({
                         {status.replaceAll("_", " ")}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm text-gray-300">{price} · {nextDate}</p>
+                    <p className="mt-1 text-sm text-gray-300">{price} - {nextDate}</p>
                     {subscriber.renewalState ? <p className="mt-1 text-xs text-gray-500">Renewal: {subscriber.renewalState}</p> : null}
                   </div>
                 </div>

@@ -44,7 +44,7 @@ export function CreatorAgreementFullText({
                 ))}
             </div>
 
-            <div className="mt-4 max-h-[28rem] space-y-3 overflow-y-auto pr-1 text-sm leading-6 text-gray-300">
+            <div className="mt-4 max-h-[28rem] space-y-3 overflow-y-auto pr-1 text-sm leading-6 text-gray-300" data-ui-nested-scroll="approved" data-ui-scroll-owner="creator-agreement-full-text">
                 {CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.map((section) => {
                     const isOpen = openAgreementSections[section.heading] === true;
 
