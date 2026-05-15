@@ -1,0 +1,957 @@
+{
+  "generatedAtUtc": "2026-05-15T04:14:13.678Z",
+  "reportKey": "product-surface-integrity",
+  "currentHead": "a81f0188d63161f8f7e1d1ec36ffaecd8f091fd8",
+  "summary": {
+    "sourceReportsRead": 5,
+    "staleAuthorityRisks": 2,
+    "fakeActionRisks": 0,
+    "mobileUiContractRisks": 1,
+    "debugCopyLeaks": 0,
+    "costGuardrailRisks": 29,
+    "connectionRisks": 0,
+    "fixedThisPass": 3,
+    "deferredWithOwner": 32,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 32
+  },
+  "sourceReports": [
+    {
+      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "command": "npm run check:user-facing-feature-connection-audit",
+      "exists": true,
+      "generatedAtUtc": "2026-05-15T03:24:42.418Z",
+      "currentHead": "c7f18cded9a257d973c70a0c308efb86aa9d511c",
+      "sourceState": "stale_head"
+    },
+    {
+      "path": "agent/state/speed-security-hardening.generated.json",
+      "command": "npm run score:speed-security",
+      "exists": true,
+      "generatedAtUtc": "2026-05-15T04:12:17.520Z",
+      "currentHead": null,
+      "sourceState": "fresh_without_head"
+    },
+    {
+      "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "command": "npm run check:repo-spring-cleaning-rewire",
+      "exists": true,
+      "generatedAtUtc": "2026-05-15T04:12:43.568Z",
+      "currentHead": "a81f0188d63161f8f7e1d1ec36ffaecd8f091fd8",
+      "sourceState": "current"
+    },
+    {
+      "path": "agent/state/debug-panel-output-triage.generated.json",
+      "command": "npm run check:debug-panel-output-triage",
+      "exists": true,
+      "generatedAtUtc": "2026-05-14T17:01:23.863Z",
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "sourceState": "stale_head"
+    },
+    {
+      "path": "agent/state/public-beta-score.generated.json",
+      "command": "npm run score:beta",
+      "exists": true,
+      "generatedAtUtc": "2026-05-14T14:14:43.772Z",
+      "currentHead": null,
+      "sourceState": "fresh_without_head"
+    }
+  ],
+  "staleAuthorityFindings": [
+    {
+      "id": "stale_report_1",
+      "severity": "P2",
+      "title": "Generated report is stale relative to current HEAD",
+      "filePath": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "line": null,
+      "evidence": [
+        "npm run check:user-facing-feature-connection-audit",
+        "reportHead=c7f18cded9a257d973c70a0c308efb86aa9d511c"
+      ],
+      "owner": "report-owner",
+      "action": "archive_or_stale",
+      "status": "stale_evidence"
+    },
+    {
+      "id": "stale_report_2",
+      "severity": "P2",
+      "title": "Generated report is stale relative to current HEAD",
+      "filePath": "agent/state/debug-panel-output-triage.generated.json",
+      "line": null,
+      "evidence": [
+        "npm run check:debug-panel-output-triage",
+        "reportHead=104e5c038d45fd2edc8f7925076e45e84f39e6d5"
+      ],
+      "owner": "report-owner",
+      "action": "archive_or_stale",
+      "status": "stale_evidence"
+    }
+  ],
+  "fakeActionFindings": [],
+  "mobileUiContractFindings": [
+    {
+      "id": "nested_scroll_src_components_Admin_AdminSupportQueue_tsx",
+      "severity": "P2",
+      "title": "Admin mobile surface has multiple scroll regions that need owner review",
+      "filePath": "src/components/Admin/AdminSupportQueue.tsx",
+      "line": 255,
+      "evidence": [
+        "2 overflow scroll markers"
+      ],
+      "owner": "admin-ui-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    }
+  ],
+  "debugCopyLeakFindings": [],
+  "costGuardrailFindings": [
+    {
+      "id": "fanout_src_app_admin_drops_page_tsx",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/admin/drops/page.tsx",
+      "line": 549,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_admin_content_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/admin/content/route.ts",
+      "line": 124,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_admin_creator_fan_experience_settings_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
+      "line": 132,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_admin_roster_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/admin/roster/route.ts",
+      "line": 458,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_admin_users_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/admin/users/route.ts",
+      "line": 947,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_creator_relationships_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/creator/relationships/route.ts",
+      "line": 148,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_cron_process_creator_subscriptions_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
+      "line": 94,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_viewer_watch_session_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/viewer/watch-session/route.ts",
+      "line": 178,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_admin_analytics_historical_users_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/admin-analytics-historical-users.ts",
+      "line": 44,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_admin_analytics_shared_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/admin-analytics-shared.ts",
+      "line": 447,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_admin_overview_users_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/admin-overview-users.ts",
+      "line": 98,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_ai_drop_covers_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/ai-drop-covers.ts",
+      "line": 1415,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_chat_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/chat.ts",
+      "line": 595,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_creator_admin_actions_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/creator-admin-actions.ts",
+      "line": 200,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_creator_discovery_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/creator-discovery.ts",
+      "line": 37,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_drop_references_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/drop-references.ts",
+      "line": 68,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_queue_runtime_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/queue-runtime.ts",
+      "line": 35,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_username_suggestions_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/username-suggestions.ts",
+      "line": 130,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_ui_continuity_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/ui-continuity.ts",
+      "line": 83,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_functions_src_queue_runtime_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "functions/src/queue-runtime.ts",
+      "line": 199,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_1",
+      "severity": "P2",
+      "title": "Mutating route has body limit contract but no source-visible cap",
+      "filePath": "src/app/api/admin/balance/route.ts",
+      "line": 38,
+      "evidence": [
+        "64 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_2",
+      "severity": "P2",
+      "title": "Route may collapse expected domain failures into generic 500s",
+      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
+      "line": 23,
+      "evidence": [
+        "14 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_3",
+      "severity": "P2",
+      "title": "Potential unbounded Promise.all fanout",
+      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
+      "line": 132,
+      "evidence": [
+        "8 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_4",
+      "severity": "P2",
+      "title": "Storage/media route lacks entitlement or media-proxy guard evidence",
+      "filePath": "src/app/api/creator/drops/assets/route.ts",
+      "line": 5,
+      "evidence": [
+        "3 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_5",
+      "severity": "P2",
+      "title": "Public/cacheable route uses no-store or force-dynamic",
+      "filePath": "src/app/api/drops/route.ts",
+      "line": 12,
+      "evidence": [
+        "3 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_6",
+      "severity": "P2",
+      "title": "Public shell surface uses interval work",
+      "filePath": "src/components/Analytics/DeepTracker.tsx",
+      "line": 625,
+      "evidence": [
+        "2 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_7",
+      "severity": "P2",
+      "title": "Paid Google API surface lacks full timeout/budget evidence",
+      "filePath": "src/lib/server/admin-analytics-data.ts",
+      "line": 3,
+      "evidence": [
+        "3 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_8",
+      "severity": "P2",
+      "title": "Custom backend App Check token path is not source-visible",
+      "filePath": "src/lib/authFetch.ts",
+      "line": null,
+      "evidence": [
+        "1 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_9",
+      "severity": "P2",
+      "title": "App Check readiness is contract-only and not yet enforced",
+      "filePath": "src/lib/server/security-hardening-contract.ts",
+      "line": null,
+      "evidence": [
+        "1 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    }
+  ],
+  "connectionFindings": [],
+  "fixesApplied": [
+    {
+      "id": "product_surface_validator_added",
+      "severity": "P2",
+      "title": "Product surface integrity report and validator added",
+      "filePath": "scripts/agent/validate-product-surface-integrity.ts",
+      "line": null,
+      "evidence": [
+        "check:product-surface-integrity"
+      ],
+      "owner": "repo-governance-owner",
+      "action": "fixed",
+      "status": "fixed"
+    },
+    {
+      "id": "creator_primary_source_copy_removed",
+      "severity": "P1",
+      "title": "Creator Dashboard primary cards no longer expose sourceTruth/freshness/sample counts",
+      "filePath": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "line": null,
+      "evidence": [
+        "Dashboard data connected.",
+        "data attrs retain source metadata"
+      ],
+      "owner": "creator-dashboard-owner",
+      "action": "fixed",
+      "status": "fixed"
+    },
+    {
+      "id": "stale_reports_demoted",
+      "severity": "P2",
+      "title": "Stale generated reports are classified as evidence-only instead of live authority",
+      "filePath": "agent/state/product-surface-integrity.generated.json",
+      "line": null,
+      "evidence": [
+        "staleAuthorityFindings",
+        "nextFixOrder"
+      ],
+      "owner": "report-owner",
+      "action": "fixed",
+      "status": "fixed"
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "stale_report_1",
+      "severity": "P2",
+      "title": "Generated report is stale relative to current HEAD",
+      "filePath": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "line": null,
+      "evidence": [
+        "npm run check:user-facing-feature-connection-audit",
+        "reportHead=c7f18cded9a257d973c70a0c308efb86aa9d511c"
+      ],
+      "owner": "report-owner",
+      "action": "archive_or_stale",
+      "status": "stale_evidence"
+    },
+    {
+      "id": "stale_report_2",
+      "severity": "P2",
+      "title": "Generated report is stale relative to current HEAD",
+      "filePath": "agent/state/debug-panel-output-triage.generated.json",
+      "line": null,
+      "evidence": [
+        "npm run check:debug-panel-output-triage",
+        "reportHead=104e5c038d45fd2edc8f7925076e45e84f39e6d5"
+      ],
+      "owner": "report-owner",
+      "action": "archive_or_stale",
+      "status": "stale_evidence"
+    },
+    {
+      "id": "nested_scroll_src_components_Admin_AdminSupportQueue_tsx",
+      "severity": "P2",
+      "title": "Admin mobile surface has multiple scroll regions that need owner review",
+      "filePath": "src/components/Admin/AdminSupportQueue.tsx",
+      "line": 255,
+      "evidence": [
+        "2 overflow scroll markers"
+      ],
+      "owner": "admin-ui-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_admin_drops_page_tsx",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/admin/drops/page.tsx",
+      "line": 549,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_admin_content_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/admin/content/route.ts",
+      "line": 124,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_admin_creator_fan_experience_settings_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
+      "line": 132,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_admin_roster_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/admin/roster/route.ts",
+      "line": 458,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_admin_users_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/admin/users/route.ts",
+      "line": 947,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_creator_relationships_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/creator/relationships/route.ts",
+      "line": 148,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_cron_process_creator_subscriptions_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
+      "line": 94,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_app_api_viewer_watch_session_route_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/app/api/viewer/watch-session/route.ts",
+      "line": 178,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_admin_analytics_historical_users_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/admin-analytics-historical-users.ts",
+      "line": 44,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_admin_analytics_shared_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/admin-analytics-shared.ts",
+      "line": 447,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_admin_overview_users_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/admin-overview-users.ts",
+      "line": 98,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_ai_drop_covers_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/ai-drop-covers.ts",
+      "line": 1415,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_chat_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/chat.ts",
+      "line": 595,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_creator_admin_actions_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/creator-admin-actions.ts",
+      "line": 200,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_creator_discovery_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/creator-discovery.ts",
+      "line": 37,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_drop_references_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/drop-references.ts",
+      "line": 68,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_queue_runtime_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/queue-runtime.ts",
+      "line": 35,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_server_username_suggestions_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/server/username-suggestions.ts",
+      "line": 130,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_src_lib_ui_continuity_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "src/lib/ui-continuity.ts",
+      "line": 83,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "fanout_functions_src_queue_runtime_ts",
+      "severity": "P2",
+      "title": "Potential array fanout needs bounded worker pool review",
+      "filePath": "functions/src/queue-runtime.ts",
+      "line": 199,
+      "evidence": [
+        "Promise.all(...map) or Promise.allSettled(...map)"
+      ],
+      "owner": "cost-guardrail-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_1",
+      "severity": "P2",
+      "title": "Mutating route has body limit contract but no source-visible cap",
+      "filePath": "src/app/api/admin/balance/route.ts",
+      "line": 38,
+      "evidence": [
+        "64 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_2",
+      "severity": "P2",
+      "title": "Route may collapse expected domain failures into generic 500s",
+      "filePath": "src/app/api/admin/creator-account-controls/route.ts",
+      "line": 23,
+      "evidence": [
+        "14 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_3",
+      "severity": "P2",
+      "title": "Potential unbounded Promise.all fanout",
+      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
+      "line": 132,
+      "evidence": [
+        "8 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_4",
+      "severity": "P2",
+      "title": "Storage/media route lacks entitlement or media-proxy guard evidence",
+      "filePath": "src/app/api/creator/drops/assets/route.ts",
+      "line": 5,
+      "evidence": [
+        "3 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_5",
+      "severity": "P2",
+      "title": "Public/cacheable route uses no-store or force-dynamic",
+      "filePath": "src/app/api/drops/route.ts",
+      "line": 12,
+      "evidence": [
+        "3 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_6",
+      "severity": "P2",
+      "title": "Public shell surface uses interval work",
+      "filePath": "src/components/Analytics/DeepTracker.tsx",
+      "line": 625,
+      "evidence": [
+        "2 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_7",
+      "severity": "P2",
+      "title": "Paid Google API surface lacks full timeout/budget evidence",
+      "filePath": "src/lib/server/admin-analytics-data.ts",
+      "line": 3,
+      "evidence": [
+        "3 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_8",
+      "severity": "P2",
+      "title": "Custom backend App Check token path is not source-visible",
+      "filePath": "src/lib/authFetch.ts",
+      "line": null,
+      "evidence": [
+        "1 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    },
+    {
+      "id": "speed_security_group_9",
+      "severity": "P2",
+      "title": "App Check readiness is contract-only and not yet enforced",
+      "filePath": "src/lib/server/security-hardening-contract.ts",
+      "line": null,
+      "evidence": [
+        "1 current speed/security finding(s) in this group."
+      ],
+      "owner": "speed-security-owner",
+      "action": "defer_needs_owner",
+      "status": "deferred"
+    }
+  ],
+  "nextFixOrder": [
+    "admin_route_body_limits: add readBoundedJsonBody to the admin routes still flagged by speed-security.",
+    "repo_spring_cleaning_generated_reports: refresh or archive stale generated reports with their owning validators.",
+    "cost_fanout_review: add bounded worker pools/source markers to current Promise.all map findings outside forbidden surfaces.",
+    "admin_mobile_scroll_review: reduce nested scroll regions in Admin Support/transaction modal with source-approved scroll ownership."
+  ]
+}

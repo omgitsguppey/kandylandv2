@@ -179,10 +179,10 @@ function combineEvidenceState(...states: SectionState[]): SectionState {
 
 function formatSourceEvidenceDetail(statsEvidence: CreatorStatsEvidence | null) {
   if (!statsEvidence) {
-    return "Source metadata unavailable.";
+    return "Dashboard data unavailable.";
   }
 
-  return `Source truth: ${statsEvidence.sourceTruth}. Freshness: ${statsEvidence.sourceFreshness}. Samples: ${statsEvidence.sampleCount}.`;
+  return "Dashboard data connected.";
 }
 
 export function CreatorDashboardSettingsHub() {

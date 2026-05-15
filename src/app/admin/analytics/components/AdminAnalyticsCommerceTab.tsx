@@ -526,12 +526,14 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               </div>
                               <AdminStatusBadge state={resolveAdminAnalyticsContentConversionRowTruthState(row.conversionState)} />
                             </div>
-                            <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                            <div
+                              className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400"
+                              data-product-surface-integrity-debug-detail
+                              title={`Source: ${row.sourceTruth}; Freshness: ${row.freshnessState}`}
+                            >
                               <span>
                                 Rate: {row.unlockRatePct !== null ? formatPercent(row.unlockRatePct / 100) : "Unavailable"}
                               </span>
-                              <span>Source: {row.sourceTruth}</span>
-                              <span>Freshness: {row.freshnessState}</span>
                               <span>
                                 Viewer: {(row.viewerOpenCount ?? 0).toLocaleString()}
                               </span>
@@ -545,7 +547,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                           <div className="hidden items-start gap-2 md:grid md:grid-cols-[minmax(0,1.4fr)_0.7fr_0.75fr_0.75fr_0.8fr_0.8fr_0.8fr_0.8fr]">
                             <div className="min-w-0">
                               <p className="truncate text-sm font-semibold text-white">{row.groupLabel}</p>
-                              <p className="mt-1 text-[11px] leading-5 text-gray-500">{`${row.sourceTruth} | ${row.freshnessState} | ${row.explanation}`}</p>
+                              <p className="mt-1 text-[11px] leading-5 text-gray-500" data-product-surface-integrity-debug-detail title={`Source: ${row.sourceTruth}; Freshness: ${row.freshnessState}`}>{row.explanation}</p>
                             </div>
                             <div className="text-sm font-semibold text-white">{row.dropCount}</div>
                             <div className="text-sm font-semibold text-white">{row.previewCount.toLocaleString()}</div>

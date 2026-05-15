@@ -322,13 +322,13 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
               </div>
 
               <div className="mt-3 grid gap-2.5 lg:grid-cols-3">
-                <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
-                  <p className="font-semibold text-white">Guest estimate</p>
+                <details className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300" data-product-surface-integrity-debug-detail>
+                  <summary className="cursor-pointer list-none font-semibold text-white">Guest estimate source detail</summary>
                   <p>Label: {vendorEvidenceLabel}</p>
                   <p>Source: {audienceSnapshotModel.guestEstimateMetadata.sourceTruth}</p>
                   <p>Formula: {audienceSnapshotModel.guestEstimateMetadata.formula ?? "Unavailable"}</p>
                   <p>Freshness: {audienceSnapshotModel.guestEstimateMetadata.freshnessState}</p>
-                </div>
+                </details>
                 <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
                   <p className="font-semibold text-white">First-party continuity</p>
                   <p>

@@ -217,6 +217,7 @@
         "check:creator-dashboard-projection-lock": "tsx scripts/agent/validate-creator-dashboard-projection-lock.ts",
         "check:settings-creator-dashboard-split": "tsx scripts/agent/validate-settings-creator-dashboard-split.ts",
         "check:user-facing-feature-connection-audit": "tsx scripts/agent/validate-user-facing-feature-connection-audit.ts",
+        "check:product-surface-integrity": "tsx scripts/agent/validate-product-surface-integrity.ts",
         "check:mobile-shell-safe-area": "tsx scripts/agent/validate-mobile-shell-safe-area.ts",
         "check:device-layout-contract": "tsx scripts/agent/validate-device-layout-contract.ts",
         "score:layout": "tsx scripts/agent/score-device-layout-contract.ts",
