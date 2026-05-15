@@ -4978,11 +4978,18 @@ export async function GET(request: NextRequest) {
                 .map((entry) => entry.attribution)
                 .filter((entry): entry is TaskIssueAttribution => Boolean(entry)),
         };
+        // ⚡ Bolt: Replace O(N^2) array lookup with O(1) Map lookup
+        const taskInventoryMap = new Map<string, typeof taskInventory[0]>();
+        taskInventory.forEach((entry) => {
+            if (!taskInventoryMap.has(entry.taskId)) {
+                taskInventoryMap.set(entry.taskId, entry);
+            }
+        });
         const unsupportedRuntimeGroupsMap = runtimeTaskAudit.unsupportedRuntimeRecords.reduce((map, record) => {
             const reason = classifyRuntimeUnsupportedReason(record);
             const source = sourceLabelForRuntimeDriftKind(record.kind);
             const taskDefinition = record.taskId ? taskDefinitionsById.get(record.taskId) : undefined;
-            const inventoryEntry = record.taskId ? taskInventory.find((entry) => entry.taskId === record.taskId) : undefined;
+            const inventoryEntry = record.taskId ? taskInventoryMap.get(record.taskId) : undefined;
             const activityScope: RuntimeUnsupportedGroup["activityScope"] = typeof record.timestamp === "number" && record.timestamp >= currentDailyTaskWindow.windowStartMs
                 ? "active"
                 : "historical";
@@ -5828,8 +5835,16 @@ export async function GET(request: NextRequest) {
                     adminExcludedFromUserGuestBehavior: true,
                     unknownActorNeverPromotedToAuthenticatedUser: true,
                 },
-                modules: ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
-                    const latestSnapshot = adminMetricSnapshots.find((snapshot) => snapshot.moduleKey === entry.moduleKey) ?? null;
+                // ⚡ Bolt: Optimize O(N^2) loop array lookups to use Map lookups
+                modules: (() => {
+                    const snapshotMap = new Map<string, typeof adminMetricSnapshots[0]>();
+                    adminMetricSnapshots.forEach(snapshot => {
+                        if (!snapshotMap.has(snapshot.moduleKey)) {
+                            snapshotMap.set(snapshot.moduleKey, snapshot);
+                        }
+                    });
+                    return ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
+                        const latestSnapshot = snapshotMap.get(entry.moduleKey) ?? null;
                     return {
                         moduleKey: entry.moduleKey,
                         label: entry.label,
@@ -5868,7 +5883,8 @@ export async function GET(request: NextRequest) {
                         debugPath: latestSnapshot?.debugPath ?? `/admin/debug?tab=advanced#analytics-snapshots/${entry.moduleKey}`,
                         fakeZeroPreventedPolicy: "Missing source values remain null/unavailable and are detailed in Debug.",
                     };
-                }),
+                    });
+                })(),
                 compactAnalyticsRules: [
                     "No giant empty charts.",
                     "No repeated degraded badge spam.",
