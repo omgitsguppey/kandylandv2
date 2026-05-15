@@ -26,8 +26,10 @@ import { isWithinAnyWindow } from "./booking-timezone";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 const CREATOR_BOOKINGS_READ_LIMIT = 200;
+const CREATOR_BOOKING_BODY_LIMIT_BYTES = 32_768;
 
 type CreatorBookingProblemCode =
     | "creator_or_user_not_found"
@@ -97,6 +99,15 @@ function buildBookingProblemResponse(problem: CreatorBookingProblem) {
         paidBalanceGd: toOptionalNumber(problem.context.paidBalanceGd),
         shortfallGd: toOptionalNumber(problem.context.shortfallGd),
     }, { status: problem.status });
+}
+
+function buildBoundedBookingBodyResponse(error: { status: 400 | 413; code: string; message: string }) {
+    return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+        message: error.message,
+    }, { status: error.status });
 }
 
 function isAuthUnauthorized(error: unknown) {
@@ -195,8 +206,16 @@ async function POST_handler(request: NextRequest) {
 
         let bookingRequest: z.infer<typeof createBookingSchema>;
         try {
-            bookingRequest = createBookingSchema.parse(await request.json());
-        } catch {
+            const body = await readBoundedJsonBody<z.infer<typeof createBookingSchema>>(request, {
+                maxBytes: CREATOR_BOOKING_BODY_LIMIT_BYTES,
+                routeName: "creator/bookings:POST",
+                allowEmpty: false,
+            });
+            bookingRequest = createBookingSchema.parse(body);
+        } catch (error) {
+            if (isBoundedJsonBodyError(error)) {
+                return buildBoundedBookingBodyResponse(error);
+            }
             return buildBookingProblemResponse(new CreatorBookingProblem(
                 400,
                 "invalid_booking_request",
@@ -559,7 +578,12 @@ async function PUT_handler(request: NextRequest) {
             return buildAdminCreatorProjectionReadOnlyResponse();
         }
 
-        const { bookingId, action } = updateBookingSchema.parse(await request.json());
+        const body = await readBoundedJsonBody<z.infer<typeof updateBookingSchema>>(request, {
+            maxBytes: CREATOR_BOOKING_BODY_LIMIT_BYTES,
+            routeName: "creator/bookings:PUT",
+            allowEmpty: false,
+        });
+        const { bookingId, action } = updateBookingSchema.parse(body);
         const isAdmin = callerData?.role === "admin";
 
         const bookingRef = adminDb.collection(CREATOR_COLLECTIONS.bookings).doc(bookingId);
@@ -590,6 +614,9 @@ async function PUT_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true, status: nextStatus });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return buildBoundedBookingBodyResponse(error);
+        }
         return handleApiError(error, "Creator.Bookings.PUT");
     }
 }

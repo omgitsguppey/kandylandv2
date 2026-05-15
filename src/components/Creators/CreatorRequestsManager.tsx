@@ -85,6 +85,7 @@ export function CreatorRequestsManager({
   const loadRequestIdRef = useRef(0);
   const pendingActionIdRef = useRef<string | null>(null);
   const canLoadRequests = Boolean(creatorId && enabled && !restricted);
+  const requestsUrl = useMemo(() => `/api/creator/requests?creatorId=${encodeURIComponent(creatorId)}`, [creatorId]);
 
   const loadRequests = useCallback(async () => {
     if (!canLoadRequests) {
@@ -99,7 +100,7 @@ export function CreatorRequestsManager({
     setLoading(true);
     setError(null);
     try {
-      const response = await authFetch("/api/creator/requests");
+      const response = await authFetch(requestsUrl);
       const body = await response.json().catch(() => ({})) as CreatorRequestsResponse;
       if (!response.ok) {
         throw new Error(body.error || body.message || "Requests are unavailable.");
@@ -117,7 +118,7 @@ export function CreatorRequestsManager({
         setLoading(false);
       }
     }
-  }, [canLoadRequests]);
+  }, [canLoadRequests, requestsUrl]);
 
   useEffect(() => {
     void loadRequests();

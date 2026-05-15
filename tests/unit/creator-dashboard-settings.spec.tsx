@@ -61,6 +61,44 @@ vi.mock("@/components/Creators/CreatorRequestsManager", () => ({
   ),
 }));
 
+vi.mock("@/components/Creators/CreatorBookingsManager", () => ({
+  CreatorBookingsManager: (props: {
+    enabled: boolean;
+    restricted: boolean;
+    readOnly: boolean;
+    sourceState: string;
+    availabilityConfigured: boolean;
+  }) => (
+    <div
+      data-testid="bookings-manager"
+      data-enabled={String(props.enabled)}
+      data-restricted={String(props.restricted)}
+      data-read-only={String(props.readOnly)}
+      data-source-state={props.sourceState}
+      data-availability-configured={String(props.availabilityConfigured)}
+    />
+  ),
+}));
+
+vi.mock("@/components/Creators/CreatorFanPassManager", () => ({
+  CreatorFanPassManager: (props: {
+    enabled: boolean;
+    restricted: boolean;
+    priceGd: number;
+    readOnly: boolean;
+    sourceState: string;
+  }) => (
+    <div
+      data-testid="fan-pass-manager"
+      data-enabled={String(props.enabled)}
+      data-restricted={String(props.restricted)}
+      data-price-gd={String(props.priceGd)}
+      data-read-only={String(props.readOnly)}
+      data-source-state={props.sourceState}
+    />
+  ),
+}));
+
 import { CreatorDashboardSettingsHub } from "@/components/Creators/CreatorDashboardSettingsHub";
 
 function source(value: number, state = value > 0 ? "verified_sample" : "queried_zero", sampleKnown = true) {
@@ -155,6 +193,8 @@ describe("CreatorDashboardSettingsHub", () => {
       expect(screen.getByText("Earnings / payout")).toBeTruthy();
       expect(screen.getByText("Notifications / audience")).toBeTruthy();
       expect(screen.getByTestId("requests-manager")).toBeTruthy();
+      expect(screen.getByTestId("bookings-manager")).toBeTruthy();
+      expect(screen.getByTestId("fan-pass-manager")).toBeTruthy();
       expect(screen.getByTestId("broadcast-manager")).toBeTruthy();
     });
   });
@@ -204,7 +244,7 @@ describe("CreatorDashboardSettingsHub", () => {
 
     await waitFor(() => {
       expect(section(container, "fan_pass").dataset.creatorSectionState).toBe("blocked");
-      expect(section(container, "fan_pass").dataset.creatorFanPassManagementState).toBe("configuration_only");
+      expect(section(container, "fan_pass").dataset.creatorFanPassManagementState).toBe("blocked");
     });
   });
 
@@ -252,9 +292,23 @@ describe("CreatorDashboardSettingsHub", () => {
 
     await waitFor(() => {
       expect(section(container, "bookings").dataset.creatorSectionState).toBe("live");
-      expect(section(container, "bookings").dataset.creatorBookingsManagementState).toBe("not_connected");
+      expect(section(container, "bookings").dataset.creatorBookingsManagementState).toBe("connected");
       expect(section(container, "earnings").dataset.creatorSectionState).toBe("needs_review");
       expect(screen.getByText("Earnings need source review.")).toBeTruthy();
+    });
+  });
+
+  it("passes connected booking and Fan Pass state into the dashboard managers", async () => {
+    const { container } = render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bookings-manager").dataset.enabled).toBe("true");
+      expect(screen.getByTestId("bookings-manager").dataset.availabilityConfigured).toBe("true");
+      expect(screen.getByTestId("bookings-manager").dataset.sourceState).toBe("live");
+      expect(screen.getByTestId("fan-pass-manager").dataset.enabled).toBe("true");
+      expect(screen.getByTestId("fan-pass-manager").dataset.priceGd).toBe("500");
+      expect(section(container, "fan_pass").dataset.creatorFanPassManagementState).toBe("subscriber_visibility");
+      expect(section(container, "bookings").dataset.creatorBookingsManagementState).toBe("connected");
     });
   });
 

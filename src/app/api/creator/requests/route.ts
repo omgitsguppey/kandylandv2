@@ -119,13 +119,27 @@ async function GET_handler(request: NextRequest) {
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
-        const callerId = projection?.targetCreatorId || caller.uid;
-        const effectiveCallerSnap = projection ? await adminDb.collection("users").doc(callerId).get() : callerSnap;
-        const effectiveCallerData = effectiveCallerSnap.data() as Record<string, unknown> | undefined;
-        const isCreator = isCreatorRole(effectiveCallerData?.role);
+        const requestedCreatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || "";
+        const callerIsAdmin = callerData?.role === "admin";
+        const callerIsCreator = isCreatorRole(callerData?.role);
+        const projectionCreatorId = projection?.targetCreatorId || "";
+        const canManageRequestedCreator = Boolean(projectionCreatorId)
+            || callerIsAdmin
+            || (callerIsCreator && requestedCreatorId === caller.uid);
+        const queryCreatorId = projectionCreatorId || (canManageRequestedCreator ? requestedCreatorId : "");
+        const field = queryCreatorId
+            ? "creatorId"
+            : callerIsCreator
+                ? "creatorId"
+                : "userId";
+        const queryValue = queryCreatorId || caller.uid;
+        let query = adminDb.collection(CREATOR_COLLECTIONS.requests)
+            .where(field, "==", queryValue);
+        if (requestedCreatorId && !canManageRequestedCreator && !projectionCreatorId) {
+            query = query.where("userId", "==", caller.uid);
+        }
 
-        const snap = await adminDb.collection(CREATOR_COLLECTIONS.requests)
-            .where(isCreator ? "creatorId" : "userId", "==", callerId)
+        const snap = await query
             .limit(CREATOR_REQUESTS_READ_LIMIT)
             .get();
 

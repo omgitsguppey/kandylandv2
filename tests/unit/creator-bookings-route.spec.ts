@@ -15,13 +15,22 @@ const mockState = vi.hoisted(() => {
             where(field: string, _operator: string, value: unknown) {
                 return buildQuery(name, [...filters, { field, value }]);
             },
+            limit() {
+                return buildQuery(name, filters);
+            },
             doc(id: string) {
                 return {
+                    id,
                     async get() {
                         return {
+                            id,
                             exists: documents.has(`${name}/${id}`),
                             data: () => documents.get(`${name}/${id}`),
                         };
+                    },
+                    set(value: Record<string, unknown>, options?: { merge?: boolean }) {
+                        const existing = documents.get(`${name}/${id}`) ?? {};
+                        documents.set(`${name}/${id}`, options?.merge ? { ...existing, ...value } : value);
                     },
                 };
             },
@@ -97,7 +106,7 @@ vi.mock("@/lib/server/analytics", () => ({
     trackServerEvent: vi.fn(),
 }));
 
-import { GET } from "@/app/api/creator/bookings/route";
+import { GET, POST, PUT } from "@/app/api/creator/bookings/route";
 import { getTimeZoneParts, isWithinAnyWindow } from "@/app/api/creator/bookings/booking-timezone";
 
 describe("GET /api/creator/bookings", () => {
@@ -140,6 +149,60 @@ describe("GET /api/creator/bookings", () => {
 
         expect(response.status).toBe(200);
         expect(body.bookings).toHaveLength(2);
+    });
+
+    it("rejects oversized booking create payloads before parsing JSON", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
+        mockState.documents.set("users/fan_1", { role: "user" });
+        const oversizedBody = JSON.stringify({
+            creatorId: "creator_1",
+            serviceType: "video",
+            startAt: Date.now(),
+            durationMinutes: 30,
+            idempotencyKey: "x".repeat(33_000),
+        });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {
+            method: "POST",
+            body: oversizedBody,
+            headers: {
+                "Content-Type": "application/json",
+                "content-length": String(oversizedBody.length),
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({ success: false, code: "payload_too_large" });
+    });
+
+    it("rejects oversized booking update payloads before parsing JSON", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "creator_1" });
+        mockState.documents.set("users/creator_1", { role: "creator" });
+        mockState.documents.set("creator_call_bookings/booking_1", {
+            creatorId: "creator_1",
+            userId: "fan_1",
+            status: "booked",
+        });
+        const oversizedBody = JSON.stringify({
+            bookingId: "booking_1",
+            action: "cancel",
+            note: "x".repeat(33_000),
+        });
+
+        const response = await PUT(new NextRequest("http://localhost/api/creator/bookings", {
+            method: "PUT",
+            body: oversizedBody,
+            headers: {
+                "Content-Type": "application/json",
+                "content-length": String(oversizedBody.length),
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({ success: false, code: "payload_too_large" });
+        expect(mockState.documents.get("creator_call_bookings/booking_1")).toMatchObject({ status: "booked" });
     });
 });
 

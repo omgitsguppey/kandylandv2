@@ -1,17 +1,17 @@
 {
-  "generatedAtUtc": "2026-05-14T23:25:19.096Z",
+  "generatedAtUtc": "2026-05-15T00:45:42.901Z",
   "reportKey": "user-facing-feature-connection-audit",
-  "currentHead": "b5909742ab4990a21d65d7031abc544f43ffc215",
+  "currentHead": "9b587ae1957be2c40f5327af0c7d031aea5c0d18",
   "summary": {
     "surfacesScanned": 9,
-    "connectedSurfaces": 4,
-    "disconnectedSurfaces": 5,
+    "connectedSurfaces": 6,
+    "disconnectedSurfaces": 3,
     "fakeLiveRisks": 0,
     "raceConditionRisks": 0,
     "costBleedRisks": 0,
     "selfLoopLinks": 0,
     "p0Count": 0,
-    "p1Count": 1,
+    "p1Count": 0,
     "p2Count": 1
   },
   "surfaces": [
@@ -46,19 +46,19 @@
       "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
       "route": "/dashboard/creator",
       "expectedSource": "creator settings + creator_subscriptions count",
-      "actualSource": "/api/creator/settings statsEvidence.sources.subscriptions",
+      "actualSource": "/api/creator/settings statsEvidence.sources.subscriptions + /api/creator/subscriptions subscriber rows",
       "sourceMetadataPresent": true,
-      "actionTarget": null,
+      "actionTarget": "/api/creator/subscriptions?creatorId=:creatorId",
       "targetExists": true,
-      "status": "source_connected_guidance_only",
+      "status": "subscriber_visibility_readonly",
       "issues": [
         {
           "severity": "P2",
-          "title": "Fan Pass dashboard card is guidance/configuration only",
+          "title": "Fan Pass dashboard is subscriber visibility only",
           "evidence": [
-            "No dashboard purchase target is rendered from CreatorDashboardSettingsHub."
+            "CreatorFanPassManager renders read-only subscriber rows and no membership mutation buttons."
           ],
-          "recommendedAction": "Keep purchase actions on the public creator experience flow unless a dedicated creator-dashboard route is built."
+          "recommendedAction": "Keep membership changes on the public creator experience flow."
         }
       ],
       "recommendedAction": "Do not mark Fan Pass as purchase/action connected from this dashboard card."
@@ -94,22 +94,13 @@
       "component": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
       "route": "/dashboard/creator",
       "expectedSource": "creator_call_bookings aggregate count + availability windows",
-      "actualSource": "/api/creator/settings statsEvidence.sources.callBookings",
+      "actualSource": "/api/creator/settings statsEvidence.sources.callBookings + /api/creator/bookings GET/PUT",
       "sourceMetadataPresent": true,
-      "actionTarget": null,
+      "actionTarget": "/api/creator/bookings",
       "targetExists": true,
-      "status": "source_connected_configuration_only",
-      "issues": [
-        {
-          "severity": "P1",
-          "title": "Bookings have no dedicated dashboard management target",
-          "evidence": [
-            "The fake /dashboard/creator self-loop was removed."
-          ],
-          "recommendedAction": "Add a dedicated booking management destination before rendering an Open section link."
-        }
-      ],
-      "recommendedAction": "Keep bookings source-backed and configuration-only in this dashboard."
+      "status": "connected_management_panel",
+      "issues": [],
+      "recommendedAction": "Keep booking management tied to the existing creator booking GET/PUT route with read-only and pending guards."
     },
     {
       "key": "availability",
@@ -157,7 +148,8 @@
   "recommendedFixOrder": [
     "Keep statsEvidence as the dashboard source-state contract.",
     "Keep CreatorRequestsManager wired to /api/creator/requests and disabled in read-only projection mode.",
-    "Build a dedicated booking management panel before marking bookings connected.",
+    "Keep CreatorBookingsManager wired to /api/creator/bookings and disabled in read-only projection mode.",
+    "Keep CreatorFanPassManager read-only and separate from fan-side membership mutations.",
     "Keep broadcast fetches disabled when broadcasts are blocked, unavailable, or read-only.",
     "Run focused creator dashboard and settings route tests after creator-facing connection changes."
   ]

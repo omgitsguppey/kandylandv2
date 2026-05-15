@@ -12,6 +12,8 @@ import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 import { CreatorBroadcastManager } from "@/components/Creators/CreatorBroadcastManager";
 import { CreatorRequestsManager } from "@/components/Creators/CreatorRequestsManager";
+import { CreatorBookingsManager } from "@/components/Creators/CreatorBookingsManager";
+import { CreatorFanPassManager } from "@/components/Creators/CreatorFanPassManager";
 
 type CreatorDashboardStats = {
   earningsGd: number;
@@ -113,8 +115,8 @@ function SectionCard({
   sourceTruth?: string;
   sourceFreshness?: string;
   sampleCount?: number;
-  fanPassManagementState?: "configuration_only" | "connected";
-  bookingsManagementState?: "not_connected" | "connected";
+  fanPassManagementState?: "subscriber_visibility" | "configuration_only" | "blocked";
+  bookingsManagementState?: "connected" | "configuration_only" | "blocked" | "not_configured";
   chatRouteConnected?: boolean;
   expanded: boolean;
   onToggle: () => void;
@@ -275,6 +277,23 @@ export function CreatorDashboardSettingsHub() {
   const messageSectionHref = creatorRestrictions.messagingRestricted === true || creatorSettings.messagingEnabled !== true ? undefined : "/dashboard/chat";
   const requestsEnabled = creatorSettings.customRequestsEnabled === true;
   const requestsRestricted = creatorRestrictions.customRequestsRestricted === true;
+  const bookingsEnabled = creatorSettings.bookingsEnabled === true;
+  const bookingsRestricted = creatorRestrictions.bookingsRestricted === true;
+  const bookingsAvailabilityConfigured = availabilityWindows.length > 0;
+  const bookingsManagementState = bookingsRestricted
+    ? "blocked"
+    : bookingsEnabled && bookingsAvailabilityConfigured
+      ? "connected"
+      : bookingsEnabled
+        ? "configuration_only"
+        : "not_configured";
+  const fanPassEnabled = creatorSettings.subscriptionsEnabled === true;
+  const fanPassRestricted = creatorRestrictions.subscriptionsRestricted === true;
+  const fanPassManagementState = fanPassRestricted
+    ? "blocked"
+    : fanPassEnabled && subscriptionPriceGd > 0
+      ? "subscriber_visibility"
+      : "configuration_only";
   const publicProfileHref = buildCreatorPublicHref({
     creatorId,
     creatorUsername: typeof userProfile?.username === "string" ? userProfile.username : "",
@@ -292,8 +311,8 @@ export function CreatorDashboardSettingsHub() {
     sourceTruth?: string;
     sourceFreshness?: string;
     sampleCount?: number;
-    fanPassManagementState?: "configuration_only" | "connected";
-    bookingsManagementState?: "not_connected" | "connected";
+    fanPassManagementState?: "subscriber_visibility" | "configuration_only" | "blocked";
+    bookingsManagementState?: "connected" | "configuration_only" | "blocked" | "not_configured";
     chatRouteConnected?: boolean;
   }> = [
     {
@@ -332,23 +351,27 @@ export function CreatorDashboardSettingsHub() {
       title: "Fan Pass",
       state: creatorRestrictions.subscriptionsRestricted === true
         ? "blocked"
-        : creatorSettings.subscriptionsEnabled === true && subscriptionPriceGd > 0
+        : fanPassEnabled && subscriptionPriceGd > 0
           ? subscriptionsState
-          : creatorSettings.subscriptionsEnabled === false
+        : creatorSettings.subscriptionsEnabled === false
             ? "needs_setup"
             : "not_configured",
       summary: creatorRestrictions.subscriptionsRestricted === true
         ? "Fan Pass is blocked."
-        : creatorSettings.subscriptionsEnabled === true && subscriptionPriceGd > 0 && subscriptionsState === "live"
-          ? "Fan Pass pricing is active."
-          : creatorSettings.subscriptionsEnabled === true && subscriptionPriceGd > 0
+        : fanPassEnabled && subscriptionPriceGd > 0 && subscriptionsState === "live"
+          ? "Fan Pass subscriber visibility is connected."
+          : fanPassEnabled && subscriptionPriceGd > 0
             ? "Fan Pass source sample needs review."
           : "Fan Pass needs setup.",
-      detail: `Subscription price: ${subscriptionPriceGd.toLocaleString()} GD. Fan Pass pricing is configured. Subscriber management is not connected in this dashboard yet. ${formatSourceEvidenceDetail(statsEvidence)}`,
+      detail: fanPassRestricted
+        ? "Fan Pass is restricted for this creator."
+        : fanPassEnabled && subscriptionPriceGd > 0
+          ? `Subscriber visibility is connected below. Public creator pages own Fan Pass membership changes. ${formatSourceEvidenceDetail(statsEvidence)}`
+          : "Fan Pass subscriber visibility is configuration-only until pricing is enabled.",
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
       sampleCount: statsEvidence?.sampleCount,
-      fanPassManagementState: "configuration_only",
+      fanPassManagementState,
       icon: <Wallet className="h-4 w-4" />,
     },
     {
@@ -366,7 +389,7 @@ export function CreatorDashboardSettingsHub() {
         : creatorSettings.messagingEnabled === true
           ? "Paid chat is live."
           : "Paid chat needs setup.",
-      detail: messageSectionHref ? "Opens the existing chat dashboard." : "Chat opens only when messaging is enabled and unrestricted.",
+      detail: messageSectionHref ? "Opens the existing chat dashboard." : "Chat is not enabled for this creator.",
       href: messageSectionHref,
       chatRouteConnected: Boolean(messageSectionHref),
       icon: <MessageSquare className="h-4 w-4" />,
@@ -403,19 +426,29 @@ export function CreatorDashboardSettingsHub() {
       title: "Live time / bookings",
       state: creatorRestrictions.bookingsRestricted === true
         ? "blocked"
-        : creatorSettings.bookingsEnabled === true && availabilityWindows.length > 0
+        : bookingsEnabled && bookingsAvailabilityConfigured
           ? bookingsSourceState
-          : creatorSettings.bookingsEnabled === false
+        : creatorSettings.bookingsEnabled === false
             ? "needs_setup"
             : "not_configured",
-      summary: bookingsSourceState === "live"
+      summary: bookingsRestricted
+        ? "Bookings are blocked."
+        : bookingsEnabled && !bookingsAvailabilityConfigured
+          ? "Availability is required before bookings can be managed."
+          : bookingsSourceState === "live"
         ? ((stats?.bookedCalls ?? 0) > 0 ? `${stats?.bookedCalls} bookings in flight.` : "No live bookings yet.")
         : "Booking source sample needs review.",
-      detail: `Booking windows, rates, and availability are configuration/count-only in this dashboard until booking management is connected. ${formatSourceEvidenceDetail(statsEvidence)}`,
+      detail: bookingsRestricted
+        ? "Bookings are restricted for this creator."
+        : bookingsEnabled && bookingsAvailabilityConfigured
+          ? `Manage booked live-time sessions below. ${formatSourceEvidenceDetail(statsEvidence)}`
+          : bookingsEnabled
+            ? "Configure availability before accepting bookings."
+            : "Bookings are configuration-only until enabled.",
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
       sampleCount: statsEvidence?.sampleCount,
-      bookingsManagementState: "not_connected",
+      bookingsManagementState,
       icon: <CalendarClock className="h-4 w-4" />,
     },
     {
@@ -528,6 +561,26 @@ export function CreatorDashboardSettingsHub() {
         restricted={requestsRestricted}
         readOnly={settings?.projection?.readOnly === true}
         sourceState={requestsState}
+      />
+
+      <CreatorBookingsManager
+        creatorId={creatorId}
+        creatorName={creatorName}
+        enabled={bookingsEnabled}
+        restricted={bookingsRestricted}
+        readOnly={settings?.projection?.readOnly === true}
+        sourceState={bookingsSourceState}
+        availabilityConfigured={bookingsAvailabilityConfigured}
+      />
+
+      <CreatorFanPassManager
+        creatorId={creatorId}
+        creatorName={creatorName}
+        enabled={fanPassEnabled}
+        restricted={fanPassRestricted}
+        priceGd={subscriptionPriceGd}
+        readOnly={settings?.projection?.readOnly === true}
+        sourceState={subscriptionsState}
       />
 
       <CreatorBroadcastManager

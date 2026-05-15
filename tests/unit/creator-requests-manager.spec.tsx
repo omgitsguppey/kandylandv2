@@ -64,7 +64,7 @@ describe("CreatorRequestsManager", () => {
     );
 
     await waitFor(() => {
-      expect(mockState.authFetch).toHaveBeenCalledWith("/api/creator/requests");
+      expect(mockState.authFetch).toHaveBeenCalledWith("/api/creator/requests?creatorId=creator_1");
     });
   });
 

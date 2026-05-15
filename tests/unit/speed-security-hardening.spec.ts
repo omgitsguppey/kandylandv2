@@ -54,6 +54,8 @@ describe("speed-security hardening scanner helpers", () => {
     const creatorSettingsRoute = readFileSync(join(root, "src/app/api/creator/settings/route.ts"), "utf8");
     const creatorBroadcastsRoute = readFileSync(join(root, "src/app/api/creator/broadcasts/route.ts"), "utf8");
     const creatorRequestsRoute = readFileSync(join(root, "src/app/api/creator/requests/route.ts"), "utf8");
+    const creatorBookingsRoute = readFileSync(join(root, "src/app/api/creator/bookings/route.ts"), "utf8");
+    const creatorSubscriptionsRoute = readFileSync(join(root, "src/app/api/creator/subscriptions/route.ts"), "utf8");
 
     expect(eventFacts).toContain("IDENTIFIED_ANALYTICS_MAX_BATCH_EVENTS = 100");
     expect(eventFacts).toContain("IDENTIFIED_ANALYTICS_EVENT_WRITE_CONCURRENCY = 8");
@@ -68,8 +70,12 @@ describe("speed-security hardening scanner helpers", () => {
     expect(creatorSettingsRoute).toContain("readBoundedJsonBody");
     expect(creatorBroadcastsRoute).toContain("readBoundedJsonBody");
     expect(creatorRequestsRoute).toContain("readBoundedJsonBody");
+    expect(creatorBookingsRoute).toContain("readBoundedJsonBody");
+    expect(creatorSubscriptionsRoute).toContain("readBoundedJsonBody");
     expect(creatorSettingsRoute).not.toContain("request.json()");
     expect(creatorBroadcastsRoute).not.toContain("request.json()");
     expect(creatorRequestsRoute).not.toContain("request.json()");
+    expect(creatorBookingsRoute).not.toContain("request.json()");
+    expect(creatorSubscriptionsRoute).not.toContain("request.json()");
   });
 });

@@ -51,6 +51,9 @@ const mockState = vi.hoisted(() => {
             where(field: string, _operator: string, value: unknown) {
                 return buildQuery(name, [...filters, { field, value }]);
             },
+            limit() {
+                return buildQuery(name, filters);
+            },
             doc(id: string) {
                 return buildDocRef(name, id);
             },
@@ -251,6 +254,23 @@ describe("creator subscriptions route", () => {
         expect(fanBody.subscribers).toEqual([]);
     });
 
+    it("returns creator subscriber rows for explicit creatorId when the creator owns the dashboard", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "creator_1" });
+        mockState.setDocument("users", "creator_1", { role: "creator" });
+        mockState.collections.set("creator_subscriptions", [
+            { id: "fan_1__creator_1", data: { creatorId: "creator_1", userId: "fan_1", status: "active" } },
+            { id: "fan_2__creator_1", data: { creatorId: "creator_1", userId: "fan_2", status: "canceled" } },
+            { id: "fan_3__creator_2", data: { creatorId: "creator_2", userId: "fan_3", status: "active" } },
+        ]);
+
+        const response = await GET(new NextRequest("http://localhost/api/creator/subscriptions?creatorId=creator_1"));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.subscribers).toHaveLength(2);
+        expect(body.subscription).toBeUndefined();
+    });
+
     it("subscribes successfully when the creator is eligible and balance is sufficient", async () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
         mockState.setDocument("users", "fan_1", { role: "user", gumDropsBalance: 1200 });
@@ -302,6 +322,30 @@ describe("creator subscriptions route", () => {
             }),
             "fan_1",
         );
+    });
+
+    it("rejects oversized subscription action payloads before parsing JSON", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
+        mockState.setDocument("users", "fan_1", { role: "user" });
+        const oversizedBody = JSON.stringify({
+            creatorId: "creator_1",
+            action: "subscribe",
+            idempotencyKey: "x".repeat(33_000),
+        });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/subscriptions", {
+            method: "POST",
+            body: oversizedBody,
+            headers: {
+                "Content-Type": "application/json",
+                "content-length": String(oversizedBody.length),
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({ success: false, code: "payload_too_large" });
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
     });
 
     it("allows paid-pack bonus when it is credited into purchased balance", async () => {

@@ -20,7 +20,7 @@ No providers, production reads, BigQuery jobs, deploys, Playwright, Cypress, Lig
 - Cost-bleed risks: 0.
 - Self-loop links: 0.
 - P0: 0.
-- P1: 1.
+- P1: 0.
 - P2: 1.
 
 ## Source Truth Changes
@@ -43,12 +43,15 @@ Creator operation writes now use the bounded JSON body parser before route schem
 - `/api/creator/settings`
 - `/api/creator/broadcasts`
 - `/api/creator/requests`
+- `/api/creator/bookings`
+- `/api/creator/subscriptions`
 
 ## Remaining Gaps
 
 - Requests are connected to `CreatorRequestsManager`, which uses the existing `/api/creator/requests` GET/PUT route with read-only and pending-action guards.
-- Bookings are source-backed and configuration-only until a dedicated dashboard booking management target exists.
-- Fan Pass in Creator Dashboard is guidance/configuration/count only; the purchase flow remains on the public creator experience path and subscriber management is not connected in this dashboard yet.
+- Bookings are connected to `CreatorBookingsManager`, which uses the existing `/api/creator/bookings` GET/PUT route with read-only and pending-action guards.
+- Fan Pass in Creator Dashboard is subscriber visibility only through `CreatorFanPassManager`; the public creator experience path owns Fan Pass membership changes.
+- Fan Pass and bookings still show configuration-only states when settings, restrictions, pricing, or availability make them unavailable.
 - Messages link to `/dashboard/chat` only when messaging is enabled and unrestricted.
 
 Do not restore `/dashboard/creator` self-loop "Open section" links for inline-only cards. Add real destinations first. No orphan button, fake CTA, or placeholder action may appear live without a real route/action, permission guard, pending guard, and unavailable/error state.

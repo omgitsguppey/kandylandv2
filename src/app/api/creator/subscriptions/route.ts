@@ -22,8 +22,10 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 const CREATOR_SUBSCRIPTIONS_READ_LIMIT = 500;
+const CREATOR_SUBSCRIPTION_BODY_LIMIT_BYTES = 32_768;
 
 const subscriptionActionSchema = z.object({
     creatorId: z.string().trim().min(1),
@@ -85,6 +87,15 @@ function buildSubscriptionProblemResponse(problem: CreatorSubscriptionProblem) {
     }, { status: problem.status });
 }
 
+function buildBoundedSubscriptionBodyResponse(error: { status: 400 | 413; code: string; message: string }) {
+    return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+        message: error.message,
+    }, { status: error.status });
+}
+
 function isAuthUnauthorized(error: unknown) {
     if (!(error instanceof Error)) {
         return false;
@@ -132,7 +143,10 @@ async function GET_handler(request: NextRequest) {
         const projection = readAdminCreatorProjectionContext(request, caller.uid, typeof callerData?.role === "string" ? callerData.role : null);
         const creatorId = projection?.targetCreatorId || request.nextUrl.searchParams.get("creatorId")?.trim() || "";
         if (creatorId) {
-            if (projection) {
+            const canReadCreatorSubscribers = Boolean(projection)
+                || callerData?.role === "admin"
+                || (isCreatorRole(callerData?.role) && caller.uid === creatorId);
+            if (canReadCreatorSubscribers) {
                 const subscribersSnap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions)
                     .where("creatorId", "==", creatorId)
                     .limit(CREATOR_SUBSCRIPTIONS_READ_LIMIT)
@@ -197,8 +211,16 @@ async function POST_handler(request: NextRequest) {
 
         let subscriptionRequest: z.infer<typeof subscriptionActionSchema>;
         try {
-            subscriptionRequest = subscriptionActionSchema.parse(await request.json());
-        } catch {
+            const body = await readBoundedJsonBody<z.infer<typeof subscriptionActionSchema>>(request, {
+                maxBytes: CREATOR_SUBSCRIPTION_BODY_LIMIT_BYTES,
+                routeName: "creator/subscriptions",
+                allowEmpty: false,
+            });
+            subscriptionRequest = subscriptionActionSchema.parse(body);
+        } catch (error) {
+            if (isBoundedJsonBodyError(error)) {
+                return buildBoundedSubscriptionBodyResponse(error);
+            }
             return buildSubscriptionProblemResponse(new CreatorSubscriptionProblem(
                 400,
                 "invalid_subscription_request",

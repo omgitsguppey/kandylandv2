@@ -36,8 +36,12 @@ const files = {
   creatorDashboardHub: join(repoRoot, "src", "components", "Creators", "CreatorDashboardSettingsHub.tsx"),
   creatorBroadcastManager: join(repoRoot, "src", "components", "Creators", "CreatorBroadcastManager.tsx"),
   creatorRequestsManager: join(repoRoot, "src", "components", "Creators", "CreatorRequestsManager.tsx"),
+  creatorBookingsManager: join(repoRoot, "src", "components", "Creators", "CreatorBookingsManager.tsx"),
+  creatorFanPassManager: join(repoRoot, "src", "components", "Creators", "CreatorFanPassManager.tsx"),
   creatorBroadcastRoute: join(repoRoot, "src", "app", "api", "creator", "broadcasts", "route.ts"),
   creatorSettingsRoute: join(repoRoot, "src", "app", "api", "creator", "settings", "route.ts"),
+  creatorBookingsRoute: join(repoRoot, "src", "app", "api", "creator", "bookings", "route.ts"),
+  creatorSubscriptionsRoute: join(repoRoot, "src", "app", "api", "creator", "subscriptions", "route.ts"),
   profileSidebar: join(repoRoot, "src", "components", "Navigation", "ProfileSidebar.tsx"),
   profileDropdown: join(repoRoot, "src", "components", "Navigation", "ProfileDropdown.tsx"),
   telemetryCatalog: join(repoRoot, "src", "lib", "telemetry-catalog.ts"),
@@ -98,6 +102,8 @@ function collectChangedFiles() {
       "src/app/api/creator/broadcasts/",
       "src/app/api/creator/settings/route.ts",
       "src/app/api/creator/requests/route.ts",
+      "src/app/api/creator/bookings/route.ts",
+      "src/app/api/creator/subscriptions/route.ts",
       "src/app/dashboard/profile/hooks/useProfileState.tsx",
       "src/lib/creator-dashboard/",
       "src/lib/settings/",
@@ -124,8 +130,12 @@ function validate(): SplitReport {
   const creatorDashboardHub = read(files.creatorDashboardHub);
   const creatorBroadcastManager = read(files.creatorBroadcastManager);
   const creatorRequestsManager = read(files.creatorRequestsManager);
+  const creatorBookingsManager = read(files.creatorBookingsManager);
+  const creatorFanPassManager = read(files.creatorFanPassManager);
   const creatorBroadcastRoute = read(files.creatorBroadcastRoute);
   const creatorSettingsRoute = read(files.creatorSettingsRoute);
+  const creatorBookingsRoute = read(files.creatorBookingsRoute);
+  const creatorSubscriptionsRoute = read(files.creatorSubscriptionsRoute);
   const profileSidebar = read(files.profileSidebar);
   const profileDropdown = read(files.profileDropdown);
   const telemetryCatalog = read(files.telemetryCatalog);
@@ -203,7 +213,12 @@ function validate(): SplitReport {
         "Notifications / audience",
         "Read-only projection",
         "CreatorRequestsManager",
+        "CreatorBookingsManager",
+        "CreatorFanPassManager",
         "statsEvidence",
+        "data-creator-fan-pass-management-state",
+        "data-creator-bookings-management-state",
+        "data-creator-chat-route-connected",
       ]),
       evidence: ["Creator dashboard settings hub shows the operational sections and truth labels."],
     },
@@ -223,6 +238,40 @@ function validate(): SplitReport {
         "No open requests",
       ]) && !includesAny(creatorRequestsManager, ["setInterval", "onSnapshot"]),
       evidence: ["Creator request management is wired to the existing request route with request-id and pending guards."],
+    },
+    {
+      key: "creator-bookings-manager-real-data",
+      label: "Creator booking manager reads real backend data or says not connected",
+      ok: includesAll(creatorDashboardHub, [
+        "CreatorBookingsManager",
+        "bookingsManagementState",
+        "availabilityConfigured={bookingsAvailabilityConfigured}",
+      ]) && includesAll(creatorBookingsManager, [
+        "/api/creator/bookings",
+        "encodeURIComponent(creatorId)",
+        "loadRequestIdRef",
+        "pendingActionId",
+        "Read-only projection",
+        "No bookings yet",
+      ]) && !includesAny(creatorBookingsManager, ["setInterval", "onSnapshot"])
+        && includesAll(creatorBookingsRoute, ["readBoundedJsonBody", "CREATOR_BOOKING_BODY_LIMIT_BYTES"]),
+      evidence: ["Creator booking management is wired to the existing booking route with request-id and pending guards."],
+    },
+    {
+      key: "creator-fan-pass-subscriber-visibility",
+      label: "Fan Pass subscriber visibility is read-only and route-backed",
+      ok: includesAll(creatorDashboardHub, [
+        "CreatorFanPassManager",
+        "fanPassManagementState",
+        "subscriber_visibility",
+      ]) && includesAll(creatorFanPassManager, [
+        "/api/creator/subscriptions",
+        "encodeURIComponent(creatorId)",
+        "data-creator-fan-pass-read-only=\"true\"",
+        "No subscribers yet",
+      ]) && !includesAny(creatorFanPassManager, ["setInterval", "onSnapshot", 'method: "POST"', ">Subscribe<", ">Cancel<"])
+        && includesAll(creatorSubscriptionsRoute, ["readBoundedJsonBody", "CREATOR_SUBSCRIPTION_BODY_LIMIT_BYTES"]),
+      evidence: ["Fan Pass dashboard panel exposes subscriber rows only; membership mutations stay in public creator flows."],
     },
     {
       key: "broadcast-manager-real-data",

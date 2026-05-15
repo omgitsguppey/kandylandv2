@@ -35,6 +35,8 @@ describe("user-facing feature connection audit", () => {
     expect(hub).toContain("dashboardRequestIdRef");
     expect(hub).toContain("messageSectionHref");
     expect(hub).toContain("CreatorRequestsManager");
+    expect(hub).toContain("CreatorBookingsManager");
+    expect(hub).toContain("CreatorFanPassManager");
     expect(hub).toContain("data-creator-fan-pass-management-state");
     expect(hub).toContain("data-creator-bookings-management-state");
     expect(hub).toContain("data-creator-chat-route-connected");
@@ -46,10 +48,14 @@ describe("user-facing feature connection audit", () => {
   it("keeps creator managers guarded without polling or realtime listeners", () => {
     const manager = read("src/components/Creators/CreatorBroadcastManager.tsx");
     const requestsManager = read("src/components/Creators/CreatorRequestsManager.tsx");
+    const bookingsManager = read("src/components/Creators/CreatorBookingsManager.tsx");
+    const fanPassManager = read("src/components/Creators/CreatorFanPassManager.tsx");
     const creatorSources = [
       read("src/components/Creators/CreatorDashboardSettingsHub.tsx"),
       manager,
       requestsManager,
+      bookingsManager,
+      fanPassManager,
     ].join("\n");
 
     expect(manager).toContain("canReadBroadcasts");
@@ -58,9 +64,17 @@ describe("user-facing feature connection audit", () => {
     expect(manager).toContain("if (!canSendBroadcast)");
     expect(manager).toContain("if (sending)");
     expect(requestsManager).toContain("/api/creator/requests");
+    expect(requestsManager).toContain("encodeURIComponent(creatorId)");
     expect(requestsManager).toContain("readOnly");
     expect(requestsManager).toContain("pendingActionId");
     expect(requestsManager).toContain("loadRequestIdRef");
+    expect(bookingsManager).toContain("/api/creator/bookings");
+    expect(bookingsManager).toContain("encodeURIComponent(creatorId)");
+    expect(bookingsManager).toContain("readOnly");
+    expect(bookingsManager).toContain("pendingActionId");
+    expect(fanPassManager).toContain("/api/creator/subscriptions");
+    expect(fanPassManager).toContain("encodeURIComponent(creatorId)");
+    expect(fanPassManager).not.toContain('method: "POST"');
     expect(creatorSources).not.toMatch(/\bsetInterval\b/u);
     expect(creatorSources).not.toMatch(/\bonSnapshot\b/u);
   });
@@ -72,6 +86,10 @@ describe("user-facing feature connection audit", () => {
     expect(read("src/app/api/creator/broadcasts/route.ts")).not.toContain("request.json()");
     expect(read("src/app/api/creator/requests/route.ts")).toContain("readBoundedJsonBody");
     expect(read("src/app/api/creator/requests/route.ts")).not.toContain("request.json()");
+    expect(read("src/app/api/creator/bookings/route.ts")).toContain("readBoundedJsonBody");
+    expect(read("src/app/api/creator/bookings/route.ts")).not.toContain("request.json()");
+    expect(read("src/app/api/creator/subscriptions/route.ts")).toContain("readBoundedJsonBody");
+    expect(read("src/app/api/creator/subscriptions/route.ts")).not.toContain("request.json()");
   });
 
   it("keeps paid-GD guidance paid-source only", () => {

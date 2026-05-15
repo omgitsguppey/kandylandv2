@@ -34,6 +34,8 @@ const files = {
   hub: "src/components/Creators/CreatorDashboardSettingsHub.tsx",
   broadcasts: "src/components/Creators/CreatorBroadcastManager.tsx",
   requestsManager: "src/components/Creators/CreatorRequestsManager.tsx",
+  bookingsManager: "src/components/Creators/CreatorBookingsManager.tsx",
+  fanPassManager: "src/components/Creators/CreatorFanPassManager.tsx",
   guidance: "src/components/Creators/CreatorPaidGdGuidanceCard.tsx",
   settingsRoute: "src/app/api/creator/settings/route.ts",
   chatPage: "src/app/dashboard/chat/page.tsx",
@@ -113,10 +115,14 @@ function requireNotIncludes(source: string, forbidden: string, label: string) {
 const hub = read(files.hub);
 const broadcasts = read(files.broadcasts);
 const requestsManager = read(files.requestsManager);
+const bookingsManager = read(files.bookingsManager);
+const fanPassManager = read(files.fanPassManager);
 const guidance = read(files.guidance);
 const settingsRoute = read(files.settingsRoute);
 const broadcastRoute = read(files.creatorBroadcastRoute);
 const requestsRoute = read(files.creatorRequestsRoute);
+const bookingsRoute = read(files.creatorBookingsRoute);
+const subscriptionsRoute = read(files.creatorSubscriptionsRoute);
 const doc = read(files.doc);
 const packageJson = read(files.packageJson);
 const creatorFiles = walkFiles("src/components/Creators");
@@ -157,13 +163,13 @@ const surfaces: SurfaceReport[] = [
     component: files.hub,
     route: "/dashboard/creator",
     expectedSource: "creator settings + creator_subscriptions count",
-    actualSource: "/api/creator/settings statsEvidence.sources.subscriptions",
-    sourceMetadataPresent: hub.includes("statsEvidence?.sources.subscriptions"),
-    actionTarget: null,
+    actualSource: "/api/creator/settings statsEvidence.sources.subscriptions + /api/creator/subscriptions subscriber rows",
+    sourceMetadataPresent: hub.includes("statsEvidence?.sources.subscriptions") && fanPassManager.includes("/api/creator/subscriptions"),
+    actionTarget: "/api/creator/subscriptions?creatorId=:creatorId",
     targetExists: routeExists(files.creatorSubscriptionsRoute),
-    status: "source_connected_guidance_only",
+    status: "subscriber_visibility_readonly",
     issues: [
-      issue("P2", "Fan Pass dashboard card is guidance/configuration only", ["No dashboard purchase target is rendered from CreatorDashboardSettingsHub."], "Keep purchase actions on the public creator experience flow unless a dedicated creator-dashboard route is built."),
+      issue("P2", "Fan Pass dashboard is subscriber visibility only", ["CreatorFanPassManager renders read-only subscriber rows and no membership mutation buttons."], "Keep membership changes on the public creator experience flow."),
     ],
     recommendedAction: "Do not mark Fan Pass as purchase/action connected from this dashboard card.",
   },
@@ -198,15 +204,13 @@ const surfaces: SurfaceReport[] = [
     component: files.hub,
     route: "/dashboard/creator",
     expectedSource: "creator_call_bookings aggregate count + availability windows",
-    actualSource: "/api/creator/settings statsEvidence.sources.callBookings",
-    sourceMetadataPresent: hub.includes("statsEvidence?.sources.callBookings"),
-    actionTarget: null,
+    actualSource: "/api/creator/settings statsEvidence.sources.callBookings + /api/creator/bookings GET/PUT",
+    sourceMetadataPresent: hub.includes("statsEvidence?.sources.callBookings") && bookingsManager.includes("/api/creator/bookings"),
+    actionTarget: "/api/creator/bookings",
     targetExists: routeExists(files.creatorBookingsRoute),
-    status: "source_connected_configuration_only",
-    issues: [
-      issue("P1", "Bookings have no dedicated dashboard management target", ["The fake /dashboard/creator self-loop was removed."], "Add a dedicated booking management destination before rendering an Open section link."),
-    ],
-    recommendedAction: "Keep bookings source-backed and configuration-only in this dashboard.",
+    status: "connected_management_panel",
+    issues: [],
+    recommendedAction: "Keep booking management tied to the existing creator booking GET/PUT route with read-only and pending guards.",
   },
   {
     key: "availability",
@@ -288,6 +292,12 @@ if (broadcastRoute.includes("request.json()")) {
 if (requestsRoute.includes("request.json()")) {
   failures.push("creator/requests POST and PUT must use readBoundedJsonBody instead of request.json().");
 }
+if (bookingsRoute.includes("request.json()")) {
+  failures.push("creator/bookings POST and PUT must use readBoundedJsonBody instead of request.json().");
+}
+if (subscriptionsRoute.includes("request.json()")) {
+  failures.push("creator/subscriptions POST must use readBoundedJsonBody instead of request.json().");
+}
 if (selfLoopLinkFindings.length > 0) {
   failures.push("CreatorDashboardSettingsHub must not keep /dashboard/creator self-loop Open section links.");
 }
@@ -306,8 +316,35 @@ if (!requestsManager.includes("readOnly") || !requestsManager.includes("Read-onl
 if (!requestsManager.includes("pendingActionId")) {
   failures.push("CreatorRequestsManager must include a pendingActionId double-submit guard.");
 }
-if (/\b(setInterval|onSnapshot)\b/u.test(requestsManager)) {
-  failures.push("CreatorRequestsManager must not introduce setInterval or onSnapshot.");
+if (!requestsManager.includes("encodeURIComponent(creatorId)")) {
+  failures.push("CreatorRequestsManager must include the target creatorId in its fetch URL or prove projection context in tests.");
+}
+if (!hub.includes("CreatorBookingsManager") || !hub.includes("<CreatorBookingsManager")) {
+  failures.push("Bookings section is connected only when CreatorBookingsManager is imported and rendered.");
+}
+if (!bookingsManager.includes("readOnly") || !bookingsManager.includes("Read-only projection")) {
+  failures.push("CreatorBookingsManager must guard booking mutations in read-only projection mode.");
+}
+if (!bookingsManager.includes("pendingActionId")) {
+  failures.push("CreatorBookingsManager must include a pendingActionId double-submit guard.");
+}
+if (!bookingsManager.includes("encodeURIComponent(creatorId)")) {
+  failures.push("CreatorBookingsManager must include the target creatorId in its fetch URL.");
+}
+if (!hub.includes("CreatorFanPassManager") || !hub.includes("<CreatorFanPassManager")) {
+  failures.push("Fan Pass subscriber visibility is connected only when CreatorFanPassManager is imported and rendered.");
+}
+if (!fanPassManager.includes("data-creator-fan-pass-read-only=\"true\"")) {
+  failures.push("CreatorFanPassManager must expose read-only subscriber visibility.");
+}
+if (fanPassManager.includes('method: "POST"') || fanPassManager.includes(">Subscribe<") || fanPassManager.includes(">Cancel<")) {
+  failures.push("CreatorFanPassManager must not expose Fan Pass membership mutation controls.");
+}
+if (!fanPassManager.includes("encodeURIComponent(creatorId)")) {
+  failures.push("CreatorFanPassManager must include the target creatorId in its fetch URL.");
+}
+if (/\b(setInterval|onSnapshot)\b/u.test([requestsManager, bookingsManager, fanPassManager].join("\n"))) {
+  failures.push("Creator dashboard managers must not introduce setInterval or onSnapshot.");
 }
 if (!hub.includes("data-creator-chat-route-connected") || !hub.includes("messageSectionHref ?")) {
   failures.push("Messages must expose route connection truth and hide the chat link when disabled or restricted.");
@@ -315,11 +352,11 @@ if (!hub.includes("data-creator-chat-route-connected") || !hub.includes("message
 if (!hub.includes("subscriptionPriceGd > 0") || !hub.includes("creatorRestrictions.subscriptionsRestricted === true")) {
   failures.push("Fan Pass state must require unrestricted settings and positive price.");
 }
-if (hub.includes('data-creator-fan-pass-management-state="connected"') || hub.includes('fanPassManagementState: "connected"')) {
-  failures.push("Fan Pass management must not be marked connected without a proven subscriber management flow.");
+if (hub.includes('fanPassManagementState: "connected"')) {
+  failures.push("Fan Pass management must not be marked as a purchase/action connection.");
 }
-if (hub.includes('data-creator-bookings-management-state="connected"') || hub.includes('bookingsManagementState: "connected"')) {
-  failures.push("Bookings management must not be marked connected without a proven booking management panel.");
+if (hub.includes('bookingsManagementState: "connected"') && !hub.includes("CreatorBookingsManager")) {
+  failures.push("Bookings management must not be marked connected without CreatorBookingsManager.");
 }
 if (!broadcasts.includes("canReadBroadcasts") || !broadcasts.includes("canSendBroadcast")) {
   failures.push("CreatorBroadcastManager must gate fetch/send by enabled, restricted, read-only, and creator id state.");
@@ -380,7 +417,8 @@ const report = {
   recommendedFixOrder: [
     "Keep statsEvidence as the dashboard source-state contract.",
     "Keep CreatorRequestsManager wired to /api/creator/requests and disabled in read-only projection mode.",
-    "Build a dedicated booking management panel before marking bookings connected.",
+    "Keep CreatorBookingsManager wired to /api/creator/bookings and disabled in read-only projection mode.",
+    "Keep CreatorFanPassManager read-only and separate from fan-side membership mutations.",
     "Keep broadcast fetches disabled when broadcasts are blocked, unavailable, or read-only.",
     "Run focused creator dashboard and settings route tests after creator-facing connection changes.",
   ],
