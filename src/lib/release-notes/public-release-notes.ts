@@ -1,13 +1,55 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.54",
-  "betaReleaseCounter": 254,
+  "currentVersion": "1.2.55",
+  "betaReleaseCounter": 255,
   "channel": "beta",
-  "generatedAt": "2026-05-15T17:43:15.171Z",
-  "generatedAtUtc": "2026-05-15T17:43:15.171Z",
-  "lastCommitSha": "77970bb30726323b0e51e5062a2bc6bb6a96b12b",
+  "generatedAt": "2026-05-15T19:30:24.640Z",
+  "generatedAtUtc": "2026-05-15T19:30:24.640Z",
+  "lastCommitSha": "d3fa68bca7691ce0c1207e5d6e9b06a8de18d518",
   "notes": [
+    {
+      "version": "1.2.55",
+      "previousVersion": "1.2.54",
+      "betaReleaseCounter": 255,
+      "previousBetaReleaseCounter": 254,
+      "commitSha": "d3fa68bca7691ce0c1207e5d6e9b06a8de18d518",
+      "commitTitle": "fix(ui): confirm user creator visual stability",
+      "commitCount": 1,
+      "commitShas": [
+        "d3fa68bca7691ce0c1207e5d6e9b06a8de18d518"
+      ],
+      "committedAt": "2026-05-15T19:29:55.000Z",
+      "generatedAt": "2026-05-15T19:30:24.631Z",
+      "committedAtUtc": "2026-05-15T19:29:55.000Z",
+      "generatedAtUtc": "2026-05-15T19:30:24.631Z",
+      "updatedAtUtc": "2026-05-15T19:30:24.631Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Confirmed user and creator surfaces for mobile UI stability.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Confirmed user and creator surfaces for mobile UI stability.",
+        "Tightened creator dashboard and release drawer visual behavior.",
+        "Kept admin backend, payment runtime, and provider systems untouched."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/user-creator-visual-confirmation.generated.json",
+        "docs/agent-truth/user-creator-visual-confirmation.md",
+        "package.json",
+        "scripts/agent/validate-user-creator-visual-confirmation.ts",
+        "src/components/Creators/CreatorAgreementFullText.tsx",
+        "src/components/Creators/CreatorBroadcastManager.tsx",
+        "tests/unit/user-creator-visual-confirmation.spec.ts"
+      ],
+      "sourceCommit": "d3fa68bca7691ce0c1207e5d6e9b06a8de18d518"
+    },
     {
       "version": "1.2.54",
       "previousVersion": "1.2.53",
@@ -1121,57 +1163,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ],
       "sourceCommit": "d405169db235fe67cb9729077752f91ab45aef7c"
-    },
-    {
-      "version": "1.2.30",
-      "previousVersion": "1.2.29",
-      "betaReleaseCounter": 230,
-      "previousBetaReleaseCounter": 229,
-      "commitSha": "737f2f8cf3254231ce5dfe8e7964756387ef0403",
-      "commitTitle": "fix(analytics): reduce admin analytics cost paths",
-      "commitCount": 1,
-      "commitShas": [
-        "737f2f8cf3254231ce5dfe8e7964756387ef0403"
-      ],
-      "committedAt": "2026-05-13T23:41:43.000Z",
-      "generatedAt": "2026-05-13T23:42:05.072Z",
-      "committedAtUtc": "2026-05-13T23:41:43.000Z",
-      "generatedAtUtc": "2026-05-13T23:42:05.072Z",
-      "updatedAtUtc": "2026-05-13T23:42:05.072Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Reduced remaining Admin Analytics cost-risk paths behind the scenes.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Reduced remaining Admin Analytics cost-risk paths behind the scenes.",
-        "Kept raw analytics logs routed toward Debug evidence instead of display truth.",
-        "Improved snapshot-first analytics behavior without changing public app surfaces."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json",
-        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-        "agent/state/lost-data-recovery-dry-run.generated.json",
-        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
-        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
-        "functions/src/analytics-realtime-summary.ts",
-        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
-        "scripts/agent/validate-admin-analytics-hot-cache.ts",
-        "scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/check-admin-analytics-live-pulse.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/lib/server/admin-analytics-materializers.ts",
-        "tests/unit/admin-analytics-realtime-route.spec.ts",
-        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
-      ],
-      "sourceCommit": "737f2f8cf3254231ce5dfe8e7964756387ef0403"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

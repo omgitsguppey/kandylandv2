@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.55 - 2026-05-15
+- Bug fixes and general improvements
+- Confirmed user and creator surfaces for mobile UI stability.
+- Tightened creator dashboard and release drawer visual behavior.
+- Kept admin backend, payment runtime, and provider systems untouched.
+
 ## 1.2.54 - 2026-05-15
 - Bug fixes and general improvements
 - Improved user and creator surface consistency.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Simplified the Admin Debug panel so recovery evidence is easier to review.
 - Reduced redundant nested scrolling in Debug views.
 - Refreshed analytics rewire evidence after the cost-reduction pass.
-
-## 1.2.30 - 2026-05-13
-- Bug fixes and general improvements
-- Reduced remaining Admin Analytics cost-risk paths behind the scenes.
-- Kept raw analytics logs routed toward Debug evidence instead of display truth.
-- Improved snapshot-first analytics behavior without changing public app surfaces.
