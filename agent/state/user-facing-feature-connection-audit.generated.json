@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-15T05:03:24.115Z",
+  "generatedAtUtc": "2026-05-15T13:27:48.425Z",
   "reportKey": "user-facing-feature-connection-audit",
-  "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
+  "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
   "summary": {
     "surfacesScanned": 9,
     "connectedSurfaces": 6,

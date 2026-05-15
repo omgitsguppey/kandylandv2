@@ -1,11 +1,10 @@
 {
-  "generatedAt": "2026-05-15T05:03:28.425Z",
+  "generatedAt": "2026-05-15T13:27:56.342Z",
   "status": "pass",
   "criticalBlockers": [],
   "warnings": [],
   "changedFilesSinceLastSettingsCreatorDashboardSplit": [
-    "agent/state/settings-creator-dashboard-split.generated.json",
-    "package.json"
+    "agent/state/settings-creator-dashboard-split.generated.json"
   ],
   "requiredTargetedChecks": [
     "npm run check:settings-creator-dashboard-split",

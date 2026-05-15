@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-15T05:03:42.206Z",
+  "generatedAt": "2026-05-15T13:28:24.012Z",
   "scannerScore": 100,
   "scannerStatus": "clean",
   "overallScore": 45,
@@ -120,9 +120,9 @@
       "status": "Stale evidence",
       "detail": "3 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/final-launch-readiness-report.generated.json (57.36h old)",
-        "agent/state/launch-readiness-report.generated.json (57.36h old)",
-        "agent/state/launch-pr-triage.generated.json (57.36h old)"
+        "agent/state/final-launch-readiness-report.generated.json (65.77h old)",
+        "agent/state/launch-readiness-report.generated.json (65.77h old)",
+        "agent/state/launch-pr-triage.generated.json (65.77h old)"
       ],
       "recommendedAction": "Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current."
     },

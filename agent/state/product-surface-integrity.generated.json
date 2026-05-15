@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-15T05:03:19.192Z",
+  "generatedAtUtc": "2026-05-15T13:27:37.781Z",
   "reportKey": "product-surface-integrity",
-  "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
+  "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
   "summary": {
     "sourceReportsRead": 5,
     "staleAuthorityRisks": 1,
@@ -21,15 +21,15 @@
       "path": "agent/state/user-facing-feature-connection-audit.generated.json",
       "command": "npm run check:user-facing-feature-connection-audit",
       "exists": true,
-      "generatedAtUtc": "2026-05-15T04:49:06.455Z",
-      "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
+      "generatedAtUtc": "2026-05-15T13:20:10.517Z",
+      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
       "sourceState": "current"
     },
     {
       "path": "agent/state/speed-security-hardening.generated.json",
       "command": "npm run score:speed-security",
       "exists": true,
-      "generatedAtUtc": "2026-05-15T04:49:21.772Z",
+      "generatedAtUtc": "2026-05-15T13:20:49.306Z",
       "currentHead": null,
       "sourceState": "fresh_without_head"
     },
@@ -37,8 +37,8 @@
       "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
       "command": "npm run check:repo-spring-cleaning-rewire",
       "exists": true,
-      "generatedAtUtc": "2026-05-15T04:49:28.920Z",
-      "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
+      "generatedAtUtc": "2026-05-15T13:21:17.192Z",
+      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
       "sourceState": "current"
     },
     {
@@ -53,7 +53,7 @@
       "path": "agent/state/public-beta-score.generated.json",
       "command": "npm run score:beta",
       "exists": true,
-      "generatedAtUtc": "2026-05-15T04:50:12.650Z",
+      "generatedAtUtc": "2026-05-15T13:24:53.801Z",
       "currentHead": null,
       "sourceState": "fresh_without_head"
     }

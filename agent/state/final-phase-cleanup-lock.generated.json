@@ -1,8 +1,10 @@
 {
-  "generatedAtUtc": "2026-05-15T05:03:51.910Z",
+  "generatedAtUtc": "2026-05-15T13:28:53.586Z",
   "reportKey": "final-phase-cleanup-lock",
-  "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
+  "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
   "commitsReviewed": [
+    "243b0f60 docs(release): update beta badge for cleanup lock [skip release-notes]",
+    "b8e777fd docs(phase): lock cleanup evidence",
     "cbc1a62a docs(release): update beta badge for guardrail cleanup [skip release-notes]",
     "a3327698 fix(security): clean up focused guardrail risks",
     "3769bfd3 docs(release): update beta badge for product surface integrity [skip release-notes]",
@@ -40,9 +42,7 @@
     "99658a42 chore(repo): add spring cleaning rewire inventory",
     "6dfd82f8 docs(release): update beta badge for score UI triage",
     "2570b5dd chore(phase-one): triage score and dashboard truth wiring",
-    "da10e87d docs(release): update beta badge for smoke evidence tracking",
-    "d1dd8a05 docs(phase-one): add formal smoke evidence tracking",
-    "4958214e docs(release): update beta badge for beta exit evidence"
+    "da10e87d docs(release): update beta badge for smoke evidence tracking"
   ],
   "summary": {
     "userFacingConnectionStatus": "P0=0 P1=0 P2=1 fakeActions=0",
@@ -170,8 +170,8 @@
     {
       "reportKey": "user-facing-feature-connection-audit",
       "path": "agent/state/user-facing-feature-connection-audit.generated.json",
-      "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
-      "generatedAtUtc": "2026-05-15T05:03:24.115Z",
+      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
+      "generatedAtUtc": "2026-05-15T13:27:48.425Z",
       "sourceState": "current",
       "ownerLane": "creator-surface-owner",
       "exactNextAction": "No action required for report freshness."
@@ -179,8 +179,8 @@
     {
       "reportKey": "product-surface-integrity",
       "path": "agent/state/product-surface-integrity.generated.json",
-      "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
-      "generatedAtUtc": "2026-05-15T05:03:19.192Z",
+      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
+      "generatedAtUtc": "2026-05-15T13:27:37.781Z",
       "sourceState": "current",
       "ownerLane": "product-surface-owner",
       "exactNextAction": "No action required for report freshness."
@@ -188,8 +188,8 @@
     {
       "reportKey": "repo-spring-cleaning-rewire",
       "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
-      "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
-      "generatedAtUtc": "2026-05-15T04:49:28.920Z",
+      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
+      "generatedAtUtc": "2026-05-15T13:21:17.192Z",
       "sourceState": "current",
       "ownerLane": "repo-governance-owner",
       "exactNextAction": "No action required for report freshness."
@@ -200,7 +200,7 @@
       "reportKey": "speed-security-hardening",
       "path": "agent/state/speed-security-hardening.generated.json",
       "currentHead": null,
-      "generatedAtUtc": "2026-05-15T05:03:34.808Z",
+      "generatedAtUtc": "2026-05-15T13:28:07.691Z",
       "sourceState": "missing_head",
       "ownerLane": "speed-security-owner",
       "exactNextAction": "Refresh agent/state/speed-security-hardening.generated.json through its focused owner command; do not treat stale data as live readiness."
@@ -209,7 +209,7 @@
       "reportKey": "public-beta-score",
       "path": "agent/state/public-beta-score.generated.json",
       "currentHead": null,
-      "generatedAtUtc": "2026-05-15T05:03:42.206Z",
+      "generatedAtUtc": "2026-05-15T13:28:24.012Z",
       "sourceState": "missing_head",
       "ownerLane": "beta-readiness-owner",
       "exactNextAction": "Refresh agent/state/public-beta-score.generated.json through its focused owner command; do not treat stale data as live readiness."

@@ -106,15 +106,20 @@ function baseReports(head = "test-head"): FinalPhaseCleanupSourceReports {
   };
 }
 
+function buildFixtureReport(reports: Partial<FinalPhaseCleanupSourceReports>) {
+  return buildFinalPhaseCleanupLockReport({
+    currentHead: "test-head",
+    commitsReviewed: [],
+    reports,
+  });
+}
+
 describe("final phase cleanup lock", () => {
   it("blocks screenshot QA when product-surface evidence is missing", () => {
     const reports = baseReports();
     reports.productSurfaceIntegrity = null;
 
-    const report = buildFinalPhaseCleanupLockReport({
-      currentHead: "test-head",
-      reports,
-    });
+    const report = buildFixtureReport(reports);
 
     expect(report.summary.canStartScreenshotQa).toBe(false);
     expect(report.remainingBlockers.some((blocker) => blocker.key === "product_surface_integrity_missing")).toBe(true);
@@ -130,10 +135,7 @@ describe("final phase cleanup lock", () => {
       },
     };
 
-    const report = buildFinalPhaseCleanupLockReport({
-      currentHead: "test-head",
-      reports,
-    });
+    const report = buildFixtureReport(reports);
 
     expect(report.summary.canStartScreenshotQa).toBe(false);
     expect(report.remainingBlockers.some((blocker) => blocker.status === "code_blocker")).toBe(true);
@@ -147,10 +149,7 @@ describe("final phase cleanup lock", () => {
       evidenceCaps: [{ key: "visual_qa_required", label: "Visual QA required" }],
     };
 
-    const report = buildFinalPhaseCleanupLockReport({
-      currentHead: "test-head",
-      reports,
-    });
+    const report = buildFixtureReport(reports);
 
     expect(report.summary.missingHumanEvidence).toBeGreaterThan(0);
     expect(report.humanEvidenceNeeded.some((item) => item.key === "visual_qa_required")).toBe(true);
@@ -163,10 +162,7 @@ describe("final phase cleanup lock", () => {
       status: "operator_reported_not_formal_provider_smoke",
     };
 
-    const report = buildFinalPhaseCleanupLockReport({
-      currentHead: "test-head",
-      reports,
-    });
+    const report = buildFixtureReport(reports);
 
     expect(report.summary.missingProviderEvidence).toBe(1);
     expect(report.remainingBlockers.some((blocker) => blocker.status === "provider_smoke_required")).toBe(true);
@@ -179,10 +175,7 @@ describe("final phase cleanup lock", () => {
       status: "runtime_unverified",
     };
 
-    const report = buildFinalPhaseCleanupLockReport({
-      currentHead: "test-head",
-      reports,
-    });
+    const report = buildFixtureReport(reports);
 
     expect(report.summary.missingRuntimeEvidence).toBe(1);
     expect(report.remainingBlockers.some((blocker) => blocker.status === "runtime_smoke_required")).toBe(true);
@@ -195,10 +188,7 @@ describe("final phase cleanup lock", () => {
       generatedAtUtc: "2026-05-14T00:00:00.000Z",
     };
 
-    const report = buildFinalPhaseCleanupLockReport({
-      currentHead: "test-head",
-      reports,
-    });
+    const report = buildFixtureReport(reports);
 
     expect(report.summary.staleAuthorityRisks).toBeGreaterThan(0);
     expect(report.staleReports.some((entry) => entry.reportKey === "launch-pr-triage")).toBe(true);
@@ -211,19 +201,13 @@ describe("final phase cleanup lock", () => {
       status: "missing_formal_evidence",
     };
 
-    const report = buildFinalPhaseCleanupLockReport({
-      currentHead: "test-head",
-      reports,
-    });
+    const report = buildFixtureReport(reports);
 
     expect(report.summary.canStartBetaExitReview).toBe(false);
   });
 
   it("allows beta exit review only when no cleanup or evidence blockers remain", () => {
-    const report = buildFinalPhaseCleanupLockReport({
-      currentHead: "test-head",
-      reports: baseReports(),
-    });
+    const report = buildFixtureReport(baseReports());
 
     expect(report.summary.canStartBetaExitReview).toBe(true);
     expect(validateFinalPhaseCleanupLockReport(report)).toEqual([]);
@@ -244,10 +228,7 @@ describe("final phase cleanup lock", () => {
       status: "runtime_unverified",
     };
 
-    const report = buildFinalPhaseCleanupLockReport({
-      currentHead: "test-head",
-      reports,
-    });
+    const report = buildFixtureReport(reports);
 
     expect(report.nextExactSteps).toContain("Run screenshot QA on the locked source surfaces and attach real visual evidence.");
     expect(report.nextExactSteps).toContain("Run formal provider smoke checks and refresh provider-smoke-evidence.generated.json.");
