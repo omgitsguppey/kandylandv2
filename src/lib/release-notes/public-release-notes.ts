@@ -1,13 +1,69 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.47",
-  "betaReleaseCounter": 247,
+  "currentVersion": "1.2.48",
+  "betaReleaseCounter": 248,
   "channel": "beta",
-  "generatedAt": "2026-05-14T23:33:19.856Z",
-  "generatedAtUtc": "2026-05-14T23:33:19.856Z",
-  "lastCommitSha": "9a254829a8d46dcca96e191da174f6ff9d06296b",
+  "generatedAt": "2026-05-15T00:57:27.618Z",
+  "generatedAtUtc": "2026-05-15T00:57:27.618Z",
+  "lastCommitSha": "f939d6a50343ccee1531116bdbc62e471b15c213",
   "notes": [
+    {
+      "version": "1.2.48",
+      "previousVersion": "1.2.47",
+      "betaReleaseCounter": 248,
+      "previousBetaReleaseCounter": 247,
+      "commitSha": "f939d6a50343ccee1531116bdbc62e471b15c213",
+      "commitTitle": "fix(creator): connect bookings and fan pass dashboard panels",
+      "commitCount": 1,
+      "commitShas": [
+        "f939d6a50343ccee1531116bdbc62e471b15c213"
+      ],
+      "committedAt": "2026-05-15T00:56:59.000Z",
+      "generatedAt": "2026-05-15T00:57:27.611Z",
+      "committedAtUtc": "2026-05-15T00:56:59.000Z",
+      "generatedAtUtc": "2026-05-15T00:57:27.611Z",
+      "updatedAtUtc": "2026-05-15T00:57:27.611Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Connected booking management, Fan Pass subscriber visibility, and safer creator route body guards.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Connected booking management to the Creator Dashboard.",
+        "Added Fan Pass subscriber visibility for creators.",
+        "Added body size guards to booking and subscription routes."
+      ],
+      "audience": "creators",
+      "affectedSurfaces": [
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/speed-security-hardening.generated.json",
+        "agent/state/user-facing-feature-connection-audit.generated.json",
+        "docs/agent-truth/creator-dashboard-full-loop-connections.md",
+        "docs/agent-truth/user-facing-feature-connection-audit.md",
+        "scripts/agent/validate-settings-creator-dashboard-split.ts",
+        "scripts/agent/validate-user-facing-feature-connection-audit.ts",
+        "src/app/api/creator/bookings/route.ts",
+        "src/app/api/creator/requests/route.ts",
+        "src/app/api/creator/subscriptions/route.ts",
+        "src/components/Creators/CreatorBookingsManager.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Creators/CreatorFanPassManager.tsx",
+        "src/components/Creators/CreatorRequestsManager.tsx",
+        "tests/unit/creator-bookings-manager.spec.tsx",
+        "tests/unit/creator-bookings-route.spec.ts",
+        "tests/unit/creator-dashboard-settings.spec.tsx",
+        "tests/unit/creator-fan-pass-manager.spec.tsx",
+        "tests/unit/creator-requests-manager.spec.tsx",
+        "tests/unit/creator-subscriptions-route.spec.ts",
+        "tests/unit/speed-security-hardening.spec.ts",
+        "tests/unit/user-facing-feature-connection-audit.spec.ts"
+      ],
+      "sourceCommit": "f939d6a50343ccee1531116bdbc62e471b15c213"
+    },
     {
       "version": "1.2.47",
       "previousVersion": "1.2.46",
@@ -1110,50 +1166,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/lost-data-recovery-dry-run.spec.ts"
       ],
       "sourceCommit": "17aad2136900861a00072446be7a0ff12e890888"
-    },
-    {
-      "version": "1.2.23",
-      "previousVersion": "1.2.22",
-      "betaReleaseCounter": 223,
-      "previousBetaReleaseCounter": 222,
-      "commitSha": "5dfefd62b0c1f282015745cf0dd7ec08c0040c79",
-      "commitTitle": "chore(analytics): add identity privacy raw ledger contract",
-      "commitCount": 1,
-      "commitShas": [
-        "5dfefd62b0c1f282015745cf0dd7ec08c0040c79"
-      ],
-      "committedAt": "2026-05-13T01:25:52.000Z",
-      "generatedAt": "2026-05-13T01:26:38.338Z",
-      "committedAtUtc": "2026-05-13T01:25:52.000Z",
-      "generatedAtUtc": "2026-05-13T01:26:38.338Z",
-      "updatedAtUtc": "2026-05-13T01:26:38.338Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and general improvements.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved internal analytics reliability and privacy-aware data handling behind the scenes.",
-        "Added clearer rules for what telemetry can be used when privacy settings are off.",
-        "Prepared recovery rules for data that exists but has not surfaced in the app yet."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json",
-        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-        "docs/agent-truth/analytics-rewire-phase-one.md",
-        "docs/agent-truth/analytics-truth-layer-v2.md",
-        "docs/agent-truth/identity-privacy-raw-ledger-rewire.md",
-        "package.json",
-        "scripts/agent/identity-privacy-raw-ledger-rewire.ts",
-        "scripts/agent/validate-identity-privacy-raw-ledger-rewire.ts",
-        "tests/unit/identity-privacy-raw-ledger-rewire.spec.ts"
-      ],
-      "sourceCommit": "5dfefd62b0c1f282015745cf0dd7ec08c0040c79"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
