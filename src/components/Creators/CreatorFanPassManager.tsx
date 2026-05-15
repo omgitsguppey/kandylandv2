@@ -23,6 +23,7 @@ type FanPassSubscriberRow = {
 
 type FanPassResponse = {
   success?: boolean;
+  viewMode?: "creator_subscriber_visibility" | "fan_subscription_status" | "subscriber_visibility_projection";
   subscribers?: FanPassSubscriberRow[];
   error?: string;
   message?: string;
@@ -121,6 +122,11 @@ export function CreatorFanPassManager({
         throw new Error(body.error || body.message || "Fan Pass subscribers are unavailable.");
       }
       if (loadRequestIdRef.current === requestId) {
+        if (body.viewMode === "fan_subscription_status") {
+          setError("Subscriber visibility unavailable for this context.");
+          setSubscribers([]);
+          return;
+        }
         setSubscribers(normalizeSubscribers(body.subscribers));
       }
     } catch (loadError) {

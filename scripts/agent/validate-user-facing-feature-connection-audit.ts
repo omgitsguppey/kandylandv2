@@ -310,6 +310,19 @@ if (!hub.includes("messageSectionHref") || !hub.includes('"/dashboard/chat"')) {
 if (!hub.includes("CreatorRequestsManager") || !hub.includes("<CreatorRequestsManager")) {
   failures.push("Requests section is connected only when CreatorRequestsManager is imported and rendered.");
 }
+if (!hub.includes("const activeManager") || !hub.includes("data-creator-active-manager")) {
+  failures.push("CreatorDashboardSettingsHub must expose the active manager and avoid mounting every manager at once.");
+}
+for (const expectedGate of [
+  'openSection === "broadcasts"',
+  'openSection === "requests"',
+  'openSection === "bookings"',
+  'openSection === "fan_pass"',
+]) {
+  if (!hub.includes(expectedGate)) {
+    failures.push(`CreatorDashboardSettingsHub must gate manager rendering with ${expectedGate}.`);
+  }
+}
 if (!requestsManager.includes("readOnly") || !requestsManager.includes("Read-only projection")) {
   failures.push("CreatorRequestsManager must guard creator request mutations in read-only projection mode.");
 }
@@ -337,6 +350,9 @@ if (!hub.includes("CreatorFanPassManager") || !hub.includes("<CreatorFanPassMana
 if (!fanPassManager.includes("data-creator-fan-pass-read-only=\"true\"")) {
   failures.push("CreatorFanPassManager must expose read-only subscriber visibility.");
 }
+if (!fanPassManager.includes("Subscriber visibility unavailable for this context.")) {
+  failures.push("CreatorFanPassManager must show an unavailable warning when the route returns fan_subscription_status.");
+}
 if (fanPassManager.includes('method: "POST"') || fanPassManager.includes(">Subscribe<") || fanPassManager.includes(">Cancel<")) {
   failures.push("CreatorFanPassManager must not expose Fan Pass membership mutation controls.");
 }
@@ -345,6 +361,18 @@ if (!fanPassManager.includes("encodeURIComponent(creatorId)")) {
 }
 if (/\b(setInterval|onSnapshot)\b/u.test([requestsManager, bookingsManager, fanPassManager].join("\n"))) {
   failures.push("Creator dashboard managers must not introduce setInterval or onSnapshot.");
+}
+for (const expectedViewMode of [
+  "creator_subscriber_visibility",
+  "subscriber_visibility_projection",
+  "fan_subscription_status",
+]) {
+  if (!subscriptionsRoute.includes(expectedViewMode)) {
+    failures.push(`creator/subscriptions GET must return viewMode ${expectedViewMode}.`);
+  }
+}
+if (!subscriptionsRoute.includes("caller.uid === creatorId") || !subscriptionsRoute.includes("CREATOR_SUBSCRIPTIONS_READ_LIMIT")) {
+  failures.push("creator/subscriptions GET must expose bounded creator-owned subscriber visibility without requiring admin projection.");
 }
 if (!hub.includes("data-creator-chat-route-connected") || !hub.includes("messageSectionHref ?")) {
   failures.push("Messages must expose route connection truth and hide the chat link when disabled or restricted.");
@@ -415,9 +443,10 @@ const report = {
   costBleedFindings,
   selfLoopLinkFindings,
   recommendedFixOrder: [
-    "Keep statsEvidence as the dashboard source-state contract.",
-    "Keep CreatorRequestsManager wired to /api/creator/requests and disabled in read-only projection mode.",
-    "Keep CreatorBookingsManager wired to /api/creator/bookings and disabled in read-only projection mode.",
+  "Keep statsEvidence as the dashboard source-state contract.",
+  "Keep dashboard managers lazy-mounted by active section to avoid page-load cost bleed.",
+  "Keep CreatorRequestsManager wired to /api/creator/requests and disabled in read-only projection mode.",
+  "Keep CreatorBookingsManager wired to /api/creator/bookings and disabled in read-only projection mode.",
     "Keep CreatorFanPassManager read-only and separate from fan-side membership mutations.",
     "Keep broadcast fetches disabled when broadcasts are blocked, unavailable, or read-only.",
     "Run focused creator dashboard and settings route tests after creator-facing connection changes.",

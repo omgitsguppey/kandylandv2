@@ -215,6 +215,11 @@ function validate(): SplitReport {
         "CreatorRequestsManager",
         "CreatorBookingsManager",
         "CreatorFanPassManager",
+        "const activeManager",
+        "data-creator-active-manager",
+        'openSection === "requests"',
+        'openSection === "bookings"',
+        'openSection === "fan_pass"',
         "statsEvidence",
         "data-creator-fan-pass-management-state",
         "data-creator-bookings-management-state",
@@ -227,7 +232,8 @@ function validate(): SplitReport {
       label: "Creator request manager reads real backend data or says not connected",
       ok: includesAll(creatorDashboardHub, [
         "CreatorRequestsManager",
-        "readOnly={settings?.projection?.readOnly === true}",
+        "isReadOnlyProjection",
+        "readOnly={isReadOnlyProjection}",
         "data-creator-fan-pass-management-state",
         "data-creator-bookings-management-state",
       ]) && includesAll(creatorRequestsManager, [
@@ -264,13 +270,21 @@ function validate(): SplitReport {
         "CreatorFanPassManager",
         "fanPassManagementState",
         "subscriber_visibility",
+        "data-creator-active-manager",
       ]) && includesAll(creatorFanPassManager, [
         "/api/creator/subscriptions",
         "encodeURIComponent(creatorId)",
         "data-creator-fan-pass-read-only=\"true\"",
+        "Subscriber visibility unavailable for this context.",
         "No subscribers yet",
       ]) && !includesAny(creatorFanPassManager, ["setInterval", "onSnapshot", 'method: "POST"', ">Subscribe<", ">Cancel<"])
-        && includesAll(creatorSubscriptionsRoute, ["readBoundedJsonBody", "CREATOR_SUBSCRIPTION_BODY_LIMIT_BYTES"]),
+        && includesAll(creatorSubscriptionsRoute, [
+          "readBoundedJsonBody",
+          "CREATOR_SUBSCRIPTION_BODY_LIMIT_BYTES",
+          "creator_subscriber_visibility",
+          "subscriber_visibility_projection",
+          "fan_subscription_status",
+        ]),
       evidence: ["Fan Pass dashboard panel exposes subscriber rows only; membership mutations stay in public creator flows."],
     },
     {

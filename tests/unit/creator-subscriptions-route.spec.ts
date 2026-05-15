@@ -232,7 +232,9 @@ describe("creator subscriptions route", () => {
         const body = await response.json();
 
         expect(response.status).toBe(200);
+        expect(body.viewMode).toBe("fan_subscription_status");
         expect(body.subscription).toMatchObject({ id: "fan_1__creator_1", status: "active" });
+        expect(body.subscribers).toBeUndefined();
     });
 
     it("returns subscribers only for creator or admin callers", async () => {
@@ -267,7 +269,33 @@ describe("creator subscriptions route", () => {
         const body = await response.json();
 
         expect(response.status).toBe(200);
+        expect(body.viewMode).toBe("creator_subscriber_visibility");
         expect(body.subscribers).toHaveLength(2);
+        expect(body.subscription).toBeUndefined();
+    });
+
+    it("returns projected subscriber visibility for admin view-as headers", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "admin_1" });
+        mockState.setDocument("users", "admin_1", { role: "admin" });
+        mockState.collections.set("creator_subscriptions", [
+            { id: "fan_1__creator_1", data: { creatorId: "creator_1", userId: "fan_1", status: "active" } },
+            { id: "fan_2__creator_2", data: { creatorId: "creator_2", userId: "fan_2", status: "active" } },
+        ]);
+
+        const response = await GET(new NextRequest("http://localhost/api/creator/subscriptions?creatorId=ignored_creator", {
+            headers: {
+                "x-admin-view-as-user-id": "creator_1",
+                "x-admin-view-as-actor-uid": "admin_1",
+                "x-admin-view-as-started-at": String(Date.now()),
+                "x-admin-view-as-role": "creator",
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.viewMode).toBe("subscriber_visibility_projection");
+        expect(body.subscribers).toHaveLength(1);
+        expect(body.subscribers[0]).toMatchObject({ id: "fan_1__creator_1", creatorId: "creator_1" });
         expect(body.subscription).toBeUndefined();
     });
 

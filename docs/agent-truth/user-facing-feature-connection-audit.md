@@ -46,6 +46,14 @@ Creator operation writes now use the bounded JSON body parser before route schem
 - `/api/creator/bookings`
 - `/api/creator/subscriptions`
 
+Creator Dashboard manager panels are lazy-mounted by active section. The settings cards load first; Requests, Bookings, Fan Pass subscriber visibility, and Broadcasts mount only when their section is opened. This keeps route connectivity while avoiding page-load cost bleed.
+
+Fan Pass subscriber visibility is split from fan subscription status:
+
+- Creator-owned dashboards use `/api/creator/subscriptions?creatorId=:creatorId` with `viewMode: "creator_subscriber_visibility"`.
+- Admin projection uses `viewMode: "subscriber_visibility_projection"`.
+- Fan-side profile checks use `viewMode: "fan_subscription_status"` and return only the caller's subscription state.
+
 ## Remaining Gaps
 
 - Requests are connected to `CreatorRequestsManager`, which uses the existing `/api/creator/requests` GET/PUT route with read-only and pending-action guards.

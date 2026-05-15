@@ -192,7 +192,7 @@ export function CreatorDashboardSettingsHub() {
   const [settings, setSettings] = useState<CreatorSettingsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [openSection, setOpenSection] = useState<string | null>("broadcasts");
+  const [openSection, setOpenSection] = useState<string | null>(null);
   const dashboardRequestIdRef = useRef(0);
 
   const creatorId = viewAsState?.adminViewingAsUserId || userProfile?.uid || "";
@@ -294,6 +294,7 @@ export function CreatorDashboardSettingsHub() {
     : fanPassEnabled && subscriptionPriceGd > 0
       ? "subscriber_visibility"
       : "configuration_only";
+  const isReadOnlyProjection = settings?.projection?.readOnly === true;
   const publicProfileHref = buildCreatorPublicHref({
     creatorId,
     creatorUsername: typeof userProfile?.username === "string" ? userProfile.username : "",
@@ -486,6 +487,43 @@ export function CreatorDashboardSettingsHub() {
       icon: <BellRing className="h-4 w-4" />,
     },
   ];
+  const activeManager = openSection === "requests" ? (
+    <CreatorRequestsManager
+      creatorId={creatorId}
+      creatorName={creatorName}
+      enabled={requestsEnabled}
+      restricted={requestsRestricted}
+      readOnly={isReadOnlyProjection}
+      sourceState={requestsState}
+    />
+  ) : openSection === "bookings" ? (
+    <CreatorBookingsManager
+      creatorId={creatorId}
+      creatorName={creatorName}
+      enabled={bookingsEnabled}
+      restricted={bookingsRestricted}
+      readOnly={isReadOnlyProjection}
+      sourceState={bookingsSourceState}
+      availabilityConfigured={bookingsAvailabilityConfigured}
+    />
+  ) : openSection === "fan_pass" ? (
+    <CreatorFanPassManager
+      creatorId={creatorId}
+      creatorName={creatorName}
+      enabled={fanPassEnabled}
+      restricted={fanPassRestricted}
+      priceGd={subscriptionPriceGd}
+      readOnly={isReadOnlyProjection}
+      sourceState={subscriptionsState}
+    />
+  ) : openSection === "broadcasts" ? (
+    <CreatorBroadcastManager
+      creatorId={creatorId}
+      creatorName={creatorName}
+      broadcastsEnabled={creatorSettings.broadcastsEnabled === true}
+      broadcastsRestricted={creatorRestrictions.broadcastsRestricted === true}
+    />
+  ) : null;
 
   if (!isCreatorOrProjection) {
     return (
@@ -514,7 +552,7 @@ export function CreatorDashboardSettingsHub() {
             <h1 className="mt-1 text-2xl font-black text-white">Manage creator operations</h1>
             <p className="mt-2 max-w-2xl text-sm text-gray-300">Broadcasts, Fan Pass, bookings, requests, earnings, and public profile tools live here. The page stays read-only in admin projection mode.</p>
           </div>
-          {settings?.projection?.readOnly ? (
+          {isReadOnlyProjection ? (
             <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">Read-only projection</span>
           ) : null}
         </div>
@@ -554,41 +592,10 @@ export function CreatorDashboardSettingsHub() {
         ))}
       </div>
 
-      <CreatorRequestsManager
-        creatorId={creatorId}
-        creatorName={creatorName}
-        enabled={requestsEnabled}
-        restricted={requestsRestricted}
-        readOnly={settings?.projection?.readOnly === true}
-        sourceState={requestsState}
-      />
-
-      <CreatorBookingsManager
-        creatorId={creatorId}
-        creatorName={creatorName}
-        enabled={bookingsEnabled}
-        restricted={bookingsRestricted}
-        readOnly={settings?.projection?.readOnly === true}
-        sourceState={bookingsSourceState}
-        availabilityConfigured={bookingsAvailabilityConfigured}
-      />
-
-      <CreatorFanPassManager
-        creatorId={creatorId}
-        creatorName={creatorName}
-        enabled={fanPassEnabled}
-        restricted={fanPassRestricted}
-        priceGd={subscriptionPriceGd}
-        readOnly={settings?.projection?.readOnly === true}
-        sourceState={subscriptionsState}
-      />
-
-      <CreatorBroadcastManager
-        creatorId={creatorId}
-        creatorName={creatorName}
-        broadcastsEnabled={creatorSettings.broadcastsEnabled === true}
-        broadcastsRestricted={creatorRestrictions.broadcastsRestricted === true}
-      />
+      <div className="space-y-2" data-creator-active-manager={openSection ?? "none"}>
+        <p className="px-1 text-xs font-semibold text-gray-400">Open a section to load its manager.</p>
+        {activeManager}
+      </div>
     </div>
   );
 }

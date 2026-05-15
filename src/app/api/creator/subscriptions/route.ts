@@ -147,6 +147,7 @@ async function GET_handler(request: NextRequest) {
                 || callerData?.role === "admin"
                 || (isCreatorRole(callerData?.role) && caller.uid === creatorId);
             if (canReadCreatorSubscribers) {
+                // cost-bound: creator subscriber visibility is limited by CREATOR_SUBSCRIPTIONS_READ_LIMIT.
                 const subscribersSnap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions)
                     .where("creatorId", "==", creatorId)
                     .limit(CREATOR_SUBSCRIPTIONS_READ_LIMIT)
@@ -154,6 +155,7 @@ async function GET_handler(request: NextRequest) {
 
                 return NextResponse.json({
                     success: true,
+                    viewMode: projection ? "subscriber_visibility_projection" : "creator_subscriber_visibility",
                     subscribers: subscribersSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Record<string, unknown>) })),
                 });
             }
@@ -162,6 +164,7 @@ async function GET_handler(request: NextRequest) {
             const snap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(buildSubscriptionId(caller.uid, creatorId)).get();
             return NextResponse.json({
                 success: true,
+                viewMode: "fan_subscription_status",
                 subscription: snap.exists ? { id: snap.id, ...(snap.data() as Record<string, unknown>) } : null,
             });
         }

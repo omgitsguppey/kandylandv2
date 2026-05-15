@@ -37,6 +37,11 @@ describe("user-facing feature connection audit", () => {
     expect(hub).toContain("CreatorRequestsManager");
     expect(hub).toContain("CreatorBookingsManager");
     expect(hub).toContain("CreatorFanPassManager");
+    expect(hub).toContain("data-creator-active-manager");
+    expect(hub).toContain("activeManager");
+    expect(hub).toContain("openSection === \"requests\"");
+    expect(hub).toContain("openSection === \"bookings\"");
+    expect(hub).toContain("openSection === \"fan_pass\"");
     expect(hub).toContain("data-creator-fan-pass-management-state");
     expect(hub).toContain("data-creator-bookings-management-state");
     expect(hub).toContain("data-creator-chat-route-connected");
@@ -74,9 +79,20 @@ describe("user-facing feature connection audit", () => {
     expect(bookingsManager).toContain("pendingActionId");
     expect(fanPassManager).toContain("/api/creator/subscriptions");
     expect(fanPassManager).toContain("encodeURIComponent(creatorId)");
+    expect(fanPassManager).toContain("Subscriber visibility unavailable for this context.");
     expect(fanPassManager).not.toContain('method: "POST"');
     expect(creatorSources).not.toMatch(/\bsetInterval\b/u);
     expect(creatorSources).not.toMatch(/\bonSnapshot\b/u);
+  });
+
+  it("keeps Fan Pass subscriber visibility separate from fan subscription status", () => {
+    const route = read("src/app/api/creator/subscriptions/route.ts");
+
+    expect(route).toContain("creator_subscriber_visibility");
+    expect(route).toContain("subscriber_visibility_projection");
+    expect(route).toContain("fan_subscription_status");
+    expect(route).toContain("caller.uid === creatorId");
+    expect(route).toContain("CREATOR_SUBSCRIPTIONS_READ_LIMIT");
   });
 
   it("keeps creator operation routes behind the bounded JSON parser", () => {

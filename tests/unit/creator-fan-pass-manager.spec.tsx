@@ -77,6 +77,23 @@ describe("CreatorFanPassManager", () => {
     expect(screen.getByTestId("creator-fan-pass-manager").dataset.creatorFanPassReadOnly).toBe("true");
   });
 
+  it("shows an unavailable warning when the route returns fan subscription status", async () => {
+    mockState.authFetch.mockResolvedValue(okResponse({
+      success: true,
+      viewMode: "fan_subscription_status",
+      subscription: { id: "fan_1__creator_1", status: "active" },
+    }));
+
+    renderManager();
+
+    await waitFor(() => {
+      expect(screen.getByText("Subscriber visibility unavailable for this context.")).toBeTruthy();
+    });
+    expect(screen.queryByText("active")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Subscribe" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
+  });
+
   it("does not load when Fan Pass is blocked or missing a price", () => {
     const { rerender } = renderManager({ restricted: true });
 

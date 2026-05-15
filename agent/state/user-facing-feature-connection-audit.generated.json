@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-15T00:45:42.901Z",
+  "generatedAtUtc": "2026-05-15T03:24:42.418Z",
   "reportKey": "user-facing-feature-connection-audit",
-  "currentHead": "9b587ae1957be2c40f5327af0c7d031aea5c0d18",
+  "currentHead": "c7f18cded9a257d973c70a0c308efb86aa9d511c",
   "summary": {
     "surfacesScanned": 9,
     "connectedSurfaces": 6,
@@ -147,6 +147,7 @@
   "selfLoopLinkFindings": [],
   "recommendedFixOrder": [
     "Keep statsEvidence as the dashboard source-state contract.",
+    "Keep dashboard managers lazy-mounted by active section to avoid page-load cost bleed.",
     "Keep CreatorRequestsManager wired to /api/creator/requests and disabled in read-only projection mode.",
     "Keep CreatorBookingsManager wired to /api/creator/bookings and disabled in read-only projection mode.",
     "Keep CreatorFanPassManager read-only and separate from fan-side membership mutations.",

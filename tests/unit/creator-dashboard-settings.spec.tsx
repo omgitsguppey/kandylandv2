@@ -179,8 +179,8 @@ describe("CreatorDashboardSettingsHub", () => {
     });
   });
 
-  it("renders the creator settings sections and embeds the broadcast manager", async () => {
-    render(<CreatorDashboardSettingsHub />);
+  it("renders the creator settings sections without mounting every manager on page load", async () => {
+    const { container } = render(<CreatorDashboardSettingsHub />);
 
     await waitFor(() => {
       expect(screen.getByText("Public Profile")).toBeTruthy();
@@ -192,24 +192,30 @@ describe("CreatorDashboardSettingsHub", () => {
       expect(screen.getByText("Availability")).toBeTruthy();
       expect(screen.getByText("Earnings / payout")).toBeTruthy();
       expect(screen.getByText("Notifications / audience")).toBeTruthy();
-      expect(screen.getByTestId("requests-manager")).toBeTruthy();
-      expect(screen.getByTestId("bookings-manager")).toBeTruthy();
-      expect(screen.getByTestId("fan-pass-manager")).toBeTruthy();
-      expect(screen.getByTestId("broadcast-manager")).toBeTruthy();
     });
+    expect(container.querySelector("[data-creator-active-manager]")?.getAttribute("data-creator-active-manager")).toBe("none");
+    expect(screen.getByText("Open a section to load its manager.")).toBeTruthy();
+    expect(screen.queryByTestId("requests-manager")).toBeNull();
+    expect(screen.queryByTestId("bookings-manager")).toBeNull();
+    expect(screen.queryByTestId("fan-pass-manager")).toBeNull();
+    expect(screen.queryByTestId("broadcast-manager")).toBeNull();
   });
 
   it("connects the requests manager when custom requests are enabled", async () => {
     const { container } = render(<CreatorDashboardSettingsHub />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("requests-manager").dataset.enabled).toBe("true");
-      expect(screen.getByTestId("requests-manager").dataset.restricted).toBe("false");
-      expect(screen.getByTestId("requests-manager").dataset.readOnly).toBe("false");
-      expect(screen.getByTestId("requests-manager").dataset.sourceState).toBe("live");
+      expect(screen.getByText("Requests")).toBeTruthy();
     });
     fireEvent.click(screen.getByText("Requests"));
+    expect(screen.getByTestId("requests-manager").dataset.enabled).toBe("true");
+    expect(screen.getByTestId("requests-manager").dataset.restricted).toBe("false");
+    expect(screen.getByTestId("requests-manager").dataset.readOnly).toBe("false");
+    expect(screen.getByTestId("requests-manager").dataset.sourceState).toBe("live");
     expect(section(container, "requests").textContent).toContain("Manage pending custom requests below.");
+    expect(container.querySelector("[data-creator-active-manager]")?.getAttribute("data-creator-active-manager")).toBe("requests");
+    expect(screen.queryByTestId("bookings-manager")).toBeNull();
+    expect(screen.queryByTestId("fan-pass-manager")).toBeNull();
   });
 
   it("does not mark Fan Pass live when restricted or price is not configured", async () => {
@@ -298,18 +304,81 @@ describe("CreatorDashboardSettingsHub", () => {
     });
   });
 
-  it("passes connected booking and Fan Pass state into the dashboard managers", async () => {
+  it("mounts only the opened booking or Fan Pass manager", async () => {
     const { container } = render(<CreatorDashboardSettingsHub />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("bookings-manager").dataset.enabled).toBe("true");
-      expect(screen.getByTestId("bookings-manager").dataset.availabilityConfigured).toBe("true");
-      expect(screen.getByTestId("bookings-manager").dataset.sourceState).toBe("live");
-      expect(screen.getByTestId("fan-pass-manager").dataset.enabled).toBe("true");
-      expect(screen.getByTestId("fan-pass-manager").dataset.priceGd).toBe("500");
-      expect(section(container, "fan_pass").dataset.creatorFanPassManagementState).toBe("subscriber_visibility");
-      expect(section(container, "bookings").dataset.creatorBookingsManagementState).toBe("connected");
+      expect(screen.getByText("Live time / bookings")).toBeTruthy();
     });
+    fireEvent.click(screen.getByText("Live time / bookings"));
+    expect(screen.getByTestId("bookings-manager").dataset.enabled).toBe("true");
+    expect(screen.getByTestId("bookings-manager").dataset.availabilityConfigured).toBe("true");
+    expect(screen.getByTestId("bookings-manager").dataset.sourceState).toBe("live");
+    expect(container.querySelector("[data-creator-active-manager]")?.getAttribute("data-creator-active-manager")).toBe("bookings");
+    expect(screen.queryByTestId("requests-manager")).toBeNull();
+    expect(screen.queryByTestId("fan-pass-manager")).toBeNull();
+
+    fireEvent.click(screen.getByText("Fan Pass"));
+    expect(screen.getByTestId("fan-pass-manager").dataset.enabled).toBe("true");
+    expect(screen.getByTestId("fan-pass-manager").dataset.priceGd).toBe("500");
+    expect(container.querySelector("[data-creator-active-manager]")?.getAttribute("data-creator-active-manager")).toBe("fan_pass");
+    expect(screen.queryByTestId("bookings-manager")).toBeNull();
+    expect(section(container, "fan_pass").dataset.creatorFanPassManagementState).toBe("subscriber_visibility");
+    expect(section(container, "bookings").dataset.creatorBookingsManagementState).toBe("connected");
+  });
+
+  it("mounts the broadcast manager only when Broadcasts is opened", async () => {
+    render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Broadcasts")).toBeTruthy();
+      expect(screen.queryByTestId("broadcast-manager")).toBeNull();
+    });
+    fireEvent.click(screen.getByText("Broadcasts"));
+    expect(screen.getByTestId("broadcast-manager")).toBeTruthy();
+    expect(screen.queryByTestId("requests-manager")).toBeNull();
+  });
+
+  it("does not make manager fetches before a manager is mounted", async () => {
+    render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(mockState.authFetch).toHaveBeenCalledTimes(1);
+      expect(mockState.authFetch).toHaveBeenCalledWith("/api/creator/settings");
+    });
+    expect(screen.queryByTestId("requests-manager")).toBeNull();
+    expect(screen.queryByTestId("bookings-manager")).toBeNull();
+    expect(screen.queryByTestId("fan-pass-manager")).toBeNull();
+  });
+
+  it("passes connected booking and Fan Pass state into opened dashboard managers", async () => {
+    const { container } = render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Live time / bookings")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByText("Live time / bookings"));
+    expect(screen.getByTestId("bookings-manager").dataset.enabled).toBe("true");
+    expect(screen.getByTestId("bookings-manager").dataset.availabilityConfigured).toBe("true");
+    expect(screen.getByTestId("bookings-manager").dataset.sourceState).toBe("live");
+    fireEvent.click(screen.getByText("Fan Pass"));
+    expect(screen.getByTestId("fan-pass-manager").dataset.enabled).toBe("true");
+    expect(screen.getByTestId("fan-pass-manager").dataset.priceGd).toBe("500");
+    expect(section(container, "fan_pass").dataset.creatorFanPassManagementState).toBe("subscriber_visibility");
+    expect(section(container, "bookings").dataset.creatorBookingsManagementState).toBe("connected");
+  });
+
+  it("keeps only the active manager mounted when switching sections", async () => {
+    render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Live time / bookings")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByText("Live time / bookings"));
+    expect(screen.getByTestId("bookings-manager")).toBeTruthy();
+    fireEvent.click(screen.getByText("Requests"));
+    expect(screen.getByTestId("requests-manager")).toBeTruthy();
+    expect(screen.queryByTestId("bookings-manager")).toBeNull();
   });
 
   it("does not render self-loop creator dashboard links for inline sections", async () => {
