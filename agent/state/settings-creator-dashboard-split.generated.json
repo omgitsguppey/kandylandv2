@@ -1,38 +1,11 @@
 {
-  "generatedAt": "2026-05-08T05:59:01.983Z",
+  "generatedAt": "2026-05-15T05:03:28.425Z",
   "status": "pass",
   "criticalBlockers": [],
   "warnings": [],
   "changedFilesSinceLastSettingsCreatorDashboardSplit": [
-    "docs/agent-truth/creator-fan-experience-settings.md",
-    "docs/agent-truth/creator-lane-old-logic-cleanup.md",
-    "docs/doctrine/surfaces/creator-ui-doctrine.md",
-    "docs/doctrine/surfaces/user-ui-doctrine.md",
-    "package.json",
-    "src/app/api/creator/broadcasts/route.ts",
-    "src/app/dashboard/profile/hooks/useProfileState.tsx",
-    "src/app/dashboard/profile/page.tsx",
-    "src/components/Navigation/ProfileDropdown.tsx",
-    "src/components/Navigation/ProfileSidebar.tsx",
-    "src/lib/telemetry-catalog.ts",
     "agent/state/settings-creator-dashboard-split.generated.json",
-    "docs/agent-truth/creator-broadcasts.md",
-    "docs/agent-truth/creator-dashboard-settings.md",
-    "docs/agent-truth/creator-dashboard.md",
-    "docs/agent-truth/user-settings-surface.md",
-    "scripts/agent/validate-settings-creator-dashboard-split.ts",
-    "src/app/account/",
-    "src/app/creator/",
-    "src/app/creators/dashboard/",
-    "src/app/dashboard/creator/",
-    "src/app/dashboard/profile/creator/",
-    "src/app/dashboard/settings/",
-    "src/app/settings/",
-    "src/components/Creators/CreatorBroadcastManager.tsx",
-    "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-    "src/components/Settings/",
-    "src/lib/creator-dashboard/",
-    "src/lib/settings/"
+    "package.json"
   ],
   "requiredTargetedChecks": [
     "npm run check:settings-creator-dashboard-split",
@@ -82,6 +55,30 @@
       "ok": true,
       "evidence": [
         "Creator dashboard settings hub shows the operational sections and truth labels."
+      ]
+    },
+    {
+      "key": "creator-requests-manager-real-data",
+      "label": "Creator request manager reads real backend data or says not connected",
+      "ok": true,
+      "evidence": [
+        "Creator request management is wired to the existing request route with request-id and pending guards."
+      ]
+    },
+    {
+      "key": "creator-bookings-manager-real-data",
+      "label": "Creator booking manager reads real backend data or says not connected",
+      "ok": true,
+      "evidence": [
+        "Creator booking management is wired to the existing booking route with request-id and pending guards."
+      ]
+    },
+    {
+      "key": "creator-fan-pass-subscriber-visibility",
+      "label": "Fan Pass subscriber visibility is read-only and route-backed",
+      "ok": true,
+      "evidence": [
+        "Fan Pass dashboard panel exposes subscriber rows only; membership mutations stay in public creator flows."
       ]
     },
     {

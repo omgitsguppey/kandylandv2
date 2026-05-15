@@ -31,3 +31,7 @@ The validator writes `agent/state/product-surface-integrity.generated.json` for 
 4. Review Admin mobile nested-scroll regions with source-approved ownership markers or compact layout fixes.
 
 After the focused guardrail cleanup, the next speed/security group is still admin route body-limit and typed-error mapping. Remaining cost fanout findings are deferred to the cost-guardrail owner when they touch cron, admin analytics, AI cover runtime, chat internals, or broader admin roster/drop mutation loops.
+
+## Final Cleanup Lock
+
+`agent/state/final-phase-cleanup-lock.generated.json` is the current phase lock on top of this report. The lock records Product Surface Integrity at P0=0 and P1=0, with P2 follow-ups owner-deferred instead of hidden. Screenshot QA can start from this source state, but missing visual, provider, runtime, and admin-sample evidence still blocks beta exit review.

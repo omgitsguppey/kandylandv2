@@ -196,3 +196,15 @@ Remaining active caps:
 - `Unknown evidence`: admin truth sample evidence remains `missing_or_unknown`.
 - `Stale evidence`: final launch readiness, launch readiness, and PR triage reports are older than the freshness window.
 - `Unknown evidence`: debug/runtime evidence is empty.
+
+## 2026-05-15 Final Cleanup Lock
+
+`agent/state/final-phase-cleanup-lock.generated.json` now records the cleanup-phase evidence lock. At the time of the lock, `npm run score:beta` reports 45/100 with `Stale evidence`. The lock confirms source-connected cleanup can move to screenshot QA and formal smoke evidence collection, but it does not mark beta ready.
+
+The remaining blockers are evidence and authority gaps:
+
+- visual/manual screenshot QA is still required;
+- provider smoke is still formal-evidence-missing;
+- runtime smoke is still unverified;
+- admin truth sample evidence is still missing or unknown;
+- launch/readiness reports remain stale/evidence-only until refreshed.

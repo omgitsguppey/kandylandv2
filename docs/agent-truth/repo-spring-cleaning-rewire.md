@@ -50,6 +50,10 @@ The original inventory identified several Phase 1 blocker-adjacent lanes. Some h
 
 The remaining spring-cleaning role is inventory and demotion: keep stale reports, duplicate docs, legacy validators, and disconnected surfaces classified until a focused fix removes, merges, or archives them with static evidence.
 
+## Final Cleanup Lock Relationship
+
+`agent/state/final-phase-cleanup-lock.generated.json` consumes this lane as governance evidence only. Repo Spring Cleaning still reports stale/archive cleanup candidates, including old launch/readiness artifacts, but those findings are not runtime truth and must not be used as live readiness. The final lock classifies them as P2 stale-authority/archive work until their owner validators refresh or archive them.
+
 ## Validation
 
 Run:

@@ -1,0 +1,475 @@
+{
+  "generatedAtUtc": "2026-05-15T05:03:51.910Z",
+  "reportKey": "final-phase-cleanup-lock",
+  "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
+  "commitsReviewed": [
+    "cbc1a62a docs(release): update beta badge for guardrail cleanup [skip release-notes]",
+    "a3327698 fix(security): clean up focused guardrail risks",
+    "3769bfd3 docs(release): update beta badge for product surface integrity [skip release-notes]",
+    "540695fc chore(repo): add product surface integrity cleanup",
+    "a81f0188 docs(release): update beta badge for creator lazy loading [skip release-notes]",
+    "c1626425 fix(creator): lazy load dashboard managers",
+    "c7f18cde docs(release): update beta badge for creator bookings [skip release-notes]",
+    "f939d6a5 fix(creator): connect bookings and fan pass dashboard panels",
+    "9b587ae1 docs(release): update beta badge for creator dashboard [skip release-notes]",
+    "9a254829 fix(creator): connect dashboard request flow",
+    "b5909742 docs(release): update beta badge for speed security [skip release-notes]",
+    "ca9210a2 fix(security): bound analytics fanout and request bodies",
+    "6ff00b4f docs(release): update beta badge for auth outcomes [skip release-notes]",
+    "f43a7868 fix(admin): simplify auth outcomes mobile panel",
+    "85210a98 docs(release): update beta badge for analytics operations [skip release-notes]",
+    "d75e1f4c fix(admin): compact analytics operations mobile panels",
+    "954978c3 docs(release): update beta badge for analytics overview [skip release-notes]",
+    "f081f930 fix(admin): simplify mobile analytics overview",
+    "4293b513 docs(release): update beta badge for doctrine reset [skip release-notes]",
+    "2b582f1e docs(repo): consolidate current operator doctrine",
+    "d315c420 docs(release): update beta badge for debug triage [skip release-notes]",
+    "af8d35ae chore(debug): triage panel evidence output",
+    "104e5c03 fix(ci): skip release note-only workflow runs [skip release-notes]",
+    "0ee93628 docs(release): update beta badge for creator connection audit",
+    "fee10e6a chore(ui): audit creator feature connections",
+    "2ce388f0 docs(release): update beta badge for targeted evidence",
+    "c6ce135d docs(phase-one): add targeted behavior evidence",
+    "6b964e0e docs(release): update beta badge for debug score",
+    "4f313a98 fix(admin): show canonical beta score in debug",
+    "f08ea8a3 docs(release): update beta badge for watch time truth",
+    "470ce04a fix(analytics): lock watch time truth contract",
+    "d2386d3d docs(release): update beta badge for score evidence ingestion",
+    "ff66bf7f fix(score): read formal beta evidence artifacts",
+    "eea18175 docs(release): update beta badge for spring cleaning inventory",
+    "99658a42 chore(repo): add spring cleaning rewire inventory",
+    "6dfd82f8 docs(release): update beta badge for score UI triage",
+    "2570b5dd chore(phase-one): triage score and dashboard truth wiring",
+    "da10e87d docs(release): update beta badge for smoke evidence tracking",
+    "d1dd8a05 docs(phase-one): add formal smoke evidence tracking",
+    "4958214e docs(release): update beta badge for beta exit evidence"
+  ],
+  "summary": {
+    "userFacingConnectionStatus": "P0=0 P1=0 P2=1 fakeActions=0",
+    "productSurfaceIntegrityStatus": "P0=0 P1=0 P2=26 stale=1 deferred=26",
+    "speedSecurityStatus": "51/beta-risk; findings=91; critical=0",
+    "betaScore": 45,
+    "betaReadinessStatus": "Stale evidence",
+    "staleAuthorityRisks": 9,
+    "remainingP0": 0,
+    "remainingP1": 4,
+    "remainingP2": 9,
+    "missingHumanEvidence": 3,
+    "missingProviderEvidence": 1,
+    "missingRuntimeEvidence": 1,
+    "canStartScreenshotQa": true,
+    "canStartProviderSmoke": true,
+    "canStartBetaExitReview": false
+  },
+  "checksRun": [
+    {
+      "command": "npm run check:user-facing-feature-connection-audit",
+      "status": "passed",
+      "evidence": "Refreshed user-facing feature connection report."
+    },
+    {
+      "command": "npm run check:settings-creator-dashboard-split",
+      "status": "passed",
+      "evidence": "Refreshed creator dashboard split evidence."
+    },
+    {
+      "command": "npm run check:product-surface-integrity",
+      "status": "passed",
+      "evidence": "Refreshed product surface integrity report."
+    },
+    {
+      "command": "npm run score:speed-security",
+      "status": "passed",
+      "evidence": "Refreshed speed/security score report."
+    },
+    {
+      "command": "npm run check:speed-security",
+      "status": "passed",
+      "evidence": "Validated current speed/security report."
+    },
+    {
+      "command": "npm run check:repo-spring-cleaning-rewire",
+      "status": "passed",
+      "evidence": "Refreshed repo spring cleaning rewire report."
+    },
+    {
+      "command": "npm run check:admin-debug-control-tower",
+      "status": "passed",
+      "evidence": "Validated after generated evidence was scoped/staged; initial dirty generated diff is not live authority."
+    },
+    {
+      "command": "npm run check:admin-truth",
+      "status": "passed",
+      "evidence": "Validated admin truth contract."
+    },
+    {
+      "command": "npm run check:targeted-behavior-evidence",
+      "status": "passed",
+      "evidence": "Validated targeted behavior evidence artifact."
+    },
+    {
+      "command": "npm run check:provider-smoke-evidence",
+      "status": "passed",
+      "evidence": "Validator passed, artifact still records missing formal provider smoke."
+    },
+    {
+      "command": "npm run check:runtime-smoke-evidence",
+      "status": "passed",
+      "evidence": "Validator passed, artifact still records runtime_unverified."
+    },
+    {
+      "command": "npm run check:admin-truth-sample-evidence",
+      "status": "passed",
+      "evidence": "Validator passed, artifact still records missing admin truth sample."
+    },
+    {
+      "command": "npm run score:beta",
+      "status": "passed",
+      "evidence": "Refreshed beta score with evidence caps."
+    },
+    {
+      "command": "npm run check:beta-score",
+      "status": "passed",
+      "evidence": "Validated beta score artifact without treating missing evidence as passed."
+    },
+    {
+      "command": "npm run check:release-notes",
+      "status": "passed",
+      "evidence": "Validated release notes before lock update."
+    },
+    {
+      "command": "npm run check:launch-pr-triage",
+      "status": "failed",
+      "evidence": "Launch PR triage is stale relative to current HEAD."
+    },
+    {
+      "command": "npm run check:launch-readiness-final",
+      "status": "failed",
+      "evidence": "Launch readiness reports are stale or evidence-capped; do not treat them as launch-ready."
+    },
+    {
+      "command": "npm run check:final-launch-readiness-report",
+      "status": "passed",
+      "evidence": "Validator command exists and passes with caveated evidence state."
+    }
+  ],
+  "failedChecks": [
+    {
+      "command": "npm run check:launch-pr-triage",
+      "status": "failed",
+      "evidence": "Launch PR triage is stale relative to current HEAD."
+    },
+    {
+      "command": "npm run check:launch-readiness-final",
+      "status": "failed",
+      "evidence": "Launch readiness reports are stale or evidence-capped; do not treat them as launch-ready."
+    }
+  ],
+  "unavailableChecks": [],
+  "refreshedReports": [
+    {
+      "reportKey": "user-facing-feature-connection-audit",
+      "path": "agent/state/user-facing-feature-connection-audit.generated.json",
+      "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
+      "generatedAtUtc": "2026-05-15T05:03:24.115Z",
+      "sourceState": "current",
+      "ownerLane": "creator-surface-owner",
+      "exactNextAction": "No action required for report freshness."
+    },
+    {
+      "reportKey": "product-surface-integrity",
+      "path": "agent/state/product-surface-integrity.generated.json",
+      "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
+      "generatedAtUtc": "2026-05-15T05:03:19.192Z",
+      "sourceState": "current",
+      "ownerLane": "product-surface-owner",
+      "exactNextAction": "No action required for report freshness."
+    },
+    {
+      "reportKey": "repo-spring-cleaning-rewire",
+      "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
+      "generatedAtUtc": "2026-05-15T04:49:28.920Z",
+      "sourceState": "current",
+      "ownerLane": "repo-governance-owner",
+      "exactNextAction": "No action required for report freshness."
+    }
+  ],
+  "staleReports": [
+    {
+      "reportKey": "speed-security-hardening",
+      "path": "agent/state/speed-security-hardening.generated.json",
+      "currentHead": null,
+      "generatedAtUtc": "2026-05-15T05:03:34.808Z",
+      "sourceState": "missing_head",
+      "ownerLane": "speed-security-owner",
+      "exactNextAction": "Refresh agent/state/speed-security-hardening.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
+      "reportKey": "public-beta-score",
+      "path": "agent/state/public-beta-score.generated.json",
+      "currentHead": null,
+      "generatedAtUtc": "2026-05-15T05:03:42.206Z",
+      "sourceState": "missing_head",
+      "ownerLane": "beta-readiness-owner",
+      "exactNextAction": "Refresh agent/state/public-beta-score.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
+      "reportKey": "targeted-behavior-evidence",
+      "path": "agent/state/targeted-behavior-evidence.generated.json",
+      "currentHead": "6b964e0e91f288a68da7a7e2ff0fce38d6343338",
+      "generatedAtUtc": "2026-05-14T14:11:47.684Z",
+      "sourceState": "stale_head",
+      "ownerLane": "behavior-evidence-owner",
+      "exactNextAction": "Refresh agent/state/targeted-behavior-evidence.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
+      "reportKey": "provider-smoke-evidence",
+      "path": "agent/state/provider-smoke-evidence.generated.json",
+      "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
+      "generatedAtUtc": "2026-05-14T02:00:00.000Z",
+      "sourceState": "stale_head",
+      "ownerLane": "provider-smoke-owner",
+      "exactNextAction": "Refresh agent/state/provider-smoke-evidence.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
+      "reportKey": "runtime-smoke-evidence",
+      "path": "agent/state/runtime-smoke-evidence.generated.json",
+      "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
+      "generatedAtUtc": "2026-05-14T02:00:00.000Z",
+      "sourceState": "stale_head",
+      "ownerLane": "runtime-smoke-owner",
+      "exactNextAction": "Refresh agent/state/runtime-smoke-evidence.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
+      "reportKey": "admin-truth-sample-evidence",
+      "path": "agent/state/admin-truth-sample-evidence.generated.json",
+      "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
+      "generatedAtUtc": "2026-05-14T02:00:00.000Z",
+      "sourceState": "stale_head",
+      "ownerLane": "admin-truth-owner",
+      "exactNextAction": "Refresh agent/state/admin-truth-sample-evidence.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
+      "reportKey": "launch-pr-triage",
+      "path": "agent/state/launch-pr-triage.generated.json",
+      "currentHead": null,
+      "generatedAtUtc": "2026-05-12T19:42:22.634Z",
+      "sourceState": "missing_head",
+      "ownerLane": "launch-triage-owner",
+      "exactNextAction": "Refresh agent/state/launch-pr-triage.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
+      "reportKey": "launch-readiness-report",
+      "path": "agent/state/launch-readiness-report.generated.json",
+      "currentHead": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
+      "generatedAtUtc": "2026-05-12T19:42:22.634Z",
+      "sourceState": "stale_head",
+      "ownerLane": "launch-readiness-owner",
+      "exactNextAction": "Refresh agent/state/launch-readiness-report.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
+      "reportKey": "final-launch-readiness-report",
+      "path": "agent/state/final-launch-readiness-report.generated.json",
+      "currentHead": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
+      "generatedAtUtc": "2026-05-12T19:42:22.634Z",
+      "sourceState": "stale_head",
+      "ownerLane": "launch-readiness-owner",
+      "exactNextAction": "Refresh agent/state/final-launch-readiness-report.generated.json through its focused owner command; do not treat stale data as live readiness."
+    }
+  ],
+  "archiveCandidates": [
+    {
+      "key": "repo_spring_cleaning_archive_backlog",
+      "severity": "P2",
+      "status": "archive_candidate",
+      "sourceReport": "repo-spring-cleaning-rewire",
+      "fileOrRoute": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "whyItMatters": "Repo spring cleaning still reports stale/archive cleanup candidates; they are classified as governance cleanup rather than live readiness proof.",
+      "exactNextAction": "Refresh or archive stale generated reports through their owning validators before treating them as current authority.",
+      "ownerLane": "repo-governance-owner"
+    }
+  ],
+  "remainingBlockers": [
+    {
+      "key": "visual_qa_required",
+      "severity": "P1",
+      "status": "visual_qa_required",
+      "sourceReport": "public-beta-score",
+      "fileOrRoute": "agent/state/public-beta-score.generated.json",
+      "whyItMatters": "The beta score still applies a visual/manual evidence cap; screenshots are confirmation evidence and cannot be fabricated by source validators.",
+      "exactNextAction": "Run screenshot QA on the locked source surfaces and attach real visual evidence.",
+      "ownerLane": "visual-qa-owner"
+    },
+    {
+      "key": "provider_smoke_required",
+      "severity": "P1",
+      "status": "provider_smoke_required",
+      "sourceReport": "provider-smoke-evidence",
+      "fileOrRoute": "agent/state/provider-smoke-evidence.generated.json",
+      "whyItMatters": "Provider smoke evidence is missing or operator-reported only; the lock must not mark provider workflows as passed.",
+      "exactNextAction": "Run formal provider smoke checks and refresh provider-smoke-evidence.generated.json.",
+      "ownerLane": "provider-smoke-owner"
+    },
+    {
+      "key": "runtime_smoke_required",
+      "severity": "P1",
+      "status": "runtime_smoke_required",
+      "sourceReport": "runtime-smoke-evidence",
+      "fileOrRoute": "agent/state/runtime-smoke-evidence.generated.json",
+      "whyItMatters": "Runtime smoke remains unverified; local static validators do not prove deployed runtime behavior.",
+      "exactNextAction": "Run runtime smoke checks and refresh runtime-smoke-evidence.generated.json.",
+      "ownerLane": "runtime-smoke-owner"
+    },
+    {
+      "key": "admin_truth_sample_required",
+      "severity": "P1",
+      "status": "evidence_missing",
+      "sourceReport": "admin-truth-sample-evidence",
+      "fileOrRoute": "agent/state/admin-truth-sample-evidence.generated.json",
+      "whyItMatters": "Admin truth sample evidence is missing, so source freshness/sample states are not formally confirmed.",
+      "exactNextAction": "Attach a fresh admin truth screenshot or JSON sample and refresh admin-truth-sample-evidence.generated.json.",
+      "ownerLane": "admin-truth-owner"
+    },
+    {
+      "key": "speed_security_deferred_findings",
+      "severity": "P2",
+      "status": "deferred_owner_review",
+      "sourceReport": "speed-security-hardening",
+      "fileOrRoute": "agent/state/speed-security-hardening.generated.json",
+      "whyItMatters": "The speed/security scanner still has non-critical backlog; the findings are not hidden, but they are outside this final lock feature scope.",
+      "exactNextAction": "Continue focused guardrail cleanup by owner lane, starting with current recommendedFixOrder.",
+      "ownerLane": "speed-security-owner"
+    },
+    {
+      "key": "repo_spring_cleaning_archive_backlog",
+      "severity": "P2",
+      "status": "archive_candidate",
+      "sourceReport": "repo-spring-cleaning-rewire",
+      "fileOrRoute": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "whyItMatters": "Repo spring cleaning still reports stale/archive cleanup candidates; they are classified as governance cleanup rather than live readiness proof.",
+      "exactNextAction": "Refresh or archive stale generated reports through their owning validators before treating them as current authority.",
+      "ownerLane": "repo-governance-owner"
+    },
+    {
+      "key": "stale_authority_targeted_behavior_evidence",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "targeted-behavior-evidence",
+      "fileOrRoute": "agent/state/targeted-behavior-evidence.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/targeted-behavior-evidence.generated.json through its focused owner command; do not treat stale data as live readiness.",
+      "ownerLane": "behavior-evidence-owner"
+    },
+    {
+      "key": "stale_authority_provider_smoke_evidence",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "provider-smoke-evidence",
+      "fileOrRoute": "agent/state/provider-smoke-evidence.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/provider-smoke-evidence.generated.json through its focused owner command; do not treat stale data as live readiness.",
+      "ownerLane": "provider-smoke-owner"
+    },
+    {
+      "key": "stale_authority_runtime_smoke_evidence",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "runtime-smoke-evidence",
+      "fileOrRoute": "agent/state/runtime-smoke-evidence.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/runtime-smoke-evidence.generated.json through its focused owner command; do not treat stale data as live readiness.",
+      "ownerLane": "runtime-smoke-owner"
+    },
+    {
+      "key": "stale_authority_admin_truth_sample_evidence",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "admin-truth-sample-evidence",
+      "fileOrRoute": "agent/state/admin-truth-sample-evidence.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/admin-truth-sample-evidence.generated.json through its focused owner command; do not treat stale data as live readiness.",
+      "ownerLane": "admin-truth-owner"
+    },
+    {
+      "key": "stale_authority_launch_pr_triage",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "launch-pr-triage",
+      "fileOrRoute": "agent/state/launch-pr-triage.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/launch-pr-triage.generated.json through its focused owner command; do not treat stale data as live readiness.",
+      "ownerLane": "launch-triage-owner"
+    },
+    {
+      "key": "stale_authority_launch_readiness_report",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "launch-readiness-report",
+      "fileOrRoute": "agent/state/launch-readiness-report.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/launch-readiness-report.generated.json through its focused owner command; do not treat stale data as live readiness.",
+      "ownerLane": "launch-readiness-owner"
+    },
+    {
+      "key": "stale_authority_final_launch_readiness_report",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "final-launch-readiness-report",
+      "fileOrRoute": "agent/state/final-launch-readiness-report.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/final-launch-readiness-report.generated.json through its focused owner command; do not treat stale data as live readiness.",
+      "ownerLane": "launch-readiness-owner"
+    }
+  ],
+  "deferredFindings": [
+    {
+      "key": "speed_security_deferred_findings",
+      "severity": "P2",
+      "status": "deferred_owner_review",
+      "sourceReport": "speed-security-hardening",
+      "fileOrRoute": "agent/state/speed-security-hardening.generated.json",
+      "whyItMatters": "The speed/security scanner still has non-critical backlog; the findings are not hidden, but they are outside this final lock feature scope.",
+      "exactNextAction": "Continue focused guardrail cleanup by owner lane, starting with current recommendedFixOrder.",
+      "ownerLane": "speed-security-owner"
+    },
+    {
+      "key": "repo_spring_cleaning_archive_backlog",
+      "severity": "P2",
+      "status": "archive_candidate",
+      "sourceReport": "repo-spring-cleaning-rewire",
+      "fileOrRoute": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "whyItMatters": "Repo spring cleaning still reports stale/archive cleanup candidates; they are classified as governance cleanup rather than live readiness proof.",
+      "exactNextAction": "Refresh or archive stale generated reports through their owning validators before treating them as current authority.",
+      "ownerLane": "repo-governance-owner"
+    }
+  ],
+  "humanEvidenceNeeded": [
+    {
+      "key": "visual_qa_required",
+      "status": "visual_qa_required",
+      "sourceReport": "public-beta-score",
+      "exactNextAction": "Run screenshot QA on the locked source surfaces and attach real visual evidence."
+    },
+    {
+      "key": "manual_device_required",
+      "status": "manual_device_required",
+      "sourceReport": "public-beta-score",
+      "exactNextAction": "Run real-device/manual smoke after screenshot QA; do not infer it from source validators."
+    },
+    {
+      "key": "admin_truth_sample_required",
+      "status": "evidence_missing",
+      "sourceReport": "admin-truth-sample-evidence",
+      "exactNextAction": "Attach a fresh admin truth screenshot or JSON sample with source freshness and sample count."
+    }
+  ],
+  "nextExactSteps": [
+    "Run screenshot QA on the locked source surfaces and attach real visual evidence.",
+    "Run formal provider smoke checks and refresh provider-smoke-evidence.generated.json.",
+    "Run runtime smoke checks and refresh runtime-smoke-evidence.generated.json.",
+    "Attach a fresh admin truth screenshot or JSON sample and refresh admin-truth-sample-evidence.generated.json.",
+    "Refresh or archive stale generated reports through focused owner validators; do not treat them as live authority.",
+    "Continue focused speed/security guardrail cleanup from the current recommendedFixOrder without touching forbidden surfaces."
+  ]
+}
