@@ -1,13 +1,65 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.50",
-  "betaReleaseCounter": 250,
+  "currentVersion": "1.2.51",
+  "betaReleaseCounter": 251,
   "channel": "beta",
-  "generatedAt": "2026-05-15T04:18:37.649Z",
-  "generatedAtUtc": "2026-05-15T04:18:37.649Z",
-  "lastCommitSha": "540695fc838c7fbb3bbf3401dc4180174c08bd5f",
+  "generatedAt": "2026-05-15T04:46:04.920Z",
+  "generatedAtUtc": "2026-05-15T04:46:04.920Z",
+  "lastCommitSha": "a3327698cf038da184f58a0ea985e434b2ae9993",
   "notes": [
+    {
+      "version": "1.2.51",
+      "previousVersion": "1.2.50",
+      "betaReleaseCounter": 251,
+      "previousBetaReleaseCounter": 250,
+      "commitSha": "a3327698cf038da184f58a0ea985e434b2ae9993",
+      "commitTitle": "fix(security): clean up focused guardrail risks",
+      "commitCount": 1,
+      "commitShas": [
+        "a3327698cf038da184f58a0ea985e434b2ae9993"
+      ],
+      "committedAt": "2026-05-15T04:45:50.000Z",
+      "generatedAt": "2026-05-15T04:46:04.913Z",
+      "committedAtUtc": "2026-05-15T04:45:50.000Z",
+      "generatedAtUtc": "2026-05-15T04:46:04.913Z",
+      "updatedAtUtc": "2026-05-15T04:46:04.913Z",
+      "category": "Security",
+      "title": "Bug fixes and general improvements",
+      "summary": "Reduced backend cost and security risks found by internal checks.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Reduced backend cost and security risks found by internal checks.",
+        "Added bounded work controls where routes could fan out too much.",
+        "Kept unresolved scanner findings classified instead of hidden."
+      ],
+      "audience": "creators",
+      "affectedSurfaces": [
+        "admin",
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/product-surface-integrity.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "docs/agent-truth/product-surface-integrity.md",
+        "docs/agent-truth/speed-security-backend-guardrails.md",
+        "src/app/api/admin/creator-fan-experience-settings/route.ts",
+        "src/app/api/admin/debug/preferences/route.ts",
+        "src/app/api/creator/relationships/route.ts",
+        "src/lib/server/bounded-concurrency.ts",
+        "src/lib/server/creator-discovery.ts",
+        "src/lib/server/queue-runtime.ts",
+        "src/lib/server/username-suggestions.ts",
+        "tests/unit/admin-creator-fan-experience-settings-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/bounded-concurrency.spec.ts",
+        "tests/unit/creator-relationships-route.spec.ts",
+        "tests/unit/speed-security-hardening.spec.ts"
+      ],
+      "sourceCommit": "a3327698cf038da184f58a0ea985e434b2ae9993"
+    },
     {
       "version": "1.2.50",
       "previousVersion": "1.2.49",
@@ -1125,49 +1177,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-analytics-historical-traffic.spec.ts"
       ],
       "sourceCommit": "e5c7da278b19e5e7a48285ea1aebffe7ac562934"
-    },
-    {
-      "version": "1.2.26",
-      "previousVersion": "1.2.25",
-      "betaReleaseCounter": 226,
-      "previousBetaReleaseCounter": 225,
-      "commitSha": "e84b0c602becea2704f2acf5149f52a5a99a3e22",
-      "commitTitle": "fix(analytics): collapse admin snapshot display authority",
-      "commitCount": 1,
-      "commitShas": [
-        "e84b0c602becea2704f2acf5149f52a5a99a3e22"
-      ],
-      "committedAt": "2026-05-13T19:54:18.000Z",
-      "generatedAt": "2026-05-13T19:55:34.179Z",
-      "committedAtUtc": "2026-05-13T19:54:18.000Z",
-      "generatedAtUtc": "2026-05-13T19:55:34.179Z",
-      "updatedAtUtc": "2026-05-13T19:55:34.179Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Improved Admin Analytics snapshot authority and source labeling behind the scenes.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved how Admin Analytics chooses verified snapshot data behind the scenes.",
-        "Reduced reliance on raw analytics logs as display truth.",
-        "Kept vendor analytics labeled as supporting evidence instead of product truth."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json",
-        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-        "agent/state/lost-data-recovery-dry-run.generated.json",
-        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
-        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
-        "scripts/agent/validate-admin-analytics-hot-cache.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "tests/unit/admin-analytics-realtime-route.spec.ts"
-      ],
-      "sourceCommit": "e84b0c602becea2704f2acf5149f52a5a99a3e22"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

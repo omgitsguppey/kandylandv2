@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.51 - 2026-05-15
+- Bug fixes and general improvements
+- Reduced backend cost and security risks found by internal checks.
+- Added bounded work controls where routes could fan out too much.
+- Kept unresolved scanner findings classified instead of hidden.
+
 ## 1.2.50 - 2026-05-15
 - Bug fixes and general improvements
 - Added a source-driven cleanup pass for product surfaces.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Improved historical Admin Analytics source handling behind the scenes.
 - Reduced raw analytics fallback behavior when verified snapshots are unavailable.
 - Kept source, fallback, and vendor evidence labels clearer for debugging.
-
-## 1.2.26 - 2026-05-13
-- Bug fixes and general improvements
-- Improved how Admin Analytics chooses verified snapshot data behind the scenes.
-- Reduced reliance on raw analytics logs as display truth.
-- Kept vendor analytics labeled as supporting evidence instead of product truth.
