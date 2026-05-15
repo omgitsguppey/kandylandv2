@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.49 - 2026-05-15
+- Bug fixes and general improvements
+- Reduced Creator Dashboard page-load work by loading managers only when opened.
+- Fixed Fan Pass subscriber visibility for creator-owned dashboards.
+- Kept creator management panels connected without adding fake actions.
+
 ## 1.2.48 - 2026-05-15
 - Bug fixes and general improvements
 - Connected booking management to the Creator Dashboard.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added clearer rules for which analytics snapshots should power Admin Analytics.
 - Prepared safer Debug-first handling for recovered analytics data.
 - Improved internal checks that keep vendor analytics and raw logs from being treated as product truth.
-
-## 1.2.24 - 2026-05-13
-- Bug fixes and general improvements
-- Prepared a dry-run recovery map for analytics data that may exist but has not surfaced yet.
-- Added safer rules for which recovered data can appear in Admin Debug or Admin Analytics.
-- Kept recovery planning local-only, with no production reads or backfills.

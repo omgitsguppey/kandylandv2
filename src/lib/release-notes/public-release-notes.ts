@@ -1,13 +1,60 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.48",
-  "betaReleaseCounter": 248,
+  "currentVersion": "1.2.49",
+  "betaReleaseCounter": 249,
   "channel": "beta",
-  "generatedAt": "2026-05-15T00:57:27.618Z",
-  "generatedAtUtc": "2026-05-15T00:57:27.618Z",
-  "lastCommitSha": "f939d6a50343ccee1531116bdbc62e471b15c213",
+  "generatedAt": "2026-05-15T03:29:43.921Z",
+  "generatedAtUtc": "2026-05-15T03:29:43.921Z",
+  "lastCommitSha": "c16264253b42449c9d751d0a39f4b1d21e026585",
   "notes": [
+    {
+      "version": "1.2.49",
+      "previousVersion": "1.2.48",
+      "betaReleaseCounter": 249,
+      "previousBetaReleaseCounter": 248,
+      "commitSha": "c16264253b42449c9d751d0a39f4b1d21e026585",
+      "commitTitle": "fix(creator): lazy load dashboard managers",
+      "commitCount": 1,
+      "commitShas": [
+        "c16264253b42449c9d751d0a39f4b1d21e026585"
+      ],
+      "committedAt": "2026-05-15T03:29:17.000Z",
+      "generatedAt": "2026-05-15T03:29:43.901Z",
+      "committedAtUtc": "2026-05-15T03:29:17.000Z",
+      "generatedAtUtc": "2026-05-15T03:29:43.901Z",
+      "updatedAtUtc": "2026-05-15T03:29:43.901Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Reduced Creator Dashboard page-load work and clarified Fan Pass subscriber visibility.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Reduced Creator Dashboard page-load work by loading managers only when opened.",
+        "Fixed Fan Pass subscriber visibility for creator-owned dashboards.",
+        "Kept creator management panels connected without adding fake actions."
+      ],
+      "audience": "creators",
+      "affectedSurfaces": [
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/user-facing-feature-connection-audit.generated.json",
+        "docs/agent-truth/creator-dashboard-full-loop-connections.md",
+        "docs/agent-truth/user-facing-feature-connection-audit.md",
+        "scripts/agent/validate-settings-creator-dashboard-split.ts",
+        "scripts/agent/validate-user-facing-feature-connection-audit.ts",
+        "src/app/api/creator/subscriptions/route.ts",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Creators/CreatorFanPassManager.tsx",
+        "tests/unit/creator-dashboard-settings.spec.tsx",
+        "tests/unit/creator-fan-pass-manager.spec.tsx",
+        "tests/unit/creator-subscriptions-route.spec.ts",
+        "tests/unit/user-facing-feature-connection-audit.spec.ts"
+      ],
+      "sourceCommit": "c16264253b42449c9d751d0a39f4b1d21e026585"
+    },
     {
       "version": "1.2.48",
       "previousVersion": "1.2.47",
@@ -1122,50 +1169,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ],
       "sourceCommit": "4f730c3a001440d4f50075be1204b124ae63353e"
-    },
-    {
-      "version": "1.2.24",
-      "previousVersion": "1.2.23",
-      "betaReleaseCounter": 224,
-      "previousBetaReleaseCounter": 223,
-      "commitSha": "17aad2136900861a00072446be7a0ff12e890888",
-      "commitTitle": "chore(analytics): add lost data recovery dry run",
-      "commitCount": 1,
-      "commitShas": [
-        "17aad2136900861a00072446be7a0ff12e890888"
-      ],
-      "committedAt": "2026-05-13T03:15:13.000Z",
-      "generatedAt": "2026-05-13T03:16:49.956Z",
-      "committedAtUtc": "2026-05-13T03:15:13.000Z",
-      "generatedAtUtc": "2026-05-13T03:16:49.956Z",
-      "updatedAtUtc": "2026-05-13T03:16:49.956Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and general improvements.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Prepared a dry-run recovery map for analytics data that may exist but has not surfaced yet.",
-        "Added safer rules for which recovered data can appear in Admin Debug or Admin Analytics.",
-        "Kept recovery planning local-only, with no production reads or backfills."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json",
-        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-        "agent/state/lost-data-recovery-dry-run.generated.json",
-        "docs/agent-truth/identity-privacy-raw-ledger-rewire.md",
-        "docs/agent-truth/lost-data-recovery-dry-run.md",
-        "package.json",
-        "scripts/agent/lost-data-recovery-dry-run.ts",
-        "scripts/agent/validate-lost-data-recovery-dry-run.ts",
-        "tests/unit/lost-data-recovery-dry-run.spec.ts"
-      ],
-      "sourceCommit": "17aad2136900861a00072446be7a0ff12e890888"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
