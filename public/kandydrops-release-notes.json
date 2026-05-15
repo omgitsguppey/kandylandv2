@@ -1,11 +1,59 @@
 {
-  "currentVersion": "1.2.53",
-  "betaReleaseCounter": 253,
+  "currentVersion": "1.2.54",
+  "betaReleaseCounter": 254,
   "channel": "beta",
-  "generatedAt": "2026-05-15T13:37:07.525Z",
-  "generatedAtUtc": "2026-05-15T13:37:07.525Z",
-  "lastCommitSha": "443992b623e37e8736ca04db551fea236f60d7a6",
+  "generatedAt": "2026-05-15T17:43:15.171Z",
+  "generatedAtUtc": "2026-05-15T17:43:15.171Z",
+  "lastCommitSha": "77970bb30726323b0e51e5062a2bc6bb6a96b12b",
   "notes": [
+    {
+      "version": "1.2.54",
+      "previousVersion": "1.2.53",
+      "betaReleaseCounter": 254,
+      "previousBetaReleaseCounter": 253,
+      "commitSha": "77970bb30726323b0e51e5062a2bc6bb6a96b12b",
+      "commitTitle": "fix(ui): tighten user creator parity",
+      "commitCount": 1,
+      "commitShas": [
+        "77970bb30726323b0e51e5062a2bc6bb6a96b12b"
+      ],
+      "committedAt": "2026-05-15T17:42:57.000Z",
+      "generatedAt": "2026-05-15T17:43:15.166Z",
+      "committedAtUtc": "2026-05-15T17:42:57.000Z",
+      "generatedAtUtc": "2026-05-15T17:43:15.166Z",
+      "updatedAtUtc": "2026-05-15T17:43:15.166Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved user and creator surface consistency.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved user and creator surface consistency.",
+        "Cleaned up route and action parity without touching admin backend systems.",
+        "Tightened mobile UI stability across creator and user flows."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/user-creator-ui-parity.generated.json",
+        "docs/agent-truth/user-creator-ui-parity.md",
+        "package.json",
+        "scripts/agent/validate-user-creator-ui-parity.ts",
+        "src/components/Creators/CreatorAgreementFullText.tsx",
+        "src/components/Creators/CreatorBookingsManager.tsx",
+        "src/components/Creators/CreatorBroadcastManager.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Creators/CreatorFanPassManager.tsx",
+        "src/components/Creators/CreatorRequestsManager.tsx",
+        "src/components/ReleaseNotes/BetaReleaseNotesDrawer.tsx",
+        "tests/unit/creator-dashboard-settings.spec.tsx",
+        "tests/unit/user-creator-ui-parity.spec.ts"
+      ],
+      "sourceCommit": "77970bb30726323b0e51e5062a2bc6bb6a96b12b"
+    },
     {
       "version": "1.2.53",
       "previousVersion": "1.2.52",
@@ -1122,56 +1170,6 @@
         "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ],
       "sourceCommit": "737f2f8cf3254231ce5dfe8e7964756387ef0403"
-    },
-    {
-      "version": "1.2.29",
-      "previousVersion": "1.2.28",
-      "betaReleaseCounter": 229,
-      "previousBetaReleaseCounter": 228,
-      "commitSha": "914b0307cf4deec56ef0bbdeaf95e59812ae6dc4",
-      "commitTitle": "fix(analytics): label admin source evidence",
-      "commitCount": 1,
-      "commitShas": [
-        "914b0307cf4deec56ef0bbdeaf95e59812ae6dc4"
-      ],
-      "committedAt": "2026-05-13T22:55:55.000Z",
-      "generatedAt": "2026-05-13T22:57:19.742Z",
-      "committedAtUtc": "2026-05-13T22:55:55.000Z",
-      "generatedAtUtc": "2026-05-13T22:57:19.742Z",
-      "updatedAtUtc": "2026-05-13T22:57:19.742Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Improved Admin Analytics source labels behind the scenes.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved Admin Analytics source labels behind the scenes.",
-        "Kept vendor analytics marked as supporting evidence instead of product truth.",
-        "Kept recovery evidence review-only before any Admin Analytics promotion."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json",
-        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-        "agent/state/lost-data-recovery-dry-run.generated.json",
-        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
-        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
-        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-admin-truth.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
-        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/lib/analytics/admin-analytics-display-state.ts",
-        "tests/unit/admin-analytics-display-state.spec.ts",
-        "tests/unit/admin-analytics-page.spec.tsx",
-        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
-      ],
-      "sourceCommit": "914b0307cf4deec56ef0bbdeaf95e59812ae6dc4"
     }
   ]
 }

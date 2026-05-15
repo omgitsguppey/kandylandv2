@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.54 - 2026-05-15
+- Bug fixes and general improvements
+- Improved user and creator surface consistency.
+- Cleaned up route and action parity without touching admin backend systems.
+- Tightened mobile UI stability across creator and user flows.
+
 ## 1.2.53 - 2026-05-15
 - Bug fixes and general improvements
 - Locked the current cleanup phase with refreshed source evidence.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Reduced remaining Admin Analytics cost-risk paths behind the scenes.
 - Kept raw analytics logs routed toward Debug evidence instead of display truth.
 - Improved snapshot-first analytics behavior without changing public app surfaces.
-
-## 1.2.29 - 2026-05-13
-- Bug fixes and general improvements
-- Improved Admin Analytics source labels behind the scenes.
-- Kept vendor analytics marked as supporting evidence instead of product truth.
-- Kept recovery evidence review-only before any Admin Analytics promotion.
