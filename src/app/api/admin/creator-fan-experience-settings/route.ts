@@ -26,7 +26,12 @@ import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { mapWithConcurrency } from "@/lib/server/bounded-concurrency";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+
+const ADMIN_CREATOR_FAN_EXPERIENCE_BODY_LIMIT_BYTES = 64_000;
+const ADMIN_CREATOR_FAN_EXPERIENCE_TELEMETRY_CONCURRENCY = 4;
 
 function buildAdminActor(input: {
   uid?: string | null;
@@ -129,8 +134,8 @@ async function emitSettingsTelemetry(input: {
   const laneKeys = new Set(["messagingEnabled", "subscriptionsEnabled", "bookingsEnabled", "customRequestsEnabled", "broadcastsEnabled", "chatFreeForSubscribers"]);
   const pricingKeys = new Set(["subscriptionPriceGd", "phoneRatePerMinuteGd", "videoRatePerMinuteGd", "bookingMinimumMinutes", "videoSubscriberDiscountPercent"]);
 
-  await Promise.all([
-    ...input.settingChangedKeys.map((settingKey) => {
+  const telemetryTasks: Array<() => Promise<unknown>> = [
+    ...input.settingChangedKeys.map((settingKey) => () => {
       const eventName = laneKeys.has(settingKey)
         ? "admin_creator_experience_lane_toggled"
         : pricingKeys.has(settingKey)
@@ -143,13 +148,21 @@ async function emitSettingsTelemetry(input: {
         newValue: summarizeCreatorFanExperienceValue(input.nextSettings[settingKey]),
       }, input.targetUserId);
     }),
-    ...input.restrictionChangedKeys.map((settingKey) => trackServerEvent("admin_creator_experience_restriction_updated", {
+    ...input.restrictionChangedKeys.map((settingKey) => () => trackServerEvent("admin_creator_experience_restriction_updated", {
       ...basePayload,
       settingKey,
       oldValue: summarizeCreatorFanExperienceValue(input.currentRestrictions[settingKey]),
       newValue: summarizeCreatorFanExperienceValue(input.nextRestrictions[settingKey]),
     }, input.targetUserId)),
-  ]);
+  ];
+
+  await mapWithConcurrency(
+    telemetryTasks,
+    ADMIN_CREATOR_FAN_EXPERIENCE_TELEMETRY_CONCURRENCY,
+    async (task) => {
+      await task();
+    },
+  );
 }
 
 async function POST_handler(request: NextRequest) {
@@ -165,7 +178,12 @@ async function POST_handler(request: NextRequest) {
       return NextResponse.json({ error: "Database not available" }, { status: 500 });
     }
 
-    const parsed = parseCreatorFanExperienceSettingsCommand(await request.json().catch(() => ({})));
+    const body = await readBoundedJsonBody<Record<string, unknown>>(request, {
+      maxBytes: ADMIN_CREATOR_FAN_EXPERIENCE_BODY_LIMIT_BYTES,
+      routeName: "admin/creator-fan-experience-settings",
+      allowEmpty: false,
+    });
+    const parsed = parseCreatorFanExperienceSettingsCommand(body);
     if (!parsed.ok) {
       return NextResponse.json({ error: parsed.error }, { status: 400 });
     }
@@ -276,6 +294,13 @@ async function POST_handler(request: NextRequest) {
       debug: debugPatch,
     });
   } catch (error) {
+    if (isBoundedJsonBodyError(error)) {
+      return NextResponse.json({
+        success: false,
+        code: error.code,
+        error: error.message,
+      }, { status: error.status });
+    }
     if (error instanceof Error && error.message === "User not found") {
       return buildNotFoundResponse("user", "User not found");
     }

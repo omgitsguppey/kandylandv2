@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-15T04:12:17.520Z",
-  "overallScore": 47,
+  "generatedAt": "2026-05-15T04:42:13.339Z",
+  "overallScore": 51,
   "overallStatus": "beta-risk",
   "domainScores": {
     "speedCachingHydration": {
@@ -15,9 +15,9 @@
       "weight": 25,
       "score": 0,
       "status": "beta-risk",
-      "findingCount": 78,
+      "findingCount": 75,
       "criticalCount": 0,
-      "majorCount": 78
+      "majorCount": 75
     },
     "firebaseRulesAppCheckReadiness": {
       "weight": 20,
@@ -37,11 +37,11 @@
     },
     "costRunawayWorkControls": {
       "weight": 10,
-      "score": 0,
+      "score": 40,
       "status": "beta-risk",
-      "findingCount": 11,
+      "findingCount": 6,
       "criticalCount": 0,
-      "majorCount": 11
+      "majorCount": 6
     },
     "docsDebugEvidenceCompleteness": {
       "weight": 5,
@@ -1896,7 +1896,7 @@
       "idempotencyRequired": 12,
       "idempotencyEvidence": 22,
       "bodyLimitRequired": 119,
-      "bodyLimitEvidence": 28
+      "bodyLimitEvidence": 31
     },
     "routes": [
       {
@@ -2526,7 +2526,7 @@
         "idempotencyRequired": false,
         "idempotencyPresent": false,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -2697,7 +2697,7 @@
         "idempotencyRequired": false,
         "idempotencyPresent": false,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -4259,7 +4259,7 @@
         "idempotencyRequired": false,
         "idempotencyPresent": false,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5668,23 +5668,6 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
-      "line": 168,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_2n8ari"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
       "line": 17,
       "title": "Route may collapse expected domain failures into generic 500s",
       "evidence": [
@@ -5748,23 +5731,6 @@
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
       "id": "speed_security_o1you5"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/preferences/route.ts",
-      "line": 81,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_cqffs3"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -6411,23 +6377,6 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 303,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1jx11by"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/relationships/route.ts",
       "line": 8,
       "title": "Route may collapse expected domain failures into generic 500s",
       "evidence": [
@@ -7032,40 +6981,6 @@
     {
       "domain": "costRunawayWorkControls",
       "severity": "major",
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
-      "line": 132,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_pv1cr0"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 220,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1a18b0x"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
       "line": 108,
       "title": "Potential unbounded Promise.all fanout",
@@ -7164,57 +7079,6 @@
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
       "id": "speed_security_l8ufa5"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/creator-discovery.ts",
-      "line": 79,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_a0vulv"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/queue-runtime.ts",
-      "line": 278,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_4xbxtd"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/username-suggestions.ts",
-      "line": 130,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_lhk3rc"
     }
   ],
   "criticalFindings": [],
@@ -7291,40 +7155,6 @@
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
       "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
-      "line": 168,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_2n8ari"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
-      "line": 132,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_pv1cr0"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/creator-fan-experience-settings/route.ts",
       "line": 17,
       "title": "Route may collapse expected domain failures into generic 500s",
       "evidence": [
@@ -7388,23 +7218,6 @@
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
       "id": "speed_security_o1you5"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/admin/debug/preferences/route.ts",
-      "line": 81,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 64000 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_cqffs3"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -8080,40 +7893,6 @@
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
       "id": "speed_security_80lx1m"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 303,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1jx11by"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/app/api/creator/relationships/route.ts",
-      "line": 220,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1a18b0x"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -8804,57 +8583,6 @@
       "id": "speed_security_l8ufa5"
     },
     {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/creator-discovery.ts",
-      "line": 79,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_a0vulv"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/queue-runtime.ts",
-      "line": 278,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_4xbxtd"
-    },
-    {
-      "domain": "costRunawayWorkControls",
-      "severity": "major",
-      "filePath": "src/lib/server/username-suggestions.ts",
-      "line": 130,
-      "title": "Potential unbounded Promise.all fanout",
-      "evidence": [
-        "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
-      ],
-      "expectedRule": "Long-running routes/scripts use bounded batches, cursors, concurrency caps, and early timeout exits.",
-      "actualPattern": "Promise.all(...map(",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
-      "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_lhk3rc"
-    },
-    {
       "domain": "firebaseRulesAppCheckReadiness",
       "severity": "moderate",
       "filePath": "src/lib/authFetch.ts",
@@ -8917,5 +8645,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 99 findings across 126 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 91 findings across 126 API routes."
 }

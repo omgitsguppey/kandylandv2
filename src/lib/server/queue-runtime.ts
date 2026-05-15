@@ -13,6 +13,7 @@ import {
   type RuntimeWarningExecutionLayer,
 } from "../../../shared/runtime/runtime-warning-contract";
 import { getFiniteDropTimestamp } from "@/lib/drop-status";
+import { mapWithConcurrency } from "@/lib/server/bounded-concurrency";
 import { getResolvedQueueConfig } from "@/lib/server/drop-queue";
 import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -26,6 +27,7 @@ import {
 
 const DROP_LIFECYCLE_SCAN_LIMIT = 1_000;
 const DROP_OWNER_EXCLUSION_SCAN_LIMIT = 5_000;
+const DROP_OWNER_LOOKUP_CONCURRENCY = 8;
 
 async function recordInvariantWarnings(input: {
   invariants: Array<{ code: string; severity: "warn" | "error"; message: string; dropId?: string; detail?: Record<string, unknown> }>;
@@ -275,8 +277,10 @@ export async function notifyActiveDropsRuntime(input: {
     const uniqueDropIds = Array.from(new Set(plan.activationNotifications.map(n => n.dropId)));
     const ownersMap = new Map<string, { excludedUserIds: string[]; error?: unknown }>();
 
-    await Promise.all(
-      uniqueDropIds.map(async (dropId) => {
+    await mapWithConcurrency(
+      uniqueDropIds,
+      DROP_OWNER_LOOKUP_CONCURRENCY,
+      async (dropId) => {
         try {
           const ownersSnap = await adminDb.collection("users")
             .where("unlockedContent", "array-contains", dropId)
@@ -290,7 +294,7 @@ export async function notifyActiveDropsRuntime(input: {
         } catch (error) {
           ownersMap.set(dropId, { excludedUserIds: [], error });
         }
-      })
+      },
     );
 
     for (const notification of plan.activationNotifications) {

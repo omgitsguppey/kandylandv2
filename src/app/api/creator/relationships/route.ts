@@ -15,10 +15,14 @@ import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { buildDeterministicCreatorRecommendations } from "@/lib/server/behavioral-intelligence";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { mapWithConcurrency } from "@/lib/server/bounded-concurrency";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
 
 const CREATOR_RELATIONSHIPS_READ_LIMIT = 500;
 const CREATOR_RELATIONSHIP_DISCOVERY_USER_LIMIT = 1_000;
 const CREATOR_RELATIONSHIP_DISCOVERY_DROP_LIMIT = 2_000;
+const CREATOR_RELATIONSHIP_BODY_LIMIT_BYTES = 32_768;
+const CREATOR_RELATIONSHIP_FOLLOWER_COUNT_CONCURRENCY = 6;
 
 type CreatorRelationshipRecord = Record<string, unknown> & {
     id: string;
@@ -217,8 +221,10 @@ export async function GET(request: NextRequest) {
                 : [...followedCreatorIds, ...recommendedCreatorIds],
         ));
         const realtimeFollowerCounts = new Map(
-            await Promise.all(
-                visibleCreatorIds.map(async (entry) => [entry, await countActiveCreatorFollowers(entry)] as const),
+            await mapWithConcurrency(
+                visibleCreatorIds,
+                CREATOR_RELATIONSHIP_FOLLOWER_COUNT_CONCURRENCY,
+                async (entry) => [entry, await countActiveCreatorFollowers(entry)] as const,
             ),
         );
 
@@ -300,7 +306,12 @@ export async function POST(request: NextRequest) {
             return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
-        const { creatorId, action } = relationshipActionSchema.parse(await request.json());
+        const body = await readBoundedJsonBody<z.infer<typeof relationshipActionSchema>>(request, {
+            maxBytes: CREATOR_RELATIONSHIP_BODY_LIMIT_BYTES,
+            routeName: "creator/relationships",
+            allowEmpty: false,
+        });
+        const { creatorId, action } = relationshipActionSchema.parse(body);
         if (creatorId === caller.uid) {
             return finalize(NextResponse.json({ error: "You cannot follow yourself." }, { status: 400 }));
         }
@@ -422,6 +433,13 @@ export async function POST(request: NextRequest) {
             },
         }));
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return finalize(NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+            }, { status: error.status }), error);
+        }
         return finalize(handleApiError(error, "Creator.Relationships.POST"), error);
     }
 }

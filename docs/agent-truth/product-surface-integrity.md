@@ -11,6 +11,7 @@ Product surface integrity is the source-driven cleanup lane for issues the repo 
 - Mutating routes with a declared body limit must parse with the bounded JSON body helper before schema parsing.
 - Array fanout must use bounded worker pools or a source-visible fixed-size/cost-bound marker.
 - Generated reports are evidence snapshots. A stale report must be labeled stale/evidence-only and cannot override current runtime source.
+- Focused speed/security cleanups must reduce live product risk, not chase score vanity. Safe current fixes include bounded worker pools for non-payment fanout and `readBoundedJsonBody` for mutating routes with declared body limits. Payment/wallet, chat internals, AI cover generation behavior, Firebase rules, and BigQuery remain forbidden unless a future selected issue explicitly scopes them.
 
 ## Validator
 
@@ -28,3 +29,5 @@ The validator writes `agent/state/product-surface-integrity.generated.json` for 
 2. Refresh or archive stale generated reports with the owning validator instead of consuming them as live truth.
 3. Bound or source-mark current Promise.all map fanout findings outside forbidden surfaces.
 4. Review Admin mobile nested-scroll regions with source-approved ownership markers or compact layout fixes.
+
+After the focused guardrail cleanup, the next speed/security group is still admin route body-limit and typed-error mapping. Remaining cost fanout findings are deferred to the cost-guardrail owner when they touch cron, admin analytics, AI cover runtime, chat internals, or broader admin roster/drop mutation loops.

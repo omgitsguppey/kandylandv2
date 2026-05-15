@@ -84,6 +84,49 @@ describe("admin debug preferences route", () => {
         expect(mockState.saveAdminDebugPreferences).not.toHaveBeenCalled();
     });
 
+    it("returns 413 payload_too_large before parsing an oversized PUT body", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "admin_1" });
+
+        const response = await PUT(new NextRequest("http://localhost/api/admin/debug/preferences", {
+            method: "PUT",
+            body: "x".repeat(64_001),
+            headers: {
+                "content-type": "application/json",
+                "content-length": "64001",
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            code: "payload_too_large",
+            error: "Request payload is too large.",
+        });
+        expect(mockState.saveAdminDebugPreferences).not.toHaveBeenCalled();
+    });
+
+    it("returns 400 invalid_json for malformed JSON", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "admin_1" });
+
+        const response = await PUT(new NextRequest("http://localhost/api/admin/debug/preferences", {
+            method: "PUT",
+            body: "{bad",
+            headers: {
+                "content-type": "application/json",
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body).toMatchObject({
+            success: false,
+            code: "invalid_json",
+            error: "Invalid JSON body.",
+        });
+        expect(mockState.saveAdminDebugPreferences).not.toHaveBeenCalled();
+    });
+
     it("persists valid preference updates", async () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: "admin_1" });
         mockState.saveAdminDebugPreferences.mockResolvedValue({

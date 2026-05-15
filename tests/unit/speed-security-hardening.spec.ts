@@ -39,6 +39,14 @@ describe("speed-security hardening scanner helpers", () => {
     expect(hasBoundedPromiseAllEvidence(source, source.indexOf("Promise.all"))).toBe(true);
   });
 
+  it("recognizes the shared bounded concurrency helper at fanout call sites", () => {
+    const source = `
+      await mapWithConcurrency(items, WORK_CONCURRENCY, async (item) => work(item));
+    `;
+
+    expect(hasBoundedPromiseAllEvidence(source, source.indexOf("mapWithConcurrency"))).toBe(true);
+  });
+
   it("does not treat unrelated variable-array Promise.all as bounded", () => {
     const source = "await Promise.all(items.map(async (item) => work(item)));";
 
@@ -77,5 +85,25 @@ describe("speed-security hardening scanner helpers", () => {
     expect(creatorRequestsRoute).not.toContain("request.json()");
     expect(creatorBookingsRoute).not.toContain("request.json()");
     expect(creatorSubscriptionsRoute).not.toContain("request.json()");
+  });
+
+  it("keeps focused fanout and body-limit fixes source-visible", () => {
+    const root = process.cwd();
+    const boundedConcurrency = readFileSync(join(root, "src/lib/server/bounded-concurrency.ts"), "utf8");
+    const creatorDiscovery = readFileSync(join(root, "src/lib/server/creator-discovery.ts"), "utf8");
+    const usernameSuggestions = readFileSync(join(root, "src/lib/server/username-suggestions.ts"), "utf8");
+    const queueRuntime = readFileSync(join(root, "src/lib/server/queue-runtime.ts"), "utf8");
+    const relationshipsRoute = readFileSync(join(root, "src/app/api/creator/relationships/route.ts"), "utf8");
+    const debugPreferencesRoute = readFileSync(join(root, "src/app/api/admin/debug/preferences/route.ts"), "utf8");
+    const creatorFanExperienceRoute = readFileSync(join(root, "src/app/api/admin/creator-fan-experience-settings/route.ts"), "utf8");
+
+    expect(boundedConcurrency).toContain("cost-bound: bounded Promise.all worker pool");
+    expect(creatorDiscovery).toContain("mapWithConcurrency");
+    expect(usernameSuggestions).toContain("mapWithConcurrency");
+    expect(queueRuntime).toContain("mapWithConcurrency");
+    expect(relationshipsRoute).toContain("mapWithConcurrency");
+    expect(relationshipsRoute).toContain("readBoundedJsonBody");
+    expect(debugPreferencesRoute).toContain("readBoundedJsonBody");
+    expect(creatorFanExperienceRoute).toContain("readBoundedJsonBody");
   });
 });

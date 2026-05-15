@@ -1,9 +1,12 @@
 import { FieldValue } from "firebase-admin/firestore";
 
+import { mapWithConcurrency } from "@/lib/server/bounded-concurrency";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { buildUsernameBaseCandidates, normalizeUsername } from "@/lib/user-utils";
 
 const USERNAME_AVAILABILITY_BATCH_SIZE = 10;
+const USERNAME_RESERVATION_READ_CONCURRENCY = 6;
+const USERNAME_RESERVATION_BACKFILL_CONCURRENCY = 4;
 const USERNAME_SUFFIX_MIN = 2;
 const USERNAME_SUFFIX_MAX = 100;
 export const USERNAME_RESERVATIONS_COLLECTION = "username_reservations";
@@ -127,7 +130,11 @@ async function loadUsernameAvailability(usernames: readonly string[], excludeUid
     const reservationRefs = uniqueUsernames.map((username) =>
         adminDb.collection(USERNAME_RESERVATIONS_COLLECTION).doc(username),
     );
-    const reservationSnapshots = await Promise.all(reservationRefs.map((docRef) => docRef.get()));
+    const reservationSnapshots = await mapWithConcurrency(
+        reservationRefs,
+        USERNAME_RESERVATION_READ_CONCURRENCY,
+        async (docRef) => docRef.get(),
+    );
     const usernamesWithoutReservations: string[] = [];
 
     reservationSnapshots.forEach((snapshot, index) => {
@@ -146,7 +153,7 @@ async function loadUsernameAvailability(usernames: readonly string[], excludeUid
     }
 
     const legacyOwners = await queryLegacyOwnerIds(usernamesWithoutReservations);
-    const backfillPromises: Promise<unknown>[] = [];
+    const backfillTasks: Array<() => Promise<unknown>> = [];
 
     usernamesWithoutReservations.forEach((username) => {
         const ownerIds = legacyOwners.get(username) ?? [];
@@ -161,7 +168,7 @@ async function loadUsernameAvailability(usernames: readonly string[], excludeUid
         }
 
         availabilityMap.set(username, selectedOwner === excludeUid);
-        backfillPromises.push(
+        backfillTasks.push(() =>
             adminDb
                 .collection(USERNAME_RESERVATIONS_COLLECTION)
                 .doc(username)
@@ -174,8 +181,14 @@ async function loadUsernameAvailability(usernames: readonly string[], excludeUid
         );
     });
 
-    if (backfillPromises.length > 0) {
-        await Promise.allSettled(backfillPromises);
+    if (backfillTasks.length > 0) {
+        await mapWithConcurrency(
+            backfillTasks,
+            USERNAME_RESERVATION_BACKFILL_CONCURRENCY,
+            async (task) => {
+                await task().catch(() => undefined);
+            },
+        );
     }
 
     return availabilityMap;

@@ -243,6 +243,45 @@ describe("POST /api/admin/creator-fan-experience-settings", () => {
     });
   });
 
+  it("returns 413 payload_too_large before parsing an oversized admin settings body", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/creator-fan-experience-settings", {
+      method: "POST",
+      body: "x".repeat(64_001),
+      headers: {
+        "content-type": "application/json",
+        "content-length": "64001",
+      },
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload).toMatchObject({
+      success: false,
+      code: "payload_too_large",
+      error: "Request payload is too large.",
+    });
+    expect(mockState.adminDb.runTransaction).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 invalid_json for malformed admin settings JSON", async () => {
+    const response = await POST(new NextRequest("http://localhost/api/admin/creator-fan-experience-settings", {
+      method: "POST",
+      body: "{bad",
+      headers: {
+        "content-type": "application/json",
+      },
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({
+      success: false,
+      code: "invalid_json",
+      error: "Invalid JSON body.",
+    });
+    expect(mockState.adminDb.runTransaction).not.toHaveBeenCalled();
+  });
+
   it("restriction update audited and requires confirmation", async () => {
     seedUser("creator_restricted");
 

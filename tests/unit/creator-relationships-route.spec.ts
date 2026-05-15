@@ -14,6 +14,20 @@ const mockState = vi.hoisted(() => {
             where(field: string, _operator: string, value: unknown) {
                 return buildQuery(name, [...filters, { field, value }]);
             },
+            limit(_count: number) {
+                return buildQuery(name, filters);
+            },
+            count() {
+                const query = buildQuery(name, filters);
+                return {
+                    async get() {
+                        const snapshot = await query.get();
+                        return {
+                            data: () => ({ count: snapshot.size }),
+                        };
+                    },
+                };
+            },
             select(..._fields: string[]) {
                 return buildQuery(name, filters);
             },
@@ -81,7 +95,7 @@ vi.mock("@/lib/server/analytics", () => ({
     trackServerEvent: vi.fn(async () => undefined),
 }));
 
-import { GET } from "@/app/api/creator/relationships/route";
+import { GET, POST } from "@/app/api/creator/relationships/route";
 
 describe("GET /api/creator/relationships", () => {
     beforeEach(() => {
@@ -300,5 +314,52 @@ describe("GET /api/creator/relationships", () => {
             username: "bloomytrip",
         });
         expect(body.recommendedCreators.some((entry: { uid?: string }) => entry.uid === "creator_self")).toBe(false);
+    });
+});
+
+describe("POST /api/creator/relationships", () => {
+    beforeEach(() => {
+        mockState.reset();
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
+        mockState.handleApiError.mockImplementation((error: unknown) => NextResponse.json({
+            error: error instanceof Error ? error.message : String(error),
+        }, { status: 500 }));
+    });
+
+    it("returns 413 payload_too_large before parsing an oversized body", async () => {
+        const response = await POST(new NextRequest("http://localhost/api/creator/relationships", {
+            method: "POST",
+            body: "x".repeat(32_769),
+            headers: {
+                "content-type": "application/json",
+                "content-length": "32769",
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(413);
+        expect(body).toMatchObject({
+            success: false,
+            code: "payload_too_large",
+            error: "Request payload is too large.",
+        });
+    });
+
+    it("returns 400 invalid_json for malformed JSON", async () => {
+        const response = await POST(new NextRequest("http://localhost/api/creator/relationships", {
+            method: "POST",
+            body: "{bad",
+            headers: {
+                "content-type": "application/json",
+            },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body).toMatchObject({
+            success: false,
+            code: "invalid_json",
+            error: "Invalid JSON body.",
+        });
     });
 });

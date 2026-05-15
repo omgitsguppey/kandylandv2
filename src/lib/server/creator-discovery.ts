@@ -3,6 +3,7 @@ import "server-only";
 import type { CreatorDiscoveryProfile, CreatorDiscoverySurface } from "@/lib/creator-public-pages";
 import { isCreatorVisibleInDiscovery } from "@/lib/creator-public-pages";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
+import { mapWithConcurrency } from "@/lib/server/bounded-concurrency";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
@@ -19,6 +20,7 @@ type DiscoveryCreatorRecord = Record<string, unknown> & {
 };
 
 const CREATOR_DISCOVERY_RELATIONSHIP_COUNT_LIMIT = 36;
+const CREATOR_DISCOVERY_RELATIONSHIP_COUNT_CONCURRENCY = 6;
 
 export async function listCreatorDiscoveryProfiles(
     surface: CreatorDiscoverySurface,
@@ -76,7 +78,7 @@ export async function listCreatorDiscoveryProfiles(
     }
 
     const relationshipCounts = new Map<string, { followers: number; notifications: number }>();
-    await Promise.all(relationshipCandidates.map(async (entry) => {
+    await mapWithConcurrency(relationshipCandidates, CREATOR_DISCOVERY_RELATIONSHIP_COUNT_CONCURRENCY, async (entry) => {
         const query = relationshipsCollection
             .where("creatorId", "==", entry.uid)
             .where("following", "==", true);
@@ -91,7 +93,7 @@ export async function listCreatorDiscoveryProfiles(
         }
         
         relationshipCounts.set(entry.uid, { followers, notifications: 0 });
-    }));
+    });
 
     const creators = relationshipCandidates
         .map((entry) => {
