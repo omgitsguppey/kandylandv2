@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.51",
-  "betaReleaseCounter": 251,
+  "currentVersion": "1.2.52",
+  "betaReleaseCounter": 252,
   "channel": "beta",
-  "generatedAt": "2026-05-15T04:46:04.920Z",
-  "generatedAtUtc": "2026-05-15T04:46:04.920Z",
-  "lastCommitSha": "a3327698cf038da184f58a0ea985e434b2ae9993",
+  "generatedAt": "2026-05-15T05:07:42.250Z",
+  "generatedAtUtc": "2026-05-15T05:07:42.250Z",
+  "lastCommitSha": "b8e777fd1dc621ea4cdf351dab4e40fa0187b192",
   "notes": [
+    {
+      "version": "1.2.52",
+      "previousVersion": "1.2.51",
+      "betaReleaseCounter": 252,
+      "previousBetaReleaseCounter": 251,
+      "commitSha": "b8e777fd1dc621ea4cdf351dab4e40fa0187b192",
+      "commitTitle": "docs(phase): lock cleanup evidence",
+      "commitCount": 1,
+      "commitShas": [
+        "b8e777fd1dc621ea4cdf351dab4e40fa0187b192"
+      ],
+      "committedAt": "2026-05-15T05:07:29.000Z",
+      "generatedAt": "2026-05-15T05:07:42.246Z",
+      "committedAtUtc": "2026-05-15T05:07:29.000Z",
+      "generatedAtUtc": "2026-05-15T05:07:42.246Z",
+      "updatedAtUtc": "2026-05-15T05:07:42.246Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked the current cleanup phase with refreshed source evidence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked the current cleanup phase with refreshed source evidence.",
+        "Separated remaining code blockers from missing manual and smoke evidence.",
+        "Prepared the next phase for screenshot QA and smoke checks without hiding gaps."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/final-phase-cleanup-lock.generated.json",
+        "agent/state/product-surface-integrity.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/settings-creator-dashboard-split.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "agent/state/user-facing-feature-connection-audit.generated.json",
+        "docs/agent-truth/final-phase-cleanup-lock.md",
+        "docs/agent-truth/product-surface-integrity.md",
+        "docs/agent-truth/public-beta-score.md",
+        "docs/agent-truth/repo-spring-cleaning-rewire.md",
+        "package.json",
+        "scripts/agent/validate-final-phase-cleanup-lock.ts",
+        "tests/unit/final-phase-cleanup-lock.spec.ts"
+      ],
+      "sourceCommit": "b8e777fd1dc621ea4cdf351dab4e40fa0187b192"
+    },
     {
       "version": "1.2.51",
       "previousVersion": "1.2.50",
@@ -1132,51 +1181,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ],
       "sourceCommit": "ea13680adb018ac9c94db8c5b5be18ed7bdd9112"
-    },
-    {
-      "version": "1.2.27",
-      "previousVersion": "1.2.26",
-      "betaReleaseCounter": 227,
-      "previousBetaReleaseCounter": 226,
-      "commitSha": "e5c7da278b19e5e7a48285ea1aebffe7ac562934",
-      "commitTitle": "fix(analytics): collapse historical snapshot fallback authority",
-      "commitCount": 1,
-      "commitShas": [
-        "e5c7da278b19e5e7a48285ea1aebffe7ac562934"
-      ],
-      "committedAt": "2026-05-13T21:08:52.000Z",
-      "generatedAt": "2026-05-13T21:10:13.280Z",
-      "committedAtUtc": "2026-05-13T21:08:52.000Z",
-      "generatedAtUtc": "2026-05-13T21:10:13.280Z",
-      "updatedAtUtc": "2026-05-13T21:10:13.280Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Improved historical Admin Analytics source handling behind the scenes.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved historical Admin Analytics source handling behind the scenes.",
-        "Reduced raw analytics fallback behavior when verified snapshots are unavailable.",
-        "Kept source, fallback, and vendor evidence labels clearer for debugging."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json",
-        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-        "agent/state/lost-data-recovery-dry-run.generated.json",
-        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
-        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
-        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
-        "scripts/agent/validate-admin-analytics-hot-cache.ts",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/debug/route.ts",
-        "tests/unit/admin-analytics-historical-traffic.spec.ts"
-      ],
-      "sourceCommit": "e5c7da278b19e5e7a48285ea1aebffe7ac562934"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

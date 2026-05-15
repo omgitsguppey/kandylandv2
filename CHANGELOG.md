@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.52 - 2026-05-15
+- Bug fixes and general improvements
+- Locked the current cleanup phase with refreshed source evidence.
+- Separated remaining code blockers from missing manual and smoke evidence.
+- Prepared the next phase for screenshot QA and smoke checks without hiding gaps.
+
 ## 1.2.51 - 2026-05-15
 - Bug fixes and general improvements
 - Reduced backend cost and security risks found by internal checks.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added clearer Debug evidence for analytics recovery lanes.
 - Kept recovered analytics data labeled as review-only before any Admin Analytics promotion.
 - Improved internal visibility into source, confidence, and recovery blockers.
-
-## 1.2.27 - 2026-05-13
-- Bug fixes and general improvements
-- Improved historical Admin Analytics source handling behind the scenes.
-- Reduced raw analytics fallback behavior when verified snapshots are unavailable.
-- Kept source, fallback, and vendor evidence labels clearer for debugging.
