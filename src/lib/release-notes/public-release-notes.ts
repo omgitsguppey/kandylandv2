@@ -1,13 +1,56 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.52",
-  "betaReleaseCounter": 252,
+  "currentVersion": "1.2.53",
+  "betaReleaseCounter": 253,
   "channel": "beta",
-  "generatedAt": "2026-05-15T05:07:42.250Z",
-  "generatedAtUtc": "2026-05-15T05:07:42.250Z",
-  "lastCommitSha": "b8e777fd1dc621ea4cdf351dab4e40fa0187b192",
+  "generatedAt": "2026-05-15T13:37:07.525Z",
+  "generatedAtUtc": "2026-05-15T13:37:07.525Z",
+  "lastCommitSha": "443992b623e37e8736ca04db551fea236f60d7a6",
   "notes": [
+    {
+      "version": "1.2.53",
+      "previousVersion": "1.2.52",
+      "betaReleaseCounter": 253,
+      "previousBetaReleaseCounter": 252,
+      "commitSha": "443992b623e37e8736ca04db551fea236f60d7a6",
+      "commitTitle": "docs(phase): lock cleanup evidence",
+      "commitCount": 1,
+      "commitShas": [
+        "443992b623e37e8736ca04db551fea236f60d7a6"
+      ],
+      "committedAt": "2026-05-15T13:36:42.000Z",
+      "generatedAt": "2026-05-15T13:37:07.521Z",
+      "committedAtUtc": "2026-05-15T13:36:42.000Z",
+      "generatedAtUtc": "2026-05-15T13:37:07.521Z",
+      "updatedAtUtc": "2026-05-15T13:37:07.521Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked the current cleanup phase with refreshed source evidence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked the current cleanup phase with refreshed source evidence.",
+        "Separated remaining code blockers from missing manual and smoke evidence.",
+        "Prepared the next phase for screenshot QA and smoke checks without hiding gaps."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/final-phase-cleanup-lock.generated.json",
+        "agent/state/product-surface-integrity.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/settings-creator-dashboard-split.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "agent/state/user-facing-feature-connection-audit.generated.json",
+        "tests/unit/final-phase-cleanup-lock.spec.ts"
+      ],
+      "sourceCommit": "443992b623e37e8736ca04db551fea236f60d7a6"
+    },
     {
       "version": "1.2.52",
       "previousVersion": "1.2.51",
@@ -1131,56 +1174,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
       ],
       "sourceCommit": "914b0307cf4deec56ef0bbdeaf95e59812ae6dc4"
-    },
-    {
-      "version": "1.2.28",
-      "previousVersion": "1.2.27",
-      "betaReleaseCounter": 228,
-      "previousBetaReleaseCounter": 227,
-      "commitSha": "ea13680adb018ac9c94db8c5b5be18ed7bdd9112",
-      "commitTitle": "fix(analytics): surface recovery evidence in admin debug",
-      "commitCount": 1,
-      "commitShas": [
-        "ea13680adb018ac9c94db8c5b5be18ed7bdd9112"
-      ],
-      "committedAt": "2026-05-13T21:48:45.000Z",
-      "generatedAt": "2026-05-13T21:49:36.500Z",
-      "committedAtUtc": "2026-05-13T21:48:45.000Z",
-      "generatedAtUtc": "2026-05-13T21:49:36.500Z",
-      "updatedAtUtc": "2026-05-13T21:49:36.500Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added clearer Debug evidence for analytics recovery lanes.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added clearer Debug evidence for analytics recovery lanes.",
-        "Kept recovered analytics data labeled as review-only before any Admin Analytics promotion.",
-        "Improved internal visibility into source, confidence, and recovery blockers."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json",
-        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-        "agent/state/lost-data-recovery-dry-run.generated.json",
-        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
-        "docs/agent-truth/lost-data-recovery-dry-run.md",
-        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
-        "package.json",
-        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "scripts/agent/validate-admin-truth.ts",
-        "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx",
-        "src/app/admin/debug/components/DebugTabNow.tsx",
-        "src/app/api/admin/debug/route.ts",
-        "tests/unit/admin-debug-control-tower.spec.ts",
-        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
-      ],
-      "sourceCommit": "ea13680adb018ac9c94db8c5b5be18ed7bdd9112"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
