@@ -13871,3 +13871,35 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## 2026-05-15 Monolith File Boundary Structural Audit (Blocked Deliverable)
+
+Scope:
+- Targeted structural pass to audit and reduce oversized multi-responsibility files and unclear ownership boundaries that increase debugging difficulty and agent confusion.
+
+Candidate Files:
+- `src/components/Chat/ChatExperience.tsx`
+  - Classification: **God-file risk** (3,500+ lines, mixes view orchestration, real-time data binding, telemetry, complex state logic, and formatting).
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+  - Classification: **God-file risk** (3,200+ lines, houses 27+ inline functions mixing API state, historical calculation, live socket resolution, and mapping state across analytics surfaces).
+- `src/app/api/admin/users/route.ts`
+  - Classification: **Oversized but tolerable** (3,100+ lines, handles dense server-side read/write workflows but largely linear compared to UI React lifecycles, though still a major monolith risk).
+
+Blocker Identification:
+- Files exceed the 2,000 line threshold making automated script decomposition extremely risky for hydration stability, RTDB/Firestore lifecycle management, and hook/effect dependencies.
+- Splitting `ChatExperience.tsx` would require rewriting critical listener logic inside React components that cannot easily be moved to raw helper modules without triggering Next.js React-specific rendering/hydration bugs.
+
+Affected Components:
+- `ChatExperience` module
+- `AdminAnalyticsState` and its downstream tabs (`AdminAnalyticsOperationsTab`, `AdminAnalyticsAudienceTab`, `AdminAnalyticsCommerceTab`)
+- `/api/admin/users` routes
+
+Precise Codex Prompt for Future Manual Decomposition:
+```text
+Task: Manual File Decomposition for Monolith Files
+The following files exhibit God-file risk and have exceeded safe automated refactoring limits (>2000 lines). You must manually orchestrate a decomposition plan.
+1. `src/components/Chat/ChatExperience.tsx`: Split into logical sub-components in `src/components/Chat/components/` (e.g. `ChatList`, `ChatComposer`, `ChatThread`) and extract pure helper logic to `src/components/Chat/utils/` without altering the `useChatUnreadStatus` interactions or Firebase subscriptions.
+2. `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`: Extract pure transformation functions (e.g., historical vs realtime state normalizers) into `src/lib/analytics/` files. Focus on moving `useMemo` computation maps out of the core React hook body.
+3. `src/app/api/admin/users/route.ts`: Separate route handling from large DTO mappings. Move serializer and formatting logic to separate utility files (e.g. `admin-users-formatting.ts`).
+Verify all splits by ensuring UI components mount cleanly without hydration loops, Playwright tests pass, and route boundaries remain strict.
+```
