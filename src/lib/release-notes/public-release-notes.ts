@@ -1,13 +1,58 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.49",
-  "betaReleaseCounter": 249,
+  "currentVersion": "1.2.50",
+  "betaReleaseCounter": 250,
   "channel": "beta",
-  "generatedAt": "2026-05-15T03:29:43.921Z",
-  "generatedAtUtc": "2026-05-15T03:29:43.921Z",
-  "lastCommitSha": "c16264253b42449c9d751d0a39f4b1d21e026585",
+  "generatedAt": "2026-05-15T04:18:37.649Z",
+  "generatedAtUtc": "2026-05-15T04:18:37.649Z",
+  "lastCommitSha": "540695fc838c7fbb3bbf3401dc4180174c08bd5f",
   "notes": [
+    {
+      "version": "1.2.50",
+      "previousVersion": "1.2.49",
+      "betaReleaseCounter": 250,
+      "previousBetaReleaseCounter": 249,
+      "commitSha": "540695fc838c7fbb3bbf3401dc4180174c08bd5f",
+      "commitTitle": "chore(repo): add product surface integrity cleanup",
+      "commitCount": 1,
+      "commitShas": [
+        "540695fc838c7fbb3bbf3401dc4180174c08bd5f"
+      ],
+      "committedAt": "2026-05-15T04:17:48.000Z",
+      "generatedAt": "2026-05-15T04:18:37.645Z",
+      "committedAtUtc": "2026-05-15T04:17:48.000Z",
+      "generatedAtUtc": "2026-05-15T04:18:37.645Z",
+      "updatedAtUtc": "2026-05-15T04:18:37.645Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added source-driven product surface checks and kept Debug details separate from primary app surfaces.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added a source-driven cleanup pass for product surfaces.",
+        "Moved fake actions, stale reports, and mobile UI contract risks into enforceable checks.",
+        "Kept Debug details separate from primary app surfaces."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/product-surface-integrity.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "docs/agent-truth/product-surface-integrity.md",
+        "package.json",
+        "scripts/agent/validate-product-surface-integrity.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "tests/unit/product-surface-integrity.spec.ts"
+      ],
+      "sourceCommit": "540695fc838c7fbb3bbf3401dc4180174c08bd5f"
+    },
     {
       "version": "1.2.49",
       "previousVersion": "1.2.48",
@@ -1123,52 +1168,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-analytics-realtime-route.spec.ts"
       ],
       "sourceCommit": "e84b0c602becea2704f2acf5149f52a5a99a3e22"
-    },
-    {
-      "version": "1.2.25",
-      "previousVersion": "1.2.24",
-      "betaReleaseCounter": 225,
-      "previousBetaReleaseCounter": 224,
-      "commitSha": "4f730c3a001440d4f50075be1204b124ae63353e",
-      "commitTitle": "chore(analytics): add snapshot admin vendor cost contract",
-      "commitCount": 1,
-      "commitShas": [
-        "4f730c3a001440d4f50075be1204b124ae63353e"
-      ],
-      "committedAt": "2026-05-13T18:51:35.000Z",
-      "generatedAt": "2026-05-13T18:52:48.910Z",
-      "committedAtUtc": "2026-05-13T18:51:35.000Z",
-      "generatedAtUtc": "2026-05-13T18:52:48.910Z",
-      "updatedAtUtc": "2026-05-13T18:52:48.910Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and general improvements.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added clearer rules for which analytics snapshots should power Admin Analytics.",
-        "Prepared safer Debug-first handling for recovered analytics data.",
-        "Improved internal checks that keep vendor analytics and raw logs from being treated as product truth."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json",
-        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-        "agent/state/lost-data-recovery-dry-run.generated.json",
-        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
-        "docs/agent-truth/analytics-truth-layer-v2.md",
-        "docs/agent-truth/lost-data-recovery-dry-run.md",
-        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
-        "package.json",
-        "scripts/agent/snapshot-admin-vendor-cost-rewire.ts",
-        "scripts/agent/validate-snapshot-admin-vendor-cost-rewire.ts",
-        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
-      ],
-      "sourceCommit": "4f730c3a001440d4f50075be1204b124ae63353e"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

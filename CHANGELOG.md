@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.50 - 2026-05-15
+- Bug fixes and general improvements
+- Added a source-driven cleanup pass for product surfaces.
+- Moved fake actions, stale reports, and mobile UI contract risks into enforceable checks.
+- Kept Debug details separate from primary app surfaces.
+
 ## 1.2.49 - 2026-05-15
 - Bug fixes and general improvements
 - Reduced Creator Dashboard page-load work by loading managers only when opened.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Improved how Admin Analytics chooses verified snapshot data behind the scenes.
 - Reduced reliance on raw analytics logs as display truth.
 - Kept vendor analytics labeled as supporting evidence instead of product truth.
-
-## 1.2.25 - 2026-05-13
-- Bug fixes and general improvements
-- Added clearer rules for which analytics snapshots should power Admin Analytics.
-- Prepared safer Debug-first handling for recovered analytics data.
-- Improved internal checks that keep vendor analytics and raw logs from being treated as product truth.
