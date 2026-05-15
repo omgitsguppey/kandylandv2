@@ -133,7 +133,7 @@ function SectionCard({
       data-creator-bookings-management-state={bookingsManagementState}
       data-creator-chat-route-connected={chatRouteConnected === undefined ? undefined : String(chatRouteConnected)}
     >
-      <button type="button" onClick={onToggle} className="flex w-full items-start justify-between gap-3 text-left">
+      <button type="button" aria-expanded={expanded} onClick={onToggle} className="flex w-full items-start justify-between gap-3 text-left">
         <div className="flex min-w-0 items-start gap-3">
           <div className={cn("mt-0.5 rounded-2xl border p-2", sectionTone(state))}>{icon}</div>
           <div className="min-w-0">
