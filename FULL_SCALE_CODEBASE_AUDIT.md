@@ -13871,3 +13871,83 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+### Blocked Deliverable: Monolith File Decomposition
+
+- **Candidate Files**:
+  - `src/app/api/admin/debug/route.ts` (6567 lines)
+  - `src/components/Chat/ChatExperience.tsx` (3522 lines)
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` (3205 lines)
+  - `src/app/api/admin/users/route.ts` (3152 lines)
+  - `src/lib/server/ai-drop-covers.ts` (2873 lines)
+  - `src/app/api/admin/analytics/historical/route.ts` (2078 lines)
+
+- **Classification Labels**:
+  - `src/app/api/admin/debug/route.ts`: God-file risk
+  - `src/components/Chat/ChatExperience.tsx`: God-file risk, Mixed responsibility drift
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`: Needs split for stability
+  - `src/app/api/admin/users/route.ts`: God-file risk
+  - `src/lib/server/ai-drop-covers.ts`: Oversized but tolerable
+  - `src/app/api/admin/analytics/historical/route.ts`: Oversized but tolerable
+
+- **Blocker Identification**:
+  Refactoring these large monolithic files (>2000 lines) is too risky for automated scripting. Splitting them correctly requires careful manual understanding of state, API logic, UI doctrine, and telemetry requirements to ensure no regression in runtime behavior, product constraints, or economy logic. Automated decomposition may break protected boundaries or lose critical hydration logic.
+
+- **Affected Components**:
+  - Admin Debug UI and API endpoints
+  - User-facing Chat module (`ChatExperience.tsx`)
+  - Admin Analytics and Users dashboards
+  - Server-side AI drop covers generation
+
+- **Precise Codex Prompt**:
+  "Please split the oversized monolith file `[insert_filename_here]` into smaller, single-responsibility modules. Extract view rendering, data fetch logic, state orchestration, telemetry dispatching, and fallback/skeleton logic into distinct, appropriately named files. Ensure the behavior remains functionally identical. Follow the boundaries established in `control-tower/` and respect the 180-day telemetry logging, economy vocabulary guidelines, and UI doctrine exactly."
+
+### Blocked Deliverable: Monolith File Decomposition (Additional Files)
+
+- **Candidate Files**:
+  - `src/lib/creator-onboarding.ts` (1946 lines)
+  - `src/lib/server/daily-tasks.ts` (1866 lines)
+  - `src/lib/server/admin-analytics-historical-validation.ts` (1807 lines)
+  - `src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx` (1682 lines)
+  - `src/app/admin/users/page.tsx` (1607 lines)
+  - `src/app/admin/roster/page.tsx` (1549 lines)
+  - `src/hooks/useViewerWatchSession.ts` (1498 lines)
+  - `src/app/admin/user/[userId]/page.tsx` (1436 lines)
+  - `src/lib/telemetry-catalog.ts` (1414 lines)
+  - `src/types/admin-analytics.ts` (1410 lines)
+  - `src/app/api/admin/user/[userId]/route.ts` (1370 lines)
+  - `src/lib/server/chat.ts` (1364 lines)
+  - `src/lib/route-runtime-health.ts` (1362 lines)
+  - `src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx` (1328 lines)
+  - `src/components/Admin/AssetUploader.tsx` (1327 lines)
+
+- **Classification Labels**:
+  - `src/lib/creator-onboarding.ts`: Oversized but tolerable
+  - `src/lib/server/daily-tasks.ts`: Oversized but tolerable
+  - `src/lib/server/admin-analytics-historical-validation.ts`: Oversized but tolerable
+  - `src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx`: Mixed responsibility drift
+  - `src/app/admin/users/page.tsx`: Mixed responsibility drift
+  - `src/app/admin/roster/page.tsx`: Mixed responsibility drift
+  - `src/hooks/useViewerWatchSession.ts`: Oversized but tolerable
+  - `src/app/admin/user/[userId]/page.tsx`: Mixed responsibility drift
+  - `src/lib/telemetry-catalog.ts`: Oversized but tolerable
+  - `src/types/admin-analytics.ts`: Oversized but tolerable
+  - `src/app/api/admin/user/[userId]/route.ts`: Oversized but tolerable
+  - `src/lib/server/chat.ts`: Oversized but tolerable
+  - `src/lib/route-runtime-health.ts`: Oversized but tolerable
+  - `src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx`: Mixed responsibility drift
+  - `src/components/Admin/AssetUploader.tsx`: Mixed responsibility drift
+
+- **Blocker Identification**:
+  These files are very large and complex. While some are just large collections of types or definitions (e.g., `telemetry-catalog.ts`, `types/admin-analytics.ts`), others mix view rendering, complex state, and data fetching (e.g., the admin pages, `AssetUploader.tsx`). Automated scripting cannot safely extract components or separate logic without high risk of breaking runtime behavior, telemetry requirements, or the UI doctrine.
+
+- **Affected Components**:
+  - Admin Analytics Tabs (Commerce, Operations)
+  - Admin Users and Roster pages
+  - Admin User Detail page
+  - Asset Uploader component
+  - Creator Onboarding, Daily Tasks, and Chat server logic
+  - Viewer Watch Session tracking
+
+- **Precise Codex Prompt**:
+  "Please analyze the provided large file `[insert_filename_here]` and propose a safe decomposition strategy. For UI components, extract smaller sub-components for distinct visual sections or states. For hooks and state management, separate data fetching logic from view rendering. Ensure all extracted files respect the UI doctrine, economy vocabulary guidelines, and maintain exact behavioral parity. Do not change product behavior."
