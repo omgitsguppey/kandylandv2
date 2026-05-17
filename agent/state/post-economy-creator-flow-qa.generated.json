@@ -1,0 +1,120 @@
+{
+  "generatedAtUtc": "2026-05-17T03:20:29.418Z",
+  "reportKey": "post-economy-creator-flow-qa",
+  "currentHead": "a98638d3a766efe61b6109f898b51544deef91b0",
+  "summary": {
+    "flowsChecked": 6,
+    "copyRisksFound": 3,
+    "copyRisksFixed": 3,
+    "sourceOfFundsRisksFound": 1,
+    "sourceOfFundsRisksFixed": 1,
+    "attributionRisksFound": 0,
+    "attributionRisksFixed": 1,
+    "bookingUxRisksFound": 1,
+    "bookingUxRisksFixed": 1,
+    "ownerModeRisksFound": 1,
+    "ownerModeRisksFixed": 1,
+    "deferredFollowUps": 2,
+    "p0Count": 3,
+    "p1Count": 3,
+    "p2Count": 5
+  },
+  "flows": [
+    {
+      "id": "paid-bundle-copy-not-free-reward",
+      "severity": "p1",
+      "surface": "wallet",
+      "status": "verified",
+      "filePath": "src/components/PurchaseModal.tsx",
+      "detail": "Package bonus copy does not label paid bundle bonuses as free or reward GumDrops."
+    },
+    {
+      "id": "creator-paid-balance-eligibility",
+      "severity": "p0",
+      "surface": "creator-profile",
+      "status": "verified",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Creator experience balance checks read gumDropsPurchasedBalance, so reward balance alone cannot make CTAs available."
+    },
+    {
+      "id": "creator-attribution-metadata",
+      "severity": "p0",
+      "surface": "server-truth",
+      "status": "verified",
+      "filePath": "src/app/api/creator",
+      "detail": "Request, booking, subscription, and creator chat paths retain purchasedAmountSpent, rewardAmountSpent, creatorAccrualId, creatorExperienceRecordId, and attribution helpers."
+    },
+    {
+      "id": "booking-generated-slot-only",
+      "severity": "p0",
+      "surface": "creator-profile",
+      "status": "verified",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Booking UI keeps generated slot attrs and no datetime-local input."
+    },
+    {
+      "id": "owner-fan-mode-separation",
+      "severity": "p1",
+      "surface": "creator-profile",
+      "status": "verified",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Owner mode shows profile-safe dashboard routing and hides fan controls; non-owner fan tests keep fan controls visible."
+    },
+    {
+      "id": "public-drop-discovery-scope",
+      "severity": "p2",
+      "surface": "drops",
+      "status": "verified",
+      "filePath": "src/app/drops/DropsClient.tsx",
+      "detail": "Public drops remains public_discovery and is not marked own_creator_drops."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "creator-paid-gd-guidance-copy",
+      "severity": "p1",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/components/Creators/CreatorPaidGdGuidanceCard.tsx",
+      "detail": "Low-balance guidance now says creator experiences use paid GumDrops only and distinguishes free/reward GumDrops."
+    },
+    {
+      "id": "booking-slot-cta-copy",
+      "severity": "p2",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Booking slot empty state and disabled CTA copy are clearer without adding arbitrary date/time controls."
+    },
+    {
+      "id": "creator-owner-dashboard-copy",
+      "severity": "p2",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Owner profile copy now points to managing experiences in Creator Dashboard while keeping fan controls hidden."
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "creator-accrual-dashboard-summary",
+      "severity": "p2",
+      "surface": "creator-dashboard",
+      "status": "deferred",
+      "filePath": "src/components/Creators",
+      "detail": "Backend accrual IDs and creator attribution are present, but no new creator earnings panel was invented in this microfix pass."
+    },
+    {
+      "id": "wallet-paid-bonus-label-specificity",
+      "severity": "p2",
+      "surface": "wallet",
+      "status": "deferred",
+      "filePath": "src/components/PurchaseModal.tsx",
+      "detail": "Package modal says Bonus without free/reward language; a future wallet-scoped copy pass can rename visible chips to paid bonus if that file is explicitly in scope."
+    }
+  ],
+  "nextFixOrder": [
+    "creator-accrual-dashboard-summary",
+    "wallet-paid-bonus-label-specificity"
+  ]
+}

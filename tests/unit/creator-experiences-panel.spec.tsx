@@ -184,7 +184,7 @@ describe("CreatorExperiencesPanel", () => {
         });
 
         const button = Array.from(container.querySelectorAll("button"))
-            .find((entry) => entry.textContent?.includes("Choose a slot"));
+            .find((entry) => entry.textContent?.includes("Choose a slot first"));
         expect(button).toBeTruthy();
         expect(button).toHaveProperty("disabled", true);
         vi.useRealTimers();
@@ -200,7 +200,7 @@ describe("CreatorExperiencesPanel", () => {
         );
 
         expect(markup).toContain("You are viewing your creator profile.");
-        expect(markup).toContain("Manage this in Creator Dashboard.");
+        expect(markup).toContain("Manage experiences in Creator Dashboard.");
         expect(markup).toContain('data-creator-owner-mode="true"');
         expect(markup).toContain('data-fan-controls-hidden="true"');
         expect(markup).not.toContain("Fan Pass");
@@ -303,7 +303,7 @@ describe("CreatorExperiencesPanel", () => {
             root.render(
                 <CreatorExperiencesPanel
                     {...baseProps}
-                    currentUser={{ uid: "fan_1", gumDropsBalance: 0 }}
+                    currentUser={{ uid: "fan_1", gumDropsBalance: 50_000, gumDropsRewardBalance: 50_000, gumDropsPurchasedBalance: 0 }}
                     selectedExperience="subscriptions"
                 />,
             );
@@ -324,6 +324,37 @@ describe("CreatorExperiencesPanel", () => {
             priceGd: CREATOR_SUBSCRIPTION_MIN_GD,
         }));
         expect(mockState.routerPush).toHaveBeenCalledWith("/dashboard/wallet");
+    });
+
+    it("keeps reward balance from making paid creator CTAs available", () => {
+        const markup = renderToStaticMarkup(
+            <CreatorExperiencesPanel
+                {...baseProps}
+                currentUser={{ uid: "fan_1", gumDropsBalance: 50_000, gumDropsRewardBalance: 50_000, gumDropsPurchasedBalance: 0 }}
+                selectedExperience="requests"
+                requestCategoryId="custom-photo"
+            />,
+        );
+
+        expect(markup).toContain("Creator experiences use paid GumDrops only");
+        expect(markup).toContain("Paid GD 0 / Need");
+        expect(markup).toContain("Open Wallet");
+        expect(markup).not.toContain("Send Request");
+    });
+
+    it("keeps fan controls visible for non-owner fans with paid balance", () => {
+        const markup = renderToStaticMarkup(
+            <CreatorExperiencesPanel
+                {...baseProps}
+                currentUser={{ uid: "fan_1", role: "user", gumDropsBalance: 50_000, gumDropsRewardBalance: 0, gumDropsPurchasedBalance: 50_000 }}
+                selectedExperience="subscriptions"
+            />,
+        );
+
+        expect(markup).toContain("Fan Pass");
+        expect(markup).toContain("Start Fan Pass");
+        expect(markup).not.toContain("You are viewing your creator profile.");
+        expect(markup).not.toContain('data-fan-controls-hidden="true"');
     });
 
     it("keeps creator experience pricing constants unchanged", () => {

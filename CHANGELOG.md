@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.58 - 2026-05-17
+- Bug fixes and general improvements
+- Cleaned up paid GumDrop bonus and creator experience copy.
+- Confirmed creator experiences use paid GumDrops only.
+- Improved booking slot and creator owner mode clarity.
+
 ## 1.2.57 - 2026-05-17
 - Bug fixes and general improvements
 - Simplified creator booking around available time slots.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added a triage pass for beta score math and evidence wiring.
 - Reviewed watch-time, Admin dashboard, and creator dashboard truth connections.
 - Kept readiness evidence honest while identifying what needs a focused fix.
-
-## 1.2.33 - 2026-05-14
-- Bug fixes and general improvements
-- Added formal tracking for remaining smoke evidence.
-- Kept PayPal/provider smoke marked as incomplete until repo evidence exists.
-- Kept beta exit blockers visible instead of marking launch readiness complete.

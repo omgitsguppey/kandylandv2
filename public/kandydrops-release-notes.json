@@ -1,11 +1,57 @@
 {
-  "currentVersion": "1.2.57",
-  "betaReleaseCounter": 257,
+  "currentVersion": "1.2.58",
+  "betaReleaseCounter": 258,
   "channel": "beta",
-  "generatedAt": "2026-05-17T01:55:40.372Z",
-  "generatedAtUtc": "2026-05-17T01:55:40.372Z",
-  "lastCommitSha": "68dfa1f279c4902f5f870930664f80993a2752b4",
+  "generatedAt": "2026-05-17T03:28:43.443Z",
+  "generatedAtUtc": "2026-05-17T03:28:43.443Z",
+  "lastCommitSha": "a98638d3a766efe61b6109f898b51544deef91b0",
   "notes": [
+    {
+      "version": "1.2.58",
+      "previousVersion": "1.2.57",
+      "betaReleaseCounter": 258,
+      "previousBetaReleaseCounter": 257,
+      "commitSha": "a98638d3a766efe61b6109f898b51544deef91b0",
+      "commitTitle": "fix(creator): polish paid gd flow clarity",
+      "commitCount": 1,
+      "commitShas": [
+        "a98638d3a766efe61b6109f898b51544deef91b0"
+      ],
+      "committedAt": "2026-05-17T03:28:43.443Z",
+      "generatedAt": "2026-05-17T03:28:43.443Z",
+      "committedAtUtc": "2026-05-17T03:28:43.443Z",
+      "generatedAtUtc": "2026-05-17T03:28:43.443Z",
+      "updatedAtUtc": "2026-05-17T03:28:43.443Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Cleaned up paid GumDrop flow clarity for creator experiences.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Cleaned up paid GumDrop bonus and creator experience copy.",
+        "Confirmed creator experiences use paid GumDrops only.",
+        "Improved booking slot and creator owner mode clarity."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "creator",
+        "wallet",
+        "drops"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/components/Creators/CreatorExperiencesPanel.tsx",
+        "src/components/Creators/CreatorPaidGdGuidanceCard.tsx",
+        "agent/state/post-economy-creator-flow-qa.generated.json",
+        "docs/agent-truth/post-economy-creator-flow-qa.md",
+        "scripts/agent/validate-post-economy-creator-flow-qa.ts",
+        "tests/unit/post-economy-creator-flow-qa.spec.ts",
+        "tests/unit/creator-experiences-panel.spec.tsx",
+        "tests/unit/creator-owner-mode.spec.tsx",
+        "package.json"
+      ],
+      "sourceCommit": "a98638d3a766efe61b6109f898b51544deef91b0"
+    },
     {
       "version": "1.2.57",
       "previousVersion": "1.2.56",

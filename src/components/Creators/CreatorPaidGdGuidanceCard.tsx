@@ -28,27 +28,27 @@ const REASON_COPY: Record<CreatorPaidGdGuidanceReason, {
     chat: {
         eyebrow: "Private chat",
         title: "Paid GumDrops are required to message creators",
-        body: "Free GumDrops are only for unwrapping Drops. Paid GumDrops unlock creator chat and other monetization actions.",
+        body: "Creator experiences use paid GumDrops only. Free and reward GumDrops are for unwrapping Drops.",
     },
     fan_pass: {
         eyebrow: "Fan Pass",
         title: "Fan Pass uses paid GumDrops only",
-        body: "Reward GumDrops do not count toward Fan Pass. Use paid GumDrops if you want to subscribe.",
+        body: "Creator experiences use paid GumDrops only. Reward GumDrops do not count toward Fan Pass.",
     },
     request: {
         eyebrow: "Custom request",
         title: "Custom requests need paid GumDrops",
-        body: "Paid GumDrops are required before you can send a custom request to this creator.",
+        body: "Creator experiences use paid GumDrops only, including custom requests to this creator.",
     },
     booking: {
         eyebrow: "Live time",
         title: "Bookings need paid GumDrops",
-        body: "Live-time bookings are paid creator experiences. Free GumDrops only unwrap Drops.",
+        body: "Creator experiences use paid GumDrops only. Free and reward GumDrops cannot book live time.",
     },
     paid_media: {
         eyebrow: "Paid media",
         title: "Paid creator media needs paid GumDrops",
-        body: "Paid creator media and paid chat use paid GumDrops, not reward balance.",
+        body: "Creator experiences use paid GumDrops only, including paid media and paid chat.",
     },
 };
 

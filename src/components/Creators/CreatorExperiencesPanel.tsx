@@ -332,9 +332,10 @@ export function CreatorExperiencesPanel({
                 data-fan-controls-hidden="true"
             >
                 <p className="text-sm font-bold text-white">You are viewing your creator profile.</p>
-                <p className="text-sm text-zinc-400">Manage this in Creator Dashboard.</p>
+                <p className="text-sm text-zinc-400">Manage experiences in Creator Dashboard.</p>
                 <button
                     type="button"
+                    aria-label="Manage this in Creator Dashboard."
                     onClick={() => router.push("/dashboard/creator")}
                     className="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white"
                 >
@@ -783,7 +784,7 @@ export function CreatorExperiencesPanel({
                             </div>
                         ) : (
                             <div className="rounded-xl bg-black/25 px-3 py-4 text-center">
-                                <p className="text-sm font-bold text-white">No available slots right now</p>
+                                <p className="text-sm font-bold text-white">No available slots right now.</p>
                                 <p className="mt-1 text-xs text-zinc-400">Check back later or follow for updates.</p>
                             </div>
                         )}
@@ -799,7 +800,7 @@ export function CreatorExperiencesPanel({
                         "bg-brand-purple text-white",
                         {
                             disabled: !selectedBookingSlot,
-                            disabledLabel: "Choose a slot",
+                            disabledLabel: "Choose a slot first",
                         },
                     )}
                 </section>
