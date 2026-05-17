@@ -235,6 +235,7 @@
         "check:gumdrop-economy-accuracy": "tsx scripts/agent/validate-gumdrop-economy-accuracy.ts",
         "check:creator-experience-simplification": "tsx scripts/agent/validate-creator-experience-simplification.ts",
         "check:post-economy-creator-flow-qa": "tsx scripts/agent/validate-post-economy-creator-flow-qa.ts",
+        "check:creator-dashboard-error-cost-inventory": "tsx scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
         "check:current-beta-exit-status": "tsx scripts/agent/validate-current-beta-exit-status.ts",
         "check:evidence-readiness-checklists": "tsx scripts/agent/validate-evidence-readiness-checklists.ts",
         "check:manual-screenshot-evidence": "tsx scripts/agent/validate-manual-screenshot-evidence.ts",

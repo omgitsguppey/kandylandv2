@@ -56,6 +56,25 @@ describe("CreatorBroadcastManager", () => {
     });
   });
 
+  it("disables refresh while broadcasts are loading", async () => {
+    let resolveResponse: (value: unknown) => void = () => undefined;
+    mockState.authFetch.mockReturnValue(new Promise((resolve) => {
+      resolveResponse = resolve;
+    }));
+
+    render(<CreatorBroadcastManager creatorId="creator_1" creatorName="Jessica" />);
+
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeDisabled();
+
+    resolveResponse({
+      ok: true,
+      json: async () => ({ success: true, broadcasts: [] }),
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Refresh" })).not.toBeDisabled();
+    });
+  });
+
   it("renders sent, draft, and failed statuses from real broadcast data", async () => {
     mockState.authFetch.mockResolvedValue({
       ok: true,

@@ -368,6 +368,22 @@ describe("CreatorDashboardSettingsHub", () => {
     expect(screen.queryByTestId("fan-pass-manager")).toBeNull();
   });
 
+  it("does not fetch creator settings for plain admin accounts outside view-as projection", async () => {
+    mockState.userProfile = {
+      uid: "admin_1",
+      role: "admin",
+      username: "admin",
+      displayName: "Admin",
+    };
+
+    render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Creator tools are not available on this account.")).toBeTruthy();
+    });
+    expect(mockState.authFetch).not.toHaveBeenCalled();
+  });
+
   it("passes connected booking and Fan Pass state into opened dashboard managers", async () => {
     const { container } = render(<CreatorDashboardSettingsHub />);
 

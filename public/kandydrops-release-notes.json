@@ -1,11 +1,60 @@
 {
-  "currentVersion": "1.2.62",
-  "betaReleaseCounter": 262,
+  "currentVersion": "1.2.63",
+  "betaReleaseCounter": 263,
   "channel": "beta",
-  "generatedAt": "2026-05-17T05:28:53.476Z",
-  "generatedAtUtc": "2026-05-17T05:28:53.476Z",
-  "lastCommitSha": "a627e45442f7f4757c59b8687bb8d6ba3872cbd1",
+  "generatedAt": "2026-05-17T05:45:07.740Z",
+  "generatedAtUtc": "2026-05-17T05:45:07.740Z",
+  "lastCommitSha": "3d21baa7736d837bb79915fd7cdb99816e88d3b2",
   "notes": [
+    {
+      "version": "1.2.63",
+      "previousVersion": "1.2.62",
+      "betaReleaseCounter": 263,
+      "previousBetaReleaseCounter": 262,
+      "commitSha": "3d21baa7736d837bb79915fd7cdb99816e88d3b2",
+      "commitTitle": "fix(creator): harden dashboard errors and cost inventory",
+      "commitCount": 1,
+      "commitShas": [
+        "3d21baa7736d837bb79915fd7cdb99816e88d3b2"
+      ],
+      "committedAt": "2026-05-17T05:45:07.740Z",
+      "generatedAt": "2026-05-17T05:45:07.740Z",
+      "committedAtUtc": "2026-05-17T05:45:07.740Z",
+      "generatedAtUtc": "2026-05-17T05:45:07.740Z",
+      "updatedAtUtc": "2026-05-17T05:45:07.740Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Reviewed Creator Dashboard error handling and cost-risk routes.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Reviewed Creator Dashboard error handling and route states.",
+        "Mapped Cloud Run, Cloud SQL, and Gemini cost-risk areas.",
+        "Classified expected versus unexpected 4xx paths."
+      ],
+      "audience": "creators",
+      "affectedSurfaces": [
+        "creator",
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Creators/CreatorBroadcastManager.tsx",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+        "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+        "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
+        "tests/unit/creator-dashboard-error-cost-inventory.spec.ts",
+        "tests/unit/creator-dashboard-settings.spec.tsx",
+        "tests/unit/creator-broadcast-manager.spec.tsx",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "3d21baa7736d837bb79915fd7cdb99816e88d3b2"
+    },
     {
       "version": "1.2.62",
       "previousVersion": "1.2.61",
@@ -1170,45 +1219,6 @@
         "scripts/agent/validate-targeted-behavior-evidence.ts"
       ],
       "sourceCommit": "c6ce135ddaadbc2ce5843c4762e4d51076f4da82"
-    },
-    {
-      "version": "1.2.38",
-      "previousVersion": "1.2.37",
-      "betaReleaseCounter": 238,
-      "previousBetaReleaseCounter": 237,
-      "commitSha": "4f313a98a68ca04b4aab6fa5f6012c34212cb889",
-      "commitTitle": "fix(admin): show canonical beta score in debug",
-      "commitCount": 1,
-      "commitShas": [
-        "4f313a98a68ca04b4aab6fa5f6012c34212cb889"
-      ],
-      "committedAt": "2026-05-14T14:05:35.000Z",
-      "generatedAt": "2026-05-14T14:05:59.628Z",
-      "committedAtUtc": "2026-05-14T14:05:35.000Z",
-      "generatedAtUtc": "2026-05-14T14:05:59.628Z",
-      "updatedAtUtc": "2026-05-14T14:05:59.628Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Connected Admin Debug to the canonical beta readiness score.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Connected Admin Debug to the canonical beta readiness score.",
-        "Separated report averages from the real public beta score.",
-        "Made score cap reasons easier to see in Debug."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "src/app/admin/debug/components/DebugControlTower.tsx",
-        "src/lib/admin-debug-control-tower.ts",
-        "tests/unit/admin-debug-control-tower.spec.ts"
-      ],
-      "sourceCommit": "4f313a98a68ca04b4aab6fa5f6012c34212cb889"
     }
   ]
 }

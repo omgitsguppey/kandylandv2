@@ -198,7 +198,7 @@ export function CreatorDashboardSettingsHub() {
   const creatorId = viewAsState?.adminViewingAsUserId || userProfile?.uid || "";
   const creatorName = viewAsState?.adminViewingAsDisplayName || userProfile?.displayName || "Creator";
   const query = useMemo(() => (viewAsState?.adminViewingAsUserId ? `?creatorId=${encodeURIComponent(viewAsState.adminViewingAsUserId)}` : ""), [viewAsState?.adminViewingAsUserId]);
-  const isCreatorOrProjection = Boolean(viewAsState || userProfile?.role === "creator" || userProfile?.role === "admin");
+  const isCreatorOrProjection = Boolean(viewAsState || userProfile?.role === "creator");
   const canLoadCreatorDashboard = Boolean(user?.uid && creatorId && isCreatorOrProjection);
 
   useEffect(() => {

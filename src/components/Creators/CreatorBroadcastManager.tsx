@@ -231,7 +231,7 @@ export function CreatorBroadcastManager({
         <button
           type="button"
           onClick={() => void loadBroadcasts()}
-          disabled={!canReadBroadcasts}
+          disabled={!canReadBroadcasts || loading}
           className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />

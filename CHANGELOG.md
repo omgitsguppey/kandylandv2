@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.63 - 2026-05-17
+- Bug fixes and general improvements
+- Reviewed Creator Dashboard error handling and route states.
+- Mapped Cloud Run, Cloud SQL, and Gemini cost-risk areas.
+- Classified expected versus unexpected 4xx paths.
+
 ## 1.2.62 - 2026-05-17
 - Bug fixes and general improvements
 - Prepared repo folders and templates for screenshot and smoke evidence.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added formal targeted behavior evidence for Phase 1 validators.
 - Refreshed launch readiness evidence without claiming visual or provider smoke.
 - Kept remaining beta exit evidence gaps visible.
-
-## 1.2.38 - 2026-05-14
-- Bug fixes and general improvements
-- Connected Admin Debug to the canonical beta readiness score.
-- Separated report averages from the real public beta score.
-- Made score cap reasons easier to see in Debug.

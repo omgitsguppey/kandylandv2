@@ -1,0 +1,208 @@
+{
+  "generatedAtUtc": "2026-05-17T05:46:04.764Z",
+  "reportKey": "creator-dashboard-error-cost-inventory",
+  "currentHead": "3d21baa7736d837bb79915fd7cdb99816e88d3b2",
+  "summary": {
+    "creatorDashboardErrorsFound": 2,
+    "creatorDashboardErrorsFixed": 2,
+    "expected4xxCount": 2,
+    "unexpected4xxCount": 1,
+    "unexpected4xxFixed": 1,
+    "cloudRunCostFindings": 2,
+    "cloudSqlCostFindings": 1,
+    "geminiCloudAssistCostFindings": 1,
+    "deferredAdminBackend": 1,
+    "p0Count": 0,
+    "p1Count": 2,
+    "p2Count": 8
+  },
+  "creatorDashboardFindings": [
+    {
+      "id": "plain-admin-dashboard-fetch",
+      "severity": "p1",
+      "status": "fixed",
+      "owner": "creator-ui",
+      "surface": "creator-dashboard",
+      "filePath": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "detail": "Plain admin accounts no longer load /api/creator/settings unless they are in creator view-as projection.",
+      "action": "Keep creator dashboard loads scoped to creator accounts or admin projection."
+    },
+    {
+      "id": "broadcast-refresh-loading-guard",
+      "severity": "p2",
+      "status": "fixed",
+      "owner": "creator-ui",
+      "surface": "creator-dashboard",
+      "filePath": "src/components/Creators/CreatorBroadcastManager.tsx",
+      "detail": "Broadcast refresh is disabled while broadcast history is already loading.",
+      "action": "Keep duplicate dashboard reads blocked during loading."
+    },
+    {
+      "id": "creator-manager-state-coverage",
+      "severity": "p2",
+      "status": "verified",
+      "owner": "creator-ui",
+      "surface": "creator-dashboard",
+      "filePath": "src/components/Creators",
+      "detail": "Requests, bookings, Fan Pass, and broadcasts expose loading, empty, error, disabled, and read-only or pending states.",
+      "action": "Continue using lazy manager mounts and explicit state copy."
+    }
+  ],
+  "route4xxFindings": [
+    {
+      "id": "expected-auth-and-role-4xx",
+      "severity": "p2",
+      "status": "verified",
+      "owner": "server-truth",
+      "surface": "creator-api",
+      "filePath": "src/app/api/creator",
+      "detail": "Creator routes intentionally return 401/403 for auth, role, and read-only projection boundaries.",
+      "action": "UI should show calm unavailable or read-only copy for expected auth and projection failures."
+    },
+    {
+      "id": "expected-validation-and-conflict-4xx",
+      "severity": "p2",
+      "status": "verified",
+      "owner": "server-truth",
+      "surface": "creator-api",
+      "filePath": "src/app/api/creator",
+      "detail": "Creator requests, bookings, and subscriptions return typed 400/402/409/413 responses for invalid input, paid-GD shortfall, unavailable features, slot conflicts, and bounded body failures.",
+      "action": "Keep expected business failures typed and human-readable."
+    },
+    {
+      "id": "unexpected-admin-self-load-4xx",
+      "severity": "p1",
+      "status": "fixed",
+      "owner": "creator-ui",
+      "surface": "creator-dashboard",
+      "filePath": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "detail": "The creator dashboard previously treated role=admin as load-eligible without projection, which could surface creator settings 4xx as a page error.",
+      "action": "Plain admin accounts now stay on the creator-unavailable state unless view-as projection is active."
+    }
+  ],
+  "cloudRunCostFindings": [
+    {
+      "id": "apphosting-run-config-present",
+      "severity": "p2",
+      "status": "verified",
+      "owner": "platform-cost",
+      "surface": "cloud-run",
+      "filePath": "apphosting.yaml",
+      "detail": "Source config includes App Hosting concurrency, minInstances, and maxInstances. This pass did not change deployment config.",
+      "action": "Review provider metrics before changing runtime capacity."
+    },
+    {
+      "id": "creator-dashboard-duplicate-read-reduction",
+      "severity": "p2",
+      "status": "fixed",
+      "owner": "creator-ui",
+      "surface": "creator-dashboard",
+      "filePath": "src/components/Creators",
+      "detail": "Creator dashboard duplicate read risk was reduced by blocking admin self-loads and refresh clicks during active broadcast loading.",
+      "action": "Keep manager fetches lazy and guarded by creator id, enabled, restricted, loading, and read-only state."
+    }
+  ],
+  "cloudSqlCostFindings": [
+    {
+      "id": "cloud-sql-agent-mirror-only",
+      "severity": "p2",
+      "status": "deferred",
+      "owner": "platform-cost",
+      "surface": "cloud-sql",
+      "filePath": "dataconnect/dataconnect.yaml",
+      "detail": "Source doctrine and Data Connect config classify Cloud SQL as an agent-context mirror; no creator dashboard runtime SQL path was found in this pass.",
+      "action": "Owner should confirm provider-side Cloud SQL billing/state before treating the mirror as cost-safe."
+    }
+  ],
+  "geminiCloudAssistCostFindings": [
+    {
+      "id": "admin-ai-cost-surface-out-of-scope",
+      "severity": "p2",
+      "status": "owner_review",
+      "owner": "admin-ai",
+      "surface": "gemini-cloud-assist-vertex",
+      "filePath": "src/lib/server/api-cost-contract.ts",
+      "detail": "Vertex/Gemini and AI cover/description surfaces are admin/provider cost lanes and were inventoried source-only; no creator dashboard AI call path was found.",
+      "action": "Review admin AI budgets in the admin AI lane, not this creator dashboard pass."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "plain-admin-dashboard-fetch",
+      "severity": "p1",
+      "status": "fixed",
+      "owner": "creator-ui",
+      "surface": "creator-dashboard",
+      "filePath": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "detail": "Plain admin accounts no longer load /api/creator/settings unless they are in creator view-as projection.",
+      "action": "Keep creator dashboard loads scoped to creator accounts or admin projection."
+    },
+    {
+      "id": "broadcast-refresh-loading-guard",
+      "severity": "p2",
+      "status": "fixed",
+      "owner": "creator-ui",
+      "surface": "creator-dashboard",
+      "filePath": "src/components/Creators/CreatorBroadcastManager.tsx",
+      "detail": "Broadcast refresh is disabled while broadcast history is already loading.",
+      "action": "Keep duplicate dashboard reads blocked during loading."
+    },
+    {
+      "id": "unexpected-admin-self-load-4xx",
+      "severity": "p1",
+      "status": "fixed",
+      "owner": "creator-ui",
+      "surface": "creator-dashboard",
+      "filePath": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "detail": "The creator dashboard previously treated role=admin as load-eligible without projection, which could surface creator settings 4xx as a page error.",
+      "action": "Plain admin accounts now stay on the creator-unavailable state unless view-as projection is active."
+    },
+    {
+      "id": "creator-dashboard-duplicate-read-reduction",
+      "severity": "p2",
+      "status": "fixed",
+      "owner": "creator-ui",
+      "surface": "creator-dashboard",
+      "filePath": "src/components/Creators",
+      "detail": "Creator dashboard duplicate read risk was reduced by blocking admin self-loads and refresh clicks during active broadcast loading.",
+      "action": "Keep manager fetches lazy and guarded by creator id, enabled, restricted, loading, and read-only state."
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "cloud-sql-agent-mirror-only",
+      "severity": "p2",
+      "status": "deferred",
+      "owner": "platform-cost",
+      "surface": "cloud-sql",
+      "filePath": "dataconnect/dataconnect.yaml",
+      "detail": "Source doctrine and Data Connect config classify Cloud SQL as an agent-context mirror; no creator dashboard runtime SQL path was found in this pass.",
+      "action": "Owner should confirm provider-side Cloud SQL billing/state before treating the mirror as cost-safe."
+    },
+    {
+      "id": "admin-ai-cost-surface-out-of-scope",
+      "severity": "p2",
+      "status": "owner_review",
+      "owner": "admin-ai",
+      "surface": "gemini-cloud-assist-vertex",
+      "filePath": "src/lib/server/api-cost-contract.ts",
+      "detail": "Vertex/Gemini and AI cover/description surfaces are admin/provider cost lanes and were inventoried source-only; no creator dashboard AI call path was found.",
+      "action": "Review admin AI budgets in the admin AI lane, not this creator dashboard pass."
+    },
+    {
+      "id": "apphosting-run-config-present",
+      "severity": "p2",
+      "status": "verified",
+      "owner": "platform-cost",
+      "surface": "cloud-run",
+      "filePath": "apphosting.yaml",
+      "detail": "Source config includes App Hosting concurrency, minInstances, and maxInstances. This pass did not change deployment config.",
+      "action": "Review provider metrics before changing runtime capacity."
+    }
+  ],
+  "nextFixOrder": [
+    "Confirm Cloud SQL/Data Connect provider billing and active connection state outside this source-only pass.",
+    "Review App Hosting request/error metrics before any Cloud Run/App Hosting capacity change.",
+    "Run the admin AI cost lane before changing Gemini, Cloud Assist, Vertex, or AI cover generation behavior."
+  ]
+}
