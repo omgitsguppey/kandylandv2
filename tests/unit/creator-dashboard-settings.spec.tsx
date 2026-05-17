@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockState = vi.hoisted(() => ({
   authFetch: vi.fn(),
+  submitBugReport: vi.fn(),
   trackEvent: vi.fn(),
   userProfile: {
     uid: "creator_1",
@@ -34,6 +35,10 @@ vi.mock("@/lib/authFetch", () => ({
 
 vi.mock("@/lib/telemetry", () => ({
   trackEvent: mockState.trackEvent,
+}));
+
+vi.mock("@/lib/errors/submit-bug-report", () => ({
+  submitBugReport: (...args: unknown[]) => mockState.submitBugReport(...args),
 }));
 
 vi.mock("@/components/Analytics/PageViewEvent", () => ({
@@ -142,6 +147,7 @@ function section(container: HTMLElement, key: string) {
 describe("CreatorDashboardSettingsHub", () => {
   beforeEach(() => {
     mockState.authFetch.mockReset();
+    mockState.submitBugReport.mockReset();
     mockState.trackEvent.mockReset();
     mockState.viewAsState = null;
     mockState.userProfile = {
@@ -177,6 +183,79 @@ describe("CreatorDashboardSettingsHub", () => {
         statsEvidence: buildStatsEvidence(),
       }),
     });
+    mockState.submitBugReport.mockResolvedValue({
+      success: true,
+      bugReportId: "bug_1",
+      status: "received",
+      rewardGranted: false,
+      rewardGd: 0,
+      redirectTo: "/dashboard/creator",
+    });
+    window.history.pushState({}, "", "/dashboard/creator");
+  });
+
+  it("translates creator settings 500 errors and hides raw internal server text", async () => {
+    mockState.authFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => ({ success: false, error: "Internal server error" }),
+    });
+
+    const { container } = render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Creator settings ain't loading")).toBeTruthy();
+    });
+    expect(screen.getByText(/this dashboard can't show fresh creator stats yet/i)).toBeTruthy();
+    expect(container.textContent).not.toContain("Internal server error");
+    expect(container.querySelector("[data-human-error-key=\"dashboard_source_unavailable\"]")).toBeTruthy();
+    expect(container.querySelector("[data-human-error-surface=\"creator_dashboard\"]")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /send bug/i })).toBeTruthy();
+  });
+
+  it("sends creator settings bug reports with safe route and surface context", async () => {
+    mockState.authFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => ({ success: false, error: "Internal server error" }),
+    });
+
+    render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /send bug/i })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /send bug/i }));
+
+    await waitFor(() => {
+      expect(mockState.submitBugReport).toHaveBeenCalled();
+    });
+    expect(mockState.submitBugReport.mock.calls[0][0]).toMatchObject({
+      errorKey: "dashboard_source_unavailable",
+      surface: "creator_dashboard",
+      route: "/api/creator/settings",
+      previousRoute: "/dashboard/creator",
+      context: {
+        manager: "creator_settings",
+        surface: "creator_dashboard",
+        route: "/api/creator/settings",
+      },
+    });
+  });
+
+  it("marks the dashboard and cards with compact mobile density and bottom-safe spacing", async () => {
+    const { container } = render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Public Profile")).toBeTruthy();
+    });
+    const dashboard = container.querySelector("[data-creator-dashboard-density=\"mobile_compact\"]");
+    expect(dashboard).toBeTruthy();
+    expect(dashboard?.getAttribute("data-bottom-nav-safe")).toBe("true");
+    expect(dashboard?.className).toContain("pb-[calc(env(safe-area-inset-bottom)+7rem)]");
+    expect(dashboard?.getAttribute("data-report-issue-safe-offset")).toBe("bottom-nav");
+    expect(section(container, "public_profile").dataset.creatorDashboardCardDensity).toBe("mobile_compact");
+    expect(section(container, "public_profile").className).toContain("p-2.5");
   });
 
   it("renders the creator settings sections without mounting every manager on page load", async () => {

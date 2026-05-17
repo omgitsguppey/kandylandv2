@@ -1,13 +1,63 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.72",
-  "betaReleaseCounter": 272,
+  "currentVersion": "1.2.73",
+  "betaReleaseCounter": 273,
   "channel": "beta",
-  "generatedAt": "2026-05-17T19:46:44.331Z",
-  "generatedAtUtc": "2026-05-17T19:46:44.331Z",
-  "lastCommitSha": "a7df39a9c112dda604f362f84e98fa60689dc2d1",
+  "generatedAt": "2026-05-17T20:27:44.380Z",
+  "generatedAtUtc": "2026-05-17T20:27:44.380Z",
+  "lastCommitSha": "df4c879a6edd33286f7ee44e48d4eb4a31c014bc",
   "notes": [
+    {
+      "version": "1.2.73",
+      "previousVersion": "1.2.72",
+      "betaReleaseCounter": 273,
+      "previousBetaReleaseCounter": 272,
+      "commitSha": "df4c879a6edd33286f7ee44e48d4eb4a31c014bc",
+      "commitTitle": "fix(creator): compact dashboard and translate settings errors",
+      "commitCount": 1,
+      "commitShas": [
+        "df4c879a6edd33286f7ee44e48d4eb4a31c014bc"
+      ],
+      "committedAt": "2026-05-17T20:27:44.380Z",
+      "generatedAt": "2026-05-17T20:27:44.380Z",
+      "committedAtUtc": "2026-05-17T20:27:44.380Z",
+      "generatedAtUtc": "2026-05-17T20:27:44.380Z",
+      "updatedAtUtc": "2026-05-17T20:27:44.380Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Cleaned up Creator Dashboard mobile errors and density.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Cleaned up Creator Dashboard error messages on mobile.",
+        "Made Creator Dashboard cards more compact on small screens.",
+        "Kept raw settings errors routed away from normal creator views."
+      ],
+      "audience": "creators",
+      "affectedSurfaces": [
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/lib/errors/error-dictionary.ts",
+        "tests/unit/creator-dashboard-settings.spec.tsx",
+        "tests/unit/human-error-surface-wiring.spec.ts",
+        "scripts/agent/validate-human-error-surface-wiring.ts",
+        "agent/state/human-error-surface-wiring.generated.json",
+        "docs/agent-truth/human-error-surface-wiring.md",
+        "agent/state/error-truth-debug-visibility.generated.json",
+        "docs/agent-truth/error-truth-debug-visibility.md",
+        "agent/state/error-handling-final-readiness.generated.json",
+        "docs/agent-truth/error-handling-final-readiness.md",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "df4c879a6edd33286f7ee44e48d4eb4a31c014bc"
+    },
     {
       "version": "1.2.72",
       "previousVersion": "1.2.71",
@@ -1223,62 +1273,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/user-facing-feature-connection-audit.spec.ts"
       ],
       "sourceCommit": "c16264253b42449c9d751d0a39f4b1d21e026585"
-    },
-    {
-      "version": "1.2.48",
-      "previousVersion": "1.2.47",
-      "betaReleaseCounter": 248,
-      "previousBetaReleaseCounter": 247,
-      "commitSha": "f939d6a50343ccee1531116bdbc62e471b15c213",
-      "commitTitle": "fix(creator): connect bookings and fan pass dashboard panels",
-      "commitCount": 1,
-      "commitShas": [
-        "f939d6a50343ccee1531116bdbc62e471b15c213"
-      ],
-      "committedAt": "2026-05-15T00:56:59.000Z",
-      "generatedAt": "2026-05-15T00:57:27.611Z",
-      "committedAtUtc": "2026-05-15T00:56:59.000Z",
-      "generatedAtUtc": "2026-05-15T00:57:27.611Z",
-      "updatedAtUtc": "2026-05-15T00:57:27.611Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Connected booking management, Fan Pass subscriber visibility, and safer creator route body guards.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Connected booking management to the Creator Dashboard.",
-        "Added Fan Pass subscriber visibility for creators.",
-        "Added body size guards to booking and subscription routes."
-      ],
-      "audience": "creators",
-      "affectedSurfaces": [
-        "creator"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/speed-security-hardening.generated.json",
-        "agent/state/user-facing-feature-connection-audit.generated.json",
-        "docs/agent-truth/creator-dashboard-full-loop-connections.md",
-        "docs/agent-truth/user-facing-feature-connection-audit.md",
-        "scripts/agent/validate-settings-creator-dashboard-split.ts",
-        "scripts/agent/validate-user-facing-feature-connection-audit.ts",
-        "src/app/api/creator/bookings/route.ts",
-        "src/app/api/creator/requests/route.ts",
-        "src/app/api/creator/subscriptions/route.ts",
-        "src/components/Creators/CreatorBookingsManager.tsx",
-        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "src/components/Creators/CreatorFanPassManager.tsx",
-        "src/components/Creators/CreatorRequestsManager.tsx",
-        "tests/unit/creator-bookings-manager.spec.tsx",
-        "tests/unit/creator-bookings-route.spec.ts",
-        "tests/unit/creator-dashboard-settings.spec.tsx",
-        "tests/unit/creator-fan-pass-manager.spec.tsx",
-        "tests/unit/creator-requests-manager.spec.tsx",
-        "tests/unit/creator-subscriptions-route.spec.ts",
-        "tests/unit/speed-security-hardening.spec.ts",
-        "tests/unit/user-facing-feature-connection-audit.spec.ts"
-      ],
-      "sourceCommit": "f939d6a50343ccee1531116bdbc62e471b15c213"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

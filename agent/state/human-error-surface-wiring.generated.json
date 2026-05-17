@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-17T16:06:58.3640899Z",
+  "generatedAtUtc": "2026-05-17T20:26:19.044Z",
   "reportKey": "human-error-surface-wiring",
-  "currentHead": "87d86b710eb9452ea9a26f1c3848345c16479fa4",
+  "currentHead": "df4c879a6edd33286f7ee44e48d4eb4a31c014bc",
   "summary": {
-    "surfacesWired": 6,
-    "rawErrorLeaksFound": 5,
-    "rawErrorLeaksFixed": 5,
-    "bugCtasWired": 6,
+    "surfacesWired": 7,
+    "rawErrorLeaksFound": 6,
+    "rawErrorLeaksFixed": 6,
+    "bugCtasWired": 7,
     "rewardEligibleBugCtas": 1,
     "deferredSurfaces": 4,
     "p0Count": 0,
@@ -14,6 +14,12 @@
     "p2Count": 4
   },
   "surfaces": [
+    {
+      "path": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "status": "wired_settings_load_error_and_mobile_compact_density",
+      "surface": "creator_dashboard",
+      "bugCta": true
+    },
     {
       "path": "src/components/Creators/CreatorExperiencesPanel.tsx",
       "status": "wired_action_error_notice",
@@ -63,13 +69,21 @@
       "severity": "p1",
       "status": "fixed",
       "summary": "Wallet purchase UI used provider problem strings directly instead of HumanErrorNotice."
+    },
+    {
+      "id": "creator-dashboard-settings-raw-internal-error",
+      "severity": "p1",
+      "status": "fixed",
+      "summary": "Creator Dashboard settings load failures could display raw route errors and oversized mobile cards."
     }
   ],
   "fixesApplied": [
     "Added a client error adapter for thrown errors, route payloads, HTTP status, safe previous routes, and bug report context.",
     "Replaced creator dashboard manager route/action error displays with HumanErrorNotice and Send bug CTAs.",
     "Added translated payment UI error rendering in the wallet purchase modal without changing PayPal route logic or GumDrop math.",
-    "Added optional translated action error rendering to CreatorExperiencesPanel for booking/request/Fan Pass/chat failures supplied by its owner."
+    "Added optional translated action error rendering to CreatorExperiencesPanel for booking/request/Fan Pass/chat failures supplied by its owner.",
+    "Wired CreatorDashboardSettingsHub settings load failures through HumanErrorNotice with sanitized bug report context.",
+    "Added compact mobile Creator Dashboard density and bottom-nav-safe spacing markers in CreatorDashboardSettingsHub."
   ],
   "deferredFindings": [
     {
@@ -94,6 +108,7 @@
     }
   ],
   "nextFixOrder": [
+    "Keep CreatorDashboardSettingsHub settings errors on HumanErrorNotice; raw route payloads belong in Debug/admin only.",
     "Wire CreatorProfileClient async creator action failures into CreatorExperiencesPanel actionError.",
     "Replace locked drop preview unlock toasts with HumanErrorNotice in a drop-only pass.",
     "Replace chat shell/composer error trays with HumanErrorNotice in a chat-only pass."

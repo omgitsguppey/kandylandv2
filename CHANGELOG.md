@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.73 - 2026-05-17
+- Bug fixes and general improvements
+- Cleaned up Creator Dashboard error messages on mobile.
+- Made Creator Dashboard cards more compact on small screens.
+- Kept raw settings errors routed away from normal creator views.
+
 ## 1.2.72 - 2026-05-17
 - Bug fixes and general improvements
 - Refreshed Beta exit status after error readiness checks.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Reduced Creator Dashboard page-load work by loading managers only when opened.
 - Fixed Fan Pass subscriber visibility for creator-owned dashboards.
 - Kept creator management panels connected without adding fake actions.
-
-## 1.2.48 - 2026-05-15
-- Bug fixes and general improvements
-- Connected booking management to the Creator Dashboard.
-- Added Fan Pass subscriber visibility for creators.
-- Added body size guards to booking and subscription routes.

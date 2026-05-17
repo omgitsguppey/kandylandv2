@@ -7,6 +7,7 @@ const ARTIFACT = "agent/state/human-error-surface-wiring.generated.json";
 const DOC = "docs/agent-truth/human-error-surface-wiring.md";
 
 const wiredSurfaces = [
+  "src/components/Creators/CreatorDashboardSettingsHub.tsx",
   "src/components/Creators/CreatorExperiencesPanel.tsx",
   "src/components/Creators/CreatorRequestsManager.tsx",
   "src/components/Creators/CreatorBookingsManager.tsx",
@@ -60,6 +61,19 @@ for (const path of wiredSurfaces) {
   if (/Internal server error|Something went wrong|Unknown error/u.test(source)) {
     fail(`${path} contains raw generic error copy`);
   }
+}
+
+const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+if (/throw new Error\(body\.error/u.test(settingsHub) || /setError\([^)]*body\.error/u.test(settingsHub)) {
+  fail("CreatorDashboardSettingsHub must not throw or store raw creator settings body.error");
+}
+if (!settingsHub.includes("dashboard_source_unavailable") || !settingsHub.includes("route: \"/api/creator/settings\"")) {
+  fail("CreatorDashboardSettingsHub settings load failure must use translated dashboard source error context");
+}
+if (!settingsHub.includes("data-creator-dashboard-density=\"mobile_compact\"")
+  || !settingsHub.includes("data-bottom-nav-safe=\"true\"")
+  || !settingsHub.includes("data-report-issue-safe-offset=\"bottom-nav\"")) {
+  fail("CreatorDashboardSettingsHub must expose mobile compact density and bottom-nav safe markers");
 }
 
 const noticeSource = read("src/components/errors/HumanErrorNotice.tsx");

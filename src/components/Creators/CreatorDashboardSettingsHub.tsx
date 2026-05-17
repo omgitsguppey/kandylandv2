@@ -8,8 +8,12 @@ import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
+import { buildBugReportContext, getSafePreviousRoute, resolveClientActionError, type ResolvedClientActionError } from "@/lib/errors/client-error-adapter";
+import type { HumanErrorAction } from "@/lib/errors/error-language";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
+import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
+import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
 import { CreatorBroadcastManager } from "@/components/Creators/CreatorBroadcastManager";
 import { CreatorRequestsManager } from "@/components/Creators/CreatorRequestsManager";
 import { CreatorBookingsManager } from "@/components/Creators/CreatorBookingsManager";
@@ -129,9 +133,10 @@ function SectionCard({
 }) {
   return (
     <section
-      className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-5"
+      className="min-h-[92px] rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 sm:min-h-[128px] sm:rounded-3xl sm:p-5"
       data-creator-section-key={id}
       data-creator-section-state={state}
+      data-creator-dashboard-card-density="mobile_compact"
       data-creator-stats-source-truth={sourceTruth ?? "not_applicable"}
       data-creator-stats-source-freshness={sourceFreshness ?? "not_applicable"}
       data-creator-stats-sample-count={sampleCount ?? 0}
@@ -142,22 +147,22 @@ function SectionCard({
       data-creator-earnings-attribution={creatorEarningsAttribution}
     >
       <button type="button" onClick={onToggle} className="flex w-full items-start justify-between gap-3 text-left">
-        <div className="flex min-w-0 items-start gap-3">
-          <div className={cn("mt-0.5 rounded-2xl border p-2", sectionTone(state))}>{icon}</div>
+        <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
+          <div className={cn("mt-0.5 rounded-xl border p-1.5 sm:rounded-2xl sm:p-2", sectionTone(state))}>{icon}</div>
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <h3 className="text-sm font-bold text-white">{title}</h3>
-              <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em]", sectionTone(state))}>
+              <span className={cn("rounded-full border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] sm:px-2 sm:text-[10px] sm:tracking-[0.16em]", sectionTone(state))}>
                 {state.replaceAll("_", " ")}
               </span>
             </div>
-            <p className="mt-1 text-sm text-gray-300">{summary}</p>
+            <p className="mt-1 text-xs leading-5 text-gray-300 sm:text-sm">{summary}</p>
           </div>
         </div>
         <ArrowRight className={cn("h-4 w-4 shrink-0 text-gray-400 transition-transform", expanded && "rotate-90")} />
       </button>
       {expanded ? (
-        <div className="mt-3 border-t border-white/10 pt-3 text-sm text-gray-400">
+        <div className="mt-2.5 border-t border-white/10 pt-2.5 text-xs leading-5 text-gray-400 sm:mt-3 sm:pt-3 sm:text-sm">
           <p>{detail}</p>
           {href ? (
             <Link href={href} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/10 px-3 py-2.5 text-sm font-semibold text-brand-purple transition hover:bg-brand-purple/15">
@@ -189,10 +194,12 @@ export function CreatorDashboardSettingsHub() {
   const { userProfile } = useUserProfile();
   const { viewAsState } = useAdminViewAs();
   const { user } = useAuth();
+  const settingsBugReporter = useSubmitBugReport();
   const [settings, setSettings] = useState<CreatorSettingsResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [settingsError, setSettingsError] = useState<ResolvedClientActionError | null>(null);
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [reloadNonce, setReloadNonce] = useState(0);
   const dashboardRequestIdRef = useRef(0);
 
   const creatorId = viewAsState?.adminViewingAsUserId || userProfile?.uid || "";
@@ -204,7 +211,7 @@ export function CreatorDashboardSettingsHub() {
   useEffect(() => {
     if (!canLoadCreatorDashboard) {
       setSettings(null);
-      setError(null);
+      setSettingsError(null);
       setLoading(false);
       return;
     }
@@ -215,19 +222,43 @@ export function CreatorDashboardSettingsHub() {
     async function load() {
       try {
         setLoading(true);
-        setError(null);
+        setSettingsError(null);
         setSettings(null);
         const response = await authFetch(`/api/creator/settings${query}`);
         const body = await response.json().catch(() => ({})) as CreatorSettingsResponse;
         if (!response.ok) {
-          throw new Error(body.error || "Creator dashboard could not be loaded.");
+          const rawPayload = body as Record<string, unknown>;
+          const code = rawPayload.errorKey ?? rawPayload.code ?? (response.status >= 500 ? "dashboard_source_unavailable" : undefined);
+          const resolved = resolveClientActionError(rawPayload, {
+            surface: "creator_dashboard",
+            route: "/api/creator/settings",
+            status: response.status,
+            code,
+            fallbackKey: "dashboard_source_unavailable",
+            context: {
+              manager: "creator_settings",
+              source_component: "CreatorDashboardSettingsHub",
+            },
+          });
+          if (!cancelled && dashboardRequestIdRef.current === requestId) {
+            setSettingsError(resolved);
+          }
+          return;
         }
         if (!cancelled && dashboardRequestIdRef.current === requestId) {
           setSettings(body);
         }
       } catch (loadError) {
         if (!cancelled && dashboardRequestIdRef.current === requestId) {
-          setError(loadError instanceof Error ? loadError.message : "Creator dashboard could not be loaded.");
+          setSettingsError(resolveClientActionError(loadError, {
+            surface: "creator_dashboard",
+            route: "/api/creator/settings",
+            fallbackKey: "dashboard_source_unavailable",
+            context: {
+              manager: "creator_settings",
+              source_component: "CreatorDashboardSettingsHub",
+            },
+          }));
         }
       } finally {
         if (!cancelled && dashboardRequestIdRef.current === requestId) {
@@ -240,7 +271,7 @@ export function CreatorDashboardSettingsHub() {
     return () => {
       cancelled = true;
     };
-  }, [canLoadCreatorDashboard, creatorId, query]);
+  }, [canLoadCreatorDashboard, creatorId, query, reloadNonce]);
 
   useEffect(() => {
     if (!isCreatorOrProjection) {
@@ -300,6 +331,11 @@ export function CreatorDashboardSettingsHub() {
     creatorUsername: typeof userProfile?.username === "string" ? userProfile.username : "",
     username: typeof userProfile?.username === "string" ? userProfile.username : "",
   });
+  const handleSettingsErrorPrimaryAction = (action: HumanErrorAction) => {
+    if (action === "refresh" || action === "retry") {
+      setReloadNonce((current) => current + 1);
+    }
+  };
 
   const sections: Array<{
     id: string;
@@ -551,22 +587,45 @@ export function CreatorDashboardSettingsHub() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-4 px-3 pb-8 sm:px-4">
-      <div className="rounded-3xl border border-white/10 bg-black/50 p-4 sm:p-5">
+    <div
+      className="mx-auto w-full max-w-4xl space-y-3 px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:space-y-4 sm:px-4 sm:pb-8"
+      data-creator-dashboard-density="mobile_compact"
+      data-bottom-nav-safe="true"
+      data-report-issue-safe-offset="bottom-nav"
+    >
+      <div className="rounded-2xl border border-white/10 bg-black/50 p-3 sm:rounded-3xl sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">Creator dashboard settings</p>
-            <h1 className="mt-1 text-2xl font-black text-white">Manage creator operations</h1>
+            <h1 className="mt-1 text-xl font-black text-white sm:text-2xl">Manage creator operations</h1>
             <p className="mt-2 max-w-2xl text-sm text-gray-300">Broadcasts, Fan Pass, bookings, requests, earnings, and public profile tools live here. The page stays read-only in admin projection mode.</p>
           </div>
           {isReadOnlyProjection ? (
             <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-xs font-bold text-brand-purple">Read-only projection</span>
           ) : null}
         </div>
-        {error ? <p className="mt-3 text-sm text-red-200">{error}</p> : null}
+        {settingsError ? (
+          <HumanErrorNotice
+            descriptor={settingsError.descriptor}
+            compact
+            className="mt-3"
+            onPrimaryAction={handleSettingsErrorPrimaryAction}
+            onSubmitBug={() => settingsBugReporter.submit(settingsError.descriptor, buildBugReportContext({
+              descriptor: settingsError.descriptor,
+              route: "/api/creator/settings",
+              previousRoute: getSafePreviousRoute(),
+              extra: {
+                manager: "creator_settings",
+                surface: "creator_dashboard",
+                route: "/api/creator/settings",
+                errorKey: settingsError.descriptor.errorKey,
+              },
+            }))}
+          />
+        ) : null}
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-2.5 sm:gap-3 md:grid-cols-2">
         {sections.map((section) => (
           <SectionCard
             key={section.id}
