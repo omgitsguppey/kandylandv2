@@ -1,0 +1,137 @@
+{
+  "generatedAtUtc": "2026-05-17T06:01:11.874Z",
+  "reportKey": "beta-score-cleanup",
+  "currentHead": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e",
+  "summary": {
+    "betaScore": 55,
+    "betaStatus": "Unknown evidence",
+    "scannerScore": 100,
+    "evidenceScore": 55,
+    "evidenceCaps": 4,
+    "staleReportsRetired": 3,
+    "activeReportsNeedingRefresh": 0,
+    "costReadinessLanes": 4,
+    "canStartBetaExitReview": false
+  },
+  "scoreExplanation": {
+    "scoreMath": [
+      "Source safety contributes 25 points because deterministic scanner findings are clean.",
+      "Targeted behavior contributes 20 points because source/economy/user-creator validators pass.",
+      "Freshness integrity contributes 10 points because legacy launch reports are retired from required freshness math and current source evidence artifacts are represented.",
+      "Visual/manual, runtime/provider, admin truth, and debug/runtime evidence lanes still score zero until formal artifacts exist."
+    ],
+    "missingEvidenceCaps": [
+      "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
+      "Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
+      "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
+      "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
+    ],
+    "scannerScoreWarning": "Scanner score 100 is scanner-only source hygiene and must never be read as beta readiness."
+  },
+  "costReadiness": {
+    "cloudRunCostReadiness": {
+      "status": "cost_review_required",
+      "detail": "Speed/security cost findings remain, so App Hosting and Cloud Run cost readiness stays owner-review.",
+      "evidence": [
+        "artifactPath=agent/state/creator-dashboard-error-cost-inventory.generated.json",
+        "cloudRunCostFindings=2",
+        "speedSecurityCostReviewRequired=true"
+      ],
+      "blocksBetaExit": false
+    },
+    "cloudSqlCostReadiness": {
+      "status": "not_detected_in_repo",
+      "detail": "Cloud SQL appears only as the Data Connect/agent-context mirror; no creator-dashboard runtime SQL path was detected.",
+      "evidence": [
+        "artifactPath=agent/state/creator-dashboard-error-cost-inventory.generated.json",
+        "cloudSqlCostFindings=1",
+        "cloudSqlRuntimeUsageDetected=false"
+      ],
+      "blocksBetaExit": false
+    },
+    "geminiCloudAssistCostReadiness": {
+      "status": "cost_review_required",
+      "detail": "Gemini, Cloud Assist, Vertex, or AI usage remains an owner-review cost lane; no pass is inferred from source inventory.",
+      "evidence": [
+        "artifactPath=agent/state/creator-dashboard-error-cost-inventory.generated.json",
+        "geminiCloudAssistCostFindings=1",
+        "speedSecurityCostReviewRequired=true"
+      ],
+      "blocksBetaExit": false
+    },
+    "route4xxReadiness": {
+      "status": "source_inventory_complete",
+      "detail": "Expected 4xx paths are classified and the frontend-caused creator dashboard 4xx was fixed.",
+      "evidence": [
+        "artifactPath=agent/state/creator-dashboard-error-cost-inventory.generated.json",
+        "expected4xxCount=2",
+        "unexpected4xxCount=1",
+        "unexpected4xxFixed=1"
+      ],
+      "blocksBetaExit": false
+    }
+  },
+  "staleReportClassifications": [
+    {
+      "reportKey": "final-launch-readiness-report",
+      "path": "agent/state/final-launch-readiness-report.generated.json",
+      "classification": "retired",
+      "authority": "agent/state/evidence-capture-status.generated.json and current-beta-exit-status now own beta-exit evidence freshness.",
+      "action": "Do not use as required beta score freshness; keep as historical launch evidence only."
+    },
+    {
+      "reportKey": "launch-readiness-report",
+      "path": "agent/state/launch-readiness-report.generated.json",
+      "classification": "retired",
+      "authority": "Evidence capture lanes supersede legacy launch readiness freshness.",
+      "action": "Do not use as required beta score freshness."
+    },
+    {
+      "reportKey": "launch-pr-triage",
+      "path": "agent/state/launch-pr-triage.generated.json",
+      "classification": "retired",
+      "authority": "Same-commit release-note and current evidence validators supersede stale PR triage freshness.",
+      "action": "Do not block score freshness on this legacy report."
+    },
+    {
+      "reportKey": "repo-spring-cleaning-rewire",
+      "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "classification": "archive",
+      "authority": "Repo spring-cleaning evidence is governance backlog, not live beta exit proof.",
+      "action": "Refresh only in the repo-governance owner lane."
+    },
+    {
+      "reportKey": "debug-panel-output-triage",
+      "path": "agent/state/debug-panel-output-triage.generated.json",
+      "classification": "archive",
+      "authority": "Debug panel output triage is historical source evidence.",
+      "action": "Do not treat as current runtime evidence without a fresh owner pass."
+    },
+    {
+      "reportKey": "speed-security-hardening",
+      "path": "agent/state/speed-security-hardening.generated.json",
+      "classification": "active",
+      "authority": "npm run check:speed-security validates the active speed/security lane.",
+      "action": "Keep P2 cost/security backlog visible; refresh through speed/security owner work."
+    },
+    {
+      "reportKey": "public-beta-score",
+      "path": "agent/state/public-beta-score.generated.json",
+      "classification": "active",
+      "authority": "npm run score:beta writes currentHead and cost-readiness sublanes.",
+      "action": "Regenerate with npm run score:beta after source or evidence artifact changes."
+    }
+  ],
+  "fixesApplied": [
+    "Added scoreExplanation to public beta score output.",
+    "Added Cloud Run, Cloud SQL, Gemini/Cloud Assist, and route 4xx cost-readiness lanes.",
+    "Retired legacy launch/readiness reports from required beta score freshness math."
+  ],
+  "nextExactSteps": [
+    "Attach real manual screenshot evidence before clearing visual/manual caps.",
+    "Attach formal provider smoke evidence before clearing provider caps.",
+    "Attach deployed runtime smoke evidence before clearing runtime caps.",
+    "Attach a fresh admin truth sample before clearing admin truth caps.",
+    "Review Cloud Run/App Hosting, Cloud SQL/Data Connect, and Gemini/Vertex cost lanes with owner evidence before beta exit."
+  ]
+}

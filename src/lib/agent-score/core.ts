@@ -54,6 +54,38 @@ export type PublicBetaEvidenceArtifact = {
   sourceCommit?: string;
 };
 
+export type PublicBetaCostReadinessStatus =
+  | "source_inventory_complete"
+  | "cost_review_required"
+  | "not_detected_in_repo"
+  | "config_not_in_repo"
+  | "owner_review"
+  | "missing_inventory"
+  | "blocked";
+
+export type PublicBetaCostReadinessLane = {
+  status: PublicBetaCostReadinessStatus | string;
+  detail: string;
+  evidence: string[];
+  blocksBetaExit: boolean;
+};
+
+export type PublicBetaCostReadiness = {
+  cloudRunCostReadiness: PublicBetaCostReadinessLane;
+  cloudSqlCostReadiness: PublicBetaCostReadinessLane;
+  geminiCloudAssistCostReadiness: PublicBetaCostReadinessLane;
+  route4xxReadiness: PublicBetaCostReadinessLane;
+};
+
+export type PublicBetaScoreExplanation = {
+  scannerScoreMeaning: string;
+  evidenceScoreMeaning: string;
+  missingEvidenceCaps: string[];
+  staleReportHandling: string;
+  sourcePassConfidence: string;
+  betaExitBlockedBy: string[];
+};
+
 export type PublicBetaEvidenceInput = {
   requiredReports?: PublicBetaGeneratedReportEvidence[];
   debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
@@ -62,6 +94,7 @@ export type PublicBetaEvidenceInput = {
   providerSmokeEvidence?: PublicBetaEvidenceArtifact;
   runtimeSmokeEvidence?: PublicBetaEvidenceArtifact;
   adminTruthSampleEvidence?: PublicBetaEvidenceArtifact;
+  costReadiness?: PublicBetaCostReadiness;
   hasTargetedBehaviorEvidence?: boolean;
   hasVisualManualEvidence?: boolean;
   hasProviderSmokeEvidence?: boolean;
@@ -105,6 +138,7 @@ export type PublicBetaFinding = {
 
 export type PublicBetaScoreReport = {
   generatedAt: string;
+  currentHead?: string;
   scannerScore: number;
   scannerStatus: PublicBetaStatus;
   overallScore: number;
@@ -116,6 +150,8 @@ export type PublicBetaScoreReport = {
   evidenceCapsApplied: string[];
   evidenceCapDetails: string[];
   evidenceWeights: typeof PUBLIC_BETA_EVIDENCE_WEIGHTS;
+  scoreExplanation: PublicBetaScoreExplanation;
+  costReadiness: PublicBetaCostReadiness;
   domainScores: Record<PublicBetaDomain, {
     weight: number;
     score: number;
@@ -149,6 +185,7 @@ export type PublicBetaScoreOptions = {
   safeAutofixesApplied?: number;
   recommendedNextActions?: string[];
   minimalVerificationCommands?: string[];
+  currentHead?: string;
   commandBudget: PublicBetaScoreReport["commandBudget"];
   evidence?: PublicBetaEvidenceInput;
 };
@@ -295,6 +332,55 @@ function hasDebugEvidence(debugEvidence?: Record<string, DebugEvidenceAuditSumma
     if (Array.isArray(entries) && entries.length > 0) return true;
   }
   return false;
+}
+
+const DEFAULT_COST_READINESS: PublicBetaCostReadiness = {
+  cloudRunCostReadiness: {
+    status: "missing_inventory",
+    detail: "Cloud Run/App Hosting cost inventory was not supplied.",
+    evidence: ["costReadiness.cloudRunCostReadiness=missing_inventory"],
+    blocksBetaExit: false,
+  },
+  cloudSqlCostReadiness: {
+    status: "missing_inventory",
+    detail: "Cloud SQL cost inventory was not supplied.",
+    evidence: ["costReadiness.cloudSqlCostReadiness=missing_inventory"],
+    blocksBetaExit: false,
+  },
+  geminiCloudAssistCostReadiness: {
+    status: "missing_inventory",
+    detail: "Gemini, Cloud Assist, and Vertex cost inventory was not supplied.",
+    evidence: ["costReadiness.geminiCloudAssistCostReadiness=missing_inventory"],
+    blocksBetaExit: false,
+  },
+  route4xxReadiness: {
+    status: "missing_inventory",
+    detail: "Route 4xx inventory was not supplied.",
+    evidence: ["costReadiness.route4xxReadiness=missing_inventory"],
+    blocksBetaExit: false,
+  },
+};
+
+function buildScoreExplanation(input: {
+  scannerScore: number;
+  scannerStatus: PublicBetaStatus;
+  evidenceScore: number;
+  readinessStatus: PublicBetaReadinessStatus;
+  evidenceGates: PublicBetaEvidenceGate[];
+  evidenceCapDetails: string[];
+}): PublicBetaScoreExplanation {
+  const blockedBy = input.evidenceGates
+    .filter((gate) => gate.status !== "Ready")
+    .map((gate) => `${gate.label}: ${gate.status}`);
+
+  return {
+    scannerScoreMeaning: `Scanner score ${input.scannerScore}/100 (${input.scannerStatus}) is scanner-only source hygiene, not beta readiness.`,
+    evidenceScoreMeaning: `Evidence score ${input.evidenceScore}/100 is the sum of passed formal evidence gates; missing lanes score zero.`,
+    missingEvidenceCaps: input.evidenceCapDetails,
+    staleReportHandling: "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
+    sourcePassConfidence: "Source-pass lanes increase confidence, but source passing does not clear visual, provider, runtime, admin truth, or cost owner-review evidence caps.",
+    betaExitBlockedBy: blockedBy,
+  };
 }
 
 function summarizeRequiredReportEvidence(reports: PublicBetaGeneratedReportEvidence[] | undefined) {
@@ -715,9 +801,19 @@ export function buildPublicBetaScoreReport(
   });
   const overallScore = roundScore(evidenceReadiness.cappedScore);
   const summaryStatus = readinessStatusToLegacyStatus(evidenceReadiness.readinessStatus, overallScore, criticalAutoFail);
+  const costReadiness = options.evidence?.costReadiness ?? DEFAULT_COST_READINESS;
+  const scoreExplanation = buildScoreExplanation({
+    scannerScore,
+    scannerStatus,
+    evidenceScore: evidenceReadiness.evidenceScore,
+    readinessStatus: evidenceReadiness.readinessStatus,
+    evidenceGates: evidenceReadiness.evidenceGates,
+    evidenceCapDetails: evidenceReadiness.evidenceCapDetails,
+  });
 
   return {
     generatedAt: options.generatedAt ?? new Date().toISOString(),
+    currentHead: options.currentHead,
     scannerScore,
     scannerStatus,
     overallScore,
@@ -729,6 +825,8 @@ export function buildPublicBetaScoreReport(
     evidenceCapsApplied: evidenceReadiness.evidenceCapsApplied,
     evidenceCapDetails: evidenceReadiness.evidenceCapDetails,
     evidenceWeights: PUBLIC_BETA_EVIDENCE_WEIGHTS,
+    scoreExplanation,
+    costReadiness,
     domainScores,
     findings,
     dedupedFindingCount: findings.length,

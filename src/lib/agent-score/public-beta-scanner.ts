@@ -593,6 +593,7 @@ export function buildPublicBetaReadinessReport(input: {
   root?: string;
   safeAutofixesApplied?: number;
   generatedAt?: string;
+  currentHead?: string;
   debugEvidence?: Record<string, DebugEvidenceAuditSummary[]>;
   evidence?: PublicBetaEvidenceInput;
 } = {}): PublicBetaScoreReport {
@@ -600,6 +601,7 @@ export function buildPublicBetaReadinessReport(input: {
   const rawFindings = collectPublicBetaFindings(root);
   const preliminary = buildPublicBetaScoreReport(rawFindings, {
     generatedAt: input.generatedAt,
+    currentHead: input.currentHead,
     recentFiles: inferRecentFiles(root),
     safeAutofixesApplied: input.safeAutofixesApplied ?? 0,
     commandBudget: buildPublicBetaCommandBudget(),

@@ -1,11 +1,66 @@
 {
-  "currentVersion": "1.2.63",
-  "betaReleaseCounter": 263,
+  "currentVersion": "1.2.64",
+  "betaReleaseCounter": 264,
   "channel": "beta",
-  "generatedAt": "2026-05-17T05:45:07.740Z",
-  "generatedAtUtc": "2026-05-17T05:45:07.740Z",
-  "lastCommitSha": "3d21baa7736d837bb79915fd7cdb99816e88d3b2",
+  "generatedAt": "2026-05-17T05:58:06.810Z",
+  "generatedAtUtc": "2026-05-17T05:58:06.810Z",
+  "lastCommitSha": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e",
   "notes": [
+    {
+      "version": "1.2.64",
+      "previousVersion": "1.2.63",
+      "betaReleaseCounter": 264,
+      "previousBetaReleaseCounter": 263,
+      "commitSha": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e",
+      "commitTitle": "fix(score): clarify beta evidence and cost readiness",
+      "commitCount": 1,
+      "commitShas": [
+        "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e"
+      ],
+      "committedAt": "2026-05-17T05:58:06.810Z",
+      "generatedAt": "2026-05-17T05:58:06.810Z",
+      "committedAtUtc": "2026-05-17T05:58:06.810Z",
+      "generatedAtUtc": "2026-05-17T05:58:06.810Z",
+      "updatedAtUtc": "2026-05-17T05:58:06.810Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Clarified Beta score evidence math and cost-readiness lanes.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Clarified Beta score evidence math and stale report handling.",
+        "Added Cloud Run, Cloud SQL, Gemini, and 4xx cost-readiness lanes.",
+        "Kept missing visual and smoke evidence visible."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/agent-score/core.ts",
+        "src/lib/agent-score/public-beta-scanner.ts",
+        "scripts/agent/score-public-beta-readiness.ts",
+        "scripts/agent/validate-public-beta-score.ts",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "scripts/agent/validate-beta-score-cleanup.ts",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/beta-score-cleanup.generated.json",
+        "docs/agent-truth/public-beta-score.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/beta-score-cleanup.md",
+        "tests/unit/beta-score-cleanup.spec.ts",
+        "tests/unit/public-beta-score.spec.ts",
+        "tests/unit/current-beta-exit-status.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e"
+    },
     {
       "version": "1.2.63",
       "previousVersion": "1.2.62",
@@ -1175,50 +1230,6 @@
         "tests/unit/user-facing-feature-connection-audit.spec.ts"
       ],
       "sourceCommit": "fee10e6a65174a7d7ac85448991f98eb3a3e6300"
-    },
-    {
-      "version": "1.2.39",
-      "previousVersion": "1.2.38",
-      "betaReleaseCounter": 239,
-      "previousBetaReleaseCounter": 238,
-      "commitSha": "c6ce135ddaadbc2ce5843c4762e4d51076f4da82",
-      "commitTitle": "docs(phase-one): add targeted behavior evidence",
-      "commitCount": 1,
-      "commitShas": [
-        "c6ce135ddaadbc2ce5843c4762e4d51076f4da82"
-      ],
-      "committedAt": "2026-05-14T14:16:05.000Z",
-      "generatedAt": "2026-05-14T14:16:19.998Z",
-      "committedAtUtc": "2026-05-14T14:16:05.000Z",
-      "generatedAtUtc": "2026-05-14T14:16:19.998Z",
-      "updatedAtUtc": "2026-05-14T14:16:19.998Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added formal targeted behavior evidence for Phase 1 validators.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added formal targeted behavior evidence for Phase 1 validators.",
-        "Refreshed launch readiness evidence without claiming visual or provider smoke.",
-        "Kept remaining beta exit evidence gaps visible."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/targeted-behavior-evidence.generated.json",
-        "docs/agent-truth/final-launch-readiness-report.md",
-        "docs/agent-truth/launch-pr-triage.md",
-        "docs/agent-truth/launch-readiness-final.md",
-        "docs/agent-truth/public-beta-score.md",
-        "docs/agent-truth/targeted-behavior-evidence.md",
-        "package.json",
-        "scripts/agent/validate-targeted-behavior-evidence.ts"
-      ],
-      "sourceCommit": "c6ce135ddaadbc2ce5843c4762e4d51076f4da82"
     }
   ]
 }

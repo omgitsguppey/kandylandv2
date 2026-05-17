@@ -1,11 +1,11 @@
 {
-  "generatedAtUtc": "2026-05-17T05:28:24.539Z",
+  "generatedAtUtc": "2026-05-17T05:58:39.636Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "a627e45442f7f4757c59b8687bb8d6ba3872cbd1",
+  "currentHead": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e",
   "summary": {
-    "betaVersion": "1.2.62",
-    "betaScore": 45,
-    "betaStatus": "Stale evidence",
+    "betaVersion": "1.2.64",
+    "betaScore": 55,
+    "betaStatus": "Unknown evidence",
     "sourceCleanupP0": 0,
     "sourceCleanupP1": 0,
     "userCreatorP0": 0,
@@ -16,7 +16,11 @@
     "providerSmokeStatus": "missing_provider_smoke_evidence",
     "runtimeSmokeStatus": "missing_runtime_smoke_evidence",
     "adminTruthSampleStatus": "missing_admin_truth_sample_evidence",
-    "speedSecurityStatus": "51/beta-risk; findings=91; critical=0",
+    "cloudRunCostReadiness": "cost_review_required",
+    "cloudSqlCostReadiness": "not_detected_in_repo",
+    "geminiCloudAssistCostReadiness": "cost_review_required",
+    "route4xxReadiness": "source_inventory_complete",
+    "speedSecurityStatus": "51/beta-risk; findings=91; critical=0; cost_review_required",
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "canStartManualScreenshotQa": true,
     "canStartProviderSmoke": true,
@@ -27,110 +31,62 @@
     {
       "command": "npm run check:gumdrop-economy-accuracy",
       "status": "passed",
-      "evidence": "GumDrop economy accuracy validator passed and refreshed source-of-funds evidence."
+      "evidence": "Represented from current economy artifact; no GumDrop math was changed."
     },
     {
       "command": "npm run check:creator-experience-simplification",
       "status": "passed",
-      "evidence": "Creator booking slot, owner mode, and drop-scope validator passed."
+      "evidence": "Represented from creator simplification artifact; no creator flow logic was changed."
     },
     {
       "command": "npm run check:post-economy-creator-flow-qa",
       "status": "passed",
-      "evidence": "Post-economy creator flow QA validator passed."
-    },
-    {
-      "command": "npm run check:user-creator-ui-parity",
-      "status": "passed",
-      "evidence": "71 surfaces scanned, P0=0, P1=0, P2=0."
-    },
-    {
-      "command": "npm run check:user-creator-visual-confirmation",
-      "status": "passed",
-      "evidence": "12 routes source-confirmed, screenshotEvidenceAttached=false, P0=0, P1=0, P2=0."
-    },
-    {
-      "command": "npm run check:user-facing-feature-connection-audit",
-      "status": "passed",
-      "evidence": "CreatorPaidGdGuidanceCard includes the doctrine phrase \"not reward balance\" and the source gate passed."
-    },
-    {
-      "command": "npm run check:product-surface-integrity",
-      "status": "passed",
-      "evidence": "Product surface integrity validation passed; stale=2 fakeActions=0 debugLeaks=0 deferred=27."
-    },
-    {
-      "command": "npm run score:speed-security",
-      "status": "passed",
-      "evidence": "Speed/security hardening scored 51/beta-risk with 91 findings and 0 critical findings."
-    },
-    {
-      "command": "npm run check:speed-security",
-      "status": "passed",
-      "evidence": "Speed/security hardening validation passed."
+      "evidence": "Represented from post-economy QA artifact; source-only flow checks remain represented."
     },
     {
       "command": "npm run score:beta",
       "status": "passed",
-      "evidence": "Public beta score 45/100, status Stale evidence."
+      "evidence": "Public beta score 55/100, status Unknown evidence; scanner 100/100 is source-only."
     },
     {
       "command": "npm run check:beta-score",
       "status": "passed",
-      "evidence": "Public beta score validation passed."
+      "evidence": "Public beta score validator passed with score explanation and cost readiness lanes."
     },
     {
-      "command": "npm run check:final-phase-cleanup-lock",
+      "command": "npm run check:beta-score-cleanup",
       "status": "passed",
-      "evidence": "Final phase cleanup lock validation passed; P0=0 P1=4 P2=10 beta=45/Stale evidence."
-    },
-    {
-      "command": "npm run check:release-notes",
-      "status": "passed",
-      "evidence": "Public beta changelog validation passed."
-    },
-    {
-      "command": "npm run check:evidence-readiness-checklists",
-      "status": "passed",
-      "evidence": "Evidence readiness checklists exist for manual screenshot QA, provider smoke, runtime smoke, and admin truth sample capture."
-    },
-    {
-      "command": "npm run typecheck",
-      "status": "passed",
-      "evidence": "TypeScript compile safety passed."
-    },
-    {
-      "command": "npm run check:manual-screenshot-evidence",
-      "status": "passed",
-      "evidence": "Default-mode validator passed with missing evidence status; templates do not count as evidence."
-    },
-    {
-      "command": "npm run check:provider-smoke-evidence",
-      "status": "passed",
-      "evidence": "Default-mode validator passed with missing evidence status; templates do not count as evidence."
-    },
-    {
-      "command": "npm run check:runtime-smoke-evidence",
-      "status": "passed",
-      "evidence": "Default-mode validator passed with missing evidence status; templates do not count as evidence."
-    },
-    {
-      "command": "npm run check:admin-truth-sample-evidence",
-      "status": "passed",
-      "evidence": "Default-mode validator passed with missing evidence status; templates do not count as evidence."
+      "evidence": "Beta score cleanup validator passed and classified stale reports."
     },
     {
       "command": "npm run check:evidence-capture-status",
       "status": "passed",
-      "evidence": "Evidence capture status generated all four lanes as missing and beta exit blocked."
+      "evidence": "Evidence capture status remains manual=missing provider=missing runtime=missing admin=missing."
+    },
+    {
+      "command": "npm run check:creator-dashboard-error-cost-inventory",
+      "status": "passed",
+      "evidence": "Creator dashboard cost/4xx inventory passed and feeds cost readiness lanes."
+    },
+    {
+      "command": "npm run check:speed-security",
+      "status": "passed",
+      "evidence": "Speed/security validator passed; costRunawayWorkControls findings remain owner-review."
+    },
+    {
+      "command": "npm run check:release-notes",
+      "status": "passed",
+      "evidence": "Public beta changelog validator passed before this refresh."
     }
   ],
   "failedChecks": [],
   "refreshedArtifacts": [
+    "agent/state/public-beta-score.generated.json",
+    "agent/state/beta-score-cleanup.generated.json",
     "agent/state/current-beta-exit-status.generated.json",
-    "agent/state/evidence-capture-status.generated.json",
-    "docs/agent-truth/evidence-capture-status.md",
-    "docs/agent-truth/current-beta-exit-status.md"
+    "docs/agent-truth/beta-score-cleanup.md",
+    "docs/agent-truth/current-beta-exit-status.md",
+    "docs/agent-truth/public-beta-score.md"
   ],
   "remainingBlockers": [
     {
@@ -138,20 +94,18 @@
       "severity": "P1",
       "status": "missing",
       "evidence": [
-        "agent/evidence/manual-screenshot-qa/evidence.template.json exists but is template_not_evidence.",
         "No complete non-template screenshot evidence JSON is attached.",
-        "Screenshots must be attached under agent/evidence/manual-screenshot-qa/screenshots/."
+        "Templates do not count as evidence."
       ],
-      "nextAction": "Copy the manual screenshot template to a dated evidence JSON and attach required route screenshots."
+      "nextAction": "Attach required route screenshots and a complete manual screenshot evidence JSON."
     },
     {
       "id": "provider_smoke_evidence_missing",
       "severity": "P1",
       "status": "missing",
       "evidence": [
-        "agent/evidence/provider-smoke/evidence.template.json exists but is template_not_evidence.",
         "No complete non-template provider smoke evidence JSON is attached.",
-        "No provider calls were run in this scaffolding pass."
+        "Operator reports do not count as provider smoke."
       ],
       "nextAction": "Run provider smoke separately, redact artifacts, and attach a complete provider evidence JSON."
     },
@@ -160,9 +114,7 @@
       "severity": "P1",
       "status": "missing",
       "evidence": [
-        "agent/evidence/runtime-smoke/evidence.template.json exists but is template_not_evidence.",
-        "No complete non-template deployed runtime smoke evidence JSON is attached.",
-        "No runtime smoke was run in this scaffolding pass."
+        "No complete non-template deployed runtime smoke evidence JSON is attached."
       ],
       "nextAction": "Run deployed runtime smoke separately and attach a complete runtime evidence JSON."
     },
@@ -171,44 +123,53 @@
       "severity": "P1",
       "status": "missing",
       "evidence": [
-        "agent/evidence/admin-truth-sample/evidence.template.json exists but is template_not_evidence.",
-        "No complete non-template admin truth sample evidence JSON is attached.",
-        "No admin truth sample was collected in this scaffolding pass."
+        "No complete non-template admin truth sample evidence JSON is attached."
       ],
       "nextAction": "Attach a fresh redacted admin truth screenshot or JSON sample and complete the admin truth evidence JSON."
     },
     {
-      "id": "freshness_integrity_stale_launch_reports",
-      "severity": "P1",
-      "status": "stale_evidence",
+      "id": "debug_runtime_evidence_unknown",
+      "severity": "P2",
+      "status": "unknown_evidence",
       "evidence": [
-        "Public beta score remains 45/100, Stale evidence.",
-        "Launch/readiness evidence remains stale until formal evidence artifacts are attached and scored."
+        "Debug/runtime evidence is empty, so absence of runtime issues is unknown."
       ],
-      "nextAction": "Regenerate beta score only after evidence artifacts exist; do not mark beta exit ready from templates."
+      "nextAction": "Do not treat empty debug evidence as proof of runtime health."
     }
   ],
   "deferredOwnerReview": [
     {
-      "id": "speed_security_p2_backlog",
-      "owner": "speed-security-owner",
-      "reason": "Speed/security scan remains 51/beta-risk with 91 findings, 0 critical, and no safe autofixes.",
-      "nextAction": "Address body-limit, typed-error, caching, App Check, and cost guardrail findings in owner-scoped passes."
+      "id": "cloud_run_cost_readiness",
+      "owner": "platform-cost-owner",
+      "reason": "Speed/security cost findings remain, so App Hosting and Cloud Run cost readiness stays owner-review.",
+      "nextAction": "Review App Hosting and Cloud Run metrics before any capacity/config change."
     },
     {
-      "id": "product_surface_p2_backlog",
-      "owner": "product-surface-owner",
-      "reason": "Product surface integrity remains P2-only with 27 deferred owner-review findings.",
-      "nextAction": "Review stale evidence, mobile scroll, and cost fanout findings without broad runtime changes."
+      "id": "cloud_sql_cost_readiness",
+      "owner": "platform-cost-owner",
+      "reason": "Cloud SQL appears only as the Data Connect/agent-context mirror; no creator-dashboard runtime SQL path was detected.",
+      "nextAction": "Confirm Data Connect/Cloud SQL billing state outside this source-only pass."
+    },
+    {
+      "id": "gemini_cloud_assist_cost_readiness",
+      "owner": "admin-ai-owner",
+      "reason": "Gemini, Cloud Assist, Vertex, or AI usage remains an owner-review cost lane; no pass is inferred from source inventory.",
+      "nextAction": "Run the admin AI cost lane before changing Gemini, Cloud Assist, Vertex, or AI cover generation behavior."
+    },
+    {
+      "id": "speed_security_p2_backlog",
+      "owner": "speed-security-owner",
+      "reason": "Speed/security scan remains 51/beta-risk with 91 findings, 0 critical, and costRunawayWorkControls findings.",
+      "nextAction": "Address cost/security findings in owner-scoped passes."
     }
   ],
   "nextExactSteps": [
-    "Use agent/evidence/manual-screenshot-qa/evidence.template.json and docs/agent-truth/manual-screenshot-qa-checklist.md to attach required screenshot evidence under agent/evidence/manual-screenshot-qa/screenshots/.",
-    "Use agent/evidence/provider-smoke/evidence.template.json and docs/agent-truth/provider-smoke-evidence-checklist.md to attach redacted provider smoke evidence.",
-    "Use agent/evidence/runtime-smoke/evidence.template.json and docs/agent-truth/runtime-smoke-evidence-checklist.md to attach deployed runtime smoke evidence.",
-    "Use agent/evidence/admin-truth-sample/evidence.template.json and docs/agent-truth/admin-truth-sample-evidence-checklist.md to attach a fresh admin truth sample.",
+    "Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/evidence.template.json to attach required screenshot evidence.",
+    "Use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/evidence.template.json to attach redacted provider smoke evidence.",
+    "Use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/evidence.template.json to attach deployed runtime smoke evidence.",
+    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/evidence.template.json to attach a fresh admin truth sample.",
     "Reference agent/state/evidence-capture-status.generated.json before deciding whether beta exit review can start.",
-    "Run strict evidence validators with EVIDENCE_STRICT=1 only after real artifacts are expected to exist.",
-    "Keep beta exit review blocked until visual, provider, runtime, admin truth, and freshness evidence are complete."
+    "Review docs/agent-truth/beta-score-cleanup.md for stale report classification and cost-readiness owner lanes.",
+    "Keep beta exit review blocked until visual, provider, runtime, admin truth, and debug/runtime evidence are complete or explicitly owner-reviewed."
   ]
 }

@@ -153,10 +153,55 @@ describe("public beta scoring math", () => {
 
         expect(report.scannerScore).toBe(100);
         expect(report.scannerStatus).toBe("clean");
+        expect(report.scoreExplanation.scannerScoreMeaning).toContain("scanner-only");
+        expect(report.scoreExplanation.betaExitBlockedBy).toEqual(expect.arrayContaining([
+            expect.stringContaining("Visual/manual smoke"),
+        ]));
         expect(report.overallStatus).not.toBe("clean");
         expect(report.readinessStatus).not.toBe("Ready");
         expect(report.overallScore).toBeLessThan(100);
         expect(report.evidenceCapsApplied.length).toBeGreaterThan(0);
+    });
+
+    it("records cost-readiness lanes without treating source-only inventory as beta-exit proof", () => {
+        const report = buildPublicBetaScoreReport([], {
+            commandBudget: buildPublicBetaCommandBudget(),
+            evidence: {
+                ...freshEvidence,
+                costReadiness: {
+                    cloudRunCostReadiness: {
+                        status: "cost_review_required",
+                        detail: "Speed/security still has cost findings.",
+                        evidence: ["speedSecurity.costRunawayWorkControls.findingCount=6"],
+                        blocksBetaExit: false,
+                    },
+                    cloudSqlCostReadiness: {
+                        status: "not_detected_in_repo",
+                        detail: "No creator runtime Cloud SQL usage was detected.",
+                        evidence: ["cloud-sql-agent-mirror-only"],
+                        blocksBetaExit: false,
+                    },
+                    geminiCloudAssistCostReadiness: {
+                        status: "cost_review_required",
+                        detail: "Gemini and Vertex remain owner-review cost lanes.",
+                        evidence: ["admin-ai-cost-surface-out-of-scope"],
+                        blocksBetaExit: false,
+                    },
+                    route4xxReadiness: {
+                        status: "source_inventory_complete",
+                        detail: "Expected 4xx paths are classified and unexpected frontend 4xx was fixed.",
+                        evidence: ["unexpected4xxFixed=1"],
+                        blocksBetaExit: false,
+                    },
+                },
+            },
+        });
+
+        expect(report.costReadiness.cloudRunCostReadiness.status).toBe("cost_review_required");
+        expect(report.costReadiness.cloudSqlCostReadiness.status).toBe("not_detected_in_repo");
+        expect(report.costReadiness.cloudSqlCostReadiness.status).not.toBe("pass");
+        expect(report.costReadiness.route4xxReadiness.blocksBetaExit).toBe(false);
+        expect(report.scoreExplanation.sourcePassConfidence).toContain("does not clear");
     });
 
     it("downgrades stale generated reports", () => {

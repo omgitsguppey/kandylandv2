@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.64 - 2026-05-17
+- Bug fixes and general improvements
+- Clarified Beta score evidence math and stale report handling.
+- Added Cloud Run, Cloud SQL, Gemini, and 4xx cost-readiness lanes.
+- Kept missing visual and smoke evidence visible.
+
 ## 1.2.63 - 2026-05-17
 - Bug fixes and general improvements
 - Reviewed Creator Dashboard error handling and route states.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Checked creator-facing feature connections without changing the UI design.
 - Mapped Fan Pass, calls, requests, chat, and broadcasts for source truth and route wiring.
 - Added guards for race conditions and cost-bleed risks in creator-facing surfaces.
-
-## 1.2.39 - 2026-05-14
-- Bug fixes and general improvements
-- Added formal targeted behavior evidence for Phase 1 validators.
-- Refreshed launch readiness evidence without claiming visual or provider smoke.
-- Kept remaining beta exit evidence gaps visible.

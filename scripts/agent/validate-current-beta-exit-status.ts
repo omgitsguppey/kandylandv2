@@ -27,6 +27,10 @@ export type CurrentBetaExitStatusReport = {
     providerSmokeStatus: string;
     runtimeSmokeStatus: string;
     adminTruthSampleStatus: string;
+    cloudRunCostReadiness: string;
+    cloudSqlCostReadiness: string;
+    geminiCloudAssistCostReadiness: string;
+    route4xxReadiness: string;
     speedSecurityStatus: string;
     releaseNotesStatus: string;
     canStartManualScreenshotQa: boolean;
@@ -130,6 +134,18 @@ export function validateCurrentBetaExitStatusReport(
 
   if (!report.summary.releaseNotesStatus) {
     failures.push("release notes status must be represented.");
+  }
+  const costLaneValues = [
+    report.summary.cloudRunCostReadiness,
+    report.summary.cloudSqlCostReadiness,
+    report.summary.geminiCloudAssistCostReadiness,
+    report.summary.route4xxReadiness,
+  ];
+  if (costLaneValues.some((value) => typeof value !== "string" || value.trim().length === 0)) {
+    failures.push("cost readiness lanes must be represented.");
+  }
+  if (costLaneValues.some((value) => /\bpass(ed)?\b/iu.test(value) && /\bnot_detected_in_repo|config_not_in_repo|source_inventory\b/iu.test(value))) {
+    failures.push("cost readiness lanes must not mark source-only or not-detected inventory as pass.");
   }
 
   const visualMissing = evidenceMissing(report.summary.visualEvidenceStatus);

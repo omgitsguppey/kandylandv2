@@ -208,3 +208,18 @@ The remaining blockers are evidence and authority gaps:
 - runtime smoke is still unverified;
 - admin truth sample evidence is still missing or unknown;
 - launch/readiness reports remain stale/evidence-only until refreshed.
+
+## 2026-05-17 Beta Score Cleanup
+
+`npm run score:beta` now writes `currentHead`, a score explanation, and explicit cost-readiness sublanes:
+
+- `cloudRunCostReadiness`
+- `cloudSqlCostReadiness`
+- `geminiCloudAssistCostReadiness`
+- `route4xxReadiness`
+
+Legacy launch/readiness artifacts are retired from required beta score freshness math. They remain historical evidence snapshots only. Current evidence freshness is represented by evidence-capture status, source validators, and the current beta exit status lane.
+
+After this cleanup, the score is `55/100` with `Unknown evidence`. Scanner score remains `100/100 clean`, but that is scanner-only source hygiene. Missing visual/manual evidence, provider smoke, runtime smoke, admin truth sample evidence, and debug/runtime evidence still keep beta exit blocked.
+
+Cost-readiness sublanes are not formal passes. `not_detected_in_repo`, `config_not_in_repo`, and `source_inventory_complete` are source inventory states. `cost_review_required` and `owner_review` remain owner-review states until real provider/runtime/cost evidence exists.

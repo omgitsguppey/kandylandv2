@@ -24,6 +24,10 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       providerSmokeStatus: "missing_formal_evidence",
       runtimeSmokeStatus: "runtime_unverified",
       adminTruthSampleStatus: "missing_or_unknown",
+      cloudRunCostReadiness: "cost_review_required",
+      cloudSqlCostReadiness: "not_detected_in_repo",
+      geminiCloudAssistCostReadiness: "cost_review_required",
+      route4xxReadiness: "source_inventory_complete",
       speedSecurityStatus: "51/beta-risk; findings=91; critical=0",
       releaseNotesStatus: "passed_same_commit_validator",
       canStartManualScreenshotQa: true,
@@ -129,6 +133,22 @@ describe("current beta exit status validator", () => {
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
       "release notes status must be represented.",
+    );
+  });
+
+  it("requires cost-readiness lanes to be represented", () => {
+    const report = reportFixture({
+      summary: {
+        ...reportFixture().summary,
+        cloudRunCostReadiness: "",
+        cloudSqlCostReadiness: "",
+        geminiCloudAssistCostReadiness: "",
+        route4xxReadiness: "",
+      },
+    });
+
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
+      "cost readiness lanes must be represented.",
     );
   });
 

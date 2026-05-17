@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -96,6 +97,10 @@ function validateFinding(finding: PublicBetaFinding, index: number) {
 
 const report = readReport();
 if (report) {
+  const headSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+  if (report.currentHead !== headSha) {
+    failures.push(`public beta score currentHead must match git HEAD (${headSha}).`);
+  }
   requireNumber(report.scannerScore, "scannerScore", 0, 100);
   if (!["clean", "pass", "warning", "beta-risk", "fail"].includes(report.scannerStatus)) {
     failures.push("scannerStatus must be a valid public beta status.");
@@ -135,6 +140,36 @@ if (report) {
   }
   if (!report.evidenceWeights || typeof report.evidenceWeights !== "object") {
     failures.push("evidenceWeights must be present.");
+  }
+  if (!report.scoreExplanation || typeof report.scoreExplanation !== "object") {
+    failures.push("scoreExplanation must be present.");
+  } else {
+    requireIncludes(report.scoreExplanation.scannerScoreMeaning ?? "", "scanner-only", "scoreExplanation.scannerScoreMeaning");
+    requireIncludes(report.scoreExplanation.sourcePassConfidence ?? "", "does not clear", "scoreExplanation.sourcePassConfidence");
+    if (report.scannerScore === 100 && /beta ready|readiness is ready/iu.test(report.scoreExplanation.scannerScoreMeaning ?? "")) {
+      failures.push("scannerScore 100 must not be presented as beta readiness.");
+    }
+  }
+  const costReadiness = report.costReadiness;
+  if (!costReadiness || typeof costReadiness !== "object") {
+    failures.push("costReadiness must be present.");
+  } else {
+    for (const key of ["cloudRunCostReadiness", "cloudSqlCostReadiness", "geminiCloudAssistCostReadiness", "route4xxReadiness"] as const) {
+      const lane = costReadiness[key];
+      if (!lane || typeof lane !== "object") {
+        failures.push(`costReadiness.${key} must be present.`);
+        continue;
+      }
+      if (typeof lane.status !== "string" || lane.status.length === 0) {
+        failures.push(`costReadiness.${key}.status must be present.`);
+      }
+      if (lane.status === "pass" || lane.status === "passed") {
+        failures.push("cost readiness lanes must not mark not-detected or source-only inventory as pass.");
+      }
+      if (!Array.isArray(lane.evidence) || lane.evidence.length === 0) {
+        failures.push(`costReadiness.${key}.evidence must be present.`);
+      }
+    }
   }
   if (report.scannerScore === 100 && report.findings?.length === 0 && report.evidenceCapsApplied.length > 0) {
     if (report.overallScore >= 100 || report.overallStatus === "clean" || report.readinessStatus === "Ready") {
