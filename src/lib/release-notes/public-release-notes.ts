@@ -1,13 +1,68 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.73",
-  "betaReleaseCounter": 273,
+  "currentVersion": "1.2.74",
+  "betaReleaseCounter": 274,
   "channel": "beta",
-  "generatedAt": "2026-05-17T20:27:44.380Z",
-  "generatedAtUtc": "2026-05-17T20:27:44.380Z",
-  "lastCommitSha": "df4c879a6edd33286f7ee44e48d4eb4a31c014bc",
+  "generatedAt": "2026-05-17T22:10:34.782Z",
+  "generatedAtUtc": "2026-05-17T22:10:34.782Z",
+  "lastCommitSha": "fd5c54023430f7d0dc820234d9585e3b82200908",
   "notes": [
+    {
+      "version": "1.2.74",
+      "previousVersion": "1.2.73",
+      "betaReleaseCounter": 274,
+      "previousBetaReleaseCounter": 273,
+      "commitSha": "fd5c54023430f7d0dc820234d9585e3b82200908",
+      "commitTitle": "fix(creator): separate dashboard and settings routes",
+      "commitCount": 1,
+      "commitShas": [
+        "fd5c54023430f7d0dc820234d9585e3b82200908"
+      ],
+      "committedAt": "2026-05-17T22:10:34.782Z",
+      "generatedAt": "2026-05-17T22:10:34.782Z",
+      "committedAtUtc": "2026-05-17T22:10:34.782Z",
+      "generatedAtUtc": "2026-05-17T22:10:34.782Z",
+      "updatedAtUtc": "2026-05-17T22:10:34.782Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Separated Creator Dashboard and Creator Settings routing.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Separated Creator Dashboard from Creator Settings routing.",
+        "Cleaned up mobile layouts across creator dashboard surfaces.",
+        "Removed raw creator settings errors from creator-facing views."
+      ],
+      "audience": "creators",
+      "affectedSurfaces": [
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/app/dashboard/creator/page.tsx",
+        "src/app/dashboard/creator/settings/page.tsx",
+        "src/app/dashboard/profile/creator/page.tsx",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/components/Navigation/ProfileDropdown.tsx",
+        "src/components/Navigation/ProfileSidebar.tsx",
+        "src/components/Settings/UserSettingsPage.tsx",
+        "src/lib/creator-profile-routing.ts",
+        "docs/agent-truth/creator-surface-routing.md",
+        "agent/state/creator-surface-routing.generated.json",
+        "scripts/agent/validate-creator-surface-routing.ts",
+        "tests/unit/creator-surface-routing.spec.ts",
+        "tests/unit/creator-dashboard-settings.spec.tsx",
+        "tests/unit/user-creator-ui-parity.spec.ts",
+        "tests/unit/human-error-surface-wiring.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "fd5c54023430f7d0dc820234d9585e3b82200908"
+    },
     {
       "version": "1.2.73",
       "previousVersion": "1.2.72",
@@ -1226,53 +1281,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/product-surface-integrity.spec.ts"
       ],
       "sourceCommit": "540695fc838c7fbb3bbf3401dc4180174c08bd5f"
-    },
-    {
-      "version": "1.2.49",
-      "previousVersion": "1.2.48",
-      "betaReleaseCounter": 249,
-      "previousBetaReleaseCounter": 248,
-      "commitSha": "c16264253b42449c9d751d0a39f4b1d21e026585",
-      "commitTitle": "fix(creator): lazy load dashboard managers",
-      "commitCount": 1,
-      "commitShas": [
-        "c16264253b42449c9d751d0a39f4b1d21e026585"
-      ],
-      "committedAt": "2026-05-15T03:29:17.000Z",
-      "generatedAt": "2026-05-15T03:29:43.901Z",
-      "committedAtUtc": "2026-05-15T03:29:17.000Z",
-      "generatedAtUtc": "2026-05-15T03:29:43.901Z",
-      "updatedAtUtc": "2026-05-15T03:29:43.901Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Reduced Creator Dashboard page-load work and clarified Fan Pass subscriber visibility.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Reduced Creator Dashboard page-load work by loading managers only when opened.",
-        "Fixed Fan Pass subscriber visibility for creator-owned dashboards.",
-        "Kept creator management panels connected without adding fake actions."
-      ],
-      "audience": "creators",
-      "affectedSurfaces": [
-        "creator"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/user-facing-feature-connection-audit.generated.json",
-        "docs/agent-truth/creator-dashboard-full-loop-connections.md",
-        "docs/agent-truth/user-facing-feature-connection-audit.md",
-        "scripts/agent/validate-settings-creator-dashboard-split.ts",
-        "scripts/agent/validate-user-facing-feature-connection-audit.ts",
-        "src/app/api/creator/subscriptions/route.ts",
-        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "src/components/Creators/CreatorFanPassManager.tsx",
-        "tests/unit/creator-dashboard-settings.spec.tsx",
-        "tests/unit/creator-fan-pass-manager.spec.tsx",
-        "tests/unit/creator-subscriptions-route.spec.ts",
-        "tests/unit/user-facing-feature-connection-audit.spec.ts"
-      ],
-      "sourceCommit": "c16264253b42449c9d751d0a39f4b1d21e026585"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

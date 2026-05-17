@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-17T20:26:19.044Z",
+  "generatedAtUtc": "2026-05-17T21:05:00.000Z",
   "reportKey": "human-error-surface-wiring",
-  "currentHead": "df4c879a6edd33286f7ee44e48d4eb4a31c014bc",
+  "currentHead": "fd5c54023430f7d0dc820234d9585e3b82200908",
   "summary": {
-    "surfacesWired": 7,
-    "rawErrorLeaksFound": 6,
-    "rawErrorLeaksFixed": 6,
-    "bugCtasWired": 7,
+    "surfacesWired": 8,
+    "rawErrorLeaksFound": 7,
+    "rawErrorLeaksFixed": 7,
+    "bugCtasWired": 8,
     "rewardEligibleBugCtas": 1,
     "deferredSurfaces": 4,
     "p0Count": 0,
@@ -14,6 +14,12 @@
     "p2Count": 4
   },
   "surfaces": [
+    {
+      "path": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "status": "wired_landing_settings_load_error_and_mobile_compact_density",
+      "surface": "creator_dashboard",
+      "bugCta": true
+    },
     {
       "path": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
       "status": "wired_settings_load_error_and_mobile_compact_density",
@@ -75,6 +81,12 @@
       "severity": "p1",
       "status": "fixed",
       "summary": "Creator Dashboard settings load failures could display raw route errors and oversized mobile cards."
+    },
+    {
+      "id": "creator-dashboard-landing-settings-raw-internal-error",
+      "severity": "p1",
+      "status": "fixed",
+      "summary": "Creator Dashboard landing module warnings could concatenate creator settings with raw internal server errors."
     }
   ],
   "fixesApplied": [
@@ -83,7 +95,8 @@
     "Added translated payment UI error rendering in the wallet purchase modal without changing PayPal route logic or GumDrop math.",
     "Added optional translated action error rendering to CreatorExperiencesPanel for booking/request/Fan Pass/chat failures supplied by its owner.",
     "Wired CreatorDashboardSettingsHub settings load failures through HumanErrorNotice with sanitized bug report context.",
-    "Added compact mobile Creator Dashboard density and bottom-nav-safe spacing markers in CreatorDashboardSettingsHub."
+    "Added compact mobile Creator Dashboard density and bottom-nav-safe spacing markers in CreatorDashboardSettingsHub.",
+    "Wired CreatorWorkspacePanel settings module failures through HumanErrorNotice and routed Creator settings to the operations workspace."
   ],
   "deferredFindings": [
     {

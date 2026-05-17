@@ -1,5 +1,5 @@
-import { CreatorDashboardSettingsHub } from "@/components/Creators/CreatorDashboardSettingsHub";
+import { CreatorDashboardLandingRoute } from "@/components/Dashboard/CreatorWorkspacePanel";
 
 export default function CreatorDashboardPage() {
-  return <CreatorDashboardSettingsHub />;
+  return <CreatorDashboardLandingRoute />;
 }

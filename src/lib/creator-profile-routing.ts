@@ -4,6 +4,11 @@ import {
     type ActorMarkerUserLike,
 } from "@/lib/identity/actor-markers";
 
+export const CREATOR_DASHBOARD_ROUTE = "/dashboard/creator";
+export const CREATOR_SETTINGS_ROUTE = "/dashboard/creator/settings";
+export const USER_SETTINGS_ROUTE = "/dashboard/settings";
+export const USER_PROFILE_ROUTE = "/dashboard/profile";
+
 export type CreatorProfileRouteSource =
     | "admin_roster"
     | "chat_header"

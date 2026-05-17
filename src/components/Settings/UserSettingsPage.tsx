@@ -10,6 +10,7 @@ import { ProfileNotificationsSection } from "@/app/dashboard/profile/components/
 import { ProfilePrivacyDataSection } from "@/app/dashboard/profile/components/ProfilePrivacyDataSection";
 import { ProfileProfileSection } from "@/app/dashboard/profile/components/ProfileProfileSection";
 import { ProfileSupportSafetySection } from "@/app/dashboard/profile/components/ProfileSupportSafetySection";
+import { CREATOR_SETTINGS_ROUTE } from "@/lib/creator-profile-routing";
 import { trackEvent } from "@/lib/telemetry";
 
 export function UserSettingsPage() {
@@ -55,10 +56,10 @@ export function UserSettingsPage() {
 
       {showCreatorCta ? (
         <div className="mx-4 mt-4 rounded-2xl border border-brand-purple/30 bg-brand-purple/10 px-4 py-3 text-sm text-white">
-          <p className="font-bold">Creator tools moved to your Creator Dashboard.</p>
-          <p className="mt-1 text-xs text-white/75">Broadcasts, bookings, requests, and monetization settings now live in one creator workspace.</p>
+          <p className="font-bold">Creator tools moved to Creator Settings.</p>
+          <p className="mt-1 text-xs text-white/75">Broadcasts, bookings, requests, and monetization settings live in one creator workspace.</p>
           <Link
-            href="/dashboard/creator"
+            href={CREATOR_SETTINGS_ROUTE}
             onClick={() => {
               trackEvent("user_settings_creator_tools_cta_clicked", {
                 actor_role: state.userProfile?.role || "user",
@@ -71,7 +72,7 @@ export function UserSettingsPage() {
             }}
             className="mt-3 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white"
           >
-            Open Creator Dashboard
+            Open Creator Settings
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

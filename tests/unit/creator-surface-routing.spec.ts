@@ -1,0 +1,109 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { describe, expect, it } from "vitest";
+
+import {
+  buildCreatorSurfaceRoutingReport,
+  validateCreatorSurfaceRoutingReport,
+  type CreatorSurfaceRoutingReport,
+} from "../../scripts/agent/validate-creator-surface-routing";
+
+const root = process.cwd();
+
+function read(path: string) {
+  return readFileSync(join(root, path), "utf8");
+}
+
+describe("creator surface routing", () => {
+  it("keeps /dashboard/creator as the landing surface", () => {
+    const page = read("src/app/dashboard/creator/page.tsx");
+
+    expect(page).toContain("CreatorDashboardLandingRoute");
+    expect(page).not.toContain("CreatorDashboardSettingsHub");
+  });
+
+  it("renders CreatorDashboardSettingsHub from the creator settings workspace route", () => {
+    const pagePath = "src/app/dashboard/creator/settings/page.tsx";
+    expect(existsSync(join(root, pagePath))).toBe(true);
+    expect(read(pagePath)).toContain("CreatorDashboardSettingsHub");
+  });
+
+  it("routes creator navigation to separate dashboard and settings surfaces", () => {
+    const sidebar = read("src/components/Navigation/ProfileSidebar.tsx");
+    const dropdown = read("src/components/Navigation/ProfileDropdown.tsx");
+
+    for (const source of [sidebar, dropdown]) {
+      expect(source).toContain("label=\"Creator Dashboard\"");
+      expect(source).toContain("href={CREATOR_DASHBOARD_ROUTE}");
+      expect(source).toContain("label=\"Creator Settings\"");
+      expect(source).toContain("href={CREATOR_SETTINGS_ROUTE}");
+    }
+  });
+
+  it("keeps user settings/profile from owning creator operations", () => {
+    const userSettings = read("src/components/Settings/UserSettingsPage.tsx");
+    const legacyCreatorSettings = read("src/app/dashboard/profile/creator/page.tsx");
+
+    expect(userSettings).toContain("Creator tools moved to Creator Settings.");
+    expect(userSettings).toContain("Open Creator Settings");
+    expect(userSettings).toContain("href={CREATOR_SETTINGS_ROUTE}");
+    expect(legacyCreatorSettings).toContain("Creator settings now live in Creator Settings.");
+    expect(legacyCreatorSettings).toContain("Open Creator Settings");
+  });
+
+  it("links the landing dashboard Creator settings pill to creator settings", () => {
+    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+
+    expect(landing).toContain("href={CREATOR_SETTINGS_ROUTE}");
+    expect(landing).not.toContain("Creator settings</Link>\r\n                        </div>");
+  });
+
+  it("blocks raw creator settings internal error copy and uses HumanErrorNotice", () => {
+    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+    const combined = `${landing}\n${settingsHub}`;
+
+    expect(combined).not.toContain("creator settings: Internal server error");
+    expect(combined).not.toMatch(/>\s*Internal server error\s*</u);
+    expect(landing).toContain("HumanErrorNotice");
+    expect(landing).toContain("dashboard_source_unavailable");
+    expect(settingsHub).toContain("HumanErrorNotice");
+  });
+
+  it("marks both creator surfaces with compact mobile density and bottom spacing", () => {
+    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+
+    expect(landing).toContain("data-creator-dashboard-landing-density=\"mobile_compact\"");
+    expect(landing).toContain("data-bottom-nav-safe=\"true\"");
+    expect(landing).toContain("data-report-issue-safe-offset=\"bottom-nav\"");
+    expect(landing).toContain("data-creator-dashboard-card-density=\"mobile_compact\"");
+    expect(settingsHub).toContain("data-creator-dashboard-density=\"mobile_compact\"");
+    expect(settingsHub).toContain("data-bottom-nav-safe=\"true\"");
+  });
+
+  it("validates the generated report shape", () => {
+    const report = buildCreatorSurfaceRoutingReport();
+    const failures = validateCreatorSurfaceRoutingReport(report);
+
+    expect(failures).toEqual([]);
+    expect(report.summary.baseDashboardRoute).toBe("/dashboard/creator");
+    expect(report.summary.creatorSettingsRoute).toBe("/dashboard/creator/settings");
+    expect(report.summary.rawErrorLeaks).toBe(0);
+    expect(report.nextFixOrder.length).toBeGreaterThan(0);
+  });
+
+  it("fails validation if raw error leaks are represented", () => {
+    const report = buildCreatorSurfaceRoutingReport();
+    const badReport: CreatorSurfaceRoutingReport = {
+      ...report,
+      summary: {
+        ...report.summary,
+        rawErrorLeaks: 1,
+      },
+    };
+
+    expect(validateCreatorSurfaceRoutingReport(badReport)).toContain("raw creator settings error leaks remain");
+  });
+});

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.74 - 2026-05-17
+- Bug fixes and general improvements
+- Separated Creator Dashboard from Creator Settings routing.
+- Cleaned up mobile layouts across creator dashboard surfaces.
+- Removed raw creator settings errors from creator-facing views.
+
 ## 1.2.73 - 2026-05-17
 - Bug fixes and general improvements
 - Cleaned up Creator Dashboard error messages on mobile.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added a source-driven cleanup pass for product surfaces.
 - Moved fake actions, stale reports, and mobile UI contract risks into enforceable checks.
 - Kept Debug details separate from primary app surfaces.
-
-## 1.2.49 - 2026-05-15
-- Bug fixes and general improvements
-- Reduced Creator Dashboard page-load work by loading managers only when opened.
-- Fixed Fan Pass subscriber visibility for creator-owned dashboards.
-- Kept creator management panels connected without adding fake actions.

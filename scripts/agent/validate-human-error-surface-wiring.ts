@@ -7,6 +7,7 @@ const ARTIFACT = "agent/state/human-error-surface-wiring.generated.json";
 const DOC = "docs/agent-truth/human-error-surface-wiring.md";
 
 const wiredSurfaces = [
+  "src/components/Dashboard/CreatorWorkspacePanel.tsx",
   "src/components/Creators/CreatorDashboardSettingsHub.tsx",
   "src/components/Creators/CreatorExperiencesPanel.tsx",
   "src/components/Creators/CreatorRequestsManager.tsx",

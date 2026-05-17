@@ -60,10 +60,10 @@ describe("UserSettingsPage split", () => {
     expect(screen.getByText("Notifications")).toBeTruthy();
     expect(screen.getByText("Privacy & Data")).toBeTruthy();
     expect(screen.getByText("Support & Safety")).toBeTruthy();
-    expect(screen.queryByText("Creator tools moved to your Creator Dashboard.")).toBeNull();
+    expect(screen.queryByText("Creator tools moved to Creator Settings.")).toBeNull();
   });
 
-  it("shows the creator dashboard CTA for creators", () => {
+  it("shows the creator settings CTA for creators", () => {
     mockState.useProfileState.mockReturnValue({
       avatarFallback: "J",
       profileName: "Jessica",
@@ -76,7 +76,9 @@ describe("UserSettingsPage split", () => {
 
     render(<UserSettingsPage />);
 
-    expect(screen.getByText("Creator tools moved to your Creator Dashboard.")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Open Creator Dashboard" })).toBeTruthy();
+    expect(screen.getByText("Creator tools moved to Creator Settings.")).toBeTruthy();
+    const link = screen.getByRole("link", { name: "Open Creator Settings" });
+    expect(link).toBeTruthy();
+    expect(link.getAttribute("href")).toBe("/dashboard/creator/settings");
   });
 });

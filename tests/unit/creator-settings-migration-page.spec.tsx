@@ -10,10 +10,11 @@ vi.mock("@/components/Analytics/PageViewEvent", () => ({
 import LegacyCreatorSettingsPage from "@/app/dashboard/profile/creator/page";
 
 describe("LegacyCreatorSettingsPage", () => {
-  it("shows the migration notice and creator dashboard CTA", () => {
+  it("shows the migration notice and creator settings CTA", () => {
     const markup = renderToStaticMarkup(<LegacyCreatorSettingsPage />);
 
-    expect(markup).toContain("Creator settings now live in Creator Dashboard.");
-    expect(markup).toContain("Open Creator Dashboard");
+    expect(markup).toContain("Creator settings now live in Creator Settings.");
+    expect(markup).toContain("Open Creator Settings");
+    expect(markup).toContain("/dashboard/creator/settings");
   });
 });

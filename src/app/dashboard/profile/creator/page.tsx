@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Megaphone } from "lucide-react";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { CREATOR_SETTINGS_ROUTE } from "@/lib/creator-profile-routing";
 
 export default function LegacyCreatorSettingsPage() {
   return (
@@ -24,12 +25,12 @@ export default function LegacyCreatorSettingsPage() {
           </div>
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">Moved</p>
-            <h1 className="text-2xl font-black">Creator settings now live in Creator Dashboard.</h1>
+            <h1 className="text-2xl font-black">Creator settings now live in Creator Settings.</h1>
           </div>
         </div>
         <p className="mt-3 text-sm text-gray-300">Broadcasts, Fan Pass, bookings, requests, and payout tools have moved to the creator operations hub.</p>
-        <Link href="/dashboard/creator" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white">
-          Open Creator Dashboard
+        <Link href={CREATOR_SETTINGS_ROUTE} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white">
+          Open Creator Settings
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

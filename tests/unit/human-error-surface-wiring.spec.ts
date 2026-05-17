@@ -8,6 +8,7 @@ function readSource(path: string) {
 }
 
 const WIRED_SURFACES = [
+  "src/components/Dashboard/CreatorWorkspacePanel.tsx",
   "src/components/Creators/CreatorDashboardSettingsHub.tsx",
   "src/components/Creators/CreatorExperiencesPanel.tsx",
   "src/components/Creators/CreatorRequestsManager.tsx",
@@ -44,6 +45,7 @@ describe("human error surface wiring", () => {
 
   it("keeps creator dashboard settings errors translated and mobile compact", () => {
     const source = readSource("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+    const landingSource = readSource("src/components/Dashboard/CreatorWorkspacePanel.tsx");
 
     expect(source).toContain("data-creator-dashboard-density=\"mobile_compact\"");
     expect(source).toContain("data-bottom-nav-safe=\"true\"");
@@ -52,5 +54,8 @@ describe("human error surface wiring", () => {
     expect(source).toContain("route: \"/api/creator/settings\"");
     expect(source).not.toMatch(/setError\([^)]*body\.error/u);
     expect(source).not.toMatch(/throw new Error\(body\.error/u);
+    expect(landingSource).toContain("data-creator-dashboard-landing-density=\"mobile_compact\"");
+    expect(landingSource).toContain("dashboard_source_unavailable");
+    expect(landingSource).not.toContain("creator settings: Internal server error");
   });
 });

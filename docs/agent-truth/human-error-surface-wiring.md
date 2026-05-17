@@ -1,8 +1,8 @@
 # Human Error Surface Wiring
 
-Generated: 2026-05-17T20:26:19.044Z  
-Report key: `human-error-surface-wiring`  
-Source head: `df4c879a6edd33286f7ee44e48d4eb4a31c014bc`
+Generated: 2026-05-17T21:05:00.000Z
+Report key: `human-error-surface-wiring`
+Source head: `fd5c54023430f7d0dc820234d9585e3b82200908`
 
 ## Summary
 
@@ -11,6 +11,7 @@ Phase 3 now wires the existing human error contract and bug report reward flow i
 Wired surfaces:
 
 - `src/components/Creators/CreatorDashboardSettingsHub.tsx`
+- `src/components/Dashboard/CreatorWorkspacePanel.tsx`
 - `src/components/Creators/CreatorExperiencesPanel.tsx`
 - `src/components/Creators/CreatorRequestsManager.tsx`
 - `src/components/Creators/CreatorBookingsManager.tsx`
@@ -24,6 +25,7 @@ The client adapter resolves route payloads, thrown errors, and HTTP status into 
 
 - Creator Dashboard settings load failures no longer render raw `body.error` text such as internal server failures.
 - Creator Dashboard settings failures show compact translated copy and a Send bug CTA with `/api/creator/settings` context.
+- Creator Dashboard landing settings module failures show translated copy instead of concatenating `creator settings` with raw route text.
 - Creator Dashboard cards use compact mobile density and bottom-nav-safe spacing markers.
 - Creator dashboard load and mutation failures no longer render raw route errors.
 - Wallet purchase create/capture/render UI failures use translated user copy.

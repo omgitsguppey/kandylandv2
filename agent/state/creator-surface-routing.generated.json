@@ -1,0 +1,113 @@
+{
+  "generatedAtUtc": "2026-05-17T22:08:24.523Z",
+  "reportKey": "creator-surface-routing",
+  "currentHead": "fd5c54023430f7d0dc820234d9585e3b82200908",
+  "summary": {
+    "baseDashboardRoute": "/dashboard/creator",
+    "creatorSettingsRoute": "/dashboard/creator/settings",
+    "userSettingsRoute": "/dashboard/settings",
+    "sidebarRoutesChecked": true,
+    "navPillsChecked": true,
+    "rawErrorLeaks": 0,
+    "mobileLayoutFixes": 2,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "routes": [
+    {
+      "id": "creator-dashboard-landing-route",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/app/dashboard/creator/page.tsx",
+      "summary": "/dashboard/creator renders the Creator Dashboard landing route, not the operations settings hub."
+    },
+    {
+      "id": "creator-settings-workspace-route",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/app/dashboard/creator/settings/page.tsx",
+      "summary": "/dashboard/creator/settings renders CreatorDashboardSettingsHub as the creator operations workspace."
+    },
+    {
+      "id": "route-constants",
+      "status": "verified",
+      "severity": "p2",
+      "file": "src/lib/creator-profile-routing.ts",
+      "summary": "Creator dashboard, creator settings, user settings, and profile route constants are explicit."
+    }
+  ],
+  "navigationFindings": [
+    {
+      "id": "base-dashboard-settings-pill",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "The landing dashboard Creator settings pill links to the creator settings workspace."
+    },
+    {
+      "id": "sidebar-separate-routes",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Navigation/ProfileSidebar.tsx",
+      "summary": "Sidebar keeps Creator Dashboard for the landing route and adds Creator Settings for operations."
+    },
+    {
+      "id": "dropdown-separate-routes",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Navigation/ProfileDropdown.tsx",
+      "summary": "Profile dropdown keeps separate creator landing and creator settings destinations."
+    },
+    {
+      "id": "user-settings-not-creator-operations",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Settings/UserSettingsPage.tsx",
+      "summary": "User settings stays account-only and routes creator operations to Creator Settings."
+    },
+    {
+      "id": "legacy-profile-creator-settings-route",
+      "status": "fixed",
+      "severity": "p2",
+      "file": "src/app/dashboard/profile/creator/page.tsx",
+      "summary": "Legacy creator settings notice points to Creator Settings, not the dashboard landing route."
+    }
+  ],
+  "mobileFindings": [
+    {
+      "id": "landing-mobile-density",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator Dashboard landing cards use compact mobile density and bottom-nav-safe spacing."
+    },
+    {
+      "id": "settings-workspace-mobile-density",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "summary": "Creator Settings workspace keeps compact mobile density and safe bottom spacing."
+    }
+  ],
+  "errorFindings": [
+    {
+      "id": "raw-creator-settings-internal-error-blocked",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator settings load failures use HumanErrorNotice instead of concatenating raw module errors."
+    }
+  ],
+  "fixesApplied": [
+    "Moved CreatorDashboardSettingsHub from /dashboard/creator to /dashboard/creator/settings.",
+    "Restored /dashboard/creator as the Creator Dashboard landing route.",
+    "Updated sidebar, dropdown, user settings, and legacy creator-settings CTAs to separate dashboard and settings destinations.",
+    "Compacted mobile landing dashboard cards and kept bottom-nav/report-issue spacing explicit.",
+    "Translated base dashboard creator settings load failures through HumanErrorNotice."
+  ],
+  "nextFixOrder": [
+    "Run manual screenshot QA for /dashboard/creator and /dashboard/creator/settings on mobile.",
+    "Keep future creator operations links pointed at /dashboard/creator/settings unless a more specific manager route exists."
+  ]
+}

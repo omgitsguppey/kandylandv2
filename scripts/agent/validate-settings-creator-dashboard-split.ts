@@ -34,6 +34,8 @@ const files = {
   legacyRegistry: join(repoRoot, "src", "lib", "creator-dashboard", "creator-settings-legacy-registry.ts"),
   userSettingsPage: join(repoRoot, "src", "components", "Settings", "UserSettingsPage.tsx"),
   creatorDashboardHub: join(repoRoot, "src", "components", "Creators", "CreatorDashboardSettingsHub.tsx"),
+  creatorDashboardLanding: join(repoRoot, "src", "components", "Dashboard", "CreatorWorkspacePanel.tsx"),
+  creatorSettingsWorkspacePage: join(repoRoot, "src", "app", "dashboard", "creator", "settings", "page.tsx"),
   creatorBroadcastManager: join(repoRoot, "src", "components", "Creators", "CreatorBroadcastManager.tsx"),
   creatorRequestsManager: join(repoRoot, "src", "components", "Creators", "CreatorRequestsManager.tsx"),
   creatorBookingsManager: join(repoRoot, "src", "components", "Creators", "CreatorBookingsManager.tsx"),
@@ -128,6 +130,8 @@ function validate(): SplitReport {
   const legacyRegistry = read(files.legacyRegistry);
   const userSettingsPage = read(files.userSettingsPage);
   const creatorDashboardHub = read(files.creatorDashboardHub);
+  const creatorDashboardLanding = read(files.creatorDashboardLanding);
+  const creatorSettingsWorkspacePage = read(files.creatorSettingsWorkspacePage);
   const creatorBroadcastManager = read(files.creatorBroadcastManager);
   const creatorRequestsManager = read(files.creatorRequestsManager);
   const creatorBookingsManager = read(files.creatorBookingsManager);
@@ -193,8 +197,8 @@ function validate(): SplitReport {
         "ProfileNotificationsSection",
         "ProfilePrivacyDataSection",
         "ProfileSupportSafetySection",
-        "Creator tools moved to your Creator Dashboard.",
-        "Open Creator Dashboard",
+        "Creator tools moved to Creator Settings.",
+        "Open Creator Settings",
       ]) && !includesAny(userSettingsPage, ["ProfileCreatorToolsSection", "ProfileCreatorEarningsSection", "CreatorBroadcastManager", "CreatorDashboardSettingsHub"]),
       evidence: ["User settings page renders the allowed account/preferences sections and a creator-dashboard CTA only."],
     },
@@ -318,10 +322,13 @@ function validate(): SplitReport {
       label: "Old creator settings routes redirect or show migration notice",
       ok: includesAll(migrationPage, [
         "creator_settings_migrated_redirect_viewed",
-        "Open Creator Dashboard",
-        "Creator settings now live in Creator Dashboard.",
-      ]) && includesAll(profileSidebar, ["/dashboard/creator", "/settings"])
-        && includesAll(profileDropdown, ["/dashboard/creator", "/settings"])
+        "Open Creator Settings",
+        "Creator settings now live in Creator Settings.",
+        "href={CREATOR_SETTINGS_ROUTE}",
+      ]) && includesAll(creatorSettingsWorkspacePage, ["CreatorDashboardSettingsHub"])
+        && includesAll(creatorDashboardLanding, ["CreatorDashboardLandingRoute", "CREATOR_SETTINGS_ROUTE"])
+        && includesAll(profileSidebar, ["CREATOR_DASHBOARD_ROUTE", "CREATOR_SETTINGS_ROUTE", "/settings"])
+        && includesAll(profileDropdown, ["CREATOR_DASHBOARD_ROUTE", "CREATOR_SETTINGS_ROUTE", "/settings"])
         && includesAll(read(files.dashboardSettingsRedirect), ["redirect(\"/settings\")"])
         && includesAll(read(files.accountRedirect), ["redirect(\"/settings\")"])
         && includesAll(read(files.profileSettingsRedirect), ["redirect(\"/settings\")"])
