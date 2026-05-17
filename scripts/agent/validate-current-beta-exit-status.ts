@@ -73,6 +73,9 @@ const requiredChecklistRefs = [
   "docs/agent-truth/admin-truth-sample-evidence-checklist.md",
 ] as const;
 
+const evidenceCaptureStatusRelativePath = "agent/state/evidence-capture-status.generated.json";
+const evidenceCaptureStatusPath = join(repoRoot, evidenceCaptureStatusRelativePath);
+
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
 }
@@ -87,6 +90,19 @@ function readReport() {
 function evidenceMissing(status: string) {
   if (/\b(false|missing|unverified|unknown|source_only)\b/iu.test(status)) return true;
   return !/\b(pass|passed|attached|formal_.*_passed)\b/iu.test(status);
+}
+
+function readEvidenceCaptureStatus() {
+  if (!existsSync(evidenceCaptureStatusPath)) return null;
+  return JSON.parse(readFileSync(evidenceCaptureStatusPath, "utf8")) as {
+    summary?: {
+      manualScreenshotEvidence?: string;
+      providerSmokeEvidence?: string;
+      runtimeSmokeEvidence?: string;
+      adminTruthSampleEvidence?: string;
+      canStartBetaExitReview?: boolean;
+    };
+  };
 }
 
 export function validateCurrentBetaExitStatusReport(
@@ -136,6 +152,25 @@ export function validateCurrentBetaExitStatusReport(
   for (const checklistRef of requiredChecklistRefs) {
     if (!nextSteps.includes(checklistRef)) {
       failures.push(`nextExactSteps must reference ${checklistRef}.`);
+    }
+  }
+  if (!nextSteps.includes(evidenceCaptureStatusRelativePath)) {
+    failures.push(`nextExactSteps must reference ${evidenceCaptureStatusRelativePath}.`);
+  }
+
+  const evidenceCaptureStatus = readEvidenceCaptureStatus();
+  if (!evidenceCaptureStatus) {
+    failures.push(`${evidenceCaptureStatusRelativePath} must exist for current beta exit status validation.`);
+  } else {
+    const captureSummary = evidenceCaptureStatus.summary ?? {};
+    const evidenceCaptureMissing = [
+      captureSummary.manualScreenshotEvidence,
+      captureSummary.providerSmokeEvidence,
+      captureSummary.runtimeSmokeEvidence,
+      captureSummary.adminTruthSampleEvidence,
+    ].some((status) => status !== "complete");
+    if (evidenceCaptureMissing && report.summary.canStartBetaExitReview) {
+      failures.push("canStartBetaExitReview must be false while evidence capture status has missing lanes.");
     }
   }
 

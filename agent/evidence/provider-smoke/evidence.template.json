@@ -1,0 +1,58 @@
+{
+  "status": "template_not_evidence",
+  "capturedAtUtc": "",
+  "provider": "paypal",
+  "environment": "unknown",
+  "checks": [
+    {
+      "id": "paypal-order-create-capture",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "id": "gumdrop-purchased-balance-increase",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "id": "paid-bonus-purchased-balance",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "id": "reward-balance-not-creator-funding",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "id": "creator-request-paid-spend",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "id": "booking-slot-paid-spend",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "id": "subscription-paid-spend-if-safe",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "id": "no-secrets-raw-provider-tokens",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    }
+  ],
+  "redactions": [],
+  "operatorNotes": "Template only. Copy to a new JSON file before attaching evidence."
+}

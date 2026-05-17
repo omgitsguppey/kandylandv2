@@ -1,0 +1,64 @@
+{
+  "status": "template_not_evidence",
+  "capturedAtUtc": "",
+  "appBaseUrl": "",
+  "environment": "unknown",
+  "checks": [
+    {
+      "route": "/",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "route": "/drops",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "route": "/creators/[username]",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "route": "creator-booking-slot-flow",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "route": "/dashboard/creator",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "route": "/dashboard/chat",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "route": "beta-release-notes-drawer",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "route": "no-provider-calls",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    },
+    {
+      "route": "no-raw-secrets",
+      "status": "blocked",
+      "artifactPath": "",
+      "notes": ""
+    }
+  ],
+  "redactions": [],
+  "operatorNotes": "Template only. Copy to a new JSON file before attaching evidence."
+}

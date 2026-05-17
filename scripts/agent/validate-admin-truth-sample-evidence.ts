@@ -1,28 +1,47 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { execFileSync } from "node:child_process";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { dirname, isAbsolute, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-const root = process.cwd();
-const failures: string[] = [];
+type EvidenceStatus = "missing" | "incomplete" | "complete";
 
-function readRequired(relativePath: string) {
-  const fullPath = join(root, relativePath);
-  if (!existsSync(fullPath)) {
-    failures.push(`Missing required file: ${relativePath}`);
-    return "";
-  }
-  return readFileSync(fullPath, "utf8");
-}
+type ValidationOptions = {
+  requireComplete?: boolean;
+  existingPaths?: Set<string>;
+};
 
-function readJson(relativePath: string) {
-  const source = readRequired(relativePath);
-  if (!source) return {} as Record<string, unknown>;
-  try {
-    return JSON.parse(source) as Record<string, unknown>;
-  } catch (error) {
-    failures.push(`${relativePath} must be valid JSON: ${(error as Error).message}`);
-    return {} as Record<string, unknown>;
-  }
-}
+type LaneEvaluation = {
+  lane: "adminTruthSampleEvidence";
+  status: EvidenceStatus;
+  folder: string;
+  templatePath: string;
+  templateExists: boolean;
+  evidenceFiles: string[];
+  completeArtifacts: string[];
+  failures: string[];
+};
+
+const REQUIRED_ADMIN_TRUTH_CHECKS = [
+  "source-freshness",
+  "sample-count",
+  "source-state-label",
+  "redacted-artifact-attached",
+] as const;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const repoRoot = join(__dirname, "..", "..");
+const evidenceFolder = "agent/evidence/admin-truth-sample";
+const templatePath = `${evidenceFolder}/evidence.template.json`;
+const secretPatterns = [
+  /access_token/i,
+  /refresh_token/i,
+  /id_token/i,
+  /client_secret/i,
+  /private_key/i,
+  /authorization\s*[:=]/i,
+  /bearer\s+[a-z0-9._-]{12,}/i,
+];
 
 function record(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -30,67 +49,151 @@ function record(value: unknown) {
     : {};
 }
 
-function requireIncludes(source: string, expected: string, label: string) {
-  if (!source.includes(expected)) failures.push(`${label} must include "${expected}".`);
+function array(value: unknown) {
+  return Array.isArray(value) ? value : [];
 }
 
-function requireNotIncludes(source: string, forbidden: string, label: string) {
-  if (source.includes(forbidden)) failures.push(`${label} must not include "${forbidden}".`);
+function isValidUtc(value: unknown) {
+  return typeof value === "string" && value.length > 0 && !Number.isNaN(Date.parse(value));
 }
 
-function requireFalse(value: unknown, label: string) {
-  if (value !== false) failures.push(`${label} must be false.`);
+function isRelativeEvidencePath(value: unknown) {
+  return typeof value === "string" && value.length > 0 && !isAbsolute(value) && !/^[a-z]+:/iu.test(value);
 }
 
-const report = readJson("agent/state/admin-truth-sample-evidence.generated.json");
-const readinessImpact = record(report.readinessImpact);
-const doc = readRequired("docs/agent-truth/admin-truth-sample-evidence.md");
-const packageJson = readRequired("package.json");
-
-if (report.reportKey !== "admin-truth-sample-evidence") failures.push("admin truth sample reportKey must be admin-truth-sample-evidence.");
-if (typeof report.generatedAtUtc !== "string" || Number.isNaN(Date.parse(report.generatedAtUtc))) {
-  failures.push("admin truth sample generatedAtUtc must be parseable UTC.");
-}
-if (typeof report.currentHead !== "string" || report.currentHead.includes("pending")) {
-  failures.push("admin truth sample currentHead must be recorded.");
-}
-if (report.overallStatus !== "missing_or_unknown") failures.push("admin truth sample overallStatus must be missing_or_unknown.");
-if (report.sampleCount !== 0) failures.push("admin truth sampleCount must be 0 until a sample artifact exists.");
-for (const [key, value] of Object.entries({
-  productionReadsPerformed: report.productionReadsPerformed,
-  providerCallsPerformed: report.providerCallsPerformed,
-  bigQueryCallsPerformed: report.bigQueryCallsPerformed,
-  deploymentPerformed: report.deploymentPerformed,
-  freshAdminTruthSampleAttached: report.freshAdminTruthSampleAttached,
-  adminTruthSampleGatePassed: readinessImpact.adminTruthSampleGatePassed,
-})) {
-  requireFalse(value, `admin truth sample ${key}`);
-}
-if (!Array.isArray(report.sampleEvidenceFiles) || report.sampleEvidenceFiles.length !== 0) {
-  failures.push("admin truth sampleEvidenceFiles must be empty until a sample is attached.");
-}
-for (const expected of [
-  "Status: `missing_or_unknown`",
-  "No fresh admin truth screenshot or JSON sample is attached",
-  "does not prove current production sample values",
-  "Do not treat empty Debug evidence or missing admin truth samples as healthy.",
-]) {
-  requireIncludes(doc, expected, "admin truth sample evidence doc");
-}
-for (const forbidden of [
-  "admin truth sample passed",
-  "admin samples healthy",
-  "production samples verified",
-]) {
-  requireNotIncludes(doc, forbidden, "admin truth sample evidence doc");
-}
-requireIncludes(packageJson, "\"check:admin-truth-sample-evidence\"", "package.json");
-requireIncludes(packageJson, "scripts/agent/validate-admin-truth-sample-evidence.ts", "package.json");
-
-if (failures.length > 0) {
-  console.error("Admin truth sample evidence validation failed:");
-  for (const failure of failures) console.error(`- ${failure}`);
-  process.exit(1);
+function pathExists(relativePath: string, options: ValidationOptions) {
+  if (options.existingPaths) return options.existingPaths.has(relativePath);
+  return existsSync(join(repoRoot, relativePath));
 }
 
-console.log("Admin truth sample evidence validation passed.");
+function containsRawSecret(value: unknown) {
+  const source = JSON.stringify(value);
+  return secretPatterns.some((pattern) => pattern.test(source));
+}
+
+export function validateAdminTruthSampleEvidenceDocument(
+  document: unknown,
+  options: ValidationOptions = {},
+) {
+  const failures: string[] = [];
+  const doc = record(document);
+
+  if (containsRawSecret(doc)) {
+    failures.push("admin truth evidence must not include raw secrets or provider tokens.");
+  }
+  if (doc.status === "template_not_evidence") {
+    if (options.requireComplete) failures.push("admin truth evidence template is not completed evidence.");
+    return failures;
+  }
+  if (!["complete", "incomplete"].includes(String(doc.status))) {
+    failures.push("admin truth evidence status must be complete, incomplete, or template_not_evidence.");
+  }
+  if (options.requireComplete && doc.status !== "complete") {
+    failures.push("admin truth evidence must be complete.");
+  }
+  if (doc.status !== "complete") return failures;
+
+  if (!isValidUtc(doc.capturedAtUtc)) failures.push("admin truth complete evidence must include capturedAtUtc.");
+  if (doc.surface !== "admin_truth_sample") failures.push("admin truth complete evidence surface must be admin_truth_sample.");
+  if (!isValidUtc(doc.sourceFreshnessUtc)) {
+    failures.push("admin truth complete evidence must include sourceFreshnessUtc.");
+  }
+  if (array(doc.redactions).length === 0) {
+    failures.push("admin truth complete evidence must include at least one redaction entry.");
+  }
+  if (!isRelativeEvidencePath(doc.artifactPath)) {
+    failures.push("admin truth complete evidence artifactPath must be a relative path.");
+  } else if (!pathExists(String(doc.artifactPath), options)) {
+    failures.push("admin truth complete evidence artifactPath must exist.");
+  }
+
+  const checks = array(doc.checks).map(record);
+  const seenChecks = new Set(checks.map((check) => check.id).filter((id): id is string => typeof id === "string"));
+  for (const requiredCheck of REQUIRED_ADMIN_TRUTH_CHECKS) {
+    if (!seenChecks.has(requiredCheck)) {
+      failures.push(`admin truth complete evidence must include check "${requiredCheck}".`);
+    }
+  }
+  for (const check of checks) {
+    if (!["pass", "fail", "blocked"].includes(String(check.status))) {
+      failures.push(`admin truth check "${String(check.id ?? "unknown")}" must use pass, fail, or blocked status.`);
+    }
+  }
+
+  return failures;
+}
+
+function readJson(relativePath: string) {
+  return JSON.parse(readFileSync(join(repoRoot, relativePath), "utf8")) as unknown;
+}
+
+function listEvidenceFiles() {
+  const folder = join(repoRoot, evidenceFolder);
+  if (!existsSync(folder)) return [];
+  return readdirSync(folder)
+    .filter((entry) => entry.endsWith(".json") && entry !== "evidence.template.json")
+    .map((entry) => `${evidenceFolder}/${entry}`);
+}
+
+export function evaluateAdminTruthSampleEvidence(): LaneEvaluation {
+  const files = listEvidenceFiles();
+  const failures: string[] = [];
+  const completeArtifacts: string[] = [];
+
+  for (const file of files) {
+    try {
+      const document = readJson(file);
+      const validationFailures = validateAdminTruthSampleEvidenceDocument(document, { requireComplete: true });
+      if (validationFailures.length === 0) {
+        completeArtifacts.push(file);
+      } else if (containsRawSecret(document)) {
+        failures.push(...validationFailures);
+      }
+    } catch (error) {
+      failures.push(`${file} must be valid JSON: ${(error as Error).message}`);
+    }
+  }
+
+  const status: EvidenceStatus = completeArtifacts.length > 0
+    ? "complete"
+    : files.length > 0
+      ? "incomplete"
+      : "missing";
+
+  return {
+    lane: "adminTruthSampleEvidence",
+    status,
+    folder: evidenceFolder,
+    templatePath,
+    templateExists: existsSync(join(repoRoot, templatePath)),
+    evidenceFiles: files,
+    completeArtifacts,
+    failures,
+  };
+}
+
+function main() {
+  const result = evaluateAdminTruthSampleEvidence();
+  const strict = process.env.EVIDENCE_STRICT === "1";
+  const failures = [...result.failures];
+
+  if (strict && result.status !== "complete") {
+    failures.push("admin truth sample evidence is missing or incomplete in strict mode.");
+  }
+
+  if (failures.length > 0) {
+    console.error("Admin truth sample evidence validation failed:");
+    for (const failure of failures) console.error(`- ${failure}`);
+    process.exit(1);
+  }
+
+  console.log(
+    `Admin truth sample evidence status: ${result.status}; ` +
+      `templates are not evidence; completeArtifacts=${result.completeArtifacts.length}; ` +
+      `head=${execFileSync("git", ["rev-parse", "--short", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim()}`,
+  );
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

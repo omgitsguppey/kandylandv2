@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.62 - 2026-05-17
+- Bug fixes and general improvements
+- Prepared repo folders and templates for screenshot and smoke evidence.
+- Added validators for manual, provider, runtime, and admin truth evidence.
+- Kept Beta exit blocked until real evidence artifacts are attached.
+
 ## 1.2.61 - 2026-05-17
 - Bug fixes and general improvements
 - Cleared the paid GumDrop guidance source check.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Connected Admin Debug to the canonical beta readiness score.
 - Separated report averages from the real public beta score.
 - Made score cap reasons easier to see in Debug.
-
-## 1.2.37 - 2026-05-14
-- Bug fixes and general improvements
-- Locked watch-time reporting to verified watch-session data.
-- Kept legacy watch duration labeled as fallback instead of product truth.
-- Updated tests so diagnostic estimates cannot become canonical watch time.

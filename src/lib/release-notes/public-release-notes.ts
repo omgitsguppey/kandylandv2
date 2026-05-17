@@ -1,13 +1,75 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.61",
-  "betaReleaseCounter": 261,
+  "currentVersion": "1.2.62",
+  "betaReleaseCounter": 262,
   "channel": "beta",
-  "generatedAt": "2026-05-17T04:09:09.299Z",
-  "generatedAtUtc": "2026-05-17T04:09:09.299Z",
-  "lastCommitSha": "ea7b21b06be3f4e8cf71630ad118fb5d4136e14f",
+  "generatedAt": "2026-05-17T05:28:53.476Z",
+  "generatedAtUtc": "2026-05-17T05:28:53.476Z",
+  "lastCommitSha": "a627e45442f7f4757c59b8687bb8d6ba3872cbd1",
   "notes": [
+    {
+      "version": "1.2.62",
+      "previousVersion": "1.2.61",
+      "betaReleaseCounter": 262,
+      "previousBetaReleaseCounter": 261,
+      "commitSha": "a627e45442f7f4757c59b8687bb8d6ba3872cbd1",
+      "commitTitle": "docs(beta): scaffold beta evidence capture",
+      "commitCount": 1,
+      "commitShas": [
+        "a627e45442f7f4757c59b8687bb8d6ba3872cbd1"
+      ],
+      "committedAt": "2026-05-17T05:28:53.476Z",
+      "generatedAt": "2026-05-17T05:28:53.476Z",
+      "committedAtUtc": "2026-05-17T05:28:53.476Z",
+      "generatedAtUtc": "2026-05-17T05:28:53.476Z",
+      "updatedAtUtc": "2026-05-17T05:28:53.476Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Prepared repo-native evidence capture scaffolding.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Prepared repo folders and templates for screenshot and smoke evidence.",
+        "Added validators for manual, provider, runtime, and admin truth evidence.",
+        "Kept Beta exit blocked until real evidence artifacts are attached."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/evidence/manual-screenshot-qa/README.md",
+        "agent/evidence/manual-screenshot-qa/evidence.template.json",
+        "agent/evidence/manual-screenshot-qa/screenshots/.gitkeep",
+        "agent/evidence/provider-smoke/README.md",
+        "agent/evidence/provider-smoke/evidence.template.json",
+        "agent/evidence/runtime-smoke/README.md",
+        "agent/evidence/runtime-smoke/evidence.template.json",
+        "agent/evidence/admin-truth-sample/README.md",
+        "agent/evidence/admin-truth-sample/evidence.template.json",
+        "agent/state/evidence-capture-status.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "docs/agent-truth/evidence-capture-status.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "scripts/agent/validate-manual-screenshot-evidence.ts",
+        "scripts/agent/validate-provider-smoke-evidence.ts",
+        "scripts/agent/validate-runtime-smoke-evidence.ts",
+        "scripts/agent/validate-admin-truth-sample-evidence.ts",
+        "scripts/agent/validate-evidence-capture-status.ts",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "tests/unit/evidence-artifact-schemas.spec.ts",
+        "tests/unit/evidence-capture-status.spec.ts",
+        "tests/unit/current-beta-exit-status.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "a627e45442f7f4757c59b8687bb8d6ba3872cbd1"
+    },
     {
       "version": "1.2.61",
       "previousVersion": "1.2.60",
@@ -1149,269 +1211,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-debug-control-tower.spec.ts"
       ],
       "sourceCommit": "4f313a98a68ca04b4aab6fa5f6012c34212cb889"
-    },
-    {
-      "version": "1.2.37",
-      "previousVersion": "1.2.36",
-      "betaReleaseCounter": 237,
-      "previousBetaReleaseCounter": 236,
-      "commitSha": "470ce04ab355dd9a21afc4f57118b1e46311ea3c",
-      "commitTitle": "fix(analytics): lock watch time truth contract",
-      "commitCount": 1,
-      "commitShas": [
-        "470ce04ab355dd9a21afc4f57118b1e46311ea3c"
-      ],
-      "committedAt": "2026-05-14T13:53:03.000Z",
-      "generatedAt": "2026-05-14T13:53:26.053Z",
-      "committedAtUtc": "2026-05-14T13:53:03.000Z",
-      "generatedAtUtc": "2026-05-14T13:53:26.053Z",
-      "updatedAtUtc": "2026-05-14T13:53:26.053Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Locked watch-time reporting to verified watch-session data.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Locked watch-time reporting to verified watch-session data.",
-        "Kept legacy watch duration labeled as fallback instead of product truth.",
-        "Updated tests so diagnostic estimates cannot become canonical watch time."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "docs/agent-truth/watch-time-rollup-truth.md",
-        "scripts/agent/validate-watch-time-rollup-truth.ts",
-        "src/app/admin/user/[userId]/page.tsx",
-        "src/app/api/admin/user/[userId]/route.ts",
-        "src/app/api/admin/users/route.ts",
-        "src/lib/server/admin-user-metrics-snapshot.ts",
-        "src/lib/server/user-behavior-rollup.ts",
-        "tests/unit/admin-user-metrics.spec.ts",
-        "tests/unit/watch-time-rollup.spec.ts"
-      ],
-      "sourceCommit": "470ce04ab355dd9a21afc4f57118b1e46311ea3c"
-    },
-    {
-      "version": "1.2.36",
-      "previousVersion": "1.2.35",
-      "betaReleaseCounter": 236,
-      "previousBetaReleaseCounter": 235,
-      "commitSha": "ff66bf7f60ffee9308663e69c59509b328d75117",
-      "commitTitle": "fix(score): read formal beta evidence artifacts",
-      "commitCount": 1,
-      "commitShas": [
-        "ff66bf7f60ffee9308663e69c59509b328d75117"
-      ],
-      "committedAt": "2026-05-14T06:09:23.000Z",
-      "generatedAt": "2026-05-14T06:10:04.981Z",
-      "committedAtUtc": "2026-05-14T06:09:23.000Z",
-      "generatedAtUtc": "2026-05-14T06:10:04.981Z",
-      "updatedAtUtc": "2026-05-14T06:10:04.981Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Improved how beta readiness reads formal smoke evidence.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Improved how beta readiness reads formal smoke evidence.",
-        "Kept operator-reported PayPal testing tracked without marking the provider smoke lane as done.",
-        "Made beta score gates explain which evidence artifacts are still missing."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/public-beta-score.generated.json",
-        "docs/agent-truth/public-beta-score.md",
-        "scripts/agent/score-public-beta-readiness.ts",
-        "scripts/agent/validate-public-beta-score.ts",
-        "src/lib/agent-score/core.ts",
-        "tests/unit/public-beta-score.spec.ts"
-      ],
-      "sourceCommit": "ff66bf7f60ffee9308663e69c59509b328d75117"
-    },
-    {
-      "version": "1.2.35",
-      "previousVersion": "1.2.34",
-      "betaReleaseCounter": 235,
-      "previousBetaReleaseCounter": 234,
-      "commitSha": "99658a428a64299ff4206c58c21a758032e26ecb",
-      "commitTitle": "chore(repo): add spring cleaning rewire inventory",
-      "commitCount": 1,
-      "commitShas": [
-        "99658a428a64299ff4206c58c21a758032e26ecb"
-      ],
-      "committedAt": "2026-05-14T05:45:28.000Z",
-      "generatedAt": "2026-05-14T05:46:42.281Z",
-      "committedAtUtc": "2026-05-14T05:45:28.000Z",
-      "generatedAtUtc": "2026-05-14T05:46:42.281Z",
-      "updatedAtUtc": "2026-05-14T05:46:42.281Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added a spring-cleaning inventory for stale reports, docs, validators, and disconnected UI lanes.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added a spring-cleaning inventory for stale reports, docs, validators, and disconnected UI lanes.",
-        "Mapped cleanup candidates without deleting runtime code.",
-        "Kept Phase 1 blocker fixes separate from repo cleanup work."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "EVERY_FILE_FUNCTION_CHECKLIST.md",
-        "FULL_SCALE_CODEBASE_AUDIT.md",
-        "REPO_MEMORY_LEDGER.md",
-        "agent/state/repo-spring-cleaning-rewire.generated.json",
-        "docs/agent-truth/repo-spring-cleaning-rewire.md",
-        "package.json",
-        "scripts/agent/validate-repo-spring-cleaning-rewire.ts",
-        "tests/unit/repo-spring-cleaning-rewire.spec.ts"
-      ],
-      "sourceCommit": "99658a428a64299ff4206c58c21a758032e26ecb"
-    },
-    {
-      "version": "1.2.34",
-      "previousVersion": "1.2.33",
-      "betaReleaseCounter": 234,
-      "previousBetaReleaseCounter": 233,
-      "commitSha": "2570b5dda615c39a02af5260f5f3760ba3f0192f",
-      "commitTitle": "chore(phase-one): triage score and dashboard truth wiring",
-      "commitCount": 1,
-      "commitShas": [
-        "2570b5dda615c39a02af5260f5f3760ba3f0192f"
-      ],
-      "committedAt": "2026-05-14T04:04:42.000Z",
-      "generatedAt": "2026-05-14T04:08:00.701Z",
-      "committedAtUtc": "2026-05-14T04:04:42.000Z",
-      "generatedAtUtc": "2026-05-14T04:08:00.701Z",
-      "updatedAtUtc": "2026-05-14T04:08:00.701Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added a triage pass for beta score math and evidence wiring.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added a triage pass for beta score math and evidence wiring.",
-        "Reviewed watch-time, Admin dashboard, and creator dashboard truth connections.",
-        "Kept readiness evidence honest while identifying what needs a focused fix."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/phase-one-score-ui-triage.generated.json",
-        "docs/agent-truth/phase-one-score-ui-triage.md",
-        "package.json",
-        "scripts/agent/validate-phase-one-score-ui-triage.ts",
-        "tests/unit/phase-one-score-ui-triage.spec.ts"
-      ],
-      "sourceCommit": "2570b5dda615c39a02af5260f5f3760ba3f0192f"
-    },
-    {
-      "version": "1.2.33",
-      "previousVersion": "1.2.32",
-      "betaReleaseCounter": 233,
-      "previousBetaReleaseCounter": 232,
-      "commitSha": "d1dd8a050d59f8e0261c8515c9cecc24def290a0",
-      "commitTitle": "docs(phase-one): add formal smoke evidence tracking",
-      "commitCount": 1,
-      "commitShas": [
-        "d1dd8a050d59f8e0261c8515c9cecc24def290a0"
-      ],
-      "committedAt": "2026-05-14T02:42:48.000Z",
-      "generatedAt": "2026-05-14T02:43:59.301Z",
-      "committedAtUtc": "2026-05-14T02:42:48.000Z",
-      "generatedAtUtc": "2026-05-14T02:43:59.301Z",
-      "updatedAtUtc": "2026-05-14T02:43:59.301Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added formal tracking for remaining smoke evidence.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added formal tracking for remaining smoke evidence.",
-        "Kept PayPal/provider smoke marked as incomplete until repo evidence exists.",
-        "Kept beta exit blockers visible instead of marking launch readiness complete."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/admin-truth-sample-evidence.generated.json",
-        "agent/state/provider-smoke-evidence.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/runtime-smoke-evidence.generated.json",
-        "docs/agent-truth/admin-truth-sample-evidence.md",
-        "docs/agent-truth/final-launch-readiness-report.md",
-        "docs/agent-truth/launch-readiness-final.md",
-        "docs/agent-truth/paypal-smoke-evidence.md",
-        "docs/agent-truth/provider-smoke-evidence.md",
-        "docs/agent-truth/public-beta-score.md",
-        "docs/agent-truth/runtime-smoke-evidence.md",
-        "package.json",
-        "scripts/agent/validate-admin-truth-sample-evidence.ts",
-        "scripts/agent/validate-provider-smoke-evidence.ts",
-        "scripts/agent/validate-runtime-smoke-evidence.ts"
-      ],
-      "sourceCommit": "d1dd8a050d59f8e0261c8515c9cecc24def290a0"
-    },
-    {
-      "version": "1.2.32",
-      "previousVersion": "1.2.31",
-      "betaReleaseCounter": 232,
-      "previousBetaReleaseCounter": 231,
-      "commitSha": "c318d90a84bac8e24596c9be4a6376406e179f8c",
-      "commitTitle": "docs(phase-one): refresh beta exit evidence",
-      "commitCount": 1,
-      "commitShas": [
-        "c318d90a84bac8e24596c9be4a6376406e179f8c"
-      ],
-      "committedAt": "2026-05-14T01:40:36.000Z",
-      "generatedAt": "2026-05-14T01:42:37.150Z",
-      "committedAtUtc": "2026-05-14T01:40:36.000Z",
-      "generatedAtUtc": "2026-05-14T01:42:37.150Z",
-      "updatedAtUtc": "2026-05-14T01:42:37.150Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Refreshed Phase 1 beta readiness evidence.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Refreshed Phase 1 beta readiness evidence.",
-        "Confirmed analytics rewire blockers remain cleared after the Debug panel cleanup.",
-        "Kept remaining launch evidence gaps visible instead of marking them complete."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json",
-        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-        "agent/state/lost-data-recovery-dry-run.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
-        "docs/agent-truth/final-launch-readiness-report.md",
-        "docs/agent-truth/launch-pr-triage.md",
-        "docs/agent-truth/launch-readiness-final.md",
-        "docs/agent-truth/public-beta-score.md",
-        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md"
-      ],
-      "sourceCommit": "c318d90a84bac8e24596c9be4a6376406e179f8c"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

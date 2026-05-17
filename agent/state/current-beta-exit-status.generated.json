@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-17T05:02:23.262Z",
+  "generatedAtUtc": "2026-05-17T05:28:24.539Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "ea7b21b06be3f4e8cf71630ad118fb5d4136e14f",
+  "currentHead": "a627e45442f7f4757c59b8687bb8d6ba3872cbd1",
   "summary": {
-    "betaVersion": "1.2.61",
+    "betaVersion": "1.2.62",
     "betaScore": 45,
     "betaStatus": "Stale evidence",
     "sourceCleanupP0": 0,
@@ -12,12 +12,12 @@
     "userCreatorP1": 0,
     "economyP0": 0,
     "economyP1": 0,
-    "visualEvidenceStatus": "source_only_screenshotEvidenceAttached_false",
-    "providerSmokeStatus": "missing_formal_evidence",
-    "runtimeSmokeStatus": "runtime_unverified",
-    "adminTruthSampleStatus": "missing_or_unknown",
+    "visualEvidenceStatus": "missing_manual_screenshot_evidence",
+    "providerSmokeStatus": "missing_provider_smoke_evidence",
+    "runtimeSmokeStatus": "missing_runtime_smoke_evidence",
+    "adminTruthSampleStatus": "missing_admin_truth_sample_evidence",
     "speedSecurityStatus": "51/beta-risk; findings=91; critical=0",
-    "releaseNotesStatus": "passed_same_commit_validator",
+    "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "canStartManualScreenshotQa": true,
     "canStartProviderSmoke": true,
     "canStartRuntimeSmoke": true,
@@ -98,63 +98,94 @@
       "command": "npm run typecheck",
       "status": "passed",
       "evidence": "TypeScript compile safety passed."
+    },
+    {
+      "command": "npm run check:manual-screenshot-evidence",
+      "status": "passed",
+      "evidence": "Default-mode validator passed with missing evidence status; templates do not count as evidence."
+    },
+    {
+      "command": "npm run check:provider-smoke-evidence",
+      "status": "passed",
+      "evidence": "Default-mode validator passed with missing evidence status; templates do not count as evidence."
+    },
+    {
+      "command": "npm run check:runtime-smoke-evidence",
+      "status": "passed",
+      "evidence": "Default-mode validator passed with missing evidence status; templates do not count as evidence."
+    },
+    {
+      "command": "npm run check:admin-truth-sample-evidence",
+      "status": "passed",
+      "evidence": "Default-mode validator passed with missing evidence status; templates do not count as evidence."
+    },
+    {
+      "command": "npm run check:evidence-capture-status",
+      "status": "passed",
+      "evidence": "Evidence capture status generated all four lanes as missing and beta exit blocked."
     }
   ],
   "failedChecks": [],
   "refreshedArtifacts": [
-    "agent/state/current-beta-exit-status.generated.json"
+    "agent/state/current-beta-exit-status.generated.json",
+    "agent/state/evidence-capture-status.generated.json",
+    "docs/agent-truth/evidence-capture-status.md",
+    "docs/agent-truth/current-beta-exit-status.md"
   ],
   "remainingBlockers": [
     {
-      "id": "visual_manual_smoke_missing",
+      "id": "manual_screenshot_evidence_missing",
       "severity": "P1",
-      "status": "visual_qa_required",
+      "status": "missing",
       "evidence": [
-        "user-creator visual confirmation remains source-only.",
-        "screenshotEvidenceAttached=false.",
-        "Public beta score applies the Visual QA required cap."
+        "agent/evidence/manual-screenshot-qa/evidence.template.json exists but is template_not_evidence.",
+        "No complete non-template screenshot evidence JSON is attached.",
+        "Screenshots must be attached under agent/evidence/manual-screenshot-qa/screenshots/."
       ],
-      "nextAction": "Use docs/agent-truth/manual-screenshot-qa-checklist.md to attach targeted manual screenshot evidence for user-critical surfaces before beta exit review."
+      "nextAction": "Copy the manual screenshot template to a dated evidence JSON and attach required route screenshots."
     },
     {
-      "id": "provider_smoke_missing",
+      "id": "provider_smoke_evidence_missing",
       "severity": "P1",
-      "status": "provider_smoke_required",
+      "status": "missing",
       "evidence": [
-        "providerArtifactStatus=missing_formal_evidence.",
-        "Operator-reported PayPal refill is not formal repo evidence."
+        "agent/evidence/provider-smoke/evidence.template.json exists but is template_not_evidence.",
+        "No complete non-template provider smoke evidence JSON is attached.",
+        "No provider calls were run in this scaffolding pass."
       ],
-      "nextAction": "Use docs/agent-truth/provider-smoke-evidence-checklist.md to run or attach formal provider smoke evidence with redacted artifact/log/screenshot."
+      "nextAction": "Run provider smoke separately, redact artifacts, and attach a complete provider evidence JSON."
     },
     {
-      "id": "runtime_smoke_missing",
+      "id": "runtime_smoke_evidence_missing",
       "severity": "P1",
-      "status": "runtime_smoke_required",
+      "status": "missing",
       "evidence": [
-        "runtimeArtifactStatus=runtime_unverified.",
-        "Local validators do not prove deployed runtime behavior."
+        "agent/evidence/runtime-smoke/evidence.template.json exists but is template_not_evidence.",
+        "No complete non-template deployed runtime smoke evidence JSON is attached.",
+        "No runtime smoke was run in this scaffolding pass."
       ],
-      "nextAction": "Use docs/agent-truth/runtime-smoke-evidence-checklist.md to run formal deployed runtime smoke and attach repo evidence."
+      "nextAction": "Run deployed runtime smoke separately and attach a complete runtime evidence JSON."
     },
     {
-      "id": "admin_truth_sample_missing",
+      "id": "admin_truth_sample_evidence_missing",
       "severity": "P1",
-      "status": "admin_truth_sample_required",
+      "status": "missing",
       "evidence": [
-        "adminTruthSampleArtifactStatus=missing_or_unknown.",
-        "sampleCount=0."
+        "agent/evidence/admin-truth-sample/evidence.template.json exists but is template_not_evidence.",
+        "No complete non-template admin truth sample evidence JSON is attached.",
+        "No admin truth sample was collected in this scaffolding pass."
       ],
-      "nextAction": "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md to attach a fresh first-party admin truth screenshot or JSON sample before beta exit review."
+      "nextAction": "Attach a fresh redacted admin truth screenshot or JSON sample and complete the admin truth evidence JSON."
     },
     {
       "id": "freshness_integrity_stale_launch_reports",
       "severity": "P1",
       "status": "stale_evidence",
       "evidence": [
-        "Public beta score reports 3 required launch/readiness reports older than the freshness window.",
-        "Final phase cleanup lock reports staleAuthorityRisks=10."
+        "Public beta score remains 45/100, Stale evidence.",
+        "Launch/readiness evidence remains stale until formal evidence artifacts are attached and scored."
       ],
-      "nextAction": "Regenerate or explicitly retire stale launch/readiness evidence before beta exit review."
+      "nextAction": "Regenerate beta score only after evidence artifacts exist; do not mark beta exit ready from templates."
     }
   ],
   "deferredOwnerReview": [
@@ -172,11 +203,12 @@
     }
   ],
   "nextExactSteps": [
-    "Use docs/agent-truth/manual-screenshot-qa-checklist.md to start targeted manual screenshot QA for source-confirmed user/creator surfaces and attach screenshot evidence.",
-    "Use docs/agent-truth/provider-smoke-evidence-checklist.md to run or attach formal provider smoke evidence; do not treat operator-reported PayPal refill as formal evidence.",
-    "Use docs/agent-truth/runtime-smoke-evidence-checklist.md to run formal deployed runtime smoke and attach repo evidence.",
-    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md to attach a fresh admin truth screenshot or JSON sample.",
-    "Regenerate or retire stale launch/readiness reports before beta exit review.",
-    "Keep speed/security P2 backlog visible for owner-scoped hardening passes."
+    "Use agent/evidence/manual-screenshot-qa/evidence.template.json and docs/agent-truth/manual-screenshot-qa-checklist.md to attach required screenshot evidence under agent/evidence/manual-screenshot-qa/screenshots/.",
+    "Use agent/evidence/provider-smoke/evidence.template.json and docs/agent-truth/provider-smoke-evidence-checklist.md to attach redacted provider smoke evidence.",
+    "Use agent/evidence/runtime-smoke/evidence.template.json and docs/agent-truth/runtime-smoke-evidence-checklist.md to attach deployed runtime smoke evidence.",
+    "Use agent/evidence/admin-truth-sample/evidence.template.json and docs/agent-truth/admin-truth-sample-evidence-checklist.md to attach a fresh admin truth sample.",
+    "Reference agent/state/evidence-capture-status.generated.json before deciding whether beta exit review can start.",
+    "Run strict evidence validators with EVIDENCE_STRICT=1 only after real artifacts are expected to exist.",
+    "Keep beta exit review blocked until visual, provider, runtime, admin truth, and freshness evidence are complete."
   ]
 }

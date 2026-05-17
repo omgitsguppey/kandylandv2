@@ -1,0 +1,130 @@
+{
+  "status": "template_not_evidence",
+  "capturedAtUtc": "",
+  "appBaseUrl": "",
+  "device": "",
+  "browser": "",
+  "routes": [
+    {
+      "route": "/",
+      "surface": "user",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/home__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "/drops",
+      "surface": "user",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/drops__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "/drops/[id]/preview locked state",
+      "surface": "user",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/drop-preview-locked__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "/dashboard",
+      "surface": "user",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/dashboard__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "/dashboard/creator",
+      "surface": "creator",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/dashboard-creator__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "/dashboard/profile",
+      "surface": "user",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/dashboard-profile__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "/dashboard/settings",
+      "surface": "user",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/dashboard-settings__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "/dashboard/library",
+      "surface": "user",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/dashboard-library__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "/dashboard/chat shell only",
+      "surface": "shared_shell",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/dashboard-chat-shell__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "/creators/[username]",
+      "surface": "creator",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/creator-profile__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "wallet / GumDrop purchase modal",
+      "surface": "wallet",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/wallet-purchase-modal__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "creator profile Fan Pass",
+      "surface": "creator",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/creator-fan-pass__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "creator profile requests",
+      "surface": "creator",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/creator-requests__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "creator profile booking slots",
+      "surface": "creator",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/creator-booking-slots__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "creator owner profile mode",
+      "surface": "creator",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/creator-owner-mode__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "Beta release notes drawer",
+      "surface": "release_notes",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/beta-release-notes-drawer__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "route": "mobile nav/sidebar/profile dropdown",
+      "surface": "shared_shell",
+      "screenshotPath": "agent/evidence/manual-screenshot-qa/screenshots/mobile-nav-sidebar-dropdown__mobile__yyyy-mm-dd.png",
+      "status": "blocked",
+      "notes": ""
+    }
+  ],
+  "redactions": [],
+  "operatorNotes": "Template only. Copy to a new JSON file before attaching evidence."
+}

@@ -54,6 +54,7 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       "Use docs/agent-truth/provider-smoke-evidence-checklist.md.",
       "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
       "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",
+      "Reference agent/state/evidence-capture-status.generated.json.",
     ],
   };
 
@@ -138,6 +139,21 @@ describe("current beta exit status validator", () => {
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
       "nextExactSteps must reference docs/agent-truth/manual-screenshot-qa-checklist.md.",
+    );
+  });
+
+  it("requires next steps to point at evidence capture status", () => {
+    const report = reportFixture({
+      nextExactSteps: [
+        "Use docs/agent-truth/manual-screenshot-qa-checklist.md.",
+        "Use docs/agent-truth/provider-smoke-evidence-checklist.md.",
+        "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
+        "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",
+      ],
+    });
+
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
+      "nextExactSteps must reference agent/state/evidence-capture-status.generated.json.",
     );
   });
 

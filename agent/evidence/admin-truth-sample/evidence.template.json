@@ -1,0 +1,31 @@
+{
+  "status": "template_not_evidence",
+  "capturedAtUtc": "",
+  "surface": "admin_truth_sample",
+  "artifactPath": "",
+  "sourceFreshnessUtc": "",
+  "redactions": [],
+  "checks": [
+    {
+      "id": "source-freshness",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "id": "sample-count",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "id": "source-state-label",
+      "status": "blocked",
+      "notes": ""
+    },
+    {
+      "id": "redacted-artifact-attached",
+      "status": "blocked",
+      "notes": ""
+    }
+  ],
+  "operatorNotes": "Template only. Copy to a new JSON file before attaching evidence."
+}

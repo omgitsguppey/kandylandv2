@@ -11,7 +11,7 @@ type ValidationOptions = {
 };
 
 type LaneEvaluation = {
-  lane: "runtimeSmokeEvidence";
+  lane: "manualScreenshotEvidence";
   status: EvidenceStatus;
   folder: string;
   templatePath: string;
@@ -21,22 +21,30 @@ type LaneEvaluation = {
   failures: string[];
 };
 
-export const REQUIRED_RUNTIME_SMOKE_CHECKS = [
+export const REQUIRED_MANUAL_SCREENSHOT_ROUTES = [
   "/",
   "/drops",
-  "/creators/[username]",
-  "creator-booking-slot-flow",
+  "/drops/[id]/preview locked state",
+  "/dashboard",
   "/dashboard/creator",
-  "/dashboard/chat",
-  "beta-release-notes-drawer",
-  "no-provider-calls",
-  "no-raw-secrets",
+  "/dashboard/profile",
+  "/dashboard/settings",
+  "/dashboard/library",
+  "/dashboard/chat shell only",
+  "/creators/[username]",
+  "wallet / GumDrop purchase modal",
+  "creator profile Fan Pass",
+  "creator profile requests",
+  "creator profile booking slots",
+  "creator owner profile mode",
+  "Beta release notes drawer",
+  "mobile nav/sidebar/profile dropdown",
 ] as const;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const repoRoot = join(__dirname, "..", "..");
-const evidenceFolder = "agent/evidence/runtime-smoke";
+const evidenceFolder = "agent/evidence/manual-screenshot-qa";
 const templatePath = `${evidenceFolder}/evidence.template.json`;
 const secretPatterns = [
   /access_token/i,
@@ -76,7 +84,7 @@ function containsRawSecret(value: unknown) {
   return secretPatterns.some((pattern) => pattern.test(source));
 }
 
-export function validateRuntimeSmokeEvidenceDocument(
+export function validateManualScreenshotEvidenceDocument(
   document: unknown,
   options: ValidationOptions = {},
 ) {
@@ -84,49 +92,54 @@ export function validateRuntimeSmokeEvidenceDocument(
   const doc = record(document);
 
   if (containsRawSecret(doc)) {
-    failures.push("runtime smoke evidence must not include raw secrets or provider tokens.");
+    failures.push("manual screenshot evidence must not include raw secrets or provider tokens.");
   }
   if (doc.status === "template_not_evidence") {
-    if (options.requireComplete) failures.push("runtime smoke evidence template is not completed evidence.");
+    if (options.requireComplete) {
+      failures.push("manual screenshot evidence template is not completed evidence.");
+    }
     return failures;
   }
   if (!["complete", "incomplete"].includes(String(doc.status))) {
-    failures.push("runtime smoke evidence status must be complete, incomplete, or template_not_evidence.");
+    failures.push("manual screenshot evidence status must be complete, incomplete, or template_not_evidence.");
   }
   if (options.requireComplete && doc.status !== "complete") {
-    failures.push("runtime smoke evidence must be complete.");
+    failures.push("manual screenshot evidence must be complete.");
   }
   if (doc.status !== "complete") return failures;
 
-  if (!isValidUtc(doc.capturedAtUtc)) failures.push("runtime smoke complete evidence must include capturedAtUtc.");
+  if (!isValidUtc(doc.capturedAtUtc)) failures.push("manual screenshot complete evidence must include capturedAtUtc.");
   if (typeof doc.appBaseUrl !== "string" || doc.appBaseUrl.length === 0) {
-    failures.push("runtime smoke complete evidence must include appBaseUrl.");
+    failures.push("manual screenshot complete evidence must include appBaseUrl.");
   }
-  if (!["production", "preview", "unknown"].includes(String(doc.environment))) {
-    failures.push("runtime smoke complete evidence environment must be production, preview, or unknown.");
+  if (typeof doc.device !== "string" || doc.device.length === 0) {
+    failures.push("manual screenshot complete evidence must include device.");
+  }
+  if (typeof doc.browser !== "string" || doc.browser.length === 0) {
+    failures.push("manual screenshot complete evidence must include browser.");
   }
   if (array(doc.redactions).length === 0) {
-    failures.push("runtime smoke complete evidence must include at least one redaction entry.");
+    failures.push("manual screenshot complete evidence must include at least one redaction entry.");
   }
 
-  const checks = array(doc.checks).map(record);
-  const seenChecks = new Set(checks.map((check) => check.route).filter((route): route is string => typeof route === "string"));
-  for (const requiredCheck of REQUIRED_RUNTIME_SMOKE_CHECKS) {
-    if (!seenChecks.has(requiredCheck)) {
-      failures.push(`runtime smoke complete evidence must include check "${requiredCheck}".`);
+  const routes = array(doc.routes).map(record);
+  const seenRoutes = new Set(routes.map((route) => route.route).filter((route): route is string => typeof route === "string"));
+  for (const requiredRoute of REQUIRED_MANUAL_SCREENSHOT_ROUTES) {
+    if (!seenRoutes.has(requiredRoute)) {
+      failures.push(`manual screenshot complete evidence must include route "${requiredRoute}".`);
     }
   }
-  for (const check of checks) {
-    if (!["pass", "fail", "blocked"].includes(String(check.status))) {
-      failures.push(`runtime smoke check "${String(check.route ?? "unknown")}" must use pass, fail, or blocked status.`);
+  for (const route of routes) {
+    if (!["pass", "fail", "blocked"].includes(String(route.status))) {
+      failures.push(`manual screenshot route "${String(route.route ?? "unknown")}" must use pass, fail, or blocked status.`);
     }
-    if (!isRelativeEvidencePath(check.artifactPath)) {
-      failures.push(`runtime smoke check "${String(check.route ?? "unknown")}" artifactPath must be a relative path.`);
+    if (!isRelativeEvidencePath(route.screenshotPath)) {
+      failures.push(`manual screenshot route "${String(route.route ?? "unknown")}" screenshotPath must be a relative path.`);
       continue;
     }
-    const artifactPath = String(check.artifactPath);
-    if (!pathExists(artifactPath, options)) {
-      failures.push(`runtime smoke check "${String(check.route ?? "unknown")}" artifactPath must exist.`);
+    const screenshotPath = String(route.screenshotPath);
+    if (!pathExists(screenshotPath, options)) {
+      failures.push(`manual screenshot route "${String(route.route ?? "unknown")}" screenshotPath must exist.`);
     }
   }
 
@@ -145,7 +158,7 @@ function listEvidenceFiles() {
     .map((entry) => `${evidenceFolder}/${entry}`);
 }
 
-export function evaluateRuntimeSmokeEvidence(): LaneEvaluation {
+export function evaluateManualScreenshotEvidence(): LaneEvaluation {
   const files = listEvidenceFiles();
   const failures: string[] = [];
   const completeArtifacts: string[] = [];
@@ -153,7 +166,7 @@ export function evaluateRuntimeSmokeEvidence(): LaneEvaluation {
   for (const file of files) {
     try {
       const document = readJson(file);
-      const validationFailures = validateRuntimeSmokeEvidenceDocument(document, { requireComplete: true });
+      const validationFailures = validateManualScreenshotEvidenceDocument(document, { requireComplete: true });
       if (validationFailures.length === 0) {
         completeArtifacts.push(file);
       } else if (containsRawSecret(document)) {
@@ -171,7 +184,7 @@ export function evaluateRuntimeSmokeEvidence(): LaneEvaluation {
       : "missing";
 
   return {
-    lane: "runtimeSmokeEvidence",
+    lane: "manualScreenshotEvidence",
     status,
     folder: evidenceFolder,
     templatePath,
@@ -183,22 +196,22 @@ export function evaluateRuntimeSmokeEvidence(): LaneEvaluation {
 }
 
 function main() {
-  const result = evaluateRuntimeSmokeEvidence();
+  const result = evaluateManualScreenshotEvidence();
   const strict = process.env.EVIDENCE_STRICT === "1";
   const failures = [...result.failures];
 
   if (strict && result.status !== "complete") {
-    failures.push("runtime smoke evidence is missing or incomplete in strict mode.");
+    failures.push("manual screenshot evidence is missing or incomplete in strict mode.");
   }
 
   if (failures.length > 0) {
-    console.error("Runtime smoke evidence validation failed:");
+    console.error("Manual screenshot evidence validation failed:");
     for (const failure of failures) console.error(`- ${failure}`);
     process.exit(1);
   }
 
   console.log(
-    `Runtime smoke evidence status: ${result.status}; ` +
+    `Manual screenshot evidence status: ${result.status}; ` +
       `templates are not evidence; completeArtifacts=${result.completeArtifacts.length}; ` +
       `head=${execFileSync("git", ["rev-parse", "--short", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim()}`,
   );
