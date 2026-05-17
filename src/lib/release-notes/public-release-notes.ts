@@ -1,13 +1,71 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.68",
-  "betaReleaseCounter": 268,
+  "currentVersion": "1.2.69",
+  "betaReleaseCounter": 269,
   "channel": "beta",
-  "generatedAt": "2026-05-17T15:15:09.230Z",
-  "generatedAtUtc": "2026-05-17T15:15:09.230Z",
-  "lastCommitSha": "eff07dd548f531c623e6bceb6f613c1d51550401",
+  "generatedAt": "2026-05-17T15:44:25.954Z",
+  "generatedAtUtc": "2026-05-17T15:44:25.954Z",
+  "lastCommitSha": "b20f5b447f2a33afa6bce602b36d7dd216e96746",
   "notes": [
+    {
+      "version": "1.2.69",
+      "previousVersion": "1.2.68",
+      "betaReleaseCounter": 269,
+      "previousBetaReleaseCounter": 268,
+      "commitSha": "b20f5b447f2a33afa6bce602b36d7dd216e96746",
+      "commitTitle": "feat(errors): add bug report reward flow",
+      "commitCount": 1,
+      "commitShas": [
+        "b20f5b447f2a33afa6bce602b36d7dd216e96746"
+      ],
+      "committedAt": "2026-05-17T15:44:25.954Z",
+      "generatedAt": "2026-05-17T15:44:25.954Z",
+      "committedAtUtc": "2026-05-17T15:44:25.954Z",
+      "generatedAtUtc": "2026-05-17T15:44:25.954Z",
+      "updatedAtUtc": "2026-05-17T15:44:25.954Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added one-tap bug reports for translated product errors.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added one-tap bug reports for translated product errors.",
+        "Prepared 10 reward GumDrop bug report rewards with abuse guards.",
+        "Kept raw error details out of normal user-facing bug reports."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "memory.md",
+        "src/lib/errors/error-dictionary.ts",
+        "src/lib/errors/bug-report-contract.ts",
+        "src/lib/errors/submit-bug-report.ts",
+        "src/components/errors/HumanErrorNotice.tsx",
+        "src/hooks/useSubmitBugReport.ts",
+        "src/app/api/bug-reports/route.ts",
+        "docs/agent-truth/bug-report-reward-flow.md",
+        "agent/state/bug-report-reward-flow.generated.json",
+        "scripts/agent/validate-bug-report-reward-flow.ts",
+        "docs/agent-truth/error-language-contract.md",
+        "agent/state/error-language-contract.generated.json",
+        "scripts/agent/validate-error-language-contract.ts",
+        "tests/unit/bug-report-contract.spec.ts",
+        "tests/unit/bug-reports-route.spec.ts",
+        "tests/unit/submit-bug-report.spec.ts",
+        "tests/unit/human-error-notice-bug-report.spec.tsx",
+        "tests/unit/human-error-notice.spec.tsx",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "b20f5b447f2a33afa6bce602b36d7dd216e96746"
+    },
     {
       "version": "1.2.68",
       "previousVersion": "1.2.67",
@@ -1202,52 +1260,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-analytics-historical-engagement.spec.ts"
       ],
       "sourceCommit": "f43a78682114342113f5bc83dc5c89fe439de096"
-    },
-    {
-      "version": "1.2.44",
-      "previousVersion": "1.2.43",
-      "betaReleaseCounter": 244,
-      "previousBetaReleaseCounter": 243,
-      "commitSha": "d75e1f4cf4276ee9e649fc412be344f121adffd6",
-      "commitTitle": "fix(admin): compact analytics operations mobile panels",
-      "commitCount": 1,
-      "commitShas": [
-        "d75e1f4cf4276ee9e649fc412be344f121adffd6"
-      ],
-      "committedAt": "2026-05-14T19:56:27.000Z",
-      "generatedAt": "2026-05-14T19:56:39.575Z",
-      "committedAtUtc": "2026-05-14T19:56:27.000Z",
-      "generatedAtUtc": "2026-05-14T19:56:39.575Z",
-      "updatedAtUtc": "2026-05-14T19:56:39.575Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Made Admin Analytics operation panels more compact on mobile.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Made Admin Analytics operation panels more compact on mobile.",
-        "Stopped unavailable event-chain data from showing as errors or fake zero math.",
-        "Added clearer tracking explanations when a metric cannot be measured exactly yet."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "docs/agent-truth/admin-analytics-journey-funnel.md",
-        "docs/agent-truth/admin-analytics-truth.md",
-        "package.json",
-        "scripts/agent/validate-admin-analytics-operations-mobile.ts",
-        "scripts/check-admin-analytics-live-pulse.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
-        "src/lib/admin-analytics-journey-funnel.ts",
-        "src/lib/admin-analytics-live-pulse.ts",
-        "tests/unit/admin-analytics-journey-funnel.spec.ts",
-        "tests/unit/admin-analytics-live-pulse.spec.ts"
-      ],
-      "sourceCommit": "d75e1f4cf4276ee9e649fc412be344f121adffd6"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

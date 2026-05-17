@@ -1,8 +1,8 @@
 # Error Language Contract
 
-Generated: 2026-05-17T15:17:11.426Z
+Generated: 2026-05-17T15:44:50.455Z
 
-Current head: `eff07dd548f531c623e6bceb6f613c1d51550401`
+Current head: `b20f5b447f2a33afa6bce602b36d7dd216e96746`
 
 ## Status
 
@@ -13,13 +13,13 @@ Phase 1 creates the shared human error contract, dictionary, resolver, API paylo
 - Normal user and creator UI must show plain-language messages, not raw route, provider, Firebase, validation, or stack details.
 - Raw details stay in route diagnostics, Debug, and operator evidence.
 - User copy explains what happened, what it blocks, who can fix it, and what action to take next.
-- `rewardEligible` is present in the contract but remains false in Phase 1 because the bug reward flow is not wired.
+- `rewardEligible` marks translated platform errors that can use the Phase 2 bug-report reward flow.
 
 ## Coverage
 
 - Dictionary entries: 41
 - Bug-report eligible entries: 15
-- Reward eligible entries: 0
+- Reward eligible entries: 1
 - Surfaces covered: auth, creator_booking, creator_chat, creator_dashboard, creator_profile, creator_request, fan_pass, gumdrop_purchase, navigation, runtime, unknown, wallet
 
 ## Deferred Wiring

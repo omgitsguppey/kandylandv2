@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.69 - 2026-05-17
+- Bug fixes and general improvements
+- Added one-tap bug reports for translated product errors.
+- Prepared 10 reward GumDrop bug report rewards with abuse guards.
+- Kept raw error details out of normal user-facing bug reports.
+
 ## 1.2.68 - 2026-05-17
 - Bug fixes and general improvements
 - Added plain-language error translation for user and creator flows.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Made Auth Outcomes simpler and clearer on mobile.
 - Separated email/password and Google login attempt tracking.
 - Stopped missing auth samples from showing as errors or repeated snapshot waits.
-
-## 1.2.44 - 2026-05-14
-- Bug fixes and general improvements
-- Made Admin Analytics operation panels more compact on mobile.
-- Stopped unavailable event-chain data from showing as errors or fake zero math.
-- Added clearer tracking explanations when a metric cannot be measured exactly yet.

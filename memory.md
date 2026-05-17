@@ -22,3 +22,4 @@
 - Creator owners viewing their own public profile do not see fan purchase/request/booking/chat controls.
 - Creator management/drop surfaces show own creator drops; public discovery remains public.
 - Phase 2 depends on Phase 1 GumDrop economy contract and must not change paid-bonus ledger math.
+- Bug report rewards credit reward GumDrops only, never purchased balance.

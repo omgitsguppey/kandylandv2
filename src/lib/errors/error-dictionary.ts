@@ -58,7 +58,7 @@ export const HUMAN_ERROR_DICTIONARY = {
     primaryAction: "submit_bug",
     secondaryAction: "retry",
     bugReportEligible: true,
-    rewardEligible: false,
+    rewardEligible: true,
     debugOnlyDetails: ["route_diagnostics", "runtime_logs", "source_connection"],
   },
   unknown_error: {

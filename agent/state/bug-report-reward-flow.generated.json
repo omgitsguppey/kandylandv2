@@ -1,0 +1,61 @@
+{
+  "generatedAtUtc": "2026-05-17T15:46:42.408Z",
+  "reportKey": "bug-report-reward-flow",
+  "currentHead": "b20f5b447f2a33afa6bce602b36d7dd216e96746",
+  "summary": {
+    "rewardGd": 10,
+    "dailyRewardCap": 3,
+    "duplicateWindowMs": 21600000,
+    "routeCreated": true,
+    "rewardCreditsRewardBalanceOnly": true,
+    "purchasedBalanceUntouched": true,
+    "safeRedirectEnabled": true,
+    "sanitizationEnabled": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "routeFindings": [
+    {
+      "id": "bug-report-route",
+      "status": "fixed",
+      "detail": "Authenticated POST route stores sanitized reports and handles reward eligibility."
+    }
+  ],
+  "rewardFindings": [
+    {
+      "id": "reward-balance-only",
+      "status": "fixed",
+      "detail": "Eligible rewards credit 10 reward GumDrops through source-aware balance helpers; purchased balance is not credited."
+    },
+    {
+      "id": "abuse-guards",
+      "status": "fixed",
+      "detail": "Daily cap and duplicate window guard bug-report reward farming."
+    }
+  ],
+  "sanitizerFindings": [
+    {
+      "id": "sensitive-context-strip",
+      "status": "fixed",
+      "detail": "Bug report context strips token, secret, password, authorization, cookie, PayPal, capture, clientSecret, and stack-like keys."
+    }
+  ],
+  "redirectFindings": [
+    {
+      "id": "safe-internal-redirect",
+      "status": "fixed",
+      "detail": "Redirects prefer safe internal previousRoute, then route, then root."
+    }
+  ],
+  "fixesApplied": [
+    "Created one-tap bug report contract, route, client submit helper, and hook.",
+    "Updated HumanErrorNotice with async Send bug CTA and reward-aware success state.",
+    "Added validator and focused unit coverage for reward balance, duplicate, cap, sanitizer, redirect, and client helper behavior."
+  ],
+  "nextFixOrder": [
+    "Wire translated platform errors on selected user/creator surfaces to useSubmitBugReport.",
+    "Expose raw bug report diagnostics only in Debug/admin evidence surfaces.",
+    "Add operator review tooling for bug_reports after admin scope is explicitly approved."
+  ]
+}

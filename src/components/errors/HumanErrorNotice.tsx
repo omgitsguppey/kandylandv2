@@ -1,5 +1,9 @@
 "use client";
 
+import { useState } from "react";
+
+import { BUG_REPORT_REWARD_GD, type BugReportStatus } from "@/lib/errors/bug-report-contract";
+import type { SubmitBugReportResult } from "@/lib/errors/submit-bug-report";
 import type { HumanApiErrorPayload, HumanErrorAction, HumanErrorDescriptor } from "@/lib/errors/error-language";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +12,7 @@ type HumanErrorNoticeProps = {
   payload?: HumanApiErrorPayload;
   onPrimaryAction?: (action: HumanErrorAction) => void;
   onSecondaryAction?: (action: HumanErrorAction) => void;
-  onSubmitBug?: () => void;
+  onSubmitBug?: () => Promise<SubmitBugReportResult | void> | SubmitBugReportResult | void;
   compact?: boolean;
   className?: string;
 };
@@ -26,6 +30,30 @@ const ACTION_LABELS: Record<HumanErrorAction, string> = {
   contact_support: "Contact support",
   none: "",
 };
+
+function bugReportLabel(rewardEligible: boolean) {
+  return rewardEligible ? `Send bug + get ${BUG_REPORT_REWARD_GD} GD` : "Send bug";
+}
+
+function bugReportStatusMessage(result?: SubmitBugReportResult | void) {
+  if (!result || result.success !== true) {
+    return "";
+  }
+
+  if (result.rewardGranted) {
+    return `${result.rewardGd ?? BUG_REPORT_REWARD_GD} reward GumDrops added.`;
+  }
+
+  const status = result.status as BugReportStatus | undefined;
+  if (status === "duplicate") {
+    return "Bug sent. We already counted this one recently.";
+  }
+  if (status === "reward_cap_reached") {
+    return "Bug sent. Today's bug reward limit is reached.";
+  }
+
+  return "Bug sent.";
+}
 
 function readNoticeCopy(descriptor?: HumanErrorDescriptor, payload?: HumanApiErrorPayload) {
   if (payload) {
@@ -66,6 +94,9 @@ export function HumanErrorNotice({
   compact = false,
   className,
 }: HumanErrorNoticeProps) {
+  const [bugPending, setBugPending] = useState(false);
+  const [bugStatusMessage, setBugStatusMessage] = useState("");
+  const [bugErrorMessage, setBugErrorMessage] = useState("");
   const notice = readNoticeCopy(descriptor, payload);
   if (!notice) {
     return null;
@@ -76,6 +107,28 @@ export function HumanErrorNotice({
   const showPrimary = notice.primaryAction !== "none" && primaryLabel.length > 0;
   const showSecondary = Boolean(notice.secondaryAction && notice.secondaryAction !== "none" && secondaryLabel.length > 0);
   const primaryIsBug = notice.primaryAction === "submit_bug";
+  const sendBug = async () => {
+    if (!onSubmitBug || bugPending) {
+      return;
+    }
+
+    setBugPending(true);
+    setBugStatusMessage("");
+    setBugErrorMessage("");
+    try {
+      const result = await onSubmitBug();
+      const nextMessage = bugReportStatusMessage(result);
+      if (nextMessage) {
+        setBugStatusMessage(nextMessage);
+      } else if (result && result.success === false) {
+        setBugErrorMessage(result.userMessage ?? result.error ?? "Bug report could not be sent.");
+      }
+    } catch {
+      setBugErrorMessage("Bug report could not be sent. Try again in a moment.");
+    } finally {
+      setBugPending(false);
+    }
+  };
 
   return (
     <div
@@ -92,15 +145,22 @@ export function HumanErrorNotice({
     >
       <p className={cn("font-bold text-white", compact ? "text-sm" : "text-base")}>{notice.userTitle}</p>
       <p className={cn("mt-1 leading-6 text-red-100", compact ? "text-xs" : "text-sm")}>{notice.userMessage}</p>
+      {bugStatusMessage ? (
+        <p className={cn("mt-2 text-emerald-100", compact ? "text-xs" : "text-sm")}>{bugStatusMessage}</p>
+      ) : null}
+      {bugErrorMessage ? (
+        <p className={cn("mt-2 text-red-100", compact ? "text-xs" : "text-sm")}>{bugErrorMessage}</p>
+      ) : null}
       {showPrimary || showSecondary || notice.bugReportEligible ? (
         <div className="mt-3 flex flex-wrap gap-2">
           {showPrimary ? (
             <button
               type="button"
-              onClick={() => primaryIsBug ? onSubmitBug?.() : onPrimaryAction?.(notice.primaryAction)}
+              onClick={() => primaryIsBug ? void sendBug() : onPrimaryAction?.(notice.primaryAction)}
+              disabled={primaryIsBug && bugPending}
               className="min-h-10 rounded-full bg-white px-3 py-2 text-xs font-bold text-black"
             >
-              {primaryLabel}
+              {primaryIsBug ? (bugPending ? "Sending bug..." : bugReportLabel(notice.rewardEligible)) : primaryLabel}
             </button>
           ) : null}
           {showSecondary ? (
@@ -115,10 +175,11 @@ export function HumanErrorNotice({
           {notice.bugReportEligible && !primaryIsBug ? (
             <button
               type="button"
-              onClick={onSubmitBug}
+              onClick={() => void sendBug()}
+              disabled={bugPending}
               className="min-h-10 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white"
             >
-              Send bug
+              {bugPending ? "Sending bug..." : bugReportLabel(notice.rewardEligible)}
             </button>
           ) : null}
         </div>

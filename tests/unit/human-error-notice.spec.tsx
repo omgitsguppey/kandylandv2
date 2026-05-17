@@ -16,7 +16,7 @@ describe("HumanErrorNotice", () => {
     expect(screen.getByText("This hit a platform snag")).toBeTruthy();
     expect(screen.getByText(/Something ain't connected right on our side/i)).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Send bug" }));
+    fireEvent.click(screen.getByRole("button", { name: "Send bug + get 10 GD" }));
     expect(onSubmitBug).toHaveBeenCalledTimes(1);
   });
 

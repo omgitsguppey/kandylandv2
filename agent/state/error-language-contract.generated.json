@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T15:17:11.426Z",
+  "generatedAtUtc": "2026-05-17T15:44:50.455Z",
   "reportKey": "error-language-contract",
-  "currentHead": "eff07dd548f531c623e6bceb6f613c1d51550401",
+  "currentHead": "b20f5b447f2a33afa6bce602b36d7dd216e96746",
   "summary": {
     "dictionaryEntries": 41,
     "rawErrorPatternsBlocked": 9,
@@ -20,7 +20,7 @@
       "wallet"
     ],
     "bugReportEligibleCount": 15,
-    "rewardEligibleCount": 0,
+    "rewardEligibleCount": 1,
     "unresolvedRawErrorSources": 6,
     "p0Count": 0,
     "p1Count": 0,
@@ -35,7 +35,7 @@
       "primaryAction": "submit_bug",
       "secondaryAction": "retry",
       "bugReportEligible": true,
-      "rewardEligible": false
+      "rewardEligible": true
     },
     {
       "errorKey": "unknown_error",
