@@ -12,6 +12,7 @@
 - Creator management surfaces should show own creator drops only; public discovery stays public.
 - Release-note-only commits must use `[skip release-notes]`.
 - Every accepted non-release-artifact patch updates the Beta badge.
+- Beta badge / patch notes must be included in the same commit as the real patch. Release-note automation validates only and must not create separate follow-up commits.
 - Do not touch admin backend during user/creator UI parity work unless explicitly scoped.
 
 ## Current Operating Memory: KandyDrops Phase 2

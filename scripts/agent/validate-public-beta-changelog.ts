@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -53,6 +54,45 @@ function requireExcludes(source: string, forbidden: string, label: string) {
   if (source.includes(forbidden)) failures.push(`${label} must not include "${forbidden}".`);
 }
 
+function safeRunGit(args: string[]) {
+  try {
+    return execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
+  } catch {
+    return "";
+  }
+}
+
+function getHeadCommit() {
+  const raw = safeRunGit(["show", "-s", "--format=%H%x00%s", "HEAD"]);
+  if (!raw) return null;
+  const [sha, title] = raw.split("\u0000");
+  if (!sha || !title) return null;
+  const changedFiles = safeRunGit(["show", "--name-only", "--format=", "--no-renames", "HEAD"])
+    .split(/\r?\n/u)
+    .map((line) => line.trim().replace(/\\/gu, "/"))
+    .filter(Boolean);
+  return { sha, title, changedFiles };
+}
+
+const RELEASE_ARTIFACT_PATHS = new Set([
+  "CHANGELOG.md",
+  "public/kandydrops-release-notes.json",
+  "src/lib/release-notes/public-release-notes.ts",
+  "src/lib/release-notes/release-version-contract.ts",
+  "docs/agent-truth/public-beta-release-notes.md",
+]);
+
+const REQUIRED_PATCH_RELEASE_ARTIFACTS = [
+  "CHANGELOG.md",
+  "public/kandydrops-release-notes.json",
+  "src/lib/release-notes/public-release-notes.ts",
+  "src/lib/release-notes/release-version-contract.ts",
+] as const;
+
+function isReleaseArtifactOnly(changedFiles: string[]) {
+  return changedFiles.length > 0 && changedFiles.every((path) => RELEASE_ARTIFACT_PATHS.has(path));
+}
+
 const document = readJson<PublicReleaseNotesDocument>("public/kandydrops-release-notes.json");
 const fallback = readRequired("src/lib/release-notes/public-release-notes.ts");
 const contract = readRequired("src/lib/release-notes/release-version-contract.ts");
@@ -64,6 +104,7 @@ const docs = readRequired("docs/agent-truth/public-beta-release-notes.md");
 const firebaseAutomationDocs = readRequired("docs/agent-truth/firebase-owned-repo-automation.md");
 const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
+const headCommit = getHeadCommit();
 
 if (document) {
   if (document.channel !== PUBLIC_RELEASE_CHANNEL) failures.push("public release notes channel must remain beta.");
@@ -132,6 +173,14 @@ if (document) {
     }
     if (productFacingFiles.length > 0 && /^Bug fixes and general improvements\.?$/iu.test(latestVisible.summary.trim())) {
       failures.push("user-facing accepted patches must not use generic-only release-note copy.");
+    }
+  }
+
+  if (headCommit && !/\[skip release-notes\]/iu.test(headCommit.title) && !isReleaseArtifactOnly(headCommit.changedFiles)) {
+    for (const artifact of REQUIRED_PATCH_RELEASE_ARTIFACTS) {
+      if (!headCommit.changedFiles.includes(artifact)) {
+        failures.push(`non-release patch commits must include same-commit release-note artifact ${artifact}.`);
+      }
     }
   }
 }
@@ -220,7 +269,9 @@ for (const expected of [
   "github.event_name == 'workflow_dispatch' &&",
   "!contains(github.event.head_commit.message || '', '[skip release-notes]')",
   "Push events are retained for paths-ignore only",
-  "src/lib/release-notes/release-version-contract.ts CHANGELOG.md",
+  "contents: read",
+  "git diff --exit-code -- public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts src/lib/release-notes/release-version-contract.ts CHANGELOG.md",
+  "npm run check:release-notes",
 ]) {
   requireIncludes(releaseWorkflow, expected, "public-release-notes workflow");
 }
@@ -228,14 +279,34 @@ for (const expected of [
 for (const expected of [
   "docs/agent-truth/public-beta-release-notes.md",
   "src/lib/release-notes/release-version-contract.ts|docs/agent-truth/public-beta-release-notes.md|CHANGELOG.md",
-  "src/lib/release-notes/release-version-contract.ts CHANGELOG.md",
+  "git diff --exit-code -- public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts src/lib/release-notes/release-version-contract.ts CHANGELOG.md",
+  "npm run check:release-notes",
 ]) {
   requireIncludes(releaseCloudBuild, expected, "public release notes Cloud Build lane");
+}
+
+for (const [label, source] of [
+  ["public-release-notes workflow", releaseWorkflow],
+  ["public release notes Cloud Build lane", releaseCloudBuild],
+] as const) {
+  for (const forbidden of [
+    "git commit",
+    "git push",
+    "release:notes:accept",
+    "contents: write",
+    "GITHUB_TOKEN",
+    "secretEnv",
+  ]) {
+    requireExcludes(source, forbidden, label);
+  }
 }
 
 for (const expected of [
   "GitHub Actions release-note workflow is manual-only while hosted-runner billing is locked.",
   "Push events must resolve as skipped before runner allocation.",
+  "Patch notes are same-commit artifacts.",
+  "Automation validates; it does not create follow-up commits.",
+  "Separate docs(release) commits are legacy/forbidden except explicit manual recovery.",
 ]) {
   requireIncludes(docs, expected, "release note workflow billing doctrine");
 }

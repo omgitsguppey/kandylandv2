@@ -29,16 +29,16 @@ Do not add Playwright, Lighthouse, Cypress, deploy commands, or full `npm run ch
 
 ## Cloud Build Release Notes
 
-`cloudbuild.release-notes.yaml` is the automated public changelog lane. Configure it as a Cloud Build trigger on `main` pushes with Secret Manager access to a `GITHUB_TOKEN` secret that can write repository contents.
+`cloudbuild.release-notes.yaml` is the automated public changelog validation lane. Configure it as a Cloud Build trigger on `main` pushes; it does not need a repository write token.
 
 The lane:
 
 - skips commits containing `[skip release-notes]`
 - skips release artifact-only commits that touch only `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, `src/lib/release-notes/release-version-contract.ts`, `docs/agent-truth/public-beta-release-notes.md`, and `CHANGELOG.md`
 - runs `npm run release:notes`
+- fails if release-note artifacts change, proving the patch did not commit its own notes
 - runs `npm run check:release-notes`
-- commits `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, `src/lib/release-notes/release-version-contract.ts`, and `CHANGELOG.md`
-- pushes with `[skip ci] [skip release-notes]` to avoid automation loops
+- never commits or pushes release-note artifacts
 
 ## Function Boundary
 

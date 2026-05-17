@@ -1,17 +1,10 @@
-# KandyDrops Cloud Build public release-note normalization lane.
+# KandyDrops Cloud Build public release-note validation lane.
 #
-# This lane may normalize bundled/public changelog artifacts on push, but it
-# must not create a new accepted public beta release unless acceptance is
-# explicit. Accepted public beta releases are published through
-# `npm run release:notes:accept`.
+# This lane verifies bundled/public changelog artifacts are already committed
+# with the patch that required them. It must not create follow-up commits.
 timeout: "1200s"
 options:
   logging: CLOUD_LOGGING_ONLY
-
-availableSecrets:
-  secretManager:
-    - versionName: "projects/$PROJECT_ID/secrets/GITHUB_TOKEN/versions/latest"
-      env: "GITHUB_TOKEN"
 
 steps:
   - id: "skip-generated-release-note-commits"
@@ -25,7 +18,7 @@ steps:
         changed_files="$(git diff-tree --no-commit-id --name-only -r HEAD)"
         if echo "$title" | grep -qi '\[skip release-notes\]'; then
           touch /workspace/.skip-release-notes
-          echo "Release-note generation skipped by commit marker."
+          echo "Release-note validation skipped by commit marker."
           exit 0
         fi
         release_only="true"
@@ -40,7 +33,7 @@ steps:
         done
         if [ "$release_only" = "true" ]; then
           touch /workspace/.skip-release-notes
-          echo "Release-note generation skipped for release artifact-only commit."
+          echo "Release-note validation skipped for release artifact-only commit."
         fi
 
   - id: "install-root-dependencies"
@@ -55,7 +48,7 @@ steps:
         fi
         npm ci
 
-  - id: "update-public-changelog"
+  - id: "validate-public-changelog"
     name: "node:22-bookworm"
     entrypoint: "bash"
     args:
@@ -66,26 +59,5 @@ steps:
           exit 0
         fi
         npm run release:notes
+        git diff --exit-code -- public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts src/lib/release-notes/release-version-contract.ts CHANGELOG.md
         npm run check:release-notes
-
-  - id: "commit-generated-release-notes"
-    name: "gcr.io/cloud-builders/git"
-    entrypoint: "bash"
-    secretEnv: ["GITHUB_TOKEN"]
-    args:
-      - "-lc"
-      - |
-        set -euo pipefail
-        if [ -f /workspace/.skip-release-notes ]; then
-          exit 0
-        fi
-        if git diff --quiet -- public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts src/lib/release-notes/release-version-contract.ts CHANGELOG.md; then
-          echo "Release notes already current."
-          exit 0
-        fi
-        git config user.name "firebase-cloud-build"
-        git config user.email "firebase-cloud-build@kandydrops.local"
-        git add public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts src/lib/release-notes/release-version-contract.ts CHANGELOG.md
-        git commit -m "chore(release): update public changelog [skip ci] [skip release-notes]"
-        git remote set-url origin "https://x-access-token:$$GITHUB_TOKEN@github.com/omgitsguppey/kandylandv2.git"
-        git push origin HEAD:main
