@@ -1,12 +1,12 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-17T14:54:35.836Z
+Generated: 2026-05-17T19:47:05.179Z
 
-Current HEAD: 49b9875737f40217361d9b4eded11b2f66224f81
+Current HEAD: a7df39a9c112dda604f362f84e98fa60689dc2d1
 
 ## Summary
 
-- Beta version: 1.2.67
+- Beta version: 1.2.72
 - Beta score: 55
 - Beta status: Unknown evidence
 - Visual evidence: source_only_screenshotEvidenceAttached_false
@@ -38,10 +38,13 @@ Current HEAD: 49b9875737f40217361d9b4eded11b2f66224f81
 
 ## Next Exact Steps
 
-- Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/.
-- Use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/.
-- Use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/.
-- Use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/.
+- First evidence lane: manual product-behavior screenshot QA. Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/.
+- Manual route/flow checklist: /, /drops, /drops/[id]/preview locked state, /dashboard, /dashboard/creator, /dashboard/profile, /dashboard/settings, /dashboard/library, /dashboard/chat shell only, /creators/[username], wallet / GumDrop purchase modal, creator profile Fan Pass, creator profile requests, creator profile booking slots, creator owner profile mode, Beta release notes drawer, mobile nav/sidebar/profile dropdown.
+- Manual artifact needed: copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated non-template JSON, set status complete only with real screenshots, and place screenshots under agent/evidence/manual-screenshot-qa/screenshots/.
+- Second lane after manual screenshots: use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/ for redacted provider smoke artifacts.
+- Third lane after provider smoke: use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/ for deployed runtime smoke artifacts.
+- Fourth lane: use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/ for fresh redacted admin truth sample artifacts.
 - Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.
 - Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.
+- Stale launch/readiness reports should stay retired until after evidence capture; regenerate them only if beta-exit review needs a fresh launch package.
 - Run npm run check:overnight-beta-readiness-lock after attaching evidence.

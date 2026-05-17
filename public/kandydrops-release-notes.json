@@ -1,11 +1,60 @@
 {
-  "currentVersion": "1.2.71",
-  "betaReleaseCounter": 271,
+  "currentVersion": "1.2.72",
+  "betaReleaseCounter": 272,
   "channel": "beta",
-  "generatedAt": "2026-05-17T17:05:07.440Z",
-  "generatedAtUtc": "2026-05-17T17:05:07.440Z",
-  "lastCommitSha": "49b9875737f40217361d9b4eded11b2f66224f81",
+  "generatedAt": "2026-05-17T19:46:44.331Z",
+  "generatedAtUtc": "2026-05-17T19:46:44.331Z",
+  "lastCommitSha": "a7df39a9c112dda604f362f84e98fa60689dc2d1",
   "notes": [
+    {
+      "version": "1.2.72",
+      "previousVersion": "1.2.71",
+      "betaReleaseCounter": 272,
+      "previousBetaReleaseCounter": 271,
+      "commitSha": "a7df39a9c112dda604f362f84e98fa60689dc2d1",
+      "commitTitle": "docs(beta): refresh status after error readiness",
+      "commitCount": 1,
+      "commitShas": [
+        "a7df39a9c112dda604f362f84e98fa60689dc2d1"
+      ],
+      "committedAt": "2026-05-17T19:46:44.331Z",
+      "generatedAt": "2026-05-17T19:46:44.331Z",
+      "committedAtUtc": "2026-05-17T19:46:44.331Z",
+      "generatedAtUtc": "2026-05-17T19:46:44.331Z",
+      "updatedAtUtc": "2026-05-17T19:46:44.331Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Refreshed Beta exit status after error readiness checks.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refreshed Beta exit status after error readiness checks.",
+        "Kept missing screenshot, provider, runtime, and admin truth evidence visible.",
+        "Clarified the next Beta evidence lane."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "agent/state/error-truth-debug-visibility.generated.json",
+        "docs/agent-truth/error-truth-debug-visibility.md",
+        "agent/state/error-handling-final-readiness.generated.json",
+        "docs/agent-truth/error-handling-final-readiness.md",
+        "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "a7df39a9c112dda604f362f84e98fa60689dc2d1"
+    },
     {
       "version": "1.2.71",
       "previousVersion": "1.2.70",
@@ -1228,59 +1277,6 @@
         "tests/unit/user-facing-feature-connection-audit.spec.ts"
       ],
       "sourceCommit": "f939d6a50343ccee1531116bdbc62e471b15c213"
-    },
-    {
-      "version": "1.2.47",
-      "previousVersion": "1.2.46",
-      "betaReleaseCounter": 247,
-      "previousBetaReleaseCounter": 246,
-      "commitSha": "9a254829a8d46dcca96e191da174f6ff9d06296b",
-      "commitTitle": "fix(creator): connect dashboard request flow",
-      "commitCount": 1,
-      "commitShas": [
-        "9a254829a8d46dcca96e191da174f6ff9d06296b"
-      ],
-      "committedAt": "2026-05-14T23:33:01.000Z",
-      "generatedAt": "2026-05-14T23:33:19.851Z",
-      "committedAtUtc": "2026-05-14T23:33:01.000Z",
-      "generatedAtUtc": "2026-05-14T23:33:19.851Z",
-      "updatedAtUtc": "2026-05-14T23:33:19.851Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Connected creator request management to the Creator Dashboard.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Connected creator request management to the Creator Dashboard.",
-        "Added request body size guards to creator operation routes.",
-        "Marked Fan Pass, bookings, and chat actions honestly based on connected routes."
-      ],
-      "audience": "creators",
-      "affectedSurfaces": [
-        "creator"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/speed-security-hardening.generated.json",
-        "agent/state/user-facing-feature-connection-audit.generated.json",
-        "docs/agent-truth/creator-dashboard-full-loop-connections.md",
-        "docs/agent-truth/user-facing-feature-connection-audit.md",
-        "scripts/agent/validate-settings-creator-dashboard-split.ts",
-        "scripts/agent/validate-user-facing-feature-connection-audit.ts",
-        "src/app/api/creator/broadcasts/route.ts",
-        "src/app/api/creator/requests/route.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "src/components/Creators/CreatorRequestsManager.tsx",
-        "tests/unit/creator-broadcasts-route.spec.ts",
-        "tests/unit/creator-dashboard-settings.spec.tsx",
-        "tests/unit/creator-requests-manager.spec.tsx",
-        "tests/unit/creator-requests-route.spec.ts",
-        "tests/unit/creator-settings-route.spec.ts",
-        "tests/unit/speed-security-hardening.spec.ts",
-        "tests/unit/user-facing-feature-connection-audit.spec.ts"
-      ],
-      "sourceCommit": "9a254829a8d46dcca96e191da174f6ff9d06296b"
     }
   ]
 }

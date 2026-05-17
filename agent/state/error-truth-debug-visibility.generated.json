@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T16:58:26.654Z",
+  "generatedAtUtc": "2026-05-17T19:43:05.762Z",
   "reportKey": "error-truth-debug-visibility",
-  "currentHead": "49b9875737f40217361d9b4eded11b2f66224f81",
+  "currentHead": "a7df39a9c112dda604f362f84e98fa60689dc2d1",
   "summary": {
     "phase4Status": "pass",
     "routeCreated": true,
@@ -31,6 +31,6 @@
   "deferredFindings": [],
   "nextFixOrder": [
     "Run npm run check:error-handling-final-readiness.",
-    "Attach manual screenshot, provider, runtime, and admin truth evidence before beta exit review."
+    "Attach real screenshot, provider, runtime, and admin truth evidence before beta exit review."
   ]
 }

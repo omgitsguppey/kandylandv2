@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.72 - 2026-05-17
+- Bug fixes and general improvements
+- Refreshed Beta exit status after error readiness checks.
+- Kept missing screenshot, provider, runtime, and admin truth evidence visible.
+- Clarified the next Beta evidence lane.
+
 ## 1.2.71 - 2026-05-17
 - Bug fixes and general improvements
 - Locked the translated error and bug report readiness checks.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Connected booking management to the Creator Dashboard.
 - Added Fan Pass subscriber visibility for creators.
 - Added body size guards to booking and subscription routes.
-
-## 1.2.47 - 2026-05-14
-- Bug fixes and general improvements
-- Connected creator request management to the Creator Dashboard.
-- Added request body size guards to creator operation routes.
-- Marked Fan Pass, bookings, and chat actions honestly based on connected routes.
