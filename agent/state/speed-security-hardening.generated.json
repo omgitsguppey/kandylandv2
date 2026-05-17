@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-15T13:28:07.691Z",
+  "generatedAt": "2026-05-17T04:19:39.496Z",
   "overallScore": 51,
   "overallStatus": "beta-risk",
   "domainScores": {
@@ -1894,7 +1894,7 @@
       "guardPresent": 125,
       "rateLimitEvidence": 125,
       "idempotencyRequired": 12,
-      "idempotencyEvidence": 22,
+      "idempotencyEvidence": 23,
       "bodyLimitRequired": 119,
       "bodyLimitEvidence": 31
     },
@@ -4434,7 +4434,7 @@
         "guardPresent": true,
         "rateLimitPresent": true,
         "idempotencyRequired": false,
-        "idempotencyPresent": false,
+        "idempotencyPresent": true,
         "bodyLimitRequired": true,
         "bodyLimitPresent": false,
         "expectedFailureCodes": [
@@ -6982,7 +6982,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 108,
+      "line": 115,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -6993,7 +6993,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1pe9pwq"
+      "id": "speed_security_2oggjo"
     },
     {
       "domain": "costRunawayWorkControls",
@@ -7915,7 +7915,7 @@
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 108,
+      "line": 115,
       "title": "Potential unbounded Promise.all fanout",
       "evidence": [
         "Cloud Run timeouts can return 504 while server work continues; fanout must be bounded."
@@ -7926,7 +7926,7 @@
       "autofixConfidence": 0,
       "suggestedFix": "Add explicit batch size/concurrency cap or route the work through bounded background processing.",
       "humanReadableEscalation": "Concurrency changes need runtime/cost review.",
-      "id": "speed_security_1pe9pwq"
+      "id": "speed_security_2oggjo"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",

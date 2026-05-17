@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.60 - 2026-05-17
+- Bug fixes and general improvements
+- Refreshed current Beta exit status evidence.
+- Kept missing screenshot and smoke checks visible.
+- Confirmed GumDrop and creator flow source checks remain represented.
+
 ## 1.2.59 - 2026-05-17
 - Bug fixes and general improvements
 - Clarified paid bonus GumDrop labels in wallet purchase flows.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Improved how beta readiness reads formal smoke evidence.
 - Kept operator-reported PayPal testing tracked without marking the provider smoke lane as done.
 - Made beta score gates explain which evidence artifacts are still missing.
-
-## 1.2.35 - 2026-05-14
-- Bug fixes and general improvements
-- Added a spring-cleaning inventory for stale reports, docs, validators, and disconnected UI lanes.
-- Mapped cleanup candidates without deleting runtime code.
-- Kept Phase 1 blocker fixes separate from repo cleanup work.

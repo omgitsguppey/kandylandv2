@@ -1,13 +1,60 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.59",
-  "betaReleaseCounter": 259,
+  "currentVersion": "1.2.60",
+  "betaReleaseCounter": 260,
   "channel": "beta",
   "generatedAt": "2026-05-17T04:09:09.299Z",
   "generatedAtUtc": "2026-05-17T04:09:09.299Z",
-  "lastCommitSha": "6396ae0691e3bc73465e9ab9556e1db0570bce3f",
+  "lastCommitSha": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
   "notes": [
+    {
+      "version": "1.2.60",
+      "previousVersion": "1.2.59",
+      "betaReleaseCounter": 260,
+      "previousBetaReleaseCounter": 259,
+      "commitSha": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "commitTitle": "docs(beta): refresh current beta exit status",
+      "commitCount": 1,
+      "commitShas": [
+        "d0994c9ace05575a22d679cdfc37f8a5877f66d8"
+      ],
+      "committedAt": "2026-05-17T04:22:16.775Z",
+      "generatedAt": "2026-05-17T04:22:16.775Z",
+      "committedAtUtc": "2026-05-17T04:22:16.775Z",
+      "generatedAtUtc": "2026-05-17T04:22:16.775Z",
+      "updatedAtUtc": "2026-05-17T04:22:16.775Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved internal beta reliability.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Refreshed current Beta exit status evidence.",
+        "Kept missing screenshot and smoke checks visible.",
+        "Confirmed GumDrop and creator flow source checks remain represented."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/current-beta-exit-status.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "tests/unit/current-beta-exit-status.spec.ts",
+        "package.json",
+        "agent/state/final-phase-cleanup-lock.generated.json",
+        "agent/state/product-surface-integrity.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "agent/state/user-creator-ui-parity.generated.json",
+        "agent/state/user-creator-visual-confirmation.generated.json",
+        "agent/state/user-facing-feature-connection-audit.generated.json"
+      ],
+      "sourceCommit": "d0994c9ace05575a22d679cdfc37f8a5877f66d8"
+    },
     {
       "version": "1.2.59",
       "previousVersion": "1.2.58",

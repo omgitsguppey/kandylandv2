@@ -1,35 +1,35 @@
 {
-  "generatedAtUtc": "2026-05-15T13:27:37.781Z",
+  "generatedAtUtc": "2026-05-17T04:19:31.387Z",
   "reportKey": "product-surface-integrity",
-  "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
+  "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
   "summary": {
     "sourceReportsRead": 5,
-    "staleAuthorityRisks": 1,
+    "staleAuthorityRisks": 2,
     "fakeActionRisks": 0,
     "mobileUiContractRisks": 1,
     "debugCopyLeaks": 0,
     "costGuardrailRisks": 24,
     "connectionRisks": 0,
     "fixedThisPass": 3,
-    "deferredWithOwner": 26,
+    "deferredWithOwner": 27,
     "p0Count": 0,
     "p1Count": 0,
-    "p2Count": 26
+    "p2Count": 27
   },
   "sourceReports": [
     {
       "path": "agent/state/user-facing-feature-connection-audit.generated.json",
       "command": "npm run check:user-facing-feature-connection-audit",
       "exists": true,
-      "generatedAtUtc": "2026-05-15T13:20:10.517Z",
-      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
+      "generatedAtUtc": "2026-05-17T04:19:07.266Z",
+      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
       "sourceState": "current"
     },
     {
       "path": "agent/state/speed-security-hardening.generated.json",
       "command": "npm run score:speed-security",
       "exists": true,
-      "generatedAtUtc": "2026-05-15T13:20:49.306Z",
+      "generatedAtUtc": "2026-05-15T13:28:07.691Z",
       "currentHead": null,
       "sourceState": "fresh_without_head"
     },
@@ -39,7 +39,7 @@
       "exists": true,
       "generatedAtUtc": "2026-05-15T13:21:17.192Z",
       "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
-      "sourceState": "current"
+      "sourceState": "stale_head"
     },
     {
       "path": "agent/state/debug-panel-output-triage.generated.json",
@@ -53,7 +53,7 @@
       "path": "agent/state/public-beta-score.generated.json",
       "command": "npm run score:beta",
       "exists": true,
-      "generatedAtUtc": "2026-05-15T13:24:53.801Z",
+      "generatedAtUtc": "2026-05-15T13:28:24.012Z",
       "currentHead": null,
       "sourceState": "fresh_without_head"
     }
@@ -61,6 +61,20 @@
   "staleAuthorityFindings": [
     {
       "id": "stale_report_1",
+      "severity": "P2",
+      "title": "Generated report is stale relative to current HEAD",
+      "filePath": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "line": null,
+      "evidence": [
+        "npm run check:repo-spring-cleaning-rewire",
+        "reportHead=243b0f60e7e157d005afb5b19ec9695e68269ba4"
+      ],
+      "owner": "report-owner",
+      "action": "archive_or_stale",
+      "status": "stale_evidence"
+    },
+    {
+      "id": "stale_report_2",
       "severity": "P2",
       "title": "Generated report is stale relative to current HEAD",
       "filePath": "agent/state/debug-panel-output-triage.generated.json",
@@ -149,7 +163,7 @@
       "severity": "P2",
       "title": "Potential array fanout needs bounded worker pool review",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 94,
+      "line": 101,
       "evidence": [
         "Promise.all(...map) or Promise.allSettled(...map)"
       ],
@@ -227,7 +241,7 @@
       "severity": "P2",
       "title": "Potential array fanout needs bounded worker pool review",
       "filePath": "src/lib/server/chat.ts",
-      "line": 595,
+      "line": 597,
       "evidence": [
         "Promise.all(...map) or Promise.allSettled(...map)"
       ],
@@ -454,6 +468,20 @@
       "id": "stale_report_1",
       "severity": "P2",
       "title": "Generated report is stale relative to current HEAD",
+      "filePath": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "line": null,
+      "evidence": [
+        "npm run check:repo-spring-cleaning-rewire",
+        "reportHead=243b0f60e7e157d005afb5b19ec9695e68269ba4"
+      ],
+      "owner": "report-owner",
+      "action": "archive_or_stale",
+      "status": "stale_evidence"
+    },
+    {
+      "id": "stale_report_2",
+      "severity": "P2",
+      "title": "Generated report is stale relative to current HEAD",
       "filePath": "agent/state/debug-panel-output-triage.generated.json",
       "line": null,
       "evidence": [
@@ -534,7 +562,7 @@
       "severity": "P2",
       "title": "Potential array fanout needs bounded worker pool review",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
-      "line": 94,
+      "line": 101,
       "evidence": [
         "Promise.all(...map) or Promise.allSettled(...map)"
       ],
@@ -612,7 +640,7 @@
       "severity": "P2",
       "title": "Potential array fanout needs bounded worker pool review",
       "filePath": "src/lib/server/chat.ts",
-      "line": 595,
+      "line": 597,
       "evidence": [
         "Promise.all(...map) or Promise.allSettled(...map)"
       ],

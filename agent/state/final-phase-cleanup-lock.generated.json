@@ -1,8 +1,20 @@
 {
-  "generatedAtUtc": "2026-05-15T13:28:53.586Z",
+  "generatedAtUtc": "2026-05-17T04:27:04.829Z",
   "reportKey": "final-phase-cleanup-lock",
-  "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
+  "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
   "commitsReviewed": [
+    "d0994c9a fix(wallet): clarify paid bonus gumdrop labels",
+    "6396ae06 fix(creator): polish paid gd flow clarity",
+    "a98638d3 fix(ci): require same-commit release notes [skip release-notes]",
+    "7f3f0383 fix(ci): prevent release note workflow loop [skip release-notes]",
+    "c41c9848 fix(creator): simplify booking slots and owner mode",
+    "68dfa1f2 fix(economy): lock gumdrop source funds and creator attribution",
+    "b811bb9c docs(release): update beta badge for visual confirmation [skip release-notes]",
+    "d3fa68bc fix(ui): confirm user creator visual stability",
+    "99996794 docs(release): update beta badge for user creator parity [skip release-notes]",
+    "77970bb3 fix(ui): tighten user creator parity",
+    "d8ba11bc docs(release): update beta badge for cleanup lock refresh [skip release-notes]",
+    "443992b6 docs(phase): lock cleanup evidence",
     "243b0f60 docs(release): update beta badge for cleanup lock [skip release-notes]",
     "b8e777fd docs(phase): lock cleanup evidence",
     "cbc1a62a docs(release): update beta badge for guardrail cleanup [skip release-notes]",
@@ -30,30 +42,18 @@
     "104e5c03 fix(ci): skip release note-only workflow runs [skip release-notes]",
     "0ee93628 docs(release): update beta badge for creator connection audit",
     "fee10e6a chore(ui): audit creator feature connections",
-    "2ce388f0 docs(release): update beta badge for targeted evidence",
-    "c6ce135d docs(phase-one): add targeted behavior evidence",
-    "6b964e0e docs(release): update beta badge for debug score",
-    "4f313a98 fix(admin): show canonical beta score in debug",
-    "f08ea8a3 docs(release): update beta badge for watch time truth",
-    "470ce04a fix(analytics): lock watch time truth contract",
-    "d2386d3d docs(release): update beta badge for score evidence ingestion",
-    "ff66bf7f fix(score): read formal beta evidence artifacts",
-    "eea18175 docs(release): update beta badge for spring cleaning inventory",
-    "99658a42 chore(repo): add spring cleaning rewire inventory",
-    "6dfd82f8 docs(release): update beta badge for score UI triage",
-    "2570b5dd chore(phase-one): triage score and dashboard truth wiring",
-    "da10e87d docs(release): update beta badge for smoke evidence tracking"
+    "2ce388f0 docs(release): update beta badge for targeted evidence"
   ],
   "summary": {
     "userFacingConnectionStatus": "P0=0 P1=0 P2=1 fakeActions=0",
-    "productSurfaceIntegrityStatus": "P0=0 P1=0 P2=26 stale=1 deferred=26",
+    "productSurfaceIntegrityStatus": "P0=0 P1=0 P2=27 stale=2 deferred=27",
     "speedSecurityStatus": "51/beta-risk; findings=91; critical=0",
     "betaScore": 45,
     "betaReadinessStatus": "Stale evidence",
-    "staleAuthorityRisks": 9,
+    "staleAuthorityRisks": 10,
     "remainingP0": 0,
     "remainingP1": 4,
-    "remainingP2": 9,
+    "remainingP2": 10,
     "missingHumanEvidence": 3,
     "missingProviderEvidence": 1,
     "missingRuntimeEvidence": 1,
@@ -170,8 +170,8 @@
     {
       "reportKey": "user-facing-feature-connection-audit",
       "path": "agent/state/user-facing-feature-connection-audit.generated.json",
-      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
-      "generatedAtUtc": "2026-05-15T13:27:48.425Z",
+      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "generatedAtUtc": "2026-05-17T04:19:07.266Z",
       "sourceState": "current",
       "ownerLane": "creator-surface-owner",
       "exactNextAction": "No action required for report freshness."
@@ -179,19 +179,10 @@
     {
       "reportKey": "product-surface-integrity",
       "path": "agent/state/product-surface-integrity.generated.json",
-      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
-      "generatedAtUtc": "2026-05-15T13:27:37.781Z",
+      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "generatedAtUtc": "2026-05-17T04:19:31.387Z",
       "sourceState": "current",
       "ownerLane": "product-surface-owner",
-      "exactNextAction": "No action required for report freshness."
-    },
-    {
-      "reportKey": "repo-spring-cleaning-rewire",
-      "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
-      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
-      "generatedAtUtc": "2026-05-15T13:21:17.192Z",
-      "sourceState": "current",
-      "ownerLane": "repo-governance-owner",
       "exactNextAction": "No action required for report freshness."
     }
   ],
@@ -200,16 +191,25 @@
       "reportKey": "speed-security-hardening",
       "path": "agent/state/speed-security-hardening.generated.json",
       "currentHead": null,
-      "generatedAtUtc": "2026-05-15T13:28:07.691Z",
+      "generatedAtUtc": "2026-05-17T04:19:39.496Z",
       "sourceState": "missing_head",
       "ownerLane": "speed-security-owner",
       "exactNextAction": "Refresh agent/state/speed-security-hardening.generated.json through its focused owner command; do not treat stale data as live readiness."
     },
     {
+      "reportKey": "repo-spring-cleaning-rewire",
+      "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
+      "generatedAtUtc": "2026-05-15T13:21:17.192Z",
+      "sourceState": "stale_head",
+      "ownerLane": "repo-governance-owner",
+      "exactNextAction": "Refresh agent/state/repo-spring-cleaning-rewire.generated.json through its focused owner command; do not treat stale data as live readiness."
+    },
+    {
       "reportKey": "public-beta-score",
       "path": "agent/state/public-beta-score.generated.json",
       "currentHead": null,
-      "generatedAtUtc": "2026-05-15T13:28:24.012Z",
+      "generatedAtUtc": "2026-05-17T04:19:53.251Z",
       "sourceState": "missing_head",
       "ownerLane": "beta-readiness-owner",
       "exactNextAction": "Refresh agent/state/public-beta-score.generated.json through its focused owner command; do not treat stale data as live readiness."
@@ -349,6 +349,16 @@
       "fileOrRoute": "agent/state/repo-spring-cleaning-rewire.generated.json",
       "whyItMatters": "Repo spring cleaning still reports stale/archive cleanup candidates; they are classified as governance cleanup rather than live readiness proof.",
       "exactNextAction": "Refresh or archive stale generated reports through their owning validators before treating them as current authority.",
+      "ownerLane": "repo-governance-owner"
+    },
+    {
+      "key": "stale_authority_repo_spring_cleaning_rewire",
+      "severity": "P2",
+      "status": "stale_authority",
+      "sourceReport": "repo-spring-cleaning-rewire",
+      "fileOrRoute": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "whyItMatters": "Generated reports are evidence snapshots; stale or missing-head artifacts must not be consumed as live authority.",
+      "exactNextAction": "Refresh agent/state/repo-spring-cleaning-rewire.generated.json through its focused owner command; do not treat stale data as live readiness.",
       "ownerLane": "repo-governance-owner"
     },
     {
