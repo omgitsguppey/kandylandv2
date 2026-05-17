@@ -100,10 +100,12 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     status: "verified",
     severity: "p2",
     file: "src/lib/creator-profile-routing.ts",
-    summary: "Creator dashboard, creator settings, user settings, and profile route constants are explicit.",
+    summary: "Creator dashboard, creator settings, drop manage, user settings, and profile route constants are explicit.",
   }, includesAll(routing, [
     'CREATOR_DASHBOARD_ROUTE = "/dashboard/creator"',
     'CREATOR_SETTINGS_ROUTE = "/dashboard/creator/settings"',
+    'CREATOR_DROP_MANAGE_ROUTE = "/dashboard/library"',
+    'CREATOR_DROP_ROUTE_STATE = "manage_only"',
     'USER_SETTINGS_ROUTE = "/dashboard/settings"',
     'USER_PROFILE_ROUTE = "/dashboard/profile"',
   ]));
@@ -115,6 +117,16 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     file: "src/components/Dashboard/CreatorWorkspacePanel.tsx",
     summary: "The landing dashboard Creator settings pill links to the creator settings workspace.",
   }, landing.includes("href={CREATOR_SETTINGS_ROUTE}") && !landing.includes('<Link href="/dashboard/profile" className="flex shrink-0 items-center justify-center gap-2 rounded-full'));
+
+  add(navigationFindings, {
+    id: "base-dashboard-drop-cta-manage-only",
+    status: "fixed",
+    severity: "p1",
+    file: "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+    summary: "The landing dashboard no longer points Create drop at a missing /dashboard/drops route; it uses Manage drops until a real creator create flow exists.",
+  }, includesAll(landing, ["Manage drops", "href={CREATOR_DROP_MANAGE_ROUTE}", "data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}"])
+    && !landing.includes('href="/dashboard/drops"')
+    && !/Create drop/u.test(landing));
 
   add(navigationFindings, {
     id: "sidebar-separate-routes",
@@ -153,13 +165,15 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     status: "fixed",
     severity: "p1",
     file: "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-    summary: "Creator Dashboard landing cards use compact mobile density and bottom-nav-safe spacing.",
+    summary: "Creator Dashboard landing cards use compact_v2 mobile density and bottom-nav-safe spacing.",
   }, includesAll(landing, [
     'data-creator-dashboard-landing-density="mobile_compact"',
+    'data-creator-landing-mobile-density="compact_v2"',
     'data-bottom-nav-safe="true"',
     'data-report-issue-safe-offset="bottom-nav"',
     'data-creator-dashboard-card-density="mobile_compact"',
-    "pb-[calc(env(safe-area-inset-bottom)+7rem)]",
+    'data-creator-landing-metric-card="compact_v2"',
+    "pb-[calc(env(safe-area-inset-bottom)+9rem)]",
   ]));
 
   add(mobileFindings, {
@@ -220,7 +234,8 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
       "Moved CreatorDashboardSettingsHub from /dashboard/creator to /dashboard/creator/settings.",
       "Restored /dashboard/creator as the Creator Dashboard landing route.",
       "Updated sidebar, dropdown, user settings, and legacy creator-settings CTAs to separate dashboard and settings destinations.",
-      "Compacted mobile landing dashboard cards and kept bottom-nav/report-issue spacing explicit.",
+      "Compacted mobile landing dashboard cards with compact_v2 markers and kept bottom-nav/report-issue spacing explicit.",
+      "Replaced the missing /dashboard/drops CTA with a manage-only /dashboard/library destination.",
       "Translated base dashboard creator settings load failures through HumanErrorNotice.",
     ],
     nextFixOrder: [

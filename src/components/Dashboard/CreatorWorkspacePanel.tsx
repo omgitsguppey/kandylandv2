@@ -18,7 +18,7 @@ import {
     describeCreatorFacingOnboardingBlockingReason,
     getCreatorOnboardingStatusSummary,
 } from "@/lib/creator-onboarding";
-import { CREATOR_SETTINGS_ROUTE } from "@/lib/creator-profile-routing";
+import { CREATOR_DROP_MANAGE_ROUTE, CREATOR_DROP_ROUTE_STATE, CREATOR_SETTINGS_ROUTE } from "@/lib/creator-profile-routing";
 import { buildBugReportContext, getSafePreviousRoute, resolveClientActionError } from "@/lib/errors/client-error-adapter";
 import { loadUiContinuityModules, readUiJson, type UiContinuityModuleState } from "@/lib/ui-continuity";
 import type { CreatorApplication, UserProfile } from "@/types/db";
@@ -433,14 +433,18 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     const unreadMessagesCount = threads.reduce((sum, thread) => sum + (thread.unreadCount || 0), 0);
     const actionNeededCount = (creatorStats?.openRequests || 0) + (creatorStats?.bookedCalls || 0) + unreadMessagesCount;
     const cashValueUsd = ((creatorStats?.earningsGd || 0) / 100).toFixed(2);
+    const broadcastSourceReady = Boolean(creatorStats);
     
     // Most recent active thread with another user
     const recentThread = threads.length > 0 ? threads[0] : null;
 
     return (
         <section
-            className="mb-5 pb-[calc(env(safe-area-inset-bottom)+7rem)] md:mb-8 md:pb-0"
+            className="mb-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+9rem)] sm:pt-0 md:mb-8 md:pb-0"
             data-creator-dashboard-landing-density="mobile_compact"
+            data-creator-landing-mobile-density="compact_v2"
+            data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}
+            data-creator-landing-error-language="human"
             data-bottom-nav-safe="true"
             data-report-issue-safe-offset="bottom-nav"
         >
@@ -482,23 +486,23 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                     {/* Inbox Preview Row */}
                     <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                         {/* Quick Actions Array - Replaces verbose headers */}
-                        <div className="flex flex-1 items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-                            <Link href="/dashboard/chat" className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-purple/20 sm:px-4 sm:py-2.5 sm:text-sm">
-                                <MessageCircle className="h-4 w-4" />
+                        <div className="flex flex-1 items-center gap-2 overflow-x-auto pb-1 sm:pb-0" data-creator-landing-quick-actions="compact_v2">
+                            <Link href="/dashboard/chat" className="flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-brand-purple/20 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm">
+                                <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                 Inbox {unreadMessagesCount > 0 ? <span className="flex h-5 items-center justify-center rounded-full bg-brand-purple px-2 text-[10px] font-bold">{unreadMessagesCount}</span> : null}
                             </Link>
                             {isProjectionMode ? (
-                                <button type="button" onClick={() => toast.error("Creator dashboard is read-only in admin projection.")} className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white opacity-60 sm:px-4 sm:py-2.5 sm:text-sm">
-                                    <Package className="h-4 w-4" />
-                                    Create drop
+                                <button type="button" onClick={() => toast.error("Creator dashboard is read-only in admin projection.")} className="flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-white opacity-60 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm">
+                                    <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                    Manage drops
                                 </button>
                             ) : (
-                                <Link href="/dashboard/drops" className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 sm:px-4 sm:py-2.5 sm:text-sm">
-                                    <Package className="h-4 w-4" />
-                                    Create drop
+                                <Link href={CREATOR_DROP_MANAGE_ROUTE} className="flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm" data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}>
+                                    <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                    Manage drops
                                 </Link>
                             )}
-                            <Link href={CREATOR_SETTINGS_ROUTE} className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 sm:px-4 sm:py-2.5 sm:text-sm">
+                            <Link href={CREATOR_SETTINGS_ROUTE} className="flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm">
                                 Creator settings
                             </Link>
                         </div>
@@ -556,121 +560,129 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                         </div>
                     ) : null}
 
-                    <div className="grid gap-3 sm:gap-4 xl:grid-cols-[1fr_280px]">
+                    <div className="grid gap-2 sm:gap-4 xl:grid-cols-[1fr_280px]">
                         {/* 3x3 Metrics Grid */}
-                        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
-                            <div className="flex min-h-[86px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2.5 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact">
+                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
+                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
                                 <div className="flex items-center justify-between text-brand-purple">
-                                    <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <DollarSign className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="mt-2 sm:mt-3">
-                                    <p className="text-xl font-black text-white sm:text-2xl">{formatDashboardMetric(creatorStats?.earningsGd)} <span className="text-[10px] uppercase tracking-wider text-brand-purple">GD</span></p>
-                                    <p className="text-xs text-brand-purple/70">{creatorStats ? `$${cashValueUsd} value` : "Unavailable"}</p>
+                                <div className="mt-1.5 sm:mt-3">
+                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.earningsGd)} <span className="text-[10px] uppercase tracking-wider text-brand-purple">GD</span></p>
+                                    <p className="text-[11px] text-brand-purple/70 sm:text-xs">{creatorStats ? `$${cashValueUsd} value` : "Unavailable"}</p>
                                 </div>
                             </div>
-                            <div className="flex min-h-[86px] flex-col justify-between rounded-xl border border-emerald-400/10 bg-emerald-400/5 p-2.5 transition-colors hover:bg-emerald-400/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact">
+                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-emerald-400/10 bg-emerald-400/5 p-2 transition-colors hover:bg-emerald-400/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
                                 <div className="flex items-center justify-between text-emerald-400">
-                                    <Activity className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <Activity className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="mt-2 sm:mt-3">
-                                    <p className="text-xl font-black text-white sm:text-2xl">{creatorStats ? formatDashboardMetric(actionNeededCount) : "Unavailable"}</p>
-                                    <p className="text-xs text-emerald-400/70">Action needed</p>
-                                </div>
-                            </div>
-                            <div className="flex min-h-[86px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2.5 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact">
-                                <div className="flex items-center justify-between text-gray-400">
-                                    <Users className="h-4 w-4 sm:h-5 sm:w-5" />
-                                </div>
-                                <div className="mt-2 sm:mt-3">
-                                    <p className="text-xl font-black text-white sm:text-2xl">{formatDashboardMetric(creatorStats?.followerCount)}</p>
-                                    <p className="text-xs text-gray-400">Fans</p>
+                                <div className="mt-1.5 sm:mt-3">
+                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{creatorStats ? formatDashboardMetric(actionNeededCount) : "Unavailable"}</p>
+                                    <p className="text-[11px] text-emerald-400/70 sm:text-xs">Action needed</p>
                                 </div>
                             </div>
-                            <div className="flex min-h-[86px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2.5 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact">
+                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
                                 <div className="flex items-center justify-between text-gray-400">
-                                    <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <Users className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="mt-2 sm:mt-3">
-                                    <p className="text-xl font-black text-white sm:text-2xl">{formatDashboardMetric(creatorStats?.profileViewsCount)}</p>
-                                    <p className="text-xs text-gray-400">Content views</p>
+                                <div className="mt-1.5 sm:mt-3">
+                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.followerCount)}</p>
+                                    <p className="text-[11px] text-gray-400 sm:text-xs">Fans</p>
                                 </div>
                             </div>
-                            <div className="flex min-h-[86px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2.5 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact">
+                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
                                 <div className="flex items-center justify-between text-gray-400">
-                                    <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <Eye className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="mt-2 sm:mt-3">
-                                    <p className="text-xl font-black text-white sm:text-2xl">{formatDashboardMetric(unreadMessagesCount)}</p>
-                                    <p className="text-xs text-gray-400">Messages</p>
+                                <div className="mt-1.5 sm:mt-3">
+                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.profileViewsCount)}</p>
+                                    <p className="text-[11px] text-gray-400 sm:text-xs">Content views</p>
                                 </div>
                             </div>
-                            <div className="flex min-h-[86px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2.5 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact">
+                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
                                 <div className="flex items-center justify-between text-gray-400">
-                                    <PlaySquare className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <MessageCircle className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="mt-2 sm:mt-3">
-                                    <p className="text-xl font-black text-white sm:text-2xl">{formatDashboardMetric(creatorStats?.liveDropsCount)}</p>
-                                    <p className="text-xs text-gray-400">Content</p>
+                                <div className="mt-1.5 sm:mt-3">
+                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(unreadMessagesCount)}</p>
+                                    <p className="text-[11px] text-gray-400 sm:text-xs">Messages</p>
                                 </div>
                             </div>
-                            <div className="flex min-h-[86px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2.5 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact">
+                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
                                 <div className="flex items-center justify-between text-gray-400">
-                                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <PlaySquare className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="mt-2 sm:mt-3">
-                                    <p className="text-xl font-black text-white sm:text-2xl">{formatDashboardMetric(creatorStats?.openRequests)}</p>
-                                    <p className="text-xs text-gray-400">Requests</p>
+                                <div className="mt-1.5 sm:mt-3">
+                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.liveDropsCount)}</p>
+                                    <p className="text-[11px] text-gray-400 sm:text-xs">Content</p>
                                 </div>
                             </div>
-                            <div className="flex min-h-[86px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2.5 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact">
+                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
                                 <div className="flex items-center justify-between text-gray-400">
-                                    <Phone className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <CheckCircle className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="mt-2 sm:mt-3">
-                                    <p className="text-xl font-black text-white sm:text-2xl">{formatDashboardMetric(creatorStats?.bookedCalls)}</p>
-                                    <p className="text-xs text-gray-400">Bookings</p>
+                                <div className="mt-1.5 sm:mt-3">
+                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.openRequests)}</p>
+                                    <p className="text-[11px] text-gray-400 sm:text-xs">Requests</p>
                                 </div>
                             </div>
-                            <div className="flex min-h-[86px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2.5 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact">
+                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
                                 <div className="flex items-center justify-between text-gray-400">
-                                    <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <Phone className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="mt-2 sm:mt-3">
-                                    <p className="text-xl font-black text-white sm:text-2xl">{formatDashboardMetric(creatorStats?.activeSubscribers)}</p>
-                                    <p className="text-xs text-gray-400">Fan Pass</p>
+                                <div className="mt-1.5 sm:mt-3">
+                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.bookedCalls)}</p>
+                                    <p className="text-[11px] text-gray-400 sm:text-xs">Bookings</p>
+                                </div>
+                            </div>
+                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
+                                <div className="flex items-center justify-between text-gray-400">
+                                    <Users className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
+                                </div>
+                                <div className="mt-1.5 sm:mt-3">
+                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.activeSubscribers)}</p>
+                                    <p className="text-[11px] text-gray-400 sm:text-xs">Fan Pass</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Broadcasts Module */}
-                        <div className="flex flex-col gap-3">
-                            <div className="rounded-3xl border border-white/10 bg-black/40 p-4">
-                                <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-white"><Megaphone className="h-4 w-4 text-brand-purple" /> Quick Broadcast</h3>
-                                <textarea
-                                    value={broadcastDraft}
-                                    onChange={(event) => setBroadcastDraft(event.target.value.slice(0, 280))}
-                                    rows={2}
-                                    placeholder="Write a blast to all followers..."
-                                    className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 focus:border-brand-purple/50 focus:outline-none"
-                                />
-                                <div className="mt-2 flex items-center justify-between">
-                                    <span className="text-[10px] text-gray-500">{broadcastDraft.length}/280</span>
-                                    <Button
-                                        variant="brand"
-                                        size="sm"
-                                        isLoading={busyAction === "broadcast:send"}
-                                        disabled={broadcastDraft.trim().length < 4 || isProjectionMode}
-                                        onClick={handleBroadcastSend}
-                                        className="h-8 rounded-full px-4 text-xs font-bold"
-                                    >
-                                        <Send className="mr-1 h-3 w-3" /> Blast
-                                    </Button>
-                                </div>
+                        <div className="flex flex-col gap-2.5 sm:gap-3">
+                            <div className="rounded-2xl border border-white/10 bg-black/40 p-3 sm:rounded-3xl sm:p-4" data-creator-broadcast-mobile-priority={broadcastSourceReady ? "ready" : "deferred"}>
+                                <h3 className="mb-2 flex items-center gap-2 text-xs font-bold text-white sm:mb-3 sm:text-sm"><Megaphone className="h-3.5 w-3.5 text-brand-purple sm:h-4 sm:w-4" /> Quick Broadcast</h3>
+                                {broadcastSourceReady ? (
+                                    <>
+                                        <textarea
+                                            value={broadcastDraft}
+                                            onChange={(event) => setBroadcastDraft(event.target.value.slice(0, 280))}
+                                            rows={2}
+                                            placeholder="Write a blast to all followers..."
+                                            className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 focus:border-brand-purple/50 focus:outline-none"
+                                        />
+                                        <div className="mt-2 flex items-center justify-between">
+                                            <span className="text-[10px] text-gray-500">{broadcastDraft.length}/280</span>
+                                            <Button
+                                                variant="brand"
+                                                size="sm"
+                                                isLoading={busyAction === "broadcast:send"}
+                                                disabled={broadcastDraft.trim().length < 4 || isProjectionMode}
+                                                onClick={handleBroadcastSend}
+                                                className="h-8 rounded-full px-4 text-xs font-bold"
+                                            >
+                                                <Send className="mr-1 h-3 w-3" /> Blast
+                                            </Button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="rounded-xl border border-dashed border-white/10 bg-white/5 px-3 py-2 text-xs text-gray-300">
+                                        Broadcasts unlock when creator stats finish loading.
+                                    </div>
+                                )}
                             </div>
                             
                             {/* Relevant Action Required Lists */}
                             {requests.length > 0 && (
-                                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-4">
+                                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-3 sm:p-4">
                                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Pending Requests</h3>
                                     <div className="mt-3 space-y-2">
                                         {requests.slice(0, 3).map((r) => (
@@ -692,7 +704,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                             )}
 
                             {bookings.length > 0 && (
-                                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-4" data-testid="creator-workspace-bookings">
+                                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-3 sm:p-4" data-testid="creator-workspace-bookings">
                                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Active Bookings</h3>
                                     <div className="mt-3 space-y-2">
                                         {bookings.slice(0, 3).map((b) => (
@@ -712,12 +724,12 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                             {moduleErrors.bookings ? (
                                 <UiContinuityNotice
                                     title="Bookings module degraded"
-                                    body={moduleErrors.bookings}
+                                    body="Bookings are not loading right now. Try again in a bit."
                                     tone="warning"
                                     data-testid="creator-workspace-bookings-warning"
                                 />
                             ) : moduleState.bookings.status === "success" && bookings.length === 0 ? (
-                                <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/25 p-4 text-sm text-gray-300" data-testid="creator-workspace-bookings-empty">
+                                <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/25 p-3 text-xs text-gray-300 sm:p-4 sm:text-sm" data-testid="creator-workspace-bookings-empty">
                                     No active phone or video bookings are hydrated right now.
                                 </div>
                             ) : null}
@@ -725,12 +737,12 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                             {moduleErrors.subscriptions ? (
                                 <UiContinuityNotice
                                     title="Subscriptions module degraded"
-                                    body={moduleErrors.subscriptions}
+                                    body="Fan Pass subscribers are not loading right now. Try again in a bit."
                                     tone="warning"
                                     data-testid="creator-workspace-subscriptions-warning"
                                 />
                             ) : (
-                                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-4" data-testid="creator-workspace-subscriptions">
+                                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-3 sm:p-4" data-testid="creator-workspace-subscriptions">
                                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Subscribers</h3>
                                     {subscriptions.length > 0 ? (
                                         <div className="mt-3 space-y-2">
@@ -749,7 +761,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="mt-3 rounded-xl border border-dashed border-white/10 bg-white/5 px-3 py-3 text-sm text-gray-300">
+                                        <div className="mt-3 rounded-xl border border-dashed border-white/10 bg-white/5 px-3 py-2 text-xs text-gray-300 sm:py-3 sm:text-sm">
                                             No subscriber rows are active yet.
                                         </div>
                                     )}
@@ -768,11 +780,11 @@ export function CreatorDashboardLandingRoute() {
 
     if (loading || !userProfile) {
         return (
-            <div className="mx-auto w-full max-w-5xl px-3 pb-[calc(env(safe-area-inset-bottom)+7rem)] sm:px-4 sm:pb-8">
-                <div className="h-36 rounded-2xl bg-white/5" />
-                <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
+            <div className="mx-auto w-full max-w-5xl px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+9rem)] sm:px-4 sm:pt-4 sm:pb-8" data-creator-landing-mobile-density="compact_v2">
+                <div className="h-24 rounded-2xl bg-white/5 sm:h-36" />
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
                     {Array.from({ length: 6 }).map((_, index) => (
-                        <div key={index} className="h-24 rounded-xl bg-white/5 sm:h-32 sm:rounded-2xl" />
+                        <div key={index} className="h-[72px] rounded-xl bg-white/5 sm:h-32 sm:rounded-2xl" />
                     ))}
                 </div>
             </div>
@@ -781,10 +793,14 @@ export function CreatorDashboardLandingRoute() {
 
     return (
         <main
-            className="mx-auto w-full max-w-5xl px-3 sm:px-4"
+            className="mx-auto w-full max-w-5xl px-3 pt-3 sm:px-4 sm:pt-4"
             data-creator-dashboard-route="landing"
             data-creator-dashboard-landing-density="mobile_compact"
+            data-creator-landing-mobile-density="compact_v2"
+            data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}
+            data-creator-landing-error-language="human"
             data-bottom-nav-safe="true"
+            data-report-issue-safe-offset="bottom-nav"
         >
             <CreatorWorkspacePanel userProfile={userProfile} />
         </main>

@@ -239,6 +239,7 @@
         "check:bug-report-reward-flow": "tsx scripts/agent/validate-bug-report-reward-flow.ts",
         "check:human-error-surface-wiring": "tsx scripts/agent/validate-human-error-surface-wiring.ts",
         "check:creator-surface-routing": "tsx scripts/agent/validate-creator-surface-routing.ts",
+        "check:creator-landing-dashboard-mobile": "tsx scripts/agent/validate-creator-landing-dashboard-mobile.ts",
         "check:error-truth-debug-visibility": "tsx scripts/agent/validate-error-truth-debug-visibility.ts",
         "check:error-handling-final-readiness": "tsx scripts/agent/validate-error-handling-final-readiness.ts",
         "check:creator-dashboard-error-cost-inventory": "tsx scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T22:08:24.523Z",
+  "generatedAtUtc": "2026-05-17T23:13:02.323Z",
   "reportKey": "creator-surface-routing",
-  "currentHead": "fd5c54023430f7d0dc820234d9585e3b82200908",
+  "currentHead": "0a35888279ccfba99c30a37dbfa566f9fa7eb2c4",
   "summary": {
     "baseDashboardRoute": "/dashboard/creator",
     "creatorSettingsRoute": "/dashboard/creator/settings",
@@ -34,7 +34,7 @@
       "status": "verified",
       "severity": "p2",
       "file": "src/lib/creator-profile-routing.ts",
-      "summary": "Creator dashboard, creator settings, user settings, and profile route constants are explicit."
+      "summary": "Creator dashboard, creator settings, drop manage, user settings, and profile route constants are explicit."
     }
   ],
   "navigationFindings": [
@@ -44,6 +44,13 @@
       "severity": "p1",
       "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
       "summary": "The landing dashboard Creator settings pill links to the creator settings workspace."
+    },
+    {
+      "id": "base-dashboard-drop-cta-manage-only",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "The landing dashboard no longer points Create drop at a missing /dashboard/drops route; it uses Manage drops until a real creator create flow exists."
     },
     {
       "id": "sidebar-separate-routes",
@@ -80,7 +87,7 @@
       "status": "fixed",
       "severity": "p1",
       "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-      "summary": "Creator Dashboard landing cards use compact mobile density and bottom-nav-safe spacing."
+      "summary": "Creator Dashboard landing cards use compact_v2 mobile density and bottom-nav-safe spacing."
     },
     {
       "id": "settings-workspace-mobile-density",
@@ -103,7 +110,8 @@
     "Moved CreatorDashboardSettingsHub from /dashboard/creator to /dashboard/creator/settings.",
     "Restored /dashboard/creator as the Creator Dashboard landing route.",
     "Updated sidebar, dropdown, user settings, and legacy creator-settings CTAs to separate dashboard and settings destinations.",
-    "Compacted mobile landing dashboard cards and kept bottom-nav/report-issue spacing explicit.",
+    "Compacted mobile landing dashboard cards with compact_v2 markers and kept bottom-nav/report-issue spacing explicit.",
+    "Replaced the missing /dashboard/drops CTA with a manage-only /dashboard/library destination.",
     "Translated base dashboard creator settings load failures through HumanErrorNotice."
   ],
   "nextFixOrder": [

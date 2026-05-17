@@ -1,0 +1,89 @@
+{
+  "generatedAtUtc": "2026-05-17T23:13:02.323Z",
+  "reportKey": "creator-landing-dashboard-mobile",
+  "currentHead": "0a35888279ccfba99c30a37dbfa566f9fa7eb2c4",
+  "summary": {
+    "landingRoute": "/dashboard/creator",
+    "createDropRouteState": "manage_only",
+    "createDropHref": "/dashboard/library",
+    "rawModuleErrorLeaks": 0,
+    "mobileLayoutFixes": 4,
+    "bottomNavSafe": true,
+    "reportIssueSafe": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "routeFindings": [
+    {
+      "id": "creator-dashboard-landing-route",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/app/dashboard/creator/page.tsx",
+      "summary": "/dashboard/creator remains the Creator Dashboard landing surface."
+    },
+    {
+      "id": "create-drop-known-404-removed",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "The landing CTA no longer points at /dashboard/drops, which is not present in this repo."
+    },
+    {
+      "id": "create-drop-truthful-manage-route",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Because no creator create-drop route exists, the CTA is labeled Manage drops and routes to the existing library surface."
+    }
+  ],
+  "mobileFindings": [
+    {
+      "id": "compact-v2-route-markers",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator Dashboard landing exposes compact_v2 density, human error language, and route-state markers."
+    },
+    {
+      "id": "compact-v2-card-density",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Metric cards use compact mobile min-height, padding, icons, gaps, and unavailable value text."
+    },
+    {
+      "id": "broadcast-mobile-deferred",
+      "status": "fixed",
+      "severity": "p2",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Quick Broadcast is lower priority on mobile while creator stats are unavailable."
+    },
+    {
+      "id": "safe-area-spacing",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Landing route has top spacing plus bottom-nav/report-issue safe padding."
+    }
+  ],
+  "errorFindings": [
+    {
+      "id": "raw-module-errors-blocked",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Module warnings render human fallback copy and settings load failures use HumanErrorNotice."
+    }
+  ],
+  "fixesApplied": [
+    "Replaced the missing /dashboard/drops create route with a manage-only /dashboard/library CTA.",
+    "Added compact_v2 creator landing density markers and tightened mobile card sizing.",
+    "Added top and bottom safe-area spacing markers for the creator landing route.",
+    "Replaced raw module warning bodies with human fallback copy."
+  ],
+  "nextFixOrder": [
+    "When a creator-owned create-drop flow exists, update CREATOR_DROP_ROUTE_STATE to valid and route the CTA there.",
+    "Attach manual mobile screenshots for /dashboard/creator and /dashboard/creator/settings."
+  ]
+}

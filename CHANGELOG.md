@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.75 - 2026-05-17
+- Bug fixes and general improvements
+- Fixed Creator Dashboard create-drop routing.
+- Made the creator landing dashboard tighter on mobile.
+- Kept creator dashboard and creator settings routes clearly separated.
+
 ## 1.2.74 - 2026-05-17
 - Bug fixes and general improvements
 - Separated Creator Dashboard from Creator Settings routing.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Reduced backend cost and security risks found by internal checks.
 - Added bounded work controls where routes could fan out too much.
 - Kept unresolved scanner findings classified instead of hidden.
-
-## 1.2.50 - 2026-05-15
-- Bug fixes and general improvements
-- Added a source-driven cleanup pass for product surfaces.
-- Moved fake actions, stale reports, and mobile UI contract risks into enforceable checks.
-- Kept Debug details separate from primary app surfaces.

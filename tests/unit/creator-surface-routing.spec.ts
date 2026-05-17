@@ -59,6 +59,19 @@ describe("creator surface routing", () => {
     expect(landing).not.toContain("Creator settings</Link>\r\n                        </div>");
   });
 
+  it("does not route the landing drop CTA to the missing dashboard drops route", () => {
+    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const routing = read("src/lib/creator-profile-routing.ts");
+
+    expect(routing).toContain('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/library"');
+    expect(routing).toContain('CREATOR_DROP_ROUTE_STATE = "manage_only"');
+    expect(landing).toContain("Manage drops");
+    expect(landing).toContain("href={CREATOR_DROP_MANAGE_ROUTE}");
+    expect(landing).toContain("data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}");
+    expect(landing).not.toContain('href="/dashboard/drops"');
+    expect(landing).not.toMatch(/Create drop/u);
+  });
+
   it("blocks raw creator settings internal error copy and uses HumanErrorNotice", () => {
     const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
     const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
@@ -76,9 +89,11 @@ describe("creator surface routing", () => {
     const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
 
     expect(landing).toContain("data-creator-dashboard-landing-density=\"mobile_compact\"");
+    expect(landing).toContain("data-creator-landing-mobile-density=\"compact_v2\"");
     expect(landing).toContain("data-bottom-nav-safe=\"true\"");
     expect(landing).toContain("data-report-issue-safe-offset=\"bottom-nav\"");
     expect(landing).toContain("data-creator-dashboard-card-density=\"mobile_compact\"");
+    expect(landing).toContain("data-creator-landing-metric-card=\"compact_v2\"");
     expect(settingsHub).toContain("data-creator-dashboard-density=\"mobile_compact\"");
     expect(settingsHub).toContain("data-bottom-nav-safe=\"true\"");
   });

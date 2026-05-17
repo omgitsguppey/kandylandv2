@@ -55,7 +55,11 @@ describe("human error surface wiring", () => {
     expect(source).not.toMatch(/setError\([^)]*body\.error/u);
     expect(source).not.toMatch(/throw new Error\(body\.error/u);
     expect(landingSource).toContain("data-creator-dashboard-landing-density=\"mobile_compact\"");
+    expect(landingSource).toContain("data-creator-landing-mobile-density=\"compact_v2\"");
+    expect(landingSource).toContain("data-creator-landing-error-language=\"human\"");
     expect(landingSource).toContain("dashboard_source_unavailable");
+    expect(landingSource).not.toContain("body={moduleErrors.bookings}");
+    expect(landingSource).not.toContain("body={moduleErrors.subscriptions}");
     expect(landingSource).not.toContain("creator settings: Internal server error");
   });
 });
