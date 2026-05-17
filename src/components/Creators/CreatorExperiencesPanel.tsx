@@ -15,10 +15,19 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
+import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import { CreatorPaidGdGuidanceCard, type CreatorPaidGdGuidanceReason } from "@/components/Creators/CreatorPaidGdGuidanceCard";
+import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
 import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
 import { buildCreatorBookingSlots } from "@/lib/creator-booking-slots";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
+import {
+    buildBugReportContext,
+    getSafePreviousRoute,
+    resolveClientActionError,
+    type ResolvedClientActionError,
+} from "@/lib/errors/client-error-adapter";
+import type { HumanErrorDescriptor } from "@/lib/errors/error-language";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
     CREATOR_BOOKING_RATES,
@@ -35,6 +44,7 @@ type CreatorExperienceView = "subscriptions" | "messages" | "requests" | "bookin
 type CreatorExperienceLane = "fan_pass" | "chat" | "request" | "live_time";
 
 type CreatorExperiencesPanelProps = {
+    actionError?: HumanErrorDescriptor | ResolvedClientActionError | null;
     bookingDurationMinutes: number;
     bookingServiceType: "phone" | "video";
     bookingStartAt: string;
@@ -115,8 +125,10 @@ export function CreatorExperiencesPanel({
     subscriptionActive,
     subscriptionHydrated,
     subscribeLoading,
+    actionError,
 }: CreatorExperiencesPanelProps) {
     const router = useRouter();
+    const bugReporter = useSubmitBugReport();
     const user = currentUser as UserProfile | null;
     const balance = typeof user?.gumDropsPurchasedBalance === "number" ? user.gumDropsPurchasedBalance : 0;
     const userId = readUserId(currentUser);
@@ -127,6 +139,16 @@ export function CreatorExperiencesPanel({
         creatorUsername,
         username: creatorUsername,
     }) ?? "/creators";
+    const resolvedActionError = actionError
+        ? "descriptor" in actionError
+            ? actionError
+            : resolveClientActionError({ errorKey: actionError.errorKey }, {
+                surface: actionError.surface,
+                route,
+                fallbackKey: "unknown_error",
+                context: { source: "creator_experiences_panel" },
+            })
+        : null;
 
     const recentMessages = messages.slice(-3).reverse();
     const hasRecentThread = messages.length > 0;
@@ -368,6 +390,26 @@ export function CreatorExperiencesPanel({
                         />
                     ))}
                 </div>
+            ) : null}
+
+            {resolvedActionError ? (
+                <HumanErrorNotice
+                    descriptor={resolvedActionError.descriptor}
+                    compact
+                    onPrimaryAction={(action) => {
+                        if (action === "open_wallet") {
+                            router.push("/dashboard/wallet");
+                        } else if (action === "open_drops") {
+                            router.push("/drops");
+                        }
+                    }}
+                    onSubmitBug={() => bugReporter.submit(resolvedActionError.descriptor, buildBugReportContext({
+                        descriptor: resolvedActionError.descriptor,
+                        route: resolvedActionError.route,
+                        previousRoute: getSafePreviousRoute(),
+                        extra: resolvedActionError.context,
+                    }))}
+                />
             ) : null}
 
             {/* Premium Selector Grid */}

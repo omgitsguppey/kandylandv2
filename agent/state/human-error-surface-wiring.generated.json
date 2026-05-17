@@ -1,0 +1,101 @@
+{
+  "generatedAtUtc": "2026-05-17T16:06:58.3640899Z",
+  "reportKey": "human-error-surface-wiring",
+  "currentHead": "87d86b710eb9452ea9a26f1c3848345c16479fa4",
+  "summary": {
+    "surfacesWired": 6,
+    "rawErrorLeaksFound": 5,
+    "rawErrorLeaksFixed": 5,
+    "bugCtasWired": 6,
+    "rewardEligibleBugCtas": 1,
+    "deferredSurfaces": 4,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 4
+  },
+  "surfaces": [
+    {
+      "path": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "status": "wired_action_error_notice",
+      "surface": "creator_profile",
+      "bugCta": true
+    },
+    {
+      "path": "src/components/Creators/CreatorRequestsManager.tsx",
+      "status": "wired_load_and_mutation_errors",
+      "surface": "creator_dashboard",
+      "bugCta": true
+    },
+    {
+      "path": "src/components/Creators/CreatorBookingsManager.tsx",
+      "status": "wired_load_and_mutation_errors",
+      "surface": "creator_dashboard",
+      "bugCta": true
+    },
+    {
+      "path": "src/components/Creators/CreatorFanPassManager.tsx",
+      "status": "wired_load_errors",
+      "surface": "creator_dashboard",
+      "bugCta": true
+    },
+    {
+      "path": "src/components/Creators/CreatorBroadcastManager.tsx",
+      "status": "wired_load_and_send_errors",
+      "surface": "creator_dashboard",
+      "bugCta": true
+    },
+    {
+      "path": "src/components/PurchaseModal.tsx",
+      "status": "wired_payment_ui_errors",
+      "surface": "gumdrop_purchase",
+      "bugCta": true
+    }
+  ],
+  "rawErrorFindings": [
+    {
+      "id": "creator-dashboard-manager-raw-route-errors",
+      "severity": "p1",
+      "status": "fixed",
+      "summary": "Creator dashboard managers displayed raw load or mutation route messages."
+    },
+    {
+      "id": "purchase-modal-provider-ui-error",
+      "severity": "p1",
+      "status": "fixed",
+      "summary": "Wallet purchase UI used provider problem strings directly instead of HumanErrorNotice."
+    }
+  ],
+  "fixesApplied": [
+    "Added a client error adapter for thrown errors, route payloads, HTTP status, safe previous routes, and bug report context.",
+    "Replaced creator dashboard manager route/action error displays with HumanErrorNotice and Send bug CTAs.",
+    "Added translated payment UI error rendering in the wallet purchase modal without changing PayPal route logic or GumDrop math.",
+    "Added optional translated action error rendering to CreatorExperiencesPanel for booking/request/Fan Pass/chat failures supplied by its owner."
+  ],
+  "deferredFindings": [
+    {
+      "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "status": "deferred_allowed_scope",
+      "reason": "The profile client owns the async creator action callbacks and toast handling, but it was not in the allowed file list for this pass."
+    },
+    {
+      "path": "src/components/Drops/**",
+      "status": "deferred_next_surface_pass",
+      "reason": "Locked preview already maps unlock errors through product copy; full HumanErrorNotice replacement should be a focused drop-surface pass."
+    },
+    {
+      "path": "src/app/drops/**",
+      "status": "deferred_next_surface_pass",
+      "reason": "Public discovery and route code were left untouched to avoid entitlement/payment logic changes."
+    },
+    {
+      "path": "src/components/Chat/ChatExperience.tsx",
+      "status": "deferred_next_surface_pass",
+      "reason": "Chat has a large persistence and realtime surface; only a focused chat pass should replace composer toasts with HumanErrorNotice."
+    }
+  ],
+  "nextFixOrder": [
+    "Wire CreatorProfileClient async creator action failures into CreatorExperiencesPanel actionError.",
+    "Replace locked drop preview unlock toasts with HumanErrorNotice in a drop-only pass.",
+    "Replace chat shell/composer error trays with HumanErrorNotice in a chat-only pass."
+  ]
+}

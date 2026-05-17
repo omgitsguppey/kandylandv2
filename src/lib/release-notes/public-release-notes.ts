@@ -1,13 +1,72 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.69",
-  "betaReleaseCounter": 269,
+  "currentVersion": "1.2.70",
+  "betaReleaseCounter": 270,
   "channel": "beta",
-  "generatedAt": "2026-05-17T15:44:25.954Z",
-  "generatedAtUtc": "2026-05-17T15:44:25.954Z",
-  "lastCommitSha": "b20f5b447f2a33afa6bce602b36d7dd216e96746",
+  "generatedAt": "2026-05-17T16:06:58.364Z",
+  "generatedAtUtc": "2026-05-17T16:06:58.364Z",
+  "lastCommitSha": "87d86b710eb9452ea9a26f1c3848345c16479fa4",
   "notes": [
+    {
+      "version": "1.2.70",
+      "previousVersion": "1.2.69",
+      "betaReleaseCounter": 270,
+      "previousBetaReleaseCounter": 269,
+      "commitSha": "87d86b710eb9452ea9a26f1c3848345c16479fa4",
+      "commitTitle": "fix(errors): wire human errors into user creator flows",
+      "commitCount": 1,
+      "commitShas": [
+        "87d86b710eb9452ea9a26f1c3848345c16479fa4"
+      ],
+      "committedAt": "2026-05-17T16:06:58.364Z",
+      "generatedAt": "2026-05-17T16:06:58.364Z",
+      "committedAtUtc": "2026-05-17T16:06:58.364Z",
+      "generatedAtUtc": "2026-05-17T16:06:58.364Z",
+      "updatedAtUtc": "2026-05-17T16:06:58.364Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Wired plain-language errors into key creator and user flows.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Wired plain-language errors into key creator and user flows.",
+        "Added one-tap bug reporting CTAs for eligible platform errors.",
+        "Kept raw dev error details out of normal product screens."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app",
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "memory.md",
+        "src/lib/errors/client-error-adapter.ts",
+        "src/components/errors/HumanErrorNotice.tsx",
+        "src/components/Creators/CreatorExperiencesPanel.tsx",
+        "src/components/Creators/CreatorRequestsManager.tsx",
+        "src/components/Creators/CreatorBookingsManager.tsx",
+        "src/components/Creators/CreatorFanPassManager.tsx",
+        "src/components/Creators/CreatorBroadcastManager.tsx",
+        "src/components/PurchaseModal.tsx",
+        "docs/agent-truth/human-error-surface-wiring.md",
+        "agent/state/human-error-surface-wiring.generated.json",
+        "scripts/agent/validate-human-error-surface-wiring.ts",
+        "tests/unit/human-error-surface-wiring.spec.ts",
+        "tests/unit/creator-experiences-panel.spec.tsx",
+        "tests/unit/creator-requests-manager.spec.tsx",
+        "tests/unit/creator-bookings-manager.spec.tsx",
+        "tests/unit/creator-fan-pass-manager.spec.tsx",
+        "tests/unit/purchase-modal.spec.tsx",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "87d86b710eb9452ea9a26f1c3848345c16479fa4"
+    },
     {
       "version": "1.2.69",
       "previousVersion": "1.2.68",
@@ -1213,61 +1272,14 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/speed-security-hardening.spec.ts"
       ],
       "sourceCommit": "ca9210a2a756a5379e10deb2aaa84fe1022fe06e"
-    },
-    {
-      "version": "1.2.45",
-      "previousVersion": "1.2.44",
-      "betaReleaseCounter": 245,
-      "previousBetaReleaseCounter": 244,
-      "commitSha": "f43a78682114342113f5bc83dc5c89fe439de096",
-      "commitTitle": "fix(admin): simplify auth outcomes mobile panel",
-      "commitCount": 1,
-      "commitShas": [
-        "f43a78682114342113f5bc83dc5c89fe439de096"
-      ],
-      "committedAt": "2026-05-14T21:14:47.000Z",
-      "generatedAt": "2026-05-14T21:14:56.788Z",
-      "committedAtUtc": "2026-05-14T21:14:47.000Z",
-      "generatedAtUtc": "2026-05-14T21:14:56.788Z",
-      "updatedAtUtc": "2026-05-14T21:14:56.788Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Made Auth Outcomes simpler and clearer on mobile.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Made Auth Outcomes simpler and clearer on mobile.",
-        "Separated email/password and Google login attempt tracking.",
-        "Stopped missing auth samples from showing as errors or repeated snapshot waits."
-      ],
-      "audience": "users",
-      "affectedSurfaces": [
-        "account-onboarding",
-        "admin"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "docs/agent-truth/admin-analytics-auth-outcomes.md",
-        "docs/agent-truth/admin-analytics-truth.md",
-        "package.json",
-        "scripts/agent/validate-admin-analytics-auth-outcomes-mobile.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/lib/admin-analytics-auth-outcome-split.ts",
-        "src/lib/server/admin-analytics-historical-engagement.ts",
-        "src/types/admin-analytics.ts",
-        "tests/unit/admin-analytics-auth-outcome-split.spec.ts",
-        "tests/unit/admin-analytics-auth-outcomes-mobile.spec.tsx",
-        "tests/unit/admin-analytics-historical-engagement.spec.ts"
-      ],
-      "sourceCommit": "f43a78682114342113f5bc83dc5c89fe439de096"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
+
+export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,
   appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,
   releaseChannel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,
 } as const;
-
-export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion;

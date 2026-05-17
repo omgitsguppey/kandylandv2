@@ -23,3 +23,4 @@
 - Creator management/drop surfaces show own creator drops; public discovery remains public.
 - Phase 2 depends on Phase 1 GumDrop economy contract and must not change paid-bonus ledger math.
 - Bug report rewards credit reward GumDrops only, never purchased balance.
+- User and creator UI must use HumanErrorNotice or equivalent translated errors; raw dev errors belong in Debug/admin evidence.

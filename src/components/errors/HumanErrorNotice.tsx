@@ -105,7 +105,12 @@ export function HumanErrorNotice({
   const primaryLabel = ACTION_LABELS[notice.primaryAction];
   const secondaryLabel = notice.secondaryAction ? ACTION_LABELS[notice.secondaryAction] : "";
   const showPrimary = notice.primaryAction !== "none" && primaryLabel.length > 0;
-  const showSecondary = Boolean(notice.secondaryAction && notice.secondaryAction !== "none" && secondaryLabel.length > 0);
+  const showSecondary = Boolean(
+    notice.secondaryAction
+      && notice.secondaryAction !== "none"
+      && secondaryLabel.length > 0
+      && !(notice.secondaryAction === "submit_bug" && notice.bugReportEligible),
+  );
   const primaryIsBug = notice.primaryAction === "submit_bug";
   const sendBug = async () => {
     if (!onSubmitBug || bugPending) {

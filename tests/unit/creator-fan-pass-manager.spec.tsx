@@ -17,6 +17,15 @@ import { CreatorFanPassManager } from "@/components/Creators/CreatorFanPassManag
 function okResponse(body: Record<string, unknown>) {
   return {
     ok: true,
+    status: 200,
+    json: async () => body,
+  };
+}
+
+function problemResponse(status: number, body: Record<string, unknown>) {
+  return {
+    ok: false,
+    status,
     json: async () => body,
   };
 }
@@ -114,5 +123,20 @@ describe("CreatorFanPassManager", () => {
 
     expect(mockState.authFetch).not.toHaveBeenCalled();
     expect(screen.getByTestId("creator-fan-pass-manager").dataset.creatorFanPassManagementState).toBe("configuration_only");
+  });
+
+  it("uses HumanErrorNotice for subscriber load failures", async () => {
+    mockState.authFetch.mockResolvedValue(problemResponse(500, {
+      error: "FirebaseError: subscriber visibility query failed",
+    }));
+
+    renderManager();
+
+    await waitFor(() => {
+      expect(screen.getByText("This section did not load")).toBeTruthy();
+    });
+    expect(screen.getAllByText("Send bug").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/FirebaseError/u)).toBeNull();
+    expect(screen.queryByText(/subscriber visibility query failed/u)).toBeNull();
   });
 });

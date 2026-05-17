@@ -3,7 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, RefreshCw, Wallet } from "lucide-react";
 
+import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
+import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
 import { authFetch } from "@/lib/authFetch";
+import {
+  buildBugReportContext,
+  getSafePreviousRoute,
+  resolveClientActionError,
+  type ResolvedClientActionError,
+} from "@/lib/errors/client-error-adapter";
 import { cn } from "@/lib/utils";
 
 type SectionState = "live" | "unavailable" | "not_configured" | "blocked" | "needs_setup" | "needs_review" | "error";
@@ -82,6 +90,10 @@ function normalizeSubscribers(value: unknown): FanPassSubscriberRow[] {
     });
 }
 
+function readObject(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? value as Record<string, unknown> : {};
+}
+
 export function CreatorFanPassManager({
   creatorId,
   creatorName,
@@ -94,7 +106,9 @@ export function CreatorFanPassManager({
   const [subscribers, setSubscribers] = useState<FanPassSubscriberRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<ResolvedClientActionError | null>(null);
   const loadRequestIdRef = useRef(0);
+  const bugReporter = useSubmitBugReport();
   const canLoadSubscribers = Boolean(creatorId && enabled && !restricted && priceGd > 0);
   const subscribersUrl = useMemo(() => `/api/creator/subscriptions?creatorId=${encodeURIComponent(creatorId)}`, [creatorId]);
   const managementState = restricted
@@ -107,6 +121,7 @@ export function CreatorFanPassManager({
     if (!canLoadSubscribers) {
       setSubscribers([]);
       setError(null);
+      setActionError(null);
       setLoading(false);
       return;
     }
@@ -115,11 +130,19 @@ export function CreatorFanPassManager({
     loadRequestIdRef.current = requestId;
     setLoading(true);
     setError(null);
+    setActionError(null);
     try {
       const response = await authFetch(subscribersUrl);
       const body = await response.json().catch(() => ({})) as FanPassResponse;
       if (!response.ok) {
-        throw new Error(body.error || body.message || "Fan Pass subscribers are unavailable.");
+        throw resolveClientActionError(body, {
+          code: "manager_load_failed",
+          status: response.status,
+          surface: "creator_dashboard",
+          route: subscribersUrl,
+          fallbackKey: "manager_load_failed",
+          context: { manager: "fan_pass", stage: "load" },
+        });
       }
       if (loadRequestIdRef.current === requestId) {
         if (body.viewMode === "fan_subscription_status") {
@@ -131,7 +154,14 @@ export function CreatorFanPassManager({
       }
     } catch (loadError) {
       if (loadRequestIdRef.current === requestId) {
-        setError(loadError instanceof Error ? loadError.message : "Fan Pass subscribers are unavailable.");
+        setActionError("descriptor" in readObject(loadError)
+          ? loadError as ResolvedClientActionError
+          : resolveClientActionError(loadError, {
+            surface: "creator_dashboard",
+            route: subscribersUrl,
+            fallbackKey: "manager_load_failed",
+            context: { manager: "fan_pass", stage: "load" },
+          }));
         setSubscribers([]);
       }
     } finally {
@@ -184,6 +214,24 @@ export function CreatorFanPassManager({
       </p>
       {error ? (
         <p className="mt-3 rounded-2xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100">{error}</p>
+      ) : null}
+      {actionError ? (
+        <HumanErrorNotice
+          descriptor={actionError.descriptor}
+          compact
+          className="mt-3"
+          onPrimaryAction={(action) => {
+            if (action === "refresh" || action === "retry") {
+              void loadSubscribers();
+            }
+          }}
+          onSubmitBug={() => bugReporter.submit(actionError.descriptor, buildBugReportContext({
+            descriptor: actionError.descriptor,
+            route: actionError.route,
+            previousRoute: getSafePreviousRoute(),
+            extra: actionError.context,
+          }))}
+        />
       ) : null}
 
       {!canLoadSubscribers ? (

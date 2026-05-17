@@ -16,6 +16,15 @@ import { CreatorRequestsManager } from "@/components/Creators/CreatorRequestsMan
 function okResponse(body: Record<string, unknown>) {
   return {
     ok: true,
+    status: 200,
+    json: async () => body,
+  };
+}
+
+function problemResponse(status: number, body: Record<string, unknown>) {
+  return {
+    ok: false,
+    status,
     json: async () => body,
   };
 }
@@ -174,5 +183,59 @@ describe("CreatorRequestsManager", () => {
     await waitFor(() => {
       expect(screen.getByText("accepted")).toBeTruthy();
     });
+  });
+
+  it("renders translated load failures with a bug CTA and no raw route error", async () => {
+    mockState.authFetch.mockResolvedValue(problemResponse(500, {
+      error: "FirebaseError: Missing or insufficient permissions.",
+    }));
+
+    render(
+      <CreatorRequestsManager
+        creatorId="creator_1"
+        creatorName="Jessica"
+        enabled
+        restricted={false}
+        readOnly={false}
+        sourceState="live"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("This section did not load")).toBeTruthy();
+    });
+    expect(screen.getAllByText("Send bug").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/FirebaseError/u)).toBeNull();
+    expect(screen.queryByText(/Missing or insufficient permissions/u)).toBeNull();
+  });
+
+  it("renders translated mutation failures without exposing raw error.message", async () => {
+    mockState.authFetch
+      .mockResolvedValueOnce(okResponse({ success: true, requests: [pendingRequest()] }))
+      .mockResolvedValueOnce(problemResponse(500, {
+        error: "Internal server error: request mutation exploded",
+      }));
+
+    render(
+      <CreatorRequestsManager
+        creatorId="creator_1"
+        creatorName="Jessica"
+        enabled
+        restricted={false}
+        readOnly={false}
+        sourceState="live"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Accept")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText("Accept"));
+
+    await waitFor(() => {
+      expect(screen.getByText("That update did not save")).toBeTruthy();
+    });
+    expect(screen.queryByText(/request mutation exploded/u)).toBeNull();
   });
 });

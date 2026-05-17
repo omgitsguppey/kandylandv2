@@ -1,3 +1,9 @@
+## 1.2.70 - 2026-05-17T16:06:58.364Z
+
+- Wired plain-language errors into key creator and user flows.
+- Added one-tap bug reporting CTAs for eligible platform errors.
+- Kept raw dev error details out of normal product screens.
+
 # Changelog
 
 What's new in KandyDrops Beta (latest first).

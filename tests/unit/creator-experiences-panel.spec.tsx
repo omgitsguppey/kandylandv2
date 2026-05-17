@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { CreatorExperiencesPanel } from "@/components/Creators/CreatorExperiencesPanel";
+import { resolveHumanErrorFromCode, resolveHumanErrorFromStatus } from "@/lib/errors/resolve-human-error";
 import {
     CREATOR_BOOKING_RATES,
     CREATOR_MESSAGE_COSTS,
@@ -190,6 +191,34 @@ describe("CreatorExperiencesPanel", () => {
         vi.useRealTimers();
     });
 
+    it("renders translated slot unavailable action errors", () => {
+        const markup = renderToStaticMarkup(
+            <CreatorExperiencesPanel
+                {...baseProps}
+                actionError={resolveHumanErrorFromCode("slot_unavailable", "creator_booking")}
+            />,
+        );
+
+        expect(markup).toContain("That slot got taken");
+        expect(markup).toContain("Pick another open slot and try again.");
+        expect(markup).toContain('data-human-error-key="slot_unavailable"');
+        expect(markup).not.toContain("Internal server error");
+    });
+
+    it("renders Send bug CTA for translated internal action errors", () => {
+        const markup = renderToStaticMarkup(
+            <CreatorExperiencesPanel
+                {...baseProps}
+                actionError={resolveHumanErrorFromStatus(500, "creator_booking")}
+            />,
+        );
+
+        expect(markup).toContain("This hit a platform snag");
+        expect(markup).toContain("Send bug + get 10 GD");
+        expect(markup).toContain('data-bug-report-eligible="true"');
+        expect(markup).toContain('data-reward-eligible="true"');
+    });
+
     it("hides fan controls when the creator owner views their own profile", () => {
         const markup = renderToStaticMarkup(
             <CreatorExperiencesPanel
@@ -336,7 +365,7 @@ describe("CreatorExperiencesPanel", () => {
             />,
         );
 
-        expect(markup).toContain("Creator experiences use paid GumDrops only");
+        expect(markup).toContain("Creator experiences use paid GumDrops, not reward balance.");
         expect(markup).toContain("Paid GD 0 / Need");
         expect(markup).toContain("Open Wallet");
         expect(markup).not.toContain("Send Request");

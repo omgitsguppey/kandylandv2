@@ -10,17 +10,24 @@ import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { motion, AnimatePresence } from "framer-motion";
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
+import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { useUI } from "@/context/UIContext";
+import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { getPaymentProblemCopy } from "@/lib/problem-state-copy";
 import { formatCompactGd, resolveWalletBalanceSplit } from "@/lib/gumdrop-formatting";
+import {
+  buildBugReportContext,
+  getSafePreviousRoute,
+  resolveClientActionError,
+  type ResolvedClientActionError,
+} from "@/lib/errors/client-error-adapter";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -50,8 +57,10 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const [customDrops, setCustomDrops] = useState<number>(5000);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [humanPaymentError, setHumanPaymentError] = useState<ResolvedClientActionError | null>(null);
   const [success, setSuccess] = useState(false);
   const [creditedDrops, setCreditedDrops] = useState<number | null>(null);
+  const bugReporter = useSubmitBugReport();
   const [{ isPending }] = usePayPalScriptReducer();
   
   const paypalReady = PAYPAL_READY && networkOnline;
@@ -133,6 +142,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
 
     setSuccess(false);
     setError(null);
+    setHumanPaymentError(null);
     setCreditedDrops(null);
     clearTimedFlow(CHECKOUT_FLOW_KEY);
     requestAnimationFrame(onClose);
@@ -318,6 +328,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const handleApprove = async (orderId: string) => {
     setProcessing(true);
     setError(null);
+    setHumanPaymentError(null);
     try {
       if (!user) throw new Error("User not authenticated");
 
@@ -334,7 +345,18 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         gumDropsBalance?: number | null;
         dailyTasksState?: DailyTasksState | null;
       };
-      if (!response.ok) throw new Error(result.error || "Payment verification failed");
+      if (!response.ok) throw resolveClientActionError(result, {
+        status: response.status,
+        surface: "gumdrop_purchase",
+        route: "/api/paypal/capture",
+        fallbackKey: "payment_not_completed",
+        context: {
+          stage: "capture",
+          packageLabel: selectedPackage.label,
+          packageDrops: selectedPackage.drops,
+          packagePrice: selectedPackage.price,
+        },
+      });
 
       if (result.duplicate) toast.info("This payment was already processed.");
 
@@ -388,7 +410,19 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         ...(consumeTimedFlow(CHECKOUT_FLOW_KEY).mergedParams ?? {}),
       });
     } catch (err: unknown) {
-      const problemCopy = getPaymentProblemCopy(err);
+      const resolved = "descriptor" in (err && typeof err === "object" ? err as Record<string, unknown> : {})
+        ? err as ResolvedClientActionError
+        : resolveClientActionError(err, {
+          surface: "gumdrop_purchase",
+          route: "/api/paypal/capture",
+          fallbackKey: "payment_not_completed",
+          context: {
+            stage: "capture",
+            packageLabel: selectedPackage.label,
+            packageDrops: selectedPackage.drops,
+            packagePrice: selectedPackage.price,
+          },
+        });
       reportClientIssue({
         channel: "payments",
         message: "PayPal capture approval failed",
@@ -401,7 +435,8 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         },
         consoleLabel: "[Wallet] PayPal capture failed",
       });
-      setError(problemCopy.body);
+      setHumanPaymentError(resolved);
+      setError(resolved.descriptor.userMessage);
       trackEvent("gumdrops_purchase_failed", {
         order_id: orderId,
         transaction_id: orderId,
@@ -413,9 +448,9 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         sourceTruth: "client",
         ...walletDensityPayload,
         source_component: "purchase_modal",
-        ...(consumeTimedFlow(CHECKOUT_FLOW_KEY, { failure_reason: problemCopy.headline }).mergedParams ?? {}),
+        ...(consumeTimedFlow(CHECKOUT_FLOW_KEY, { failure_reason: resolved.descriptor.userTitle }).mergedParams ?? {}),
       });
-      toast.error(problemCopy.headline, { description: problemCopy.body });
+      toast.error(resolved.descriptor.userTitle, { description: resolved.descriptor.userMessage });
     } finally {
       setProcessing(false);
     }
@@ -665,9 +700,22 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   };
 
                                   if (!response.ok) {
-                                    const problemCopy = getPaymentProblemCopy(order.error || "Payment initialization failed");
-                                    toast.error(problemCopy.headline, { description: problemCopy.body });
-                                    throw new Error(order.error || "Payment initialization failed");
+                                    const resolved = resolveClientActionError(order, {
+                                      status: response.status,
+                                      surface: "gumdrop_purchase",
+                                      route: "/api/paypal/create",
+                                      fallbackKey: "provider_unavailable",
+                                      context: {
+                                        stage: "create_order",
+                                        packageLabel: selectedPackage.label,
+                                        packageDrops: selectedPackage.drops,
+                                        packagePrice: selectedPackage.price,
+                                      },
+                                    });
+                                    setHumanPaymentError(resolved);
+                                    setError(resolved.descriptor.userMessage);
+                                    toast.error(resolved.descriptor.userTitle, { description: resolved.descriptor.userMessage });
+                                    throw new Error(resolved.descriptor.errorKey);
                                   }
 
                                   trackEvent("begin_checkout", {
@@ -702,7 +750,18 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 if (data.orderID) await handleApprove(data.orderID);
                               }}
                               onError={(err) => {
-                                const message = "PayPal encountered an error. Please try again.";
+                                const resolved = resolveClientActionError(err, {
+                                  surface: "gumdrop_purchase",
+                                  route: "/api/paypal/create",
+                                  fallbackKey: "provider_unavailable",
+                                  context: {
+                                    stage: "paypal_single_button_render",
+                                    fundingSource: "paypal",
+                                    packageLabel: selectedPackage.label,
+                                    packageDrops: selectedPackage.drops,
+                                    packagePrice: selectedPackage.price,
+                                  },
+                                });
                                 reportClientIssue({
                                   channel: "payments",
                                   severity: "warn",
@@ -717,14 +776,46 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   },
                                   consoleLabel: "[Wallet] PayPal single button error",
                                 });
-                                setError(message);
+                                setHumanPaymentError(resolved);
+                                setError(resolved.descriptor.userMessage);
                               }}
                             />
                           </div>
                         )}
                       </div>
 
-                      {error && <div role="alert" className="mt-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-center text-xs font-bold">{error}</div>}
+                      {humanPaymentError ? (
+                        <HumanErrorNotice
+                          descriptor={humanPaymentError.descriptor}
+                          compact
+                          className="mt-4 text-left"
+                          onPrimaryAction={(action) => {
+                            if (action === "retry") {
+                              setError(null);
+                              setHumanPaymentError(null);
+                            } else if (action === "contact_support") {
+                              router.push("/support");
+                            }
+                          }}
+                          onSubmitBug={() => bugReporter.submit(humanPaymentError.descriptor, buildBugReportContext({
+                            descriptor: humanPaymentError.descriptor,
+                            route: humanPaymentError.route,
+                            previousRoute: getSafePreviousRoute(),
+                            extra: humanPaymentError.context,
+                          }))}
+                        />
+                      ) : error ? (
+                        <HumanErrorNotice
+                          descriptor={resolveClientActionError({ errorKey: "payment_not_completed" }, {
+                            surface: "gumdrop_purchase",
+                            route: "/api/paypal/capture",
+                            fallbackKey: "payment_not_completed",
+                            context: { source: "purchase_modal_legacy_error" },
+                          }).descriptor}
+                          compact
+                          className="mt-4 text-left"
+                        />
+                      ) : null}
                     </div>
                   ) : (
                     <div className="text-center py-10 pt-4">

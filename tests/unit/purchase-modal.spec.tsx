@@ -25,4 +25,13 @@ describe("PurchaseModal paid bundle bonus labels", () => {
         expect(bonusLines.length).toBeGreaterThan(0);
         expect(bonusLines.some((line) => /(free|reward)/i.test(line))).toBe(false);
     });
+
+    it("uses translated payment error UI instead of raw provider copy", () => {
+        const source = readSource("src/components/PurchaseModal.tsx");
+
+        expect(source).toContain("HumanErrorNotice");
+        expect(source).toContain("resolveClientActionError");
+        expect(source).toContain("payment_not_completed");
+        expect(source).not.toContain("{error && <div role=\"alert\"");
+    });
 });

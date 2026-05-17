@@ -3,10 +3,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Loader2, Megaphone, RefreshCw, Send } from "lucide-react";
 
+import { HumanErrorNotice } from "@/components/errors/HumanErrorNotice";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { useAuth } from "@/context/AuthContext";
+import { useSubmitBugReport } from "@/hooks/useSubmitBugReport";
 import { authFetch } from "@/lib/authFetch";
+import {
+  buildBugReportContext,
+  getSafePreviousRoute,
+  resolveClientActionError,
+  type ResolvedClientActionError,
+} from "@/lib/errors/client-error-adapter";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 
@@ -66,6 +74,10 @@ function statusLabel(status?: string) {
   return (status || "draft").replaceAll("_", " ");
 }
 
+function readObject(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? value as Record<string, unknown> : {};
+}
+
 export function CreatorBroadcastManager({
   creatorId,
   creatorName,
@@ -86,6 +98,8 @@ export function CreatorBroadcastManager({
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<ResolvedClientActionError | null>(null);
+  const bugReporter = useSubmitBugReport();
   const loadRequestIdRef = useRef(0);
 
   const query = useMemo(() => (viewAsState?.adminViewingAsUserId ? `?creatorId=${encodeURIComponent(viewAsState.adminViewingAsUserId)}` : ""), [viewAsState?.adminViewingAsUserId]);
@@ -99,6 +113,7 @@ export function CreatorBroadcastManager({
     if (!canReadBroadcasts) {
       setBroadcasts([]);
       setError(null);
+      setActionError(null);
       setLoading(false);
       return;
     }
@@ -107,11 +122,19 @@ export function CreatorBroadcastManager({
     loadRequestIdRef.current = requestId;
     setLoading(true);
     setError(null);
+    setActionError(null);
     try {
       const response = await authFetch(`/api/creator/broadcasts${query}`);
       const body = await response.json().catch(() => ({})) as BroadcastManagerResponse;
       if (!response.ok) {
-        throw new Error(body.error || "Broadcast history could not be loaded.");
+        throw resolveClientActionError(body, {
+          code: "manager_load_failed",
+          status: response.status,
+          surface: "creator_dashboard",
+          route: `/api/creator/broadcasts${query}`,
+          fallbackKey: "manager_load_failed",
+          context: { manager: "broadcasts", stage: "load" },
+        });
       }
       const nextBroadcasts = Array.isArray(body.broadcasts) ? body.broadcasts : [];
       if (loadRequestIdRef.current !== requestId) return;
@@ -128,7 +151,14 @@ export function CreatorBroadcastManager({
       }
     } catch (loadError) {
       if (loadRequestIdRef.current === requestId) {
-        setError(loadError instanceof Error ? loadError.message : "Broadcast history could not be loaded.");
+        setActionError("descriptor" in readObject(loadError)
+          ? loadError as ResolvedClientActionError
+          : resolveClientActionError(loadError, {
+            surface: "creator_dashboard",
+            route: `/api/creator/broadcasts${query}`,
+            fallbackKey: "manager_load_failed",
+            context: { manager: "broadcasts", stage: "load" },
+          }));
       }
     } finally {
       if (loadRequestIdRef.current === requestId) {
@@ -156,6 +186,7 @@ export function CreatorBroadcastManager({
 
     setSending(true);
     setError(null);
+    setActionError(null);
     try {
       const response = await authFetch("/api/creator/broadcasts", {
         method: "POST",
@@ -167,8 +198,14 @@ export function CreatorBroadcastManager({
       });
       const body = await response.json().catch(() => ({})) as BroadcastManagerResponse;
       if (!response.ok) {
-        const failureMessage = body.error || "Broadcast creation failed.";
-        setError(failureMessage);
+        setActionError(resolveClientActionError(body, {
+          code: "mutation_failed",
+          status: response.status,
+          surface: "creator_dashboard",
+          route: "/api/creator/broadcasts",
+          fallbackKey: "mutation_failed",
+          context: { manager: "broadcasts", stage: "send" },
+        }));
         trackEvent("creator_broadcast_creation_failed", {
           actor_role: actorRole,
           creator_id: creatorId,
@@ -195,7 +232,13 @@ export function CreatorBroadcastManager({
         truth_state: "live",
       });
     } catch {
-      setError("Broadcast creation failed.");
+      setActionError(resolveClientActionError(null, {
+        code: "mutation_failed",
+        surface: "creator_dashboard",
+        route: "/api/creator/broadcasts",
+        fallbackKey: "mutation_failed",
+        context: { manager: "broadcasts", stage: "send" },
+      }));
       trackEvent("creator_broadcast_creation_failed", {
         actor_role: actorRole,
         creator_id: creatorId,
@@ -277,6 +320,24 @@ export function CreatorBroadcastManager({
           {readOnly ? <p className="text-xs text-gray-400">Read-only projection. Broadcast creation is disabled.</p> : null}
           {!readOnly && !canReadBroadcasts ? <p className="text-xs text-gray-400">Broadcasts are unavailable for this creator.</p> : null}
           {error ? <p className="text-xs text-red-200">{error}</p> : null}
+          {actionError ? (
+            <HumanErrorNotice
+              descriptor={actionError.descriptor}
+              compact
+              className="mt-2"
+              onPrimaryAction={(action) => {
+                if (action === "refresh" || action === "retry") {
+                  void loadBroadcasts();
+                }
+              }}
+              onSubmitBug={() => bugReporter.submit(actionError.descriptor, buildBugReportContext({
+                descriptor: actionError.descriptor,
+                route: actionError.route,
+                previousRoute: getSafePreviousRoute(),
+                extra: actionError.context,
+              }))}
+            />
+          ) : null}
         </div>
       </div>
 

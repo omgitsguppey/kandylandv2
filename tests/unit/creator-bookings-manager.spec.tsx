@@ -17,6 +17,15 @@ import { CreatorBookingsManager } from "@/components/Creators/CreatorBookingsMan
 function okResponse(body: Record<string, unknown>) {
   return {
     ok: true,
+    status: 200,
+    json: async () => body,
+  };
+}
+
+function problemResponse(status: number, body: Record<string, unknown>) {
+  return {
+    ok: false,
+    status,
     json: async () => body,
   };
 }
@@ -127,5 +136,27 @@ describe("CreatorBookingsManager", () => {
     });
     expect(screen.queryByText("Complete")).toBeNull();
     expect(screen.queryByText("Cancel")).toBeNull();
+  });
+
+  it("renders translated platform mutation failures with a Send bug CTA", async () => {
+    mockState.authFetch
+      .mockResolvedValueOnce(okResponse({ success: true, bookings: [bookedRow()] }))
+      .mockResolvedValueOnce(problemResponse(500, {
+        error: "Internal server error: failed to write booking status",
+      }));
+
+    renderManager();
+
+    await waitFor(() => {
+      expect(screen.getByText("Complete")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText("Complete"));
+
+    await waitFor(() => {
+      expect(screen.getByText("That update did not save")).toBeTruthy();
+    });
+    expect(screen.getAllByText("Send bug").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/failed to write booking status/u)).toBeNull();
   });
 });
