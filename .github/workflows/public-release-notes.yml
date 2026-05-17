@@ -8,10 +8,13 @@ on:
       - "public/kandydrops-release-notes.json"
       - "src/lib/release-notes/public-release-notes.ts"
       - "src/lib/release-notes/release-version-contract.ts"
+      - "docs/agent-truth/public-beta-release-notes.md"
       - "CHANGELOG.md"
   workflow_dispatch:
 
-# Keep release notes synchronized automatically after each main commit.
+# Push events are retained for paths-ignore only while GitHub hosted-runner
+# billing is locked. Cloud Build owns automatic release-note normalization;
+# manual workflow_dispatch remains a fallback.
 
 permissions:
   contents: write
@@ -19,7 +22,7 @@ permissions:
 jobs:
   update-release-notes:
     name: Update Public Beta Release Notes
-    if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[skip release-notes]') }}
+    if: ${{ github.event_name == 'workflow_dispatch' && !contains(github.event.head_commit.message || '', '[skip release-notes]') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,12 +45,12 @@ jobs:
 
       - name: Commit generated release notes
         run: |
-          if git diff --quiet -- public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts CHANGELOG.md; then
+          if git diff --quiet -- public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts src/lib/release-notes/release-version-contract.ts CHANGELOG.md; then
             echo "Release notes already current."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts CHANGELOG.md
+          git add public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts src/lib/release-notes/release-version-contract.ts CHANGELOG.md
           git commit -m "chore(release): update public changelog [skip release-notes]"
           git push

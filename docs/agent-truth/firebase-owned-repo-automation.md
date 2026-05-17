@@ -12,6 +12,7 @@ GitHub is the source repository. GitHub-hosted Actions are not the source of dep
 - Cloud Build runs deterministic repo checks from source-controlled YAML.
 - Firebase Functions may ingest webhooks, record automation events, or enqueue work, but must not pretend to be a general-purpose repo build runner.
 - GitHub Actions workflows are manual fallbacks only until hosted-runner billing is reliable again.
+- GitHub Actions release-note push events are intentionally skipped before runner allocation while hosted-runner billing is locked.
 
 ## Cloud Build CI
 
@@ -33,10 +34,10 @@ Do not add Playwright, Lighthouse, Cypress, deploy commands, or full `npm run ch
 The lane:
 
 - skips commits containing `[skip release-notes]`
-- skips release artifact-only commits that touch only `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, `src/lib/release-notes/release-version-contract.ts`, and `CHANGELOG.md`
+- skips release artifact-only commits that touch only `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, `src/lib/release-notes/release-version-contract.ts`, `docs/agent-truth/public-beta-release-notes.md`, and `CHANGELOG.md`
 - runs `npm run release:notes`
 - runs `npm run check:release-notes`
-- commits `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, and `CHANGELOG.md`
+- commits `public/kandydrops-release-notes.json`, `src/lib/release-notes/public-release-notes.ts`, `src/lib/release-notes/release-version-contract.ts`, and `CHANGELOG.md`
 - pushes with `[skip ci] [skip release-notes]` to avoid automation loops
 
 ## Function Boundary

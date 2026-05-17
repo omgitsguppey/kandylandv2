@@ -59,7 +59,9 @@ const contract = readRequired("src/lib/release-notes/release-version-contract.ts
 const helper = readRequired("src/lib/release-notes/beta-odometer-version.ts");
 const releaseScript = readRequired("scripts/release/update-public-changelog.ts");
 const releaseWorkflow = readRequired(".github/workflows/public-release-notes.yml");
+const releaseCloudBuild = readRequired("cloudbuild.release-notes.yaml");
 const docs = readRequired("docs/agent-truth/public-beta-release-notes.md");
+const firebaseAutomationDocs = readRequired("docs/agent-truth/firebase-owned-repo-automation.md");
 const readme = readRequired("README.md");
 const agents = readRequired("AGENTS.md");
 
@@ -213,11 +215,36 @@ for (const expected of [
   "\"public/kandydrops-release-notes.json\"",
   "\"src/lib/release-notes/public-release-notes.ts\"",
   "\"src/lib/release-notes/release-version-contract.ts\"",
+  "\"docs/agent-truth/public-beta-release-notes.md\"",
   "\"CHANGELOG.md\"",
-  "github.event_name == 'workflow_dispatch'",
-  "!contains(github.event.head_commit.message, '[skip release-notes]')",
+  "github.event_name == 'workflow_dispatch' &&",
+  "!contains(github.event.head_commit.message || '', '[skip release-notes]')",
+  "Push events are retained for paths-ignore only",
+  "src/lib/release-notes/release-version-contract.ts CHANGELOG.md",
 ]) {
   requireIncludes(releaseWorkflow, expected, "public-release-notes workflow");
+}
+
+for (const expected of [
+  "docs/agent-truth/public-beta-release-notes.md",
+  "src/lib/release-notes/release-version-contract.ts|docs/agent-truth/public-beta-release-notes.md|CHANGELOG.md",
+  "src/lib/release-notes/release-version-contract.ts CHANGELOG.md",
+]) {
+  requireIncludes(releaseCloudBuild, expected, "public release notes Cloud Build lane");
+}
+
+for (const expected of [
+  "GitHub Actions release-note workflow is manual-only while hosted-runner billing is locked.",
+  "Push events must resolve as skipped before runner allocation.",
+]) {
+  requireIncludes(docs, expected, "release note workflow billing doctrine");
+}
+
+for (const expected of [
+  "GitHub Actions workflows are manual fallbacks only until hosted-runner billing is reliable again.",
+  "push events are intentionally skipped before runner allocation",
+]) {
+  requireIncludes(firebaseAutomationDocs, expected, "firebase-owned automation docs");
 }
 
 for (const forbidden of [

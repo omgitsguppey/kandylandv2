@@ -31,7 +31,7 @@ steps:
         release_only="true"
         for path in $changed_files; do
           case "$path" in
-            public/kandydrops-release-notes.json|src/lib/release-notes/public-release-notes.ts|src/lib/release-notes/release-version-contract.ts|CHANGELOG.md)
+            public/kandydrops-release-notes.json|src/lib/release-notes/public-release-notes.ts|src/lib/release-notes/release-version-contract.ts|docs/agent-truth/public-beta-release-notes.md|CHANGELOG.md)
               ;;
             *)
               release_only="false"
@@ -79,13 +79,13 @@ steps:
         if [ -f /workspace/.skip-release-notes ]; then
           exit 0
         fi
-        if git diff --quiet -- public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts CHANGELOG.md; then
+        if git diff --quiet -- public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts src/lib/release-notes/release-version-contract.ts CHANGELOG.md; then
           echo "Release notes already current."
           exit 0
         fi
         git config user.name "firebase-cloud-build"
         git config user.email "firebase-cloud-build@kandydrops.local"
-        git add public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts CHANGELOG.md
+        git add public/kandydrops-release-notes.json src/lib/release-notes/public-release-notes.ts src/lib/release-notes/release-version-contract.ts CHANGELOG.md
         git commit -m "chore(release): update public changelog [skip ci] [skip release-notes]"
         git remote set-url origin "https://x-access-token:$$GITHUB_TOKEN@github.com/omgitsguppey/kandylandv2.git"
         git push origin HEAD:main
