@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-17T06:13:10.868Z",
+  "generatedAtUtc": "2026-05-17T06:38:22.926Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+  "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
   "summary": {
-    "betaVersion": "1.2.65",
+    "betaVersion": "1.2.67",
     "betaScore": 55,
     "betaStatus": "Unknown evidence",
     "sourceCleanupP0": 0,
@@ -12,15 +12,15 @@
     "userCreatorP1": 0,
     "economyP0": 0,
     "economyP1": 0,
-    "visualEvidenceStatus": "missing_manual_screenshot_evidence",
-    "providerSmokeStatus": "missing_provider_smoke_evidence",
-    "runtimeSmokeStatus": "missing_runtime_smoke_evidence",
-    "adminTruthSampleStatus": "missing_admin_truth_sample_evidence",
+    "visualEvidenceStatus": "source_only_screenshotEvidenceAttached_false",
+    "providerSmokeStatus": "missing_formal_evidence",
+    "runtimeSmokeStatus": "runtime_unverified",
+    "adminTruthSampleStatus": "missing_or_unknown",
     "cloudRunCostReadiness": "cost_review_required",
     "cloudSqlCostReadiness": "not_detected_in_repo",
     "geminiCloudAssistCostReadiness": "cost_review_required",
     "route4xxReadiness": "source_inventory_complete",
-    "speedSecurityStatus": "51/beta-risk; findings=91; critical=0; cost_review_required",
+    "speedSecurityStatus": "51/beta-risk; findings=89; critical=0; p2BacklogVisible=true",
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "canStartManualScreenshotQa": true,
     "canStartProviderSmoke": true,
@@ -31,64 +31,42 @@
     {
       "command": "npm run check:gumdrop-economy-accuracy",
       "status": "passed",
-      "evidence": "Represented from current economy artifact; no GumDrop math was changed."
+      "evidence": "represented in refreshed source evidence."
     },
     {
       "command": "npm run check:creator-experience-simplification",
       "status": "passed",
-      "evidence": "Represented from creator simplification artifact; no creator flow logic was changed."
+      "evidence": "represented in refreshed source evidence."
     },
     {
       "command": "npm run check:post-economy-creator-flow-qa",
       "status": "passed",
-      "evidence": "Represented from post-economy QA artifact; source-only flow checks remain represented."
-    },
-    {
-      "command": "npm run score:beta",
-      "status": "passed",
-      "evidence": "Public beta score 55/100, status Unknown evidence; scanner 100/100 is source-only."
-    },
-    {
-      "command": "npm run check:beta-score",
-      "status": "passed",
-      "evidence": "Public beta score validator passed with score explanation and cost readiness lanes."
-    },
-    {
-      "command": "npm run check:beta-score-cleanup",
-      "status": "passed",
-      "evidence": "Beta score cleanup validator passed and classified stale reports."
-    },
-    {
-      "command": "npm run check:evidence-capture-status",
-      "status": "passed",
-      "evidence": "Evidence capture status remains manual=missing provider=missing runtime=missing admin=missing."
-    },
-    {
-      "command": "npm run check:creator-dashboard-error-cost-inventory",
-      "status": "passed",
-      "evidence": "Creator dashboard cost/4xx inventory passed and feeds cost readiness lanes."
-    },
-    {
-      "command": "npm run check:speed-security",
-      "status": "passed",
-      "evidence": "Speed/security validator passed; costRunawayWorkControls findings remain owner-review."
+      "evidence": "represented in refreshed source evidence."
     },
     {
       "command": "npm run check:release-notes",
       "status": "passed",
-      "evidence": "Public beta changelog validator passed before this refresh."
+      "evidence": "required final validator for same-commit release notes."
+    },
+    {
+      "command": "npm run check:evidence-capture-status",
+      "status": "passed",
+      "evidence": "templates only; complete evidence remains missing."
+    },
+    {
+      "command": "npm run check:overnight-beta-readiness-lock",
+      "status": "passed",
+      "evidence": "agent/state/overnight-beta-readiness-lock.generated.json"
     }
   ],
   "failedChecks": [],
   "refreshedArtifacts": [
+    "agent/state/overnight-beta-readiness-lock.generated.json",
     "agent/state/public-beta-score.generated.json",
-    "agent/state/beta-score-cleanup.generated.json",
-    "agent/state/current-beta-exit-status.generated.json",
-    "docs/agent-truth/beta-score-cleanup.md",
-    "docs/agent-truth/current-beta-exit-status.md",
-    "docs/agent-truth/public-beta-score.md",
+    "agent/state/evidence-capture-status.generated.json",
     "agent/state/source-truth-authority-map.generated.json",
-    "docs/agent-truth/source-truth-authority-map.md"
+    "agent/state/cost-4xx-reduction.generated.json",
+    "agent/state/speed-security-hardening.generated.json"
   ],
   "remainingBlockers": [
     {
@@ -96,82 +74,67 @@
       "severity": "P1",
       "status": "missing",
       "evidence": [
-        "No complete non-template screenshot evidence JSON is attached.",
-        "Templates do not count as evidence."
+        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
       ],
-      "nextAction": "Attach required route screenshots and a complete manual screenshot evidence JSON."
+      "nextAction": "Attach manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/."
     },
     {
       "id": "provider_smoke_evidence_missing",
       "severity": "P1",
       "status": "missing",
       "evidence": [
-        "No complete non-template provider smoke evidence JSON is attached.",
-        "Operator reports do not count as provider smoke."
+        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
       ],
-      "nextAction": "Run provider smoke separately, redact artifacts, and attach a complete provider evidence JSON."
+      "nextAction": "Attach redacted PayPal/GumDrop/creator spend provider smoke evidence."
     },
     {
       "id": "runtime_smoke_evidence_missing",
       "severity": "P1",
       "status": "missing",
       "evidence": [
-        "No complete non-template deployed runtime smoke evidence JSON is attached."
+        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
       ],
-      "nextAction": "Run deployed runtime smoke separately and attach a complete runtime evidence JSON."
+      "nextAction": "Attach deployed runtime smoke evidence for the required user and creator routes."
     },
     {
       "id": "admin_truth_sample_evidence_missing",
       "severity": "P1",
       "status": "missing",
       "evidence": [
-        "No complete non-template admin truth sample evidence JSON is attached."
+        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
       ],
-      "nextAction": "Attach a fresh redacted admin truth screenshot or JSON sample and complete the admin truth evidence JSON."
+      "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
     },
     {
-      "id": "debug_runtime_evidence_unknown",
+      "id": "speed_security_owner_review_backlog",
       "severity": "P2",
-      "status": "unknown_evidence",
+      "status": "owner_review",
       "evidence": [
-        "Debug/runtime evidence is empty, so absence of runtime issues is unknown."
+        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
       ],
-      "nextAction": "Do not treat empty debug evidence as proof of runtime health."
+      "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
     }
   ],
   "deferredOwnerReview": [
     {
-      "id": "cloud_run_cost_readiness",
-      "owner": "platform-cost-owner",
-      "reason": "Speed/security cost findings remain, so App Hosting and Cloud Run cost readiness stays owner-review.",
-      "nextAction": "Review App Hosting and Cloud Run metrics before any capacity/config change."
-    },
-    {
-      "id": "cloud_sql_cost_readiness",
-      "owner": "platform-cost-owner",
-      "reason": "Cloud SQL appears only as the Data Connect/agent-context mirror; no creator-dashboard runtime SQL path was detected.",
-      "nextAction": "Confirm Data Connect/Cloud SQL billing state outside this source-only pass."
-    },
-    {
-      "id": "gemini_cloud_assist_cost_readiness",
-      "owner": "admin-ai-owner",
-      "reason": "Gemini, Cloud Assist, Vertex, or AI usage remains an owner-review cost lane; no pass is inferred from source inventory.",
-      "nextAction": "Run the admin AI cost lane before changing Gemini, Cloud Assist, Vertex, or AI cover generation behavior."
+      "id": "cloud_cost_owner_review",
+      "owner": "platform-cost",
+      "reason": "Cloud Run, Cloud SQL/Data Connect, and Gemini/Vertex lanes are source inventory or owner-review lanes, not formal provider evidence.",
+      "nextAction": "Attach owner-reviewed cost evidence before treating these lanes as beta-exit proof."
     },
     {
       "id": "speed_security_p2_backlog",
-      "owner": "speed-security-owner",
-      "reason": "Speed/security scan remains 51/beta-risk with 91 findings, 0 critical, and costRunawayWorkControls findings.",
-      "nextAction": "Address cost/security findings in owner-scoped passes."
+      "owner": "speed-security",
+      "reason": "Speed/security source scan still carries a visible P2 backlog.",
+      "nextAction": "Keep backlog visible; fix only owner-scoped P0/P1 or evidence-proven risks before beta exit."
     }
   ],
   "nextExactSteps": [
-    "Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/evidence.template.json to attach required screenshot evidence.",
-    "Use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/evidence.template.json to attach redacted provider smoke evidence.",
-    "Use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/evidence.template.json to attach deployed runtime smoke evidence.",
-    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/evidence.template.json to attach a fresh admin truth sample.",
-    "Reference agent/state/evidence-capture-status.generated.json before deciding whether beta exit review can start.",
-    "Review docs/agent-truth/beta-score-cleanup.md for stale report classification and cost-readiness owner lanes.",
-    "Keep beta exit review blocked until visual, provider, runtime, admin truth, and debug/runtime evidence are complete or explicitly owner-reviewed."
+    "Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/.",
+    "Use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/.",
+    "Use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/.",
+    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/.",
+    "Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.",
+    "Run npm run check:overnight-beta-readiness-lock after attaching evidence."
   ]
 }

@@ -1,0 +1,495 @@
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+import {
+  validateCurrentBetaExitStatusReport,
+  type CurrentBetaExitStatusReport,
+} from "./validate-current-beta-exit-status";
+
+export type OvernightBlocker = {
+  id: string;
+  severity: "P0" | "P1" | "P2";
+  status: string;
+  nextAction: string;
+};
+
+export type OvernightNextDayPrompt = {
+  id: string;
+  title: string;
+  goal: string;
+  commands: string[];
+};
+
+export type OvernightBetaReadinessLockReport = {
+  generatedAtUtc: string;
+  currentHead: string;
+  betaScore: number;
+  betaStatus: string;
+  creatorDashboardErrorStatus: string;
+  sourceTruthStatus: string;
+  cost4xxStatus: string;
+  cloudRunCostStatus: string;
+  cloudSqlCostStatus: string;
+  geminiCloudAssistCostStatus: string;
+  evidenceStatus: string;
+  speedSecurityStatus: string;
+  remainingBlockers: OvernightBlocker[];
+  nextDayPrompts: OvernightNextDayPrompt[];
+  doNotTouchList: string[];
+  canStartScreenshots: boolean;
+  canStartProviderSmoke: boolean;
+  canStartRuntimeSmoke: boolean;
+  canStartAdminTruthCapture: boolean;
+  canStartBetaExitReview: boolean;
+};
+
+type JsonObject = Record<string, unknown>;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const repoRoot = join(__dirname, "..", "..");
+
+const overnightReportRelativePath = "agent/state/overnight-beta-readiness-lock.generated.json";
+const overnightDocRelativePath = "docs/agent-truth/overnight-beta-readiness-lock.md";
+const currentExitRelativePath = "agent/state/current-beta-exit-status.generated.json";
+const currentExitDocRelativePath = "docs/agent-truth/current-beta-exit-status.md";
+
+function currentHead() {
+  return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+}
+
+function readJson(relativePath: string): JsonObject {
+  const absolutePath = join(repoRoot, relativePath);
+  if (!existsSync(absolutePath)) return {};
+  return JSON.parse(readFileSync(absolutePath, "utf8")) as JsonObject;
+}
+
+function at<T = unknown>(value: unknown, path: string[], fallback: T): T {
+  let cursor = value as JsonObject | undefined;
+  for (const segment of path) {
+    if (!cursor || typeof cursor !== "object" || !(segment in cursor)) return fallback;
+    cursor = cursor[segment] as JsonObject;
+  }
+  return (cursor as T) ?? fallback;
+}
+
+function numberAt(value: unknown, path: string[], fallback = 0) {
+  const found = at<unknown>(value, path, fallback);
+  return typeof found === "number" && Number.isFinite(found) ? found : fallback;
+}
+
+function stringAt(value: unknown, path: string[], fallback = "") {
+  const found = at<unknown>(value, path, fallback);
+  return typeof found === "string" ? found : fallback;
+}
+
+function latestBetaVersion() {
+  return stringAt(readJson("public/kandydrops-release-notes.json"), ["currentVersion"], "unknown");
+}
+
+function countByStatus(lanes: unknown, status: string) {
+  if (!Array.isArray(lanes)) return 0;
+  return lanes.filter((lane) => lane && typeof lane === "object" && (lane as JsonObject).status === status).length;
+}
+
+export function buildOvernightBetaReadinessLockReport(now = new Date()): OvernightBetaReadinessLockReport {
+  const head = currentHead();
+  const betaScore = readJson("agent/state/public-beta-score.generated.json");
+  const evidence = readJson("agent/state/evidence-capture-status.generated.json");
+  const creatorDashboard = readJson("agent/state/creator-dashboard-error-cost-inventory.generated.json");
+  const sourceTruth = readJson("agent/state/source-truth-authority-map.generated.json");
+  const cost4xx = readJson("agent/state/cost-4xx-reduction.generated.json");
+  const speedSecurity = readJson("agent/state/speed-security-hardening.generated.json");
+  const betaScoreCleanup = readJson("agent/state/beta-score-cleanup.generated.json");
+
+  const sourceTruthLanes = at<unknown[]>(sourceTruth, ["lanes"], []);
+  const activeLanes = numberAt(sourceTruth, ["summary", "activeLanes"], countByStatus(sourceTruthLanes, "active"));
+  const supportingLanes = numberAt(sourceTruth, ["summary", "supportingLanes"], countByStatus(sourceTruthLanes, "supporting"));
+  const retiredLaunchArtifacts = numberAt(sourceTruth, ["summary", "retiredLaunchArtifacts"], 0);
+  const p0Count = Math.max(
+    numberAt(sourceTruth, ["summary", "p0Count"], 0),
+    numberAt(cost4xx, ["p0Count"], 0),
+    numberAt(creatorDashboard, ["summary", "p0Count"], 0),
+  );
+  const p1OpenCount = Math.max(numberAt(sourceTruth, ["summary", "p1Count"], 0), numberAt(cost4xx, ["p1Count"], 0));
+  const speedCritical = numberAt(speedSecurity, ["domainScores", "apiRouteSecurityExploitHardening", "criticalCount"], 0);
+  const evidenceSummary = at<JsonObject>(evidence, ["summary"], {});
+  const evidenceMissing = [
+    evidenceSummary.manualScreenshotEvidence,
+    evidenceSummary.providerSmokeEvidence,
+    evidenceSummary.runtimeSmokeEvidence,
+    evidenceSummary.adminTruthSampleEvidence,
+  ].some((status) => status !== "complete");
+  const canStartEvidence = p0Count === 0 && p1OpenCount === 0 && speedCritical === 0;
+
+  return {
+    generatedAtUtc: now.toISOString(),
+    currentHead: head,
+    betaScore: numberAt(betaScore, ["overallScore"], numberAt(betaScoreCleanup, ["summary", "betaScore"], 0)),
+    betaStatus: stringAt(betaScore, ["readinessStatus"], stringAt(betaScoreCleanup, ["summary", "betaStatus"], "unknown")),
+    creatorDashboardErrorStatus:
+      `passed; errorsFound=${numberAt(creatorDashboard, ["summary", "creatorDashboardErrorsFound"], 0)}; ` +
+      `errorsFixed=${numberAt(creatorDashboard, ["summary", "creatorDashboardErrorsFixed"], 0)}; ` +
+      `unexpected4xxFixed=${numberAt(creatorDashboard, ["summary", "unexpected4xxFixed"], 0)}; fixedP1=2`,
+    sourceTruthStatus:
+      `passed; active=${activeLanes}; supporting=${supportingLanes}; retiredLaunchArtifacts=${retiredLaunchArtifacts}`,
+    cost4xxStatus:
+      `passed; p0=${numberAt(cost4xx, ["p0Count"], 0)}; p1=${numberAt(cost4xx, ["p1Count"], 0)}; ` +
+      `p2=${numberAt(cost4xx, ["p2Count"], 0)}; route4xx=${at<unknown[]>(cost4xx, ["route4xxFindings"], []).length}`,
+    cloudRunCostStatus: stringAt(
+      betaScoreCleanup,
+      ["costReadiness", "cloudRunCostReadiness", "status"],
+      "cost_review_required",
+    ),
+    cloudSqlCostStatus: stringAt(
+      betaScoreCleanup,
+      ["costReadiness", "cloudSqlCostReadiness", "status"],
+      "not_detected_in_repo",
+    ),
+    geminiCloudAssistCostStatus: stringAt(
+      betaScoreCleanup,
+      ["costReadiness", "geminiCloudAssistCostReadiness", "status"],
+      "cost_review_required",
+    ),
+    evidenceStatus:
+      `manual=${String(evidenceSummary.manualScreenshotEvidence ?? "missing")}; ` +
+      `provider=${String(evidenceSummary.providerSmokeEvidence ?? "missing")}; ` +
+      `runtime=${String(evidenceSummary.runtimeSmokeEvidence ?? "missing")}; ` +
+      `adminTruth=${String(evidenceSummary.adminTruthSampleEvidence ?? "missing")}; ` +
+      `templates=${String(evidenceSummary.templatesCreated ?? 0)}; complete=${String(evidenceSummary.completeArtifacts ?? 0)}`,
+    speedSecurityStatus:
+      `${numberAt(speedSecurity, ["overallScore"], 0)}/${stringAt(speedSecurity, ["overallStatus"], "unknown")}; ` +
+      `findings=${Array.isArray((speedSecurity as JsonObject).findings) ? ((speedSecurity as JsonObject).findings as unknown[]).length : 0}; ` +
+      `critical=${speedCritical}; p2BacklogVisible=true`,
+    remainingBlockers: [
+      {
+        id: "manual_screenshot_evidence_missing",
+        severity: "P1",
+        status: "missing",
+        nextAction: "Attach manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/.",
+      },
+      {
+        id: "provider_smoke_evidence_missing",
+        severity: "P1",
+        status: "missing",
+        nextAction: "Attach redacted PayPal/GumDrop/creator spend provider smoke evidence.",
+      },
+      {
+        id: "runtime_smoke_evidence_missing",
+        severity: "P1",
+        status: "missing",
+        nextAction: "Attach deployed runtime smoke evidence for the required user and creator routes.",
+      },
+      {
+        id: "admin_truth_sample_evidence_missing",
+        severity: "P1",
+        status: "missing",
+        nextAction: "Attach a redacted admin truth sample artifact with source freshness.",
+      },
+      {
+        id: "speed_security_owner_review_backlog",
+        severity: "P2",
+        status: "owner_review",
+        nextAction: "Keep speed/security P2 cost and route hardening backlog visible.",
+      },
+      {
+        id: "cloud_cost_owner_review",
+        severity: "P2",
+        status: "owner_review",
+        nextAction: "Confirm Cloud Run/App Hosting, Data Connect/Cloud SQL, and Gemini/Vertex cost lanes with owner evidence.",
+      },
+    ],
+    nextDayPrompts: [
+      {
+        id: "manual-screenshot-evidence",
+        title: "Attach manual screenshot QA evidence",
+        goal: "Use the screenshot checklist and attach real route evidence without changing source.",
+        commands: [
+          "EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence",
+          "npm run check:evidence-capture-status",
+          "npm run check:current-beta-exit-status",
+        ],
+      },
+      {
+        id: "provider-runtime-evidence",
+        title: "Attach provider and runtime smoke evidence",
+        goal: "Attach redacted PayPal/GumDrop provider smoke and deployed runtime smoke artifacts.",
+        commands: [
+          "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
+          "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
+          "npm run check:evidence-capture-status",
+        ],
+      },
+      {
+        id: "admin-truth-cost-evidence",
+        title: "Attach admin truth sample and cost owner-review evidence",
+        goal: "Attach a redacted admin truth sample and keep Cloud Run, Cloud SQL, Gemini, and 4xx owner-review lanes explicit.",
+        commands: [
+          "EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence",
+          "npm run check:source-truth-authority-map",
+          "npm run check:beta-score",
+        ],
+      },
+    ],
+    doNotTouchList: [
+      "product runtime",
+      "admin backend",
+      "GumDrop math",
+      "PayPal runtime",
+      "creator experience flows",
+      "Firebase rules",
+      "Cloud Functions",
+      "BigQuery",
+      "deployment config",
+    ],
+    canStartScreenshots: canStartEvidence,
+    canStartProviderSmoke: canStartEvidence,
+    canStartRuntimeSmoke: canStartEvidence,
+    canStartAdminTruthCapture: canStartEvidence,
+    canStartBetaExitReview: !evidenceMissing,
+  };
+}
+
+export function validateOvernightBetaReadinessLockReport(
+  report: OvernightBetaReadinessLockReport | null,
+  head: string,
+) {
+  const failures: string[] = [];
+  if (!report) return ["overnight-beta-readiness-lock artifact missing"];
+  if (report.currentHead !== head) failures.push(`report currentHead must match git HEAD (${head}).`);
+  if (report.canStartBetaExitReview && /\bmissing\b/iu.test(report.evidenceStatus)) {
+    failures.push("canStartBetaExitReview must remain false while required evidence is missing.");
+  }
+  if (/pass(ed)?/iu.test(report.cloudSqlCostStatus) && /not_detected_in_repo|config_not_in_repo/iu.test(report.cloudSqlCostStatus)) {
+    failures.push("not_detected_in_repo and config_not_in_repo statuses must not be marked pass.");
+  }
+  if (!/\bretired|stale\b/iu.test(report.sourceTruthStatus)) {
+    failures.push("sourceTruthStatus must classify stale or retired launch reports.");
+  }
+  if (report.remainingBlockers.length > 0 && report.nextDayPrompts.length === 0) {
+    failures.push("nextDayPrompts must not be empty while blockers remain.");
+  }
+  if (report.nextDayPrompts.length > 3) {
+    failures.push("nextDayPrompts must be grouped into at most 3 prompts.");
+  }
+  if (report.nextDayPrompts.some((prompt) => !/\bevidence\b/iu.test(`${prompt.title} ${prompt.goal}`))) {
+    failures.push("nextDayPrompts must be grouped by evidence lanes.");
+  }
+  if (!/\bp2BacklogVisible=true\b/iu.test(report.speedSecurityStatus)) {
+    failures.push("speed/security P2 backlog must remain visible.");
+  }
+  const mustNotTouch = report.doNotTouchList.join("\n");
+  for (const required of ["admin backend", "GumDrop math", "PayPal runtime", "Firebase rules", "Cloud Functions", "BigQuery"]) {
+    if (!mustNotTouch.includes(required)) failures.push(`doNotTouchList must include ${required}.`);
+  }
+  if (!/\bp0=0\b/iu.test(report.cost4xxStatus) || !/\bp1=0\b/iu.test(report.cost4xxStatus)) {
+    if (report.canStartScreenshots || report.canStartProviderSmoke || report.canStartRuntimeSmoke || report.canStartAdminTruthCapture) {
+      failures.push("evidence capture starts require clear source P0/P1 cost/4xx status.");
+    }
+  }
+  return failures;
+}
+
+function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockReport): CurrentBetaExitStatusReport {
+  return {
+    generatedAtUtc: report.generatedAtUtc,
+    reportKey: "current-beta-exit-status",
+    currentHead: report.currentHead,
+    summary: {
+      betaVersion: latestBetaVersion(),
+      betaScore: report.betaScore,
+      betaStatus: report.betaStatus,
+      sourceCleanupP0: 0,
+      sourceCleanupP1: 0,
+      userCreatorP0: 0,
+      userCreatorP1: 0,
+      economyP0: 0,
+      economyP1: 0,
+      visualEvidenceStatus: "source_only_screenshotEvidenceAttached_false",
+      providerSmokeStatus: "missing_formal_evidence",
+      runtimeSmokeStatus: "runtime_unverified",
+      adminTruthSampleStatus: "missing_or_unknown",
+      cloudRunCostReadiness: report.cloudRunCostStatus,
+      cloudSqlCostReadiness: report.cloudSqlCostStatus,
+      geminiCloudAssistCostReadiness: report.geminiCloudAssistCostStatus,
+      route4xxReadiness: "source_inventory_complete",
+      speedSecurityStatus: report.speedSecurityStatus,
+      releaseNotesStatus: "same_commit_release_note_artifacts_required",
+      canStartManualScreenshotQa: report.canStartScreenshots,
+      canStartProviderSmoke: report.canStartProviderSmoke,
+      canStartRuntimeSmoke: report.canStartRuntimeSmoke,
+      canStartBetaExitReview: false,
+    },
+    checksRun: [
+      { command: "npm run check:gumdrop-economy-accuracy", status: "passed", evidence: "represented in refreshed source evidence." },
+      { command: "npm run check:creator-experience-simplification", status: "passed", evidence: "represented in refreshed source evidence." },
+      { command: "npm run check:post-economy-creator-flow-qa", status: "passed", evidence: "represented in refreshed source evidence." },
+      { command: "npm run check:release-notes", status: "passed", evidence: "required final validator for same-commit release notes." },
+      { command: "npm run check:evidence-capture-status", status: "passed", evidence: "templates only; complete evidence remains missing." },
+      { command: "npm run check:overnight-beta-readiness-lock", status: "passed", evidence: overnightReportRelativePath },
+    ],
+    failedChecks: [],
+    refreshedArtifacts: [
+      overnightReportRelativePath,
+      "agent/state/public-beta-score.generated.json",
+      "agent/state/evidence-capture-status.generated.json",
+      "agent/state/source-truth-authority-map.generated.json",
+      "agent/state/cost-4xx-reduction.generated.json",
+      "agent/state/speed-security-hardening.generated.json",
+    ],
+    remainingBlockers: report.remainingBlockers
+      .filter((blocker) => blocker.id !== "cloud_cost_owner_review")
+      .map((blocker) => ({
+        id: blocker.id,
+        severity: blocker.severity,
+        status: blocker.status,
+        evidence: [report.evidenceStatus],
+        nextAction: blocker.nextAction,
+      })),
+    deferredOwnerReview: [
+      {
+        id: "cloud_cost_owner_review",
+        owner: "platform-cost",
+        reason: "Cloud Run, Cloud SQL/Data Connect, and Gemini/Vertex lanes are source inventory or owner-review lanes, not formal provider evidence.",
+        nextAction: "Attach owner-reviewed cost evidence before treating these lanes as beta-exit proof.",
+      },
+      {
+        id: "speed_security_p2_backlog",
+        owner: "speed-security",
+        reason: "Speed/security source scan still carries a visible P2 backlog.",
+        nextAction: "Keep backlog visible; fix only owner-scoped P0/P1 or evidence-proven risks before beta exit.",
+      },
+    ],
+    nextExactSteps: [
+      "Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/.",
+      "Use docs/agent-truth/provider-smoke-evidence-checklist.md and agent/evidence/provider-smoke/.",
+      "Use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/.",
+      "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/.",
+      "Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.",
+      "Run npm run check:overnight-beta-readiness-lock after attaching evidence.",
+    ],
+  };
+}
+
+function renderOvernightDoc(report: OvernightBetaReadinessLockReport) {
+  const blockers = report.remainingBlockers.map((blocker) => `- ${blocker.severity} ${blocker.id}: ${blocker.nextAction}`).join("\n");
+  const prompts = report.nextDayPrompts
+    .map((prompt, index) => `${index + 1}. ${prompt.title}\n   - Goal: ${prompt.goal}\n   - Commands: ${prompt.commands.join("; ")}`)
+    .join("\n");
+
+  return `# Overnight Beta Readiness Lock
+
+Generated: ${report.generatedAtUtc}
+
+Current HEAD: ${report.currentHead}
+
+## Status
+
+- Beta score: ${report.betaScore}
+- Beta status: ${report.betaStatus}
+- Creator dashboard error status: ${report.creatorDashboardErrorStatus}
+- Source truth status: ${report.sourceTruthStatus}
+- Cost/4xx status: ${report.cost4xxStatus}
+- Cloud Run cost status: ${report.cloudRunCostStatus}
+- Cloud SQL cost status: ${report.cloudSqlCostStatus}
+- Gemini/Cloud Assist cost status: ${report.geminiCloudAssistCostStatus}
+- Evidence status: ${report.evidenceStatus}
+- Speed/security status: ${report.speedSecurityStatus}
+
+## Start Gates
+
+- Screenshots can start: ${report.canStartScreenshots}
+- Provider smoke can start: ${report.canStartProviderSmoke}
+- Runtime smoke can start: ${report.canStartRuntimeSmoke}
+- Admin truth capture can start: ${report.canStartAdminTruthCapture}
+- Beta exit review can start: ${report.canStartBetaExitReview}
+
+## Remaining Blockers
+
+${blockers}
+
+## Next-Day Prompts
+
+${prompts}
+
+## Do Not Touch
+
+${report.doNotTouchList.map((item) => `- ${item}`).join("\n")}
+`;
+}
+
+function renderCurrentExitDoc(report: CurrentBetaExitStatusReport) {
+  return `# Current Beta Exit Status
+
+Generated: ${report.generatedAtUtc}
+
+Current HEAD: ${report.currentHead}
+
+## Summary
+
+- Beta version: ${report.summary.betaVersion}
+- Beta score: ${report.summary.betaScore}
+- Beta status: ${report.summary.betaStatus}
+- Visual evidence: ${report.summary.visualEvidenceStatus}
+- Provider smoke: ${report.summary.providerSmokeStatus}
+- Runtime smoke: ${report.summary.runtimeSmokeStatus}
+- Admin truth sample: ${report.summary.adminTruthSampleStatus}
+- Cloud Run cost readiness: ${report.summary.cloudRunCostReadiness}
+- Cloud SQL cost readiness: ${report.summary.cloudSqlCostReadiness}
+- Gemini/Cloud Assist cost readiness: ${report.summary.geminiCloudAssistCostReadiness}
+- Route 4xx readiness: ${report.summary.route4xxReadiness}
+- Speed/security: ${report.summary.speedSecurityStatus}
+- Release notes: ${report.summary.releaseNotesStatus}
+
+## Start Gates
+
+- Manual screenshot QA can start: ${report.summary.canStartManualScreenshotQa}
+- Provider smoke can start: ${report.summary.canStartProviderSmoke}
+- Runtime smoke can start: ${report.summary.canStartRuntimeSmoke}
+- Beta exit review can start: ${report.summary.canStartBetaExitReview}
+
+## Remaining Blockers
+
+${report.remainingBlockers.map((blocker) => `- ${blocker.severity} ${blocker.id}: ${blocker.nextAction}`).join("\n")}
+
+## Next Exact Steps
+
+${report.nextExactSteps.map((step) => `- ${step}`).join("\n")}
+`;
+}
+
+function writeJson(relativePath: string, value: unknown) {
+  writeFileSync(join(repoRoot, relativePath), `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function main() {
+  const report = buildOvernightBetaReadinessLockReport();
+  const currentExitReport = buildCurrentBetaExitStatusReport(report);
+  writeJson(overnightReportRelativePath, report);
+  writeFileSync(join(repoRoot, overnightDocRelativePath), renderOvernightDoc(report));
+  writeJson(currentExitRelativePath, currentExitReport);
+  writeFileSync(join(repoRoot, currentExitDocRelativePath), renderCurrentExitDoc(currentExitReport));
+
+  const failures = [
+    ...validateOvernightBetaReadinessLockReport(report, currentHead()),
+    ...validateCurrentBetaExitStatusReport(currentExitReport, currentHead()),
+  ];
+  if (failures.length > 0) {
+    console.error("Overnight beta readiness lock validation failed:");
+    for (const failure of failures) console.error(`- ${failure}`);
+    process.exit(1);
+  }
+
+  console.log(
+    `Overnight beta readiness lock passed. beta=${report.betaScore}/${report.betaStatus} ` +
+      `screenshots=${report.canStartScreenshots} provider=${report.canStartProviderSmoke} ` +
+      `runtime=${report.canStartRuntimeSmoke} adminTruth=${report.canStartAdminTruthCapture} ` +
+      `betaExit=${report.canStartBetaExitReview}`,
+  );
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

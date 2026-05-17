@@ -1,13 +1,65 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.66",
-  "betaReleaseCounter": 266,
+  "currentVersion": "1.2.67",
+  "betaReleaseCounter": 267,
   "channel": "beta",
-  "generatedAt": "2026-05-17T06:24:01.677Z",
-  "generatedAtUtc": "2026-05-17T06:24:01.677Z",
-  "lastCommitSha": "f6aabc551712fa5426bae2b543b1d0de34418e8f",
+  "generatedAt": "2026-05-17T06:37:53.267Z",
+  "generatedAtUtc": "2026-05-17T06:37:53.267Z",
+  "lastCommitSha": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
   "notes": [
+    {
+      "version": "1.2.67",
+      "previousVersion": "1.2.66",
+      "betaReleaseCounter": 267,
+      "previousBetaReleaseCounter": 266,
+      "commitSha": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+      "commitTitle": "docs(beta): lock overnight readiness status",
+      "commitCount": 1,
+      "commitShas": [
+        "70919f6be9129ce71ecc8b8f88eeafec9f866b5f"
+      ],
+      "committedAt": "2026-05-17T06:37:53.267Z",
+      "generatedAt": "2026-05-17T06:37:53.267Z",
+      "committedAtUtc": "2026-05-17T06:37:53.267Z",
+      "generatedAtUtc": "2026-05-17T06:37:53.267Z",
+      "updatedAtUtc": "2026-05-17T06:37:53.267Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked overnight Beta readiness status after source and cost checks.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked overnight Beta readiness status after source and cost checks.",
+        "Grouped remaining blockers into evidence and owner-review lanes.",
+        "Prepared a concise next-day execution map."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/overnight-beta-readiness-lock.generated.json",
+        "docs/agent-truth/overnight-beta-readiness-lock.md",
+        "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+        "tests/unit/overnight-beta-readiness-lock.spec.ts",
+        "package.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "agent/state/cost-4xx-reduction.generated.json",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+        "agent/state/speed-security-hardening.generated.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f"
+    },
     {
       "version": "1.2.66",
       "previousVersion": "1.2.65",
@@ -1189,63 +1241,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-analytics-page.spec.tsx"
       ],
       "sourceCommit": "f081f93010b8a6399b09626102b1dfd635ee73c7"
-    },
-    {
-      "version": "1.2.42",
-      "previousVersion": "1.2.41",
-      "betaReleaseCounter": 242,
-      "previousBetaReleaseCounter": 241,
-      "commitSha": "2b582f1e47844f9ded9b5ff0f9f5c0112f4d8944",
-      "commitTitle": "docs(repo): consolidate current operator doctrine",
-      "commitCount": 1,
-      "commitShas": [
-        "2b582f1e47844f9ded9b5ff0f9f5c0112f4d8944"
-      ],
-      "committedAt": "2026-05-14T17:40:04.000Z",
-      "generatedAt": "2026-05-14T17:40:14.469Z",
-      "committedAtUtc": "2026-05-14T17:40:04.000Z",
-      "generatedAtUtc": "2026-05-14T17:40:14.469Z",
-      "updatedAtUtc": "2026-05-14T17:40:14.469Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Bug fixes and general improvements.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Consolidated the current operator doctrine for full-loop fixes.",
-        "Clarified source-of-truth, metric cadence, and no fake realtime rules.",
-        "Marked old generated reports and stale doctrine as evidence instead of live authority."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "AGENTS.md",
-        "FULL_SCALE_CODEBASE_AUDIT.md",
-        "README.md",
-        "REPO_MEMORY_LEDGER.md",
-        "agent/state/repo-doctrine-reset.generated.json",
-        "docs/agent-truth/admin-analytics-truth.md",
-        "docs/agent-truth/admin-debug-control-tower.md",
-        "docs/agent-truth/analytics-truth-layer-v2.md",
-        "docs/agent-truth/creator-dashboard-projection-lock.md",
-        "docs/agent-truth/creator-dashboard-settings.md",
-        "docs/agent-truth/current-operator-doctrine.md",
-        "docs/agent-truth/firebase-owned-repo-automation.md",
-        "docs/agent-truth/phase-one-score-ui-triage.md",
-        "docs/agent-truth/public-beta-release-notes.md",
-        "docs/agent-truth/public-beta-score.md",
-        "docs/agent-truth/repo-spring-cleaning-rewire.md",
-        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
-        "docs/agent-truth/user-facing-feature-connection-audit.md",
-        "docs/agent-truth/watch-time-rollup-truth.md",
-        "package.json",
-        "scripts/agent/validate-repo-doctrine-reset.ts",
-        "tests/unit/repo-doctrine-reset.spec.ts"
-      ],
-      "sourceCommit": "2b582f1e47844f9ded9b5ff0f9f5c0112f4d8944"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

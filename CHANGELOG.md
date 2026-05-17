@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.67 - 2026-05-17
+- Bug fixes and general improvements
+- Locked overnight Beta readiness status after source and cost checks.
+- Grouped remaining blockers into evidence and owner-review lanes.
+- Prepared a concise next-day execution map.
+
 ## 1.2.66 - 2026-05-17
 - Bug fixes and general improvements
 - Reduced safe user and creator 4xx/cost-risk paths.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Cleaned up the mobile Admin Analytics overview.
 - Moved technical snapshot details out of primary overview cards.
 - Made Live Pulse less noisy on mobile while keeping Debug details available.
-
-## 1.2.42 - 2026-05-14
-- Bug fixes and general improvements
-- Consolidated the current operator doctrine for full-loop fixes.
-- Clarified source-of-truth, metric cadence, and no fake realtime rules.
-- Marked old generated reports and stale doctrine as evidence instead of live authority.

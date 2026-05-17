@@ -3,8 +3,8 @@
 Artifact: `agent/state/source-truth-authority-map.generated.json`
 Validator: `npm run check:source-truth-authority-map`
 
-Generated: 2026-05-17T06:14:05.320Z
-Current source head: `09bb153c99aeec141c2a4f2d2c8867e0fdf7e801`
+Generated: 2026-05-17T06:28:27.851Z
+Current source head: `70919f6be9129ce71ecc8b8f88eeafec9f866b5f`
 
 ## Summary
 
@@ -70,24 +70,24 @@ None of these cost lanes should be marked pass without evidence. P0/P1 cost or 4
 
 ## Current Head Inventory
 
-- agent/state/source-truth-authority-map.generated.json: `current` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Artifact currentHead matches git HEAD.
+- agent/state/source-truth-authority-map.generated.json: `stale` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Refresh through the lane validator before treating as current evidence.
 - agent/state/public-beta-score.generated.json: `stale` (c31dcc3a82ad312aecd198c7c4a52c893bbedf9e) - Refresh through the lane validator before treating as current evidence.
-- agent/state/current-beta-exit-status.generated.json: `current` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Artifact currentHead matches git HEAD.
+- agent/state/current-beta-exit-status.generated.json: `stale` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Refresh through the lane validator before treating as current evidence.
 - agent/state/final-phase-cleanup-lock.generated.json: `stale` (d0994c9ace05575a22d679cdfc37f8a5877f66d8) - Refresh through the lane validator before treating as current evidence.
 - agent/state/evidence-capture-status.generated.json: `stale` (a627e45442f7f4757c59b8687bb8d6ba3872cbd1) - Refresh through the lane validator before treating as current evidence.
 - agent/state/user-creator-ui-parity.generated.json: `stale` (d0994c9ace05575a22d679cdfc37f8a5877f66d8) - Refresh through the lane validator before treating as current evidence.
 - agent/state/gumdrop-economy-accuracy.generated.json: `stale` (b811bb9ca2e0a470f1d6311ce456de2c06812291) - Refresh through the lane validator before treating as current evidence.
 - agent/state/creator-experience-simplification.generated.json: `stale` (68dfa1f279c4902f5f870930664f80993a2752b4) - Refresh through the lane validator before treating as current evidence.
 - agent/state/post-economy-creator-flow-qa.generated.json: `stale` (6396ae0691e3bc73465e9ab9556e1db0570bce3f) - Refresh through the lane validator before treating as current evidence.
-- agent/state/creator-dashboard-error-cost-inventory.generated.json: `stale` (3d21baa7736d837bb79915fd7cdb99816e88d3b2) - Refresh through the lane validator before treating as current evidence.
+- agent/state/creator-dashboard-error-cost-inventory.generated.json: `current` (70919f6be9129ce71ecc8b8f88eeafec9f866b5f) - Artifact currentHead matches git HEAD.
 - agent/state/speed-security-hardening.generated.json: `missing_head`  - Active artifact must record currentHead.
-- agent/state/product-surface-integrity.generated.json: `current` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Artifact currentHead matches git HEAD.
+- agent/state/product-surface-integrity.generated.json: `stale` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Refresh through the lane validator before treating as current evidence.
 - public/kandydrops-release-notes.json: `missing_head`  - Active artifact must record currentHead.
-- agent/state/beta-score-cleanup.generated.json: `current` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Artifact currentHead matches git HEAD.
+- agent/state/beta-score-cleanup.generated.json: `current` (70919f6be9129ce71ecc8b8f88eeafec9f866b5f) - Artifact currentHead matches git HEAD.
 - agent/state/final-launch-readiness-report.generated.json: `not_required`  - Retired artifact has no required currentHead.
 - agent/state/launch-readiness-report.generated.json: `not_required`  - Retired artifact has no required currentHead.
 - agent/state/launch-pr-triage.generated.json: `not_required`  - Retired artifact has no required currentHead.
-- agent/state/repo-spring-cleaning-rewire.generated.json: `current` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Artifact currentHead matches git HEAD.
+- agent/state/repo-spring-cleaning-rewire.generated.json: `not_required` (09bb153c99aeec141c2a4f2d2c8867e0fdf7e801) - Retired/archive artifact does not block beta score.
 - agent/state/debug-panel-output-triage.generated.json: `not_required` (104e5c038d45fd2edc8f7925076e45e84f39e6d5) - Retired/archive artifact does not block beta score.
 
 ## Next Exact Steps

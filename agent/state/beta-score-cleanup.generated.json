@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T06:13:18.504Z",
+  "generatedAtUtc": "2026-05-17T06:28:21.393Z",
   "reportKey": "beta-score-cleanup",
-  "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+  "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
   "summary": {
     "betaScore": 55,
     "betaStatus": "Unknown evidence",

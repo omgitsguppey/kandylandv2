@@ -3,8 +3,8 @@
 Artifact: `agent/state/creator-dashboard-error-cost-inventory.generated.json`
 Validator: `npm run check:creator-dashboard-error-cost-inventory`
 
-Generated: 2026-05-17T05:46:04.764Z
-Current source head: `3d21baa7736d837bb79915fd7cdb99816e88d3b2`
+Generated: 2026-05-17T06:28:14.073Z
+Current source head: `70919f6be9129ce71ecc8b8f88eeafec9f866b5f`
 
 ## Summary
 
@@ -51,3 +51,4 @@ Expected 4xx states include auth required, invalid input, insufficient paid GumD
 1. Confirm Cloud SQL/Data Connect provider billing and active connection state outside this source-only pass.
 2. Review App Hosting request/error metrics before any Cloud Run/App Hosting capacity change.
 3. Run the admin AI cost lane before changing Gemini, Cloud Assist, Vertex, or AI cover generation behavior.
+

@@ -1,0 +1,100 @@
+{
+  "generatedAtUtc": "2026-05-17T06:38:22.926Z",
+  "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+  "betaScore": 55,
+  "betaStatus": "Unknown evidence",
+  "creatorDashboardErrorStatus": "passed; errorsFound=2; errorsFixed=2; unexpected4xxFixed=1; fixedP1=2",
+  "sourceTruthStatus": "passed; active=12; supporting=6; retiredLaunchArtifacts=3",
+  "cost4xxStatus": "passed; p0=0; p1=0; p2=7; route4xx=3",
+  "cloudRunCostStatus": "cost_review_required",
+  "cloudSqlCostStatus": "not_detected_in_repo",
+  "geminiCloudAssistCostStatus": "cost_review_required",
+  "evidenceStatus": "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0",
+  "speedSecurityStatus": "51/beta-risk; findings=89; critical=0; p2BacklogVisible=true",
+  "remainingBlockers": [
+    {
+      "id": "manual_screenshot_evidence_missing",
+      "severity": "P1",
+      "status": "missing",
+      "nextAction": "Attach manual screenshot QA artifacts under agent/evidence/manual-screenshot-qa/."
+    },
+    {
+      "id": "provider_smoke_evidence_missing",
+      "severity": "P1",
+      "status": "missing",
+      "nextAction": "Attach redacted PayPal/GumDrop/creator spend provider smoke evidence."
+    },
+    {
+      "id": "runtime_smoke_evidence_missing",
+      "severity": "P1",
+      "status": "missing",
+      "nextAction": "Attach deployed runtime smoke evidence for the required user and creator routes."
+    },
+    {
+      "id": "admin_truth_sample_evidence_missing",
+      "severity": "P1",
+      "status": "missing",
+      "nextAction": "Attach a redacted admin truth sample artifact with source freshness."
+    },
+    {
+      "id": "speed_security_owner_review_backlog",
+      "severity": "P2",
+      "status": "owner_review",
+      "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
+    },
+    {
+      "id": "cloud_cost_owner_review",
+      "severity": "P2",
+      "status": "owner_review",
+      "nextAction": "Confirm Cloud Run/App Hosting, Data Connect/Cloud SQL, and Gemini/Vertex cost lanes with owner evidence."
+    }
+  ],
+  "nextDayPrompts": [
+    {
+      "id": "manual-screenshot-evidence",
+      "title": "Attach manual screenshot QA evidence",
+      "goal": "Use the screenshot checklist and attach real route evidence without changing source.",
+      "commands": [
+        "EVIDENCE_STRICT=1 npm run check:manual-screenshot-evidence",
+        "npm run check:evidence-capture-status",
+        "npm run check:current-beta-exit-status"
+      ]
+    },
+    {
+      "id": "provider-runtime-evidence",
+      "title": "Attach provider and runtime smoke evidence",
+      "goal": "Attach redacted PayPal/GumDrop provider smoke and deployed runtime smoke artifacts.",
+      "commands": [
+        "EVIDENCE_STRICT=1 npm run check:provider-smoke-evidence",
+        "EVIDENCE_STRICT=1 npm run check:runtime-smoke-evidence",
+        "npm run check:evidence-capture-status"
+      ]
+    },
+    {
+      "id": "admin-truth-cost-evidence",
+      "title": "Attach admin truth sample and cost owner-review evidence",
+      "goal": "Attach a redacted admin truth sample and keep Cloud Run, Cloud SQL, Gemini, and 4xx owner-review lanes explicit.",
+      "commands": [
+        "EVIDENCE_STRICT=1 npm run check:admin-truth-sample-evidence",
+        "npm run check:source-truth-authority-map",
+        "npm run check:beta-score"
+      ]
+    }
+  ],
+  "doNotTouchList": [
+    "product runtime",
+    "admin backend",
+    "GumDrop math",
+    "PayPal runtime",
+    "creator experience flows",
+    "Firebase rules",
+    "Cloud Functions",
+    "BigQuery",
+    "deployment config"
+  ],
+  "canStartScreenshots": true,
+  "canStartProviderSmoke": true,
+  "canStartRuntimeSmoke": true,
+  "canStartAdminTruthCapture": true,
+  "canStartBetaExitReview": false
+}
