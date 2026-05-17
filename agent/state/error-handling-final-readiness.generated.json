@@ -1,0 +1,61 @@
+{
+  "generatedAtUtc": "2026-05-17T16:58:26.654Z",
+  "reportKey": "error-handling-final-readiness",
+  "currentHead": "49b9875737f40217361d9b4eded11b2f66224f81",
+  "summary": {
+    "phase1LanguageContract": "pass",
+    "phase2BugReportReward": "pass",
+    "phase3SurfaceWiring": "pass",
+    "phase4DebugTruth": "pass",
+    "rawUserErrorLeaks": 0,
+    "bugReportRewardGd": 10,
+    "rewardCreditsRewardBalanceOnly": true,
+    "purchasedBalanceUntouched": true,
+    "duplicateGuard": true,
+    "dailyCapGuard": true,
+    "debugTruthVisibility": true,
+    "betaCanUseErrorPhaseAsSourceComplete": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "phaseChecks": [
+    {
+      "command": "npm run check:error-language-contract",
+      "status": "passed",
+      "evidence": "Phase 1 dictionary/resolver/notice contract passes."
+    },
+    {
+      "command": "npm run check:bug-report-reward-flow",
+      "status": "passed",
+      "evidence": "Phase 2 route/reward/idempotency contract passes."
+    },
+    {
+      "command": "npm run check:human-error-surface-wiring",
+      "status": "passed",
+      "evidence": "Phase 3 selected user/creator surfaces use translated errors."
+    },
+    {
+      "command": "npm run check:error-truth-debug-visibility",
+      "status": "passed",
+      "evidence": "Phase 4 read-only admin Debug visibility is present."
+    }
+  ],
+  "rawErrorLeakFindings": [],
+  "debugTruthFindings": [
+    "Debug/admin bug report truth is read-only and redacted.",
+    "Raw details remain Debug/admin-only; user/creator UI uses translated errors."
+  ],
+  "rewardSafetyFindings": [
+    "Bug report rewards stay pinned to 10 GD.",
+    "Bug report route credits reward GumDrops only and records purchasedCreditGumDrops=0.",
+    "Duplicate window and daily cap protections remain represented."
+  ],
+  "deferredFindings": [
+    "Manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence remain beta-exit blockers until artifacts are attached."
+  ],
+  "nextFixOrder": [
+    "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
+    "Attach formal evidence artifacts before beta exit review."
+  ]
+}

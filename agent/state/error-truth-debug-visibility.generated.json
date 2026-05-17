@@ -1,0 +1,36 @@
+{
+  "generatedAtUtc": "2026-05-17T16:58:26.654Z",
+  "reportKey": "error-truth-debug-visibility",
+  "currentHead": "49b9875737f40217361d9b4eded11b2f66224f81",
+  "summary": {
+    "phase4Status": "pass",
+    "routeCreated": true,
+    "componentCreated": true,
+    "adminReadOnly": true,
+    "maxReadLimit": 50,
+    "redactionEnabled": true,
+    "rewardMutationAllowed": false,
+    "balanceMutationAllowed": false,
+    "rawSecretsVisible": false,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "routeFindings": [
+    "GET /api/admin/debug/bug-reports uses the existing admin guard, bounded limit 50, and private debug cache headers.",
+    "No POST/PUT/PATCH/DELETE export exists for bug report debug visibility."
+  ],
+  "componentFindings": [
+    "DebugBugReportSummary renders read-only bug report counts, status mix, top error keys, top surfaces, latest user/operator messages, route, surface, status, and debugId.",
+    "DebugTabAdvanced mounts the bug report truth summary in the existing admin Debug Advanced surface."
+  ],
+  "redactionFindings": [
+    "Admin helper redacts token, secret, password, authorization, cookie, paypal, capture, clientSecret, and stack keys.",
+    "Normal user-facing error components do not render operatorMessage or debugOnlyDetails."
+  ],
+  "deferredFindings": [],
+  "nextFixOrder": [
+    "Run npm run check:error-handling-final-readiness.",
+    "Attach manual screenshot, provider, runtime, and admin truth evidence before beta exit review."
+  ]
+}

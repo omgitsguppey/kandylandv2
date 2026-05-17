@@ -1,8 +1,8 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-17T06:38:22.926Z
+Generated: 2026-05-17T14:54:35.836Z
 
-Current HEAD: 70919f6be9129ce71ecc8b8f88eeafec9f866b5f
+Current HEAD: 49b9875737f40217361d9b4eded11b2f66224f81
 
 ## Summary
 
@@ -17,6 +17,7 @@ Current HEAD: 70919f6be9129ce71ecc8b8f88eeafec9f866b5f
 - Cloud SQL cost readiness: not_detected_in_repo
 - Gemini/Cloud Assist cost readiness: cost_review_required
 - Route 4xx readiness: source_inventory_complete
+- Error handling source readiness: error_handling_source_complete
 - Speed/security: 51/beta-risk; findings=89; critical=0; p2BacklogVisible=true
 - Release notes: same_commit_release_note_artifacts_required
 
@@ -42,4 +43,5 @@ Current HEAD: 70919f6be9129ce71ecc8b8f88eeafec9f866b5f
 - Use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/.
 - Use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/.
 - Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.
+- Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.
 - Run npm run check:overnight-beta-readiness-lock after attaching evidence.

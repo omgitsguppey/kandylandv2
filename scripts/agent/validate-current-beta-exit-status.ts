@@ -31,6 +31,7 @@ export type CurrentBetaExitStatusReport = {
     cloudSqlCostReadiness: string;
     geminiCloudAssistCostReadiness: string;
     route4xxReadiness: string;
+    errorHandlingSourceStatus?: string;
     speedSecurityStatus: string;
     releaseNotesStatus: string;
     canStartManualScreenshotQa: boolean;
@@ -135,6 +136,9 @@ export function validateCurrentBetaExitStatusReport(
   if (!report.summary.releaseNotesStatus) {
     failures.push("release notes status must be represented.");
   }
+  if (!report.summary.errorHandlingSourceStatus || !report.summary.errorHandlingSourceStatus.includes("error_handling_source_complete")) {
+    failures.push("error handling source readiness must be represented.");
+  }
   const costLaneValues = [
     report.summary.cloudRunCostReadiness,
     report.summary.cloudSqlCostReadiness,
@@ -172,6 +176,9 @@ export function validateCurrentBetaExitStatusReport(
   }
   if (!nextSteps.includes(evidenceCaptureStatusRelativePath)) {
     failures.push(`nextExactSteps must reference ${evidenceCaptureStatusRelativePath}.`);
+  }
+  if (!nextSteps.includes("Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.")) {
+    failures.push("nextExactSteps must include the error handling source-ready manual testing note.");
   }
 
   const evidenceCaptureStatus = readEvidenceCaptureStatus();

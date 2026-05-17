@@ -67,8 +67,13 @@ if (!noticeSource.includes("reward GumDrops added")) fail("bug reward copy must 
 if (noticeSource.includes("purchased GumDrops added")) fail("bug reward copy must not say purchased GumDrops");
 
 const changed = gitOutput("git diff --name-only HEAD").split(/\r?\n/u).filter(Boolean);
+const phaseFiveAllowedAdminDebugFiles = new Set([
+  "src/app/api/admin/debug/bug-reports/route.ts",
+  "src/app/admin/debug/components/DebugBugReportSummary.tsx",
+  "src/app/admin/debug/components/DebugTabAdvanced.tsx",
+]);
 const forbiddenChanged = changed.filter((path) => (
-  path.startsWith("src/app/api/admin/")
+  !phaseFiveAllowedAdminDebugFiles.has(path) && (path.startsWith("src/app/api/admin/")
   || path.startsWith("src/app/admin/")
   || path.startsWith("src/components/Admin/")
   || path.startsWith("src/lib/server/admin-")
@@ -79,7 +84,7 @@ const forbiddenChanged = changed.filter((path) => (
   || path.includes("firebase.rules")
   || path.includes("firestore.rules")
   || path.startsWith("functions/")
-  || path.startsWith("bigquery/")
+  || path.startsWith("bigquery/"))
 ));
 if (forbiddenChanged.length > 0) fail(`forbidden files changed: ${forbiddenChanged.join(", ")}`);
 

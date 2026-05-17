@@ -24,3 +24,4 @@
 - Phase 2 depends on Phase 1 GumDrop economy contract and must not change paid-bonus ledger math.
 - Bug report rewards credit reward GumDrops only, never purchased balance.
 - User and creator UI must use HumanErrorNotice or equivalent translated errors; raw dev errors belong in Debug/admin evidence.
+- Normal UI shows translated errors; Debug/admin shows raw/structured error truth. Bug report rewards are reward GumDrops only.

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T06:38:22.926Z",
+  "generatedAtUtc": "2026-05-17T14:54:35.836Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+  "currentHead": "49b9875737f40217361d9b4eded11b2f66224f81",
   "summary": {
     "betaVersion": "1.2.67",
     "betaScore": 55,
@@ -20,6 +20,7 @@
     "cloudSqlCostReadiness": "not_detected_in_repo",
     "geminiCloudAssistCostReadiness": "cost_review_required",
     "route4xxReadiness": "source_inventory_complete",
+    "errorHandlingSourceStatus": "error_handling_source_complete",
     "speedSecurityStatus": "51/beta-risk; findings=89; critical=0; p2BacklogVisible=true",
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "canStartManualScreenshotQa": true,
@@ -47,6 +48,11 @@
       "command": "npm run check:release-notes",
       "status": "passed",
       "evidence": "required final validator for same-commit release notes."
+    },
+    {
+      "command": "npm run check:error-handling-final-readiness",
+      "status": "passed",
+      "evidence": "agent/state/error-handling-final-readiness.generated.json"
     },
     {
       "command": "npm run check:evidence-capture-status",
@@ -135,6 +141,7 @@
     "Use docs/agent-truth/runtime-smoke-evidence-checklist.md and agent/evidence/runtime-smoke/.",
     "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/.",
     "Reference agent/state/evidence-capture-status.generated.json before changing beta exit readiness.",
+    "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
     "Run npm run check:overnight-beta-readiness-lock after attaching evidence."
   ]
 }

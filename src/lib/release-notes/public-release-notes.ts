@@ -1,13 +1,74 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.70",
-  "betaReleaseCounter": 270,
+  "currentVersion": "1.2.71",
+  "betaReleaseCounter": 271,
   "channel": "beta",
-  "generatedAt": "2026-05-17T16:06:58.364Z",
-  "generatedAtUtc": "2026-05-17T16:06:58.364Z",
-  "lastCommitSha": "87d86b710eb9452ea9a26f1c3848345c16479fa4",
+  "generatedAt": "2026-05-17T17:05:07.440Z",
+  "generatedAtUtc": "2026-05-17T17:05:07.440Z",
+  "lastCommitSha": "49b9875737f40217361d9b4eded11b2f66224f81",
   "notes": [
+    {
+      "version": "1.2.71",
+      "previousVersion": "1.2.70",
+      "betaReleaseCounter": 271,
+      "previousBetaReleaseCounter": 270,
+      "commitSha": "49b9875737f40217361d9b4eded11b2f66224f81",
+      "commitTitle": "fix(errors): lock error readiness and debug truth",
+      "commitCount": 1,
+      "commitShas": [
+        "49b9875737f40217361d9b4eded11b2f66224f81"
+      ],
+      "committedAt": "2026-05-17T17:05:07.440Z",
+      "generatedAt": "2026-05-17T17:05:07.440Z",
+      "committedAtUtc": "2026-05-17T17:05:07.440Z",
+      "generatedAtUtc": "2026-05-17T17:05:07.440Z",
+      "updatedAtUtc": "2026-05-17T17:05:07.440Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked translated error and bug report readiness checks.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked the translated error and bug report readiness checks.",
+        "Kept raw dev details out of normal user and creator screens.",
+        "Confirmed bug report rewards stay reward-only with abuse guards."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app",
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "memory.md",
+        "src/lib/errors/bug-report-admin-summary.ts",
+        "src/app/api/admin/debug/bug-reports/route.ts",
+        "src/app/admin/debug/components/DebugBugReportSummary.tsx",
+        "src/app/admin/debug/components/DebugTabAdvanced.tsx",
+        "docs/agent-truth/error-truth-debug-visibility.md",
+        "docs/agent-truth/error-handling-final-readiness.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "agent/state/error-truth-debug-visibility.generated.json",
+        "agent/state/error-handling-final-readiness.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "scripts/agent/validate-error-truth-debug-visibility.ts",
+        "scripts/agent/validate-error-handling-final-readiness.ts",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "scripts/agent/validate-human-error-surface-wiring.ts",
+        "tests/unit/error-truth-debug-visibility.spec.ts",
+        "tests/unit/admin-bug-reports-route.spec.ts",
+        "tests/unit/debug-bug-report-summary.spec.tsx",
+        "tests/unit/error-handling-final-readiness.spec.ts",
+        "tests/unit/current-beta-exit-status.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "49b9875737f40217361d9b4eded11b2f66224f81"
+    },
     {
       "version": "1.2.70",
       "previousVersion": "1.2.69",
@@ -1222,64 +1283,14 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/user-facing-feature-connection-audit.spec.ts"
       ],
       "sourceCommit": "9a254829a8d46dcca96e191da174f6ff9d06296b"
-    },
-    {
-      "version": "1.2.46",
-      "previousVersion": "1.2.45",
-      "betaReleaseCounter": 246,
-      "previousBetaReleaseCounter": 245,
-      "commitSha": "ca9210a2a756a5379e10deb2aaa84fe1022fe06e",
-      "commitTitle": "fix(security): bound analytics fanout and request bodies",
-      "commitCount": 1,
-      "commitShas": [
-        "ca9210a2a756a5379e10deb2aaa84fe1022fe06e"
-      ],
-      "committedAt": "2026-05-14T22:12:59.000Z",
-      "generatedAt": "2026-05-14T22:13:15.022Z",
-      "committedAtUtc": "2026-05-14T22:12:59.000Z",
-      "generatedAtUtc": "2026-05-14T22:13:15.022Z",
-      "updatedAtUtc": "2026-05-14T22:13:15.022Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added backend work caps for analytics processing.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added backend work caps for analytics processing.",
-        "Added request body size guards for Admin Analytics routes.",
-        "Made Debug speed and security findings easier to understand."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/speed-security-hardening.generated.json",
-        "docs/agent-truth/admin-debug-control-tower.md",
-        "docs/agent-truth/speed-security-backend-guardrails.md",
-        "functions/src/analytics-event-facts.ts",
-        "functions/src/analytics-semantics.ts",
-        "scripts/agent/score-speed-security-hardening.ts",
-        "src/app/api/admin/analytics/preferences/route.ts",
-        "src/app/api/admin/analytics/refresh/route.ts",
-        "src/lib/admin-debug-control-tower.ts",
-        "src/lib/server/bounded-json-body.ts",
-        "tests/unit/admin-analytics-preferences-route.spec.ts",
-        "tests/unit/admin-analytics-refresh-route.spec.ts",
-        "tests/unit/bounded-json-body.spec.ts",
-        "tests/unit/debug-speed-security-copy.spec.tsx",
-        "tests/unit/speed-security-hardening.spec.ts"
-      ],
-      "sourceCommit": "ca9210a2a756a5379e10deb2aaa84fe1022fe06e"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
-
-export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,
   appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,
   releaseChannel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,
 } as const;
+
+export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion;

@@ -1,14 +1,20 @@
-## 1.2.70 - 2026-05-17T16:06:58.364Z
-
-- Wired plain-language errors into key creator and user flows.
-- Added one-tap bug reporting CTAs for eligible platform errors.
-- Kept raw dev error details out of normal product screens.
-
 # Changelog
 
 What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
+
+## 1.2.71 - 2026-05-17
+- Bug fixes and general improvements
+- Locked the translated error and bug report readiness checks.
+- Kept raw dev details out of normal user and creator screens.
+- Confirmed bug report rewards stay reward-only with abuse guards.
+
+## 1.2.70 - 2026-05-17
+- Bug fixes and general improvements
+- Wired plain-language errors into key creator and user flows.
+- Added one-tap bug reporting CTAs for eligible platform errors.
+- Kept raw dev error details out of normal product screens.
 
 ## 1.2.69 - 2026-05-17
 - Bug fixes and general improvements
@@ -147,15 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Connected creator request management to the Creator Dashboard.
 - Added request body size guards to creator operation routes.
 - Marked Fan Pass, bookings, and chat actions honestly based on connected routes.
-
-## 1.2.46 - 2026-05-14
-- Bug fixes and general improvements
-- Added backend work caps for analytics processing.
-- Added request body size guards for Admin Analytics routes.
-- Made Debug speed and security findings easier to understand.
-
-## 1.2.45 - 2026-05-14
-- Bug fixes and general improvements
-- Made Auth Outcomes simpler and clearer on mobile.
-- Separated email/password and Google login attempt tracking.
-- Stopped missing auth samples from showing as errors or repeated snapshot waits.

@@ -28,6 +28,7 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       cloudSqlCostReadiness: "not_detected_in_repo",
       geminiCloudAssistCostReadiness: "cost_review_required",
       route4xxReadiness: "source_inventory_complete",
+      errorHandlingSourceStatus: "error_handling_source_complete",
       speedSecurityStatus: "51/beta-risk; findings=91; critical=0",
       releaseNotesStatus: "passed_same_commit_validator",
       canStartManualScreenshotQa: true,
@@ -59,6 +60,7 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
       "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",
       "Reference agent/state/evidence-capture-status.generated.json.",
+      "Manual testing can focus on product behavior because user/creator raw error leaks are source-blocked.",
     ],
   };
 
@@ -149,6 +151,19 @@ describe("current beta exit status validator", () => {
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
       "cost readiness lanes must be represented.",
+    );
+  });
+
+  it("requires error handling source readiness to be represented", () => {
+    const report = reportFixture({
+      summary: {
+        ...reportFixture().summary,
+        errorHandlingSourceStatus: "",
+      },
+    });
+
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
+      "error handling source readiness must be represented.",
     );
   });
 
