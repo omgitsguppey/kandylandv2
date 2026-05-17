@@ -1,0 +1,492 @@
+{
+  "generatedAtUtc": "2026-05-17T15:17:11.426Z",
+  "reportKey": "error-language-contract",
+  "currentHead": "eff07dd548f531c623e6bceb6f613c1d51550401",
+  "summary": {
+    "dictionaryEntries": 41,
+    "rawErrorPatternsBlocked": 9,
+    "surfacesCovered": [
+      "auth",
+      "creator_booking",
+      "creator_chat",
+      "creator_dashboard",
+      "creator_profile",
+      "creator_request",
+      "fan_pass",
+      "gumdrop_purchase",
+      "navigation",
+      "runtime",
+      "unknown",
+      "wallet"
+    ],
+    "bugReportEligibleCount": 15,
+    "rewardEligibleCount": 0,
+    "unresolvedRawErrorSources": 6,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 6
+  },
+  "entries": [
+    {
+      "errorKey": "internal_server_error",
+      "surface": "runtime",
+      "severity": "critical",
+      "owner": "platform",
+      "primaryAction": "submit_bug",
+      "secondaryAction": "retry",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "unknown_error",
+      "surface": "unknown",
+      "severity": "blocking",
+      "owner": "unknown",
+      "primaryAction": "submit_bug",
+      "secondaryAction": "retry",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "network_error",
+      "surface": "runtime",
+      "severity": "warning",
+      "owner": "user",
+      "primaryAction": "retry",
+      "secondaryAction": "refresh",
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "request_timeout",
+      "surface": "runtime",
+      "severity": "warning",
+      "owner": "platform",
+      "primaryAction": "retry",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "service_unavailable",
+      "surface": "runtime",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "retry",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "stale_data",
+      "surface": "runtime",
+      "severity": "warning",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "missing_source_truth",
+      "surface": "runtime",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "submit_bug",
+      "secondaryAction": null,
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "provider_unavailable",
+      "surface": "runtime",
+      "severity": "blocking",
+      "owner": "provider",
+      "primaryAction": "retry",
+      "secondaryAction": "contact_support",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "rate_limited",
+      "surface": "runtime",
+      "severity": "warning",
+      "owner": "user",
+      "primaryAction": "retry",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "auth_required",
+      "surface": "auth",
+      "severity": "blocking",
+      "owner": "user",
+      "primaryAction": "sign_in",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "unauthorized",
+      "surface": "auth",
+      "severity": "blocking",
+      "owner": "user",
+      "primaryAction": "sign_in",
+      "secondaryAction": "retry",
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "forbidden",
+      "surface": "auth",
+      "severity": "blocking",
+      "owner": "user",
+      "primaryAction": "go_back",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "wrong_account",
+      "surface": "auth",
+      "severity": "blocking",
+      "owner": "user",
+      "primaryAction": "go_back",
+      "secondaryAction": "sign_in",
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "session_expired",
+      "surface": "auth",
+      "severity": "blocking",
+      "owner": "user",
+      "primaryAction": "sign_in",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "invalid_json",
+      "surface": "runtime",
+      "severity": "warning",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "payload_too_large",
+      "surface": "runtime",
+      "severity": "warning",
+      "owner": "user",
+      "primaryAction": "retry",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "validation_failed",
+      "surface": "runtime",
+      "severity": "warning",
+      "owner": "user",
+      "primaryAction": "retry",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "missing_required_field",
+      "surface": "runtime",
+      "severity": "warning",
+      "owner": "user",
+      "primaryAction": "retry",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "insufficient_gumdrops",
+      "surface": "wallet",
+      "severity": "blocking",
+      "owner": "user",
+      "primaryAction": "open_wallet",
+      "secondaryAction": "open_drops",
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "insufficient_paid_gumdrops",
+      "surface": "creator_profile",
+      "severity": "blocking",
+      "owner": "user",
+      "primaryAction": "open_wallet",
+      "secondaryAction": "open_drops",
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "reward_balance_not_eligible",
+      "surface": "creator_profile",
+      "severity": "blocking",
+      "owner": "user",
+      "primaryAction": "open_wallet",
+      "secondaryAction": "open_drops",
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "payment_not_completed",
+      "surface": "gumdrop_purchase",
+      "severity": "blocking",
+      "owner": "provider",
+      "primaryAction": "retry",
+      "secondaryAction": "contact_support",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "payment_package_mismatch",
+      "surface": "gumdrop_purchase",
+      "severity": "critical",
+      "owner": "platform",
+      "primaryAction": "contact_support",
+      "secondaryAction": null,
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "gumdrop_balance_unavailable",
+      "surface": "wallet",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "paid_bonus_source_unavailable",
+      "surface": "wallet",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "creator_unavailable",
+      "surface": "creator_profile",
+      "severity": "blocking",
+      "owner": "creator",
+      "primaryAction": "go_back",
+      "secondaryAction": "open_drops",
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "creator_feature_disabled",
+      "surface": "creator_profile",
+      "severity": "blocking",
+      "owner": "creator",
+      "primaryAction": "go_back",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "creator_restricted",
+      "surface": "creator_profile",
+      "severity": "blocking",
+      "owner": "admin",
+      "primaryAction": "go_back",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "creator_availability_not_configured",
+      "surface": "creator_booking",
+      "severity": "blocking",
+      "owner": "creator",
+      "primaryAction": "go_back",
+      "secondaryAction": "open_creator_dashboard",
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "no_available_booking_slots",
+      "surface": "creator_booking",
+      "severity": "blocking",
+      "owner": "creator",
+      "primaryAction": "go_back",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "slot_unavailable",
+      "surface": "creator_booking",
+      "severity": "blocking",
+      "owner": "creator",
+      "primaryAction": "choose_another_slot",
+      "secondaryAction": "retry",
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "booking_conflict",
+      "surface": "creator_booking",
+      "severity": "blocking",
+      "owner": "creator",
+      "primaryAction": "choose_another_slot",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "request_category_unavailable",
+      "surface": "creator_request",
+      "severity": "blocking",
+      "owner": "creator",
+      "primaryAction": "retry",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "fan_pass_unavailable",
+      "surface": "fan_pass",
+      "severity": "blocking",
+      "owner": "creator",
+      "primaryAction": "go_back",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "creator_chat_unavailable",
+      "surface": "creator_chat",
+      "severity": "blocking",
+      "owner": "creator",
+      "primaryAction": "go_back",
+      "secondaryAction": "open_drops",
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "dashboard_source_unavailable",
+      "surface": "creator_dashboard",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "manager_load_failed",
+      "surface": "creator_dashboard",
+      "severity": "warning",
+      "owner": "platform",
+      "primaryAction": "refresh",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "mutation_failed",
+      "surface": "runtime",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "retry",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "read_only_projection",
+      "surface": "creator_dashboard",
+      "severity": "info",
+      "owner": "admin",
+      "primaryAction": "none",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "route_not_connected",
+      "surface": "navigation",
+      "severity": "blocking",
+      "owner": "platform",
+      "primaryAction": "go_back",
+      "secondaryAction": "submit_bug",
+      "bugReportEligible": true,
+      "rewardEligible": false
+    },
+    {
+      "errorKey": "evidence_missing_not_product_failure",
+      "surface": "runtime",
+      "severity": "info",
+      "owner": "platform",
+      "primaryAction": "none",
+      "secondaryAction": null,
+      "bugReportEligible": false,
+      "rewardEligible": false
+    }
+  ],
+  "rawErrorFindings": [
+    {
+      "path": "src/lib/server/auth.ts",
+      "status": "deferred_phase_two_wiring",
+      "detail": "Surface still has legacy raw-error entry points; Phase 1 creates the translation layer and defers adoption."
+    },
+    {
+      "path": "src/components/Creators/CreatorRequestsManager.tsx",
+      "status": "deferred_phase_two_wiring",
+      "detail": "Surface still has legacy raw-error entry points; Phase 1 creates the translation layer and defers adoption."
+    },
+    {
+      "path": "src/components/Creators/CreatorBookingsManager.tsx",
+      "status": "deferred_phase_two_wiring",
+      "detail": "Surface still has legacy raw-error entry points; Phase 1 creates the translation layer and defers adoption."
+    },
+    {
+      "path": "src/components/Creators/CreatorFanPassManager.tsx",
+      "status": "deferred_phase_two_wiring",
+      "detail": "Surface still has legacy raw-error entry points; Phase 1 creates the translation layer and defers adoption."
+    },
+    {
+      "path": "src/components/Chat/ChatExperience.tsx",
+      "status": "deferred_phase_two_wiring",
+      "detail": "Surface still has legacy raw-error entry points; Phase 1 creates the translation layer and defers adoption."
+    },
+    {
+      "path": "src/components/PurchaseModal.tsx",
+      "status": "deferred_phase_two_wiring",
+      "detail": "Surface still has legacy raw-error entry points; Phase 1 creates the translation layer and defers adoption."
+    }
+  ],
+  "deferredSurfaces": [
+    {
+      "surface": "creator_dashboard",
+      "reason": "Managers still need Phase 2 adoption of translated payloads."
+    },
+    {
+      "surface": "wallet",
+      "reason": "Payment provider behavior is forbidden in this phase; translation adoption is deferred."
+    },
+    {
+      "surface": "creator_chat",
+      "reason": "Chat send/realtime error translation needs a focused wiring pass."
+    }
+  ],
+  "nextFixOrder": [
+    "Adopt resolveHumanError in creator dashboard managers that currently display body.error or body.message.",
+    "Adopt buildHumanApiErrorPayload in creator experience routes after preserving existing problem codes.",
+    "Connect translated platform errors to the future bug-report reward flow without exposing raw details."
+  ]
+}

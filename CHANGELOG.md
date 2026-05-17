@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.68 - 2026-05-17
+- Bug fixes and general improvements
+- Added plain-language error translation for user and creator flows.
+- Kept raw dev details out of normal product errors.
+- Prepared bug-report CTAs for translated platform errors.
+
 ## 1.2.67 - 2026-05-17
 - Bug fixes and general improvements
 - Locked overnight Beta readiness status after source and cost checks.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Made Admin Analytics operation panels more compact on mobile.
 - Stopped unavailable event-chain data from showing as errors or fake zero math.
 - Added clearer tracking explanations when a metric cannot be measured exactly yet.
-
-## 1.2.43 - 2026-05-14
-- Bug fixes and general improvements
-- Cleaned up the mobile Admin Analytics overview.
-- Moved technical snapshot details out of primary overview cards.
-- Made Live Pulse less noisy on mobile while keeping Debug details available.

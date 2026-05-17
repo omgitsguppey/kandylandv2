@@ -1,11 +1,63 @@
 {
-  "currentVersion": "1.2.67",
-  "betaReleaseCounter": 267,
+  "currentVersion": "1.2.68",
+  "betaReleaseCounter": 268,
   "channel": "beta",
-  "generatedAt": "2026-05-17T06:37:53.267Z",
-  "generatedAtUtc": "2026-05-17T06:37:53.267Z",
-  "lastCommitSha": "70919f6be9129ce71ecc8b8f88eeafec9f866b5f",
+  "generatedAt": "2026-05-17T15:15:09.230Z",
+  "generatedAtUtc": "2026-05-17T15:15:09.230Z",
+  "lastCommitSha": "eff07dd548f531c623e6bceb6f613c1d51550401",
   "notes": [
+    {
+      "version": "1.2.68",
+      "previousVersion": "1.2.67",
+      "betaReleaseCounter": 268,
+      "previousBetaReleaseCounter": 267,
+      "commitSha": "eff07dd548f531c623e6bceb6f613c1d51550401",
+      "commitTitle": "feat(errors): add human error language contract",
+      "commitCount": 1,
+      "commitShas": [
+        "eff07dd548f531c623e6bceb6f613c1d51550401"
+      ],
+      "committedAt": "2026-05-17T15:15:09.230Z",
+      "generatedAt": "2026-05-17T15:15:09.230Z",
+      "committedAtUtc": "2026-05-17T15:15:09.230Z",
+      "generatedAtUtc": "2026-05-17T15:15:09.230Z",
+      "updatedAtUtc": "2026-05-17T15:15:09.230Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added plain-language error translation for user and creator flows.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added plain-language error translation for user and creator flows.",
+        "Kept raw dev details out of normal product errors.",
+        "Prepared bug-report CTAs for translated platform errors."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app",
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/errors/error-language.ts",
+        "src/lib/errors/error-dictionary.ts",
+        "src/lib/errors/resolve-human-error.ts",
+        "src/lib/errors/api-error-response.ts",
+        "src/components/errors/HumanErrorNotice.tsx",
+        "docs/agent-truth/error-language-contract.md",
+        "agent/state/error-language-contract.generated.json",
+        "scripts/agent/validate-error-language-contract.ts",
+        "tests/unit/error-language-contract.spec.ts",
+        "tests/unit/resolve-human-error.spec.ts",
+        "tests/unit/human-error-notice.spec.tsx",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "eff07dd548f531c623e6bceb6f613c1d51550401"
+    },
     {
       "version": "1.2.67",
       "previousVersion": "1.2.66",
@@ -1194,51 +1246,6 @@
         "tests/unit/admin-analytics-live-pulse.spec.ts"
       ],
       "sourceCommit": "d75e1f4cf4276ee9e649fc412be344f121adffd6"
-    },
-    {
-      "version": "1.2.43",
-      "previousVersion": "1.2.42",
-      "betaReleaseCounter": 243,
-      "previousBetaReleaseCounter": 242,
-      "commitSha": "f081f93010b8a6399b09626102b1dfd635ee73c7",
-      "commitTitle": "fix(admin): simplify mobile analytics overview",
-      "commitCount": 1,
-      "commitShas": [
-        "f081f93010b8a6399b09626102b1dfd635ee73c7"
-      ],
-      "committedAt": "2026-05-14T19:07:29.000Z",
-      "generatedAt": "2026-05-14T19:07:42.734Z",
-      "committedAtUtc": "2026-05-14T19:07:29.000Z",
-      "generatedAtUtc": "2026-05-14T19:07:42.734Z",
-      "updatedAtUtc": "2026-05-14T19:07:42.734Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Cleaned up the mobile Admin Analytics overview.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Cleaned up the mobile Admin Analytics overview.",
-        "Moved technical snapshot details out of primary overview cards.",
-        "Made Live Pulse less noisy on mobile while keeping Debug details available."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "package.json",
-        "scripts/agent/validate-admin-analytics-mobile-overview.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx",
-        "src/lib/analytics/admin-analytics-display-state.ts",
-        "tests/unit/admin-analytics-display-state.spec.ts",
-        "tests/unit/admin-analytics-live-pulse.spec.ts",
-        "tests/unit/admin-analytics-page.spec.tsx"
-      ],
-      "sourceCommit": "f081f93010b8a6399b09626102b1dfd635ee73c7"
     }
   ]
 }
