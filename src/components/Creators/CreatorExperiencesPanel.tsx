@@ -17,6 +17,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
 import { CreatorPaidGdGuidanceCard, type CreatorPaidGdGuidanceReason } from "@/components/Creators/CreatorPaidGdGuidanceCard";
 import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
+import { buildCreatorBookingSlots } from "@/lib/creator-booking-slots";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
@@ -43,6 +44,7 @@ type CreatorExperiencesPanelProps = {
     creatorFirstName?: string;
     creatorUsername?: string;
     currentUser: unknown;
+    existingBookings?: Array<Record<string, unknown>>;
     experienceWarnings: Array<{ key: string; label: string; message: string }>;
     latestBooking: Record<string, unknown> | null;
     messages: Array<Record<string, unknown>>;
@@ -90,6 +92,7 @@ export function CreatorExperiencesPanel({
     creatorFirstName,
     creatorUsername,
     currentUser,
+    existingBookings = [],
     experienceWarnings,
     latestBooking,
     messages,
@@ -115,8 +118,9 @@ export function CreatorExperiencesPanel({
 }: CreatorExperiencesPanelProps) {
     const router = useRouter();
     const user = currentUser as UserProfile | null;
-    const balance = user?.gumDropsBalance || 0;
+    const balance = typeof user?.gumDropsPurchasedBalance === "number" ? user.gumDropsPurchasedBalance : 0;
     const userId = readUserId(currentUser);
+    const isOwnerCreator = Boolean(userId && userId === creatorId && user?.role === "creator");
     const identity = useMemo(() => getClientAnalyticsIdentitySnapshot(), []);
     const route = buildCreatorPublicHref({
         creatorId,
@@ -128,12 +132,30 @@ export function CreatorExperiencesPanel({
     const hasRecentThread = messages.length > 0;
     const creatorGuidanceName = creatorFirstName || creatorUsername || "this creator";
     
-    // Fallback availabilities logic for bookings
     const availabilityWindows = settings.availabilityWindows || [];
-    const hasAvailabilities = availabilityWindows.length > 0;
     const phoneRatePerMinute = settings.phoneRatePerMinuteGd || CREATOR_BOOKING_RATES.phone;
     const videoRatePerMinute = settings.videoRatePerMinuteGd || CREATOR_BOOKING_RATES.video;
     const subscriberVideoRatePerMinute = Math.round(videoRatePerMinute * (1 - (settings.videoSubscriberDiscountPercent || 0) / 100));
+    const bookingCost = bookingServiceType === "phone"
+        ? bookingDurationMinutes * phoneRatePerMinute
+        : bookingDurationMinutes * (subscriptionActive ? subscriberVideoRatePerMinute : videoRatePerMinute);
+    const [bookingSlotsNowMs] = useState(() => Date.now());
+    const bookingConflictRecords = useMemo(() => (
+        latestBooking ? [latestBooking, ...existingBookings] : existingBookings
+    ), [existingBookings, latestBooking]);
+    const bookingSlotsResult = useMemo(() => buildCreatorBookingSlots({
+        availabilityWindows,
+        availabilityTimezone: settings.availabilityTimezone || "UTC",
+        serviceType: bookingServiceType,
+        durationMinutes: bookingDurationMinutes,
+        existingBookings: bookingConflictRecords,
+        bookingMinimumMinutes: settings.bookingMinimumMinutes,
+        nowMs: bookingSlotsNowMs,
+    }), [availabilityWindows, bookingConflictRecords, bookingDurationMinutes, bookingServiceType, bookingSlotsNowMs, settings.availabilityTimezone, settings.bookingMinimumMinutes]);
+    const bookingStartAtMs = Date.parse(bookingStartAt);
+    const selectedBookingSlot = Number.isFinite(bookingStartAtMs)
+        ? bookingSlotsResult.slots.find((slot) => slot.startAt === bookingStartAtMs) ?? null
+        : null;
     const guidanceReasonByView: Record<CreatorExperienceView, CreatorPaidGdGuidanceReason> = {
         subscriptions: "fan_pass",
         messages: "chat",
@@ -214,11 +236,33 @@ export function CreatorExperiencesPanel({
         onSelectedExperienceChange(value);
     };
 
-    const renderCTA = (view: CreatorExperienceView, cost: number, onClick: () => void, isLoading: boolean, icon: ReactNode, readyLabel: string, baseColor: string = "bg-brand-purple text-white") => {
+    const renderCTA = (
+        view: CreatorExperienceView,
+        cost: number,
+        onClick: () => void,
+        isLoading: boolean,
+        icon: ReactNode,
+        readyLabel: string,
+        baseColor: string = "bg-brand-purple text-white",
+        options: { disabled?: boolean; disabledLabel?: string } = {},
+    ) => {
         if (!user) {
             return (
                 <button type="button" onClick={onOpenAuth} className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10">
                     {icon} Sign in to continue
+                </button>
+            );
+        }
+
+        if (options.disabled) {
+            return (
+                <button
+                    type="button"
+                    disabled
+                    className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-white/10 px-5 py-3 text-sm font-bold text-zinc-500"
+                >
+                    {icon}
+                    {options.disabledLabel ?? readyLabel}
                 </button>
             );
         }
@@ -279,6 +323,26 @@ export function CreatorExperiencesPanel({
             </button>
         );
     };
+
+    if (isOwnerCreator) {
+        return (
+            <div
+                className="space-y-3 rounded-[1.25rem] border border-white/10 bg-white/[0.04] p-4"
+                data-creator-owner-mode="true"
+                data-fan-controls-hidden="true"
+            >
+                <p className="text-sm font-bold text-white">You are viewing your creator profile.</p>
+                <p className="text-sm text-zinc-400">Manage this in Creator Dashboard.</p>
+                <button
+                    type="button"
+                    onClick={() => router.push("/dashboard/creator")}
+                    className="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-purple px-4 py-2 text-sm font-bold text-white"
+                >
+                    Manage in Creator Dashboard
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div
@@ -678,40 +742,65 @@ export function CreatorExperiencesPanel({
                         </div>
                     </div>
 
-                    {/* Compact Date Picker & Availability Fallback */}
-                    <div className="relative mb-4 flex gap-3">
-                        <div className="flex-1">
-                            <label className="mb-1.5 block pl-1 text-[11px] font-bold uppercase tracking-widest text-zinc-500">Pick a time</label>
-                            <input
-                                type="datetime-local"
-                                value={bookingStartAt}
-                                onChange={(event) => onBookingStartAtChange(event.target.value)}
-                                className="w-full appearance-none rounded-[1.2rem] border border-white/10 bg-white/5 pl-4 pr-3 py-3 text-sm font-semibold text-white focus:border-brand-purple/50 focus:outline-none focus:ring-1 focus:ring-brand-purple/50 [color-scheme:dark]"
-                            />
+                    <div
+                        className="mb-4 rounded-[1.2rem] border border-white/5 bg-white/5 p-3"
+                        data-booking-slot-source="creator_availability_windows"
+                        data-booking-slot-count={bookingSlotsResult.slots.length}
+                        data-booking-selected-slot={selectedBookingSlot?.slotKey ?? ""}
+                        data-booking-free-pick-disabled="true"
+                    >
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                            <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Available slots</span>
+                            <span className="text-[11px] font-semibold text-zinc-500">{settings.availabilityTimezone || "UTC"}</span>
                         </div>
-                    </div>
-                    {hasAvailabilities && !latestBooking && (
-                        <details className="mb-4 rounded-[1.2rem] border border-white/5 bg-white/5 px-3 py-2.5">
-                            <summary className="cursor-pointer list-none text-center text-xs font-medium text-zinc-300">Creator&apos;s usual hours</summary>
-                            <div className="flex flex-wrap items-center justify-center gap-1.5">
-                                {availabilityWindows.slice(0, 3).map(w => (
-                                    <span key={w.id} className="rounded-md bg-black/40 px-2 py-1 text-[10px] font-bold uppercase text-zinc-400">
-                                        {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][w.dayOfWeek]} {w.startHour}:{w.startMinute.toString().padStart(2, '0')}-{w.endHour}:{w.endMinute.toString().padStart(2, '0')}
-                                    </span>
-                                ))}
+                        {bookingSlotsResult.slots.length > 0 ? (
+                            <div className="grid gap-2 sm:grid-cols-2">
+                                {bookingSlotsResult.slots.slice(0, 12).map((slot) => {
+                                    const isSelected = selectedBookingSlot?.slotKey === slot.slotKey;
+                                    return (
+                                        <button
+                                            key={slot.slotKey}
+                                            type="button"
+                                            aria-pressed={isSelected}
+                                            onClick={() => {
+                                                onBookingStartAtChange(new Date(slot.startAt).toISOString());
+                                                trackCreatorExperienceEvent("creator_experience_booking_slot_selected", "bookings", bookingCost, {
+                                                    slotKey: slot.slotKey,
+                                                    slotStartAt: slot.startAt,
+                                                });
+                                            }}
+                                            className={cn(
+                                                "min-h-11 rounded-xl border px-3 py-2 text-left text-xs font-bold transition-colors",
+                                                isSelected
+                                                    ? "border-brand-purple bg-brand-purple/15 text-white"
+                                                    : "border-white/10 bg-black/25 text-zinc-300 hover:bg-white/10",
+                                            )}
+                                        >
+                                            {slot.label}
+                                        </button>
+                                    );
+                                })}
                             </div>
-                        </details>
-                    )}
+                        ) : (
+                            <div className="rounded-xl bg-black/25 px-3 py-4 text-center">
+                                <p className="text-sm font-bold text-white">No available slots right now</p>
+                                <p className="mt-1 text-xs text-zinc-400">Check back later or follow for updates.</p>
+                            </div>
+                        )}
+                    </div>
 
                     {renderCTA(
                         "bookings",
-                        bookingServiceType === "phone" 
-                            ? bookingDurationMinutes * phoneRatePerMinute
-                            : bookingDurationMinutes * (subscriptionActive ? subscriberVideoRatePerMinute : videoRatePerMinute),
+                        bookingCost,
                         onCreateBooking,
                         creatingBooking,
                         <CalendarClock className="h-4 w-4" />,
-                        "Book live time"
+                        "Book live time",
+                        "bg-brand-purple text-white",
+                        {
+                            disabled: !selectedBookingSlot,
+                            disabledLabel: "Choose a slot",
+                        },
                     )}
                 </section>
             )}

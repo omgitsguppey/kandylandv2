@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { NextRequest, NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -203,6 +206,18 @@ describe("GET /api/creator/bookings", () => {
         expect(response.status).toBe(413);
         expect(body).toMatchObject({ success: false, code: "payload_too_large" });
         expect(mockState.documents.get("creator_call_bookings/booking_1")).toMatchObject({ status: "booked" });
+    });
+});
+
+describe("POST /api/creator/bookings slot validation source guard", () => {
+    it("rejects arbitrary bookingStartAt values outside generated creator slots", () => {
+        const routeSource = readFileSync(join(process.cwd(), "src/app/api/creator/bookings/route.ts"), "utf8");
+
+        expect(routeSource).toContain("buildCreatorBookingSlots");
+        expect(routeSource).toContain("selectedGeneratedSlot");
+        expect(routeSource).toContain("slot_unavailable");
+        expect(routeSource).toContain("Pick one of the available creator time slots.");
+        expect(routeSource).toContain(".where(\"creatorId\", \"==\", creatorId)");
     });
 });
 

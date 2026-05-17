@@ -13,3 +13,10 @@
 - Release-note-only commits must use `[skip release-notes]`.
 - Every accepted non-release-artifact patch updates the Beta badge.
 - Do not touch admin backend during user/creator UI parity work unless explicitly scoped.
+
+## Current Operating Memory: KandyDrops Phase 2
+
+- Creator booking UX uses generated availability slots, not arbitrary fan date/time.
+- Creator owners viewing their own public profile do not see fan purchase/request/booking/chat controls.
+- Creator management/drop surfaces show own creator drops; public discovery remains public.
+- Phase 2 depends on Phase 1 GumDrop economy contract and must not change paid-bonus ledger math.

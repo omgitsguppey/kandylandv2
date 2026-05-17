@@ -6,6 +6,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_BOOKING_MIN_MINUTES, CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import { buildCreatorBookingSlots } from "@/lib/creator-booking-slots";
 import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
@@ -39,6 +40,7 @@ type CreatorBookingProblemCode =
     | "bookings_unavailable"
     | "creator_availability_not_configured"
     | "slot_outside_availability"
+    | "slot_unavailable"
     | "slot_already_booked"
     | "insufficient_paid_gumdrops"
     | "invalid_booking_request"
@@ -374,6 +376,41 @@ async function POST_handler(request: NextRequest) {
                     }),
                 };
             }
+
+            const existingBookingsSnap = await transaction.get(
+                adminDb.collection(CREATOR_COLLECTIONS.bookings)
+                    .where("creatorId", "==", creatorId)
+                    .limit(CREATOR_BOOKINGS_READ_LIMIT),
+            );
+            const existingBookings = existingBookingsSnap.docs.map((doc) => ({
+                id: doc.id,
+                ...(doc.data() as Record<string, unknown>),
+            }));
+            const generatedSlots = buildCreatorBookingSlots({
+                availabilityWindows: windows,
+                availabilityTimezone,
+                serviceType,
+                durationMinutes,
+                bookingMinimumMinutes: typeof creatorSettings.bookingMinimumMinutes === "number"
+                    ? creatorSettings.bookingMinimumMinutes
+                    : CREATOR_BOOKING_MIN_MINUTES,
+                existingBookings,
+                nowMs: Date.now(),
+            });
+            const selectedGeneratedSlot = generatedSlots.slots.find((slot) => (
+                slot.startAt === startAt
+                && slot.durationMinutes === durationMinutes
+                && slot.serviceType === serviceType
+            ));
+            if (!selectedGeneratedSlot) {
+                throw new CreatorBookingProblem(
+                    409,
+                    "slot_unavailable",
+                    "Pick one of the available creator time slots.",
+                    bookingContext,
+                );
+            }
+
             const conflictingSnap = await transaction.get(
                 adminDb.collection(CREATOR_COLLECTIONS.bookings)
                     .where("slotKey", "==", slotKey)

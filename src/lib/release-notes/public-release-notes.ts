@@ -1,13 +1,64 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.56",
-  "betaReleaseCounter": 256,
+  "currentVersion": "1.2.57",
+  "betaReleaseCounter": 257,
   "channel": "beta",
-  "generatedAt": "2026-05-17T01:27:32.153Z",
-  "generatedAtUtc": "2026-05-17T01:27:32.153Z",
-  "lastCommitSha": "b811bb9ca2e0a470f1d6311ce456de2c06812291",
+  "generatedAt": "2026-05-17T01:55:40.372Z",
+  "generatedAtUtc": "2026-05-17T01:55:40.372Z",
+  "lastCommitSha": "68dfa1f279c4902f5f870930664f80993a2752b4",
   "notes": [
+    {
+      "version": "1.2.57",
+      "previousVersion": "1.2.56",
+      "betaReleaseCounter": 257,
+      "previousBetaReleaseCounter": 256,
+      "commitSha": "68dfa1f279c4902f5f870930664f80993a2752b4",
+      "commitTitle": "fix(creator): simplify booking slots and owner mode",
+      "commitCount": 1,
+      "commitShas": [
+        "68dfa1f279c4902f5f870930664f80993a2752b4"
+      ],
+      "committedAt": "2026-05-17T01:28:32.000Z",
+      "generatedAt": "2026-05-17T01:55:40.372Z",
+      "committedAtUtc": "2026-05-17T01:28:32.000Z",
+      "generatedAtUtc": "2026-05-17T01:55:40.372Z",
+      "updatedAtUtc": "2026-05-17T01:55:40.372Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Simplified creator booking, owner profile controls, and drop visibility scope.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Simplified creator booking around available time slots.",
+        "Hid fan experience purchase controls when creators view their own profile.",
+        "Clarified creator-owned versus public drop visibility."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "creator",
+        "drops"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "memory.md",
+        "src/lib/creator-booking-slots.ts",
+        "src/app/api/creator/bookings/route.ts",
+        "src/components/Creators/CreatorExperiencesPanel.tsx",
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/app/drops/DropsClient.tsx",
+        "agent/state/creator-experience-simplification.generated.json",
+        "docs/agent-truth/creator-experience-simplification.md",
+        "scripts/agent/validate-creator-experience-simplification.ts",
+        "tests/unit/creator-booking-slots.spec.ts",
+        "tests/unit/creator-experiences-panel.spec.tsx",
+        "tests/unit/creator-owner-mode.spec.tsx",
+        "tests/unit/creator-bookings-route.spec.ts",
+        "tests/unit/drop-visibility-scope.spec.tsx",
+        "tests/unit/creator-experience-simplification.spec.ts"
+      ],
+      "sourceCommit": "68dfa1f279c4902f5f870930664f80993a2752b4"
+    },
     {
       "version": "1.2.56",
       "previousVersion": "1.2.55",

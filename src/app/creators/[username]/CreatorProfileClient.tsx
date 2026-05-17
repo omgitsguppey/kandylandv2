@@ -354,7 +354,7 @@ export default function CreatorProfileClient() {
     ]);
     const hasExperiences = availableExperienceViews.length > 0;
     const canMessageCreator = availableExperienceViews.includes("messages");
-    const purchasedBalanceGd = currentUserProfile?.gumDropsPurchasedBalance ?? currentUserProfile?.gumDropsBalance ?? 0;
+    const purchasedBalanceGd = currentUserProfile?.gumDropsPurchasedBalance ?? 0;
     const chatCostGd = creatorSettings.chatFreeForSubscribers && subscriptionActive ? 0 : CREATOR_MESSAGE_COSTS.text;
     const creatorDisplayName = creatorFirstName || creator?.displayName || "this creator";
     const messageHint = currentUser
@@ -776,7 +776,7 @@ export default function CreatorProfileClient() {
         }
 
         if (!bookingStartAt) {
-            toast.error("Choose a booking start time.");
+            toast.error("Choose an available booking slot.");
             return;
         }
 
@@ -975,6 +975,7 @@ export default function CreatorProfileClient() {
                             creatorFirstName={creatorFirstName}
                             creatorUsername={creator.username || username}
                             currentUser={currentUserProfile ?? currentUser}
+                            existingBookings={bookings}
                             experienceWarnings={experienceWarnings}
                             latestBooking={latestBooking}
                             messages={messages}
@@ -1012,7 +1013,7 @@ export default function CreatorProfileClient() {
                             ) : null}
                             <CreatorUpdatesFeed broadcasts={visibleBroadcasts} />
 
-                            <section>
+                            <section data-drop-visibility-scope="creator_profile">
                                 {drops.length > 0 ? (
                                     <div className="relative">
                                         {!authLoading && !currentUser ? (
@@ -1037,6 +1038,7 @@ export default function CreatorProfileClient() {
                                         ) : null}
 
                                         <div
+                                            data-drop-visibility-scope="own_creator_drops"
                                             className={
                                                 !authLoading && !currentUser
                                                     ? "pointer-events-none select-none grayscale opacity-30 transition-all duration-500"

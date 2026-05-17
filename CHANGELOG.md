@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.57 - 2026-05-17
+- Bug fixes and general improvements
+- Simplified creator booking around available time slots.
+- Hid fan experience purchase controls when creators view their own profile.
+- Clarified creator-owned versus public drop visibility.
+
 ## 1.2.56 - 2026-05-15
 - Bug fixes and general improvements
 - Clarified GumDrop bonus math and paid-balance attribution.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added formal tracking for remaining smoke evidence.
 - Kept PayPal/provider smoke marked as incomplete until repo evidence exists.
 - Kept beta exit blockers visible instead of marking launch readiness complete.
-
-## 1.2.32 - 2026-05-14
-- Bug fixes and general improvements
-- Refreshed Phase 1 beta readiness evidence.
-- Confirmed analytics rewire blockers remain cleared after the Debug panel cleanup.
-- Kept remaining launch evidence gaps visible instead of marking them complete.

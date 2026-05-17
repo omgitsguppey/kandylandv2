@@ -174,6 +174,7 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
             className="mx-auto w-full max-w-7xl px-3 pt-[calc(var(--kandy-cookie-offset,0px)+0.75rem)] pb-4 selection:bg-brand-purple/30 sm:px-4 md:px-8 md:pt-0 md:pb-8"
             data-onboarding-page="drops"
             data-drops-page-density="compact-mobile"
+            data-drop-visibility-scope="public_discovery"
         >
             <div className="mb-2 md:mb-5">
                 <KandyDropsAccountOverview

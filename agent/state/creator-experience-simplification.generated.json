@@ -1,0 +1,136 @@
+{
+  "generatedAtUtc": "2026-05-17T02:01:34.034Z",
+  "reportKey": "creator-experience-simplification",
+  "currentHead": "68dfa1f279c4902f5f870930664f80993a2752b4",
+  "summary": {
+    "bookingFreePickPaths": 0,
+    "generatedSlotPaths": 2,
+    "ownerModeSurfaces": 1,
+    "fanControlsHiddenForOwner": 1,
+    "dropVisibilitySurfaces": 3,
+    "publicDiscoveryUntouched": true,
+    "backendBookingValidation": true,
+    "fixedThisPass": 6,
+    "deferredWithReason": 1,
+    "p0Count": 3,
+    "p1Count": 2,
+    "p2Count": 2
+  },
+  "bookingFindings": [
+    {
+      "id": "booking-generated-slot-helper",
+      "severity": "p0",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/lib/creator-booking-slots.ts",
+      "detail": "Booking slots are generated from creator availability windows, timezone, service type, duration, minimum duration, and existing active bookings."
+    },
+    {
+      "id": "booking-free-pick-removed",
+      "severity": "p0",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Fan booking no longer renders datetime-local or arbitrary date/time input and disables booking until a generated slot is selected."
+    },
+    {
+      "id": "booking-server-slot-validation",
+      "severity": "p0",
+      "surface": "server-truth",
+      "status": "fixed",
+      "filePath": "src/app/api/creator/bookings/route.ts",
+      "detail": "Booking POST validates startAt against generated creator availability slots and rejects arbitrary starts with slot_unavailable."
+    },
+    {
+      "id": "creator-owner-mode",
+      "severity": "p1",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Creator owners see dashboard management copy and not fan purchase/request/booking/chat controls."
+    }
+  ],
+  "ownerModeFindings": [
+    {
+      "id": "creator-owner-mode",
+      "severity": "p1",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Creator owners see dashboard management copy and not fan purchase/request/booking/chat controls."
+    }
+  ],
+  "dropVisibilityFindings": [
+    {
+      "id": "drop-visibility-scope",
+      "severity": "p1",
+      "surface": "drops",
+      "status": "fixed",
+      "filePath": "src/app/drops/DropsClient.tsx",
+      "detail": "Public drops remains public_discovery while creator profile drops are marked as creator_profile and own_creator_drops."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "booking-generated-slot-helper",
+      "severity": "p0",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/lib/creator-booking-slots.ts",
+      "detail": "Booking slots are generated from creator availability windows, timezone, service type, duration, minimum duration, and existing active bookings."
+    },
+    {
+      "id": "booking-free-pick-removed",
+      "severity": "p0",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Fan booking no longer renders datetime-local or arbitrary date/time input and disables booking until a generated slot is selected."
+    },
+    {
+      "id": "booking-server-slot-validation",
+      "severity": "p0",
+      "surface": "server-truth",
+      "status": "fixed",
+      "filePath": "src/app/api/creator/bookings/route.ts",
+      "detail": "Booking POST validates startAt against generated creator availability slots and rejects arbitrary starts with slot_unavailable."
+    },
+    {
+      "id": "creator-owner-mode",
+      "severity": "p1",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Creator owners see dashboard management copy and not fan purchase/request/booking/chat controls."
+    },
+    {
+      "id": "drop-visibility-scope",
+      "severity": "p1",
+      "surface": "drops",
+      "status": "fixed",
+      "filePath": "src/app/drops/DropsClient.tsx",
+      "detail": "Public drops remains public_discovery while creator profile drops are marked as creator_profile and own_creator_drops."
+    },
+    {
+      "id": "phase-two-memory",
+      "severity": "p2",
+      "surface": "memory",
+      "status": "fixed",
+      "filePath": "memory.md",
+      "detail": "Durable Phase 2 creator booking, owner mode, drop scope, and Phase 1 dependency rules are recorded."
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "creator-dashboard-drop-surface",
+      "severity": "p2",
+      "surface": "creator-dashboard",
+      "status": "deferred",
+      "filePath": "src/app/dashboard/creator/page.tsx",
+      "detail": "No creator dashboard drop grid was rendered in inspected source, so no dashboard drop filtering change was needed this pass."
+    }
+  ],
+  "nextFixOrder": [
+    "creator-dashboard-drop-surface"
+  ]
+}

@@ -36,7 +36,8 @@ describe("CreatorExperiencesPanel", () => {
         creatingRequest: false,
         creatorId: "creator_1",
         creatorUsername: "creator",
-        currentUser: { uid: "fan_1", gumDropsBalance: 50_000 },
+        currentUser: { uid: "fan_1", gumDropsBalance: 50_000, gumDropsPurchasedBalance: 50_000 },
+        existingBookings: [],
         experienceWarnings: [],
         latestBooking: null,
         messages: [],
@@ -122,11 +123,148 @@ describe("CreatorExperiencesPanel", () => {
         expect(renderLane("subscriptions")).toContain("Stay closer when new access opens.");
         expect(renderLane("subscriptions")).toContain("Priority access to creator moments");
         expect(renderLane("messages")).toContain("Send a private message without getting lost in comments.");
-        expect(renderLane("messages")).toContain("No private thread yet. Start with a simple message.");
+        expect(renderLane("messages")).toContain("No private thread yet. Follow creator and start with a simple message.");
         expect(renderLane("requests", "custom-photo")).toContain("Ask for something specific, then let the creator decide what fits.");
         expect(renderLane("requests", "custom-photo")).toContain("Describe what you want, the vibe, and any details the creator should know.");
         expect(renderLane("bookings")).toContain("Reserve real time before the window closes.");
-        expect(renderLane("bookings")).toContain("Pick a time");
+        expect(renderLane("bookings")).toContain("Available slots");
+    });
+
+    it("renders generated booking slots instead of arbitrary datetime input", () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2026-05-15T10:00:00Z"));
+        const markup = renderToStaticMarkup(
+            <CreatorExperiencesPanel
+                {...baseProps}
+                settings={{
+                    ...DEFAULT_CREATOR_SETTINGS,
+                    availabilityTimezone: "UTC",
+                    availabilityWindows: [{
+                        id: "fri-live",
+                        dayOfWeek: 5,
+                        startHour: 12,
+                        startMinute: 0,
+                        endHour: 13,
+                        endMinute: 0,
+                        serviceTypes: ["video"],
+                    }],
+                }}
+            />,
+        );
+        vi.useRealTimers();
+
+        expect(markup).toContain('data-booking-free-pick-disabled="true"');
+        expect(markup).toContain('data-booking-slot-source="creator_availability_windows"');
+        expect(markup).toContain('data-booking-slot-count="8"');
+        expect(markup).not.toContain('type="datetime-local"');
+    });
+
+    it("keeps booking CTA disabled until a generated slot is selected", () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2026-05-15T10:00:00Z"));
+        act(() => {
+            root.render(
+                <CreatorExperiencesPanel
+                    {...baseProps}
+                    settings={{
+                        ...DEFAULT_CREATOR_SETTINGS,
+                        availabilityTimezone: "UTC",
+                        availabilityWindows: [{
+                            id: "fri-live",
+                            dayOfWeek: 5,
+                            startHour: 12,
+                            startMinute: 0,
+                            endHour: 13,
+                            endMinute: 0,
+                            serviceTypes: ["video"],
+                        }],
+                    }}
+                />,
+            );
+        });
+
+        const button = Array.from(container.querySelectorAll("button"))
+            .find((entry) => entry.textContent?.includes("Choose a slot"));
+        expect(button).toBeTruthy();
+        expect(button).toHaveProperty("disabled", true);
+        vi.useRealTimers();
+    });
+
+    it("hides fan controls when the creator owner views their own profile", () => {
+        const markup = renderToStaticMarkup(
+            <CreatorExperiencesPanel
+                {...baseProps}
+                currentUser={{ uid: "creator_1", role: "creator", gumDropsPurchasedBalance: 50_000 }}
+                selectedExperience={null}
+            />,
+        );
+
+        expect(markup).toContain("You are viewing your creator profile.");
+        expect(markup).toContain("Manage this in Creator Dashboard.");
+        expect(markup).toContain('data-creator-owner-mode="true"');
+        expect(markup).toContain('data-fan-controls-hidden="true"');
+        expect(markup).not.toContain("Fan Pass");
+        expect(markup).not.toContain("Book live time");
+    });
+
+    it("routes creator owners to the Creator Dashboard", () => {
+        act(() => {
+            root.render(
+                <CreatorExperiencesPanel
+                    {...baseProps}
+                    currentUser={{ uid: "creator_1", role: "creator", gumDropsPurchasedBalance: 50_000 }}
+                    selectedExperience={null}
+                />,
+            );
+        });
+
+        const button = Array.from(container.querySelectorAll("button"))
+            .find((entry) => entry.textContent?.includes("Manage in Creator Dashboard"));
+        expect(button).toBeTruthy();
+
+        act(() => {
+            button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        });
+
+        expect(mockState.routerPush).toHaveBeenCalledWith("/dashboard/creator");
+    });
+
+    it("writes bookingStartAt only from a generated slot selection", () => {
+        const onBookingStartAtChange = vi.fn();
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2026-05-15T10:00:00Z"));
+        act(() => {
+            root.render(
+                <CreatorExperiencesPanel
+                    {...baseProps}
+                    onBookingStartAtChange={onBookingStartAtChange}
+                    settings={{
+                        ...DEFAULT_CREATOR_SETTINGS,
+                        availabilityTimezone: "UTC",
+                        availabilityWindows: [{
+                            id: "fri-live",
+                            dayOfWeek: 5,
+                            startHour: 12,
+                            startMinute: 0,
+                            endHour: 13,
+                            endMinute: 0,
+                            serviceTypes: ["video"],
+                        }],
+                    }}
+                />,
+            );
+        });
+
+        const slotButton = Array.from(container.querySelectorAll("button"))
+            .find((entry) => entry.textContent?.includes("Fri, May 15"));
+        expect(slotButton).toBeTruthy();
+
+        act(() => {
+            slotButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        });
+
+        expect(onBookingStartAtChange).toHaveBeenCalledWith(new Date(Date.UTC(2026, 4, 15, 12, 0, 0)).toISOString());
+        vi.useRealTimers();
     });
 
     it("emits lane CTA telemetry with creator id and lane", () => {
@@ -172,7 +310,7 @@ describe("CreatorExperiencesPanel", () => {
         });
 
         const button = Array.from(container.querySelectorAll("button"))
-            .find((entry) => entry.textContent?.includes("Add Gum Drops"));
+            .find((entry) => entry.textContent?.includes("Open Wallet"));
         expect(button).toBeTruthy();
 
         act(() => {
