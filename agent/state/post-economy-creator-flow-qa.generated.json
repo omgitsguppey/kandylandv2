@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T03:20:29.418Z",
+  "generatedAtUtc": "2026-05-17T04:09:42.992Z",
   "reportKey": "post-economy-creator-flow-qa",
-  "currentHead": "a98638d3a766efe61b6109f898b51544deef91b0",
+  "currentHead": "6396ae0691e3bc73465e9ab9556e1db0570bce3f",
   "summary": {
     "flowsChecked": 6,
     "copyRisksFound": 3,
@@ -14,10 +14,10 @@
     "bookingUxRisksFixed": 1,
     "ownerModeRisksFound": 1,
     "ownerModeRisksFixed": 1,
-    "deferredFollowUps": 2,
+    "deferredFollowUps": 0,
     "p0Count": 3,
-    "p1Count": 3,
-    "p2Count": 5
+    "p1Count": 4,
+    "p2Count": 4
   },
   "flows": [
     {
@@ -93,28 +93,24 @@
       "status": "fixed",
       "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
       "detail": "Owner profile copy now points to managing experiences in Creator Dashboard while keeping fan controls hidden."
-    }
-  ],
-  "deferredFindings": [
+    },
+    {
+      "id": "wallet-paid-bonus-label-specificity",
+      "severity": "p1",
+      "surface": "wallet",
+      "status": "fixed",
+      "filePath": "src/components/PurchaseModal.tsx",
+      "detail": "Visible wallet package and success chips label paid package extras as paid bonus or bundle bonus GumDrops."
+    },
     {
       "id": "creator-accrual-dashboard-summary",
       "severity": "p2",
       "surface": "creator-dashboard",
-      "status": "deferred",
-      "filePath": "src/components/Creators",
-      "detail": "Backend accrual IDs and creator attribution are present, but no new creator earnings panel was invented in this microfix pass."
-    },
-    {
-      "id": "wallet-paid-bonus-label-specificity",
-      "severity": "p2",
-      "surface": "wallet",
-      "status": "deferred",
-      "filePath": "src/components/PurchaseModal.tsx",
-      "detail": "Package modal says Bonus without free/reward language; a future wallet-scoped copy pass can rename visible chips to paid bonus if that file is explicitly in scope."
+      "status": "fixed_readonly_summary",
+      "filePath": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "detail": "Existing creator settings stats now surface read-only earnings source and creator experience attribution metadata."
     }
   ],
-  "nextFixOrder": [
-    "creator-accrual-dashboard-summary",
-    "wallet-paid-bonus-label-specificity"
-  ]
+  "deferredFindings": [],
+  "nextFixOrder": []
 }

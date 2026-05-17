@@ -8,7 +8,7 @@ type FlowFinding = {
     id: string;
     severity: FindingSeverity;
     surface: string;
-    status: "fixed" | "verified" | "deferred";
+    status: "fixed" | "fixed_readonly_summary" | "verified" | "deferred" | "deferred_source_required";
     filePath: string;
     detail: string;
 };
@@ -94,6 +94,10 @@ function addDeferred(id: string, severity: FindingSeverity, surface: string, fil
     deferredFindings.push({ id, severity, surface, status: "deferred", filePath, detail });
 }
 
+function addFixedReadonlySummary(id: string, severity: FindingSeverity, surface: string, filePath: string, detail: string) {
+    fixesApplied.push({ id, severity, surface, status: "fixed_readonly_summary", filePath, detail });
+}
+
 runRequiredValidator("check:gumdrop-economy-accuracy");
 runRequiredValidator("check:creator-experience-simplification");
 
@@ -107,11 +111,15 @@ const chatServer = readRequired("src/lib/server/chat.ts");
 const creatorServer = readRequired("src/lib/server/creator-experiences.ts");
 const dropsClient = readRequired("src/app/drops/DropsClient.tsx");
 const creatorProfile = readRequired("src/app/creators/[username]/CreatorProfileClient.tsx");
+const creatorSettingsRoute = readRequired("src/app/api/creator/settings/route.ts");
+const creatorDashboardSettings = readRequired("src/components/Creators/CreatorDashboardSettingsHub.tsx");
 const panelTest = readRequired("tests/unit/creator-experiences-panel.spec.tsx");
 const ownerTest = readRequired("tests/unit/creator-owner-mode.spec.tsx");
 const routeTest = readRequired("tests/unit/creator-bookings-route.spec.ts");
 const economyTest = readRequired("tests/unit/gumdrop-economy-accuracy.spec.ts");
 const simplificationTest = readRequired("tests/unit/creator-experience-simplification.spec.ts");
+const purchaseModalTest = readRequired("tests/unit/purchase-modal.spec.tsx");
+const creatorDashboardSettingsTest = readRequired("tests/unit/creator-dashboard-settings.spec.tsx");
 const docs = readRequired("docs/agent-truth/post-economy-creator-flow-qa.md");
 const packageJson = readRequired("package.json");
 
@@ -125,12 +133,28 @@ for (const path of changedPaths()) {
     ) {
         failures.push(`Forbidden admin file changed: ${path}`);
     }
+    if (
+        path === "src/lib/gumdrop-source-of-funds.ts"
+        || path === "src/lib/gumdrop-ledger.ts"
+        || path === "src/lib/gumdrop-economics.ts"
+        || path === "src/app/api/paypal/capture/route.ts"
+        || path === "src/app/api/creator/settings/route.ts"
+    ) {
+        failures.push(`This microfix must not change economy math, PayPal capture, or creator settings reads: ${path}`);
+    }
 }
 
 for (const line of purchaseModal.split(/\r?\n/u)) {
     if (/bonus/i.test(line) && /(free|reward)/i.test(line)) {
         failures.push(`Package bonus copy must not label paid bundle bonuses as free/reward: ${line.trim()}`);
     }
+}
+for (const expected of [
+    "paid bonus GD",
+    "Bundle bonus",
+    "Paid bundle bonus",
+]) {
+    requireIncludes(purchaseModal, expected, "PurchaseModal paid bundle bonus labels");
 }
 
 for (const expected of [
@@ -181,6 +205,18 @@ requireIncludes(dropsClient, "data-drop-visibility-scope=\"public_discovery\"", 
 requireNotIncludes(dropsClient, "data-drop-visibility-scope=\"own_creator_drops\"", "public drops discovery");
 requireIncludes(creatorProfile, "data-drop-visibility-scope=\"creator_profile\"", "creator profile drops");
 requireIncludes(creatorProfile, "data-drop-visibility-scope=\"own_creator_drops\"", "creator profile drops");
+for (const expected of [
+    "data-creator-earnings-source",
+    "data-creator-earnings-attribution",
+    "creator_experience_paid_source",
+    "Earnings are based on paid creator experiences.",
+    "statsEvidence?.sources.ledgerAccruals.collection",
+]) {
+    requireIncludes(creatorDashboardSettings, expected, "creator earnings visibility");
+}
+requireIncludes(creatorSettingsRoute, "creator_ledger_accruals", "existing creator earnings source");
+requireIncludes(creatorSettingsRoute, ".aggregate({ totalEarnings: AggregateField.sum(\"creatorShareGd\") })", "existing creator earnings source");
+requireNotIncludes(creatorDashboardSettings, "/api/creator/payouts", "creator earnings visibility");
 
 for (const expected of [
     "reward balance from making paid creator CTAs available",
@@ -194,6 +230,9 @@ requireIncludes(ownerTest, "Manage experiences in Creator Dashboard.", "creator 
 requireIncludes(routeTest, "slot_unavailable", "creator bookings route tests");
 requireIncludes(economyTest, "attributionTruth", "GumDrop economy accuracy tests");
 requireIncludes(simplificationTest, "public_discovery", "creator experience simplification tests");
+requireIncludes(purchaseModalTest, "labels package bonuses as paid or bundle bonus", "purchase modal tests");
+requireIncludes(creatorDashboardSettingsTest, "creator earnings summary uses the safe settings source", "creator dashboard settings tests");
+requireIncludes(creatorDashboardSettingsTest, "data-creator-earnings-attribution", "creator dashboard settings tests");
 requireIncludes(packageJson, "\"check:post-economy-creator-flow-qa\": \"tsx scripts/agent/validate-post-economy-creator-flow-qa.ts\"", "package scripts");
 
 for (const expected of [
@@ -201,6 +240,8 @@ for (const expected of [
     "Creator experience CTAs use purchased GumDrops, not total balance.",
     "Booking remains generated-slot only.",
     "Creator owners do not see fan purchase/request/booking/chat controls.",
+    "Wallet package bonuses now use paid bonus or bundle bonus labels.",
+    "Creator earnings visibility uses the existing creator settings stats source.",
 ]) {
     requireIncludes(docs, expected, "post-economy creator flow QA docs");
 }
@@ -208,6 +249,8 @@ for (const expected of [
 addFixed("creator-paid-gd-guidance-copy", "p1", "creator-profile", "src/components/Creators/CreatorPaidGdGuidanceCard.tsx", "Low-balance guidance now says creator experiences use paid GumDrops only and distinguishes free/reward GumDrops.");
 addFixed("booking-slot-cta-copy", "p2", "creator-profile", "src/components/Creators/CreatorExperiencesPanel.tsx", "Booking slot empty state and disabled CTA copy are clearer without adding arbitrary date/time controls.");
 addFixed("creator-owner-dashboard-copy", "p2", "creator-profile", "src/components/Creators/CreatorExperiencesPanel.tsx", "Owner profile copy now points to managing experiences in Creator Dashboard while keeping fan controls hidden.");
+addFixed("wallet-paid-bonus-label-specificity", "p1", "wallet", "src/components/PurchaseModal.tsx", "Visible wallet package and success chips label paid package extras as paid bonus or bundle bonus GumDrops.");
+addFixedReadonlySummary("creator-accrual-dashboard-summary", "p2", "creator-dashboard", "src/components/Creators/CreatorDashboardSettingsHub.tsx", "Existing creator settings stats now surface read-only earnings source and creator experience attribution metadata.");
 
 addVerified("paid-bundle-copy-not-free-reward", "p1", "wallet", "src/components/PurchaseModal.tsx", "Package bonus copy does not label paid bundle bonuses as free or reward GumDrops.");
 addVerified("creator-paid-balance-eligibility", "p0", "creator-profile", "src/components/Creators/CreatorExperiencesPanel.tsx", "Creator experience balance checks read gumDropsPurchasedBalance, so reward balance alone cannot make CTAs available.");
@@ -215,9 +258,6 @@ addVerified("creator-attribution-metadata", "p0", "server-truth", "src/app/api/c
 addVerified("booking-generated-slot-only", "p0", "creator-profile", "src/components/Creators/CreatorExperiencesPanel.tsx", "Booking UI keeps generated slot attrs and no datetime-local input.");
 addVerified("owner-fan-mode-separation", "p1", "creator-profile", "src/components/Creators/CreatorExperiencesPanel.tsx", "Owner mode shows profile-safe dashboard routing and hides fan controls; non-owner fan tests keep fan controls visible.");
 addVerified("public-drop-discovery-scope", "p2", "drops", "src/app/drops/DropsClient.tsx", "Public drops remains public_discovery and is not marked own_creator_drops.");
-
-addDeferred("creator-accrual-dashboard-summary", "p2", "creator-dashboard", "src/components/Creators", "Backend accrual IDs and creator attribution are present, but no new creator earnings panel was invented in this microfix pass.");
-addDeferred("wallet-paid-bonus-label-specificity", "p2", "wallet", "src/components/PurchaseModal.tsx", "Package modal says Bonus without free/reward language; a future wallet-scoped copy pass can rename visible chips to paid bonus if that file is explicitly in scope.");
 
 const allFindings = [...verifiedFlows, ...fixesApplied, ...deferredFindings];
 const report = {

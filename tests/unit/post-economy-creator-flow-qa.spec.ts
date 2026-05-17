@@ -16,6 +16,9 @@ describe("post-economy creator flow QA guardrails", () => {
 
         expect(bonusLines.length).toBeGreaterThan(0);
         expect(bonusLines.some((line) => /(free|reward)/i.test(line))).toBe(false);
+        expect(purchaseModal).toContain("paid bonus GD");
+        expect(purchaseModal).toContain("Bundle bonus");
+        expect(purchaseModal).toContain("Paid bundle bonus");
     });
 
     it("uses purchased GD guidance and keeps reward balance from enabling creator CTAs", () => {
@@ -58,6 +61,8 @@ describe("post-economy creator flow QA guardrails", () => {
         const bookingRoute = readSource("src/app/api/creator/bookings/route.ts");
         const subscriptionRoute = readSource("src/app/api/creator/subscriptions/route.ts");
         const dropsClient = readSource("src/app/drops/DropsClient.tsx");
+        const settingsHub = readSource("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+        const settingsRoute = readSource("src/app/api/creator/settings/route.ts");
 
         for (const routeSource of [requestRoute, bookingRoute, subscriptionRoute]) {
             expect(routeSource).toContain("purchasedAmountSpent");
@@ -69,5 +74,9 @@ describe("post-economy creator flow QA guardrails", () => {
 
         expect(dropsClient).toContain('data-drop-visibility-scope="public_discovery"');
         expect(dropsClient).not.toContain('data-drop-visibility-scope="own_creator_drops"');
+        expect(settingsHub).toContain("data-creator-earnings-attribution={creatorEarningsAttribution}");
+        expect(settingsHub).toContain("creator_experience_paid_source");
+        expect(settingsHub).toContain("Earnings are based on paid creator experiences.");
+        expect(settingsRoute).toContain('.aggregate({ totalEarnings: AggregateField.sum("creatorShareGd") })');
     });
 });

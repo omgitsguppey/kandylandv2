@@ -304,6 +304,23 @@ describe("CreatorDashboardSettingsHub", () => {
     });
   });
 
+  it("creator earnings summary uses the safe settings source and attribution marker", async () => {
+    const { container } = render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(section(container, "earnings").dataset.creatorSectionState).toBe("live");
+    });
+
+    const earnings = section(container, "earnings");
+    expect(earnings.dataset.creatorEarningsSource).toBe("test_collection");
+    expect(earnings.dataset.creatorEarningsAttribution).toBe("creator_experience_paid_source");
+    expect(earnings.getAttribute("data-creator-earnings-attribution")).toBe("creator_experience_paid_source");
+    expect(earnings.textContent).toContain("1,234 GD earned, 250 GD pending.");
+
+    fireEvent.click(screen.getByText("Earnings / payout"));
+    expect(screen.getByText(/Earnings are based on paid creator experiences/i)).toBeTruthy();
+  });
+
   it("mounts only the opened booking or Fan Pass manager", async () => {
     const { container } = render(<CreatorDashboardSettingsHub />);
 

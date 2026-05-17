@@ -102,6 +102,8 @@ function SectionCard({
   fanPassManagementState,
   bookingsManagementState,
   chatRouteConnected,
+  creatorEarningsSource,
+  creatorEarningsAttribution,
   actionLabel,
   expanded,
   onToggle,
@@ -119,6 +121,8 @@ function SectionCard({
   fanPassManagementState?: "subscriber_visibility" | "configuration_only" | "blocked";
   bookingsManagementState?: "connected" | "configuration_only" | "blocked" | "not_configured";
   chatRouteConnected?: boolean;
+  creatorEarningsSource?: string;
+  creatorEarningsAttribution?: "creator_experience_paid_source";
   actionLabel?: string;
   expanded: boolean;
   onToggle: () => void;
@@ -134,6 +138,8 @@ function SectionCard({
       data-creator-fan-pass-management-state={fanPassManagementState}
       data-creator-bookings-management-state={bookingsManagementState}
       data-creator-chat-route-connected={chatRouteConnected === undefined ? undefined : String(chatRouteConnected)}
+      data-creator-earnings-source={creatorEarningsSource}
+      data-creator-earnings-attribution={creatorEarningsAttribution}
     >
       <button type="button" onClick={onToggle} className="flex w-full items-start justify-between gap-3 text-left">
         <div className="flex min-w-0 items-start gap-3">
@@ -310,6 +316,8 @@ export function CreatorDashboardSettingsHub() {
     fanPassManagementState?: "subscriber_visibility" | "configuration_only" | "blocked";
     bookingsManagementState?: "connected" | "configuration_only" | "blocked" | "not_configured";
     chatRouteConnected?: boolean;
+    creatorEarningsSource?: string;
+    creatorEarningsAttribution?: "creator_experience_paid_source";
   }> = [
     {
       id: "public_profile",
@@ -465,11 +473,13 @@ export function CreatorDashboardSettingsHub() {
       state: earningsState,
       summary: earningsState === "live" && stats ? `${stats.earningsGd.toLocaleString()} GD earned, ${stats.pendingCashoutGd.toLocaleString()} GD pending.` : "Earnings need source review.",
       detail: stats
-        ? `Ledger and payout totals are connected for review. Followers: ${stats.followerCount.toLocaleString()} | Active subscribers: ${stats.activeSubscribers.toLocaleString()}`
+        ? `Earnings are based on paid creator experiences. Ledger and payout totals are connected for review. Followers: ${stats.followerCount.toLocaleString()} | Active subscribers: ${stats.activeSubscribers.toLocaleString()}`
         : "Earnings roll up from the ledger and payout collections.",
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
       sampleCount: statsEvidence?.sampleCount,
+      creatorEarningsSource: statsEvidence?.sources.ledgerAccruals.collection ?? "unavailable",
+      creatorEarningsAttribution: "creator_experience_paid_source",
       icon: <DollarSign className="h-4 w-4" />,
     },
     {
@@ -574,6 +584,8 @@ export function CreatorDashboardSettingsHub() {
             fanPassManagementState={section.fanPassManagementState}
             bookingsManagementState={section.bookingsManagementState}
             chatRouteConnected={section.chatRouteConnected}
+            creatorEarningsSource={section.creatorEarningsSource}
+            creatorEarningsAttribution={section.creatorEarningsAttribution}
             expanded={openSection === section.id}
             onToggle={() => {
               setOpenSection((current) => current === section.id ? null : section.id);

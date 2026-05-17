@@ -1,11 +1,55 @@
 {
-  "currentVersion": "1.2.58",
-  "betaReleaseCounter": 258,
+  "currentVersion": "1.2.59",
+  "betaReleaseCounter": 259,
   "channel": "beta",
-  "generatedAt": "2026-05-17T03:28:43.443Z",
-  "generatedAtUtc": "2026-05-17T03:28:43.443Z",
-  "lastCommitSha": "a98638d3a766efe61b6109f898b51544deef91b0",
+  "generatedAt": "2026-05-17T04:09:09.299Z",
+  "generatedAtUtc": "2026-05-17T04:09:09.299Z",
+  "lastCommitSha": "6396ae0691e3bc73465e9ab9556e1db0570bce3f",
   "notes": [
+    {
+      "version": "1.2.59",
+      "previousVersion": "1.2.58",
+      "betaReleaseCounter": 259,
+      "previousBetaReleaseCounter": 258,
+      "commitSha": "6396ae0691e3bc73465e9ab9556e1db0570bce3f",
+      "commitTitle": "fix(wallet): clarify paid bonus gumdrop labels",
+      "commitCount": 1,
+      "commitShas": [
+        "6396ae0691e3bc73465e9ab9556e1db0570bce3f"
+      ],
+      "committedAt": "2026-05-17T04:09:09.299Z",
+      "generatedAt": "2026-05-17T04:09:09.299Z",
+      "committedAtUtc": "2026-05-17T04:09:09.299Z",
+      "generatedAtUtc": "2026-05-17T04:09:09.299Z",
+      "updatedAtUtc": "2026-05-17T04:09:09.299Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Clarified paid bonus labels and creator earnings visibility.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Clarified paid bonus GumDrop labels in wallet purchase flows.",
+        "Kept creator earning visibility tied to real attribution sources.",
+        "Preserved paid-only creator experience rules."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "wallet",
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/components/PurchaseModal.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "agent/state/post-economy-creator-flow-qa.generated.json",
+        "docs/agent-truth/post-economy-creator-flow-qa.md",
+        "scripts/agent/validate-post-economy-creator-flow-qa.ts",
+        "tests/unit/post-economy-creator-flow-qa.spec.ts",
+        "tests/unit/purchase-modal.spec.tsx",
+        "tests/unit/creator-dashboard-settings.spec.tsx"
+      ],
+      "sourceCommit": "6396ae0691e3bc73465e9ab9556e1db0570bce3f"
+    },
     {
       "version": "1.2.58",
       "previousVersion": "1.2.57",

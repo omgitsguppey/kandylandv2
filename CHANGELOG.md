@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.59 - 2026-05-17
+- Bug fixes and general improvements
+- Clarified paid bonus GumDrop labels in wallet purchase flows.
+- Kept creator earning visibility tied to real attribution sources.
+- Preserved paid-only creator experience rules.
+
 ## 1.2.58 - 2026-05-17
 - Bug fixes and general improvements
 - Cleaned up paid GumDrop bonus and creator experience copy.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added a spring-cleaning inventory for stale reports, docs, validators, and disconnected UI lanes.
 - Mapped cleanup candidates without deleting runtime code.
 - Kept Phase 1 blocker fixes separate from repo cleanup work.
-
-## 1.2.34 - 2026-05-14
-- Bug fixes and general improvements
-- Added a triage pass for beta score math and evidence wiring.
-- Reviewed watch-time, Admin dashboard, and creator dashboard truth connections.
-- Kept readiness evidence honest while identifying what needs a focused fix.

@@ -510,7 +510,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                     <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
                                     {pkgEconomics.bonusGumDrops > 0 && (
                                       <span className="inline-flex items-center ml-1 rounded border border-brand-purple/30 bg-brand-purple/15 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-[#d7c4ff]">
-                                        +{pkgEconomics.bonusGumDrops} Bonus
+                                        +{pkgEconomics.bonusGumDrops} paid bonus GD
                                       </span>
                                     )}
                                   </div>
@@ -556,7 +556,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                     <span className="text-[15px] font-bold text-white leading-none">{customDrops.toLocaleString()}</span>
                                     <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
                                     <span className="inline-flex items-center ml-0 sm:ml-1 rounded border border-brand-purple/30 bg-brand-purple/15 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-[#d7c4ff]">
-                                      {customDrops >= 5000 ? "100% EXTRA" : "BONUS"}
+                                      {customDrops >= 5000 ? "Paid bundle bonus" : "Bundle bonus"}
                                     </span>
                                   </div>
                                   <p className="text-[11px] font-medium text-gray-400 mt-1">King Size Bundle</p>
@@ -742,7 +742,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           </span>
                         {selectedEconomics.bonusGumDrops > 0 ? (
                           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
-                            +{selectedEconomics.bonusGumDrops} bonus
+                            +{selectedEconomics.bonusGumDrops} paid bonus GD
                           </span>
                         ) : null}
                         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
