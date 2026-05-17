@@ -10,6 +10,9 @@ import { buildRelationshipPatch } from "@/lib/server/creator-experiences";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+
+const USER_FOLLOW_BODY_LIMIT_BYTES = 32_768;
 
 const followRequestSchema = z.object({
     targetUserId: z.string().trim().min(1).max(128),
@@ -29,7 +32,12 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { targetUserId, action } = followRequestSchema.parse(await request.json());
+        const body = await readBoundedJsonBody<z.infer<typeof followRequestSchema>>(request, {
+            maxBytes: USER_FOLLOW_BODY_LIMIT_BYTES,
+            routeName: "user/follow",
+            allowEmpty: false,
+        });
+        const { targetUserId, action } = followRequestSchema.parse(body);
 
         // Use verified UID from token
         const userId = caller.uid;
@@ -88,6 +96,14 @@ async function POST_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true, action });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                message: error.message,
+            }, { status: error.status });
+        }
         return handleApiError(error, "User.Follow");
     }
 }

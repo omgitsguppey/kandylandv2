@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T04:19:39.496Z",
+  "generatedAt": "2026-05-17T06:24:36.482Z",
   "overallScore": 51,
   "overallStatus": "beta-risk",
   "domainScores": {
@@ -15,9 +15,9 @@
       "weight": 25,
       "score": 0,
       "status": "beta-risk",
-      "findingCount": 75,
+      "findingCount": 73,
       "criticalCount": 0,
-      "majorCount": 75
+      "majorCount": 73
     },
     "firebaseRulesAppCheckReadiness": {
       "weight": 20,
@@ -1896,7 +1896,7 @@
       "idempotencyRequired": 12,
       "idempotencyEvidence": 23,
       "bodyLimitRequired": 119,
-      "bodyLimitEvidence": 31
+      "bodyLimitEvidence": 33
     },
     "routes": [
       {
@@ -5363,7 +5363,7 @@
         "idempotencyRequired": false,
         "idempotencyPresent": false,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -5391,7 +5391,7 @@
         "idempotencyRequired": false,
         "idempotencyPresent": false,
         "bodyLimitRequired": true,
-        "bodyLimitPresent": false,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -6772,40 +6772,6 @@
       "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
       "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
       "id": "speed_security_1e6k3jd"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/user/follow/route.ts",
-      "line": 32,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_zclmjs"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/user/onboarding-progress/route.ts",
-      "line": 44,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1edf8h9"
     },
     {
       "domain": "apiRouteSecurityExploitHardening",
@@ -8365,40 +8331,6 @@
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
-      "filePath": "src/app/api/user/follow/route.ts",
-      "line": 32,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_zclmjs"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
-      "filePath": "src/app/api/user/onboarding-progress/route.ts",
-      "line": 44,
-      "title": "Mutating route has body limit contract but no source-visible cap",
-      "evidence": [
-        "Contract body limit is 32768 bytes."
-      ],
-      "expectedRule": "Analytics/support/bug reports/uploads/imports and sensitive writes cap body size before parsing or mutation.",
-      "actualPattern": "missing body limit evidence",
-      "canAutofix": false,
-      "autofixConfidence": 0,
-      "suggestedFix": "Use the canonical bounded parser or content-length guard for this route.",
-      "humanReadableEscalation": "Body-limit fixes must preserve current request schema and typed errors.",
-      "id": "speed_security_1edf8h9"
-    },
-    {
-      "domain": "apiRouteSecurityExploitHardening",
-      "severity": "major",
       "filePath": "src/app/api/user/profile/route.ts",
       "line": 168,
       "title": "Mutating route has body limit contract but no source-visible cap",
@@ -8645,5 +8577,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 91 findings across 126 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 89 findings across 126 API routes."
 }

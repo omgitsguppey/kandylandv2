@@ -1,11 +1,59 @@
 {
-  "currentVersion": "1.2.65",
-  "betaReleaseCounter": 265,
+  "currentVersion": "1.2.66",
+  "betaReleaseCounter": 266,
   "channel": "beta",
-  "generatedAt": "2026-05-17T06:12:50.261Z",
-  "generatedAtUtc": "2026-05-17T06:12:50.261Z",
-  "lastCommitSha": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+  "generatedAt": "2026-05-17T06:24:01.677Z",
+  "generatedAtUtc": "2026-05-17T06:24:01.677Z",
+  "lastCommitSha": "f6aabc551712fa5426bae2b543b1d0de34418e8f",
   "notes": [
+    {
+      "version": "1.2.66",
+      "previousVersion": "1.2.65",
+      "betaReleaseCounter": 266,
+      "previousBetaReleaseCounter": 265,
+      "commitSha": "f6aabc551712fa5426bae2b543b1d0de34418e8f",
+      "commitTitle": "fix(cost): reduce user creator 4xx risk",
+      "commitCount": 1,
+      "commitShas": [
+        "f6aabc551712fa5426bae2b543b1d0de34418e8f"
+      ],
+      "committedAt": "2026-05-17T06:24:01.677Z",
+      "generatedAt": "2026-05-17T06:24:01.677Z",
+      "committedAtUtc": "2026-05-17T06:24:01.677Z",
+      "generatedAtUtc": "2026-05-17T06:24:01.677Z",
+      "updatedAtUtc": "2026-05-17T06:24:01.677Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Reduced safe user and creator 4xx/cost-risk paths.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Reduced safe user and creator 4xx/cost-risk paths.",
+        "Mapped Cloud Run, Cloud SQL, and Gemini cost checks without fake evidence.",
+        "Kept remaining speed-security work owner-scoped."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app",
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/app/api/user/follow/route.ts",
+        "src/app/api/user/onboarding-progress/route.ts",
+        "agent/state/speed-security-hardening.generated.json",
+        "agent/state/cost-4xx-reduction.generated.json",
+        "docs/agent-truth/cost-4xx-reduction.md",
+        "scripts/agent/validate-cost-4xx-reduction.ts",
+        "tests/unit/cost-4xx-reduction.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "f6aabc551712fa5426bae2b543b1d0de34418e8f"
+    },
     {
       "version": "1.2.65",
       "previousVersion": "1.2.64",
@@ -1196,46 +1244,6 @@
         "tests/unit/repo-doctrine-reset.spec.ts"
       ],
       "sourceCommit": "2b582f1e47844f9ded9b5ff0f9f5c0112f4d8944"
-    },
-    {
-      "version": "1.2.41",
-      "previousVersion": "1.2.40",
-      "betaReleaseCounter": 241,
-      "previousBetaReleaseCounter": 240,
-      "commitSha": "af8d35aea6c2695f0403023e3801f43ca7929ee8",
-      "commitTitle": "chore(debug): triage panel evidence output",
-      "commitCount": 1,
-      "commitShas": [
-        "af8d35aea6c2695f0403023e3801f43ca7929ee8"
-      ],
-      "committedAt": "2026-05-14T17:04:21.000Z",
-      "generatedAt": "2026-05-14T17:04:39.072Z",
-      "committedAtUtc": "2026-05-14T17:04:21.000Z",
-      "generatedAtUtc": "2026-05-14T17:04:39.072Z",
-      "updatedAtUtc": "2026-05-14T17:04:39.072Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Added a Debug-panel triage map for stale, missing, and refreshable evidence.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added a Debug-panel triage map for stale, missing, and refreshable evidence.",
-        "Kept stale evidence visible instead of treating it as live truth.",
-        "Made Debug output clearer about which issues block Phase 1."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/debug-panel-output-triage.generated.json",
-        "docs/agent-truth/debug-panel-output-triage.md",
-        "package.json",
-        "scripts/agent/validate-debug-panel-output-triage.ts",
-        "tests/unit/debug-panel-output-triage.spec.ts"
-      ],
-      "sourceCommit": "af8d35aea6c2695f0403023e3801f43ca7929ee8"
     }
   ]
 }

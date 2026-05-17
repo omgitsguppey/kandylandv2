@@ -12,6 +12,9 @@ import {
 } from "@/lib/server/onboarding-analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
+
+const USER_ONBOARDING_PROGRESS_BODY_LIMIT_BYTES = 32_768;
 
 const ALLOWED_EVENT_NAMES = new Set([
     "guided_onboarding_started",
@@ -41,7 +44,11 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json().catch(() => ({}));
+        const body = await readBoundedJsonBody<Record<string, unknown>>(request, {
+            maxBytes: USER_ONBOARDING_PROGRESS_BODY_LIMIT_BYTES,
+            routeName: "user/onboarding-progress",
+            allowEmpty: true,
+        });
         const eventName = toOnboardingString(body?.eventName);
         if (!ALLOWED_EVENT_NAMES.has(eventName)) {
             return NextResponse.json({ error: "Unsupported onboarding event" }, { status: 400 });
@@ -135,6 +142,14 @@ async function POST_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true, deduped });
     } catch (error) {
+        if (isBoundedJsonBodyError(error)) {
+            return NextResponse.json({
+                success: false,
+                code: error.code,
+                error: error.message,
+                message: error.message,
+            }, { status: error.status });
+        }
         return handleApiError(error, "User.OnboardingProgress");
     }
 }

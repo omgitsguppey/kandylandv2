@@ -1,0 +1,247 @@
+{
+  "generatedAtUtc": "2026-05-17T06:26:10.166Z",
+  "reportKey": "cost-4xx-reduction",
+  "currentHead": "f6aabc551712fa5426bae2b543b1d0de34418e8f",
+  "cloudRunFindings": [
+    {
+      "id": "cloud-run-app-hosting-source-config",
+      "lane": "cloud_run",
+      "severity": "p2",
+      "status": "source_inventory_complete",
+      "owner": "platform-cost",
+      "filePath": "apphosting.yaml",
+      "detail": "App Hosting source config remains documented as a source-only Cloud Run/App Hosting cost lane; no infra deployment config changed.",
+      "action": "Use provider metrics before changing min/max instances, concurrency, or CPU allocation.",
+      "evidence": [
+        "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+        "agent/state/beta-score-cleanup.generated.json"
+      ]
+    },
+    {
+      "id": "user-route-body-limit-reduction",
+      "lane": "cloud_run",
+      "severity": "p2",
+      "status": "fixed",
+      "owner": "server-truth",
+      "filePath": "src/app/api/user",
+      "detail": "User follow and onboarding-progress POST bodies now use the bounded JSON parser before zod validation or analytics work.",
+      "action": "Keep non-payment user mutations bounded before route work starts.",
+      "evidence": [
+        "src/app/api/user/follow/route.ts",
+        "src/app/api/user/onboarding-progress/route.ts"
+      ]
+    }
+  ],
+  "cloudSqlFindings": [
+    {
+      "id": "cloud-sql-agent-context-mirror-only",
+      "lane": "cloud_sql",
+      "severity": "p2",
+      "status": "deferred_owner_review",
+      "owner": "platform-cost",
+      "filePath": "dataconnect/dataconnect.yaml",
+      "detail": "Cloud SQL/Data Connect remains classified as an agent-context mirror; no user/creator product runtime SQL usage was fixed in this pass.",
+      "action": "Owner should confirm provider billing and active connection state outside source-only validation.",
+      "evidence": [
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/beta-score-cleanup.md"
+      ]
+    }
+  ],
+  "geminiCloudAssistFindings": [
+    {
+      "id": "gemini-cloud-assist-admin-ai-only",
+      "lane": "gemini_cloud_assist",
+      "severity": "p2",
+      "status": "deferred_owner_review",
+      "owner": "admin-ai",
+      "filePath": "src/lib/server/api-cost-contract.ts",
+      "detail": "Gemini/Cloud Assist/Vertex source references are admin/provider cost lanes; no user/creator route AI call path was found or changed.",
+      "action": "Run the admin AI cost owner lane before changing model calls, token budgets, or provider behavior.",
+      "evidence": [
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+        "agent/state/beta-score-cleanup.generated.json"
+      ]
+    }
+  ],
+  "route4xxFindings": [
+    {
+      "id": "expected-user-auth-validation-4xx",
+      "lane": "route_4xx",
+      "severity": "p2",
+      "status": "source_inventory_complete",
+      "owner": "server-truth",
+      "filePath": "src/app/api/user",
+      "detail": "User routes intentionally return 401/400/404/409 for auth, invalid body, missing target, and unavailable creator states.",
+      "action": "UI should not retry expected auth or validation failures without user input.",
+      "evidence": [
+        "src/app/api/user/follow/route.ts",
+        "src/app/api/user/onboarding-progress/route.ts"
+      ],
+      "classification": "expected",
+      "retryRisk": "classified_no_auto_retry",
+      "expectedCodes": [
+        "400",
+        "401",
+        "404",
+        "409",
+        "413"
+      ]
+    },
+    {
+      "id": "expected-creator-business-4xx",
+      "lane": "route_4xx",
+      "severity": "p2",
+      "status": "source_inventory_complete",
+      "owner": "creator-api",
+      "filePath": "src/app/api/creator",
+      "detail": "Creator routes already classify auth, paid-GD shortfall, slot unavailable, disabled features, and bounded-body errors as typed expected 4xx states.",
+      "action": "Keep calm client copy for expected creator business failures.",
+      "evidence": [
+        "docs/agent-truth/creator-dashboard-error-cost-inventory.md"
+      ],
+      "classification": "expected",
+      "retryRisk": "classified_requires_user_action",
+      "expectedCodes": [
+        "400",
+        "401",
+        "402",
+        "403",
+        "409",
+        "413",
+        "429"
+      ]
+    },
+    {
+      "id": "unexpected-unbounded-user-body",
+      "lane": "route_4xx",
+      "severity": "p2",
+      "status": "fixed",
+      "owner": "server-truth",
+      "filePath": "src/app/api/user/follow/route.ts",
+      "detail": "Plain request.json parsing in user follow/onboarding-progress could parse oversized or malformed bodies before typed bounded-body responses.",
+      "action": "Replaced with readBoundedJsonBody and explicit payload_too_large/invalid_json responses.",
+      "evidence": [
+        "src/app/api/user/follow/route.ts",
+        "src/app/api/user/onboarding-progress/route.ts"
+      ],
+      "classification": "unexpected",
+      "retryRisk": "fixed_no_repeated_parse_work",
+      "expectedCodes": [
+        "400",
+        "413"
+      ]
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "user-route-body-limit-reduction",
+      "lane": "cloud_run",
+      "severity": "p2",
+      "status": "fixed",
+      "owner": "server-truth",
+      "filePath": "src/app/api/user",
+      "detail": "User follow and onboarding-progress POST bodies now use the bounded JSON parser before zod validation or analytics work.",
+      "action": "Keep non-payment user mutations bounded before route work starts.",
+      "evidence": [
+        "src/app/api/user/follow/route.ts",
+        "src/app/api/user/onboarding-progress/route.ts"
+      ]
+    },
+    {
+      "id": "unexpected-unbounded-user-body",
+      "lane": "route_4xx",
+      "severity": "p2",
+      "status": "fixed",
+      "owner": "server-truth",
+      "filePath": "src/app/api/user/follow/route.ts",
+      "detail": "Plain request.json parsing in user follow/onboarding-progress could parse oversized or malformed bodies before typed bounded-body responses.",
+      "action": "Replaced with readBoundedJsonBody and explicit payload_too_large/invalid_json responses.",
+      "evidence": [
+        "src/app/api/user/follow/route.ts",
+        "src/app/api/user/onboarding-progress/route.ts"
+      ],
+      "classification": "unexpected",
+      "retryRisk": "fixed_no_repeated_parse_work",
+      "expectedCodes": [
+        "400",
+        "413"
+      ]
+    },
+    {
+      "id": "user-route-bounded-json-body",
+      "lane": "route_4xx",
+      "severity": "p2",
+      "status": "fixed",
+      "owner": "server-truth",
+      "filePath": "src/app/api/user",
+      "detail": "Bounded JSON body parsing was added to safe user mutation routes that had request.json parsing.",
+      "action": "Keep future user mutation bodies behind readBoundedJsonBody when the route contract declares a body limit.",
+      "evidence": [
+        "src/app/api/user/follow/route.ts",
+        "src/app/api/user/onboarding-progress/route.ts"
+      ]
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "cloud-run-app-hosting-source-config",
+      "lane": "cloud_run",
+      "severity": "p2",
+      "status": "source_inventory_complete",
+      "owner": "platform-cost",
+      "filePath": "apphosting.yaml",
+      "detail": "App Hosting source config remains documented as a source-only Cloud Run/App Hosting cost lane; no infra deployment config changed.",
+      "action": "Use provider metrics before changing min/max instances, concurrency, or CPU allocation.",
+      "evidence": [
+        "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+        "agent/state/beta-score-cleanup.generated.json"
+      ]
+    },
+    {
+      "id": "cloud-sql-agent-context-mirror-only",
+      "lane": "cloud_sql",
+      "severity": "p2",
+      "status": "deferred_owner_review",
+      "owner": "platform-cost",
+      "filePath": "dataconnect/dataconnect.yaml",
+      "detail": "Cloud SQL/Data Connect remains classified as an agent-context mirror; no user/creator product runtime SQL usage was fixed in this pass.",
+      "action": "Owner should confirm provider billing and active connection state outside source-only validation.",
+      "evidence": [
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/beta-score-cleanup.md"
+      ]
+    },
+    {
+      "id": "gemini-cloud-assist-admin-ai-only",
+      "lane": "gemini_cloud_assist",
+      "severity": "p2",
+      "status": "deferred_owner_review",
+      "owner": "admin-ai",
+      "filePath": "src/lib/server/api-cost-contract.ts",
+      "detail": "Gemini/Cloud Assist/Vertex source references are admin/provider cost lanes; no user/creator route AI call path was found or changed.",
+      "action": "Run the admin AI cost owner lane before changing model calls, token budgets, or provider behavior.",
+      "evidence": [
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+        "agent/state/beta-score-cleanup.generated.json"
+      ]
+    }
+  ],
+  "speedSecurityBefore": {
+    "score": 51,
+    "status": "beta-risk",
+    "findings": 91,
+    "criticalFindings": 0,
+    "evidence": "Pre-pass required score:speed-security baseline from this prompt."
+  },
+  "speedSecurityAfter": {
+    "score": 51,
+    "status": "beta-risk",
+    "findings": 89,
+    "criticalFindings": 0,
+    "evidence": "Post-fix score:speed-security artifact."
+  },
+  "p0Count": 0,
+  "p1Count": 0,
+  "p2Count": 7
+}

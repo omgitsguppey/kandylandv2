@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.66 - 2026-05-17
+- Bug fixes and general improvements
+- Reduced safe user and creator 4xx/cost-risk paths.
+- Mapped Cloud Run, Cloud SQL, and Gemini cost checks without fake evidence.
+- Kept remaining speed-security work owner-scoped.
+
 ## 1.2.65 - 2026-05-17
 - Bug fixes and general improvements
 - Clarified active source-of-truth authority across Beta evidence.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Consolidated the current operator doctrine for full-loop fixes.
 - Clarified source-of-truth, metric cadence, and no fake realtime rules.
 - Marked old generated reports and stale doctrine as evidence instead of live authority.
-
-## 1.2.41 - 2026-05-14
-- Bug fixes and general improvements
-- Added a Debug-panel triage map for stale, missing, and refreshable evidence.
-- Kept stale evidence visible instead of treating it as live truth.
-- Made Debug output clearer about which issues block Phase 1.
