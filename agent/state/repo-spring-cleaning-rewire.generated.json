@@ -1,12 +1,12 @@
 {
-  "generatedAtUtc": "2026-05-15T13:21:17.192Z",
+  "generatedAtUtc": "2026-05-17T06:13:36.630Z",
   "reportKey": "repo-spring-cleaning-rewire",
-  "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
+  "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
   "generatedReportInventory": [
     {
       "path": "agent/state/4xx-cost-guardrails.generated.json",
       "generatedAt": "2026-05-12T01:47:42.903Z",
-      "ageHours": 83.6,
+      "ageHours": 124.4,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-4xx-cost-guardrails.ts",
       "ownerDoc": "docs/agent-truth/4xx-cost-guardrails.md",
@@ -26,7 +26,7 @@
     {
       "path": "agent/state/accessibility-tap-target-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-accessibility-tap-targets.ts",
       "ownerDoc": null,
@@ -46,7 +46,7 @@
     {
       "path": "agent/state/admin-analytics-finalization.generated.json",
       "generatedAt": "2026-05-01T00:00:00-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-admin-analytics-finalization.ts",
       "ownerDoc": null,
@@ -66,7 +66,7 @@
     {
       "path": "agent/state/admin-analytics-realtime-dependency-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000Z",
-      "ageHours": 349.4,
+      "ageHours": 390.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
       "ownerDoc": "docs/agent-truth/admin-analytics-realtime-to-hot-cache-audit.md",
@@ -86,7 +86,7 @@
     {
       "path": "agent/state/admin-cms-workflow-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-admin-cms-workflow.ts",
       "ownerDoc": "docs/agent-truth/admin-cms-drop-workflow.md",
@@ -106,7 +106,7 @@
     {
       "path": "agent/state/admin-truth-replacement.generated.json",
       "generatedAt": "2026-05-08T03:02:18.323Z",
-      "ageHours": 178.3,
+      "ageHours": 219.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-admin-truth-replacement.ts",
       "ownerDoc": null,
@@ -129,7 +129,7 @@
       "generatedAtUtc": "2026-05-14T02:00:00.000Z",
       "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
       "sourceCommit": "4958214e1e6ed79d3be73853dc7ba896524068eb",
-      "ageHours": 35.4,
+      "ageHours": 76.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-admin-truth-sample-evidence.ts",
       "ownerDoc": "docs/agent-truth/admin-truth-sample-evidence.md",
@@ -138,18 +138,18 @@
       "consumedByLaunchReadiness": true,
       "action": "stale_authority_risk",
       "usageEvidence": [
+        "agent/evidence/admin-truth-sample/README.md",
+        "agent/state/current-beta-exit-status.generated.json",
         "agent/state/debug-panel-output-triage.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
         "agent/state/final-phase-cleanup-lock.generated.json",
-        "agent/state/phase-one-score-ui-triage.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/repo-spring-cleaning-rewire.generated.json",
-        "agent/state/targeted-behavior-evidence.generated.json"
+        "agent/state/phase-one-score-ui-triage.generated.json"
       ]
     },
     {
       "path": "agent/state/affected-audit-plan.generated.json",
       "generatedAt": "2026-05-05T05:17:17.720Z",
-      "ageHours": 248.1,
+      "ageHours": 288.9,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-audit-cache.ts",
       "ownerDoc": "docs/agent-truth/affected-audit-router.md",
@@ -169,7 +169,7 @@
     {
       "path": "agent/state/ai-cover-learning-cutover.generated.json",
       "generatedAt": "2026-05-12T00:31:18.976Z",
-      "ageHours": 84.8,
+      "ageHours": 125.7,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-ai-cover-learning-cutover.ts",
       "ownerDoc": "docs/agent-truth/ai-cover-learning-cutover.md",
@@ -189,7 +189,7 @@
     {
       "path": "agent/state/analytics-ecosystem-parity.generated.json",
       "generatedAt": "2026-04-30T17:30:27.124Z",
-      "ageHours": 355.8,
+      "ageHours": 396.7,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-analytics-legacy-recovery.ts",
       "ownerDoc": "docs/agent-truth/analytics-ecosystem-parity.md",
@@ -209,7 +209,7 @@
     {
       "path": "agent/state/analytics-legacy-mapping-report.generated.json",
       "generatedAt": "2026-04-30T17:30:25.583Z",
-      "ageHours": 355.8,
+      "ageHours": 396.7,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-analytics-legacy-recovery.ts",
       "ownerDoc": "docs/agent-truth/analytics-legacy-recovery.md",
@@ -229,7 +229,7 @@
     {
       "path": "agent/state/analytics-legacy-source-inventory.generated.json",
       "generatedAt": "2026-04-30T17:27:13.830Z",
-      "ageHours": 355.9,
+      "ageHours": 396.8,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-analytics-legacy-recovery.ts",
       "ownerDoc": "docs/agent-truth/analytics-legacy-recovery.md",
@@ -252,7 +252,7 @@
       "generatedAtUtc": "2026-05-14T01:18:08.752Z",
       "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
       "sourceCommit": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
-      "ageHours": 36.1,
+      "ageHours": 76.9,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-analytics-rewire-phase-one.ts",
       "ownerDoc": "docs/agent-truth/analytics-rewire-phase-one.md",
@@ -291,7 +291,7 @@
     {
       "path": "agent/state/background-job-idempotency-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-background-job-idempotency.ts",
       "ownerDoc": "docs/agent-truth/background-jobs-idempotency.md",
@@ -311,7 +311,7 @@
     {
       "path": "agent/state/behavioral-math-calibration.generated.json",
       "generatedAt": "2026-05-05T08:39:50.757Z",
-      "ageHours": 244.7,
+      "ageHours": 285.6,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-behavioral-math-calibration.ts",
       "ownerDoc": "docs/agent-truth/behavioral-math-calibration.md",
@@ -331,7 +331,7 @@
     {
       "path": "agent/state/behavioral-model-validation.generated.json",
       "generatedAt": "2026-05-05T11:03:21.196Z",
-      "ageHours": 242.3,
+      "ageHours": 283.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-math-goal-alignment.ts",
       "ownerDoc": "docs/agent-truth/math-goal-alignment.md",
@@ -349,9 +349,32 @@
       ]
     },
     {
+      "path": "agent/state/beta-score-cleanup.generated.json",
+      "generatedAt": "2026-05-17T06:13:18.504Z",
+      "generatedAtUtc": "2026-05-17T06:13:18.504Z",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "sourceCommit": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "ageHours": 0,
+      "freshness": "fresh",
+      "ownerScript": "scripts/agent/validate-beta-score-cleanup.ts",
+      "ownerDoc": "docs/agent-truth/beta-score-cleanup.md",
+      "consumedByScore": false,
+      "consumedByAdminDebug": false,
+      "consumedByLaunchReadiness": false,
+      "action": "evidence_only",
+      "usageEvidence": [
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/beta-score-cleanup.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/source-truth-authority-map.md"
+      ]
+    },
+    {
       "path": "agent/state/billing-spike-radar.generated.json",
       "generatedAt": "2026-05-12T01:48:20.599Z",
-      "ageHours": 83.5,
+      "ageHours": 124.4,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-billing-spike-radar.ts",
       "ownerDoc": "docs/agent-truth/billing-spike-radar.md",
@@ -371,7 +394,7 @@
     {
       "path": "agent/state/client-loading-speed.generated.json",
       "generatedAt": "2026-05-12T01:44:45.644Z",
-      "ageHours": 83.6,
+      "ageHours": 124.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-client-loading-speed.ts",
       "ownerDoc": "docs/agent-truth/client-loading-speed.md",
@@ -391,7 +414,7 @@
     {
       "path": "agent/state/cloudrun-sql-bigquery-guardrails.generated.json",
       "generatedAt": "2026-05-07T22:53:27.926Z",
-      "ageHours": 182.5,
+      "ageHours": 223.3,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-cloudrun-sql-bigquery-guardrails.ts",
       "ownerDoc": "docs/agent-truth/cloudrun-sql-bigquery-guardrails.md",
@@ -411,7 +434,7 @@
     {
       "path": "agent/state/code-organization-score.generated.json",
       "generatedAt": "2026-05-12T00:56:39.265Z",
-      "ageHours": 84.4,
+      "ageHours": 125.3,
       "freshness": "stale",
       "ownerScript": null,
       "ownerDoc": null,
@@ -431,7 +454,7 @@
     {
       "path": "agent/state/codebase-hardening.generated.json",
       "generatedAt": "2026-05-12T01:51:32.984Z",
-      "ageHours": 83.5,
+      "ageHours": 124.4,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-codebase-hardening.ts",
       "ownerDoc": "docs/agent-truth/codebase-hardening.md",
@@ -451,7 +474,7 @@
     {
       "path": "agent/state/codebase-junk-cleanup.generated.json",
       "generatedAt": "2026-05-12T00:55:27.385Z",
-      "ageHours": 84.4,
+      "ageHours": 125.3,
       "freshness": "stale",
       "ownerScript": "scripts/agent/scan-codebase-junk.ts",
       "ownerDoc": "docs/agent-truth/codebase-junk-cleanup.md",
@@ -471,7 +494,7 @@
     {
       "path": "agent/state/codex-auth-readiness.generated.json",
       "generatedAt": "2026-05-05T14:10:09.853Z",
-      "ageHours": 239.2,
+      "ageHours": 280.1,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-codex-auth-readiness.ts",
       "ownerDoc": "docs/agent-truth/codex-native-auth-readiness.md",
@@ -491,7 +514,7 @@
     {
       "path": "agent/state/content-media-pipeline-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-content-media-pipeline.ts",
       "ownerDoc": null,
@@ -511,7 +534,7 @@
     {
       "path": "agent/state/content-protection-score.generated.json",
       "generatedAt": "2026-05-04T06:07:14.166Z",
-      "ageHours": 271.2,
+      "ageHours": 312.1,
       "freshness": "stale",
       "ownerScript": "scripts/agent/score-content-protection.ts",
       "ownerDoc": "docs/agent-truth/content-protection-score.md",
@@ -529,9 +552,32 @@
       ]
     },
     {
+      "path": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "generatedAt": "2026-05-17T05:46:04.764Z",
+      "generatedAtUtc": "2026-05-17T05:46:04.764Z",
+      "currentHead": "3d21baa7736d837bb79915fd7cdb99816e88d3b2",
+      "sourceCommit": "3d21baa7736d837bb79915fd7cdb99816e88d3b2",
+      "ageHours": 0.5,
+      "freshness": "fresh",
+      "ownerScript": "scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
+      "ownerDoc": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+      "consumedByScore": true,
+      "consumedByAdminDebug": false,
+      "consumedByLaunchReadiness": false,
+      "action": "current_authority",
+      "usageEvidence": [
+        "agent/state/beta-score-cleanup.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/creator-dashboard-error-cost-inventory.md"
+      ]
+    },
+    {
       "path": "agent/state/creator-dashboard-projection-lock.generated.json",
       "generatedAt": "2026-05-08T04:44:07.266Z",
-      "ageHours": 176.6,
+      "ageHours": 217.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-creator-dashboard-projection-lock.ts",
       "ownerDoc": "docs/agent-truth/creator-dashboard-projection-lock.md",
@@ -549,10 +595,33 @@
       ]
     },
     {
+      "path": "agent/state/creator-experience-simplification.generated.json",
+      "generatedAt": "2026-05-17T02:01:34.034Z",
+      "generatedAtUtc": "2026-05-17T02:01:34.034Z",
+      "currentHead": "68dfa1f279c4902f5f870930664f80993a2752b4",
+      "sourceCommit": "68dfa1f279c4902f5f870930664f80993a2752b4",
+      "ageHours": 4.2,
+      "freshness": "fresh",
+      "ownerScript": "scripts/agent/validate-creator-experience-simplification.ts",
+      "ownerDoc": "docs/agent-truth/creator-experience-simplification.md",
+      "consumedByScore": true,
+      "consumedByAdminDebug": false,
+      "consumedByLaunchReadiness": false,
+      "action": "current_authority",
+      "usageEvidence": [
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/manual-screenshot-qa-checklist.md",
+        "docs/agent-truth/source-truth-authority-map.md"
+      ]
+    },
+    {
       "path": "agent/state/creator-lane-debug-parity.generated.json",
       "generatedAt": "2026-05-06T01:10:31.738Z",
       "generatedAtUtc": "2026-05-06T01:10:31.738Z",
-      "ageHours": 228.2,
+      "ageHours": 269.1,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-creator-lane-debug-parity.ts",
       "ownerDoc": "docs/agent-truth/creator-lane-debug-parity.md",
@@ -572,7 +641,7 @@
     {
       "path": "agent/state/creator-lane-legacy-truth-inventory.generated.json",
       "generatedAt": "2026-05-02T00:00:00.000-05:00",
-      "ageHours": 320.4,
+      "ageHours": 361.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-creator-lane-legacy-truth-inventory.ts",
       "ownerDoc": "docs/agent-truth/creator-lane-legacy-truth-inventory.md",
@@ -592,7 +661,7 @@
     {
       "path": "agent/state/creator-lane-old-logic-cleanup.generated.json",
       "generatedAt": "2026-05-02T00:00:00.000-05:00",
-      "ageHours": 320.4,
+      "ageHours": 361.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-creator-lane-old-logic-removal.ts",
       "ownerDoc": "docs/agent-truth/creator-lane-old-logic-cleanup.md",
@@ -612,7 +681,7 @@
     {
       "path": "agent/state/creator-monetization-gates-lock.generated.json",
       "generatedAt": "2026-05-08T04:44:09.154Z",
-      "ageHours": 176.6,
+      "ageHours": 217.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-creator-monetization-gates-lock.ts",
       "ownerDoc": "docs/agent-truth/creator-monetization-gates-lock.md",
@@ -632,7 +701,7 @@
     {
       "path": "agent/state/creator-public-profile-lock.generated.json",
       "generatedAt": "2026-05-08T04:44:05.150Z",
-      "ageHours": 176.6,
+      "ageHours": 217.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-creator-public-profile-lock.ts",
       "ownerDoc": "docs/agent-truth/creator-public-profile-lock.md",
@@ -650,9 +719,32 @@
       ]
     },
     {
+      "path": "agent/state/current-beta-exit-status.generated.json",
+      "generatedAt": "2026-05-17T06:13:10.868Z",
+      "generatedAtUtc": "2026-05-17T06:13:10.868Z",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "sourceCommit": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "ageHours": 0,
+      "freshness": "fresh",
+      "ownerScript": "scripts/agent/validate-current-beta-exit-status.ts",
+      "ownerDoc": "docs/agent-truth/current-beta-exit-status.md",
+      "consumedByScore": false,
+      "consumedByAdminDebug": false,
+      "consumedByLaunchReadiness": false,
+      "action": "evidence_only",
+      "usageEvidence": [
+        "agent/state/beta-score-cleanup.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/source-truth-authority-map.md",
+        "package.json"
+      ]
+    },
+    {
       "path": "agent/state/debug-evidence-index.generated.json",
       "generatedAt": "2026-05-06T03:11:07.505Z",
-      "ageHours": 226.2,
+      "ageHours": 267,
       "freshness": "stale",
       "ownerScript": "scripts/agent/load-debug-evidence-for-audit.ts",
       "ownerDoc": "docs/agent-truth/debug-evidence-pipeline.md",
@@ -675,27 +767,27 @@
       "generatedAtUtc": "2026-05-14T17:01:23.863Z",
       "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
       "sourceCommit": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
-      "ageHours": 20.3,
-      "freshness": "fresh",
+      "ageHours": 61.2,
+      "freshness": "stale",
       "ownerScript": "scripts/agent/validate-debug-panel-output-triage.ts",
       "ownerDoc": "docs/agent-truth/debug-panel-output-triage.md",
       "consumedByScore": false,
       "consumedByAdminDebug": false,
       "consumedByLaunchReadiness": false,
-      "action": "evidence_only",
+      "action": "archive_candidate",
       "usageEvidence": [
+        "agent/state/beta-score-cleanup.generated.json",
         "agent/state/product-surface-integrity.generated.json",
         "agent/state/repo-doctrine-reset.generated.json",
         "agent/state/repo-spring-cleaning-rewire.generated.json",
-        "docs/agent-truth/debug-panel-output-triage.md",
-        "package.json",
-        "public/kandydrops-release-notes.json"
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/beta-score-cleanup.md"
       ]
     },
     {
       "path": "agent/state/design-system-drift-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-design-system-drift.ts",
       "ownerDoc": null,
@@ -715,7 +807,7 @@
     {
       "path": "agent/state/device-layout-score.generated.json",
       "generatedAt": "2026-05-04T11:46:00.865Z",
-      "ageHours": 265.6,
+      "ageHours": 306.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-device-layout-score.ts",
       "ownerDoc": "docs/agent-truth/device-layout-score.md",
@@ -735,7 +827,7 @@
     {
       "path": "agent/state/device-ui-dry-audit.generated.json",
       "generatedAt": "2026-05-06T20:27:20.020Z",
-      "ageHours": 208.9,
+      "ageHours": 249.8,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-device-ui-dry-audit.ts",
       "ownerDoc": "docs/agent-truth/device-ui-dry-audit.md",
@@ -755,7 +847,7 @@
     {
       "path": "agent/state/doctrine-retrieval-optimizer.generated.json",
       "generatedAt": "2026-05-05T07:50:00.467Z",
-      "ageHours": 245.5,
+      "ageHours": 286.4,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-doctrine-retrieval-optimizer.ts",
       "ownerDoc": "docs/agent-truth/doctrine-retrieval-optimizer.md",
@@ -775,7 +867,7 @@
     {
       "path": "agent/state/environment-deployment-truth-audit.generated.json",
       "generatedAt": "2026-05-01T20:35:00.000-05:00",
-      "ageHours": 323.8,
+      "ageHours": 364.6,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-environment-deployment-truth.ts",
       "ownerDoc": "docs/agent-truth/environment-deployment-truth.md",
@@ -795,7 +887,7 @@
     {
       "path": "agent/state/eval-failures.generated.json",
       "generatedAt": "2026-04-21T15:10:08.143Z",
-      "ageHours": 574.2,
+      "ageHours": 615.1,
       "freshness": "stale",
       "ownerScript": "scripts/agent/run-evals.ts",
       "ownerDoc": null,
@@ -815,7 +907,7 @@
     {
       "path": "agent/state/eval-results.generated.json",
       "generatedAt": "2026-04-21T15:10:08.143Z",
-      "ageHours": 574.2,
+      "ageHours": 615.1,
       "freshness": "stale",
       "ownerScript": "scripts/agent/run-evals.ts",
       "ownerDoc": null,
@@ -835,7 +927,7 @@
     {
       "path": "agent/state/event-catalog-telemetry-audit.generated.json",
       "generatedAt": "2026-05-03T04:03:59.518Z",
-      "ageHours": 297.3,
+      "ageHours": 338.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-event-catalog-telemetry.ts",
       "ownerDoc": "docs/agent-truth/event-catalog-telemetry.md",
@@ -855,7 +947,7 @@
     {
       "path": "agent/state/event-timeline-management.generated.json",
       "generatedAt": "2026-05-12T01:45:39.248Z",
-      "ageHours": 83.6,
+      "ageHours": 124.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-event-timeline-management.ts",
       "ownerDoc": "docs/agent-truth/event-timeline-management.md",
@@ -873,9 +965,32 @@
       ]
     },
     {
+      "path": "agent/state/evidence-capture-status.generated.json",
+      "generatedAt": "2026-05-17T05:29:29.078Z",
+      "generatedAtUtc": "2026-05-17T05:29:29.078Z",
+      "currentHead": "a627e45442f7f4757c59b8687bb8d6ba3872cbd1",
+      "sourceCommit": "a627e45442f7f4757c59b8687bb8d6ba3872cbd1",
+      "ageHours": 0.7,
+      "freshness": "fresh",
+      "ownerScript": "scripts/agent/validate-evidence-capture-status.ts",
+      "ownerDoc": "docs/agent-truth/evidence-capture-status.md",
+      "consumedByScore": true,
+      "consumedByAdminDebug": false,
+      "consumedByLaunchReadiness": false,
+      "action": "current_authority",
+      "usageEvidence": [
+        "agent/state/beta-score-cleanup.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md"
+      ]
+    },
+    {
       "path": "agent/state/fast-start.generated.json",
       "generatedAt": "2026-05-08T04:01:51.364Z",
-      "ageHours": 177.3,
+      "ageHours": 218.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/fast-start.ts",
       "ownerDoc": null,
@@ -896,7 +1011,7 @@
       "path": "agent/state/final-launch-readiness-report.generated.json",
       "generatedAt": "2026-05-12T19:42:22.634Z",
       "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
-      "ageHours": 65.6,
+      "ageHours": 106.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-launch-readiness-final.ts",
       "ownerDoc": "docs/agent-truth/final-launch-readiness-report.md",
@@ -915,11 +1030,11 @@
     },
     {
       "path": "agent/state/final-phase-cleanup-lock.generated.json",
-      "generatedAt": "2026-05-15T05:03:51.910Z",
-      "generatedAtUtc": "2026-05-15T05:03:51.910Z",
-      "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
-      "sourceCommit": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
-      "ageHours": 8.3,
+      "generatedAt": "2026-05-17T04:27:04.829Z",
+      "generatedAtUtc": "2026-05-17T04:27:04.829Z",
+      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "sourceCommit": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "ageHours": 1.8,
       "freshness": "fresh",
       "ownerScript": "scripts/agent/validate-final-phase-cleanup-lock.ts",
       "ownerDoc": "docs/agent-truth/final-phase-cleanup-lock.md",
@@ -928,23 +1043,23 @@
       "consumedByLaunchReadiness": false,
       "action": "evidence_only",
       "usageEvidence": [
-        "agent/context/optimized-task-context.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
         "docs/agent-truth/final-phase-cleanup-lock.md",
         "docs/agent-truth/product-surface-integrity.md",
         "docs/agent-truth/public-beta-score.md",
-        "docs/agent-truth/repo-spring-cleaning-rewire.md",
-        "package.json"
+        "docs/agent-truth/repo-spring-cleaning-rewire.md"
       ]
     },
     {
       "path": "agent/state/generated-report-authority.generated.json",
       "generatedAt": "2026-05-12T20:11:41.267Z",
       "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
-      "ageHours": 65.2,
+      "ageHours": 106,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-generated-report-authority.ts",
       "ownerDoc": null,
-      "consumedByScore": true,
+      "consumedByScore": false,
       "consumedByAdminDebug": false,
       "consumedByLaunchReadiness": true,
       "action": "stale_authority_risk",
@@ -960,7 +1075,7 @@
     {
       "path": "agent/state/global-cost-surfaces.generated.json",
       "generatedAt": "2026-05-12T00:57:28.083Z",
-      "ageHours": 84.4,
+      "ageHours": 125.3,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-global-cost-surfaces.ts",
       "ownerDoc": "docs/agent-truth/global-cost-surfaces.md",
@@ -980,7 +1095,7 @@
     {
       "path": "agent/state/global-loading-performance-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000Z",
-      "ageHours": 349.4,
+      "ageHours": 390.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-global-loading-performance.ts",
       "ownerDoc": null,
@@ -1000,7 +1115,7 @@
     {
       "path": "agent/state/global-speed-hydration-cache-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-global-speed-hydration-cache.ts",
       "ownerDoc": null,
@@ -1020,7 +1135,7 @@
     {
       "path": "agent/state/google-cloud-cost-data-handoff.generated.json",
       "generatedAt": "2026-05-12T01:45:57.032Z",
-      "ageHours": 83.6,
+      "ageHours": 124.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-google-cloud-cost-data-handoff.ts",
       "ownerDoc": "docs/agent-truth/google-cloud-cost-data-handoff.md",
@@ -1040,7 +1155,7 @@
     {
       "path": "agent/state/google-cost-bleed.generated.json",
       "generatedAt": "2026-05-12T01:20:46.247Z",
-      "ageHours": 84,
+      "ageHours": 124.9,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-google-cost-bleed.ts",
       "ownerDoc": "docs/agent-truth/google-cost-bleed.md",
@@ -1060,7 +1175,7 @@
     {
       "path": "agent/state/guest-user-analytics-cutover.generated.json",
       "generatedAt": "2026-05-12T01:47:12.038Z",
-      "ageHours": 83.6,
+      "ageHours": 124.4,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-guest-user-analytics-cutover.ts",
       "ownerDoc": "docs/agent-truth/guest-user-analytics-cutover.md",
@@ -1078,9 +1193,32 @@
       ]
     },
     {
+      "path": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "generatedAt": "2026-05-17T01:26:08.470Z",
+      "generatedAtUtc": "2026-05-17T01:26:08.470Z",
+      "currentHead": "b811bb9ca2e0a470f1d6311ce456de2c06812291",
+      "sourceCommit": "b811bb9ca2e0a470f1d6311ce456de2c06812291",
+      "ageHours": 4.8,
+      "freshness": "fresh",
+      "ownerScript": "scripts/agent/validate-gumdrop-economy-accuracy.ts",
+      "ownerDoc": "docs/agent-truth/gumdrop-economy-accuracy.md",
+      "consumedByScore": true,
+      "consumedByAdminDebug": false,
+      "consumedByLaunchReadiness": false,
+      "action": "current_authority",
+      "usageEvidence": [
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/source-truth-authority-map.md",
+        "package.json"
+      ]
+    },
+    {
       "path": "agent/state/gumdrop-economy-score.generated.json",
       "generatedAt": "2026-05-04T05:27:20.794Z",
-      "ageHours": 271.9,
+      "ageHours": 312.8,
       "freshness": "stale",
       "ownerScript": "scripts/agent/score-gumdrop-economy.ts",
       "ownerDoc": "docs/agent-truth/gumdrop-economy-score.md",
@@ -1100,7 +1238,7 @@
     {
       "path": "agent/state/human-dev-readiness.generated.json",
       "generatedAt": "2026-05-05T06:02:56.887Z",
-      "ageHours": 247.3,
+      "ageHours": 288.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-human-dev-readiness.ts",
       "ownerDoc": "docs/agent-truth/human-dev-readiness.md",
@@ -1113,14 +1251,14 @@
         "FULL_SCALE_CODEBASE_AUDIT.md",
         "REPO_MEMORY_LEDGER.md",
         "agent/context/doctrine-registry.json",
-        "agent/context/validator-authority.json",
-        "agent/context/validator-map.json"
+        "agent/context/optimized-task-context.generated.json",
+        "agent/context/validator-authority.json"
       ]
     },
     {
       "path": "agent/state/hydration-performance.generated.json",
       "generatedAt": "2026-05-04T05:18:53.976Z",
-      "ageHours": 272,
+      "ageHours": 312.9,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-hydration-performance.ts",
       "ownerDoc": "docs/agent-truth/hydration-performance.md",
@@ -1143,7 +1281,7 @@
       "generatedAtUtc": "2026-05-14T01:19:23.361Z",
       "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
       "sourceCommit": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
-      "ageHours": 36,
+      "ageHours": 76.9,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-identity-privacy-raw-ledger-rewire.ts",
       "ownerDoc": "docs/agent-truth/identity-privacy-raw-ledger-rewire.md",
@@ -1163,7 +1301,7 @@
     {
       "path": "agent/state/launch-finalization-baseline.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-launch-finalization-baseline.ts",
       "ownerDoc": null,
@@ -1183,11 +1321,11 @@
     {
       "path": "agent/state/launch-pr-triage.generated.json",
       "generatedAt": "2026-05-12T19:42:22.634Z",
-      "ageHours": 65.6,
+      "ageHours": 106.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-launch-pr-triage.ts",
       "ownerDoc": "docs/agent-truth/launch-pr-triage.md",
-      "consumedByScore": true,
+      "consumedByScore": false,
       "consumedByAdminDebug": false,
       "consumedByLaunchReadiness": true,
       "action": "stale_authority_risk",
@@ -1204,7 +1342,7 @@
       "path": "agent/state/launch-readiness-report.generated.json",
       "generatedAt": "2026-05-12T19:42:22.634Z",
       "sourceCommit": "6955246c6baabf0e8dcaee696dc73a37ff11301d",
-      "ageHours": 65.6,
+      "ageHours": 106.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-launch-readiness-final.ts",
       "ownerDoc": "docs/agent-truth/final-launch-readiness-report.md",
@@ -1224,7 +1362,7 @@
     {
       "path": "agent/state/legacy-creator-application-inventory.generated.json",
       "generatedAt": "2026-05-02T16:39:34.413Z",
-      "ageHours": 308.7,
+      "ageHours": 349.6,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-legacy-creator-application-migration.ts",
       "ownerDoc": "docs/agent-truth/legacy-creator-application-migration.md",
@@ -1244,7 +1382,7 @@
     {
       "path": "agent/state/legacy-phaseout.generated.json",
       "generatedAt": "2026-05-12T00:56:56.267Z",
-      "ageHours": 84.4,
+      "ageHours": 125.3,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-legacy-phaseout.ts",
       "ownerDoc": "docs/agent-truth/legacy-phaseout.md",
@@ -1264,7 +1402,7 @@
     {
       "path": "agent/state/legal-payment-copy-audit.generated.json",
       "generatedAt": "2026-05-02T00:00:00.000-05:00",
-      "ageHours": 320.4,
+      "ageHours": 361.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-legal-payment-copy.ts",
       "ownerDoc": "docs/agent-truth/legal-payment-user-trust-copy.md",
@@ -1287,7 +1425,7 @@
       "generatedAtUtc": "2026-05-14T01:20:03.324Z",
       "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
       "sourceCommit": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
-      "ageHours": 36,
+      "ageHours": 76.9,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-lost-data-recovery-dry-run.ts",
       "ownerDoc": "docs/agent-truth/lost-data-recovery-dry-run.md",
@@ -1307,7 +1445,7 @@
     {
       "path": "agent/state/mobile-layout-safe-area-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-launch-readiness-final.ts",
       "ownerDoc": null,
@@ -1327,7 +1465,7 @@
     {
       "path": "agent/state/notification-return-loop-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-launch-readiness-final.ts",
       "ownerDoc": null,
@@ -1347,7 +1485,7 @@
     {
       "path": "agent/state/orphaned-logic-score.generated.json",
       "generatedAt": "2026-05-12T01:20:55.475Z",
-      "ageHours": 84,
+      "ageHours": 124.9,
       "freshness": "stale",
       "ownerScript": "scripts/agent/score-orphaned-logic.ts",
       "ownerDoc": "docs/agent-truth/orphaned-logic-score.md",
@@ -1367,7 +1505,7 @@
     {
       "path": "agent/state/payment-unlock-security-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-launch-readiness-final.ts",
       "ownerDoc": "docs/agent-truth/payment-wallet-unlock-entitlement.md",
@@ -1387,7 +1525,7 @@
     {
       "path": "agent/state/phase-1-truth-gate.generated.json",
       "generatedAt": "2026-05-06T00:00:00-05:00",
-      "ageHours": 224.4,
+      "ageHours": 265.2,
       "freshness": "stale",
       "ownerScript": null,
       "ownerDoc": null,
@@ -1407,7 +1545,7 @@
     {
       "path": "agent/state/phase-one-final-cleanup.generated.json",
       "generatedAt": "2026-05-12T01:50:11.826Z",
-      "ageHours": 83.5,
+      "ageHours": 124.4,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-phase-one-final-cleanup.ts",
       "ownerDoc": "docs/agent-truth/phase-one-final-cleanup.md",
@@ -1428,7 +1566,7 @@
       "path": "agent/state/phase-one-lock.generated.json",
       "generatedAt": "2026-05-08T03:20:26.683Z",
       "sourceCommit": "2e54dfa75999e5ca82299120ee948e2acd3a73e9",
-      "ageHours": 178,
+      "ageHours": 218.9,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-phase-one-lock.ts",
       "ownerDoc": "docs/agent-truth/phase-one-lock.md",
@@ -1451,7 +1589,7 @@
       "generatedAtUtc": "2026-05-14T03:29:04.409Z",
       "currentHead": "da10e87dea2a9d578bff641b09e25f8534d31e27",
       "sourceCommit": "da10e87dea2a9d578bff641b09e25f8534d31e27",
-      "ageHours": 33.9,
+      "ageHours": 74.7,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-phase-one-score-ui-triage.ts",
       "ownerDoc": "docs/agent-truth/phase-one-score-ui-triage.md",
@@ -1469,9 +1607,32 @@
       ]
     },
     {
+      "path": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "generatedAt": "2026-05-17T04:09:42.992Z",
+      "generatedAtUtc": "2026-05-17T04:09:42.992Z",
+      "currentHead": "6396ae0691e3bc73465e9ab9556e1db0570bce3f",
+      "sourceCommit": "6396ae0691e3bc73465e9ab9556e1db0570bce3f",
+      "ageHours": 2.1,
+      "freshness": "fresh",
+      "ownerScript": "scripts/agent/validate-post-economy-creator-flow-qa.ts",
+      "ownerDoc": "docs/agent-truth/post-economy-creator-flow-qa.md",
+      "consumedByScore": true,
+      "consumedByAdminDebug": false,
+      "consumedByLaunchReadiness": false,
+      "action": "current_authority",
+      "usageEvidence": [
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/manual-screenshot-qa-checklist.md",
+        "docs/agent-truth/source-truth-authority-map.md"
+      ]
+    },
+    {
       "path": "agent/state/precatch-runtime-issues.generated.json",
       "generatedAt": "2026-05-06T03:10:58.421Z",
-      "ageHours": 226.2,
+      "ageHours": 267,
       "freshness": "stale",
       "ownerScript": "scripts/agent/load-debug-evidence-for-audit.ts",
       "ownerDoc": "docs/agent-truth/debug-evidence-pipeline.md",
@@ -1490,10 +1651,10 @@
     },
     {
       "path": "agent/state/product-surface-integrity.generated.json",
-      "generatedAt": "2026-05-15T13:20:34.063Z",
-      "generatedAtUtc": "2026-05-15T13:20:34.063Z",
-      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
-      "sourceCommit": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
+      "generatedAt": "2026-05-17T06:13:30.798Z",
+      "generatedAtUtc": "2026-05-17T06:13:30.798Z",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "sourceCommit": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
       "ageHours": 0,
       "freshness": "fresh",
       "ownerScript": "scripts/agent/validate-product-surface-integrity.ts",
@@ -1505,10 +1666,10 @@
       "usageEvidence": [
         "agent/state/final-phase-cleanup-lock.generated.json",
         "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/manual-screenshot-qa-checklist.md",
         "docs/agent-truth/product-surface-integrity.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-final-phase-cleanup-lock.ts"
+        "docs/agent-truth/source-truth-authority-map.md"
       ]
     },
     {
@@ -1517,7 +1678,7 @@
       "generatedAtUtc": "2026-05-14T02:00:00.000Z",
       "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
       "sourceCommit": "4958214e1e6ed79d3be73853dc7ba896524068eb",
-      "ageHours": 35.4,
+      "ageHours": 76.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-provider-smoke-evidence.ts",
       "ownerDoc": "docs/agent-truth/provider-smoke-evidence.md",
@@ -1526,18 +1687,20 @@
       "consumedByLaunchReadiness": true,
       "action": "stale_authority_risk",
       "usageEvidence": [
+        "agent/evidence/provider-smoke/README.md",
+        "agent/state/current-beta-exit-status.generated.json",
         "agent/state/debug-panel-output-triage.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
         "agent/state/final-phase-cleanup-lock.generated.json",
-        "agent/state/phase-one-score-ui-triage.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/repo-spring-cleaning-rewire.generated.json",
-        "agent/state/targeted-behavior-evidence.generated.json"
+        "agent/state/phase-one-score-ui-triage.generated.json"
       ]
     },
     {
       "path": "agent/state/public-beta-score.generated.json",
-      "generatedAt": "2026-05-15T05:03:42.206Z",
-      "ageHours": 8.3,
+      "generatedAt": "2026-05-17T05:58:55.393Z",
+      "currentHead": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e",
+      "sourceCommit": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e",
+      "ageHours": 0.2,
       "freshness": "fresh",
       "ownerScript": "scripts/agent/score-public-beta-readiness.ts",
       "ownerDoc": "docs/agent-truth/public-beta-score.md",
@@ -1557,7 +1720,7 @@
     {
       "path": "agent/state/pwa-service-worker-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-pwa-service-worker.ts",
       "ownerDoc": null,
@@ -1577,7 +1740,7 @@
     {
       "path": "agent/state/recommendation-model.generated.json",
       "generatedAt": "2026-05-04T20:20:52.670Z",
-      "ageHours": 257,
+      "ageHours": 297.9,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-recommendation-ranker.ts",
       "ownerDoc": "docs/agent-truth/recommendation-ranking.md",
@@ -1597,7 +1760,7 @@
     {
       "path": "agent/state/refresh-cache-loading-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000Z",
-      "ageHours": 349.4,
+      "ageHours": 390.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-launch-readiness-final.ts",
       "ownerDoc": null,
@@ -1620,14 +1783,14 @@
       "generatedAtUtc": "2026-05-14T17:39:25.526Z",
       "currentHead": "d315c420f128a39f452f823217ea5fdda294b5f6",
       "sourceCommit": "d315c420f128a39f452f823217ea5fdda294b5f6",
-      "ageHours": 19.7,
-      "freshness": "fresh",
+      "ageHours": 60.6,
+      "freshness": "stale",
       "ownerScript": "scripts/agent/validate-repo-doctrine-reset.ts",
       "ownerDoc": null,
       "consumedByScore": false,
       "consumedByAdminDebug": false,
       "consumedByLaunchReadiness": false,
-      "action": "evidence_only",
+      "action": "archive_candidate",
       "usageEvidence": [
         "FULL_SCALE_CODEBASE_AUDIT.md",
         "REPO_MEMORY_LEDGER.md",
@@ -1639,11 +1802,11 @@
     },
     {
       "path": "agent/state/repo-spring-cleaning-rewire.generated.json",
-      "generatedAt": "2026-05-15T04:49:28.920Z",
-      "generatedAtUtc": "2026-05-15T04:49:28.920Z",
-      "currentHead": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
-      "sourceCommit": "cbc1a62a28564b3a05fdd62bf1f9518bf68235e1",
-      "ageHours": 8.5,
+      "generatedAt": "2026-05-17T06:10:13.512Z",
+      "generatedAtUtc": "2026-05-17T06:10:13.512Z",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "sourceCommit": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "ageHours": 0.1,
       "freshness": "fresh",
       "ownerScript": "scripts/agent/validate-repo-spring-cleaning-rewire.ts",
       "ownerDoc": "docs/agent-truth/repo-spring-cleaning-rewire.md",
@@ -1655,15 +1818,15 @@
         "EVERY_FILE_FUNCTION_CHECKLIST.md",
         "FULL_SCALE_CODEBASE_AUDIT.md",
         "REPO_MEMORY_LEDGER.md",
+        "agent/state/beta-score-cleanup.generated.json",
         "agent/state/debug-panel-output-triage.generated.json",
-        "agent/state/final-phase-cleanup-lock.generated.json",
-        "agent/state/product-surface-integrity.generated.json"
+        "agent/state/final-phase-cleanup-lock.generated.json"
       ]
     },
     {
       "path": "agent/state/rollback-incident-response.generated.json",
       "generatedAt": "2026-05-02T12:00:00.000-05:00",
-      "ageHours": 308.4,
+      "ageHours": 349.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-rollback-incident-response.ts",
       "ownerDoc": "docs/agent-truth/rollback-incident-response.md",
@@ -1686,7 +1849,7 @@
       "generatedAtUtc": "2026-05-14T02:00:00.000Z",
       "currentHead": "4958214e1e6ed79d3be73853dc7ba896524068eb",
       "sourceCommit": "4958214e1e6ed79d3be73853dc7ba896524068eb",
-      "ageHours": 35.4,
+      "ageHours": 76.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-runtime-smoke-evidence.ts",
       "ownerDoc": "docs/agent-truth/runtime-smoke-evidence.md",
@@ -1695,18 +1858,18 @@
       "consumedByLaunchReadiness": true,
       "action": "stale_authority_risk",
       "usageEvidence": [
+        "agent/evidence/runtime-smoke/README.md",
+        "agent/state/current-beta-exit-status.generated.json",
         "agent/state/debug-panel-output-triage.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
         "agent/state/final-phase-cleanup-lock.generated.json",
-        "agent/state/phase-one-score-ui-triage.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/repo-spring-cleaning-rewire.generated.json",
-        "agent/state/targeted-behavior-evidence.generated.json"
+        "agent/state/phase-one-score-ui-triage.generated.json"
       ]
     },
     {
       "path": "agent/state/security-role-boundary-audit.generated.json",
       "generatedAt": "2026-05-01T19:25:00.000-05:00",
-      "ageHours": 324.9,
+      "ageHours": 365.8,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-security-role-boundaries.ts",
       "ownerDoc": "docs/agent-truth/security-role-boundaries.md",
@@ -1726,7 +1889,7 @@
     {
       "path": "agent/state/server-loading-speed.generated.json",
       "generatedAt": "2026-05-12T01:45:06.677Z",
-      "ageHours": 83.6,
+      "ageHours": 124.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-server-loading-speed.ts",
       "ownerDoc": "docs/agent-truth/server-loading-speed.md",
@@ -1745,15 +1908,15 @@
     },
     {
       "path": "agent/state/settings-creator-dashboard-split.generated.json",
-      "generatedAt": "2026-05-15T13:20:18.791Z",
-      "ageHours": 0,
-      "freshness": "fresh",
+      "generatedAt": "2026-05-15T13:27:56.342Z",
+      "ageHours": 40.8,
+      "freshness": "stale",
       "ownerScript": "scripts/agent/validate-settings-creator-dashboard-split.ts",
       "ownerDoc": null,
       "consumedByScore": false,
       "consumedByAdminDebug": false,
       "consumedByLaunchReadiness": false,
-      "action": "evidence_only",
+      "action": "archive_candidate",
       "usageEvidence": [
         "agent/state/billing-spike-radar.generated.json",
         "agent/state/codebase-junk-cleanup.generated.json",
@@ -1769,7 +1932,7 @@
       "generatedAtUtc": "2026-05-14T01:37:39.159Z",
       "currentHead": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
       "sourceCommit": "142bba579d7a2f0b73610b0b5f0498a26e19b836",
-      "ageHours": 35.7,
+      "ageHours": 76.6,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-snapshot-admin-vendor-cost-rewire.ts",
       "ownerDoc": "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
@@ -1787,13 +1950,36 @@
       ]
     },
     {
-      "path": "agent/state/speed-security-hardening.generated.json",
-      "generatedAt": "2026-05-15T13:20:49.306Z",
+      "path": "agent/state/source-truth-authority-map.generated.json",
+      "generatedAt": "2026-05-17T06:11:20.501Z",
+      "generatedAtUtc": "2026-05-17T06:11:20.501Z",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "sourceCommit": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
       "ageHours": 0,
+      "freshness": "fresh",
+      "ownerScript": "scripts/agent/validate-source-truth-authority-map.ts",
+      "ownerDoc": "docs/agent-truth/source-truth-authority-map.md",
+      "consumedByScore": false,
+      "consumedByAdminDebug": false,
+      "consumedByLaunchReadiness": false,
+      "action": "evidence_only",
+      "usageEvidence": [
+        "agent/context/optimized-task-context.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/source-truth-authority-map.md",
+        "package.json"
+      ]
+    },
+    {
+      "path": "agent/state/speed-security-hardening.generated.json",
+      "generatedAt": "2026-05-17T04:19:39.496Z",
+      "ageHours": 1.9,
       "freshness": "fresh",
       "ownerScript": "scripts/agent/validate-speed-security-hardening.ts",
       "ownerDoc": "docs/agent-truth/speed-security-hardening.md",
-      "consumedByScore": false,
+      "consumedByScore": true,
       "consumedByAdminDebug": true,
       "consumedByLaunchReadiness": false,
       "action": "current_authority",
@@ -1809,7 +1995,7 @@
     {
       "path": "agent/state/sql-mirror-status.generated.json",
       "generatedAt": "2026-05-07T22:51:20.973Z",
-      "ageHours": 182.5,
+      "ageHours": 223.4,
       "freshness": "stale",
       "ownerScript": "scripts/agent/check-agent-context.ts",
       "ownerDoc": "docs/agent-truth/google-cost-bleed.md",
@@ -1829,7 +2015,7 @@
     {
       "path": "agent/state/sql-sync.payload.generated.json",
       "generatedAt": "2026-05-07T22:51:20.973Z",
-      "ageHours": 182.5,
+      "ageHours": 223.4,
       "freshness": "stale",
       "ownerScript": "scripts/agent/score-google-cost-bleed.ts",
       "ownerDoc": "docs/agent-truth/google-cost-bleed.md",
@@ -1849,7 +2035,7 @@
     {
       "path": "agent/state/support-recovery-flow-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-support-recovery-flows.ts",
       "ownerDoc": "docs/agent-truth/support-recovery-flows.md",
@@ -1872,14 +2058,14 @@
       "generatedAtUtc": "2026-05-14T14:11:47.684Z",
       "currentHead": "6b964e0e91f288a68da7a7e2ff0fce38d6343338",
       "sourceCommit": "6b964e0e91f288a68da7a7e2ff0fce38d6343338",
-      "ageHours": 23.2,
-      "freshness": "fresh",
+      "ageHours": 64,
+      "freshness": "stale",
       "ownerScript": "scripts/agent/validate-targeted-behavior-evidence.ts",
       "ownerDoc": "docs/agent-truth/targeted-behavior-evidence.md",
       "consumedByScore": true,
       "consumedByAdminDebug": false,
       "consumedByLaunchReadiness": true,
-      "action": "current_authority",
+      "action": "stale_authority_risk",
       "usageEvidence": [
         "agent/state/debug-panel-output-triage.generated.json",
         "agent/state/final-phase-cleanup-lock.generated.json",
@@ -1892,7 +2078,7 @@
     {
       "path": "agent/state/task-context.generated.json",
       "generatedAt": "2026-05-08T04:01:17.445Z",
-      "ageHours": 177.3,
+      "ageHours": 218.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/build-task-context.ts",
       "ownerDoc": "docs/agent-truth/doctrine-hierarchy.md",
@@ -1912,7 +2098,7 @@
     {
       "path": "agent/state/telemetry-identified-parity.generated.json",
       "generatedAt": "2026-05-04T21:30:52.072Z",
-      "ageHours": 255.8,
+      "ageHours": 296.7,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-telemetry-identified-parity.ts",
       "ownerDoc": "docs/agent-truth/telemetry-identified-parity.md",
@@ -1932,7 +2118,7 @@
     {
       "path": "agent/state/telemetry-orphan-cleanup-audit.generated.json",
       "generatedAt": "2026-05-01T02:08:00.000Z",
-      "ageHours": 347.2,
+      "ageHours": 388.1,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-telemetry-orphan-cleanup.ts",
       "ownerDoc": "docs/agent-truth/telemetry-orphan-cleanup-audit.md",
@@ -1952,7 +2138,7 @@
     {
       "path": "agent/state/telemetry-parity-score.generated.json",
       "generatedAt": "2026-05-04T05:50:23.722Z",
-      "ageHours": 271.5,
+      "ageHours": 312.4,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-telemetry-parity-score.ts",
       "ownerDoc": "docs/agent-truth/telemetry-parity-score.md",
@@ -1972,7 +2158,7 @@
     {
       "path": "agent/state/test-fixtures-demo-audit.generated.json",
       "generatedAt": "2026-05-02T00:00:00.000-05:00",
-      "ageHours": 320.4,
+      "ageHours": 361.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-test-fixtures-demo.ts",
       "ownerDoc": "docs/agent-truth/test-fixtures-demo-accounts.md",
@@ -1992,7 +2178,7 @@
     {
       "path": "agent/state/tracking-surface-coverage.generated.json",
       "generatedAt": "2026-05-04T21:07:36.960Z",
-      "ageHours": 256.2,
+      "ageHours": 297.1,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-tracking-surface-coverage.ts",
       "ownerDoc": "docs/agent-truth/tracking-surface-coverage.md",
@@ -2012,7 +2198,7 @@
     {
       "path": "agent/state/user-creator-feature-parity.generated.json",
       "generatedAt": "2026-05-12T01:45:23.407Z",
-      "ageHours": 83.6,
+      "ageHours": 124.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-user-creator-feature-parity.ts",
       "ownerDoc": "docs/agent-truth/user-creator-feature-parity.md",
@@ -2032,7 +2218,7 @@
     {
       "path": "agent/state/user-creator-phase-one.generated.json",
       "generatedAt": "2026-05-08T04:44:23.527Z",
-      "ageHours": 176.6,
+      "ageHours": 217.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-user-creator-phase-one.ts",
       "ownerDoc": "docs/agent-truth/user-creator-phase-one.md",
@@ -2050,9 +2236,55 @@
       ]
     },
     {
+      "path": "agent/state/user-creator-ui-parity.generated.json",
+      "generatedAt": "2026-05-17T04:18:51.638Z",
+      "generatedAtUtc": "2026-05-17T04:18:51.638Z",
+      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "sourceCommit": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "ageHours": 1.9,
+      "freshness": "fresh",
+      "ownerScript": "scripts/agent/validate-user-creator-ui-parity.ts",
+      "ownerDoc": "docs/agent-truth/user-creator-ui-parity.md",
+      "consumedByScore": true,
+      "consumedByAdminDebug": false,
+      "consumedByLaunchReadiness": false,
+      "action": "current_authority",
+      "usageEvidence": [
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/manual-screenshot-qa-checklist.md",
+        "docs/agent-truth/source-truth-authority-map.md",
+        "docs/agent-truth/user-creator-ui-parity.md"
+      ]
+    },
+    {
+      "path": "agent/state/user-creator-visual-confirmation.generated.json",
+      "generatedAt": "2026-05-17T04:18:58.309Z",
+      "generatedAtUtc": "2026-05-17T04:18:58.309Z",
+      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "sourceCommit": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "ageHours": 1.9,
+      "freshness": "fresh",
+      "ownerScript": "scripts/agent/validate-user-creator-visual-confirmation.ts",
+      "ownerDoc": "docs/agent-truth/user-creator-visual-confirmation.md",
+      "consumedByScore": false,
+      "consumedByAdminDebug": false,
+      "consumedByLaunchReadiness": false,
+      "action": "evidence_only",
+      "usageEvidence": [
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "docs/agent-truth/manual-screenshot-qa-checklist.md",
+        "docs/agent-truth/user-creator-visual-confirmation.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-user-creator-visual-confirmation.ts"
+      ]
+    },
+    {
       "path": "agent/state/user-critical-path-audit.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-launch-readiness-final.ts",
       "ownerDoc": "docs/agent-truth/user-critical-path-launch.md",
@@ -2072,7 +2304,7 @@
     {
       "path": "agent/state/user-critical-path-fix-report.generated.json",
       "generatedAt": "2026-05-01T00:00:00.000-05:00",
-      "ageHours": 344.4,
+      "ageHours": 385.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-launch-readiness-final.ts",
       "ownerDoc": "docs/agent-truth/user-critical-path-launch.md",
@@ -2093,7 +2325,7 @@
       "path": "agent/state/user-critical-path-lock.generated.json",
       "generatedAt": "2026-05-08T04:44:03.127Z",
       "sourceCommit": "01fae23380ae2345f672983f680dadb1b88fd6b8",
-      "ageHours": 176.6,
+      "ageHours": 217.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-user-critical-path-lock.ts",
       "ownerDoc": "docs/agent-truth/user-critical-path-lock.md",
@@ -2112,31 +2344,31 @@
     },
     {
       "path": "agent/state/user-facing-feature-connection-audit.generated.json",
-      "generatedAt": "2026-05-15T13:20:10.517Z",
-      "generatedAtUtc": "2026-05-15T13:20:10.517Z",
-      "currentHead": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
-      "sourceCommit": "243b0f60e7e157d005afb5b19ec9695e68269ba4",
-      "ageHours": 0,
+      "generatedAt": "2026-05-17T04:19:07.266Z",
+      "generatedAtUtc": "2026-05-17T04:19:07.266Z",
+      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "sourceCommit": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "ageHours": 1.9,
       "freshness": "fresh",
       "ownerScript": "scripts/agent/validate-user-facing-feature-connection-audit.ts",
       "ownerDoc": "docs/agent-truth/user-facing-feature-connection-audit.md",
-      "consumedByScore": false,
+      "consumedByScore": true,
       "consumedByAdminDebug": false,
       "consumedByLaunchReadiness": false,
-      "action": "evidence_only",
+      "action": "current_authority",
       "usageEvidence": [
         "FULL_SCALE_CODEBASE_AUDIT.md",
         "agent/state/debug-panel-output-triage.generated.json",
         "agent/state/final-phase-cleanup-lock.generated.json",
         "agent/state/product-surface-integrity.generated.json",
-        "agent/state/repo-doctrine-reset.generated.json",
-        "agent/state/repo-spring-cleaning-rewire.generated.json"
+        "agent/state/public-beta-score.generated.json",
+        "agent/state/repo-doctrine-reset.generated.json"
       ]
     },
     {
       "path": "agent/state/user-tracking-index-cutover.generated.json",
       "generatedAt": "2026-05-12T01:46:36.540Z",
-      "ageHours": 83.6,
+      "ageHours": 124.5,
       "freshness": "stale",
       "ownerScript": "scripts/agent/validate-user-tracking-index-cutover.ts",
       "ownerDoc": null,
@@ -2156,7 +2388,7 @@
     {
       "path": "agent/state/verification-plan.generated.json",
       "generatedAt": "2026-05-08T04:01:17.495Z",
-      "ageHours": 177.3,
+      "ageHours": 218.2,
       "freshness": "stale",
       "ownerScript": "scripts/agent/verification-selector.ts",
       "ownerDoc": null,
@@ -2396,7 +2628,7 @@
       ],
       "evidence": [
         "launchValidatorMentionsFinalReport=false",
-        "scoreRunnerReadsFinalLaunchReport=true"
+        "scoreRunnerReadsFinalLaunchReport=false"
       ],
       "cleanupType": "validator_replacement_candidate",
       "recommendedAction": "Keep launch readiness as evidence, but remove it from score provider-smoke authority in the dedicated score evidence fix.",
@@ -2420,7 +2652,7 @@
         "package.json"
       ],
       "evidence": [
-        "releaseValidatorRequireIncludes=2",
+        "releaseValidatorRequireIncludes=3",
         "packageHasCheckReleaseNotes=true"
       ],
       "cleanupType": "keep_current_authority",
@@ -2478,9 +2710,9 @@
       "usageEvidence": [
         "agent/state/billing-spike-radar.generated.json",
         "agent/state/codebase-junk-cleanup.generated.json",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json",
         "agent/state/global-cost-surfaces.generated.json",
-        "agent/state/launch-pr-triage.generated.json",
-        "agent/state/phase-one-score-ui-triage.generated.json"
+        "agent/state/launch-pr-triage.generated.json"
       ]
     },
     {
@@ -2516,7 +2748,7 @@
       ],
       "evidence": [
         "hasProviderSmokeEvidenceFunction=false",
-        "readsFinalLaunchReport=true"
+        "readsFinalLaunchReport=false"
       ],
       "cleanupType": "legacy_lane_candidate",
       "recommendedAction": "Replace the string parser with schema-backed provider/runtime evidence artifact readers.",
@@ -2674,10 +2906,10 @@
       "usageEvidence": [
         "agent/state/billing-spike-radar.generated.json",
         "agent/state/codebase-junk-cleanup.generated.json",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json",
         "agent/state/global-cost-surfaces.generated.json",
         "agent/state/launch-pr-triage.generated.json",
-        "agent/state/phase-one-score-ui-triage.generated.json",
-        "agent/state/product-surface-integrity.generated.json"
+        "agent/state/phase-one-score-ui-triage.generated.json"
       ]
     },
     {
@@ -2691,7 +2923,7 @@
         "agent/state/*.generated.json"
       ],
       "evidence": [
-        "staleAuthorityReports=34",
+        "staleAuthorityReports=35",
         "controlTowerUsesGeneratedAt=true",
         "controlTowerUsesCurrentHead=true"
       ],
@@ -2742,18 +2974,18 @@
         "agent/state/provider-smoke-evidence.generated.json"
       ],
       "evidence": [
-        "scoreReadsFinalLaunchText=true",
+        "scoreReadsFinalLaunchText=false",
         "Provider smoke evidence has a formal missing/operator-reported status that should remain non-passing."
       ],
       "cleanupType": "validator_replacement_candidate",
       "recommendedAction": "Wire provider-smoke-evidence.generated.json directly into the beta score and keep operator reports tracked-not-passing.",
       "usageEvidence": [
+        "agent/evidence/provider-smoke/README.md",
+        "agent/state/current-beta-exit-status.generated.json",
         "agent/state/debug-panel-output-triage.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
         "agent/state/final-phase-cleanup-lock.generated.json",
-        "agent/state/phase-one-score-ui-triage.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/repo-spring-cleaning-rewire.generated.json",
-        "agent/state/targeted-behavior-evidence.generated.json"
+        "agent/state/phase-one-score-ui-triage.generated.json"
       ]
     },
     {
@@ -2766,14 +2998,14 @@
         "agent/state/*.generated.json"
       ],
       "evidence": [
-        "agent/state/admin-analytics-finalization.generated.json ageHours=344.4",
-        "agent/state/admin-truth-sample-evidence.generated.json ageHours=35.4",
-        "agent/state/cloudrun-sql-bigquery-guardrails.generated.json ageHours=182.5",
-        "agent/state/codebase-hardening.generated.json ageHours=83.5",
-        "agent/state/content-protection-score.generated.json ageHours=271.2",
-        "agent/state/creator-lane-debug-parity.generated.json ageHours=228.2",
-        "agent/state/creator-lane-legacy-truth-inventory.generated.json ageHours=320.4",
-        "agent/state/debug-evidence-index.generated.json ageHours=226.2"
+        "agent/state/admin-analytics-finalization.generated.json ageHours=385.2",
+        "agent/state/admin-truth-sample-evidence.generated.json ageHours=76.2",
+        "agent/state/cloudrun-sql-bigquery-guardrails.generated.json ageHours=223.3",
+        "agent/state/codebase-hardening.generated.json ageHours=124.4",
+        "agent/state/content-protection-score.generated.json ageHours=312.1",
+        "agent/state/creator-lane-debug-parity.generated.json ageHours=269.1",
+        "agent/state/creator-lane-legacy-truth-inventory.generated.json ageHours=361.2",
+        "agent/state/debug-evidence-index.generated.json ageHours=267"
       ],
       "cleanupType": "stale_doc_candidate",
       "recommendedAction": "Refresh or demote stale consumed reports before using them as readiness/Admin Debug truth.",
@@ -2808,12 +3040,12 @@
       "usageEvidence": [
         "agent/state/billing-spike-radar.generated.json",
         "agent/state/codebase-junk-cleanup.generated.json",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json",
         "agent/state/global-cost-surfaces.generated.json",
         "agent/state/launch-pr-triage.generated.json",
         "agent/state/phase-one-score-ui-triage.generated.json",
-        "agent/state/product-surface-integrity.generated.json",
-        "agent/state/repo-spring-cleaning-rewire.generated.json",
-        "agent/state/user-facing-feature-connection-audit.generated.json"
+        "agent/state/post-economy-creator-flow-qa.generated.json",
+        "agent/state/product-surface-integrity.generated.json"
       ],
       "routeOrComponent": "CreatorDashboardSettingsHub",
       "expectedApiOrSource": "Creator settings API with source freshness/sample metadata",
@@ -2841,10 +3073,10 @@
       "usageEvidence": [
         "agent/state/billing-spike-radar.generated.json",
         "agent/state/codebase-junk-cleanup.generated.json",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json",
         "agent/state/global-cost-surfaces.generated.json",
         "agent/state/launch-pr-triage.generated.json",
-        "agent/state/repo-spring-cleaning-rewire.generated.json",
-        "agent/state/user-facing-feature-connection-audit.generated.json"
+        "agent/state/repo-spring-cleaning-rewire.generated.json"
       ],
       "routeOrComponent": "CreatorBroadcastManager",
       "expectedApiOrSource": "Creator broadcast API with typed loading/error/empty states",
@@ -2999,7 +3231,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=83.6",
+        "ageHours=124.4",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3027,7 +3259,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=344.4",
+        "ageHours=385.2",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3055,7 +3287,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=344.4",
+        "ageHours=385.2",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=true"
@@ -3084,7 +3316,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=349.4",
+        "ageHours=390.2",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3113,7 +3345,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=344.4",
+        "ageHours=385.2",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3141,7 +3373,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=178.3",
+        "ageHours=219.2",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3170,7 +3402,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=35.4",
+        "ageHours=76.2",
         "consumedByScore=true",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=true"
@@ -3178,12 +3410,12 @@
       "cleanupType": "stale_doc_candidate",
       "recommendedAction": "Confirm owner script, owner doc, and score/Admin Debug/launch consumers before any archive action.",
       "usageEvidence": [
+        "agent/evidence/admin-truth-sample/README.md",
+        "agent/state/current-beta-exit-status.generated.json",
         "agent/state/debug-panel-output-triage.generated.json",
+        "agent/state/evidence-capture-status.generated.json",
         "agent/state/final-phase-cleanup-lock.generated.json",
-        "agent/state/phase-one-score-ui-triage.generated.json",
-        "agent/state/public-beta-score.generated.json",
-        "agent/state/repo-spring-cleaning-rewire.generated.json",
-        "agent/state/targeted-behavior-evidence.generated.json"
+        "agent/state/phase-one-score-ui-triage.generated.json"
       ]
     },
     {
@@ -3199,7 +3431,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=248.1",
+        "ageHours=288.9",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3228,7 +3460,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=84.8",
+        "ageHours=125.7",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3257,7 +3489,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=355.8",
+        "ageHours=396.7",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3286,7 +3518,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=355.8",
+        "ageHours=396.7",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3315,7 +3547,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=355.9",
+        "ageHours=396.8",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3344,7 +3576,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=36.1",
+        "ageHours=76.9",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3373,7 +3605,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=344.4",
+        "ageHours=385.2",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3402,7 +3634,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=244.7",
+        "ageHours=285.6",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3431,7 +3663,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=242.3",
+        "ageHours=283.2",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3460,7 +3692,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=83.5",
+        "ageHours=124.4",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3489,7 +3721,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=83.6",
+        "ageHours=124.5",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3518,7 +3750,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=182.5",
+        "ageHours=223.3",
         "consumedByScore=false",
         "consumedByAdminDebug=true",
         "consumedByLaunchReadiness=false"
@@ -3545,7 +3777,7 @@
       ],
       "evidence": [
         "freshness=stale",
-        "ageHours=84.4",
+        "ageHours=125.3",
         "consumedByScore=false",
         "consumedByAdminDebug=false",
         "consumedByLaunchReadiness=false"
@@ -3755,7 +3987,7 @@
       ],
       "evidence": [
         "launchValidatorMentionsFinalReport=false",
-        "scoreRunnerReadsFinalLaunchReport=true"
+        "scoreRunnerReadsFinalLaunchReport=false"
       ],
       "cleanupType": "validator_replacement_candidate",
       "recommendedAction": "Keep launch readiness as evidence, but remove it from score provider-smoke authority in the dedicated score evidence fix.",
@@ -3812,9 +4044,9 @@
       "usageEvidence": [
         "agent/state/billing-spike-radar.generated.json",
         "agent/state/codebase-junk-cleanup.generated.json",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json",
         "agent/state/global-cost-surfaces.generated.json",
-        "agent/state/launch-pr-triage.generated.json",
-        "agent/state/phase-one-score-ui-triage.generated.json"
+        "agent/state/launch-pr-triage.generated.json"
       ]
     },
     {
@@ -3830,7 +4062,7 @@
       ],
       "evidence": [
         "hasProviderSmokeEvidenceFunction=false",
-        "readsFinalLaunchReport=true"
+        "readsFinalLaunchReport=false"
       ],
       "cleanupType": "legacy_lane_candidate",
       "recommendedAction": "Replace the string parser with schema-backed provider/runtime evidence artifact readers.",
@@ -4135,8 +4367,8 @@
     }
   ],
   "summary": {
-    "generatedReportsScanned": 106,
-    "staleGeneratedReports": 95,
+    "generatedReportsScanned": 116,
+    "staleGeneratedReports": 99,
     "duplicateDoctrineGroups": 4,
     "conflictingValidatorGroups": 5,
     "legacyLanes": 4,

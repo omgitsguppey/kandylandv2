@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-17T05:58:39.636Z",
+  "generatedAtUtc": "2026-05-17T06:13:10.868Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e",
+  "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
   "summary": {
-    "betaVersion": "1.2.64",
+    "betaVersion": "1.2.65",
     "betaScore": 55,
     "betaStatus": "Unknown evidence",
     "sourceCleanupP0": 0,
@@ -86,7 +86,9 @@
     "agent/state/current-beta-exit-status.generated.json",
     "docs/agent-truth/beta-score-cleanup.md",
     "docs/agent-truth/current-beta-exit-status.md",
-    "docs/agent-truth/public-beta-score.md"
+    "docs/agent-truth/public-beta-score.md",
+    "agent/state/source-truth-authority-map.generated.json",
+    "docs/agent-truth/source-truth-authority-map.md"
   ],
   "remainingBlockers": [
     {

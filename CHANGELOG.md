@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.65 - 2026-05-17
+- Bug fixes and general improvements
+- Clarified active source-of-truth authority across Beta evidence.
+- Separated stale and retired reports from current readiness gates.
+- Documented Cloud Run, Cloud SQL, Gemini, and 4xx cost-readiness lanes.
+
 ## 1.2.64 - 2026-05-17
 - Bug fixes and general improvements
 - Clarified Beta score evidence math and stale report handling.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Added a Debug-panel triage map for stale, missing, and refreshable evidence.
 - Kept stale evidence visible instead of treating it as live truth.
 - Made Debug output clearer about which issues block Phase 1.
-
-## 1.2.40 - 2026-05-14
-- Bug fixes and general improvements
-- Checked creator-facing feature connections without changing the UI design.
-- Mapped Fan Pass, calls, requests, chat, and broadcasts for source truth and route wiring.
-- Added guards for race conditions and cost-bleed risks in creator-facing surfaces.

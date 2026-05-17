@@ -3,8 +3,8 @@
 Artifact: `agent/state/beta-score-cleanup.generated.json`
 Validator: `npm run check:beta-score-cleanup`
 
-Generated: 2026-05-17T06:01:11.874Z
-Current source head: `c31dcc3a82ad312aecd198c7c4a52c893bbedf9e`
+Generated: 2026-05-17T06:13:18.504Z
+Current source head: `09bb153c99aeec141c2a4f2d2c8867e0fdf7e801`
 
 ## Summary
 

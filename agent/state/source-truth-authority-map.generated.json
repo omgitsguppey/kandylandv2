@@ -1,0 +1,449 @@
+{
+  "generatedAtUtc": "2026-05-17T06:14:05.320Z",
+  "reportKey": "source-truth-authority-map",
+  "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+  "summary": {
+    "activeLanes": 12,
+    "supportingLanes": 6,
+    "retiredLanes": 0,
+    "archiveOnlyLanes": 0,
+    "staleLanes": 0,
+    "betaBlockingLanes": 8,
+    "costReadinessLanes": 4,
+    "retiredLaunchArtifacts": 3,
+    "sameCommitReleaseNotes": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 4
+  },
+  "lanes": [
+    {
+      "id": "current-operator-doctrine",
+      "label": "Current operator doctrine",
+      "authorityDoc": "docs/agent-truth/current-operator-doctrine.md",
+      "generatedArtifact": "agent/state/source-truth-authority-map.generated.json",
+      "validator": "npm run check:source-truth-authority-map",
+      "status": "active",
+      "owner": "repo-doctrine",
+      "refreshCommand": "npm run check:source-truth-authority-map",
+      "betaBlocking": false,
+      "notes": [
+        "Active doctrine wins over stale generated reports when conflicts exist."
+      ]
+    },
+    {
+      "id": "memory-durable-rules",
+      "label": "memory.md durable rules",
+      "authorityDoc": "memory.md",
+      "generatedArtifact": "agent/state/source-truth-authority-map.generated.json",
+      "validator": "npm run check:source-truth-authority-map",
+      "status": "active",
+      "owner": "repo-doctrine",
+      "refreshCommand": "npm run check:source-truth-authority-map",
+      "betaBlocking": false,
+      "notes": [
+        "Durable operating rules only; generated artifacts remain evidence snapshots."
+      ]
+    },
+    {
+      "id": "beta-score",
+      "label": "Public beta score",
+      "authorityDoc": "docs/agent-truth/public-beta-score.md",
+      "generatedArtifact": "agent/state/public-beta-score.generated.json",
+      "validator": "npm run check:beta-score",
+      "status": "active",
+      "owner": "beta-readiness",
+      "refreshCommand": "npm run score:beta && npm run check:beta-score",
+      "betaBlocking": true,
+      "notes": [
+        "Score math explains source confidence while evidence caps remain visible."
+      ]
+    },
+    {
+      "id": "current-beta-exit-status",
+      "label": "Current beta exit status",
+      "authorityDoc": "docs/agent-truth/current-beta-exit-status.md",
+      "generatedArtifact": "agent/state/current-beta-exit-status.generated.json",
+      "validator": "npm run check:current-beta-exit-status",
+      "status": "active",
+      "owner": "beta-readiness",
+      "refreshCommand": "npm run check:current-beta-exit-status",
+      "betaBlocking": true,
+      "notes": [
+        "Beta exit remains blocked until visual, provider, runtime, and admin truth evidence exists."
+      ]
+    },
+    {
+      "id": "final-phase-cleanup-lock",
+      "label": "Final phase cleanup lock",
+      "authorityDoc": "docs/agent-truth/final-phase-cleanup-lock.md",
+      "generatedArtifact": "agent/state/final-phase-cleanup-lock.generated.json",
+      "validator": "npm run check:final-phase-cleanup-lock",
+      "status": "supporting",
+      "owner": "source-cleanup",
+      "refreshCommand": "npm run check:final-phase-cleanup-lock",
+      "betaBlocking": false,
+      "notes": [
+        "Historical lock evidence supports source cleanup but is not the current beta-exit authority."
+      ]
+    },
+    {
+      "id": "evidence-capture-status",
+      "label": "Evidence capture status",
+      "authorityDoc": "docs/agent-truth/evidence-capture-status.md",
+      "generatedArtifact": "agent/state/evidence-capture-status.generated.json",
+      "validator": "npm run check:evidence-capture-status",
+      "status": "active",
+      "owner": "beta-evidence",
+      "refreshCommand": "npm run check:evidence-capture-status",
+      "betaBlocking": true,
+      "notes": [
+        "Evidence templates do not count as complete evidence."
+      ]
+    },
+    {
+      "id": "user-creator-parity",
+      "label": "User and creator UI parity",
+      "authorityDoc": "docs/agent-truth/user-creator-ui-parity.md",
+      "generatedArtifact": "agent/state/user-creator-ui-parity.generated.json",
+      "validator": "npm run check:user-creator-ui-parity",
+      "status": "active",
+      "owner": "user-creator-ui",
+      "refreshCommand": "npm run check:user-creator-ui-parity",
+      "betaBlocking": true,
+      "notes": [
+        "P0/P1 user or creator parity findings block beta exit."
+      ]
+    },
+    {
+      "id": "gumdrop-economy",
+      "label": "GumDrop economy accuracy",
+      "authorityDoc": "docs/agent-truth/gumdrop-economy-accuracy.md",
+      "generatedArtifact": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "validator": "npm run check:gumdrop-economy-accuracy",
+      "status": "active",
+      "owner": "economy",
+      "refreshCommand": "npm run check:gumdrop-economy-accuracy",
+      "betaBlocking": true,
+      "notes": [
+        "Paid bundle bonuses are purchased balance; reward balance cannot fund creator experiences."
+      ]
+    },
+    {
+      "id": "creator-experience-simplification",
+      "label": "Creator experience simplification",
+      "authorityDoc": "docs/agent-truth/creator-experience-simplification.md",
+      "generatedArtifact": "agent/state/creator-experience-simplification.generated.json",
+      "validator": "npm run check:creator-experience-simplification",
+      "status": "active",
+      "owner": "creator-experience",
+      "refreshCommand": "npm run check:creator-experience-simplification",
+      "betaBlocking": true,
+      "notes": [
+        "Booking uses generated slots; owner creator mode hides fan controls."
+      ]
+    },
+    {
+      "id": "post-economy-flow-qa",
+      "label": "Post-economy creator flow QA",
+      "authorityDoc": "docs/agent-truth/post-economy-creator-flow-qa.md",
+      "generatedArtifact": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "validator": "npm run check:post-economy-creator-flow-qa",
+      "status": "active",
+      "owner": "creator-experience",
+      "refreshCommand": "npm run check:post-economy-creator-flow-qa",
+      "betaBlocking": true,
+      "notes": [
+        "Copy and eligibility checks preserve paid-only creator experience rules."
+      ]
+    },
+    {
+      "id": "creator-dashboard-error-cost-inventory",
+      "label": "Creator dashboard error and cost inventory",
+      "authorityDoc": "docs/agent-truth/creator-dashboard-error-cost-inventory.md",
+      "generatedArtifact": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "validator": "npm run check:creator-dashboard-error-cost-inventory",
+      "status": "active",
+      "owner": "creator-dashboard",
+      "refreshCommand": "npm run check:creator-dashboard-error-cost-inventory",
+      "betaBlocking": false,
+      "notes": [
+        "Creator dashboard expected 4xx paths and source-only cost inventory remain visible."
+      ]
+    },
+    {
+      "id": "speed-security",
+      "label": "Speed and security hardening",
+      "authorityDoc": "docs/agent-truth/speed-security-hardening.md",
+      "generatedArtifact": "agent/state/speed-security-hardening.generated.json",
+      "validator": "npm run check:speed-security",
+      "status": "active",
+      "owner": "speed-security",
+      "refreshCommand": "npm run score:speed-security && npm run check:speed-security",
+      "betaBlocking": false,
+      "notes": [
+        "P2 cost/security backlog remains owner-review; do not hide deferred risks."
+      ]
+    },
+    {
+      "id": "product-surface-integrity",
+      "label": "Product surface integrity",
+      "authorityDoc": "docs/agent-truth/product-surface-integrity.md",
+      "generatedArtifact": "agent/state/product-surface-integrity.generated.json",
+      "validator": "npm run check:product-surface-integrity",
+      "status": "supporting",
+      "owner": "product-integrity",
+      "refreshCommand": "npm run check:product-surface-integrity",
+      "betaBlocking": false,
+      "notes": [
+        "Product surface integrity is supporting source evidence unless P0/P1 findings are present."
+      ]
+    },
+    {
+      "id": "release-notes-same-commit",
+      "label": "Release notes same-commit doctrine",
+      "authorityDoc": "docs/agent-truth/public-beta-release-notes.md",
+      "generatedArtifact": "public/kandydrops-release-notes.json",
+      "validator": "npm run check:release-notes",
+      "status": "active",
+      "owner": "release-notes",
+      "refreshCommand": "npm run release:notes && npm run check:release-notes",
+      "betaBlocking": true,
+      "notes": [
+        "Patch notes are same-commit artifacts; automation validates instead of committing follow-ups."
+      ]
+    },
+    {
+      "id": "cloud-run-cost-readiness",
+      "label": "Cloud Run cost readiness",
+      "authorityDoc": "docs/agent-truth/beta-score-cleanup.md",
+      "generatedArtifact": "agent/state/beta-score-cleanup.generated.json",
+      "validator": "npm run check:beta-score-cleanup",
+      "status": "supporting",
+      "owner": "cost-readiness",
+      "refreshCommand": "npm run score:beta && npm run check:beta-score-cleanup",
+      "betaBlocking": false,
+      "notes": [
+        "Cloud Run/App Hosting cost readiness distinguishes repo config evidence from provider evidence."
+      ]
+    },
+    {
+      "id": "cloud-sql-cost-readiness",
+      "label": "Cloud SQL cost readiness",
+      "authorityDoc": "docs/agent-truth/beta-score-cleanup.md",
+      "generatedArtifact": "agent/state/beta-score-cleanup.generated.json",
+      "validator": "npm run check:beta-score-cleanup",
+      "status": "supporting",
+      "owner": "cost-readiness",
+      "refreshCommand": "npm run score:beta && npm run check:beta-score-cleanup",
+      "betaBlocking": false,
+      "notes": [
+        "Cloud SQL not detected in product runtime is source inventory, not a provider pass."
+      ]
+    },
+    {
+      "id": "gemini-cloud-assist-cost-readiness",
+      "label": "Gemini and Cloud Assist cost readiness",
+      "authorityDoc": "docs/agent-truth/beta-score-cleanup.md",
+      "generatedArtifact": "agent/state/beta-score-cleanup.generated.json",
+      "validator": "npm run check:beta-score-cleanup",
+      "status": "supporting",
+      "owner": "cost-readiness",
+      "refreshCommand": "npm run score:beta && npm run check:beta-score-cleanup",
+      "betaBlocking": false,
+      "notes": [
+        "Gemini/Cloud Assist/Vertex inventory remains owner-review unless source proves no P0/P1 risk."
+      ]
+    },
+    {
+      "id": "route-4xx-readiness",
+      "label": "Route 4xx readiness",
+      "authorityDoc": "docs/agent-truth/beta-score-cleanup.md",
+      "generatedArtifact": "agent/state/beta-score-cleanup.generated.json",
+      "validator": "npm run check:beta-score-cleanup",
+      "status": "supporting",
+      "owner": "cost-readiness",
+      "refreshCommand": "npm run check:creator-dashboard-error-cost-inventory",
+      "betaBlocking": false,
+      "notes": [
+        "Expected product 4xx states are distinct from unexpected frontend or backend errors."
+      ]
+    }
+  ],
+  "retiredArtifacts": [
+    {
+      "artifact": "agent/state/final-launch-readiness-report.generated.json",
+      "status": "retired",
+      "reason": "Legacy launch report is superseded by evidence capture status and current beta exit status.",
+      "supersededBy": "agent/state/evidence-capture-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/launch-readiness-report.generated.json",
+      "status": "retired",
+      "reason": "Legacy launch readiness is no longer the active beta score freshness source.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/launch-pr-triage.generated.json",
+      "status": "retired",
+      "reason": "Legacy PR triage is historical evidence and must not cap current readiness.",
+      "supersededBy": "docs/agent-truth/source-truth-authority-map.md",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "status": "archive_only",
+      "reason": "Repo spring-cleaning rewire remains governance backlog evidence, not beta-exit truth.",
+      "supersededBy": "docs/agent-truth/source-truth-authority-map.md",
+      "betaBlocking": false
+    },
+    {
+      "artifact": "agent/state/debug-panel-output-triage.generated.json",
+      "status": "archive_only",
+      "reason": "Debug panel output triage is historical source evidence until refreshed by its owner lane.",
+      "supersededBy": "agent/state/current-beta-exit-status.generated.json",
+      "betaBlocking": false
+    }
+  ],
+  "costReadiness": {
+    "cloudRunCostReadiness": "cost_review_required",
+    "cloudSqlCostReadiness": "not_detected_in_repo",
+    "geminiCloudAssistCostReadiness": "cost_review_required",
+    "route4xxReadiness": "source_inventory_complete"
+  },
+  "memoryRules": [
+    "Paid bundle bonus GumDrops are paid/purchased bonus credits, not reward/free GumDrops.",
+    "Creator booking UX should use generated available slots, not arbitrary fan-selected date/time.",
+    "Beta badge / patch notes must be included in the same commit as the real patch. Release-note automation validates only and must not create separate follow-up commits.",
+    "Cloud Run, Cloud SQL, Gemini/Cloud Assist, and 4xx cost checks are evidence/inventory lanes unless source code proves active usage or P0/P1 risk.",
+    "Creator booking UX uses generated availability slots, not arbitrary fan date/time."
+  ],
+  "currentHeadChecks": [
+    {
+      "artifact": "agent/state/source-truth-authority-map.generated.json",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
+    },
+    {
+      "artifact": "agent/state/public-beta-score.generated.json",
+      "currentHead": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
+    },
+    {
+      "artifact": "agent/state/current-beta-exit-status.generated.json",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
+    },
+    {
+      "artifact": "agent/state/final-phase-cleanup-lock.generated.json",
+      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
+    },
+    {
+      "artifact": "agent/state/evidence-capture-status.generated.json",
+      "currentHead": "a627e45442f7f4757c59b8687bb8d6ba3872cbd1",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
+    },
+    {
+      "artifact": "agent/state/user-creator-ui-parity.generated.json",
+      "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
+    },
+    {
+      "artifact": "agent/state/gumdrop-economy-accuracy.generated.json",
+      "currentHead": "b811bb9ca2e0a470f1d6311ce456de2c06812291",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
+    },
+    {
+      "artifact": "agent/state/creator-experience-simplification.generated.json",
+      "currentHead": "68dfa1f279c4902f5f870930664f80993a2752b4",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
+    },
+    {
+      "artifact": "agent/state/post-economy-creator-flow-qa.generated.json",
+      "currentHead": "6396ae0691e3bc73465e9ab9556e1db0570bce3f",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
+    },
+    {
+      "artifact": "agent/state/creator-dashboard-error-cost-inventory.generated.json",
+      "currentHead": "3d21baa7736d837bb79915fd7cdb99816e88d3b2",
+      "status": "stale",
+      "action": "Refresh through the lane validator before treating as current evidence."
+    },
+    {
+      "artifact": "agent/state/speed-security-hardening.generated.json",
+      "currentHead": "",
+      "status": "missing_head",
+      "action": "Active artifact must record currentHead."
+    },
+    {
+      "artifact": "agent/state/product-surface-integrity.generated.json",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
+    },
+    {
+      "artifact": "public/kandydrops-release-notes.json",
+      "currentHead": "",
+      "status": "missing_head",
+      "action": "Active artifact must record currentHead."
+    },
+    {
+      "artifact": "agent/state/beta-score-cleanup.generated.json",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
+    },
+    {
+      "artifact": "agent/state/final-launch-readiness-report.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/launch-readiness-report.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/launch-pr-triage.generated.json",
+      "currentHead": "",
+      "status": "not_required",
+      "action": "Retired artifact has no required currentHead."
+    },
+    {
+      "artifact": "agent/state/repo-spring-cleaning-rewire.generated.json",
+      "currentHead": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "status": "current",
+      "action": "Artifact currentHead matches git HEAD."
+    },
+    {
+      "artifact": "agent/state/debug-panel-output-triage.generated.json",
+      "currentHead": "104e5c038d45fd2edc8f7925076e45e84f39e6d5",
+      "status": "not_required",
+      "action": "Retired/archive artifact does not block beta score."
+    }
+  ],
+  "fixesApplied": [
+    "Created a single source-truth authority map for active, supporting, retired, and archive-only lanes.",
+    "Demoted legacy launch readiness reports from current beta readiness gates without deleting them.",
+    "Linked Cloud Run, Cloud SQL, Gemini/Cloud Assist, and route 4xx readiness to source inventory lanes."
+  ],
+  "nextExactSteps": [
+    "Use npm run check:source-truth-authority-map before treating source-truth lane changes as accepted.",
+    "Refresh beta score and current beta exit status only through their active validators.",
+    "Attach real visual/provider/runtime/admin evidence before clearing beta-exit evidence gates."
+  ]
+}

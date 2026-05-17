@@ -1,11 +1,62 @@
 {
-  "currentVersion": "1.2.64",
-  "betaReleaseCounter": 264,
+  "currentVersion": "1.2.65",
+  "betaReleaseCounter": 265,
   "channel": "beta",
-  "generatedAt": "2026-05-17T05:58:06.810Z",
-  "generatedAtUtc": "2026-05-17T05:58:06.810Z",
-  "lastCommitSha": "c31dcc3a82ad312aecd198c7c4a52c893bbedf9e",
+  "generatedAt": "2026-05-17T06:12:50.261Z",
+  "generatedAtUtc": "2026-05-17T06:12:50.261Z",
+  "lastCommitSha": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
   "notes": [
+    {
+      "version": "1.2.65",
+      "previousVersion": "1.2.64",
+      "betaReleaseCounter": 265,
+      "previousBetaReleaseCounter": 264,
+      "commitSha": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801",
+      "commitTitle": "docs(repo): clarify source truth authority",
+      "commitCount": 1,
+      "commitShas": [
+        "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801"
+      ],
+      "committedAt": "2026-05-17T06:12:50.261Z",
+      "generatedAt": "2026-05-17T06:12:50.261Z",
+      "committedAtUtc": "2026-05-17T06:12:50.261Z",
+      "generatedAtUtc": "2026-05-17T06:12:50.261Z",
+      "updatedAtUtc": "2026-05-17T06:12:50.261Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Clarified active source-of-truth authority across Beta evidence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Clarified active source-of-truth authority across Beta evidence.",
+        "Separated stale and retired reports from current readiness gates.",
+        "Documented Cloud Run, Cloud SQL, Gemini, and 4xx cost-readiness lanes."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "memory.md",
+        "agent/state/beta-score-cleanup.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/product-surface-integrity.generated.json",
+        "agent/state/repo-spring-cleaning-rewire.generated.json",
+        "agent/state/source-truth-authority-map.generated.json",
+        "docs/agent-truth/beta-score-cleanup.md",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/source-truth-authority-map.md",
+        "scripts/agent/validate-source-truth-authority-map.ts",
+        "tests/unit/source-truth-authority-map.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "09bb153c99aeec141c2a4f2d2c8867e0fdf7e801"
+    },
     {
       "version": "1.2.64",
       "previousVersion": "1.2.63",
@@ -1185,51 +1236,6 @@
         "tests/unit/debug-panel-output-triage.spec.ts"
       ],
       "sourceCommit": "af8d35aea6c2695f0403023e3801f43ca7929ee8"
-    },
-    {
-      "version": "1.2.40",
-      "previousVersion": "1.2.39",
-      "betaReleaseCounter": 240,
-      "previousBetaReleaseCounter": 239,
-      "commitSha": "fee10e6a65174a7d7ac85448991f98eb3a3e6300",
-      "commitTitle": "chore(ui): audit creator feature connections",
-      "commitCount": 1,
-      "commitShas": [
-        "fee10e6a65174a7d7ac85448991f98eb3a3e6300"
-      ],
-      "committedAt": "2026-05-14T14:37:19.000Z",
-      "generatedAt": "2026-05-14T14:37:32.863Z",
-      "committedAtUtc": "2026-05-14T14:37:19.000Z",
-      "generatedAtUtc": "2026-05-14T14:37:32.863Z",
-      "updatedAtUtc": "2026-05-14T14:37:32.863Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Checked creator-facing feature connections without changing the UI design.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "Creator tools",
-      "bullets": [
-        "Checked creator-facing feature connections without changing the UI design.",
-        "Mapped Fan Pass, calls, requests, chat, and broadcasts for source truth and route wiring.",
-        "Added guards for race conditions and cost-bleed risks in creator-facing surfaces."
-      ],
-      "audience": "creators",
-      "affectedSurfaces": [
-        "creator"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/user-facing-feature-connection-audit.generated.json",
-        "docs/agent-truth/user-facing-feature-connection-audit.md",
-        "package.json",
-        "scripts/agent/validate-user-facing-feature-connection-audit.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/components/Creators/CreatorBroadcastManager.tsx",
-        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
-        "tests/unit/creator-dashboard-settings.spec.tsx",
-        "tests/unit/creator-settings-route.spec.ts",
-        "tests/unit/user-facing-feature-connection-audit.spec.ts"
-      ],
-      "sourceCommit": "fee10e6a65174a7d7ac85448991f98eb3a3e6300"
     }
   ]
 }

@@ -2,13 +2,13 @@
 
 Artifact: `agent/state/current-beta-exit-status.generated.json`
 
-Generated: 2026-05-17T05:58:39.636Z
+Generated: 2026-05-17T06:13:10.868Z
 
-Current source head: `c31dcc3a82ad312aecd198c7c4a52c893bbedf9e`
+Current source head: `09bb153c99aeec141c2a4f2d2c8867e0fdf7e801`
 
 ## Summary
 
-- Public beta version: 1.2.64.
+- Public beta version: 1.2.65.
 - Public beta score: 55/100, `Unknown evidence`.
 - Scanner score: 100/100, source-only; it is not beta readiness by itself.
 - Evidence capture status: manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence remain missing.
@@ -51,4 +51,5 @@ These cost lanes do not block manual screenshot QA. They block beta exit only if
 4. Use docs/agent-truth/admin-truth-sample-evidence-checklist.md and agent/evidence/admin-truth-sample/evidence.template.json to attach a fresh admin truth sample.
 5. Reference agent/state/evidence-capture-status.generated.json before deciding whether beta exit review can start.
 6. Review docs/agent-truth/beta-score-cleanup.md for stale report classification and cost-readiness owner lanes.
-7. Keep beta exit review blocked until visual, provider, runtime, admin truth, and debug/runtime evidence are complete or explicitly owner-reviewed.
+7. Review docs/agent-truth/source-truth-authority-map.md for active versus retired source authority.
+8. Keep beta exit review blocked until visual, provider, runtime, admin truth, and debug/runtime evidence are complete or explicitly owner-reviewed.
