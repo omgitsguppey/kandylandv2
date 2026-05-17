@@ -13871,3 +13871,54 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [Blocked Deliverable] Reduce monolith file risk and clarify responsibility boundaries
+
+### 1. Candidate Files
+- `src/app/api/admin/debug/route.ts`
+- `src/components/Chat/ChatExperience.tsx`
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+- `src/app/api/admin/users/route.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/app/api/admin/analytics/historical/route.ts`
+
+### 2. Classification Labels
+- **God-file risk**: All candidate files.
+- **Mixed responsibility drift**: `src/app/api/admin/debug/route.ts`, `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`, `src/components/Chat/ChatExperience.tsx`
+- **Needs split for stability**: All candidate files.
+
+### 3. Exact Blocker
+- Files significantly exceed the recommended length limits (normal UI <= 300, orchestration <= 500), reaching up to 6500+ lines.
+- The scale and intermingling of logic (view rendering, fetch logic, transformation logic, telemetry, fallback/skeleton logic, modal/state orchestration, runtime/listener logic) makes safe, automated file decomposition too risky for an autonomous agent.
+- Safely untangling these dependencies without changing runtime behavior requires careful manual extraction.
+
+### 4. Affected Components
+- Admin Debug Route (`/api/admin/debug`)
+- Chat UI Component (`ChatExperience`)
+- Admin Analytics State Hook (`useAdminAnalyticsState`)
+- Admin User API (`/api/admin/users`)
+- AI Drop Covers Engine (`ai-drop-covers.ts`)
+- Historical Analytics API (`/api/admin/analytics/historical`)
+
+### 5. Precise Codex Prompt for Blocked Remainder
+```text
+Task: Refactor oversized monolithic files to reduce "God-file risk" and "Mixed responsibility drift" without changing underlying product behavior, focusing on one file at a time.
+
+Scope:
+- `src/app/api/admin/debug/route.ts`
+- `src/components/Chat/ChatExperience.tsx`
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+- `src/app/api/admin/users/route.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/app/api/admin/analytics/historical/route.ts`
+
+Instructions:
+1. Start with one file (e.g., `ChatExperience.tsx` or `useAdminAnalyticsState.tsx`).
+2. Identify distinct responsibility clusters (e.g., UI rendering vs. telemetry vs. data fetching).
+3. Extract reusable pure functions, constants, and helper hooks into separate `-utils.ts`, `-telemetry.ts`, or `-hooks.ts` files within the same feature directory.
+4. Extract distinct sub-components from oversized UI files.
+5. Ensure imports are updated and circular dependencies are avoided.
+6. Do not modify protected payment/economy logic, API contracts, or existing user-facing behavior.
+7. Aim to reduce the main normal UI components to ~300 lines and orchestration files to ~500 lines.
+8. Validate changes with `npm run check`, `npx vitest run`, and ensure test suites pass.
+```
