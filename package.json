@@ -236,6 +236,7 @@
         "check:creator-experience-simplification": "tsx scripts/agent/validate-creator-experience-simplification.ts",
         "check:post-economy-creator-flow-qa": "tsx scripts/agent/validate-post-economy-creator-flow-qa.ts",
         "check:current-beta-exit-status": "tsx scripts/agent/validate-current-beta-exit-status.ts",
+        "check:evidence-readiness-checklists": "tsx scripts/agent/validate-evidence-readiness-checklists.ts",
         "score:telemetry": "tsx scripts/agent/score-telemetry-parity.ts",
         "check:telemetry-parity-score": "npm run score:telemetry && tsx scripts/agent/validate-telemetry-parity-score.ts",
         "score:content-protection": "tsx scripts/agent/score-content-protection.ts",

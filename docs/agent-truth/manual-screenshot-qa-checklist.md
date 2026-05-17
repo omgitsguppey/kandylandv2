@@ -1,0 +1,27 @@
+# Manual Screenshot QA Checklist
+
+This checklist prepares manual visual evidence. It does not mark visual QA as passed. Keep `screenshotEvidenceAttached=false` until real screenshot artifacts are attached to the owning evidence report.
+
+Required filename pattern: `manual-screenshot-qa/<route-slug>__<viewport>__<yyyy-mm-dd>.png`
+
+| Route or surface | What to capture | Failure looks like | Evidence filename pattern | Source validator/report | Blocking beta exit |
+| --- | --- | --- | --- | --- | --- |
+| `/` | Home shell, hero, top nav, bottom nav, profile/dropdown entry points | Overlap, clipped hero, dead nav, unreadable CTA | `manual-screenshot-qa/home__mobile__yyyy-mm-dd.png` | `npm run check:user-creator-visual-confirmation` | Yes |
+| `/drops` | Public discovery grid and `data-drop-visibility-scope="public_discovery"` context | Creator-owned scope shown on public discovery, card overflow, broken filters | `manual-screenshot-qa/drops__mobile__yyyy-mm-dd.png` | `npm run check:product-surface-integrity` | Yes |
+| `/drops/[id]/preview` locked state | Locked preview shell, safe cover state, unlock CTA, bottom nav | Internal content thumbnail leaks, CTA overlap, missing locked state | `manual-screenshot-qa/drop-preview-locked__mobile__yyyy-mm-dd.png` | `npm run check:user-creator-visual-confirmation` | Yes |
+| `/dashboard` | Signed-in dashboard shell and navigation | Empty/fake live modules, clipped cards, nav collision | `manual-screenshot-qa/dashboard__mobile__yyyy-mm-dd.png` | `npm run check:user-creator-ui-parity` | Yes |
+| `/dashboard/creator` | Creator dashboard summary, manager entry points, read-only earning visibility if present | Admin-only diagnostics, fake action controls, unrelated drops | `manual-screenshot-qa/dashboard-creator__mobile__yyyy-mm-dd.png` | `npm run check:user-facing-feature-connection-audit` | Yes |
+| `/dashboard/profile` | Profile settings surface and creator profile links | Broken profile action, duplicate controls, clipped sections | `manual-screenshot-qa/dashboard-profile__mobile__yyyy-mm-dd.png` | `npm run check:user-creator-visual-confirmation` | Yes |
+| `/dashboard/settings` | Settings groups, account controls, safe spacing | Monolithic ungrouped list, hidden controls, layout overflow | `manual-screenshot-qa/dashboard-settings__mobile__yyyy-mm-dd.png` | `npm run check:user-creator-visual-confirmation` | Yes |
+| `/dashboard/library` | User library cards and empty/loaded states | Locked content leakage, card overflow, wrong nav state | `manual-screenshot-qa/dashboard-library__mobile__yyyy-mm-dd.png` | `npm run check:user-creator-visual-confirmation` | Yes |
+| `/dashboard/chat` shell only | Chat list/thread shell, composer spacing, safe area | Keyboard/nav collision, shell overflow, message runtime claims | `manual-screenshot-qa/dashboard-chat-shell__mobile__yyyy-mm-dd.png` | `npm run check:user-creator-visual-confirmation` | Yes |
+| `/creators/[username]` | Public creator profile, fan controls for non-owner, owner-safe mode when applicable | Owner sees fan purchase controls, fan controls missing for non-owner, broken profile content | `manual-screenshot-qa/creator-profile__mobile__yyyy-mm-dd.png` | `npm run check:creator-experience-simplification` | Yes |
+| Wallet / GumDrop purchase modal | Wallet balance chips, package cards, paid bonus labels | Paid bonus called free/reward, PayPal button stack changed, pricing clipped | `manual-screenshot-qa/wallet-purchase-modal__mobile__yyyy-mm-dd.png` | `npm run check:post-economy-creator-flow-qa` | Yes |
+| Creator profile Fan Pass | Fan Pass eligibility, paid-GD guidance, owner-hidden controls | Reward balance appears eligible, owner sees fan CTA, disabled CTA lacks reason | `manual-screenshot-qa/creator-fan-pass__mobile__yyyy-mm-dd.png` | `npm run check:post-economy-creator-flow-qa` | Yes |
+| Creator profile requests | Custom request form, paid-GD guidance, submit disabled state | Reward balance appears eligible, request CTA active without paid GD | `manual-screenshot-qa/creator-requests__mobile__yyyy-mm-dd.png` | `npm run check:user-facing-feature-connection-audit` | Yes |
+| Creator profile booking slots | Generated slot list, selected slot state, no arbitrary datetime input | `datetime-local` input appears, submit active without generated slot, no-slot copy missing | `manual-screenshot-qa/creator-booking-slots__mobile__yyyy-mm-dd.png` | `npm run check:creator-experience-simplification` | Yes |
+| Creator owner profile mode | Owner-safe profile view and `/dashboard/creator` route action | Fan purchase/request/booking/chat controls visible to owner | `manual-screenshot-qa/creator-owner-mode__mobile__yyyy-mm-dd.png` | `npm run check:creator-experience-simplification` | Yes |
+| Beta release notes drawer | Header badge opens drawer, newest note visible, drawer scroll safe | Drawer overflow, stale version, unreadable note copy | `manual-screenshot-qa/beta-release-notes-drawer__mobile__yyyy-mm-dd.png` | `npm run check:release-notes` | Yes |
+| Mobile nav/sidebar/profile dropdown | Mobile bottom nav, sidebar, dropdown, focus/tap targets | Dead nav, clipped dropdown, unsafe tap targets | `manual-screenshot-qa/mobile-nav-sidebar-dropdown__mobile__yyyy-mm-dd.png` | `npm run check:user-creator-visual-confirmation` | Yes |
+
+Do not mark screenshot QA passed until every blocking route has an attached artifact path and the visual confirmation report is regenerated with those paths.

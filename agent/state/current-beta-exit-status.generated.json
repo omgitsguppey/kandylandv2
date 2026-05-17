@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-17T04:22:16.775Z",
+  "generatedAtUtc": "2026-05-17T05:02:23.262Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+  "currentHead": "ea7b21b06be3f4e8cf71630ad118fb5d4136e14f",
   "summary": {
-    "betaVersion": "1.2.60",
+    "betaVersion": "1.2.61",
     "betaScore": 45,
     "betaStatus": "Stale evidence",
     "sourceCleanupP0": 0,
@@ -19,8 +19,8 @@
     "speedSecurityStatus": "51/beta-risk; findings=91; critical=0",
     "releaseNotesStatus": "passed_same_commit_validator",
     "canStartManualScreenshotQa": true,
-    "canStartProviderSmoke": false,
-    "canStartRuntimeSmoke": false,
+    "canStartProviderSmoke": true,
+    "canStartRuntimeSmoke": true,
     "canStartBetaExitReview": false
   },
   "checksRun": [
@@ -51,8 +51,8 @@
     },
     {
       "command": "npm run check:user-facing-feature-connection-audit",
-      "status": "failed",
-      "evidence": "CreatorPaidGdGuidanceCard must include \"not reward balance\"."
+      "status": "passed",
+      "evidence": "CreatorPaidGdGuidanceCard includes the doctrine phrase \"not reward balance\" and the source gate passed."
     },
     {
       "command": "npm run check:product-surface-integrity",
@@ -90,42 +90,21 @@
       "evidence": "Public beta changelog validation passed."
     },
     {
+      "command": "npm run check:evidence-readiness-checklists",
+      "status": "passed",
+      "evidence": "Evidence readiness checklists exist for manual screenshot QA, provider smoke, runtime smoke, and admin truth sample capture."
+    },
+    {
       "command": "npm run typecheck",
       "status": "passed",
       "evidence": "TypeScript compile safety passed."
     }
   ],
-  "failedChecks": [
-    {
-      "command": "npm run check:user-facing-feature-connection-audit",
-      "status": "failed",
-      "evidence": "CreatorPaidGdGuidanceCard must include \"not reward balance\"."
-    }
-  ],
+  "failedChecks": [],
   "refreshedArtifacts": [
-    "agent/state/gumdrop-economy-accuracy.generated.json",
-    "agent/state/creator-experience-simplification.generated.json",
-    "agent/state/post-economy-creator-flow-qa.generated.json",
-    "agent/state/user-creator-ui-parity.generated.json",
-    "agent/state/user-creator-visual-confirmation.generated.json",
-    "agent/state/user-facing-feature-connection-audit.generated.json",
-    "agent/state/product-surface-integrity.generated.json",
-    "agent/state/speed-security-hardening.generated.json",
-    "agent/state/public-beta-score.generated.json",
-    "agent/state/final-phase-cleanup-lock.generated.json"
+    "agent/state/current-beta-exit-status.generated.json"
   ],
   "remainingBlockers": [
-    {
-      "id": "user_facing_feature_connection_copy_assertion",
-      "severity": "P2",
-      "status": "source_validator_failed",
-      "evidence": [
-        "npm run check:user-facing-feature-connection-audit failed.",
-        "Failure: CreatorPaidGdGuidanceCard must include \"not reward balance\".",
-        "Runtime copy was left untouched in this evidence-only pass."
-      ],
-      "nextAction": "Run a focused copy/validator pass to decide whether the current paid-GD guidance copy or the validator literal should be updated."
-    },
     {
       "id": "visual_manual_smoke_missing",
       "severity": "P1",
@@ -135,7 +114,7 @@
         "screenshotEvidenceAttached=false.",
         "Public beta score applies the Visual QA required cap."
       ],
-      "nextAction": "Attach targeted manual screenshot evidence for user-critical surfaces before beta exit review."
+      "nextAction": "Use docs/agent-truth/manual-screenshot-qa-checklist.md to attach targeted manual screenshot evidence for user-critical surfaces before beta exit review."
     },
     {
       "id": "provider_smoke_missing",
@@ -145,7 +124,7 @@
         "providerArtifactStatus=missing_formal_evidence.",
         "Operator-reported PayPal refill is not formal repo evidence."
       ],
-      "nextAction": "Run or attach formal provider smoke evidence with redacted artifact/log/screenshot."
+      "nextAction": "Use docs/agent-truth/provider-smoke-evidence-checklist.md to run or attach formal provider smoke evidence with redacted artifact/log/screenshot."
     },
     {
       "id": "runtime_smoke_missing",
@@ -155,7 +134,7 @@
         "runtimeArtifactStatus=runtime_unverified.",
         "Local validators do not prove deployed runtime behavior."
       ],
-      "nextAction": "Run formal deployed runtime smoke and attach repo evidence."
+      "nextAction": "Use docs/agent-truth/runtime-smoke-evidence-checklist.md to run formal deployed runtime smoke and attach repo evidence."
     },
     {
       "id": "admin_truth_sample_missing",
@@ -165,7 +144,7 @@
         "adminTruthSampleArtifactStatus=missing_or_unknown.",
         "sampleCount=0."
       ],
-      "nextAction": "Attach a fresh first-party admin truth screenshot or JSON sample before beta exit review."
+      "nextAction": "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md to attach a fresh first-party admin truth screenshot or JSON sample before beta exit review."
     },
     {
       "id": "freshness_integrity_stale_launch_reports",
@@ -193,11 +172,10 @@
     }
   ],
   "nextExactSteps": [
-    "Run a focused source-only pass for the user-facing feature connection audit failure around CreatorPaidGdGuidanceCard copy versus validator wording.",
-    "Start targeted manual screenshot QA for source-confirmed user/creator surfaces and attach screenshot evidence.",
-    "Run or attach formal provider smoke evidence; do not treat operator-reported PayPal refill as formal evidence.",
-    "Run formal deployed runtime smoke and attach repo evidence.",
-    "Attach a fresh admin truth screenshot or JSON sample.",
+    "Use docs/agent-truth/manual-screenshot-qa-checklist.md to start targeted manual screenshot QA for source-confirmed user/creator surfaces and attach screenshot evidence.",
+    "Use docs/agent-truth/provider-smoke-evidence-checklist.md to run or attach formal provider smoke evidence; do not treat operator-reported PayPal refill as formal evidence.",
+    "Use docs/agent-truth/runtime-smoke-evidence-checklist.md to run formal deployed runtime smoke and attach repo evidence.",
+    "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md to attach a fresh admin truth screenshot or JSON sample.",
     "Regenerate or retire stale launch/readiness reports before beta exit review.",
     "Keep speed/security P2 backlog visible for owner-scoped hardening passes."
   ]

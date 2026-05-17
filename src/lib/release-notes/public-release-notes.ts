@@ -1,13 +1,61 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.60",
-  "betaReleaseCounter": 260,
+  "currentVersion": "1.2.61",
+  "betaReleaseCounter": 261,
   "channel": "beta",
   "generatedAt": "2026-05-17T04:09:09.299Z",
   "generatedAtUtc": "2026-05-17T04:09:09.299Z",
-  "lastCommitSha": "d0994c9ace05575a22d679cdfc37f8a5877f66d8",
+  "lastCommitSha": "ea7b21b06be3f4e8cf71630ad118fb5d4136e14f",
   "notes": [
+    {
+      "version": "1.2.61",
+      "previousVersion": "1.2.60",
+      "betaReleaseCounter": 261,
+      "previousBetaReleaseCounter": 260,
+      "commitSha": "ea7b21b06be3f4e8cf71630ad118fb5d4136e14f",
+      "commitTitle": "docs(beta): prepare evidence readiness checklists",
+      "commitCount": 1,
+      "commitShas": [
+        "ea7b21b06be3f4e8cf71630ad118fb5d4136e14f"
+      ],
+      "committedAt": "2026-05-17T05:02:23.262Z",
+      "generatedAt": "2026-05-17T05:02:23.262Z",
+      "committedAtUtc": "2026-05-17T05:02:23.262Z",
+      "generatedAtUtc": "2026-05-17T05:02:23.262Z",
+      "updatedAtUtc": "2026-05-17T05:02:23.262Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Prepared evidence readiness while keeping missing evidence visible.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Cleared the paid GumDrop guidance source check.",
+        "Prepared screenshot, provider, runtime, and admin truth evidence checklists.",
+        "Refreshed Beta exit status without hiding missing evidence."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "creator",
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/components/Creators/CreatorPaidGdGuidanceCard.tsx",
+        "agent/state/current-beta-exit-status.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "docs/agent-truth/manual-screenshot-qa-checklist.md",
+        "docs/agent-truth/provider-smoke-evidence-checklist.md",
+        "docs/agent-truth/runtime-smoke-evidence-checklist.md",
+        "docs/agent-truth/admin-truth-sample-evidence-checklist.md",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "scripts/agent/validate-evidence-readiness-checklists.ts",
+        "tests/unit/current-beta-exit-status.spec.ts",
+        "tests/unit/evidence-readiness-checklists.spec.ts",
+        "package.json"
+      ],
+      "sourceCommit": "ea7b21b06be3f4e8cf71630ad118fb5d4136e14f"
+    },
     {
       "version": "1.2.60",
       "previousVersion": "1.2.59",

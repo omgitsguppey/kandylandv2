@@ -66,6 +66,13 @@ const requiredRepresentedChecks = [
   "npm run check:release-notes",
 ] as const;
 
+const requiredChecklistRefs = [
+  "docs/agent-truth/manual-screenshot-qa-checklist.md",
+  "docs/agent-truth/provider-smoke-evidence-checklist.md",
+  "docs/agent-truth/runtime-smoke-evidence-checklist.md",
+  "docs/agent-truth/admin-truth-sample-evidence-checklist.md",
+] as const;
+
 function currentHead() {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
 }
@@ -124,6 +131,12 @@ export function validateCurrentBetaExitStatusReport(
   }
   if ((report.nextExactSteps?.length ?? 0) === 0) {
     failures.push("nextExactSteps must not be empty.");
+  }
+  const nextSteps = (report.nextExactSteps ?? []).join("\n");
+  for (const checklistRef of requiredChecklistRefs) {
+    if (!nextSteps.includes(checklistRef)) {
+      failures.push(`nextExactSteps must reference ${checklistRef}.`);
+    }
   }
 
   return failures;

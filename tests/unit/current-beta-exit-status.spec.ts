@@ -49,7 +49,12 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       },
     ],
     deferredOwnerReview: [],
-    nextExactSteps: ["Run targeted manual screenshot QA."],
+    nextExactSteps: [
+      "Use docs/agent-truth/manual-screenshot-qa-checklist.md.",
+      "Use docs/agent-truth/provider-smoke-evidence-checklist.md.",
+      "Use docs/agent-truth/runtime-smoke-evidence-checklist.md.",
+      "Use docs/agent-truth/admin-truth-sample-evidence-checklist.md.",
+    ],
   };
 
   return {
@@ -123,6 +128,16 @@ describe("current beta exit status validator", () => {
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
       "release notes status must be represented.",
+    );
+  });
+
+  it("requires next steps to point at the evidence readiness checklists", () => {
+    const report = reportFixture({
+      nextExactSteps: ["Run targeted manual screenshot QA."],
+    });
+
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
+      "nextExactSteps must reference docs/agent-truth/manual-screenshot-qa-checklist.md.",
     );
   });
 

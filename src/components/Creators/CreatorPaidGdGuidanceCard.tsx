@@ -38,7 +38,7 @@ const REASON_COPY: Record<CreatorPaidGdGuidanceReason, {
     request: {
         eyebrow: "Custom request",
         title: "Custom requests need paid GumDrops",
-        body: "Creator experiences use paid GumDrops only, including custom requests to this creator.",
+        body: "Creator experiences use paid GumDrops, not reward balance.",
     },
     booking: {
         eyebrow: "Live time",
