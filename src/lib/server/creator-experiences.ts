@@ -5,6 +5,7 @@ import { FieldValue } from "firebase-admin/firestore";
 
 import { CREATOR_REVENUE_SHARE, buildCreatorRelationshipId, calculateCreatorCashoutUsd, getCreatorBookingRate, getCreatorMessageCost, normalizeCreatorRestrictions, normalizeCreatorSettings, normalizePositiveWholeNumber } from "@/lib/creator-experiences";
 import type { ActorMarker } from "@/lib/identity/actor-markers";
+import { assertCreatorExperienceSpendIsPurchasedOnly } from "@/lib/gumdrop-source-of-funds";
 import {
     buildSourceAwareBalancePatch,
     readSourceAwareBalance,
@@ -196,6 +197,75 @@ export function buildCreatorExperienceTransactionDebug(input: {
     };
 }
 
+type CreatorAttributionSourceType = "message" | "subscription" | "custom_request" | "booking_phone" | "booking_video";
+
+export function buildCreatorExperienceAttribution(input: {
+    creatorId: string;
+    userId: string;
+    sourceType: CreatorAttributionSourceType;
+    sourceId: string;
+    grossSpendGd: number;
+    purchasedAmountSpent: number;
+    rewardAmountSpent: number;
+    userTransactionId: string;
+    creatorAccrualId: string;
+    creatorExperienceRecordId: string;
+    idempotencyKey: string;
+    sourceAwareBalanceBefore: SourceAwareGumdropBalance;
+    sourceAwareBalanceAfter: SourceAwareGumdropBalance;
+}) {
+    const grossSpendGd = Math.max(0, normalizePositiveWholeNumber(input.grossSpendGd));
+    const spendTruth = assertCreatorExperienceSpendIsPurchasedOnly({
+        amount: grossSpendGd,
+        purchasedAmountSpent: input.purchasedAmountSpent,
+        rewardAmountSpent: input.rewardAmountSpent,
+    });
+    const creatorShareGd = Math.max(0, Math.round(grossSpendGd * CREATOR_REVENUE_SHARE));
+
+    return {
+        creatorId: input.creatorId,
+        userId: input.userId,
+        sourceType: input.sourceType,
+        sourceId: input.sourceId,
+        grossSpendGd,
+        purchasedAmountSpent: spendTruth.purchasedAmountSpent,
+        rewardAmountSpent: spendTruth.rewardAmountSpent,
+        creatorShareGd,
+        platformShareGd: Math.max(0, grossSpendGd - creatorShareGd),
+        cashoutValueUsd: calculateCreatorCashoutUsd(creatorShareGd),
+        userTransactionId: input.userTransactionId,
+        creatorAccrualId: input.creatorAccrualId,
+        creatorExperienceRecordId: input.creatorExperienceRecordId,
+        idempotencyKey: input.idempotencyKey,
+        sourceAwareBalanceBefore: input.sourceAwareBalanceBefore,
+        sourceAwareBalanceAfter: input.sourceAwareBalanceAfter,
+        paidSourceRequired: true as const,
+        attributionTruth: "creator_experience_paid_source" as const,
+    };
+}
+
+export function buildCreatorExperienceTransactionAttributionExtra(attribution: ReturnType<typeof buildCreatorExperienceAttribution>) {
+    return {
+        purchasedAmountSpent: attribution.purchasedAmountSpent,
+        rewardAmountSpent: attribution.rewardAmountSpent,
+        ledgerSource: "purchased" as const,
+        source_policy: "creator_experience_paid_only" as const,
+        creatorId: attribution.creatorId,
+        userId: attribution.userId,
+        userTransactionId: attribution.userTransactionId,
+        creatorAccrualId: attribution.creatorAccrualId,
+        creatorExperienceRecordId: attribution.creatorExperienceRecordId,
+        creatorShareGd: attribution.creatorShareGd,
+        cashoutValueUsd: attribution.cashoutValueUsd,
+        platformShareGd: attribution.platformShareGd,
+        creatorAttribution: attribution,
+        attributionTruth: attribution.attributionTruth,
+        sourceAwareBalanceBefore: attribution.sourceAwareBalanceBefore,
+        sourceAwareBalanceAfter: attribution.sourceAwareBalanceAfter,
+        paidSourceRequired: attribution.paidSourceRequired,
+    };
+}
+
 export function buildCreatorExperienceTelemetryPayload(input: {
     marker: ActorMarker;
     creatorId: string;
@@ -246,7 +316,7 @@ export function buildCreatorExperienceTelemetryPayload(input: {
 export function buildCreatorAccrual(input: {
     creatorId: string;
     userId: string;
-    sourceType: "message" | "subscription" | "custom_request" | "booking_phone" | "booking_video";
+    sourceType: CreatorAttributionSourceType;
     sourceId: string;
     grossSpendGd: number;
     createdAt?: number;

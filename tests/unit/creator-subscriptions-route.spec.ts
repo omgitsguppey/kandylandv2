@@ -84,6 +84,33 @@ const mockState = vi.hoisted(() => {
             creatorAccrualId: `accrual_${input.idempotencyKey.replace(/[^a-z0-9_-]/gi, "_")}`,
             creatorExperienceRecordId: `experience_${input.idempotencyKey.replace(/[^a-z0-9_-]/gi, "_")}`,
         })),
+        buildCreatorExperienceAttribution: vi.fn((input: any) => ({
+            ...input,
+            creatorShareGd: 250,
+            platformShareGd: Math.max(0, input.grossSpendGd - 250),
+            cashoutValueUsd: 2.5,
+            paidSourceRequired: true,
+            attributionTruth: "creator_experience_paid_source",
+        })),
+        buildCreatorExperienceTransactionAttributionExtra: vi.fn((attribution: any) => ({
+            purchasedAmountSpent: attribution.purchasedAmountSpent,
+            rewardAmountSpent: attribution.rewardAmountSpent,
+            ledgerSource: "purchased",
+            source_policy: "creator_experience_paid_only",
+            creatorId: attribution.creatorId,
+            userId: attribution.userId,
+            userTransactionId: attribution.userTransactionId,
+            creatorAccrualId: attribution.creatorAccrualId,
+            creatorExperienceRecordId: attribution.creatorExperienceRecordId,
+            creatorShareGd: attribution.creatorShareGd,
+            cashoutValueUsd: attribution.cashoutValueUsd,
+            platformShareGd: attribution.platformShareGd,
+            creatorAttribution: attribution,
+            attributionTruth: attribution.attributionTruth,
+            sourceAwareBalanceBefore: attribution.sourceAwareBalanceBefore,
+            sourceAwareBalanceAfter: attribution.sourceAwareBalanceAfter,
+            paidSourceRequired: true,
+        })),
         buildCreatorExperienceTelemetryPayload: vi.fn((input: any) => ({
             actorType: input.marker.actorType,
             actor_user_id: input.marker.actorType === "user" ? input.marker.actorUid : "",
@@ -158,6 +185,8 @@ const mockState = vi.hoisted(() => {
             this.buildCreatorAccrual.mockClear();
             this.buildCreatorExperienceIdempotencyKey.mockClear();
             this.buildCreatorExperienceRecordIds.mockClear();
+            this.buildCreatorExperienceAttribution.mockClear();
+            this.buildCreatorExperienceTransactionAttributionExtra.mockClear();
             this.buildCreatorExperienceTelemetryPayload.mockClear();
             this.buildCreatorExperienceTransactionDebug.mockClear();
             this.buildSourceAwareBalancePatch.mockClear();
@@ -199,9 +228,11 @@ vi.mock("@/lib/server/creator-experiences", () => ({
         live_time: "creator_live_time_booked",
     },
     buildCreatorAccrual: mockState.buildCreatorAccrual,
+    buildCreatorExperienceAttribution: mockState.buildCreatorExperienceAttribution,
     buildCreatorExperienceIdempotencyKey: mockState.buildCreatorExperienceIdempotencyKey,
     buildCreatorExperienceRecordIds: mockState.buildCreatorExperienceRecordIds,
     buildCreatorExperienceTelemetryPayload: mockState.buildCreatorExperienceTelemetryPayload,
+    buildCreatorExperienceTransactionAttributionExtra: mockState.buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug: mockState.buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch: mockState.buildSourceAwareBalancePatch,
     readSourceAwareBalance: mockState.readSourceAwareBalance,
@@ -337,7 +368,8 @@ describe("creator subscriptions route", () => {
                 rewardBalanceBefore: 0,
                 rewardBalanceAfter: 0,
                 purchasedOnly: true,
-                source_policy: "creator_subscription_paid_only",
+                source_policy: "creator_experience_paid_only",
+                subscription_source_policy: "creator_subscription_paid_only",
             },
         });
         expect(mockState.trackServerEvent).toHaveBeenCalledWith(

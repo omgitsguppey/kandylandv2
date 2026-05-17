@@ -5,7 +5,9 @@ export const PAYPAL_INTERNATIONAL_SURCHARGE = 0.015;
 
 export type GumdropEconomics = {
   deliveredGumDrops: number;
+  /** Paid base at the retail anchor of 100 GumDrops per $1. */
   paidGumDrops: number;
+  /** Paid bundle bonus GumDrops. This is accounting/discount value, not reward balance. */
   bonusGumDrops: number;
   grossRevenueUsd: number;
   grossRevenueCents: number;
@@ -15,6 +17,7 @@ export type GumdropEconomics = {
   netRevenueCents: number;
   retailValueUsd: number;
   retailValueCents: number;
+  /** Accounting value for the paid bundle bonus at the package effective rate, not reward balance. */
   bonusValueUsd: number;
   bonusValueCents: number;
   adjustedProfitUsd: number;

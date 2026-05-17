@@ -1,3 +1,6 @@
+import { GUMDROPS_PER_USD } from "@/lib/gumdrop-economics";
+import { buildPaidBundleCredit } from "@/lib/gumdrop-source-of-funds";
+
 export type GumdropLedgerStatus = "completed" | "failed" | "pending";
 export type SourceAwareGumdropBalance = {
     total: number;
@@ -98,21 +101,33 @@ export function buildPaidPurchaseBalanceCredit(input: {
     amount?: unknown;
     paidGumDrops?: unknown;
     bonusGumDrops?: unknown;
+    priceUsd?: unknown;
 }) {
     const explicitDelivered = normalizeGumdropAmount(input.deliveredGumDrops ?? input.amount);
     const paidGumDrops = Math.max(0, normalizeGumdropAmount(input.paidGumDrops));
     const bonusGumDrops = Math.max(0, normalizeGumdropAmount(input.bonusGumDrops));
     const splitTotal = paidGumDrops + bonusGumDrops;
     const deliveredGumDrops = Math.max(0, explicitDelivered > 0 ? explicitDelivered : splitTotal);
+    const hasExplicitSplit = typeof input.paidGumDrops === "number" || typeof input.bonusGumDrops === "number";
+    const priceUsd = typeof input.priceUsd === "number" && Number.isFinite(input.priceUsd)
+        ? Math.max(0, input.priceUsd)
+        : (hasExplicitSplit ? paidGumDrops : deliveredGumDrops) / GUMDROPS_PER_USD;
+    const canonicalCredit = buildPaidBundleCredit({
+        deliveredGd: deliveredGumDrops,
+        priceUsd,
+    });
 
+    /**
+     * Purchase bonuses are paid bundle credits and live in purchased balance.
+     */
     return {
-        deliveredGumDrops,
-        paidGumDrops,
-        bonusGumDrops,
-        purchasedCreditGumDrops: deliveredGumDrops,
-        rewardCreditGumDrops: 0,
-        purchaseBonusGumDrops: bonusGumDrops,
-        sourceClassification: "paid_purchase_including_bonus" as const,
+        deliveredGumDrops: canonicalCredit.deliveredGd,
+        paidGumDrops: canonicalCredit.paidBaseGd,
+        bonusGumDrops: canonicalCredit.paidBonusGd,
+        purchasedCreditGumDrops: canonicalCredit.purchasedCreditGd,
+        rewardCreditGumDrops: canonicalCredit.rewardCreditGd,
+        purchaseBonusGumDrops: canonicalCredit.paidBonusGd,
+        sourceClassification: canonicalCredit.sourceClassification,
     };
 }
 

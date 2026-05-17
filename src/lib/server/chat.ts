@@ -34,9 +34,11 @@ import {
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
     buildCreatorAccrual,
+    buildCreatorExperienceAttribution,
     buildCreatorExperienceIdempotencyKey,
     buildCreatorExperienceRecordIds,
     buildCreatorExperienceTelemetryPayload,
+    buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch,
     readSourceAwareBalance,
@@ -1046,12 +1048,29 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 createdAt: now,
             });
             creatorAccrualId = ledgerRef.id;
+            const attribution = buildCreatorExperienceAttribution({
+                creatorId: parsedThread.creatorId,
+                userId: parsedThread.userId,
+                sourceType: "message",
+                sourceId: messageRef.id,
+                grossSpendGd: costGd,
+                purchasedAmountSpent: spend.purchasedSpent,
+                rewardAmountSpent: spend.rewardSpent,
+                userTransactionId: transactionRef.id,
+                creatorAccrualId: ledgerRef.id,
+                creatorExperienceRecordId: messageRef.id,
+                idempotencyKey,
+                sourceAwareBalanceBefore: participantBalance,
+                sourceAwareBalanceAfter: spend.next,
+            });
+            const attributionExtra = buildCreatorExperienceTransactionAttributionExtra(attribution);
             transaction.set(ledgerRef, {
                 ...accrual,
+                ...attributionExtra,
                 userTransactionId: transactionRef.id,
                 creatorExperienceRecordId: messageRef.id,
                 idempotencyKey,
-                platformShareGd: transactionDebug.platformShareGd,
+                platformShareGd: attribution.platformShareGd,
             });
             transaction.set(transactionRef, buildCompletedGumdropTransaction({
                 userId: parsedThread.userId,
@@ -1062,19 +1081,11 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 balanceBefore: participantBalance.total,
                 balanceAfter: spend.next.total,
                 extra: {
-                    purchasedAmountSpent: spend.purchasedSpent,
-                    rewardAmountSpent: spend.rewardSpent,
-                    ledgerSource: spend.ledgerSource,
+                    ...attributionExtra,
                     creatorRevenueShareGd: accrual.creatorShareGd,
                     creatorRevenueShareUsd: accrual.cashoutValueUsd,
-                    creatorAccrualId,
-                    creatorExperienceRecordId: messageRef.id,
                     idempotencyKey,
                     duplicatePrevented: false,
-                    userTransactionId: transactionRef.id,
-                    platformShareGd: transactionDebug.platformShareGd,
-                    sourceAwareBalanceBefore: participantBalance,
-                    sourceAwareBalanceAfter: spend.next,
                 },
             }));
         }

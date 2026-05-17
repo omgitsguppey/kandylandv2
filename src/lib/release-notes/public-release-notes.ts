@@ -1,13 +1,71 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.55",
-  "betaReleaseCounter": 255,
+  "currentVersion": "1.2.56",
+  "betaReleaseCounter": 256,
   "channel": "beta",
-  "generatedAt": "2026-05-15T19:30:24.640Z",
-  "generatedAtUtc": "2026-05-15T19:30:24.640Z",
-  "lastCommitSha": "d3fa68bca7691ce0c1207e5d6e9b06a8de18d518",
+  "generatedAt": "2026-05-17T01:27:32.153Z",
+  "generatedAtUtc": "2026-05-17T01:27:32.153Z",
+  "lastCommitSha": "b811bb9ca2e0a470f1d6311ce456de2c06812291",
   "notes": [
+    {
+      "version": "1.2.56",
+      "previousVersion": "1.2.55",
+      "betaReleaseCounter": 256,
+      "previousBetaReleaseCounter": 255,
+      "commitSha": "b811bb9ca2e0a470f1d6311ce456de2c06812291",
+      "commitTitle": "fix(economy): lock gumdrop source attribution",
+      "commitCount": 1,
+      "commitShas": [
+        "b811bb9ca2e0a470f1d6311ce456de2c06812291"
+      ],
+      "committedAt": "2026-05-15T20:40:59.172Z",
+      "generatedAt": "2026-05-17T01:27:32.153Z",
+      "committedAtUtc": "2026-05-15T20:40:59.172Z",
+      "generatedAtUtc": "2026-05-17T01:27:32.153Z",
+      "updatedAtUtc": "2026-05-17T01:27:32.153Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Clarified GumDrop bonus math, paid-balance spend, and creator earning attribution.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Clarified GumDrop bonus math and paid-balance attribution.",
+        "Locked creator experiences to paid GumDrop spend.",
+        "Improved creator earning attribution for fan experiences."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "wallet",
+        "creator",
+        "drops-viewer"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/gumdrop-source-of-funds.ts",
+        "src/lib/gumdrop-ledger.ts",
+        "src/lib/gumdrop-economics.ts",
+        "src/app/api/paypal/capture/route.ts",
+        "src/lib/server/creator-experiences.ts",
+        "src/lib/server/chat.ts",
+        "src/app/api/creator/requests/route.ts",
+        "src/app/api/creator/bookings/route.ts",
+        "src/app/api/creator/subscriptions/route.ts",
+        "src/app/api/cron/process-creator-subscriptions/route.ts",
+        "src/lib/creator-booking-slots.ts",
+        "src/components/Creators/CreatorExperiencesPanel.tsx",
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/app/drops/DropsClient.tsx",
+        "agent/state/gumdrop-economy-accuracy.generated.json",
+        "docs/agent-truth/gumdrop-economy-accuracy.md",
+        "scripts/agent/validate-gumdrop-economy-accuracy.ts",
+        "tests/unit/gumdrop-economy-accuracy.spec.ts",
+        "tests/unit/creator-booking-slots.spec.ts",
+        "tests/unit/creator-experiences-panel.spec.tsx",
+        "tests/unit/drop-visibility-scope.spec.tsx"
+      ],
+      "sourceCommit": "b811bb9ca2e0a470f1d6311ce456de2c06812291"
+    },
     {
       "version": "1.2.55",
       "previousVersion": "1.2.54",
@@ -1118,51 +1176,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md"
       ],
       "sourceCommit": "c318d90a84bac8e24596c9be4a6376406e179f8c"
-    },
-    {
-      "version": "1.2.31",
-      "previousVersion": "1.2.30",
-      "betaReleaseCounter": 231,
-      "previousBetaReleaseCounter": 230,
-      "commitSha": "d405169db235fe67cb9729077752f91ab45aef7c",
-      "commitTitle": "fix(admin): simplify debug recovery panel",
-      "commitCount": 1,
-      "commitShas": [
-        "d405169db235fe67cb9729077752f91ab45aef7c"
-      ],
-      "committedAt": "2026-05-14T00:49:57.000Z",
-      "generatedAt": "2026-05-14T00:53:30.028Z",
-      "committedAtUtc": "2026-05-14T00:49:57.000Z",
-      "generatedAtUtc": "2026-05-14T00:53:30.028Z",
-      "updatedAtUtc": "2026-05-14T00:53:30.028Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Simplified Admin Debug recovery evidence review.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Simplified the Admin Debug panel so recovery evidence is easier to review.",
-        "Reduced redundant nested scrolling in Debug views.",
-        "Refreshed analytics rewire evidence after the cost-reduction pass."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-rewire-phase-one.generated.json",
-        "agent/state/identity-privacy-raw-ledger-rewire.generated.json",
-        "agent/state/lost-data-recovery-dry-run.generated.json",
-        "agent/state/snapshot-admin-vendor-cost-rewire.generated.json",
-        "docs/agent-truth/snapshot-admin-vendor-cost-rewire.md",
-        "scripts/agent/validate-admin-debug-control-tower.ts",
-        "src/app/admin/debug/components/DebugRuntimeEvidenceGroups.tsx",
-        "src/app/admin/debug/components/DebugTabNow.tsx",
-        "tests/unit/admin-debug-control-tower.spec.ts",
-        "tests/unit/snapshot-admin-vendor-cost-rewire.spec.ts"
-      ],
-      "sourceCommit": "d405169db235fe67cb9729077752f91ab45aef7c"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

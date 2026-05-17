@@ -73,6 +73,33 @@ const mockState = vi.hoisted(() => {
             creatorAccrualId: `accrual_${input.idempotencyKey.replace(/[^a-z0-9_-]/gi, "_")}`,
             creatorExperienceRecordId: `request_${input.idempotencyKey.replace(/[^a-z0-9_-]/gi, "_")}`,
         })),
+        buildCreatorExperienceAttribution: vi.fn((input: any) => ({
+            ...input,
+            creatorShareGd: 150,
+            platformShareGd: Math.max(0, input.grossSpendGd - 150),
+            cashoutValueUsd: 1.5,
+            paidSourceRequired: true,
+            attributionTruth: "creator_experience_paid_source",
+        })),
+        buildCreatorExperienceTransactionAttributionExtra: vi.fn((attribution: any) => ({
+            purchasedAmountSpent: attribution.purchasedAmountSpent,
+            rewardAmountSpent: attribution.rewardAmountSpent,
+            ledgerSource: "purchased",
+            source_policy: "creator_experience_paid_only",
+            creatorId: attribution.creatorId,
+            userId: attribution.userId,
+            userTransactionId: attribution.userTransactionId,
+            creatorAccrualId: attribution.creatorAccrualId,
+            creatorExperienceRecordId: attribution.creatorExperienceRecordId,
+            creatorShareGd: attribution.creatorShareGd,
+            cashoutValueUsd: attribution.cashoutValueUsd,
+            platformShareGd: attribution.platformShareGd,
+            creatorAttribution: attribution,
+            attributionTruth: attribution.attributionTruth,
+            sourceAwareBalanceBefore: attribution.sourceAwareBalanceBefore,
+            sourceAwareBalanceAfter: attribution.sourceAwareBalanceAfter,
+            paidSourceRequired: true,
+        })),
         buildCreatorExperienceTelemetryPayload: vi.fn((input: any) => ({
             actorType: input.marker.actorType,
             creator_id: input.creatorId,
@@ -124,6 +151,8 @@ const mockState = vi.hoisted(() => {
             this.buildCreatorAccrual.mockClear();
             this.buildCreatorExperienceIdempotencyKey.mockClear();
             this.buildCreatorExperienceRecordIds.mockClear();
+            this.buildCreatorExperienceAttribution.mockClear();
+            this.buildCreatorExperienceTransactionAttributionExtra.mockClear();
             this.buildCreatorExperienceTelemetryPayload.mockClear();
             this.buildCreatorExperienceTransactionDebug.mockClear();
             this.buildSourceAwareBalancePatch.mockClear();
@@ -158,9 +187,11 @@ vi.mock("@/lib/server/creator-experiences", () => ({
         custom_request: "creator_custom_request_created",
     },
     buildCreatorAccrual: mockState.buildCreatorAccrual,
+    buildCreatorExperienceAttribution: mockState.buildCreatorExperienceAttribution,
     buildCreatorExperienceIdempotencyKey: mockState.buildCreatorExperienceIdempotencyKey,
     buildCreatorExperienceRecordIds: mockState.buildCreatorExperienceRecordIds,
     buildCreatorExperienceTelemetryPayload: mockState.buildCreatorExperienceTelemetryPayload,
+    buildCreatorExperienceTransactionAttributionExtra: mockState.buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug: mockState.buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch: mockState.buildSourceAwareBalancePatch,
     readSourceAwareBalance: mockState.readSourceAwareBalance,

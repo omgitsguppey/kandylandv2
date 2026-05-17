@@ -8,7 +8,14 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, CREATOR_SUBSCRIPTION_MIN_GD, isCreatorRole } from "@/lib/creator-experiences";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { buildNotificationRecord } from "@/lib/notification-contracts";
-import { buildCreatorAccrual, buildSourceAwareBalancePatch, readSourceAwareBalance, spendCreatorExperienceGumdrops } from "@/lib/server/creator-experiences";
+import {
+    buildCreatorAccrual,
+    buildCreatorExperienceAttribution,
+    buildCreatorExperienceTransactionAttributionExtra,
+    buildSourceAwareBalancePatch,
+    readSourceAwareBalance,
+    spendCreatorExperienceGumdrops,
+} from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
@@ -263,6 +270,7 @@ async function GET_handler(request: NextRequest) {
 
                     const accrualRef = adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).doc();
                     const transactionRef = adminDb.collection("transactions").doc();
+                    const renewalIdempotencyKey = `creator-subscription-renewal:${subscriptionDoc.id}:${now}`;
                     const accrual = buildCreatorAccrual({
                         creatorId,
                         userId,
@@ -271,6 +279,22 @@ async function GET_handler(request: NextRequest) {
                         grossSpendGd: priceGd,
                         createdAt: now,
                     });
+                    const attribution = buildCreatorExperienceAttribution({
+                        creatorId,
+                        userId,
+                        sourceType: "subscription",
+                        sourceId: subscriptionDoc.id,
+                        grossSpendGd: priceGd,
+                        purchasedAmountSpent: spend.purchasedSpent,
+                        rewardAmountSpent: spend.rewardSpent,
+                        userTransactionId: transactionRef.id,
+                        creatorAccrualId: accrualRef.id,
+                        creatorExperienceRecordId: subscriptionDoc.id,
+                        idempotencyKey: renewalIdempotencyKey,
+                        sourceAwareBalanceBefore: balance,
+                        sourceAwareBalanceAfter: spend.next,
+                    });
+                    const attributionExtra = buildCreatorExperienceTransactionAttributionExtra(attribution);
 
                     transaction.update(userSnap.ref, buildSourceAwareBalancePatch(spend.next));
                     transaction.set(subscriptionDoc.ref, {
@@ -281,7 +305,14 @@ async function GET_handler(request: NextRequest) {
                         warningCycleKey: FieldValue.delete(),
                         renewalFailureReason: FieldValue.delete(),
                     }, { merge: true });
-                    transaction.set(accrualRef, accrual);
+                    transaction.set(accrualRef, {
+                        ...accrual,
+                        ...attributionExtra,
+                        userTransactionId: transactionRef.id,
+                        creatorExperienceRecordId: subscriptionDoc.id,
+                        idempotencyKey: renewalIdempotencyKey,
+                        platformShareGd: attribution.platformShareGd,
+                    });
                     transaction.set(transactionRef, buildCompletedGumdropTransaction({
                         userId,
                         type: "creator_subscription_renewal",
@@ -292,12 +323,11 @@ async function GET_handler(request: NextRequest) {
                         balanceAfter: spend.next.total,
                         timestampMs: now,
                         extra: {
-                            purchasedAmountSpent: spend.purchasedSpent,
-                            rewardAmountSpent: spend.rewardSpent,
-                            ledgerSource: spend.ledgerSource,
+                            ...attributionExtra,
                             creatorRevenueShareGd: accrual.creatorShareGd,
                             creatorRevenueShareUsd: accrual.cashoutValueUsd,
-                            creatorAccrualId: accrualRef.id,
+                            idempotencyKey: renewalIdempotencyKey,
+                            duplicatePrevented: false,
                         },
                     }));
                     return { status: "renewed" as const, amount: priceGd, creatorAccrualId: accrualRef.id };

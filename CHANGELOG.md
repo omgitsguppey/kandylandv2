@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.56 - 2026-05-15
+- Bug fixes and general improvements
+- Clarified GumDrop bonus math and paid-balance attribution.
+- Locked creator experiences to paid GumDrop spend.
+- Improved creator earning attribution for fan experiences.
+
 ## 1.2.55 - 2026-05-15
 - Bug fixes and general improvements
 - Confirmed user and creator surfaces for mobile UI stability.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Refreshed Phase 1 beta readiness evidence.
 - Confirmed analytics rewire blockers remain cleared after the Debug panel cleanup.
 - Kept remaining launch evidence gaps visible instead of marking them complete.
-
-## 1.2.31 - 2026-05-14
-- Bug fixes and general improvements
-- Simplified the Admin Debug panel so recovery evidence is easier to review.
-- Reduced redundant nested scrolling in Debug views.
-- Refreshed analytics rewire evidence after the cost-reduction pass.

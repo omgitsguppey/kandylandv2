@@ -10,9 +10,11 @@ import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjection
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
     buildCreatorAccrual,
+    buildCreatorExperienceAttribution,
     buildCreatorExperienceIdempotencyKey,
     buildCreatorExperienceRecordIds,
     buildCreatorExperienceTelemetryPayload,
+    buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch,
     readSourceAwareBalance,
@@ -121,7 +123,8 @@ function buildSubscriptionSourceTelemetry(debug: unknown) {
         rewardBalanceBefore: readDebugNumber(debug, "rewardBalanceBefore"),
         rewardBalanceAfter: readDebugNumber(debug, "rewardBalanceAfter"),
         purchasedOnly: true,
-        source_policy: "creator_subscription_paid_only",
+        source_policy: "creator_experience_paid_only",
+        subscription_source_policy: "creator_subscription_paid_only",
     };
 }
 
@@ -377,7 +380,8 @@ async function POST_handler(request: NextRequest) {
                         rewardBalanceBefore: balance.reward,
                         rewardBalanceAfter: balance.reward,
                         purchasedOnly: true,
-                        source_policy: "creator_subscription_paid_only",
+                        source_policy: "creator_experience_paid_only",
+                        subscription_source_policy: "creator_subscription_paid_only",
                     },
                 };
             }
@@ -417,13 +421,30 @@ async function POST_handler(request: NextRequest) {
                 sourceAwareBalanceBefore: balance,
                 sourceAwareBalanceAfter: spend.next,
             });
+            const attribution = buildCreatorExperienceAttribution({
+                creatorId,
+                userId: caller.uid,
+                sourceType: "subscription",
+                sourceId: subscriptionRef.id,
+                grossSpendGd: priceGd,
+                purchasedAmountSpent: spend.purchasedSpent,
+                rewardAmountSpent: spend.rewardSpent,
+                userTransactionId: transactionRef.id,
+                creatorAccrualId: ledgerRef.id,
+                creatorExperienceRecordId: subscriptionRef.id,
+                idempotencyKey,
+                sourceAwareBalanceBefore: balance,
+                sourceAwareBalanceAfter: spend.next,
+            });
+            const attributionExtra = buildCreatorExperienceTransactionAttributionExtra(attribution);
             const sourcePolicyDebug = {
                 paidBalanceBefore: balance.purchased,
                 paidBalanceAfter: spend.next.purchased,
                 rewardBalanceBefore: balance.reward,
                 rewardBalanceAfter: spend.next.reward,
                 purchasedOnly: true,
-                source_policy: "creator_subscription_paid_only",
+                source_policy: "creator_experience_paid_only",
+                subscription_source_policy: "creator_subscription_paid_only",
             };
             const transactionDebug = {
                 ...debug,
@@ -453,10 +474,11 @@ async function POST_handler(request: NextRequest) {
             }, { merge: true });
             transaction.set(ledgerRef, {
                 ...accrual,
+                ...attributionExtra,
                 userTransactionId: transactionRef.id,
                 creatorExperienceRecordId: subscriptionRef.id,
                 idempotencyKey,
-                platformShareGd: debug.platformShareGd,
+                platformShareGd: attribution.platformShareGd,
             });
             transaction.set(transactionRef, buildCompletedGumdropTransaction({
                 userId: caller.uid,
@@ -468,19 +490,11 @@ async function POST_handler(request: NextRequest) {
                 balanceAfter: spend.next.total,
                 timestampMs: now,
                 extra: {
-                    purchasedAmountSpent: spend.purchasedSpent,
-                    rewardAmountSpent: spend.rewardSpent,
-                    ledgerSource: spend.ledgerSource,
+                    ...attributionExtra,
                     creatorRevenueShareGd: accrual.creatorShareGd,
                     creatorRevenueShareUsd: accrual.cashoutValueUsd,
-                    creatorAccrualId: ledgerRef.id,
-                    creatorExperienceRecordId: subscriptionRef.id,
                     idempotencyKey,
                     duplicatePrevented: false,
-                    userTransactionId: transactionRef.id,
-                    platformShareGd: debug.platformShareGd,
-                    sourceAwareBalanceBefore: balance,
-                    sourceAwareBalanceAfter: spend.next,
                     ...sourcePolicyDebug,
                 },
             }));

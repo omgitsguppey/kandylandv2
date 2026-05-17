@@ -1,0 +1,184 @@
+{
+  "generatedAtUtc": "2026-05-17T01:26:08.470Z",
+  "reportKey": "gumdrop-economy-accuracy",
+  "currentHead": "b811bb9ca2e0a470f1d6311ce456de2c06812291",
+  "summary": {
+    "purchaseCreditPaths": 3,
+    "rewardCreditPaths": 3,
+    "creatorSpendPaths": 5,
+    "creatorAttributionPaths": 5,
+    "bookingFreePickPaths": 0,
+    "creatorUserModeLeaks": 0,
+    "dropVisibilityRisks": 0,
+    "fixedThisPass": 6,
+    "dryRunOnlyFindings": 1,
+    "p0Count": 3,
+    "p1Count": 2,
+    "p2Count": 2
+  },
+  "purchaseCreditPaths": [
+    {
+      "filePath": "src/lib/gumdrop-source-of-funds.ts",
+      "helper": "buildPaidBundleCredit",
+      "classification": "paid_purchase_including_bonus"
+    },
+    {
+      "filePath": "src/lib/gumdrop-ledger.ts",
+      "helper": "buildPaidPurchaseBalanceCredit",
+      "classification": "paid_purchase_including_bonus"
+    },
+    {
+      "filePath": "src/app/api/paypal/capture/route.ts",
+      "helper": "buildPaidPurchaseBalanceCredit",
+      "classification": "paid_purchase_including_bonus"
+    }
+  ],
+  "rewardCreditPaths": [
+    {
+      "filePath": "src/lib/gumdrop-source-of-funds.ts",
+      "helper": "buildRewardCredit",
+      "balance": "reward"
+    },
+    {
+      "filePath": "src/lib/server/daily-tasks.ts",
+      "helper": "creditSourceAwareGumdrops",
+      "balance": "reward"
+    },
+    {
+      "filePath": "src/app/api/admin/balance/route.ts",
+      "helper": "creditSourceAwareGumdrops",
+      "balance": "admin_adjustment"
+    }
+  ],
+  "creatorSpendPaths": [
+    {
+      "filePath": "src/app/api/creator/requests/route.ts",
+      "policy": "creator_experience_paid_only"
+    },
+    {
+      "filePath": "src/app/api/creator/bookings/route.ts",
+      "policy": "creator_experience_paid_only"
+    },
+    {
+      "filePath": "src/app/api/creator/subscriptions/route.ts",
+      "policy": "creator_experience_paid_only"
+    },
+    {
+      "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
+      "policy": "creator_experience_paid_only"
+    },
+    {
+      "filePath": "src/lib/server/chat.ts",
+      "policy": "creator_experience_paid_only"
+    }
+  ],
+  "creatorAttributionPaths": [
+    {
+      "filePath": "src/lib/server/creator-experiences.ts",
+      "helper": "buildCreatorExperienceAttribution"
+    },
+    {
+      "filePath": "src/app/api/creator/requests/route.ts",
+      "sourceType": "custom_request"
+    },
+    {
+      "filePath": "src/app/api/creator/bookings/route.ts",
+      "sourceType": "booking_phone|booking_video"
+    },
+    {
+      "filePath": "src/app/api/creator/subscriptions/route.ts",
+      "sourceType": "subscription"
+    },
+    {
+      "filePath": "src/lib/server/chat.ts",
+      "sourceType": "message"
+    }
+  ],
+  "bookingSlotFindings": [
+    {
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "freePickDisabled": true,
+      "slotSource": "creator_availability_windows"
+    }
+  ],
+  "creatorModeFindings": [
+    {
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "ownerModeGuard": true
+    }
+  ],
+  "dropVisibilityFindings": [
+    {
+      "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "scope": "own_creator_drops"
+    },
+    {
+      "filePath": "src/app/drops/DropsClient.tsx",
+      "scope": "public_discovery"
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "paid-bundle-bonus-source",
+      "severity": "p0",
+      "surface": "wallet",
+      "status": "fixed",
+      "filePath": "src/lib/gumdrop-source-of-funds.ts",
+      "detail": "Paid package bonuses classify as paid bundle credits and purchased balance."
+    },
+    {
+      "id": "paypal-source-breakdown-aliases",
+      "severity": "p0",
+      "surface": "wallet",
+      "status": "fixed",
+      "filePath": "src/app/api/paypal/capture/route.ts",
+      "detail": "PayPal capture records paidBaseGd, paidBonusGd, rewardPromoGd, and source classification aliases."
+    },
+    {
+      "id": "creator-paid-source-attribution",
+      "severity": "p0",
+      "surface": "creator-experience",
+      "status": "fixed",
+      "filePath": "src/lib/server/creator-experiences.ts",
+      "detail": "Creator experience attribution binds creatorId, userId, source, spend, share, cashout, IDs, and paid-source truth."
+    },
+    {
+      "id": "booking-generated-slots",
+      "severity": "p1",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/lib/creator-booking-slots.ts",
+      "detail": "Fan booking selection is generated from creator availability and existing bookings."
+    },
+    {
+      "id": "creator-owner-mode",
+      "severity": "p1",
+      "surface": "creator-profile",
+      "status": "fixed",
+      "filePath": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "detail": "Creator owner view hides fan experience controls."
+    },
+    {
+      "id": "drop-visibility-scope-attrs",
+      "severity": "p2",
+      "surface": "drops",
+      "status": "fixed",
+      "filePath": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "detail": "Creator profile drops are marked as own creator drops while public discovery remains public."
+    }
+  ],
+  "dryRunRemediationCandidates": [
+    {
+      "id": "legacy-total-balance-source",
+      "severity": "p2",
+      "surface": "wallet",
+      "status": "dry_run",
+      "filePath": "src/lib/gumdrop-ledger.ts",
+      "detail": "readSourceAwareBalance still preserves legacy total-only balances for non-creator compatibility; creator UI now reads paid balance directly."
+    }
+  ],
+  "nextFixOrder": [
+    "Run targeted tests for source-of-funds, creator routes, booking slots, and creator experiences panel.",
+    "Keep legacy total-only balance migration as a separate compatibility decision."
+  ]
+}

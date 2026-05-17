@@ -214,9 +214,22 @@ describe("POST /api/paypal/capture", () => {
             paidGumDrops: 500,
             bonusGumDrops: 50,
             purchaseBonusGumDrops: 50,
+            paidBaseGd: 500,
+            paidBonusGd: 50,
+            purchasedCreditGd: 550,
+            rewardCreditGd: 0,
+            rewardPromoGd: 0,
             purchasedBalanceCreditGumDrops: 550,
             rewardBalanceCreditGumDrops: 0,
             purchaseSourceClassification: "paid_purchase_including_bonus",
+            sourceClassification: "paid_purchase_including_bonus",
+            sourceOfFundsBreakdown: {
+                paidBaseGd: 500,
+                paidBonusGd: 50,
+                rewardPromoGd: 0,
+                purchasedBalanceCreditGd: 550,
+                rewardBalanceCreditGd: 0,
+            },
             sourceTruth: "server_purchase_transaction",
         });
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("server_purchase_verified", expect.objectContaining({

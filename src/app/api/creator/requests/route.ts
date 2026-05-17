@@ -10,9 +10,11 @@ import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjection
 import {
     CREATOR_EXPERIENCE_PAID_EVENTS,
     buildCreatorAccrual,
+    buildCreatorExperienceAttribution,
     buildCreatorExperienceIdempotencyKey,
     buildCreatorExperienceRecordIds,
     buildCreatorExperienceTelemetryPayload,
+    buildCreatorExperienceTransactionAttributionExtra,
     buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch,
     readSourceAwareBalance,
@@ -340,6 +342,22 @@ async function POST_handler(request: NextRequest) {
                 sourceAwareBalanceBefore: balance,
                 sourceAwareBalanceAfter: spend.next,
             });
+            const attribution = buildCreatorExperienceAttribution({
+                creatorId,
+                userId: caller.uid,
+                sourceType: "custom_request",
+                sourceId: requestRef.id,
+                grossSpendGd: priceGd,
+                purchasedAmountSpent: spend.purchasedSpent,
+                rewardAmountSpent: spend.rewardSpent,
+                userTransactionId: transactionRef.id,
+                creatorAccrualId: ledgerRef.id,
+                creatorExperienceRecordId: requestRef.id,
+                idempotencyKey,
+                sourceAwareBalanceBefore: balance,
+                sourceAwareBalanceAfter: spend.next,
+            });
+            const attributionExtra = buildCreatorExperienceTransactionAttributionExtra(attribution);
 
             transaction.update(userRef, buildSourceAwareBalancePatch(spend.next));
             transaction.set(requestRef, {
@@ -359,10 +377,11 @@ async function POST_handler(request: NextRequest) {
             });
             transaction.set(ledgerRef, {
                 ...accrual,
+                ...attributionExtra,
                 userTransactionId: transactionRef.id,
                 creatorExperienceRecordId: requestRef.id,
                 idempotencyKey,
-                platformShareGd: debug.platformShareGd,
+                platformShareGd: attribution.platformShareGd,
             });
             transaction.set(transactionRef, buildCompletedGumdropTransaction({
                 userId: caller.uid,
@@ -374,19 +393,11 @@ async function POST_handler(request: NextRequest) {
                 balanceAfter: spend.next.total,
                 timestampMs: now,
                 extra: {
-                    purchasedAmountSpent: spend.purchasedSpent,
-                    rewardAmountSpent: spend.rewardSpent,
-                    ledgerSource: spend.ledgerSource,
+                    ...attributionExtra,
                     creatorRevenueShareGd: accrual.creatorShareGd,
                     creatorRevenueShareUsd: accrual.cashoutValueUsd,
-                    creatorAccrualId: ledgerRef.id,
-                    creatorExperienceRecordId: requestRef.id,
                     idempotencyKey,
                     duplicatePrevented: false,
-                    userTransactionId: transactionRef.id,
-                    platformShareGd: debug.platformShareGd,
-                    sourceAwareBalanceBefore: balance,
-                    sourceAwareBalanceAfter: spend.next,
                 },
             }));
 
