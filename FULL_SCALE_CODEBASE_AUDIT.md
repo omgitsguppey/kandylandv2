@@ -13871,3 +13871,36 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## Blocked Deliverable: Monolith File + Responsibility Boundary Audit
+
+**Date:** 2026-05-18
+
+The targeted structural pass to reduce monolith file risk and clarify responsibility boundaries cannot be safely completed through automated scripting because several candidate files significantly exceed the ~2000 line threshold, introducing an unacceptable risk of regression in core functionality.
+
+**Candidate Files & Classification:**
+- `src/app/api/admin/debug/route.ts` - **God-file risk**
+- `src/components/Chat/ChatExperience.tsx` - **God-file risk**
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` - **God-file risk**
+- `src/app/api/admin/users/route.ts` - **God-file risk**
+- `src/lib/server/ai-drop-covers.ts` - **God-file risk**
+- `src/app/api/admin/analytics/historical/route.ts` - **God-file risk**
+
+**Exact Blocker:**
+The files listed above are too large (>2000 lines) and encompass too many mixed responsibilities (e.g., view rendering mixed with orchestration, API routes owning deep data transformation and telemetry logic) for safe, automated file decomposition. Refactoring these without explicit, manual human oversight is strictly disallowed due to stability constraints.
+
+**Affected Components:**
+- Admin debug utilities and daily task logic
+- Chat UX (view, shell, scrolling, input, real-time sync)
+- Admin analytics historical logic and hook state management
+- Admin user CRUD, engagement, and lifecycle management
+- AI drop cover generation and library logic
+
+**Precise Codex Prompt for Future Manual Decomposition:**
+```
+Please perform a structural decomposition of the God-files identified in the 2026-05-18 audit. For each file, follow these steps:
+1. Identify distinct responsibility boundaries: separate view rendering from hook logic, separate raw data fetching from business transformations, and extract telemetry/analytics logging into dedicated helper functions.
+2. For Next.js API routes (e.g., `src/app/api/admin/debug/route.ts`), extract the handler logic into discrete controller/service files within `src/lib/server/` to keep the route file under 500 lines.
+3. For React components (e.g., `src/components/Chat/ChatExperience.tsx`), extract pure UI parts into smaller, single-purpose components (<= 300 lines) and extract the state orchestrator logic into a custom hook.
+4. Ensure all extracted parts maintain exactly 1:1 behavioral parity. Write or update unit tests to verify boundaries before submitting.
+```
