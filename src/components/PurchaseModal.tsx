@@ -476,7 +476,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 data-wallet-balance-chip="split-source"
                 data-wallet-package-subcopy="removed"
                 data-wallet-bonus-chip-theme="brand-purple"
-                className="relative w-full max-w-md bg-black/45 backdrop-blur-xl rounded-3xl p-4 sm:p-5 md:p-5 shadow-2xl border border-white/10 pointer-events-auto"
+                className="relative w-full max-w-md bg-black/45 backdrop-blur-xl rounded-3xl p-4 sm:p-5 md:p-6 shadow-2xl border border-white/10 pointer-events-auto"
               >
                 <button ref={closeButtonRef} aria-label="Close modal" onClick={() => closeModal("wallet_close_button")} className="absolute top-3 right-3 flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition-colors z-30">
                   <X className="w-5 h-5" />
@@ -541,7 +541,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-1.5">
-                                    <span className="text-[15px] font-bold text-white leading-none">{pkg.drops.toLocaleString()}</span>
+                                    <span className="text-[15px] font-bold text-white leading-none">{pkgEconomics.paidGumDrops.toLocaleString()}</span>
                                     <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
                                     {pkgEconomics.bonusGumDrops > 0 && (
                                       <span className="inline-flex items-center ml-1 rounded border border-brand-purple/30 bg-brand-purple/15 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-[#d7c4ff]">
@@ -560,43 +560,46 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         })}
                       </div>
 
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        aria-pressed={isBundleSelected}
-                        aria-label={`Select King Size Bundle with ${customDrops.toLocaleString()} Gum Drops`}
-                        onClick={() => {
-                          selectBundlePackage(customDrops);
-                        }}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            selectBundlePackage(customDrops);
-                          }
-                        }}
-                        className={cn(
-                          "relative mt-2 mb-4 flex w-full cursor-pointer flex-col gap-2 rounded-xl border p-2.5 text-left transition-all",
-                          isBundleSelected
-                            ? "bg-brand-purple/15 border-brand-purple/50 ring-1 ring-brand-purple/40 shadow-sm"
-                            : "bg-white/5 border-white/5 hover:bg-white/10"
-                        )}
-                      >
-                        <div className="flex items-center justify-between">
-                           <div className="flex items-center gap-3">
-                                <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors", isBundleSelected ? "bg-brand-purple/20" : "bg-black/40")}>
-                                  <Candy className={cn("h-5 w-5", isBundleSelected ? "text-brand-purple shadow-sm" : "text-gray-400")} />
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-1.5 flex-wrap">
-                                    <span className="text-[15px] font-bold text-white leading-none">{customDrops.toLocaleString()}</span>
-                                    <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
-                                    <span className="inline-flex items-center ml-0 sm:ml-1 rounded border border-brand-purple/30 bg-brand-purple/15 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-[#d7c4ff]">
-                                      {customDrops >= 5000 ? "Paid bundle bonus" : "Bundle bonus"}
-                                    </span>
-                                  </div>
-                                  <p className="text-[11px] font-medium text-gray-400 mt-1">King Size Bundle</p>
-                                </div>
-                           </div>
+                      {(() => {
+                        const bundleRenderEconomics = deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5);
+                        return (
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={isBundleSelected}
+                            aria-label={`Select King Size Bundle with ${customDrops.toLocaleString()} Gum Drops`}
+                            onClick={() => {
+                              selectBundlePackage(customDrops);
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                selectBundlePackage(customDrops);
+                              }
+                            }}
+                            className={cn(
+                              "relative mt-2 mb-4 flex w-full cursor-pointer flex-col gap-2 rounded-xl border p-2.5 text-left transition-all",
+                              isBundleSelected
+                                ? "bg-brand-purple/15 border-brand-purple/50 ring-1 ring-brand-purple/40 shadow-sm"
+                                : "bg-white/5 border-white/5 hover:bg-white/10"
+                            )}
+                          >
+                            <div className="flex items-center justify-between">
+                               <div className="flex items-center gap-3">
+                                    <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors", isBundleSelected ? "bg-brand-purple/20" : "bg-black/40")}>
+                                      <Candy className={cn("h-5 w-5", isBundleSelected ? "text-brand-purple shadow-sm" : "text-gray-400")} />
+                                    </div>
+                                    <div>
+                                      <div className="flex items-center gap-1.5 flex-wrap">
+                                        <span className="text-[15px] font-bold text-white leading-none">{bundleRenderEconomics.paidGumDrops.toLocaleString()}</span>
+                                        <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
+                                        <span className="inline-flex items-center ml-0 sm:ml-1 rounded border border-brand-purple/30 bg-brand-purple/15 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-[#d7c4ff]">
+                                          +{bundleRenderEconomics.bonusGumDrops} paid bonus GD
+                                        </span>
+                                      </div>
+                                      <p className="text-[11px] font-medium text-gray-400 mt-1">King Size Bundle</p>
+                                    </div>
+                               </div>
                            <span className={cn("shrink-0 text-[15px] font-bold", isBundleSelected ? "text-brand-purple" : "text-white")}>
                               ${((customDrops / 1000) * 5).toFixed(2)}
                            </span>
@@ -640,7 +643,9 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                              </div>
                            </div>
                         )}
-                      </div>
+                          </div>
+                        );
+                      })()}
 
                       <div className="w-full relative z-10 pt-2 pb-1 border-t border-white/10 select-none">
                         <div className="mb-3 text-[10px] font-bold text-gray-500 tracking-widest uppercase text-center flex items-center gap-3">

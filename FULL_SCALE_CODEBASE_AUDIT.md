@@ -8689,6 +8689,14 @@ Verified by `npm run check:inventory` on 2026-04-08:
 
 ### Active continuation: Open PR assimilation and repo cleanup review (in progress)
 
+### Fix GumDrop package visual metadata and double-counting drift
+
+- Issue: The `PurchaseModal` component was displaying the *total* package GumDrops (base + bonus) alongside an explicitly labeled "paid bonus GD" badge. This created a visual double-counting drift, misleading users into thinking they were receiving `total + bonus` instead of `total = base + bonus`. For instance, the custom bundle section displayed `5000 GumDrops` + a generic `Bundle bonus` chip.
+- Resolution: Replaced `pkg.drops.toLocaleString()` with `pkgEconomics.paidGumDrops.toLocaleString()` in `PurchaseModal` lists so that the total is correctly framed as base drops plus the bonus chip. The custom bundle section was also updated to explicitly calculate and display `bundleRenderEconomics.paidGumDrops` and the numeric `+{bundleRenderEconomics.bonusGumDrops} paid bonus GD`.
+- Status: Fixed (aligns with `REPO_MEMORY_LEDGER.md` split source-of-funds requirement).
+
+### Active continuation: Open PR assimilation and repo cleanup review (in progress)
+
 - Start timestamp: 2026-04-07 13:21:20 -05:00
 - Start HEAD: `dcf7910`
 - Task scope:
