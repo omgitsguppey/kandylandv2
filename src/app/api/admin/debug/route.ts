@@ -4278,6 +4278,16 @@ export async function GET(request: NextRequest) {
         });
         const allTaskDefinitions = [...BUILT_IN_DAILY_TASKS, ...customTaskDefinitions];
         const taskDefinitionsById = new Map(allTaskDefinitions.map((definition) => [definition.id, definition]));
+        // Bolt Optimization: Precompute a map grouping task definitions by canonical event name
+        // This turns O(N^2) array filter searches in the nested telemetry loops below into O(1) lookups.
+        const taskDefinitionsByCanonicalEvent = new Map<string, DailyTaskDefinition[]>();
+        for (const definition of allTaskDefinitions) {
+            const canonicalEventName = buildTelemetryEventMetadata(definition.eventName).canonicalEventName;
+            if (!taskDefinitionsByCanonicalEvent.has(canonicalEventName)) {
+                taskDefinitionsByCanonicalEvent.set(canonicalEventName, []);
+            }
+            taskDefinitionsByCanonicalEvent.get(canonicalEventName)!.push(definition);
+        }
         const taskIdsByTitle = allTaskDefinitions.reduce<Map<string, string[]>>((map, definition) => {
             const titleKey = definition.title.trim().toLowerCase();
             if (!titleKey) {
@@ -4500,8 +4510,7 @@ export async function GET(request: NextRequest) {
             .forEach((receipt) => {
             const metadata = buildTelemetryEventMetadata(receipt.eventName);
             const canonicalEventName = metadata.canonicalEventName;
-            const candidateDefinitions = allTaskDefinitions
-                .filter((definition) => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === canonicalEventName)
+            const candidateDefinitions = (taskDefinitionsByCanonicalEvent.get(canonicalEventName) || [])
                 .filter((definition) => receiptMatchesTaskCriteria(definition, receipt.params))
                 .sort((left, right) => scoreTaskCriteriaSpecificity(right) - scoreTaskCriteriaSpecificity(left));
             const strongestSpecificity = candidateDefinitions[0] ? scoreTaskCriteriaSpecificity(candidateDefinitions[0]) : 0;
@@ -4621,7 +4630,7 @@ export async function GET(request: NextRequest) {
             const data = doc.data() as Record<string, unknown>;
             const rawEventName = doc.id;
             const { canonicalEventName, option } = getTelemetryEventOption(rawEventName);
-            const mappedDefinitions = allTaskDefinitions.filter((definition) => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === canonicalEventName);
+            const mappedDefinitions = taskDefinitionsByCanonicalEvent.get(canonicalEventName) || [];
             const mappedTaskTitles = mappedDefinitions.map((definition) => definition.title);
             const purpose = classifyTelemetryCoveragePurpose(canonicalEventName, mappedDefinitions.length);
             const sourceState = inferTelemetryCoverageSourceState(rawEventName, canonicalEventName);
@@ -5279,7 +5288,7 @@ export async function GET(request: NextRequest) {
             assignedCount: number;
         }>());
         const taskTelemetryMappingRows: TaskTelemetryMappingRow[] = Array.from(telemetryAlignmentByCanonicalEvent.values()).map((entry) => {
-            const affectedDefinitions = allTaskDefinitions.filter((definition) => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === entry.eventName);
+            const affectedDefinitions = taskDefinitionsByCanonicalEvent.get(entry.eventName) || [];
             const sharedGroup = sharedEventGroups.find((group) => group.eventName === entry.eventName);
             const purpose = classifyTaskTelemetryEventPurpose(entry.eventName);
             const expectedMapping = purpose === "task_trigger"
@@ -5378,7 +5387,7 @@ export async function GET(request: NextRequest) {
         });
         const receiptMappingGroupsMap = rawRecentReceipts.reduce((map, receipt) => {
             const { canonicalEventName } = getTelemetryEventOption(receipt.eventName);
-            const mappedDefinitions = allTaskDefinitions.filter((definition) => buildTelemetryEventMetadata(definition.eventName).canonicalEventName === canonicalEventName);
+            const mappedDefinitions = taskDefinitionsByCanonicalEvent.get(canonicalEventName) || [];
             const lane = classifyTaskReceiptLane(canonicalEventName, mappedDefinitions, receipt.eventName);
             const groupKey = [receipt.eventName, canonicalEventName, lane.receiptLane, lane.mappingState].join(":");
             const current = map.get(groupKey) || {
