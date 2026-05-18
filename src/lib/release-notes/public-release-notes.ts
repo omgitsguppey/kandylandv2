@@ -1,13 +1,60 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.79",
-  "betaReleaseCounter": 279,
+  "currentVersion": "1.2.80",
+  "betaReleaseCounter": 280,
   "channel": "beta",
-  "generatedAt": "2026-05-18T13:34:57.288Z",
-  "generatedAtUtc": "2026-05-18T13:34:57.288Z",
-  "lastCommitSha": "d14d5d10899b0784d0743319a45c83854443a49a",
+  "generatedAt": "2026-05-18T13:46:39.851Z",
+  "generatedAtUtc": "2026-05-18T13:46:39.851Z",
+  "lastCommitSha": "5ca8a3b9cdcc0ceb2062b82e2b0f0b9a9c00f91f",
   "notes": [
+    {
+      "version": "1.2.80",
+      "previousVersion": "1.2.79",
+      "betaReleaseCounter": 280,
+      "previousBetaReleaseCounter": 279,
+      "commitSha": "5ca8a3b9cdcc0ceb2062b82e2b0f0b9a9c00f91f",
+      "commitTitle": "fix(analytics): add runtime watch time v2",
+      "commitCount": 1,
+      "commitShas": [
+        "5ca8a3b9cdcc0ceb2062b82e2b0f0b9a9c00f91f"
+      ],
+      "committedAt": "2026-05-18T13:46:39.851Z",
+      "generatedAt": "2026-05-18T13:46:39.851Z",
+      "committedAtUtc": "2026-05-18T13:46:39.851Z",
+      "generatedAtUtc": "2026-05-18T13:46:39.851Z",
+      "updatedAtUtc": "2026-05-18T13:46:39.851Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added runtime-based watch-time tracking rules.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added runtime-based watch-time tracking rules.",
+        "Separated media watch time from page-open time.",
+        "Added cost-safe heartbeat and visibility guards for watch tracking."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/analytics/watch-time-v2.ts",
+        "src/components/Analytics/RuntimeWatchTracker.tsx",
+        "agent/state/runtime-watch-time-v2.generated.json",
+        "docs/agent-truth/runtime-watch-time-v2.md",
+        "scripts/agent/validate-runtime-watch-time-v2.ts",
+        "tests/unit/runtime-watch-time-v2.spec.ts",
+        "tests/unit/runtime-watch-tracker.spec.tsx",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "5ca8a3b9cdcc0ceb2062b82e2b0f0b9a9c00f91f"
+    },
     {
       "version": "1.2.79",
       "previousVersion": "1.2.78",
@@ -359,11 +406,7 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "sourceCommit": "df4c879a6edd33286f7ee44e48d4eb4a31c014bc"
     }
   ]
-} as const satisfies PublicReleaseNotesDocument;
-
-export function getBundledPublicReleaseNotes(): PublicReleaseNotesDocument {
-  return PUBLIC_RELEASE_NOTES_FALLBACK;
-}
+} satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,

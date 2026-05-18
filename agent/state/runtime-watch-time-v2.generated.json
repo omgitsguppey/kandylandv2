@@ -1,0 +1,95 @@
+{
+  "generatedAtUtc": "2026-05-18T13:46:57.157Z",
+  "reportKey": "runtime-watch-time-v2",
+  "currentHead": "5ca8a3b9cdcc0ceb2062b82e2b0f0b9a9c00f91f",
+  "summary": {
+    "canonicalModelCreated": true,
+    "clientTrackerCreated": true,
+    "serverDeltaRulesModeled": true,
+    "pageOpenWatchTimeBlocked": true,
+    "hiddenTimeBlocked": true,
+    "duplicateEventIdDeduped": true,
+    "heartbeatIntervalMs": 10000,
+    "heartbeatDeltaCapMs": 15000,
+    "pausePagehideHandling": true,
+    "integrationStatus": "deferred_source_ready",
+    "cloudRunCostStatus": "cost_safe_10s_heartbeat_no_request_path_backfill",
+    "cloudSqlStatus": "cloud_sql_not_detected_in_runtime_watch_v2",
+    "geminiCloudAssistStatus": "gemini_cloud_assist_not_involved",
+    "route4xxStatus": "invalid_payload_returns_calm_non_retryable_422",
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 1
+  },
+  "watchSessionSchema": [
+    "watchSessionId",
+    "mediaId",
+    "surface",
+    "route",
+    "guestId",
+    "userId",
+    "sessionId",
+    "identityState",
+    "mediaDurationMs",
+    "playheadMs",
+    "playbackRate",
+    "muted",
+    "visible",
+    "active",
+    "eventType",
+    "clientElapsedMs",
+    "clientEventAt",
+    "eventId",
+    "sequence"
+  ],
+  "serverDeltaRules": [
+    "duplicate eventId produces zero delta",
+    "negative or zero deltas are ignored",
+    "heartbeat delta is capped at 15 seconds",
+    "hidden or inactive events add zero watch time",
+    "watch deltas are clamped by media duration and playhead movement",
+    "page-open/start events add zero watch time",
+    "client elapsed is input context, not trusted total watch time"
+  ],
+  "clientRules": [
+    "heartbeat every 10 seconds while playing and visible",
+    "emit play/start, pause, complete, visibility hidden, and pagehide/abandon",
+    "clear heartbeat interval on pause, hidden, pagehide, and unmount",
+    "prefer sendBeacon on pagehide when an ingest endpoint is supplied",
+    "fallback to fetch keepalive when beacon is unavailable"
+  ],
+  "costFindings": [
+    {
+      "lane": "cloud_run",
+      "status": "cost_safe_10s_heartbeat",
+      "evidence": "RUNTIME_WATCH_HEARTBEAT_INTERVAL_MS is 10000 and deltas are capped."
+    },
+    {
+      "lane": "cloud_sql",
+      "status": "cloud_sql_not_detected_in_runtime_watch_v2",
+      "evidence": "Runtime watch v2 model and tracker do not import or call SQL/Data Connect."
+    },
+    {
+      "lane": "gemini_cloud_assist",
+      "status": "gemini_cloud_assist_not_involved",
+      "evidence": "No model, prompt, Vertex, Gemini, or Cloud Assist code path exists."
+    },
+    {
+      "lane": "route_4xx",
+      "status": "calm_non_retryable_422",
+      "evidence": "validateRuntimeWatchEventPayload returns non-retryable 422 for invalid payloads."
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "viewer-media-runtime-watch-v2-integration",
+      "reason": "The safe media owner is MediaViewer, but this prompt's allowed runtime files exclude viewer component wiring.",
+      "nextIntegrationPoint": "src/app/dashboard/viewer/components/MediaViewer.tsx"
+    }
+  ],
+  "nextFixOrder": [
+    "Wire RuntimeWatchTracker into MediaViewer video/audio refs with existing watch-session ownership intact.",
+    "Accept runtimeWatchEvent payloads at the selected analytics ingest boundary after route cost/idempotency review.",
+    "Map runtime watch deltas into analytics_watch_sessions rollups without mixing page-open duration."
+  ]
+}

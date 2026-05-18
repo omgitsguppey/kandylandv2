@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 6 public updates in pages of 5.
 
+## 1.2.80 - 2026-05-18
+- Bug fixes and general improvements
+- Added runtime-based watch-time tracking rules.
+- Separated media watch time from page-open time.
+- Added cost-safe heartbeat and visibility guards for watch tracking.
+
 ## 1.2.79 - 2026-05-18
 - Bug fixes and general improvements
 - Mapped legacy analytics recovery without overwriting current truth.
