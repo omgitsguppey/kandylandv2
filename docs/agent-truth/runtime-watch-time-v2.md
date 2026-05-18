@@ -1,7 +1,7 @@
 # Runtime Watch-Time v2
 
-Generated: 2026-05-18T13:46:57.157Z
-Current head: 5ca8a3b9cdcc0ceb2062b82e2b0f0b9a9c00f91f
+Generated: 2026-05-18T14:42:45.949Z
+Current head: b0ca63c46d97d0f957902d4f37053a4589db489c
 
 ## Summary
 
@@ -46,7 +46,7 @@ Current head: 5ca8a3b9cdcc0ceb2062b82e2b0f0b9a9c00f91f
 
 | Id | Reason | Next integration point |
 | --- | --- | --- |
-| viewer-media-runtime-watch-v2-integration | The safe media owner is MediaViewer, but this prompt's allowed runtime files exclude viewer component wiring. | src/app/dashboard/viewer/components/MediaViewer.tsx |
+| viewer-media-runtime-watch-v2-integration | The safe media owner is MediaViewer, but the runtimeWatchEvent ingest boundary is not promoted yet; defer wiring to avoid blind route writes. | src/app/dashboard/viewer/components/MediaViewer.tsx |
 
 ## Next Fix Order
 

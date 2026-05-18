@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-18T13:58:39.519Z",
+  "generatedAtUtc": "2026-05-18T14:42:53.122Z",
   "reportKey": "analytics-semantics-final-lock",
-  "currentHead": "c015ed78b1220ed718e2691394e3336d0fe64a3e",
+  "currentHead": "b0ca63c46d97d0f957902d4f37053a4589db489c",
   "guestTrackingStatus": "source_ready_guest_data_remains_guest_until_linked",
   "userTrackingStatus": "source_ready_userId_identityState_session_continuity",
   "guestUserTransferStatus": "source_ready_link_first_no_double_count",
@@ -18,7 +18,7 @@
     "note": "Source-ready analytics semantics do not clear screenshot, provider, runtime, admin truth, or stale-report evidence gates."
   },
   "cloudRunCostStatus": "cost_safe_10s_heartbeat_no_request_path_backfill; identity_transfer_bounded_link_first_no_history_fanout; owner_review_cost_backlog_visible",
-  "cloudSqlCostStatus": "cloud_sql_agent_context_mirror_detected_no_product_runtime_dependency; cloud_sql_not_detected_in_transfer_runtime; cloud_sql_not_detected_in_reconciliation_runtime; cloud_sql_not_detected_in_runtime_watch_v2",
+  "cloudSqlCostStatus": "cloud_sql_agent_context_mirror_detected_no_product_runtime_dependency; cloud_sql_not_detected_in_transfer_runtime; cloud_sql_not_used_by_reconciler; cloud_sql_not_detected_in_runtime_watch_v2",
   "geminiCloudAssistStatus": "vertex_admin_ai_detected_outside_analytics_identity_transfer; gemini_cloud_assist_not_involved; gemini_cloud_assist_not_used; gemini_cloud_assist_not_involved",
   "route4xxStatus": "invalid_payload_returns_calm_non_retryable_422; identity_transfer_expected_auth_4xx_non_retryable; legacy_recovery_adds_no_user_facing_4xx",
   "remainingBlockers": [

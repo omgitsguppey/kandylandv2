@@ -5,7 +5,7 @@ import { createRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RuntimeWatchTracker } from "@/components/Analytics/RuntimeWatchTracker";
-import type { RuntimeWatchEvent } from "@/lib/analytics/watch-time-v2";
+import type { RuntimeWatchEvent } from "@/lib/analytics/runtime-watch-time-v2";
 
 function defineMediaState(
   media: HTMLVideoElement,

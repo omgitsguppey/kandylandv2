@@ -35,13 +35,15 @@ function inputsFixture(
       },
     },
     legacyRecovery: {
-      reportKey: "analytics-legacy-recovery-reconciliation",
+      reportKey: "analytics-legacy-history-reconciliation",
       summary: {
         overwritesCurrentTruth: false,
         evidenceOnlyCount: 1,
-        cloudSqlStatus: "cloud_sql_not_detected_in_reconciliation_runtime",
-        geminiCloudAssistStatus: "gemini_cloud_assist_not_used",
       },
+      costFindings: [
+        { lane: "cloud_sql", status: "cloud_sql_not_used_by_reconciler" },
+        { lane: "gemini_cloud_assist", status: "gemini_cloud_assist_not_used" },
+      ],
     },
     runtimeWatchTime: {
       reportKey: "runtime-watch-time-v2",

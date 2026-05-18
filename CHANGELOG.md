@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 13 public updates in pages of 5.
+Showing the last 14 public updates in pages of 5.
+
+## 1.2.86 - 2026-05-18
+- Bug fixes and general improvements
+- Added runtime-based media watch-time tracking rules.
+- Separated real watch time from page-open time.
+- Locked guest, user, legacy, and watch analytics semantics with cost guards.
 
 ## 1.2.85 - 2026-05-18
 - Bug fixes and general improvements

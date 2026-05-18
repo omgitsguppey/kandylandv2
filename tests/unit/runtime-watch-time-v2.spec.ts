@@ -6,7 +6,7 @@ import {
   createInitialRuntimeWatchSessionState,
   validateRuntimeWatchEventPayload,
   type RuntimeWatchEvent,
-} from "@/lib/analytics/watch-time-v2";
+} from "@/lib/analytics/runtime-watch-time-v2";
 
 const baseEvent = {
   watchSessionId: "watch_session_1",
@@ -154,6 +154,24 @@ describe("runtime watch time v2", () => {
 
     expect(result.state.completed).toBe(true);
     expect(result.state.completionPercent).toBeCloseTo(98.33, 1);
+  });
+
+  it("counts a visible pause flush as real playback runtime", () => {
+    let state = createInitialRuntimeWatchSessionState();
+    state = applyRuntimeWatchEvent(state, baseEvent).state;
+
+    const result = applyRuntimeWatchEvent(state, {
+      ...baseEvent,
+      eventId: "watch_event_pause_flush",
+      eventType: "watch_pause",
+      sequence: 2,
+      playheadMs: 4_000,
+      clientElapsedMs: 4_000,
+      clientEventAt: "2026-05-18T12:00:04.000Z",
+    });
+
+    expect(result.delta.watchTimeMs).toBe(4_000);
+    expect(result.state.watchTimeMs).toBe(4_000);
   });
 
   it("does not turn page-open events into watch time", () => {

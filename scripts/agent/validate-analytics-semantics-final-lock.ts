@@ -58,7 +58,7 @@ const docsRelativePath = "docs/agent-truth/analytics-semantics-final-lock.md";
 const inputPaths = {
   identityInventory: "agent/state/analytics-identity-transfer-inventory.generated.json",
   guestUserTransfer: "agent/state/guest-user-identity-transfer.generated.json",
-  legacyRecovery: "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
+  legacyRecovery: "agent/state/analytics-legacy-history-reconciliation.generated.json",
   runtimeWatchTime: "agent/state/runtime-watch-time-v2.generated.json",
   publicBetaScore: "agent/state/public-beta-score.generated.json",
   currentBetaExitStatus: "agent/state/current-beta-exit-status.generated.json",
@@ -87,6 +87,12 @@ function statusFrom(report: JsonObject | null, ...paths: string[]) {
   return "missing";
 }
 
+function statusFromCostFinding(report: JsonObject | null, lane: string) {
+  const findings = Array.isArray(report?.costFindings) ? report.costFindings : [];
+  const match = findings.find((finding: JsonObject) => finding?.lane === lane);
+  return typeof match?.status === "string" && match.status.trim().length > 0 ? match.status : "missing";
+}
+
 function hasCompleteRuntimeEvidence(currentBetaExitStatus: JsonObject | null) {
   const summary = currentBetaExitStatus?.summary ?? {};
   return /formal|passed|complete/iu.test(String(summary.runtimeSmokeStatus ?? ""))
@@ -106,7 +112,7 @@ function currentBetaMentionsAnalytics(currentBetaExitStatus: JsonObject | null) 
 function sourceReady(inputs: AnalyticsSemanticsFinalLockInputs) {
   return reportKey(inputs.identityInventory) === "analytics-identity-transfer-inventory"
     && reportKey(inputs.guestUserTransfer) === "guest-user-identity-transfer"
-    && reportKey(inputs.legacyRecovery) === "analytics-legacy-recovery-reconciliation"
+    && reportKey(inputs.legacyRecovery) === "analytics-legacy-history-reconciliation"
     && reportKey(inputs.runtimeWatchTime) === "runtime-watch-time-v2"
     && inputs.guestUserTransfer?.summary?.historicalGuestEventsDuplicated === false
     && inputs.legacyRecovery?.summary?.overwritesCurrentTruth === false
@@ -131,13 +137,13 @@ export function buildAnalyticsSemanticsFinalLockReport(
   const cloudSqlCostStatus = [
     statusFrom(inputs.identityInventory, "summary.cloudSqlStatus"),
     statusFrom(inputs.guestUserTransfer, "summary.cloudSqlStatus"),
-    statusFrom(inputs.legacyRecovery, "summary.cloudSqlStatus"),
+    statusFromCostFinding(inputs.legacyRecovery, "cloud_sql"),
     statusFrom(inputs.runtimeWatchTime, "summary.cloudSqlStatus"),
   ].join("; ");
   const geminiCloudAssistStatus = [
     statusFrom(inputs.identityInventory, "summary.geminiCloudAssistStatus"),
     statusFrom(inputs.guestUserTransfer, "summary.geminiCloudAssistStatus"),
-    statusFrom(inputs.legacyRecovery, "summary.geminiCloudAssistStatus"),
+    statusFromCostFinding(inputs.legacyRecovery, "gemini_cloud_assist"),
     statusFrom(inputs.runtimeWatchTime, "summary.geminiCloudAssistStatus"),
   ].join("; ");
   const route4xxStatus = [
@@ -159,7 +165,7 @@ export function buildAnalyticsSemanticsFinalLockReport(
     guestUserTransferStatus: reportKey(inputs.guestUserTransfer) === "guest-user-identity-transfer"
       ? "source_ready_link_first_no_double_count"
       : "missing_guest_user_transfer",
-    legacyRecoveryStatus: reportKey(inputs.legacyRecovery) === "analytics-legacy-recovery-reconciliation"
+    legacyRecoveryStatus: reportKey(inputs.legacyRecovery) === "analytics-legacy-history-reconciliation"
       ? "source_ready_legacy_evidence_until_reconciled"
       : "missing_legacy_recovery",
     runtimeWatchTimeStatus: reportKey(inputs.runtimeWatchTime) === "runtime-watch-time-v2"

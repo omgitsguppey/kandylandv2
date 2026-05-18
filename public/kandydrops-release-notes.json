@@ -1,11 +1,63 @@
 {
-  "currentVersion": "1.2.85",
-  "betaReleaseCounter": 285,
+  "currentVersion": "1.2.86",
+  "betaReleaseCounter": 286,
   "channel": "beta",
-  "generatedAt": "2026-05-18T14:33:22.786Z",
-  "generatedAtUtc": "2026-05-18T14:33:22.786Z",
-  "lastCommitSha": "f99dfcd24808078a69f8d77985a2f8d23e556d24",
+  "generatedAt": "2026-05-18T14:43:13.248Z",
+  "generatedAtUtc": "2026-05-18T14:43:13.248Z",
+  "lastCommitSha": "b0ca63c46d97d0f957902d4f37053a4589db489c",
   "notes": [
+    {
+      "version": "1.2.86",
+      "previousVersion": "1.2.85",
+      "betaReleaseCounter": 286,
+      "previousBetaReleaseCounter": 285,
+      "commitSha": "b0ca63c46d97d0f957902d4f37053a4589db489c",
+      "commitTitle": "fix(analytics): lock runtime watch time semantics",
+      "commitCount": 1,
+      "commitShas": [
+        "b0ca63c46d97d0f957902d4f37053a4589db489c"
+      ],
+      "committedAt": "2026-05-18T14:43:13.248Z",
+      "generatedAt": "2026-05-18T14:43:13.248Z",
+      "committedAtUtc": "2026-05-18T14:43:13.248Z",
+      "generatedAtUtc": "2026-05-18T14:43:13.248Z",
+      "updatedAtUtc": "2026-05-18T14:43:13.248Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added runtime-based media watch-time tracking rules.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added runtime-based media watch-time tracking rules.",
+        "Separated real watch time from page-open time.",
+        "Locked guest, user, legacy, and watch analytics semantics with cost guards."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/analytics/runtime-watch-time-v2.ts",
+        "src/lib/analytics/watch-time-v2.ts",
+        "src/components/Analytics/RuntimeWatchTracker.tsx",
+        "src/lib/analytics/analytics-event-contract.ts",
+        "agent/state/runtime-watch-time-v2.generated.json",
+        "docs/agent-truth/runtime-watch-time-v2.md",
+        "scripts/agent/validate-runtime-watch-time-v2.ts",
+        "agent/state/analytics-semantics-final-lock.generated.json",
+        "docs/agent-truth/analytics-semantics-final-lock.md",
+        "scripts/agent/validate-analytics-semantics-final-lock.ts",
+        "tests/unit/runtime-watch-time-v2.spec.ts",
+        "tests/unit/runtime-watch-tracker.spec.tsx",
+        "tests/unit/analytics-semantics-final-lock.spec.ts",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "b0ca63c46d97d0f957902d4f37053a4589db489c"
+    },
     {
       "version": "1.2.85",
       "previousVersion": "1.2.84",

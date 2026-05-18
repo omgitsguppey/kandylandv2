@@ -121,9 +121,9 @@
     "currentTotalsEligibleCount": 0,
     "overwritesCurrentTruth": false
   },
-  "generatedAtUtc": "2026-05-18T14:33:57.487Z",
+  "generatedAtUtc": "2026-05-18T14:41:34.029Z",
   "reportKey": "analytics-legacy-history-reconciliation",
-  "currentHead": "f99dfcd24808078a69f8d77985a2f8d23e556d24",
+  "currentHead": "b0ca63c46d97d0f957902d4f37053a4589db489c",
   "sourceCleanupFindings": [
     {
       "source": "analytics_event_facts",

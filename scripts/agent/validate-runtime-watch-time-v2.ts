@@ -7,7 +7,7 @@ import {
   RUNTIME_WATCH_HEARTBEAT_INTERVAL_MS,
   RUNTIME_WATCH_MAX_HEARTBEAT_DELTA_MS,
   RUNTIME_WATCH_MIN_HEARTBEAT_INTERVAL_MS,
-} from "../../src/lib/analytics/watch-time-v2";
+} from "../../src/lib/analytics/runtime-watch-time-v2";
 
 type RuntimeWatchTimeV2Report = {
   generatedAtUtc: string;
@@ -45,8 +45,10 @@ const __dirname = dirname(__filename);
 const repoRoot = join(__dirname, "..", "..");
 const artifactRelativePath = "agent/state/runtime-watch-time-v2.generated.json";
 const docsRelativePath = "docs/agent-truth/runtime-watch-time-v2.md";
-const modelPath = "src/lib/analytics/watch-time-v2.ts";
+const modelPath = "src/lib/analytics/runtime-watch-time-v2.ts";
+const legacyModelPath = "src/lib/analytics/watch-time-v2.ts";
 const trackerPath = "src/components/Analytics/RuntimeWatchTracker.tsx";
+const eventContractPath = "src/lib/analytics/analytics-event-contract.ts";
 const viewerMediaPath = "src/app/dashboard/viewer/components/MediaViewer.tsx";
 
 function currentHead() {
@@ -147,7 +149,7 @@ function buildReport(input: { currentHead: string; generatedAtUtc: string }): Ru
     deferredFindings: [
       {
         id: "viewer-media-runtime-watch-v2-integration",
-        reason: "The safe media owner is MediaViewer, but this prompt's allowed runtime files exclude viewer component wiring.",
+        reason: "The safe media owner is MediaViewer, but the runtimeWatchEvent ingest boundary is not promoted yet; defer wiring to avoid blind route writes.",
         nextIntegrationPoint: viewerMediaPath,
       },
     ],
@@ -159,7 +161,10 @@ function buildReport(input: { currentHead: string; generatedAtUtc: string }): Ru
   };
 }
 
-function validateReport(report: RuntimeWatchTimeV2Report, sources: { model: string; tracker: string; viewerMedia: string }) {
+function validateReport(
+  report: RuntimeWatchTimeV2Report,
+  sources: { model: string; legacyModel: string; tracker: string; eventContract: string; viewerMedia: string },
+) {
   const failures: string[] = [];
   if (report.reportKey !== "runtime-watch-time-v2") failures.push("reportKey must be runtime-watch-time-v2.");
   if (!report.summary.canonicalModelCreated) failures.push("canonical watch session model missing.");
@@ -176,8 +181,12 @@ function validateReport(report: RuntimeWatchTimeV2Report, sources: { model: stri
   if (!sources.model.includes("hidden_time_excluded")) failures.push("hidden tab time exclusion missing.");
   if (!sources.model.includes("Math.min(trustedDelta.deltaMs, playheadDeltaMs)")) failures.push("server accepts client total blindly or does not clamp by playhead.");
   if (!sources.model.includes("validateRuntimeWatchEventPayload")) failures.push("calm invalid payload validation missing.");
+  if (!sources.legacyModel.includes("export * from \"./runtime-watch-time-v2\"")) failures.push("legacy watch-time-v2 module must re-export canonical runtime watch-time v2 model.");
   if (!sources.tracker.includes("visibilitychange") || !sources.tracker.includes("pagehide")) failures.push("pause/pagehide handling missing.");
   if (!sources.tracker.includes("sendBeacon") || !sources.tracker.includes("keepalive")) failures.push("beacon/keepalive unload transport missing.");
+  for (const token of ["RuntimeWatchV2AnalyticsPayload", "mediaDurationMs", "playheadMs", "clientElapsedMs", "identityState"]) {
+    if (!sources.eventContract.includes(token)) failures.push(`analytics event contract missing watch v2 token ${token}.`);
+  }
   for (const lane of ["cloud_run", "cloud_sql", "gemini_cloud_assist", "route_4xx"] as const) {
     if (!report.costFindings.some((finding) => finding.lane === lane)) failures.push(`${lane} cost lane missing.`);
   }
@@ -249,7 +258,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const report = buildReport({ currentHead: currentHead(), generatedAtUtc: new Date().toISOString() });
   const failures = validateReport(report, {
     model: readRequired(modelPath),
+    legacyModel: readRequired(legacyModelPath),
     tracker: readRequired(trackerPath),
+    eventContract: readRequired(eventContractPath),
     viewerMedia: readRequired(viewerMediaPath),
   });
 

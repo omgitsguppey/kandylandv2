@@ -1,6 +1,7 @@
 export const ANALYTICS_EVENT_SCHEMA_VERSION = "analytics_event_v2";
 export const ANALYTICS_EVENT_CONTRACT_VERSION = 2;
 export const IDENTITY_LINKED_EVENT_NAME = "identity_linked";
+export const RUNTIME_WATCH_V2_EVENT_NAME = "runtime_watch_time_v2";
 
 export const ANALYTICS_ACTOR_TYPES = ["guest", "user", "creator", "admin", "owner_admin", "system", "unknown"] as const;
 export type AnalyticsActorType = (typeof ANALYTICS_ACTOR_TYPES)[number];
@@ -127,6 +128,40 @@ export interface AnalyticsIdentityLinkPayload extends Record<string, unknown> {
   identityState?: AnalyticsIdentityState;
   source: AnalyticsEventSourceLane;
   confidence: LegacyMappingConfidence;
+}
+
+export interface RuntimeWatchV2AnalyticsPayload extends Record<string, unknown> {
+  watchSessionId: string;
+  mediaId: string;
+  surface: string;
+  route: string;
+  guestId?: string | null;
+  userId?: string | null;
+  sessionId?: string | null;
+  identityLinkId?: string | null;
+  identityState: AnalyticsIdentityState;
+  mediaDurationMs: number;
+  playheadMs: number;
+  playbackRate: number;
+  muted: boolean;
+  visible: boolean;
+  active: boolean;
+  eventType:
+    | "watch_start"
+    | "watch_heartbeat"
+    | "watch_pause"
+    | "watch_resume"
+    | "watch_complete"
+    | "watch_abandon";
+  clientElapsedMs: number;
+  clientEventAt: string;
+  eventId: string;
+  sequence: number;
+  loopIndex?: number | null;
+  watchTimeMs?: number;
+  attentionTimeMs?: number;
+  completionPercent?: number;
+  confidence?: "runtime_verified" | "client_limited" | "invalid";
 }
 
 export type CanonicalIdentityLinkedEvent = CanonicalAnalyticsEvent & {

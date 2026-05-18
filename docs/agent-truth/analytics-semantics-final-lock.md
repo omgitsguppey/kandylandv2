@@ -1,7 +1,7 @@
 # Analytics Semantics Final Lock
 
-Generated: 2026-05-18T13:58:39.519Z
-Current head: c015ed78b1220ed718e2691394e3336d0fe64a3e
+Generated: 2026-05-18T14:42:53.122Z
+Current head: b0ca63c46d97d0f957902d4f37053a4589db489c
 
 ## Status
 
@@ -16,7 +16,7 @@ Current head: c015ed78b1220ed718e2691394e3336d0fe64a3e
 ## Cost Lanes
 
 - Cloud Run: cost_safe_10s_heartbeat_no_request_path_backfill; identity_transfer_bounded_link_first_no_history_fanout; owner_review_cost_backlog_visible
-- Cloud SQL/Data Connect: cloud_sql_agent_context_mirror_detected_no_product_runtime_dependency; cloud_sql_not_detected_in_transfer_runtime; cloud_sql_not_detected_in_reconciliation_runtime; cloud_sql_not_detected_in_runtime_watch_v2
+- Cloud SQL/Data Connect: cloud_sql_agent_context_mirror_detected_no_product_runtime_dependency; cloud_sql_not_detected_in_transfer_runtime; cloud_sql_not_used_by_reconciler; cloud_sql_not_detected_in_runtime_watch_v2
 - Gemini/Cloud Assist/Vertex: vertex_admin_ai_detected_outside_analytics_identity_transfer; gemini_cloud_assist_not_involved; gemini_cloud_assist_not_used; gemini_cloud_assist_not_involved
 - 4xx: invalid_payload_returns_calm_non_retryable_422; identity_transfer_expected_auth_4xx_non_retryable; legacy_recovery_adds_no_user_facing_4xx
 

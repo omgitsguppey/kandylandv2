@@ -6,7 +6,7 @@ import {
   RUNTIME_WATCH_HEARTBEAT_INTERVAL_MS,
   type RuntimeWatchEvent,
   type RuntimeWatchEventType,
-} from "@/lib/analytics/watch-time-v2";
+} from "@/lib/analytics/runtime-watch-time-v2";
 import type { AnalyticsIdentityState } from "@/lib/analytics/analytics-event-contract";
 
 type RuntimeWatchTrackerProps = {
