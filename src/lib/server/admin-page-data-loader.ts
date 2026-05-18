@@ -117,13 +117,31 @@ function buildPurchaseTransactions(transactions: Transaction[]) {
 export function buildAdminUserDetailPageData(input: AdminUserDetailPageLoaderInput): AdminUserDetailPageData {
   const purchaseTransactions = buildPurchaseTransactions(input.transactions);
   const analytics = input.analytics;
-  const totalSpentUsd = analytics?.grossRevenueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
-  const adjustedProfitUsd = analytics?.adjustedProfitUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.adjustedProfitUsd, 0);
-  const bonusValueUsd = analytics?.bonusValueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusValueUsd, 0);
-  const bonusGumDrops = analytics?.bonusGumDrops ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusGumDrops, 0);
-  const paypalFeeUsd = analytics?.paypalFeeUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paypalFeeUsd, 0);
-  const netRevenueUsd = analytics?.netRevenueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.netRevenueUsd, 0);
-  const deliveredGumDrops = analytics?.deliveredGumDrops ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
+  const txTotals = purchaseTransactions.reduce((acc, transaction) => ({
+    grossRevenueUsd: acc.grossRevenueUsd + transaction.economics.grossRevenueUsd,
+    adjustedProfitUsd: acc.adjustedProfitUsd + transaction.economics.adjustedProfitUsd,
+    bonusValueUsd: acc.bonusValueUsd + transaction.economics.bonusValueUsd,
+    bonusGumDrops: acc.bonusGumDrops + transaction.economics.bonusGumDrops,
+    paypalFeeUsd: acc.paypalFeeUsd + transaction.economics.paypalFeeUsd,
+    netRevenueUsd: acc.netRevenueUsd + transaction.economics.netRevenueUsd,
+    deliveredGumDrops: acc.deliveredGumDrops + transaction.economics.deliveredGumDrops,
+  }), {
+    grossRevenueUsd: 0,
+    adjustedProfitUsd: 0,
+    bonusValueUsd: 0,
+    bonusGumDrops: 0,
+    paypalFeeUsd: 0,
+    netRevenueUsd: 0,
+    deliveredGumDrops: 0,
+  });
+
+  const totalSpentUsd = analytics?.grossRevenueUsd ?? txTotals.grossRevenueUsd;
+  const adjustedProfitUsd = analytics?.adjustedProfitUsd ?? txTotals.adjustedProfitUsd;
+  const bonusValueUsd = analytics?.bonusValueUsd ?? txTotals.bonusValueUsd;
+  const bonusGumDrops = analytics?.bonusGumDrops ?? txTotals.bonusGumDrops;
+  const paypalFeeUsd = analytics?.paypalFeeUsd ?? txTotals.paypalFeeUsd;
+  const netRevenueUsd = analytics?.netRevenueUsd ?? txTotals.netRevenueUsd;
+  const deliveredGumDrops = analytics?.deliveredGumDrops ?? txTotals.deliveredGumDrops;
   const purchaseCount = analytics?.purchaseCount || purchaseTransactions.length;
   const effectiveUsdPer100Gd = analytics?.effectiveUsdPer100Gd ?? (deliveredGumDrops > 0 ? totalSpentUsd / (deliveredGumDrops / 100) : 0);
   const averageOrderUsd = purchaseCount > 0 ? totalSpentUsd / purchaseCount : 0;

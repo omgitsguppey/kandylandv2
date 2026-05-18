@@ -241,25 +241,41 @@ function buildWatchOverview(
     if (record.completedSession) completedSessionCount += 1;
   });
 
-  const viewedAssetCount = watchSessions.reduce((total, record) => total + record.viewedAssetCount, 0);
-  const completedAssetCount = watchSessions.reduce((total, record) => total + record.completedAssetCount, 0);
-  const assetStarts = watchAssets.length > 0 ? watchAssets.length : viewedAssetCount;
+  const sessionTotals = watchSessions.reduce((acc, record) => {
+    acc.viewedAssetCount += record.viewedAssetCount;
+    acc.completedAssetCount += record.completedAssetCount;
+    acc.assetSwitches += record.assetSwitchCount;
+    acc.downloads += record.downloadCount;
+    acc.relatedClicks += record.relatedClickCount;
+    return acc;
+  }, {
+    viewedAssetCount: 0,
+    completedAssetCount: 0,
+    assetSwitches: 0,
+    downloads: 0,
+    relatedClicks: 0,
+  });
+
+  const assetStarts = watchAssets.length > 0 ? watchAssets.length : sessionTotals.viewedAssetCount;
   const assetCompletions = watchAssets.length > 0
     ? watchAssets.filter((record) => record.isCompleted).length
-    : completedAssetCount;
+    : sessionTotals.completedAssetCount;
+
+  const repeatSessionCount = Array.from(sessionCountsByUser.values()).reduce(
+    (total, value) => total + Math.max(0, value - 1),
+    0,
+  );
+  const returnSessionCount = Array.from(viewerDropSessionCounts.values()).reduce(
+    (total, value) => total + Math.max(0, value - 1),
+    0,
+  );
 
   return {
     viewCount: watchSessions.length,
     sessionCount: watchSessions.length,
     uniqueViewerCount: uniqueViewerKeys.size,
-    repeatSessionCount: Array.from(sessionCountsByUser.values()).reduce(
-      (total, value) => total + Math.max(0, value - 1),
-      0,
-    ),
-    returnSessionCount: Array.from(viewerDropSessionCounts.values()).reduce(
-      (total, value) => total + Math.max(0, value - 1),
-      0,
-    ),
+    repeatSessionCount,
+    returnSessionCount,
     totalWatchSeconds: sum(watchDurations),
     avgSessionSeconds: average(sessionDurations),
     avgWatchSeconds: average(watchDurations),
@@ -274,9 +290,9 @@ function buildWatchOverview(
     stalledSessionCount,
     convertedSessionCount,
     completedSessionCount,
-    assetSwitches: watchSessions.reduce((total, record) => total + record.assetSwitchCount, 0),
-    downloads: watchSessions.reduce((total, record) => total + record.downloadCount, 0),
-    relatedClicks: watchSessions.reduce((total, record) => total + record.relatedClickCount, 0),
+    assetSwitches: sessionTotals.assetSwitches,
+    downloads: sessionTotals.downloads,
+    relatedClicks: sessionTotals.relatedClicks,
   };
 }
 
@@ -392,21 +408,21 @@ function buildWatchDropInsights(input: {
   });
 
   return Array.from(viewerDropInsightMap.values())
-    .map((entry) => ({
-      dropId: entry.dropId,
-      dropTitle: resolveDropTitle(input.dropReferences, entry.dropId, entry.dropTitle),
-      viewCount: entry.viewCount,
-      sessionCount: entry.sessionCount,
-      uniqueViewerCount: entry.uniqueViewerKeys.size,
-      repeatSessionCount: Array.from(entry.sessionCountsByUser.values()).reduce(
+    .map((entry) => {
+      const repeatCount = Array.from(entry.sessionCountsByUser.values()).reduce(
         (total, value) => total + Math.max(0, value - 1),
         0,
-      ),
-      returnSessionCount: Array.from(entry.sessionCountsByUser.values()).reduce(
-        (total, value) => total + Math.max(0, value - 1),
-        0,
-      ),
-      totalWatchSeconds: entry.totalWatchSeconds,
+      );
+
+      return {
+        dropId: entry.dropId,
+        dropTitle: resolveDropTitle(input.dropReferences, entry.dropId, entry.dropTitle),
+        viewCount: entry.viewCount,
+        sessionCount: entry.sessionCount,
+        uniqueViewerCount: entry.uniqueViewerKeys.size,
+        repeatSessionCount: repeatCount,
+        returnSessionCount: repeatCount,
+        totalWatchSeconds: entry.totalWatchSeconds,
       avgSessionSeconds: average(entry.sessionDurations),
       avgWatchSeconds: average(entry.watchDurations),
       assetStarts: entry.hasAssetDocs ? entry.assetStarts : entry.fallbackAssetStarts,
@@ -424,7 +440,8 @@ function buildWatchDropInsights(input: {
       avgLoadMs: entry.loadSampleCountAggregated > 0
         ? Math.round(entry.loadMsTotalAggregated / entry.loadSampleCountAggregated)
         : average(entry.loadSamples),
-    }))
+      };
+    })
     .sort((left, right) =>
       right.totalWatchSeconds - left.totalWatchSeconds
       || right.sessionCount - left.sessionCount
@@ -643,19 +660,19 @@ export function buildHistoricalViewerOverview(input: {
     ? watchOverview
     : viewerOverview.sessionCount > 0
       ? viewerOverview
-      : {
-        viewCount: sessionFactOverview.sessionCount,
-        sessionCount: sessionFactOverview.sessionCount,
-        uniqueViewerCount: sessionFactOverview.uniqueViewerKeys.size,
-        repeatSessionCount: Array.from(sessionFactOverview.sessionCounts.values()).reduce(
+      : (() => {
+        const repeatCount = Array.from(sessionFactOverview.sessionCounts.values()).reduce(
           (total, value) => total + Math.max(0, value - 1),
           0,
-        ),
-        returnSessionCount: Array.from(sessionFactOverview.sessionCounts.values()).reduce(
-          (total, value) => total + Math.max(0, value - 1),
-          0,
-        ),
-        totalWatchSeconds: sessionFactOverview.totalWatchSeconds,
+        );
+
+        return {
+          viewCount: sessionFactOverview.sessionCount,
+          sessionCount: sessionFactOverview.sessionCount,
+          uniqueViewerCount: sessionFactOverview.uniqueViewerKeys.size,
+          repeatSessionCount: repeatCount,
+          returnSessionCount: repeatCount,
+          totalWatchSeconds: sessionFactOverview.totalWatchSeconds,
         avgSessionSeconds: sessionFactOverview.completedCount > 0
           ? Math.round(sessionFactOverview.totalWatchSeconds / sessionFactOverview.completedCount)
           : 0,
@@ -664,21 +681,22 @@ export function buildHistoricalViewerOverview(input: {
           : 0,
         watchScoreSource: "legacy_page_duration",
         watchScoreConfidence: "low",
-        avgLoadMs: sessionFactOverview.loadSampleCount > 0
-          ? Math.round(sessionFactOverview.loadMsTotal / sessionFactOverview.loadSampleCount)
-          : 0,
-        assetCompletionRate: 0,
-        meaningfulSessionCount: 0,
-        openedWithoutDepthCount: 0,
-        bounceSessionCount: 0,
-        abandonedSessionCount: 0,
-        stalledSessionCount: 0,
-        convertedSessionCount: 0,
-        completedSessionCount: 0,
-        assetSwitches: 0,
-        downloads: 0,
-        relatedClicks: 0,
-      };
+          avgLoadMs: sessionFactOverview.loadSampleCount > 0
+            ? Math.round(sessionFactOverview.loadMsTotal / sessionFactOverview.loadSampleCount)
+            : 0,
+          assetCompletionRate: 0,
+          meaningfulSessionCount: 0,
+          openedWithoutDepthCount: 0,
+          bounceSessionCount: 0,
+          abandonedSessionCount: 0,
+          stalledSessionCount: 0,
+          convertedSessionCount: 0,
+          completedSessionCount: 0,
+          assetSwitches: 0,
+          downloads: 0,
+          relatedClicks: 0,
+        };
+      })();
 
   const viewerDropInsightMap = new Map<string, MutableViewerDropInsight>();
   const ensureViewerDropInsight = (record: TelemetryLogRecord) => {
@@ -809,20 +827,19 @@ export function buildHistoricalViewerOverview(input: {
       const bounceSessionCount = Math.min(sessionCount, entry.bounceSessionCount);
       const abandonedSessionCount = Math.min(sessionCount, entry.abandonedSessionCount);
 
+      const repeatCount = Array.from(entry.sessionCountsByUser.values()).reduce(
+        (total, value) => total + Math.max(0, value - 1),
+        0,
+      );
+
       return {
         dropId: entry.dropId,
         dropTitle: resolveDropTitle(input.dropReferences, entry.dropId, entry.dropTitle),
         viewCount: entry.viewCount,
         sessionCount,
         uniqueViewerCount: entry.uniqueViewerKeys.size,
-        repeatSessionCount: Array.from(entry.sessionCountsByUser.values()).reduce(
-          (total, value) => total + Math.max(0, value - 1),
-          0,
-        ),
-        returnSessionCount: Array.from(entry.sessionCountsByUser.values()).reduce(
-          (total, value) => total + Math.max(0, value - 1),
-          0,
-        ),
+        repeatSessionCount: repeatCount,
+        returnSessionCount: repeatCount,
         totalWatchSeconds: entry.totalWatchSeconds,
         avgSessionSeconds: average(entry.sessionDurations),
         avgWatchSeconds: average(entry.watchDurations),
@@ -881,21 +898,21 @@ export function buildHistoricalViewerOverview(input: {
   }, new Map<string, ViewerDropFactAccumulator>());
 
   const viewerDropInsightsFromFacts = Array.from(viewerDropFactsMap.values())
-    .map((entry) => ({
-      dropId: entry.dropId,
-      dropTitle: entry.dropTitle,
-      viewCount: entry.viewCount,
-      sessionCount: entry.sessionCount,
-      uniqueViewerCount: entry.uniqueViewerKeys.size,
-      repeatSessionCount: Array.from(entry.sessionCounts.values()).reduce(
+    .map((entry) => {
+      const repeatCount = Array.from(entry.sessionCounts.values()).reduce(
         (total, value) => total + Math.max(0, value - 1),
         0,
-      ),
-      returnSessionCount: Array.from(entry.sessionCounts.values()).reduce(
-        (total, value) => total + Math.max(0, value - 1),
-        0,
-      ),
-      totalWatchSeconds: entry.totalWatchSeconds,
+      );
+
+      return {
+        dropId: entry.dropId,
+        dropTitle: entry.dropTitle,
+        viewCount: entry.viewCount,
+        sessionCount: entry.sessionCount,
+        uniqueViewerCount: entry.uniqueViewerKeys.size,
+        repeatSessionCount: repeatCount,
+        returnSessionCount: repeatCount,
+        totalWatchSeconds: entry.totalWatchSeconds,
       avgSessionSeconds: entry.sessionCount > 0 ? Math.round(entry.totalWatchSeconds / entry.sessionCount) : 0,
       avgWatchSeconds: entry.sessionCount > 0 ? Math.round(entry.totalWatchSeconds / entry.sessionCount) : 0,
       assetStarts: 0,
@@ -911,7 +928,8 @@ export function buildHistoricalViewerOverview(input: {
       downloads: 0,
       relatedClicks: 0,
       avgLoadMs: entry.loadSampleCount > 0 ? Math.round(entry.loadMsTotal / entry.loadSampleCount) : 0,
-    }))
+      };
+    })
     .sort((left, right) => right.totalWatchSeconds - left.totalWatchSeconds || right.sessionCount - left.sessionCount)
     .slice(0, 20);
 
