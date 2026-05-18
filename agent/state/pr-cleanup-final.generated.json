@@ -1,0 +1,337 @@
+{
+  "generatedAtUtc": "2026-05-18T14:50:09.443Z",
+  "reportKey": "pr-cleanup-final",
+  "currentHead": "c834dbec9299590a5a280bc08754eee9d33180d4",
+  "workingTreeStatusBefore": "clean: git status --short, git diff --name-only, and git ls-files --others --exclude-standard returned no files",
+  "workingTreeStatusAfter": "clean after PR actions and before report artifact creation",
+  "dirtyFilesClassified": [],
+  "prsReviewed": [
+    {
+      "number": 261,
+      "title": "Palette: Add aria-busy to Button component",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/261",
+      "classification": "close_superseded",
+      "reason": "Newer duplicate carried generated artifacts and pnpm-lock churn; not merged into beta cleanup."
+    },
+    {
+      "number": 260,
+      "title": "Bolt: Optimize task definition lookups in debug route",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/260",
+      "classification": "preserve_post_launch",
+      "reason": "Touches admin debug backend route; current lane forbids admin backend/runtime changes."
+    },
+    {
+      "number": 259,
+      "title": "Audit package metadata and source-of-funds truth",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/259",
+      "classification": "needs_human_review",
+      "reason": "Touches PurchaseModal and source-of-funds behavior; payment/economy-adjacent and high risk for this cleanup lane."
+    },
+    {
+      "number": 258,
+      "title": "Reduce monolith file risk and clarify responsibility boundaries",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/258",
+      "classification": "close_superseded",
+      "reason": "Duplicate monolith planning doc PR superseded by current source and newer cleanup lane."
+    },
+    {
+      "number": 257,
+      "title": "Reduce monolith file risk and clarify responsibility boundaries",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/257",
+      "classification": "close_superseded",
+      "reason": "Duplicate monolith planning doc PR superseded by current source and newer cleanup lane."
+    },
+    {
+      "number": 256,
+      "title": "Reduce monolith file risk and clarify responsibility boundaries",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/256",
+      "classification": "close_superseded",
+      "reason": "Duplicate monolith planning doc PR superseded by current source and newer cleanup lane."
+    },
+    {
+      "number": 255,
+      "title": "Bolt: Optimize nested lookups in large debug route",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/255",
+      "classification": "close_superseded",
+      "reason": "Older duplicate admin debug route optimization superseded by later PR 260 and not safe to merge in this lane."
+    },
+    {
+      "number": 254,
+      "title": "Palette: Add aria-expanded to collapsible buttons",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/254",
+      "classification": "close_superseded",
+      "reason": "Conflicting palette tweak overlaps newer creator/settings cleanup and should be recreated fresh if still needed."
+    },
+    {
+      "number": 253,
+      "title": "Reduce monolith file risk and clarify responsibility boundaries",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/253",
+      "classification": "close_superseded",
+      "reason": "Duplicate monolith planning doc PR superseded by current source and newer cleanup lane."
+    },
+    {
+      "number": 252,
+      "title": "Reduce duplicate computation in high-ROI aggregation hotspot",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/252",
+      "classification": "preserve_post_launch",
+      "reason": "Touches admin analytics/server aggregation behavior; preserve for a focused post-launch performance lane."
+    },
+    {
+      "number": 251,
+      "title": "Harden admin truth surfaces and remove false healthy states",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/251",
+      "classification": "preserve_post_launch",
+      "reason": "Touches Admin Debug/Admin truth surfaces; current lane forbids broad admin truth rewrites."
+    },
+    {
+      "number": 250,
+      "title": "Reduce monolith file risk and clarify responsibility boundaries",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/250",
+      "classification": "close_superseded",
+      "reason": "Duplicate monolith planning doc PR superseded by current source and newer cleanup lane."
+    },
+    {
+      "number": 249,
+      "title": "Sentinel: Fix raw 500 error exposure in wallet packages route",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/249",
+      "classification": "close_stale_failing",
+      "reason": "Wallet route change is high risk for this lane and should be recreated fresh if still needed."
+    },
+    {
+      "number": 248,
+      "title": "Palette: Add aria-expanded to visibility toggle buttons",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/248",
+      "classification": "close_superseded",
+      "reason": "Conflicting palette tweak overlaps newer creator/settings cleanup and should be recreated fresh if still needed."
+    },
+    {
+      "number": 247,
+      "title": "Reduce duplicate computation in high-ROI aggregation hotspots",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/247",
+      "classification": "preserve_post_launch",
+      "reason": "Touches admin backend routes; current lane forbids admin backend runtime changes."
+    },
+    {
+      "number": 246,
+      "title": "Reduce monolith file risk and clarify responsibility boundaries",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/246",
+      "classification": "close_superseded",
+      "reason": "Broad dashboard runtime/doc monolith PR is stale relative to newer source cleanup."
+    },
+    {
+      "number": 243,
+      "title": "Dependabot: functions npm minor patch group",
+      "author": "app/dependabot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/243",
+      "classification": "preserve_dependency_security_review",
+      "reason": "Changes functions package manifests and lockfiles; requires dependency/security review."
+    },
+    {
+      "number": 242,
+      "title": "Dependabot: npm minor patch group",
+      "author": "app/dependabot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/242",
+      "classification": "preserve_dependency_security_review",
+      "reason": "Broad app dependency manifest and lockfile update; requires dependency/security review."
+    },
+    {
+      "number": 241,
+      "title": "Improve onboarding friction visibility and technical rescue signals",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/241",
+      "classification": "needs_human_review",
+      "reason": "Spans onboarding, locked preview, and PurchaseModal runtime surfaces; preserve for a focused product lane."
+    },
+    {
+      "number": 240,
+      "title": "Harden admin truth surfaces and remove false healthy states",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/240",
+      "classification": "close_superseded",
+      "reason": "Older narrow admin truth PR superseded by newer PR 251 and current source truth work."
+    },
+    {
+      "number": 238,
+      "title": "Palette: Add accessible ARIA states to interactive toggles",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/238",
+      "classification": "close_superseded",
+      "reason": "Conflicting palette tweak overlaps newer creator/settings cleanup and should be recreated fresh if still needed."
+    },
+    {
+      "number": 237,
+      "title": "Reduce duplicate computation in high-ROI aggregation hotspot",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/237",
+      "classification": "close_superseded",
+      "reason": "Older admin analytics optimization superseded by newer PR 252."
+    },
+    {
+      "number": 234,
+      "title": "Bolt: Optimize O(N2) nested lookups in admin debug route",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/234",
+      "classification": "close_superseded",
+      "reason": "Older duplicate admin debug route optimization superseded by later PR 260."
+    },
+    {
+      "number": 233,
+      "title": "Palette: Add aria-busy to Button component for loading states",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/233",
+      "classification": "preserve_post_launch",
+      "reason": "Tiny shared Button runtime UI change, but not merged without a focused a11y validator lane."
+    },
+    {
+      "number": 228,
+      "title": "Bolt: Optimize LibraryClient Drop and Category filtering",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/228",
+      "classification": "preserve_post_launch",
+      "reason": "Changes library runtime filtering behavior; preserve for a focused post-launch performance lane."
+    },
+    {
+      "number": 227,
+      "title": "Reduce duplicate computation in admin user page",
+      "author": "omgitsguppey",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/227",
+      "classification": "close_superseded",
+      "reason": "Conflicting admin page optimization is stale and should be recreated fresh if still needed."
+    },
+    {
+      "number": 226,
+      "title": "Dependabot: bump knip",
+      "author": "app/dependabot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/226",
+      "classification": "close_stale_failing",
+      "reason": "Dependency/tooling PR had failing checks and should be recreated fresh if still needed."
+    },
+    {
+      "number": 225,
+      "title": "Dependabot: bump npm-check-updates",
+      "author": "app/dependabot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/225",
+      "classification": "close_stale_failing",
+      "reason": "Dependency/tooling PR had failing checks and should be recreated fresh if still needed."
+    },
+    {
+      "number": 224,
+      "title": "Dependabot: bump syncpack",
+      "author": "app/dependabot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/224",
+      "classification": "close_stale_failing",
+      "reason": "Dependency/tooling PR had failing checks and should be recreated fresh if still needed."
+    },
+    {
+      "number": 223,
+      "title": "Dependabot: bump lucide-react",
+      "author": "app/dependabot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/223",
+      "classification": "close_stale_failing",
+      "reason": "Dependency/tooling PR had failing checks and should be recreated fresh if still needed."
+    },
+    {
+      "number": 218,
+      "title": "Dependabot: bump actions/upload-artifact",
+      "author": "app/dependabot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/218",
+      "classification": "preserve_dependency_security_review",
+      "reason": "Changes GitHub Actions workflow dependencies; preserve for workflow/dependency review."
+    },
+    {
+      "number": 217,
+      "title": "Dependabot: bump actions/checkout",
+      "author": "app/dependabot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/217",
+      "classification": "preserve_dependency_security_review",
+      "reason": "Changes multiple GitHub Actions workflows; preserve for workflow/dependency review."
+    },
+    {
+      "number": 216,
+      "title": "Dependabot: bump ossf/scorecard-action",
+      "author": "app/dependabot",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/216",
+      "classification": "preserve_dependency_security_review",
+      "reason": "Changes GitHub Actions security tooling; preserve for workflow/dependency review."
+    }
+  ],
+  "prsMerged": [],
+  "prsClosed": [
+    { "number": 261, "title": "Palette: Add aria-busy to Button component", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/261", "classification": "close_superseded", "reason": "Newer duplicate carried generated artifacts and pnpm-lock churn; not merged into beta cleanup." },
+    { "number": 258, "title": "Reduce monolith file risk and clarify responsibility boundaries", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/258", "classification": "close_superseded", "reason": "Duplicate monolith planning doc PR superseded by current source and newer cleanup lane." },
+    { "number": 257, "title": "Reduce monolith file risk and clarify responsibility boundaries", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/257", "classification": "close_superseded", "reason": "Duplicate monolith planning doc PR superseded by current source and newer cleanup lane." },
+    { "number": 256, "title": "Reduce monolith file risk and clarify responsibility boundaries", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/256", "classification": "close_superseded", "reason": "Duplicate monolith planning doc PR superseded by current source and newer cleanup lane." },
+    { "number": 255, "title": "Bolt: Optimize nested lookups in large debug route", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/255", "classification": "close_superseded", "reason": "Older duplicate admin debug route optimization superseded by later PR 260 and not safe to merge in this lane." },
+    { "number": 254, "title": "Palette: Add aria-expanded to collapsible buttons", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/254", "classification": "close_superseded", "reason": "Conflicting palette tweak overlaps newer creator/settings cleanup and should be recreated fresh if still needed." },
+    { "number": 253, "title": "Reduce monolith file risk and clarify responsibility boundaries", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/253", "classification": "close_superseded", "reason": "Duplicate monolith planning doc PR superseded by current source and newer cleanup lane." },
+    { "number": 250, "title": "Reduce monolith file risk and clarify responsibility boundaries", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/250", "classification": "close_superseded", "reason": "Duplicate monolith planning doc PR superseded by current source and newer cleanup lane." },
+    { "number": 249, "title": "Sentinel: Fix raw 500 error exposure in wallet packages route", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/249", "classification": "close_stale_failing", "reason": "Wallet route change is high risk for this lane and should be recreated fresh if still needed." },
+    { "number": 248, "title": "Palette: Add aria-expanded to visibility toggle buttons", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/248", "classification": "close_superseded", "reason": "Conflicting palette tweak overlaps newer creator/settings cleanup and should be recreated fresh if still needed." },
+    { "number": 246, "title": "Reduce monolith file risk and clarify responsibility boundaries", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/246", "classification": "close_superseded", "reason": "Broad dashboard runtime/doc monolith PR is stale relative to newer source cleanup." },
+    { "number": 240, "title": "Harden admin truth surfaces and remove false healthy states", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/240", "classification": "close_superseded", "reason": "Older narrow admin truth PR superseded by newer PR 251 and current source truth work." },
+    { "number": 238, "title": "Palette: Add accessible ARIA states to interactive toggles", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/238", "classification": "close_superseded", "reason": "Conflicting palette tweak overlaps newer creator/settings cleanup and should be recreated fresh if still needed." },
+    { "number": 237, "title": "Reduce duplicate computation in high-ROI aggregation hotspot", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/237", "classification": "close_superseded", "reason": "Older admin analytics optimization superseded by newer PR 252." },
+    { "number": 234, "title": "Bolt: Optimize O(N2) nested lookups in admin debug route", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/234", "classification": "close_superseded", "reason": "Older duplicate admin debug route optimization superseded by later PR 260." },
+    { "number": 227, "title": "Reduce duplicate computation in admin user page", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/227", "classification": "close_superseded", "reason": "Conflicting admin page optimization is stale and should be recreated fresh if still needed." },
+    { "number": 226, "title": "Dependabot: bump knip", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/226", "classification": "close_stale_failing", "reason": "Dependency/tooling PR had failing checks and should be recreated fresh if still needed." },
+    { "number": 225, "title": "Dependabot: bump npm-check-updates", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/225", "classification": "close_stale_failing", "reason": "Dependency/tooling PR had failing checks and should be recreated fresh if still needed." },
+    { "number": 224, "title": "Dependabot: bump syncpack", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/224", "classification": "close_stale_failing", "reason": "Dependency/tooling PR had failing checks and should be recreated fresh if still needed." },
+    { "number": 223, "title": "Dependabot: bump lucide-react", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/223", "classification": "close_stale_failing", "reason": "Dependency/tooling PR had failing checks and should be recreated fresh if still needed." }
+  ],
+  "prsPreserved": [
+    { "number": 260, "title": "Bolt: Optimize task definition lookups in debug route", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/260", "classification": "preserve_post_launch", "reason": "Touches admin debug backend route; current lane forbids admin backend/runtime changes.", "owner": "post-launch-admin-debug-review" },
+    { "number": 259, "title": "Audit package metadata and source-of-funds truth", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/259", "classification": "needs_human_review", "reason": "Touches PurchaseModal and source-of-funds behavior; payment/economy-adjacent and high risk for this cleanup lane.", "owner": "human-payment-economy-review" },
+    { "number": 252, "title": "Reduce duplicate computation in high-ROI aggregation hotspot", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/252", "classification": "preserve_post_launch", "reason": "Touches admin analytics/server aggregation behavior; preserve for a focused post-launch performance lane.", "owner": "post-launch-admin-analytics-review" },
+    { "number": 251, "title": "Harden admin truth surfaces and remove false healthy states", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/251", "classification": "preserve_post_launch", "reason": "Touches Admin Debug/Admin truth surfaces; current lane forbids broad admin truth rewrites.", "owner": "post-launch-admin-truth-review" },
+    { "number": 247, "title": "Reduce duplicate computation in high-ROI aggregation hotspots", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/247", "classification": "preserve_post_launch", "reason": "Touches admin backend routes; current lane forbids admin backend runtime changes.", "owner": "post-launch-admin-backend-review" },
+    { "number": 243, "title": "Dependabot: functions npm minor patch group", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/243", "classification": "preserve_dependency_security_review", "reason": "Changes functions package manifests and lockfiles; requires dependency/security review.", "owner": "dependency-security-review" },
+    { "number": 242, "title": "Dependabot: npm minor patch group", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/242", "classification": "preserve_dependency_security_review", "reason": "Broad app dependency manifest and lockfile update; requires dependency/security review.", "owner": "dependency-security-review" },
+    { "number": 241, "title": "Improve onboarding friction visibility and technical rescue signals", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/241", "classification": "needs_human_review", "reason": "Spans onboarding, locked preview, and PurchaseModal runtime surfaces; preserve for a focused product lane.", "owner": "human-product-review" },
+    { "number": 233, "title": "Palette: Add aria-busy to Button component for loading states", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/233", "classification": "preserve_post_launch", "reason": "Tiny shared Button runtime UI change, but not merged without a focused a11y validator lane.", "owner": "post-launch-a11y-review" },
+    { "number": 228, "title": "Bolt: Optimize LibraryClient Drop and Category filtering", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/228", "classification": "preserve_post_launch", "reason": "Changes library runtime filtering behavior; preserve for a focused post-launch performance lane.", "owner": "post-launch-library-performance-review" },
+    { "number": 218, "title": "Dependabot: bump actions/upload-artifact", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/218", "classification": "preserve_dependency_security_review", "reason": "Changes GitHub Actions workflow dependencies; preserve for workflow/dependency review.", "owner": "dependency-security-review" },
+    { "number": 217, "title": "Dependabot: bump actions/checkout", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/217", "classification": "preserve_dependency_security_review", "reason": "Changes multiple GitHub Actions workflows; preserve for workflow/dependency review.", "owner": "dependency-security-review" },
+    { "number": 216, "title": "Dependabot: bump ossf/scorecard-action", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/216", "classification": "preserve_dependency_security_review", "reason": "Changes GitHub Actions security tooling; preserve for workflow/dependency review.", "owner": "dependency-security-review" }
+  ],
+  "unsafeUntouched": [
+    { "number": 259, "title": "Audit package metadata and source-of-funds truth", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/259", "classification": "needs_human_review", "reason": "Payment/economy-adjacent PurchaseModal change preserved for human review." },
+    { "number": 247, "title": "Reduce duplicate computation in high-ROI aggregation hotspots", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/247", "classification": "preserve_post_launch", "reason": "Admin backend route optimization preserved for a dedicated post-launch lane." }
+  ],
+  "remainingOpenPrs": [
+    { "number": 260, "title": "Bolt: Optimize task definition lookups in debug route", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/260", "classification": "preserve_post_launch", "reason": "Admin debug backend route optimization preserved." },
+    { "number": 259, "title": "Audit package metadata and source-of-funds truth", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/259", "classification": "needs_human_review", "reason": "Payment/economy-adjacent change preserved." },
+    { "number": 252, "title": "Reduce duplicate computation in high-ROI aggregation hotspot", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/252", "classification": "preserve_post_launch", "reason": "Admin analytics performance change preserved." },
+    { "number": 251, "title": "Harden admin truth surfaces and remove false healthy states", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/251", "classification": "preserve_post_launch", "reason": "Admin truth change preserved." },
+    { "number": 247, "title": "Reduce duplicate computation in high-ROI aggregation hotspots", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/247", "classification": "preserve_post_launch", "reason": "Admin backend route optimization preserved." },
+    { "number": 243, "title": "Dependabot: functions npm minor patch group", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/243", "classification": "preserve_dependency_security_review", "reason": "Functions dependency review preserved." },
+    { "number": 242, "title": "Dependabot: npm minor patch group", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/242", "classification": "preserve_dependency_security_review", "reason": "App dependency review preserved." },
+    { "number": 241, "title": "Improve onboarding friction visibility and technical rescue signals", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/241", "classification": "needs_human_review", "reason": "Broad product runtime change preserved." },
+    { "number": 233, "title": "Palette: Add aria-busy to Button component for loading states", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/233", "classification": "preserve_post_launch", "reason": "Shared Button a11y change preserved." },
+    { "number": 228, "title": "Bolt: Optimize LibraryClient Drop and Category filtering", "author": "omgitsguppey", "url": "https://github.com/omgitsguppey/kandylandv2/pull/228", "classification": "preserve_post_launch", "reason": "Library runtime performance change preserved." },
+    { "number": 218, "title": "Dependabot: bump actions/upload-artifact", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/218", "classification": "preserve_dependency_security_review", "reason": "Workflow dependency review preserved." },
+    { "number": 217, "title": "Dependabot: bump actions/checkout", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/217", "classification": "preserve_dependency_security_review", "reason": "Workflow dependency review preserved." },
+    { "number": 216, "title": "Dependabot: bump ossf/scorecard-action", "author": "app/dependabot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/216", "classification": "preserve_dependency_security_review", "reason": "Workflow security tooling review preserved." }
+  ],
+  "nextExactSteps": [
+    "Review preserved dependency/workflow PRs 216, 217, 218, 242, and 243 in a dedicated dependency-security lane.",
+    "Review preserved admin/debug/backend PRs 247, 251, 252, and 260 after beta cleanup because they touch admin runtime or server aggregation.",
+    "Review preserved product/runtime PRs 228, 233, 241, and 259 only with focused validators for their exact surfaces.",
+    "Keep the local worktree clean before the next feature or evidence pass."
+  ]
+}
