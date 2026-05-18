@@ -1,13 +1,59 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.81",
-  "betaReleaseCounter": 281,
+  "currentVersion": "1.2.82",
+  "betaReleaseCounter": 282,
   "channel": "beta",
-  "generatedAt": "2026-05-18T13:56:43.998Z",
-  "generatedAtUtc": "2026-05-18T13:56:43.998Z",
-  "lastCommitSha": "c015ed78b1220ed718e2691394e3336d0fe64a3e",
+  "generatedAt": "2026-05-18T14:08:29.415Z",
+  "generatedAtUtc": "2026-05-18T14:08:29.415Z",
+  "lastCommitSha": "1ae808dd4f8d569aacd1eb6c8148762261c9976f",
   "notes": [
+    {
+      "version": "1.2.82",
+      "previousVersion": "1.2.81",
+      "betaReleaseCounter": 282,
+      "previousBetaReleaseCounter": 281,
+      "commitSha": "1ae808dd4f8d569aacd1eb6c8148762261c9976f",
+      "commitTitle": "docs(analytics): map cost and runtime tracking",
+      "commitCount": 1,
+      "commitShas": [
+        "1ae808dd4f8d569aacd1eb6c8148762261c9976f"
+      ],
+      "committedAt": "2026-05-18T14:08:29.415Z",
+      "generatedAt": "2026-05-18T14:08:29.415Z",
+      "committedAtUtc": "2026-05-18T14:08:29.415Z",
+      "generatedAtUtc": "2026-05-18T14:08:29.415Z",
+      "updatedAtUtc": "2026-05-18T14:08:29.415Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Mapped analytics cost and runtime tracking surfaces.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Mapped analytics cost and runtime tracking surfaces.",
+        "Added Cloud Run, Cloud SQL, BigQuery, and Gemini cost inventories.",
+        "Prepared focused follow-ups for 4xx, retry, and analytics cadence cleanup."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-cost-runtime-inventory.generated.json",
+        "docs/agent-truth/analytics-cost-runtime-inventory.md",
+        "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
+        "tests/unit/analytics-cost-runtime-inventory.spec.ts",
+        "agent/state/speed-security-hardening.generated.json",
+        "agent/state/current-beta-exit-status.generated.json",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "1ae808dd4f8d569aacd1eb6c8148762261c9976f"
+    },
     {
       "version": "1.2.81",
       "previousVersion": "1.2.80",
@@ -463,4 +509,4 @@ export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   releaseChannel: PUBLIC_RELEASE_NOTES_FALLBACK.channel,
 } as const;
 
-export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion;
+export const PUBLIC_APP_VERSION = PUBLIC_RELEASE_NOTES_VERSION_CONTEXT.appVersion;

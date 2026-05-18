@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T06:29:34.981Z",
+  "generatedAt": "2026-05-18T14:06:33.855Z",
   "overallScore": 51,
   "overallStatus": "beta-risk",
   "domainScores": {
@@ -15,9 +15,9 @@
       "weight": 25,
       "score": 0,
       "status": "beta-risk",
-      "findingCount": 73,
+      "findingCount": 74,
       "criticalCount": 0,
-      "majorCount": 73
+      "majorCount": 74
     },
     "firebaseRulesAppCheckReadiness": {
       "weight": 20,
@@ -58,8 +58,8 @@
       "force_cache": 0,
       "swr": 3,
       "hot_cache": 4,
-      "no_store": 95,
-      "must_not_cache": 22,
+      "no_store": 97,
+      "must_not_cache": 23,
       "unknown": 0
     },
     "routes": [
@@ -419,6 +419,20 @@
           "GET",
           "POST",
           "PUT"
+        ],
+        "contractPattern": "/api/admin/**",
+        "cacheMode": "no_store",
+        "surface": "admin",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": true,
+        "sourceForceDynamicEvidence": true
+      },
+      {
+        "routePath": "/api/admin/debug/bug-reports",
+        "filePath": "src/app/api/admin/debug/bug-reports/route.ts",
+        "methods": [
+          "GET"
         ],
         "contractPattern": "/api/admin/**",
         "cacheMode": "no_store",
@@ -881,6 +895,20 @@
         "sourceForceDynamicEvidence": false
       },
       {
+        "routePath": "/api/analytics/identity-link",
+        "filePath": "src/app/api/analytics/identity-link/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "contractPattern": "/api/analytics/**",
+        "cacheMode": "must_not_cache",
+        "surface": "analytics",
+        "userSpecific": false,
+        "sensitive": true,
+        "sourceNoStoreEvidence": true,
+        "sourceForceDynamicEvidence": true
+      },
+      {
         "routePath": "/api/analytics/ingest",
         "filePath": "src/app/api/analytics/ingest/route.ts",
         "methods": [
@@ -928,6 +956,20 @@
         "methods": [
           "POST",
           "DELETE"
+        ],
+        "contractPattern": "/api/**",
+        "cacheMode": "no_store",
+        "surface": "api",
+        "userSpecific": true,
+        "sensitive": true,
+        "sourceNoStoreEvidence": false,
+        "sourceForceDynamicEvidence": false
+      },
+      {
+        "routePath": "/api/bug-reports",
+        "filePath": "src/app/api/bug-reports/route.ts",
+        "methods": [
+          "POST"
         ],
         "contractPattern": "/api/**",
         "cacheMode": "no_store",
@@ -1887,16 +1929,16 @@
   },
   "routeSecurityClassification": {
     "totals": {
-      "routes": 126,
-      "mutations": 90,
-      "trustedOriginRequired": 90,
-      "trustedOriginPresent": 102,
-      "guardPresent": 125,
-      "rateLimitEvidence": 125,
+      "routes": 129,
+      "mutations": 92,
+      "trustedOriginRequired": 92,
+      "trustedOriginPresent": 105,
+      "guardPresent": 128,
+      "rateLimitEvidence": 128,
       "idempotencyRequired": 12,
       "idempotencyEvidence": 23,
-      "bodyLimitRequired": 119,
-      "bodyLimitEvidence": 33
+      "bodyLimitRequired": 122,
+      "bodyLimitEvidence": 35
     },
     "routes": [
       {
@@ -2633,6 +2675,34 @@
         "mutation": true,
         "sensitiveWrites": true,
         "trustedOriginRequired": true,
+        "trustedOriginPresent": true,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "unauthorized",
+          "forbidden",
+          "invalid_admin_request"
+        ]
+      },
+      {
+        "routePath": "/api/admin/debug/bug-reports",
+        "filePath": "src/app/api/admin/debug/bug-reports/route.ts",
+        "methods": [
+          "GET"
+        ],
+        "contractPattern": "/api/admin/**",
+        "authRequired": "admin",
+        "rateLimitPolicy": "admin",
+        "costRisk": "high",
+        "csrfRisk": "high",
+        "mutation": false,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": false,
         "trustedOriginPresent": true,
         "trustedOriginChecked": true,
         "guardPresent": true,
@@ -3537,6 +3607,34 @@
         ]
       },
       {
+        "routePath": "/api/analytics/identity-link",
+        "filePath": "src/app/api/analytics/identity-link/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "contractPattern": "/api/analytics/**",
+        "authRequired": "none",
+        "rateLimitPolicy": "analytics_write",
+        "costRisk": "medium",
+        "csrfRisk": "medium",
+        "mutation": true,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": true,
+        "trustedOriginPresent": true,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": true,
+        "expectedFailureCodes": [
+          "consent_denied",
+          "invalid_analytics_payload",
+          "payload_too_large"
+        ]
+      },
+      {
         "routePath": "/api/analytics/ingest",
         "filePath": "src/app/api/analytics/ingest/route.ts",
         "methods": [
@@ -3643,6 +3741,34 @@
         "idempotencyPresent": false,
         "bodyLimitRequired": true,
         "bodyLimitPresent": false,
+        "expectedFailureCodes": [
+          "unauthorized",
+          "forbidden",
+          "invalid_request"
+        ]
+      },
+      {
+        "routePath": "/api/bug-reports",
+        "filePath": "src/app/api/bug-reports/route.ts",
+        "methods": [
+          "POST"
+        ],
+        "contractPattern": "/api/**",
+        "authRequired": "user",
+        "rateLimitPolicy": "standard",
+        "costRisk": "medium",
+        "csrfRisk": "medium",
+        "mutation": true,
+        "sensitiveWrites": true,
+        "trustedOriginRequired": true,
+        "trustedOriginPresent": true,
+        "trustedOriginChecked": true,
+        "guardPresent": true,
+        "rateLimitPresent": true,
+        "idempotencyRequired": false,
+        "idempotencyPresent": false,
+        "bodyLimitRequired": true,
+        "bodyLimitPresent": true,
         "expectedFailureCodes": [
           "unauthorized",
           "forbidden",
@@ -6393,6 +6519,23 @@
     {
       "domain": "apiRouteSecurityExploitHardening",
       "severity": "major",
+      "filePath": "src/app/api/creator/settings/route.ts",
+      "line": 4,
+      "title": "Route may collapse expected domain failures into generic 500s",
+      "evidence": [
+        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
+      ],
+      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
+      "actualPattern": "handleApiError/generic throw without expected code coverage",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
+      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
+      "id": "speed_security_ztse23"
+    },
+    {
+      "domain": "apiRouteSecurityExploitHardening",
+      "severity": "major",
       "filePath": "src/app/api/debug/evidence/route.ts",
       "line": 73,
       "title": "Mutating route has body limit contract but no source-visible cap",
@@ -7878,6 +8021,23 @@
       "id": "speed_security_gc909j"
     },
     {
+      "domain": "apiRouteSecurityExploitHardening",
+      "severity": "major",
+      "filePath": "src/app/api/creator/settings/route.ts",
+      "line": 4,
+      "title": "Route may collapse expected domain failures into generic 500s",
+      "evidence": [
+        "Missing expected safe code evidence: unauthorized, forbidden, invalid_creator_request."
+      ],
+      "expectedRule": "Expected failures return typed safe codes; handleApiError is for unexpected failures only.",
+      "actualPattern": "handleApiError/generic throw without expected code coverage",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Map known domain errors to safe typed responses and preserve route runtime health logging for unexpected failures.",
+      "humanReadableEscalation": "Typed error mapping may affect client copy and paid-source routes; use targeted route tests.",
+      "id": "speed_security_ztse23"
+    },
+    {
       "domain": "costRunawayWorkControls",
       "severity": "major",
       "filePath": "src/app/api/cron/process-creator-subscriptions/route.ts",
@@ -8577,5 +8737,5 @@
     "firebase deploy",
     "gcloud"
   ],
-  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 89 findings across 126 API routes."
+  "summary": "KandyDrops speed and security hardening is deterministic. Public/stable surfaces should cache intentionally. User/payment/support/chat/security surfaces stay no-store where needed. Every API route must declare auth, trusted origin, rate limit, idempotency, cost risk, cache mode, and expected failure codes. Firebase rules remain default deny with explicit owner/admin access. App Check is staged from monitor to enforcement. Heavy browser audits are forbidden by default. Current source scan found 90 findings across 129 API routes."
 }

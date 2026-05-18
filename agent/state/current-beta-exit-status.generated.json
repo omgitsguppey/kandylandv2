@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-18T13:54:21.4609116Z",
+  "generatedAtUtc": "2026-05-18T14:08:39.686Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "c015ed78b1220ed718e2691394e3336d0fe64a3e",
+  "currentHead": "1ae808dd4f8d569aacd1eb6c8148762261c9976f",
   "summary": {
-    "betaVersion": "1.2.81",
+    "betaVersion": "1.2.82",
     "betaScore": 45,
     "betaStatus": "Stale evidence",
     "sourceCleanupP0": 0,
@@ -16,12 +16,12 @@
     "providerSmokeStatus": "missing_formal_evidence",
     "runtimeSmokeStatus": "runtime_unverified",
     "adminTruthSampleStatus": "missing_or_unknown",
-    "cloudRunCostReadiness": "cost_review_required",
-    "cloudSqlCostReadiness": "not_detected_in_repo",
-    "geminiCloudAssistCostReadiness": "cost_review_required",
-    "route4xxReadiness": "source_inventory_complete",
+    "cloudRunCostReadiness": "repo_detected_external_billing_observed_operator_context_cost_review_required",
+    "cloudSqlCostReadiness": "repo_detected_agent_context_mirror_external_billing_observed_operator_context_owner_review_required",
+    "geminiCloudAssistCostReadiness": "repo_detected_admin_ai_external_billing_observed_operator_context_cost_review_required",
+    "route4xxReadiness": "source_inventory_complete_retry_review_required",
     "errorHandlingSourceStatus": "error_handling_source_complete",
-    "speedSecurityStatus": "51/beta-risk; findings=89; critical=0; p2BacklogVisible=true",
+    "speedSecurityStatus": "51/beta-risk; findings=90; critical=0; p2BacklogVisible=true",
     "releaseNotesStatus": "same_commit_release_note_artifacts_required",
     "canStartManualScreenshotQa": true,
     "canStartProviderSmoke": true,
@@ -84,6 +84,11 @@
       "command": "npm run check:analytics-semantics-final-lock",
       "status": "passed",
       "evidence": "represented in analytics semantics final lock source evidence."
+    },
+    {
+      "command": "npm run check:analytics-cost-runtime-inventory",
+      "status": "passed",
+      "evidence": "agent/state/analytics-cost-runtime-inventory.generated.json"
     }
   ],
   "failedChecks": [],
@@ -94,7 +99,8 @@
     "agent/state/source-truth-authority-map.generated.json",
     "agent/state/cost-4xx-reduction.generated.json",
     "agent/state/speed-security-hardening.generated.json",
-    "agent/state/analytics-semantics-final-lock.generated.json"
+    "agent/state/analytics-semantics-final-lock.generated.json",
+    "agent/state/analytics-cost-runtime-inventory.generated.json"
   ],
   "remainingBlockers": [
     {
@@ -138,7 +144,7 @@
       "severity": "P2",
       "status": "owner_review",
       "evidence": [
-        "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
+        "speed/security score=51 beta-risk; findings=90; analytics cost runtime inventory source-only lanes added."
       ],
       "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
     },

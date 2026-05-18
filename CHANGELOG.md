@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 6 public updates in pages of 5.
+Showing the last 10 public updates in pages of 5.
+
+## 1.2.82 - 2026-05-18
+- Bug fixes and general improvements
+- Mapped analytics cost and runtime tracking surfaces.
+- Added Cloud Run, Cloud SQL, BigQuery, and Gemini cost inventories.
+- Prepared focused follow-ups for 4xx, retry, and analytics cadence cleanup.
 
 ## 1.2.81 - 2026-05-18
 - Bug fixes and general improvements

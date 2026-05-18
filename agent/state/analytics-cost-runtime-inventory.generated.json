@@ -1,0 +1,190 @@
+{
+  "generatedAtUtc": "2026-05-18T14:09:00.126Z",
+  "reportKey": "analytics-cost-runtime-inventory",
+  "currentHead": "1ae808dd4f8d569aacd1eb6c8148762261c9976f",
+  "summary": {
+    "cloudRunCostFindings": 2,
+    "cloudSqlDetected": true,
+    "cloudSqlFindings": 1,
+    "bigQueryDetected": true,
+    "bigQueryExportFindings": 1,
+    "geminiCloudAssistDetected": true,
+    "geminiCloudAssistFindings": 1,
+    "nonPriorityAnalyticsCadenceFindings": 2,
+    "retry4xxFindings": 2,
+    "guestTrackingFindings": 1,
+    "userTrackingFindings": 1,
+    "watchTimeFindings": 2,
+    "p0Count": 0,
+    "p1Count": 7,
+    "p2Count": 6
+  },
+  "cloudRunFindings": [
+    {
+      "id": "analytics-ingest-cloud-run-request-work",
+      "severity": "P1",
+      "status": "repo_detected_external_billing_observed_operator_context",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "src/app/api/analytics/ingest/route.ts: force-dynamic analytics ingest route.",
+        "src/app/api/analytics/ingest/route.ts: materializeUserTrackingIndexes runs after guest ingest.",
+        "operator_context: billing screenshot showed Cloud Run/App Hosting/Functions costs; not used as source truth."
+      ],
+      "nextAction": "Review guest ingest request-path work, cache boundaries, and whether index materialization should move out of the hot request path."
+    },
+    {
+      "id": "guest-analytics-flush-cadence",
+      "severity": "P1",
+      "status": "repo_detected_non_priority_2_5s_flush",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "src/components/Analytics/DeepTracker.tsx: GUEST_ANALYTICS_FLUSH_INTERVAL_MS = 2_500.",
+        "src/components/Analytics/DeepTracker.tsx: page_view, visibility, pagehide, online, and interval can flush."
+      ],
+      "nextAction": "Classify priority vs non-priority analytics cadence and consider longer debounce/batch windows in a behavior-change pass."
+    }
+  ],
+  "cloudSqlFindings": [
+    {
+      "id": "cloud-sql-dataconnect-agent-context-mirror",
+      "severity": "P1",
+      "status": "repo_detected_agent_context_mirror_external_billing_observed_operator_context",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "AGENTS.md/doctrine: Data Connect / Cloud SQL mirror targets kandydrops-db.",
+        "dataconnect and doctrine references classify Cloud SQL as agent-context mirror unless promoted.",
+        "operator_context: billing screenshot showed Cloud SQL cost; source pass cannot explain provider billing alone."
+      ],
+      "nextAction": "Inventory Data Connect execution cadence, generated mirror refreshes, connection pooling/reuse, and provider-side instance state with owner evidence."
+    }
+  ],
+  "bigQueryFindings": [
+    {
+      "id": "bigquery-analytics-event-fact-export",
+      "severity": "P1",
+      "status": "repo_detected_export_lane_external_billing_unknown",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "functions/src/analytics-bigquery-export.ts exports analytics_event_facts into BigQuery raw_events.",
+        "functions/src/analytics-bigquery-export.ts creates DAY partitioning and eventName/origin clustering.",
+        "No dry-run/max-bytes-billed query guard is visible because this lane performs inserts/table setup, not query scans."
+      ],
+      "nextAction": "Before adding warehouse queries, require dry-run bytes estimate, maximumBytesBilled, daily quotas, and staged materialization."
+    }
+  ],
+  "geminiCloudAssistFindings": [
+    {
+      "id": "gemini-vertex-admin-ai-cost-lane",
+      "severity": "P1",
+      "status": "repo_detected_admin_ai_external_billing_observed_operator_context",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "src/lib/admin-ai-models.ts contains Gemini model registry and token/cost estimation language.",
+        "admin AI/cover generation lanes are outside analytics runtime but share Vertex/Gemini cost exposure.",
+        "operator_context: billing screenshot showed Vertex AI cost; not proof of analytics usage."
+      ],
+      "nextAction": "Gate Gemini/Vertex calls with explicit admin budget controls and separate analytics runtime from AI cost review."
+    }
+  ],
+  "retry4xxFindings": [
+    {
+      "id": "analytics-ingest-503-retryable",
+      "severity": "P1",
+      "status": "repo_detected_retryable_route_failure",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "src/app/api/analytics/ingest/route.ts returns { success: false, retryable: true } with status 503 on catch.",
+        "src/components/Analytics/DeepTracker.tsx persists failed queue and can flush again by interval/visibility/online."
+      ],
+      "nextAction": "Classify which analytics failures are retryable and make 4xx/validation failures calm, non-retried, and cheap."
+    },
+    {
+      "id": "expected-product-4xx-inventory",
+      "severity": "P2",
+      "status": "repo_detected_expected_4xx_mixed_with_runtime_scan",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "Search found expected 400/401/403/404 tests and routes; this pass does not classify each product route as cost leak."
+      ],
+      "nextAction": "Separate expected product 4xx from unexpected analytics/client retry 4xx before fixes."
+    }
+  ],
+  "analyticsCadenceFindings": [
+    {
+      "id": "deeptracker-non-priority-cadence",
+      "severity": "P1",
+      "status": "repo_detected_high_cadence_guest_flush",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "DeepTracker flush interval is 2.5s while visible.",
+        "Guest queue caps exist, but non-priority analytics cadence is still a Cloud Run/App Hosting cost review target."
+      ],
+      "nextAction": "Move non-priority cadence to a lower-frequency batch policy after source-owner review."
+    },
+    {
+      "id": "admin-analytics-cold-sources",
+      "severity": "P2",
+      "status": "repo_detected_cached_but_broad_admin_sources",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "src/lib/server/admin-analytics-data.ts uses 30s ephemeral route cache.",
+        "Admin historical analytics combines GA Data API reports with Firestore source reads and bounded limits."
+      ],
+      "nextAction": "Confirm admin analytics views read hot snapshots first and reserve cold reads for explicit refresh/drill-down."
+    }
+  ],
+  "trackingFindings": [
+    {
+      "id": "guest-tracking-source",
+      "severity": "P2",
+      "status": "repo_detected_guest_queue_and_batch_identity",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "DeepTracker queues anonymous events with anonymousVisitorId/sessionId.",
+        "analytics ingest writes analytics_guest_batches and guest session docs with stable batch dedupe."
+      ],
+      "nextAction": "Keep guest data distinct until linked; future cost changes must not erase guest history."
+    },
+    {
+      "id": "user-tracking-source",
+      "severity": "P2",
+      "status": "repo_detected_identityState_userId_session_continuity",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "analytics-event-contract includes identityState, identityLinkId, userId, anonymousVisitorId, and sessionId.",
+        "guest-user identity transfer final lock is source-ready but runtime proof remains separate."
+      ],
+      "nextAction": "Review user index materialization cadence before moving it into any runtime hot path."
+    }
+  ],
+  "watchTimeFindings": [
+    {
+      "id": "runtime-watch-time-v2-source-ready",
+      "severity": "P2",
+      "status": "repo_detected_source_ready_runtime_proof_required",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "src/lib/analytics/watch-time-v2.ts defines 10s heartbeat and 15s server delta cap.",
+        "Runtime watch-time v2 is source-ready but integration/runtime evidence remains pending."
+      ],
+      "nextAction": "Wire runtime watch tracker to selected media component and capture deployed evidence before claiming live accuracy."
+    },
+    {
+      "id": "legacy-watch-seconds-still-present",
+      "severity": "P2",
+      "status": "repo_detected_legacy_watch_seconds_rollup",
+      "detectionState": "repo_detected",
+      "evidence": [
+        "functions/src/analytics-event-facts.ts and analytics-semantics.ts still read watchSeconds/sessionWatchSeconds.",
+        "Legacy watch seconds must remain labeled until runtime watch v2 rollups are wired."
+      ],
+      "nextAction": "Keep legacy watchSeconds as evidence/legacy fallback, not canonical playback truth."
+    }
+  ],
+  "nextFixOrder": [
+    "Separate non-priority analytics cadence from product-critical telemetry and propose a lower-frequency batch policy.",
+    "Classify analytics/client retry failures so 4xx validation paths are calm, cheap, and non-retried.",
+    "Owner-review Cloud SQL/Data Connect billing and BigQuery/Gemini provider cost lanes before source changes.",
+    "Wire runtime watch-time v2 to media playback only after cost/idempotency route review."
+  ]
+}
