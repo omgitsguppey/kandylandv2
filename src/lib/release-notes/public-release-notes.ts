@@ -1,13 +1,58 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.84",
-  "betaReleaseCounter": 284,
+  "currentVersion": "1.2.85",
+  "betaReleaseCounter": 285,
   "channel": "beta",
-  "generatedAt": "2026-05-18T14:25:06.697Z",
-  "generatedAtUtc": "2026-05-18T14:25:06.697Z",
-  "lastCommitSha": "fa8d18a61c85cfcc97a17def243b70c743731984",
+  "generatedAt": "2026-05-18T14:33:22.786Z",
+  "generatedAtUtc": "2026-05-18T14:33:22.786Z",
+  "lastCommitSha": "f99dfcd24808078a69f8d77985a2f8d23e556d24",
   "notes": [
+    {
+      "version": "1.2.85",
+      "previousVersion": "1.2.84",
+      "betaReleaseCounter": 285,
+      "previousBetaReleaseCounter": 284,
+      "commitSha": "f99dfcd24808078a69f8d77985a2f8d23e556d24",
+      "commitTitle": "docs(analytics): reconcile legacy tracking history",
+      "commitCount": 1,
+      "commitShas": [
+        "f99dfcd24808078a69f8d77985a2f8d23e556d24"
+      ],
+      "committedAt": "2026-05-18T14:33:22.786Z",
+      "generatedAt": "2026-05-18T14:33:22.786Z",
+      "committedAtUtc": "2026-05-18T14:33:22.786Z",
+      "generatedAtUtc": "2026-05-18T14:33:22.786Z",
+      "updatedAtUtc": "2026-05-18T14:33:22.786Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Mapped legacy analytics history without overwriting current truth.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Mapped legacy analytics history without overwriting current truth.",
+        "Added confidence and duplicate-risk checks for recovered history.",
+        "Kept older realtime sources from driving current analytics totals."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/analytics/legacy-history-reconciler.ts",
+        "agent/state/analytics-legacy-history-reconciliation.generated.json",
+        "docs/agent-truth/analytics-legacy-history-reconciliation.md",
+        "scripts/agent/validate-analytics-legacy-history-reconciliation.ts",
+        "tests/unit/analytics-legacy-history-reconciliation.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "f99dfcd24808078a69f8d77985a2f8d23e556d24"
+    },
     {
       "version": "1.2.84",
       "previousVersion": "1.2.83",

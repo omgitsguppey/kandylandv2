@@ -1,0 +1,181 @@
+{
+  "candidateMappings": [
+    {
+      "legacySource": "analytics_event_facts",
+      "legacyId": "fixture_evt_drop_click",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "weak_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "archive_only",
+      "currentTotalsEligible": false,
+      "overwriteCurrentTruth": false,
+      "reason": "Partial route, time, or identity evidence is too weak for current totals."
+    },
+    {
+      "legacySource": "analytics_guest_batches",
+      "legacyId": "fixture_guest_batch",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "weak_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "archive_only",
+      "currentTotalsEligible": false,
+      "overwriteCurrentTruth": false,
+      "reason": "Partial route, time, or identity evidence is too weak for current totals."
+    },
+    {
+      "legacySource": "transactions",
+      "legacyId": "fixture_txn_completed",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "weak_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "archive_only",
+      "currentTotalsEligible": false,
+      "overwriteCurrentTruth": false,
+      "reason": "Partial route, time, or identity evidence is too weak for current totals."
+    },
+    {
+      "legacySource": "unlocks",
+      "legacyId": "fixture_unlock",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "weak_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "archive_only",
+      "currentTotalsEligible": false,
+      "overwriteCurrentTruth": false,
+      "reason": "Partial route, time, or identity evidence is too weak for current totals."
+    },
+    {
+      "legacySource": "daily_task_events",
+      "legacyId": "fixture_task_complete",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "weak_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "archive_only",
+      "currentTotalsEligible": false,
+      "overwriteCurrentTruth": false,
+      "reason": "Partial route, time, or identity evidence is too weak for current totals."
+    },
+    {
+      "legacySource": "task_lifecycle_logs",
+      "legacyId": "fixture_task_start",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "weak_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "archive_only",
+      "currentTotalsEligible": false,
+      "overwriteCurrentTruth": false,
+      "reason": "Partial route, time, or identity evidence is too weak for current totals."
+    },
+    {
+      "legacySource": "notifications",
+      "legacyId": "fixture_notification_read",
+      "targetTruthLayer": "debug_truth",
+      "identityConfidence": "unknown",
+      "duplicateRisk": "unknown",
+      "recoveryAction": "archive_only",
+      "currentTotalsEligible": false,
+      "overwriteCurrentTruth": false,
+      "reason": "Realtime, raw, or unknown legacy evidence stays Debug-only and cannot drive current totals."
+    },
+    {
+      "legacySource": "onboarding_steps",
+      "legacyId": "fixture_onboarding_step",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "weak_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "archive_only",
+      "currentTotalsEligible": false,
+      "overwriteCurrentTruth": false,
+      "reason": "Partial route, time, or identity evidence is too weak for current totals."
+    },
+    {
+      "legacySource": "admin_audit_logs",
+      "legacyId": "fixture_admin_action",
+      "targetTruthLayer": "debug_truth",
+      "identityConfidence": "unknown",
+      "duplicateRisk": "unknown",
+      "recoveryAction": "archive_only",
+      "currentTotalsEligible": false,
+      "overwriteCurrentTruth": false,
+      "reason": "Realtime, raw, or unknown legacy evidence stays Debug-only and cannot drive current totals."
+    },
+    {
+      "legacySource": "ga4_intraday",
+      "legacyId": "fixture_ga_intraday",
+      "targetTruthLayer": "evidence_only",
+      "identityConfidence": "unknown",
+      "duplicateRisk": "unknown",
+      "recoveryAction": "archive_only",
+      "currentTotalsEligible": false,
+      "overwriteCurrentTruth": false,
+      "reason": "External evidence stays evidence-only until first-party reconciliation proves it."
+    }
+  ],
+  "summary": {
+    "candidateCount": 10,
+    "exactMatchCount": 0,
+    "probableMatchCount": 0,
+    "weakMatchCount": 7,
+    "unknownLegacyCount": 3,
+    "highDuplicateRiskCount": 0,
+    "currentTotalsEligibleCount": 0,
+    "overwritesCurrentTruth": false
+  },
+  "generatedAtUtc": "2026-05-18T14:33:57.487Z",
+  "reportKey": "analytics-legacy-history-reconciliation",
+  "currentHead": "f99dfcd24808078a69f8d77985a2f8d23e556d24",
+  "sourceCleanupFindings": [
+    {
+      "source": "analytics_event_facts",
+      "status": "product_truth",
+      "action": "Current first-party event facts remain the current truth lane."
+    },
+    {
+      "source": "analytics_admin_metric_snapshots",
+      "status": "snapshot_display_truth",
+      "action": "Admin Analytics should prefer verified materialized snapshots over raw realtime logs."
+    },
+    {
+      "source": "analytics_aggregate_stats/realtime_summary",
+      "status": "debug_only_or_fallback",
+      "action": "Legacy realtime summary stays fallback/live-pulse evidence and cannot drive current totals."
+    },
+    {
+      "source": "GA4 / BigQuery / PostHog",
+      "status": "evidence_only",
+      "action": "External analytics sources remain evidence-only until reconciled against first-party facts."
+    }
+  ],
+  "costFindings": [
+    {
+      "lane": "cloud_run",
+      "status": "dry_run_artifact_only",
+      "action": "Reconciliation consumes checked-in artifacts and does not run a request-path backfill."
+    },
+    {
+      "lane": "cloud_sql",
+      "status": "cloud_sql_not_used_by_reconciler",
+      "action": "No SQL or Data Connect calls are used for legacy history recovery."
+    },
+    {
+      "lane": "bigquery",
+      "status": "bigquery_not_queried_by_reconciler",
+      "action": "BigQuery remains evidence-only; this pass runs no warehouse jobs."
+    },
+    {
+      "lane": "gemini_cloud_assist",
+      "status": "gemini_cloud_assist_not_used",
+      "action": "No AI identity matching or model calls are used."
+    },
+    {
+      "lane": "route_4xx",
+      "status": "no_user_facing_route_added",
+      "action": "This source-only pass adds no user-facing route and no retry path."
+    }
+  ],
+  "nextFixOrder": [
+    "Review exact and probable link candidates before any future write-mode migration proposal.",
+    "Keep weak and unknown legacy rows in Debug/archive-only evidence until identity improves.",
+    "Retire realtime/raw-log display authority module by module after verified snapshot parity."
+  ]
+}

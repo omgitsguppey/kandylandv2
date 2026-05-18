@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 12 public updates in pages of 5.
+Showing the last 13 public updates in pages of 5.
+
+## 1.2.85 - 2026-05-18
+- Bug fixes and general improvements
+- Mapped legacy analytics history without overwriting current truth.
+- Added confidence and duplicate-risk checks for recovered history.
+- Kept older realtime sources from driving current analytics totals.
 
 ## 1.2.84 - 2026-05-18
 - Bug fixes and general improvements
