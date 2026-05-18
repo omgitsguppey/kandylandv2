@@ -9,3 +9,7 @@
 ## 2024-03-31 - Added ARIA label to mobile profile avatar
 **Learning:** Found a profile avatar `<button>` in the Navbar that was visually an icon-only button on mobile devices (`md:hidden`). It used an image or initial for sighted users but lacked an accessible name for screen readers.
 **Action:** Always provide an `aria-label` to avatar or profile buttons when they function as icon-only interactive elements without visible text labels.
+
+## $(date +%Y-%m-%d) - Added aria-hidden to loading icons when using aria-busy
+**Learning:** Found that when a button uses `aria-busy={true}` to indicate a loading state, screen readers may redundantly announce any accompanying loading spinner icons if they are not explicitly hidden.
+**Action:** When adding `aria-busy` to interactive elements to announce loading states, always apply `aria-hidden="true"` to the inner loading icon (e.g., `<Loader2 />`) to ensure a clean, non-repetitive screen reader experience.
