@@ -62,6 +62,7 @@ const docsRelativePath = "docs/agent-truth/guest-user-identity-transfer.md";
 const docsPath = join(repoRoot, docsRelativePath);
 
 const inspectedSourceFiles = [
+  "src/lib/analytics/identity-transfer.ts",
   "src/lib/analytics/analytics-identity-link.ts",
   "src/lib/analytics/analytics-event-contract.ts",
   "src/lib/analytics/identity-link-contract.ts",
@@ -98,7 +99,7 @@ export function buildGuestUserIdentityTransferReport(input: {
       severity: "p2",
       owner: "analytics-identity",
       status: "implemented",
-      evidence: ["src/lib/analytics/analytics-identity-link.ts", "src/app/api/analytics/identity-link/route.ts"],
+      evidence: ["src/lib/analytics/identity-transfer.ts", "src/lib/analytics/analytics-identity-link.ts", "src/app/api/analytics/identity-link/route.ts"],
       action: "Store only identity association records; do not rewrite guest events as user events.",
     },
     {
@@ -217,6 +218,7 @@ export function validateGuestUserIdentityTransferReport(
   options: { currentHead?: string } = {},
 ) {
   const failures: string[] = [];
+  const identityTransfer = sources["src/lib/analytics/identity-transfer.ts"] ?? "";
   const linkHelper = sources["src/lib/analytics/analytics-identity-link.ts"] ?? "";
   const eventContract = sources["src/lib/analytics/analytics-event-contract.ts"] ?? "";
   const authContext = sources["src/context/AuthContext.tsx"] ?? "";
@@ -232,6 +234,12 @@ export function validateGuestUserIdentityTransferReport(
   }
   if (!report.summary.linkHelperCreated || !linkHelper.includes("buildIdentityLink")) {
     failures.push("guest-to-user link helper missing.");
+  }
+  if (!identityTransfer.includes("buildAnalyticsIdentityLink") || !identityTransfer.includes("getAnalyticsIdentityLinkId")) {
+    failures.push("identity-transfer compatibility helper missing.");
+  }
+  if (!identityTransfer.includes("AnalyticsIdentityLink") || !identityTransfer.includes("AnalyticsIdentityTransferInput")) {
+    failures.push("identity-transfer public types missing.");
   }
   if (!linkHelper.includes("identityLinkId") || !linkHelper.includes("authTransitionId")) {
     failures.push("canonical identity ids are missing.");

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-18T05:00:46.487Z",
+  "generatedAtUtc": "2026-05-18T14:26:03.496Z",
   "reportKey": "guest-user-identity-transfer",
-  "currentHead": "c22c712b34199c29435c9d6f1c20d14b4e3c6a4d",
+  "currentHead": "fa8d18a61c85cfcc97a17def243b70c743731984",
   "summary": {
     "linkHelperCreated": true,
     "identityLinkRouteCreated": true,
@@ -51,6 +51,7 @@
       "owner": "analytics-identity",
       "status": "implemented",
       "evidence": [
+        "src/lib/analytics/identity-transfer.ts",
         "src/lib/analytics/analytics-identity-link.ts",
         "src/app/api/analytics/identity-link/route.ts"
       ],

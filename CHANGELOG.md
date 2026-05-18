@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 11 public updates in pages of 5.
+Showing the last 12 public updates in pages of 5.
+
+## 1.2.84 - 2026-05-18
+- Bug fixes and general improvements
+- Linked guest analytics history to signed-in users without double-counting.
+- Improved individual user tracking semantics.
+- Kept identity transfer idempotent and low-cost.
 
 ## 1.2.83 - 2026-05-18
 - Bug fixes and general improvements

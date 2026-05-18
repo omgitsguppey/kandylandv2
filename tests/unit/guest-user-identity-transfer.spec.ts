@@ -23,11 +23,13 @@ vi.mock("@/lib/server/analytics-identity-linking", () => ({
 }));
 
 import {
+  buildAnalyticsIdentityLink,
   buildIdentityLink,
   buildIdentityLinkPayload,
   createIdentityLinkStorageKey,
+  getAnalyticsIdentityLinkId,
   shouldSubmitIdentityLink,
-} from "@/lib/analytics/analytics-identity-link";
+} from "@/lib/analytics/identity-transfer";
 import {
   createCanonicalAnalyticsEvent,
   createIdentityLinkedEvent,
@@ -53,7 +55,7 @@ describe("guest-to-user identity transfer", () => {
   });
 
   it("builds a deterministic guest-to-user link id", () => {
-    const first = buildIdentityLink({
+    const first = buildAnalyticsIdentityLink({
       guestId: "subject_guest",
       userId: "user_1",
       sessionId: "sess_1",
@@ -69,6 +71,7 @@ describe("guest-to-user identity transfer", () => {
     });
 
     expect(first.identityLinkId).toBe(second.identityLinkId);
+    expect(getAnalyticsIdentityLinkId(first)).toBe(first.identityLinkId);
     expect(first.authTransitionId).toBe("auth_transition_login_subject_guest_sess_1_user_1");
     expect(first.identityState).toBe("guest_linked_to_user");
   });
