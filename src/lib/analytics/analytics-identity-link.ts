@@ -1,0 +1,186 @@
+import type { AnalyticsConsentState } from "@/lib/analytics/analytics-event-contract";
+
+export const GUEST_USER_IDENTITY_TRANSFER_ROUTE = "/api/analytics/identity-link";
+export const GUEST_USER_IDENTITY_LINK_STORAGE_PREFIX = "kandydrops.identityLink.sent";
+
+export const ANALYTICS_IDENTITY_STATES = [
+  "guest_only",
+  "user_only",
+  "guest_linked_to_user",
+  "unknown_legacy",
+] as const;
+export type AnalyticsIdentityState = (typeof ANALYTICS_IDENTITY_STATES)[number];
+
+export const ANALYTICS_IDENTITY_ACTOR_TYPES = [
+  "guest",
+  "authenticated_user",
+  "creator",
+  "admin",
+  "system",
+] as const;
+export type AnalyticsIdentityActorType = (typeof ANALYTICS_IDENTITY_ACTOR_TYPES)[number];
+
+export type GuestUserIdentityLinkReason = "login" | "signup" | "session_restore";
+
+export type GuestUserIdentityLink = {
+  guestId: string;
+  userId: string;
+  sessionId: string;
+  linkedAt: string;
+  reason: GuestUserIdentityLinkReason;
+  identityLinkId: string;
+  authTransitionId: string;
+  actorType: "authenticated_user";
+  identityState: "guest_linked_to_user";
+  sourceTruth: "guest_user_identity_transfer";
+};
+
+export type IdentityLinkSubmitResult = {
+  success: boolean;
+  identityLinkId?: string;
+  created?: boolean;
+  identityState?: AnalyticsIdentityState;
+  loginBlocking: false;
+  retryable: false;
+  reason?: string;
+};
+
+type Fetcher = (input: string, init: RequestInit) => Promise<Response>;
+
+function cleanIdentityPart(value: string) {
+  const cleaned = value.trim().replace(/[^a-zA-Z0-9_-]+/g, "_").replace(/_+/g, "_").replace(/^_+|_+$/g, "");
+  return cleaned.slice(0, 96) || "unknown";
+}
+
+function stableHash(input: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36).padStart(7, "0");
+}
+
+function normalizeReason(value: string | null | undefined): GuestUserIdentityLinkReason {
+  return value === "signup" || value === "session_restore" ? value : "login";
+}
+
+export function buildIdentityLink(input: {
+  guestId: string;
+  userId: string;
+  sessionId: string;
+  linkedAt?: string | null;
+  reason?: string | null;
+}): GuestUserIdentityLink {
+  const guestId = input.guestId.trim();
+  const userId = input.userId.trim();
+  const sessionId = input.sessionId.trim();
+  const reason = normalizeReason(input.reason);
+  const linkedAt = input.linkedAt?.trim() || new Date().toISOString();
+  const stableSource = `${guestId}|${sessionId}|${userId}`;
+
+  return {
+    guestId,
+    userId,
+    sessionId,
+    linkedAt,
+    reason,
+    identityLinkId: `identity_link_${stableHash(stableSource)}`,
+    authTransitionId: `auth_transition_${reason}_${cleanIdentityPart(guestId)}_${cleanIdentityPart(sessionId)}_${cleanIdentityPart(userId)}`,
+    actorType: "authenticated_user",
+    identityState: "guest_linked_to_user",
+    sourceTruth: "guest_user_identity_transfer",
+  };
+}
+
+export function createIdentityLinkStorageKey(link: Pick<GuestUserIdentityLink, "identityLinkId">) {
+  return `${GUEST_USER_IDENTITY_LINK_STORAGE_PREFIX}:${link.identityLinkId}`;
+}
+
+export function shouldSubmitIdentityLink(
+  link: Pick<GuestUserIdentityLink, "identityLinkId">,
+  submittedKeys: Pick<Set<string>, "has">,
+) {
+  return !submittedKeys.has(createIdentityLinkStorageKey(link));
+}
+
+function readStorage(storage: Storage | null | undefined, key: string) {
+  try {
+    return storage?.getItem(key) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(storage: Storage | null | undefined, key: string, value: string) {
+  try {
+    storage?.setItem(key, value);
+  } catch {
+    // Restricted browsers can deny storage; transfer remains non-blocking.
+  }
+}
+
+export function hasSubmittedIdentityLink(link: Pick<GuestUserIdentityLink, "identityLinkId">, storage?: Storage | null) {
+  const targetStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : null);
+  return readStorage(targetStorage, createIdentityLinkStorageKey(link)) === "sent";
+}
+
+export function markIdentityLinkSubmitted(link: Pick<GuestUserIdentityLink, "identityLinkId">, storage?: Storage | null) {
+  const targetStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : null);
+  writeStorage(targetStorage, createIdentityLinkStorageKey(link), "sent");
+}
+
+export function buildIdentityLinkPayload(input: {
+  guestId: string;
+  userId: string;
+  sessionId: string;
+  linkedAt?: string | null;
+  reason?: string | null;
+  consentState?: AnalyticsConsentState;
+  eligiblePastSessionIds?: string[];
+}) {
+  const link = buildIdentityLink(input);
+  const payload = {
+    ...link,
+    consentState: input.consentState ?? "unknown",
+    eligiblePastSessionIds: Array.from(new Set([link.sessionId, ...(input.eligiblePastSessionIds ?? [])])).filter(Boolean),
+  };
+
+  return {
+    ...payload,
+    async submit(fetcher: Fetcher): Promise<IdentityLinkSubmitResult> {
+      try {
+        const response = await fetcher(GUEST_USER_IDENTITY_TRANSFER_ROUTE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok || body?.success !== true) {
+          return {
+            success: false,
+            loginBlocking: false,
+            retryable: false,
+            reason: typeof body?.reason === "string" ? body.reason : `identity_link_http_${response.status}`,
+          };
+        }
+
+        return {
+          success: true,
+          identityLinkId: typeof body.identityLinkId === "string" ? body.identityLinkId : link.identityLinkId,
+          created: body.created === true,
+          identityState: "guest_linked_to_user",
+          loginBlocking: false,
+          retryable: false,
+        };
+      } catch {
+        return {
+          success: false,
+          loginBlocking: false,
+          retryable: false,
+          reason: "identity_link_submit_failed",
+        };
+      }
+    },
+  };
+}

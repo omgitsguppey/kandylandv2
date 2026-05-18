@@ -181,6 +181,7 @@
         "check:homepage-mobile-density": "tsx scripts/agent/validate-homepage-mobile-density.ts",
         "check:analytics-truth-layer-v2": "tsx scripts/agent/validate-analytics-truth-layer-v2.ts",
         "check:analytics-identity-transfer-inventory": "tsx scripts/agent/validate-analytics-identity-transfer-inventory.ts",
+        "check:guest-user-identity-transfer": "tsx scripts/agent/validate-guest-user-identity-transfer.ts",
         "check:analytics-rewire-phase-one": "tsx scripts/agent/validate-analytics-rewire-phase-one.ts",
         "check:identity-privacy-raw-ledger-rewire": "tsx scripts/agent/validate-identity-privacy-raw-ledger-rewire.ts",
         "check:lost-data-recovery-dry-run": "tsx scripts/agent/validate-lost-data-recovery-dry-run.ts",

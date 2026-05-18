@@ -5,6 +5,14 @@ export const IDENTITY_LINKED_EVENT_NAME = "identity_linked";
 export const ANALYTICS_ACTOR_TYPES = ["guest", "user", "creator", "admin", "owner_admin", "system", "unknown"] as const;
 export type AnalyticsActorType = (typeof ANALYTICS_ACTOR_TYPES)[number];
 
+export const ANALYTICS_IDENTITY_STATES = [
+  "guest_only",
+  "user_only",
+  "guest_linked_to_user",
+  "unknown_legacy",
+] as const;
+export type AnalyticsIdentityState = (typeof ANALYTICS_IDENTITY_STATES)[number];
+
 export const ANALYTICS_ACTOR_LANES = [
   "guest",
   "anonymous_visitor",
@@ -79,6 +87,8 @@ export interface CanonicalAnalyticsEvent {
   actorType: AnalyticsActorType;
   anonymousVisitorId: string | null;
   sessionId: string | null;
+  identityLinkId: string | null;
+  identityState: AnalyticsIdentityState;
   userId: string | null;
   creatorId: string | null;
   adminId: string | null;
@@ -113,6 +123,8 @@ export interface AnalyticsIdentityLinkPayload extends Record<string, unknown> {
   linkedAt: string;
   method: "login" | "signup" | "session_restore" | "admin_link" | "import" | "unknown";
   eligiblePastSessionIds: string[];
+  identityLinkId?: string | null;
+  identityState?: AnalyticsIdentityState;
   source: AnalyticsEventSourceLane;
   confidence: LegacyMappingConfidence;
 }
@@ -131,6 +143,8 @@ export interface AnalyticsActorClassificationInput {
   actorType?: string | null;
   anonymousVisitorId?: string | null;
   sessionId?: string | null;
+  identityLinkId?: string | null;
+  identityState?: string | null;
   userId?: string | null;
   creatorId?: string | null;
   adminId?: string | null;
@@ -265,8 +279,37 @@ export function normalizeAnalyticsConsentState(value: unknown): AnalyticsConsent
   return isOneOf(value, ANALYTICS_CONSENT_STATES) ? value : "unknown";
 }
 
+export function normalizeAnalyticsIdentityState(value: unknown): AnalyticsIdentityState | null {
+  return isOneOf(value, ANALYTICS_IDENTITY_STATES) ? value : null;
+}
+
 export function normalizeLegacyMappingConfidence(value: unknown): LegacyMappingConfidence {
   return isOneOf(value, LEGACY_MAPPING_CONFIDENCE_LEVELS) ? value : "unknown";
+}
+
+export function resolveAnalyticsIdentityState(input: Pick<AnalyticsActorClassificationInput, "anonymousVisitorId" | "sessionId" | "userId" | "actorUserId" | "identityLinkId" | "identityState">): AnalyticsIdentityState {
+  const explicit = normalizeAnalyticsIdentityState(input.identityState);
+  if (explicit) {
+    return explicit;
+  }
+
+  const hasUser = Boolean(stringOrNull(input.userId) ?? stringOrNull(input.actorUserId));
+  const hasGuestLineage = Boolean(
+    stringOrNull(input.identityLinkId)
+    ?? stringOrNull(input.anonymousVisitorId)
+    ?? stringOrNull(input.sessionId),
+  );
+
+  if (hasUser && hasGuestLineage) {
+    return "guest_linked_to_user";
+  }
+  if (hasUser) {
+    return "user_only";
+  }
+  if (hasGuestLineage) {
+    return "guest_only";
+  }
+  return "unknown_legacy";
 }
 
 export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput): AnalyticsActorClassification {
@@ -518,6 +561,7 @@ export function createCanonicalAnalyticsEvent(input: CanonicalAnalyticsEventInpu
   const actorCreatorId = resolveActorCreatorId(input, actorClassification.actorType);
   const actorAdminId = resolveActorAdminId(input, actorClassification.actorType);
   const mappingWarnings = (input.mappingWarnings ?? []).filter((warning): warning is string => Boolean(stringOrNull(warning)));
+  const identityLinkId = stringOrNull(input.identityLinkId);
 
   return {
     eventId: input.eventId,
@@ -528,6 +572,13 @@ export function createCanonicalAnalyticsEvent(input: CanonicalAnalyticsEventInpu
     actorType: actorClassification.actorType,
     anonymousVisitorId: stringOrNull(input.anonymousVisitorId),
     sessionId: stringOrNull(input.sessionId),
+    identityLinkId,
+    identityState: resolveAnalyticsIdentityState({
+      ...input,
+      actorUserId,
+      userId: actorUserId ?? stringOrNull(input.userId),
+      identityLinkId,
+    }),
     userId: actorUserId ?? stringOrNull(input.userId),
     creatorId: actorCreatorId ?? stringOrNull(input.creatorId),
     adminId: actorAdminId ?? stringOrNull(input.adminId),
@@ -571,6 +622,7 @@ export function createIdentityLinkedEvent(input: {
   linkedAt?: string | null;
   method?: AnalyticsIdentityLinkPayload["method"];
   eligiblePastSessionIds?: string[];
+  identityLinkId?: string | null;
   source?: AnalyticsEventSourceLane;
   confidence?: LegacyMappingConfidence;
   route?: string | null;
@@ -585,6 +637,8 @@ export function createIdentityLinkedEvent(input: {
     linkedAt,
     method: input.method ?? "unknown",
     eligiblePastSessionIds: input.eligiblePastSessionIds ?? [input.sessionId],
+    identityLinkId: stringOrNull(input.identityLinkId),
+    identityState: "guest_linked_to_user",
     source,
     confidence: input.confidence ?? "high",
   };
@@ -598,6 +652,8 @@ export function createIdentityLinkedEvent(input: {
     actorType: "user",
     anonymousVisitorId: input.anonymousVisitorId,
     sessionId: input.sessionId,
+    identityLinkId: input.identityLinkId,
+    identityState: "guest_linked_to_user",
     userId: input.userId,
     objectType: "identity",
     objectId: input.userId,

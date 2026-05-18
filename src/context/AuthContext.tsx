@@ -37,9 +37,15 @@ import {
     emitAuthLifecycleEvent,
     type AuthOutcomeMethod,
 } from "@/lib/auth-outcome-telemetry";
-import { syncClientSessionOwnership } from "@/lib/client-session";
+import { getClientAnalyticsIdentitySnapshot, syncClientSessionOwnership } from "@/lib/client-session";
 import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
 import { syncIdentifiedTelemetryOwnership, trackEvent, trackIdentityLinked } from "@/lib/telemetry";
+import {
+    buildIdentityLinkPayload,
+    hasSubmittedIdentityLink,
+    markIdentityLinkSubmitted,
+} from "@/lib/analytics/analytics-identity-link";
+import { canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import {
     ensureManualSignupUsername,
     readManualRegistrationResult,
@@ -185,6 +191,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         trackIdentityLinked({
             userId,
             method,
+        });
+
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const privacy = readPrivacySettingsSnapshot();
+        const consentState = canUseIdentifiedAnalytics(privacy) ? "granted" : "unknown";
+        const identity = getClientAnalyticsIdentitySnapshot(consentState);
+        if (!identity.anonymousVisitorId || !identity.sessionId) {
+            return;
+        }
+
+        const payload = buildIdentityLinkPayload({
+            guestId: identity.anonymousVisitorId,
+            userId,
+            sessionId: identity.sessionId,
+            linkedAt: new Date().toISOString(),
+            reason: method,
+            consentState,
+            eligiblePastSessionIds: [identity.sessionId],
+        });
+
+        if (hasSubmittedIdentityLink(payload)) {
+            return;
+        }
+
+        markIdentityLinkSubmitted(payload);
+        void payload.submit(authFetch).then((result) => {
+            if (!result.success) {
+                reportRealtimeIssue("analytics identity link transfer failed", result.reason ?? "identity_link_failed", {
+                    userId,
+                    method,
+                    identityState: "guest_linked_to_user",
+                });
+            }
+        }).catch((error) => {
+            reportRealtimeIssue("analytics identity link transfer failed", error, {
+                userId,
+                method,
+                identityState: "guest_linked_to_user",
+            });
         });
     }, []);
 

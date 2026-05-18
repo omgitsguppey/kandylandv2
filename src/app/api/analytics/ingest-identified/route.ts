@@ -284,9 +284,29 @@ async function POST_handler(request: NextRequest) {
                 telemetryTrackingSources: telemetryEvent.option?.sources || [],
                 trackingOrigin: "identified_api_ingest",
             });
+            const identityLinkId = readStringParam(enrichedParams, "identity_link_id", "identityLinkId");
+            const anonymousVisitorId = readStringParam(enrichedParams, "anonymous_visitor_id", "anonymousVisitorId");
+            const sessionId = readStringParam(enrichedParams, "session_id", "sessionId");
+            const identityState = caller.uid && (identityLinkId || anonymousVisitorId || sessionId)
+                ? "guest_linked_to_user"
+                : caller.uid
+                    ? "user_only"
+                    : "unknown_legacy";
+            const eventFactDocument = {
+                ...finalEvent,
+                identityLinkId: identityLinkId || null,
+                identityState,
+                sourceIdentity: {
+                    anonymousVisitorId: anonymousVisitorId || null,
+                    sessionId: sessionId || null,
+                    userId: caller.uid,
+                    identityLinkId: identityLinkId || null,
+                    identityState,
+                },
+            };
 
             // Using batch.set with merge: false to mimic create, but safer. Deduplication is handled by background worker if duplicate
-            batch.set(ref, finalEvent, { merge: false });
+            batch.set(ref, eventFactDocument, { merge: false });
             processed++;
             const consentState = readStringParam(enrichedParams, "consent_state", "consentState") === "granted"
                 ? "granted"

@@ -14,4 +14,7 @@ export type AnalyticsIdentityLinkRecord = {
   consentState: BehavioralConsentState;
   mergeAllowed: boolean;
   confidence: number;
+  authTransitionId?: string;
+  identityState?: "guest_linked_to_user";
+  sourceTruth?: "guest_user_identity_transfer" | "canonical";
 };

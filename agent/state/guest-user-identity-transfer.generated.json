@@ -1,0 +1,134 @@
+{
+  "generatedAtUtc": "2026-05-18T05:00:46.487Z",
+  "reportKey": "guest-user-identity-transfer",
+  "currentHead": "c22c712b34199c29435c9d6f1c20d14b4e3c6a4d",
+  "summary": {
+    "linkHelperCreated": true,
+    "identityLinkRouteCreated": true,
+    "authTransitionHookCreated": true,
+    "eventContractIdentityState": true,
+    "idempotentClientSubmission": true,
+    "routeRequiresAuth": true,
+    "historicalGuestEventsDuplicated": false,
+    "cloudRunCostFindings": 1,
+    "cloudSqlStatus": "cloud_sql_not_detected_in_transfer_runtime",
+    "geminiCloudAssistStatus": "gemini_cloud_assist_not_involved",
+    "route4xxFindings": 1,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 7
+  },
+  "identitySemantics": [
+    {
+      "id": "guest-only",
+      "state": "guest_only",
+      "actorType": "guest",
+      "rule": "Anonymous visitor/session activity remains guest-lane product truth."
+    },
+    {
+      "id": "user-only",
+      "state": "user_only",
+      "actorType": "authenticated_user",
+      "rule": "Authenticated activity without guest lineage remains direct user activity."
+    },
+    {
+      "id": "guest-linked-to-user",
+      "state": "guest_linked_to_user",
+      "actorType": "authenticated_user",
+      "rule": "Authenticated activity can carry preserved anonymous/session lineage through an identity link."
+    },
+    {
+      "id": "unknown-legacy",
+      "state": "unknown_legacy",
+      "actorType": "system",
+      "rule": "Legacy or incomplete rows stay explicitly unknown until source evidence classifies them."
+    }
+  ],
+  "transferFindings": [
+    {
+      "id": "link-first-transfer",
+      "severity": "p2",
+      "owner": "analytics-identity",
+      "status": "implemented",
+      "evidence": [
+        "src/lib/analytics/analytics-identity-link.ts",
+        "src/app/api/analytics/identity-link/route.ts"
+      ],
+      "action": "Store only identity association records; do not rewrite guest events as user events."
+    },
+    {
+      "id": "auth-transition-client-submit",
+      "severity": "p2",
+      "owner": "auth-client",
+      "status": "implemented",
+      "evidence": [
+        "src/context/AuthContext.tsx"
+      ],
+      "action": "Submit one non-blocking identity link after login, signup, or session restore."
+    },
+    {
+      "id": "event-fact-identity-state",
+      "severity": "p2",
+      "owner": "analytics-runtime-facts",
+      "status": "implemented",
+      "evidence": [
+        "src/lib/analytics/analytics-event-contract.ts",
+        "src/app/api/analytics/ingest-identified/route.ts"
+      ],
+      "action": "Preserve guest lineage on authenticated facts with identityState and identityLinkId fields."
+    }
+  ],
+  "costFindings": [
+    {
+      "id": "cloud-run-bounded-link-write",
+      "lane": "cloud_run",
+      "severity": "p2",
+      "status": "bounded",
+      "evidence": [
+        "MAX_IDENTITY_LINK_BODY_BYTES",
+        "cost-bound: link-first transfer",
+        "eligiblePastSessionIds.max(25)"
+      ],
+      "action": "Identity transfer writes the association and never scans historical guest batches during login."
+    },
+    {
+      "id": "cloud-sql-not-runtime-transfer",
+      "lane": "cloud_sql",
+      "severity": "p2",
+      "status": "cloud_sql_not_detected_in_transfer_runtime",
+      "evidence": [
+        "src/app/api/analytics/identity-link/route.ts",
+        "agent/state/analytics-identity-transfer-inventory.generated.json"
+      ],
+      "action": "Keep Cloud SQL out of analytics identity transfer unless a future explicit runtime promotion exists."
+    },
+    {
+      "id": "gemini-cloud-assist-not-involved",
+      "lane": "gemini_cloud_assist",
+      "severity": "p2",
+      "status": "gemini_cloud_assist_not_involved",
+      "evidence": [
+        "src/lib/analytics/analytics-identity-link.ts",
+        "src/app/api/analytics/identity-link/route.ts"
+      ],
+      "action": "Do not add model calls to identity transfer."
+    },
+    {
+      "id": "expected-auth-4xx",
+      "lane": "route_4xx",
+      "severity": "p2",
+      "status": "expected_product_4xx",
+      "evidence": [
+        "auth_required",
+        "invalid_identity_link",
+        "retryable: false"
+      ],
+      "action": "Auth-missing and invalid payload failures are typed and non-retried."
+    }
+  ],
+  "nextFixOrder": [
+    "Run source-level checks against the new identity link route and event contract.",
+    "Use linked identity lineage in future admin/user analytics consumers without rewriting guest rows.",
+    "Keep provider/warehouse evidence separated from product identity truth."
+  ]
+}

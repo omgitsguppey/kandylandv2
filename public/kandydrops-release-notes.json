@@ -1,11 +1,62 @@
 {
-  "currentVersion": "1.2.77",
-  "betaReleaseCounter": 277,
+  "currentVersion": "1.2.78",
+  "betaReleaseCounter": 278,
   "channel": "beta",
-  "generatedAt": "2026-05-18T04:39:33.805Z",
-  "generatedAtUtc": "2026-05-18T04:39:33.805Z",
-  "lastCommitSha": "5804de2bee6bb7ee37b6764af26094c391d03abf",
+  "generatedAt": "2026-05-18T05:02:17.741Z",
+  "generatedAtUtc": "2026-05-18T05:02:17.741Z",
+  "lastCommitSha": "c22c712b34199c29435c9d6f1c20d14b4e3c6a4d",
   "notes": [
+    {
+      "version": "1.2.78",
+      "previousVersion": "1.2.77",
+      "betaReleaseCounter": 278,
+      "previousBetaReleaseCounter": 277,
+      "commitSha": "c22c712b34199c29435c9d6f1c20d14b4e3c6a4d",
+      "commitTitle": "fix(analytics): link guest history to users",
+      "commitCount": 1,
+      "commitShas": [
+        "c22c712b34199c29435c9d6f1c20d14b4e3c6a4d"
+      ],
+      "committedAt": "2026-05-18T05:02:17.741Z",
+      "generatedAt": "2026-05-18T05:02:17.741Z",
+      "committedAtUtc": "2026-05-18T05:02:17.741Z",
+      "generatedAtUtc": "2026-05-18T05:02:17.741Z",
+      "updatedAtUtc": "2026-05-18T05:02:17.741Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved guest-to-user analytics identity continuity.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Added guest-to-user analytics identity linking.",
+        "Kept guest history recoverable without double-counting user activity.",
+        "Improved individual user tracking semantics."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/analytics/analytics-identity-link.ts",
+        "src/lib/analytics/analytics-event-contract.ts",
+        "src/lib/analytics/identity-link-contract.ts",
+        "src/context/AuthContext.tsx",
+        "src/app/api/analytics/identity-link/route.ts",
+        "src/app/api/analytics/ingest-identified/route.ts",
+        "agent/state/guest-user-identity-transfer.generated.json",
+        "docs/agent-truth/guest-user-identity-transfer.md",
+        "scripts/agent/validate-guest-user-identity-transfer.ts",
+        "tests/unit/guest-user-identity-transfer.spec.ts",
+        "tests/unit/guest-user-identity-transfer-validator.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "c22c712b34199c29435c9d6f1c20d14b4e3c6a4d"
+    },
     {
       "version": "1.2.77",
       "previousVersion": "1.2.76",
