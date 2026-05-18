@@ -1,13 +1,74 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.87",
-  "betaReleaseCounter": 287,
+  "currentVersion": "1.2.88",
+  "betaReleaseCounter": 288,
   "channel": "beta",
-  "generatedAt": "2026-05-18T18:11:22.427Z",
-  "generatedAtUtc": "2026-05-18T18:11:22.427Z",
-  "lastCommitSha": "cd6c02ef2f85095907a2a1aaf95c1833afe3447d",
+  "generatedAt": "2026-05-18T18:21:17.542Z",
+  "generatedAtUtc": "2026-05-18T18:21:17.542Z",
+  "lastCommitSha": "5f06f4f9e9af5ef7e63878ac7e984007a9a7cc28",
   "notes": [
+    {
+      "version": "1.2.88",
+      "previousVersion": "1.2.87",
+      "betaReleaseCounter": 288,
+      "previousBetaReleaseCounter": 287,
+      "commitSha": "5f06f4f9e9af5ef7e63878ac7e984007a9a7cc28",
+      "commitTitle": "perf(debug-route): replace O(N^2) array filters with Map lookup (#260)",
+      "commitCount": 5,
+      "commitShas": [
+        "d256354ab2b6c084f84564f328a00befebb727d6",
+        "c70e7c6417831368a46626c646a84ed8e04f441a",
+        "5f5e18886ffce7e16691e12e64c52ad8738386b2",
+        "cb748bbc3495cb35b75b264a2bd741ba1d22aaf8",
+        "5f06f4f9e9af5ef7e63878ac7e984007a9a7cc28"
+      ],
+      "committedAt": "2026-05-18T18:19:17.000Z",
+      "generatedAt": "2026-05-18T18:21:17.540Z",
+      "committedAtUtc": "2026-05-18T18:19:17.000Z",
+      "generatedAtUtc": "2026-05-18T18:21:17.540Z",
+      "updatedAtUtc": "2026-05-18T18:21:17.540Z",
+      "category": "Performance",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved admin truth visibility, debug performance, and CI security maintenance.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Kept admin debug panels from showing missing evidence as healthy.",
+        "Reduced duplicate admin analytics and debug lookup work.",
+        "Updated the Scorecard security action and closed out the remaining PR lane."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 5 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "admin",
+        "drops-viewer",
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        ".github/workflows/openssf-scorecard.yml",
+        ".jules/bolt.md",
+        "CHANGELOG.md",
+        "agent/state/open-pr-final-action.generated.json",
+        "docs/agent-truth/open-pr-final-action.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-open-pr-final-action.ts",
+        "src/app/admin/debug/components/DebugAdvancedTruth.tsx",
+        "src/app/admin/debug/components/DebugTabMonitoring.tsx",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/admin-debug-summary-cards.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-analytics-historical-viewer.ts",
+        "src/lib/server/admin-page-data-loader.ts",
+        "tests/unit/open-pr-final-action.spec.ts"
+      ],
+      "sourceCommit": "5f06f4f9e9af5ef7e63878ac7e984007a9a7cc28"
+    },
     {
       "version": "1.2.87",
       "previousVersion": "1.2.86",

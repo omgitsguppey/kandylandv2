@@ -1,0 +1,107 @@
+{
+  "generatedAtUtc": "2026-05-18T18:30:00.000Z",
+  "reportKey": "final-open-pr-zero",
+  "currentHead": "5f06f4f9e9af5ef7e63878ac7e984007a9a7cc28",
+  "prsBefore": [
+    { "number": 216, "title": "scorecard-action patch", "url": "https://github.com/omgitsguppey/kandylandv2/pull/216", "reason": "Low-risk CI/security tooling patch; inspected as one-line Scorecard action version bump." },
+    { "number": 251, "title": "admin truth surfaces", "url": "https://github.com/omgitsguppey/kandylandv2/pull/251", "reason": "Admin truth-state rendering patch; inspected for fake healthy/live state reduction." },
+    { "number": 252, "title": "admin historical aggregation optimization", "url": "https://github.com/omgitsguppey/kandylandv2/pull/252", "reason": "Admin aggregation performance patch; inspected for output-shape and semantics preservation." },
+    { "number": 260, "title": "debug route task lookup optimization", "url": "https://github.com/omgitsguppey/kandylandv2/pull/260", "reason": "Debug route Map lookup optimization; inspected for localized performance-only semantics." }
+  ],
+  "prsMerged": [
+    {
+      "number": 216,
+      "title": "scorecard-action patch",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/216",
+      "reason": "Merged because it only bumped ossf/scorecard-action from v2.4.2 to v2.4.3 in the existing workflow and did not add workflow triggers or release-note loops.",
+      "checks": [
+        "gh pr view 216: CLEAN, MERGEABLE, not draft",
+        "gh pr diff 216 --name-only: .github/workflows/openssf-scorecard.yml",
+        "gh pr checks 216: no checks reported on branch",
+        "diff inspection: one-line action version bump only"
+      ],
+      "mergeCommit": "c70e7c6417831368a46626c646a84ed8e04f441a"
+    },
+    {
+      "number": 251,
+      "title": "admin truth surfaces",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/251",
+      "reason": "Merged because it reduces fake admin live/healthy states by marking missing backing data as unavailable or degraded without broad backend read changes.",
+      "checks": [
+        "gh pr view 251: CLEAN, MERGEABLE, not draft",
+        "gh pr diff 251 --name-only: DebugAdvancedTruth, DebugTabMonitoring, admin-debug-summary-cards",
+        "diff inspection: admin truth-state rendering and summary-card classification only",
+        "npm run check:source-truth-authority-map: pass",
+        "npm run typecheck: pass"
+      ],
+      "mergeCommit": "5f5e18886ffce7e16691e12e64c52ad8738386b2"
+    },
+    {
+      "number": 252,
+      "title": "admin historical aggregation optimization",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/252",
+      "reason": "Merged because it consolidates duplicate admin aggregation passes while preserving output shape and current watch/session semantics.",
+      "checks": [
+        "gh pr view 252: CLEAN, MERGEABLE, not draft",
+        "gh pr diff 252 --name-only: admin-analytics-historical-viewer, admin-page-data-loader",
+        "diff inspection: single-pass aggregation refactor only",
+        "npm run check:analytics-semantics-final-lock: pass",
+        "npm run check:runtime-watch-time-v2: pass",
+        "npm run check:cost-4xx-reduction: pass",
+        "npm run typecheck: pass"
+      ],
+      "mergeCommit": "cb748bbc3495cb35b75b264a2bd741ba1d22aaf8"
+    },
+    {
+      "number": 260,
+      "title": "debug route task lookup optimization",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/260",
+      "reason": "Merged because it replaces repeated task-definition filters with a precomputed Map in the admin debug route without changing output semantics.",
+      "checks": [
+        "gh pr view 260: CLEAN, MERGEABLE, not draft",
+        "gh pr diff 260 --name-only: .jules/bolt.md, src/app/api/admin/debug/route.ts",
+        "diff inspection: localized Map lookup optimization only",
+        "npm run check:cost-4xx-reduction: pass",
+        "npm run typecheck: pass"
+      ],
+      "mergeCommit": "5f06f4f9e9af5ef7e63878ac7e984007a9a7cc28"
+    }
+  ],
+  "prsManuallyIncorporated": [],
+  "prsClosedRejected": [],
+  "remainingOpenPrs": [],
+  "workingTreeStatusBefore": "clean before final PR merge batch",
+  "workingTreeStatusAfter": "dirty only with final zero-open-PR report, validator/test/package script, and required release-note artifacts before final commit",
+  "checksRun": [
+    "git status --short",
+    "git log --oneline -20",
+    "gh pr list --repo omgitsguppey/kandylandv2 --state open --limit 20 --json number,title,author,headRefName,baseRefName,mergeStateStatus,isDraft,updatedAt,url",
+    "gh pr view 216/251/252/260",
+    "gh pr diff 216/251/252/260 --name-only",
+    "gh pr diff 216/251/252/260",
+    "gh pr checks 216: no checks reported",
+    "gh pr merge 216/251/252/260 --squash --delete-branch",
+    "gh pr list --state open: []",
+    "npm run check:source-truth-authority-map: pass",
+    "npm run check:analytics-semantics-final-lock: pass",
+    "npm run check:runtime-watch-time-v2: pass",
+    "npm run check:cost-4xx-reduction: pass",
+    "npm run typecheck: pass",
+    "npm run check:error-truth-debug-visibility: failed stale generated currentHead only after merge",
+    "npm run check:current-beta-exit-status: failed stale generated currentHead only after merge",
+    "npm run release:notes",
+    "npm run release:notes:accept"
+  ],
+  "finalOpenPrCount": 0,
+  "notes": [
+    "No PRs were manually incorporated; all four remaining PRs were clean and merged directly after inspection.",
+    "GitHub checks were unavailable on the inspected branches, consistent with the known Actions billing/check availability issue; local focused checks were used.",
+    "The error-truth and current-beta validators failed only because older generated artifacts encode pre-merge currentHead values; no source validation failure was observed in the inspected patches.",
+    "Unrelated generated artifacts dirtied by validators were restored before staging."
+  ],
+  "nextExactSteps": [
+    "No zombie PR cleanup remains; open PR count is zero.",
+    "If admin truth or analytics semantics drift is suspected later, open a fresh scoped lane from current main instead of reopening stale PR branches.",
+    "If GitHub Actions billing lock is cleared, rerun CI/security workflow validation for the merged Scorecard action bump."
+  ]
+}

@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 15 public updates in pages of 5.
+Showing the last 16 public updates in pages of 5.
+
+## 1.2.88 - 2026-05-18
+- Bug fixes and general improvements
+- Kept admin debug panels from showing missing evidence as healthy.
+- Reduced duplicate admin analytics and debug lookup work.
+- Updated the Scorecard security action and closed out the remaining PR lane.
 
 ## 1.2.87 - 2026-05-18
 - Bug fixes and general improvements
