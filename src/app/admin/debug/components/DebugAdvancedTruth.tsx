@@ -59,12 +59,12 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                 subtitle="Derived coordination state covering events, open findings, and domain coverage."
                 defaultOpen={false}
                 summary={<>
-                    <Pill label="Health" value={`${behaviorSummary?.score ?? 0}%`} tone={toneForHealth(behaviorSummary?.score)} truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Unique open findings" value={behaviorSummary?.uniqueOpenFindings ?? 0} tone={(behaviorSummary?.uniqueOpenFindings ?? 0) ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Duplicate findings" value={behaviorSummary?.duplicateFindings ?? 0} tone={(behaviorSummary?.duplicateFindings ?? 0) ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Inspect-only findings" value={behaviorSummary?.inspectOnlyFindings ?? 0} tone={(behaviorSummary?.inspectOnlyFindings ?? 0) ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Actionable repairs" value={behaviorSummary?.actionableProposals ?? 0} tone={(behaviorSummary?.actionableProposals ?? 0) ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Low confidence required events" value={behaviorSummary?.lowConfidenceRequiredEvents ?? 0} tone={(behaviorSummary?.lowConfidenceRequiredEvents ?? 0) ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Health" value={`${behaviorSummary?.score ?? 0}%`} tone={toneForHealth(behaviorSummary?.score)} truthState={behaviorSummary ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Unique open findings" value={behaviorSummary?.uniqueOpenFindings ?? 0} tone={(behaviorSummary?.uniqueOpenFindings ?? 0) ? "warn" : "good"} truthState={behaviorSummary ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Duplicate findings" value={behaviorSummary?.duplicateFindings ?? 0} tone={(behaviorSummary?.duplicateFindings ?? 0) ? "warn" : "neutral"} truthState={behaviorSummary ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Inspect-only findings" value={behaviorSummary?.inspectOnlyFindings ?? 0} tone={(behaviorSummary?.inspectOnlyFindings ?? 0) ? "warn" : "neutral"} truthState={behaviorSummary ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Actionable repairs" value={behaviorSummary?.actionableProposals ?? 0} tone={(behaviorSummary?.actionableProposals ?? 0) ? "warn" : "good"} truthState={behaviorSummary ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Low confidence required events" value={behaviorSummary?.lowConfidenceRequiredEvents ?? 0} tone={(behaviorSummary?.lowConfidenceRequiredEvents ?? 0) ? "warn" : "good"} truthState={behaviorSummary ? "live" : "unavailable"} badgeLabel="LOADED" />
                 </>}
             >
                 <div
@@ -120,11 +120,11 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                         <div className="flex flex-wrap items-center justify-between gap-2">
                                             <span className="font-semibold text-white">{entry.key}</span>
                                             <div className="flex flex-wrap gap-2">
-                                                <Pill label="Events" value={entry.eventCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                                <Pill label="Open" value={entry.uniqueOpenFindings ?? entry.openFindingCount ?? 0} tone={entry.openFindingCount ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
-                                                <Pill label="Duplicates" value={entry.duplicateFindings ?? 0} tone={(entry.duplicateFindings ?? 0) > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                                                <Pill label="Inspect only" value={entry.inspectOnlyFindings ?? 0} tone={(entry.inspectOnlyFindings ?? 0) > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                                                <Pill label="State" value={entry.state || "info"} tone={toneForDomainState(entry.state)} truthState="live" badgeLabel={entry.state === "error" ? "ERROR" : entry.state === "review" ? "REVIEW" : entry.state === "live" ? "LIVE" : "INFO"} />
+                                                <Pill label="Events" value={entry.eventCount} tone="neutral" truthState={entry ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                                <Pill label="Open" value={entry.uniqueOpenFindings ?? entry.openFindingCount ?? 0} tone={entry.openFindingCount ? "warn" : "good"} truthState={entry ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                                <Pill label="Duplicates" value={entry.duplicateFindings ?? 0} tone={(entry.duplicateFindings ?? 0) > 0 ? "warn" : "neutral"} truthState={entry ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                                <Pill label="Inspect only" value={entry.inspectOnlyFindings ?? 0} tone={(entry.inspectOnlyFindings ?? 0) > 0 ? "warn" : "neutral"} truthState={entry ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                                <Pill label="State" value={entry.state || "info"} tone={toneForDomainState(entry.state)} truthState={entry ? "live" : "unavailable"} badgeLabel={entry.state === "error" ? "ERROR" : entry.state === "review" ? "REVIEW" : entry.state === "live" ? "LIVE" : "INFO"} />
                                             </div>
                                         </div>
                                         <p className="text-xs text-gray-400">{entry.explanation || DUPLICATE_INSPECT_EXPLANATION}</p>
@@ -167,7 +167,7 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                 title="Actor ownership and bleed risk"
                 subtitle="Per-actor summaries from the normalization layer."
                 defaultOpen={false}
-                summary={<><Pill label="Actors" value={(data?.orchestration?.actorSummaries || []).length} truthState="live" badgeLabel="LOADED" /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} truthState="live" badgeLabel="LOADED" /></>}
+                summary={<><Pill label="Actors" value={(data?.orchestration?.actorSummaries || []).length} truthState={data?.orchestration ? "live" : "unavailable"} badgeLabel="LOADED" /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} truthState={data?.orchestration ? "live" : "unavailable"} badgeLabel="LOADED" /></>}
             >
                 <ScrollWrap>
                     <div className="divide-y divide-white/10">
@@ -186,12 +186,12 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                         <p className="font-semibold text-white">{actor.actorLabel || actor.actorId || actor.actorType}</p>
                                         <p className="text-xs text-gray-400">{actor.actorType} | {shortId(actor.actorId || actor.actorKey || "")}</p>
                                     </div>
-                                    <Pill label="Events" value={actor.eventCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Events" value={actor.eventCount} tone="neutral" truthState={actor ? "live" : "unavailable"} badgeLabel="LOADED" />
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                    <Pill label="Warnings" value={actor.warningCount} tone={actor.warningCount ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Critical" value={actor.criticalCount} tone={actor.criticalCount ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Bleed risk" value={actor.contaminationCount} tone={actor.contaminationCount ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Warnings" value={actor.warningCount} tone={actor.warningCount ? "warn" : "good"} truthState={actor ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                    <Pill label="Critical" value={actor.criticalCount} tone={actor.criticalCount ? "bad" : "good"} truthState={actor ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                    <Pill label="Bleed risk" value={actor.contaminationCount} tone={actor.contaminationCount ? "bad" : "good"} truthState={actor ? "live" : "unavailable"} badgeLabel="LOADED" />
                                 </div>
                                 {actor.topDomains?.length ? <p className="text-xs text-gray-400">Domains: {actor.topDomains.join(", ")}</p> : null}
                                 {actor.riskDomains?.length ? <p className="text-xs text-gray-400">Risk domains: {actor.riskDomains.join(", ")}</p> : null}
@@ -209,10 +209,10 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                                 >
                                                     <div className="flex flex-wrap items-center justify-between gap-2">
                                                         <div className="flex flex-wrap gap-2">
-                                                            <Pill label="Reason" value={reason.reasonCode || "unknown"} tone={toneForActorRiskSeverity(reason.severity)} truthState="live" badgeLabel={reason.severity === "error" ? "ERROR" : reason.severity === "warn" ? "REVIEW" : "INFO"} />
-                                                            <Pill label="Count" value={reason.count ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                                            <Pill label="Domain" value={reason.domain || "telemetry"} tone="neutral" truthState="live" badgeLabel="INFO" />
-                                                            {reason.appliesToBleedRisk ? <Pill label="Bleed" value="yes" tone="bad" truthState="live" badgeLabel="RISK" /> : null}
+                                                            <Pill label="Reason" value={reason.reasonCode || "unknown"} tone={toneForActorRiskSeverity(reason.severity)} truthState={reason ? "live" : "unavailable"} badgeLabel={reason.severity === "error" ? "ERROR" : reason.severity === "warn" ? "REVIEW" : "INFO"} />
+                                                            <Pill label="Count" value={reason.count ?? 0} tone="neutral" truthState={reason ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                                            <Pill label="Domain" value={reason.domain || "telemetry"} tone="neutral" truthState={reason ? "live" : "unavailable"} badgeLabel="INFO" />
+                                                            {reason.appliesToBleedRisk ? <Pill label="Bleed" value="yes" tone="bad" truthState={reason ? "live" : "unavailable"} badgeLabel="RISK" /> : null}
                                                         </div>
                                                         {reason.sampleEventId ? <span className="text-[11px] text-gray-400">Sample {shortId(reason.sampleEventId)}</span> : null}
                                                     </div>
@@ -234,13 +234,13 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                 subtitle="Built-in task definitions scored for end-to-end readiness, not just trigger-source existence."
                 defaultOpen={false}
                 summary={<>
-                    <Pill label="Built-in" value={data?.taskCoverageSummary?.builtIn ?? data?.stats?.builtInTasks ?? 0} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Ready" value={data?.taskCoverageSummary?.ready ?? data?.stats?.readyTasks ?? 0} tone={(data?.taskCoverageSummary?.ready ?? data?.stats?.readyTasks ?? 0) > 0 ? "good" : "neutral"} truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Partial" value={data?.taskCoverageSummary?.partial ?? data?.stats?.partialTasks ?? 0} tone={(data?.taskCoverageSummary?.partial ?? data?.stats?.partialTasks ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Unsupported" value={data?.taskCoverageSummary?.unsupported ?? data?.stats?.unsupportedTasks ?? 0} tone={(data?.taskCoverageSummary?.unsupported ?? data?.stats?.unsupportedTasks ?? 0) > 0 ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Reward risk" value={data?.taskCoverageSummary?.rewardRisk ?? data?.stats?.rewardRiskTasks ?? 0} tone={(data?.taskCoverageSummary?.rewardRisk ?? data?.stats?.rewardRiskTasks ?? 0) > 0 ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Tracking gap" value={data?.taskCoverageSummary?.trackingGap ?? data?.stats?.trackingGapTasks ?? 0} tone={(data?.taskCoverageSummary?.trackingGap ?? data?.stats?.trackingGapTasks ?? 0) > 0 ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
-                    <Pill label="Completion gap" value={data?.taskCoverageSummary?.completionGap ?? data?.stats?.completionGapTasks ?? 0} tone={(data?.taskCoverageSummary?.completionGap ?? data?.stats?.completionGapTasks ?? 0) > 0 ? "bad" : "good"} truthState="live" badgeLabel="LOADED" />
+                    <Pill label="Built-in" value={data?.taskCoverageSummary?.builtIn ?? data?.stats?.builtInTasks ?? 0} tone="neutral" truthState={data?.taskCoverageSummary || data?.stats ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Ready" value={data?.taskCoverageSummary?.ready ?? data?.stats?.readyTasks ?? 0} tone={(data?.taskCoverageSummary?.ready ?? data?.stats?.readyTasks ?? 0) > 0 ? "good" : "neutral"} truthState={data?.taskCoverageSummary || data?.stats ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Partial" value={data?.taskCoverageSummary?.partial ?? data?.stats?.partialTasks ?? 0} tone={(data?.taskCoverageSummary?.partial ?? data?.stats?.partialTasks ?? 0) > 0 ? "warn" : "good"} truthState={data?.taskCoverageSummary || data?.stats ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Unsupported" value={data?.taskCoverageSummary?.unsupported ?? data?.stats?.unsupportedTasks ?? 0} tone={(data?.taskCoverageSummary?.unsupported ?? data?.stats?.unsupportedTasks ?? 0) > 0 ? "bad" : "good"} truthState={data?.taskCoverageSummary || data?.stats ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Reward risk" value={data?.taskCoverageSummary?.rewardRisk ?? data?.stats?.rewardRiskTasks ?? 0} tone={(data?.taskCoverageSummary?.rewardRisk ?? data?.stats?.rewardRiskTasks ?? 0) > 0 ? "bad" : "good"} truthState={data?.taskCoverageSummary || data?.stats ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Tracking gap" value={data?.taskCoverageSummary?.trackingGap ?? data?.stats?.trackingGapTasks ?? 0} tone={(data?.taskCoverageSummary?.trackingGap ?? data?.stats?.trackingGapTasks ?? 0) > 0 ? "bad" : "good"} truthState={data?.taskCoverageSummary || data?.stats ? "live" : "unavailable"} badgeLabel="LOADED" />
+                    <Pill label="Completion gap" value={data?.taskCoverageSummary?.completionGap ?? data?.stats?.completionGapTasks ?? 0} tone={(data?.taskCoverageSummary?.completionGap ?? data?.stats?.completionGapTasks ?? 0) > 0 ? "bad" : "good"} truthState={data?.taskCoverageSummary || data?.stats ? "live" : "unavailable"} badgeLabel="LOADED" />
                 </>}
             >
                 <ScrollWrap>
@@ -256,18 +256,18 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                         <p className="text-xs text-gray-400">{task.taskId} | {task.rawTriggerDetails?.eventLabel || task.canonicalEventName || task.triggerEvent}</p>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                        <Pill label="Readiness" value={task.coverageState} tone={toneForTaskCoverageState(task.coverageState)} truthState="live" badgeLabel={task.coverageState === "ready" ? "READY" : task.coverageState === "partial" ? "PARTIAL" : task.coverageState === "reward_risk" ? "RISK" : "GAP"} />
-                                        <Pill label="Source" value={task.sourceType} tone={task.sourceType === "unsupported" ? "bad" : task.sourceType === "legacy" ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
+                                        <Pill label="Readiness" value={task.coverageState} tone={toneForTaskCoverageState(task.coverageState)} truthState={task ? "live" : "unavailable"} badgeLabel={task.coverageState === "ready" ? "READY" : task.coverageState === "partial" ? "PARTIAL" : task.coverageState === "reward_risk" ? "RISK" : "GAP"} />
+                                        <Pill label="Source" value={task.sourceType} tone={task.sourceType === "unsupported" ? "bad" : task.sourceType === "legacy" ? "warn" : "good"} truthState={task ? "live" : "unavailable"} badgeLabel="LOADED" />
                                     </div>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                    <Pill label="Reward" value={`${task.rewardGd} GD`} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Max" value={task.maxRequired} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Group" value={task.group} tone="neutral" truthState="live" badgeLabel="INFO" />
-                                    <Pill label="Action" value={`${task.actionType}`} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Mode" value={task.mode} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Keying" value={task.keying || "any"} tone="neutral" truthState="live" badgeLabel="LOADED" />
-                                    <Pill label="Criteria" value={(task.criteria || []).length > 0 ? "filtered" : "none"} tone="neutral" truthState="live" badgeLabel="LOADED" />
+                                    <Pill label="Reward" value={`${task.rewardGd} GD`} tone="neutral" truthState={task ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                    <Pill label="Max" value={task.maxRequired} tone="neutral" truthState={task ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                    <Pill label="Group" value={task.group} tone="neutral" truthState={task ? "live" : "unavailable"} badgeLabel="INFO" />
+                                    <Pill label="Action" value={`${task.actionType}`} tone="neutral" truthState={task ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                    <Pill label="Mode" value={task.mode} tone="neutral" truthState={task ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                    <Pill label="Keying" value={task.keying || "any"} tone="neutral" truthState={task ? "live" : "unavailable"} badgeLabel="LOADED" />
+                                    <Pill label="Criteria" value={(task.criteria || []).length > 0 ? "filtered" : "none"} tone="neutral" truthState={task ? "live" : "unavailable"} badgeLabel="LOADED" />
                                 </div>
                                 <p className="text-xs leading-6 text-gray-400">{task.actionPath}</p>
                                 {task.missingEvidence?.length ? (
@@ -280,7 +280,7 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                                 ) : null}
                                 <div className="flex flex-wrap gap-2">
                                     {task.requiredValidators?.map((validator: string) => (
-                                        <Pill key={`${task.taskId}-${validator}`} label="Validator" value={validator} tone="neutral" truthState="live" badgeLabel="INFO" />
+                                        <Pill key={`${task.taskId}-${validator}`} label="Validator" value={validator} tone="neutral" truthState={validator ? "live" : "unavailable"} badgeLabel="INFO" />
                                     ))}
                                 </div>
                                 <details className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
