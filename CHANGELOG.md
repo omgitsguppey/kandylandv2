@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 14 public updates in pages of 5.
+Showing the last 15 public updates in pages of 5.
+
+## 1.2.87 - 2026-05-18
+- Bug fixes and general improvements
+- Improved loading state accessibility for buttons.
+- Kept remaining risky PRs out of the beta cleanup lane.
+- Recorded final open PR owner-review actions.
 
 ## 1.2.86 - 2026-05-18
 - Bug fixes and general improvements

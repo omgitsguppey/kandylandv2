@@ -1,0 +1,86 @@
+{
+  "generatedAtUtc": "2026-05-18T18:20:00.000Z",
+  "reportKey": "open-pr-final-action",
+  "currentHead": "cd6c02ef2f85095907a2a1aaf95c1833afe3447d",
+  "openPrsBefore": [
+    { "number": 216, "title": "scorecard-action patch", "url": "https://github.com/omgitsguppey/kandylandv2/pull/216", "reason": "workflow/security tooling update in scope for review" },
+    { "number": 217, "title": "checkout v6", "url": "https://github.com/omgitsguppey/kandylandv2/pull/217", "reason": "workflow major update in scope for closure" },
+    { "number": 218, "title": "upload-artifact v7", "url": "https://github.com/omgitsguppey/kandylandv2/pull/218", "reason": "workflow major update in scope for closure" },
+    { "number": 228, "title": "LibraryClient optimization", "url": "https://github.com/omgitsguppey/kandylandv2/pull/228", "reason": "stale UI optimization in scope for closure" },
+    { "number": 233, "title": "aria-busy Button", "url": "https://github.com/omgitsguppey/kandylandv2/pull/233", "reason": "tiny accessibility PR in scope for merge inspection" },
+    { "number": 241, "title": "onboarding friction visibility", "url": "https://github.com/omgitsguppey/kandylandv2/pull/241", "reason": "superseded telemetry patch in scope for closure" },
+    { "number": 242, "title": "root npm dependency group", "url": "https://github.com/omgitsguppey/kandylandv2/pull/242", "reason": "broad dependency group in scope for closure" },
+    { "number": 243, "title": "functions dependency group", "url": "https://github.com/omgitsguppey/kandylandv2/pull/243", "reason": "broad functions dependency group in scope for closure" },
+    { "number": 247, "title": "admin aggregation hotspots", "url": "https://github.com/omgitsguppey/kandylandv2/pull/247", "reason": "broad admin aggregation PR in scope for closure" },
+    { "number": 251, "title": "admin truth surfaces", "url": "https://github.com/omgitsguppey/kandylandv2/pull/251", "reason": "admin truth owner-review PR in scope for preservation" },
+    { "number": 252, "title": "admin high-ROI aggregation hotspot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/252", "reason": "analytics/cost owner-review PR in scope for preservation" },
+    { "number": 259, "title": "package metadata/source-of-funds truth", "url": "https://github.com/omgitsguppey/kandylandv2/pull/259", "reason": "source-of-funds PR in scope for closure" },
+    { "number": 260, "title": "debug route task definition lookup optimization", "url": "https://github.com/omgitsguppey/kandylandv2/pull/260", "reason": "debug/cost owner-review PR in scope for preservation" }
+  ],
+  "closedPrs": [
+    { "number": 259, "title": "package metadata/source-of-funds truth", "url": "https://github.com/omgitsguppey/kandylandv2/pull/259", "reason": "Superseded by current GumDrop source-of-funds, paid bonus labeling, and paid-balance attribution work; unsafe for beta cleanup merge." },
+    { "number": 241, "title": "onboarding friction visibility", "url": "https://github.com/omgitsguppey/kandylandv2/pull/241", "reason": "Superseded by current error handling, analytics semantics, and source-truth doctrine; old telemetry additions can conflict." },
+    { "number": 228, "title": "LibraryClient optimization", "url": "https://github.com/omgitsguppey/kandylandv2/pull/228", "reason": "Stale small optimization and not a current beta exit blocker." },
+    { "number": 247, "title": "admin aggregation hotspots", "url": "https://github.com/omgitsguppey/kandylandv2/pull/247", "reason": "Broad admin debug/users/roster optimization superseded by newer cost and analytics lanes; too broad to merge blind." },
+    { "number": 217, "title": "checkout v6", "url": "https://github.com/omgitsguppey/kandylandv2/pull/217", "reason": "Deferred major workflow action update requiring CI/tooling review after beta cleanup." },
+    { "number": 218, "title": "upload-artifact v7", "url": "https://github.com/omgitsguppey/kandylandv2/pull/218", "reason": "Deferred major workflow action update requiring CI/tooling review after beta cleanup." },
+    { "number": 242, "title": "root npm dependency group", "url": "https://github.com/omgitsguppey/kandylandv2/pull/242", "reason": "Huge root dependency group with high blast radius; requires fresh dependency/security review lane." },
+    { "number": 243, "title": "functions dependency group", "url": "https://github.com/omgitsguppey/kandylandv2/pull/243", "reason": "Broad functions dependency group touching BigQuery/firebase-admin/functions tooling; requires focused dependency/security lane." }
+  ],
+  "mergedPrs": [
+    {
+      "number": 233,
+      "title": "aria-busy Button",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/233",
+      "reason": "Clean tiny accessibility scope: .Jules/palette.md and src/components/ui/Button.tsx only; added aria-busy for loading state.",
+      "checks": [
+        "gh pr view 233: not draft, CLEAN, files limited to .Jules/palette.md and src/components/ui/Button.tsx",
+        "gh pr diff 233 --name-only: .Jules/palette.md, src/components/ui/Button.tsx",
+        "gh pr checks 233: no checks reported on branch",
+        "npm run typecheck: pass after merge"
+      ],
+      "mergeCommit": "cd6c02ef2f85095907a2a1aaf95c1833afe3447d"
+    }
+  ],
+  "preservedPrs": [
+    { "number": 251, "title": "admin truth surfaces", "url": "https://github.com/omgitsguppey/kandylandv2/pull/251", "reason": "Preserved for admin truth owner review; touches Admin truth surfaces and should not be merged blindly into beta cleanup." },
+    { "number": 252, "title": "admin high-ROI aggregation hotspot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/252", "reason": "Preserved for analytics/cost owner review against current analytics semantics and watch-time changes." },
+    { "number": 260, "title": "debug route task definition lookup optimization", "url": "https://github.com/omgitsguppey/kandylandv2/pull/260", "reason": "Preserved for debug/cost owner review; debug route is a sensitive source-truth surface." },
+    { "number": 216, "title": "scorecard-action patch", "url": "https://github.com/omgitsguppey/kandylandv2/pull/216", "reason": "Preserved for dependency/security review; workflow/security tooling updates belong in a clean CI/security lane." }
+  ],
+  "remainingOpenPrs": [
+    { "number": 251, "title": "admin truth surfaces", "url": "https://github.com/omgitsguppey/kandylandv2/pull/251", "reason": "Still open for admin truth owner review." },
+    { "number": 252, "title": "admin high-ROI aggregation hotspot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/252", "reason": "Still open for analytics/cost owner review." },
+    { "number": 260, "title": "debug route task definition lookup optimization", "url": "https://github.com/omgitsguppey/kandylandv2/pull/260", "reason": "Still open for debug/cost owner review." },
+    { "number": 216, "title": "scorecard-action patch", "url": "https://github.com/omgitsguppey/kandylandv2/pull/216", "reason": "Still open for dependency/security review." }
+  ],
+  "unsafeUntouched": [
+    { "number": 251, "title": "admin truth surfaces", "url": "https://github.com/omgitsguppey/kandylandv2/pull/251", "reason": "Admin truth surface not merged in beta cleanup." },
+    { "number": 252, "title": "admin high-ROI aggregation hotspot", "url": "https://github.com/omgitsguppey/kandylandv2/pull/252", "reason": "Admin analytics aggregation not merged in beta cleanup." },
+    { "number": 260, "title": "debug route task definition lookup optimization", "url": "https://github.com/omgitsguppey/kandylandv2/pull/260", "reason": "Debug route source-truth optimization not merged in beta cleanup." }
+  ],
+  "checksRun": [
+    "git status --short",
+    "git log --oneline -20",
+    "gh pr list --repo omgitsguppey/kandylandv2 --state open --limit 100 --json number,title,author,headRefName,baseRefName,mergeStateStatus,isDraft,updatedAt,url",
+    "gh pr view 233 --repo omgitsguppey/kandylandv2 --json number,title,mergeStateStatus,isDraft,files,statusCheckRollup,commits,url",
+    "gh pr diff 233 --repo omgitsguppey/kandylandv2 --name-only",
+    "gh pr checks 233 --repo omgitsguppey/kandylandv2",
+    "gh pr merge 233 --repo omgitsguppey/kandylandv2 --squash --delete-branch",
+    "npm run typecheck",
+    "npm run release:notes",
+    "npm run release:notes:accept",
+    "npm run check:open-pr-final-action",
+    "npx vitest run tests/unit/open-pr-final-action.spec.ts",
+    "gh pr list --repo omgitsguppey/kandylandv2 --state open --limit 100 --json number,title,author,mergeStateStatus,updatedAt,url",
+    "npm run check:release-notes: pending same cleanup commit after release artifacts",
+    "npm run typecheck: pass"
+  ],
+  "workingTreeStatusBefore": "clean before PR actions",
+  "workingTreeStatusAfter": "dirty only with final report, validator, test, package script, and required release-note artifacts",
+  "nextExactSteps": [
+    "Review PR 216 in a dedicated dependency/security lane.",
+    "Review PRs 251, 252, and 260 in dedicated admin truth, analytics/cost, and debug/cost lanes.",
+    "Keep dependency and workflow major updates out of beta cleanup unless re-created in focused batches."
+  ]
+}

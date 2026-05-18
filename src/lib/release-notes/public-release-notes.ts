@@ -1,13 +1,83 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.86",
-  "betaReleaseCounter": 286,
+  "currentVersion": "1.2.87",
+  "betaReleaseCounter": 287,
   "channel": "beta",
-  "generatedAt": "2026-05-18T14:43:13.248Z",
-  "generatedAtUtc": "2026-05-18T14:43:13.248Z",
-  "lastCommitSha": "b0ca63c46d97d0f957902d4f37053a4589db489c",
+  "generatedAt": "2026-05-18T18:11:22.427Z",
+  "generatedAtUtc": "2026-05-18T18:11:22.427Z",
+  "lastCommitSha": "cd6c02ef2f85095907a2a1aaf95c1833afe3447d",
   "notes": [
+    {
+      "version": "1.2.87",
+      "previousVersion": "1.2.86",
+      "betaReleaseCounter": 287,
+      "previousBetaReleaseCounter": 286,
+      "commitSha": "cd6c02ef2f85095907a2a1aaf95c1833afe3447d",
+      "commitTitle": "🎨 Palette: Add aria-busy to Button component for loading states (#233)",
+      "commitCount": 3,
+      "commitShas": [
+        "c834dbec9299590a5a280bc08754eee9d33180d4",
+        "60316496565107ef446e38dd81503ff0cd78f079",
+        "cd6c02ef2f85095907a2a1aaf95c1833afe3447d"
+      ],
+      "committedAt": "2026-05-18T18:10:01.000Z",
+      "generatedAt": "2026-05-18T18:11:22.425Z",
+      "committedAtUtc": "2026-05-18T18:10:01.000Z",
+      "generatedAtUtc": "2026-05-18T18:11:22.425Z",
+      "updatedAtUtc": "2026-05-18T18:11:22.425Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Improved loading state accessibility and finalized PR cleanup evidence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Improved loading state accessibility for buttons.",
+        "Kept remaining risky PRs out of the beta cleanup lane.",
+        "Recorded final open PR owner-review actions."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 3 commits into one accepted patch batch."
+      ],
+      "affectedSurfaces": [
+        "navigation"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        ".Jules/palette.md",
+        "CHANGELOG.md",
+        "agent/state/analytics-cadence-cost-policy.generated.json",
+        "agent/state/analytics-legacy-history-reconciliation.generated.json",
+        "agent/state/analytics-semantics-final-lock.generated.json",
+        "agent/state/guest-user-identity-transfer.generated.json",
+        "agent/state/pr-cleanup-final.generated.json",
+        "agent/state/runtime-watch-time-v2.generated.json",
+        "docs/agent-truth/analytics-cadence-cost-policy.md",
+        "docs/agent-truth/analytics-legacy-history-reconciliation.md",
+        "docs/agent-truth/analytics-semantics-final-lock.md",
+        "docs/agent-truth/guest-user-identity-transfer.md",
+        "docs/agent-truth/pr-cleanup-final.md",
+        "docs/agent-truth/runtime-watch-time-v2.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-analytics-semantics-final-lock.ts",
+        "scripts/agent/validate-pr-cleanup-final.ts",
+        "scripts/agent/validate-runtime-watch-time-v2.ts",
+        "src/components/Analytics/RuntimeWatchTracker.tsx",
+        "src/components/ui/Button.tsx",
+        "src/lib/analytics/analytics-event-contract.ts",
+        "src/lib/analytics/runtime-watch-time-v2.ts",
+        "src/lib/analytics/watch-time-v2.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/analytics-semantics-final-lock.spec.ts",
+        "tests/unit/pr-cleanup-final.spec.ts",
+        "tests/unit/runtime-watch-time-v2.spec.ts",
+        "tests/unit/runtime-watch-tracker.spec.tsx"
+      ],
+      "sourceCommit": "cd6c02ef2f85095907a2a1aaf95c1833afe3447d"
+    },
     {
       "version": "1.2.86",
       "previousVersion": "1.2.85",
