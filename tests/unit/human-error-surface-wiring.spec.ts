@@ -57,6 +57,7 @@ describe("human error surface wiring", () => {
     expect(landingSource).toContain("data-creator-dashboard-landing-density=\"mobile_compact\"");
     expect(landingSource).toContain("data-creator-landing-mobile-density=\"compact_v2\"");
     expect(landingSource).toContain("data-creator-landing-error-language=\"human\"");
+    expect(landingSource).toContain("data-creator-landing-source-review=\"partial_safe\"");
     expect(landingSource).toContain("dashboard_source_unavailable");
     expect(landingSource).not.toContain("body={moduleErrors.bookings}");
     expect(landingSource).not.toContain("body={moduleErrors.subscriptions}");

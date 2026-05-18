@@ -145,7 +145,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
                                     <SidebarItem href={CREATOR_SETTINGS_ROUTE} icon={<Settings className="w-5 h-5" />} label="Creator Settings" onClick={onClose} />
                                 </>
                             ) : null}
-                            <SidebarItem href="/settings" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />
+                            <SidebarItem href="/settings" icon={<Settings className="w-5 h-5" />} label="Account Settings" onClick={onClose} />
                         </nav>
 
                         <div className="rounded-2xl border border-white/10 bg-black/20 p-3">

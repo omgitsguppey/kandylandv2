@@ -34,6 +34,14 @@ type CreatorStats = {
     bookedCalls: number;
 };
 
+type CreatorSettingsSourceSummary = {
+    settingsState?: "configured" | "not_configured";
+    statsEvidence?: {
+        sourceTruth?: "canonical" | "partial" | "needs_review" | "unavailable";
+        issues?: string[];
+    } | null;
+};
+
 type CreatorRequestRecord = {
     id: string;
     categoryLabel?: string;
@@ -166,6 +174,11 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     const hasCreatorWorkspace = isCreatorOperator || Boolean(creatorApplication) || isProjectionMode;
 
     const [creatorStats, setCreatorStats] = useState<CreatorStats | null>(null);
+    const [settingsSourceNotice, setSettingsSourceNotice] = useState<{
+        title: string;
+        body: string;
+        state: string;
+    } | null>(null);
     const [requests, setRequests] = useState<CreatorRequestRecord[]>([]);
     const [bookings, setBookings] = useState<CreatorBookingRecord[]>([]);
     const [subscriptions, setSubscriptions] = useState<CreatorSubscriptionRecord[]>([]);
@@ -249,6 +262,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             subscriptions: null,
             threads: null,
         };
+        setSettingsSourceNotice(null);
 
         const results = await loadUiContinuityModules({
             surface: "creator_workspace",
@@ -260,6 +274,8 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                     critical: true,
                     load: async () => readUiJson<{
                         stats?: CreatorStats | null;
+                        settingsState?: "configured" | "not_configured";
+                        statsEvidence?: CreatorSettingsSourceSummary["statsEvidence"];
                     }>(
                         await authFetch(`/api/creator/settings${creatorQuery}`),
                         { moduleLabel: "creator settings", url: "/api/creator/settings" },
@@ -313,7 +329,27 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                 nextErrors[result.state.key as ModuleKey] = result.state.warning;
             }
             if (result.state.key === "settings" && result.value && typeof result.value === "object") {
-                setCreatorStats((result.value as { stats?: CreatorStats | null }).stats ?? null);
+                const settingsResult = result.value as { stats?: CreatorStats | null } & CreatorSettingsSourceSummary;
+                setCreatorStats(settingsResult.stats ?? null);
+                const issues = settingsResult.statsEvidence?.issues ?? [];
+                if (settingsResult.settingsState === "not_configured" || issues.includes("creator_settings_not_configured")) {
+                    setSettingsSourceNotice({
+                        title: "Creator Settings need setup",
+                        body: "The dashboard is using safe defaults until this creator finishes setup.",
+                        state: "not_configured",
+                    });
+                } else if (
+                    settingsResult.statsEvidence?.sourceTruth === "partial"
+                    || settingsResult.statsEvidence?.sourceTruth === "needs_review"
+                    || settingsResult.statsEvidence?.sourceTruth === "unavailable"
+                    || issues.length > 0
+                ) {
+                    setSettingsSourceNotice({
+                        title: "Some creator stats need source review",
+                        body: "The dashboard is showing safe partial data while one or more stat sources are unavailable.",
+                        state: settingsResult.statsEvidence?.sourceTruth ?? "partial",
+                    });
+                }
             }
             if (result.state.key === "requests" && result.value && typeof result.value === "object") {
                 const requestsResult = result.value as { requests?: CreatorRequestRecord[] };
@@ -552,6 +588,17 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                 },
                             }))}
                         />
+                    ) : null}
+
+                    {!settingsModuleError && settingsSourceNotice ? (
+                        <div
+                            className="rounded-[1.1rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100 sm:px-4 sm:py-3 sm:text-sm"
+                            data-creator-landing-source-state={settingsSourceNotice.state}
+                            data-creator-landing-source-review="partial_safe"
+                        >
+                            <p className="font-bold text-amber-50">{settingsSourceNotice.title}</p>
+                            <p className="mt-0.5 text-amber-100/85">{settingsSourceNotice.body}</p>
+                        </div>
                     ) : null}
 
                     {moduleErrorEntries.length > 0 ? (

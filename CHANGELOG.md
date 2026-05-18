@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.2.76 - 2026-05-18
+- Bug fixes and general improvements
+- Made Creator Settings load safely when some creator data is missing.
+- Separated Account Settings from Creator Settings labels.
+- Kept creator dashboard source issues from showing as raw server errors.
+
 ## 1.2.75 - 2026-05-17
 - Bug fixes and general improvements
 - Fixed Creator Dashboard create-drop routing.
@@ -147,9 +153,3 @@ Showing the last 25 public updates in pages of 5.
 - Locked the current cleanup phase with refreshed source evidence.
 - Separated remaining code blockers from missing manual and smoke evidence.
 - Prepared the next phase for screenshot QA and smoke checks without hiding gaps.
-
-## 1.2.51 - 2026-05-15
-- Bug fixes and general improvements
-- Reduced backend cost and security risks found by internal checks.
-- Added bounded work controls where routes could fan out too much.
-- Kept unresolved scanner findings classified instead of hidden.

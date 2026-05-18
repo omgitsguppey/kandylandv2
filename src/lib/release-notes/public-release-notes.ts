@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.75",
-  "betaReleaseCounter": 275,
+  "currentVersion": "1.2.76",
+  "betaReleaseCounter": 276,
   "channel": "beta",
-  "generatedAt": "2026-05-17T23:08:44.718Z",
-  "generatedAtUtc": "2026-05-17T23:08:44.718Z",
-  "lastCommitSha": "0a35888279ccfba99c30a37dbfa566f9fa7eb2c4",
+  "generatedAt": "2026-05-18T01:02:43.775Z",
+  "generatedAtUtc": "2026-05-18T01:02:43.775Z",
+  "lastCommitSha": "8241f31557d2340f691695affc3d2851af3b8fa0",
   "notes": [
+    {
+      "version": "1.2.76",
+      "previousVersion": "1.2.75",
+      "betaReleaseCounter": 276,
+      "previousBetaReleaseCounter": 275,
+      "commitSha": "8241f31557d2340f691695affc3d2851af3b8fa0",
+      "commitTitle": "fix(creator): make settings source partial safe",
+      "commitCount": 1,
+      "commitShas": [
+        "8241f31557d2340f691695affc3d2851af3b8fa0"
+      ],
+      "committedAt": "2026-05-18T01:02:43.775Z",
+      "generatedAt": "2026-05-18T01:02:43.775Z",
+      "committedAtUtc": "2026-05-18T01:02:43.775Z",
+      "generatedAtUtc": "2026-05-18T01:02:43.775Z",
+      "updatedAtUtc": "2026-05-18T01:02:43.775Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Made Creator Settings safer when creator source data is missing.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Made Creator Settings load safely when some creator data is missing.",
+        "Separated Account Settings from Creator Settings labels.",
+        "Kept creator dashboard source issues from showing as raw server errors."
+      ],
+      "audience": "creators",
+      "affectedSurfaces": [
+        "creator"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/app/api/creator/settings/route.ts",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Navigation/ProfileDropdown.tsx",
+        "src/components/Navigation/ProfileSidebar.tsx",
+        "agent/state/creator-settings-source-health.generated.json",
+        "docs/agent-truth/creator-settings-source-health.md",
+        "scripts/agent/validate-creator-settings-source-health.ts",
+        "scripts/agent/validate-creator-surface-routing.ts",
+        "tests/unit/creator-settings-route.spec.ts",
+        "tests/unit/creator-settings-source-health.spec.ts",
+        "tests/unit/creator-dashboard-settings.spec.tsx",
+        "tests/unit/creator-surface-routing.spec.ts",
+        "tests/unit/human-error-surface-wiring.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "8241f31557d2340f691695affc3d2851af3b8fa0"
+    },
     {
       "version": "1.2.75",
       "previousVersion": "1.2.74",
@@ -1235,58 +1289,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/final-phase-cleanup-lock.spec.ts"
       ],
       "sourceCommit": "b8e777fd1dc621ea4cdf351dab4e40fa0187b192"
-    },
-    {
-      "version": "1.2.51",
-      "previousVersion": "1.2.50",
-      "betaReleaseCounter": 251,
-      "previousBetaReleaseCounter": 250,
-      "commitSha": "a3327698cf038da184f58a0ea985e434b2ae9993",
-      "commitTitle": "fix(security): clean up focused guardrail risks",
-      "commitCount": 1,
-      "commitShas": [
-        "a3327698cf038da184f58a0ea985e434b2ae9993"
-      ],
-      "committedAt": "2026-05-15T04:45:50.000Z",
-      "generatedAt": "2026-05-15T04:46:04.913Z",
-      "committedAtUtc": "2026-05-15T04:45:50.000Z",
-      "generatedAtUtc": "2026-05-15T04:46:04.913Z",
-      "updatedAtUtc": "2026-05-15T04:46:04.913Z",
-      "category": "Security",
-      "title": "Bug fixes and general improvements",
-      "summary": "Reduced backend cost and security risks found by internal checks.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Reduced backend cost and security risks found by internal checks.",
-        "Added bounded work controls where routes could fan out too much.",
-        "Kept unresolved scanner findings classified instead of hidden."
-      ],
-      "audience": "creators",
-      "affectedSurfaces": [
-        "admin",
-        "creator"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/product-surface-integrity.generated.json",
-        "agent/state/speed-security-hardening.generated.json",
-        "docs/agent-truth/product-surface-integrity.md",
-        "docs/agent-truth/speed-security-backend-guardrails.md",
-        "src/app/api/admin/creator-fan-experience-settings/route.ts",
-        "src/app/api/admin/debug/preferences/route.ts",
-        "src/app/api/creator/relationships/route.ts",
-        "src/lib/server/bounded-concurrency.ts",
-        "src/lib/server/creator-discovery.ts",
-        "src/lib/server/queue-runtime.ts",
-        "src/lib/server/username-suggestions.ts",
-        "tests/unit/admin-creator-fan-experience-settings-route.spec.ts",
-        "tests/unit/admin-debug-preferences-route.spec.ts",
-        "tests/unit/bounded-concurrency.spec.ts",
-        "tests/unit/creator-relationships-route.spec.ts",
-        "tests/unit/speed-security-hardening.spec.ts"
-      ],
-      "sourceCommit": "a3327698cf038da184f58a0ea985e434b2ae9993"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

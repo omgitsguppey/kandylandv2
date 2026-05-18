@@ -1,0 +1,74 @@
+{
+  "generatedAtUtc": "2026-05-18T01:03:42.921Z",
+  "reportKey": "creator-settings-source-health",
+  "currentHead": "8241f31557d2340f691695affc3d2851af3b8fa0",
+  "summary": {
+    "routeReturnsPartialOnMissingSettings": true,
+    "nonCriticalSourceFailuresArePartial": true,
+    "fatalFailuresOnlyForAuthOrUnexpectedRouteFailure": true,
+    "accountSettingsLabelsFixed": true,
+    "creatorSettingsLabelsFixed": true,
+    "rawInternalErrorsBlocked": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "sourceFindings": [
+    {
+      "id": "noncritical-sources-partial-safe",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/app/api/creator/settings/route.ts",
+      "summary": "Stats aggregates and read sources are wrapped so noncritical failures become partial evidence instead of route 500s."
+    },
+    {
+      "id": "raw-internal-errors-blocked",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "summary": "Creator-facing settings source failures do not render raw internal server errors."
+    }
+  ],
+  "routeFindings": [
+    {
+      "id": "missing-settings-partial-safe",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/app/api/creator/settings/route.ts",
+      "summary": "Missing creatorSettings documents return safe defaults with settingsState=not_configured and statsEvidence issues."
+    },
+    {
+      "id": "fatal-boundary-auth-only",
+      "status": "verified",
+      "severity": "p1",
+      "file": "src/app/api/creator/settings/route.ts",
+      "summary": "Auth, role, projection, and unexpected route failures remain strict while stats sources are partial-safe."
+    }
+  ],
+  "labelFindings": [
+    {
+      "id": "account-settings-labels",
+      "status": "fixed",
+      "severity": "p2",
+      "file": "src/components/Navigation/ProfileSidebar.tsx",
+      "summary": "User/account settings links use Account Settings labels."
+    },
+    {
+      "id": "creator-settings-labels",
+      "status": "verified",
+      "severity": "p2",
+      "file": "src/components/Navigation/ProfileDropdown.tsx",
+      "summary": "Creator Dashboard and Creator Settings labels point at separate canonical routes."
+    }
+  ],
+  "fixesApplied": [
+    "Wrapped noncritical creator settings stats sources in partial-safe reads.",
+    "Returned safe creator settings and restrictions defaults when creator settings are not configured.",
+    "Added partial/source-review UI states for successful creator settings responses.",
+    "Renamed account settings links to Account Settings while keeping Creator Settings separate."
+  ],
+  "nextFixOrder": [
+    "Manually verify Zaylani creator settings now return HTTP 200 with partial evidence rather than a platform error.",
+    "Attach screenshot evidence for /dashboard/creator and /dashboard/creator/settings after source health is confirmed."
+  ]
+}

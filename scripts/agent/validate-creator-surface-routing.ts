@@ -53,6 +53,10 @@ function includesAll(source: string, snippets: string[]) {
   return snippets.every((snippet) => source.includes(snippet));
 }
 
+function hasPlainSettingsAccountLabel(source: string) {
+  return /href="\/(?:dashboard\/)?settings"[^>]+label="Settings"|label="Settings"[^>]+href="\/(?:dashboard\/)?settings"|title="Settings"|aria-label="Open settings"/u.test(source);
+}
+
 export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport {
   const creatorDashboardPage = read("src/app/dashboard/creator/page.tsx");
   const creatorSettingsPagePath = "src/app/dashboard/creator/settings/page.tsx";
@@ -145,6 +149,14 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
   }, includesAll(dropdown, ["label=\"Creator Dashboard\"", "label=\"Creator Settings\"", "href={CREATOR_DASHBOARD_ROUTE}", "href={CREATOR_SETTINGS_ROUTE}"]));
 
   add(navigationFindings, {
+    id: "account-settings-labels",
+    status: "fixed",
+    severity: "p2",
+    file: "src/components/Navigation/ProfileSidebar.tsx",
+    summary: "Account settings links use Account Settings, not ambiguous Settings, while creator operations use Creator Settings.",
+  }, [sidebar, dropdown].every((source) => source.includes("Account Settings") && !hasPlainSettingsAccountLabel(source)));
+
+  add(navigationFindings, {
     id: "user-settings-not-creator-operations",
     status: "fixed",
     severity: "p1",
@@ -234,6 +246,7 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
       "Moved CreatorDashboardSettingsHub from /dashboard/creator to /dashboard/creator/settings.",
       "Restored /dashboard/creator as the Creator Dashboard landing route.",
       "Updated sidebar, dropdown, user settings, and legacy creator-settings CTAs to separate dashboard and settings destinations.",
+      "Renamed account settings navigation labels to Account Settings.",
       "Compacted mobile landing dashboard cards with compact_v2 markers and kept bottom-nav/report-issue spacing explicit.",
       "Replaced the missing /dashboard/drops CTA with a manage-only /dashboard/library destination.",
       "Translated base dashboard creator settings load failures through HumanErrorNotice.",

@@ -213,6 +213,51 @@ describe("CreatorDashboardSettingsHub", () => {
     expect(screen.getByRole("button", { name: /send bug/i })).toBeTruthy();
   });
 
+  it("loads partial settings evidence as setup/source review instead of a platform error", async () => {
+    mockState.authFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        settingsState: "not_configured",
+        creatorSettings: {
+          broadcastsEnabled: true,
+          subscriptionsEnabled: true,
+          messagingEnabled: true,
+          customRequestsEnabled: true,
+          bookingsEnabled: true,
+          availabilityWindows: [],
+          subscriptionPriceGd: 500,
+        },
+        creatorRestrictions: {},
+        stats: {
+          earningsGd: 0,
+          pendingCashoutGd: 0,
+          followerCount: 0,
+          profileViewsCount: 0,
+          liveDropsCount: 0,
+          activeSubscribers: 0,
+          openRequests: 0,
+          bookedCalls: 0,
+        },
+        statsEvidence: buildStatsEvidence({
+          sourceTruth: "partial",
+          zeroValuesAreProven: false,
+          issues: ["creator_settings_not_configured"],
+        }),
+      }),
+    });
+
+    const { container } = render(<CreatorDashboardSettingsHub />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Creator Settings need setup")).toBeTruthy();
+    });
+    expect(screen.getByText(/using safe defaults/i)).toBeTruthy();
+    expect(container.querySelector("[data-creator-settings-source-state=\"not_configured\"]")).toBeTruthy();
+    expect(container.querySelector("[data-human-error-key=\"dashboard_source_unavailable\"]")).toBeNull();
+    expect(container.textContent).not.toContain("Internal server error");
+  });
+
   it("sends creator settings bug reports with safe route and surface context", async () => {
     mockState.authFetch.mockResolvedValue({
       ok: false,

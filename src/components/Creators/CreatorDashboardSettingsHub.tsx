@@ -67,6 +67,7 @@ type CreatorStatsEvidence = {
 
 type CreatorSettingsResponse = {
   success?: boolean;
+  settingsState?: "configured" | "not_configured";
   creatorSettings?: Record<string, unknown> | null;
   creatorRestrictions?: Record<string, unknown> | null;
   stats?: CreatorDashboardStats | null;
@@ -290,8 +291,29 @@ export function CreatorDashboardSettingsHub() {
 
   const stats = settings?.stats ?? null;
   const statsEvidence = settings?.statsEvidence ?? null;
+  const settingsState = settings?.settingsState ?? (settings?.creatorSettings ? "configured" : "not_configured");
   const creatorSettings = (settings?.creatorSettings ?? {}) as Record<string, unknown>;
   const creatorRestrictions = (settings?.creatorRestrictions ?? {}) as Record<string, unknown>;
+  const sourceReviewNotice = useMemo(() => {
+    if (!settings || settingsError) {
+      return null;
+    }
+    if (settingsState === "not_configured" || statsEvidence?.issues?.includes("creator_settings_not_configured")) {
+      return {
+        tone: "setup",
+        title: "Creator Settings need setup",
+        body: "Some creator tools are using safe defaults until this creator finishes setup.",
+      };
+    }
+    if (statsEvidence?.sourceTruth === "partial" || statsEvidence?.sourceTruth === "needs_review" || statsEvidence?.sourceTruth === "unavailable") {
+      return {
+        tone: "review",
+        title: "Some creator stats need source review",
+        body: "The workspace is showing safe partial data while one or more stat sources are unavailable.",
+      };
+    }
+    return null;
+  }, [settings, settingsError, settingsState, statsEvidence?.issues, statsEvidence?.sourceTruth]);
   const availabilityWindows = Array.isArray(creatorSettings.availabilityWindows) ? creatorSettings.availabilityWindows : [];
   const subscriptionPriceGd = typeof creatorSettings.subscriptionPriceGd === "number" ? creatorSettings.subscriptionPriceGd : 0;
   const requestsState = creatorSectionStateFromEvidence(statsEvidence?.sources.customRequests, stats?.openRequests ?? 0);
@@ -499,8 +521,8 @@ export function CreatorDashboardSettingsHub() {
       state: availabilityWindows.length > 0 ? "live" : "not_configured",
       summary: availabilityWindows.length > 0 ? "Availability windows are configured." : "Availability is not configured yet.",
       detail: "Availability windows come from the creator settings document.",
-      sourceTruth: settings?.creatorSettings ? "canonical" : "unavailable",
-      sourceFreshness: settings?.creatorSettings ? "fresh" : "unavailable",
+      sourceTruth: settingsState === "configured" ? "canonical" : "partial",
+      sourceFreshness: settingsState === "configured" ? "fresh" : "unknown",
       icon: <BookOpenText className="h-4 w-4" />,
     },
     {
@@ -622,6 +644,16 @@ export function CreatorDashboardSettingsHub() {
               },
             }))}
           />
+        ) : null}
+        {!settingsError && sourceReviewNotice ? (
+          <div
+            className="mt-3 rounded-2xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-100 sm:text-sm"
+            data-creator-settings-source-state={settingsState}
+            data-creator-settings-source-review={sourceReviewNotice.tone}
+          >
+            <p className="font-bold text-amber-50">{sourceReviewNotice.title}</p>
+            <p className="mt-0.5 text-amber-100/85">{sourceReviewNotice.body}</p>
+          </div>
         ) : null}
       </div>
 

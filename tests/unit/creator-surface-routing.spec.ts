@@ -41,6 +41,19 @@ describe("creator surface routing", () => {
     }
   });
 
+  it("labels account settings separately from creator settings", () => {
+    const sidebar = read("src/components/Navigation/ProfileSidebar.tsx");
+    const dropdown = read("src/components/Navigation/ProfileDropdown.tsx");
+
+    for (const source of [sidebar, dropdown]) {
+      expect(source).toContain('label="Account Settings"');
+      expect(source).toContain('href="/settings"');
+      expect(source).not.toContain('label="Settings"');
+      expect(source).not.toContain('title="Settings"');
+      expect(source).not.toContain('aria-label="Open settings"');
+    }
+  });
+
   it("keeps user settings/profile from owning creator operations", () => {
     const userSettings = read("src/components/Settings/UserSettingsPage.tsx");
     const legacyCreatorSettings = read("src/app/dashboard/profile/creator/page.tsx");
@@ -82,6 +95,16 @@ describe("creator surface routing", () => {
     expect(landing).toContain("HumanErrorNotice");
     expect(landing).toContain("dashboard_source_unavailable");
     expect(settingsHub).toContain("HumanErrorNotice");
+  });
+
+  it("shows partial source review states without platform errors on successful creator settings responses", () => {
+    const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
+    const settingsHub = read("src/components/Creators/CreatorDashboardSettingsHub.tsx");
+
+    expect(landing).toContain("data-creator-landing-source-review=\"partial_safe\"");
+    expect(landing).toContain("Creator Settings need setup");
+    expect(settingsHub).toContain("data-creator-settings-source-state={settingsState}");
+    expect(settingsHub).toContain("Creator Settings need setup");
   });
 
   it("marks both creator surfaces with compact mobile density and bottom spacing", () => {

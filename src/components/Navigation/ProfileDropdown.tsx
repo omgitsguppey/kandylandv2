@@ -92,7 +92,7 @@ export function ProfileDropdown() {
                             </p>
                             <p className="text-xs text-gray-400 truncate">{secondaryIdentity}</p>
                         </div>
-                        <Link href="/settings" onClick={() => setIsOpen(false)} className="p-2 rounded-full bg-white/5 border border-white/10" title="Settings" aria-label="Open settings">
+                        <Link href="/settings" onClick={() => setIsOpen(false)} className="p-2 rounded-full bg-white/5 border border-white/10" title="Account Settings" aria-label="Open account settings">
                             <Settings className="w-4 h-4 text-gray-300" />
                         </Link>
                     </div>
@@ -114,7 +114,7 @@ export function ProfileDropdown() {
                                 <DropdownItem href={CREATOR_SETTINGS_ROUTE} icon={<Settings className="w-4 h-4" />} label="Creator Settings" onClick={() => setIsOpen(false)} />
                             </>
                         ) : null}
-                        <DropdownItem href="/settings" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setIsOpen(false)} />
+                        <DropdownItem href="/settings" icon={<Settings className="w-4 h-4" />} label="Account Settings" onClick={() => setIsOpen(false)} />
                     </nav>
 
                     <div className="mt-2 pt-2 border-t border-white/10">

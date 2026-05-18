@@ -5,7 +5,13 @@ import { AuthError, handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { isCreatorOrAdminRole } from "@/lib/creator-experiences";
+import {
+    DEFAULT_CREATOR_RESTRICTIONS,
+    DEFAULT_CREATOR_SETTINGS,
+    isCreatorOrAdminRole,
+    normalizeCreatorRestrictions,
+    normalizeCreatorSettings,
+} from "@/lib/creator-experiences";
 import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import { buildCreatorUpdateMerge, sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from "@/lib/server/creator-experiences";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
@@ -30,6 +36,14 @@ type CreatorStatsEvidenceState =
 type CreatorStatsEvidenceSource = {
     state: CreatorStatsEvidenceState;
     value: number;
+    sampleKnown: boolean;
+    collection: string;
+};
+
+type CreatorSettingsSourceResult<T> = {
+    state: CreatorStatsEvidenceState;
+    value: T;
+    issue: string | null;
     sampleKnown: boolean;
     collection: string;
 };
@@ -76,6 +90,33 @@ function evidenceStateForSum(value: number): CreatorStatsEvidenceState {
     return value > 0 ? "verified_sample" : "partial";
 }
 
+async function readCreatorSettingsSource<T>(
+    name: string,
+    collection: string,
+    fallback: T,
+    loader: () => Promise<T>,
+    unavailableState: CreatorStatsEvidenceState = "unavailable",
+): Promise<CreatorSettingsSourceResult<T>> {
+    try {
+        return {
+            state: "verified_sample",
+            value: await loader(),
+            issue: null,
+            sampleKnown: true,
+            collection,
+        };
+    } catch (error) {
+        console.warn(`[creator/settings] ${name} source unavailable`, error);
+        return {
+            state: unavailableState,
+            value: fallback,
+            issue: `${name}_source_unavailable`,
+            sampleKnown: false,
+            collection,
+        };
+    }
+}
+
 function buildCreatorStatsEvidence(input: {
     generatedAtUtc: string;
     earningsGd: number;
@@ -89,6 +130,12 @@ function buildCreatorStatsEvidence(input: {
     relationshipsOpsKnown: boolean;
     userProfileKnown: boolean;
     readOnlyProjection: boolean;
+    sourceStates?: Partial<Record<keyof CreatorStatsEvidence["sources"], {
+        state: CreatorStatsEvidenceState;
+        sampleKnown: boolean;
+        issue?: string | null;
+    }>>;
+    issues?: string[];
 }): CreatorStatsEvidence {
     const sources: CreatorStatsEvidence["sources"] = {
         ledgerAccruals: evidenceSource("creator_ledger_accruals", input.earningsGd, evidenceStateForSum(input.earningsGd), input.earningsGd > 0),
@@ -100,6 +147,14 @@ function buildCreatorStatsEvidence(input: {
         drops: evidenceSource("drops", input.liveDropsCount, evidenceStateForCount(input.liveDropsCount, true), true),
         userProfile: evidenceSource("users", input.profileViewsCount, evidenceStateForCount(input.profileViewsCount, input.userProfileKnown), input.userProfileKnown),
     };
+    for (const [key, override] of Object.entries(input.sourceStates ?? {}) as Array<[keyof CreatorStatsEvidence["sources"], NonNullable<typeof input.sourceStates>[keyof CreatorStatsEvidence["sources"]]]>) {
+        if (!override) continue;
+        sources[key] = {
+            ...sources[key],
+            state: override.state,
+            sampleKnown: override.sampleKnown,
+        };
+    }
     const sourceList = Object.entries(sources);
     const sampleCount = sourceList.filter(([, source]) => source.sampleKnown).length;
     const partialSources = sourceList.filter(([, source]) => source.state === "partial");
@@ -111,12 +166,15 @@ function buildCreatorStatsEvidence(input: {
         ...needsReviewSources.map(([key]) => `${key}_needs_review`),
         ...missingSources.map(([key]) => `${key}_missing_source`),
         ...(zeroValuesAreProven ? [] : ["zero_values_not_fully_proven"]),
+        ...(input.issues ?? []),
+        ...Object.values(input.sourceStates ?? {}).flatMap((override) => override?.issue ? [override.issue] : []),
     ];
+    const hasInputIssues = (input.issues ?? []).length > 0;
     const sourceTruth: CreatorStatsEvidence["sourceTruth"] = sampleCount === 0
         ? "unavailable"
         : needsReviewSources.length > 0
             ? "needs_review"
-            : partialSources.length > 0 || missingSources.length > 0
+            : partialSources.length > 0 || missingSources.length > 0 || hasInputIssues
                 ? "partial"
                 : "canonical";
 
@@ -169,58 +227,100 @@ async function GET_handler(request: NextRequest) {
         const creatorId = projection?.targetCreatorId || caller.uid;
         const { data } = await requireCreator(creatorId);
         const [
-            ledgerSnap,
-            payoutSnap,
-            subscriptionSnap,
-            requestSnap,
-            bookingSnap,
-            relationshipsOpsSnap,
-            dropsSnap,
+            ledgerSource,
+            payoutSource,
+            subscriptionSource,
+            requestSource,
+            bookingSource,
+            relationshipsOpsSource,
+            dropsSource,
+            userProfileSource,
         ] = await Promise.all([
-            adminDb.collection("creator_ledger_accruals")
-                .where("creatorId", "==", creatorId)
-                .aggregate({ totalEarnings: AggregateField.sum("creatorShareGd") })
-                .get(),
-            adminDb.collection("creator_payout_requests")
-                .where("creatorId", "==", creatorId)
-                .where("status", "==", "pending")
-                .aggregate({ totalPending: AggregateField.sum("requestedGd") })
-                .get(),
-            adminDb.collection("creator_subscriptions")
-                .where("creatorId", "==", creatorId)
-                .where("status", "==", "active")
-                .count()
-                .get(),
-            adminDb.collection("creator_custom_requests")
-                .where("creatorId", "==", creatorId)
-                .where("status", "==", "pending")
-                .count()
-                .get(),
-            adminDb.collection("creator_call_bookings")
-                .where("creatorId", "==", creatorId)
-                .where("status", "==", "booked")
-                .count()
-                .get(),
-            adminDb.collection("creator_relationships_ops").doc(creatorId).get(),
-            adminDb.collection("drops")
-                .where("creatorId", "==", creatorId)
-                .where("status", "==", "active")
-                .count()
-                .get(),
+            readCreatorSettingsSource("ledgerAccruals", "creator_ledger_accruals", 0, async () => {
+                const snap = await adminDb.collection("creator_ledger_accruals")
+                    .where("creatorId", "==", creatorId)
+                    .aggregate({ totalEarnings: AggregateField.sum("creatorShareGd") })
+                    .get();
+                return toFiniteNumber(snap.data().totalEarnings);
+            }, "partial"),
+            readCreatorSettingsSource("pendingPayouts", "creator_payout_requests", 0, async () => {
+                const snap = await adminDb.collection("creator_payout_requests")
+                    .where("creatorId", "==", creatorId)
+                    .where("status", "==", "pending")
+                    .aggregate({ totalPending: AggregateField.sum("requestedGd") })
+                    .get();
+                return toFiniteNumber(snap.data().totalPending);
+            }, "partial"),
+            readCreatorSettingsSource("subscriptions", "creator_subscriptions", 0, async () => {
+                const snap = await adminDb.collection("creator_subscriptions")
+                    .where("creatorId", "==", creatorId)
+                    .where("status", "==", "active")
+                    .count()
+                    .get();
+                return toFiniteNumber(snap.data().count);
+            }),
+            readCreatorSettingsSource("customRequests", "creator_custom_requests", 0, async () => {
+                const snap = await adminDb.collection("creator_custom_requests")
+                    .where("creatorId", "==", creatorId)
+                    .where("status", "==", "pending")
+                    .count()
+                    .get();
+                return toFiniteNumber(snap.data().count);
+            }),
+            readCreatorSettingsSource("callBookings", "creator_call_bookings", 0, async () => {
+                const snap = await adminDb.collection("creator_call_bookings")
+                    .where("creatorId", "==", creatorId)
+                    .where("status", "==", "booked")
+                    .count()
+                    .get();
+                return toFiniteNumber(snap.data().count);
+            }),
+            readCreatorSettingsSource("relationshipsOps", "creator_relationships_ops", 0, async () => {
+                const snap = await adminDb.collection("creator_relationships_ops").doc(creatorId).get();
+                if (!snap.exists) {
+                    throw new Error("creator_relationships_ops_missing");
+                }
+                return toFiniteNumber((snap.data() as { followerCount?: number }).followerCount);
+            }, "missing_source"),
+            readCreatorSettingsSource("drops", "drops", 0, async () => {
+                const snap = await adminDb.collection("drops")
+                    .where("creatorId", "==", creatorId)
+                    .where("status", "==", "active")
+                    .count()
+                    .get();
+                return toFiniteNumber(snap.data().count);
+            }),
+            readCreatorSettingsSource("userProfile", "users", 0, async () => toFiniteNumber(data.profileViewsCount)),
         ]);
 
-        const earningsGd = toFiniteNumber(ledgerSnap.data().totalEarnings);
-        const pendingCashoutGd = toFiniteNumber(payoutSnap.data().totalPending);
-
-        const followerCount = relationshipsOpsSnap.exists 
-            ? toFiniteNumber((relationshipsOpsSnap.data() as { followerCount?: number }).followerCount)
-            : 0;
-            
-        const profileViewsCount = toFiniteNumber(data.profileViewsCount);
-        const liveDropsCount = toFiniteNumber(dropsSnap.data().count);
-        const activeSubscribers = toFiniteNumber(subscriptionSnap.data().count);
-        const openRequests = toFiniteNumber(requestSnap.data().count);
-        const bookedCalls = toFiniteNumber(bookingSnap.data().count);
+        const earningsGd = ledgerSource.value;
+        const pendingCashoutGd = payoutSource.value;
+        const followerCount = relationshipsOpsSource.value;
+        const profileViewsCount = userProfileSource.value;
+        const liveDropsCount = dropsSource.value;
+        const activeSubscribers = subscriptionSource.value;
+        const openRequests = requestSource.value;
+        const bookedCalls = bookingSource.value;
+        const rawCreatorSettings = data.creatorSettings;
+        const rawCreatorRestrictions = data.creatorRestrictions;
+        const settingsState = rawCreatorSettings && typeof rawCreatorSettings === "object" ? "configured" : "not_configured";
+        const creatorSettings = settingsState === "configured" ? normalizeCreatorSettings(rawCreatorSettings) : DEFAULT_CREATOR_SETTINGS;
+        const creatorRestrictions = rawCreatorRestrictions && typeof rawCreatorRestrictions === "object"
+            ? normalizeCreatorRestrictions(rawCreatorRestrictions)
+            : DEFAULT_CREATOR_RESTRICTIONS;
+        const sourceIssues = [
+            settingsState === "not_configured" ? "creator_settings_not_configured" : null,
+        ].filter((issue): issue is string => Boolean(issue));
+        const sourceStates = {
+            ledgerAccruals: { state: ledgerSource.state === "verified_sample" ? evidenceStateForSum(earningsGd) : ledgerSource.state, sampleKnown: ledgerSource.sampleKnown && earningsGd > 0, issue: ledgerSource.issue },
+            pendingPayouts: { state: payoutSource.state === "verified_sample" ? evidenceStateForSum(pendingCashoutGd) : payoutSource.state, sampleKnown: payoutSource.sampleKnown && pendingCashoutGd > 0, issue: payoutSource.issue },
+            subscriptions: { state: subscriptionSource.state === "verified_sample" ? evidenceStateForCount(activeSubscribers, true) : subscriptionSource.state, sampleKnown: subscriptionSource.sampleKnown, issue: subscriptionSource.issue },
+            customRequests: { state: requestSource.state === "verified_sample" ? evidenceStateForCount(openRequests, true) : requestSource.state, sampleKnown: requestSource.sampleKnown, issue: requestSource.issue },
+            callBookings: { state: bookingSource.state === "verified_sample" ? evidenceStateForCount(bookedCalls, true) : bookingSource.state, sampleKnown: bookingSource.sampleKnown, issue: bookingSource.issue },
+            relationshipsOps: { state: relationshipsOpsSource.state === "verified_sample" ? evidenceStateForCount(followerCount, true) : relationshipsOpsSource.state, sampleKnown: relationshipsOpsSource.sampleKnown, issue: relationshipsOpsSource.issue },
+            drops: { state: dropsSource.state === "verified_sample" ? evidenceStateForCount(liveDropsCount, true) : dropsSource.state, sampleKnown: dropsSource.sampleKnown, issue: dropsSource.issue },
+            userProfile: { state: userProfileSource.state === "verified_sample" ? evidenceStateForCount(profileViewsCount, true) : userProfileSource.state, sampleKnown: userProfileSource.sampleKnown, issue: userProfileSource.issue },
+        } satisfies NonNullable<Parameters<typeof buildCreatorStatsEvidence>[0]["sourceStates"]>;
         const generatedAtUtc = new Date().toISOString();
         const statsEvidence = buildCreatorStatsEvidence({
             generatedAtUtc,
@@ -232,13 +332,16 @@ async function GET_handler(request: NextRequest) {
             followerCount,
             liveDropsCount,
             profileViewsCount,
-            relationshipsOpsKnown: relationshipsOpsSnap.exists,
-            userProfileKnown: true,
+            relationshipsOpsKnown: relationshipsOpsSource.sampleKnown,
+            userProfileKnown: userProfileSource.sampleKnown,
             readOnlyProjection: Boolean(projection),
+            sourceStates,
+            issues: sourceIssues,
         });
 
         return NextResponse.json({
             success: true,
+            settingsState,
             projection: projection ? {
                 active: true,
                 targetCreatorId: projection.targetCreatorId,
@@ -248,8 +351,8 @@ async function GET_handler(request: NextRequest) {
                 sourceTruth: projection.sourceTruth,
                 readOnly: true,
             } : null,
-            creatorSettings: data.creatorSettings ?? null,
-            creatorRestrictions: data.creatorRestrictions ?? null,
+            creatorSettings,
+            creatorRestrictions,
             stats: {
                 earningsGd,
                 pendingCashoutGd,

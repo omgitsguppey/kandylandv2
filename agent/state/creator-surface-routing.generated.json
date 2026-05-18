@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T23:13:02.323Z",
+  "generatedAtUtc": "2026-05-18T01:03:42.672Z",
   "reportKey": "creator-surface-routing",
-  "currentHead": "0a35888279ccfba99c30a37dbfa566f9fa7eb2c4",
+  "currentHead": "8241f31557d2340f691695affc3d2851af3b8fa0",
   "summary": {
     "baseDashboardRoute": "/dashboard/creator",
     "creatorSettingsRoute": "/dashboard/creator/settings",
@@ -67,6 +67,13 @@
       "summary": "Profile dropdown keeps separate creator landing and creator settings destinations."
     },
     {
+      "id": "account-settings-labels",
+      "status": "fixed",
+      "severity": "p2",
+      "file": "src/components/Navigation/ProfileSidebar.tsx",
+      "summary": "Account settings links use Account Settings, not ambiguous Settings, while creator operations use Creator Settings."
+    },
+    {
       "id": "user-settings-not-creator-operations",
       "status": "fixed",
       "severity": "p1",
@@ -110,6 +117,7 @@
     "Moved CreatorDashboardSettingsHub from /dashboard/creator to /dashboard/creator/settings.",
     "Restored /dashboard/creator as the Creator Dashboard landing route.",
     "Updated sidebar, dropdown, user settings, and legacy creator-settings CTAs to separate dashboard and settings destinations.",
+    "Renamed account settings navigation labels to Account Settings.",
     "Compacted mobile landing dashboard cards with compact_v2 markers and kept bottom-nav/report-issue spacing explicit.",
     "Replaced the missing /dashboard/drops CTA with a manage-only /dashboard/library destination.",
     "Translated base dashboard creator settings load failures through HumanErrorNotice."

@@ -48,7 +48,27 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 }));
 
 vi.mock("@/lib/creator-experiences", () => ({
+  DEFAULT_CREATOR_RESTRICTIONS: {
+    messagingRestricted: false,
+    broadcastsRestricted: false,
+    subscriptionsRestricted: false,
+    bookingsRestricted: false,
+    customRequestsRestricted: false,
+    dropSubmissionsRestricted: false,
+    payoutsRestricted: false,
+  },
+  DEFAULT_CREATOR_SETTINGS: {
+    messagingEnabled: true,
+    broadcastsEnabled: true,
+    subscriptionsEnabled: true,
+    bookingsEnabled: true,
+    customRequestsEnabled: true,
+    subscriptionPriceGd: 500,
+    availabilityWindows: [],
+  },
   isCreatorOrAdminRole: (role: unknown) => role === "creator" || role === "admin",
+  normalizeCreatorRestrictions: (value: unknown) => value ?? {},
+  normalizeCreatorSettings: (value: unknown) => value ?? {},
 }));
 
 vi.mock("@/lib/server/creator-experiences", () => ({
@@ -70,6 +90,82 @@ vi.mock("@/lib/identity/actor-markers", () => ({
 const route = await import("@/app/api/creator/settings/route");
 const { GET, PUT } = route;
 
+type FirestoreMockOptions = {
+  userData?: Record<string, unknown>;
+  aggregateFailures?: string[];
+  countFailures?: string[];
+  relationshipsExists?: boolean;
+  dropsFailure?: boolean;
+};
+
+function installFirestoreMock(options: FirestoreMockOptions = {}) {
+  const userData = options.userData ?? {
+    role: "creator",
+    profileViewsCount: 8,
+    creatorSettings: { broadcastsEnabled: true },
+    creatorRestrictions: {},
+  };
+  const aggregateFailures = new Set(options.aggregateFailures ?? []);
+  const countFailures = new Set(options.countFailures ?? []);
+  mockState.doc.mockImplementation((id: string) => ({
+    get: vi.fn(async () => ({
+      exists: true,
+      data: () => userData,
+    })),
+    update: mockState.update,
+    id,
+  }));
+  mockState.collection.mockImplementation((collectionName: string) => {
+    if (collectionName === "users") {
+      return { doc: mockState.doc };
+    }
+    if (collectionName === "creator_relationships_ops") {
+      return {
+        doc: vi.fn(() => ({
+          get: vi.fn(async () => ({
+            exists: options.relationshipsExists ?? true,
+            data: () => ({ followerCount: 4 }),
+          })),
+        })),
+      };
+    }
+    const counts: Record<string, number> = {
+      creator_subscriptions: 0,
+      creator_custom_requests: 0,
+      creator_call_bookings: 2,
+      drops: 0,
+    };
+    const sums: Record<string, Record<string, number>> = {
+      creator_ledger_accruals: { totalEarnings: 0 },
+      creator_payout_requests: { totalPending: 50 },
+    };
+    const queryBuilder = {
+      where: vi.fn(() => queryBuilder),
+      aggregate: vi.fn(() => ({
+        get: vi.fn(async () => {
+          if (aggregateFailures.has(collectionName)) {
+            throw new Error(`${collectionName} aggregate unavailable`);
+          }
+          return {
+            data: () => sums[collectionName] ?? {},
+          };
+        }),
+      })),
+      count: vi.fn(() => ({
+        get: vi.fn(async () => {
+          if (countFailures.has(collectionName) || (collectionName === "drops" && options.dropsFailure)) {
+            throw new Error(`${collectionName} count unavailable`);
+          }
+          return {
+            data: () => ({ count: counts[collectionName] ?? 0 }),
+          };
+        }),
+      })),
+    };
+    return queryBuilder;
+  });
+}
+
 describe("creator settings route", () => {
   beforeEach(() => {
     mockState.guardApiRequest.mockReset();
@@ -86,58 +182,7 @@ describe("creator settings route", () => {
       error: error instanceof Error ? error.message : String(error),
     }, { status: 500 }));
     mockState.readProjection.mockReturnValue(null);
-    mockState.doc.mockImplementation((id: string) => ({
-      get: vi.fn(async () => ({
-        exists: true,
-        data: () => ({
-          role: "creator",
-          profileViewsCount: 8,
-          creatorSettings: { broadcastsEnabled: true },
-          creatorRestrictions: {},
-        }),
-      })),
-      update: mockState.update,
-      id,
-    }));
-    mockState.collection.mockImplementation((collectionName: string) => {
-      if (collectionName === "users") {
-        return { doc: mockState.doc };
-      }
-      if (collectionName === "creator_relationships_ops") {
-        return {
-          doc: vi.fn(() => ({
-            get: vi.fn(async () => ({
-              exists: true,
-              data: () => ({ followerCount: 4 }),
-            })),
-          })),
-        };
-      }
-      const counts: Record<string, number> = {
-        creator_subscriptions: 0,
-        creator_custom_requests: 0,
-        creator_call_bookings: 2,
-        drops: 0,
-      };
-      const sums: Record<string, Record<string, number>> = {
-        creator_ledger_accruals: { totalEarnings: 0 },
-        creator_payout_requests: { totalPending: 50 },
-      };
-      const queryBuilder = {
-        where: vi.fn(() => queryBuilder),
-        aggregate: vi.fn(() => ({
-          get: vi.fn(async () => ({
-            data: () => sums[collectionName] ?? {},
-          })),
-        })),
-        count: vi.fn(() => ({
-          get: vi.fn(async () => ({
-            data: () => ({ count: counts[collectionName] ?? 0 }),
-          })),
-        })),
-      };
-      return queryBuilder;
-    });
+    installFirestoreMock();
   });
 
   it("returns statsEvidence derived from existing settings aggregate reads", async () => {
@@ -165,6 +210,77 @@ describe("creator settings route", () => {
     expect(body.statsEvidence.sources.callBookings.state).toBe("verified_sample");
     expect(body.statsEvidence.sources.ledgerAccruals.state).toBe("partial");
     expect(body.statsEvidence.sources.pendingPayouts.state).toBe("verified_sample");
+  });
+
+  it("returns safe defaults and partial evidence when creator settings are not configured", async () => {
+    installFirestoreMock({
+      userData: {
+        role: "creator",
+        profileViewsCount: 8,
+      },
+    });
+
+    const response = await GET(new NextRequest("http://localhost/api/creator/settings"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(body.settingsState).toBe("not_configured");
+    expect(body.creatorSettings).toMatchObject({
+      broadcastsEnabled: true,
+      bookingsEnabled: true,
+      customRequestsEnabled: true,
+    });
+    expect(body.creatorRestrictions).toMatchObject({
+      messagingRestricted: false,
+      broadcastsRestricted: false,
+    });
+    expect(body.statsEvidence.sourceTruth).toBe("partial");
+    expect(body.statsEvidence.issues).toContain("creator_settings_not_configured");
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
+  });
+
+  it("returns partial evidence instead of 500 when ledger aggregation fails", async () => {
+    installFirestoreMock({
+      aggregateFailures: ["creator_ledger_accruals"],
+    });
+
+    const response = await GET(new NextRequest("http://localhost/api/creator/settings"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.stats.earningsGd).toBe(0);
+    expect(body.statsEvidence.sourceTruth).toBe("partial");
+    expect(body.statsEvidence.sources.ledgerAccruals.state).toBe("partial");
+    expect(body.statsEvidence.sources.ledgerAccruals.sampleKnown).toBe(false);
+    expect(body.statsEvidence.issues).toContain("ledgerAccruals_source_unavailable");
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
+  });
+
+  it("returns partial evidence when noncritical read/count sources fail", async () => {
+    installFirestoreMock({
+      countFailures: ["creator_subscriptions"],
+      relationshipsExists: false,
+      dropsFailure: true,
+    });
+
+    const response = await GET(new NextRequest("http://localhost/api/creator/settings"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.stats.activeSubscribers).toBe(0);
+    expect(body.stats.followerCount).toBe(0);
+    expect(body.stats.liveDropsCount).toBe(0);
+    expect(body.statsEvidence.sourceTruth).toBe("partial");
+    expect(body.statsEvidence.sources.subscriptions.state).toBe("unavailable");
+    expect(body.statsEvidence.sources.relationshipsOps.state).toBe("missing_source");
+    expect(body.statsEvidence.sources.drops.state).toBe("unavailable");
+    expect(body.statsEvidence.issues).toEqual(expect.arrayContaining([
+      "subscriptions_source_unavailable",
+      "relationshipsOps_source_unavailable",
+      "drops_source_unavailable",
+    ]));
+    expect(mockState.handleApiError).not.toHaveBeenCalled();
   });
 
   it("updates the creator's own settings through the canonical route", async () => {
