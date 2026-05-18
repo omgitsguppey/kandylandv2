@@ -1,7 +1,7 @@
 # Analytics Cost Runtime Inventory
 
-Generated: 2026-05-18T14:09:00.126Z
-Current head: 1ae808dd4f8d569aacd1eb6c8148762261c9976f
+Generated: 2026-05-18T14:18:04.461Z
+Current head: 9aa5fdd94d740986306b3f4555225c9ede1d644d
 
 This is a source-only inventory. Operator billing screenshots are context only and are not treated as source truth or proof of cost reduction.
 
@@ -25,7 +25,7 @@ This is a source-only inventory. Operator billing screenshots are context only a
 | analytics-ingest-cloud-run-request-work | P1 | repo_detected_external_billing_observed_operator_context | repo_detected | Review guest ingest request-path work, cache boundaries, and whether index materialization should move out of the hot request path. |
 | guest-analytics-flush-cadence | P1 | repo_detected_non_priority_2_5s_flush | repo_detected | Classify priority vs non-priority analytics cadence and consider longer debounce/batch windows in a behavior-change pass. |
 | cloud-sql-dataconnect-agent-context-mirror | P1 | repo_detected_agent_context_mirror_external_billing_observed_operator_context | repo_detected | Inventory Data Connect execution cadence, generated mirror refreshes, connection pooling/reuse, and provider-side instance state with owner evidence. |
-| bigquery-analytics-event-fact-export | P1 | repo_detected_export_lane_external_billing_unknown | repo_detected | Before adding warehouse queries, require dry-run bytes estimate, maximumBytesBilled, daily quotas, and staged materialization. |
+| bigquery-analytics-event-fact-export | P1 | repo_detected_export_lane_external_billing_unknown | repo_detected | Keep BigQuery raw-events export non-priority and require dry-run bytes estimate, maximumBytesBilled, daily quotas, and staged materialization before adding warehouse queries. |
 | gemini-vertex-admin-ai-cost-lane | P1 | repo_detected_admin_ai_external_billing_observed_operator_context | repo_detected | Gate Gemini/Vertex calls with explicit admin budget controls and separate analytics runtime from AI cost review. |
 
 ## Retry And Analytics Runtime Lanes

@@ -2,7 +2,13 @@
 
 What's new in KandyDrops Beta (latest first).
 
-Showing the last 10 public updates in pages of 5.
+Showing the last 11 public updates in pages of 5.
+
+## 1.2.83 - 2026-05-18
+- Bug fixes and general improvements
+- Moved non-priority analytics checks toward a daily cadence.
+- Added cost guards for analytics exports and evidence refreshes.
+- Kept live tracking separate from lower-priority evidence work.
 
 ## 1.2.82 - 2026-05-18
 - Bug fixes and general improvements

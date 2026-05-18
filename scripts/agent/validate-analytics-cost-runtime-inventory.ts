@@ -139,6 +139,8 @@ export function buildAnalyticsCostRuntimeInventoryReport(
   const sources = input.sources;
   const cloudSqlDetected = detected(sources.cloudSqlSearch ?? "", /Cloud SQL|cloudsql|postgres|mysql|prisma|knex|sequelize|DATABASE_URL|dataconnect|kandydrops-db/iu);
   const bigQueryDetected = detected(`${sources.bigQuerySearch ?? ""}\n${sources.bigQueryExport ?? ""}`, /BigQuery|bigquery|raw_events|Storage Write|maximumBytesBilled|dry_run|partition|cluster/iu);
+  const bigQueryCadenceGuarded = detected(sources.bigQueryExport ?? "", /BIGQUERY_EXPORT_MIN_CADENCE_MS|claimBigQueryExportWindow|daily cadence/iu);
+  const bigQueryQueryGuarded = detected(sources.bigQueryExport ?? "", /dryRunRequiredForQueries|maximumBytesBilledRequiredForQueries|partitionFilterRequired/iu);
   const geminiCloudAssistDetected = detected(sources.geminiSearch ?? "", /Gemini|Cloud Assist|Vertex|GenerativeAI|genai|model|prompt|token/iu);
 
   const cloudRunFindings: InventoryFinding[] = [
@@ -203,9 +205,14 @@ export function buildAnalyticsCostRuntimeInventoryReport(
         evidence: [
           "functions/src/analytics-bigquery-export.ts exports analytics_event_facts into BigQuery raw_events.",
           "functions/src/analytics-bigquery-export.ts creates DAY partitioning and eventName/origin clustering.",
-          "No dry-run/max-bytes-billed query guard is visible because this lane performs inserts/table setup, not query scans.",
+          bigQueryCadenceGuarded
+            ? "Daily non-priority export cadence guard is visible in source."
+            : "Daily non-priority export cadence guard is not visible in source.",
+          bigQueryQueryGuarded
+            ? "Dry-run/max-bytes/partition query guard contract is documented for future query paths."
+            : "Dry-run/max-bytes/partition query guard contract is not visible.",
         ],
-        nextAction: "Before adding warehouse queries, require dry-run bytes estimate, maximumBytesBilled, daily quotas, and staged materialization.",
+        nextAction: "Keep BigQuery raw-events export non-priority and require dry-run bytes estimate, maximumBytesBilled, daily quotas, and staged materialization before adding warehouse queries.",
       }),
     ]
     : [

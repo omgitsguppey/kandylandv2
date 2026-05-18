@@ -186,6 +186,7 @@
         "check:guest-user-identity-transfer": "tsx scripts/agent/validate-guest-user-identity-transfer.ts",
         "check:analytics-semantics-final-lock": "tsx scripts/agent/validate-analytics-semantics-final-lock.ts",
         "check:analytics-cost-runtime-inventory": "tsx scripts/agent/validate-analytics-cost-runtime-inventory.ts",
+        "check:analytics-cadence-cost-policy": "tsx scripts/agent/validate-analytics-cadence-cost-policy.ts",
         "check:analytics-rewire-phase-one": "tsx scripts/agent/validate-analytics-rewire-phase-one.ts",
         "check:identity-privacy-raw-ledger-rewire": "tsx scripts/agent/validate-identity-privacy-raw-ledger-rewire.ts",
         "check:lost-data-recovery-dry-run": "tsx scripts/agent/validate-lost-data-recovery-dry-run.ts",

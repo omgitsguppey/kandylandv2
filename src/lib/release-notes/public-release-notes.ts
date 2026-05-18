@@ -1,13 +1,62 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.82",
-  "betaReleaseCounter": 282,
+  "currentVersion": "1.2.83",
+  "betaReleaseCounter": 283,
   "channel": "beta",
-  "generatedAt": "2026-05-18T14:08:29.415Z",
-  "generatedAtUtc": "2026-05-18T14:08:29.415Z",
-  "lastCommitSha": "1ae808dd4f8d569aacd1eb6c8148762261c9976f",
+  "generatedAt": "2026-05-18T14:16:03.043Z",
+  "generatedAtUtc": "2026-05-18T14:16:03.043Z",
+  "lastCommitSha": "9aa5fdd94d740986306b3f4555225c9ede1d644d",
   "notes": [
+    {
+      "version": "1.2.83",
+      "previousVersion": "1.2.82",
+      "betaReleaseCounter": 283,
+      "previousBetaReleaseCounter": 282,
+      "commitSha": "9aa5fdd94d740986306b3f4555225c9ede1d644d",
+      "commitTitle": "fix(analytics): reduce non priority cadence cost",
+      "commitCount": 1,
+      "commitShas": [
+        "9aa5fdd94d740986306b3f4555225c9ede1d644d"
+      ],
+      "committedAt": "2026-05-18T14:16:03.043Z",
+      "generatedAt": "2026-05-18T14:16:03.043Z",
+      "committedAtUtc": "2026-05-18T14:16:03.043Z",
+      "generatedAtUtc": "2026-05-18T14:16:03.043Z",
+      "updatedAtUtc": "2026-05-18T14:16:03.043Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Moved non-priority analytics checks toward a daily cadence.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Moved non-priority analytics checks toward a daily cadence.",
+        "Added cost guards for analytics exports and evidence refreshes.",
+        "Kept live tracking separate from lower-priority evidence work."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/analytics/analytics-cadence-policy.ts",
+        "src/lib/server/admin-analytics-data.ts",
+        "functions/src/analytics-bigquery-export.ts",
+        "agent/state/analytics-cadence-cost-policy.generated.json",
+        "docs/agent-truth/analytics-cadence-cost-policy.md",
+        "scripts/agent/validate-analytics-cadence-cost-policy.ts",
+        "tests/unit/analytics-cadence-cost-policy.spec.ts",
+        "agent/state/analytics-cost-runtime-inventory.generated.json",
+        "docs/agent-truth/analytics-cost-runtime-inventory.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "9aa5fdd94d740986306b3f4555225c9ede1d644d"
+    },
     {
       "version": "1.2.82",
       "previousVersion": "1.2.81",

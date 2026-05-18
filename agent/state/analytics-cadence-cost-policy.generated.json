@@ -1,0 +1,108 @@
+{
+  "generatedAtUtc": "2026-05-18T14:18:17.344Z",
+  "reportKey": "analytics-cadence-cost-policy",
+  "currentHead": "9aa5fdd94d740986306b3f4555225c9ede1d644d",
+  "summary": {
+    "nonPriorityTtlMs": 86400000,
+    "priorityLivePreserved": true,
+    "bigQueryExportDetected": true,
+    "bigQueryDailyCadence": true,
+    "bigQueryQueryCostGuards": true,
+    "cloudSqlDetected": true,
+    "cloudSqlPoolBatchClassified": true,
+    "adminEvidenceCadenceGuarded": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 4
+  },
+  "priorityMap": [
+    {
+      "taskKey": "analytics_ingest",
+      "priority": "priority_live",
+      "cadence": "immediate"
+    },
+    {
+      "taskKey": "identity_link",
+      "priority": "priority_live",
+      "cadence": "immediate"
+    },
+    {
+      "taskKey": "runtime_watch_heartbeat",
+      "priority": "priority_live",
+      "cadence": "10s playback heartbeat"
+    },
+    {
+      "taskKey": "creator_dashboard_stats",
+      "priority": "priority_user_visible",
+      "cadence": "on demand / user-visible"
+    },
+    {
+      "taskKey": "bigquery_raw_events_export",
+      "priority": "non_priority_evidence",
+      "cadence": "24h minimum"
+    },
+    {
+      "taskKey": "admin_evidence_refresh",
+      "priority": "non_priority_evidence",
+      "cadence": "24h minimum"
+    },
+    {
+      "taskKey": "debug_panel_source_evidence",
+      "priority": "debug_only",
+      "cadence": "24h minimum unless operator-forced"
+    }
+  ],
+  "bigQueryFindings": [
+    {
+      "id": "bigquery-raw-events-daily-cadence",
+      "severity": "P2",
+      "status": "daily_cadence_guarded_partitioned_query_cost_guard_documented",
+      "evidence": [
+        "functions/src/analytics-bigquery-export.ts is the detected raw-events export source.",
+        "Daily cadence guard source is present.",
+        "Dry-run/max-bytes/partition query guard contract is present."
+      ],
+      "nextAction": "Keep raw-events export as non-priority evidence and do not promote BigQuery rows to product truth without reconciliation."
+    }
+  ],
+  "cloudSqlFindings": [
+    {
+      "id": "cloud-sql-dataconnect-batch-classification",
+      "severity": "P2",
+      "status": "cloud_sql_dataconnect_agent_context_mirror_batch_classified_external_billing_observed",
+      "evidence": [
+        "Cloud SQL/Data Connect source is detected in repo doctrine/config.",
+        "Source is classified as agent-context mirror / batched sidecar, not product runtime SQL.",
+        "External billing observation still requires owner review outside source-only validation."
+      ],
+      "nextAction": "Inspect GCP Cloud SQL instance/process externally; do not add runtime SQL code in product paths."
+    }
+  ],
+  "cadenceFindings": [
+    {
+      "id": "non-priority-analytics-24h-ttl",
+      "severity": "P2",
+      "status": "non_priority_evidence_24h_cadence_guarded",
+      "evidence": [
+        "ANALYTICS_NON_PRIORITY_TTL_MS=86400000",
+        "Admin/evidence cold-source cache references the daily TTL."
+      ],
+      "nextAction": "Keep non-priority evidence refresh/export/check work at daily cadence unless a user-visible owner promotes it."
+    },
+    {
+      "id": "priority-live-telemetry-preserved",
+      "severity": "P2",
+      "status": "priority_live_not_downgraded",
+      "evidence": [
+        "priority_live covers event ingest, identity link, and runtime watch heartbeat.",
+        "Priority ingest source remains represented."
+      ],
+      "nextAction": "Do not block core event ingest, identity linking, or runtime watch heartbeat behind the 24h evidence TTL."
+    }
+  ],
+  "nextFixOrder": [
+    "Move any remaining non-priority export/evidence route that performs cold reads to ANALYTICS_NON_PRIORITY_TTL_MS.",
+    "Inspect Cloud SQL/Data Connect provider process externally because source only classifies it as agent-context mirror.",
+    "If warehouse query code is added later, enforce dryRun, maximumBytesBilled, and partition filters before execution."
+  ]
+}

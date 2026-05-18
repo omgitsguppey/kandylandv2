@@ -13,6 +13,13 @@ const EXPORT_STATUS_COLLECTION = "analytics_export_status"
 const EXPORT_STATUS_DOC_ID = "bigquery_raw_events"
 const DATASET_LOCATION = process.env.BQ_ANALYTICS_LOCATION || process.env.BIGQUERY_ANALYTICS_LOCATION || "US"
 const EXPORT_TRUTH_CLASS = "analytics_evidence_only"
+const BIGQUERY_EXPORT_MIN_CADENCE_MS = 24 * 60 * 60 * 1000
+const BIGQUERY_EXPORT_QUERY_GUARDRAILS = {
+  dryRunRequiredForQueries: true,
+  maximumBytesBilledRequiredForQueries: true,
+  partitionFilterRequired: true,
+  note: "Raw event inserts are non-priority evidence; any future query path must use dryRun, maximumBytesBilled, and timestamp partition filters.",
+} as const
 const CANONICAL_IMPORT_TARGETS = ["analytics_event_facts", "analytics_metric_facts"] as const
 const FORBIDDEN_RUNTIME_MUTATION_SURFACES = [
   "runtime_balances",
@@ -99,6 +106,8 @@ async function recordBigQueryExportStatus(input: {
       runtimeImportBlocked: true,
       canonicalImportTargets: [...CANONICAL_IMPORT_TARGETS],
       forbiddenRuntimeMutationSurfaces: [...FORBIDDEN_RUNTIME_MUTATION_SURFACES],
+      cadenceMs: BIGQUERY_EXPORT_MIN_CADENCE_MS,
+      queryGuardrails: BIGQUERY_EXPORT_QUERY_GUARDRAILS,
       status: input.status,
       datasetId: DATASET_ID,
       tableId: TABLE_ID,
@@ -114,6 +123,8 @@ async function recordBigQueryExportStatus(input: {
       runtimeImportBlocked: true,
       canonicalImportTargets: [...CANONICAL_IMPORT_TARGETS],
       forbiddenRuntimeMutationSurfaces: [...FORBIDDEN_RUNTIME_MUTATION_SURFACES],
+      cadenceMs: BIGQUERY_EXPORT_MIN_CADENCE_MS,
+      queryGuardrails: BIGQUERY_EXPORT_QUERY_GUARDRAILS,
       status: input.status,
       datasetId: DATASET_ID,
       tableId: TABLE_ID,
@@ -131,6 +142,32 @@ async function recordBigQueryExportStatus(input: {
   }
 }
 
+async function claimBigQueryExportWindow(eventId: string, nowMs: number) {
+  const statusRef = db.collection(EXPORT_STATUS_COLLECTION).doc(EXPORT_STATUS_DOC_ID)
+  return db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(statusRef)
+    const data = snapshot.exists ? snapshot.data() as Record<string, unknown> : {}
+    const lastExportedAtMs = Number(data.lastExportedAtMs || data.lastExportStartedAtMs || 0)
+    if (Number.isFinite(lastExportedAtMs) && nowMs - lastExportedAtMs < BIGQUERY_EXPORT_MIN_CADENCE_MS) {
+      return false
+    }
+
+    transaction.set(statusRef, {
+      writer: "functions/onAnalyticsEventFactBigQueryExport",
+      truthClass: EXPORT_TRUTH_CLASS,
+      primaryProductTruth: false,
+      runtimeImportBlocked: true,
+      status: "scheduled",
+      cadenceMs: BIGQUERY_EXPORT_MIN_CADENCE_MS,
+      queryGuardrails: BIGQUERY_EXPORT_QUERY_GUARDRAILS,
+      lastExportStartedAtMs: nowMs,
+      lastWindowClaimEventId: eventId,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, {merge: true})
+    return true
+  })
+}
+
 export const onAnalyticsEventFactBigQueryExport = onDocumentCreated(
   {document: "analytics_event_facts/{eventId}", region: REGION},
   async (event) => {
@@ -138,6 +175,13 @@ export const onAnalyticsEventFactBigQueryExport = onDocumentCreated(
     if (!data) return
 
     try {
+      const nowMs = Date.now()
+      const claimedExportWindow = await claimBigQueryExportWindow(event.id, nowMs)
+      if (!claimedExportWindow) {
+        logger.info(`[BigQuery Export] Skipped non-priority export for event ${event.id}; daily cadence window still active`)
+        return
+      }
+
       const bq = getBQ()
       const dataset = bq.dataset(DATASET_ID)
       await getRawEventsTableReady()

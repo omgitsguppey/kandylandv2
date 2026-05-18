@@ -10,8 +10,9 @@ import {
   safeQueryWithDiagnostics,
 } from "./diagnostic-read-fallbacks";
 import { ADMIN_TELEMETRY_LOG_EVENT_NAMES, TELEMETRY_EVENT_QUERY_NAMES } from "@/lib/telemetry-catalog";
+import { ANALYTICS_NON_PRIORITY_TTL_MS } from "@/lib/analytics/analytics-cadence-policy";
 
-const ADMIN_ANALYTICS_HISTORICAL_CACHE_TTL_MS = 30_000;
+const ADMIN_ANALYTICS_HISTORICAL_CACHE_TTL_MS = ANALYTICS_NON_PRIORITY_TTL_MS;
 const ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT = 370;
 const ADMIN_ANALYTICS_EVENT_FACT_LIMIT = 5_000;
 const ADMIN_ANALYTICS_EVENT_STATS_LIMIT = 500;
