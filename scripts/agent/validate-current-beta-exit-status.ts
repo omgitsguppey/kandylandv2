@@ -32,6 +32,7 @@ export type CurrentBetaExitStatusReport = {
     geminiCloudAssistCostReadiness: string;
     route4xxReadiness: string;
     errorHandlingSourceStatus?: string;
+    analyticsSemanticsSourceStatus?: string;
     speedSecurityStatus: string;
     releaseNotesStatus: string;
     canStartManualScreenshotQa: boolean;
@@ -138,6 +139,13 @@ export function validateCurrentBetaExitStatusReport(
   }
   if (!report.summary.errorHandlingSourceStatus || !report.summary.errorHandlingSourceStatus.includes("error_handling_source_complete")) {
     failures.push("error handling source readiness must be represented.");
+  }
+  if (
+    !report.summary.analyticsSemanticsSourceStatus
+    || !report.summary.analyticsSemanticsSourceStatus.includes("analytics_semantics_source_ready")
+    || !report.summary.analyticsSemanticsSourceStatus.includes("runtime_proof_required")
+  ) {
+    failures.push("analytics semantics source readiness and runtime proof requirement must be represented.");
   }
   const costLaneValues = [
     report.summary.cloudRunCostReadiness,

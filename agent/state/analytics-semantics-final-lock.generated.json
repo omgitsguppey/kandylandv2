@@ -1,0 +1,49 @@
+{
+  "generatedAtUtc": "2026-05-18T13:58:39.519Z",
+  "reportKey": "analytics-semantics-final-lock",
+  "currentHead": "c015ed78b1220ed718e2691394e3336d0fe64a3e",
+  "guestTrackingStatus": "source_ready_guest_data_remains_guest_until_linked",
+  "userTrackingStatus": "source_ready_userId_identityState_session_continuity",
+  "guestUserTransferStatus": "source_ready_link_first_no_double_count",
+  "legacyRecoveryStatus": "source_ready_legacy_evidence_until_reconciled",
+  "runtimeWatchTimeStatus": "source_ready_runtime_watch_v2_runtime_proof_required",
+  "adminAnalyticsReadiness": "source_ready_needs_fresh_admin_truth_sample_before_claiming_live_accuracy",
+  "betaScoreImpact": {
+    "betaScore": 45,
+    "betaStatus": "Stale evidence",
+    "analyticsSemanticsSourceReady": true,
+    "runtimeEvidenceComplete": false,
+    "betaExitReady": false,
+    "currentBetaStatusMentionsAnalytics": true,
+    "note": "Source-ready analytics semantics do not clear screenshot, provider, runtime, admin truth, or stale-report evidence gates."
+  },
+  "cloudRunCostStatus": "cost_safe_10s_heartbeat_no_request_path_backfill; identity_transfer_bounded_link_first_no_history_fanout; owner_review_cost_backlog_visible",
+  "cloudSqlCostStatus": "cloud_sql_agent_context_mirror_detected_no_product_runtime_dependency; cloud_sql_not_detected_in_transfer_runtime; cloud_sql_not_detected_in_reconciliation_runtime; cloud_sql_not_detected_in_runtime_watch_v2",
+  "geminiCloudAssistStatus": "vertex_admin_ai_detected_outside_analytics_identity_transfer; gemini_cloud_assist_not_involved; gemini_cloud_assist_not_used; gemini_cloud_assist_not_involved",
+  "route4xxStatus": "invalid_payload_returns_calm_non_retryable_422; identity_transfer_expected_auth_4xx_non_retryable; legacy_recovery_adds_no_user_facing_4xx",
+  "remainingBlockers": [
+    {
+      "id": "runtime_watch_time_v2_runtime_proof_missing",
+      "severity": "P1",
+      "status": "runtime_evidence_required",
+      "nextAction": "Wire the runtime watch tracker into the selected media viewer and attach deployed runtime watch evidence before claiming live accuracy."
+    },
+    {
+      "id": "manual_provider_runtime_admin_evidence_missing",
+      "severity": "P1",
+      "status": "beta_exit_blocked",
+      "nextAction": "Attach manual screenshot, provider smoke, runtime smoke, and admin truth sample evidence before beta exit review."
+    },
+    {
+      "id": "cost_owner_review_backlog_visible",
+      "severity": "P2",
+      "status": "owner_review_required",
+      "nextAction": "Keep Cloud Run, Cloud SQL/Data Connect mirror, Gemini/Vertex, and 4xx lanes visible until owner-reviewed evidence exists."
+    }
+  ],
+  "nextExactSteps": [
+    "Attach manual product-behavior screenshots while treating analytics semantics as source-ready only.",
+    "Wire runtime watch-time v2 into the selected media viewer and capture deployed runtime evidence before claiming live watch-time accuracy.",
+    "Refresh provider smoke, runtime smoke, admin truth sample, and beta score artifacts after real evidence is attached."
+  ]
+}

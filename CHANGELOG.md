@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 6 public updates in pages of 5.
 
+## 1.2.81 - 2026-05-18
+- Bug fixes and general improvements
+- Locked guest, user, legacy, and watch-time analytics semantics.
+- Updated Beta evidence to recognize analytics source readiness.
+- Kept runtime proof and cost review blockers visible.
+
 ## 1.2.80 - 2026-05-18
 - Bug fixes and general improvements
 - Added runtime-based watch-time tracking rules.

@@ -1,11 +1,60 @@
 {
-  "currentVersion": "1.2.80",
-  "betaReleaseCounter": 280,
+  "currentVersion": "1.2.81",
+  "betaReleaseCounter": 281,
   "channel": "beta",
-  "generatedAt": "2026-05-18T13:46:39.851Z",
-  "generatedAtUtc": "2026-05-18T13:46:39.851Z",
-  "lastCommitSha": "5ca8a3b9cdcc0ceb2062b82e2b0f0b9a9c00f91f",
+  "generatedAt": "2026-05-18T13:56:43.998Z",
+  "generatedAtUtc": "2026-05-18T13:56:43.998Z",
+  "lastCommitSha": "c015ed78b1220ed718e2691394e3336d0fe64a3e",
   "notes": [
+    {
+      "version": "1.2.81",
+      "previousVersion": "1.2.80",
+      "betaReleaseCounter": 281,
+      "previousBetaReleaseCounter": 280,
+      "commitSha": "c015ed78b1220ed718e2691394e3336d0fe64a3e",
+      "commitTitle": "docs(analytics): lock tracking semantics readiness",
+      "commitCount": 1,
+      "commitShas": [
+        "c015ed78b1220ed718e2691394e3336d0fe64a3e"
+      ],
+      "committedAt": "2026-05-18T13:56:43.998Z",
+      "generatedAt": "2026-05-18T13:56:43.998Z",
+      "committedAtUtc": "2026-05-18T13:56:43.998Z",
+      "generatedAtUtc": "2026-05-18T13:56:43.998Z",
+      "updatedAtUtc": "2026-05-18T13:56:43.998Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked guest, user, legacy, and watch-time analytics semantics.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked guest, user, legacy, and watch-time analytics semantics.",
+        "Updated Beta evidence to recognize analytics source readiness.",
+        "Kept runtime proof and cost review blockers visible."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "agent/state/analytics-semantics-final-lock.generated.json",
+        "docs/agent-truth/analytics-semantics-final-lock.md",
+        "scripts/agent/validate-analytics-semantics-final-lock.ts",
+        "tests/unit/analytics-semantics-final-lock.spec.ts",
+        "agent/state/current-beta-exit-status.generated.json",
+        "agent/state/public-beta-score.generated.json",
+        "docs/agent-truth/current-beta-exit-status.md",
+        "scripts/agent/validate-current-beta-exit-status.ts",
+        "tests/unit/current-beta-exit-status.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "c015ed78b1220ed718e2691394e3336d0fe64a3e"
+    },
     {
       "version": "1.2.80",
       "previousVersion": "1.2.79",

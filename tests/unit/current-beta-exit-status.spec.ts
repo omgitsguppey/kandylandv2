@@ -29,6 +29,7 @@ function reportFixture(overrides: Partial<CurrentBetaExitStatusReport> = {}): Cu
       geminiCloudAssistCostReadiness: "cost_review_required",
       route4xxReadiness: "source_inventory_complete",
       errorHandlingSourceStatus: "error_handling_source_complete",
+      analyticsSemanticsSourceStatus: "analytics_semantics_source_ready_runtime_proof_required",
       speedSecurityStatus: "51/beta-risk; findings=91; critical=0",
       releaseNotesStatus: "passed_same_commit_validator",
       canStartManualScreenshotQa: true,
@@ -164,6 +165,19 @@ describe("current beta exit status validator", () => {
 
     expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
       "error handling source readiness must be represented.",
+    );
+  });
+
+  it("requires analytics semantic readiness to keep runtime proof separate", () => {
+    const report = reportFixture({
+      summary: {
+        ...reportFixture().summary,
+        analyticsSemanticsSourceStatus: "",
+      },
+    });
+
+    expect(validateCurrentBetaExitStatusReport(report, "head")).toContain(
+      "analytics semantics source readiness and runtime proof requirement must be represented.",
     );
   });
 

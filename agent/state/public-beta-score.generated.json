@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-05-17T19:40:19.948Z",
-  "currentHead": "a7df39a9c112dda604f362f84e98fa60689dc2d1",
+  "generatedAt": "2026-05-18T13:49:32.265Z",
+  "currentHead": "c015ed78b1220ed718e2691394e3336d0fe64a3e",
   "scannerScore": 100,
   "scannerStatus": "clean",
-  "overallScore": 55,
-  "overallStatus": "warning",
-  "readinessStatus": "Unknown evidence",
-  "readinessStatusReason": "Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
-  "evidenceScore": 55,
+  "overallScore": 45,
+  "overallStatus": "beta-risk",
+  "readinessStatus": "Stale evidence",
+  "readinessStatusReason": "5 required generated report(s) are older than the freshness window.",
+  "evidenceScore": 45,
   "evidenceGates": [
     {
       "id": "sourceSafety",
@@ -117,17 +117,15 @@
       "id": "freshnessIntegrity",
       "label": "Freshness, PR, and HEAD integrity",
       "weight": 10,
-      "score": 10,
-      "status": "Ready",
-      "detail": "Required generated reports are fresh for deterministic scoring.",
+      "score": 0,
+      "status": "Stale evidence",
+      "detail": "5 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/evidence-capture-status.generated.json",
-        "agent/state/gumdrop-economy-accuracy.generated.json",
-        "agent/state/creator-experience-simplification.generated.json",
-        "agent/state/post-economy-creator-flow-qa.generated.json",
-        "agent/state/user-creator-ui-parity.generated.json",
-        "agent/state/user-facing-feature-connection-audit.generated.json",
-        "agent/state/creator-dashboard-error-cost-inventory.generated.json"
+        "agent/state/gumdrop-economy-accuracy.generated.json (31.34h old)",
+        "agent/state/creator-experience-simplification.generated.json (31.33h old)",
+        "agent/state/post-economy-creator-flow-qa.generated.json (31.33h old)",
+        "agent/state/user-facing-feature-connection-audit.generated.json (31.34h old)",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json (31.36h old)"
       ],
       "recommendedAction": "Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current."
     },
@@ -146,12 +144,14 @@
     "Visual QA required: Visual/manual smoke",
     "Runtime unverified: Runtime/provider smoke",
     "Unknown evidence: Admin truth/sample evidence",
+    "Stale evidence: Freshness, PR, and HEAD integrity",
     "Unknown evidence: Debug/runtime evidence"
   ],
   "evidenceCapDetails": [
     "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
     "Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
     "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
+    "Stale evidence: Freshness, PR, and HEAD integrity - 5 required generated report(s) are older than the freshness window.",
     "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
   ],
   "evidenceWeights": {
@@ -164,11 +164,12 @@
   },
   "scoreExplanation": {
     "scannerScoreMeaning": "Scanner score 100/100 (clean) is scanner-only source hygiene, not beta readiness.",
-    "evidenceScoreMeaning": "Evidence score 55/100 is the sum of passed formal evidence gates; missing lanes score zero.",
+    "evidenceScoreMeaning": "Evidence score 45/100 is the sum of passed formal evidence gates; missing lanes score zero.",
     "missingEvidenceCaps": [
       "Visual QA required: Visual/manual smoke - No valid visual/manual evidence artifact was supplied.",
       "Runtime unverified: Runtime/provider smoke - Provider smoke: Formal provider smoke evidence is missing. Operator reported PayPal refill was tested yesterday, but no repo evidence artifact/log/screenshot was attached. Run formal provider smoke or attach existing redacted evidence before upgrading readiness. Runtime smoke: Run formal deployed runtime smoke later; do not treat local static validators as runtime smoke.",
       "Unknown evidence: Admin truth/sample evidence - Record a fresh admin truth screenshot or JSON sample before upgrading readiness.",
+      "Stale evidence: Freshness, PR, and HEAD integrity - 5 required generated report(s) are older than the freshness window.",
       "Unknown evidence: Debug/runtime evidence - Debug evidence is empty, so absence of runtime issues is unknown."
     ],
     "staleReportHandling": "Legacy launch/readiness reports are evidence snapshots and must be classified before they affect freshness math.",
@@ -177,6 +178,7 @@
       "Visual/manual smoke: Visual QA required",
       "Runtime/provider smoke: Runtime unverified",
       "Admin truth/sample evidence: Unknown evidence",
+      "Freshness, PR, and HEAD integrity: Stale evidence",
       "Debug/runtime evidence: Unknown evidence"
     ]
   },
@@ -294,9 +296,11 @@
   "safeAutofixesAvailable": 0,
   "safeAutofixesApplied": 0,
   "recommendedNextActions": [
+    "Analytics semantics source-ready: capture deployed watch-time and admin truth evidence before claiming live analytics accuracy.",
     "Visual QA required: Record targeted manual or screenshot evidence for user-critical surfaces before calling the score ready.",
     "Runtime unverified: Treat launch as smoke-required until PayPal, deployment, push, and provider checks are recorded.",
     "Unknown evidence: Require first-party sample evidence before rendering zero/live/healthy as launch truth.",
+    "Stale evidence: Regenerate stale generated reports and PR triage from current HEAD before treating readiness as current.",
     "Unknown evidence: Do not treat empty debug evidence as proof that no runtime issue exists.",
     "Keep using `npm run score:beta` and targeted tests before public beta UI/economy changes."
   ],
@@ -329,7 +333,7 @@
     ],
     "maxCommands": 4
   },
-  "summary": "Public beta readiness score 55/100 (Unknown evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 4 evidence cap(s) applied.",
+  "summary": "Public beta readiness score 45/100 (Stale evidence; scanner 100/100 clean) with 0 deduped finding(s), 0 safe autofix(es), and 5 evidence cap(s) applied.",
   "debugEvidence": {
     "layout": [],
     "hydration": [],
@@ -340,5 +344,13 @@
     "accessibilityTouch": [],
     "testingCoverage": [],
     "support": []
+  },
+  "analyticsSemanticsSourceReadiness": {
+    "status": "source_ready_runtime_proof_required",
+    "artifactPath": "agent/state/analytics-semantics-final-lock.generated.json",
+    "sourceReady": true,
+    "runtimeWatchTimeRuntimeEvidence": false,
+    "betaExitImpact": "does_not_clear_visual_provider_runtime_admin_truth_or_stale_report_gates",
+    "detail": "Guest, user, legacy recovery, and runtime watch-time semantics are source-ready; deployed runtime media evidence is still required before claiming live analytics accuracy."
   }
 }

@@ -1,11 +1,11 @@
 {
-  "generatedAtUtc": "2026-05-17T19:47:05.179Z",
+  "generatedAtUtc": "2026-05-18T13:54:21.4609116Z",
   "reportKey": "current-beta-exit-status",
-  "currentHead": "a7df39a9c112dda604f362f84e98fa60689dc2d1",
+  "currentHead": "c015ed78b1220ed718e2691394e3336d0fe64a3e",
   "summary": {
-    "betaVersion": "1.2.72",
-    "betaScore": 55,
-    "betaStatus": "Unknown evidence",
+    "betaVersion": "1.2.81",
+    "betaScore": 45,
+    "betaStatus": "Stale evidence",
     "sourceCleanupP0": 0,
     "sourceCleanupP1": 0,
     "userCreatorP0": 0,
@@ -26,7 +26,8 @@
     "canStartManualScreenshotQa": true,
     "canStartProviderSmoke": true,
     "canStartRuntimeSmoke": true,
-    "canStartBetaExitReview": false
+    "canStartBetaExitReview": false,
+    "analyticsSemanticsSourceStatus": "analytics_semantics_source_ready_runtime_proof_required"
   },
   "checksRun": [
     {
@@ -58,6 +59,31 @@
       "command": "npm run check:overnight-beta-readiness-lock",
       "status": "passed",
       "evidence": "agent/state/overnight-beta-readiness-lock.generated.json"
+    },
+    {
+      "command": "npm run check:analytics-identity-transfer-inventory",
+      "status": "passed",
+      "evidence": "represented in analytics semantics final lock source evidence."
+    },
+    {
+      "command": "npm run check:guest-user-identity-transfer",
+      "status": "passed",
+      "evidence": "represented in analytics semantics final lock source evidence."
+    },
+    {
+      "command": "npm run check:analytics-legacy-recovery-reconciliation",
+      "status": "passed",
+      "evidence": "represented in analytics semantics final lock source evidence."
+    },
+    {
+      "command": "npm run check:runtime-watch-time-v2",
+      "status": "passed",
+      "evidence": "represented in analytics semantics final lock source evidence."
+    },
+    {
+      "command": "npm run check:analytics-semantics-final-lock",
+      "status": "passed",
+      "evidence": "represented in analytics semantics final lock source evidence."
     }
   ],
   "failedChecks": [],
@@ -67,7 +93,8 @@
     "agent/state/evidence-capture-status.generated.json",
     "agent/state/source-truth-authority-map.generated.json",
     "agent/state/cost-4xx-reduction.generated.json",
-    "agent/state/speed-security-hardening.generated.json"
+    "agent/state/speed-security-hardening.generated.json",
+    "agent/state/analytics-semantics-final-lock.generated.json"
   ],
   "remainingBlockers": [
     {
@@ -114,6 +141,15 @@
         "manual=missing; provider=missing; runtime=missing; adminTruth=missing; templates=4; complete=0"
       ],
       "nextAction": "Keep speed/security P2 cost and route hardening backlog visible."
+    },
+    {
+      "id": "runtime_watch_time_v2_runtime_proof_missing",
+      "severity": "P1",
+      "status": "runtime_evidence_required",
+      "evidence": [
+        "Runtime watch-time v2 is source-ready, but deployed media playback evidence is not attached."
+      ],
+      "nextAction": "Attach deployed runtime watch-time evidence before claiming live analytics accuracy."
     }
   ],
   "deferredOwnerReview": [
@@ -131,6 +167,7 @@
     }
   ],
   "nextExactSteps": [
+    "Analytics semantics are source-ready; runtime watch-time accuracy still needs deployed media evidence.",
     "First evidence lane: manual product-behavior screenshot QA. Use docs/agent-truth/manual-screenshot-qa-checklist.md and agent/evidence/manual-screenshot-qa/.",
     "Manual route/flow checklist: /, /drops, /drops/[id]/preview locked state, /dashboard, /dashboard/creator, /dashboard/profile, /dashboard/settings, /dashboard/library, /dashboard/chat shell only, /creators/[username], wallet / GumDrop purchase modal, creator profile Fan Pass, creator profile requests, creator profile booking slots, creator owner profile mode, Beta release notes drawer, mobile nav/sidebar/profile dropdown.",
     "Manual artifact needed: copy agent/evidence/manual-screenshot-qa/evidence.template.json to a dated non-template JSON, set status complete only with real screenshots, and place screenshots under agent/evidence/manual-screenshot-qa/screenshots/.",
