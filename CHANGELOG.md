@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 6 public updates in pages of 5.
 
+## 1.2.79 - 2026-05-18
+- Bug fixes and general improvements
+- Mapped legacy analytics recovery without overwriting current truth.
+- Added duplicate-risk checks for historical analytics recovery.
+- Kept external analytics sources evidence-only until reconciled.
+
 ## 1.2.78 - 2026-05-18
 - Bug fixes and general improvements
 - Added guest-to-user analytics identity linking.

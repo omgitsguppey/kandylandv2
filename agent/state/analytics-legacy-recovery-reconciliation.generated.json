@@ -1,0 +1,188 @@
+{
+  "generatedAtUtc": "2026-05-18T13:35:30.269Z",
+  "reportKey": "analytics-legacy-recovery-reconciliation",
+  "currentHead": "d14d5d10899b0784d0743319a45c83854443a49a",
+  "summary": {
+    "candidateCount": 10,
+    "exactMatchCount": 0,
+    "duplicateRiskHighCount": 0,
+    "evidenceOnlyCount": 1,
+    "overwritesCurrentTruth": false,
+    "productTruthSources": 2,
+    "legacySourcesReconciled": 10,
+    "cloudRunCostFindings": 1,
+    "cloudSqlStatus": "cloud_sql_not_detected_in_reconciliation_runtime",
+    "geminiCloudAssistStatus": "gemini_cloud_assist_not_used",
+    "route4xxFindings": 1,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 4
+  },
+  "candidateMappings": [
+    {
+      "legacySource": "analytics_event_facts",
+      "legacyId": "fixture_evt_drop_click",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "probable_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "import_candidate",
+      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "overwriteCurrentTruth": false,
+      "currentProductTruthSource": "analytics_event_facts"
+    },
+    {
+      "legacySource": "analytics_guest_batches",
+      "legacyId": "fixture_guest_batch",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "weak_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "import_candidate",
+      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "overwriteCurrentTruth": false,
+      "currentProductTruthSource": "analytics_event_facts"
+    },
+    {
+      "legacySource": "transactions",
+      "legacyId": "fixture_txn_completed",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "probable_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "import_candidate",
+      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "overwriteCurrentTruth": false,
+      "currentProductTruthSource": "analytics_event_facts"
+    },
+    {
+      "legacySource": "unlocks",
+      "legacyId": "fixture_unlock",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "probable_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "import_candidate",
+      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "overwriteCurrentTruth": false,
+      "currentProductTruthSource": "analytics_event_facts"
+    },
+    {
+      "legacySource": "daily_task_events",
+      "legacyId": "fixture_task_complete",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "probable_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "import_candidate",
+      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "overwriteCurrentTruth": false,
+      "currentProductTruthSource": "analytics_event_facts"
+    },
+    {
+      "legacySource": "task_lifecycle_logs",
+      "legacyId": "fixture_task_start",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "probable_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "import_candidate",
+      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "overwriteCurrentTruth": false,
+      "currentProductTruthSource": "analytics_event_facts"
+    },
+    {
+      "legacySource": "notifications",
+      "legacyId": "fixture_notification_read",
+      "targetTruthLayer": "debug_truth",
+      "identityConfidence": "unknown",
+      "duplicateRisk": "unknown",
+      "recoveryAction": "archive_only",
+      "reason": "Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it.",
+      "overwriteCurrentTruth": false,
+      "currentProductTruthSource": "analytics_event_facts"
+    },
+    {
+      "legacySource": "onboarding_steps",
+      "legacyId": "fixture_onboarding_step",
+      "targetTruthLayer": "product_truth",
+      "identityConfidence": "probable_match",
+      "duplicateRisk": "low",
+      "recoveryAction": "import_candidate",
+      "reason": "Candidate has enough first-party shape to review as a dry-run recovery candidate.",
+      "overwriteCurrentTruth": false,
+      "currentProductTruthSource": "analytics_event_facts"
+    },
+    {
+      "legacySource": "admin_audit_logs",
+      "legacyId": "fixture_admin_action",
+      "targetTruthLayer": "debug_truth",
+      "identityConfidence": "unknown",
+      "duplicateRisk": "unknown",
+      "recoveryAction": "archive_only",
+      "reason": "Candidate lacks enough identity evidence, so it stays archived/debug-only until an owner reviews it.",
+      "overwriteCurrentTruth": false,
+      "currentProductTruthSource": "analytics_event_facts"
+    },
+    {
+      "legacySource": "ga4_intraday",
+      "legacyId": "fixture_ga_intraday",
+      "targetTruthLayer": "evidence_only",
+      "identityConfidence": "unknown",
+      "duplicateRisk": "unknown",
+      "recoveryAction": "archive_only",
+      "reason": "External analytics evidence remains evidence-only until first-party reconciliation promotes it.",
+      "overwriteCurrentTruth": false,
+      "currentProductTruthSource": "analytics_event_facts"
+    }
+  ],
+  "sourceTruthMap": [
+    {
+      "source": "analytics_event_facts",
+      "truthLayer": "product_truth",
+      "currentProductTruth": true,
+      "notes": "Current first-party event facts are not overwritten by legacy recovery."
+    },
+    {
+      "source": "analytics_guest_batches",
+      "truthLayer": "product_truth",
+      "currentProductTruth": true,
+      "notes": "Guest batches stay guest-lane product truth until identity links reconcile them."
+    },
+    {
+      "source": "GA4 / BigQuery / PostHog",
+      "truthLayer": "evidence_only",
+      "currentProductTruth": false,
+      "notes": "External provider sources remain evidence-only and cannot define product truth."
+    }
+  ],
+  "costFindings": [
+    {
+      "id": "cloud-run-dry-run-only",
+      "lane": "cloud_run",
+      "severity": "p2",
+      "status": "source_safe",
+      "action": "No broad production backfill runs in a request path; candidates are derived from checked-in artifacts."
+    },
+    {
+      "id": "cloud-sql-not-detected",
+      "lane": "cloud_sql",
+      "severity": "p2",
+      "status": "cloud_sql_not_detected_in_reconciliation_runtime",
+      "action": "Do not add SQL assumptions to legacy recovery."
+    },
+    {
+      "id": "gemini-cloud-assist-not-used",
+      "lane": "gemini_cloud_assist",
+      "severity": "p2",
+      "status": "gemini_cloud_assist_not_used",
+      "action": "No AI identity matching or model calls are used for reconciliation."
+    },
+    {
+      "id": "no-user-facing-4xx",
+      "lane": "route_4xx",
+      "severity": "p2",
+      "status": "not_user_facing",
+      "action": "Dry-run reconciliation adds no user-facing route and no new 4xx path."
+    }
+  ],
+  "nextFixOrder": [
+    "Review candidate mappings in Debug/source artifacts before any write-mode backfill proposal.",
+    "Promote only exact/probable first-party candidates after a separate dry-run parity check.",
+    "Keep GA4, BigQuery, and PostHog as evidence-only unless first-party reconciliation proves identity and dedupe."
+  ]
+}

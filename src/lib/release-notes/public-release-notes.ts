@@ -1,13 +1,58 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.78",
-  "betaReleaseCounter": 278,
+  "currentVersion": "1.2.79",
+  "betaReleaseCounter": 279,
   "channel": "beta",
-  "generatedAt": "2026-05-18T05:02:17.741Z",
-  "generatedAtUtc": "2026-05-18T05:02:17.741Z",
-  "lastCommitSha": "c22c712b34199c29435c9d6f1c20d14b4e3c6a4d",
+  "generatedAt": "2026-05-18T13:34:57.288Z",
+  "generatedAtUtc": "2026-05-18T13:34:57.288Z",
+  "lastCommitSha": "d14d5d10899b0784d0743319a45c83854443a49a",
   "notes": [
+    {
+      "version": "1.2.79",
+      "previousVersion": "1.2.78",
+      "betaReleaseCounter": 279,
+      "previousBetaReleaseCounter": 278,
+      "commitSha": "d14d5d10899b0784d0743319a45c83854443a49a",
+      "commitTitle": "docs(analytics): reconcile legacy history recovery",
+      "commitCount": 1,
+      "commitShas": [
+        "d14d5d10899b0784d0743319a45c83854443a49a"
+      ],
+      "committedAt": "2026-05-18T13:34:57.288Z",
+      "generatedAt": "2026-05-18T13:34:57.288Z",
+      "committedAtUtc": "2026-05-18T13:34:57.288Z",
+      "generatedAtUtc": "2026-05-18T13:34:57.288Z",
+      "updatedAtUtc": "2026-05-18T13:34:57.288Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Mapped legacy analytics recovery without changing current product truth.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Mapped legacy analytics recovery without overwriting current truth.",
+        "Added duplicate-risk checks for historical analytics recovery.",
+        "Kept external analytics sources evidence-only until reconciled."
+      ],
+      "audience": "all",
+      "affectedSurfaces": [
+        "app"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "src/lib/analytics/legacy-recovery-reconciler.ts",
+        "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
+        "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
+        "scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts",
+        "tests/unit/analytics-legacy-recovery-reconciliation.spec.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "CHANGELOG.md"
+      ],
+      "sourceCommit": "d14d5d10899b0784d0743319a45c83854443a49a"
+    },
     {
       "version": "1.2.78",
       "previousVersion": "1.2.77",
@@ -314,7 +359,11 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
       "sourceCommit": "df4c879a6edd33286f7ee44e48d4eb4a31c014bc"
     }
   ]
-} satisfies PublicReleaseNotesDocument;
+} as const satisfies PublicReleaseNotesDocument;
+
+export function getBundledPublicReleaseNotes(): PublicReleaseNotesDocument {
+  return PUBLIC_RELEASE_NOTES_FALLBACK;
+}
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,
