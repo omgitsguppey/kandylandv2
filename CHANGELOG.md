@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.7 - 2026-05-19
+- Bug fixes and general improvements
+- Split large Admin Analytics and Debug logic into focused modules.
+- Removed or deferred unnecessary admin analytics work.
+- Classified GA4 as configured, missing, or evidence-only instead of guessing.
+
 ## 1.3.6 - 2026-05-19
 - Bug fixes and general improvements
 - Cleaned up creator and user dashboard logic.

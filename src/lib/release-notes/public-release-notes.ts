@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.6",
-  "betaReleaseCounter": 306,
+  "currentVersion": "1.3.7",
+  "betaReleaseCounter": 307,
   "channel": "beta",
-  "generatedAt": "2026-05-19T20:05:36.000Z",
-  "generatedAtUtc": "2026-05-19T20:05:36.000Z",
+  "generatedAt": "2026-05-19T20:20:38.232Z",
+  "generatedAtUtc": "2026-05-19T20:20:38.232Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.7",
+      "previousVersion": "1.3.6",
+      "betaReleaseCounter": 307,
+      "previousBetaReleaseCounter": 306,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(admin): split analytics monoliths",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T20:20:38.232Z",
+      "generatedAt": "2026-05-19T20:20:38.232Z",
+      "committedAtUtc": "2026-05-19T20:20:38.232Z",
+      "generatedAtUtc": "2026-05-19T20:20:38.232Z",
+      "updatedAtUtc": "2026-05-19T20:20:38.232Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Split admin analytics and debug logic while keeping unavailable analytics clearly labeled.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Split large Admin Analytics and Debug logic into focused modules.",
+        "Removed or deferred unnecessary admin analytics work.",
+        "Classified GA4 as configured, missing, or evidence-only instead of guessing."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted admin analytics cleanup into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "admin analytics",
+        "admin debug",
+        "app reliability"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/admin-analytics-monolith-cleanup.generated.json",
+        "docs/agent-truth/admin-analytics-monolith-cleanup.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-admin-analytics-monolith-cleanup.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-analytics-data.ts",
+        "src/lib/server/admin-analytics/ga4-evidence.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "src/lib/server/admin-debug/truth-state.ts",
+        "tests/unit/admin-analytics-monolith-cleanup.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.6",
       "previousVersion": "1.3.5",
@@ -1360,55 +1414,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "CHANGELOG.md"
       ],
       "sourceCommit": "9aa5fdd94d740986306b3f4555225c9ede1d644d"
-    },
-    {
-      "version": "1.2.82",
-      "previousVersion": "1.2.81",
-      "betaReleaseCounter": 282,
-      "previousBetaReleaseCounter": 281,
-      "commitSha": "1ae808dd4f8d569aacd1eb6c8148762261c9976f",
-      "commitTitle": "docs(analytics): map cost and runtime tracking",
-      "commitCount": 1,
-      "commitShas": [
-        "1ae808dd4f8d569aacd1eb6c8148762261c9976f"
-      ],
-      "committedAt": "2026-05-18T14:08:29.415Z",
-      "generatedAt": "2026-05-18T14:08:29.415Z",
-      "committedAtUtc": "2026-05-18T14:08:29.415Z",
-      "generatedAtUtc": "2026-05-18T14:08:29.415Z",
-      "updatedAtUtc": "2026-05-18T14:08:29.415Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Mapped analytics cost and runtime tracking surfaces.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Mapped analytics cost and runtime tracking surfaces.",
-        "Added Cloud Run, Cloud SQL, BigQuery, and Gemini cost inventories.",
-        "Prepared focused follow-ups for 4xx, retry, and analytics cadence cleanup."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "agent/state/analytics-cost-runtime-inventory.generated.json",
-        "docs/agent-truth/analytics-cost-runtime-inventory.md",
-        "scripts/agent/validate-analytics-cost-runtime-inventory.ts",
-        "tests/unit/analytics-cost-runtime-inventory.spec.ts",
-        "agent/state/speed-security-hardening.generated.json",
-        "agent/state/current-beta-exit-status.generated.json",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "1ae808dd4f8d569aacd1eb6c8148762261c9976f"
     }
   ]
-} satisfies PublicReleaseNotesDocument;
+} as const satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   betaReleaseCounter: PUBLIC_RELEASE_NOTES_FALLBACK.betaReleaseCounter,

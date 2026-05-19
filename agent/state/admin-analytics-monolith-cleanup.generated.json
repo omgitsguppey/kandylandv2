@@ -1,0 +1,136 @@
+{
+  "generatedAtUtc": "2026-05-19T20:20:48.291Z",
+  "reportKey": "admin-analytics-monolith-cleanup",
+  "currentHead": "0b430deb8821cf627e94f90d26e04e485e88eaa4",
+  "summary": {
+    "monolithsFound": 2,
+    "monolithsSplit": 2,
+    "unnecessaryAnalyticsRemoved": 2,
+    "defaultAdminLoadReduced": true,
+    "ga4StateClassified": true,
+    "evidenceOnlySourcesSeparated": true,
+    "truthStatePreserved": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "monolithFindings": [
+    {
+      "id": "admin-debug-route-monolith-split",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Admin Debug route is 6640 lines; default summary aggregation is split into focused server modules while the remaining all-section branch is preserved for behavior stability."
+    },
+    {
+      "id": "admin-analytics-ga4-evidence-split",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA4 client construction and skipped vendor report handling are isolated from the broad admin analytics data loader."
+    }
+  ],
+  "removedOrMovedAnalytics": [
+    {
+      "id": "ga4-default-load-deferred",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA4 report calls remain deferred by default and require explicit refresh."
+    },
+    {
+      "id": "debug-drilldowns-deferred",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "High-cost Admin Debug drilldowns stay behind explicit all-section loading."
+    }
+  ],
+  "ga4Findings": [
+    {
+      "id": "ga4-state-classified",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA4 is classified as missing, deferred, or evidence-only instead of guessed live."
+    },
+    {
+      "id": "ga4-evidence-only",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA4 is explicitly external evidence only and cannot become product truth through this lane."
+    }
+  ],
+  "splitModules": [
+    "src/lib/server/admin-debug/summary.ts",
+    "src/lib/server/admin-debug/truth-state.ts",
+    "src/lib/server/admin-analytics/ga4-evidence.ts"
+  ],
+  "defaultLoadFindings": [
+    {
+      "id": "default-admin-debug-summary-load",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Default Admin Debug load uses bounded summary and hot cache cost controls."
+    },
+    {
+      "id": "truth-semantics-preserved",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Unavailable/deferred/degraded semantics remain visible; GA4 is not marked healthy."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "admin-debug-route-monolith-split",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Admin Debug route is 6640 lines; default summary aggregation is split into focused server modules while the remaining all-section branch is preserved for behavior stability."
+    },
+    {
+      "id": "admin-analytics-ga4-evidence-split",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA4 client construction and skipped vendor report handling are isolated from the broad admin analytics data loader."
+    },
+    {
+      "id": "ga4-default-load-deferred",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA4 report calls remain deferred by default and require explicit refresh."
+    },
+    {
+      "id": "debug-drilldowns-deferred",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "High-cost Admin Debug drilldowns stay behind explicit all-section loading."
+    },
+    {
+      "id": "ga4-state-classified",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA4 is classified as missing, deferred, or evidence-only instead of guessed live."
+    },
+    {
+      "id": "ga4-evidence-only",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "GA4 is explicitly external evidence only and cannot become product truth through this lane."
+    },
+    {
+      "id": "default-admin-debug-summary-load",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Default Admin Debug load uses bounded summary and hot cache cost controls."
+    },
+    {
+      "id": "truth-semantics-preserved",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Unavailable/deferred/degraded semantics remain visible; GA4 is not marked healthy."
+    }
+  ],
+  "prCleanupActions": [
+    "No open PRs were present at start of cleanup."
+  ],
+  "nextFixOrder": [
+    "Split the remaining Admin Debug all-section branch into named drilldown loaders after UI callers support section-specific requests.",
+    "Wire a future GA4 refresh-only evidence lane if owner credentials and cost approval are provided.",
+    "Continue moving admin analytics historical validation helpers into smaller modules when touching that route."
+  ]
+}

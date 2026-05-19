@@ -273,6 +273,7 @@
         "check:creator-dashboard-error-cost-inventory": "tsx scripts/agent/validate-creator-dashboard-error-cost-inventory.ts",
         "check:cost-4xx-reduction": "tsx scripts/agent/validate-cost-4xx-reduction.ts",
         "check:admin-analytics-debug-cost-reduction": "tsx scripts/agent/validate-admin-analytics-debug-cost-reduction.ts",
+        "check:admin-analytics-monolith-cleanup": "tsx scripts/agent/validate-admin-analytics-monolith-cleanup.ts",
         "check:scheduled-runtime-cost-reduction": "tsx scripts/agent/validate-scheduled-runtime-cost-reduction.ts",
         "check:beta-score-cleanup": "tsx scripts/agent/validate-beta-score-cleanup.ts",
         "check:source-truth-authority-map": "tsx scripts/agent/validate-source-truth-authority-map.ts",

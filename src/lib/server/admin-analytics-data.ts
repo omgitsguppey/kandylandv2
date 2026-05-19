@@ -1,16 +1,24 @@
 import "server-only";
 
-import { BetaAnalyticsDataClient } from "@google-analytics/data";
-
 import { adminDb } from "./firebase-admin";
-import { fetchTelemetryLogs, safeRunReport, type AnalyticsReportResponse } from "./admin-analytics-shared";
+import { fetchTelemetryLogs } from "./admin-analytics-shared";
 import { readThroughEphemeralRouteCache } from "./ephemeral-route-cache";
 import {
   safeDocumentWithDiagnostics,
   safeQueryWithDiagnostics,
 } from "./diagnostic-read-fallbacks";
+import {
+  classifyAdminAnalyticsGa4State,
+  runVendorReportWhenAllowed,
+  type AdminAnalyticsDataClient,
+} from "./admin-analytics/ga4-evidence";
 import { ADMIN_TELEMETRY_LOG_EVENT_NAMES, TELEMETRY_EVENT_QUERY_NAMES } from "@/lib/telemetry-catalog";
 import { ANALYTICS_NON_PRIORITY_TTL_MS } from "@/lib/analytics/analytics-cadence-policy";
+
+export {
+  createAdminAnalyticsDataClient,
+  getAdminAnalyticsPropertyId,
+} from "./admin-analytics/ga4-evidence";
 
 const ADMIN_ANALYTICS_HISTORICAL_CACHE_TTL_MS = ANALYTICS_NON_PRIORITY_TTL_MS;
 const ADMIN_ANALYTICS_DAILY_ROLLUP_LIMIT = 370;
@@ -21,52 +29,8 @@ const ADMIN_ANALYTICS_DROP_ARCHIVE_LIMIT = 100;
 const ADMIN_ANALYTICS_TASK_EVENT_LIMIT = 500;
 const ADMIN_ANALYTICS_TRANSACTION_LIMIT = 500;
 
-function buildSkippedVendorReport(label: string, issues: string[]): AnalyticsReportResponse {
-  issues.push(`Skipped ${label} GA report on default admin load; vendor evidence refresh requires explicit refresh.`);
-  return {
-    rows: [],
-    fallbackUsed: true,
-    sourceState: "deferred",
-  } as AnalyticsReportResponse;
-}
-
-function runVendorReportWhenAllowed(input: {
-  allowVendorReports: boolean;
-  analyticsClient: BetaAnalyticsDataClient;
-  requestConfig: Parameters<BetaAnalyticsDataClient["runReport"]>[0];
-  label: string;
-  issues: string[];
-}) {
-  if (!input.allowVendorReports) {
-    return Promise.resolve(buildSkippedVendorReport(input.label, input.issues));
-  }
-
-  return safeRunReport(input.analyticsClient, input.requestConfig);
-}
-
-export function getAdminAnalyticsPropertyId() {
-  return process.env.GA_PROPERTY_ID || "";
-}
-
-export function createAdminAnalyticsDataClient() {
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-  if (clientEmail && privateKey) {
-    return new BetaAnalyticsDataClient({
-      credentials: {
-        client_email: clientEmail,
-        private_key: privateKey,
-        project_id: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      },
-    });
-  }
-
-  return new BetaAnalyticsDataClient();
-}
-
 export async function fetchAdminHistoricalAnalyticsSources(input: {
-  analyticsClient: BetaAnalyticsDataClient;
+  analyticsClient: AdminAnalyticsDataClient;
   propertyId: string;
   startDate: string;
   endDate: string;
@@ -86,6 +50,8 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       const analyticsEventNames = TELEMETRY_EVENT_QUERY_NAMES;
       const trafficDimensionName = timelineBucket === "hour" ? "dateHour" : "date";
       const issues: string[] = [];
+      const ga4State = classifyAdminAnalyticsGa4State({ propertyId, allowVendorReports });
+      issues.push(ga4State.reason);
 
       const [
           response,
