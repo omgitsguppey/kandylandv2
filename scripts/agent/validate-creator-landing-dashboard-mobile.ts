@@ -120,20 +120,19 @@ export function buildCreatorLandingDashboardMobileReport(): CreatorLandingDashbo
   ]));
 
   add(mobileFindings, {
-    id: "compact-v2-card-density",
+    id: "compact-overview-density",
     status: "fixed",
     severity: "p1",
     file: landingPath,
-    summary: "Metric cards use compact mobile min-height, padding, icons, gaps, and unavailable value text.",
+    summary: "Creator stats render inside one compact Creator Overview module instead of standalone metric cards.",
   }, includesAll(landing, [
-    "min-h-[72px]",
-    "p-2 transition-colors",
-    "h-3.5 w-3.5",
-    "text-lg font-black",
+    "Creator Overview",
+    'data-creator-overview-module="compact_v1"',
+    'data-creator-dashboard-overview-density="mobile_compact"',
+    'data-creator-dashboard-content-scope="creator_owned_or_assigned"',
     'data-creator-landing-unavailable-density="compact"',
-    'data-creator-landing-metric-card="compact_v2"',
     "grid grid-cols-2 gap-2",
-  ]) && !landing.includes("min-h-[86px]"));
+  ]) && !landing.includes('data-creator-landing-metric-card="compact_v2"'));
 
   add(mobileFindings, {
     id: "broadcast-mobile-deferred",

@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.2.96 - 2026-05-19
+- Bug fixes and general improvements
+- Combined Creator Dashboard stats into one compact overview.
+- Fixed creator fan and content count source mapping.
+- Separated creator-owned content counts from public drop discovery.
+
 ## 1.2.95 - 2026-05-19
 - Bug fixes and general improvements
 - Locked the full analytics cost cleanup audit.

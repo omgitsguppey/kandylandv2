@@ -115,8 +115,10 @@ describe("creator surface routing", () => {
     expect(landing).toContain("data-creator-landing-mobile-density=\"compact_v2\"");
     expect(landing).toContain("data-bottom-nav-safe=\"true\"");
     expect(landing).toContain("data-report-issue-safe-offset=\"bottom-nav\"");
-    expect(landing).toContain("data-creator-dashboard-card-density=\"mobile_compact\"");
-    expect(landing).toContain("data-creator-landing-metric-card=\"compact_v2\"");
+    expect(landing).toContain("data-creator-overview-module=\"compact_v1\"");
+    expect(landing).toContain("data-creator-dashboard-overview-density=\"mobile_compact\"");
+    expect(landing).toContain("data-creator-dashboard-content-scope=\"creator_owned_or_assigned\"");
+    expect(landing).not.toContain("data-creator-landing-metric-card=\"compact_v2\"");
     expect(settingsHub).toContain("data-creator-dashboard-density=\"mobile_compact\"");
     expect(settingsHub).toContain("data-bottom-nav-safe=\"true\"");
   });

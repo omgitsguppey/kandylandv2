@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-17T23:13:02.323Z",
+  "generatedAtUtc": "2026-05-19T16:02:03.745Z",
   "reportKey": "creator-landing-dashboard-mobile",
-  "currentHead": "0a35888279ccfba99c30a37dbfa566f9fa7eb2c4",
+  "currentHead": "88817af94d2932fa7a6603a5cc065509f2d1718e",
   "summary": {
     "landingRoute": "/dashboard/creator",
     "createDropRouteState": "manage_only",
@@ -46,11 +46,11 @@
       "summary": "Creator Dashboard landing exposes compact_v2 density, human error language, and route-state markers."
     },
     {
-      "id": "compact-v2-card-density",
+      "id": "compact-overview-density",
       "status": "fixed",
       "severity": "p1",
       "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-      "summary": "Metric cards use compact mobile min-height, padding, icons, gaps, and unavailable value text."
+      "summary": "Creator stats render inside one compact Creator Overview module instead of standalone metric cards."
     },
     {
       "id": "broadcast-mobile-deferred",

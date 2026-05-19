@@ -25,6 +25,7 @@ type CreatorDashboardStats = {
   followerCount: number;
   profileViewsCount: number;
   liveDropsCount: number;
+  contentCount?: number;
   activeSubscribers: number;
   openRequests: number;
   bookedCalls: number;
@@ -53,6 +54,8 @@ type CreatorStatsEvidence = {
   zeroValuesAreProven: boolean;
   readOnlyProjection: boolean;
   sources: {
+    fans?: CreatorStatsEvidenceSource;
+    content?: CreatorStatsEvidenceSource;
     ledgerAccruals: CreatorStatsEvidenceSource;
     pendingPayouts: CreatorStatsEvidenceSource;
     subscriptions: CreatorStatsEvidenceSource;
@@ -62,6 +65,8 @@ type CreatorStatsEvidence = {
     drops: CreatorStatsEvidenceSource;
     userProfile: CreatorStatsEvidenceSource;
   };
+  fanCountSource?: "relationship_count" | "profile_follower_count" | "settings_snapshot" | "unavailable";
+  contentCountScope?: "creator_owned_or_assigned";
   issues: string[];
 };
 
@@ -324,9 +329,10 @@ export function CreatorDashboardSettingsHub() {
     creatorSectionStateFromEvidence(statsEvidence?.sources.pendingPayouts, stats?.pendingCashoutGd ?? 0),
   );
   const audienceState = combineEvidenceState(
-    creatorSectionStateFromEvidence(statsEvidence?.sources.relationshipsOps, stats?.followerCount ?? 0),
+    creatorSectionStateFromEvidence(statsEvidence?.sources.fans ?? statsEvidence?.sources.relationshipsOps, stats?.followerCount ?? 0),
     creatorSectionStateFromEvidence(statsEvidence?.sources.userProfile, stats?.profileViewsCount ?? 0),
   );
+  const dashboardContentCount = stats?.contentCount ?? stats?.liveDropsCount ?? 0;
   const messageSectionHref = creatorRestrictions.messagingRestricted === true || creatorSettings.messagingEnabled !== true ? undefined : "/dashboard/chat";
   const requestsEnabled = creatorSettings.customRequestsEnabled === true;
   const requestsRestricted = creatorRestrictions.customRequestsRestricted === true;
@@ -531,7 +537,7 @@ export function CreatorDashboardSettingsHub() {
       state: earningsState,
       summary: earningsState === "live" && stats ? `${stats.earningsGd.toLocaleString()} GD earned, ${stats.pendingCashoutGd.toLocaleString()} GD pending.` : "Earnings need source review.",
       detail: stats
-        ? `Earnings are based on paid creator experiences. Ledger and payout totals are connected for review. Followers: ${stats.followerCount.toLocaleString()} | Active subscribers: ${stats.activeSubscribers.toLocaleString()}`
+        ? `Earnings are based on paid creator experiences. Ledger and payout totals are connected for review. Fans: ${stats.followerCount.toLocaleString()} | Active subscribers: ${stats.activeSubscribers.toLocaleString()}`
         : "Earnings roll up from the ledger and payout collections.",
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
@@ -544,8 +550,8 @@ export function CreatorDashboardSettingsHub() {
       id: "audience",
       title: "Notifications / audience",
       state: audienceState,
-      summary: audienceState === "live" && stats ? `${stats.followerCount.toLocaleString()} followers | ${stats.profileViewsCount.toLocaleString()} profile views.` : "Audience source sample needs review.",
-      detail: "Audience visibility and follower state come from creator relationship records.",
+      summary: audienceState === "live" && stats ? `${stats.followerCount.toLocaleString()} Fans | ${dashboardContentCount.toLocaleString()} Content | ${stats.profileViewsCount.toLocaleString()} content views.` : "Audience source sample needs review.",
+      detail: "Audience visibility and fan state come from creator relationship records. Content uses creator-owned or assigned drops, while content views stay separate.",
       sourceTruth: statsEvidence?.sourceTruth,
       sourceFreshness: statsEvidence?.sourceFreshness,
       sampleCount: statsEvidence?.sampleCount,

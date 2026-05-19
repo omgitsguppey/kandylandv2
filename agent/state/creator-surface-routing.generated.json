@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-18T01:03:42.672Z",
+  "generatedAtUtc": "2026-05-19T16:09:32.764Z",
   "reportKey": "creator-surface-routing",
-  "currentHead": "8241f31557d2340f691695affc3d2851af3b8fa0",
+  "currentHead": "88817af94d2932fa7a6603a5cc065509f2d1718e",
   "summary": {
     "baseDashboardRoute": "/dashboard/creator",
     "creatorSettingsRoute": "/dashboard/creator/settings",
@@ -94,7 +94,7 @@
       "status": "fixed",
       "severity": "p1",
       "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-      "summary": "Creator Dashboard landing cards use compact_v2 mobile density and bottom-nav-safe spacing."
+      "summary": "Creator Dashboard landing uses one compact Creator Overview module and bottom-nav-safe spacing."
     },
     {
       "id": "settings-workspace-mobile-density",
@@ -118,7 +118,7 @@
     "Restored /dashboard/creator as the Creator Dashboard landing route.",
     "Updated sidebar, dropdown, user settings, and legacy creator-settings CTAs to separate dashboard and settings destinations.",
     "Renamed account settings navigation labels to Account Settings.",
-    "Compacted mobile landing dashboard cards with compact_v2 markers and kept bottom-nav/report-issue spacing explicit.",
+    "Replaced separate mobile landing metric cards with one compact Creator Overview module and kept bottom-nav/report-issue spacing explicit.",
     "Replaced the missing /dashboard/drops CTA with a manage-only /dashboard/library destination.",
     "Translated base dashboard creator settings load failures through HumanErrorNotice."
   ],

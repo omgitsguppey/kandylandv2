@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Megaphone, Send, Users, Eye, Activity, Phone, DollarSign, MessageCircle, PlaySquare, CheckCircle, Package } from "lucide-react";
+import { Megaphone, Send, Users, Activity, MessageCircle, Package } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
@@ -29,6 +29,7 @@ type CreatorStats = {
     followerCount: number;
     profileViewsCount: number;
     liveDropsCount: number;
+    contentCount?: number;
     activeSubscribers: number;
     openRequests: number;
     bookedCalls: number;
@@ -39,6 +40,8 @@ type CreatorSettingsSourceSummary = {
     statsEvidence?: {
         sourceTruth?: "canonical" | "partial" | "needs_review" | "unavailable";
         issues?: string[];
+        fanCountSource?: "relationship_count" | "profile_follower_count" | "settings_snapshot" | "unavailable";
+        contentCountScope?: "creator_owned_or_assigned";
     } | null;
 };
 
@@ -174,6 +177,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     const hasCreatorWorkspace = isCreatorOperator || Boolean(creatorApplication) || isProjectionMode;
 
     const [creatorStats, setCreatorStats] = useState<CreatorStats | null>(null);
+    const [creatorStatsEvidence, setCreatorStatsEvidence] = useState<CreatorSettingsSourceSummary["statsEvidence"]>(null);
     const [settingsSourceNotice, setSettingsSourceNotice] = useState<{
         title: string;
         body: string;
@@ -331,6 +335,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             if (result.state.key === "settings" && result.value && typeof result.value === "object") {
                 const settingsResult = result.value as { stats?: CreatorStats | null } & CreatorSettingsSourceSummary;
                 setCreatorStats(settingsResult.stats ?? null);
+                setCreatorStatsEvidence(settingsResult.statsEvidence ?? null);
                 const issues = settingsResult.statsEvidence?.issues ?? [];
                 if (settingsResult.settingsState === "not_configured" || issues.includes("creator_settings_not_configured")) {
                     setSettingsSourceNotice({
@@ -470,6 +475,22 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     const actionNeededCount = (creatorStats?.openRequests || 0) + (creatorStats?.bookedCalls || 0) + unreadMessagesCount;
     const cashValueUsd = ((creatorStats?.earningsGd || 0) / 100).toFixed(2);
     const broadcastSourceReady = Boolean(creatorStats);
+    const creatorContentCount = creatorStats?.contentCount ?? creatorStats?.liveDropsCount;
+    const fanCountSource = creatorStatsEvidence?.fanCountSource ?? "unavailable";
+    const overviewStatus = settingsSourceNotice
+        ? settingsSourceNotice.state === "not_configured" ? "Setup needed" : "Partial source"
+        : creatorStats ? "Live" : "Loading";
+    const overviewMetrics = [
+        { label: "Balance", value: creatorStats ? `${formatDashboardMetric(creatorStats.earningsGd)} GD` : "Unavailable", detail: creatorStats ? `$${cashValueUsd} value` : "Value unavailable", tone: "brand" },
+        { label: "Action needed", value: creatorStats ? formatDashboardMetric(actionNeededCount) : "Unavailable", detail: "Requests, bookings, messages", tone: "action" },
+        { label: "Fans", value: formatDashboardMetric(creatorStats?.followerCount), detail: fanCountSource.replaceAll("_", " "), tone: "neutral" },
+        { label: "Content views", value: formatDashboardMetric(creatorStats?.profileViewsCount), detail: "Views tracked separately", tone: "muted" },
+        { label: "Content", value: formatDashboardMetric(creatorContentCount), detail: "Owned or assigned drops", tone: "neutral" },
+        { label: "Messages", value: formatDashboardMetric(unreadMessagesCount), detail: "Unread", tone: "muted" },
+        { label: "Requests", value: formatDashboardMetric(creatorStats?.openRequests), detail: "Open", tone: "muted" },
+        { label: "Bookings", value: formatDashboardMetric(creatorStats?.bookedCalls), detail: "Booked", tone: "muted" },
+        { label: "Fan Pass", value: formatDashboardMetric(creatorStats?.activeSubscribers), detail: "Active", tone: "muted" },
+    ];
     
     // Most recent active thread with another user
     const recentThread = threads.length > 0 ? threads[0] : null;
@@ -608,88 +629,38 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                     ) : null}
 
                     <div className="grid gap-2 sm:gap-4 xl:grid-cols-[1fr_280px]">
-                        {/* 3x3 Metrics Grid */}
-                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
-                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
-                                <div className="flex items-center justify-between text-brand-purple">
-                                    <DollarSign className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                                </div>
-                                <div className="mt-1.5 sm:mt-3">
-                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.earningsGd)} <span className="text-[10px] uppercase tracking-wider text-brand-purple">GD</span></p>
-                                    <p className="text-[11px] text-brand-purple/70 sm:text-xs">{creatorStats ? `$${cashValueUsd} value` : "Unavailable"}</p>
-                                </div>
+                        <div
+                            className="rounded-2xl border border-white/10 bg-black/45 p-3 sm:rounded-3xl sm:p-4"
+                            data-creator-overview-module="compact_v1"
+                            data-creator-dashboard-fans-source={fanCountSource}
+                            data-creator-dashboard-content-scope="creator_owned_or_assigned"
+                            data-creator-dashboard-public-visibility-separated="true"
+                            data-creator-dashboard-overview-density="mobile_compact"
+                        >
+                            <div className="mb-2 flex items-center justify-between gap-3">
+                                <h3 className="flex items-center gap-2 text-sm font-black text-white">
+                                    <Activity className="h-4 w-4 text-brand-purple" />
+                                    Creator Overview
+                                </h3>
+                                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                                    {overviewStatus}
+                                </span>
                             </div>
-                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-emerald-400/10 bg-emerald-400/5 p-2 transition-colors hover:bg-emerald-400/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
-                                <div className="flex items-center justify-between text-emerald-400">
-                                    <Activity className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                                </div>
-                                <div className="mt-1.5 sm:mt-3">
-                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{creatorStats ? formatDashboardMetric(actionNeededCount) : "Unavailable"}</p>
-                                    <p className="text-[11px] text-emerald-400/70 sm:text-xs">Action needed</p>
-                                </div>
-                            </div>
-                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
-                                <div className="flex items-center justify-between text-gray-400">
-                                    <Users className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                                </div>
-                                <div className="mt-1.5 sm:mt-3">
-                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.followerCount)}</p>
-                                    <p className="text-[11px] text-gray-400 sm:text-xs">Fans</p>
-                                </div>
-                            </div>
-                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
-                                <div className="flex items-center justify-between text-gray-400">
-                                    <Eye className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                                </div>
-                                <div className="mt-1.5 sm:mt-3">
-                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.profileViewsCount)}</p>
-                                    <p className="text-[11px] text-gray-400 sm:text-xs">Content views</p>
-                                </div>
-                            </div>
-                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
-                                <div className="flex items-center justify-between text-gray-400">
-                                    <MessageCircle className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                                </div>
-                                <div className="mt-1.5 sm:mt-3">
-                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(unreadMessagesCount)}</p>
-                                    <p className="text-[11px] text-gray-400 sm:text-xs">Messages</p>
-                                </div>
-                            </div>
-                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
-                                <div className="flex items-center justify-between text-gray-400">
-                                    <PlaySquare className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                                </div>
-                                <div className="mt-1.5 sm:mt-3">
-                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.liveDropsCount)}</p>
-                                    <p className="text-[11px] text-gray-400 sm:text-xs">Content</p>
-                                </div>
-                            </div>
-                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
-                                <div className="flex items-center justify-between text-gray-400">
-                                    <CheckCircle className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                                </div>
-                                <div className="mt-1.5 sm:mt-3">
-                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.openRequests)}</p>
-                                    <p className="text-[11px] text-gray-400 sm:text-xs">Requests</p>
-                                </div>
-                            </div>
-                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
-                                <div className="flex items-center justify-between text-gray-400">
-                                    <Phone className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                                </div>
-                                <div className="mt-1.5 sm:mt-3">
-                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.bookedCalls)}</p>
-                                    <p className="text-[11px] text-gray-400 sm:text-xs">Bookings</p>
-                                </div>
-                            </div>
-                            <div className="flex min-h-[72px] flex-col justify-between rounded-xl border border-white/5 bg-white/5 p-2 transition-colors hover:bg-white/10 sm:min-h-[120px] sm:rounded-2xl sm:p-4" data-creator-dashboard-card-density="mobile_compact" data-creator-landing-metric-card="compact_v2">
-                                <div className="flex items-center justify-between text-gray-400">
-                                    <Users className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                                </div>
-                                <div className="mt-1.5 sm:mt-3">
-                                    <p className="text-lg font-black text-white sm:text-2xl" data-creator-landing-unavailable-density="compact">{formatDashboardMetric(creatorStats?.activeSubscribers)}</p>
-                                    <p className="text-[11px] text-gray-400 sm:text-xs">Fan Pass</p>
-                                </div>
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                {overviewMetrics.map((metric) => (
+                                    <div
+                                        key={metric.label}
+                                        className="min-h-10 rounded-xl border border-white/5 bg-white/[0.04] px-2.5 py-2"
+                                        data-creator-overview-metric={metric.label.toLowerCase().replaceAll(" ", "_")}
+                                    >
+                                        <div className="flex items-center justify-between gap-2">
+                                            <p className="truncate text-[11px] font-semibold text-gray-400">{metric.label}</p>
+                                            {metric.tone === "action" ? <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> : null}
+                                        </div>
+                                        <p className="mt-0.5 truncate text-sm font-black text-white sm:text-base" data-creator-landing-unavailable-density="compact">{metric.value}</p>
+                                        <p className="truncate text-[10px] text-gray-500">{metric.detail}</p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
@@ -703,7 +674,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                             value={broadcastDraft}
                                             onChange={(event) => setBroadcastDraft(event.target.value.slice(0, 280))}
                                             rows={2}
-                                            placeholder="Write a blast to all followers..."
+                                            placeholder="Write a blast to all fans..."
                                             className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 focus:border-brand-purple/50 focus:outline-none"
                                         />
                                         <div className="mt-2 flex items-center justify-between">

@@ -14,6 +14,7 @@ import {
 } from "@/lib/creator-experiences";
 import { buildAdminCreatorProjectionReadOnlyResponse, readAdminCreatorProjectionContext } from "@/lib/server/admin-creator-projection";
 import { buildCreatorUpdateMerge, sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from "@/lib/server/creator-experiences";
+import { shouldCountDropForCreatorDashboard } from "@/lib/server/creator-drop-scope";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { isBoundedJsonBodyError, readBoundedJsonBody } from "@/lib/server/bounded-json-body";
@@ -56,6 +57,8 @@ type CreatorStatsEvidence = {
     zeroValuesAreProven: boolean;
     readOnlyProjection: boolean;
     sources: {
+        fans: CreatorStatsEvidenceSource;
+        content: CreatorStatsEvidenceSource;
         ledgerAccruals: CreatorStatsEvidenceSource;
         pendingPayouts: CreatorStatsEvidenceSource;
         subscriptions: CreatorStatsEvidenceSource;
@@ -65,6 +68,9 @@ type CreatorStatsEvidence = {
         drops: CreatorStatsEvidenceSource;
         userProfile: CreatorStatsEvidenceSource;
     };
+    fanCountSource: "relationship_count" | "profile_follower_count" | "settings_snapshot" | "unavailable";
+    contentCountIncludes: Array<"active" | "expired" | "archived" | "unlisted">;
+    contentCountScope: "creator_owned_or_assigned";
     issues: string[];
 };
 
@@ -88,6 +94,154 @@ function evidenceSource(collection: string, value: number, state: CreatorStatsEv
 
 function evidenceStateForSum(value: number): CreatorStatsEvidenceState {
     return value > 0 ? "verified_sample" : "partial";
+}
+
+async function readCountFromQuery(query: any): Promise<number> {
+    if (typeof query.count === "function") {
+        const snapshot = await query.count().get();
+        return toFiniteNumber(snapshot.data().count);
+    }
+
+    const snapshot = await query.get();
+    return toFiniteNumber(snapshot.size ?? snapshot.docs?.length);
+}
+
+async function readCreatorFanCountSource(creatorId: string, userData: Record<string, unknown>): Promise<{
+    state: CreatorStatsEvidenceState;
+    value: number;
+    issue: string | null;
+    sampleKnown: boolean;
+    collection: string;
+    fanCountSource: CreatorStatsEvidence["fanCountSource"];
+}> {
+    if (!adminDb) {
+        throw new AuthError("Creator settings database unavailable", 503);
+    }
+
+    try {
+        const relationshipsQuery = adminDb.collection("creator_relationships")
+            .where("creatorId", "==", creatorId)
+            .where("following", "==", true);
+        const followerCount = await readCountFromQuery(relationshipsQuery);
+        return {
+            state: evidenceStateForCount(followerCount, true),
+            value: followerCount,
+            issue: null,
+            sampleKnown: true,
+            collection: "creator_relationships",
+            fanCountSource: "relationship_count",
+        };
+    } catch (relationshipError) {
+        console.warn("[creator/settings] creator_relationships fan source unavailable", relationshipError);
+    }
+
+    const profileFollowerCount = userData.followerCount;
+    if (typeof profileFollowerCount === "number" && Number.isFinite(profileFollowerCount)) {
+        return {
+            state: profileFollowerCount > 0 ? "partial" : "queried_zero",
+            value: profileFollowerCount,
+            issue: "relationships_source_unavailable_profile_fallback",
+            sampleKnown: true,
+            collection: "users",
+            fanCountSource: "profile_follower_count",
+        };
+    }
+
+    try {
+        const snapshot = await adminDb.collection("creator_relationships_ops").doc(creatorId).get();
+        if (!snapshot.exists) {
+            throw new Error("creator_relationships_ops_missing");
+        }
+        const followerCount = toFiniteNumber((snapshot.data() as { followerCount?: number }).followerCount);
+        return {
+            state: followerCount > 0 ? "partial" : "queried_zero",
+            value: followerCount,
+            issue: "relationships_source_unavailable_settings_snapshot",
+            sampleKnown: true,
+            collection: "creator_relationships_ops",
+            fanCountSource: "settings_snapshot",
+        };
+    } catch (opsError) {
+        console.warn("[creator/settings] creator_relationships_ops fan fallback unavailable", opsError);
+    }
+
+    return {
+        state: "unavailable",
+        value: 0,
+        issue: "fans_source_unavailable",
+        sampleKnown: false,
+        collection: "creator_relationships",
+        fanCountSource: "unavailable",
+    };
+}
+
+async function readCreatorDashboardDropCounts(creatorId: string): Promise<{
+    state: CreatorStatsEvidenceState;
+    contentCount: number;
+    liveDropsCount: number;
+    issue: string | null;
+    sampleKnown: boolean;
+    collection: string;
+    contentCountIncludes: CreatorStatsEvidence["contentCountIncludes"];
+}> {
+    if (!adminDb) {
+        throw new AuthError("Creator settings database unavailable", 503);
+    }
+
+    const docsById = new Map<string, Record<string, unknown>>();
+    const addDocs = (snapshot: { docs?: Array<{ id: string; data: () => Record<string, unknown> }> }) => {
+        for (const doc of snapshot.docs ?? []) {
+            docsById.set(doc.id, { id: doc.id, ...doc.data() });
+        }
+    };
+
+    try {
+        const dropsCollection = adminDb.collection("drops");
+        const snapshots = await Promise.all([
+            dropsCollection.where("creatorId", "==", creatorId).limit(500).get(),
+            dropsCollection.where("submittedByCreatorId", "==", creatorId).limit(500).get(),
+            dropsCollection.where("assignedCreatorIds", "array-contains", creatorId).limit(500).get().catch(() => null),
+        ]);
+        for (const snapshot of snapshots) {
+            if (snapshot) {
+                addDocs(snapshot);
+            }
+        }
+
+        const ownedDrops = Array.from(docsById.values())
+            .filter((drop) => shouldCountDropForCreatorDashboard(drop, creatorId));
+        const contentCountIncludes = Array.from(new Set(ownedDrops.flatMap((drop) => {
+            const states: CreatorStatsEvidence["contentCountIncludes"] = [];
+            const status = typeof drop.status === "string" ? drop.status : "";
+            if (status === "expired") states.push("expired");
+            else states.push("active");
+            if (drop.archived === true || drop.isArchived === true) states.push("archived");
+            if (drop.unlisted === true || drop.isUnlisted === true) states.push("unlisted");
+            return states;
+        }))) as CreatorStatsEvidence["contentCountIncludes"];
+        const liveDropsCount = ownedDrops.filter((drop) => drop.status === "active").length;
+
+        return {
+            state: evidenceStateForCount(ownedDrops.length, true),
+            contentCount: ownedDrops.length,
+            liveDropsCount,
+            issue: null,
+            sampleKnown: true,
+            collection: "drops",
+            contentCountIncludes: contentCountIncludes.length > 0 ? contentCountIncludes : ["active"],
+        };
+    } catch (error) {
+        console.warn("[creator/settings] drops dashboard scope source unavailable", error);
+        return {
+            state: "unavailable",
+            contentCount: 0,
+            liveDropsCount: 0,
+            issue: "drops_source_unavailable",
+            sampleKnown: false,
+            collection: "drops",
+            contentCountIncludes: ["active"],
+        };
+    }
 }
 
 async function readCreatorSettingsSource<T>(
@@ -125,7 +279,10 @@ function buildCreatorStatsEvidence(input: {
     openRequests: number;
     bookedCalls: number;
     followerCount: number;
+    fanCountSource: CreatorStatsEvidence["fanCountSource"];
     liveDropsCount: number;
+    contentCount: number;
+    contentCountIncludes: CreatorStatsEvidence["contentCountIncludes"];
     profileViewsCount: number;
     relationshipsOpsKnown: boolean;
     userProfileKnown: boolean;
@@ -138,13 +295,15 @@ function buildCreatorStatsEvidence(input: {
     issues?: string[];
 }): CreatorStatsEvidence {
     const sources: CreatorStatsEvidence["sources"] = {
+        fans: evidenceSource("creator_relationships", input.followerCount, evidenceStateForCount(input.followerCount, input.relationshipsOpsKnown), input.relationshipsOpsKnown),
+        content: evidenceSource("drops", input.contentCount, evidenceStateForCount(input.contentCount, true), true),
         ledgerAccruals: evidenceSource("creator_ledger_accruals", input.earningsGd, evidenceStateForSum(input.earningsGd), input.earningsGd > 0),
         pendingPayouts: evidenceSource("creator_payout_requests", input.pendingCashoutGd, evidenceStateForSum(input.pendingCashoutGd), input.pendingCashoutGd > 0),
         subscriptions: evidenceSource("creator_subscriptions", input.activeSubscribers, evidenceStateForCount(input.activeSubscribers, true), true),
         customRequests: evidenceSource("creator_custom_requests", input.openRequests, evidenceStateForCount(input.openRequests, true), true),
         callBookings: evidenceSource("creator_call_bookings", input.bookedCalls, evidenceStateForCount(input.bookedCalls, true), true),
         relationshipsOps: evidenceSource("creator_relationships_ops", input.followerCount, evidenceStateForCount(input.followerCount, input.relationshipsOpsKnown), input.relationshipsOpsKnown),
-        drops: evidenceSource("drops", input.liveDropsCount, evidenceStateForCount(input.liveDropsCount, true), true),
+        drops: evidenceSource("drops", input.contentCount, evidenceStateForCount(input.contentCount, true), true),
         userProfile: evidenceSource("users", input.profileViewsCount, evidenceStateForCount(input.profileViewsCount, input.userProfileKnown), input.userProfileKnown),
     };
     for (const [key, override] of Object.entries(input.sourceStates ?? {}) as Array<[keyof CreatorStatsEvidence["sources"], NonNullable<typeof input.sourceStates>[keyof CreatorStatsEvidence["sources"]]]>) {
@@ -186,6 +345,9 @@ function buildCreatorStatsEvidence(input: {
         zeroValuesAreProven,
         readOnlyProjection: input.readOnlyProjection,
         sources,
+        fanCountSource: input.fanCountSource,
+        contentCountIncludes: input.contentCountIncludes,
+        contentCountScope: "creator_owned_or_assigned",
         issues,
     };
 }
@@ -232,7 +394,7 @@ async function GET_handler(request: NextRequest) {
             subscriptionSource,
             requestSource,
             bookingSource,
-            relationshipsOpsSource,
+            fanSource,
             dropsSource,
             userProfileSource,
         ] = await Promise.all([
@@ -275,29 +437,17 @@ async function GET_handler(request: NextRequest) {
                     .get();
                 return toFiniteNumber(snap.data().count);
             }),
-            readCreatorSettingsSource("relationshipsOps", "creator_relationships_ops", 0, async () => {
-                const snap = await adminDb.collection("creator_relationships_ops").doc(creatorId).get();
-                if (!snap.exists) {
-                    throw new Error("creator_relationships_ops_missing");
-                }
-                return toFiniteNumber((snap.data() as { followerCount?: number }).followerCount);
-            }, "missing_source"),
-            readCreatorSettingsSource("drops", "drops", 0, async () => {
-                const snap = await adminDb.collection("drops")
-                    .where("creatorId", "==", creatorId)
-                    .where("status", "==", "active")
-                    .count()
-                    .get();
-                return toFiniteNumber(snap.data().count);
-            }),
+            readCreatorFanCountSource(creatorId, data),
+            readCreatorDashboardDropCounts(creatorId),
             readCreatorSettingsSource("userProfile", "users", 0, async () => toFiniteNumber(data.profileViewsCount)),
         ]);
 
         const earningsGd = ledgerSource.value;
         const pendingCashoutGd = payoutSource.value;
-        const followerCount = relationshipsOpsSource.value;
+        const followerCount = fanSource.value;
         const profileViewsCount = userProfileSource.value;
-        const liveDropsCount = dropsSource.value;
+        const liveDropsCount = dropsSource.liveDropsCount;
+        const contentCount = dropsSource.contentCount;
         const activeSubscribers = subscriptionSource.value;
         const openRequests = requestSource.value;
         const bookedCalls = bookingSource.value;
@@ -317,8 +467,10 @@ async function GET_handler(request: NextRequest) {
             subscriptions: { state: subscriptionSource.state === "verified_sample" ? evidenceStateForCount(activeSubscribers, true) : subscriptionSource.state, sampleKnown: subscriptionSource.sampleKnown, issue: subscriptionSource.issue },
             customRequests: { state: requestSource.state === "verified_sample" ? evidenceStateForCount(openRequests, true) : requestSource.state, sampleKnown: requestSource.sampleKnown, issue: requestSource.issue },
             callBookings: { state: bookingSource.state === "verified_sample" ? evidenceStateForCount(bookedCalls, true) : bookingSource.state, sampleKnown: bookingSource.sampleKnown, issue: bookingSource.issue },
-            relationshipsOps: { state: relationshipsOpsSource.state === "verified_sample" ? evidenceStateForCount(followerCount, true) : relationshipsOpsSource.state, sampleKnown: relationshipsOpsSource.sampleKnown, issue: relationshipsOpsSource.issue },
-            drops: { state: dropsSource.state === "verified_sample" ? evidenceStateForCount(liveDropsCount, true) : dropsSource.state, sampleKnown: dropsSource.sampleKnown, issue: dropsSource.issue },
+            fans: { state: fanSource.state === "verified_sample" ? evidenceStateForCount(followerCount, true) : fanSource.state, sampleKnown: fanSource.sampleKnown, issue: fanSource.issue },
+            relationshipsOps: { state: fanSource.state === "verified_sample" ? evidenceStateForCount(followerCount, true) : fanSource.state, sampleKnown: fanSource.sampleKnown, issue: fanSource.issue },
+            content: { state: dropsSource.state === "verified_sample" ? evidenceStateForCount(contentCount, true) : dropsSource.state, sampleKnown: dropsSource.sampleKnown, issue: dropsSource.issue },
+            drops: { state: dropsSource.state === "verified_sample" ? evidenceStateForCount(contentCount, true) : dropsSource.state, sampleKnown: dropsSource.sampleKnown, issue: dropsSource.issue },
             userProfile: { state: userProfileSource.state === "verified_sample" ? evidenceStateForCount(profileViewsCount, true) : userProfileSource.state, sampleKnown: userProfileSource.sampleKnown, issue: userProfileSource.issue },
         } satisfies NonNullable<Parameters<typeof buildCreatorStatsEvidence>[0]["sourceStates"]>;
         const generatedAtUtc = new Date().toISOString();
@@ -330,9 +482,12 @@ async function GET_handler(request: NextRequest) {
             openRequests,
             bookedCalls,
             followerCount,
+            fanCountSource: fanSource.fanCountSource,
             liveDropsCount,
+            contentCount,
+            contentCountIncludes: dropsSource.contentCountIncludes,
             profileViewsCount,
-            relationshipsOpsKnown: relationshipsOpsSource.sampleKnown,
+            relationshipsOpsKnown: fanSource.sampleKnown,
             userProfileKnown: userProfileSource.sampleKnown,
             readOnlyProjection: Boolean(projection),
             sourceStates,
@@ -359,6 +514,7 @@ async function GET_handler(request: NextRequest) {
                 followerCount,
                 profileViewsCount,
                 liveDropsCount,
+                contentCount,
                 activeSubscribers,
                 openRequests,
                 bookedCalls,

@@ -96,6 +96,9 @@ type FirestoreMockOptions = {
   countFailures?: string[];
   relationshipsExists?: boolean;
   dropsFailure?: boolean;
+  relationshipCount?: number;
+  relationshipFailure?: boolean;
+  drops?: Array<{ id: string; data: Record<string, unknown> }>;
 };
 
 function installFirestoreMock(options: FirestoreMockOptions = {}) {
@@ -130,6 +133,7 @@ function installFirestoreMock(options: FirestoreMockOptions = {}) {
       };
     }
     const counts: Record<string, number> = {
+      creator_relationships: options.relationshipCount ?? 4,
       creator_subscriptions: 0,
       creator_custom_requests: 0,
       creator_call_bookings: 2,
@@ -139,8 +143,32 @@ function installFirestoreMock(options: FirestoreMockOptions = {}) {
       creator_ledger_accruals: { totalEarnings: 0 },
       creator_payout_requests: { totalPending: 50 },
     };
-    const queryBuilder = {
-      where: vi.fn(() => queryBuilder),
+    const createQuery = (filters: Array<[string, string, unknown]> = []): any => ({
+      where: vi.fn((field: string, operator: string, value: unknown) => createQuery([...filters, [field, operator, value]])),
+      limit: vi.fn(() => createQuery(filters)),
+      get: vi.fn(async () => {
+        if (collectionName === "creator_relationships" && options.relationshipFailure) {
+          throw new Error("creator_relationships unavailable");
+        }
+        if (collectionName === "drops" && options.dropsFailure) {
+          throw new Error("drops unavailable");
+        }
+        const docs = (collectionName === "drops" ? (options.drops ?? []) : [])
+          .filter((record) => filters.every(([field, operator, value]) => {
+            if (operator === "array-contains") {
+              return Array.isArray(record.data[field]) && record.data[field].includes(value);
+            }
+            return record.data[field] === value;
+          }))
+          .map((record) => ({
+            id: record.id,
+            data: () => record.data,
+          }));
+        return {
+          docs,
+          size: docs.length,
+        };
+      }),
       aggregate: vi.fn(() => ({
         get: vi.fn(async () => {
           if (aggregateFailures.has(collectionName)) {
@@ -153,6 +181,9 @@ function installFirestoreMock(options: FirestoreMockOptions = {}) {
       })),
       count: vi.fn(() => ({
         get: vi.fn(async () => {
+          if (collectionName === "creator_relationships" && options.relationshipFailure) {
+            throw new Error("creator_relationships count unavailable");
+          }
           if (countFailures.has(collectionName) || (collectionName === "drops" && options.dropsFailure)) {
             throw new Error(`${collectionName} count unavailable`);
           }
@@ -161,8 +192,8 @@ function installFirestoreMock(options: FirestoreMockOptions = {}) {
           };
         }),
       })),
-    };
-    return queryBuilder;
+    });
+    return createQuery();
   });
 }
 
@@ -260,6 +291,7 @@ describe("creator settings route", () => {
   it("returns partial evidence when noncritical read/count sources fail", async () => {
     installFirestoreMock({
       countFailures: ["creator_subscriptions"],
+      relationshipFailure: true,
       relationshipsExists: false,
       dropsFailure: true,
     });
@@ -273,14 +305,73 @@ describe("creator settings route", () => {
     expect(body.stats.liveDropsCount).toBe(0);
     expect(body.statsEvidence.sourceTruth).toBe("partial");
     expect(body.statsEvidence.sources.subscriptions.state).toBe("unavailable");
-    expect(body.statsEvidence.sources.relationshipsOps.state).toBe("missing_source");
+    expect(body.statsEvidence.sources.relationshipsOps.state).toBe("unavailable");
     expect(body.statsEvidence.sources.drops.state).toBe("unavailable");
     expect(body.statsEvidence.issues).toEqual(expect.arrayContaining([
       "subscriptions_source_unavailable",
-      "relationshipsOps_source_unavailable",
+      "fans_source_unavailable",
       "drops_source_unavailable",
     ]));
     expect(mockState.handleApiError).not.toHaveBeenCalled();
+  });
+
+  it("maps relationship source counts to Fans and does not fall back to zero", async () => {
+    installFirestoreMock({
+      relationshipCount: 60,
+    });
+
+    const response = await GET(new NextRequest("http://localhost/api/creator/settings"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.stats.followerCount).toBe(60);
+    expect(body.statsEvidence.fanCountSource).toBe("relationship_count");
+    expect(body.statsEvidence.sources.fans.state).toBe("verified_sample");
+  });
+
+  it("uses profile follower count as partial evidence when relationship count is unavailable", async () => {
+    installFirestoreMock({
+      relationshipFailure: true,
+      relationshipsExists: false,
+      userData: {
+        role: "creator",
+        profileViewsCount: 8,
+        followerCount: 60,
+        creatorSettings: { broadcastsEnabled: true },
+        creatorRestrictions: {},
+      },
+    });
+
+    const response = await GET(new NextRequest("http://localhost/api/creator/settings"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.stats.followerCount).toBe(60);
+    expect(body.statsEvidence.sourceTruth).toBe("partial");
+    expect(body.statsEvidence.fanCountSource).toBe("profile_follower_count");
+    expect(body.statsEvidence.sources.fans.sampleKnown).toBe(true);
+  });
+
+  it("counts creator owned expired drops in dashboard content without using public-only live count", async () => {
+    installFirestoreMock({
+      drops: [
+        { id: "active_owned", data: { creatorId: "creator_1", submittedByCreatorId: "creator_1", status: "active" } },
+        { id: "expired_owned", data: { creatorId: "creator_1", submittedByCreatorId: "creator_1", status: "expired" } },
+        { id: "assigned_only", data: { assignedCreatorIds: ["creator_1"], status: "archived", archived: true } },
+        { id: "other_creator", data: { creatorId: "creator_2", submittedByCreatorId: "creator_2", status: "active" } },
+        { id: "all_creator_unassigned", data: { allCreators: true, status: "active" } },
+      ],
+    });
+
+    const response = await GET(new NextRequest("http://localhost/api/creator/settings"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.stats.contentCount).toBe(3);
+    expect(body.stats.liveDropsCount).toBe(1);
+    expect(body.statsEvidence.contentCountScope).toBe("creator_owned_or_assigned");
+    expect(body.statsEvidence.contentCountIncludes).toEqual(expect.arrayContaining(["active", "expired", "archived"]));
+    expect(body.statsEvidence.sources.content.value).toBe(3);
   });
 
   it("updates the creator's own settings through the canonical route", async () => {

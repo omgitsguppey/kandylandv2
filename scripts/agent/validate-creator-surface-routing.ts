@@ -177,16 +177,17 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     status: "fixed",
     severity: "p1",
     file: "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-    summary: "Creator Dashboard landing cards use compact_v2 mobile density and bottom-nav-safe spacing.",
+    summary: "Creator Dashboard landing uses one compact Creator Overview module and bottom-nav-safe spacing.",
   }, includesAll(landing, [
     'data-creator-dashboard-landing-density="mobile_compact"',
     'data-creator-landing-mobile-density="compact_v2"',
     'data-bottom-nav-safe="true"',
     'data-report-issue-safe-offset="bottom-nav"',
-    'data-creator-dashboard-card-density="mobile_compact"',
-    'data-creator-landing-metric-card="compact_v2"',
+    'data-creator-overview-module="compact_v1"',
+    'data-creator-dashboard-overview-density="mobile_compact"',
+    'data-creator-dashboard-content-scope="creator_owned_or_assigned"',
     "pb-[calc(env(safe-area-inset-bottom)+9rem)]",
-  ]));
+  ]) && !landing.includes('data-creator-landing-metric-card="compact_v2"'));
 
   add(mobileFindings, {
     id: "settings-workspace-mobile-density",
@@ -247,7 +248,7 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
       "Restored /dashboard/creator as the Creator Dashboard landing route.",
       "Updated sidebar, dropdown, user settings, and legacy creator-settings CTAs to separate dashboard and settings destinations.",
       "Renamed account settings navigation labels to Account Settings.",
-      "Compacted mobile landing dashboard cards with compact_v2 markers and kept bottom-nav/report-issue spacing explicit.",
+      "Replaced separate mobile landing metric cards with one compact Creator Overview module and kept bottom-nav/report-issue spacing explicit.",
       "Replaced the missing /dashboard/drops CTA with a manage-only /dashboard/library destination.",
       "Translated base dashboard creator settings load failures through HumanErrorNotice.",
     ],

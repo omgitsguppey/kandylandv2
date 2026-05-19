@@ -4,7 +4,7 @@ Generated source: `agent/state/creator-surface-routing.generated.json`
 
 ## Route Doctrine
 
-- `/dashboard/creator` is the Creator Dashboard landing surface. It shows the creator's inbox shortcut, compact metric cards, a direct Creator settings pill, and a manage-only drops CTA until a real creator create-drop route exists.
+- `/dashboard/creator` is the Creator Dashboard landing surface. It shows the creator's inbox shortcut, one compact Creator Overview module, a direct Creator settings pill, and a manage-only drops CTA until a real creator create-drop route exists.
 - `/dashboard/creator/settings` is Creator Settings / Creator Workspace. It owns broadcasts, requests, bookings, Fan Pass visibility, availability, earnings, and creator manager panels.
 - `/dashboard/library` is the current safe manage-only fallback for the landing dashboard drops CTA.
 - `/dashboard/settings` is user account settings only.
@@ -23,8 +23,8 @@ Creator operations must not detour through user settings or profile pages. User 
 ## Mobile And Error Rules
 
 - Both creator surfaces expose compact mobile density markers and bottom-nav-safe spacing.
-- The Creator Dashboard landing cards keep mobile values capped at compact card sizing and use `data-creator-dashboard-card-density="mobile_compact"` plus `data-creator-landing-mobile-density="compact_v2"`.
-- Landing metric cards use mobile `min-h-[72px]`, compact icon sizing, `text-lg` unavailable values, and `data-creator-landing-metric-card="compact_v2"`.
+- The Creator Dashboard landing stats render inside one compact module with `data-creator-overview-module="compact_v1"` plus `data-creator-dashboard-overview-density="mobile_compact"`.
+- Creator Dashboard content count uses `data-creator-dashboard-content-scope="creator_owned_or_assigned"` and stays separate from public discovery visibility.
 - Quick Broadcast is lower priority when creator stats are unavailable and marks that state with `data-creator-broadcast-mobile-priority`.
 - The floating report issue entry must be offset from lower dashboard cards through the `data-report-issue-safe-offset="bottom-nav"` marker.
 - Creator settings load failures must render translated `HumanErrorNotice` copy with a bug CTA when eligible. Raw strings such as `creator settings: Internal server error` are blocked from creator-facing UI.
@@ -37,4 +37,4 @@ Run:
 npm run check:creator-surface-routing
 ```
 
-The validator fails if the Creator Dashboard route renders the operations hub, no Creator Settings route exists, creator navigation points operations to user settings/profile, the drops CTA points to `/dashboard/drops`, raw creator settings errors can render, compact mobile markers are missing, or remaining P0/P1 routing blockers are present.
+The validator fails if the Creator Dashboard route renders the operations hub, no Creator Settings route exists, creator navigation points operations to user settings/profile, the drops CTA points to `/dashboard/drops`, raw creator settings errors can render, compact overview markers are missing, or remaining P0/P1 routing blockers are present.

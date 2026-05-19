@@ -12,7 +12,8 @@ Generated source: `agent/state/creator-landing-dashboard-mobile.generated.json`
 ## Mobile Density
 
 - The landing dashboard exposes `data-creator-landing-mobile-density="compact_v2"`.
-- Metric cards use compact mobile sizing: `min-h-[72px]`, `p-2`, `gap-2`, smaller icons, and `text-lg` unavailable values.
+- Creator stats render inside one compact Creator Overview module with `data-creator-overview-module="compact_v1"`, compact rows, and `data-creator-dashboard-overview-density="mobile_compact"`.
+- The overview module uses `data-creator-dashboard-content-scope="creator_owned_or_assigned"` so creator-owned content counts remain separate from public drop discovery.
 - Quick actions use compact pill sizing and stay horizontally scrollable without forcing tall layout.
 - Quick Broadcast is deferred while creator stats are unavailable through `data-creator-broadcast-mobile-priority`.
 
@@ -35,4 +36,4 @@ Run:
 npm run check:creator-landing-dashboard-mobile
 ```
 
-The validator fails if the landing CTA points to a missing create-drop route, compact_v2 markers are missing, card density regresses, raw module errors can render, or bottom-nav/report issue spacing markers are absent.
+The validator fails if the landing CTA points to a missing create-drop route, compact_v2 markers are missing, the compact overview regresses back into standalone stat cards, raw module errors can render, or bottom-nav/report issue spacing markers are absent.

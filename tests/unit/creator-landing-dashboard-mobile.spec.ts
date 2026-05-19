@@ -36,16 +36,18 @@ describe("creator landing dashboard mobile", () => {
     expect(landing).not.toMatch(/Create drop/u);
   });
 
-  it("marks compact_v2 density for cards, unavailable values, quick actions, and safe spacing", () => {
+  it("marks compact overview density, unavailable values, quick actions, and safe spacing", () => {
     const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
 
     expect(landing).toContain('data-creator-landing-mobile-density="compact_v2"');
     expect(landing).toContain('data-creator-landing-quick-actions="compact_v2"');
-    expect(landing).toContain('data-creator-landing-metric-card="compact_v2"');
+    expect(landing).toContain('data-creator-overview-module="compact_v1"');
+    expect(landing).toContain('data-creator-dashboard-overview-density="mobile_compact"');
+    expect(landing).toContain('data-creator-dashboard-content-scope="creator_owned_or_assigned"');
+    expect(landing).not.toContain('data-creator-landing-metric-card="compact_v2"');
     expect(landing).toContain('data-creator-landing-unavailable-density="compact"');
-    expect(landing).toContain("min-h-[72px]");
-    expect(landing).toContain("text-lg font-black");
-    expect(landing).toContain("h-3.5 w-3.5");
+    expect(landing).toContain("Creator Overview");
+    expect(landing).toContain("grid grid-cols-2 gap-2");
     expect(landing).not.toContain("min-h-[86px]");
     expect(landing).toContain("pb-[calc(env(safe-area-inset-bottom)+9rem)]");
     expect(landing).toContain('data-report-issue-safe-offset="bottom-nav"');

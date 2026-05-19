@@ -1,0 +1,107 @@
+{
+  "generatedAtUtc": "2026-05-19T16:08:15.700Z",
+  "reportKey": "creator-dashboard-overview-stats",
+  "currentHead": "88817af94d2932fa7a6603a5cc065509f2d1718e",
+  "summary": {
+    "overviewModuleEnabled": true,
+    "oldSeparateStatCardsRemoved": true,
+    "fansLabelUsed": true,
+    "followerSourceMappedToFans": true,
+    "contentCountIncludesCreatorExpiredDrops": true,
+    "publicDiscoverySeparated": true,
+    "creatorOwnDropsOnly": true,
+    "allCreatorDropsNotBlindlyCounted": true,
+    "partialSetupNoticeCompact": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "sourceFindings": [
+    {
+      "id": "fan-source-order",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/app/api/creator/settings/route.ts",
+      "summary": "Fan count reads relationship/follow evidence before partial fallbacks."
+    },
+    {
+      "id": "content-count-scope",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/app/api/creator/settings/route.ts",
+      "summary": "Dashboard content count uses creator-owned-or-assigned scope and includes expired states."
+    }
+  ],
+  "uiFindings": [
+    {
+      "id": "compact-overview-module",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator Dashboard stats render as one compact Creator Overview module."
+    },
+    {
+      "id": "old-stat-card-grid-removed",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Standalone mobile metric card grid was removed."
+    },
+    {
+      "id": "fans-label",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Creator-facing dashboard copy says Fans, not Followers."
+    },
+    {
+      "id": "compact-source-notice",
+      "status": "fixed",
+      "severity": "p2",
+      "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "summary": "Setup/source notice stays compact and does not replace valid metrics."
+    }
+  ],
+  "visibilityFindings": [
+    {
+      "id": "public-discovery-separated",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/lib/server/creator-drop-scope.ts",
+      "summary": "Public discovery filtering is separate from creator dashboard content counting."
+    },
+    {
+      "id": "own-drops-only",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/lib/server/creator-drop-scope.ts",
+      "summary": "Creator dashboard count requires creator ownership or explicit assignment."
+    },
+    {
+      "id": "all-creator-not-blind",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "src/lib/server/creator-drop-scope.ts",
+      "summary": "All-creator/global drops are not blindly counted for every creator."
+    }
+  ],
+  "doctrineChanges": [
+    {
+      "id": "doctrine-conflict-cleanup",
+      "status": "fixed",
+      "severity": "p1",
+      "file": "docs/agent-truth/creator-dashboard-overview-stats.md",
+      "summary": "Creator dashboard stats doctrine separates dashboard source truth from public discovery."
+    }
+  ],
+  "fixesApplied": [
+    "Consolidated Creator Dashboard mobile stats into one compact Creator Overview module.",
+    "Mapped relationship/follow evidence to user-facing Fans while preserving partial/unavailable source labels.",
+    "Added creator dashboard drop scope helpers so owned/assigned expired content counts separately from public discovery."
+  ],
+  "prCleanupActions": [],
+  "nextFixOrder": [
+    "Attach mobile screenshot evidence for /dashboard/creator after deployment.",
+    "Manually confirm Zaylani fan source against live relationship/profile data without production reads from this lane."
+  ]
+}

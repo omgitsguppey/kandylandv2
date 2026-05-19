@@ -1,13 +1,75 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.95",
-  "betaReleaseCounter": 295,
+  "currentVersion": "1.2.96",
+  "betaReleaseCounter": 296,
   "channel": "beta",
-  "generatedAt": "2026-05-19T15:40:07.320Z",
-  "generatedAtUtc": "2026-05-19T15:40:07.320Z",
+  "generatedAt": "2026-05-19T16:02:57.385Z",
+  "generatedAtUtc": "2026-05-19T16:02:57.385Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.2.96",
+      "previousVersion": "1.2.95",
+      "betaReleaseCounter": 296,
+      "previousBetaReleaseCounter": 295,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(creator): consolidate overview stats sources",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T16:02:57.385Z",
+      "generatedAt": "2026-05-19T16:02:57.385Z",
+      "committedAtUtc": "2026-05-19T16:02:57.385Z",
+      "generatedAtUtc": "2026-05-19T16:02:57.385Z",
+      "updatedAtUtc": "2026-05-19T16:02:57.385Z",
+      "category": "Fixed",
+      "title": "Bug fixes and general improvements",
+      "summary": "Consolidated Creator Dashboard stats and corrected creator-scoped fan and content source mapping.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Combined Creator Dashboard stats into one compact overview.",
+        "Fixed creator fan and content count source mapping.",
+        "Separated creator-owned content counts from public drop discovery."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Grouped 1 accepted creator dashboard overview stats source fix into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "creator dashboard",
+        "creator settings",
+        "drop visibility"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-dashboard-overview-stats.generated.json",
+        "docs/agent-truth/creator-dashboard-overview-stats.md",
+        "docs/agent-truth/creator-landing-dashboard-mobile.md",
+        "docs/agent-truth/creator-settings-source-health.md",
+        "docs/agent-truth/creator-surface-routing.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-dashboard-overview-stats.ts",
+        "scripts/agent/validate-creator-landing-dashboard-mobile.ts",
+        "scripts/agent/validate-creator-surface-routing.ts",
+        "src/app/api/creator/settings/route.ts",
+        "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/creator-drop-scope.ts",
+        "tests/unit/creator-dashboard-overview-stats.spec.ts",
+        "tests/unit/creator-drop-scope.spec.ts",
+        "tests/unit/creator-landing-dashboard-mobile.spec.ts",
+        "tests/unit/creator-settings-route.spec.ts",
+        "tests/unit/creator-surface-routing.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.2.95",
       "previousVersion": "1.2.94",
