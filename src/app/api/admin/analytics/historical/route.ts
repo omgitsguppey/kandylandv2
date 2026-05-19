@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-export const revalidate = 0;
+export const fetchCache = "default-cache";
+export const revalidate = 86_400;
 
 import { NextRequest, NextResponse } from "next/server";
 import { handleApiError } from "@/lib/server/auth";
@@ -68,12 +68,13 @@ import {
     readThroughStaleWhileRevalidateEphemeralRouteCache,
     type StaleWhileRevalidateCacheResult,
 } from "@/lib/server/ephemeral-route-cache";
+import { ANALYTICS_NON_PRIORITY_TTL_MS } from "@/lib/analytics/analytics-cadence-policy";
 import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
-const ADMIN_ANALYTICS_HISTORICAL_RESPONSE_CACHE_TTL_MS = 45_000;
-const ADMIN_ANALYTICS_HISTORICAL_RESPONSE_STALE_TTL_MS = 5 * 60_000;
+const ADMIN_ANALYTICS_HISTORICAL_RESPONSE_CACHE_TTL_MS = ANALYTICS_NON_PRIORITY_TTL_MS;
+const ADMIN_ANALYTICS_HISTORICAL_RESPONSE_STALE_TTL_MS = 2 * ANALYTICS_NON_PRIORITY_TTL_MS;
 const ADMIN_ANALYTICS_HISTORICAL_CANONICAL_SNAPSHOT_SOURCE = "analytics_admin_metric_snapshots";
 const ADMIN_ANALYTICS_HISTORICAL_RAW_DEBUG_SOURCE = "admin_debug_raw_evidence_only";
 const ADMIN_ANALYTICS_HISTORICAL_UNAVAILABLE_SOURCE = "analytics_admin_metric_snapshots/unavailable";
@@ -662,10 +663,15 @@ function annotateHistoricalCacheState(
         ? "Serving stale validated historical analytics cache while backend refresh runs."
         : null;
 
-    return {
+    const annotated = {
         ...result.value,
         cacheState: result.cacheStatus,
         cacheAgeMs: result.cacheAgeMs,
+        sourceFreshness: result.cacheStatus === "stale"
+            ? "stale_known"
+            : result.cacheStatus === "fresh"
+                ? "cached_known"
+                : "fresh_computation",
         cacheSourceLabel,
         cacheValidationIssues: result.validationIssues,
         cacheRevalidating: result.revalidating,
@@ -676,7 +682,11 @@ function annotateHistoricalCacheState(
             ...(cacheIssue ? [cacheIssue] : []),
             ...result.validationIssues,
         ],
-    } satisfies HistoricalAnalyticsResponse;
+    };
+
+    return annotated as HistoricalAnalyticsResponse & {
+        sourceFreshness: "stale_known" | "cached_known" | "fresh_computation";
+    };
 }
 
 function attachDataValidationState(
@@ -878,6 +888,9 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
 async function GET_handler(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
+        if (!response.headers.has("Cache-Control")) {
+            response.headers.set("Cache-Control", "private, max-age=60, stale-while-revalidate=86400");
+        }
         void recordRouteRuntimeSample({
             key: "admin/analytics/historical:GET",
             durationMs: Date.now() - startedAt,
@@ -901,6 +914,7 @@ async function GET_handler(request: NextRequest) {
         const period = searchParams.get("period"); // "24h", "7d", "30d", "all"
         const viewerUser = searchParams.get("viewerUser")?.trim() || "";
         const section = searchParams.get("section")?.trim() || null;
+        const forceRefresh = searchParams.get("refresh") === "1" || searchParams.get("forceRefresh") === "1";
         const snapshotAuthorityTarget = resolveHistoricalSnapshotAuthorityTarget(section, period);
 
         if (snapshotAuthorityTarget && !viewerUser) {
@@ -918,7 +932,9 @@ async function GET_handler(request: NextRequest) {
         // Removed old !analyticsClient check since ADC is supported on App Hosting
 
         const cacheResult = await readThroughStaleWhileRevalidateEphemeralRouteCache<HistoricalAnalyticsResponse>({
-            key: buildHistoricalResponseCacheKey({ period, section, viewerUser }),
+            key: forceRefresh
+                ? `${buildHistoricalResponseCacheKey({ period, section, viewerUser })}:forced:${Date.now()}`
+                : buildHistoricalResponseCacheKey({ period, section, viewerUser }),
             ttlMs: ADMIN_ANALYTICS_HISTORICAL_RESPONSE_CACHE_TTL_MS,
             staleTtlMs: ADMIN_ANALYTICS_HISTORICAL_RESPONSE_STALE_TTL_MS,
             validate: validateHistoricalAnalyticsCachePayload,

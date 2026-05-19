@@ -1,7 +1,8 @@
 import {onDocumentCreated} from "firebase-functions/v2/firestore"
+import {onSchedule} from "firebase-functions/v2/scheduler"
 import {REGION} from "./firebase-runtime.js"
 import {BigQuery} from "@google-cloud/bigquery"
-import {FieldValue} from "firebase-admin/firestore"
+import {FieldPath, FieldValue} from "firebase-admin/firestore"
 import {AnalyticsEventFact, readString, readNumber, readBoolean} from "./analytics-core.js"
 import {db} from "./firebase-admin.js"
 import {logger} from "firebase-functions"
@@ -14,6 +15,8 @@ const EXPORT_STATUS_DOC_ID = "bigquery_raw_events"
 const DATASET_LOCATION = process.env.BQ_ANALYTICS_LOCATION || process.env.BIGQUERY_ANALYTICS_LOCATION || "US"
 const EXPORT_TRUTH_CLASS = "analytics_evidence_only"
 const BIGQUERY_EXPORT_MIN_CADENCE_MS = 24 * 60 * 60 * 1000
+const BIGQUERY_EXPORT_MAX_ROWS_PER_BATCH = 500
+const BIGQUERY_EXPORT_READINESS_FAILURE_TTL_MS = 60 * 60 * 1000
 const BIGQUERY_EXPORT_QUERY_GUARDRAILS = {
   dryRunRequiredForQueries: true,
   maximumBytesBilledRequiredForQueries: true,
@@ -46,6 +49,9 @@ const RAW_EVENTS_TABLE_SCHEMA = [
 
 let bqInstance: BigQuery | undefined
 let rawEventsTableReady: Promise<void> | undefined
+let rawEventsTableReadinessFailureUntilMs = 0
+let rawEventsTableReadinessFailureMessage = ""
+let nextExportClaimCheckAfterMs = 0
 
 function getBQ() {
   if (!bqInstance) {
@@ -84,8 +90,15 @@ async function ensureRawEventsTableReady() {
 }
 
 function getRawEventsTableReady() {
+  const nowMs = Date.now()
+  if (rawEventsTableReadinessFailureUntilMs > nowMs) {
+    throw new Error(`BigQuery raw-events table readiness is cooling down after failure: ${rawEventsTableReadinessFailureMessage}`)
+  }
+
   rawEventsTableReady ||= ensureRawEventsTableReady().catch((error) => {
     rawEventsTableReady = undefined
+    rawEventsTableReadinessFailureUntilMs = Date.now() + BIGQUERY_EXPORT_READINESS_FAILURE_TTL_MS
+    rawEventsTableReadinessFailureMessage = error instanceof Error ? error.message.slice(0, 300) : String(error).slice(0, 300)
     throw error
   })
   return rawEventsTableReady
@@ -95,6 +108,12 @@ async function recordBigQueryExportStatus(input: {
   eventId: string
   status: "healthy" | "fail"
   error?: unknown
+  exportedRows?: number
+  skippedRows?: number
+  windowStartMs?: number
+  windowEndMs?: number
+  watermarkTimestampMs?: number
+  watermarkEventId?: string
 }) {
   const nowMs = Date.now()
   const errorMessage = input.error instanceof Error ? input.error.message : input.error ? String(input.error) : ""
@@ -113,6 +132,12 @@ async function recordBigQueryExportStatus(input: {
       tableId: TABLE_ID,
       lastEventId: input.eventId,
       lastExportedAtMs: nowMs,
+      lastExportWindowStartMs: input.windowStartMs ?? null,
+      lastExportWindowEndMs: input.windowEndMs ?? null,
+      lastExportedEventTimestampMs: input.watermarkTimestampMs ?? null,
+      lastExportedEventId: input.watermarkEventId || input.eventId,
+      lastExportedRowCount: input.exportedRows ?? 0,
+      lastSkippedRowCount: input.skippedRows ?? 0,
       successCount: FieldValue.increment(1),
       updatedAt: FieldValue.serverTimestamp(),
     }
@@ -130,6 +155,8 @@ async function recordBigQueryExportStatus(input: {
       tableId: TABLE_ID,
       lastEventId: input.eventId,
       lastFailedAtMs: nowMs,
+      lastExportWindowStartMs: input.windowStartMs ?? null,
+      lastExportWindowEndMs: input.windowEndMs ?? null,
       lastErrorMessage: errorMessage.slice(0, 500),
       failureCount: FieldValue.increment(1),
       updatedAt: FieldValue.serverTimestamp(),
@@ -142,6 +169,53 @@ async function recordBigQueryExportStatus(input: {
   }
 }
 
+function readStatusTimestamp(data: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = Number(data[key] || 0)
+    if (Number.isFinite(value) && value > 0) return value
+  }
+  return 0
+}
+
+function buildBigQueryExportWatermarkWindow(input: {
+  statusData: Record<string, unknown>
+  nowMs: number
+}) {
+  const lastWatermarkMs = readStatusTimestamp(input.statusData, [
+    "lastExportedEventTimestampMs",
+    "lastExportStartedAtMs",
+    "lastExportedAtMs",
+  ])
+  const fallbackStartMs = input.nowMs - BIGQUERY_EXPORT_MIN_CADENCE_MS
+  return {
+    windowStartMs: lastWatermarkMs > 0 ? lastWatermarkMs : fallbackStartMs,
+    windowEndMs: input.nowMs,
+    watermarkEventId: readString(input.statusData.lastExportedEventId),
+    maxRows: BIGQUERY_EXPORT_MAX_ROWS_PER_BATCH,
+  }
+}
+
+async function shouldAttemptBigQueryExportClaim(nowMs: number) {
+  if (nowMs < nextExportClaimCheckAfterMs) {
+    return false
+  }
+
+  const statusSnapshot = await db.collection(EXPORT_STATUS_COLLECTION).doc(EXPORT_STATUS_DOC_ID).get()
+  const statusData = statusSnapshot.exists ? statusSnapshot.data() as Record<string, unknown> : {}
+  const lastRunAtMs = readStatusTimestamp(statusData, [
+    "lastExportStartedAtMs",
+    "lastExportedAtMs",
+    "lastFailedAtMs",
+  ])
+
+  if (lastRunAtMs > 0 && nowMs - lastRunAtMs < BIGQUERY_EXPORT_MIN_CADENCE_MS) {
+    nextExportClaimCheckAfterMs = lastRunAtMs + BIGQUERY_EXPORT_MIN_CADENCE_MS
+    return false
+  }
+
+  return true
+}
+
 async function claimBigQueryExportWindow(eventId: string, nowMs: number) {
   const statusRef = db.collection(EXPORT_STATUS_COLLECTION).doc(EXPORT_STATUS_DOC_ID)
   return db.runTransaction(async (transaction) => {
@@ -149,8 +223,10 @@ async function claimBigQueryExportWindow(eventId: string, nowMs: number) {
     const data = snapshot.exists ? snapshot.data() as Record<string, unknown> : {}
     const lastExportedAtMs = Number(data.lastExportedAtMs || data.lastExportStartedAtMs || 0)
     if (Number.isFinite(lastExportedAtMs) && nowMs - lastExportedAtMs < BIGQUERY_EXPORT_MIN_CADENCE_MS) {
-      return false
+      return null
     }
+
+    const window = buildBigQueryExportWatermarkWindow({statusData: data, nowMs})
 
     transaction.set(statusRef, {
       writer: "functions/onAnalyticsEventFactBigQueryExport",
@@ -161,52 +237,144 @@ async function claimBigQueryExportWindow(eventId: string, nowMs: number) {
       cadenceMs: BIGQUERY_EXPORT_MIN_CADENCE_MS,
       queryGuardrails: BIGQUERY_EXPORT_QUERY_GUARDRAILS,
       lastExportStartedAtMs: nowMs,
+      lastExportWindowStartMs: window.windowStartMs,
+      lastExportWindowEndMs: window.windowEndMs,
       lastWindowClaimEventId: eventId,
       updatedAt: FieldValue.serverTimestamp(),
     }, {merge: true})
-    return true
+    return window
   })
 }
+
+function mapFactToBigQueryRow(input: {
+  eventId: string
+  data: AnalyticsEventFact
+  bq: BigQuery
+}) {
+  return {
+    eventId: input.eventId,
+    eventName: readString(input.data.eventName),
+    timestamp: input.bq.timestamp(new Date(readNumber(input.data.timestamp) || Date.now())),
+    userId: readString(input.data.userId) || null,
+    sessionId: readString(input.data.sessionId) || null,
+    pagePath: readString(input.data.pagePath) || null,
+    dropId: readString(input.data.dropId) || null,
+    isMobileViewport: readBoolean(input.data.isMobileViewport),
+    origin: readString((input.data as any).origin) || "unknown",
+    params: input.data.params ? JSON.stringify(input.data.params) : null,
+  }
+}
+
+async function exportBigQueryRawEventsBatch(input: {
+  claimEventId: string
+  windowStartMs: number
+  windowEndMs: number
+  watermarkEventId: string
+  maxRows: number
+}) {
+  const bq = getBQ()
+  const dataset = bq.dataset(DATASET_ID)
+  await getRawEventsTableReady()
+
+  let query = db.collection("analytics_event_facts")
+    .where("timestamp", ">", input.windowStartMs)
+    .where("timestamp", "<=", input.windowEndMs)
+    .orderBy("timestamp", "asc")
+    .orderBy(FieldPath.documentId())
+    .limit(input.maxRows)
+
+  if (input.watermarkEventId) {
+    query = db.collection("analytics_event_facts")
+      .where("timestamp", ">=", input.windowStartMs)
+      .where("timestamp", "<=", input.windowEndMs)
+      .orderBy("timestamp", "asc")
+      .orderBy(FieldPath.documentId())
+      .startAfter(input.windowStartMs, input.watermarkEventId)
+      .limit(input.maxRows)
+  }
+
+  const snapshot = await query
+    .get()
+
+  const rows = snapshot.docs.map((doc) => mapFactToBigQueryRow({
+    eventId: doc.id,
+    data: doc.data() as AnalyticsEventFact,
+    bq,
+  }))
+
+  if (rows.length > 0) {
+    await dataset.table(TABLE_ID).insert(rows)
+  }
+
+  const lastDoc = snapshot.docs.at(-1)
+  const lastDocData = lastDoc?.data() as AnalyticsEventFact | undefined
+  return {
+    exportedRows: rows.length,
+    skippedRows: Math.max(0, snapshot.size - rows.length),
+    watermarkTimestampMs: lastDocData ? readNumber(lastDocData.timestamp) : input.windowEndMs,
+    watermarkEventId: lastDoc?.id || input.claimEventId,
+  }
+}
+
+export async function runBigQueryRawEventsExportWindow(eventId: string, nowMs = Date.now()) {
+  const window = await claimBigQueryExportWindow(eventId, nowMs)
+  if (!window) {
+    return {claimed: false, exportedRows: 0}
+  }
+
+  const result = await exportBigQueryRawEventsBatch({
+    claimEventId: eventId,
+    ...window,
+  })
+  await recordBigQueryExportStatus({
+    eventId,
+    status: "healthy",
+    windowStartMs: window.windowStartMs,
+    windowEndMs: window.windowEndMs,
+    ...result,
+  })
+  logger.info(`[BigQuery Export] Exported ${result.exportedRows} raw event row(s) for daily window`, {
+    eventId,
+    windowStartMs: window.windowStartMs,
+    windowEndMs: window.windowEndMs,
+  })
+  return {claimed: true, ...result}
+}
+
+export const scheduledBigQueryRawEventsExport = onSchedule({
+  schedule: "0 4 * * *",
+  region: REGION,
+  retryCount: 0,
+}, async () => {
+  try {
+    await runBigQueryRawEventsExportWindow("scheduled_daily_bigquery_raw_events", Date.now())
+  } catch (error) {
+    await recordBigQueryExportStatus({
+      eventId: "scheduled_daily_bigquery_raw_events",
+      status: "fail",
+      error,
+      windowEndMs: Date.now(),
+    })
+    logger.error("[BigQuery Export] Scheduled daily raw-events export failed:", error)
+  }
+})
 
 export const onAnalyticsEventFactBigQueryExport = onDocumentCreated(
   {document: "analytics_event_facts/{eventId}", region: REGION},
   async (event) => {
-    const data = event.data?.data() as AnalyticsEventFact | undefined
-    if (!data) return
+    if (!event.data?.exists) return
 
     try {
       const nowMs = Date.now()
-      const claimedExportWindow = await claimBigQueryExportWindow(event.id, nowMs)
-      if (!claimedExportWindow) {
-        logger.info(`[BigQuery Export] Skipped non-priority export for event ${event.id}; daily cadence window still active`)
+      const dueForClaim = await shouldAttemptBigQueryExportClaim(nowMs)
+      if (!dueForClaim) {
+        logger.info(`[BigQuery Export] Skipped event-triggered export for event ${event.id}; daily cadence window still active`)
         return
       }
 
-      const bq = getBQ()
-      const dataset = bq.dataset(DATASET_ID)
-      await getRawEventsTableReady()
-      
-      const row = {
-        eventId: event.id,
-        eventName: readString(data.eventName),
-        timestamp: bq.timestamp(new Date(readNumber(data.timestamp) || Date.now())),
-        userId: readString(data.userId) || null,
-        sessionId: readString(data.sessionId) || null,
-        pagePath: readString(data.pagePath) || null,
-        dropId: readString(data.dropId) || null,
-        isMobileViewport: readBoolean(data.isMobileViewport),
-        origin: readString((data as any).origin) || "unknown",
-        // Extracting params as a JSON string for flexible BQ querying
-        params: data.params ? JSON.stringify(data.params) : null,
-      }
-
-      await dataset.table(TABLE_ID).insert([row])
-      await recordBigQueryExportStatus({eventId: event.id, status: "healthy"})
-      logger.info(`[BigQuery Export] Successfully exported event ${event.id}`)
+      await runBigQueryRawEventsExportWindow(event.id, nowMs)
     } catch (error) {
-      // We don't throw here to avoid endless retries on schema errors, 
-      // but we log it as an error for visibility.
-      await recordBigQueryExportStatus({eventId: event.id, status: "fail", error})
+      await recordBigQueryExportStatus({eventId: event.id, status: "fail", error, windowEndMs: Date.now()})
       logger.error(`[BigQuery Export] Failed to export event ${event.id}:`, error)
     }
   }

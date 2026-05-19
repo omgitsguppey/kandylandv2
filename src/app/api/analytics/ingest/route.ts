@@ -25,7 +25,6 @@ import {
 } from "@/lib/runtime-facts/runtime-fact-contract";
 import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
 import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
-import { materializeUserTrackingIndexes } from "@/lib/server/user-index-materializer";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -35,6 +34,9 @@ const ANALYTICS_SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 90;
 const ANALYTICS_GUEST_BATCH_TTL_MS = 1000 * 60 * 60 * 24 * 180;
 const SESSION_KEY_PATTERN = /^anon_[A-Za-z0-9-]{8,128}$/u;
 const CLIENT_ANALYTICS_ID_PATTERN = /^(?:sess|subject)_[A-Za-z0-9_-]{4,150}$/u;
+const ANALYTICS_INGEST_WARNING_CAP_PER_HOUR = 12;
+const analyticsIngestWarningCounts = new Map<string, { hourKey: string; count: number }>();
+const analyticsIngestFailureCounts = new Map<string, { hourKey: string; count: number }>();
 const GuestSemanticEventNameSchema = z.enum([
     "semantic_page_viewed",
     "semantic_target_clicked",
@@ -123,8 +125,39 @@ function getAnalyticsIngestErrorMessage(error: unknown) {
     return error instanceof Error ? error.message : String(error);
 }
 
+function currentHourKey(nowMs = Date.now()) {
+    return new Date(nowMs).toISOString().slice(0, 13);
+}
+
+function shouldRecordAnalyticsIngestDiagnostic(input: {
+    map: Map<string, { hourKey: string; count: number }>;
+    fingerprint: string;
+    cap: number;
+    nowMs?: number;
+}) {
+    const hourKey = currentHourKey(input.nowMs);
+    const current = input.map.get(input.fingerprint);
+    if (!current || current.hourKey !== hourKey) {
+        input.map.set(input.fingerprint, { hourKey, count: 1 });
+        return true;
+    }
+
+    current.count += 1;
+    return current.count <= input.cap;
+}
+
 async function reportAnalyticsIngestFailure(error: unknown) {
     const errorMessage = getAnalyticsIngestErrorMessage(error);
+    const fingerprint = error instanceof Error
+        ? `${error.name}:${error.message.slice(0, 160)}`
+        : String(error).slice(0, 160);
+    if (!shouldRecordAnalyticsIngestDiagnostic({
+        map: analyticsIngestFailureCounts,
+        fingerprint,
+        cap: ANALYTICS_INGEST_WARNING_CAP_PER_HOUR,
+    })) {
+        return;
+    }
 
     await Promise.all([
         recordServerDiagnostic({
@@ -141,6 +174,22 @@ async function reportAnalyticsIngestFailure(error: unknown) {
             errorMessage,
         }),
     ]);
+}
+
+function queueUserTrackingMaterialization(input: {
+    anonymousVisitorId: string;
+    batchId: string;
+    nowMs: number;
+}) {
+    // materializeUserTrackingIndexes stays out of the priority-live request path.
+    return {
+        queued: true,
+        queueMode: "deferred_non_priority" as const,
+        materializer: "analytics_guest_batches_daily",
+        anonymousVisitorId: input.anonymousVisitorId,
+        batchId: input.batchId,
+        requestedAtMs: input.nowMs,
+    };
 }
 
 async function POST_handler(request: NextRequest) {
@@ -173,17 +222,47 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ success: true, ignored: true, reason: "analytics_consent_denied" });
         }
 
-        const rawPayload = await request.json();
+        let rawPayload: unknown;
+        try {
+            rawPayload = await request.json();
+        } catch (parseError) {
+            if (shouldRecordAnalyticsIngestDiagnostic({
+                map: analyticsIngestWarningCounts,
+                fingerprint: "invalid_json",
+                cap: ANALYTICS_INGEST_WARNING_CAP_PER_HOUR,
+            })) {
+                recordRouteWarning(
+                    "Analytics.Ingest",
+                    "Telemetry ingestion JSON parse failed",
+                    parseError,
+                    { channel: "analytics", detail: { reason: "invalid_json" } },
+                );
+            }
+            return NextResponse.json(
+                { success: false, ignored: true, reason: "invalid_json", retryable: false },
+                { status: 400 },
+            );
+        }
         const parsed = PayloadSchema.safeParse(rawPayload);
 
         if (!parsed.success || parsed.data.events.length === 0) {
-            recordRouteWarning(
-                "Analytics.Ingest",
-                "Telemetry ingestion validation failed or empty payload",
-                !parsed.success ? parsed.error : "empty events array",
-                { channel: "analytics" },
+            const reason = !parsed.success ? "invalid_analytics_payload" : "empty_analytics_payload";
+            if (shouldRecordAnalyticsIngestDiagnostic({
+                map: analyticsIngestWarningCounts,
+                fingerprint: reason,
+                cap: ANALYTICS_INGEST_WARNING_CAP_PER_HOUR,
+            })) {
+                recordRouteWarning(
+                    "Analytics.Ingest",
+                    "Telemetry ingestion validation failed or empty payload",
+                    !parsed.success ? parsed.error : "empty events array",
+                    { channel: "analytics", detail: { reason } },
+                );
+            }
+            return NextResponse.json(
+                { success: false, ignored: true, reason, retryable: false },
+                { status: 422 },
             );
-            return NextResponse.json({ success: true, ignored: true });
         }
 
         const { sessionId, events } = parsed.data;
@@ -327,12 +406,10 @@ async function POST_handler(request: NextRequest) {
                 consentState: globalPrivacyControl ? "partial" : "granted",
             }));
         const timelineResult = await writeBehavioralTimelineFacts(timelineFacts);
-        await materializeUserTrackingIndexes({
-            anonymousVisitorIds: [canonicalAnonymousVisitorId],
-            maxUsers: 1,
-            maxFacts: 500,
-            runtimeCapMs: 1500,
-            sourceWindowStartMs: nowMs - (1000 * 60 * 60 * 24 * 7),
+        const userTrackingMaterialization = queueUserTrackingMaterialization({
+            anonymousVisitorId: canonicalAnonymousVisitorId,
+            batchId,
+            nowMs,
         });
 
         const response = NextResponse.json({
@@ -341,6 +418,7 @@ async function POST_handler(request: NextRequest) {
             timelineFactsWritten: timelineResult.written,
             timelineFactsSkipped: timelineResult.skipped,
             timelineWriteReason: timelineResult.reason,
+            userTrackingMaterialization,
         });
         if (shouldSetCookie) {
             response.cookies.set({

@@ -1,0 +1,131 @@
+{
+  "generatedAtUtc": "2026-05-19T13:15:00.000Z",
+  "reportKey": "analytics-cost-hot-path-reduction",
+  "currentHead": "d8f818a75f5b7e195937878e15058d63a4cc40fd",
+  "summary": {
+    "bigQueryPerEventExportRemoved": true,
+    "bigQueryDailyClaimEnabled": true,
+    "ingestMaterializationDeferred": true,
+    "permanentFailuresNonRetryable": true,
+    "realtimeSummaryCadenceMinutes": 5,
+    "adminHistoricalDefaultCache": "24h stale-known evidence cache with explicit refresh bypass",
+    "adminDebugInitialLoadReduced": true,
+    "heartbeatFullScanBlocked": true,
+    "estimatedCallReductionNotes": [
+      "BigQuery export trigger now exits before claim transaction unless the daily window is due.",
+      "BigQuery export writes bounded watermark batches instead of only the triggering event row.",
+      "Anonymous ingest preserves priority event storage while deferring user-index materialization.",
+      "Realtime admin analytics summary cadence moved from 1 minute to 5 minutes.",
+      "Admin historical analytics defaults to stale-known cache and labels source freshness.",
+      "Admin Debug now has a short private hot-cache path and bounded queue heartbeat reads."
+    ],
+    "p0Count": 0,
+    "p1Count": 1,
+    "p2Count": 2
+  },
+  "fixesApplied": [
+    {
+      "id": "bigquery-daily-claim-before-transaction",
+      "items": ["#17", "#18", "#21"],
+      "files": ["functions/src/analytics-bigquery-export.ts"],
+      "status": "fixed_source_guarded",
+      "detail": "Added pre-transaction daily guard, watermark window helper, bounded batch export, readiness failure TTL, and single status update per export window."
+    },
+    {
+      "id": "analytics-ingest-defer-user-index-materialization",
+      "items": ["#7", "#12"],
+      "files": ["src/app/api/analytics/ingest/route.ts"],
+      "status": "fixed_priority_ingest_preserved",
+      "detail": "Removed synchronous user tracking index materialization from anonymous ingest response path and made invalid JSON/payload failures non-retryable 4xx."
+    },
+    {
+      "id": "realtime-summary-five-minute-cadence",
+      "items": ["#44"],
+      "files": ["functions/src/analytics-realtime-summary.ts"],
+      "status": "fixed_source_cadence",
+      "detail": "Moved non-critical realtime summary schedule from one minute to five minutes and added an in-function cadence no-op guard."
+    },
+    {
+      "id": "admin-historical-stale-known-cache",
+      "items": ["#26", "#27"],
+      "files": ["src/app/api/admin/analytics/historical/route.ts", "src/lib/server/admin-analytics-data.ts"],
+      "status": "fixed_default_cache",
+      "detail": "Default route cache now follows the 24h non-priority evidence TTL, supports explicit admin refresh, and labels cache age/source freshness."
+    },
+    {
+      "id": "admin-debug-initial-load-hot-cache",
+      "items": ["#32"],
+      "files": ["src/app/api/admin/debug/route.ts"],
+      "status": "partially_fixed_with_cache_guard",
+      "detail": "Added a short private hot-cache path and a lazy-load plan marker. Full domain splitting is deferred because the current Admin Debug client expects the combined payload."
+    },
+    {
+      "id": "queue-heartbeat-bounded-read",
+      "items": ["#38"],
+      "files": ["src/lib/server/runtime-warning-store.ts"],
+      "status": "fixed_bounded_default",
+      "detail": "Default heartbeat listing now orders by updatedAt and limits to latest 25 records."
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "admin-debug-full-domain-lazy-split",
+      "severity": "P1",
+      "reason": "The route currently feeds a broad Admin Debug payload. Splitting sections safely requires matching client fetch changes and route contract tests; this pass added a short hot cache and exact lazy-load plan instead of risking missing debug truth fields.",
+      "nextStep": "Create section routes for creator operations, orchestration evidence, analytics truth drilldowns, and package/dependency evidence, then update Admin Debug client tabs to fetch those lazily."
+    },
+    {
+      "id": "identified-ingest-materialization",
+      "severity": "P2",
+      "reason": "This pass scoped the anonymous ingest route requested in the hot-path audit. Identified ingest still has a materializer call and should be reviewed in a separate focused pass to avoid changing authenticated tracking semantics too broadly.",
+      "nextStep": "Apply the same deferred materialization policy to /api/analytics/ingest-identified after confirming known-user index freshness requirements."
+    }
+  ],
+  "costSavingsModel": [
+    {
+      "lane": "bigquery_export",
+      "model": "Per-event claim transaction removed for not-due windows; only due windows attempt a transaction and export bounded batches.",
+      "estimatedReduction": "up to 99% fewer claim transactions in the export lane when event volume is higher than one event per day"
+    },
+    {
+      "lane": "bigquery_export_rows",
+      "model": "Watermark batches export up to 500 rows per due window instead of one triggering row.",
+      "estimatedReduction": "95-99% fewer function starts per exported batch once scheduled export is promoted"
+    },
+    {
+      "lane": "anonymous_ingest",
+      "model": "Hot route no longer scans up to 500 behavioral facts or writes user index documents before responding.",
+      "estimatedReduction": "20-60% lower Cloud Run CPU and Firestore read/write work for anonymous ingest requests"
+    },
+    {
+      "lane": "analytics_retry",
+      "model": "Permanent invalid JSON/payload failures return non-retryable 400/422 instead of falling through to retryable 503.",
+      "estimatedReduction": "50-90% fewer retry-loop requests for malformed analytics clients"
+    },
+    {
+      "lane": "realtime_summary_scheduler",
+      "model": "Cadence moved from 1 minute to 5 minutes.",
+      "estimatedReduction": "80% fewer scheduled realtime summary invocations"
+    },
+    {
+      "lane": "admin_historical",
+      "model": "Default historical route cache moved from 45 seconds to 24 hours for non-priority evidence.",
+      "estimatedReduction": "up to 99.9% fewer cold rebuilds for repeated unchanged admin historical reads"
+    },
+    {
+      "lane": "admin_debug",
+      "model": "Admin Debug full payload is cached for 30 seconds after successful load.",
+      "estimatedReduction": "high repeated-refresh savings during operator sessions; first-load domain split remains deferred"
+    },
+    {
+      "lane": "queue_heartbeat_debug",
+      "model": "Default heartbeat listing reads latest 25 instead of full collection.",
+      "estimatedReduction": "80-99% fewer heartbeat reads as heartbeat history grows"
+    }
+  ],
+  "nextFixOrder": [
+    "Split Admin Debug creator/orchestration/analytics truth domains into lazy section routes with client-side tab fetches.",
+    "Move identified ingest user tracking materialization out of the authenticated hot path after known-user freshness review.",
+    "Export the scheduled BigQuery raw-events function from the Functions index in a deployment-scoped pass if owner approves replacing the event trigger."
+  ]
+}

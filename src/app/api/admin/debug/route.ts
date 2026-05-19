@@ -81,6 +81,9 @@ const DEBUG_EVENT_STATS_LIMIT = 1_000;
 const DEBUG_CONFIG_SAMPLE_LIMIT = 500;
 const DEBUG_PIPELINE_SERIES_LIMIT = 60;
 const DEBUG_CREATOR_QUEUE_LIMIT = 500;
+const ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD = "debug_cost_reduced_initial_summary";
+const ADMIN_DEBUG_QUEUE_HEARTBEAT_LIMIT = 25;
+const ADMIN_DEBUG_INITIAL_LOAD_CACHE_TTL_MS = 30_000;
 const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]);
 const TASK_ACTION_SET = new Set<string>(DAILY_TASK_ACTION_OPTIONS.map((option) => option.value));
 const TASK_ICON_SET = new Set<string>(DAILY_TASK_ICON_OPTIONS.map((option) => option.value));
@@ -136,6 +139,12 @@ type BugReportTriageCard = {
     state: BugReportTriageState;
     inventoryState: "loaded" | "missing" | "partial";
 };
+
+let adminDebugInitialLoadCache: {
+    expiresAtMs: number;
+    storedAtMs: number;
+    payload: unknown;
+} | null = null;
 
 type BugIntakeTriageSummary = {
     loadedCount: number;
@@ -3697,6 +3706,17 @@ async function readInfrastructureDependencies() {
 export async function GET(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
+        if (response.status === 200 && !error) {
+            void response.clone().json()
+                .then((payload) => {
+                    adminDebugInitialLoadCache = {
+                        expiresAtMs: Date.now() + ADMIN_DEBUG_INITIAL_LOAD_CACHE_TTL_MS,
+                        storedAtMs: Date.now(),
+                        payload,
+                    };
+                })
+                .catch(() => undefined);
+        }
         void recordRouteRuntimeSample({
             key: "admin/debug:GET",
             durationMs: Date.now() - startedAt,
@@ -3715,6 +3735,23 @@ export async function GET(request: NextRequest) {
             auth: "admin",
             scopeToCaller: true,
         });
+        const forceRefresh = request.nextUrl.searchParams.get("refresh") === "1"
+            || request.nextUrl.searchParams.get("forceRefresh") === "1";
+        if (!forceRefresh && adminDebugInitialLoadCache && adminDebugInitialLoadCache.expiresAtMs > Date.now()) {
+            return finalize(NextResponse.json({
+                ...(adminDebugInitialLoadCache.payload && typeof adminDebugInitialLoadCache.payload === "object"
+                    ? adminDebugInitialLoadCache.payload as Record<string, unknown>
+                    : { cachedPayloadUnavailable: true }),
+                cacheState: "fresh",
+                cacheAgeMs: Date.now() - adminDebugInitialLoadCache.storedAtMs,
+                costControls: {
+                    guard: ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD,
+                    cacheTtlMs: ADMIN_DEBUG_INITIAL_LOAD_CACHE_TTL_MS,
+                    queueHeartbeatLimit: ADMIN_DEBUG_QUEUE_HEARTBEAT_LIMIT,
+                    status: "hot_cache_initial_summary",
+                },
+            }));
+        }
 
         const nowMs = Date.now();
         const weekAgoMs = nowMs - ONE_WEEK_MS;
@@ -3818,7 +3855,7 @@ export async function GET(request: NextRequest) {
         const [routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes, behavioralSnapshotStatus, behavioralDrops, analyticsTruthRecovery, analyticsTruthDrops, analyticsTruthUsers, analyticsTruthRepairs, adminMetricSnapshots] = await Promise.all([
             listRouteRuntimeHealth(),
             listRuntimeWarnings(80),
-            listQueueJobHeartbeats(),
+            listQueueJobHeartbeats(ADMIN_DEBUG_QUEUE_HEARTBEAT_LIMIT),
             listNotificationDispatchOutcomes(80),
             getBehavioralSnapshotStatus(),
             listDropIntelligence(12),
@@ -6515,6 +6552,16 @@ export async function GET(request: NextRequest) {
                 duplicateRefreshPrevented: true,
             },
             adminShellLayout: buildAdminShellLayoutDebugMetadata(request.nextUrl.pathname),
+            costControls: {
+                guard: ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD,
+                queueHeartbeatLimit: ADMIN_DEBUG_QUEUE_HEARTBEAT_LIMIT,
+                lazyLoadPlan: [
+                    "creator operations collections",
+                    "orchestration evidence collections",
+                    "analytics truth drilldowns",
+                ],
+                status: "bounded_initial_summary",
+            },
             verification: buildServerAdminModuleVerification({
                 module: "admin_debug",
                 canonicalSource: "runtime_warning_records+route_runtime_health+admin_ui_chart_health",

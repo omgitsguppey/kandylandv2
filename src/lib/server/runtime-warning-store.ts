@@ -19,6 +19,8 @@ import {
   type RuntimeWarningStatus,
 } from "../../../shared/runtime/runtime-warning-contract";
 
+export const QUEUE_JOB_HEARTBEAT_DEFAULT_LIMIT = 25;
+
 function sanitizeDetail(detail: Record<string, unknown> | undefined) {
   if (!detail) {
     return {};
@@ -161,12 +163,15 @@ export async function listRuntimeWarnings(limitCount = 50) {
   return snapshot.docs.map((doc) => doc.data() as Record<string, unknown>);
 }
 
-export async function listQueueJobHeartbeats() {
+export async function listQueueJobHeartbeats(limitCount = QUEUE_JOB_HEARTBEAT_DEFAULT_LIMIT) {
   if (!adminDb) {
     return [];
   }
 
-  const snapshot = await adminDb.collection(QUEUE_JOB_HEARTBEAT_COLLECTION).get();
+  const snapshot = await adminDb.collection(QUEUE_JOB_HEARTBEAT_COLLECTION)
+    .orderBy("updatedAt", "desc")
+    .limit(limitCount)
+    .get();
   return snapshot.docs.map((doc) => doc.data() as QueueJobHeartbeat);
 }
 

@@ -7,6 +7,7 @@ import {REGION} from "./firebase-runtime.js"
 import {average, readBoolean, readNumber, readString} from "./analytics-core.js"
 
 const REALTIME_WINDOW_MS = 30 * 60 * 1000
+const REALTIME_SUMMARY_MIN_CADENCE_MS = 5 * 60 * 1000
 const HOT_SUMMARY_DOC_ID = "realtime_summary"
 const ACTIVE_USER_LIMIT = 1000
 const EVENT_FACT_LIMIT = 1000
@@ -631,6 +632,25 @@ async function readRecentDocs(
   return snapshot.docs
 }
 
+export function shouldRunRealtimeSummaryRefresh(input: {
+  lastGeneratedAtMs?: number | null;
+  nowMs?: number;
+}) {
+  const nowMs = input.nowMs ?? Date.now()
+  const lastGeneratedAtMs = Number(input.lastGeneratedAtMs || 0)
+  if (!Number.isFinite(lastGeneratedAtMs) || lastGeneratedAtMs <= 0) {
+    return true
+  }
+
+  return nowMs - lastGeneratedAtMs >= REALTIME_SUMMARY_MIN_CADENCE_MS
+}
+
+async function readRealtimeSummaryCadenceState() {
+  const snapshot = await db.collection("analytics_aggregate_stats").doc(HOT_SUMMARY_DOC_ID).get()
+  const data = snapshot.exists ? snapshot.data() as Record<string, unknown> : {}
+  return Number(data.generatedAtMs || data.updatedAtMs || 0)
+}
+
 export async function rebuildAdminAnalyticsRealtimeSummary(nowMs = Date.now()) {
   const windowStartMs = nowMs - REALTIME_WINDOW_MS
   const [
@@ -728,9 +748,18 @@ export async function rebuildAdminAnalyticsRealtimeSummary(nowMs = Date.now()) {
 }
 
 export const refreshAdminAnalyticsRealtimeSummary = onSchedule({
-  schedule: "every 1 minutes",
+  schedule: "every 5 minutes",
   region: REGION,
   retryCount: 0,
 }, async () => {
+  const lastGeneratedAtMs = await readRealtimeSummaryCadenceState()
+  if (!shouldRunRealtimeSummaryRefresh({lastGeneratedAtMs, nowMs: Date.now()})) {
+    logger.info("refreshAdminAnalyticsRealtimeSummary skipped; cadence window still active", {
+      cadenceMs: REALTIME_SUMMARY_MIN_CADENCE_MS,
+      lastGeneratedAtMs,
+    })
+    return
+  }
+
   await rebuildAdminAnalyticsRealtimeSummary()
 })
