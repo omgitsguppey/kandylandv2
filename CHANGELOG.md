@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.2.90 - 2026-05-19
+- Bug fixes and general improvements
+- Reduced hot-path analytics ingest and export cost risks.
+- Moved low-priority analytics work toward batched lanes.
+- Kept priority tracking accuracy intact while cutting retry and export churn.
+
 ## 1.2.89 - 2026-05-19
 - Bug fixes and general improvements
 - Reduced hot-path analytics and export cost risks.

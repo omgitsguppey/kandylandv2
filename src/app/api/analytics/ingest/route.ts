@@ -23,8 +23,6 @@ import {
     type RuntimeFact,
     type RuntimeFactDiagnostic,
 } from "@/lib/runtime-facts/runtime-fact-contract";
-import { mapRuntimeFactToBehavioralTimelineFact } from "@/lib/server/behavioral-timeline-mapper";
-import { writeBehavioralTimelineFacts } from "@/lib/server/behavioral-timeline-writer";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -35,6 +33,7 @@ const ANALYTICS_GUEST_BATCH_TTL_MS = 1000 * 60 * 60 * 24 * 180;
 const SESSION_KEY_PATTERN = /^anon_[A-Za-z0-9-]{8,128}$/u;
 const CLIENT_ANALYTICS_ID_PATTERN = /^(?:sess|subject)_[A-Za-z0-9_-]{4,150}$/u;
 const ANALYTICS_INGEST_WARNING_CAP_PER_HOUR = 12;
+const ANALYTICS_INGEST_FAILURE_CAP_PER_HOUR = 1;
 const analyticsIngestWarningCounts = new Map<string, { hourKey: string; count: number }>();
 const analyticsIngestFailureCounts = new Map<string, { hourKey: string; count: number }>();
 const GuestSemanticEventNameSchema = z.enum([
@@ -154,7 +153,7 @@ async function reportAnalyticsIngestFailure(error: unknown) {
     if (!shouldRecordAnalyticsIngestDiagnostic({
         map: analyticsIngestFailureCounts,
         fingerprint,
-        cap: ANALYTICS_INGEST_WARNING_CAP_PER_HOUR,
+        cap: ANALYTICS_INGEST_FAILURE_CAP_PER_HOUR,
     })) {
         return;
     }
@@ -192,6 +191,25 @@ function queueUserTrackingMaterialization(input: {
     };
 }
 
+function queueBehavioralTimelineFacts(input: {
+    runtimeFactCount: number;
+    eligibleFactCount: number;
+    batchId: string;
+    anonymousVisitorId: string;
+    nowMs: number;
+}) {
+    return {
+        queued: input.eligibleFactCount > 0,
+        queueMode: "deferred_non_priority" as const,
+        materializer: "behavioral_timeline_daily",
+        batchId: input.batchId,
+        anonymousVisitorId: input.anonymousVisitorId,
+        runtimeFactCount: input.runtimeFactCount,
+        eligibleFactCount: input.eligibleFactCount,
+        requestedAtMs: input.nowMs,
+    };
+}
+
 async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
@@ -206,20 +224,19 @@ async function POST_handler(request: NextRequest) {
 
         const contentLength = Number(request.headers.get("content-length") || 0);
         if (Number.isFinite(contentLength) && contentLength > MAX_ANALYTICS_BODY_BYTES) {
-            return NextResponse.json({ success: true, ignored: true, reason: "payload_too_large" });
+            return NextResponse.json(
+                { success: false, ignored: true, reason: "payload_too_large", retryable: false },
+                { status: 413 },
+            );
         }
 
         if (!requestAllowsAnonymousAnalytics(request)) {
-            await recordServerDiagnostic({
-                channel: "analytics",
-                severity: "info",
-                message: "Guest analytics timeline skipped by consent",
-                detail: {
-                    route: "analytics/ingest",
-                    reason: "analytics_consent_denied",
-                },
+            return NextResponse.json({
+                success: true,
+                ignored: true,
+                reason: "analytics_consent_denied",
+                diagnosticPolicy: "suppressed_high_volume_consent_path",
             });
-            return NextResponse.json({ success: true, ignored: true, reason: "analytics_consent_denied" });
         }
 
         let rawPayload: unknown;
@@ -313,30 +330,18 @@ async function POST_handler(request: NextRequest) {
         const batchScrollDepth = sanitizedEvents.reduce((maxDepth, event) => Math.max(maxDepth, event.scrollDepthPercent || 0), 0);
         const hasPixelData = sanitizedEvents.some((event) => Number.isFinite(event.x) && Number.isFinite(event.y));
         const transactionResult = await adminDb.runTransaction(async (transaction) => {
-            const [existingBatchSnapshot, sessionSnapshot] = await Promise.all([
-                transaction.get(guestBatchRef),
-                transaction.get(docRef),
-            ]);
+            const existingBatchSnapshot = await transaction.get(guestBatchRef);
 
             if (existingBatchSnapshot.exists) {
                 return { deduped: true };
             }
 
-            const existingSessionData = sessionSnapshot.exists
-                ? sessionSnapshot.data() as Record<string, unknown>
-                : null;
-            const existingPagePaths = Array.isArray(existingSessionData?.pagePaths)
-                ? (existingSessionData?.pagePaths as unknown[]).filter((value): value is string => typeof value === "string")
-                : [];
-            const existingInteractionTypes = Array.isArray(existingSessionData?.interactionTypes)
-                ? (existingSessionData?.interactionTypes as unknown[]).filter((value): value is string => typeof value === "string")
-                : [];
-            const mergedPagePaths = Array.from(new Set([...existingPagePaths, ...uniquePagePaths])).slice(0, 25);
-            const mergedInteractionTypes = Array.from(new Set([...existingInteractionTypes, ...uniqueInteractionTypes])).slice(0, 12);
-            const nextMaxScrollDepth = Math.max(
-                batchScrollDepth,
-                Number(existingSessionData?.maxScrollDepth) || 0,
-            );
+            const sessionArrayUpdates = {
+                ...(uniquePagePaths.length > 0 ? { pagePaths: FieldValue.arrayUnion(...uniquePagePaths.slice(0, 25)) } : {}),
+                ...(uniqueInteractionTypes.length > 0
+                    ? { interactionTypes: FieldValue.arrayUnion(...uniqueInteractionTypes.slice(0, 12)) }
+                    : {}),
+            };
 
             transaction.set(docRef, {
                 sessionKey,
@@ -348,15 +353,14 @@ async function POST_handler(request: NextRequest) {
                 globalPrivacyControl,
                 eventIndexVersion: TELEMETRY_EVENT_INDEX_VERSION,
                 trackingOrigin: "guest_client",
-                ...(sessionSnapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp() }),
                 updatedAt: FieldValue.serverTimestamp(),
                 lastReceivedAtMs: nowMs,
                 expiresAt: Timestamp.fromMillis(nowMs + ANALYTICS_SESSION_TTL_MS),
                 batchCount: FieldValue.increment(1),
                 eventCount: FieldValue.increment(sanitizedEvents.length),
-                maxScrollDepth: nextMaxScrollDepth,
-                pagePaths: mergedPagePaths,
-                interactionTypes: mergedInteractionTypes,
+                latestBatchMaxScrollDepth: batchScrollDepth,
+                latestBatchMaxScrollDepthSource: "guest_batch",
+                ...sessionArrayUpdates,
             }, { merge: true });
 
             transaction.create(guestBatchRef, {
@@ -399,13 +403,16 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ success: true, deduped: true, processed: 0 });
         }
 
-        const timelineFacts = runtimeFacts
+        const eligibleTimelineFactCount = runtimeFacts
             .filter((fact) => fact.metricEligible || fact.metricExclusionReason.includes("privacy"))
-            .map((fact) => mapRuntimeFactToBehavioralTimelineFact({
-                runtimeFact: fact,
-                consentState: globalPrivacyControl ? "partial" : "granted",
-            }));
-        const timelineResult = await writeBehavioralTimelineFacts(timelineFacts);
+            .length;
+        const behavioralTimelineFacts = queueBehavioralTimelineFacts({
+            runtimeFactCount: runtimeFacts.length,
+            eligibleFactCount: eligibleTimelineFactCount,
+            batchId,
+            anonymousVisitorId: canonicalAnonymousVisitorId,
+            nowMs,
+        });
         const userTrackingMaterialization = queueUserTrackingMaterialization({
             anonymousVisitorId: canonicalAnonymousVisitorId,
             batchId,
@@ -415,9 +422,7 @@ async function POST_handler(request: NextRequest) {
         const response = NextResponse.json({
             success: true,
             processed: events.length,
-            timelineFactsWritten: timelineResult.written,
-            timelineFactsSkipped: timelineResult.skipped,
-            timelineWriteReason: timelineResult.reason,
+            behavioralTimelineFacts,
             userTrackingMaterialization,
         });
         if (shouldSetCookie) {

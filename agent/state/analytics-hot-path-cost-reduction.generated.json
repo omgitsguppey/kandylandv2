@@ -1,0 +1,116 @@
+{
+  "generatedAtUtc": "2026-05-19T13:43:56.853Z",
+  "reportKey": "analytics-hot-path-cost-reduction",
+  "currentHead": "b83c1225ffd93a16f6aecdd9b0081695613e32da",
+  "summary": {
+    "ingestMaterializationDeferred": true,
+    "consentDeniedNoiseSampled": true,
+    "invalidPayloadWarningsCapped": true,
+    "catchPathFailuresRolledUp": true,
+    "retryable503Reduced": true,
+    "eventFactDedupeReadReduced": true,
+    "rollupsBatched": true,
+    "behavioralFactsDeferred": true,
+    "bigQueryPerEventExportRemoved": true,
+    "bigQueryDailyClaimEnabled": true,
+    "bigQueryWatermarkBatchingEnabled": true,
+    "bigQueryFailureTtlEnabled": true,
+    "estimatedSavingsNotes": [
+      "Anonymous ingest still stores priority guest batches but no longer writes behavioral timeline facts in the request path.",
+      "Permanent invalid analytics bodies return non-retryable 4xx responses instead of creating retry storms.",
+      "Consent-denied analytics calls are acknowledged without a per-request diagnostic write.",
+      "Identified event fact ingestion now uses deterministic create conflicts for dedupe instead of reading first.",
+      "Non-priority event fact rollups queue into minute batches while priority purchase, unlock, viewer, and watch events keep immediate rollup coverage.",
+      "BigQuery event-triggered exports still cheap-exit on not-due windows and repeated failure status writes are TTL-suppressed."
+    ],
+    "p0Count": 0,
+    "p1Count": 2,
+    "p2Count": 2
+  },
+  "auditItemsAddressed": [7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22],
+  "fixesApplied": [
+    {
+      "id": "anonymous-ingest-hot-path-lightened",
+      "items": [7, 8, 9, 10, 11, 12, 13],
+      "files": ["src/app/api/analytics/ingest/route.ts"],
+      "status": "fixed_priority_ingest_preserved",
+      "detail": "Priority guest batch writes remain in the transaction, while session reads, per-request consent diagnostics, inline behavioral timeline writes, and retryable permanent failures were removed or capped."
+    },
+    {
+      "id": "event-fact-dedupe-and-low-priority-rollup-batching",
+      "items": [15, 16],
+      "files": ["functions/src/analytics-event-facts.ts"],
+      "status": "fixed_with_priority_lane_preserved",
+      "detail": "Identified event facts use deterministic document create conflicts for dedupe, trigger dedupe uses create conflict instead of a read, and non-priority facts queue into minute rollup batches."
+    },
+    {
+      "id": "bigquery-export-window-status-ttl",
+      "items": [17, 18, 19, 20, 21, 22],
+      "files": ["functions/src/analytics-bigquery-export.ts"],
+      "status": "fixed_source_guarded",
+      "detail": "Existing daily/window export guards, watermark batches, query guardrails, readiness TTL, and cheap event-trigger exits were kept, with TTL suppression added for repeated failure status writes."
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "identified-http-ingest-materialization",
+      "severity": "P1",
+      "reason": "This pass touched the requested anonymous ingest route and Functions event-fact lane. The separate identified HTTP ingest route still needs its own freshness review before moving any known-user materialization work.",
+      "nextStep": "Run a focused pass on /api/analytics/ingest-identified with known-user index freshness tests."
+    },
+    {
+      "id": "event-fact-rollup-materializer",
+      "severity": "P1",
+      "reason": "Non-priority event facts now queue into minute batches, but the dedicated minute-batch materializer should be built in the next scheduled analytics lane rather than in the hot-path route.",
+      "nextStep": "Add a scheduled non-priority rollup materializer that drains analytics_event_rollup_batches under the 24h cadence policy."
+    },
+    {
+      "id": "bigquery-trigger-removal-deploy-lane",
+      "severity": "P2",
+      "reason": "The source guard makes the current event trigger cheap for not-due windows. Fully removing the deployed trigger requires an explicit Functions deployment/config pass.",
+      "nextStep": "Promote scheduledBigQueryRawEventsExport through the Functions index and retire the event trigger in a deploy-scoped change."
+    }
+  ],
+  "costSavingsModel": [
+    {
+      "lane": "anonymous_ingest",
+      "formula": "savedWork ~= inlineTimelineWrites + sessionDocReads + consentDiagnosticWrites + repeatedFailureDiagnostics",
+      "estimatedPercentReduction": "25-65% lower hot-path Firestore/read-write and CPU work on anonymous ingest batches, depending on runtime fact volume"
+    },
+    {
+      "lane": "malformed_ingest_retry",
+      "formula": "retryReduction ~= invalidRequests * clientRetryMultiplier",
+      "estimatedPercentReduction": "50-90% fewer repeated malformed-request invocations when clients honor non-retryable 4xx"
+    },
+    {
+      "lane": "event_fact_dedupe",
+      "formula": "readReduction ~= eventFacts - createConflictDuplicates",
+      "estimatedPercentReduction": "up to one read removed per identified event fact write and one dedupe read removed per event trigger"
+    },
+    {
+      "lane": "non_priority_rollups",
+      "formula": "writeReduction ~= nonPriorityEvents * expandedRollupDocs - minuteBatchDocs",
+      "estimatedPercentReduction": "60-95% fewer immediate rollup writes for non-priority event facts, while priority event rollups remain immediate"
+    },
+    {
+      "lane": "bigquery_export_status",
+      "formula": "statusWriteReduction ~= repeatedFailuresWithinTtl - 1",
+      "estimatedPercentReduction": "up to 95% fewer repeated BigQuery failure status writes during readiness or metadata outages"
+    }
+  ],
+  "prCleanup": {
+    "openPrsBefore": [271, 270, 269, 268, 267, 266, 265, 264, 263, 262],
+    "closedPrs": [270, 269, 268, 267, 266, 265, 264, 263, 262],
+    "preservedPrs": [
+      {
+        "number": 271,
+        "reason": "Documentation/governance PR is not part of this runtime analytics cost phase."
+      }
+    ]
+  },
+  "nextFixOrder": [
+    "Build the scheduled minute-batch materializer for analytics_event_rollup_batches.",
+    "Apply the deferred materialization pattern to identified HTTP ingest after known-user freshness review.",
+    "Move BigQuery export trigger removal into a Functions deployment-scoped pass."
+  ]
+}

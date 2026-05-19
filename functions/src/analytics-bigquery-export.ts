@@ -17,6 +17,7 @@ const EXPORT_TRUTH_CLASS = "analytics_evidence_only"
 const BIGQUERY_EXPORT_MIN_CADENCE_MS = 24 * 60 * 60 * 1000
 const BIGQUERY_EXPORT_MAX_ROWS_PER_BATCH = 500
 const BIGQUERY_EXPORT_READINESS_FAILURE_TTL_MS = 60 * 60 * 1000
+const BIGQUERY_EXPORT_STATUS_FAILURE_TTL_MS = 60 * 60 * 1000
 const BIGQUERY_EXPORT_QUERY_GUARDRAILS = {
   dryRunRequiredForQueries: true,
   maximumBytesBilledRequiredForQueries: true,
@@ -52,6 +53,8 @@ let rawEventsTableReady: Promise<void> | undefined
 let rawEventsTableReadinessFailureUntilMs = 0
 let rawEventsTableReadinessFailureMessage = ""
 let nextExportClaimCheckAfterMs = 0
+let lastExportStatusFailureFingerprint = ""
+let lastExportStatusFailureSuppressUntilMs = 0
 
 function getBQ() {
   if (!bqInstance) {
@@ -117,6 +120,27 @@ async function recordBigQueryExportStatus(input: {
 }) {
   const nowMs = Date.now()
   const errorMessage = input.error instanceof Error ? input.error.message : input.error ? String(input.error) : ""
+  const failureFingerprint = input.status === "fail"
+    ? `${input.windowStartMs ?? "unknown"}:${input.windowEndMs ?? "unknown"}:${errorMessage.slice(0, 180)}`
+    : ""
+  if (
+    input.status === "fail" &&
+    failureFingerprint === lastExportStatusFailureFingerprint &&
+    nowMs < lastExportStatusFailureSuppressUntilMs
+  ) {
+    logger.warn("[BigQuery Export] Suppressed repeated export failure status inside TTL", {
+      eventId: input.eventId,
+      ttlMs: BIGQUERY_EXPORT_STATUS_FAILURE_TTL_MS,
+      truthClass: EXPORT_TRUTH_CLASS,
+    })
+    return
+  }
+
+  if (input.status === "fail") {
+    lastExportStatusFailureFingerprint = failureFingerprint
+    lastExportStatusFailureSuppressUntilMs = nowMs + BIGQUERY_EXPORT_STATUS_FAILURE_TTL_MS
+  }
+
   const payload = input.status === "healthy"
     ? {
       writer: "functions/onAnalyticsEventFactBigQueryExport",

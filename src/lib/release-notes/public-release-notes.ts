@@ -1,13 +1,63 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.2.89",
-  "betaReleaseCounter": 289,
+  "currentVersion": "1.2.90",
+  "betaReleaseCounter": 290,
   "channel": "beta",
-  "generatedAt": "2026-05-19T13:26:53.122Z",
-  "generatedAtUtc": "2026-05-19T13:26:53.122Z",
-  "lastCommitSha": "d8f818a75f5b7e195937878e15058d63a4cc40fd",
+  "generatedAt": "2026-05-19T13:43:56.853Z",
+  "generatedAtUtc": "2026-05-19T13:43:56.853Z",
+  "lastCommitSha": "b83c1225ffd93a16f6aecdd9b0081695613e32da",
   "notes": [
+    {
+      "version": "1.2.90",
+      "previousVersion": "1.2.89",
+      "betaReleaseCounter": 290,
+      "previousBetaReleaseCounter": 289,
+      "commitSha": "b83c1225ffd93a16f6aecdd9b0081695613e32da",
+      "commitTitle": "fix(analytics): reduce hot path cost churn",
+      "commitCount": 1,
+      "commitShas": [
+        "b83c1225ffd93a16f6aecdd9b0081695613e32da"
+      ],
+      "committedAt": "2026-05-19T13:43:56.853Z",
+      "generatedAt": "2026-05-19T13:43:56.853Z",
+      "committedAtUtc": "2026-05-19T13:43:56.853Z",
+      "generatedAtUtc": "2026-05-19T13:43:56.853Z",
+      "updatedAtUtc": "2026-05-19T13:43:56.853Z",
+      "category": "Performance",
+      "title": "Bug fixes and general improvements",
+      "summary": "Reduced hot-path analytics ingest and export cost risks while preserving priority tracking.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Reduced hot-path analytics ingest and export cost risks.",
+        "Moved low-priority analytics work toward batched lanes.",
+        "Kept priority tracking accuracy intact while cutting retry and export churn."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted analytics cost patch into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/analytics-hot-path-cost-reduction.generated.json",
+        "docs/agent-truth/analytics-hot-path-cost-reduction.md",
+        "functions/src/analytics-bigquery-export.ts",
+        "functions/src/analytics-event-facts.ts",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-analytics-hot-path-cost-reduction.ts",
+        "src/app/api/analytics/ingest/route.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/analytics-hot-path-cost-reduction.spec.ts"
+      ],
+      "sourceCommit": "b83c1225ffd93a16f6aecdd9b0081695613e32da"
+    },
     {
       "version": "1.2.89",
       "previousVersion": "1.2.88",

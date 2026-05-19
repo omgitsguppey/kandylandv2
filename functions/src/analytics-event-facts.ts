@@ -27,6 +27,26 @@ type IdentifiedAnalyticsBatchEvent = {
 const IDENTIFIED_ANALYTICS_MAX_BATCH_EVENTS = 100
 const IDENTIFIED_ANALYTICS_EVENT_WRITE_CONCURRENCY = 8
 const ANALYTICS_EVENT_FACT_SIDE_EFFECT_CONCURRENCY = 2
+const PRIORITY_EVENT_FACT_ROLLUP_NAMES = new Set([
+  "gumdrops_purchase_completed",
+  "unlock_drop_success",
+  "viewer_session_started",
+  "viewer_session_completed",
+  "viewer_source_downloaded",
+  "viewer_related_drop_clicked",
+])
+
+function isFirestoreAlreadyExists(error: unknown) {
+  const candidate = error as {code?: unknown; message?: unknown}
+  return candidate.code === 6
+    || candidate.code === "already-exists"
+    || candidate.code === "ALREADY_EXISTS"
+    || (typeof candidate.message === "string" && candidate.message.includes("ALREADY_EXISTS"))
+}
+
+function isPriorityEventFactForImmediateRollups(eventName: string) {
+  return PRIORITY_EVENT_FACT_ROLLUP_NAMES.has(eventName) || eventName.startsWith("watch_")
+}
 
 // cost-bound: bounded Promise.all worker pool; never fan out more than the supplied concurrency.
 export async function mapWithConcurrency<T, R>(
@@ -198,8 +218,12 @@ export const ingestAnalyticsEvent = onCall(
       }
       const eventId = readString(finalEvent.eventId) || buildFallbackEventId(userId, finalEvent.eventName)
       const ref = db.collection("analytics_event_facts").doc(eventId)
-      const snapshot = await ref.get()
-      if (snapshot.exists) {
+      try {
+        await ref.create(finalEvent)
+      } catch (error) {
+        if (!isFirestoreAlreadyExists(error)) {
+          throw error
+        }
         return {
           eventId,
           status: "deduped",
@@ -207,7 +231,6 @@ export const ingestAnalyticsEvent = onCall(
         }
       }
 
-      await ref.set(finalEvent, {merge: false})
       return {
         eventId,
         status: "success",
@@ -231,20 +254,22 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
     
     // Explicit deduplication guard using a dedicated collection
     const dedupeRef = db.collection("analytics_dedupe").doc(event.id)
-    const dedupeSnap = await dedupeRef.get()
-    if (dedupeSnap.exists) {
-      console.warn(`[Analytics] Duplicate event fact skipped: ${event.id}`)
-      return
-    }
 
     const enforcement = enforcePrivacyConsentOnEvent(data)
     if (!enforcement.allowed) {
-      await db.collection("analytics_dedupe").doc(event.id).set({
-        processedAt: FieldValue.serverTimestamp(),
-        eventId: event.id,
-        timestamp: readNumber(data.timestamp) || Date.now(),
-        skippedReason: enforcement.reason || "consent_denied",
-      }, {merge: true})
+      try {
+        await dedupeRef.create({
+          processedAt: FieldValue.serverTimestamp(),
+          eventId: event.id,
+          timestamp: readNumber(data.timestamp) || Date.now(),
+          skippedReason: enforcement.reason || "consent_denied",
+        })
+      } catch (error) {
+        if (!isFirestoreAlreadyExists(error)) {
+          throw error
+        }
+        console.warn(`[Analytics] Duplicate event fact skipped: ${event.id}`)
+      }
       return
     }
     
@@ -265,6 +290,38 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
       minuteKey: readString(data.minuteKey) || toTimeKeys(timestamp).minuteKey,
     }
     const eventName = readString(data.eventName)
+
+    if (!isPriorityEventFactForImmediateRollups(eventName)) {
+      const minuteBatchRef = db.collection("analytics_event_rollup_batches").doc(timeKeys.minuteKey)
+      const batch = db.batch()
+      batch.set(minuteBatchRef, {
+        minuteKey: timeKeys.minuteKey,
+        hourKey: timeKeys.hourKey,
+        dayKey: timeKeys.dayKey,
+        queueMode: "deferred_non_priority",
+        sourceCollection: "analytics_event_facts",
+        eventCount: buildIncrementUpdate(1),
+        eventNames: FieldValue.arrayUnion(eventName || "unknown_event"),
+        lastEventAt: timestamp,
+        updatedAt: FieldValue.serverTimestamp(),
+      }, {merge: true})
+      batch.create(dedupeRef, {
+        processedAt: FieldValue.serverTimestamp(),
+        eventId: event.id,
+        timestamp,
+        deferredRollup: true,
+        queueMode: "deferred_non_priority",
+      })
+      try {
+        await batch.commit()
+      } catch (error) {
+        if (!isFirestoreAlreadyExists(error)) {
+          throw error
+        }
+        console.warn(`[Analytics] Duplicate event fact skipped: ${event.id}`)
+      }
+      return
+    }
     const pagePath = readString(data.pagePath)
     const dropId = readString(data.dropId)
     const dropTitle = readString(data.dropTitle) || dropId
@@ -414,13 +471,21 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
       }, {merge: true})
     }
 
-    batch.set(dedupeRef, {
+    batch.create(dedupeRef, {
       processedAt: FieldValue.serverTimestamp(),
       eventId: event.id,
       timestamp,
     })
 
-    await batch.commit()
+    try {
+      await batch.commit()
+    } catch (error) {
+      if (!isFirestoreAlreadyExists(error)) {
+        throw error
+      }
+      console.warn(`[Analytics] Duplicate event fact skipped: ${event.id}`)
+      return
+    }
 
     await mapWithConcurrency([
       () => recordSemanticRollupFromEventFact({
