@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T21:59:45.993Z",
+  "generatedAtUtc": "2026-05-19T23:31:09.179Z",
   "reportKey": "analytics-ingest-firestore-closure",
-  "currentHead": "095d87c9b6e1ff125ea98af949480388d52cfacb",
+  "currentHead": "2e91fea3b74d8c5e1122a1fe7acb475510e9019a",
   "summary": {
     "ingestContractCreated": true,
     "acceptedEventsMapped": true,
@@ -10,7 +10,7 @@
     "dedupeRulesCentralized": true,
     "diagnosticsSampled": true,
     "telemetryGraphReused": true,
-    "clientTrackingPolicyPresent": false,
+    "clientTrackingPolicyPresent": true,
     "p0Count": 0,
     "p1Count": 0,
     "p2Count": 0
@@ -23,10 +23,10 @@
       "detail": "Telemetry dependency graph is present and reused as the upstream lane map."
     },
     {
-      "id": "client-tracking-policy-missing",
-      "status": "deferred",
+      "id": "client-tracking-policy-present",
+      "status": "fixed",
       "severity": "P2",
-      "detail": "Client tracking policy is not present yet; this ingest pass records the dependency and keeps server-side contract compatibility without duplicating that system."
+      "detail": "Client tracking policy is present for toggle/consent semantics."
     }
   ],
   "contractFindings": [

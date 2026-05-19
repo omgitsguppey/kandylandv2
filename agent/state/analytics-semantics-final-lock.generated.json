@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T15:40:50.925Z",
+  "generatedAtUtc": "2026-05-19T23:31:46.154Z",
   "reportKey": "analytics-semantics-final-lock",
-  "currentHead": "785975ca9f5f371e9731a73c6ae32439df52dfff",
+  "currentHead": "2e91fea3b74d8c5e1122a1fe7acb475510e9019a",
   "guestTrackingStatus": "source_ready_guest_data_remains_guest_until_linked",
   "userTrackingStatus": "source_ready_userId_identityState_session_continuity",
   "guestUserTransferStatus": "source_ready_link_first_no_double_count",
@@ -9,7 +9,7 @@
   "runtimeWatchTimeStatus": "source_ready_runtime_watch_v2_runtime_proof_required",
   "adminAnalyticsReadiness": "source_ready_needs_fresh_admin_truth_sample_before_claiming_live_accuracy",
   "betaScoreImpact": {
-    "betaScore": 45,
+    "betaScore": 39.52,
     "betaStatus": "Stale evidence",
     "analyticsSemanticsSourceReady": true,
     "runtimeEvidenceComplete": false,

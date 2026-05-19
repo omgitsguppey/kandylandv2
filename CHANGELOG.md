@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.17 - 2026-05-19
+- Bug fixes and general improvements
+- Locked telemetry dependency closure status.
+- Mapped analytics from client tracking through admin evidence.
+- Kept beta evidence requirements separate from source readiness.
+
 ## 1.3.16 - 2026-05-19
 - Bug fixes and general improvements
 - Simplified admin telemetry health reporting.

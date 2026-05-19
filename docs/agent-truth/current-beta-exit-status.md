@@ -1,23 +1,14 @@
 # Current Beta Exit Status
 
-Generated: 2026-05-19T18:34:00.446Z
+Generated: 2026-05-19T23:34:45.181Z
 
-Latest code version: 711970501004190b8755fccbb09a4d813e5508e8
+Latest code version: 2e91fea3b74d8c5e1122a1fe7acb475510e9019a
 
 ## Summary
 
-- Beta version: 1.3.2
+- Beta version: 1.3.17
 - Beta score: 39.52
 - Beta status: Stale evidence
-- Score version: beta_health_v2
-- Health score: 39.52
-- Launch gate status: owner_review
-- Source health: 84.5
-- Runtime health: 0
-- Evidence completeness: 25
-- Freshness: 34.29
-- Cost risk: 52.5
-- Regression risk: 30
 - Visual evidence: source_only_screenshotEvidenceAttached_false
 - Provider smoke: missing_formal_evidence
 - Runtime smoke: runtime_unverified

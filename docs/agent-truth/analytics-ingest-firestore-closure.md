@@ -1,7 +1,7 @@
 # Analytics Ingest Firestore Closure
 
-Generated: 2026-05-19T21:59:45.993Z
-Current code version: 095d87c9b6e1ff125ea98af949480388d52cfacb
+Generated: 2026-05-19T23:31:09.179Z
+Current code version: 2e91fea3b74d8c5e1122a1fe7acb475510e9019a
 
 ## Summary
 
@@ -12,7 +12,7 @@ Current code version: 095d87c9b6e1ff125ea98af949480388d52cfacb
 - Dedupe rules centralized: yes
 - Diagnostics sampled: yes
 - Telemetry graph reused: yes
-- Client tracking policy present: no
+- Client tracking policy present: yes
 
 ## Firestore Write Path
 
@@ -80,7 +80,7 @@ Current code version: 095d87c9b6e1ff125ea98af949480388d52cfacb
 ## Findings
 
 - fixed: Telemetry dependency graph is present and reused as the upstream lane map.
-- deferred: Client tracking policy is not present yet; this ingest pass records the dependency and keeps server-side contract compatibility without duplicating that system.
+- fixed: Client tracking policy is present for toggle/consent semantics.
 - fixed: Canonical analytics ingest contract module exists.
 - fixed: Each accepted anonymous event type maps to identity requirements, destinations, dedupe, and downstream processing.
 - fixed: Ingest route uses the contract's accepted event list instead of a duplicate event enum.

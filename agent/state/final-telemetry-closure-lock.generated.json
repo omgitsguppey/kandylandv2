@@ -1,0 +1,212 @@
+{
+  "generatedAtUtc": "2026-05-19T23:34:49.954Z",
+  "reportKey": "final-telemetry-closure-lock",
+  "currentHead": "2e91fea3b74d8c5e1122a1fe7acb475510e9019a",
+  "summary": {
+    "clientTrackingClosed": true,
+    "consentToggleClosed": false,
+    "ingestClosed": true,
+    "firestoreWritePathClosed": true,
+    "identityTransferClosed": true,
+    "individualUserTrackingClosed": true,
+    "behavioralTrackingClosed": true,
+    "runtimeWatchClosed": false,
+    "materializerClosed": true,
+    "bigQueryClosed": true,
+    "ga4ExternalTruthClosed": true,
+    "adminTelemetryTruthClosed": true,
+    "sqlDataConnectStatus": "agent_context_mirror_only_no_product_runtime_truth",
+    "cloudExportStatus": "source_ready_cloud_export_contract_runtime_unproven",
+    "betaEvidenceReady": false,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "laneStatus": [
+    {
+      "id": "page_view",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_guest_batches, analytics_sessions, analytics_event_facts",
+      "evidence": "Admin Analytics hot-cache/snapshots, Admin Debug telemetry evidence, public beta analytics evidence",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "session",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_sessions, analytics_guest_batches, analytics_event_facts",
+      "evidence": "Admin Analytics audience/live pulse and Admin Debug session evidence",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "guest_event",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_guest_batches and analytics_sessions",
+      "evidence": "Guest analytics cutover report, Admin Analytics guest bounce quality, Admin Debug guest evidence",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "auth_transition",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_event_facts; analytics_guest_batches before login when anonymous",
+      "evidence": "Admin Analytics auth outcomes, onboarding performance, analytics truth layer",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "identity_link",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_identity_links and analytics_event_facts",
+      "evidence": "Analytics identity transfer inventory, guest-user analytics cutover, Admin Debug identity evidence",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "purchase",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_event_facts and canonical transaction records",
+      "evidence": "Admin revenue/top drops truth, Admin Analytics commerce snapshot, beta revenue evidence",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "gumdrop_balance",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_event_facts plus canonical GumDrop ledger/transaction truth",
+      "evidence": "Admin daily task pipeline, economy evidence, public beta score economy lane",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "creator_experience",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_event_facts with actor/target creator separation",
+      "evidence": "Creator dashboard role boundary reports, Fan Pass CRM/broadcast evidence, Admin Analytics creator lanes",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "creator_subscription",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_event_facts and canonical creator subscription records",
+      "evidence": "Fan Pass CRM/broadcast evidence, creator parity reports, creator dashboard stats evidence",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "creator_drop_submission",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_event_facts plus pending creator drop submission records",
+      "evidence": "Creator drop management approval report, Admin Drops CMS audit, public beta creator supply evidence",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "runtime_watch",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_watch_sessions, analytics_watch_observations, analytics_event_facts companions",
+      "evidence": "Runtime watch-time v2 evidence, Admin Analytics watch-time health, public beta runtime proof",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "behavior_signal",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_guest_batches, analytics_event_facts, behavioral_timeline_facts",
+      "evidence": "Admin Analytics event mix, recommendation evidence, public beta behavior evidence",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "admin_evidence",
+      "status": "source_ready_graph_mapped",
+      "sourceTruth": "analytics_event_facts, debug evidence artifacts, admin metric snapshots",
+      "evidence": "Admin Debug Control Tower, source truth authority map, public beta evidence reports",
+      "nextAction": "Keep this lane represented in the telemetry dependency graph."
+    },
+    {
+      "id": "external_ga4_evidence",
+      "status": "ga4_server_configured;ga4_evidence_only",
+      "sourceTruth": "GA4/PostHog external evidence only; first-party analytics remains product truth",
+      "evidence": "external-analytics-truth-closure",
+      "nextAction": "Keep GA4 behind explicit evidence refresh and consent/env gates."
+    },
+    {
+      "id": "ingest",
+      "status": "source_ready_strict_contract",
+      "sourceTruth": "/api/analytics/ingest -> ingest contract",
+      "evidence": "analytics-ingest-firestore-closure",
+      "nextAction": "Keep accepted events mapped to destinations and non-retryable failures."
+    },
+    {
+      "id": "firestore_write_path",
+      "status": "source_ready_firestore_destinations_centralized",
+      "sourceTruth": "analytics_guest_batches, analytics_sessions, analytics_event_facts, diagnostics",
+      "evidence": "analytics-ingest-firestore-closure",
+      "nextAction": "Capture runtime write evidence before treating Firestore persistence as proven."
+    },
+    {
+      "id": "materializers",
+      "status": "source_ready_event_facts_and_rollups_mapped",
+      "sourceTruth": "event facts, rollups, admin summaries, archive/debug-only classes",
+      "evidence": "event-facts-materializer-closure",
+      "nextAction": "Attach runtime materializer evidence before claiming live totals."
+    },
+    {
+      "id": "bigquery_export",
+      "status": "source_ready_batched_export_contract_config_missing_safe",
+      "sourceTruth": "analytics_event_facts export candidate; BigQuery evidence only",
+      "evidence": "bigquery-cloud-pipeline-closure",
+      "nextAction": "Configure and verify BigQuery in a provider-approved evidence pass; do not infer zero traffic."
+    },
+    {
+      "id": "sql_dataconnect",
+      "status": "agent_context_mirror_only_no_product_runtime_truth",
+      "sourceTruth": "Data Connect/SQL mirror is repo intelligence context only",
+      "evidence": "AGENTS.md Data Connect mirror doctrine",
+      "nextAction": "Do not promote SQL/Data Connect into telemetry runtime without an explicit cost and truth contract."
+    },
+    {
+      "id": "cloud_export",
+      "status": "source_ready_cloud_export_contract_runtime_unproven",
+      "sourceTruth": "scheduled BigQuery export contract; no deploy/provider proof in this pass",
+      "evidence": "bigquery-cloud-pipeline-closure",
+      "nextAction": "Collect provider-approved export evidence before claiming cloud export live."
+    }
+  ],
+  "dependencyGaps": [
+    {
+      "id": "client-tracking-toggle-semantics",
+      "severity": "P2",
+      "blocking": false,
+      "status": "missing_dependency",
+      "nextAction": "Add or run the dedicated client tracking toggle semantics closure in a follow-up pass."
+    }
+  ],
+  "conflictingRoutesRemoved": [
+    "No open PRs were present at start; no telemetry route conflicts were merged or closed in this pass.",
+    "Final lock preserves first-party analytics as product truth and leaves GA4/BigQuery as evidence lanes."
+  ],
+  "missingEvidence": [
+    {
+      "id": "provider-smoke",
+      "status": "missing_formal_evidence",
+      "nextAction": "Attach formal provider smoke evidence before beta exit review."
+    },
+    {
+      "id": "runtime-smoke",
+      "status": "runtime_unverified",
+      "nextAction": "Attach deployed runtime smoke evidence before beta exit review."
+    },
+    {
+      "id": "admin-truth-sample",
+      "status": "missing_or_unknown",
+      "nextAction": "Attach fresh admin truth sample evidence before beta exit review."
+    }
+  ],
+  "disabledTelemetryBehavior": [
+    "Consent-denied or disabled behavior suppresses non-essential page behavior, hover, scroll, visibility, and external analytics events.",
+    "Disabled telemetry still keeps required product integrity/account lanes separate from behavior analytics according to source contracts.",
+    "Dedicated client tracking toggle closure artifact is missing; behavior semantics and ingest contracts still represent disabled behavior."
+  ],
+  "enabledTelemetryBehavior": [
+    "Enabled tracking maps main-site events through DeepTracker/runtime trackers into analytics ingest.",
+    "Accepted events map to Firestore destinations and event fact/materializer lanes before admin evidence.",
+    "External GA4 and BigQuery stay evidence-only and cannot override first-party product truth."
+  ],
+  "nextExactSteps": [
+    "Add or restore check:client-tracking-toggle-semantics as a dedicated closure artifact if the queued toggle phase did not land.",
+    "Attach formal provider smoke, runtime smoke, admin truth sample, and manual screenshot evidence before beta exit review.",
+    "Collect runtime evidence for watch-time, materializers, BigQuery/cloud export, and GA4 evidence refresh before marking those lanes live."
+  ]
+}

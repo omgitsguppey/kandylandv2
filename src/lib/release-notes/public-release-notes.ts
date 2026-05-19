@@ -1,13 +1,63 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.16",
-  "betaReleaseCounter": 316,
+  "currentVersion": "1.3.17",
+  "betaReleaseCounter": 317,
   "channel": "beta",
-  "generatedAt": "2026-05-19T23:20:00.000Z",
-  "generatedAtUtc": "2026-05-19T23:20:00.000Z",
+  "generatedAt": "2026-05-19T23:59:00.000Z",
+  "generatedAtUtc": "2026-05-19T23:59:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.17",
+      "previousVersion": "1.3.16",
+      "betaReleaseCounter": 317,
+      "previousBetaReleaseCounter": 316,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "docs(analytics): lock telemetry closure",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T23:59:00.000Z",
+      "generatedAt": "2026-05-19T23:59:00.000Z",
+      "committedAtUtc": "2026-05-19T23:59:00.000Z",
+      "generatedAtUtc": "2026-05-19T23:59:00.000Z",
+      "updatedAtUtc": "2026-05-19T23:59:00.000Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Locked telemetry dependency closure status while keeping beta evidence requirements separate from source readiness.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Locked telemetry dependency closure status.",
+        "Mapped analytics from client tracking through admin evidence.",
+        "Kept beta evidence requirements separate from source readiness."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted final telemetry closure lock into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics",
+        "admin evidence",
+        "beta readiness"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/final-telemetry-closure-lock.generated.json",
+        "docs/agent-truth/final-telemetry-closure-lock.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-final-telemetry-closure-lock.ts",
+        "scripts/agent/validate-overnight-beta-readiness-lock.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/final-telemetry-closure-lock.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.16",
       "previousVersion": "1.3.15",
@@ -1345,66 +1395,9 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/scheduled-runtime-cost-reduction.spec.ts"
       ],
       "sourceCommit": "pending-same-commit"
-    },
-    {
-      "version": "1.2.92",
-      "previousVersion": "1.2.91",
-      "betaReleaseCounter": 292,
-      "previousBetaReleaseCounter": 291,
-      "commitSha": "83d085481f237358a857f16ca55c99b662ecbed5",
-      "commitTitle": "fix(admin): reduce analytics debug read cost",
-      "commitCount": 1,
-      "commitShas": [
-        "83d085481f237358a857f16ca55c99b662ecbed5"
-      ],
-      "committedAt": "2026-05-19T14:42:08.131Z",
-      "generatedAt": "2026-05-19T14:42:08.131Z",
-      "committedAtUtc": "2026-05-19T14:42:08.131Z",
-      "generatedAtUtc": "2026-05-19T14:42:08.131Z",
-      "updatedAtUtc": "2026-05-19T14:42:08.131Z",
-      "category": "Performance",
-      "title": "Bug fixes and general improvements",
-      "summary": "Reduced default Admin Analytics and Debug read costs while preserving truth labels.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Reduced default Admin Analytics and Debug read costs.",
-        "Moved expensive admin sections behind snapshots, cache, or drilldowns.",
-        "Preserved truth labels for stale, missing, and unavailable data."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted admin analytics/debug cost patch into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "admin",
-        "analytics",
-        "debug"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/admin-analytics-debug-cost-reduction.generated.json",
-        "docs/agent-truth/admin-analytics-debug-cost-reduction.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-admin-analytics-debug-cost-reduction.ts",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/admin/roster/route.ts",
-        "src/app/api/admin/support/threads/route.ts",
-        "src/app/api/admin/users/route.ts",
-        "src/app/api/support/threads/route.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "src/lib/server/admin-analytics-data.ts",
-        "src/lib/server/support-threads.ts",
-        "tests/unit/admin-analytics-debug-cost-reduction.spec.ts"
-      ],
-      "sourceCommit": "83d085481f237358a857f16ca55c99b662ecbed5"
     }
   ]
-} satisfies PublicReleaseNotesDocument;
+} as const satisfies PublicReleaseNotesDocument;
 
 export const PUBLIC_RELEASE_NOTES_VERSION_CONTEXT = {
   appVersion: PUBLIC_RELEASE_NOTES_FALLBACK.currentVersion,

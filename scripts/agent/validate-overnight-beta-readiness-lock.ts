@@ -293,6 +293,7 @@ export function validateOvernightBetaReadinessLockReport(
 }
 
 function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockReport): CurrentBetaExitStatusReport {
+  const publicBetaScore = readJson("agent/state/public-beta-score.generated.json");
   return {
     generatedAtUtc: report.generatedAtUtc,
     reportKey: "current-beta-exit-status",
@@ -301,6 +302,15 @@ function buildCurrentBetaExitStatusReport(report: OvernightBetaReadinessLockRepo
       betaVersion: latestBetaVersion(),
       betaScore: report.betaScore,
       betaStatus: report.betaStatus,
+      scoreVersion: stringAt(publicBetaScore, ["scoreVersion"], "beta_health_v2"),
+      healthScore: numberAt(publicBetaScore, ["healthScore"], report.betaScore),
+      launchGateStatus: stringAt(publicBetaScore, ["launchGateStatus"], "owner_review"),
+      sourceHealthScore: numberAt(publicBetaScore, ["sourceHealthScore"], 0),
+      runtimeHealthScore: numberAt(publicBetaScore, ["runtimeHealthScore"], 0),
+      evidenceCompletenessScore: numberAt(publicBetaScore, ["evidenceCompletenessScore"], 0),
+      freshnessScore: numberAt(publicBetaScore, ["freshnessScore"], 0),
+      costRiskScore: numberAt(publicBetaScore, ["costRiskScore"], 0),
+      regressionRiskScore: numberAt(publicBetaScore, ["regressionRiskScore"], 0),
       sourceCleanupP0: 0,
       sourceCleanupP1: 0,
       userCreatorP0: 0,

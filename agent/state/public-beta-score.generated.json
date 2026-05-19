@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-19T18:34:00.446Z",
-  "currentHead": "711970501004190b8755fccbb09a4d813e5508e8",
+  "generatedAt": "2026-05-19T23:34:40.489Z",
+  "currentHead": "2e91fea3b74d8c5e1122a1fe7acb475510e9019a",
   "scoreVersion": "beta_health_v2",
   "scannerScore": 100,
   "scannerStatus": "clean",
@@ -142,7 +142,7 @@
       "capImpact": 0,
       "gateRequiredForExit": false,
       "blocksLaunch": false,
-      "partialReason": "Evidence is 124.37h old and outside the 24h freshness window.",
+      "partialReason": "Evidence is 129.38h old and outside the 24h freshness window.",
       "status": "Ready",
       "detail": "Focused Phase 1 validators passed from the latest code version. This is targeted behavior evidence only and does not prove visual QA, provider smoke, runtime smoke, real-device smoke, or production admin truth samples.",
       "evidence": [
@@ -285,11 +285,11 @@
       "status": "Stale evidence",
       "detail": "5 required generated report(s) are older than the freshness window.",
       "evidence": [
-        "agent/state/gumdrop-economy-accuracy.generated.json (60.08h old)",
-        "agent/state/creator-experience-simplification.generated.json (60.08h old)",
-        "agent/state/post-economy-creator-flow-qa.generated.json (60.08h old)",
-        "agent/state/user-facing-feature-connection-audit.generated.json (60.09h old)",
-        "agent/state/creator-dashboard-error-cost-inventory.generated.json (60.1h old)"
+        "agent/state/gumdrop-economy-accuracy.generated.json (65.09h old)",
+        "agent/state/creator-experience-simplification.generated.json (65.09h old)",
+        "agent/state/post-economy-creator-flow-qa.generated.json (65.09h old)",
+        "agent/state/user-facing-feature-connection-audit.generated.json (65.1h old)",
+        "agent/state/creator-dashboard-error-cost-inventory.generated.json (65.11h old)"
       ],
       "recommendedAction": "Refresh outdated generated reports and PR triage from the latest code version before treating readiness as current."
     },

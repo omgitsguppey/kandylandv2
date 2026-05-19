@@ -1,7 +1,7 @@
 # Event Facts Materializer Closure
 
-Generated: 2026-05-19T22:39:02.050Z
-Current code version: f3d87672cd191e54b0ff298be95d060d60a80531
+Generated: 2026-05-19T23:31:23.585Z
+Current code version: 2e91fea3b74d8c5e1122a1fe7acb475510e9019a
 
 ## Summary
 

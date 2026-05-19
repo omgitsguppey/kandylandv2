@@ -1,7 +1,7 @@
 # Analytics Semantics Final Lock
 
-Generated: 2026-05-19T15:40:50.925Z
-Current head: 785975ca9f5f371e9731a73c6ae32439df52dfff
+Generated: 2026-05-19T23:31:46.154Z
+Current head: 2e91fea3b74d8c5e1122a1fe7acb475510e9019a
 
 ## Status
 
@@ -11,7 +11,7 @@ Current head: 785975ca9f5f371e9731a73c6ae32439df52dfff
 - Legacy recovery: source_ready_legacy_evidence_until_reconciled
 - Runtime watch time: source_ready_runtime_watch_v2_runtime_proof_required
 - Admin analytics readiness: source_ready_needs_fresh_admin_truth_sample_before_claiming_live_accuracy
-- Beta score impact: score=45; status=Stale evidence; sourceReady=true; runtimeEvidenceComplete=false; betaExitReady=false
+- Beta score impact: score=39.52; status=Stale evidence; sourceReady=true; runtimeEvidenceComplete=false; betaExitReady=false
 
 ## Cost Lanes
 
