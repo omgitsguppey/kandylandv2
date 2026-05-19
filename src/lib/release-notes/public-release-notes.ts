@@ -1,13 +1,82 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.3",
-  "betaReleaseCounter": 303,
+  "currentVersion": "1.3.4",
+  "betaReleaseCounter": 304,
   "channel": "beta",
-  "generatedAt": "2026-05-19T19:05:00.000Z",
-  "generatedAtUtc": "2026-05-19T19:05:00.000Z",
+  "generatedAt": "2026-05-19T19:26:54.000Z",
+  "generatedAtUtc": "2026-05-19T19:26:54.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.4",
+      "previousVersion": "1.3.3",
+      "betaReleaseCounter": 304,
+      "previousBetaReleaseCounter": 303,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "feat(creator): add drop submissions for approval",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T19:26:54.000Z",
+      "generatedAt": "2026-05-19T19:26:54.000Z",
+      "committedAtUtc": "2026-05-19T19:26:54.000Z",
+      "generatedAtUtc": "2026-05-19T19:26:54.000Z",
+      "updatedAtUtc": "2026-05-19T19:26:54.000Z",
+      "category": "New",
+      "title": "Bug fixes and general improvements",
+      "summary": "Added a creator drop management lane for admin-reviewed Drop submissions.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "Creator tools",
+      "bullets": [
+        "Added a creator drop management lane separate from My KandyDrops.",
+        "Let creators submit drops for admin approval.",
+        "Kept pending creator submissions out of public rotation until approved."
+      ],
+      "audience": "creators",
+      "technicalDetails": [
+        "Grouped 1 accepted creator drop management approval update into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "creator dashboard",
+        "creator drop manager",
+        "admin drops",
+        "release notes"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/creator-drop-management-approval.generated.json",
+        "docs/agent-truth/creator-drop-management-approval.md",
+        "docs/agent-truth/creator-dashboard-role-boundary.md",
+        "docs/agent-truth/creator-surface-routing.md",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-creator-drop-management-approval.ts",
+        "scripts/agent/validate-creator-dashboard-role-boundary.ts",
+        "scripts/agent/validate-creator-surface-routing.ts",
+        "scripts/agent/validate-security-role-boundaries.ts",
+        "scripts/agent/validate-user-creator-ui-parity.ts",
+        "src/app/api/admin/drops/route.ts",
+        "src/app/api/creator/drops/route.ts",
+        "src/app/dashboard/creator/drops/page.tsx",
+        "src/components/Creators/CreatorDropManager.tsx",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/lib/creator-profile-routing.ts",
+        "src/lib/drops/drop-form-contract.ts",
+        "src/lib/drops/drop-submission-contract.ts",
+        "src/lib/drop-normalizers.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/creator-drop-scope.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/types/db.ts",
+        "tests/unit/creator-dashboard-role-boundary.spec.ts",
+        "tests/unit/creator-drop-management-approval.spec.ts",
+        "tests/unit/creator-surface-routing.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.3",
       "previousVersion": "1.3.2",
@@ -1320,102 +1389,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "CHANGELOG.md"
       ],
       "sourceCommit": "5ca8a3b9cdcc0ceb2062b82e2b0f0b9a9c00f91f"
-    },
-    {
-      "version": "1.2.79",
-      "previousVersion": "1.2.78",
-      "betaReleaseCounter": 279,
-      "previousBetaReleaseCounter": 278,
-      "commitSha": "d14d5d10899b0784d0743319a45c83854443a49a",
-      "commitTitle": "docs(analytics): reconcile legacy history recovery",
-      "commitCount": 1,
-      "commitShas": [
-        "d14d5d10899b0784d0743319a45c83854443a49a"
-      ],
-      "committedAt": "2026-05-18T13:34:57.288Z",
-      "generatedAt": "2026-05-18T13:34:57.288Z",
-      "committedAtUtc": "2026-05-18T13:34:57.288Z",
-      "generatedAtUtc": "2026-05-18T13:34:57.288Z",
-      "updatedAtUtc": "2026-05-18T13:34:57.288Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Mapped legacy analytics recovery without changing current product truth.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Mapped legacy analytics recovery without overwriting current truth.",
-        "Added duplicate-risk checks for historical analytics recovery.",
-        "Kept external analytics sources evidence-only until reconciled."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/analytics/legacy-recovery-reconciler.ts",
-        "agent/state/analytics-legacy-recovery-reconciliation.generated.json",
-        "docs/agent-truth/analytics-legacy-recovery-reconciliation.md",
-        "scripts/agent/validate-analytics-legacy-recovery-reconciliation.ts",
-        "tests/unit/analytics-legacy-recovery-reconciliation.spec.ts",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "d14d5d10899b0784d0743319a45c83854443a49a"
-    },
-    {
-      "version": "1.2.78",
-      "previousVersion": "1.2.77",
-      "betaReleaseCounter": 278,
-      "previousBetaReleaseCounter": 277,
-      "commitSha": "c22c712b34199c29435c9d6f1c20d14b4e3c6a4d",
-      "commitTitle": "fix(analytics): link guest history to users",
-      "commitCount": 1,
-      "commitShas": [
-        "c22c712b34199c29435c9d6f1c20d14b4e3c6a4d"
-      ],
-      "committedAt": "2026-05-18T05:02:17.741Z",
-      "generatedAt": "2026-05-18T05:02:17.741Z",
-      "committedAtUtc": "2026-05-18T05:02:17.741Z",
-      "generatedAtUtc": "2026-05-18T05:02:17.741Z",
-      "updatedAtUtc": "2026-05-18T05:02:17.741Z",
-      "category": "Fixed",
-      "title": "Bug fixes and general improvements",
-      "summary": "Improved guest-to-user analytics identity continuity.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Added guest-to-user analytics identity linking.",
-        "Kept guest history recoverable without double-counting user activity.",
-        "Improved individual user tracking semantics."
-      ],
-      "audience": "all",
-      "affectedSurfaces": [
-        "app"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "src/lib/analytics/analytics-identity-link.ts",
-        "src/lib/analytics/analytics-event-contract.ts",
-        "src/lib/analytics/identity-link-contract.ts",
-        "src/context/AuthContext.tsx",
-        "src/app/api/analytics/identity-link/route.ts",
-        "src/app/api/analytics/ingest-identified/route.ts",
-        "agent/state/guest-user-identity-transfer.generated.json",
-        "docs/agent-truth/guest-user-identity-transfer.md",
-        "scripts/agent/validate-guest-user-identity-transfer.ts",
-        "tests/unit/guest-user-identity-transfer.spec.ts",
-        "tests/unit/guest-user-identity-transfer-validator.spec.ts",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "CHANGELOG.md"
-      ],
-      "sourceCommit": "c22c712b34199c29435c9d6f1c20d14b4e3c6a4d"
     }
   ]
 } satisfies PublicReleaseNotesDocument;

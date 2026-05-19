@@ -431,6 +431,15 @@ export interface Drop {
     approvalReviewedBy?: string;
     approvalNote?: string;
     submittedByCreatorId?: string;
+    submittedByUserId?: string;
+    reviewStatus?: 'pending_admin_approval' | 'needs_changes' | 'approved' | 'rejected';
+    reviewedByAdminId?: string;
+    reviewedAt?: number;
+    reviewNote?: string;
+    createdByRole?: 'admin' | 'creator';
+    sourceTruth?: string;
+    publicDiscovery?: boolean;
+    rotationEligibility?: boolean;
     requiresActiveSubscription?: boolean;
     totalUnlocks: number;
     totalViews?: number; // Persistent viewport-based card views

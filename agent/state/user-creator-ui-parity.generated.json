@@ -1,9 +1,9 @@
 {
-  "generatedAtUtc": "2026-05-19T16:58:40.230Z",
+  "generatedAtUtc": "2026-05-19T19:28:06.878Z",
   "reportKey": "user-creator-ui-parity",
-  "currentHead": "05473469a47db2b21a9206e1edccc81b4f30c8dc",
+  "currentHead": "22d72f232b6497a8f162e48b01d8783aa241de3a",
   "summary": {
-    "surfacesScanned": 73,
+    "surfacesScanned": 75,
     "fakeActionsFound": 0,
     "fakeActionsFixed": 1,
     "mobileParityRisks": 0,
@@ -101,6 +101,16 @@
     },
     {
       "path": "src/app/dashboard/chat/page.tsx",
+      "classification": "user_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/app/dashboard/creator/drops/page.tsx",
       "classification": "user_ui",
       "checks": [
         "route-action-truth",
@@ -551,6 +561,16 @@
     },
     {
       "path": "src/components/Creators/CreatorDashboardSettingsHub.tsx",
+      "classification": "creator_ui",
+      "checks": [
+        "route-action-truth",
+        "mobile-hit-targets",
+        "lazy-manager-mounting",
+        "forbidden-admin-drift"
+      ]
+    },
+    {
+      "path": "src/components/Creators/CreatorDropManager.tsx",
       "classification": "creator_ui",
       "checks": [
         "route-action-truth",

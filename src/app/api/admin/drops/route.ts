@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { normalizeDropRecord } from "@/lib/drop-normalizers";
+import { sanitizeAdminDropPayload } from "@/lib/drops/drop-submission-contract";
 import { resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { handleApiError } from "@/lib/server/auth";
+import { trackServerEvent } from "@/lib/server/analytics";
 import { adminDb } from "@/lib/server/firebase-admin";
 import {
     ADMIN_DROP_REVALIDATION_PATHS,
     invalidateDropSurfaces,
     resolveCreatedDropTiming,
     resolveUpdatedDropTiming,
-    sanitizeDropData,
     shouldValidateDropPublishPayload,
     validateDropPublishState,
 } from "@/lib/server/drop-mutations";
@@ -20,15 +21,6 @@ import { ADMIN } from "@/lib/server/rate-limit";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
-
-const ALLOWED_DROP_FIELDS = [
-    "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
-    "validFrom", "validUntil", "autoQueueOnExpire", "status", "type", "tags",
-    "ctaText", "actionUrl", "accentColor", "fileMetadata", "mediaCounts",
-    "creatorId", "coverFileName", "contentFileNames", "approvalStatus",
-    "approvalReviewedAt", "approvalReviewedBy", "approvalNote", "submittedByCreatorId",
-    "requiresActiveSubscription",
-] as const;
 
 async function POST_handler(request: NextRequest) {
     try {
@@ -57,7 +49,7 @@ async function POST_handler(request: NextRequest) {
             }, { status: 400 });
         }
 
-        const sanitized = sanitizeDropData(dropData, ALLOWED_DROP_FIELDS);
+        const sanitized = sanitizeAdminDropPayload(dropData, "admin_route");
         const now = Date.now();
         const resolvedInitial = resolveCreatedDropTiming(dropData, now);
         sanitized.status = resolvedInitial.status;
@@ -101,7 +93,7 @@ async function POST_handler(request: NextRequest) {
 
 async function PUT_handler(request: NextRequest) {
     try {
-        await guardApiRequest(request, {
+        const caller = await guardApiRequest(request, {
             routeName: "admin/drops",
             rateLimit: ADMIN,
             requireTrustedOrigin: true,
@@ -117,7 +109,7 @@ async function PUT_handler(request: NextRequest) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
         }
 
-        const sanitized = sanitizeDropData(dropData, ALLOWED_DROP_FIELDS);
+        const sanitized = sanitizeAdminDropPayload(dropData, "admin_route");
         if (Object.keys(sanitized).length === 0) {
             return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
         }
@@ -149,9 +141,52 @@ async function PUT_handler(request: NextRequest) {
         if (sanitized.approvalStatus === undefined && existingDrop.approvalStatus) {
             sanitized.approvalStatus = existingDrop.approvalStatus;
         }
+        if (dropData.approvalStatus === "approved") {
+            sanitized.reviewStatus = "approved";
+            sanitized.reviewedByAdminId = caller?.uid || "admin";
+            sanitized.reviewedAt = now;
+            sanitized.publicDiscovery = true;
+            sanitized.rotationEligibility = true;
+        } else if (dropData.approvalStatus === "rejected") {
+            sanitized.reviewStatus = "rejected";
+            sanitized.reviewedByAdminId = caller?.uid || "admin";
+            sanitized.reviewedAt = now;
+            sanitized.publicDiscovery = false;
+            sanitized.rotationEligibility = false;
+        } else if (dropData.reviewStatus === "needs_changes") {
+            sanitized.reviewStatus = "needs_changes";
+            sanitized.reviewedByAdminId = caller?.uid || "admin";
+            sanitized.reviewedAt = now;
+            sanitized.publicDiscovery = false;
+            sanitized.rotationEligibility = false;
+        }
 
         await dropRef.update(sanitized);
         await invalidateDropSurfaces(ADMIN_DROP_REVALIDATION_PATHS, now);
+        if (
+            dropData.approvalStatus === "approved"
+            || dropData.approvalStatus === "rejected"
+            || dropData.reviewStatus === "needs_changes"
+        ) {
+            await trackServerEvent("admin_creator_drop_reviewed", {
+                actorType: "admin",
+                actor_type: "admin",
+                actorAdminId: caller?.uid || "admin",
+                actor_admin_id: caller?.uid || "admin",
+                creatorId: existingDrop.creatorId || existingDrop.submittedByCreatorId || "",
+                creator_id: existingDrop.creatorId || existingDrop.submittedByCreatorId || "",
+                targetCreatorId: existingDrop.creatorId || existingDrop.submittedByCreatorId || "",
+                target_creator_id: existingDrop.creatorId || existingDrop.submittedByCreatorId || "",
+                dropId,
+                drop_id: dropId,
+                reviewStatus: String(sanitized.reviewStatus || sanitized.approvalStatus || ""),
+                review_status: String(sanitized.reviewStatus || sanitized.approvalStatus || ""),
+                sourceTruth: "admin_drop_review",
+                source_truth: "admin_drop_review",
+                pagePath: "/admin/drops",
+                page_path: "/admin/drops",
+            }, caller?.uid);
+        }
 
         if (shouldNotifyActivation) {
             try {

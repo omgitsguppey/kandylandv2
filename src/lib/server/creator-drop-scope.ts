@@ -49,6 +49,7 @@ function isAllCreatorDrop(drop: DropScopeRecord) {
 function isPubliclyUnavailable(drop: DropScopeRecord, now: number) {
     const status = readString(drop.status);
     const approvalStatus = readString(drop.approvalStatus);
+    const reviewStatus = readString(drop.reviewStatus);
     const visibility = readString(drop.visibility);
     const visibilityScope = readString(drop.visibilityScope);
     const validFrom = typeof drop.validFrom === "number" ? drop.validFrom : null;
@@ -56,7 +57,13 @@ function isPubliclyUnavailable(drop: DropScopeRecord, now: number) {
 
     return approvalStatus === "pending_review"
         || approvalStatus === "rejected"
+        || reviewStatus === "pending_admin_approval"
+        || reviewStatus === "needs_changes"
+        || reviewStatus === "rejected"
+        || status === "pending_review"
         || status !== "active"
+        || drop.publicDiscovery === false
+        || drop.rotationEligibility === false
         || drop.archived === true
         || drop.isArchived === true
         || drop.unlisted === true

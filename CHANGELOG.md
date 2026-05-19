@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.3.4 - 2026-05-19
+- Bug fixes and general improvements
+- Added a creator drop management lane separate from My KandyDrops.
+- Let creators submit drops for admin approval.
+- Kept pending creator submissions out of public rotation until approved.
+
 ## 1.3.3 - 2026-05-19
 - Bug fixes and general improvements
 - Refined creator dashboard mobile overview layout.

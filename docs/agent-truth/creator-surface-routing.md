@@ -4,11 +4,11 @@ Generated source: `agent/state/creator-surface-routing.generated.json`
 
 ## Route Doctrine
 
-- `/dashboard/creator` is the Creator Dashboard landing surface. It shows the creator's inbox shortcut, one compact Creator Overview module, a direct Creator settings pill, and a manage-only drops CTA until a real creator create-drop route exists.
+- `/dashboard/creator` is the Creator Dashboard landing surface. It shows the creator's inbox shortcut, one compact Creator Overview module, a direct Creator settings pill, and a Manage drops CTA that opens the creator drop submission manager.
 - `/dashboard/creator` is route-scoped to creator operations only. It must not stack Daily Check-In, Creator Spotlight, Recent Activity, My KandyDrops, Owned/Locked tabs, locked drop cards, or other normal user dashboard modules below the creator dashboard body.
 - `/dashboard` remains the normal user dashboard surface. Creator-role accounts redirect to `/dashboard/creator`; creators access user/library surfaces through explicit routes such as `/dashboard/library`, `/drops`, and `/experiences`.
 - `/dashboard/creator/settings` is Creator Settings / Creator Workspace. It owns broadcasts, requests, bookings, Fan Pass visibility, availability, earnings, and creator manager panels.
-- `/dashboard/library` is the current safe manage-only fallback for the landing dashboard drops CTA.
+- `/dashboard/creator/drops` is the creator drop management surface. Creators can submit Drops for admin approval here; it is not the user My KandyDrops library.
 - `/dashboard/settings` is user account settings only.
 - `/dashboard/profile` is profile and account identity only.
 
@@ -20,7 +20,7 @@ Creator operations must not detour through user settings or profile pages. User 
 - Sidebar and profile dropdown label `/dashboard/creator/settings` as `Creator Settings`.
 - Sidebar and profile dropdown label `/dashboard/settings` as `Account Settings`; plain `Settings` is not a valid creator/account menu label.
 - The landing dashboard `Creator settings` pill points to `/dashboard/creator/settings`.
-- The landing dashboard drops CTA is labeled `Manage drops`, uses `data-create-drop-route-state="manage_only"`, and points to `/dashboard/library` because `/dashboard/drops` is not present in this repo.
+- The landing dashboard drops CTA is labeled `Manage drops`, uses `data-create-drop-route-state="creator_submission"`, and points to `/dashboard/creator/drops`.
 - Legacy profile creator settings copy says `Creator settings now live in Creator Settings` and points to `/dashboard/creator/settings`.
 
 ## Mobile And Error Rules

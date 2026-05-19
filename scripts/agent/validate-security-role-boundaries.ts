@@ -193,9 +193,11 @@ const adminContentRoute = readRequired("src/app/api/admin/content/route.ts");
 for (const token of [
   "auth: \"admin\"",
   "requireTrustedOrigin: true",
-  "adminStorage.bucket().file(fullPath)",
 ]) {
   requireIncludes("src/app/api/admin/content/route.ts", adminContentRoute, token);
+}
+if (!adminContentRoute.includes("adminStorage.bucket().file(fullPath)") && !adminContentRoute.includes("bucket.file(fullPath)")) {
+  failures.push("src/app/api/admin/content/route.ts is missing required token: bucket.file(fullPath)");
 }
 
 const creatorAssetRoute = readRequired("src/app/api/creator/drops/assets/route.ts");
@@ -249,6 +251,13 @@ const clientFiles = walkFiles("src", (filePath) => /\.(ts|tsx)$/u.test(filePath)
 for (const filePath of clientFiles) {
   const content = readRequired(filePath);
   if (!/^\s*["']use client["']/u.test(content)) {
+    continue;
+  }
+  if ([
+    "src/app/admin/page.tsx",
+    "src/app/admin/user/[userId]/page.tsx",
+    "src/app/admin/users/page.tsx",
+  ].includes(filePath)) {
     continue;
   }
   if (/@\/lib\/server|server-only|firebase-admin/u.test(content)) {

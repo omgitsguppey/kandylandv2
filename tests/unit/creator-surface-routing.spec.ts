@@ -72,15 +72,16 @@ describe("creator surface routing", () => {
     expect(landing).not.toContain("Creator settings</Link>\r\n                        </div>");
   });
 
-  it("does not route the landing drop CTA to the missing dashboard drops route", () => {
+  it("routes the landing drop CTA to the creator drop manager", () => {
     const landing = read("src/components/Dashboard/CreatorWorkspacePanel.tsx");
     const routing = read("src/lib/creator-profile-routing.ts");
 
-    expect(routing).toContain('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/library"');
-    expect(routing).toContain('CREATOR_DROP_ROUTE_STATE = "manage_only"');
+    expect(routing).toContain('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"');
+    expect(routing).toContain('CREATOR_DROP_ROUTE_STATE = "creator_submission"');
     expect(landing).toContain("Manage drops");
     expect(landing).toContain("href={CREATOR_DROP_MANAGE_ROUTE}");
     expect(landing).toContain("data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}");
+    expect(read("src/components/Creators/CreatorDropManager.tsx")).toContain('data-drop-manager-surface="creator_submission"');
     expect(landing).not.toContain('href="/dashboard/drops"');
     expect(landing).not.toMatch(/Create drop/u);
   });

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T16:58:28.331Z",
+  "generatedAtUtc": "2026-05-19T19:28:06.618Z",
   "reportKey": "creator-dashboard-role-boundary",
-  "currentHead": "05473469a47db2b21a9206e1edccc81b4f30c8dc",
+  "currentHead": "22d72f232b6497a8f162e48b01d8783aa241de3a",
   "summary": {
     "creatorDashboardRouteScoped": true,
     "userModulesRemovedFromCreatorDashboard": true,
@@ -72,7 +72,7 @@
       "id": "explicit-user-surface-access",
       "severity": "p2",
       "file": "src/lib/creator-profile-routing.ts",
-      "summary": "Creator drop/library access remains explicit through /dashboard/library.",
+      "summary": "Creator drop management is explicit through /dashboard/creator/drops while user library remains a separate user route.",
       "status": "verified"
     }
   ],

@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T16:59:05.438Z",
+  "generatedAtUtc": "2026-05-19T19:28:15.083Z",
   "reportKey": "creator-surface-routing",
-  "currentHead": "05473469a47db2b21a9206e1edccc81b4f30c8dc",
+  "currentHead": "22d72f232b6497a8f162e48b01d8783aa241de3a",
   "summary": {
     "baseDashboardRoute": "/dashboard/creator",
     "creatorSettingsRoute": "/dashboard/creator/settings",
@@ -50,7 +50,7 @@
       "status": "fixed",
       "severity": "p1",
       "file": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-      "summary": "The landing dashboard no longer points Create drop at a missing /dashboard/drops route; it uses Manage drops until a real creator create flow exists."
+      "summary": "The landing dashboard Manage drops CTA points to the creator drop submission manager."
     },
     {
       "id": "sidebar-separate-routes",
@@ -119,7 +119,7 @@
     "Updated sidebar, dropdown, user settings, and legacy creator-settings CTAs to separate dashboard and settings destinations.",
     "Renamed account settings navigation labels to Account Settings.",
     "Replaced separate mobile landing metric cards with one compact Creator Overview module and kept bottom-nav/report-issue spacing explicit.",
-    "Replaced the missing /dashboard/drops CTA with a manage-only /dashboard/library destination.",
+    "Replaced the library fallback with a creator drop submission manager route.",
     "Translated base dashboard creator settings load failures through HumanErrorNotice."
   ],
   "nextFixOrder": [

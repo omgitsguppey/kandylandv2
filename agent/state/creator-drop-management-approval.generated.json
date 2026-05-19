@@ -1,0 +1,165 @@
+{
+  "generatedAtUtc": "2026-05-19T19:27:55.727Z",
+  "reportKey": "creator-drop-management-approval",
+  "currentHead": "22d72f232b6497a8f162e48b01d8783aa241de3a",
+  "summary": {
+    "existingAdminDropPipelineReused": true,
+    "sharedDropFormContractCreated": true,
+    "creatorDropManagerRouteCreated": true,
+    "manageDropsRouteFixed": true,
+    "creatorSubmissionApiCreated": true,
+    "creatorAdminOnlyFieldsBlocked": true,
+    "adminApprovalRequired": true,
+    "creatorCannotPublishDirectly": true,
+    "publicDiscoveryGuarded": true,
+    "rotationGuarded": true,
+    "creatorOwnDropsOnly": true,
+    "userLibrarySeparated": true,
+    "trackingAdded": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "existingRulesFound": [
+    {
+      "id": "admin-modal-reused",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/components/Admin/CreateDropModal.tsx",
+      "summary": "CreateDropModal already supports creator mode and creator upload endpoint."
+    },
+    {
+      "id": "drop-mutation-reused",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/lib/server/drop-mutations.ts",
+      "summary": "Shared drop mutation validation remains the server publish guard."
+    }
+  ],
+  "reusedComponents": [
+    {
+      "id": "admin-route-contract",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/app/api/admin/drops/route.ts",
+      "summary": "Admin drops route uses shared admin payload sanitation."
+    },
+    {
+      "id": "creator-modal-contract",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "Creator manager opens CreateDropModal in creator mode instead of a separate Drop form system."
+    }
+  ],
+  "routeFindings": [
+    {
+      "id": "manage-drops-route",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/lib/creator-profile-routing.ts",
+      "summary": "Creator Manage drops route points to /dashboard/creator/drops."
+    },
+    {
+      "id": "creator-manager-page",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/app/dashboard/creator/drops/page.tsx",
+      "summary": "Creator manager route renders CreatorDropManager."
+    }
+  ],
+  "formContractFindings": [
+    {
+      "id": "shared-form-contract",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/lib/drops/drop-form-contract.ts",
+      "summary": "Shared admin and creator field contract exists."
+    },
+    {
+      "id": "shared-submission-contract",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/lib/drops/drop-submission-contract.ts",
+      "summary": "Creator payload builder forces pending admin approval."
+    }
+  ],
+  "permissionFindings": [
+    {
+      "id": "creator-role-required",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/app/api/creator/drops/route.ts",
+      "summary": "Creator route requires authenticated creator role."
+    },
+    {
+      "id": "creator-own-drops-only",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/app/api/creator/drops/route.ts",
+      "summary": "Creator route lists and mutates only owned/submitted/assigned Drops."
+    },
+    {
+      "id": "creator-cannot-publish",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/app/api/creator/drops/route.ts",
+      "summary": "Creator route cannot set public discovery, rotation, live, or approved state."
+    }
+  ],
+  "visibilityFindings": [
+    {
+      "id": "public-discovery-guard",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/lib/server/creator-drop-scope.ts",
+      "summary": "Pending creator submissions are excluded from public discovery."
+    },
+    {
+      "id": "rotation-guard",
+      "severity": "p0",
+      "status": "verified",
+      "file": "src/lib/server/creator-drop-scope.ts",
+      "summary": "Pending creator submissions are excluded from rotation."
+    },
+    {
+      "id": "user-library-separated",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/components/Creators/CreatorDropManager.tsx",
+      "summary": "Creator drop manager does not use My KandyDrops library language."
+    }
+  ],
+  "adminReviewFindings": [
+    {
+      "id": "admin-approval-path",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/app/api/admin/drops/route.ts",
+      "summary": "Admin route can approve, reject, or request changes while stamping reviewer fields."
+    }
+  ],
+  "trackingFindings": [
+    {
+      "id": "tracking-events",
+      "severity": "p1",
+      "status": "verified",
+      "file": "src/app/api/creator/drops/route.ts",
+      "summary": "Creator submission/update and admin review tracking events are wired."
+    }
+  ],
+  "fixesApplied": [
+    "Routed Creator Dashboard Manage drops to /dashboard/creator/drops.",
+    "Extracted shared Drop field and submission contracts from the admin CMS route surface.",
+    "Created a creator Drop manager that reuses CreateDropModal in creator mode.",
+    "Forced creator submissions into pending admin approval and blocked direct public/rotation flags.",
+    "Added scoped creator Drop GET/POST/PUT API behavior.",
+    "Updated public discovery/rotation guards for pending creator submissions.",
+    "Stamped admin review and creator submission tracking events."
+  ],
+  "prCleanupActions": [],
+  "nextFixOrder": [
+    "Attach manual QA evidence for creator Drop submission and admin review once deployed.",
+    "Add richer admin queue filtering for pending creator submissions if operators need more review density."
+  ]
+}

@@ -93,7 +93,8 @@ export function buildCreatorDashboardRoleBoundaryReport(): CreatorDashboardRoleB
     && dashboardClient.includes("router.replace(CREATOR_DASHBOARD_ROUTE)")
     && dashboardClient.includes('data-dashboard-surface="creator_redirect"')
     && !dashboardClient.includes("CreatorWorkspacePanel");
-  const creatorCanAccessUserSurfacesExplicitly = routing.includes('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/library"')
+  const creatorCanAccessUserSurfacesExplicitly = routing.includes('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"')
+    && routing.includes('CREATOR_DROP_ROUTE_STATE = "creator_submission"')
     && bottomNav.includes("creatorDashboardHref")
     && bottomNav.includes("CREATOR_DASHBOARD_ROUTE");
   const bottomNavPreserved = coreLayout.includes("<MobileBottomBar />") && bottomNav.includes("Mobile navigation");
@@ -114,7 +115,7 @@ export function buildCreatorDashboardRoleBoundaryReport(): CreatorDashboardRoleB
     finding("creator-boundary-marker", "p1", "src/components/Dashboard/CreatorWorkspacePanel.tsx", "Creator dashboard body exposes creator-only and no-user-module markers.", userModulesRemovedFromCreatorDashboard ? "fixed" : "blocked"),
     finding("normal-user-dashboard-preserved", "p1", "src/app/dashboard/DashboardClient.tsx", "Normal user dashboard still renders Daily Check-In, Creator Spotlight, Recent Activity, and CollectionList.", normalUserDashboardPreserved ? "verified" : "blocked"),
     finding("bottom-nav-preserved", "p2", "src/components/CoreLayoutWrapper.tsx", "Shared MobileBottomBar remains mounted for public dashboard routes.", bottomNavPreserved ? "verified" : "blocked"),
-    finding("explicit-user-surface-access", "p2", "src/lib/creator-profile-routing.ts", "Creator drop/library access remains explicit through /dashboard/library.", creatorCanAccessUserSurfacesExplicitly ? "verified" : "blocked"),
+    finding("explicit-user-surface-access", "p2", "src/lib/creator-profile-routing.ts", "Creator drop management is explicit through /dashboard/creator/drops while user library remains a separate user route.", creatorCanAccessUserSurfacesExplicitly ? "verified" : "blocked"),
   ];
   const doctrineChanges: Finding[] = [
     finding("role-boundary-doctrine", "p1", "docs/agent-truth/creator-dashboard-role-boundary.md", "Doctrine locks creator and user dashboard bodies as separate route scopes.", staleDoctrineRemoved ? "fixed" : "blocked"),

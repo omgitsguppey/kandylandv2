@@ -108,8 +108,8 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
   }, includesAll(routing, [
     'CREATOR_DASHBOARD_ROUTE = "/dashboard/creator"',
     'CREATOR_SETTINGS_ROUTE = "/dashboard/creator/settings"',
-    'CREATOR_DROP_MANAGE_ROUTE = "/dashboard/library"',
-    'CREATOR_DROP_ROUTE_STATE = "manage_only"',
+    'CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"',
+    'CREATOR_DROP_ROUTE_STATE = "creator_submission"',
     'USER_SETTINGS_ROUTE = "/dashboard/settings"',
     'USER_PROFILE_ROUTE = "/dashboard/profile"',
   ]));
@@ -127,8 +127,10 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
     status: "fixed",
     severity: "p1",
     file: "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-    summary: "The landing dashboard no longer points Create drop at a missing /dashboard/drops route; it uses Manage drops until a real creator create flow exists.",
+    summary: "The landing dashboard Manage drops CTA points to the creator drop submission manager.",
   }, includesAll(landing, ["Manage drops", "href={CREATOR_DROP_MANAGE_ROUTE}", "data-create-drop-route-state={CREATOR_DROP_ROUTE_STATE}"])
+    && routing.includes('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"')
+    && routing.includes('CREATOR_DROP_ROUTE_STATE = "creator_submission"')
     && !landing.includes('href="/dashboard/drops"')
     && !/Create drop/u.test(landing));
 
@@ -249,7 +251,7 @@ export function buildCreatorSurfaceRoutingReport(): CreatorSurfaceRoutingReport 
       "Updated sidebar, dropdown, user settings, and legacy creator-settings CTAs to separate dashboard and settings destinations.",
       "Renamed account settings navigation labels to Account Settings.",
       "Replaced separate mobile landing metric cards with one compact Creator Overview module and kept bottom-nav/report-issue spacing explicit.",
-      "Replaced the missing /dashboard/drops CTA with a manage-only /dashboard/library destination.",
+      "Replaced the library fallback with a creator drop submission manager route.",
       "Translated base dashboard creator settings load failures through HumanErrorNotice.",
     ],
     nextFixOrder: [

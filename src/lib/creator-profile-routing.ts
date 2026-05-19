@@ -6,8 +6,8 @@ import {
 
 export const CREATOR_DASHBOARD_ROUTE = "/dashboard/creator";
 export const CREATOR_SETTINGS_ROUTE = "/dashboard/creator/settings";
-export const CREATOR_DROP_MANAGE_ROUTE = "/dashboard/library";
-export const CREATOR_DROP_ROUTE_STATE = "manage_only";
+export const CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops";
+export const CREATOR_DROP_ROUTE_STATE = "creator_submission";
 export const USER_SETTINGS_ROUTE = "/dashboard/settings";
 export const USER_PROFILE_ROUTE = "/dashboard/profile";
 

@@ -57,7 +57,8 @@ describe("creator dashboard role boundary", () => {
     const bottomNav = read("src/components/Navigation/MobileBottomBar.tsx");
     const coreLayout = read("src/components/CoreLayoutWrapper.tsx");
 
-    expect(routing).toContain('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/library"');
+    expect(routing).toContain('CREATOR_DROP_MANAGE_ROUTE = "/dashboard/creator/drops"');
+    expect(routing).toContain('CREATOR_DROP_ROUTE_STATE = "creator_submission"');
     expect(bottomNav).toContain("CREATOR_DASHBOARD_ROUTE");
     expect(bottomNav).toContain("creatorDashboardHref");
     expect(coreLayout).toContain("<MobileBottomBar />");
