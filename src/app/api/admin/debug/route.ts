@@ -2441,7 +2441,7 @@ function buildRolloutRegistryPanelState(input: {
         });
 
         const evaluations = assignments.map((assignment) => {
-                const match = assignment.id ? rolloutItemsMap.get(toOptionalString(assignment.id)!) ?? undefined : undefined;
+                const match = rolloutItemsMap.get(toOptionalString(assignment.id) || "") ?? undefined;
                 const reasonRaw = toOptionalString(assignment.reason);
                 const assignedVariant = toOptionalString(assignment.variant) || "unknown";
                 const defaultVariant = toOptionalString(assignment.defaultVariant) || match?.defaultVariant || "unknown";
