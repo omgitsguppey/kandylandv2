@@ -1,0 +1,120 @@
+{
+  "generatedAtUtc": "2026-05-19T14:05:34.626Z",
+  "reportKey": "deeptracker-telemetry-volume-reduction",
+  "currentHead": "03c39a8af422bc530f24536644c61672f8815b24",
+  "summary": {
+    "nonPriorityFlushSeconds": 15,
+    "priorityEventsPreserved": true,
+    "finalizationCoalesced": true,
+    "nonPriorityQueueCap": 200,
+    "hoverSummarized": true,
+    "visibilitySummarized": true,
+    "scrollMilestonesOnly": true,
+    "identityLinkDuplicateGuarded": true,
+    "runtimeWatchUnaffected": true,
+    "estimatedSavingsNotes": [
+      "DeepTracker non-priority interval changed from 2.5 seconds to 15 seconds.",
+      "Pagehide, visibility hidden, cleanup, and priority flush paths use one closeout key per route session.",
+      "Hover and visibility events now emit summaries instead of per-transition streams.",
+      "Scroll uses requestAnimationFrame and 25/50/75/100 milestones instead of 500ms polling.",
+      "Identity link writes pending state before send, then stores success or retry-after state to prevent duplicate bursts."
+    ],
+    "p0Count": 0,
+    "p1Count": 1,
+    "p2Count": 2
+  },
+  "auditItemsAddressed": [1, 2, 3, 4, 5, 6, 14],
+  "fixesApplied": [
+    {
+      "id": "deeptracker-priority-policy",
+      "items": [1, 3],
+      "files": [
+        "src/lib/analytics/client-telemetry-priority.ts",
+        "src/components/Analytics/DeepTracker.tsx"
+      ],
+      "status": "fixed_priority_preserved",
+      "detail": "Added client telemetry priority classification, moved non-priority flushes to 15 seconds, and lowered the non-priority queue cap to 200 while preserving immediate/next-turn priority flushes."
+    },
+    {
+      "id": "deeptracker-finalization-coalesced",
+      "items": [2],
+      "files": ["src/components/Analytics/DeepTracker.tsx"],
+      "status": "fixed_idempotent_closeout",
+      "detail": "Visibility hidden, pagehide, cleanup, and priority closeouts share a route-session closeout key and prefer beacon/keepalive for final sends."
+    },
+    {
+      "id": "deeptracker-low-value-summary-events",
+      "items": [4, 5, 6],
+      "files": ["src/components/Analytics/DeepTracker.tsx"],
+      "status": "fixed_summarized",
+      "detail": "Hover, visibility, and scroll now summarize state; scroll emits only max depth and 25/50/75/100 milestones via requestAnimationFrame."
+    },
+    {
+      "id": "identity-link-pending-retry-window",
+      "items": [14],
+      "files": ["src/lib/analytics/analytics-identity-link.ts"],
+      "status": "fixed_duplicate_burst_guarded",
+      "detail": "Identity link submission marks a pending state before fetch, writes a sent state on success, and writes a retry-after window on failure without blocking auth."
+    }
+  ],
+  "deferredFindings": [
+    {
+      "id": "global-telemetry-track-event-queue",
+      "severity": "P1",
+      "reason": "This phase scoped DeepTracker and identity link volume. The separate src/lib/telemetry.ts queue still has its own scheduled/pagehide/visibility behavior and should be reviewed without mixing contracts.",
+      "nextStep": "Run a focused pass on global trackEvent batching, preserving purchase/auth/conversion immediacy."
+    },
+    {
+      "id": "deeptracker-event-schema-summary-fields",
+      "severity": "P2",
+      "reason": "Summaries reuse existing ingest-safe fields instead of adding new payload keys to the anonymous ingest schema in this client-only pass.",
+      "nextStep": "If richer summary dimensions are needed, update the anonymous ingest schema and analytics contract in a dedicated server/client contract pass."
+    }
+  ],
+  "costSavingsModel": [
+    {
+      "lane": "deeptracker_interval_flush",
+      "formula": "requestReduction ~= 1 - (oldIntervalSeconds / newIntervalSeconds)",
+      "estimatedPercentReduction": "about 83% fewer non-priority interval flush opportunities while visible"
+    },
+    {
+      "lane": "deeptracker_finalization",
+      "formula": "duplicateReduction ~= duplicateLifecycleFlushes - oneCloseoutPerRouteSession",
+      "estimatedPercentReduction": "50-75% fewer closeout-triggered duplicate sends on route leave, hidden, and cleanup sequences"
+    },
+    {
+      "lane": "hover_visibility_streams",
+      "formula": "eventReduction ~= rawHoverAndVisibilityEvents - summaryEvents",
+      "estimatedPercentReduction": "80-95% fewer hover and visibility diagnostic events per session"
+    },
+    {
+      "lane": "scroll_tracking",
+      "formula": "eventReduction ~= pollingChecksAndThresholdEvents - fourMilestonesAndSummary",
+      "estimatedPercentReduction": "70-95% fewer scroll diagnostics on long scrolling sessions"
+    },
+    {
+      "lane": "identity_link_transfer",
+      "formula": "duplicateReduction ~= repeatedAuthTransitionsWithinPendingTtl - onePendingTransfer",
+      "estimatedPercentReduction": "up to 90% fewer duplicate identity-link requests during login/session-restore bursts"
+    }
+  ],
+  "prCleanupActions": [
+    {
+      "number": 271,
+      "title": "Reduce monolith file risk and clarify responsibility boundaries",
+      "classification": "preserve_out_of_phase",
+      "reason": "Docs-only monolith governance PR touches FULL_SCALE_CODEBASE_AUDIT.md and does not touch DeepTracker, telemetry contracts, identity link, or runtime watch tracking."
+    },
+    {
+      "number": 272,
+      "title": "Palette: Add aria-expanded to creator dashboard toggles",
+      "classification": "preserve_out_of_phase",
+      "reason": "Tiny creator accessibility PR touches creator UI files, not DeepTracker/client telemetry volume reduction. Commented and preserved for creator accessibility owner review."
+    }
+  ],
+  "nextFixOrder": [
+    "Review src/lib/telemetry.ts global trackEvent cadence separately from DeepTracker.",
+    "Add richer anonymous summary fields only through a server/client ingest contract pass if product analysis needs them.",
+    "Keep RuntimeWatchTracker on its independent 10s playback heartbeat when wiring media integration."
+  ]
+}

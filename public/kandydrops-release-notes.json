@@ -1,11 +1,61 @@
 {
-  "currentVersion": "1.2.90",
-  "betaReleaseCounter": 290,
+  "currentVersion": "1.2.91",
+  "betaReleaseCounter": 291,
   "channel": "beta",
-  "generatedAt": "2026-05-19T13:43:56.853Z",
-  "generatedAtUtc": "2026-05-19T13:43:56.853Z",
-  "lastCommitSha": "b83c1225ffd93a16f6aecdd9b0081695613e32da",
+  "generatedAt": "2026-05-19T14:15:07.248Z",
+  "generatedAtUtc": "2026-05-19T14:15:07.248Z",
+  "lastCommitSha": "03c39a8af422bc530f24536644c61672f8815b24",
   "notes": [
+    {
+      "version": "1.2.91",
+      "previousVersion": "1.2.90",
+      "betaReleaseCounter": 291,
+      "previousBetaReleaseCounter": 290,
+      "commitSha": "03c39a8af422bc530f24536644c61672f8815b24",
+      "commitTitle": "fix(analytics): reduce client telemetry volume",
+      "commitCount": 1,
+      "commitShas": [
+        "03c39a8af422bc530f24536644c61672f8815b24"
+      ],
+      "committedAt": "2026-05-19T14:15:07.248Z",
+      "generatedAt": "2026-05-19T14:15:07.248Z",
+      "committedAtUtc": "2026-05-19T14:15:07.248Z",
+      "generatedAtUtc": "2026-05-19T14:15:07.248Z",
+      "updatedAtUtc": "2026-05-19T14:15:07.248Z",
+      "category": "Performance",
+      "title": "Bug fixes and general improvements",
+      "summary": "Reduced non-priority client analytics volume while preserving priority tracking.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Reduced non-priority client analytics flush volume.",
+        "Summarized hover, visibility, and scroll telemetry.",
+        "Kept priority conversion and watch-time tracking accurate."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted client telemetry cost patch into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "analytics"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
+        "docs/agent-truth/deeptracker-telemetry-volume-reduction.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-deeptracker-telemetry-volume-reduction.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/analytics/analytics-identity-link.ts",
+        "src/lib/analytics/client-telemetry-priority.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "tests/unit/deeptracker-telemetry-volume-reduction.spec.ts"
+      ],
+      "sourceCommit": "03c39a8af422bc530f24536644c61672f8815b24"
+    },
     {
       "version": "1.2.90",
       "previousVersion": "1.2.89",

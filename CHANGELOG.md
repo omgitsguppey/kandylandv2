@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 16 public updates in pages of 5.
 
+## 1.2.91 - 2026-05-19
+- Bug fixes and general improvements
+- Reduced non-priority client analytics flush volume.
+- Summarized hover, visibility, and scroll telemetry.
+- Kept priority conversion and watch-time tracking accurate.
+
 ## 1.2.90 - 2026-05-19
 - Bug fixes and general improvements
 - Reduced hot-path analytics ingest and export cost risks.

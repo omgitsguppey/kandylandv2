@@ -2,6 +2,8 @@ import type { AnalyticsConsentState } from "@/lib/analytics/analytics-event-cont
 
 export const GUEST_USER_IDENTITY_TRANSFER_ROUTE = "/api/analytics/identity-link";
 export const GUEST_USER_IDENTITY_LINK_STORAGE_PREFIX = "kandydrops.identityLink.sent";
+export const IDENTITY_LINK_PENDING_TTL_MS = 10 * 60 * 1000;
+export const IDENTITY_LINK_FAILURE_RETRY_TTL_MS = 60 * 60 * 1000;
 
 export const ANALYTICS_IDENTITY_STATES = [
   "guest_only",
@@ -46,6 +48,7 @@ export type IdentityLinkSubmitResult = {
 };
 
 type Fetcher = (input: string, init: RequestInit) => Promise<Response>;
+type IdentityLinkStorageState = "sent" | `pending:${number}` | `retry_after:${number}`;
 
 function cleanIdentityPart(value: string) {
   const cleaned = value.trim().replace(/[^a-zA-Z0-9_-]+/g, "_").replace(/_+/g, "_").replace(/^_+|_+$/g, "");
@@ -120,14 +123,57 @@ function writeStorage(storage: Storage | null | undefined, key: string, value: s
   }
 }
 
+function getStorage() {
+  return typeof window !== "undefined" ? window.localStorage : null;
+}
+
+function readIdentityLinkStorageState(
+  link: Pick<GuestUserIdentityLink, "identityLinkId">,
+  storage?: Storage | null,
+) {
+  return readStorage(storage ?? getStorage(), createIdentityLinkStorageKey(link));
+}
+
+function writeIdentityLinkStorageState(
+  link: Pick<GuestUserIdentityLink, "identityLinkId">,
+  value: IdentityLinkStorageState,
+  storage?: Storage | null,
+) {
+  writeStorage(storage ?? getStorage(), createIdentityLinkStorageKey(link), value);
+}
+
+function isIdentityLinkStorageStateBlocking(value: string | null, nowMs = Date.now()) {
+  if (value === "sent") {
+    return true;
+  }
+
+  if (value?.startsWith("pending:")) {
+    const expiresAt = Number(value.slice("pending:".length));
+    return Number.isFinite(expiresAt) && expiresAt > nowMs;
+  }
+
+  if (value?.startsWith("retry_after:")) {
+    const retryAfter = Number(value.slice("retry_after:".length));
+    return Number.isFinite(retryAfter) && retryAfter > nowMs;
+  }
+
+  return false;
+}
+
 export function hasSubmittedIdentityLink(link: Pick<GuestUserIdentityLink, "identityLinkId">, storage?: Storage | null) {
-  const targetStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : null);
-  return readStorage(targetStorage, createIdentityLinkStorageKey(link)) === "sent";
+  return isIdentityLinkStorageStateBlocking(readIdentityLinkStorageState(link, storage));
 }
 
 export function markIdentityLinkSubmitted(link: Pick<GuestUserIdentityLink, "identityLinkId">, storage?: Storage | null) {
-  const targetStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : null);
-  writeStorage(targetStorage, createIdentityLinkStorageKey(link), "sent");
+  writeIdentityLinkStorageState(link, `pending:${Date.now() + IDENTITY_LINK_PENDING_TTL_MS}`, storage);
+}
+
+export function markIdentityLinkSucceeded(link: Pick<GuestUserIdentityLink, "identityLinkId">, storage?: Storage | null) {
+  writeIdentityLinkStorageState(link, "sent", storage);
+}
+
+export function markIdentityLinkRetryAfter(link: Pick<GuestUserIdentityLink, "identityLinkId">, storage?: Storage | null) {
+  writeIdentityLinkStorageState(link, `retry_after:${Date.now() + IDENTITY_LINK_FAILURE_RETRY_TTL_MS}`, storage);
 }
 
 export function buildIdentityLinkPayload(input: {
@@ -148,7 +194,8 @@ export function buildIdentityLinkPayload(input: {
 
   return {
     ...payload,
-    async submit(fetcher: Fetcher): Promise<IdentityLinkSubmitResult> {
+    async submit(fetcher: Fetcher, storage?: Storage | null): Promise<IdentityLinkSubmitResult> {
+      markIdentityLinkSubmitted(link, storage);
       try {
         const response = await fetcher(GUEST_USER_IDENTITY_TRANSFER_ROUTE, {
           method: "POST",
@@ -157,6 +204,7 @@ export function buildIdentityLinkPayload(input: {
         });
         const body = await response.json().catch(() => ({}));
         if (!response.ok || body?.success !== true) {
+          markIdentityLinkRetryAfter(link, storage);
           return {
             success: false,
             loginBlocking: false,
@@ -165,6 +213,7 @@ export function buildIdentityLinkPayload(input: {
           };
         }
 
+        markIdentityLinkSucceeded(link, storage);
         return {
           success: true,
           identityLinkId: typeof body.identityLinkId === "string" ? body.identityLinkId : link.identityLinkId,
@@ -174,6 +223,7 @@ export function buildIdentityLinkPayload(input: {
           retryable: false,
         };
       } catch {
+        markIdentityLinkRetryAfter(link, storage);
         return {
           success: false,
           loginBlocking: false,

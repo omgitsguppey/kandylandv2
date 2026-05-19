@@ -9,6 +9,13 @@ import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { buildAnalyticsSemanticParams, resolveAnalyticsSemanticContext } from "@/lib/analytics-semantics";
 import { canUseAnonymousAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
 import { trackEvent } from "@/lib/telemetry";
+import {
+    CLIENT_TELEMETRY_NON_PRIORITY_FLUSH_INTERVAL_MS,
+    CLIENT_TELEMETRY_NON_PRIORITY_QUEUE_CAP,
+    CLIENT_TELEMETRY_PRIORITY_FLUSH_DELAY_MS,
+    classifyClientTelemetryEventPriority,
+    shouldFlushClientTelemetryOnNextTurn,
+} from "@/lib/analytics/client-telemetry-priority";
 
 type TelemetryEventType = "click" | "hover" | "scroll" | "visibility" | "page_view" | "page_leave";
 type GuestSemanticEventName =
@@ -53,12 +60,29 @@ export interface TelemetryEvent {
 }
 
 const GUEST_ANALYTICS_QUEUE_STORAGE_KEY = "kandydrops.analytics.guest-queue";
-const GUEST_ANALYTICS_FLUSH_INTERVAL_MS = 2_500;
-const GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION = 500;
+const GUEST_ANALYTICS_FLUSH_INTERVAL_MS = CLIENT_TELEMETRY_NON_PRIORITY_FLUSH_INTERVAL_MS;
+const GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION = CLIENT_TELEMETRY_NON_PRIORITY_QUEUE_CAP;
 const GUEST_ANALYTICS_MAX_DIAGNOSTIC_EVENTS_PER_SESSION = 60;
-const GUEST_ANALYTICS_MAX_HOVER_EVENTS_PER_SESSION = 12;
-const GUEST_ANALYTICS_MAX_VISIBILITY_EVENTS_PER_SESSION = 24;
 const GUEST_ANALYTICS_MAX_EVENTS_PER_FLUSH = 200;
+const SCROLL_MILESTONES = [25, 50, 75, 100] as const;
+
+type GuestAnalyticsFlushReason = "interval" | "page_view" | "visibility" | "pagehide" | "cleanup" | "online" | "priority";
+type HoverSummaryState = {
+    totalHoverMs: number;
+    hoveredTargetCount: number;
+    firstHoverAt: number;
+    lastHoverAt: number;
+    topTarget: string;
+    targetCounts: Record<string, number>;
+};
+type VisibilitySummaryState = {
+    visibleCount: number;
+    hiddenCount: number;
+    totalVisibleMs: number;
+    totalHiddenMs: number;
+    lastState: "visible" | "hidden";
+    lastTransitionAt: number;
+};
 
 export type StableGuestAnalyticsBatch = {
     signature: string;
@@ -186,10 +210,60 @@ function persistGuestQueue(events: TelemetryEvent[]) {
             return;
         }
 
-        window.sessionStorage.setItem(GUEST_ANALYTICS_QUEUE_STORAGE_KEY, JSON.stringify(events.slice(-500)));
+        window.sessionStorage.setItem(GUEST_ANALYTICS_QUEUE_STORAGE_KEY, JSON.stringify(events.slice(-GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION)));
     } catch {
         // Ignore storage write failures in restricted contexts.
     }
+}
+
+function createEmptyHoverSummary(): HoverSummaryState {
+    return {
+        totalHoverMs: 0,
+        hoveredTargetCount: 0,
+        firstHoverAt: 0,
+        lastHoverAt: 0,
+        topTarget: "",
+        targetCounts: {},
+    };
+}
+
+function createVisibilitySummary(nowMs: number): VisibilitySummaryState {
+    return {
+        visibleCount: 0,
+        hiddenCount: 0,
+        totalVisibleMs: 0,
+        totalHiddenMs: 0,
+        lastState: typeof document !== "undefined" && document.visibilityState === "hidden" ? "hidden" : "visible",
+        lastTransitionAt: nowMs,
+    };
+}
+
+function trimNonPriorityQueueForEvent(queue: TelemetryEvent[], event: TelemetryEvent) {
+    if (queue.length < GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION) {
+        return true;
+    }
+
+    const queuedPriority = classifyClientTelemetryEventPriority(event);
+    if (queuedPriority !== "non_priority_batch") {
+        const firstNonPriorityIndex = queue.findIndex((queuedEvent) =>
+            classifyClientTelemetryEventPriority(queuedEvent) === "non_priority_batch");
+        if (firstNonPriorityIndex >= 0) {
+            queue.splice(firstNonPriorityIndex, 1);
+            return true;
+        }
+
+        queue.shift();
+        return true;
+    }
+
+    const firstQueuedNonPriorityIndex = queue.findIndex((queuedEvent) =>
+        classifyClientTelemetryEventPriority(queuedEvent) === "non_priority_batch");
+    if (firstQueuedNonPriorityIndex < 0) {
+        return false;
+    }
+
+    queue.splice(firstQueuedNonPriorityIndex, 1);
+    return true;
 }
 
 function readTelemetryContext() {
@@ -223,9 +297,14 @@ export function DeepTracker() {
     const hoverCountRef = useRef(0);
     const scrollCountRef = useRef(0);
     const hoverStart = useRef<Record<string, number>>({});
+    const hoverSummaryRef = useRef<HoverSummaryState>(createEmptyHoverSummary());
+    const visibilitySummaryRef = useRef<VisibilitySummaryState>(createVisibilitySummary(Date.now()));
+    const nextScrollMilestoneIndexRef = useRef(0);
+    const scrollRafRef = useRef<number | null>(null);
     const pageEnteredAt = useRef<number>(0);
     const viewerBackgroundTrackedRef = useRef(false);
     const stableGuestBatchRef = useRef<StableGuestAnalyticsBatch | null>(null);
+    const finalCloseoutKeyRef = useRef<string | null>(null);
 
     useEffect(() => {
         return subscribeToPrivacySettings(() => {
@@ -280,8 +359,14 @@ export function DeepTracker() {
         hoverCountRef.current = 0;
         scrollCountRef.current = 0;
         viewerBackgroundTrackedRef.current = false;
+        hoverSummaryRef.current = createEmptyHoverSummary();
+        visibilitySummaryRef.current = createVisibilitySummary(pageEnteredAt.current);
+        nextScrollMilestoneIndexRef.current = 0;
 
-        const flushQueue = async (reason: "interval" | "page_view" | "visibility" | "pagehide" | "cleanup" | "online") => {
+        const flushQueue = async (
+            reason: GuestAnalyticsFlushReason,
+            options: { preferBeacon?: boolean } = {},
+        ) => {
             if (!trackingAllowed || !shouldCaptureAnonymousBatch || eventQueue.current.length === 0) {
                 return;
             }
@@ -297,8 +382,12 @@ export function DeepTracker() {
 
             guestFlushInFlightRef.current = (async () => {
                 const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+                const preferBeacon = options.preferBeacon === true
+                    || reason === "pagehide"
+                    || reason === "visibility"
+                    || reason === "cleanup";
                 try {
-                    if (navigator?.sendBeacon) {
+                    if (preferBeacon && navigator?.sendBeacon) {
                         const accepted = navigator.sendBeacon("/api/analytics/ingest", blob);
                         if (!accepted) {
                             throw new Error("Guest analytics sendBeacon was rejected");
@@ -307,7 +396,7 @@ export function DeepTracker() {
                         const response = await fetch("/api/analytics/ingest", {
                             method: "POST",
                             body: blob,
-                            keepalive: true,
+                            keepalive: preferBeacon,
                         });
                         if (!response.ok) {
                             throw new Error(`Guest analytics flush failed (${response.status})`);
@@ -347,8 +436,19 @@ export function DeepTracker() {
             }, 250);
         };
 
+        const schedulePriorityFlush = () => {
+            window.setTimeout(() => {
+                void flushQueue("priority");
+            }, CLIENT_TELEMETRY_PRIORITY_FLUSH_DELAY_MS);
+        };
+
         const pushEvent = (event: TelemetryEvent) => {
             if (!trackingAllowed || !shouldCaptureAnonymousBatch) {
+                return;
+            }
+
+            const priority = classifyClientTelemetryEventPriority(event);
+            if (priority === "debug_only" && process.env.NODE_ENV === "production") {
                 return;
             }
 
@@ -361,22 +461,11 @@ export function DeepTracker() {
                 }
             }
 
-            if (event.type === "hover") {
-                const hoverCount = eventQueue.current.filter((queuedEvent) => queuedEvent.type === "hover").length;
-                if (hoverCount >= GUEST_ANALYTICS_MAX_HOVER_EVENTS_PER_SESSION) {
-                    return;
-                }
-            }
-
-            if (event.type === "visibility") {
-                const visibilityCount = eventQueue.current.filter((queuedEvent) => queuedEvent.type === "visibility").length;
-                if (visibilityCount >= GUEST_ANALYTICS_MAX_VISIBILITY_EVENTS_PER_SESSION) {
-                    return;
-                }
+            if (!trimNonPriorityQueueForEvent(eventQueue.current, event)) {
+                return;
             }
 
             if (eventQueue.current.length >= GUEST_ANALYTICS_MAX_EVENTS_PER_SESSION) {
-                eventQueue.current.shift();
                 recordClientDiagnostic("telemetry", "Guest analytics queue trimmed", {
                     pagePath: pathname,
                 });
@@ -384,14 +473,139 @@ export function DeepTracker() {
 
             eventQueue.current.push(event);
             persistQueueSoon();
+            if (shouldFlushClientTelemetryOnNextTurn(event)) {
+                schedulePriorityFlush();
+            }
+        };
+
+        const closeCurrentHover = () => {
+            if (!currentHoverTarget || !currentHoverKey) {
+                return;
+            }
+
+            const hoverStartedAt = hoverStart.current[currentHoverKey];
+            if (!hoverStartedAt) {
+                currentHoverTarget = null;
+                currentHoverKey = null;
+                return;
+            }
+
+            const duration = Date.now() - hoverStartedAt;
+            delete hoverStart.current[currentHoverKey];
+            if (duration > 1000) {
+                hoverCountRef.current += 1;
+                const label = getSafeTargetLabel(currentHoverTarget);
+                const summary = hoverSummaryRef.current;
+                summary.totalHoverMs += duration;
+                summary.hoveredTargetCount += 1;
+                summary.firstHoverAt = summary.firstHoverAt || hoverStartedAt;
+                summary.lastHoverAt = Date.now();
+                summary.targetCounts[label] = (summary.targetCounts[label] || 0) + 1;
+                summary.topTarget = Object.entries(summary.targetCounts)
+                    .sort((left, right) => right[1] - left[1])[0]?.[0] || label;
+            }
+
+            currentHoverTarget = null;
+            currentHoverKey = null;
+        };
+
+        const updateVisibilitySummary = (nextState: "visible" | "hidden") => {
+            const now = Date.now();
+            const summary = visibilitySummaryRef.current;
+            const elapsed = Math.max(0, now - summary.lastTransitionAt);
+            if (summary.lastState === "visible") {
+                summary.totalVisibleMs += elapsed;
+            } else {
+                summary.totalHiddenMs += elapsed;
+            }
+
+            if (nextState !== summary.lastState) {
+                if (nextState === "visible") {
+                    summary.visibleCount += 1;
+                } else {
+                    summary.hiddenCount += 1;
+                }
+            }
+
+            summary.lastState = nextState;
+            summary.lastTransitionAt = now;
+        };
+
+        const emitHoverSummary = () => {
+            closeCurrentHover();
+            const summary = hoverSummaryRef.current;
+            if (summary.hoveredTargetCount <= 0 || summary.totalHoverMs <= 0) {
+                return;
+            }
+
+            pushEvent({
+                type: "hover",
+                timestamp: Date.now(),
+                path: pathname,
+                targetId: "hover_summary",
+                targetTag: "SUMMARY",
+                targetText: summary.topTarget || "hover_summary",
+                durationMs: summary.totalHoverMs,
+                hoverCount: summary.hoveredTargetCount,
+                ...rawSemanticFields,
+            });
+            hoverSummaryRef.current = createEmptyHoverSummary();
+        };
+
+        const emitVisibilitySummary = () => {
+            updateVisibilitySummary(document.visibilityState === "hidden" ? "hidden" : "visible");
+            const summary = visibilitySummaryRef.current;
+            if (summary.visibleCount + summary.hiddenCount <= 0 && summary.totalVisibleMs <= 0 && summary.totalHiddenMs <= 0) {
+                return;
+            }
+
+            pushEvent({
+                type: "visibility",
+                timestamp: Date.now(),
+                path: pathname,
+                targetId: "visibility_summary",
+                targetTag: "SUMMARY",
+                targetText: summary.lastState,
+                durationMs: summary.totalVisibleMs,
+                clickCount: summary.visibleCount,
+                scrollCount: summary.hiddenCount,
+                ...rawSemanticFields,
+            });
+        };
+
+        const emitScrollSummary = () => {
+            if (lastScrollDepth.current <= 0) {
+                return;
+            }
+
+            pushEvent({
+                type: "scroll",
+                timestamp: Date.now(),
+                path: pathname,
+                targetId: "scroll_summary",
+                targetTag: "SUMMARY",
+                targetText: "scroll_summary",
+                scrollDepthPercent: lastScrollDepth.current,
+                scrollCount: scrollCountRef.current,
+                ...rawSemanticFields,
+            });
         };
 
         const emitPageSummary = (reason: "pagehide" | "cleanup" | "visibility") => {
+            const closeoutKey = `${pathname}:${pageEnteredAt.current}`;
+            if (finalCloseoutKeyRef.current === closeoutKey) {
+                return;
+            }
+
             if (finalized) {
                 return;
             }
 
             finalized = true;
+            finalCloseoutKeyRef.current = closeoutKey;
+            emitHoverSummary();
+            emitVisibilitySummary();
+            emitScrollSummary();
             const durationMs = Math.max(0, Date.now() - pageEnteredAt.current);
             const engaged = clickCountRef.current > 0
                 || hoverCountRef.current > 0
@@ -440,7 +654,7 @@ export function DeepTracker() {
                 exit_reason: reason,
             });
 
-            void flushQueue(reason);
+            void flushQueue(reason, { preferBeacon: true });
         };
 
         pushEvent({
@@ -504,26 +718,39 @@ export function DeepTracker() {
             const scrollTop = window.scrollY || document.documentElement.scrollTop;
             const scrollPercent = Math.round((scrollTop / docHeight) * 100);
 
-            if (scrollPercent > lastScrollDepth.current + 10) {
-                lastScrollDepth.current = scrollPercent;
+            if (scrollPercent > lastScrollDepth.current) {
+                lastScrollDepth.current = Math.min(100, scrollPercent);
+            }
+
+            while (
+                nextScrollMilestoneIndexRef.current < SCROLL_MILESTONES.length
+                && scrollPercent >= SCROLL_MILESTONES[nextScrollMilestoneIndexRef.current]
+            ) {
+                const milestone = SCROLL_MILESTONES[nextScrollMilestoneIndexRef.current];
+                nextScrollMilestoneIndexRef.current += 1;
                 scrollCountRef.current += 1;
                 pushEvent({
                     type: "scroll",
                     timestamp: Date.now(),
                     path: pathname,
-                    scrollDepthPercent: scrollPercent,
+                    targetId: `scroll_milestone_${milestone}`,
+                    targetTag: "SUMMARY",
+                    targetText: "scroll_milestone",
+                    scrollDepthPercent: milestone,
                     ...rawSemanticFields,
                 });
             }
         };
 
-        let lastScrollTime = 0;
         const throttledScroll = () => {
-            const now = Date.now();
-            if (now - lastScrollTime > 500) {
-                handleScroll();
-                lastScrollTime = now;
+            if (scrollRafRef.current !== null) {
+                return;
             }
+
+            scrollRafRef.current = window.requestAnimationFrame(() => {
+                scrollRafRef.current = null;
+                handleScroll();
+            });
         };
 
         const handleMouseOver = (e: MouseEvent) => {
@@ -560,40 +787,12 @@ export function DeepTracker() {
                 return;
             }
 
-            const hoverStartedAt = hoverStart.current[currentHoverKey];
-            if (hoverStartedAt) {
-                const duration = Date.now() - hoverStartedAt;
-                delete hoverStart.current[currentHoverKey];
-                if (duration > 1000) {
-                    hoverCountRef.current += 1;
-                    pushEvent({
-                        type: "hover",
-                        timestamp: Date.now(),
-                        path: pathname,
-                        targetId: currentHoverTarget.id || undefined,
-                        targetTag: currentHoverTarget.tagName,
-                        targetText: getSafeTargetLabel(currentHoverTarget),
-                        dropId: currentHoverTarget.getAttribute("data-drop-id") || undefined,
-                        durationMs: duration,
-                        ...rawSemanticFields,
-                    });
-                }
-            }
-
-            currentHoverTarget = null;
-            currentHoverKey = null;
+            closeCurrentHover();
         };
 
         const handleVisibilityChange = () => {
-            pushEvent({
-                type: "visibility",
-                timestamp: Date.now(),
-                path: pathname,
-                targetText: document.visibilityState,
-                ...rawSemanticFields,
-            });
-
             if (document.visibilityState === "hidden") {
+                updateVisibilitySummary("hidden");
                 if (semanticContext.category === "drop" && pathname.startsWith("/dashboard/viewer") && !viewerBackgroundTrackedRef.current) {
                     viewerBackgroundTrackedRef.current = true;
                     trackEvent("viewer_backgrounded", {
@@ -603,8 +802,11 @@ export function DeepTracker() {
                     });
                 }
 
-                void flushQueue("visibility");
+                emitPageSummary("visibility");
+                return;
             }
+
+            updateVisibilitySummary("visible");
         };
 
         const handlePageHide = () => {
@@ -639,6 +841,10 @@ export function DeepTracker() {
             window.removeEventListener("online", handleOnline);
             if (trackingInterval) {
                 window.clearInterval(trackingInterval);
+            }
+            if (scrollRafRef.current !== null) {
+                window.cancelAnimationFrame(scrollRafRef.current);
+                scrollRafRef.current = null;
             }
             if (queuePersistTimeout !== null) {
                 window.clearTimeout(queuePersistTimeout);

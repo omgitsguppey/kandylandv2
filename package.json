@@ -190,6 +190,7 @@
         "check:analytics-cadence-cost-policy": "tsx scripts/agent/validate-analytics-cadence-cost-policy.ts",
         "check:analytics-cost-hot-path-reduction": "tsx scripts/agent/validate-analytics-cost-hot-path-reduction.ts",
         "check:analytics-hot-path-cost-reduction": "tsx scripts/agent/validate-analytics-hot-path-cost-reduction.ts",
+        "check:deeptracker-telemetry-volume-reduction": "tsx scripts/agent/validate-deeptracker-telemetry-volume-reduction.ts",
         "check:pr-cleanup-final": "tsx scripts/agent/validate-pr-cleanup-final.ts",
         "check:open-pr-final-action": "tsx scripts/agent/validate-open-pr-final-action.ts",
         "check:final-open-pr-zero": "tsx scripts/agent/validate-final-open-pr-zero.ts",
