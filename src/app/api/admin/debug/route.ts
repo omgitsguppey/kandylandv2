@@ -2432,8 +2432,16 @@ function buildRolloutRegistryPanelState(input: {
                 : "guest";
         const actorSource: RolloutActorEvaluationRow["actorSource"] = "representative_fixture";
         const actorId = null;
+        // Bolt Optimization: Precompute map to avoid O(N) finds
+        const rolloutItemsMap = new Map<string, typeof rolloutItems[number]>();
+        rolloutItems.forEach((item) => {
+            if (!rolloutItemsMap.has(item.id)) {
+                rolloutItemsMap.set(item.id, item);
+            }
+        });
+
         const evaluations = assignments.map((assignment) => {
-                const match = rolloutItems.find((item) => item.id === toOptionalString(assignment.id));
+                const match = assignment.id ? rolloutItemsMap.get(toOptionalString(assignment.id)!) ?? undefined : undefined;
                 const reasonRaw = toOptionalString(assignment.reason);
                 const assignedVariant = toOptionalString(assignment.variant) || "unknown";
                 const defaultVariant = toOptionalString(assignment.defaultVariant) || match?.defaultVariant || "unknown";
@@ -5024,11 +5032,19 @@ export async function GET(request: NextRequest) {
                 .map((entry) => entry.attribution)
                 .filter((entry): entry is TaskIssueAttribution => Boolean(entry)),
         };
+        // Bolt Optimization: Precompute task inventory map to avoid O(N) finds in the loop
+        const taskInventoryMap = new Map<string, typeof taskInventory[number]>();
+        taskInventory.forEach((entry) => {
+            if (!taskInventoryMap.has(entry.taskId)) {
+                taskInventoryMap.set(entry.taskId, entry);
+            }
+        });
+
         const unsupportedRuntimeGroupsMap = runtimeTaskAudit.unsupportedRuntimeRecords.reduce((map, record) => {
             const reason = classifyRuntimeUnsupportedReason(record);
             const source = sourceLabelForRuntimeDriftKind(record.kind);
             const taskDefinition = record.taskId ? taskDefinitionsById.get(record.taskId) : undefined;
-            const inventoryEntry = record.taskId ? taskInventory.find((entry) => entry.taskId === record.taskId) : undefined;
+            const inventoryEntry = record.taskId ? taskInventoryMap.get(record.taskId) : undefined;
             const activityScope: RuntimeUnsupportedGroup["activityScope"] = typeof record.timestamp === "number" && record.timestamp >= currentDailyTaskWindow.windowStartMs
                 ? "active"
                 : "historical";
@@ -5216,11 +5232,32 @@ export async function GET(request: NextRequest) {
                 || right.taskIds.length - left.taskIds.length
                 || left.eventName.localeCompare(right.eventName);
         });
+        // Bolt Optimization: Precompute maps to avoid O(N^2) array finds in loops
+        const runtimeTaskSourceParityRowsMap = new Map<string, RuntimeTaskSourceParityRow>();
+        runtimeTaskSourceParityRows.forEach((row) => {
+            if (!runtimeTaskSourceParityRowsMap.has(row.taskId)) {
+                runtimeTaskSourceParityRowsMap.set(row.taskId, row);
+            }
+        });
+
+        const sharedEventGroupsByTaskIdMap = new Map<string, SharedTaskEventGroup>();
+        const sharedEventGroupsByEventNameMap = new Map<string, SharedTaskEventGroup>();
+        sharedEventGroups.forEach((group) => {
+            group.taskIds.forEach((taskId) => {
+                if (!sharedEventGroupsByTaskIdMap.has(taskId)) {
+                    sharedEventGroupsByTaskIdMap.set(taskId, group);
+                }
+            });
+            if (!sharedEventGroupsByEventNameMap.has(group.eventName)) {
+                sharedEventGroupsByEventNameMap.set(group.eventName, group);
+            }
+        });
+
         const alignmentWarnings: TaskTelemetryAlignmentWarning[] = [];
         runtimeTaskAudit.distribution.forEach((entry) => {
             const definition = taskDefinitionsById.get(entry.taskId);
-            const sourceParity = runtimeTaskSourceParityRows.find((row) => row.taskId === entry.taskId);
-            const sharedGroup = sharedEventGroups.find((group) => group.taskIds.includes(entry.taskId));
+            const sourceParity = runtimeTaskSourceParityRowsMap.get(entry.taskId);
+            const sharedGroup = sharedEventGroupsByTaskIdMap.get(entry.taskId);
 
             if (sharedGroup && (sharedGroup.ambiguityState === "partial" || sharedGroup.ambiguityState === "unsafe_shared_event")) {
                 alignmentWarnings.push({
@@ -5326,7 +5363,7 @@ export async function GET(request: NextRequest) {
         }>());
         const taskTelemetryMappingRows: TaskTelemetryMappingRow[] = Array.from(telemetryAlignmentByCanonicalEvent.values()).map((entry) => {
             const affectedDefinitions = taskDefinitionsByCanonicalEvent.get(entry.eventName) || [];
-            const sharedGroup = sharedEventGroups.find((group) => group.eventName === entry.eventName);
+            const sharedGroup = sharedEventGroupsByEventNameMap.get(entry.eventName);
             const purpose = classifyTaskTelemetryEventPurpose(entry.eventName);
             const expectedMapping = purpose === "task_trigger"
                 || (purpose === "notification_event" && (entry.eventName === "notification_read" || entry.eventName === "notification_opened"))
@@ -5874,8 +5911,17 @@ export async function GET(request: NextRequest) {
                     adminExcludedFromUserGuestBehavior: true,
                     unknownActorNeverPromotedToAuthenticatedUser: true,
                 },
-                modules: ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
-                    const latestSnapshot = adminMetricSnapshots.find((snapshot) => snapshot.moduleKey === entry.moduleKey) ?? null;
+                // Bolt Optimization: Precompute snapshots map to avoid O(N^2) array finds
+                modules: (() => {
+                    const adminMetricSnapshotsMap = new Map<string, typeof adminMetricSnapshots[number]>();
+                    adminMetricSnapshots.forEach((snapshot) => {
+                        if (!adminMetricSnapshotsMap.has(snapshot.moduleKey)) {
+                            adminMetricSnapshotsMap.set(snapshot.moduleKey, snapshot);
+                        }
+                    });
+
+                    return ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
+                    const latestSnapshot = adminMetricSnapshotsMap.get(entry.moduleKey) ?? null;
                     return {
                         moduleKey: entry.moduleKey,
                         label: entry.label,
@@ -5913,8 +5959,9 @@ export async function GET(request: NextRequest) {
                         legacyIncluded: latestSnapshot?.legacyIncluded ?? false,
                         debugPath: latestSnapshot?.debugPath ?? `/admin/debug?tab=advanced#analytics-snapshots/${entry.moduleKey}`,
                         fakeZeroPreventedPolicy: "Missing source values remain null/unavailable and are detailed in Debug.",
-                    };
-                }),
+                        };
+                    });
+                })(),
                 compactAnalyticsRules: [
                     "No giant empty charts.",
                     "No repeated degraded badge spam.",
