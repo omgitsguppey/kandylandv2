@@ -38,6 +38,9 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildAdminDebugSummaryPayload } from "@/lib/server/admin-debug/summary";
+import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
+import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
+import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
 import {
     ADMIN_DEBUG_DEFAULT_SECTION,
     ADMIN_DEBUG_INITIAL_LOAD_CACHE_TTL_MS,
@@ -4020,6 +4023,26 @@ export async function GET(request: NextRequest) {
             exportStatusDocs: analyticsExportStatusSnapshot.docs,
             commerceSummaryDoc: commerceSummarySnapshot,
         });
+        const telemetryHealth = buildAdminTelemetryHealth({
+            nowMs,
+            routeRuntimeHealth: routeRuntimeHealth as Array<Record<string, unknown>>,
+            runtimeWarnings: runtimeWarnings as Array<Record<string, unknown>>,
+            adminMetricSnapshots: adminMetricSnapshots as Array<Record<string, unknown>>,
+            behavioralSnapshotStatus: behavioralSnapshotStatus as Record<string, unknown> | null,
+            externalAnalyticsState: buildExternalAnalyticsTruthState({
+                ga4ClientCodePresent: true,
+                ga4ClientMeasurementIdPresent: Boolean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID),
+                ga4ServerPropertyIdPresent: Boolean(process.env.GA_PROPERTY_ID),
+                ga4ServerDataApiDependencyPresent: true,
+                posthogClientCodePresent: true,
+                posthogKeyPresent: Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY),
+                explicitRefreshRequired: true,
+            }),
+            bigQueryEvidenceState: buildBigQueryExportEvidenceState({
+                env: process.env as BigQueryExportEnv,
+                firstPartySummariesActive: adminMetricSnapshots.length > 0,
+            }),
+        });
         const creatorOnboardingDiagnostics = buildCreatorOnboardingDiagnostics({
             users: usersSnapshot.docs.map((doc) => ({
                 uid: doc.id,
@@ -5764,6 +5787,7 @@ export async function GET(request: NextRequest) {
             release,
             changeLog,
             opsHealth,
+            telemetryHealth,
             adminUserTruthSnapshot,
             orchestration,
             panelSystemLogs,

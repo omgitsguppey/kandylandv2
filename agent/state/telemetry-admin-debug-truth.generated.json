@@ -1,0 +1,225 @@
+{
+  "generatedAtUtc": "2026-05-19T23:17:49.185Z",
+  "reportKey": "telemetry-admin-debug-truth",
+  "currentHead": "9844e076b0a5cae98555944ec63c0fc2cc67227f",
+  "summary": {
+    "compactHealthModelCreated": true,
+    "laneCount": 11,
+    "liveCount": 0,
+    "degradedCount": 0,
+    "unavailableCount": 1,
+    "configMissingCount": 1,
+    "runtimeUnprovenCount": 4,
+    "rawDetailsBehindDrilldown": true,
+    "defaultBroadReadsBlocked": true,
+    "missingExternalNotZero": true,
+    "p0Count": 0,
+    "p1Count": 0,
+    "p2Count": 0
+  },
+  "lanes": [
+    {
+      "id": "client_tracking",
+      "status": "source_ready",
+      "sourceTruth": "client tracking policy, DeepTracker, telemetry dependency graph",
+      "nextAction": "Use ingest, session, and event-fact lanes to confirm persisted runtime evidence.",
+      "costRisk": "low"
+    },
+    {
+      "id": "ingest",
+      "status": "runtime_unproven",
+      "sourceTruth": "/api/analytics/ingest and /api/analytics/ingest-identified route runtime health",
+      "nextAction": "Open the route runtime drilldown or wait for runtime samples before treating ingest as proven.",
+      "costRisk": "medium"
+    },
+    {
+      "id": "guest_sessions",
+      "status": "source_ready",
+      "sourceTruth": "analytics_guest_batches, analytics_sessions, telemetry dependency graph",
+      "nextAction": "Confirm guest batch freshness through admin snapshots or the explicit analytics drilldown.",
+      "costRisk": "medium"
+    },
+    {
+      "id": "identity_links",
+      "status": "source_ready",
+      "sourceTruth": "analytics_identity_links, identity transfer closure",
+      "nextAction": "Use identity transfer evidence when validating guest-to-user continuity.",
+      "costRisk": "low"
+    },
+    {
+      "id": "user_events",
+      "status": "runtime_unproven",
+      "sourceTruth": "analytics_event_facts and analytics_admin_metric_snapshots",
+      "nextAction": "Refresh admin analytics snapshots before reading user-event health.",
+      "costRisk": "medium"
+    },
+    {
+      "id": "behavior_signals",
+      "status": "source_ready",
+      "sourceTruth": "behavioral_timeline_facts, behavioral tracking semantics, materialization contract",
+      "nextAction": "Keep behavior scoring tied to event facts and avoid synthesizing scores from UI state.",
+      "costRisk": "medium"
+    },
+    {
+      "id": "watch_time",
+      "status": "runtime_unproven",
+      "sourceTruth": "analytics watch sessions and runtime watch-session rollups; page duration is not watch time",
+      "nextAction": "Attach or verify deployed runtime watch-session evidence before treating watch time as proven.",
+      "costRisk": "medium"
+    },
+    {
+      "id": "materializers",
+      "status": "runtime_unproven",
+      "sourceTruth": "admin analytics materializers and analytics_admin_metric_snapshots",
+      "nextAction": "Use snapshot metadata before raw collections.",
+      "costRisk": "medium"
+    },
+    {
+      "id": "bigquery_export",
+      "status": "config_missing",
+      "sourceTruth": "BigQuery export contract and analytics_export_status watermark",
+      "nextAction": "Configure export only in an owner-approved cloud pipeline pass.",
+      "costRisk": "high"
+    },
+    {
+      "id": "ga4_external_evidence",
+      "status": "source_ready",
+      "sourceTruth": "external analytics truth closure and GA4 recovery truth",
+      "nextAction": "Keep external analytics separate from first-party event facts and require explicit refresh for vendor evidence.",
+      "costRisk": "high"
+    },
+    {
+      "id": "admin_snapshots",
+      "status": "unavailable",
+      "sourceTruth": "analytics_admin_metric_snapshots and Admin Debug compact summary",
+      "nextAction": "Run the admin analytics refresh lane before treating this as current.",
+      "costRisk": "low"
+    }
+  ],
+  "dependencyFindings": [
+    {
+      "id": "telemetry-graph-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Telemetry dependency graph is present and separates external evidence."
+    },
+    {
+      "id": "external-truth-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "External analytics truth closure is present."
+    },
+    {
+      "id": "bigquery-truth-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "BigQuery closure prevents missing export evidence from becoming zero traffic."
+    },
+    {
+      "id": "materializer-truth-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Materializer closure classifies persisted telemetry records."
+    }
+  ],
+  "routeFindings": [
+    {
+      "id": "compact-health-model-used-in-summary",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Default Admin Debug summary includes compact telemetry health."
+    },
+    {
+      "id": "full-route-health-model-available",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Full Admin Debug drilldown also carries telemetry health metadata."
+    },
+    {
+      "id": "raw-broad-reads-behind-all",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Broad raw debug collection reads remain behind section=all or forced refresh."
+    }
+  ],
+  "uiFindings": [
+    {
+      "id": "compact-ui-component-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Admin Debug renders a compact telemetry pipeline health section."
+    },
+    {
+      "id": "raw-details-drilldown",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Raw telemetry source/next-action details stay behind disclosure controls."
+    },
+    {
+      "id": "debug-now-mounts-summary",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Right-now debug tab mounts the compact telemetry health summary."
+    }
+  ],
+  "truthFindings": [
+    {
+      "id": "model-validates",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Telemetry health model validates."
+    },
+    {
+      "id": "all-lanes-present",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Every required telemetry pipeline lane is present."
+    },
+    {
+      "id": "ga4-missing-not-zero",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "GA4 unavailable/config missing is not displayed as zero traffic."
+    },
+    {
+      "id": "bigquery-missing-not-exported",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "BigQuery config missing is not displayed as exported."
+    },
+    {
+      "id": "next-action-per-lane",
+      "status": "fixed",
+      "severity": "P0",
+      "detail": "Every degraded/unavailable/source-ready lane has an operator next action."
+    }
+  ],
+  "fixesApplied": [
+    {
+      "id": "health-model-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added compact admin telemetry health model."
+    },
+    {
+      "id": "debug-ui-simplified",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added readable admin/debug telemetry health UI."
+    },
+    {
+      "id": "validator-added",
+      "status": "fixed",
+      "severity": "P1",
+      "detail": "Added telemetry admin debug truth validator."
+    }
+  ],
+  "prCleanupActions": [
+    "No open telemetry-admin/debug truth PRs were present at start."
+  ],
+  "nextFixOrder": [
+    "Keep raw telemetry collections behind explicit Admin Debug drilldowns.",
+    "Use telemetryHealth lanes as the first admin/debug operator view before opening raw event lists.",
+    "Refresh beta exit status separately; current beta status artifact is stale evidence from an earlier code version."
+  ]
+}

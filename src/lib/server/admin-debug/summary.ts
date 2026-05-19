@@ -4,6 +4,9 @@ import { summarizeRouteRuntimeHealth } from "@/lib/route-runtime-health";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { listAdminMetricSnapshotDebugMetadata } from "@/lib/server/admin-analytics-snapshots";
 import { getBehavioralSnapshotStatus } from "@/lib/server/behavioral-intelligence";
+import { buildBigQueryExportEvidenceState, type BigQueryExportEnv } from "@/lib/analytics/bigquery-export-contract";
+import { buildExternalAnalyticsTruthState } from "@/lib/analytics/external-analytics-truth";
+import { buildAdminTelemetryHealth } from "@/lib/server/admin-telemetry-health";
 import { listRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import {
   listNotificationDispatchOutcomes,
@@ -63,6 +66,26 @@ export async function buildAdminDebugSummaryPayload(input: {
     listAdminMetricSnapshotDebugMetadata({ limit: 60 }),
   ]);
   const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
+  const telemetryHealth = buildAdminTelemetryHealth({
+    nowMs,
+    routeRuntimeHealth: routeRuntimeHealth as Array<Record<string, unknown>>,
+    runtimeWarnings: runtimeWarnings as Array<Record<string, unknown>>,
+    adminMetricSnapshots: adminMetricSnapshots as Array<Record<string, unknown>>,
+    behavioralSnapshotStatus: behavioralSnapshotStatus as Record<string, unknown> | null,
+    externalAnalyticsState: buildExternalAnalyticsTruthState({
+      ga4ClientCodePresent: true,
+      ga4ClientMeasurementIdPresent: Boolean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID),
+      ga4ServerPropertyIdPresent: Boolean(process.env.GA_PROPERTY_ID),
+      ga4ServerDataApiDependencyPresent: true,
+      posthogClientCodePresent: true,
+      posthogKeyPresent: Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY),
+      explicitRefreshRequired: true,
+    }),
+    bigQueryEvidenceState: buildBigQueryExportEvidenceState({
+      env: process.env as BigQueryExportEnv,
+      firstPartySummariesActive: adminMetricSnapshots.length > 0,
+    }),
+  });
   const runtimeWarningSummary = runtimeWarnings.reduce<{
     total: number;
     failed: number;
@@ -134,6 +157,7 @@ export async function buildAdminDebugSummaryPayload(input: {
     notificationDispatchOutcomes,
     behavioralSnapshotStatus,
     adminMetricSnapshots,
+    telemetryHealth,
     costControls: {
       guard: ADMIN_DEBUG_INITIAL_LOAD_COST_GUARD,
       defaultSection: ADMIN_DEBUG_DEFAULT_SECTION,

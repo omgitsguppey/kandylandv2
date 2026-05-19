@@ -7,6 +7,7 @@ import { DebugCreatorLane } from "./DebugCreatorLane";
 import { DebugControlTower } from "./DebugControlTower";
 import { DebugNowDiagnostics } from "./DebugNowDiagnostics";
 import { DebugRecoveryEvidenceSummary } from "./DebugRuntimeEvidenceGroups";
+import { DebugTelemetryHealthSummary } from "./DebugTelemetryHealthSummary";
 
 /* ─── Helpers ─── */
 function formatRelative(timestamp?: number) {
@@ -213,6 +214,8 @@ export function DebugTabNow({
                         </div>
                     </Section>
             </div>
+
+            <DebugTelemetryHealthSummary telemetryHealth={data?.telemetryHealth} />
 
             <DebugRecoveryEvidenceSummary recoveryEvidence={data?.adminAnalyticsRecoveryEvidence} />
 

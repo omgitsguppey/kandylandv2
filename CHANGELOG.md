@@ -4,6 +4,12 @@ What's new in KandyDrops Beta (latest first).
 
 Showing the last 25 public updates in pages of 5.
 
+## 1.3.16 - 2026-05-19
+- Bug fixes and general improvements
+- Simplified admin telemetry health reporting.
+- Separated live, degraded, unavailable, and unproven analytics lanes.
+- Kept raw telemetry details behind debug drilldowns.
+
 ## 1.3.15 - 2026-05-19
 - Bug fixes and general improvements
 - Closed Google Analytics evidence ambiguity.

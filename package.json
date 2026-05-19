@@ -185,6 +185,7 @@
         "check:analytics-truth-layer-v2": "tsx scripts/agent/validate-analytics-truth-layer-v2.ts",
         "check:ga4-recovery-truth": "tsx scripts/agent/validate-ga4-recovery-truth.ts",
         "check:external-analytics-truth-closure": "tsx scripts/agent/validate-external-analytics-truth-closure.ts",
+        "check:telemetry-admin-debug-truth": "tsx scripts/agent/validate-telemetry-admin-debug-truth.ts",
         "check:telemetry-dependency-graph": "tsx scripts/agent/validate-telemetry-dependency-graph.ts",
         "check:analytics-ingest-firestore-closure": "tsx scripts/agent/validate-analytics-ingest-firestore-closure.ts",
         "check:identity-transfer-telemetry-closure": "tsx scripts/agent/validate-identity-transfer-telemetry-closure.ts",

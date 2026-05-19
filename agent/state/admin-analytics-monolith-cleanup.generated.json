@@ -1,7 +1,7 @@
 {
-  "generatedAtUtc": "2026-05-19T20:20:48.291Z",
+  "generatedAtUtc": "2026-05-19T23:17:54.361Z",
   "reportKey": "admin-analytics-monolith-cleanup",
-  "currentHead": "0b430deb8821cf627e94f90d26e04e485e88eaa4",
+  "currentHead": "9844e076b0a5cae98555944ec63c0fc2cc67227f",
   "summary": {
     "monolithsFound": 2,
     "monolithsSplit": 2,
@@ -19,7 +19,7 @@
       "id": "admin-debug-route-monolith-split",
       "status": "fixed",
       "severity": "P1",
-      "detail": "Admin Debug route is 6640 lines; default summary aggregation is split into focused server modules while the remaining all-section branch is preserved for behavior stability."
+      "detail": "Admin Debug route is 6664 lines; default summary aggregation is split into focused server modules while the remaining all-section branch is preserved for behavior stability."
     },
     {
       "id": "admin-analytics-ga4-evidence-split",
@@ -80,7 +80,7 @@
       "id": "admin-debug-route-monolith-split",
       "status": "fixed",
       "severity": "P1",
-      "detail": "Admin Debug route is 6640 lines; default summary aggregation is split into focused server modules while the remaining all-section branch is preserved for behavior stability."
+      "detail": "Admin Debug route is 6664 lines; default summary aggregation is split into focused server modules while the remaining all-section branch is preserved for behavior stability."
     },
     {
       "id": "admin-analytics-ga4-evidence-split",

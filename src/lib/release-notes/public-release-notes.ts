@@ -1,13 +1,67 @@
 import type { PublicReleaseNotesDocument } from "./release-version-contract";
 
 export const PUBLIC_RELEASE_NOTES_FALLBACK = {
-  "currentVersion": "1.3.15",
-  "betaReleaseCounter": 315,
+  "currentVersion": "1.3.16",
+  "betaReleaseCounter": 316,
   "channel": "beta",
-  "generatedAt": "2026-05-19T23:00:23.317Z",
-  "generatedAtUtc": "2026-05-19T23:00:23.317Z",
+  "generatedAt": "2026-05-19T23:20:00.000Z",
+  "generatedAtUtc": "2026-05-19T23:20:00.000Z",
   "lastCommitSha": "pending-same-commit",
   "notes": [
+    {
+      "version": "1.3.16",
+      "previousVersion": "1.3.15",
+      "betaReleaseCounter": 316,
+      "previousBetaReleaseCounter": 315,
+      "commitSha": "pending-same-commit",
+      "commitTitle": "fix(admin): simplify telemetry truth",
+      "commitCount": 1,
+      "commitShas": [
+        "pending-same-commit"
+      ],
+      "committedAt": "2026-05-19T23:20:00.000Z",
+      "generatedAt": "2026-05-19T23:20:00.000Z",
+      "committedAtUtc": "2026-05-19T23:20:00.000Z",
+      "generatedAtUtc": "2026-05-19T23:20:00.000Z",
+      "updatedAtUtc": "2026-05-19T23:20:00.000Z",
+      "category": "Improved",
+      "title": "Bug fixes and general improvements",
+      "summary": "Simplified Admin Debug telemetry health reporting while keeping raw telemetry details behind drilldowns.",
+      "userFacingTitle": "Bug fixes and general improvements",
+      "surfaceCategory": "App experience",
+      "bullets": [
+        "Simplified admin telemetry health reporting.",
+        "Separated live, degraded, unavailable, and unproven analytics lanes.",
+        "Kept raw telemetry details behind debug drilldowns."
+      ],
+      "audience": "all",
+      "technicalDetails": [
+        "Grouped 1 accepted admin telemetry truth simplification into this public beta note."
+      ],
+      "affectedSurfaces": [
+        "admin debug",
+        "admin analytics",
+        "telemetry"
+      ],
+      "hiddenFromPublic": false,
+      "changedFiles": [
+        "CHANGELOG.md",
+        "agent/state/telemetry-admin-debug-truth.generated.json",
+        "docs/agent-truth/telemetry-admin-debug-truth.md",
+        "package.json",
+        "public/kandydrops-release-notes.json",
+        "scripts/agent/validate-telemetry-admin-debug-truth.ts",
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/app/admin/debug/components/DebugTelemetryHealthSummary.tsx",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/release-notes/public-release-notes.ts",
+        "src/lib/release-notes/release-version-contract.ts",
+        "src/lib/server/admin-debug/summary.ts",
+        "src/lib/server/admin-telemetry-health.ts",
+        "tests/unit/telemetry-admin-debug-truth.spec.ts"
+      ],
+      "sourceCommit": "pending-same-commit"
+    },
     {
       "version": "1.3.15",
       "previousVersion": "1.3.14",
@@ -1348,56 +1402,6 @@ export const PUBLIC_RELEASE_NOTES_FALLBACK = {
         "tests/unit/admin-analytics-debug-cost-reduction.spec.ts"
       ],
       "sourceCommit": "83d085481f237358a857f16ca55c99b662ecbed5"
-    },
-    {
-      "version": "1.2.91",
-      "previousVersion": "1.2.90",
-      "betaReleaseCounter": 291,
-      "previousBetaReleaseCounter": 290,
-      "commitSha": "03c39a8af422bc530f24536644c61672f8815b24",
-      "commitTitle": "fix(analytics): reduce client telemetry volume",
-      "commitCount": 1,
-      "commitShas": [
-        "03c39a8af422bc530f24536644c61672f8815b24"
-      ],
-      "committedAt": "2026-05-19T14:15:07.248Z",
-      "generatedAt": "2026-05-19T14:15:07.248Z",
-      "committedAtUtc": "2026-05-19T14:15:07.248Z",
-      "generatedAtUtc": "2026-05-19T14:15:07.248Z",
-      "updatedAtUtc": "2026-05-19T14:15:07.248Z",
-      "category": "Performance",
-      "title": "Bug fixes and general improvements",
-      "summary": "Reduced non-priority client analytics volume while preserving priority tracking.",
-      "userFacingTitle": "Bug fixes and general improvements",
-      "surfaceCategory": "App experience",
-      "bullets": [
-        "Reduced non-priority client analytics flush volume.",
-        "Summarized hover, visibility, and scroll telemetry.",
-        "Kept priority conversion and watch-time tracking accurate."
-      ],
-      "audience": "all",
-      "technicalDetails": [
-        "Grouped 1 accepted client telemetry cost patch into this public beta note."
-      ],
-      "affectedSurfaces": [
-        "analytics"
-      ],
-      "hiddenFromPublic": false,
-      "changedFiles": [
-        "CHANGELOG.md",
-        "agent/state/deeptracker-telemetry-volume-reduction.generated.json",
-        "docs/agent-truth/deeptracker-telemetry-volume-reduction.md",
-        "package.json",
-        "public/kandydrops-release-notes.json",
-        "scripts/agent/validate-deeptracker-telemetry-volume-reduction.ts",
-        "src/components/Analytics/DeepTracker.tsx",
-        "src/lib/analytics/analytics-identity-link.ts",
-        "src/lib/analytics/client-telemetry-priority.ts",
-        "src/lib/release-notes/public-release-notes.ts",
-        "src/lib/release-notes/release-version-contract.ts",
-        "tests/unit/deeptracker-telemetry-volume-reduction.spec.ts"
-      ],
-      "sourceCommit": "03c39a8af422bc530f24536644c61672f8815b24"
     }
   ]
 } satisfies PublicReleaseNotesDocument;
